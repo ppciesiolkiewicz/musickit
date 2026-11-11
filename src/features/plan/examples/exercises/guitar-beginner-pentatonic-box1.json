@@ -1,36 +1,170 @@
 {
   "id": "guitar-beginner-pentatonic-box1",
   "kind": "exercise",
-  "areas": ["guitar"],
+  "areas": [
+    "guitar"
+  ],
   "level": "beginner",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["pentatonic-box-1", "pentatonic"],
-  "docs": { "agents": 1, "teaching": 2 },
-  "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone in three keys (a step-choice on the neck, which also shows the whole neck so the shape is seen moving), over a band, then free phrases that end on a root. The why says what the roots are for, so the learner knows where to end a phrase in any scale; the root stays ringed or in play in every view.",
+  "concepts": [
+    "pentatonic-box-1",
+    "pentatonic"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone in three keys (a choice on the neck, which also shows the whole neck so the shape is seen moving), over a band, then free phrases that end on a root. The why says what the roots are for, so the learner knows where to end a phrase in any scale; the root stays ringed or in play in every view.",
   "exercise": {
     "title": "A minor pentatonic, position 1",
-    "focus": "A minor pentatonic · position 1 · roots in A, G and C · 60 then 80 bpm",
     "minutes": 10,
-    "level": "beginner", "area": "guitar", "tags": ["technique", "improv"], "topic": "guitar-scales", "concepts": ["pentatonic-box-1"],
-    "why": "A phrase sounds finished when it ends on the root, so learn the shape and where its roots sit together: then anything you make up has somewhere to land.",
-    "learnBefore": ["/course/5/pentatonic", "/course/1/notes-on-e-and-a"],
-    "sections": [
-      { "type": "heading", "text": "Position 1 at 60", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the metronome. Play position 1 from the lowest {{1}} up to the high E string and back down, one note per beat. Keep going until your fingers find the next note without you looking." },
-      { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "a", "parts": { "click": "on" } } },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
-      { "type": "heading", "text": "Only the roots", "minutes": 2 },
-      { "type": "text", "text": "Now only the {{1}} notes are in play. Hop between them in any order, until you can go to each one without hunting for it.\nThen find them in other keys. Use the Key selector below to change the key.\nWhen you change the key, the position moves along the neck and the roots keep their places inside it." },
-      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "a" }, { "key": "g" }, { "key": "c" }] } },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "parts": { "positions": "always", "neck": "on" }, "enable": ["1"] } },
-      { "type": "heading", "text": "Over a band at 80", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the band: drums and bass at 80. Play the whole position again, starting from a different {{1}} each time." },
-      { "type": "tool", "tool": { "type": "backing-band", "bpm": 80, "key": "a", "parts": { "drums": "on", "bass": "on" } } },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "minor-pentatonic", "key": "a", "boxes": [1], "highlight": ["1"] } },
-      { "type": "heading", "text": "Make it up", "minutes": 2 },
-      { "type": "text", "text": "Keep the band going and make up short phrases from the position, with a gap after each. End each phrase on a {{1}} and hear how it sounds finished. Every note in the position fits this backing, so try anything." }
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "improv"
     ],
-    "exploreMore": ["/course/8/pentatonic-boxes", "/theory/scales/minor-pentatonic/a"]
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-box-1"
+    ],
+    "why": "A phrase sounds finished when it ends on the root, so learn the shape and where its roots sit together: then anything you make up has somewhere to land.",
+    "learnBefore": [
+      "/course/5/pentatonic",
+      "/course/1/notes-on-e-and-a"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Position 1 at 60",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Play position 1 from the lowest {{1}} up to the high E string and back down, one note per beat. Keep going until your fingers find the next note without you looking."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Only the roots",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now only the {{1}} notes are in play. Hop between them in any order, until you can go to each one without hunting for it.\nThen find them in other keys. Use the Key selector below to change the key.\nWhen you change the key, the position moves along the neck and the roots keep their places inside it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "parts": {
+                "positions": "always",
+                "neck": "on"
+              },
+              "enable": [
+                "1"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "g"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Over a band at 80",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass at 80. Play the whole position again, starting from a different {{1}} each time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Make it up",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Keep the band going and make up short phrases from the position, with a gap after each. End each phrase on a {{1}} and hear how it sounds finished. Every note in the position fits this backing, so try anything."
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/8/pentatonic-boxes",
+      "/theory/scales/minor-pentatonic/a"
+    ]
   }
 }

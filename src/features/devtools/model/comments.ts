@@ -5,7 +5,7 @@
  */
 
 import type { CatalogueEntry } from "@/features/plan/model/catalogue";
-import { sectionsOf, type Section } from "@/features/plan/model/tools";
+import { cellsOf, type PlainCell as Section } from "@/features/plan/model/tools";
 import { parsePreview } from "./preview";
 import { hashKey, type CopyNote, type NoteSection } from "./copyNotes";
 
@@ -42,7 +42,7 @@ export function exampleSections(examples: { id: string; json: string }[], entrie
   for (const { id, json } of examples) {
     const p = parsePreview(json, entries);
     if (!p.ok) continue;
-    const put = (address: string, e: Parameters<typeof sectionsOf>[0]) => sectionsOf(e).forEach((s, i) => (out[hashKey(id, address, i)] = s));
+    const put = (address: string, e: { cells: Parameters<typeof cellsOf>[0] }) => cellsOf(e.cells).forEach((s, i) => (out[hashKey(id, address, i)] = s));
     if (p.exercise) put("ex", p.exercise);
     p.config?.days.forEach((d, di) => d.exercises.forEach((e, ei) => put(`d${di}.e${ei}`, e)));
   }

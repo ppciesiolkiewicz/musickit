@@ -1,7 +1,7 @@
 import { GLOSSARY } from "@/features/course/glossary";
 import type { CatalogueEntry } from "./catalogue";
 import { keyName } from "@/features/theory/keySlug";
-import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, linkResources, sectionInterface, sectionsOf, toolInterface } from "./tools";
+import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, cellInterface, linkResources, toolInterface, toolsOf } from "./tools";
 import { LEVELS, labelOf } from "./questions";
 import { DEFAULT_ANSWERS, levelOf } from "../intake/answers";
 import { TOPICS, topicById, topicsFor } from "../intake/topics";
@@ -38,15 +38,18 @@ function studentLines(a: PlanAnswers): string[] {
 export function settingsOf(e: PlanExercise): string {
   const names: string[] = [], keys: number[] = [], bpms: number[] = [], voices: string[] = [];
   const add = <T,>(to: T[], v: T | undefined) => { if (v !== undefined && !to.includes(v)) to.push(v); };
-  for (const s of sectionsOf(e)) {
-    if (s.type !== "tool") continue;
-    const t = s.tool as Record<string, unknown>;
-    // a step-choice is no tool to name: its options are more keys and tempos the step was practised in
-    const options = s.tool.type === "step-choice" ? s.tool.options : [];
-    if (s.tool.type !== "step-choice") add(names, s.tool.type);
-    for (const k of [t.key, ...(Array.isArray(t.keys) ? t.keys : []), ...options.map((o) => o.key)]) if (typeof k === "number") add(keys, k);
-    for (const b of [t.bpm, ...options.map((o) => o.bpm)]) if (typeof b === "number") add(bpms, b);
+  for (const tool of toolsOf(e.cells)) {
+    const t = tool as Record<string, unknown>;
+    add(names, tool.type);
+    for (const k of [t.key, ...(Array.isArray(t.keys) ? t.keys : [])]) if (typeof k === "number") add(keys, k);
+    if (typeof t.bpm === "number") add(bpms, t.bpm);
     if (typeof t.voice === "string") add(voices, t.voice);
+  }
+  // a choice is no tool to name: its options are more keys and tempos the step was practised in
+  const choices = [e.choice, ...e.cells.flatMap((c) => (c.type === "section" ? [c.choice] : []))].flatMap((c) => (c ? ["options" in c ? c.options : [c.open]] : []));
+  for (const o of choices.flat()) {
+    if (typeof o.key === "number") add(keys, o.key);
+    if (typeof o.bpm === "number") add(bpms, o.bpm);
   }
   bpms.sort((a, b) => a - b);
   const tempo = bpms.length ? `${bpms.length > 1 ? `${bpms[0]}-${bpms[bpms.length - 1]}` : bpms[0]} bpm` : "";
@@ -55,7 +58,7 @@ export function settingsOf(e: PlanExercise): string {
 
 /** The clause after an exercise's title: ` (level · focus; settings)`, or "" when it has none of them. */
 const aboutOf = (e: PlanExercise): string => {
-  const about = [[e.level, e.focus].filter(Boolean).join(" · "), settingsOf(e)].filter(Boolean).join("; ");
+  const about = [e.level, settingsOf(e)].filter(Boolean).join("; ");
   return about ? ` (${about})` : "";
 };
 
@@ -187,18 +190,17 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Serve their direction AND what a good teacher sees they need: weave in fundamentals (time feel, fretboard or keyboard knowledge, ear) even if they didn't ask, aimed at what they find hard.",
       "- Each day has a theme and 2 to 5 exercises whose minutes add up to about their daily time. Warm-up first, something musical (a song, a groove, improvising) last.",
       "- Vary the days; return to the week's key skill at least three times so it sticks, each time in a new form. Day 7 is a fun review that shows progress the student can feel: going back to something that was hard on day 1 and noticing it is easier now.",
-      "- Every exercise has a \"focus\": exactly what it works on, as specific as \"A minor pentatonic · positions 1 & 2\" or \"G-C-D changes at 70 bpm\".",
       "- Concrete settings: keys, tempos, chords and strings, set in the tools and named in the text where the student needs them. Write the text as \"How to write an exercise\" below says.",
       "",
     ]),
     part("exercise-format", "Exercise format", "format", [
       "## Exercise format",
-      "An exercise is a linear list of \"sections\", shown top to bottom in the order you write them. A tool shows what the text before it talks about, so put each tool right after that text. A backing-band keeping time goes first. A guitar-play-along or backing-track has no length of its own: it loops until the student stops it, and the exercise's \"minutes\" set the timer. A heading with \"minutes\" starts a timed block that runs to the next such heading; the timer shows the block, and the tools do not switch by themselves, so put each block's tools after its heading. Every exercise is tagged, and the app shows the tags as chips on it: \"level\" (one of " + EXERCISE_LEVELS.join(", ") + ": the student's level in that area), \"area\" (one of " + EXERCISE_AREAS.join(", ") + ": the one area it practises; theory covers ear training) and \"tags\" (1 to 3 of " + Object.keys(EXERCISE_TAGS).join(", ") + ": what kind of practice it is). Notes in text: write each note you name as {{3}} or {{b7}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear, so invite that.",
+      "An exercise is a block: a title, an optional choice, and a list of \"cells\" shown top to bottom in the order you write them. A section is a cell with a heading, minutes and its own cells: write one section per step. A choice at the top of the block or in a section's header sets the key, scale, tempo, position or level of the tools under it; a tool that must keep its own value lists the part in \"pinned\". A tool shows what the text before it talks about, so put each tool right after that text. A backing-band keeping time goes first. A guitar-play-along or backing-track has no length of its own: it loops until the student stops it, and the exercise's \"minutes\" set the timer. A section with \"minutes\" is a timed block; the timer shows the block, and the tools do not switch by themselves, so put each block's tools inside its section. Every exercise is tagged, and the app shows the tags as hashtags after the title: \"level\" (one of " + EXERCISE_LEVELS.join(", ") + ": the student's level in that area), \"area\" (one of " + EXERCISE_AREAS.join(", ") + ": the one area it practises; theory covers ear training) and \"tags\" (1 to 3 of " + Object.keys(EXERCISE_TAGS).join(", ") + ": what kind of practice it is); write them as fields, or as hashtags at the end of the title. Notes in text: write each note you name as {{3}} or {{b7}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear, so invite that.",
       "",
     ]),
-    part("sections", "Section interface", "interface", [
-      "### Sections (each is an object with \"type\" and its inputSchema)",
-      ...sectionInterface(),
+    part("cells", "Cell interface", "interface", [
+      "### Cells (each is an object with \"type\" and its inputSchema; a section's \"cells\" hold any kind but section)",
+      ...cellInterface(),
       "",
     ]),
     part("which-tool", "Which tool", "rules", [
@@ -211,7 +213,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Technique for the hands: finger-pattern (fingers on frets, dexterity), picking-drill (alternate picking, string skipping), legato-trill (hammer-ons and pull-offs).",
       "- Singing: staff with the mic for notes of a scale or chord; melody-singer for a tune; run-singer for a run that climbs a semitone each pass; interval-singer for a named interval from Do; string-singer for the guitar's open strings. Breathing before or apart from singing: breathwork (no mic).",
       "- Ears, listening only: interval-ears to name intervals or chords.",
-      "- The same drill again with one thing changed (faster, another key, another position, the next level): step-choice, right before the tool it moves.",
+      "- The same drill again with one thing changed (faster, another key, another position, the next level): a section with a \"choice\" of options in its header; the tools inside follow the chip the student picks.",
       "",
     ]),
     part("levels", "Levels", "rules", [
@@ -223,11 +225,11 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Ears. New: major or minor, the 5th and the octave. Beginner: the 3rds, and I, IV and V in a progression. Intermediate: every interval of the major scale going up, seventh chords. Advanced: all twelve intervals, going down and sounded together, wider than an octave, a mode told from its one note.",
       "- A tool with a \"level\" prop (interval-singer, interval-ears, note-finder, string-singer, breathwork, finger-pattern, picking-drill, legato-trill) takes the level as one word and sets itself; the prop says what each level is. Give it the exercise's level, and write beside it only what this exercise needs different (a prop you write wins over the level). melody-singer and run-singer take a \"pick\" with a difficulty instead: easy for new, medium for beginner, hard for intermediate, expert for advanced. The tunes are all in the major scale, so for an advanced singer take expert tunes from the widest leap stages (sevenths, octave, tenths) with \"chords\": false, and put the hard leaps in an interval-singer beside them.",
       "- A tool with no \"level\" gets harder through its own props: more positions and keys on a neck, fewer notes ringed, a faster \"bpm\", a pattern with misses on a strum-along, parts taken out of a backing.",
-      "- What the student chooses, they choose with a step-choice, never from a list on the tool: the tools show what the exercise sets and nothing to pick from. To let the student step up inside an exercise, put a step-choice with \"level\" options right before the tool, easiest first, option 1 the level the tool is written at: [{\"level\": \"intermediate\"}, {\"level\": \"advanced\"}]. Its chips are stages, so the text calls it the Stage selector. Offer the student's level and the one after it (the one before it and their own after a week rated 1-2), not all four. Leave interval-singer's \"picker\" out unless the exercise is about choosing keys.",
+      "- What the student chooses, they choose with a choice on the section, never from a list on the tool: the tools show what the exercise sets and nothing to pick from. To let the student step up inside an exercise, give the section a choice with \"level\" options, easiest first, option 1 the level the tool is written at: \"choice\": { \"options\": [{\"level\": \"intermediate\"}, {\"level\": \"advanced\"}] }. Its chips are stages, so the text calls it the Stage selector. Offer the student's level and the one after it (the one before it and their own after a week rated 1-2), not all four. Leave interval-singer's \"picker\" out unless the exercise is about choosing keys.",
       "",
     ]),
     part("tools", "Tool interface", "interface", [
-      "### Tools (what a \"tool\" section may hold: {\"type\": <tool name>, ...props}; the student gets no settings to change, apart from a step-choice's chips, so set everything the exercise needs; an exercise has at most 6 tools, not counting a step-choice, so split into two exercises rather than exceed 6)",
+      "### Tools (what a \"tool\" cell may hold: {\"type\": <tool name>, ...props}; the student gets no settings to change, apart from a choice's chips, so set everything the exercise needs; an exercise has at most 6 tools, so split into two exercises rather than exceed 6)",
       ...toolInterface(),
       "The tools must agree with the text: every note the steps ask them to play is in the view shown (the scale-neck or its \"add\"), every chord named is in a chord-shapes, guitar-play-along, strum-along or backing-track tool, the key matches. Notes outside the scale (a chromatic passing note, the major 3rd over a dominant 7 in a minor blues, a borrowed note): say so plainly in the text, naming the note, what it is and why it works (\"C♯, not in A minor blues: the 3rd of A7, so slide into it over the A7\"), and put it in scale-neck's \"add\" (added notes are lit by themselves; don't highlight them again by degree). If the steps first play the plain scale and then extend it, give two scale-neck tools in that order.",
       "",
@@ -241,7 +243,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     part("rules", "Rules for good exercises", "rules", [
       "## Rules for good exercises",
       "- One exercise, one skill. Its \"minutes\" are the truth: the timer runs exactly that long. Give each exercise the minutes its work needs and no more; never pad a short drill.",
-      "- Variety inside an exercise: an exercise over 5 minutes is 2 or more blocks of 2 to 5 minutes each, and consecutive blocks on one idea change something real (tempo, key, position, direction, which note is lit, hearing it vs from memory). Never one tool for the whole of a long exercise. The block minutes add up to the exercise minutes; a heading without \"minutes\" is a sub-heading inside a block. Example: \"A minor pentatonic, 12 min\" = position 1 at 60 bpm (3) → crossing from position 1 to 2 (3) → the same in C (3) → 3 minutes improvising on just those notes.",
+      "- Variety inside an exercise: an exercise over 5 minutes is 2 or more blocks of 2 to 5 minutes each, and consecutive blocks on one idea change something real (tempo, key, position, direction, which note is lit, hearing it vs from memory). Never one tool for the whole of a long exercise. The sections' minutes add up to the exercise minutes; a section without \"minutes\" is a plain step inside the running block. Example: \"A minor pentatonic, 12 min\" = position 1 at 60 bpm (3) → crossing from position 1 to 2 (3) → the same in C (3) → 3 minutes improvising on just those notes.",
       "- Singing or playing: an exercise is one or the other, never both; no step asks the student to sing and play. A drill that mixes them is split into two exercises (one plays the chord changes, another sings the 3rd over a backing-track). A week may hold both kinds; tag \"sing\" or the instrument.",
       "  - Singing is a mic tool (staff with live pitch, melody-singer, run-singer, string-singer, interval-singer) or text that asks to sing. Playing is text that asks to play their instrument.",
       "  - Allowed in either: backing-band, a backing-track the student plays, sings or listens over, staff without mic, interval-ears, note-finder; saying note names aloud while playing is fine. A listening-only ear exercise is fine.",
@@ -303,9 +305,9 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- A run-singer step states the run's range (\"from La below Do up to the high Do\") and that each pass starts a semitone higher.",
       "- Guitar scale shapes are positions (\"position 1\", \"the position with the root on the A string\"), never boxes or patterns, in titles, headings and text alike; scale-neck's prop is still called \"boxes\".",
       "- Say \"staff\" only for the staff tool (the five lines of music, where the singer's pitch shows as a line), never for a guitar neck, a chord box or a tab, and never \"music sheet\" or \"stave\". Do not explain what it is, except for a new or beginner student, the first time (\"the staff, the five lines of music, where your pitch shows as a line\").",
-      "- A melody or pattern the student sings or plays (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line, on a line of its own, that names what stays the same in this drill: \"When you change the key, the notes change but the drop is still an octave.\" Never the same stock line on every exercise. When nothing else changes, put a step-choice (\"options\": 2-4, each a \"key\", the first the one the block's tools are written in) right before the tool it moves: it draws a selector, and every tool in the block moves to the key picked there. When the new key comes with a new task, write a later block or another tool.",
-      "- The selector a step-choice draws is named by its label: \"the Key selector\", \"the Tempo selector\", \"the Position selector\", \"the Stage selector\", \"the Variant selector\". Invite the student to try, and never say which chip to tap or list the options (wrong: \"Tap G in the Key row above the neck, then tap C.\"). Write it in the text above the selector, in three lines: the drill; then the reason to move on as a feel, the invitation, and the selector in its own sentence with what Play starts again (\"Once you can hum it before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\"); then what changes and what stays. No text about the selector comes after the tools.",
-      "- A step-choice also takes a drill up in stages or across variants. \"label\": \"stage\" when each option is harder than the last, most often a faster tempo, or the next level of a tool that has a \"level\" (then say what the next stage adds, \"the next stage asks the leaps down as well\", not its level's name): the student gets one stage comfortable before the next, so say what comfortable is and where to go then (\"When every note lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\"), and what to do when a stage is too fast. \"label\": \"variant\" when the options are equals to compare, such as one pattern in two keys or two positions: send the student to each and say what to listen or look for between them (\"Then try the other variant. Use the Variant selector below to change it.\", and on a new line \"When you change the variant, your hand stays in the same frets and the ringed notes are in new places.\"). In a block with a step-choice the text names no tempo, key or position as the only one. When the change comes with a new task or new words, write a later block instead.",
+      "- A melody or pattern the student sings or plays (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, with one plain line, on a line of its own, that names what stays the same in this drill: \"When you change the key, the notes change but the drop is still an octave.\" Never the same stock line on every exercise. When nothing else changes, give the section a choice (\"options\": 2-4, each a \"key\", the first the one the section's tools are written in): it draws a selector in the section's header, and every tool in the section moves to the key picked there. When the new key comes with a new task, write a later section or another tool.",
+      "- The selector a choice draws is named by its label: \"the Key selector\", \"the Tempo selector\", \"the Position selector\", \"the Stage selector\", \"the Variant selector\". Invite the student to try, and never say which chip to tap or list the options (wrong: \"Tap G in the Key row above the neck, then tap C.\"). Write it in the text above the selector, in three lines: the drill; then the reason to move on as a feel, the invitation, and the selector in its own sentence with what Play starts again (\"Once you can hum it before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\"); then what changes and what stays. No text about the selector comes after the tools.",
+      "- A choice also takes a drill up in stages or across variants. \"label\": \"stage\" when each option is harder than the last, most often a faster tempo, or the next level of a tool that has a \"level\" (then say what the next stage adds, \"the next stage asks the leaps down as well\", not its level's name): the student gets one stage comfortable before the next, so say what comfortable is and where to go then (\"When every note lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\"), and what to do when a stage is too fast. \"label\": \"variant\" when the options are equals to compare, such as one pattern in two keys or two positions: send the student to each and say what to listen or look for between them (\"Then try the other variant. Use the Variant selector below to change it.\", and on a new line \"When you change the variant, your hand stays in the same frets and the ringed notes are in new places.\"). In a section with a choice the text names no tempo, key or position as the only one. When the change comes with a new task or new words, write a later section instead. A choice may also be open, with no options: \"choice\": { \"key\": \"a\", \"scale\": \"minor-pentatonic\" } on the block sets every tool's key and scale; use it only for a block whose tools all share one key, and write the tools in that key.",
       "",
     ]),
     ...exerciseParts,
@@ -317,9 +319,8 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       `interface PlanConfig { title: string; summary?: string; progress: string; days: PlanDay[] } // exactly ${PLAN_DAYS} days; progress: your notes on the student, see How to plan`,
       "interface PlanDay { theme: string; exercises: Exercise[] } // 2 to 5 exercises",
       "interface Exercise {",
-      "  title: string;",
+      "  title: string; // may end with hashtags that stand for the fields below: \"Barre drill #guitar #beginner #technique\"",
       "  minutes: number;",
-      "  focus: string;",
       "  why?: string;",
       "  level: " + EXERCISE_LEVELS.map((l) => `"${l}"`).join(" | ") + ";",
       "  area: " + EXERCISE_AREAS.map((a) => `"${a}"`).join(" | ") + ";",
@@ -327,7 +328,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "  topic: string; // the one topic it practises, from the list below: a topic of its area",
       "  concepts?: string[]; // up to 4 of that topic's concepts, from the list below",
       "  learnBefore: string[]; // at least one, see Links",
-      "  sections: Section[]; // see Sections",
+      "  choice?: Choice; // see Cells: a key, scale, tempo, position or level the whole exercise follows\n  cells: Cell[]; // see Cells",
       "  exploreMore?: string[]; // see Links",
       "}",
       "```",
@@ -338,7 +339,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       `- Exactly ${PLAN_DAYS} days, each with 2 to 5 exercises, and the "progress" summary is there.`,
       "- Every exercise has a level, an area, 1 to 3 tags and a topic of its area.",
       "- Every link comes from the Links list, and every exercise has at least one \"learnBefore\".",
-      "- Block minutes add up to the exercise's minutes, and an exercise over 5 minutes has 2 or more blocks.",
+      "- Section minutes add up to the exercise's minutes, and an exercise over 5 minutes has 2 or more sections with minutes.",
       "- No exercise both sings and plays.",
       "- Every tempo the text names has a tool that sounds the beat at that tempo.",
       "- No exercise has more than 6 tools.",

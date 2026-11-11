@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import { View as ArpeggioNeck } from "@/features/exercises/basics/arpeggio-neck";
 import { View as BackingBand } from "@/features/exercises/basics/backing-band";
 import { View as ChordShapes } from "@/features/exercises/basics/chord-shapes";
-import { View as StepChoice } from "@/features/exercises/basics/step-choice";
 import { View as IntervalSinger } from "@/features/exercises/basics/interval-singer";
 import { View as IntervalEars } from "@/features/exercises/basics/interval-ears";
 import { View as MelodySinger } from "@/features/exercises/basics/melody-singer";
@@ -35,23 +34,20 @@ const BackingTrack = dynamic(() => import("@/features/exercises/basics/backing-t
  * voice type: the singer tools use it when the AI set none. `input` is a host's audio input (the studio's): the staff listens to it
  * instead of opening a microphone of its own. Also the /dev/stories canvas.
  * In development the tool registers itself, and what is drawn inside it its levels and hints, for /dev/onboarding
- * (which reads its tour from `TOOL_TOURS`). `choicePick` is the step's picked option (an index), for a step-choice inside an exercise.
+ * (which reads its tour from `TOOL_TOURS`).
  */
-export interface ChoicePick { value: number; onChange: (index: number) => void }
 
-export function Tool({ tool, voice, input, choicePick }: { tool: PlanTool; voice?: Voice; input?: ExternalInput; choicePick?: ChoicePick }) {
+export function Tool({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input?: ExternalInput }) {
   useCoverage({}, { kind: "tool", id: tool.type });
   return (
     <CoverageTool type={tool.type}>
-      <ToolView tool={tool} voice={voice} input={input} choicePick={choicePick} />
+      <ToolView tool={tool} voice={voice} input={input} />
     </CoverageTool>
   );
 }
 
-function ToolView({ tool, voice, input, choicePick }: { tool: PlanTool; voice?: Voice; input?: ExternalInput; choicePick?: ChoicePick }) {
+function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input?: ExternalInput }) {
   switch (tool.type) {
-    case "step-choice":
-      return <StepChoice options={tool.options} label={tool.label} value={choicePick?.value} onChange={choicePick?.onChange} />;
     case "scale-neck":
       return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} parts={tool.parts} neck={tool.neck} positions={tool.positions} placement={tool.placement} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
     case "position-neck":

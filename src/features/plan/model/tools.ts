@@ -23,8 +23,8 @@ import { parsePlacement, type Placement } from "@/features/exercises/cues/placem
 import type { CatalogueEntry } from "./catalogue";
 import type { Area } from "./concepts";
 import type { Level } from "./types";
-import { migrateTool, toolFromLink } from "./migrate";
 import { notePc } from "./noteText";
+import { canTranspose } from "./transpose";
 
 /**
  * The one file that says what an exercise is made of. Think of it as an MCP server for the plan: every block and every
@@ -52,11 +52,25 @@ export type NeckPart = "positions" | "neck";
 export const NECK_PARTS: NeckPart[] = ["positions", "neck"];
 export type NeckParts = Partial<Record<NeckPart, PartMode>>;
 
-/** How a step-choice names its chips: "Stage 1" (a ladder, each harder than the last) or "Variant 1" (equals to compare); absent: the chips show the one value they set. */
+/** How a choice of options names its chips: "Stage 1" (a ladder, each harder than the last) or "Variant 1" (equals to compare); absent: the chips show the one value they set. */
 export type ChoiceLabel = "stage" | "variant";
 export const CHOICE_LABELS: ChoiceLabel[] = ["stage", "variant"];
-/** What one chip of a step-choice sets on the step's tools: a key (pitch class), a tempo, a position 1-5, a level (an index into `TOOL_LEVELS`). Every option of a chooser holds the same parts. */
-export interface StepOption { key?: number; bpm?: number; position?: number; level?: number }
+/** The parts a choice can set on the tools under it, and a tool can pin. */
+export type PartName = "key" | "scale" | "bpm" | "position" | "level";
+/** The parts in the order a chip lists them. */
+export const PART_NAMES: PartName[] = ["key", "scale", "bpm", "position", "level"];
+/** What one chip (or an open choice) sets on the tools under it: a key (pitch class), a scale slug, a tempo, a position 1-7, a level (an index into `TOOL_LEVELS`). Every option of a choice holds the same parts. */
+export interface ChoiceOption { key?: number; scale?: string; bpm?: number; position?: number; level?: number }
+/** until choice.ts replaces stepChoice.ts */
+export type StepOption = ChoiceOption;
+/**
+ * A choice, on a block or in a section's header: `options` are 2-4 chips the student picks from (the tools are written in
+ * option 1); `open` is one value of each part it holds, any value, drawn as a picker (the note's key bar). A tool under
+ * it follows every part it can, unless the part is in its `pinned`.
+ */
+export type Choice = { label?: ChoiceLabel; options: ChoiceOption[] } | { open: ChoiceOption };
+/** On any tool: the parts that keep the tool's own value under a choice. */
+export type Pinned = { pinned?: PartName[] };
 
 type View = "tab" | "notes" | "neck";
 type Under = "chords" | "drone" | "none";
@@ -66,7 +80,8 @@ type Under = "chords" | "drone" | "none";
  * classes, degrees as semitones above the root (major-relative, not scale-aware) except where the view reads the
  * degree strings itself (`arpeggio-neck` `part`, `guitar-play-along` `enable` and `highlight`). A guitar-play-along keeps its checked shape, never events.
  */
-export type PlanTool =
+export type PlanTool = PlanToolProps & Pinned;
+type PlanToolProps =
   | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
   | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
@@ -82,7 +97,6 @@ export type PlanTool =
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
-  | { type: "step-choice"; /** how the chips are named; absent: by the one value they set */ label?: ChoiceLabel; /** 2-4 options, the first the one the step's tools are written in (stepChoice.ts) */ options: StepOption[] }
   | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; level?: ToolLevel; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
@@ -358,7 +372,6 @@ const voiceOrTenor = (d: Diag, v: unknown): Voice => {
 };
 
 const PARSERS: { [N in ToolName]: ToolSpec } = {
-  "step-choice": { parse: stepChoiceTool },
   "scale-neck": { parse: scaleNeck },
   "position-neck": { parse: positionNeck },
   "chord-shapes": {
@@ -612,7 +625,7 @@ export interface ToolParse { tool: PlanTool | null; dropped?: string; notes: str
  */
 export function parseToolDiag(raw: unknown, opts: { stored?: boolean } = {}): ToolParse {
   if (!raw || typeof raw !== "object") return { tool: null, dropped: "a tool that isn't an object", notes: [] };
-  const t = { ...migrateTool(raw as Record<string, unknown>) };
+  const t = { ...(raw as Record<string, unknown>) };
   const numbers: string[] = [];
   if (!opts.stored)
     for (const k of DEGREE_LISTS)
@@ -624,9 +637,31 @@ export function parseToolDiag(raw: unknown, opts: { stored?: boolean } = {}): To
   const spec = typeof t.type === "string" && Object.hasOwn(PARSERS, t.type) ? PARSERS[t.type as ToolName] : null;
   if (!spec) return { tool: null, dropped: t.type == null ? "a tool with no type" : `a tool of unknown type ${JSON.stringify(t.type)?.slice(0, 40)}`, notes: [] };
   const d: Diag = { notes: [...numbers], ...(opts.stored ? { stored: true } : {}) };
-  const tool = spec.parse(t, d);
+  const parsed = spec.parse(t, d);
+  const tool = parsed && pinnedOn(parsed, t.pinned, d);
   const notes = d.notes.map((n) => `${t.type} ${n}`);
   return tool ? { tool, notes } : { tool, dropped: `${/^[aeiou]/.test(t.type as string) ? "an" : "a"} ${t.type} (${d.why ?? "it can't be shown"})`, notes };
+}
+
+/** Whether a choice's part can move this tool: it has a key to transpose, a scale, a tempo, one position, or a level. */
+export function canFollowPart(tool: PlanTool, part: PartName): boolean {
+  switch (part) {
+    case "key": return canTranspose(tool);
+    case "scale": return "scale" in tool && typeof tool.scale === "string";
+    case "bpm": return tool.type === "staff" ? tool.click === true : ["backing-band", "backing-track", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill"].includes(tool.type);
+    case "position": return tool.type === "scale-neck" || (tool.type === "position-neck" && !tool.cross);
+    case "level": return hasLevel(tool);
+  }
+}
+
+/** The tool with its `pinned` parts: the ones it can follow, in `PART_NAMES` order; the rest are noted and left out. None: no `pinned` key at all. */
+function pinnedOn(tool: PlanTool, raw: unknown, d: Diag): PlanTool {
+  if (!Array.isArray(raw)) return tool;
+  const asked = [...new Set(raw.map(String))];
+  const kept = PART_NAMES.filter((p) => asked.includes(p) && canFollowPart(tool, p));
+  const lost = asked.filter((p) => !kept.includes(p as PartName));
+  if (lost.length && !d.stored) d.notes.push(`"pinned" had parts it cannot follow (${tool.type}: ${lost.join(", ")}); left them out.`);
+  return kept.length ? { ...tool, pinned: kept } : tool;
 }
 
 /**
@@ -636,25 +671,41 @@ export function parseToolDiag(raw: unknown, opts: { stored?: boolean } = {}): To
  */
 export const parseTool = (raw: unknown, opts: { stored?: boolean } = {}): PlanTool | null => parseToolDiag(raw, opts).tool;
 
-/* ---------------------------------------------------------------- the sections */
+/* ---------------------------------------------------------------- the cells */
 
-export type Section =
-  | { type: "heading"; text: string; minutes?: number }
+/** A cell of a block: a paragraph, numbered steps, a notice, a tool set up, or a section framing cells of its own (one level: a section holds no section). */
+export type Cell =
   | { type: "text"; text: string }
   | { type: "list"; items: string[] }
-  | { type: "tool"; tool: PlanTool };
+  | { type: "notice"; notice: "headphones" }
+  | { type: "tool"; tool: PlanTool }
+  | SectionCell;
+/** A step of an exercise: a heading, minutes when it is a timed block, a choice that sets its tools, its cells. */
+export interface SectionCell { type: "section"; heading: string; minutes?: number; choice?: Choice; cells: Exclude<Cell, SectionCell>[] }
+
+/** A cell that is not a section: what a section holds. */
+export type PlainCell = Exclude<Cell, SectionCell>;
 
 const str = (v: unknown, max: number): string => (typeof v === "string" ? v.trim().slice(0, max) : "");
 
-/** The longest a heading, a text and a list item may be, and the most items in a list: cut beyond (`parseSection` says so), and told to the AI by the schemas below. */
+/** The longest a heading, a text and a list item may be, and the most items in a list: cut beyond (`parseCellDiag` says so), and told to the AI by the schemas below. */
 export const MAX_HEADING = 100, MAX_TEXT = 700, MAX_ITEM = 240, MAX_ITEMS = 8;
+/** The most cells a block may hold, sections' cells counted. */
+export const MAX_CELLS = 24;
 const strMax = (maxLength: number) => ({ type: "string", maxLength });
-const SECTIONS: { type: Section["type"]; description: string; properties: Record<string, unknown>; required: string[] }[] = [
-  { type: "heading", description: "A short title inside the exercise (\"Warm-up\", \"Now with the 7th\").", properties: { text: strMax(MAX_HEADING), minutes: { type: "integer", minimum: 1, maximum: 60, description: "starts a timed block of this many minutes" } }, required: ["text"] },
+const NOTICES = ["headphones"] as const;
+const CELLS = (): { type: Cell["type"]; description: string; properties: Record<string, unknown>; required: string[] }[] => [
   { type: "text", description: "A paragraph of plain instructions.", properties: { text: strMax(MAX_TEXT) }, required: ["text"] },
   { type: "list", description: "Numbered steps the student follows.", properties: { items: { type: "array", items: strMax(MAX_ITEM), minItems: 1, maxItems: MAX_ITEMS } }, required: ["items"] },
+  { type: "notice", description: "A fixed notice: \"headphones\" asks the student to use headphones, for a block that listens with the microphone while it plays.", properties: { notice: { type: "string", enum: [...NOTICES] } }, required: ["notice"] },
   { type: "tool", description: "One of the tools below, shown here, in order, already set up. A tool shows what the text just before it talks about.", properties: { tool: { type: "object", description: "{\"type\": <tool name>, …input}" } }, required: ["tool"] },
+  { type: "section", description: "One step of the exercise: a heading, its minutes when it is a timed block, a choice that sets its tools, and its own cells (any kind but section).", properties: { heading: strMax(MAX_HEADING), minutes: { type: "integer", minimum: 1, maximum: 60, description: "a timed block of this many minutes" }, choice: choiceSchema(), cells: { type: "array", items: { type: "object", description: "a text, list, notice or tool cell" }, minItems: 1 } }, required: ["heading", "cells"] },
 ];
+
+/** Every tool cell of a block, sections' cells inline, in order. */
+export const toolsOf = (cells: Cell[]): PlanTool[] => cellsOf(cells).flatMap((c) => (c.type === "tool" ? [c.tool] : []));
+/** The block's cells flattened: a section's cells stand where the section was, so no section cell remains. */
+export const cellsOf = (cells: Cell[]): PlainCell[] => cells.flatMap((c) => (c.type === "section" ? c.cells : [c]));
 
 /** Exercise tags the AI may set; the page shows them as chips. "multi-octave" is also added by a wide ears tool. */
 export const EXERCISE_TAGS: Record<string, string> = {
@@ -678,9 +729,9 @@ export function askedTags(raw: unknown): { known: string[]; unknown: string[] } 
 }
 
 /** The tags an exercise gets: the first 3 of what the AI set that we know, plus the ones its tools imply (added after the cut, so an implied tag is never the one dropped). */
-export function exerciseTags(raw: unknown, sections: Section[]): string[] {
+export function exerciseTags(raw: unknown, cells: Cell[]): string[] {
   const tags = new Set(askedTags(raw).known.slice(0, MAX_TAGS));
-  for (const s of sections) if (s.type === "tool" && s.tool.type === "interval-ears" && s.tool.wide) tags.add("multi-octave");
+  for (const t of toolsOf(cells)) if (t.type === "interval-ears" && t.wide) tags.add("multi-octave");
   return [...tags];
 }
 
@@ -700,8 +751,8 @@ export function exerciseLevelArea(e: { level?: unknown; area?: unknown }): { lev
  * guitar-play-along with chords): open voicing → next to the open chords; barre → near the first chord's root on the low E string. No chord
  * tool: the placement goes.
  */
-export function resolveChordPlacement(sections: Section[]): Section[] {
-  const chordTool = sections.flatMap((s) => (s.type === "tool" ? [s.tool] : [])).map((t) => {
+export function resolveChordPlacement<T extends Cell>(cells: T[]): T[] {
+  const chordTool = toolsOf(cells).map((t) => {
     if (t.type === "chord-shapes") return { chords: t.chords, voicing: t.voicing };
     if (t.type === "strum-along") return { chords: t.chords, voicing: undefined };
     if (t.type !== "guitar-play-along") return null;
@@ -712,26 +763,42 @@ export function resolveChordPlacement(sections: Section[]): Section[] {
   const resolved: Placement | null = !chordTool ? null
     : chordTool.voicing === "barre" ? { by: "fret", fret: (parseChordQuery(chordTool.chords[0])!.rootPc - 4 + 12) % 12 }
     : { by: "open" };
-  return sections.map((s) => {
+  const place = <C extends Cell>(s: C): C => {
+    if (s.type === "section") return { ...s, cells: s.cells.map(place) };
     if (s.type !== "tool" || (s.tool.type !== "scale-neck" && s.tool.type !== "arpeggio-neck" && s.tool.type !== "position-neck") || s.tool.placement?.by !== "chords") return s;
     const tool = { ...s.tool };
     if (resolved) tool.placement = resolved;
     else delete tool.placement;
-    return { type: "tool", tool };
-  });
+    return { type: "tool", tool } as C;
+  };
+  return cells.map(place);
 }
 
-/** One option of a step-choice: the parts it can read (a key, a tempo clamped to 30-240, a position 1-5); null for a part it holds but can't read. */
-function optionOf(v: unknown, d: Diag): StepOption | null {
+/* ---------------------------------------------------------------- the choice */
+
+/** The most positions a choice may name (the 3-notes-per-string positions go to 7). */
+const MAX_POSITION = 7;
+const PARTS_WORDS = PART_NAMES.join(", ");
+
+/** One option of a choice: the parts it can read (a key, a scale slug, a tempo clamped to 30-240, a position 1-7, a level); null for a part it holds but can't read. */
+function choiceOption(v: unknown, d: Diag): ChoiceOption | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
   const o = v as Record<string, unknown>;
-  const out: StepOption = {};
-  const unknown = Object.keys(o).filter((k) => !["key", "bpm", "position", "level"].includes(k));
-  if (unknown.length && !d.stored) d.notes.push(`an option had ${unknown.slice(0, 4).map((k) => JSON.stringify(k)).join(", ")}, which it can't set; an option sets key, bpm, position, level. Left it out.`);
+  const out: ChoiceOption = {};
+  const unknown = Object.keys(o).filter((k) => !(PART_NAMES as string[]).includes(k));
+  if (unknown.length && !d.stored) d.notes.push(`an option had ${unknown.slice(0, 4).map((k) => JSON.stringify(k)).join(", ")}, which it can't set; an option sets ${PARTS_WORDS}. Left it out.`);
   if (o.key != null) {
     const key = keyOf(o.key);
     if (key === null) return null;
     out.key = key;
+  }
+  if (o.scale != null) {
+    const scale = typeof o.scale === "string" && (findPentatonic(o.scale) || findModePage(o.scale)) ? o.scale : null;
+    if (scale === null) {
+      if (!d.stored) d.notes.push(`had a scale it does not know (${JSON.stringify(o.scale)?.slice(0, 30)}).`);
+      return null;
+    }
+    out.scale = scale;
   }
   if (o.bpm != null) {
     const n = Number(o.bpm);
@@ -740,7 +807,7 @@ function optionOf(v: unknown, d: Diag): StepOption | null {
     if (out.bpm !== n && !d.stored) defaulted(d, "bpm", o.bpm, "30-240", out.bpm);
   }
   if (o.position != null) {
-    const position = int(o.position, 1, 5);
+    const position = int(o.position, 1, MAX_POSITION);
     if (position === null) return null;
     out.position = position;
   }
@@ -753,74 +820,71 @@ function optionOf(v: unknown, d: Diag): StepOption | null {
   return out;
 }
 
+/** A choice parsed, with why it gave none. */
+export interface ChoiceParse { choice: Choice | null; dropped?: string }
+
 /**
- * A step-choice: 2 to 4 different options that hold the same parts (option 1's), in order; what it leaves out is noted.
- * Without a label the chips show the one value they set, so options with more than one part are named "variant".
+ * A choice from the AI's JSON or a stored block. With `options`: 2 to 4 different options that hold the same parts
+ * (option 1's), in order; what it leaves out is noted; without a label the chips show the one value they set, so options
+ * with more than one part are named "variant". Without `options`: an open choice, the parts themselves, at least one.
+ * `d.notes` are worded as a tool's are ("choice …" is prefixed by the caller).
  */
-function stepChoiceTool(t: Record<string, unknown>, d: Diag): PlanTool | null {
+export function parseChoiceDiag(raw: unknown, d: Diag): ChoiceParse {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return { choice: null, dropped: "a choice that isn't an object" };
+  const t = raw as Record<string, unknown>;
   const note = (n: string) => { if (!d.stored) d.notes.push(n); };
-  const raw = list(t.options);
-  const read = raw.map((o) => optionOf(o, d));
+  if (t.options === undefined) {
+    const open = choiceOption(t.open !== undefined ? t.open : t, d);
+    return open && Object.keys(open).length ? { choice: { open } } : { choice: null, dropped: "a choice with no part it could read" };
+  }
+  const rawOptions = list(t.options);
+  const read = rawOptions.map((o) => choiceOption(o, d));
   const first = read.find((o) => o && Object.keys(o).length);
   const parts = first ? Object.keys(first).sort() : [];
-  const options: StepOption[] = [];
+  const options: ChoiceOption[] = [];
   const left: unknown[] = [];
   let repeats = 0;
   read.forEach((o, i) => {
     const same = o && parts.length > 0 && Object.keys(o).sort().join() === parts.join();
-    if (!same) left.push(raw[i]);
+    if (!same) left.push(rawOptions[i]);
     else if (options.some((x) => JSON.stringify(x) === JSON.stringify({ ...x, ...o }))) repeats++;
     else options.push(o);
   });
   if (repeats) note(`left out ${repeats === 1 ? "an option" : `${repeats} options`} the same as an earlier one; the chips after it are numbered one lower, so check the text's "Stage" or "Variant" numbers.`);
-  if (left.length) note(`left out options it could not use (${left.slice(0, 4).map((o) => JSON.stringify(o)?.slice(0, 40)).join(", ")}): every option needs the same parts (key, bpm, position, level), each readable.`);
-  if (options.length > 4) note("had more than 4 options; a step-choice takes at most 4 options, kept the first 4.");
+  if (left.length) note(`left out options it could not use (${left.slice(0, 4).map((o) => JSON.stringify(o)?.slice(0, 40)).join(", ")}): every option needs the same parts (${PARTS_WORDS}), each readable.`);
+  if (options.length > 4) note("had more than 4 options; a choice takes at most 4 options, kept the first 4.");
   const kept = options.slice(0, 4);
-  if (kept.length < 2) return no(d, "it needs 2 to 4 different options");
+  if (kept.length < 2) return { choice: null, dropped: "a choice that needs 2 to 4 different options" };
   const known = CHOICE_LABELS.includes(t.label as ChoiceLabel) ? (t.label as ChoiceLabel) : null;
   if (t.label != null && !known) note(`had label ${JSON.stringify(t.label)?.slice(0, 20)} (it is "stage" or "variant"); left it out.`);
   // levels are a ladder, so their chips are stages
   const label = known ?? (parts.includes("level") ? "stage" : parts.length > 1 ? "variant" : null);
   if (!known && label && !parts.includes("level")) note('sets more than one part without a label; used "variant" (write "label": "stage" or "variant").');
-  return { type: "step-choice", ...(label ? { label } : {}), options: kept };
+  return { choice: { ...(label ? { label } : {}), options: kept } };
 }
 
-/**
- * Sections written when a heading listed the step's `keys` (before the chooser was a tool): the keys leave the heading
- * and become a step-choice, an option per key, right before the step's first tool (at the step's end when it has none).
- * A step that already has a chooser just loses the heading's keys. Works on raw (pasted) and stored sections alike.
- */
-export function liftHeadingKeys<T>(sections: T[]): T[] {
-  type Raw = { type?: unknown; keys?: unknown; tool?: { type?: unknown } };
-  const at = (i: number) => (sections[i] ?? {}) as Raw;
-  if (!sections.some((_, i) => at(i).type === "heading" && Array.isArray(at(i).keys))) return sections;
-  const out: T[] = [];
-  let pending: unknown[] | null = null;
-  const flush = () => {
-    if (pending) out.push({ type: "tool", tool: { type: "step-choice", options: pending.map((key) => ({ key })) } } as T);
-    pending = null;
+/** The choice's JSON schema for the prompt: the two shapes. */
+export function choiceSchema(): object {
+  const option = {
+    type: "object",
+    properties: {
+      key: { type: "string", description: "a key, \"a\" or \"f-sharp\"" },
+      scale: { type: "string", description: "a scale slug, as scale-neck takes it" },
+      bpm: { type: "integer", minimum: 30, maximum: 240 },
+      position: { type: "integer", minimum: 1, maximum: MAX_POSITION },
+      level: { type: "string", enum: TOOL_LEVELS },
+    },
   };
-  sections.forEach((s, i) => {
-    const r = at(i);
-    if (r.type === "heading") {
-      flush();
-      if (Array.isArray(r.keys)) {
-        const { keys, ...rest } = r;
-        const end = sections.findIndex((_, j) => j > i && at(j).type === "heading");
-        const has = sections.slice(i + 1, end < 0 ? undefined : end).some((x) => (x as Raw)?.type === "tool" && ["step-choice", "key-choice"].includes((x as Raw).tool?.type as string));
-        if (!has) pending = keys as unknown[];
-        out.push(rest as T);
-        return;
-      }
-    } else if (r.type === "tool") flush();
-    out.push(s);
-  });
-  flush();
-  return out;
+  return {
+    oneOf: [
+      { type: "object", description: "2 to 4 chips the student picks from; every option holds the same parts, and the tools under the choice are written in option 1", properties: { label: { type: "string", enum: CHOICE_LABELS, description: "\"stage\" when each option is harder than the last, \"variant\" for equals to compare; absent: the chips show the one value they set" }, options: { type: "array", items: option, minItems: 2, maxItems: 4 } }, required: ["options"] },
+      { ...option, description: "an open choice: the key, scale, tempo, position or level every tool under it follows (a tool lists a part in \"pinned\" to keep its own)" },
+    ],
+  };
 }
 
-/** A section parsed, with what the parse had to say: `dropped` names what was left out and why, `notes` what was cut or changed. */
-export interface SectionParse { section: Section | null; dropped?: string; notes: string[] }
+/** A cell parsed, with what the parse had to say: `dropped` names what was left out and why, `notes` what was cut or changed (a section's notes name the cells inside it). */
+export interface CellParse { cell: Cell | null; dropped?: string; notes: string[] }
 
 /** `str`, noting a cut ("a text was cut at 700 characters.") in `notes`. */
 const strNoted = (v: unknown, max: number, what: string, notes: string[]): string => {
@@ -829,20 +893,21 @@ const strNoted = (v: unknown, max: number, what: string, notes: string[]): strin
   return out;
 };
 
-/** One section from the AI's JSON, checked, with its diagnosis: what was cut, and why a section was left out. */
-export function parseSectionDiag(raw: unknown): SectionParse {
+/**
+ * One cell from the AI's JSON or a stored block, checked, with its diagnosis: what was cut, and why a cell was left out.
+ * `inSection`: the cell sits in a section, so a section is left out ("a section inside a section"). A section's own cells
+ * are parsed the same way; what they drop is noted on the section ("left out a text (it was empty)"), and a section left
+ * with no cell is dropped.
+ */
+export function parseCellDiag(raw: unknown, opts: { inSection?: boolean } = {}): CellParse {
   const s = (raw ?? {}) as Record<string, unknown>;
   const notes: string[] = [];
-  const out = (section: Section): SectionParse => ({ section, notes });
-  const empty = (what: string): SectionParse => ({ section: null, dropped: `${what} (it was empty)`, notes });
+  const out = (cell: Cell): CellParse => ({ cell, notes });
+  const empty = (what: string): CellParse => ({ cell: null, dropped: `${what} (it was empty)`, notes });
   switch (s.type) {
-    case "heading":
     case "text": {
-      const text = strNoted(s.text, s.type === "heading" ? MAX_HEADING : MAX_TEXT, s.type === "heading" ? "a heading" : "a text", notes);
-      if (!text) return empty(`a ${s.type}`);
-      if (s.type === "text") return out({ type: "text", text });
-      const m = Math.round(Number(s.minutes));
-      return out({ type: "heading", text, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}) });
+      const text = strNoted(s.text, MAX_TEXT, "a text", notes);
+      return text ? out({ type: "text", text }) : empty("a text");
     }
     case "list": {
       const asked = list(s.items);
@@ -850,25 +915,50 @@ export function parseSectionDiag(raw: unknown): SectionParse {
       if (items.length > MAX_ITEMS) notes.push(`a list was cut at ${MAX_ITEMS} items.`);
       return items.length ? out({ type: "list", items: items.slice(0, MAX_ITEMS) }) : empty("a list");
     }
+    case "notice": {
+      const notice = NOTICES.find((n) => n === s.notice);
+      return notice ? out({ type: "notice", notice }) : { cell: null, dropped: `a notice of unknown kind ${JSON.stringify(s.notice)?.slice(0, 30)}`, notes };
+    }
     case "tool": {
       const p = parseToolDiag(s.tool);
       notes.push(...p.notes);
-      return p.tool ? out({ type: "tool", tool: p.tool }) : { section: null, dropped: p.dropped, notes };
+      return p.tool ? out({ type: "tool", tool: p.tool }) : { cell: null, dropped: p.dropped, notes };
     }
+    case "section": {
+      if (opts.inSection) return { cell: null, dropped: "a section inside a section", notes };
+      const heading = strNoted(s.heading, MAX_HEADING, "a heading", notes);
+      if (!heading) return { cell: null, dropped: "a section with no heading", notes };
+      const m = Math.round(Number(s.minutes));
+      const d: Diag = { notes: [] };
+      const choice = s.choice === undefined ? null : parseChoiceDiag(s.choice, d);
+      notes.push(...d.notes.map((n) => `the choice of "${heading}" ${n}`));
+      if (choice?.dropped) notes.push(`"${heading}": left out ${choice.dropped}.`);
+      const cells: PlainCell[] = [];
+      for (const c of list(s.cells)) {
+        const p = parseCellDiag(c, { inSection: true });
+        notes.push(...p.notes);
+        if (p.dropped) notes.push(`"${heading}": left out ${p.dropped}.`);
+        if (p.cell && p.cell.type !== "section") cells.push(p.cell);
+      }
+      if (!cells.length) return { cell: null, dropped: `the section "${heading}" (no cell in it could be shown)`, notes };
+      return out({ type: "section", heading, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}), ...(choice?.choice ? { choice: choice.choice } : {}), cells });
+    }
+    case "heading":
+      return { cell: null, dropped: 'a cell of type "heading" (write a section instead)', notes };
   }
-  return { section: null, dropped: s.type == null ? "a section with no type" : `a section of unknown type ${JSON.stringify(s.type)?.slice(0, 40)}`, notes };
+  return { cell: null, dropped: s.type == null ? "a cell with no type" : `a cell of unknown type ${JSON.stringify(s.type)?.slice(0, 40)}`, notes };
 }
 
-/** One section from the AI's JSON, checked; null when empty or not showable. */
-export const parseSection = (raw: unknown): Section | null => parseSectionDiag(raw).section;
+/** One cell from the AI's JSON, checked; null when empty or not showable. */
+export const parseCell = (raw: unknown): Cell | null => parseCellDiag(raw).cell;
 
 /* ---------------------------------------------------------------- what the prompt says */
 
 const schema = (properties: Record<string, unknown>, required: string[] = []) => JSON.stringify({ type: "object", properties, ...(required.length ? { required } : {}) });
 
 /** The blocks an exercise is made of, as the prompt lists them: name, what it is, input schema. */
-export function sectionInterface(): string[] {
-  return SECTIONS.map((s) => `- ${s.type} : ${s.description}\n  inputSchema: ${schema({ type: { const: s.type }, ...s.properties }, ["type", ...s.required])}`);
+export function cellInterface(): string[] {
+  return CELLS().map((s) => `- ${s.type} : ${s.description}\n  inputSchema: ${schema({ type: { const: s.type }, ...s.properties }, ["type", ...s.required])}`);
 }
 
 const pickLine = (what: string, stages: Stage[]) => `${what} is chosen with pick {difficulty?, stage?, index?} (index from 0, wraps; no tune number). ${pickChoices(stages)}`;
@@ -880,7 +970,7 @@ function describe(d: ComponentDoc): string {
   return text;
 }
 const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p.required ? "" : "?"}: ${p.type}${p.description ? ` (${p.description})` : ""}`;
-const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape");
+const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name));
 const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape");
 
 /** The tools, as an MCP server would list them: name, description, props; guitar-play-along's shapes listed under it. */
@@ -906,9 +996,9 @@ const sectionParams = (properties: Record<string, unknown>, required: string[]):
   });
 
 /** What the prompt offers the AI, for the debug view: the same `COMPONENT_DOCS` the prompt renders. */
-export function offeredInterface(entries: CatalogueEntry[]): { sections: OfferedItem[]; tools: OfferedItem[]; shapes: OfferedItem[]; links: string[] } {
+export function offeredInterface(entries: CatalogueEntry[]): { cells: OfferedItem[]; tools: OfferedItem[]; shapes: OfferedItem[]; links: string[] } {
   return {
-    sections: SECTIONS.map((s) => ({ name: s.type, description: s.description, short: `${s.type}: ${s.description}`, params: sectionParams(s.properties, s.required) })),
+    cells: CELLS().map((s) => ({ name: s.type, description: s.description, short: `${s.type}: ${s.description}`, params: sectionParams(s.properties, s.required) })),
     tools: TOOL_DOCS().map(offered),
     shapes: SHAPE_DOCS().map(offered),
     links: linkResources(entries).map((l) => l.replace(/^- /, "")),
@@ -936,46 +1026,3 @@ export function linkResources(entries: CatalogueEntry[]): string[] {
     ...[...stages].map(([n, s]) => `- /course/${n}/{section} : ${s.label}; section ∈ ${s.sections.join(", ")}`),
   ];
 }
-
-/* ---------------------------------------------------------------- plans from before sections */
-
-/**
- * An exercise written before sections (how / steps / tools, each tool with its `step`) as sections: text, then each
- * step followed by its tools. Its `link` becomes a tool when it stands for one; otherwise it is a link (`linkSlots`).
- */
-export function legacySections(e: { how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] {
-  const out: Section[] = [];
-  const linked = toolFromLink(e.link);
-  const tools: StoredTool[] = e.tools ?? (linked ? [linked] : []);
-  const tool = (t: StoredTool): Section[] => {
-    const p = parseTool(t, { stored: true });
-    return p ? [{ type: "tool", tool: p }] : [];
-  };
-  tools.filter((t) => !t.step).forEach((t) => out.push(...tool(t))); // a band keeping time goes first
-  if (e.how) out.push({ type: "text", text: e.how });
-  if (e.steps?.length) {
-    e.steps.forEach((text, i) => {
-      out.push({ type: "text", text: `${i + 1}. ${text}` });
-      tools.filter((t) => t.step === i + 1).forEach((t) => out.push(...tool(t)));
-    });
-  }
-  return out;
-}
-
-/** A tool as a stored plan holds it: today's `PlanTool`, or an older one (`scale`, `comp`, …) that `parseTool` migrates. */
-export type StoredTool = (PlanTool | { type: string; [k: string]: unknown }) & { step?: number };
-
-/**
- * What an exercise shows, in order: its sections, or, for a plan stored before sections, what its old fields stand for.
- * Stored tools are parsed again, so a tool saved under an old name shows as its component; an old `link` section is
- * left out (it is in "Explore more", `linkSlots`).
- */
-export const sectionsOf = (e: { sections?: Section[]; how?: string; steps?: string[]; tools?: StoredTool[]; link?: string }): Section[] =>
-  e.sections
-    ? liftHeadingKeys(e.sections).flatMap((s): Section[] => {
-        if ((s.type as string) === "link") return [];
-        if (s.type !== "tool") return [s];
-        const tool = parseTool(s.tool, { stored: true });
-        return tool ? [{ type: "tool", tool }] : [];
-      })
-    : legacySections(e);

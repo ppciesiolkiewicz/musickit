@@ -5,7 +5,7 @@ import { PLAN_DAYS, type PlanConfig, type PlanExercise } from "@/features/plan/m
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === "object" && !Array.isArray(x);
 
 /**
- * An example's JSON made into something the plan parser takes: an exercise (has "sections") becomes a week of itself, a
+ * An example's JSON made into something the plan parser takes: an exercise (has "cells") becomes a week of itself, a
  * plan shorter than seven days repeats its days in order. A full plan, or anything else, passes through unchanged (so the
  * parser reports what is wrong with it).
  */
@@ -17,7 +17,7 @@ export function previewPlanText(json: string): string {
     return json;
   }
   if (!isObj(raw)) return json;
-  if (Array.isArray(raw.sections)) {
+  if (Array.isArray(raw.cells)) {
     return JSON.stringify({ title: raw.title ?? "Preview", days: Array.from({ length: PLAN_DAYS }, () => ({ theme: "Preview", exercises: [raw] })) });
   }
   const days = raw.days;
@@ -38,11 +38,11 @@ export function planToCopy(json: string, note?: string): string {
   return JSON.stringify({ ...raw, ...(raw.summary || !note ? {} : { summary: note }), days }, null, 2);
 }
 
-/** True for one exercise's JSON (an object with "sections"); false for a plan or text that isn't plain JSON. */
+/** True for one exercise's JSON (an object with "cells"); false for a plan or text that isn't plain JSON. */
 function isExercise(json: string): boolean {
   try {
     const raw: unknown = JSON.parse(json);
-    return isObj(raw) && Array.isArray(raw.sections);
+    return isObj(raw) && Array.isArray(raw.cells);
   } catch {
     return false;
   }

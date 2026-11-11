@@ -2,7 +2,7 @@ import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { keySlug, parseKeySlug } from "@/features/theory/keySlug";
 import { TONICS } from "@/features/theory/theory";
 import { pcName } from "@/lib/practice/noteGame";
-import type { PlanTool, Section } from "./tools";
+import type { PlanTool } from "./tools";
 
 /**
  * Moving a tool to another key, for a step-choice whose options set a `key` (stepChoice.ts): every tool in the step moves
@@ -42,7 +42,7 @@ function transposeShape(v: unknown, by: number): unknown {
 
 /** Whether a tool has a key to move: the ones that don't (a note finder, an ear game, a run over the voice) stay as they are. */
 export function canTranspose(tool: PlanTool): boolean {
-  return !["step-choice", "note-finder", "interval-ears", "run-singer", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill"].includes(tool.type);
+  return !["note-finder", "interval-ears", "run-singer", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill"].includes(tool.type);
 }
 
 /** A tool moved up by `by` semitones (0: the same tool). */
@@ -72,13 +72,4 @@ export function transposeTool(tool: PlanTool, by: number): PlanTool {
   }
 }
 
-/** A step: its heading's index (-1: the intro, before the first heading) and the sections after it, up to the next heading. */
-export interface Step { head: number; from: number; to: number }
 
-/** The steps of an exercise, in order. */
-export function stepsOf(sections: Section[]): Step[] {
-  const heads = sections.flatMap((s, i) => (s.type === "heading" ? [i] : []));
-  const steps: Step[] = heads.map((h, k) => ({ head: h, from: h + 1, to: heads[k + 1] ?? sections.length }));
-  const first = heads[0] ?? sections.length;
-  return first > 0 ? [{ head: -1, from: 0, to: first }, ...steps] : steps;
-}

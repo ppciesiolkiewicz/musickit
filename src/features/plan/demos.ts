@@ -1,4 +1,6 @@
 import { PLAN_EXAMPLES } from "./examples";
+import { catalogue } from "./model/catalogue";
+import { parsePlanConfig } from "./model/config";
 import type { Level, PlanConfig } from "./model/types";
 import type { Area } from "./model/concepts";
 
@@ -15,11 +17,13 @@ export const DEMO_PLANS: Record<string, { example: string; label: string }> = {
   "voice-advanced": { example: "voice-advanced", label: "Voice for an advanced singer" },
 };
 
-/** The demo plan behind a slug, or null when there is none. */
+/** The demo plan behind a slug, parsed as a pasted reply is (keys as pitch classes, tools checked), or null when there is none. */
 export function demoPlan(slug: string): { label: string; config: PlanConfig } | null {
   const demo = Object.hasOwn(DEMO_PLANS, slug) ? DEMO_PLANS[slug] : null;
   const ex = demo && PLAN_EXAMPLES.find((p) => p.id === demo.example);
-  return demo && ex ? { label: demo.label, config: ex.plan as PlanConfig } : null;
+  if (!demo || !ex) return null;
+  const r = parsePlanConfig(JSON.stringify(ex.plan), catalogue());
+  return r.ok ? { label: demo.label, config: r.config } : null;
 }
 
 /** What the /demo index shows of one demo plan: who it is for, its week's title and summary, and each day's theme. */

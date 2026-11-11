@@ -1,30 +1,118 @@
 {
   "id": "voice-new-matching-a-pitch",
   "kind": "exercise",
-  "areas": ["voice"],
+  "areas": [
+    "voice"
+  ],
   "level": "new",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["matching-a-pitch", "do-re-mi-steps", "breath-holding-note"],
-  "docs": { "agents": 1, "teaching": 2 },
+  "concepts": [
+    "matching-a-pitch",
+    "do-re-mi-steps",
+    "breath-holding-note"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 2
+  },
   "note": "A first singing exercise in three 2-minute blocks, each the same job turned a new way (match, step away and come back, hold), with a drone as the reference instead of an instrument. The why gives the learner a way to check themselves by ear (the blend), the text walks the app once (the drone, the mic, the pitch line on the staff), and every note is the low Do on an easy vowel.",
   "exercise": {
     "title": "Find Do and stay on it",
-    "focus": "Matching Do over a drone in C · Do-Re-Do · one long Do over D",
     "minutes": 6,
-    "level": "new", "area": "voice", "tags": ["sing", "ear"], "topic": "voice-pitch", "concepts": ["matching-a-pitch"],
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-pitch",
+    "concepts": [
+      "matching-a-pitch"
+    ],
     "why": "When your note matches the drone, the two blend into one sound, so the drone tells you when you are on the note.",
-    "learnBefore": ["/course/3/matching-a-pitch"],
-    "sections": [
-      { "type": "heading", "text": "Hum the drone note", "minutes": 2 },
-      { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Hum along with the drone until the two sounds blend into one. Then open the hum to \"oo\" on the low {{1}} and watch your line sit on the note." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1"], "others": "hidden", "labels": "solfege", "drone": true } },
-      { "type": "heading", "text": "Step to Re and home", "minutes": 2 },
-      { "type": "text", "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}}, step up to {{2}}, then come back to {{1}}, on the note names. {{2}} doesn't blend with the drone the way {{1}} does, so listen for the blend each time you come home." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "2"], "labels": "solfege", "drone": true } },
-      { "type": "heading", "text": "One long note", "minutes": 2 },
-      { "type": "text", "text": "Press Start exercise below: the drone is on D now. The note changes, the job doesn't: sing the low {{1}} on \"oo\" for one easy breath, and see how level you can keep your line to the end. Then close your eyes, find the blend by ear, and open them to check your line." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "enable": ["1"], "others": "hidden", "labels": "solfege", "drone": true } }
+    "learnBefore": [
+      "/course/3/matching-a-pitch"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hum the drone note",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Hum along with the drone until the two sounds blend into one. Then open the hum to \"oo\" on the low {{1}} and watch your line sit on the note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "enable": [
+                "1"
+              ],
+              "others": "hidden",
+              "labels": "solfege",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Step to Re and home",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}}, step up to {{2}}, then come back to {{1}}, on the note names. {{2}} doesn't blend with the drone the way {{1}} does, so listen for the blend each time you come home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "2"
+              ],
+              "labels": "solfege",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One long note",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone is on D now. The note changes, the job doesn't: sing the low {{1}} on \"oo\" for one easy breath, and see how level you can keep your line to the end. Then close your eyes, find the blend by ear, and open them to check your line."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "enable": [
+                "1"
+              ],
+              "others": "hidden",
+              "labels": "solfege",
+              "drone": true
+            }
+          }
+        ]
+      }
     ]
   }
 }

@@ -1,28 +1,95 @@
 {
   "id": "voice-beginner-in-tune-over-drone",
   "kind": "exercise",
-  "areas": ["voice"],
+  "areas": [
+    "voice"
+  ],
   "level": "beginner",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["in-tune-over-drone", "do-mi-sol-skips"],
-  "docs": { "agents": 1, "teaching": 1 },
+  "concepts": [
+    "in-tune-over-drone",
+    "do-mi-sol-skips"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 1
+  },
   "note": "The why gives the learner the way to check themselves (smooth means in tune, a wobble means off), the bare drill stays at 3 minutes, and the second block turns it into tunes the learner makes up in a new key. Both staffs keep a beginner tenor at A4 or under, sung on \"oo\", and the text says to pick a Do that sits easily instead of the top one.",
   "exercise": {
     "title": "In tune over a drone: find the smooth spot",
-    "focus": "Do and Sol over a D drone · made-up Do Mi Sol tunes over A",
     "minutes": 6,
-    "level": "beginner", "area": "voice", "tags": ["sing", "ear"], "topic": "voice-pitch", "concepts": ["in-tune-over-drone"],
-    "why": "A note in tune with the drone sounds smooth and a note that is off wobbles against it, so the drone tells your ear when you are on the note.",
-    "learnBefore": ["/course/3/home-note"],
-    "sections": [
-      { "type": "heading", "text": "Hear the wobble", "minutes": 3 },
-      { "type": "text", "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Pick a {{1}} that sits easily in your voice and sing it on \"oo\". Slide a little above it and below it, until the wobble stops and the sound goes smooth: that smooth spot is in tune. Then find it on {{5}}." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "d", "voice": "tenor", "notes": ["1", "5"], "labels": "solfege", "drone": true } },
-      { "type": "heading", "text": "Make up a tune", "minutes": 3 },
-      { "type": "text", "text": "Press Start exercise below: the drone is on A now. Make up short tunes from {{1}}, {{3}} and {{5}} on \"oo\", and end each one on {{1}}. The key is new and the smooth spot sounds the same: listen for it on every note you hold." },
-      { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "a", "voice": "tenor", "notes": ["1", "3", "5"], "labels": "solfege", "drone": true } }
+    "level": "beginner",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
     ],
-    "exploreMore": ["/course/3/do-mi-sol"]
+    "topic": "voice-pitch",
+    "concepts": [
+      "in-tune-over-drone"
+    ],
+    "why": "A note in tune with the drone sounds smooth and a note that is off wobbles against it, so the drone tells your ear when you are on the note.",
+    "learnBefore": [
+      "/course/3/home-note"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the wobble",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff as a line. Pick a {{1}} that sits easily in your voice and sing it on \"oo\". Slide a little above it and below it, until the wobble stops and the sound goes smooth: that smooth spot is in tune. Then find it on {{5}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "5"
+              ],
+              "labels": "solfege",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Make up a tune",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone is on A now. Make up short tunes from {{1}}, {{3}} and {{5}} on \"oo\", and end each one on {{1}}. The key is new and the smooth spot sounds the same: listen for it on every note you hold."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "a",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "3",
+                "5"
+              ],
+              "labels": "solfege",
+              "drone": true
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/3/do-mi-sol"
+    ]
   }
 }

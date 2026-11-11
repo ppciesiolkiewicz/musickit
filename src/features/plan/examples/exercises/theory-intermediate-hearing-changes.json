@@ -1,32 +1,142 @@
 {
   "id": "theory-intermediate-hearing-changes",
   "kind": "exercise",
-  "areas": ["theory"],
+  "areas": [
+    "theory"
+  ],
   "level": "intermediate",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["hearing-changes", "chords-in-key"],
-  "docs": { "agents": 1, "teaching": 2 },
+  "concepts": [
+    "hearing-changes",
+    "chords-in-key"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 2
+  },
   "note": "The why names the two sounds to listen for (IV moves away, V pulls back), so the learner can use it on any song. Each block turns the same listening drill a new way: two chords at a time, all three with the answer hidden (and again in D by the Key selector), then chords that stay two bars so counting no longer works. The band is named the same way in every step.",
   "exercise": {
     "title": "Hear the 4 and the 5 coming",
-    "focus": "I IV V by ear · G and D major, then A · guess before you look",
     "minutes": 6,
-    "level": "intermediate", "area": "theory", "tags": ["ear", "theory"], "topic": "theory-ear", "concepts": ["hearing-changes"],
-    "why": "The IV chord moves away from home and the V chord pulls back towards it, so once you know those two sounds you can tell which chord is playing in any song.",
-    "learnBefore": ["/course/5/one-four-five"],
-    "sections": [
-      { "type": "heading", "text": "Away and back", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to start the band: G and C take turns, then G and D. Watch the lit chord box and listen for how C moves away from G and how D pulls back to it. Call out 4 on every C and 5 on every D." },
-      { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "IV", "I", "IV", "I", "V", "I", "V"], "style": "pop", "bpm": 70 } },
-      { "type": "heading", "text": "Guess, then look", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to start the band: all three chords now, in a new order. Look away from the chord boxes and call out 1, 4 or 5 on each change, then look to check.\nWhen you hear it before you think it, guess again in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords change but the pull doesn't." },
-      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "g" }, { "key": "d" }] } },
-      { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "IV", "V", "I", "V", "IV", "I", "V"], "style": "pop", "bpm": 70 } },
-      { "type": "heading", "text": "Chords that stay longer", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to start the band, now in A. Some chords stay for two bars, so you can't count your way to the next change: look away and call out the number only when you hear the chord move. Then put on a song you know and listen for the 4 and the 5." },
-      { "type": "tool", "tool": { "type": "backing-track", "key": "a", "numerals": ["I", "I", "IV", "I", "V", "V", "IV", "I"], "style": "pop", "bpm": 70 } }
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory"
     ],
-    "exploreMore": ["/course/5/hearing-changes"]
+    "topic": "theory-ear",
+    "concepts": [
+      "hearing-changes"
+    ],
+    "why": "The IV chord moves away from home and the V chord pulls back towards it, so once you know those two sounds you can tell which chord is playing in any song.",
+    "learnBefore": [
+      "/course/5/one-four-five"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Away and back",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: G and C take turns, then G and D. Watch the lit chord box and listen for how C moves away from G and how D pulls back to it. Call out 4 on every C and 5 on every D."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "I",
+                "IV",
+                "I",
+                "IV",
+                "I",
+                "V",
+                "I",
+                "V"
+              ],
+              "style": "pop",
+              "bpm": 70
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Guess, then look",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: all three chords now, in a new order. Look away from the chord boxes and call out 1, 4 or 5 on each change, then look to check.\nWhen you hear it before you think it, guess again in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords change but the pull doesn't."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I",
+                "V",
+                "IV",
+                "I",
+                "V"
+              ],
+              "style": "pop",
+              "bpm": 70
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Chords that stay longer",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band, now in A. Some chords stay for two bars, so you can't count your way to the next change: look away and call out the number only when you hear the chord move. Then put on a song you know and listen for the 4 and the 5."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "a",
+              "numerals": [
+                "I",
+                "I",
+                "IV",
+                "I",
+                "V",
+                "V",
+                "IV",
+                "I"
+              ],
+              "style": "pop",
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/5/hearing-changes"
+    ]
   }
 }

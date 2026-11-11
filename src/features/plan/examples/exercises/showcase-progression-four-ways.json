@@ -2,34 +2,189 @@
   "id": "showcase-progression-four-ways",
   "kind": "exercise",
   "showcase": "progression",
-  "areas": ["guitar"],
+  "areas": [
+    "guitar"
+  ],
   "level": "intermediate",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["chords-in-key", "hearing-changes", "chords-pop-rock"],
-  "docs": { "agents": 1, "teaching": 1 },
+  "concepts": [
+    "chords-in-key",
+    "hearing-changes",
+    "chords-pop-rock"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 1
+  },
   "note": "Shows one progression worked several ways: heard as arpeggios with only the ringed roots played, the shapes, strummed with a strum-along that carries the pattern, then improvised over with each chord's 3rd ringed. Same four chords, four different tools and tasks, and no step names a note or a stroke its tool doesn't show.",
   "exercise": {
     "title": "I-V-vi-IV in G, four ways",
-    "focus": "G-D-Em-C · roots by ear · shapes · strumming at 80 · 3rds over each chord",
     "minutes": 12,
-    "level": "intermediate", "area": "guitar", "tags": ["rhythm", "improv"], "topic": "guitar-basic-chords",
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "rhythm",
+      "improv"
+    ],
+    "topic": "guitar-basic-chords",
     "why": "The four chords come round in the same order every time, so each new way of playing them (roots, shapes, strumming, 3rds) trains you to hear where the next change falls.",
-    "learnBefore": ["/course/2/em-and-am", "/course/2/c-d-g"],
-    "sections": [
-      { "type": "heading", "text": "Only the roots", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to hear the progression as arpeggios. Play only the ringed note of each chord, its root, one note per bar. Keep going until your hand moves to the next root before the chord changes." },
-      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "progression", "key": "g", "numerals": ["I", "V", "vi", "IV"], "bars": 4, "backing": ["arp-up", "fingerstyle"] }, "bpm": 70, "view": "neck", "highlight": ["1"] } },
-      { "type": "heading", "text": "The four shapes", "minutes": 3 },
-      { "type": "text", "text": "Press each chord box below to hear it, then fret the four shapes in order at your own pace. Keep going round until each change needs no look at the neck." },
-      { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["G", "D", "Em", "C"] } },
-      { "type": "heading", "text": "Strum it in time", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to strum, one bar each, with its strokes inside. If a change comes late, keep your strumming hand going and catch the next beat 1." },
-      { "type": "tool", "tool": { "type": "strum-along", "chords": ["G", "D", "Em", "C"], "bpm": 80, "pattern": "D . D U . U D U" } },
-      { "type": "heading", "text": "Land on the 3rds", "minutes": 3 },
-      { "type": "text", "text": "Press Play on the backing below, under the first neck, and improvise in G major. Land on each chord's 3rd, ringed on the first neck, when that chord comes round: {{b}} over G, {{f-sharp}} over D, {{g}} over Em, {{e}} over C. Then make it yours: pick one other note of each chord to land on." },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "g", "placement": { "by": "chords" }, "highlight": ["g", "b", "f-sharp", "e"] } },
-      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "g", "chords": [{ "chord": "G", "target": ["3"] }, { "chord": "D", "target": ["3"] }, { "chord": "Em", "target": ["b3"] }, { "chord": "C", "target": ["3"] }] }, "bpm": 80, "view": "neck" } }
+    "learnBefore": [
+      "/course/2/em-and-am",
+      "/course/2/c-d-g"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Only the roots",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the progression as arpeggios. Play only the ringed note of each chord, its root, one note per bar. Keep going until your hand moves to the next root before the chord changes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "progression",
+                "key": "g",
+                "numerals": [
+                  "I",
+                  "V",
+                  "vi",
+                  "IV"
+                ],
+                "bars": 4,
+                "backing": [
+                  "arp-up",
+                  "fingerstyle"
+                ]
+              },
+              "bpm": 70,
+              "view": "neck",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The four shapes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press each chord box below to hear it, then fret the four shapes in order at your own pace. Keep going round until each change needs no look at the neck."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "D",
+                "Em",
+                "C"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Strum it in time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to strum, one bar each, with its strokes inside. If a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "D",
+                "Em",
+                "C"
+              ],
+              "bpm": 80,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Land on the 3rds",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play on the backing below, under the first neck, and improvise in G major. Land on each chord's 3rd, ringed on the first neck, when that chord comes round: {{b}} over G, {{f-sharp}} over D, {{g}} over Em, {{e}} over C. Then make it yours: pick one other note of each chord to land on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "major-ionian",
+              "key": "g",
+              "placement": {
+                "by": "chords"
+              },
+              "highlight": [
+                "g",
+                "b",
+                "f-sharp",
+                "e"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "g",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "target": [
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "target": [
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "Em",
+                    "target": [
+                      "b3"
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "target": [
+                      "3"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      }
     ]
   }
 }

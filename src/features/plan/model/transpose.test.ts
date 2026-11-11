@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { liftHeadingKeys, parseSection, parseTool, parseToolDiag, type PlanTool, type Section } from "./tools";
-import { canTranspose, stepsOf, transposeChord, transposeTool } from "./transpose";
+import { parseTool, type PlanTool } from "./tools";
+import { canTranspose, transposeChord, transposeTool } from "./transpose";
 
 const tool = (raw: Record<string, unknown>): PlanTool => {
   const t = parseTool(raw);
@@ -73,29 +73,4 @@ describe("transposeTool", () => {
   });
 });
 
-describe("the key chips before step-choice", () => {
-  const kc = (keys: unknown[]) => ({ type: "tool", tool: { type: "key-choice", keys } });
-  const sc = (keys: unknown[]) => ({ type: "tool", tool: { type: "step-choice", options: keys.map((key) => ({ key })) } });
-  it("a pasted key-choice is read as a step-choice, an option per key, without a note", () => {
-    assert.deepEqual(parseSection(kc(["d", "a", "c"])), sc([2, 9, 0]));
-    assert.deepEqual(parseToolDiag({ type: "key-choice", keys: ["d", "a"] }), { tool: sc([2, 9]).tool, notes: [] });
-    assert.equal(parseSection(kc(["d", "d", "nope"])), null);
-  });
-  it("a stored key-choice (pitch classes) too", () => {
-    assert.deepEqual(parseToolDiag({ type: "key-choice", keys: [2, 9] }, { stored: true }), { tool: sc([2, 9]).tool, notes: [] });
-  });
-  it("a heading's keys (the older form) become a step-choice before the step's first tool", () => {
-    const text = { type: "text", text: "t" }, staff = { type: "tool", tool: { type: "staff" } };
-    assert.deepEqual(liftHeadingKeys([{ type: "heading", text: "A", minutes: 3, keys: ["d", "a"] }, text, staff, text, { type: "heading", text: "B" }, staff]),
-      [{ type: "heading", text: "A", minutes: 3 }, text, sc(["d", "a"]), staff, text, { type: "heading", text: "B" }, staff]);
-    // no tool in the step: at its end; a step that has a chooser already (in either name) keeps only that one
-    assert.deepEqual(liftHeadingKeys([{ type: "heading", text: "A", keys: [2, 9] }, text, { type: "heading", text: "B", keys: [0, 5] }, kc([0, 7]), staff, { type: "heading", text: "C", keys: [0, 5] }, sc([0, 7])]),
-      [{ type: "heading", text: "A" }, text, sc([2, 9]), { type: "heading", text: "B" }, kc([0, 7]), staff, { type: "heading", text: "C" }, sc([0, 7])]);
-    const plain = [{ type: "heading", text: "A" }, staff];
-    assert.equal(liftHeadingKeys(plain), plain);
-  });
-  it("the steps of an exercise", () => {
-    const h: Section = { type: "heading", text: "H" }, t: Section = { type: "text", text: "t" };
-    assert.deepEqual(stepsOf([t, h, t, t, h]), [{ head: -1, from: 0, to: 1 }, { head: 1, from: 2, to: 4 }, { head: 4, from: 5, to: 5 }]);
-  });
-});
+

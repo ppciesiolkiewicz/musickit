@@ -34,10 +34,6 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "scale-neck", name: "Position 1 and the neck, roots in play", props: { scale: "minor-pentatonic", key: "a", boxes: [1], parts: { positions: "always", neck: "on" }, enable: ["1"] } },
   { tool: "scale-neck", name: "Two positions, the neck behind a chip", props: { scale: "minor-pentatonic", key: "a", boxes: [1, 2], parts: { positions: "on", neck: "off" }, highlight: ["1"] } },
   { tool: "scale-neck", name: "The neck alone", props: { scale: "major-ionian", key: "g", parts: { neck: "always" }, highlight: ["1"] } },
-  { tool: "step-choice", name: "Plain: three keys", props: { options: [{ key: "g" }, { key: "a" }, { key: "c" }] } },
-  { tool: "step-choice", name: "Stages: a tempo going up", props: { label: "stage", options: [{ bpm: 60 }, { bpm: 80 }, { bpm: 100 }] } },
-  { tool: "step-choice", name: "Stages: a level going up", props: { options: [{ level: "intermediate" }, { level: "advanced" }] } },
-  { tool: "step-choice", name: "Variants: a key and a position each", props: { label: "variant", options: [{ key: "g", position: 1 }, { key: "c", position: 4 }] } },
   { tool: "position-neck", name: "Joining boxes: A minor pentatonic 1 & 2", props: { scale: "minor-pentatonic", key: "a", positions: [1, 2], highlight: ["1", "4", "5"] } },
   { tool: "position-neck", name: "Crossing 1 → 2 (G string)", props: { scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2 }, highlight: ["4", "5"] } },
   { tool: "position-neck", name: "Crossing 1 → 2 on the B string", props: { scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2, string: 2 } } },
@@ -77,21 +73,23 @@ const groupId = (tool: string, props: Props): string => {
   return typeof shape === "string" ? `${tool}/${shape}` : tool;
 };
 
-interface RawSection { type?: string; text?: string; tool?: Props }
-interface RawExercise { title?: string; sections?: RawSection[] }
+interface RawCell { type?: string; heading?: string; tool?: Props; cells?: RawCell[] }
+interface RawExercise { title?: string; cells?: RawCell[] }
 
-/** Every tool section of the examples, named by its exercise and the heading above it. */
+/** Every tool cell of the examples, named by its exercise and the section it sits in. */
 function fromExamples(): { group: string; story: Story }[] {
   const out: { group: string; story: Story }[] = [];
   const take = (id: string, ex: RawExercise, prefix = "") => {
-    let heading = "";
-    for (const s of ex.sections ?? []) {
-      if (s.type === "heading") heading = s.text ?? "";
-      if (s.type !== "tool" || !s.tool || typeof s.tool.type !== "string") continue;
-      const { type, ...props } = s.tool;
-      const name = `${prefix}${ex.title ?? id}${heading ? ` · ${heading}` : ""}`;
-      out.push({ group: groupId(type as string, props), story: { name, props, from: id } });
-    }
+    const walk = (cells: RawCell[], heading: string) => {
+      for (const s of cells) {
+        if (s.type === "section") { walk(s.cells ?? [], s.heading ?? ""); continue; }
+        if (s.type !== "tool" || !s.tool || typeof s.tool.type !== "string") continue;
+        const { type, ...props } = s.tool;
+        const name = `${prefix}${ex.title ?? id}${heading ? ` · ${heading}` : ""}`;
+        out.push({ group: groupId(type as string, props), story: { name, props, from: id } });
+      }
+    };
+    walk(ex.cells ?? [], "");
   };
   for (const e of EXERCISE_EXAMPLES) take(e.id, e.exercise as RawExercise);
   for (const p of PLAN_EXAMPLES) {

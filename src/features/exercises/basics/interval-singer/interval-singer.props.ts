@@ -21,6 +21,6 @@ export interface IntervalSingerProps {
   dir?: "up" | "down" | "both";
   /** show the voice as a dot; default true. false is the harder level: sing without seeing the voice */
   dot?: boolean;
-  /** show the Keys switch and the twelve key chips on the tool, so the student picks the keys; default false: the keys are the ones set here, and a step-choice with `key` options is how the student changes key */
+  /** show the Keys switch and the twelve key chips on the tool, so the student picks the keys; default false: the keys are the ones set here, and a choice with `key` options on the section is how the student changes key */
   picker?: boolean;
 }

@@ -4,7 +4,7 @@ import { parsePlanConfig } from "@/features/plan/model/config";
 import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
 import { parsePreview, planToCopy, previewPlanText, whyOf } from "./preview";
 
-const ex = { title: "Play", minutes: 5, sections: [{ type: "text", text: "Play it" }] };
+const ex = { title: "Play", minutes: 5, cells: [{ type: "text", text: "Play it" }] };
 const plan = (n: number) => ({ title: "P", days: Array.from({ length: n }, (_, i) => ({ theme: `d${i}`, exercises: [ex] })) });
 
 test("an exercise becomes a week of itself", () => {

@@ -12,7 +12,6 @@ export interface ProgressEntry {
   day: number;
   exercise: number;
   title: string;
-  focus?: string;
   area?: string;
   level?: string;
   /** the questionnaire topic the exercise practised */
@@ -33,7 +32,6 @@ function cleanEntry(raw: unknown): ProgressEntry | null {
   const concepts = Array.isArray(r.concepts) ? r.concepts.filter(text) : [];
   return {
     id: r.id, planId: r.planId, exerciseId: r.exerciseId, day: r.day, exercise: r.exercise, title: r.title,
-    ...(text(r.focus) ? { focus: r.focus } : {}),
     ...(text(r.area) ? { area: r.area } : {}),
     ...(text(r.level) ? { level: r.level } : {}),
     ...(text(r.topic) ? { topic: r.topic } : {}),

@@ -2,34 +2,158 @@
   "id": "showcase-blocks-do-mi-sol",
   "kind": "exercise",
   "showcase": "blocks",
-  "areas": ["guitar"],
+  "areas": [
+    "guitar"
+  ],
   "level": "beginner",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["major-scale", "guitar-melodies-beginner"],
-  "docs": { "agents": 1, "teaching": 2 },
+  "concepts": [
+    "major-scale",
+    "guitar-melodies-beginner"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 2
+  },
   "note": "Shows blocks with a chart per step: each block adds one note, and its own neck puts exactly the notes named so far in play (enable) and rings the one just added (highlight), ending on a tune that uses only those notes and comes back in G by the Key selector. The neck shows the frets and the note names, so the text names only the degrees.",
   "exercise": {
     "title": "Do, Mi, Sol on the neck, one note at a time",
-    "focus": "C major in open position · Do → Do Mi → Do Mi Sol → a tune, then in G",
     "minutes": 8,
-    "level": "beginner", "area": "guitar", "tags": ["technique", "song"], "topic": "guitar-scales", "concepts": ["guitar-melodies-beginner"],
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies-beginner"
+    ],
     "why": "Do, Mi and Sol are the three notes of the C chord, so adding them one at a time shows how a tune is built from a chord you can already fret.",
-    "learnBefore": ["/course/3/solfege", "/course/4/do-mi-sol-neck"],
-    "sections": [
-      { "type": "heading", "text": "Find Do", "minutes": 2 },
-      { "type": "text", "text": "Only {{1}} is in play on the neck below. Find it on the A string, then on the B string, and hop between the two." },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "enable": ["1"] } },
-      { "type": "heading", "text": "Do and Mi", "minutes": 2 },
-      { "type": "text", "text": "{{3}} joins it, ringed on the neck below. From each {{1}}, find the nearest {{3}} above it. Play the pair, then play it backwards." },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "enable": ["1", "3"], "highlight": ["3"] } },
-      { "type": "heading", "text": "Do, Mi and Sol", "minutes": 2 },
-      { "type": "text", "text": "{{5}} joins them, ringed on the neck below. Play {{1}} {{3}} {{5}} {{3}} {{1}} from the lowest {{1}}, until you can do it without looking at the neck." },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "major-ionian", "key": "c", "placement": { "by": "open" }, "enable": ["1", "3", "5"], "highlight": ["5"] } },
-      { "type": "heading", "text": "A tune from three notes", "minutes": 2 },
-      { "type": "text", "text": "Press Play below to hear a short tune made of only these three notes, and play along with the neck.\nOnce you can hum it before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape." },
-      { "type": "tool", "tool": { "type": "step-choice", "options": [{ "key": "c" }, { "key": "g" }] } },
-      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 22, "key": "c" }, "bpm": 70, "view": "neck" } }
+    "learnBefore": [
+      "/course/3/solfege",
+      "/course/4/do-mi-sol-neck"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Find Do",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Only {{1}} is in play on the neck below. Find it on the A string, then on the B string, and hop between the two."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "major-ionian",
+              "key": "c",
+              "placement": {
+                "by": "open"
+              },
+              "enable": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Do and Mi",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "{{3}} joins it, ringed on the neck below. From each {{1}}, find the nearest {{3}} above it. Play the pair, then play it backwards."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "major-ionian",
+              "key": "c",
+              "placement": {
+                "by": "open"
+              },
+              "enable": [
+                "1",
+                "3"
+              ],
+              "highlight": [
+                "3"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Do, Mi and Sol",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "{{5}} joins them, ringed on the neck below. Play {{1}} {{3}} {{5}} {{3}} {{1}} from the lowest {{1}}, until you can do it without looking at the neck."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "major-ionian",
+              "key": "c",
+              "placement": {
+                "by": "open"
+              },
+              "enable": [
+                "1",
+                "3",
+                "5"
+              ],
+              "highlight": [
+                "5"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A tune from three notes",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear a short tune made of only these three notes, and play along with the neck.\nOnce you can hum it before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 22,
+                "key": "c"
+              },
+              "bpm": 70,
+              "view": "neck"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "g"
+            }
+          ]
+        }
+      }
     ]
   }
 }

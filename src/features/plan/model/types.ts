@@ -1,4 +1,4 @@
-import type { Section, StoredTool } from "./tools";
+import type { Cell, Choice } from "./tools";
 import type { Area } from "./concepts";
 import type { StarRating } from "@/features/progress/stars";
 import type { PlanAnswers } from "../intake/answers";
@@ -8,40 +8,39 @@ export type { PlanAnswers } from "../intake/answers";
 export type Level = "new" | "beginner" | "intermediate" | "advanced";
 
 /**
- * One exercise of a day, as the AI wrote it: a title, a focus, minutes, `sections` in order (text, steps, tools;
- * model/tools.ts) and two link slots. Plans stored before sections have `how`, `steps`, `tools` and `link` instead;
- * `sectionsOf` and `linkSlots` read both.
+ * A block: the content of a note or of a plan exercise. A title (hashtags already read out of it), an optional choice
+ * that sets the key, scale, tempo, position or level of the tools under it, and cells in order (model/tools.ts).
+ * The reader draws a block, the editor edits one, the browser AI reads and writes one; none of them sees `ExerciseMeta`.
  */
-export interface PlanExercise {
-  /** set by the app when the plan starts, never by the AI; ratings in the progress log point at it */
-  id?: string;
+export interface Block {
   title: string;
+  choice?: Choice;
+  cells: Cell[];
+}
+
+/** What the plan knows about a block and the block itself does not: the prompt, the week report and the plan's card use it. */
+export interface ExerciseMeta {
   minutes: number;
-  /** exactly what to work on: "A minor pentatonic · boxes 1 & 2", "G–C–D at 70 bpm" */
-  focus?: string;
   /** why: what it improves */
   why?: string;
-  /** who it is pitched at: the student's level in its area; shown as a chip */
+  /** who it is pitched at: the student's level in its area; shown as a hashtag after the title */
   level?: Level;
-  /** the one area it practises; shown as a chip */
+  /** the one area it practises; shown as a hashtag */
   area?: Area;
-  /** what kind of practice it is, from EXERCISE_TAGS ("multi-octave", "ear", …) */
+  /** what kind of practice it is, from EXERCISE_TAGS ("multi-octave", "ear", …); shown as hashtags */
   tags?: string[];
   /** the questionnaire topic it practises (intake/topics.ts), always one of its area */
   topic?: string;
   /** the fine concepts it practises (model/concepts.ts), all of its topic, at most 4 */
   concepts?: string[];
-  sections?: Section[];
   /** attunr pages to read first (prerequisite lessons), shown at the top */
   learnBefore?: string[];
   /** attunr pages for going deeper, shown at the bottom */
   exploreMore?: string[];
-  /** before sections */
-  how?: string;
-  steps?: string[];
-  tools?: StoredTool[];
-  link?: string;
 }
+
+/** One exercise of a day, as the AI wrote it. `id` is set by the app when the plan starts, never by the AI; ratings in the progress log point at it. */
+export type PlanExercise = Block & ExerciseMeta & { id?: string };
 
 export interface PlanDay {
   theme: string;

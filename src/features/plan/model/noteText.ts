@@ -2,7 +2,7 @@ import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { keyName, parseKeySlug } from "@/features/theory/keySlug";
 import { spellAbove } from "@/features/theory/labels";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
-import type { Section } from "./tools";
+import type { PlainCell } from "./tools";
 
 /**
  * Notes written in an exercise's text as `{{3}}` (a degree) or `{{c-sharp}}` (a note name), drawn as the fretboard's dot
@@ -55,7 +55,7 @@ export interface NoteRoot { root: number }
 const keyRoot = (k: unknown) => (typeof k === "string" || typeof k === "number" ? parseKeySlug(String(k)) : null);
 const chordRoot = (c: unknown) => (typeof c === "string" ? parseChordQuery(c)?.rootPc ?? null : null);
 
-function rootOf(s: Section): number | null {
+function rootOf(s: PlainCell): number | null {
   if (s.type !== "tool") return null;
   const t = s.tool;
   switch (t.type) {
@@ -78,7 +78,7 @@ function rootOf(s: Section): number | null {
 }
 
 /** The root from the first tool after `index` that has one, else the last one before it; none: null. */
-export function noteRootFor(sections: Section[], index: number): NoteRoot | null {
+export function noteRootFor(sections: PlainCell[], index: number): NoteRoot | null {
   for (let i = index + 1; i < sections.length; i++) {
     const r = rootOf(sections[i]);
     if (r !== null) return { root: r };

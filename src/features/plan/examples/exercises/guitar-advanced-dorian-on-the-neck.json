@@ -1,34 +1,170 @@
 {
   "id": "guitar-advanced-dorian-on-the-neck",
   "kind": "exercise",
-  "areas": ["guitar"],
+  "areas": [
+    "guitar"
+  ],
   "level": "advanced",
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
-  "concepts": ["modes-on-neck", "modes"],
-  "docs": { "agents": 0, "teaching": 1 },
+  "concepts": [
+    "modes-on-neck",
+    "modes"
+  ],
+  "docs": {
+    "agents": 0,
+    "teaching": 1
+  },
   "note": "A mode drilled by its one changed note: hear it change, find it in two positions with the root and the 6th ringed, then aim for it over the chords. The why is the method for any mode (find the note that differs, aim for it), the last step says why that note fits the chord, and positions are named by where the root sits, with the frets left to the neck.",
   "exercise": {
     "title": "D Dorian: find the 6th",
-    "focus": "D Dorian · positions with the root on the A and low E strings · Dm7-G7",
     "minutes": 12,
-    "level": "advanced", "area": "guitar", "tags": ["technique", "improv"], "topic": "guitar-scales", "concepts": ["modes-on-neck"],
-    "why": "Dorian is natural minor with one note raised, the 6th, so a line only sounds Dorian when it uses that note: learn where it sits and aim for it.",
-    "learnBefore": ["/course/9/modes"],
-    "sections": [
-      { "type": "heading", "text": "Hear the switch", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the backing: Dm for eight bars, four in D natural minor, then four in D Dorian. Play each scale up and back down along with the neck, and listen for the bar where one note changes. The faded note is the one to leave out: B in the first half, B♭ in the second." },
-      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "two-scales", "a": { "key": "d", "scale": "natural-minor-aeolian" }, "b": { "key": "d", "scale": "dorian" }, "bars": 8, "backingChord": "Dm" }, "bpm": 70, "view": "neck" } },
-      { "type": "heading", "text": "Root on the A string", "minutes": 3 },
-      { "type": "text", "text": "The note that changed is {{6}} (B): tap it on the neck below to hear it. This is the position with {{1}} on the A string. Play it up and back down, then make up short phrases that pass through {{6}}." },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "dorian", "key": "d", "placement": { "by": "root", "string": 5 }, "highlight": ["1", "6"] } },
-      { "type": "heading", "text": "Root on the low E string", "minutes": 3 },
-      { "type": "text", "text": "The same mode in the position with {{1}} on the low E string. Find each ringed {{6}} before you play, then play the position up and back down. Keep going until your fingers reach for {{6}} without you looking for it." },
-      { "type": "tool", "tool": { "type": "scale-neck", "scale": "dorian", "key": "d", "placement": { "by": "root", "string": 6 }, "highlight": ["1", "6"] } },
-      { "type": "heading", "text": "Improvise over Dm7 and G7", "minutes": 3 },
-      { "type": "text", "text": "Press Play below to start the backing, which switches between Dm7 and G7. Improvise in either position. Land on {{d}} when Dm7 comes round and on {{b}} when G7 comes round: B is the 3rd of G7, which is why the Dorian note fits this change." },
-      { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "solo-over", "key": "d", "chords": [{ "chord": "Dm7", "scale": "dorian", "target": ["1"] }, { "chord": "G7", "scale": "mixolydian", "target": ["3"], "approach": "land on B on beat 1" }], "bars": 2 }, "bpm": 80, "view": "neck" } }
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "improv"
     ],
-    "exploreMore": ["/theory/scales/dorian/d", "/course/9/modes-over-drone"]
+    "topic": "guitar-scales",
+    "concepts": [
+      "modes-on-neck"
+    ],
+    "why": "Dorian is natural minor with one note raised, the 6th, so a line only sounds Dorian when it uses that note: learn where it sits and aim for it.",
+    "learnBefore": [
+      "/course/9/modes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the switch",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: Dm for eight bars, four in D natural minor, then four in D Dorian. Play each scale up and back down along with the neck, and listen for the bar where one note changes. The faded note is the one to leave out: B in the first half, B♭ in the second."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "d",
+                  "scale": "natural-minor-aeolian"
+                },
+                "b": {
+                  "key": "d",
+                  "scale": "dorian"
+                },
+                "bars": 8,
+                "backingChord": "Dm"
+              },
+              "bpm": 70,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Root on the A string",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The note that changed is {{6}} (B): tap it on the neck below to hear it. This is the position with {{1}} on the A string. Play it up and back down, then make up short phrases that pass through {{6}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "d",
+              "placement": {
+                "by": "root",
+                "string": 5
+              },
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Root on the low E string",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same mode in the position with {{1}} on the low E string. Find each ringed {{6}} before you play, then play the position up and back down. Keep going until your fingers reach for {{6}} without you looking for it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "d",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Improvise over Dm7 and G7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing, which switches between Dm7 and G7. Improvise in either position. Land on {{d}} when Dm7 comes round and on {{b}} when G7 comes round: B is the 3rd of G7, which is why the Dorian note fits this change."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "d",
+                "chords": [
+                  {
+                    "chord": "Dm7",
+                    "scale": "dorian",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "G7",
+                    "scale": "mixolydian",
+                    "target": [
+                      "3"
+                    ],
+                    "approach": "land on B on beat 1"
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/dorian/d",
+      "/course/9/modes-over-drone"
+    ]
   }
 }

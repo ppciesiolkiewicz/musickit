@@ -3,18 +3,12 @@
 import Icon from "@/components/Icon";
 import { HUE_TONES, StarRating, hueAt, type Hue } from "@/components/ui";
 import { DISPLAY } from "@/components/landing/Display";
-import Sections from "./Sections";
+import Cells from "./Cells";
 import { ExerciseSettings } from "@/components/practice/exerciseSettings";
 import { catalogue, linkLabel, type CatalogueEntry } from "../model/catalogue";
-import { linkSlots } from "../model/migrate";
-import { sectionsOf } from "../model/tools";
-import { AREAS } from "../model/concepts";
-import { LEVELS, labelOf } from "../model/questions";
+import { hashtagLine } from "../model/hashtags";
 import type { PlanExercise } from "../model/types";
 import { STARS, STAR_LABELS, isStars, type Stars } from "@/features/progress/stars";
-
-/** Each tag keeps its colour wherever it shows. */
-const TAG_HUES: Record<string, Hue> = { ear: "teal", sing: "pink", rhythm: "violet", technique: "amber", theory: "sky", improv: "emerald", song: "rose", "multi-octave": "red" };
 
 /** The left edge of the i-th exercise, written out whole so Tailwind sees it. */
 const EDGE: Record<Hue, string> = {
@@ -47,9 +41,9 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
 
 /**
  * One exercise as the player sees it: a card coloured by its place in the day (`index`), the title in the display face,
- * focus, tags, "Learn before" links, its sections (text, steps and tools, set up and ready to play), why, "Explore more"
- * links, and the stars that rate it (and mark it done) when `onRate` is given. A phone shows the focus but not the level,
- * area and tags. `now` (the exercise the day timer is in) only lifts the card a little: the timer is a guide, not a rule.
+ * its hashtags (area, level, kind) small and muted after it, "Learn before" links, its cells (text, steps and tools, set
+ * up and ready to play), why, "Explore more" links, and the stars that rate it (and mark it done) when `onRate` is given.
+ * `now` (the exercise the day timer is in) only lifts the card a little: the timer is a guide, not a rule.
  */
 export default function ExerciseCard({ exercise: e, index, done = false, now = false, rating = null, onRate, address }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
@@ -58,7 +52,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   /** which exercise, for a `SectionAside` */ address?: string;
 }) {
   const hue = hueAt(index);
-  const links = linkSlots(e);
+  const tags = hashtagLine(e);
   return (
     <section
       data-tour="plan-exercise"
@@ -71,18 +65,11 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
         <h3 className={`text-xl ${done ? "text-slate-400 line-through" : "text-slate-50"}`} style={DISPLAY}>{e.title}</h3>
         <span className="ml-auto flex items-center gap-1 text-xs text-slate-400"><Icon name="timer" size={12} />{e.minutes} min</span>
       </div>
-      {(e.focus || e.level || e.area || e.tags?.length) && (
-        <div className={`flex flex-wrap items-center gap-1.5 sm:pl-11 ${e.focus ? "" : "max-sm:hidden"}`}>
-          {e.focus && <span className="rounded-md border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-xs text-sky-100">{e.focus}</span>}
-          {e.level && <span className="max-sm:hidden rounded-full border border-slate-500/70 px-2 py-px text-[10px] font-semibold uppercase tracking-wider text-slate-200">{labelOf(LEVELS, e.level)}</span>}
-          {e.area && <span className="max-sm:hidden rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium text-slate-300">{labelOf(AREAS, e.area)}</span>}
-          {e.tags?.map((t) => <span key={t} className={`max-sm:hidden rounded-full bg-slate-800/80 px-2 py-0.5 text-[11px] font-medium ${HUE_TONES[TAG_HUES[t] ?? "sky"].ink}`}>#{t}</span>)}
-        </div>
-      )}
-      <LinkSlot title="Learn before" hrefs={links.learnBefore} />
-      <ExerciseSettings><Sections sections={sectionsOf(e)} address={address} /></ExerciseSettings>
+      {tags && <p className="text-xs text-slate-500 sm:pl-11">{tags}</p>}
+      <LinkSlot title="Learn before" hrefs={e.learnBefore ?? []} />
+      <ExerciseSettings><Cells cells={e.cells} choice={e.choice} address={address} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
-      <LinkSlot title="Explore more" hrefs={links.exploreMore} />
+      <LinkSlot title="Explore more" hrefs={e.exploreMore ?? []} />
       {onRate && (
         <div className="flex flex-col gap-0.5 border-t border-slate-800 pt-3">
           <p className="text-sm text-slate-400">How did it go?</p>
