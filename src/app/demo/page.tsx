@@ -70,35 +70,6 @@ function PlanCard({ demo }: { demo: DemoCard }) {
   );
 }
 
-/** What an AI plan is written from: the student's answers and the teacher's guidance, in, a week of exercises out. */
-const SOURCES: { icon: IconName; title: string; text: string; tile: string }[] = [
-  { icon: "graduation-cap", title: "From the student", text: "What they play, their level and the minutes they have", tile: "bg-emerald-500/15 text-emerald-300" },
-  { icon: "pencil", title: "From the teacher", text: "What to work on, in their own words", tile: "bg-amber-500/15 text-amber-300" },
-  { icon: "sparkles", title: "The AI writes the week", text: "Seven days of exercises, each with its neck, staff or band", tile: "bg-sky-500/15 text-sky-300" },
-];
-
-function PlanSources() {
-  return (
-    <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-      <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
-        Every practice plan is written by an AI from what the student tells it and what their teacher asks for. A teacher gets a week of interactive exercises by describing the student, not by building each exercise.
-      </p>
-      <ol className="mt-4 grid gap-3 sm:grid-cols-3">
-        {SOURCES.map((s, i) => (
-          <li key={s.title} className="relative flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
-            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${s.tile}`}><Icon name={s.icon} size={16} /></span>
-            <span className="text-sm">
-              <span className="block font-medium text-slate-100">{s.title}</span>
-              <span className="text-slate-400">{s.text}</span>
-            </span>
-            {i < SOURCES.length - 1 && <Icon name="chevron-right" size={16} className="absolute -right-3 top-1/2 hidden -translate-y-1/2 text-slate-600 sm:block" />}
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
 /** The three steps of the autoplan, drawn beside its pitch. */
 const AUTOPLAN_STEPS: { icon: IconName; text: string }[] = [
   { icon: "list", text: "Answer a few questions: what you play, your level and the minutes you have." },
@@ -106,78 +77,82 @@ const AUTOPLAN_STEPS: { icon: IconName; text: string }[] = [
   { icon: "play", text: "A new day of exercises opens each day, and each week builds on the last." },
 ];
 
+const TOOL = "flex flex-col rounded-3xl border p-6 sm:p-8";
+const STEP_TILE = "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg";
+
 function Autoplan() {
   return (
-    <section aria-labelledby="autoplan-h" className="relative overflow-hidden rounded-3xl border border-sky-400/25 bg-linear-to-br from-sky-500/10 via-slate-900/60 to-violet-500/10 p-6 sm:p-10">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
-        <div>
-          <p className="flex items-center text-xs font-medium uppercase tracking-[0.2em] text-sky-300">
-            <Icon name="sparkles" size={14} className="mr-2" /> AI autoplan<BetaBadge />
-          </p>
-          <h2 id="autoplan-h" className="mt-3 text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={DISPLAY}>A week like these, written for you</h2>
-          <p className="mt-4 max-w-lg text-slate-300">
-            attunr writes the prompt from your answers. An AI extension in your browser, such as Claude in Chrome or Gemini in Chrome, reads it and writes your plan straight into attunr.
-          </p>
-          <p className="mt-4 flex max-w-lg gap-2 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3 text-sm text-slate-400">
-            <Icon name="info" size={16} className="mt-0.5 shrink-0 text-sky-300" />
-            <span>The autoplan is in beta and works best with an AI extension. Without one, copy the prompt into any AI chat and paste the reply back.</span>
-          </p>
-          <Link href="/plan" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-            <Icon name="sparkles" size={16} /> Try the AI autoplan
-          </Link>
-        </div>
-        <ol className="flex flex-col gap-3">
-          {AUTOPLAN_STEPS.map((s, i) => (
-            <li key={i} className="flex items-start gap-4 rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 text-sky-300"><Icon name={s.icon} size={18} /></span>
-              <span className="text-sm leading-relaxed text-slate-300"><span className="mr-1.5 font-semibold text-slate-100">{i + 1}.</span>{s.text}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
+    <section aria-labelledby="autoplan-h" className={`${TOOL} border-sky-400/25 bg-linear-to-br from-sky-500/10 via-slate-900/60 to-violet-500/10`}>
+      <p className="flex items-center text-xs font-medium uppercase tracking-[0.2em] text-sky-300">
+        <Icon name="sparkles" size={14} className="mr-2" /> AI autoplan<BetaBadge />
+      </p>
+      <h2 id="autoplan-h" className="mt-3 text-3xl leading-tight text-slate-50 text-balance" style={DISPLAY}>A week of practice, written for one student</h2>
+      <ol className="mb-7 mt-6 flex flex-col gap-3">
+        {AUTOPLAN_STEPS.map((s) => (
+          <li key={s.text} className="flex items-start gap-3 text-sm leading-relaxed text-slate-300">
+            <span className={`${STEP_TILE} bg-sky-500/15 text-sky-300`}><Icon name={s.icon} size={16} /></span>
+            <span className="pt-1">{s.text}</span>
+          </li>
+        ))}
+      </ol>
+      <Link href="/plan" className="mt-auto inline-flex w-fit items-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
+        <Icon name="sparkles" size={16} /> Try the AI autoplan
+      </Link>
     </section>
   );
 }
 
-/** How a teacher makes a note like the ones beside it: the Notes creator, by hand or with an AI extension. */
-const NOTE_WAYS: { icon: IconName; title: string; text: string }[] = [
-  { icon: "plus", title: "Add a widget", text: "A neck, chords, a staff, a melody to sing or a band goes on the page in a click, already in the note's key." },
-  { icon: "puzzle", title: "With an AI extension", text: "Describe the lesson, and the AI extension writes the note for you to check and change." },
-  { icon: "share-2", title: "Share as a note", text: "The student gets a link, and every widget on it plays." },
+/** How a teacher makes a note in the Notes creator. AI drafting of notes is not built yet, so it says "soon". */
+const NOTE_WAYS: { icon: IconName; text: string; soon?: boolean }[] = [
+  { icon: "plus", text: "Add a neck, chords, a staff, a melody to sing or a band in a click, already in the note's key." },
+  { icon: "share-2", text: "Send it to the student as a link. Every widget on it plays." },
+  { icon: "sparkles", text: "Describe the lesson and let AI draft the note for you.", soon: true },
 ];
 
 function NotesCreator() {
   return (
-    <div className="flex flex-col rounded-2xl border border-teal-400/20 bg-linear-to-br from-teal-500/10 via-slate-900/50 to-slate-900/50 p-5 sm:p-6 lg:col-span-2">
-      <h3 className="text-xl text-slate-50" style={DISPLAY}>Make a note like this one</h3>
-      <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-300">
-        Notes are made in the Notes creator, by hand or with an AI extension to help. Every widget is easy to add on screen, so the lesson is a page to play, not a page to read.
+    <section aria-labelledby="creator-h" className={`${TOOL} border-teal-400/25 bg-linear-to-br from-teal-500/10 via-slate-900/60 to-slate-900/50`}>
+      <p className="flex items-center text-xs font-medium uppercase tracking-[0.2em] text-teal-300">
+        <Icon name="file-text" size={14} className="mr-2" /> Notes creator<BetaBadge />
       </p>
-      <ul className="mt-5 grid gap-3 sm:grid-cols-3">
+      <h2 id="creator-h" className="mt-3 text-3xl leading-tight text-slate-50 text-balance" style={DISPLAY}>A lesson on one page the student can play</h2>
+      <ul className="mb-7 mt-6 flex flex-col gap-3">
         {NOTE_WAYS.map((w) => (
-          <li key={w.title} className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/15 text-teal-300"><Icon name={w.icon} size={16} /></span>
-            <span className="mt-2 block text-sm font-medium text-slate-100">{w.title}</span>
-            <span className="mt-0.5 block text-sm leading-relaxed text-slate-400">{w.text}</span>
+          <li key={w.text} className="flex items-start gap-3 text-sm leading-relaxed text-slate-300">
+            <span className={`${STEP_TILE} bg-teal-500/15 text-teal-300`}><Icon name={w.icon} size={16} /></span>
+            <span className="pt-1">
+              {w.text}
+              {w.soon && <span className="ml-2 inline-flex rounded-full border border-sky-400/40 bg-sky-400/10 px-2 py-px text-[10px] font-semibold uppercase tracking-wider text-sky-300">Soon</span>}
+            </span>
           </li>
         ))}
       </ul>
-      <Link href="/teachers/studio?notes=1" className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl border border-slate-600 px-4 py-2.5 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
-        <Icon name="file-text" size={16} /> Open the Notes creator
+      <Link href="/teachers/studio?notes=1" className="mt-auto inline-flex w-fit items-center gap-2 rounded-xl bg-teal-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-teal-300">
+        <Icon name="pencil" size={16} /> Open the Notes creator
       </Link>
-    </div>
+    </section>
   );
 }
 
-/** Every demo in one list (the plans at /demo/<slug>, the teacher notes at /note/<slug>), so a pitch can link to /demo. */
+/** The two tools on top, then what they make: the plans at /demo/<slug> and the teacher notes at /note/<slug>, so a pitch can link to /demo. */
 export default function DemoIndex() {
   const cards = demoCards();
   return (
-    <PageShell active="/plan" title="Demos" intro="Ready-made weeks of practice and a note a teacher made. Open one and try it. Nothing here is saved.">
+    <PageShell active="/plan" title="Demos" intro="Two tools, and examples of what you get from them. Open any example and try it. Nothing here is saved.">
       <div className="flex flex-col gap-14 pb-10">
+        <div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Autoplan />
+            <NotesCreator />
+          </div>
+          <p className="mt-4 flex gap-2 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3 text-sm text-slate-400">
+            <Icon name="info" size={16} className="mt-0.5 shrink-0 text-sky-300" />
+            <span><b className="font-semibold text-slate-200">In the beta, the AI part runs on your own AI.</b> Use an AI extension in your browser, such as Claude in Chrome, or paste the prompt into any AI chat. That&apos;s how attunr stays free and open.</span>
+          </p>
+        </div>
+
         <section aria-labelledby="plans-h">
-          <SectionHead id="plans-h" title="Practice plans" text="A week of daily exercises each, as the AI wrote it. Open any day and play with its tools." />
-          <PlanSources />
+          <SectionHead id="plans-h" title="Made with the AI autoplan" text="A week of daily exercises each, as the AI wrote it. Open any day and play with its tools." />
           <div className="flex flex-col gap-8">
             {AREAS.map(({ area, name, icon, tile }) => {
               const group = cards.filter((c) => c.area === area);
@@ -197,12 +172,9 @@ export default function DemoIndex() {
           </div>
         </section>
 
-        <Autoplan />
-
         <section aria-labelledby="notes-h">
-          <SectionHead id="notes-h" title="Teacher notes" text="A lesson on one page, the way a teacher sends it to a student." />
-          <div className="grid gap-4 lg:grid-cols-3">
-          <ul className="grid gap-4 sm:grid-cols-2 lg:col-span-1 lg:grid-cols-1">
+          <SectionHead id="notes-h" title="Made with the Notes creator" text="A lesson on one page, the way a teacher sends it to a student." />
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Object.entries(PRESET_INFO).map(([slug, note]) => (
               <li key={slug}>
                 <Link href={`/note/${slug}`} className={CARD}>
@@ -214,8 +186,6 @@ export default function DemoIndex() {
               </li>
             ))}
           </ul>
-          <NotesCreator />
-          </div>
         </section>
       </div>
     </PageShell>
