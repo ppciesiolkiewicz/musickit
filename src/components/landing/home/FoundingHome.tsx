@@ -3,7 +3,6 @@ import Wordmark from "@/components/Wordmark";
 import Icon from "@/components/Icon";
 import ContactForm from "@/components/landing/ContactForm";
 import FoundingBackdrop from "@/components/landing/FoundingBackdrop";
-import PayNowButton from "@/components/landing/PayNowButton";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { BetaBadge, DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
 import { SoonHeading, StudioSoonCards } from "@/components/landing/StudioSoon";
@@ -92,9 +91,8 @@ export default function FoundingHome() {
               <a href="#join" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
                 Become a founding partner <Icon name="chevron-right" size={16} />
               </a>
-              <PayNowButton />
             </div>
-            {/* the guarantee sits right under Pay now, so nobody reads the price without it */}
+            {/* the guarantee sits right under the button, so nobody reads the price without it */}
             <p className="mt-6 inline-flex items-center gap-2.5 rounded-2xl border border-emerald-400/40 bg-emerald-400/10 px-4 py-2.5 text-left text-sm text-emerald-100">
               <Icon name="check" size={18} className="shrink-0 text-emerald-300" />
               <span><b className="font-semibold text-emerald-50">100% money-back guarantee.</b> You have {TRIAL} to change your mind.</span>

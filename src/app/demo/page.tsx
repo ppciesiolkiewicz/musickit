@@ -70,6 +70,35 @@ function PlanCard({ demo }: { demo: DemoCard }) {
   );
 }
 
+/** What an AI plan is written from: the student's answers and the teacher's guidance, in, a week of exercises out. */
+const SOURCES: { icon: IconName; title: string; text: string; tile: string }[] = [
+  { icon: "graduation-cap", title: "From the student", text: "What they play, their level and the minutes they have", tile: "bg-emerald-500/15 text-emerald-300" },
+  { icon: "pencil", title: "From the teacher", text: "What to work on, in their own words", tile: "bg-amber-500/15 text-amber-300" },
+  { icon: "sparkles", title: "The AI writes the week", text: "Seven days of exercises, each with its neck, staff or band", tile: "bg-sky-500/15 text-sky-300" },
+];
+
+function PlanSources() {
+  return (
+    <div className="mb-8 rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
+      <p className="max-w-3xl text-sm leading-relaxed text-slate-300">
+        Every practice plan is written by an AI from what the student tells it and what their teacher asks for. A teacher gets a week of interactive exercises by describing the student, not by building each exercise.
+      </p>
+      <ol className="mt-4 grid gap-3 sm:grid-cols-3">
+        {SOURCES.map((s, i) => (
+          <li key={s.title} className="relative flex items-start gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${s.tile}`}><Icon name={s.icon} size={16} /></span>
+            <span className="text-sm">
+              <span className="block font-medium text-slate-100">{s.title}</span>
+              <span className="text-slate-400">{s.text}</span>
+            </span>
+            {i < SOURCES.length - 1 && <Icon name="chevron-right" size={16} className="absolute -right-3 top-1/2 hidden -translate-y-1/2 text-slate-600 sm:block" />}
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 /** The three steps of the autoplan, drawn beside its pitch. */
 const AUTOPLAN_STEPS: { icon: IconName; text: string }[] = [
   { icon: "list", text: "Answer a few questions: what you play, your level and the minutes you have." },
@@ -79,7 +108,7 @@ const AUTOPLAN_STEPS: { icon: IconName; text: string }[] = [
 
 function Autoplan() {
   return (
-    <section aria-labelledby="autoplan-h" className="relative overflow-hidden rounded-3xl border border-sky-400/25 bg-gradient-to-br from-sky-500/10 via-slate-900/60 to-violet-500/10 p-6 sm:p-10">
+    <section aria-labelledby="autoplan-h" className="relative overflow-hidden rounded-3xl border border-sky-400/25 bg-linear-to-br from-sky-500/10 via-slate-900/60 to-violet-500/10 p-6 sm:p-10">
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
         <div>
           <p className="flex items-center text-xs font-medium uppercase tracking-[0.2em] text-sky-300">
@@ -110,6 +139,36 @@ function Autoplan() {
   );
 }
 
+/** How a teacher makes a note like the ones beside it: the Notes creator, by hand or with an AI extension. */
+const NOTE_WAYS: { icon: IconName; title: string; text: string }[] = [
+  { icon: "plus", title: "Add a widget", text: "A neck, chords, a staff, a melody to sing or a band goes on the page in a click, already in the note's key." },
+  { icon: "puzzle", title: "With an AI extension", text: "Describe the lesson, and the AI extension writes the note for you to check and change." },
+  { icon: "share-2", title: "Share as a note", text: "The student gets a link, and every widget on it plays." },
+];
+
+function NotesCreator() {
+  return (
+    <div className="flex flex-col rounded-2xl border border-teal-400/20 bg-linear-to-br from-teal-500/10 via-slate-900/50 to-slate-900/50 p-5 sm:p-6 lg:col-span-2">
+      <h3 className="text-xl text-slate-50" style={DISPLAY}>Make a note like this one</h3>
+      <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-300">
+        Notes are made in the Notes creator, by hand or with an AI extension to help. Every widget is easy to add on screen, so the lesson is a page to play, not a page to read.
+      </p>
+      <ul className="mt-5 grid gap-3 sm:grid-cols-3">
+        {NOTE_WAYS.map((w) => (
+          <li key={w.title} className="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-500/15 text-teal-300"><Icon name={w.icon} size={16} /></span>
+            <span className="mt-2 block text-sm font-medium text-slate-100">{w.title}</span>
+            <span className="mt-0.5 block text-sm leading-relaxed text-slate-400">{w.text}</span>
+          </li>
+        ))}
+      </ul>
+      <Link href="/teachers/studio?notes=1" className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl border border-slate-600 px-4 py-2.5 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
+        <Icon name="file-text" size={16} /> Open the Notes creator
+      </Link>
+    </div>
+  );
+}
+
 /** Every demo in one list (the plans at /demo/<slug>, the teacher notes at /note/<slug>), so a pitch can link to /demo. */
 export default function DemoIndex() {
   const cards = demoCards();
@@ -118,6 +177,7 @@ export default function DemoIndex() {
       <div className="flex flex-col gap-14 pb-10">
         <section aria-labelledby="plans-h">
           <SectionHead id="plans-h" title="Practice plans" text="A week of daily exercises each, as the AI wrote it. Open any day and play with its tools." />
+          <PlanSources />
           <div className="flex flex-col gap-8">
             {AREAS.map(({ area, name, icon, tile }) => {
               const group = cards.filter((c) => c.area === area);
@@ -141,7 +201,8 @@ export default function DemoIndex() {
 
         <section aria-labelledby="notes-h">
           <SectionHead id="notes-h" title="Teacher notes" text="A lesson on one page, the way a teacher sends it to a student." />
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-3">
+          <ul className="grid gap-4 sm:grid-cols-2 lg:col-span-1 lg:grid-cols-1">
             {Object.entries(PRESET_INFO).map(([slug, note]) => (
               <li key={slug}>
                 <Link href={`/note/${slug}`} className={CARD}>
@@ -153,6 +214,8 @@ export default function DemoIndex() {
               </li>
             ))}
           </ul>
+          <NotesCreator />
+          </div>
         </section>
       </div>
     </PageShell>
