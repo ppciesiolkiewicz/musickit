@@ -63,7 +63,7 @@ test("progress is kept, trimmed and cut to 4000 characters; without it there is 
   assert.equal(parse(tagged(), { progress: 7 }).config.progress, undefined);
 });
 
-const config = (): PlanConfig => ({ title: "W", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [{ title: "A", minutes: 5 }, { title: "B", minutes: 5 }] })) });
+const config = (): PlanConfig => ({ title: "W", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [{ title: "A", minutes: 5, cells: [] }, { title: "B", minutes: 5, cells: [] }] })) });
 const idsOf = (c: PlanConfig) => c.days.flatMap((d) => d.exercises.map((e) => e.id));
 
 test("withExerciseIds fills missing ids, keeps the ones there, and returns the same object when none is missing", () => {
@@ -144,4 +144,12 @@ test("loading keeps the stored text as a backup before the first save that chang
   } finally {
     g.window = had;
   }
+});
+
+test("a stored plan whose exercises have no cells (the format before blocks) is dropped, current and history alike", () => {
+  const old = { id: "o", startedOn: "2026-11-01", done: {}, config: { title: "W", days: Array.from({ length: 7 }, (_, d) => ({ theme: `T${d}`, exercises: [{ title: "Ex", minutes: 5, sections: [{ type: "text", text: "x" }] }] })) } };
+  const s = sanitiseState({ current: old, history: [old, { id: "n", startedOn: "2026-11-01", done: {}, config: config() }] });
+  assert.equal(s.current, null);
+  assert.equal(s.history.length, 1);
+  assert.equal(s.history[0].id, "n");
 });

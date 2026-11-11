@@ -11,7 +11,6 @@ export function entryFor(plan: StoredPlan, day: number, exercise: number, rating
   if (!e?.id) return null;
   return {
     id: newId(), planId: plan.id, exerciseId: e.id, day, exercise, title: e.title,
-    ...(e.focus ? { focus: e.focus } : {}),
     ...(e.area ? { area: e.area } : {}),
     ...(e.level ? { level: e.level } : {}),
     ...(e.topic ? { topic: e.topic } : {}),

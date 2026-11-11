@@ -9,9 +9,10 @@ export const PLAN_KEY = "musickit.plan";
 /** The stored document as it was before the first load that changed it (answers from the old questionnaire, a plan that didn't pass the checks): kept once, never overwritten. */
 export const PLAN_BACKUP_KEY = "musickit.plan.backup";
 
+/** A plan this app can show: ids, dates, days, and `cells` on every exercise (a plan stored before blocks has none, and is dropped: nothing old is read). */
 const isPlan = (p: unknown): p is StoredPlan => {
   const x = p as StoredPlan;
-  return !!x && typeof x.id === "string" && typeof x.startedOn === "string" && Array.isArray(x.config?.days) && typeof x.done === "object";
+  return !!x && typeof x.id === "string" && typeof x.startedOn === "string" && Array.isArray(x.config?.days) && typeof x.done === "object" && x.config.days.every((d) => !d?.exercises || (Array.isArray(d.exercises) && d.exercises.every((e) => Array.isArray(e?.cells))));
 };
 
 /** A plan with an id on every exercise (plans stored before ids get them here) and its ratings made safe: broken ones are dropped one by one. */

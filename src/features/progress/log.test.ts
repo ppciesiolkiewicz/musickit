@@ -11,13 +11,13 @@ test("cleanEntries: anything that isn't a list gives an empty log", () => {
 });
 
 test("cleanEntries drops broken rows one by one and keeps the good ones as they are", () => {
-  const good = entry({ focus: "Frets 5 to 8", area: "guitar", level: "beginner", topic: "guitar-techniques", concepts: ["spider"] });
+  const good = entry({ area: "guitar", level: "beginner", topic: "guitar-techniques", concepts: ["spider"] });
   const raw = [good, { ...entry(), exerciseId: undefined }, { ...entry(), stars: 9 }, null, "row", { ...entry(), at: "" }, { ...entry(), day: "0" }, entry({ id: "r2", exerciseId: "e2" })];
   assert.deepEqual(cleanEntries(raw), [good, entry({ id: "r2", exerciseId: "e2" })]);
 });
 
 test("cleanEntries drops optional fields of the wrong type but keeps the row", () => {
-  const raw = [{ ...entry(), focus: 7, topic: null, concepts: ["spider", 3], junk: true }];
+  const raw = [{ ...entry(), focus: "gone", topic: null, concepts: ["spider", 3], junk: true }];
   assert.deepEqual(cleanEntries(raw), [entry({ concepts: ["spider"] })]);
 });
 
