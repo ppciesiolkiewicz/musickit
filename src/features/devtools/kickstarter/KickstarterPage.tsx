@@ -59,12 +59,16 @@ export default function KickstarterPage({ demos, allDemosUrl }: { demos: DemoLin
       <Block title="Sample emails" about="Emails that went out and read the way these should. The brief gives them to the AI for tone and shape.">
         <div className="flex flex-col gap-3">
           {SAMPLE_EMAILS.map((e) => (
-            <details key={e.label} className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
-              <summary className="cursor-pointer text-sm font-semibold text-slate-100">{e.label}</summary>
-              <p className="mt-1 text-xs text-slate-400">{e.about}</p>
-              <p className="mt-2 whitespace-pre-wrap wrap-break-word font-mono text-xs text-slate-300">{e.text}</p>
-              <div className="mt-2"><CopyButton text={e.text} label="Copy email" /></div>
-            </details>
+            <article key={e.label} className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-slate-100">{e.label}</h3>
+                  <p className="mt-0.5 text-xs text-slate-400">{e.about}</p>
+                </div>
+                <CopyButton text={e.text} label="Copy email" />
+              </div>
+              <p className="mt-3 whitespace-pre-wrap wrap-break-word text-sm leading-relaxed text-slate-200">{e.text}</p>
+            </article>
           ))}
         </div>
       </Block>
