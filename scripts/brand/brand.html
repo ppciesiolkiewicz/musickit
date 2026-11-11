@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>attunr brand template</title>
+<style>
+  /* The fonts (Outfit for the word, Geist for the rest) are injected by generate.mjs as data: URIs, from src/app/_og. */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: transparent; }
+  body { display: inline-block; font-family: Geist, sans-serif; -webkit-font-smoothing: antialiased; }
+  #frame { display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .word { font-family: Outfit, sans-serif; font-weight: 600; line-height: 1; white-space: nowrap; }
+  .dots { display: flex; }
+  .dot { border-radius: 50%; flex: none; }
+  .col { display: flex; flex-direction: column; align-items: center; }
+  .row { display: flex; align-items: center; }
+  .probe { display: inline-block; width: 0; height: 0; vertical-align: baseline; }
+</style>
+</head>
+<body>
+<div id="frame"></div>
+<script>
+/* one dot per scale degree, 1 to 7, as in Wordmark.tsx */
+const DOTS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#6366f1", "#a855f7"];
+const GOLD = "#e5b93c";
+const MUTED = "#a3a7b0";
+const px = (n) => `${n}px`;
+
+function el(tag, className, style, text) {
+  const e = document.createElement(tag);
+  if (className) e.className = className;
+  Object.assign(e.style, style);
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function dots(size, gap, marginTop) {
+  const row = el("div", "dots", { gap: px(gap), marginTop: px(marginTop) });
+  for (const c of DOTS) row.appendChild(el("span", "dot", { width: px(size), height: px(size), background: c }));
+  return row;
+}
+
+function word(text, fontSize, ink, extra = {}) {
+  const w = el("span", "word", { fontSize: px(fontSize), color: ink, ...extra }, text);
+  w.appendChild(el("span", "probe")); // sits on the baseline; measured for the SVGs
+  return w;
+}
+
+/* The wordmark, dots under it, in the em sizes of Wordmark.tsx. */
+function wordmark(fs, ink) {
+  const col = el("div", "col");
+  col.appendChild(word("attunr", fs, ink, { letterSpacing: px(-0.025 * fs) }));
+  col.appendChild(dots(0.17 * fs, 0.09 * fs, 0.14 * fs));
+  return col;
+}
+
+/* The wordmark with the dots after the word (Wordmark dots="side"). */
+function wordmarkSide(fs, ink) {
+  const row = el("div", "row", { gap: px(0.3 * fs) });
+  row.appendChild(word("attunr", fs, ink, { letterSpacing: px(-0.025 * fs) }));
+  row.appendChild(dots(0.24 * fs, 0.12 * fs, 0.12 * fs));
+  return row;
+}
+
+/* The square mark, the word over the dots, in the proportions of the app icon. */
+function mark(size, ink) {
+  const fs = 0.21 * size;
+  const col = el("div", "col", { gap: px(0.3 * fs) });
+  col.appendChild(word("attunr", fs, ink, { letterSpacing: px(-0.006 * size), marginBottom: px(-0.1 * fs) }));
+  col.appendChild(dots(0.065 * size, 0.027 * size, 0));
+  return col;
+}
+
+/* The small mark, an "a" over the dots, in the proportions of the favicon. */
+function letter(size, ink) {
+  const col = el("div", "col", { gap: px(0.04 * size) });
+  col.appendChild(word("a", 0.44 * size, ink));
+  col.appendChild(dots(0.075 * size, 0.02 * size, 0));
+  return col;
+}
+
+/* A social picture: eyebrow, wordmark, tagline and the address in a pill, scaled from a 1080 wide card. */
+function card(spec, ink) {
+  const s = spec.width / 1080;
+  const col = el("div", "col", { width: "100%", padding: px(80 * s) });
+  col.appendChild(el("div", null, { fontSize: px(30 * s), fontWeight: 600, letterSpacing: px(5 * s), textTransform: "uppercase", color: GOLD }, spec.eyebrow));
+  const wm = wordmark(200 * s, ink);
+  wm.style.marginTop = px(36 * s);
+  col.appendChild(wm);
+  col.appendChild(el("div", null, { fontSize: px(40 * s), lineHeight: 1.35, marginTop: px(56 * s), maxWidth: px(820 * s), textAlign: "center", color: MUTED }, spec.tagline));
+  col.appendChild(el("div", null, { display: "inline-flex", marginTop: px(64 * s), padding: `${px(18 * s)} ${px(44 * s)}`, borderRadius: px(999), background: GOLD, color: spec.bg, fontSize: px(34 * s), fontWeight: 600 }, spec.host));
+  return col;
+}
+
+/* Draws one picture into #frame. A spec without a width is drawn at the size of its content plus `pad`. */
+window.render = async (spec) => {
+  const frame = document.getElementById("frame");
+  frame.replaceChildren();
+  const ink = spec.ink ?? "#ffffff";
+  Object.assign(frame.style, {
+    width: spec.width ? px(spec.width) : "auto",
+    height: spec.height ? px(spec.height) : "auto",
+    padding: px(spec.pad ?? 0),
+    background: spec.bg ?? "transparent",
+    borderRadius: px(spec.radius ?? 0),
+  });
+  const body =
+    spec.kind === "card" ? card(spec, ink)
+    : spec.kind === "mark" ? mark(spec.width, ink)
+    : spec.kind === "letter" ? letter(spec.width, ink)
+    : spec.kind === "side" ? wordmarkSide(spec.fontSize, ink)
+    : wordmark(spec.fontSize, ink);
+  frame.appendChild(body);
+  await document.fonts.ready;
+};
+
+/* Where the word and the dots sit in the frame, for the SVGs: boxes in frame pixels, the word's baseline too. */
+window.measure = () => {
+  const frame = document.getElementById("frame").getBoundingClientRect();
+  const rel = (r) => ({ x: r.left - frame.left, y: r.top - frame.top, w: r.width, h: r.height });
+  const w = document.querySelector(".word");
+  const probe = document.querySelector(".probe").getBoundingClientRect();
+  const style = getComputedStyle(w);
+  return {
+    frame: { w: frame.width, h: frame.height },
+    word: { ...rel(w.getBoundingClientRect()), baseline: probe.top - frame.top, fontSize: parseFloat(style.fontSize), letterSpacing: style.letterSpacing === "normal" ? 0 : parseFloat(style.letterSpacing) },
+    dots: [...document.querySelectorAll(".dot")].map((d) => {
+      const r = rel(d.getBoundingClientRect());
+      return { cx: r.x + r.w / 2, cy: r.y + r.h / 2, r: r.w / 2 };
+    }),
+  };
+};
+</script>
+</body>
+</html>
