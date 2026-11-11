@@ -5,7 +5,7 @@ import { weekReport } from "./prompt";
 import { sanitiseState } from "../store/localPlanStore";
 import type { PlanExercise, StoredPlan } from "./types";
 
-const ex = (title: string, extra: Partial<PlanExercise> = {}): PlanExercise => ({ title, minutes: 5, sections: [{ type: "text", text: "x" }], ...extra });
+const ex = (title: string, extra: Partial<PlanExercise> = {}): PlanExercise => ({ title, minutes: 5, cells: [{ type: "text", text: "x" }], ...extra });
 const plan = (done: Record<string, true> = {}): StoredPlan => ({
   id: "p", startedOn: "2026-11-01", done,
   config: { title: "Week", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [ex("Ex A"), ex("Ex B"), ex("Ex C")] })) },
@@ -42,11 +42,11 @@ test("sanitiseState drops broken ratings one by one", () => {
   assert.deepEqual(s.history[0].rated, { "0:0": { stars: 4, at: T1 } });
 });
 
-test("weekReport shows stars, level and focus per exercise", () => {
+test("weekReport shows stars and level per exercise", () => {
   const p = plan({ "0:1": true });
-  p.config.days[0].exercises[0] = ex("Ex A", { level: "beginner", focus: "boxes 1 & 2 at 70 bpm" });
+  p.config.days[0].exercises[0] = ex("Ex A", { level: "beginner" });
   const r = weekReport({ ...p, done: { ...p.done, "0:0": true }, rated: { "0:0": { stars: 2, at: T1 } } });
-  assert.match(r, /\[2★ Struggling\] Ex A \(beginner · boxes 1 & 2 at 70 bpm\)/);
+  assert.match(r, /\[2★ Struggling\] Ex A \(beginner\)/);
   assert.match(r, /\[done\] Ex B(;|$)/m);
   assert.match(r, /\[skipped\] Ex C(;|$)/m);
 });

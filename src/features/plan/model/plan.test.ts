@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
-import { parsePlanConfig } from "./config";
+import { parseExercise, parsePlanConfig } from "./config";
 import { GLOSSARY } from "@/features/course/glossary";
 import { EXERCISE_EXAMPLES } from "../examples";
 import { buildPrompt, weekReport } from "./prompt";
@@ -438,13 +438,6 @@ describe("parsePlanConfig", () => {
     assert.equal(parsePlanConfig("{ nope", entries).ok, false);
     assert.equal(parsePlanConfig("hello", entries).ok, false);
   });
-  it("keeps focus", () => {
-    const p = JSON.parse(week());
-    Object.assign(p.days[0].exercises[0], { focus: "A minor pentatonic · boxes 1 & 2" });
-    const r = parsePlanConfig(JSON.stringify(p), entries);
-    assert.ok(r.ok);
-    assert.equal(r.config.days[0].exercises[0].focus, "A minor pentatonic · boxes 1 & 2");
-  });
   it("clamps minutes", () => {
     const p = JSON.parse(week());
     p.days[0].exercises[0].minutes = 999;
@@ -521,5 +514,44 @@ describe("the prompt's examples", () => {
     const base = { type: "guitar-play-along", bpm: 70, shape: { shape: "progression", key: "a", chords: ["A7"], bars: 1, steps: ["3"] } };
     assert.equal((parseTool({ ...base, under: "drone" }) as { under?: string }).under, "drone");
     assert.equal((parseTool({ ...base, under: "loud" }) as { under?: string }).under, undefined);
+  });
+});
+
+describe("parseExercise", () => {
+  const ex = (raw: object) => parseExercise({ minutes: 4, cells: [{ type: "text", text: "x" }], learnBefore: ["/theory/notes"], ...raw }, "Ex", entries);
+  it("reads the title's hashtags into area, level and kind tags; a field written as a field wins", () => {
+    const r = ex({ title: "Barre drill #guitar #beginner #technique", topic: "guitar-scales" });
+    assert.equal(r.block?.title, "Barre drill");
+    assert.equal(r.block?.area, "guitar");
+    assert.equal(r.block?.level, "beginner");
+    assert.deepEqual(r.block?.tags, ["technique"]);
+    assert.ok(!r.warnings.some((w) => /no (level|area|kind|topic)/.test(w)), r.warnings.join("\n"));
+    const both = ex({ title: "Drill #voice #beginner", area: "guitar", level: "advanced", tags: ["ear"] });
+    assert.equal(both.block?.area, "guitar");
+    assert.equal(both.block?.level, "advanced");
+    assert.deepEqual(both.block?.tags, ["ear"]);
+    const unknown = ex({ title: "Drill #foo #ear" });
+    assert.equal(unknown.block?.title, "Drill");
+    assert.deepEqual(unknown.block?.tags, ["ear"]);
+    assert.ok(unknown.warnings.includes("Ex: dropped unknown kind tags: foo."), unknown.warnings.join("\n"));
+  });
+  it("reads a choice on the block, and warns about tools written in another value than an open one", () => {
+    const r = ex({ title: "T", choice: { key: "a" }, cells: [{ type: "tool", tool: { type: "staff", scale: "major-ionian", key: "g", voice: "tenor" } }] });
+    assert.deepEqual(r.block?.choice, { open: { key: 9 } });
+    assert.ok(r.warnings.includes("Ex: the block: staff written in G under a choice in A; it will follow A."), r.warnings.join("\n"));
+    const bad = ex({ title: "T", choice: { scale: "nope" } });
+    assert.equal(bad.block?.choice, undefined);
+    assert.ok(bad.warnings.some((w) => w.includes('left out a choice with no part it could read')), bad.warnings.join("\n"));
+  });
+  it("no title: no block", () => {
+    assert.equal(parseExercise({ minutes: 4 }, "Ex", entries).block, null);
+    assert.equal(parseExercise({ title: "#foo" }, "Ex", entries).block?.title, "foo");
+  });
+  it("section minutes are scaled to the exercise's, and over 5 minutes wants two timed sections", () => {
+    const r = ex({ title: "T", minutes: 10, cells: [{ type: "section", heading: "A", minutes: 2, cells: [{ type: "text", text: "a" }] }, { type: "section", heading: "B", minutes: 2, cells: [{ type: "text", text: "b" }] }] });
+    assert.deepEqual(r.block?.cells.map((c) => (c.type === "section" ? c.minutes : 0)), [5, 5]);
+    assert.ok(r.warnings.includes("Ex: section minutes didn't add up to 10; scaled them."));
+    const one = ex({ title: "T", minutes: 8 });
+    assert.ok(one.warnings.includes("Ex: over 5 minutes in one block; split it into sections with minutes."));
   });
 });

@@ -1,8 +1,9 @@
 import { fitBlocks, blocksOf } from "./blocks";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
-import { choiceWarnings } from "./stepChoice";
-import { MAX_CELLS, MAX_TAGS, askedTags, cellsOf, exerciseLevelArea, exerciseTags, parseCellDiag, pickWasInexact, resolveChordPlacement, toolsOf, type Cell } from "./tools";
+import { choiceWarnings } from "./choice";
+import { readTitle } from "./hashtags";
+import { MAX_CELLS, MAX_TAGS, askedTags, cellsOf, exerciseLevelArea, exerciseTags, parseCellDiag, parseChoiceDiag, pickWasInexact, resolveChordPlacement, toolsOf, type Cell } from "./tools";
 import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
 import { topicById } from "../intake/topics";
@@ -89,6 +90,62 @@ function topicTags(e: Record<string, unknown>, area: PlanExercise["area"], where
   return out;
 }
 
+/** One exercise parsed: `block` is null when the raw had no title; `warnings` are worded to be pasted back to the AI, each starting with `where`. */
+export interface BlockParse { block: PlanExercise | null; warnings: string[] }
+
+/**
+ * One exercise (a block with its meta) from the AI's JSON, checked and tidied: the title's hashtags read into area, level
+ * and kind tags (fields written as fields win), minutes 1..120 (section minutes scaled to fit), a choice on the block,
+ * cells (what can't be shown left out with a warning), links only to attunr pages. Rules the prompt states are checked:
+ * at most 6 tools, a learnBefore link, over 5 minutes in two or more timed sections, no singing and playing in one.
+ */
+export function parseExercise(raw: unknown, where: string, entries: CatalogueEntry[]): BlockParse {
+  const warnings: string[] = [];
+  const e = (raw ?? {}) as Record<string, unknown>;
+  const read = readTitle(str(e.title, 160));
+  if (!read.title) return { block: null, warnings };
+  const minutes = Math.round(Number(e.minutes));
+  const ex: PlanExercise = { title: read.title.slice(0, 120), minutes: Number.isFinite(minutes) ? Math.min(120, Math.max(1, minutes)) : 10, cells: [] };
+  if (e.choice !== undefined) {
+    const d = { notes: [] as string[] };
+    const c = parseChoiceDiag(e.choice, d);
+    for (const n of d.notes) warnings.push(`${where}: the block's choice ${n}`);
+    if (c.dropped) warnings.push(`${where}: left out ${c.dropped}.`);
+    if (c.choice) ex.choice = c.choice;
+  }
+  const cells = resolveChordPlacement(Array.isArray(e.cells) ? parseCells(e.cells, where, warnings) : []);
+  if (!cells.length) {
+    warnings.push(Array.isArray(e.sections) && !Array.isArray(e.cells) ? `${where}: has no cells (did you write "sections"?).` : `${where}: no instructions.`);
+    cells.push({ type: "text", text: ex.title });
+  }
+  const fit = fitBlocks(cells, ex.minutes);
+  if (fit.changed) warnings.push(`${where}: section minutes didn't add up to ${ex.minutes}; scaled them.`);
+  if (ex.minutes > 5 && blocksOf(fit.cells).length < 2) warnings.push(`${where}: over 5 minutes in one block; split it into sections with minutes.`);
+  if (mixesSingAndPlay(fit.cells)) warnings.push(`${where}: asks to both sing and play; keep it to one.`);
+  if (tempoWithoutMetronome(fit.cells)) warnings.push(`${where}: asks for a tempo but shows no metronome; add one.`);
+  ex.cells = fit.cells;
+  for (const w of choiceWarnings(ex)) warnings.push(`${where}: ${w}`);
+  // the title's hashtags, then the fields: a field written as a field wins
+  Object.assign(ex, { ...(read.area ? { area: read.area } : {}), ...(read.level ? { level: read.level } : {}) }, exerciseLevelArea(e));
+  const askedRaw = [...read.tags, ...(Array.isArray(e.tags) ? e.tags : [])];
+  const tags = exerciseTags(askedRaw, cells);
+  if (tags.length) ex.tags = tags;
+  const asked = askedTags(askedRaw);
+  if (asked.known.length > MAX_TAGS) warnings.push(`${where}: kept the first ${MAX_TAGS} of ${asked.known.length} kind tags (${asked.known.slice(MAX_TAGS).join(", ")} dropped).`);
+  const unknown = [...new Set([...read.unknown, ...asked.unknown])];
+  if (unknown.length) warnings.push(`${where}: dropped unknown kind tags: ${unknown.join(", ")}.`);
+  Object.assign(ex, topicTags(e, ex.area, where, warnings));
+  const untagged = [!ex.level && "level", !ex.area && "area", !tags.length && "kind", !ex.topic && "topic"].filter(Boolean);
+  if (untagged.length) warnings.push(`${where}: no ${untagged.join(", ")} tag.`);
+  const why = str(e.why, 300);
+  if (why) ex.why = why;
+  Object.assign(ex, parseSlots(e, entries, where, warnings));
+  const tools = toolsOf(fit.cells).length;
+  if (tools > MAX_TOOLS) warnings.push(`${where}: ${tools} tools; keep it to ${MAX_TOOLS}.`);
+  if (!ex.learnBefore?.length) warnings.push(`${where}: no learnBefore link; add an attunr page to learn first.`);
+  return { block: ex, warnings };
+}
+
 /**
  * A pasted plan, checked and tidied: seven days, each with at least one exercise, minutes 1..120 (block minutes scaled to fit), links only to attunr pages
  * (an unknown link is dropped with a warning, the exercise kept). Extra days are cut, missing ones are an error.
@@ -111,42 +168,9 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
     const list = Array.isArray(day?.exercises) ? day.exercises : [];
     if (list.length > MAX_EXERCISES) warnings.push(`Day ${d + 1}: kept the first ${MAX_EXERCISES} of ${list.length} exercises.`);
     const exercises: PlanExercise[] = list.slice(0, MAX_EXERCISES).flatMap((x, i) => {
-      const e = x as Record<string, unknown>;
-      const title = str(e?.title, 120);
-      if (!title) return [];
-      const minutes = Math.round(Number(e.minutes));
-      const ex: PlanExercise = { title, minutes: Number.isFinite(minutes) ? Math.min(120, Math.max(1, minutes)) : 10 };
-      const focus = str(e.focus, 120);
-      if (focus) ex.focus = focus;
-      const where = `Day ${d + 1}, exercise ${i + 1}`;
-      const sections = resolveChordPlacement(Array.isArray(e.cells) ? parseCells(e.cells, where, warnings) : []);
-      if (!sections.length) {
-        warnings.push(Array.isArray(e.sections) && !Array.isArray(e.cells) ? `${where}: has no cells (did you write "sections"?).` : `${where}: no instructions.`);
-        sections.push({ type: "text", text: title });
-      }
-      const fit = fitBlocks(sections, ex.minutes);
-      if (fit.changed) warnings.push(`${where}: block minutes didn't add up to ${ex.minutes}; scaled them.`);
-      if (ex.minutes > 5 && blocksOf(fit.sections).length < 2) warnings.push(`${where}: over 5 minutes in one block; split it.`);
-      if (mixesSingAndPlay(fit.sections)) warnings.push(`${where}: asks to both sing and play; keep it to one.`);
-      if (tempoWithoutMetronome(fit.sections)) warnings.push(`${where}: asks for a tempo but shows no metronome; add one.`);
-      for (const w of choiceWarnings(fit.sections)) warnings.push(`${where}: ${w}`);
-      ex.cells = fit.sections;
-      Object.assign(ex, exerciseLevelArea(e));
-      const tags = exerciseTags(e.tags, sections);
-      if (tags.length) ex.tags = tags;
-      const asked = askedTags(e.tags);
-      if (asked.known.length > MAX_TAGS) warnings.push(`${where}: kept the first ${MAX_TAGS} of ${asked.known.length} kind tags (${asked.known.slice(MAX_TAGS).join(", ")} dropped).`);
-      if (asked.unknown.length) warnings.push(`${where}: dropped unknown kind tags: ${asked.unknown.join(", ")}.`);
-      Object.assign(ex, topicTags(e, ex.area, where, warnings));
-      const untagged = [!ex.level && "level", !ex.area && "area", !tags.length && "kind", !ex.topic && "topic"].filter(Boolean);
-      if (untagged.length) warnings.push(`${where}: no ${untagged.join(", ")} tag.`);
-      const why = str(e.why, 300);
-      if (why) ex.why = why;
-      Object.assign(ex, parseSlots(e, entries, where, warnings));
-      const tools = toolsOf(fit.sections).length;
-      if (tools > MAX_TOOLS) warnings.push(`${where}: ${tools} tools; keep it to ${MAX_TOOLS}.`);
-      if (!ex.learnBefore?.length) warnings.push(`${where}: no learnBefore link; add an attunr page to learn first.`);
-      return [ex];
+      const { block, warnings: w } = parseExercise(x, `Day ${d + 1}, exercise ${i + 1}`, entries);
+      warnings.push(...w);
+      return block ? [block] : [];
     });
     if (!exercises.length) return { ok: false, error: `Day ${d + 1} has no exercises.` };
     if (exercises.length < MIN_DAY || exercises.length > MAX_DAY) warnings.push(`Day ${d + 1}: ${exercises.length} exercise${exercises.length > 1 ? "s" : ""}; use ${MIN_DAY} to ${MAX_DAY}.`);

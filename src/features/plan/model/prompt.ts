@@ -58,7 +58,7 @@ export function settingsOf(e: PlanExercise): string {
 
 /** The clause after an exercise's title: ` (level · focus; settings)`, or "" when it has none of them. */
 const aboutOf = (e: PlanExercise): string => {
-  const about = [[e.level, e.focus].filter(Boolean).join(" · "), settingsOf(e)].filter(Boolean).join("; ");
+  const about = [e.level, settingsOf(e)].filter(Boolean).join("; ");
   return about ? ` (${about})` : "";
 };
 

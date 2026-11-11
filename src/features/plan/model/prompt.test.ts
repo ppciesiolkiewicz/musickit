@@ -11,7 +11,7 @@ import type { PlanAnswers, StoredPlan } from "./types";
 
 const last: StoredPlan = {
   id: "p", startedOn: "2026-10-24", done: { "0:0": true },
-  config: { title: "Week 1", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [{ title: `Ex ${i}`, minutes: 5, sections: [{ type: "text" as const, text: "x" }] }] })) },
+  config: { title: "Week 1", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [{ title: `Ex ${i}`, minutes: 5, cells: [{ type: "text" as const, text: "x" }] }] })) },
 };
 const EX = selectExamples(DEFAULT_ANSWERS);
 const EXAMPLE_IDS = [...EX.exercises.map((e) => `example:${e.id}`), `example:${EX.plan.id}`];
@@ -157,10 +157,10 @@ const topicWeek = (progress?: string): StoredPlan => ({
     days: Array.from({ length: 7 }, (_, i) => ({
       theme: `T${i}`,
       exercises: [
-        i === 0 ? { title: "Barre drill", minutes: 5, level: "beginner" as const, area: "guitar" as const, topic: "guitar-barre-chords", focus: "F barre" }
-          : i === 1 ? { title: "Spider", minutes: 5, level: "beginner" as const, area: "guitar" as const, topic: "guitar-techniques" }
-          : i === 2 ? { title: "Mystery", minutes: 5 }
-          : { title: `Scale ${i}`, minutes: 5, area: "guitar" as const, topic: "guitar-scales" },
+        i === 0 ? { title: "Barre drill", minutes: 5, cells: [], level: "beginner" as const, area: "guitar" as const, topic: "guitar-barre-chords" }
+          : i === 1 ? { title: "Spider", minutes: 5, cells: [], level: "beginner" as const, area: "guitar" as const, topic: "guitar-techniques" }
+          : i === 2 ? { title: "Mystery", minutes: 5, cells: [] }
+          : { title: `Scale ${i}`, minutes: 5, cells: [], area: "guitar" as const, topic: "guitar-scales" },
       ],
     })),
   },
@@ -175,7 +175,7 @@ test("first week: no week, progress or history part", () => {
 test("weekByTopic: every exercise under its topic with its stars, skipped ones marked, untagged ones under Other", () => {
   const t = weekByTopic(topicWeek());
   assert.match(t, /^Plan "Week 1", started 2026-11-01:/);
-  assert.match(t, /### Guitar · Barre chords\n- Day 1: \[4★ Solid\] Barre drill \(beginner · F barre\)/);
+  assert.match(t, /### Guitar · Barre chords\n- Day 1: \[4★ Solid\] Barre drill \(beginner\)/);
   assert.match(t, /### Guitar · Techniques\n- Day 2: \[2★ Struggling\] Spider \(beginner\)/);
   assert.match(t, /### Guitar · Scales\n- Day 4: \[skipped\] Scale 3\n- Day 5: \[skipped\] Scale 4/);
   assert.match(t, /### Other\n- Day 3: \[skipped\] Mystery/);
@@ -237,25 +237,17 @@ const tool = (o: Record<string, unknown>) => ({ type: "tool" as const, tool: o a
 const exOf = (e: Record<string, unknown>) => ({ title: "X", minutes: 5, ...e }) as never;
 
 test("settingsOf: tools once each in order, keys, tempo range, voice; nothing for no tools", () => {
-  const two = exOf({ sections: [tool({ type: "scale-neck", scale: "minor-pentatonic", key: 9 }), tool({ type: "backing-band", bpm: 80, key: 9, parts: { drums: "on" } }), tool({ type: "backing-band", bpm: 60, key: 9, parts: { drums: "on" } })] });
+  const two = exOf({ cells: [tool({ type: "scale-neck", scale: "minor-pentatonic", key: 9 }), tool({ type: "backing-band", bpm: 80, key: 9, parts: { drums: "on" } }), tool({ type: "backing-band", bpm: 60, key: 9, parts: { drums: "on" } })] });
   assert.equal(settingsOf(two), "scale-neck, backing-band · A · 60-80 bpm");
-  const heading = exOf({ sections: [{ type: "heading", text: "H" }, tool({ type: "step-choice", options: [{ key: 4 }, { key: 6 }] }), tool({ type: "scale-neck", scale: "minor-pentatonic", key: 4 })] });
+  const heading = exOf({ cells: [{ type: "section", heading: "H", choice: { options: [{ key: 4 }, { key: 6 }] }, cells: [tool({ type: "scale-neck", scale: "minor-pentatonic", key: 4 })] }] });
   assert.equal(settingsOf(heading), "scale-neck · E, F♯");
-  const stages = exOf({ sections: [tool({ type: "step-choice", label: "stage", options: [{ key: 4, bpm: 60 }, { key: 6, bpm: 80 }] }), tool({ type: "backing-band", bpm: 60, key: 4, parts: { click: "on" } })] });
+  const stages = exOf({ choice: { label: "stage", options: [{ key: 4, bpm: 60 }, { key: 6, bpm: 80 }] }, cells: [tool({ type: "backing-band", bpm: 60, key: 4, parts: { click: "on" } })] });
   assert.equal(settingsOf(stages), "backing-band · E, F♯ · 60-80 bpm");
-  const sing = exOf({ sections: [tool({ type: "interval-singer", key: 7, voice: "tenor" })] });
+  const sing = exOf({ cells: [tool({ type: "interval-singer", key: 7, voice: "tenor" })] });
   assert.equal(settingsOf(sing), "interval-singer · G · tenor");
-  assert.equal(settingsOf(exOf({ sections: [{ type: "text", text: "x" }] })), "");
+  assert.equal(settingsOf(exOf({ cells: [{ type: "text", text: "x" }] })), "");
 });
 
-test("legacy plans (how / steps / tools) show their settings too", () => {
-  const e = exOf({ level: "beginner", focus: "Am pent", how: "h", steps: ["a"], tools: [{ type: "backing-band", bpm: 70, key: 9, parts: { drums: "on" }, step: 1 }] });
-  assert.equal(settingsOf(e), "backing-band · A · 70 bpm");
-  const plan: StoredPlan = { id: "l", startedOn: "2026-11-01", done: {}, config: { title: "Old", days: [{ theme: "T", exercises: [e] }] } as never };
-  assert.match(weekReport(plan), /\[skipped\] X \(beginner · Am pent; backing-band · A · 70 bpm\)/);
-  assert.match(weekByTopic(plan), /- Day 1: \[skipped\] X \(beginner · Am pent; backing-band · A · 70 bpm\)/);
-  assert.match(weekReport({ ...plan, config: { title: "N", days: [{ theme: "T", exercises: [exOf({})] }] } as never }), /\[skipped\] X$/m);
-});
 
 test("the prompt teaches step-choice, stages and variants, and no longer names key-choice", () => {
   const p = buildPrompt(rated, catalogue());

@@ -6,7 +6,7 @@ import { restartPlan, startPlan } from "./schedule";
 import { PLAN_BACKUP_KEY, PLAN_KEY, localPlanStore, sanitiseState } from "../store/localPlanStore";
 import { EMPTY_STATE, type PlanConfig, type StoredPlan } from "./types";
 
-const tagged = (extra: Record<string, unknown> = {}) => ({ title: "Ex", minutes: 5, sections: [{ type: "text", text: "x" }], level: "beginner", area: "guitar", tags: ["technique"], topic: "guitar-caged", ...extra });
+const tagged = (extra: Record<string, unknown> = {}) => ({ title: "Ex", minutes: 5, cells: [{ type: "text", text: "x" }], level: "beginner", area: "guitar", tags: ["technique"], topic: "guitar-caged", ...extra });
 const reply = (ex: Record<string, unknown>, top: Record<string, unknown> = { progress: "CAGED: two shapes." }) =>
   JSON.stringify({ title: "W", ...top, days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [i === 0 ? ex : tagged()] })) });
 /** The week-shape warnings these one-exercise, link-free fixtures always raise; not what these tests are about. */
