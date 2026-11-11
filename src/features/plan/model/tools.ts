@@ -52,11 +52,25 @@ export type NeckPart = "positions" | "neck";
 export const NECK_PARTS: NeckPart[] = ["positions", "neck"];
 export type NeckParts = Partial<Record<NeckPart, PartMode>>;
 
-/** How a step-choice names its chips: "Stage 1" (a ladder, each harder than the last) or "Variant 1" (equals to compare); absent: the chips show the one value they set. */
+/** How a choice of options names its chips: "Stage 1" (a ladder, each harder than the last) or "Variant 1" (equals to compare); absent: the chips show the one value they set. */
 export type ChoiceLabel = "stage" | "variant";
 export const CHOICE_LABELS: ChoiceLabel[] = ["stage", "variant"];
-/** What one chip of a step-choice sets on the step's tools: a key (pitch class), a tempo, a position 1-5, a level (an index into `TOOL_LEVELS`). Every option of a chooser holds the same parts. */
-export interface StepOption { key?: number; bpm?: number; position?: number; level?: number }
+/** The parts a choice can set on the tools under it, and a tool can pin. */
+export type PartName = "key" | "scale" | "bpm" | "position" | "level";
+/** The parts in the order a chip lists them. */
+export const PART_NAMES: PartName[] = ["key", "scale", "bpm", "position", "level"];
+/** What one chip (or an open choice) sets on the tools under it: a key (pitch class), a scale slug, a tempo, a position 1-7, a level (an index into `TOOL_LEVELS`). Every option of a choice holds the same parts. */
+export interface ChoiceOption { key?: number; scale?: string; bpm?: number; position?: number; level?: number }
+/** until choice.ts replaces stepChoice.ts */
+export type StepOption = ChoiceOption;
+/**
+ * A choice, on a block or in a section's header: `options` are 2-4 chips the student picks from (the tools are written in
+ * option 1); `open` is one value of each part it holds, any value, drawn as a picker (the note's key bar). A tool under
+ * it follows every part it can, unless the part is in its `pinned`.
+ */
+export type Choice = { label?: ChoiceLabel; options: ChoiceOption[] } | { open: ChoiceOption };
+/** On any tool: the parts that keep the tool's own value under a choice. */
+export type Pinned = { pinned?: PartName[] };
 
 type View = "tab" | "notes" | "neck";
 type Under = "chords" | "drone" | "none";
@@ -66,7 +80,8 @@ type Under = "chords" | "drone" | "none";
  * classes, degrees as semitones above the root (major-relative, not scale-aware) except where the view reads the
  * degree strings itself (`arpeggio-neck` `part`, `guitar-play-along` `enable` and `highlight`). A guitar-play-along keeps its checked shape, never events.
  */
-export type PlanTool =
+export type PlanTool = PlanToolProps & Pinned;
+type PlanToolProps =
   | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
   | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
@@ -82,7 +97,6 @@ export type PlanTool =
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
-  | { type: "step-choice"; /** how the chips are named; absent: by the one value they set */ label?: ChoiceLabel; /** 2-4 options, the first the one the step's tools are written in (stepChoice.ts) */ options: StepOption[] }
   | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; level?: ToolLevel; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
@@ -636,8 +650,19 @@ export function parseToolDiag(raw: unknown, opts: { stored?: boolean } = {}): To
  */
 export const parseTool = (raw: unknown, opts: { stored?: boolean } = {}): PlanTool | null => parseToolDiag(raw, opts).tool;
 
-/* ---------------------------------------------------------------- the sections */
+/* ---------------------------------------------------------------- the cells */
 
+/** A cell of a block: a paragraph, numbered steps, a notice, a tool set up, or a section framing cells of its own (one level: a section holds no section). */
+export type Cell =
+  | { type: "text"; text: string }
+  | { type: "list"; items: string[] }
+  | { type: "notice"; notice: "headphones" }
+  | { type: "tool"; tool: PlanTool }
+  | SectionCell;
+/** A step of an exercise: a heading, minutes when it is a timed block, a choice that sets its tools, its cells. */
+export interface SectionCell { type: "section"; heading: string; minutes?: number; choice?: Choice; cells: Exclude<Cell, SectionCell>[] }
+
+/** until Task 4 moves the parsers to cells */
 export type Section =
   | { type: "heading"; text: string; minutes?: number }
   | { type: "text"; text: string }
