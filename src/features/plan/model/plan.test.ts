@@ -12,7 +12,7 @@ import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
 import { migrateTool } from "./migrate";
 import { PROGRESSIONS, STYLES } from "@/features/backing/model";
-import { degreeSemis, legacySections, linkResources, parseSection, parseTool, sectionInterface, sectionsOf, toolInterface } from "./tools";
+import { degreeSemis, legacySections, linkResources, parseSection, parseTool, parseToolDiag, sectionInterface, sectionsOf, toolInterface } from "./tools";
 import { linkSlots, toolFromLink } from "./migrate";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
@@ -45,6 +45,13 @@ describe("plan links", () => {
 });
 
 describe("tools", () => {
+  it("pinned keeps the parts a tool can follow and notes the rest", () => {
+    const p = parseToolDiag({ type: "scale-neck", scale: "minor-pentatonic", key: "g", pinned: ["key", "bpm", "nope"] });
+    assert.deepEqual(p.tool?.pinned, ["key"]);
+    assert.ok(p.notes.some((n) => n.includes("cannot follow (scale-neck: bpm, nope)")), p.notes.join("|"));
+    assert.equal(parseToolDiag({ type: "note-finder", query: "c", pinned: ["key"] }).tool?.pinned, undefined);
+    assert.equal(parseToolDiag({ type: "scale-neck", scale: "minor-pentatonic", key: "g" }).tool?.pinned, undefined);
+  });
   it("stub tools parse and drop junk", () => {
     assert.deepEqual(parseTool({ type: "finger-pattern", fingers: "1324", bpm: 60 }), { type: "finger-pattern", fingers: "1324", fret: 1, bpm: 60 });
     assert.deepEqual(parseTool({ type: "finger-pattern", fingers: 1234, fret: 5, strings: [1, 6, 6, 9], bpm: "fast" }), { type: "finger-pattern", fingers: "1234", fret: 5, strings: [6, 1], bpm: 80 });

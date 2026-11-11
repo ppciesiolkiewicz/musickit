@@ -25,6 +25,7 @@ import type { Area } from "./concepts";
 import type { Level } from "./types";
 import { migrateTool, toolFromLink } from "./migrate";
 import { notePc } from "./noteText";
+import { canTranspose } from "./transpose";
 
 /**
  * The one file that says what an exercise is made of. Think of it as an MCP server for the plan: every block and every
@@ -638,9 +639,31 @@ export function parseToolDiag(raw: unknown, opts: { stored?: boolean } = {}): To
   const spec = typeof t.type === "string" && Object.hasOwn(PARSERS, t.type) ? PARSERS[t.type as ToolName] : null;
   if (!spec) return { tool: null, dropped: t.type == null ? "a tool with no type" : `a tool of unknown type ${JSON.stringify(t.type)?.slice(0, 40)}`, notes: [] };
   const d: Diag = { notes: [...numbers], ...(opts.stored ? { stored: true } : {}) };
-  const tool = spec.parse(t, d);
+  const parsed = spec.parse(t, d);
+  const tool = parsed && pinnedOn(parsed, t.pinned, d);
   const notes = d.notes.map((n) => `${t.type} ${n}`);
   return tool ? { tool, notes } : { tool, dropped: `${/^[aeiou]/.test(t.type as string) ? "an" : "a"} ${t.type} (${d.why ?? "it can't be shown"})`, notes };
+}
+
+/** Whether a choice's part can move this tool: it has a key to transpose, a scale, a tempo, one position, or a level. */
+export function canFollowPart(tool: PlanTool, part: PartName): boolean {
+  switch (part) {
+    case "key": return canTranspose(tool);
+    case "scale": return "scale" in tool && typeof tool.scale === "string";
+    case "bpm": return tool.type === "staff" ? tool.click === true : ["backing-band", "backing-track", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill"].includes(tool.type);
+    case "position": return tool.type === "scale-neck" || (tool.type === "position-neck" && !tool.cross);
+    case "level": return hasLevel(tool);
+  }
+}
+
+/** The tool with its `pinned` parts: the ones it can follow, in `PART_NAMES` order; the rest are noted and left out. None: no `pinned` key at all. */
+function pinnedOn(tool: PlanTool, raw: unknown, d: Diag): PlanTool {
+  if (!Array.isArray(raw)) return tool;
+  const asked = [...new Set(raw.map(String))];
+  const kept = PART_NAMES.filter((p) => asked.includes(p) && canFollowPart(tool, p));
+  const lost = asked.filter((p) => !kept.includes(p as PartName));
+  if (lost.length && !d.stored) d.notes.push(`"pinned" had parts it cannot follow (${tool.type}: ${lost.join(", ")}); left them out.`);
+  return kept.length ? { ...tool, pinned: kept } : tool;
 }
 
 /**
