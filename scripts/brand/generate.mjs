@@ -1,6 +1,6 @@
 // npm run brand
 //
-// Draws the attunr brand set into brand/ (the logo, the mark and favicon, Instagram and YouTube pictures) and the app's own
+// Draws the attunr brand set into brand/ (the logo, the mark and favicon, Instagram, YouTube and TikTok pictures) and the app's own
 // icons into src/app/ (icon.png, apple-icon.png, favicon.ico), all from brand.html next to this file, in
 // Playwright's Chromium from the npx cache (as scripts/video does), with the site's fonts from src/app/_og.
 // Change the look in the template, run this, commit what it wrote. brand/README.md says what each picture is for.
@@ -62,6 +62,9 @@ const PICTURES = [
   { out: "youtube/banner.png", ...banner() },
   { out: "youtube/watermark.png", ...tile("letter", 150) },
   { out: "youtube/thumbnail.png", ...card(1280, 720) },
+  // tiktok: the profile picture is cut to a circle; the cover is a 9:16 video's first frame
+  { out: "tiktok/profile.png", ...tile("mark", 1080, DARK, false) },
+  { out: "tiktok/cover.png", ...card(1080, 1920), textWidth: 680 }, // the tagline kept clear of the buttons on the right
   // the app's own icons, where Next picks them up
   { out: join(APP, "icon.png"), ...tile("letter", 96) },
   { out: join(APP, "apple-icon.png"), ...tile("mark", 180) },

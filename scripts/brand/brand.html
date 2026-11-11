@@ -87,7 +87,7 @@ function card(spec, ink) {
   const wm = wordmark(200 * s, ink);
   wm.style.marginTop = px(36 * s);
   col.appendChild(wm);
-  col.appendChild(el("div", null, { fontSize: px(40 * s), lineHeight: 1.35, marginTop: px(56 * s), maxWidth: px(820 * s), textAlign: "center", color: MUTED }, spec.tagline));
+  col.appendChild(el("div", null, { fontSize: px(40 * s), lineHeight: 1.35, marginTop: px(56 * s), maxWidth: px((spec.textWidth ?? 820) * s), textAlign: "center", color: MUTED }, spec.tagline));
   col.appendChild(el("div", null, { display: "inline-flex", marginTop: px(64 * s), padding: `${px(18 * s)} ${px(44 * s)}`, borderRadius: px(999), background: GOLD, color: spec.bg, fontSize: px(34 * s), fontWeight: 600 }, spec.host));
   return col;
 }
