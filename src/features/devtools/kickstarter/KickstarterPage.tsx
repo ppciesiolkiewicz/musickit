@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
-import { FACTS, VOICE, outreachBrief, SAMPLE_EMAILS, type DemoLink } from "../model/kickstarter";
+import { FACTS, LINK_GROUPS, LINKS_TO_AVOID, VOICE, outreachBrief, SAMPLE_EMAILS, type DemoLink } from "../model/kickstarter";
 
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-sky-400";
 
@@ -36,15 +36,15 @@ function Block({ title, about, children }: { title: string; about: string; child
 }
 
 /** /dev/kickstarter: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. */
-export default function KickstarterPage({ demos, allDemosUrl }: { demos: DemoLink[]; allDemosUrl: string }) {
-  const brief = useMemo(() => outreachBrief(demos, allDemosUrl), [demos, allDemosUrl]);
+export default function KickstarterPage({ demos }: { demos: DemoLink[] }) {
+  const brief = useMemo(() => outreachBrief(demos), [demos]);
   return (
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-semibold text-slate-100">Founding-partner emails</h2>
         <p className="text-sm text-slate-400">Copy the brief into an AI chat, with the email thread if there is one, and it writes the reply or a first email. Edit the voice and the facts in <code className="text-slate-300">src/features/devtools/model/kickstarter.ts</code>.</p>
       </div>
-      <Block title="Brief for the AI" about="The facts, the voice, the sample emails and the demos, in one text.">
+      <Block title="Brief for the AI" about="The facts, the voice, the sample emails and the links, in one text.">
         <CopyButton text={brief} label="Copy brief" />
         <section aria-label="Brief for the AI" className="mt-2 max-h-[32rem] overflow-y-auto whitespace-pre-wrap wrap-break-word rounded-lg border border-slate-800 bg-slate-950/60 p-3 font-mono text-xs text-slate-300">{brief}</section>
       </Block>
@@ -72,20 +72,37 @@ export default function KickstarterPage({ demos, allDemosUrl }: { demos: DemoLin
           ))}
         </div>
       </Block>
-      <Block title="Demos" about="The demos an email can link to, with their public links.">
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {demos.map((d) => (
-            <li key={d.url} className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
-              <Link href={new URL(d.url).pathname} className="font-semibold text-slate-100 hover:underline">{d.label}</Link>
-              <span className="mt-0.5 block text-xs text-slate-400">{d.about}</span>
-              <span className="mt-1 flex items-center justify-between gap-2">
-                <span className="min-w-0 truncate font-mono text-xs text-slate-500">{d.url}</span>
-                <CopyButton text={d.url} label="Copy link" />
-              </span>
-            </li>
-          ))}
+      <Block title="Links, strongest first" about="What an email may link, by group. In each group the strongest is first; the brief tells the AI to pick from the top down.">
+        <div className="flex flex-col gap-4">
+          {LINK_GROUPS.map((g) => {
+            const ds = demos.filter((d) => d.group === g);
+            return ds.length ? (
+              <div key={g}>
+                <h3 className="mb-2 text-sm font-semibold text-slate-200">{g}</h3>
+                <ol className="flex flex-col gap-2">
+                  {ds.map((d, i) => (
+                    <li key={d.url} className="flex gap-3 rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+                      <span className="w-5 shrink-0 text-right font-mono text-xs text-slate-500">{i + 1}.</span>
+                      <span className="min-w-0 flex-1">
+                        <Link href={new URL(d.url).pathname} className="font-semibold text-slate-100 hover:underline">{d.label}</Link>
+                        <span className="mt-0.5 block text-xs text-slate-400">{d.about}</span>
+                        <span className="mt-1 flex items-center justify-between gap-2">
+                          <span className="min-w-0 truncate font-mono text-xs text-slate-500">{d.url}</span>
+                          <CopyButton text={d.url} label="Copy link" />
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ) : null;
+          })}
+        </div>
+      </Block>
+      <Block title="Never link" about="Pages the brief tells the AI to leave out, and why.">
+        <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm text-slate-200">
+          {LINKS_TO_AVOID.map((a) => <li key={a.path}><span className="font-semibold">{a.label}</span> <span className="font-mono text-xs text-slate-500">{a.path}</span>: {a.why}</li>)}
         </ul>
-        <p className="mt-3 text-xs text-slate-500">All demos: <Link href="/demo" className="font-mono hover:underline">{allDemosUrl}</Link></p>
       </Block>
     </div>
   );
