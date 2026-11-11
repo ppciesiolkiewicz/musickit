@@ -39,10 +39,16 @@ describe("ear game questions", () => {
         assert.equal(Math.abs(d), semisOf(n.answer));
         assert.equal(d < 0, dir === "down");
         assert.equal(n.together, dir === "together");
-        assert.ok(n.midi.every((m) => m >= 36 && m <= 84));
+        assert.ok(n.midi.every((m) => m >= 55 && m <= 84), `out of range: ${n.midi}`);
         if (prev) assert.notEqual(n.answer, prev.answer);
         prev = n;
       }
+    }
+  });
+  it("wide intervals and chords stay between G3 and C6, where a phone speaker plays them", () => {
+    for (const set of ["level=6&wide=1&dir=up", "level=6&wide=1&dir=down", "kind=chord"]) {
+      const rand = seeded(3);
+      for (let i = 0; i < 300; i++) assert.ok(nextEarQuestion(q(set), rand).midi.every((m) => m >= 55 && m <= 84), set);
     }
   });
   it("a single-interval set does not hang", () => {

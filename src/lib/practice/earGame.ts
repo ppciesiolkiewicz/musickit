@@ -66,20 +66,31 @@ export interface EarQuestion {
   together: boolean;
 }
 
-/** A random question: a random root (MIDI 48-64) and an answer that differs from the last one when there is a choice. */
+/** Where questions sit: no note under G3, which a phone speaker barely plays, and none over C6. */
+const LOWEST = 55;
+const HIGHEST = 84;
+/** the lowest note is picked from about an octave and a half, so the questions don't all start in one place */
+const SPREAD = 17;
+
+/** The lowest note of a question spanning `span` semitones: random, at least G3, with the top still at or under C6. */
+const lowNote = (span: number, rand: () => number) => LOWEST + Math.floor(rand() * Math.max(1, Math.min(SPREAD, HIGHEST - span - LOWEST + 1)));
+
+/** A random question: its notes between G3 and C6, and an answer that differs from the last one when there is a choice. */
 export function nextEarQuestion(s: EarSettings, rand: () => number, prev?: EarQuestion): EarQuestion {
   const answers = activeAnswers(s);
   const pool = answers.length > 1 && prev ? answers.filter((a) => a !== prev.answer) : answers;
   const answer = pool[Math.min(pool.length - 1, Math.floor(rand() * pool.length))];
-  const root = 48 + Math.floor(rand() * 17);
   if (s.kind === "chord") {
     const c = CHORD_QUALITIES.find((x) => x.id === answer)!;
+    const root = lowNote(Math.max(...c.semis), rand);
     return { answer, midi: c.semis.map((v) => root + v), together: true };
   }
   const simple = INTERVALS.find((i) => i.short === answer)!.semis;
   // wide: sometimes an octave more, still named as the simple interval
-  const semis = s.wide && simple < 12 && rand() < 0.5 ? simple + 12 : simple;
-  return { answer, midi: [root, s.direction === "down" ? root - semis : root + semis], together: s.direction === "together" };
+  const wide = s.wide && simple < 12 && rand() < 0.5;
+  const semis = wide ? simple + 12 : simple;
+  const low = lowNote(semis, rand);
+  return { answer, midi: s.direction === "down" ? [low + semis, low] : [low, low + semis], together: s.direction === "together" };
 }
 
 export interface Score {

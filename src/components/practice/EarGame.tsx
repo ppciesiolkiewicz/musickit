@@ -11,6 +11,7 @@ import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, writeQuery } fro
 import { useToolKeys } from "./toolKeys";
 import { Chip, ChipRow, Hint, KeyCap } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
+import { Volume } from "./ToolSettings";
 
 const DIRS: { id: Direction; label: string; mark: string }[] = [
   { id: "up", label: "Rising", mark: "↗" },
@@ -156,6 +157,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
           {q && (answered
             ? <Hint title="Replay" description="Plays the same one again."><button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={replay}><Icon name="repeat" size={14} />Replay{cap("R")}</button></Hint>
             : <Hint title="Skip" description="Moves on to a new one."><button type="button" className={`${btn} py-2`} onClick={next}>Skip</button></Hint>)}
+          <span className="ml-auto"><Volume /></span>
         </div>
         <div data-tour="interval-ears-answers" className={`grid gap-2 ${s.kind === "chord" ? "grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]" : "grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))]"}`}>
           {answers.map((a, i) => {
