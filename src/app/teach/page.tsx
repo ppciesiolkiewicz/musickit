@@ -6,6 +6,7 @@ import EarlyAccessForm from "@/components/landing/EarlyAccessForm";
 import Photo from "@/components/landing/Photo";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { DISPLAY, Eyebrow } from "@/components/landing/Display";
+import { devOnly } from "@/features/devtools/gate";
 
 export const metadata: Metadata = {
   title: "Teach Guitar on attunr: Video Studio & Diagram Tools · attunr",
@@ -47,14 +48,15 @@ export default function TeachersPage() {
 
           {/* the studio is a separate early tool, an early step towards the teacher app, so it sits apart from the offer */}
           <p className="mt-12 mb-3 text-xs uppercase tracking-[0.18em] text-slate-500">Try it now</p>
-          <Link href="/teachers/studio" className="ls-card group flex items-center gap-4 rounded-3xl border border-slate-800 bg-slate-900/40 p-5 transition hover:-translate-y-0.5 hover:border-slate-600 sm:p-6">
+          {/* the video studio is dev only for now */}
+          {devOnly() && <Link href="/teachers/studio" className="ls-card group flex items-center gap-4 rounded-3xl border border-slate-800 bg-slate-900/40 p-5 transition hover:-translate-y-0.5 hover:border-slate-600 sm:p-6">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-800 text-slate-300"><Icon name="layers" size={22} /></span>
             <span className="min-w-0">
-              <span className="flex items-center gap-2 text-xl text-slate-50" style={DISPLAY}>Video studio <span className="rounded-full border border-slate-700 px-2 py-0.5 font-sans text-[11px] not-italic normal-case tracking-normal text-slate-400">Preview</span></span>
+              <span className="flex items-center gap-2 text-xl text-slate-50" style={DISPLAY}>Video studio (dev) <span className="rounded-full border border-slate-700 px-2 py-0.5 font-sans text-[11px] not-italic normal-case tracking-normal text-slate-400">Preview</span></span>
               <span className="text-sm text-slate-400">A first teaching tool, free to use: record a lesson with any chord, scale, position or drone on screen beside your camera.</span>
             </span>
             <span aria-hidden className="ml-auto text-slate-500 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
-          </Link>
+          </Link>}
           <Link href="/teachers/studio?notes=1" className="ls-card mt-3 group flex items-center gap-4 rounded-3xl border border-slate-800 bg-slate-900/40 p-5 transition hover:-translate-y-0.5 hover:border-slate-600 sm:p-6">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-slate-800 text-slate-300"><Icon name="file-text" size={22} /></span>
             <span className="min-w-0">
