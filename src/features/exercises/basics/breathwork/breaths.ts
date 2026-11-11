@@ -32,7 +32,7 @@ export interface BreathOptions {
 }
 
 export const READY_SECONDS = 3;
-export const LIMITS = { from: [2, 12], to: [2, 16], seconds: [2, 16], rounds: [1, 8] } as const;
+export const LIMITS = { from: [2, 12], to: [2, 20], seconds: [2, 16], rounds: [1, 8] } as const;
 export const DEFAULTS: Record<BreathDrill, { seconds: number; rounds: number }> = {
   farinelli: { seconds: 0, rounds: 0 },
   "sss-zzz": { seconds: 3, rounds: 3 },

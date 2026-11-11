@@ -39,9 +39,9 @@ export const STRING_SINGER_LEVELS: Ladder<"strings" | "pairs" | "fifth-fret"> = 
 /** breathwork, farinelli only: the first and last count. */
 export const FARINELLI_LEVELS: Ladder<{ from: number; to: number }> = {
   new: { from: 2, to: 5 },
-  beginner: { from: 3, to: 6 },
+  beginner: { from: 3, to: 8 },
   intermediate: { from: 4, to: 10 },
-  advanced: { from: 4, to: 12 },
+  advanced: { from: 4, to: 20 },
 };
 
 /** finger-pattern: the order of the fingers, and the fret under finger 1 (the frets are closer together higher up). */

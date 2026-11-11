@@ -8,13 +8,13 @@
  * @component breathwork basic
  */
 export interface BreathworkProps {
-  /** farinelli only: how hard, in one word; it sets `from` and `to` where you leave them out: "new" 2 to 5, "beginner" 3 to 6, "intermediate" 4 to 10, "advanced" 4 to 12 */
+  /** farinelli only: how hard, in one word; it sets `from` and `to` where you leave them out: "new" 2 to 5, "beginner" 3 to 8, "intermediate" 4 to 10, "advanced" 4 to 20 */
   level?: "new" | "beginner" | "intermediate" | "advanced";
   /** "farinelli" (default), "sss-zzz", "zzz-sss", "cycles", "long-exhale" or "body-scan" */
   drill?: "farinelli" | "sss-zzz" | "zzz-sss" | "cycles" | "long-exhale" | "body-scan";
   /** farinelli only: the first count, 2-12; default 4 (a beginner 2 or 3) */
   from?: number;
-  /** farinelli only: the last count, from `from` up to 16; default 8 (a beginner 6, intermediate 10, advanced 12+). Each count is one second, so 4 to 8 takes about 1.5 minutes */
+  /** farinelli only: the last count, from `from` up to 20; default 8 (a beginner 8, intermediate 10, advanced 20). Each count is one second, so 4 to 8 takes about 1.5 minutes */
   to?: number;
   /** the drill's main length in seconds, 2-16: each sss and zzz (default 3), each in, hold and out of "cycles" (default 4), the breath out of "long-exhale" (default 8, the breath in is always 4), each part of "body-scan" (default 8). Not for farinelli */
   seconds?: number;

@@ -198,7 +198,7 @@
         "name": "level",
         "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
         "required": false,
-        "description": "farinelli only: how hard, in one word; it sets `from` and `to` where you leave them out: \"new\" 2 to 5, \"beginner\" 3 to 6, \"intermediate\" 4 to 10, \"advanced\" 4 to 12"
+        "description": "farinelli only: how hard, in one word; it sets `from` and `to` where you leave them out: \"new\" 2 to 5, \"beginner\" 3 to 8, \"intermediate\" 4 to 10, \"advanced\" 4 to 20"
       },
       {
         "name": "drill",
@@ -216,7 +216,7 @@
         "name": "to",
         "type": "number",
         "required": false,
-        "description": "farinelli only: the last count, from `from` up to 16; default 8 (a beginner 6, intermediate 10, advanced 12+). Each count is one second, so 4 to 8 takes about 1.5 minutes"
+        "description": "farinelli only: the last count, from `from` up to 20; default 8 (a beginner 8, intermediate 10, advanced 20). Each count is one second, so 4 to 8 takes about 1.5 minutes"
       },
       {
         "name": "seconds",

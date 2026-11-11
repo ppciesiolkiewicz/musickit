@@ -14,7 +14,7 @@ test("farinelli counts: defaults 4 to 8, clamped, never down", () => {
   assert.deepEqual(farinelliCounts(), [4, 5, 6, 7, 8]);
   assert.deepEqual(farinelliCounts({ from: 10 }), [10]);
   assert.deepEqual(farinelliCounts({ from: 6, to: 3 }), [6]);
-  assert.deepEqual(farinelliCounts({ from: 0, to: 99 }).at(-1), 16);
+  assert.deepEqual(farinelliCounts({ from: 0, to: 99 }).at(-1), 20);
 });
 
 test("cue drills repeat their round", () => {

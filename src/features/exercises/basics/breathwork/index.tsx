@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "@/components/Icon";
+import { Checkbox } from "@/components/ui";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { useAudioFocus, wakeAudio } from "@/features/sound";
 import { PlayButton, PlayerCard } from "../../play-along/PlayerParts";
@@ -192,13 +193,14 @@ const safetySubscribe = (fn: () => void) => {
   return () => {};
 };
 
-/** Farinelli's safety note: open until the learner presses OK (remembered), then a yellow chip that reopens it. */
+/** Farinelli's safety note: open on each visit until the learner ticks "Don't show again" and presses OK (kept in this browser), and a yellow chip that reopens it. */
 function useSafety() {
   const seen = useSyncExternalStore(safetySubscribe, safetyRead, () => false);
   const [toggled, setToggled] = useState<boolean | null>(null);
   const open = toggled ?? !seen;
-  const ok = () => {
+  const ok = (remember: boolean) => {
     setToggled(false);
+    if (!remember) return;
     try {
       localStorage.setItem(SAFETY_KEY, "1");
     } catch { /* storage unavailable */ }
@@ -218,15 +220,19 @@ function SafetyChip({ open, onClick }: { open: boolean; onClick(): void }) {
 }
 
 /** The note itself, laid over the card below the header so the circle keeps its size and place. */
-function SafetyPanel({ onOk }: { onOk(): void }) {
+function SafetyPanel({ onOk }: { onOk(remember: boolean): void }) {
+  const [remember, setRemember] = useState(false);
   return (
     <div role="note" className="absolute inset-x-3 top-16 z-10 rounded-xl border border-amber-400/70 bg-amber-950/95 p-3 text-amber-100 shadow-xl shadow-black/40 backdrop-blur sm:inset-x-4">
       <p className="flex items-center gap-2 text-sm font-semibold text-amber-200"><Icon name="alert-triangle" size={16} />Safety first</p>
       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-snug">
         {SAFETY.map((s) => <li key={s}>{s}</li>)}
       </ul>
-      <button type="button" onClick={onOk}
-        className="mt-3 rounded-full bg-amber-400 px-4 py-1.5 text-sm font-semibold text-slate-900 transition hover:bg-amber-300">OK</button>
+      <div className="mt-3 flex flex-wrap items-center gap-4">
+        <button type="button" onClick={() => onOk(remember)}
+          className="rounded-full bg-amber-400 px-4 py-1.5 text-sm font-semibold text-slate-900 transition hover:bg-amber-300">OK</button>
+        <Checkbox checked={remember} onChange={setRemember}>Don&apos;t show again</Checkbox>
+      </div>
     </div>
   );
 }
