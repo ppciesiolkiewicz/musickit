@@ -1,0 +1,1912 @@
+{
+ "id": "voice-advanced",
+ "kind": "plan",
+ "areas": [
+  "voice"
+ ],
+ "level": "advanced",
+ "updated": "2026-11-12",
+ "model": "claude-fable-5-2",
+ "minutes": 25,
+ "concepts": [
+  "leaps",
+  "singing-intervals",
+  "fast-runs",
+  "stretch-range",
+  "improvise-melody",
+  "sight-singing"
+ ],
+ "docs": {
+  "agents": 1,
+  "teaching": 4
+ },
+ "note": "An advanced voice week at 25 minutes a day, every tool set to the level: the hard leaps (tritone, minor 6th, both 7ths, minor 3rd) are found from a neighbour, then sung down, in any key and with the voice hidden; expert runs in sixteenths state their range; expert tunes from the 7ths, octave and past-the-octave stages are read from the staff with no chords before they are heard. Guide tones are the key skill and return on five days in new forms: two lines over a ii-V-I by a Key selector, round a turnaround, faster by a Stage selector, landing on the 3rd or 7th, and from memory on day 7.",
+ "plan": {
+  "title": "Week 1: hard leaps, fast runs and lines that follow the chords",
+  "summary": "Sing the leaps that are hard to hear, first from a neighbour you know, then in any key without seeing your voice. Each day opens with breath or a slide, has an ear game and a fast run in the middle, and ends with a tune to read or a line of your own over the chords.",
+  "progress": "Breath & range: in, hold and out from 6 counts up to 13, a long breath out of 16 counts, octave slides over a drone up to B♭ and a two-octave slide in C. Next: counts up to 15, the octave slide in B and C.\nIntervals & leaps: hears and sings the tritone, the minor 6th and both 7ths up from Do, each found from a neighbour (Sol, the high Do); minor 3rd, tritone and minor 6th down; all of them in any key and without seeing the voice. Hears them falling and sounded together, and 9ths and 10ths. Next: the leaps from notes other than Do, the minor 2nd and major 6th down.\nRuns: pentatonic runs, the chord up to the high Do, the octave run and the scale up to the high Mi, all in sixteenths up to the top of the range. Next: longer runs that join two of these, and runs in a minor key.\nMelodies: read expert tunes with 7ths, octaves, a 9th and a 10th from the staff before hearing them, in D, F, G and A. Next: longer tunes read at a set tempo with the metronome.\nHarmony & improvising: guide tones over ii-V-I in C, F, D and E♭ up to 104 bpm, and round a turnaround in D, G, F and C; own lines that start on a guide tone, land on the 3rd or 7th, and leap an octave. Next: guide tones over a minor ii-V-i and a 12-bar blues.",
+  "days": [
+   {
+    "theme": "Either side of Sol",
+    "exercises": [
+     {
+      "title": "In, hold, out to 11",
+      "focus": "Breath · in, hold and out for the same count · 6 counts growing to 11",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "Each round is one count longer than the last, so your breath reaches eleven counts without one hard jump.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out as the circle grows, stays and shrinks, each for the count shown. Fill to about 80%, not to the top, so the long holds stay easy."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "farinelli",
+         "from": 6,
+         "to": 11
+        }
+       }
+      ]
+     },
+     {
+      "title": "Tritone, 5th or minor 6th?",
+      "focus": "Hear the tritone and the minor 6th from the 5th between them, rising",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "singing-intervals"
+      ],
+      "why": "The tritone is a half step under Sol and the minor 6th a half step over it, so you can hear each of them as a 5th that is a little too small or a little too wide.",
+      "learnBefore": [
+       "/course/6/every-interval"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a tritone, a 5th or a minor 6th above it. Hum the second note back, then pick TT for the tritone, P5 for the 5th or m6 for the minor 6th."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          6,
+          7,
+          8
+         ],
+         "dir": "up"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Sing the tritone and the minor 6th",
+      "focus": "A tritone and a minor 6th up from Do · found from Sol · Do moves between D and F",
+      "minutes": 5,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps",
+       "singing-intervals"
+      ],
+      "why": "Sol is a leap you already land, so hearing it first puts the tritone and the minor 6th a half step away instead of a long way from Do.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: TT is the tritone, m6 the minor 6th.\nHear Sol in your head first: the tritone lands a half step under it, the minor 6th a half step above it. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a note won't come, press Show me below to hear it.\nWhen Do moves to a new key, the notes are new but each leap is still a half step from Sol."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "voice": "tenor",
+         "key": "d",
+         "keys": [
+          "d",
+          "f"
+         ],
+         "intervals": [
+          6,
+          8
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "title": "A fast pentatonic run",
+      "focus": "A run from Mi up to the high Do and down to La under Do · four notes per beat · a semitone higher each pass",
+      "minutes": 4,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "fast-runs"
+      ],
+      "why": "The run leaves out Fa and Ti, the two notes that sit a half step from a neighbour, so every note has room and the run stays clear when it gets fast.",
+      "learnBefore": [
+       "/course/9/fast-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run starts on Mi, climbs to the high Do and comes down to the La under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "pentatonic-run"
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Guide tones over ii-V-I",
+      "focus": "The 3rds and 7ths of a ii-V-I · two lines · in C and F · then your own line in D",
+      "minutes": 10,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing",
+       "improv"
+      ],
+      "topic": "voice-harmony",
+      "concepts": [
+       "improvise-melody"
+      ],
+      "why": "The 3rd and the 7th tell one chord from the next, and through a ii-V-I each of them moves a step or stays where it is, so a line made of them lets you hear every change.",
+      "learnBefore": [
+       "/course/11/ii-v-i",
+       "/course/11/guide-tones"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "One line, then the other",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band: a ii-V-I, with the last chord held for two bars. Sing one long note per chord on \"ah\": {{4}}, {{4}} again, then {{3}}. Then sing the other line: {{1}}, down to {{7}}, then {{7}} again.\nOnce you hear each change before its chord box lights, sing the lines in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the chords are new but each line still stays for one change and moves one step down for the other."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "c"
+          },
+          {
+           "key": "f"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "c",
+         "voice": "tenor",
+         "labels": "degree",
+         "notes": [
+          "1",
+          "3",
+          "4",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "c",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "numerals": [
+          "ii7",
+          "V7",
+          "Imaj7",
+          "Imaj7"
+         ]
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Your own line",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the same changes in D: Em7, A7 and Dmaj7. Make up your own line, and sing it on any vowel. Start each chord on one of its ringed notes: {{4}} or {{1}} over Em7, {{7}} or {{4}} over A7, {{3}} or {{7}} over Dmaj7.\nIf you lose the chords, go back to one long ringed note per chord until you hear the changes again."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "d",
+         "voice": "tenor",
+         "labels": "degree",
+         "under": true,
+         "highlight": [
+          "1",
+          "3",
+          "4",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "d",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "numerals": [
+          "ii7",
+          "V7",
+          "Imaj7",
+          "Imaj7"
+         ]
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "The 7ths, under the high Do",
+    "exercises": [
+     {
+      "title": "An octave slide, a little higher",
+      "focus": "Do to the high Do, slid then held · over a drone · in G, A and B♭",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "stretch-range"
+      ],
+      "why": "A slide passes through every pitch on the way up, so your voice arrives at the top note already moving instead of jumping at it, and each key puts that top note one step higher.",
+      "learnBefore": [
+       "/course/9/stretching-your-range"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to the high {{1}} and back, like a siren. Then slide up once more and hold the high {{1}} quietly for one breath.\nOnce the held note stays steady, take the slide higher. Use the Key selector below to change the key, then press Start exercise again.\n_Don't push for the top note: go only as high as stays easy today._"
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "g"
+          },
+          {
+           "key": "a"
+          },
+          {
+           "key": "b-flat"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "g",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "5"
+         ],
+         "drone": true
+        }
+       }
+      ]
+     },
+     {
+      "title": "Minor 7th, major 7th or octave?",
+      "focus": "Hear the two 7ths from the octave above them, rising",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "singing-intervals"
+      ],
+      "why": "The major 7th stops a half step short of the high Do and the minor 7th a whole step short, so you can tell them apart by how far each is from the octave.",
+      "learnBefore": [
+       "/course/6/every-interval"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 7th or an octave above it. Hum the second note back, then pick m7 for the minor 7th, M7 for the major 7th or P8 for the octave."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          10,
+          11,
+          12
+         ],
+         "dir": "up"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Sing the two 7ths",
+      "focus": "A minor and a major 7th up from Do · found from the high Do · Do moves between C and E♭",
+      "minutes": 5,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps",
+       "singing-intervals"
+      ],
+      "why": "The high Do is the same note as Do, so you can always hear it, and each 7th is one small step down from there.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: m7 is the minor 7th, M7 the major 7th.\nHear the high Do in your head first: the major 7th lands a half step under it, the minor 7th a whole step under it. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but each 7th is still the same distance under the high Do."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "voice": "tenor",
+         "key": "c",
+         "keys": [
+          "c",
+          "e-flat"
+         ],
+         "intervals": [
+          10,
+          11
+         ]
+        }
+       }
+      ]
+     },
+     {
+      "title": "The chord as a fast run",
+      "focus": "Do Mi Sol up to the high Do and back to Ti under Do · four notes per beat · a semitone higher each pass",
+      "minutes": 4,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "fast-runs"
+      ],
+      "why": "A run of skips has no steps to lean on, so every note has to be aimed, and going round Do, Mi and Sol twice before the top puts the chord in your ear first.",
+      "learnBefore": [
+       "/course/9/fast-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes round Do, Mi and Sol twice, climbs to the high Do and comes back down past Do to the Ti under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it on \"ah\", and move to \"oo\" for the high Do when a pass feels tight."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "arpeggio-run"
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Read tunes with a 7th",
+      "focus": "Two tunes with 7ths in them · sung from the staff first, then checked · in D and G",
+      "minutes": 10,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "song"
+      ],
+      "topic": "voice-melodies",
+      "concepts": [
+       "sight-singing"
+      ],
+      "why": "In a tune no one names the leap or sounds Do first, so reading one shows whether you can find a 7th from whatever note you are on.",
+      "learnBefore": [
+       "/course/6/sight-singing",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "Do up to Ti",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Tap the first note of the tune below to hear it, before you press Play. The tune opens with Do up to Ti, a major 7th, and its second bar opens with Re up to the high Do, a minor 7th. Sing it from the staff on the note names, at your own pace. Then press Play below to hear the tune, and check what you sang against it.\nOnce both leaps land without a slide, read the tune in another key. Use the Key selector below to change the key, then tap the first note again.\nWhen you change the key, the notes change but the two leaps are still a major 7th, then a minor 7th."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "g"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "sevenths",
+          "index": 1
+         },
+         "key": "d",
+         "voice": "tenor",
+         "chords": false
+        }
+       },
+       {
+        "type": "heading",
+        "text": "A 7th from under Do",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "This tune starts on the Sol under Do and leaps up to Fa, a minor 7th with no Do in it. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to check.\nIf the first leap misses, sing Do between the two notes: Sol, Do, Fa. Then sing the leap again and only think the Do."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "sevenths",
+          "index": 2
+         },
+         "key": "g",
+         "voice": "tenor",
+         "chords": false
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "The minor 3rd, and leaps down",
+    "exercises": [
+     {
+      "title": "Hiss, then buzz, for longer",
+      "focus": "Breath · a hiss, then the same air with your voice on it · six seconds each",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "A hiss is air alone and a buzz is the same air with your voice on it, so holding each for longer shows whether the air stays steady when the voice comes in.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Hiss on \"sss\", add your voice for \"zzz\", then hiss again, as the circle shows. Keep the air moving at the same speed through all three, right to the end of each sound."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "sss-zzz",
+         "seconds": 6,
+         "rounds": 6
+        }
+       }
+      ]
+     },
+     {
+      "title": "3rds and 6ths, falling",
+      "focus": "Hear the minor and major 3rd and the minor and major 6th, falling",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "singing-intervals"
+      ],
+      "why": "In a falling leap the top note comes first with no Do under it, so your ear has to measure down, and minor is one half step away from major each time.",
+      "learnBefore": [
+       "/course/6/every-interval"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then one a 3rd or a 6th below it. Hum the lower note back, then pick m3 or M3 for a minor or major 3rd, m6 or M6 for a minor or major 6th."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          3,
+          4,
+          8,
+          9
+         ],
+         "dir": "down"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Hard leaps down from Do",
+      "focus": "A minor 3rd, a tritone and a minor 6th down from Do · Do moves between C and E♭",
+      "minutes": 5,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps",
+       "singing-intervals"
+      ],
+      "why": "A minor 3rd down from Do lands on La and a minor 6th down lands on Mi, two notes of the scale you already sing, so only the tritone is a new sound.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below to hear Do and start the mic. The leaps now go down from Do: m3 is the minor 3rd, TT the tritone, m6 the minor 6th.\nHear the landing note in your head before you sing: the minor 3rd lands on La, the minor 6th on Mi, and the tritone a half step under Sol. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but the leaps still land on La, on Mi and just under Sol."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "voice": "tenor",
+         "key": "c",
+         "keys": [
+          "c",
+          "e-flat"
+         ],
+         "intervals": [
+          3,
+          6,
+          8
+         ],
+         "dir": "down"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Up the chord, hold the top",
+      "focus": "From Sol under Do up the chord to the high Do, held, and back · four notes per beat",
+      "minutes": 4,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "fast-runs"
+      ],
+      "why": "The top note is held for three beats, so you hear whether the run arrived in tune before you come back down.",
+      "learnBefore": [
+       "/course/9/fast-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the chord from the Sol under Do to the high Do, holds it, and comes down the same way, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it on \"ah\", and move to \"oo\" for the held note when a pass feels tight."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "arpeggio-run",
+          "index": 1
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Guide tones round a turnaround",
+      "focus": "The 3rds and 7ths over Imaj7, vi7, ii7 and V7 · two lines · in D and G · then steps between them in F",
+      "minutes": 10,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing",
+       "improv"
+      ],
+      "topic": "voice-harmony",
+      "concepts": [
+       "improvise-melody"
+      ],
+      "why": "Round these four chords the 7th of one chord sits a half step from the 3rd of the next, or on it, so one line covers every change by moving a half step or not at all.",
+      "learnBefore": [
+       "/course/11/guide-tones",
+       "/course/9/improvising-a-melody"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "Two lines, one with a leap",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band: four chords, a bar each, round and round. Sing one long note per chord on \"oo\": {{7}}, up to {{1}}, {{1}} again, then back down to {{7}}. Then sing the other line: {{3}}, up to {{5}}, down to {{4}}, then {{4}} again. From {{3}} up to {{5}} is a minor 3rd, the leap of the day.\nOnce the leap lands without a slide, sing both lines in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the chords are new but the first line still moves by half steps and the second still opens with a minor 3rd."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "g"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "d",
+         "voice": "tenor",
+         "labels": "degree",
+         "under": true,
+         "notes": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "d",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "turnaround"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Steps between the notes",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band in F: Fmaj7, Dm7, Gm7 and C7. Start each chord on a ringed note from either line, then walk by step to the next chord's ringed note. Sing it on any vowel.\nIf a bar goes by with no ringed note in it, hold the next one for a whole bar and start walking again."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "f",
+         "voice": "tenor",
+         "labels": "degree",
+         "under": true,
+         "highlight": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "f",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "turnaround"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "Any leap, any key",
+    "exercises": [
+     {
+      "title": "In, hold, out to 12",
+      "focus": "Breath · in, hold and out for the same count · 8 counts growing to 12",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "Starting at eight counts skips the easy rounds, so the whole three minutes is spent at the length where your breath is still growing.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, as on day 1. The rounds now start where day 1 was halfway, so keep your shoulders still and fill to about 80%."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "farinelli",
+         "from": 8,
+         "to": 12
+        }
+       }
+      ]
+     },
+     {
+      "title": "Two notes at once",
+      "focus": "Hear the tritone, the minor 6th and the two 7ths when both notes sound together",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "singing-intervals"
+      ],
+      "why": "When both notes sound at once there is no first note to measure from, so your ear has to pull the pair apart: hum the lower note, then the upper one, and the leap is back.",
+      "learnBefore": [
+       "/course/6/every-interval"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays two notes at the same time. Hum the lower one, then the upper one, then pick TT, m6, m7 or M7."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          6,
+          8,
+          10,
+          11
+         ],
+         "dir": "together"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Every hard leap, up and down",
+      "focus": "Minor 3rd, tritone, minor 6th and both 7ths · up and down · Do in a new key each time",
+      "minutes": 5,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps",
+       "singing-intervals"
+      ],
+      "why": "With Do in a new key each time you can't lean on the last note you sang, so each leap has to be found from its neighbour: Sol, or the next Do.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below to hear Do and start the mic. Every hard leap of the week can come now, up or down, and Do moves to a new key each time.\nName the neighbour before you sing: Sol for the tritone and the minor 6th, the next Do for the 7ths. Then sing the landing note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap down misses, press Restart below and hear the landing note in your head first."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "voice": "tenor",
+         "level": "advanced"
+        }
+       }
+      ]
+     },
+     {
+      "title": "The octave run",
+      "focus": "The whole scale up to the high Do and back to Ti under Do · four notes per beat · a semitone higher each pass",
+      "minutes": 4,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "fast-runs"
+      ],
+      "why": "The scale has two half steps, Mi to Fa and Ti to Do, and a fast run goes out of tune when they come out too wide, so aim those two pairs and the other steps are all whole ones.",
+      "learnBefore": [
+       "/course/9/fast-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the whole scale from Do to the high Do and comes straight back, past Do to the Ti under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\". If the notes smear into each other, sing one pass on \"da\", then go back to \"ah\"."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "hard",
+          "stage": "octave-run"
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Read tunes with an octave",
+      "focus": "Two tunes with octave leaps · sung from the staff first, then checked · in F, G and A",
+      "minutes": 10,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "song"
+      ],
+      "topic": "voice-melodies",
+      "concepts": [
+       "sight-singing"
+      ],
+      "why": "After an octave leap you are on the note you just left, higher or lower, so keep its sound in your ear through the leap and the landing is already known.",
+      "learnBefore": [
+       "/course/6/sight-singing",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "Up an octave, down an octave",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Tap the first note of the tune below to hear it, before you press Play. The tune opens with Do up to the high Do, and in its second bar Sol drops an octave to the Sol under Do. Sing it from the staff on the note names, at your own pace. Then press Play below to hear the tune, and check what you sang against it.\nOnce both leaps land without a slide, read the tune in another key. Use the Key selector below to change the key, then tap the first note again.\nWhen you change the key, the notes change but both leaps are still an octave."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "f"
+          },
+          {
+           "key": "g"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "octave",
+          "index": 1
+         },
+         "key": "f",
+         "voice": "tenor",
+         "chords": false
+        }
+       },
+       {
+        "type": "heading",
+        "text": "An octave, then a minor 6th",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "This tune starts on the Sol under Do and leaps up an octave, and its second bar opens with Mi up to the high Do, a minor 6th. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to check.\nIf the minor 6th misses, sing Sol on the way: Mi, Sol, then the high Do. Then sing the leap again and only think the Sol."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "octave",
+          "index": 0
+         },
+         "key": "a",
+         "voice": "tenor",
+         "chords": false
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "Without the picture",
+    "exercises": [
+     {
+      "title": "A long breath out",
+      "focus": "Breath · in for four counts, out slowly for sixteen",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "A long phrase is one slow breath out, so a breath out four times as long as the breath in is the phrase without its notes.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in while the circle grows, then let the air out slowly until the circle is small again. Aim for the same flow of air at the end as at the start."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "long-exhale",
+         "seconds": 16,
+         "rounds": 6
+        }
+       }
+      ]
+     },
+     {
+      "title": "Every hard leap, falling",
+      "focus": "Hear a falling minor 3rd, tritone, minor 6th, minor 7th and major 7th",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "singing-intervals"
+      ],
+      "why": "Going down, the note you would measure from comes second, so hum the lower note and measure back up to the first one: the leap is the same one you sang up from Do.",
+      "learnBefore": [
+       "/course/6/every-interval"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then a lower one. Hum the lower note, then the first one again, then pick m3, TT, m6, m7 or M7."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          3,
+          6,
+          8,
+          10,
+          11
+         ],
+         "dir": "down"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Hard leaps you can't see",
+      "focus": "Tritone, minor 6th and both 7ths up from Do · your voice is not drawn · Do moves between C, E♭ and F",
+      "minutes": 5,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps",
+       "singing-intervals"
+      ],
+      "why": "With your voice not drawn, nothing shows you drifting towards the note, so the leap has to be heard whole before you start it.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below to hear Do. This time your voice is not drawn: the game only shows whether your note counted.\nHear the neighbour and then the landing note in your head, then sing it on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. Press Show me below when you want to see the note."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "voice": "tenor",
+         "key": "c",
+         "keys": [
+          "c",
+          "e-flat",
+          "f"
+         ],
+         "intervals": [
+          6,
+          8,
+          10,
+          11
+         ],
+         "dot": false
+        }
+       }
+      ]
+     },
+     {
+      "title": "A pentatonic riff",
+      "focus": "A held Sol, up to the high Do and down to La under Do · four notes per beat · a semitone higher each pass",
+      "minutes": 4,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "fast-runs"
+      ],
+      "why": "The run opens on a held Sol, so you tune one note before the fast ones start, and they leave from it and come back through it.",
+      "learnBefore": [
+       "/course/9/fast-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run holds Sol for a beat, turns up to the high Do and tumbles down to Do, then dips to the La under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "pentatonic-run",
+          "index": 1
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Your line over ii-V-I, faster",
+      "focus": "Guide tones over a ii-V-I in E♭ at 72, 88, then 104 bpm · then your own line over a bossa, landing on the 3rd",
+      "minutes": 10,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "improv"
+      ],
+      "topic": "voice-harmony",
+      "concepts": [
+       "improvise-melody"
+      ],
+      "why": "A faster band leaves less time to find each note, so a line holds together when you know where it lands: on the 3rd or the 7th as the last chord arrives.",
+      "learnBefore": [
+       "/course/11/ii-v-i",
+       "/course/11/guide-tones"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The two lines, in stages",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band. Sing day 1's two lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "label": "stage",
+         "options": [
+          {
+           "bpm": 72
+          },
+          {
+           "bpm": 88
+          },
+          {
+           "bpm": 104
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "e-flat",
+         "voice": "tenor",
+         "labels": "degree",
+         "notes": [
+          "1",
+          "3",
+          "4",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "e-flat",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "numerals": [
+          "ii7",
+          "V7",
+          "Imaj7",
+          "Imaj7"
+         ]
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Land on the 3rd",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band, now as a bossa. Make up a line over the first two chords, and sing it on any vowel. Whatever you sing, land on {{3}} as the last chord arrives, and hold it.\nThen aim for {{7}} instead.\nOnce both landings come easily, sing whatever you hear and leave a bar empty now and then."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "e-flat",
+         "voice": "tenor",
+         "labels": "degree",
+         "under": true,
+         "highlight": [
+          "1",
+          "3",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "e-flat",
+         "style": "bossa",
+         "bpm": 110,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "ii-v-i"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "Past the octave",
+    "exercises": [
+     {
+      "title": "A slide over two octaves",
+      "focus": "The lowest Do to the highest and back · over a C drone · slowly and quietly",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "stretch-range"
+      ],
+      "why": "A slide over two octaves passes the spot where your voice wants to break, and going through it slowly and quietly is what smooths it out.",
+      "learnBefore": [
+       "/course/9/stretching-your-range"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide from the lowest {{1}} on the staff up to the highest and back down, slowly and quietly. Watch your line on the way.\nWhere your line jumps, slide through that spot again, slower and quieter."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "c",
+         "voice": "tenor",
+         "labels": "solfege",
+         "notes": [
+          "1",
+          "5"
+         ],
+         "drone": true
+        }
+       }
+      ]
+     },
+     {
+      "title": "Leaps wider than an octave",
+      "focus": "Hear a 2nd or a 3rd when the top note is an octave further up",
+      "minutes": 4,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "ear",
+       "multi-octave"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "singing-intervals"
+      ],
+      "why": "A 9th is a 2nd with an octave added and a 10th is a 3rd with an octave added, so bring the top note down an octave in your head and the leap you know is there.",
+      "learnBefore": [
+       "/course/6/every-interval"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 2nd or a 3rd above it, sometimes an octave further up. Hum the top note an octave lower when it is far away, then pick M2, m3 or M3.\nThe answer is the same with or without the extra octave."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "set": [
+          2,
+          3,
+          4
+         ],
+         "dir": "up",
+         "wide": true
+        }
+       }
+      ]
+     },
+     {
+      "title": "Read tunes that leap past the octave",
+      "focus": "Do up to the high Re, then Do up to the high Mi · sung from the staff first · in D and F",
+      "minutes": 8,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "song"
+      ],
+      "topic": "voice-melodies",
+      "concepts": [
+       "sight-singing"
+      ],
+      "why": "The high Re and the high Mi are the Re and Mi you know, an octave up, so hear the low one first and the leap past the octave has a place to land.",
+      "learnBefore": [
+       "/course/6/sight-singing",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "Do up to the high Re",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "Tap the first note of the tune below to hear it, before you press Play. The tune leaps from Do up to the high Re, a 9th, then settles on the high Do. Sing it from the staff on the note names. Then press Play below to hear the tune, and check where your leap landed.\nOnce the leap lands without a slide, read the tune in another key. Use the Key selector below to change the key, then tap the first note again.\nWhen you change the key, the notes change but the leap is still an octave and one step."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "f"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "tenths",
+          "index": 0
+         },
+         "key": "d",
+         "voice": "tenor",
+         "chords": false
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Do up to the high Mi",
+        "minutes": 4
+       },
+       {
+        "type": "text",
+        "text": "This tune opens with Do up to the high Mi, a 10th, and its third bar leaps from Re to the same high Mi. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to check.\nIf the 10th misses, sing Do, Mi and the high Mi as three notes. Then leave out the middle one."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "melody-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "tenths",
+          "index": 2
+         },
+         "key": "d",
+         "voice": "tenor",
+         "chords": false
+        }
+       }
+      ]
+     },
+     {
+      "title": "A run past the octave",
+      "focus": "The scale from Do up to the high Mi and back, with turns · four notes per beat · a semitone higher each pass",
+      "minutes": 4,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "fast-runs"
+      ],
+      "why": "The run goes two notes past the high Do, to the high Mi of the tunes you just read, so the note you leapt to is now reached by step.",
+      "learnBefore": [
+       "/course/9/fast-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the scale from Do past the high Do to the high Mi, then comes down with two turns and dips to the Ti under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" above the high Do."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "hard",
+          "stage": "octave-run",
+          "index": 1
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "A line with a wide leap",
+      "focus": "Day 3's guide tones over Cmaj7, Am7, Dm7 and G7 · then your own line with a leap of an octave or more",
+      "minutes": 6,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "improv"
+      ],
+      "topic": "voice-harmony",
+      "concepts": [
+       "improvise-melody"
+      ],
+      "why": "Each guide tone is on the staff in more than one octave, so a line can leap an octave or more and still land on a note that fits the chord.",
+      "learnBefore": [
+       "/course/11/guide-tones",
+       "/course/9/improvising-a-melody"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "Both lines, a new key",
+        "minutes": 3
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band: Cmaj7, Am7, Dm7 and G7, a bar each. Sing day 3's two lines on \"oo\", one note per chord: {{7}}, {{1}}, {{1}}, {{7}}, then {{3}}, {{5}}, {{4}}, {{4}}.\nThe key is new, but the first line still moves by half steps and the second still opens with a minor 3rd."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "c",
+         "voice": "tenor",
+         "labels": "degree",
+         "under": true,
+         "notes": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "c",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "turnaround"
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Your own, with a leap",
+        "minutes": 3
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band. Make up your own line, and sing it on any vowel. Start each chord on a ringed note, and once in every round leap an octave or more to the next ringed note.\nIf a leap lands off the chord, sing the note an octave lower first, then leap to it."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "c",
+         "voice": "tenor",
+         "labels": "degree",
+         "under": true,
+         "highlight": [
+          "1",
+          "3",
+          "4",
+          "5",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "c",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "turnaround"
+        }
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "theme": "Then and now",
+    "exercises": [
+     {
+      "title": "Day 4's breath, one count more",
+      "focus": "Breath · in, hold and out for the same count · 9 counts growing to 13",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-breath-range",
+      "concepts": [
+       "breath-holding-note"
+      ],
+      "why": "The rounds start one count later than on day 4 and end one count further, so you feel the change at the long end, where it was hardest.",
+      "learnBefore": [
+       "/course/3/breath-and-holding-a-note"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, as on day 4. Notice how the rounds past ten feel now."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "breathwork",
+         "drill": "farinelli",
+         "from": 9,
+         "to": 13
+        }
+       }
+      ]
+     },
+     {
+      "title": "All twelve, falling",
+      "focus": "Hear any interval up to an octave, falling",
+      "minutes": 3,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "ear"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "singing-intervals"
+      ],
+      "why": "With all twelve to choose from, the hard leaps sit among the easy ones as they do in a song, so each one has to be known by its own sound.",
+      "learnBefore": [
+       "/course/6/every-interval"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then a lower one, any interval up to an octave. Hum the lower note, then the first one again, then pick the interval's name."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-ears",
+         "level": "advanced",
+         "dir": "down"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Every hard leap, unseen",
+      "focus": "Minor 3rd, tritone, minor 6th and both 7ths · up and down · any key · your voice is not drawn",
+      "minutes": 5,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing"
+      ],
+      "topic": "voice-intervals",
+      "concepts": [
+       "leaps",
+       "singing-intervals"
+      ],
+      "why": "Day 1 gave you one neighbour, two leaps and the picture of your voice, and today has every leap, both ways, in any key with no picture, so what lands now is what your ear has learnt.",
+      "learnBefore": [
+       "/course/6/every-interval",
+       "/course/6/singing-leaps"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Start below to hear Do. Any hard leap of the week can come, up or down, in any key, and your voice is not drawn.\nSing the landing note on \"oo\" and hold it until Yes shows. Press Next below for another leap.\nNotice which leaps you now land without thinking of a neighbour first."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "interval-singer",
+         "voice": "tenor",
+         "level": "advanced",
+         "dot": false
+        }
+       }
+      ]
+     },
+     {
+      "title": "Day 1's run again",
+      "focus": "The pentatonic run from Mi up to the high Do and down to La under Do · four notes per beat",
+      "minutes": 4,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "technique"
+      ],
+      "topic": "voice-runs",
+      "concepts": [
+       "fast-runs"
+      ],
+      "why": "The notes are the ones from day 1, so what you hear changing is your voice: how many passes stay clear before the top.",
+      "learnBefore": [
+       "/course/9/fast-runs"
+      ],
+      "sections": [
+       {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. It is day 1's run: from Mi up to the high Do and down to the La under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and notice how far up the passes stay clear now."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "run-singer",
+         "pick": {
+          "difficulty": "expert",
+          "stage": "pentatonic-run"
+         },
+         "voice": "tenor"
+        }
+       }
+      ]
+     },
+     {
+      "title": "Day 1's changes, your way",
+      "focus": "Guide tones over Dm7, G7 and Cmaj7 from memory · then your own line over a bossa in D and F",
+      "minutes": 10,
+      "level": "advanced",
+      "area": "voice",
+      "tags": [
+       "sing",
+       "improv"
+      ],
+      "topic": "voice-harmony",
+      "concepts": [
+       "improvise-melody"
+      ],
+      "why": "Guide tones are the notes your ear checks a chord by, so once you can sing them without the staff, any line you make up has somewhere to start and somewhere to land.",
+      "learnBefore": [
+       "/course/11/ii-v-i",
+       "/course/11/guide-tones"
+      ],
+      "sections": [
+       {
+        "type": "heading",
+        "text": "The two lines, eyes closed",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band: Dm7, G7 and Cmaj7, as on day 1. Sing day 1's two lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}. Then close your eyes and sing them again.\nNotice how early you now hear each change coming."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "c",
+         "voice": "tenor",
+         "labels": "degree",
+         "notes": [
+          "1",
+          "3",
+          "4",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "c",
+         "style": "ballad",
+         "bpm": 72,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "numerals": [
+          "ii7",
+          "V7",
+          "Imaj7",
+          "Imaj7"
+         ]
+        }
+       },
+       {
+        "type": "heading",
+        "text": "Your line, two keys",
+        "minutes": 5
+       },
+       {
+        "type": "text",
+        "text": "Press Start exercise below to start the mic and the band, now as a bossa. Make up your own line, and sing it on any vowel. Start each chord on one of its ringed notes, and put one of the week's hard leaps somewhere in each round.\nThen sing over another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the chords are new but the ringed notes are the same numbers."
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "step-choice",
+         "options": [
+          {
+           "key": "d"
+          },
+          {
+           "key": "f"
+          }
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "staff",
+         "scale": "major-ionian",
+         "key": "d",
+         "voice": "tenor",
+         "labels": "degree",
+         "under": true,
+         "highlight": [
+          "1",
+          "3",
+          "4",
+          "7"
+         ]
+        }
+       },
+       {
+        "type": "tool",
+        "tool": {
+         "type": "backing-track",
+         "key": "d",
+         "style": "bossa",
+         "bpm": 110,
+         "parts": {
+          "drums": "on",
+          "bass": "off",
+          "keys": "always"
+         },
+         "progression": "ii-v-i"
+        }
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+}

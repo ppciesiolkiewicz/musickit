@@ -3,7 +3,7 @@ import type { Level, PlanConfig } from "./model/types";
 import type { Area } from "./model/concepts";
 
 /**
- * The plans anyone can open without writing a prompt, at `/demo/<slug>`: five of the hand-tuned example plans, so a link in a pitch
+ * The plans anyone can open without writing a prompt, at `/demo/<slug>`: six of the hand-tuned example plans, so a link in a pitch
  * shows what the AI plan looks like when it is done. The slug is the link; the plan is the example's `id`.
  */
 export const DEMO_PLANS: Record<string, { example: string; label: string }> = {
@@ -12,6 +12,7 @@ export const DEMO_PLANS: Record<string, { example: string; label: string }> = {
   "guitar-intermediate": { example: "guitar-intermediate", label: "Guitar for an intermediate player" },
   "voice-intermediate": { example: "voice-intermediate", label: "Voice for an intermediate singer" },
   "guitar-advanced": { example: "guitar-advanced", label: "Guitar for an advanced player" },
+  "voice-advanced": { example: "voice-advanced", label: "Voice for an advanced singer" },
 };
 
 /** The demo plan behind a slug, or null when there is none. */

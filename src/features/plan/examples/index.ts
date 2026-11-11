@@ -32,6 +32,7 @@ import guitarAdvancedPlan from "./plans/guitar-advanced.json";
 import voiceBeginnerPlan from "./plans/voice-beginner.json";
 import guitarTheoryIntermediatePlan from "./plans/guitar-theory-intermediate.json";
 import voiceIntermediatePlan from "./plans/voice-intermediate.json";
+import voiceAdvancedPlan from "./plans/voice-advanced.json";
 
 /** The versions of the documents an example is written to. */
 export interface DocVersions {
@@ -111,4 +112,5 @@ export const PLAN_EXAMPLES: PlanExample[] = [
   voiceBeginnerPlan,
   guitarTheoryIntermediatePlan,
   voiceIntermediatePlan,
+  voiceAdvancedPlan,
 ] as PlanExample[];

@@ -50,9 +50,9 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
 
 What there is: one exercise per area and level (`<area>-<level>-<what>.json`) and four more (`guitar-new-notes-on-e-and-a`,
 `voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`, `voice-advanced-hard-leaps`: an interval-singer taken up by a step-choice of levels), all but `voice-beginner-do-mi-sol` and
-`voice-advanced-guide-tones` in the new teaching style; the three older showcases and two for the step-choice (`showcase-stages-tempo-ladder`, `showcase-variants-same-frets`); and six plans:
+`voice-advanced-guide-tones` in the new teaching style; the three older showcases and two for the step-choice (`showcase-stages-tempo-ladder`, `showcase-variants-same-frets`); and seven plans:
 `guitar-beginner` (20 min), `guitar-intermediate` (30), `guitar-advanced` (30), `voice-beginner` (15), `guitar-theory-intermediate` (30),
-`voice-intermediate` (20).
+`voice-intermediate` (20), `voice-advanced` (25).
 
 ## The rules every example meets
 

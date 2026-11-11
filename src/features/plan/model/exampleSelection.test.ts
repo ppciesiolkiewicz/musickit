@@ -35,8 +35,8 @@ test("guitar beginner: the guitar beginner plan", () => {
   assert.equal(selectExamples(lv({ guitar: "beginner" })).plan.id, "guitar-beginner");
 });
 
-test("voice advanced only: the intermediate voice plan, the closest level", () => {
-  assert.equal(selectExamples(lv({ voice: "advanced" })).plan.id, "voice-intermediate");
+test("voice advanced only: the advanced voice plan", () => {
+  assert.equal(selectExamples(lv({ voice: "advanced" })).plan.id, "voice-advanced");
 });
 
 test("voice beginner: the beginner voice plan", () => {
