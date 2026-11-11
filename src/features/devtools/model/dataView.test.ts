@@ -7,7 +7,7 @@ import type { ProgressEntry } from "@/features/progress/log";
 const plan = (id: string, rated: number, progress?: string): StoredPlan => ({
   id, startedOn: `2026-11-0${id.length}`, done: {},
   rated: Object.fromEntries(Array.from({ length: rated }, (_, i) => [`${i}:0`, { stars: 3 as const, at: "2026-11-10T10:00:00.000Z" }])),
-  config: { title: `Plan ${id}`, ...(progress ? { progress } : {}), days: Array.from({ length: 7 }, (_, d) => ({ theme: `T${d}`, exercises: [{ title: "A", minutes: 5 }, { title: "B", minutes: 5 }] })) },
+  config: { title: `Plan ${id}`, ...(progress ? { progress } : {}), days: Array.from({ length: 7 }, (_, d) => ({ theme: `T${d}`, exercises: [{ title: "A", minutes: 5, cells: [] }, { title: "B", minutes: 5, cells: [] }] })) },
 });
 
 test("planRows: the current plan first, then the history in its order, with counts and the summary", () => {

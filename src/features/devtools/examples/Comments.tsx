@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
 import { SectionAsideContext, type SectionAside } from "@/features/plan/ui/SectionAside";
-import type { Section } from "@/features/plan/model/tools";
+import type { PlainCell as Section } from "@/features/plan/model/tools";
 import { pinSection, quoteOf, sectionHash, sectionText } from "../model/comments";
 import { placeOf, stateOf, type CopyNote } from "../model/copyNotes";
 import { NoteBar, NoteEditor } from "../copy/NoteBar";

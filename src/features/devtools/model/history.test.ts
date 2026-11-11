@@ -10,7 +10,7 @@ const record = (over: Partial<RunRecord> = {}): RunRecord => ({
 
 const week = (days: number) => JSON.stringify({
   title: "Week 1", progress: "Techniques: starting out.",
-  days: Array.from({ length: days }, (_, i) => ({ theme: `Day ${i + 1}`, exercises: [{ title: "Play", minutes: 5, level: "beginner", area: "guitar", tags: ["technique"], topic: "guitar-techniques", sections: [{ type: "text", text: "Play it" }] }] })),
+  days: Array.from({ length: days }, (_, i) => ({ theme: `Day ${i + 1}`, exercises: [{ title: "Play", minutes: 5, level: "beginner", area: "guitar", tags: ["technique"], topic: "guitar-techniques", cells: [{ type: "text", text: "Play it" }] }] })),
 });
 
 test("newRunId sorts by time and matches RUN_ID", () => {

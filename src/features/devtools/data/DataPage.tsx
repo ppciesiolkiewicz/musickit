@@ -213,7 +213,7 @@ export default function DataPage() {
                   <tr key={e.id} className="border-t border-slate-800">
                     <td className={`${TD} whitespace-nowrap tabular-nums text-slate-400`}>{e.at.slice(0, 16).replace("T", " ")}</td>
                     <td className={TD}>{titles.get(e.planId) ?? <span className="font-mono text-xs text-slate-500">{e.planId}</span>} <span className="text-slate-500">· day {e.day + 1}</span></td>
-                    <td className={TD}>{e.title}{e.focus && <span className="block text-xs text-slate-500">{e.focus}</span>}</td>
+                    <td className={TD}>{e.title}</td>
                     <td className={TD}>{e.topic ? topicById(e.topic)?.label ?? e.topic : <span className="text-slate-500">none</span>}{e.concepts && <span className="block text-xs text-slate-500">{e.concepts.join(", ")}</span>}</td>
                     <td className={`${TD} whitespace-nowrap`}>{starText(e.stars)}</td>
                   </tr>

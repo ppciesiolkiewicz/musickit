@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { parseTool, parseToolDiag, type PlanTool } from "./tools";
+import { parseTool, type PlanTool } from "./tools";
 import { canTranspose, transposeChord, transposeTool } from "./transpose";
 
 const tool = (raw: Record<string, unknown>): PlanTool => {

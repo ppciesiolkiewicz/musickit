@@ -7,7 +7,7 @@ import { EXERCISE_EXAMPLES } from "../examples";
 import { buildPrompt, weekReport } from "./prompt";
 import { runChoices } from "@/features/exercises/basics/choices";
 import { COMPONENT_DOCS } from "@/features/exercises/docs";
-import { expandShape } from "@/features/exercises/shapes";
+
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
 import { PROGRESSIONS, STYLES } from "@/features/backing/model";

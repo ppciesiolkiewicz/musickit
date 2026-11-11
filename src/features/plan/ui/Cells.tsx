@@ -7,12 +7,12 @@ import Explained from "@/components/course/Explained";
 import { explain, type Piece } from "@/features/course/glossary";
 import { inlineNote, markRuns, noteRootFor, splitNotes, type NoteRoot } from "../model/noteText";
 import InlineNote from "./InlineNote";
-import type { Section } from "../model/tools";
-import { blocksOf } from "../model/blocks";
+import type { Cell, Choice, PlainCell, SectionCell } from "../model/tools";
+import { applyChoice, isOpen, resolvedChoice } from "../model/choice";
 import ExerciseTool from "./ExerciseTool";
 import ToolTour from "@/features/guide/ToolTour";
-import { applyOption, stepChoice } from "../model/stepChoice";
-import { stepsOf, type Step } from "../model/transpose";
+import { View as ChoiceChips } from "@/features/exercises/basics/choice";
+import HeadphonesNotice from "@/features/stage/render/HeadphonesNotice";
 import { ExerciseStep, StartExercise } from "@/components/practice/exerciseStep";
 
 /**
@@ -91,105 +91,106 @@ function ToExerciseTop() {
   );
 }
 
+/** One part of the block as drawn: the block's own cells (no heading), or a section. `from` is where its cells start in the flattened list. */
+interface Part { id: string; section: SectionCell | null; choice: Choice | undefined; cells: PlainCell[]; from: number }
+
 /**
- * An exercise's sections in the order the AI wrote them: headings, paragraphs, numbered steps and tools, top to bottom.
- * Each step (a heading and what follows it, or the intro) is an `ExerciseStep`: when its tools have more than one kind of
- * thing to start (the mic and a drone, the mic and chords), a "Start exercise" button sits above its first tool.
- * A step with a step-choice tool shows its chips where the tool sits: the picked option sets the step's other tools (and so the dots in its text), remounting them.
+ * A block's cells in the order the AI wrote them: paragraphs, numbered steps, notices and tools, top to bottom, with its
+ * sections as steps (a heading on a rail, its minutes when it is a timed block). Each step is an `ExerciseStep`: when its
+ * tools have more than one kind of thing to start (the mic and a drone, the mic and chords), a "Start exercise" button
+ * sits above its first tool. A choice of options (the block's, or a section's own) shows its chips in the step's header:
+ * the picked option sets the tools under it (and so the dots in the text), remounting them. An open choice sets its tools
+ * and is not drawn. The aside (the review view) addresses cells by their place in the flattened list (`cellsOf`).
  */
-export default function Sections({ sections: written, address = "ex" }: { sections: Section[]; /** which exercise, for a `SectionAside` */ address?: string }) {
+export default function Cells({ cells, choice, address = "ex" }: { cells: Cell[]; /** the block's own choice */ choice?: Choice; /** which exercise, for a `SectionAside` */ address?: string }) {
   const aside = useContext(SectionAsideContext);
   // the review view (a host gives asides): frames its tools and rules its steps; the plan page keeps the plain layout
   const framed = !!aside;
-  // the option picked per step (by its heading's index, -1 the intro), as an index into the chooser's options; a step not picked yet is in option 1
-  const [picked, setPicked] = useState<Record<number, number>>({});
-  const steps = stepsOf(written);
-  const stepAt = (i: number) => steps.find((st) => i >= st.from && i < st.to);
-  /** the step's picked option now (an index); null when it has no step-choice */
-  const optionOf = (st: Step | undefined) => {
-    const chooser = st && stepChoice(written, st);
-    return chooser ? Math.min(picked[st.head] ?? 0, chooser.options.length - 1) : null;
-  };
-  const sections = steps.flatMap((st) => {
-    const chooser = stepChoice(written, st);
-    const body = chooser ? applyOption(written.slice(st.from, st.to), chooser.options, optionOf(st)!) : written.slice(st.from, st.to);
-    return st.head < 0 ? body : [written[st.head], ...body];
+  // the option picked per part (by its id), as an index into the choice's options; a part not picked yet is in option 1
+  const [picked, setPicked] = useState<Record<string, number>>({});
+  const block = { choice };
+  const pickOf = (id: string, c: Choice | undefined) => (c && !isOpen(c) ? Math.min(picked[id] ?? 0, c.options.length - 1) : 0);
+  // the block's own cells are one part (first, when there are any), then a part per section
+  const parts: Part[] = [];
+  const own = cells.filter((c): c is PlainCell => c.type !== "section");
+  let from = 0;
+  if (own.length) {
+    parts.push({ id: "block", section: null, choice, cells: choice ? applyChoice(own, choice, pickOf("block", choice)) : own, from });
+    from += own.length;
+  }
+  cells.forEach((c, i) => {
+    if (c.type !== "section") return;
+    const id = `s${i}`;
+    const at = resolvedChoice(block, c);
+    const shown = at ? applyChoice(c.cells, at, pickOf(c.choice ? id : "block", at)) : c.cells;
+    parts.push({ id, section: c, choice: at, cells: shown, from });
+    from += c.cells.length;
   });
-  // with an aside (a host's comments), each section carries it; text-like sections shrink to their text so the aside sits at its end
+  const flat = parts.flatMap((p) => p.cells);
+  // with an aside (a host's comments), each cell carries it; text-like cells shrink to their text so the aside sits at its end
   const withAside = (node: ReactNode, i: number) =>
-    aside ? <div key={i} className={`group/sec relative ${sections[i].type === "tool" ? "" : "w-fit max-w-full pr-8"}`}>{node}{aside({ address, index: i, section: sections[i] })}</div> : node;
-  // a timed heading shows its block's minutes (fitted on paste to add up to the exercise's)
-  const blockMinutes = new Map(blocksOf(sections).map((b) => [sections.findIndex((s, i) => i >= b.from && s.type === "heading" && !!s.minutes), b.minutes]));
+    aside ? <div key={i} className={`group/sec relative ${flat[i].type === "tool" ? "" : "w-fit max-w-full pr-8"}`}>{node}{aside({ address, index: i, section: flat[i] })}</div> : node;
   // Glossary terms, each marked at its first use in the exercise: texts in order, a list's items one after another.
-  const texts = sections.flatMap((s) => (s.type === "text" ? [s.text] : s.type === "list" ? s.items : []));
+  const texts = flat.flatMap((s) => (s.type === "text" ? [s.text] : s.type === "list" ? s.items : []));
   const pieces = explain(texts);
   let n = 0;
-  // in a step with a chooser, the dots read the step's own (moved) tools first, not a later step's
-  const rootAt = (i: number) => {
-    const st = stepAt(i);
-    if (!st || optionOf(st) === null) return noteRootFor(sections, i);
-    return noteRootFor(sections.slice(st.from, st.to), i - st.from) ?? noteRootFor(sections, i);
-  };
-  const item = (s: Section, i: number) => {
+  // the dots read the part's own (moved) tools first, not a later part's
+  const rootAt = (p: Part, i: number) => noteRootFor(p.cells, i - p.from) ?? noteRootFor(flat, i);
+  const item = (p: Part, s: PlainCell, i: number) => {
     switch (s.type) {
-      case "heading":
-        return null;
       case "text":
         // a line break in the text is a new line: what to do, the next thing to try, what to notice
-        return <p key={i} className="max-w-3xl whitespace-pre-line text-[15px] leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={rootAt(i)} /></p>;
+        return <p key={i} className="max-w-3xl whitespace-pre-line text-[15px] leading-relaxed text-slate-300"><NoteText pieces={pieces[n++]} root={rootAt(p, i)} /></p>;
       case "list":
         return (
           <ol key={i} className="max-w-3xl list-decimal space-y-1.5 pl-5 text-[15px] leading-relaxed text-slate-300 marker:font-semibold marker:text-sky-400">
-            {s.items.map((_, j) => <li key={j} className="pl-1"><NoteText pieces={pieces[n++]} root={rootAt(i)} /></li>)}
+            {s.items.map((_, j) => <li key={j} className="pl-1"><NoteText pieces={pieces[n++]} root={rootAt(p, i)} /></li>)}
           </ol>
         );
+      case "notice":
+        return <HeadphonesNotice key={i} />;
       case "tool": {
-        const st = stepAt(i);
-        if (s.tool.type === "step-choice") {
-          // the chips: the first chooser in a step picks its option (a second one, which the parse warns about, follows it); unframed they sit bare on the tool they move
-          const chips = <ExerciseTool tool={s.tool} choicePick={st && optionOf(st) !== null ? { value: optionOf(st)!, onChange: (index) => setPicked((k) => ({ ...k, [st.head]: index })) } : undefined} />;
-          return framed ? <ToolFrame key={i} type={s.tool.type}>{chips}</ToolFrame> : <div key={i} className="-mb-1 pt-1">{chips}</div>;
-        }
         // a new option remounts the tool, so what it was playing stops
-        const key = `${i}-${optionOf(st) ?? ""}`;
+        const key = `${i}-${p.choice ? pickOf(p.section?.choice ? p.id : "block", p.choice) : ""}`;
         return framed
           ? <ToolFrame key={key} type={s.tool.type}><ExerciseTool tool={s.tool} /></ToolFrame>
           : <ToolBox key={key} type={s.tool.type}><ExerciseTool tool={s.tool} /></ToolBox>;
       }
     }
   };
-  // a part per heading: the heading, then everything up to the next one on a rail beside it; what comes before the first heading is the intro
-  const parts: { head: number | null; items: number[] }[] = [];
-  // the step's items, "Start exercise" (shown only when there is more than one thing to start) before its first tool
-  const stepItems = (items: number[]) => {
-    const firstTool = items.find((i) => sections[i].type === "tool");
-    return items.map((i) => (i === firstTool ? <Fragment key={i}><StartExercise />{withAside(item(sections[i], i), i)}</Fragment> : withAside(item(sections[i], i), i)));
+  // the part's items, "Start exercise" (shown only when there is more than one thing to start) before its first tool
+  const items = (p: Part) => {
+    const firstTool = p.cells.findIndex((c) => c.type === "tool");
+    return p.cells.map((c, j) => {
+      const i = p.from + j;
+      const node = withAside(item(p, c, i), i);
+      return j === firstTool ? <Fragment key={i}><StartExercise />{node}</Fragment> : node;
+    });
   };
-  sections.forEach((s, i) => {
-    if (s.type === "heading") parts.push({ head: i, items: [] });
-    else if (parts.length) parts[parts.length - 1].items.push(i);
-    else parts.push({ head: null, items: [i] });
-  });
+  // the chips of a choice of options, in the part's header; the block's choice is drawn once, on the first part that holds it
+  const chips = (p: Part) => {
+    const c = p.section?.choice ?? (p === parts[0] ? choice : undefined);
+    if (!c || isOpen(c)) return null;
+    const id = p.section?.choice ? p.id : "block";
+    const row = <ChoiceChips options={c.options} label={c.label} value={pickOf(id, c)} onChange={(index) => setPicked((k) => ({ ...k, [id]: index }))} />;
+    return framed ? <ToolFrame type="choice">{row}</ToolFrame> : <div className="-mb-1 pt-1">{row}</div>;
+  };
   // framed (the review view): each step after the first starts under a rule, so the parts of a singing exercise read apart
   return (
     <div className={framed ? "flex flex-col" : "flex flex-col gap-7"}>
       {parts.map((p, k) => {
-        const h = p.head === null ? null : sections[p.head];
         const rule = framed && k > 0 ? "mt-7 border-t-2 border-slate-700 pt-6" : "";
-        if (!h || h.type !== "heading") return <div key={`intro-${p.items[0]}`} className={rule}><ExerciseStep><div className="flex flex-col gap-3">{stepItems(p.items)}</div></ExerciseStep></div>;
+        if (!p.section) return <div key={p.id} className={rule}><ExerciseStep><div className="flex flex-col gap-3">{chips(p)}{items(p)}</div></ExerciseStep></div>;
         return (
-          <div key={p.head} className={rule}>
+          <div key={p.id} className={rule}>
             <ExerciseStep>
               <div className="flex flex-col gap-3">
-                {withAside(
-                  <h4 key={p.head} className={`flex items-center gap-2.5 font-semibold text-slate-50 ${framed ? "text-lg" : "text-base"}`}>
-                    <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
-                    {h.text}
-                    {blockMinutes.has(p.head!) && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{blockMinutes.get(p.head!)} min</span>}
-                  </h4>,
-                  p.head!,
-                )}
-                {p.items.length > 0 && <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{stepItems(p.items)}<ToExerciseTop /></div>}
+                <h4 className={`flex items-center gap-2.5 font-semibold text-slate-50 ${framed ? "text-lg" : "text-base"}`}>
+                  <span aria-hidden className="size-2.5 shrink-0 rounded-full bg-sky-400 ring-4 ring-sky-400/15" />
+                  {p.section.heading}
+                  {p.section.minutes && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{p.section.minutes} min</span>}
+                </h4>
+                <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{chips(p)}{items(p)}<ToExerciseTop /></div>
               </div>
             </ExerciseStep>
           </div>

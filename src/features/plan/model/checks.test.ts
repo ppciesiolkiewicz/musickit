@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
-import type { Section } from "./tools";
+import type { PlainCell as Section } from "./tools";
 
 const text = (t: string): Section => ({ type: "text", text: t });
 const tool = (t: Extract<Section, { type: "tool" }>["tool"]): Section => ({ type: "tool", tool: t });

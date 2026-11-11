@@ -1,6 +1,6 @@
 import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM } from "@/features/backing/model";
 import { TOOL_LEVELS } from "@/features/exercises/basics/levels";
-import { pcName } from "@/lib/practice/noteGame";
+import { keyName } from "@/features/theory/keySlug";
 import { PART_NAMES, canFollowPart, hasLevel, setLevel, toolsOf, type Cell, type Choice, type ChoiceOption, type PartName, type PlanTool, type SectionCell } from "./tools";
 import { transposeTool } from "./transpose";
 import type { Block } from "./types";
@@ -37,7 +37,7 @@ const PARTS: Record<PartName, Part> = {
     apply: (tool, value, first) => transposeTool(tool, num(value) - (writtenKey(tool) ?? num(first))),
     written: writtenKey,
     none: "no tool that can change key",
-    say: (v) => pcName(pc(num(v))),
+    say: (v) => keyName(num(v)),
   },
   scale: {
     apply: (tool, value) => (canFollowPart(tool, "scale") ? ({ ...tool, scale: String(value) } as PlanTool) : tool),

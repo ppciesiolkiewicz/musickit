@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { backfill, entryFor } from "./progressLog";
 import type { PlanExercise, StoredPlan } from "./types";
 
-const ex = (id: string | undefined, extra: Partial<PlanExercise> = {}): PlanExercise => ({ ...(id ? { id } : {}), title: `Ex ${id}`, minutes: 5, ...extra });
+const ex = (id: string | undefined, extra: Partial<PlanExercise> = {}): PlanExercise => ({ ...(id ? { id } : {}), title: `Ex ${id}`, minutes: 5, cells: [], ...extra });
 const plan = (id: string, rated: StoredPlan["rated"] = {}): StoredPlan => ({
   id, startedOn: "2026-11-01", done: {}, rated,
   config: { title: "W", days: Array.from({ length: 7 }, (_, d) => ({ theme: `T${d}`, exercises: [ex(`${id}-${d}-0`), ex(`${id}-${d}-1`, { area: "guitar", level: "beginner", topic: "guitar-caged", concepts: ["caged"] })] })) },

@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { explain } from "@/features/course/glossary";
 import { inlineNote, markRuns, noteRootFor, splitNotes } from "./noteText";
-import type { Section } from "./tools";
+import type { PlainCell as Section } from "./tools";
 
 describe("note text", () => {
   it("marks what is written between underscores, across notes and explained words", () => {
@@ -51,7 +51,7 @@ describe("note text", () => {
   it("takes the root from the tool after the text, else the one before", () => {
     const text: Section = { type: "text", text: "x" };
     assert.deepEqual(noteRootFor([text, { type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9 } }], 0), { root: 9 });
-    assert.deepEqual(noteRootFor([text, { type: "tool", tool: { type: "staff", scale: "major-ionian", key: "c" } as any }], 0), { root: 0 });
+    assert.deepEqual(noteRootFor([text, { type: "tool", tool: { type: "staff", scale: "major-ionian", key: "c" } as never }], 0), { root: 0 });
     assert.deepEqual(noteRootFor([{ type: "tool", tool: { type: "arpeggio-neck", chord: "D7" } }, text], 1), { root: 2 });
     assert.deepEqual(noteRootFor([text, { type: "tool", tool: { type: "chord-shapes", chords: ["E7"] } }], 0), { root: 4 });
     assert.deepEqual(noteRootFor([text, { type: "tool", tool: { type: "note-finder", query: "" } }], 0), null);
