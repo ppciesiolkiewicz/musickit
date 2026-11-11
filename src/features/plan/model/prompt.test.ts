@@ -15,7 +15,7 @@ const last: StoredPlan = {
 };
 const EX = selectExamples(DEFAULT_ANSWERS);
 const EXAMPLE_IDS = [...EX.exercises.map((e) => `example:${e.id}`), `example:${EX.plan.id}`];
-const ORDER = ["intro", "student", "how-to-plan", "exercise-format", "sections", "which-tool", "tools", "links", "rules", "mistakes", "writing", ...EXAMPLE_IDS, "answer-format"];
+const ORDER = ["intro", "student", "how-to-plan", "exercise-format", "sections", "which-tool", "levels", "tools", "links", "rules", "mistakes", "writing", ...EXAMPLE_IDS, "answer-format"];
 
 test("prompt parts have unique ids in the documented order", () => {
   assert.deepEqual(promptParts(DEFAULT_ANSWERS, []).map((p) => p.id), ORDER);

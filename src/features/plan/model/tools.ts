@@ -9,6 +9,7 @@ import { isRunId, isTuneId } from "@/features/exercises/basics/choices";
 import { INTERVAL_DIRS, type IntervalDir } from "@/features/exercises/basics/interval-singer/asks";
 import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/string-singer/strings";
 import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/features/exercises/basics/breathwork/breaths";
+import { FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
@@ -54,8 +55,8 @@ export type NeckParts = Partial<Record<NeckPart, PartMode>>;
 /** How a step-choice names its chips: "Stage 1" (a ladder, each harder than the last) or "Variant 1" (equals to compare); absent: the chips show the one value they set. */
 export type ChoiceLabel = "stage" | "variant";
 export const CHOICE_LABELS: ChoiceLabel[] = ["stage", "variant"];
-/** What one chip of a step-choice sets on the step's tools: a key (pitch class), a tempo, a position 1-5. Every option of a chooser holds the same parts. */
-export interface StepOption { key?: number; bpm?: number; position?: number }
+/** What one chip of a step-choice sets on the step's tools: a key (pitch class), a tempo, a position 1-5, a level (an index into `TOOL_LEVELS`). Every option of a chooser holds the same parts. */
+export interface StepOption { key?: number; bpm?: number; position?: number; level?: number }
 
 type View = "tab" | "notes" | "neck";
 type Under = "chords" | "drone" | "none";
@@ -71,22 +72,22 @@ export type PlanTool =
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
   | { type: "backing-band"; bpm: number; key: number; /** the parts offered and how; never empty */ parts: BandParts }
-  | { type: "note-finder"; query: string }
-  | { type: "interval-ears"; query: string; /** intervals may span more than an octave */ wide?: boolean }
+  | { type: "note-finder"; level?: ToolLevel; query: string }
+  | { type: "interval-ears"; query: string; level?: ToolLevel; /** intervals may span more than an octave */ wide?: boolean }
   | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
-  | { type: "string-singer"; drill?: StringDrill; metronome?: false }
-  | { type: "breathwork"; drill?: BreathDrill; from?: number; to?: number; seconds?: number; rounds?: number }
-  | { type: "interval-singer"; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
+  | { type: "string-singer"; drill?: StringDrill; level?: ToolLevel; metronome?: false }
+  | { type: "breathwork"; drill?: BreathDrill; level?: ToolLevel; from?: number; to?: number; seconds?: number; rounds?: number }
+  | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
   | { type: "step-choice"; /** how the chips are named; absent: by the one value they set */ label?: ChoiceLabel; /** 2-4 options, the first the one the step's tools are written in (stepChoice.ts) */ options: StepOption[] }
   | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
-  | { type: "finger-pattern"; fingers: string; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
-  | { type: "picking-drill"; strokes: string; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
-  | { type: "legato-trill"; fingers: string; string: number; fret: number; bpm: number };
+  | { type: "finger-pattern"; fingers: string; level?: ToolLevel; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
+  | { type: "picking-drill"; strokes: string; level?: ToolLevel; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
+  | { type: "legato-trill"; fingers: string; level?: ToolLevel; string: number; fret: number; bpm: number };
 
 export type ToolName = PlanTool["type"];
 
@@ -387,7 +388,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       return { type: "backing-band", bpm, key: key ?? 9, parts: bandParts(t.parts, d) };
     },
   },
-  "note-finder": { parse: (t) => ({ type: "note-finder", query: query(t, ["mode", "strings", "from", "to"]) }) },
+  "note-finder": { parse: (t) => ({ type: "note-finder", query: query(t, ["mode", "strings", "from", "to", "naturals"]) }) },
   "interval-ears": {
     parse(t) {
       const wide = t.wide === true || (typeof t.query === "string" && /(^|&)wide=1/.test(t.query));
@@ -440,11 +441,12 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       // "random" (as key or keys) is all twelve; a list of keys keeps its first as the key
       const all = t.key === "random" || t.keys === "random";
       const listed = all ? Array.from({ length: 12 }, (_, k) => k) : list(t.keys).map(keyOf).filter((n): n is number => n !== null);
-      const key = (all ? null : keyOf(t.key)) ?? listed[0] ?? 0;
+      // with all twelve, a key written beside them is the first Do
+      const key = (t.key === "random" ? null : keyOf(t.key)) ?? (all ? 0 : listed[0]) ?? 0;
       // the key is optional (default C): only a wrong one is noted
       if (!all && keyOf(t.key) === null) defaulted(d, "key", t.key, "not a key", TONICS[key], true);
       const keys = [...new Set([key, ...listed])];
-      return { type: "interval-singer", key, ...(keys.length > 1 ? { keys } : {}), ...(voice ? { voice } : {}), ...opt("intervals", intervals), ...dir, ...(t.dot === false ? { dot: false as const } : {}) };
+      return { type: "interval-singer", key, ...(keys.length > 1 ? { keys } : {}), ...(voice ? { voice } : {}), ...opt("intervals", intervals), ...dir, ...(t.dot === false ? { dot: false as const } : {}), ...(t.picker === true ? { picker: true as const } : {}) };
     },
   },
   "guitar-play-along": {
@@ -532,6 +534,67 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
     },
   },
 };
+
+/** The tools that take a `level`: a short way to write the settings in `levels.ts` (exercises). */
+const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill"] as const;
+type LeveledName = (typeof LEVELED)[number];
+/** Whether a tool can be set to a level (`setLevel`). */
+export const hasLevel = (tool: PlanTool): tool is Extract<PlanTool, { type: LeveledName }> => (LEVELED as readonly string[]).includes(tool.type);
+
+/** What a level stands for on a tool, as the props the AI would write. A breathwork drill other than farinelli has none. */
+function levelProps(type: LeveledName, level: ToolLevel, t: Record<string, unknown>): Record<string, unknown> {
+  switch (type) {
+    case "interval-singer": {
+      const l = INTERVAL_SINGER_LEVELS[level];
+      return { intervals: l.intervals, dir: l.dir, ...(l.random ? { keys: "random" } : {}) };
+    }
+    case "interval-ears": return { level: INTERVAL_EARS_LEVELS[level] };
+    case "note-finder": {
+      const l = NOTE_FINDER_LEVELS[level];
+      return { strings: l.strings, from: l.from, to: l.to, naturals: l.naturals ? 1 : 0 };
+    }
+    case "string-singer": return { drill: STRING_SINGER_LEVELS[level] };
+    case "breathwork": return t.drill == null || t.drill === "farinelli" ? { ...FARINELLI_LEVELS[level] } : {};
+    case "finger-pattern": return { ...FINGER_PATTERN_LEVELS[level] };
+    case "picking-drill": return { ...PICKING_DRILL_LEVELS[level] };
+    case "legato-trill": return { fingers: LEGATO_TRILL_LEVELS[level] };
+  }
+}
+
+// a level fills in what the tool leaves out: what the AI wrote beside it wins. The tool keeps its level, so a step-choice can move it.
+for (const type of LEVELED) {
+  const inner = PARSERS[type].parse;
+  PARSERS[type].parse = (t, d) => {
+    if (!isToolLevel(t.level)) {
+      // interval-ears also takes the game's own level, a number
+      if (t.level != null && !(type === "interval-ears" && typeof t.level === "number") && !d.stored) d.notes.push(`had level ${JSON.stringify(t.level)?.slice(0, 20)} (it is ${TOOL_LEVELS.map((l) => `"${l}"`).join(", ")}); left it out.`);
+      return inner(type === "interval-ears" ? t : { ...t, level: undefined }, d);
+    }
+    const written = Object.fromEntries(Object.entries(t).filter(([k, v]) => v != null && k !== "level"));
+    const tool = inner({ ...levelProps(type, t.level, t), ...written }, d);
+    return tool && ({ ...tool, level: t.level } as PlanTool);
+  };
+}
+
+/**
+ * A tool moved to a level: the settings the level stands for replace the tool's own (a step-choice with levels does this,
+ * `stepChoice.ts`). A tool that takes no level comes back as it is.
+ */
+export function setLevel(tool: PlanTool, level: ToolLevel): PlanTool {
+  if (!hasLevel(tool)) return tool;
+  const props = levelProps(tool.type, level, tool);
+  if (tool.type === "interval-ears" || tool.type === "note-finder") {
+    const q = new URLSearchParams(tool.query);
+    for (const [k, v] of Object.entries(props)) q.set(k, String(v));
+    if (tool.type === "interval-ears") q.delete("set");
+    return { ...tool, query: q.toString(), level };
+  }
+  // what a level may switch off again: all twelve keys, the skipped string
+  const base: Record<string, unknown> = { ...tool };
+  if (tool.type === "interval-singer" && tool.keys?.length === 12) delete base.keys;
+  const next = PARSERS[tool.type].parse({ ...base, ...props, level: undefined }, { notes: [], stored: true });
+  return next ? ({ ...next, level } as PlanTool) : tool;
+}
 
 /** The tools' parsers; the diagnosis is optional for callers that only want the tool (`parseToolDiag` wants it). */
 export const TOOLS = Object.fromEntries(Object.entries(PARSERS).map(([k, p]) => [k, { parse: (t: Record<string, unknown>, d: Diag = { notes: [] }) => p.parse(t, d) }])) as { [N in ToolName]: { parse(t: Record<string, unknown>, d?: Diag): PlanTool | null } };
@@ -662,8 +725,8 @@ function optionOf(v: unknown, d: Diag): StepOption | null {
   if (!v || typeof v !== "object" || Array.isArray(v)) return null;
   const o = v as Record<string, unknown>;
   const out: StepOption = {};
-  const unknown = Object.keys(o).filter((k) => !["key", "bpm", "position"].includes(k));
-  if (unknown.length && !d.stored) d.notes.push(`an option had ${unknown.slice(0, 4).map((k) => JSON.stringify(k)).join(", ")}, which it can't set; an option sets key, bpm, position. Left it out.`);
+  const unknown = Object.keys(o).filter((k) => !["key", "bpm", "position", "level"].includes(k));
+  if (unknown.length && !d.stored) d.notes.push(`an option had ${unknown.slice(0, 4).map((k) => JSON.stringify(k)).join(", ")}, which it can't set; an option sets key, bpm, position, level. Left it out.`);
   if (o.key != null) {
     const key = keyOf(o.key);
     if (key === null) return null;
@@ -679,6 +742,10 @@ function optionOf(v: unknown, d: Diag): StepOption | null {
     const position = int(o.position, 1, 5);
     if (position === null) return null;
     out.position = position;
+  }
+  if (o.level != null) {
+    if (!isToolLevel(o.level)) return null;
+    out.level = TOOL_LEVELS.indexOf(o.level);
   }
   return out;
 }
@@ -703,14 +770,15 @@ function stepChoiceTool(t: Record<string, unknown>, d: Diag): PlanTool | null {
     else options.push(o);
   });
   if (repeats) note(`left out ${repeats === 1 ? "an option" : `${repeats} options`} the same as an earlier one; the chips after it are numbered one lower, so check the text's "Stage" or "Variant" numbers.`);
-  if (left.length) note(`left out options it could not use (${left.slice(0, 4).map((o) => JSON.stringify(o)?.slice(0, 40)).join(", ")}): every option needs the same parts (key, bpm, position), each readable.`);
+  if (left.length) note(`left out options it could not use (${left.slice(0, 4).map((o) => JSON.stringify(o)?.slice(0, 40)).join(", ")}): every option needs the same parts (key, bpm, position, level), each readable.`);
   if (options.length > 4) note("had more than 4 options; a step-choice takes at most 4 options, kept the first 4.");
   const kept = options.slice(0, 4);
   if (kept.length < 2) return no(d, "it needs 2 to 4 different options");
   const known = CHOICE_LABELS.includes(t.label as ChoiceLabel) ? (t.label as ChoiceLabel) : null;
   if (t.label != null && !known) note(`had label ${JSON.stringify(t.label)?.slice(0, 20)} (it is "stage" or "variant"); left it out.`);
-  const label = known ?? (parts.length > 1 ? "variant" : null);
-  if (!known && label) note('sets more than one part without a label; used "variant" (write "label": "stage" or "variant").');
+  // levels are a ladder, so their chips are stages
+  const label = known ?? (parts.includes("level") ? "stage" : parts.length > 1 ? "variant" : null);
+  if (!known && label && !parts.includes("level")) note('sets more than one part without a label; used "variant" (write "label": "stage" or "variant").');
   return { type: "step-choice", ...(label ? { label } : {}), options: kept };
 }
 

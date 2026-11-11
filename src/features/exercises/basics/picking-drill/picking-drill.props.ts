@@ -4,8 +4,10 @@
  * @component picking-drill basic
  */
 export interface PickingDrillProps {
-  /** the pick strokes in order, 1-8 of D (down) and U (up): "DU", "DDU" */
-  strokes: string;
+  /** how hard, in one word; it sets `strokes`, `notesPerString` and `skip` where you leave them out: "new" all downstrokes, four notes a string; "beginner" down-up, four notes a string; "intermediate" down-up, three notes a string (each string starts on the other stroke); "advanced" down-up, two notes a string, skipping a string. The tempo is yours to set: a faster `bpm` is the next step inside a level */
+  level?: "new" | "beginner" | "intermediate" | "advanced";
+  /** the pick strokes in order, 1-8 of D (down) and U (up): "DU", "DDU"; needed unless `level` is set */
+  strokes?: string;
   /** notes picked on each string before moving on, 1-4; default 4 */
   notesPerString?: number;
   /** the strings to play, 1-6 (6 = low E); default all six */

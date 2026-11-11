@@ -7,6 +7,8 @@
  * @component interval-singer basic
  */
 export interface IntervalSingerProps {
+  /** how hard, in one word; it sets `intervals`, `dir` and `keys` where you leave them out. "new": major 3rd and 5th up, the home chord [4, 7]. "beginner": adds the octave [4, 7, 12]. "intermediate": the leaps of the major scale, 4th, 5th, major 6th, octave [5, 7, 9, 12]. "advanced": the notes outside the major scale, minor 3rd, tritone, minor 6th, minor 7th, major 7th [3, 6, 8, 10, 11], up and down, Do in a random key each time. The next step inside a level: `dir` "down" then "both", more `keys`, then `dot` false */
+  level?: "new" | "beginner" | "intermediate" | "advanced";
   /** the key: Do's note name, e.g. "c", "f#", "bb"; default "c". "random": any of the 12, a new Do each question */
   key?: string;
   /** several keys to pick Do from at random, a new one each question: ["c", "g", "f"]; or "random" for all 12. The student can change them on the tool */
@@ -19,4 +21,6 @@ export interface IntervalSingerProps {
   dir?: "up" | "down" | "both";
   /** show the voice as a dot; default true. false is the harder level: sing without seeing the voice */
   dot?: boolean;
+  /** show the Keys switch and the twelve key chips on the tool, so the student picks the keys; default false: the keys are the ones set here, and a step-choice with `key` options is how the student changes key */
+  picker?: boolean;
 }

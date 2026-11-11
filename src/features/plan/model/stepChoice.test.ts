@@ -113,3 +113,58 @@ describe("choiceWarnings", () => {
     assert.match(choiceWarnings([head, choice([{ bpm: 60 }, { bpm: 80 }]), band(70)]).join("\n"), /option 1 should match the tools as written/);
   });
 });
+
+describe("levels", () => {
+  it("a level fills in what the tool leaves out, and what is written beside it wins", () => {
+    const t = tool({ type: "interval-singer", level: "advanced" });
+    assert.ok(t.type === "interval-singer");
+    assert.deepEqual(t.intervals, [3, 6, 8, 10, 11]);
+    assert.equal(t.dir, "both");
+    assert.equal(t.keys?.length, 12);
+    assert.equal(t.level, "advanced");
+    const own = tool({ type: "interval-singer", level: "advanced", intervals: [10, 11], key: "d" });
+    assert.ok(own.type === "interval-singer");
+    assert.deepEqual(own.intervals, [10, 11]);
+    assert.equal(own.key, 2);
+  });
+  it("a level stands in for a drill's required props", () => {
+    assert.deepEqual(tool({ type: "finger-pattern", level: "advanced", bpm: 90 }), { type: "finger-pattern", fingers: "1423", fret: 1, bpm: 90, level: "advanced" });
+    assert.deepEqual(tool({ type: "picking-drill", level: "advanced", bpm: 90 }), { type: "picking-drill", strokes: "DU", notesPerString: 2, skip: true, bpm: 90, level: "advanced" });
+    assert.deepEqual(tool({ type: "legato-trill", level: "new", string: 2, fret: 5, bpm: 60 }), { type: "legato-trill", fingers: "12", string: 2, fret: 5, bpm: 60, level: "new" });
+    assert.equal(parseTool({ type: "finger-pattern", bpm: 90 }), null);
+  });
+  it("the games take the level into their settings", () => {
+    assert.deepEqual(tool({ type: "interval-ears", level: "advanced", dir: "down" }), { type: "interval-ears", query: "level=6&dir=down", level: "advanced" });
+    assert.deepEqual(tool({ type: "interval-ears", level: 3 }), { type: "interval-ears", query: "level=3" });
+    const finder = tool({ type: "note-finder", level: "new" });
+    assert.ok(finder.type === "note-finder");
+    assert.equal(new URLSearchParams(finder.query).get("to"), "5");
+    assert.equal(new URLSearchParams(finder.query).get("strings"), "E,A");
+  });
+  it("an unknown level is left out", () => {
+    const t = tool({ type: "string-singer", level: "expert" });
+    assert.deepEqual(t, { type: "string-singer" });
+  });
+  it("a step-choice of levels moves the tool, up and back down", () => {
+    const step = [sec({ type: "interval-singer", level: "intermediate", key: "d" }), sec({ type: "picking-drill", level: "intermediate", bpm: 80 }), staff("d")];
+    const options = [{ level: 2 }, { level: 3 }];
+    const [singer, pick, plain] = toolsOf(applyOption(step, options, 1));
+    assert.deepEqual(singer.intervals, [3, 6, 8, 10, 11]);
+    assert.equal((singer.keys as number[]).length, 12);
+    assert.equal((singer.keys as number[])[0], 2);
+    assert.equal(pick.skip, true);
+    assert.deepEqual(plain, toolsOf(step)[2]);
+    // option 1 is the tools as written, and coming back from all twelve keys gives the one key again
+    assert.deepEqual(applyOption(step, options, 0), step);
+    const back = toolsOf(applyOption(applyOption(step, options, 1), options, 0));
+    assert.deepEqual(back, toolsOf(step));
+  });
+  it("level options are read by name, are stages, and warn when no tool takes a level", () => {
+    const chooser = tool({ type: "step-choice", options: [{ level: "intermediate" }, { level: "advanced" }] });
+    assert.deepEqual(chooser, { type: "step-choice", label: "stage", options: [{ level: 2 }, { level: 3 }] });
+    const sections: Section[] = [{ type: "heading", text: "Leaps", minutes: 3 }, { type: "tool", tool: chooser }, staff("d")];
+    assert.ok(choiceWarnings(sections).some((w) => w.includes("level")));
+    const off: Section[] = [{ type: "heading", text: "Leaps", minutes: 3 }, { type: "tool", tool: chooser }, sec({ type: "interval-singer", level: "beginner" })];
+    assert.ok(choiceWarnings(off).some((w) => w.includes("option 1 should match")));
+  });
+});

@@ -3,6 +3,8 @@
  * @component note-finder basic
  */
 export interface NoteFinderProps {
+  /** how hard, in one word; it sets the strings, the frets and the notes asked. "new": the low E and A strings, frets 0-5, natural notes only. "beginner": the same two strings up to fret 12. "intermediate": all six strings, frets 0-12, sharps and flats too. "advanced": all six strings up to fret 15. The next step inside a level: `mode` "name" */
+  level?: "new" | "beginner" | "intermediate" | "advanced";
   /** "find" (default), "every" or "name" */
   mode?: "find" | "every" | "name";
   /** which strings, as digits low to high: "123456" (default all) */

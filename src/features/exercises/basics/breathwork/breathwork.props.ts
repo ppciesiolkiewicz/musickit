@@ -8,6 +8,8 @@
  * @component breathwork basic
  */
 export interface BreathworkProps {
+  /** farinelli only: how hard, in one word; it sets `from` and `to` where you leave them out: "new" 2 to 5, "beginner" 3 to 6, "intermediate" 4 to 10, "advanced" 4 to 12 */
+  level?: "new" | "beginner" | "intermediate" | "advanced";
   /** "farinelli" (default), "sss-zzz", "zzz-sss", "cycles", "long-exhale" or "body-scan" */
   drill?: "farinelli" | "sss-zzz" | "zzz-sss" | "cycles" | "long-exhale" | "body-scan";
   /** farinelli only: the first count, 2-12; default 4 (a beginner 2 or 3) */

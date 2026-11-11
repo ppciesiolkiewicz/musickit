@@ -195,6 +195,12 @@
     "description": "A breathing exercise for singers, no mic and no instrument: a circle that grows as the student breathes in, stays\nwhile they hold and shrinks as they breathe out, the count ticking in the middle, a soft tick on each count and a\nchime when the phase changes (no spoken voice). A strip under it shows every phase to come. Drills: \"farinelli\"\n(breathe in, hold and breathe out for the same count, one count more each cycle), \"sss-zzz\" and \"zzz-sss\" (a hiss,\nthen the same with voice, to feel where the voice starts), \"cycles\" (in, hold, out, rest), \"long-exhale\" (in for 4,\nout slowly for longer) and \"body-scan\" (breathe into the belly, the ribs, the back).",
     "props": [
       {
+        "name": "level",
+        "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
+        "required": false,
+        "description": "farinelli only: how hard, in one word; it sets `from` and `to` where you leave them out: \"new\" 2 to 5, \"beginner\" 3 to 6, \"intermediate\" 4 to 10, \"advanced\" 4 to 12"
+      },
+      {
         "name": "drill",
         "type": "\"farinelli\" | \"sss-zzz\" | \"zzz-sss\" | \"cycles\" | \"long-exhale\" | \"body-scan\"",
         "required": false,
@@ -294,10 +300,16 @@
     "description": "A finger-pattern drill: the spider and finger permutations,\none finger per fret, played on each string in turn. Use it for dexterity and finger independence warm-ups.",
     "props": [
       {
+        "name": "level",
+        "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
+        "required": false,
+        "description": "how hard, in one word; it sets `fingers` and `fret` where you leave them out: \"new\" 1234 from fret 5 (the frets are closer there), \"beginner\" 1234 from fret 1, \"intermediate\" 1324, \"advanced\" 1423. The tempo is yours to set: a faster `bpm` is the next step inside a level"
+      },
+      {
         "name": "fingers",
         "type": "string",
-        "required": true,
-        "description": "the fretting fingers in playing order, 2-4 different digits 1-4: \"1234\" (the spider), \"1324\", \"13\""
+        "required": false,
+        "description": "the fretting fingers in playing order, 2-4 different digits 1-4: \"1234\" (the spider), \"1324\", \"13\"; needed unless `level` is set"
       },
       {
         "name": "fret",
@@ -387,9 +399,9 @@
       },
       {
         "name": "level",
-        "type": "number",
+        "type": "number | \"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
         "required": false,
-        "description": "difficulty level, 1 and up"
+        "description": "how hard, for kind \"interval\": which intervals are asked, each level adding to the ones before. A number 1-6: 1 the 5th and octave, 2 adds the 3rds, 3 the 4th and major 2nd, 4 the minor 2nd and the 6ths, 5 the 7ths and the tritone, 6 all twelve. Or a word: \"new\" is 1, \"beginner\" 2, \"intermediate\" 4, \"advanced\" 6. `set` replaces it. The next step inside a level: `dir` \"down\", then \"together\", then `wide`"
       },
       {
         "name": "set",
@@ -416,6 +428,12 @@
     "kind": "basic",
     "description": "Sing a given interval from Do: the interval shows by name (\"Interval · P5 · Do ↑ Sol\"), Do sounds and sits on a piano\nroll (or a staff, the student's switch), and the student sings the other note with the microphone; held on it, it\ncounts, shows and plays back. Next (or Space) asks another interval from the set, in another key when there are\nseveral; R restarts the interval asked, with Do again. Tapping Do or the \"?\" plays that note. The voice shows as a dot unless `dot` is false (the harder way: no\npicture of the voice, only whether it counted). A singing exercise.",
     "props": [
+      {
+        "name": "level",
+        "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
+        "required": false,
+        "description": "how hard, in one word; it sets `intervals`, `dir` and `keys` where you leave them out. \"new\": major 3rd and 5th up, the home chord [4, 7]. \"beginner\": adds the octave [4, 7, 12]. \"intermediate\": the leaps of the major scale, 4th, 5th, major 6th, octave [5, 7, 9, 12]. \"advanced\": the notes outside the major scale, minor 3rd, tritone, minor 6th, minor 7th, major 7th [3, 6, 8, 10, 11], up and down, Do in a random key each time. The next step inside a level: `dir` \"down\" then \"both\", more `keys`, then `dot` false"
+      },
       {
         "name": "key",
         "type": "string",
@@ -451,6 +469,12 @@
         "type": "boolean",
         "required": false,
         "description": "show the voice as a dot; default true. false is the harder level: sing without seeing the voice"
+      },
+      {
+        "name": "picker",
+        "type": "boolean",
+        "required": false,
+        "description": "show the Keys switch and the twelve key chips on the tool, so the student picks the keys; default false: the keys are the ones set here, and a step-choice with `key` options is how the student changes key"
       }
     ]
   },
@@ -460,10 +484,16 @@
     "description": "A legato trill: two fingers on one string, alternating by\nhammer-on and pull-off with no picking after the first note. Use it for legato strength and finger independence.",
     "props": [
       {
+        "name": "level",
+        "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
+        "required": false,
+        "description": "how hard, in one word; it sets `fingers` where you leave them out, the strong pair first: \"new\" 12, \"beginner\" 13, \"intermediate\" 23, \"advanced\" 34 (the two weakest fingers). The tempo is yours to set: a faster `bpm` is the next step inside a level"
+      },
+      {
         "name": "fingers",
         "type": "string",
-        "required": true,
-        "description": "the two fingers, lower one first, two different digits 1-4: \"12\", \"13\", \"24\""
+        "required": false,
+        "description": "the two fingers, lower one first, two different digits 1-4: \"12\", \"13\", \"24\"; needed unless `level` is set"
       },
       {
         "name": "string",
@@ -559,6 +589,12 @@
     "description": "A game to find notes on the fretboard: find a named note, play every note, or name the note shown.",
     "props": [
       {
+        "name": "level",
+        "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
+        "required": false,
+        "description": "how hard, in one word; it sets the strings, the frets and the notes asked. \"new\": the low E and A strings, frets 0-5, natural notes only. \"beginner\": the same two strings up to fret 12. \"intermediate\": all six strings, frets 0-12, sharps and flats too. \"advanced\": all six strings up to fret 15. The next step inside a level: `mode` \"name\""
+      },
+      {
         "name": "mode",
         "type": "\"find\" | \"every\" | \"name\"",
         "required": false,
@@ -590,10 +626,16 @@
     "description": "A picking-hand drill: a stroke pattern repeated across the\nstrings. Use it for alternate picking (strokes \"DU\") and, with skip, for string skipping.",
     "props": [
       {
+        "name": "level",
+        "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
+        "required": false,
+        "description": "how hard, in one word; it sets `strokes`, `notesPerString` and `skip` where you leave them out: \"new\" all downstrokes, four notes a string; \"beginner\" down-up, four notes a string; \"intermediate\" down-up, three notes a string (each string starts on the other stroke); \"advanced\" down-up, two notes a string, skipping a string. The tempo is yours to set: a faster `bpm` is the next step inside a level"
+      },
+      {
         "name": "strokes",
         "type": "string",
-        "required": true,
-        "description": "the pick strokes in order, 1-8 of D (down) and U (up): \"DU\", \"DDU\""
+        "required": false,
+        "description": "the pick strokes in order, 1-8 of D (down) and U (up): \"DU\", \"DDU\"; needed unless `level` is set"
       },
       {
         "name": "notesPerString",
@@ -1044,13 +1086,13 @@
   {
     "name": "step-choice",
     "kind": "basic",
-    "description": "A row of chips for the same drill again with one thing changed: the student taps a chip and every tool in the same\nblock (heading to heading) is set to it, so one drill is played faster, in another key or in another position\nwithout a copy of the tool per version. Each option is one chip and sets one or more parts: `key` moves every tool\nin the block to that key, `bpm` sets the tempo of every tool that has one, `position` makes a scale-neck or\nposition-neck show that one position. Every option holds the same parts, and option 1 is how the block's tools are\nwritten. `label` names the chips: \"stage\" (\"Stage 1\", \"Stage 2\": each option harder than the last, such as a tempo\ngoing up) or \"variant\" (\"Variant 1\", \"Variant 2\": equals to compare, such as the same pattern in two keys or\npositions); each named chip also lists what it sets (\"A · 80 bpm\"). Without a label, for options that set one part,\nthe row is named Key, Tempo or Position and each chip shows its value (\"Key  G  A\"). It shows nothing else and makes\nno sound. Put it right before the tool it moves, so the chips sit on that tool. One per block; with `key`, the\nblock's other tools must all be able to change key (not note-finder, interval-ears, run-singer, string-singer,\nbreathwork or the finger drills).",
+    "description": "A row of chips for the same drill again with one thing changed: the student taps a chip and every tool in the same\nblock (heading to heading) is set to it, so one drill is played faster, in another key or in another position\nwithout a copy of the tool per version. Each option is one chip and sets one or more parts: `key` moves every tool\nin the block to that key, `bpm` sets the tempo of every tool that has one, `position` makes a scale-neck or\nposition-neck show that one position, `level` sets every tool that takes a `level` to that level (its chips are\nalways stages, each naming its level: \"Stage 2 · Intermediate\"). Every option holds the same parts, and option 1 is how the block's tools are\nwritten. `label` names the chips: \"stage\" (\"Stage 1\", \"Stage 2\": each option harder than the last, such as a tempo\ngoing up) or \"variant\" (\"Variant 1\", \"Variant 2\": equals to compare, such as the same pattern in two keys or\npositions); each named chip also lists what it sets (\"A · 80 bpm\"). Without a label, for options that set one part,\nthe row is named Key, Tempo or Position and each chip shows its value (\"Key  G  A\"). It shows nothing else and makes\nno sound. Put it right before the tool it moves, so the chips sit on that tool. One per block; with `key`, the\nblock's other tools must all be able to change key (not note-finder, interval-ears, run-singer, string-singer,\nbreathwork or the finger drills).",
     "props": [
       {
         "name": "options",
-        "type": "{ key?: string; bpm?: number; position?: number }[]",
+        "type": "{ key?: string; bpm?: number; position?: number; level?: \"new\" | \"beginner\" | \"intermediate\" | \"advanced\" }[]",
         "required": true,
-        "description": "2-4 different options, each with the same parts: [{ \"bpm\": 60 }, { \"bpm\": 80 }] or [{ \"key\": \"g\", \"position\": 1 }, { \"key\": \"c\", \"position\": 4 }]. `key` is a note (\"a\", \"b-flat\"), `bpm` 30-240, `position` 1-5"
+        "description": "2-4 different options, each with the same parts: [{ \"bpm\": 60 }, { \"bpm\": 80 }] or [{ \"key\": \"g\", \"position\": 1 }, { \"key\": \"c\", \"position\": 4 }]. `key` is a note (\"a\", \"b-flat\"), `bpm` 30-240, `position` 1-5, `level` \"new\", \"beginner\", \"intermediate\" or \"advanced\", easiest first: [{ \"level\": \"intermediate\" }, { \"level\": \"advanced\" }]"
       },
       {
         "name": "label",
@@ -1065,6 +1107,12 @@
     "kind": "basic",
     "description": "Sing the guitar's open strings to learn their pitches for tuning by ear, on a staff with the microphone, at the\nguitar's own pitch (E2 to E4): play it to hear the notes, tap one, then sing along a bar. Three drills: the strings one by one,\nneighbouring pairs (the intervals a guitar is tuned by), and the 5th-fret unisons (the lower string's 5th fret, the\n4th on G, is the next open string).",
     "props": [
+      {
+        "name": "level",
+        "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
+        "required": false,
+        "description": "how hard, in one word; it sets `drill` where you leave it out: \"new\" and \"beginner\" the strings one by one, \"intermediate\" the pairs, \"advanced\" the 5th-fret unisons"
+      },
       {
         "name": "drill",
         "type": "\"strings\" | \"pairs\" | \"fifth-fret\"",

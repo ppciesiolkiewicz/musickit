@@ -77,7 +77,7 @@ function ToolView({ tool, voice, input, choicePick }: { tool: PlanTool; voice?: 
     case "breathwork":
       return <Breathwork drill={tool.drill} from={tool.from} to={tool.to} seconds={tool.seconds} rounds={tool.rounds} />;
     case "interval-singer":
-      return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} dot={tool.dot} />;
+      return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} dot={tool.dot} picker={tool.picker === true} />;
     case "guitar-play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "backing-track":

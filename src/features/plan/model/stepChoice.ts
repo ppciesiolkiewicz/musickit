@@ -1,17 +1,18 @@
 import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM } from "@/features/backing/model";
-import type { PlanTool, Section, StepOption } from "./tools";
+import { TOOL_LEVELS } from "@/features/exercises/basics/levels";
+import { hasLevel, setLevel, type PlanTool, type Section, type StepOption } from "./tools";
 import { canTranspose, stepsOf, transposeTool, type Step } from "./transpose";
 
 /**
  * A step with a `step-choice` tool: the tool lists 2-4 `options`, the student picks one, and every other tool in the step
- * (heading to heading) is set to it. An option holds parts (a key, a tempo, a position), the same parts in every option;
+ * (heading to heading) is set to it. An option holds parts (a key, a tempo, a position, a level), the same parts in every option;
  * the step's tools are written as option 1. Pure: the tools keep receiving plain props and know nothing about the chooser.
  * A new part is one entry in `PARTS`.
  */
 
-export type PartName = "key" | "bpm" | "position";
+export type PartName = "key" | "bpm" | "position" | "level";
 /** The parts in the order a chip lists them. */
-export const PART_NAMES: PartName[] = ["key", "bpm", "position"];
+export const PART_NAMES: PartName[] = ["key", "bpm", "position", "level"];
 
 type Chooser = Extract<PlanTool, { type: "step-choice" }>;
 
@@ -55,6 +56,13 @@ const PARTS: Record<PartName, Part> = {
       return shown?.length === 1 ? shown[0] : null;
     },
     none: "no neck that shows one position",
+  },
+  level: {
+    follows: hasLevel,
+    // the level's own settings replace the tool's (`setLevel`); an index outside the levels leaves the tool alone
+    apply: (tool, value) => (TOOL_LEVELS[value] ? setLevel(tool, TOOL_LEVELS[value]) : tool),
+    written: (t) => (hasLevel(t) && t.level ? TOOL_LEVELS.indexOf(t.level) : null),
+    none: "no tool that takes a level",
   },
 };
 
@@ -104,7 +112,7 @@ export function stepChoice(sections: Section[], step: Step): Chooser | null {
   return null;
 }
 
-const PART_WORD: Record<PartName, string> = { key: "key", bpm: "tempo", position: "position" };
+const PART_WORD: Record<PartName, string> = { key: "key", bpm: "tempo", position: "position", level: "level" };
 
 /**
  * What's wrong with the steps that hold a step-choice: more than one, nothing to move, a tool that can't change key, a

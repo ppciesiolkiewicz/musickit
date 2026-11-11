@@ -45,17 +45,18 @@ const NO_PITCH = { current: null };
  * Sing a named interval from Do: the interval shows as a name ("Interval · P5"), Do sounds and sits on a piano roll (the
  * default) or the staff, and the student sings the other note; held on it for a moment, it counts, shows and plays back.
  * With `dot` (the default) the voice is drawn as a dot; without it the student sings blind and only hears whether it
- * counted (the harder way); either is a switch on the tool too. A page with a side panel holds the keys, view and dot
+ * counted (the harder way); either is a switch on the tool too. `picker` false leaves the Keys switch and key chips out
+ * (an exercise does: its keys are set, and a step-choice changes them). A page with a side panel holds the keys, view and dot
  * there and hands them in as `options`, and the tool then leaves those controls out.
  */
-export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
+export function View({ keys: keysProp = [0], voice = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true, picker = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
   useCoverage({ hints: 5 });
   const range = VOICES[voice] ?? VOICES.tenor;
   const clef = clefFor(range);
   // Standard controls, each kept at Simple when the exercise sets it (several keys, the voice dot off); a hidden one
   // gives its default (the exercise's own setting), and what was picked returns when it shows again
   const standard = useLevelAtLeast("standard");
-  const showKeys = useLevelAtLeast("standard", keysProp.length > 1);
+  const showKeys = useLevelAtLeast("standard", keysProp.length > 1) && picker;
   const showDot = useLevelAtLeast("standard", !dotProp);
   const [lookPicked, setLook] = useState<Look>("roll");
   const look = options?.look ?? (standard ? lookPicked : "roll");

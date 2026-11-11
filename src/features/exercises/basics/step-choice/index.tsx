@@ -2,20 +2,24 @@
 
 import { useState } from "react";
 import { keyName } from "@/features/theory/keySlug";
+import { TOOL_LEVELS, type ToolLevel } from "../levels";
 
-/** What one chip sets, parsed: a key as a pitch class, a tempo, a position 1-5. */
-export interface Option { key?: number; bpm?: number; position?: number }
-type Part = "key" | "bpm" | "position";
-const PARTS: Part[] = ["key", "bpm", "position"];
-const ROW: Record<Part, string> = { key: "Key", bpm: "Tempo", position: "Position" };
+/** What one chip sets, parsed: a key as a pitch class, a tempo, a position 1-5, a level as an index into `TOOL_LEVELS`. */
+export interface Option { key?: number; bpm?: number; position?: number; level?: number }
+type Part = "key" | "bpm" | "position" | "level";
+const PARTS: Part[] = ["key", "bpm", "position", "level"];
+const ROW: Record<Part, string> = { key: "Key", bpm: "Tempo", position: "Position", level: "Level" };
+/** A level as a chip names it. */
+const LEVEL_NAME: Record<ToolLevel, string> = { new: "Brand new", beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced" };
+const levelName = (o: Option): string => LEVEL_NAME[TOOL_LEVELS[o.level ?? 0] ?? "new"];
 const NAMED = { stage: "Stage", variant: "Variant" };
 
 /** A part's value alone, as a plain chip shows it under its row name: "A", "80", "2". */
-const value = (o: Option, p: Part): string => (p === "key" ? keyName(o.key ?? 0) : String(o[p]));
+const value = (o: Option, p: Part): string => (p === "key" ? keyName(o.key ?? 0) : p === "level" ? levelName(o) : String(o[p]));
 /** A part's value with its unit, for a named chip's second line. */
-const phrase = (o: Option, p: Part): string => (p === "key" ? keyName(o.key ?? 0) : p === "bpm" ? `${o.bpm} bpm` : `Position ${o.position}`);
+const phrase = (o: Option, p: Part): string => (p === "key" ? keyName(o.key ?? 0) : p === "bpm" ? `${o.bpm} bpm` : p === "level" ? levelName(o) : `Position ${o.position}`);
 
-/** Everything an option sets, in the order key, tempo, position: "A · 80 bpm · Position 2". */
+/** Everything an option sets, in the order key, tempo, position, level: "A · 80 bpm · Position 2". */
 export function optionText(o: Option): string {
   return PARTS.filter((p) => typeof o[p] === "number").map((p) => phrase(o, p)).join(" · ");
 }
