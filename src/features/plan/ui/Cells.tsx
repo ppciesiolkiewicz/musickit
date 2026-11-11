@@ -8,7 +8,7 @@ import { explain, type Piece } from "@/features/course/glossary";
 import { inlineNote, markRuns, noteRootFor, splitNotes, type NoteRoot } from "../model/noteText";
 import InlineNote from "./InlineNote";
 import type { Cell, Choice, PlainCell, SectionCell } from "../model/tools";
-import { applyChoice, isOpen, resolvedChoice } from "../model/choice";
+import { applyUnder, isOpen, layoutParts } from "../model/choice";
 import ExerciseTool from "./ExerciseTool";
 import ToolTour from "@/features/guide/ToolTour";
 import { View as ChoiceChips } from "@/features/exercises/basics/choice";
@@ -106,25 +106,16 @@ export default function Cells({ cells, choice, address = "ex" }: { cells: Cell[]
   const aside = useContext(SectionAsideContext);
   // the review view (a host gives asides): frames its tools and rules its steps; the plan page keeps the plain layout
   const framed = !!aside;
-  // the option picked per part (by its id), as an index into the choice's options; a part not picked yet is in option 1
+  // the option picked per choice ("block", or a section's id), as an index into its options; not picked yet: option 1
   const [picked, setPicked] = useState<Record<string, number>>({});
-  const block = { choice };
   const pickOf = (id: string, c: Choice | undefined) => (c && !isOpen(c) ? Math.min(picked[id] ?? 0, c.options.length - 1) : 0);
-  // the block's own cells are one part (first, when there are any), then a part per section
-  const parts: Part[] = [];
-  const own = cells.filter((c): c is PlainCell => c.type !== "section");
-  let from = 0;
-  if (own.length) {
-    parts.push({ id: "block", section: null, choice, cells: choice ? applyChoice(own, choice, pickOf("block", choice)) : own, from });
-    from += own.length;
-  }
-  cells.forEach((c, i) => {
-    if (c.type !== "section") return;
-    const id = `s${i}`;
-    const at = resolvedChoice(block, c);
-    const shown = at ? applyChoice(c.cells, at, pickOf(c.choice ? id : "block", at)) : c.cells;
-    parts.push({ id, section: c, choice: at, cells: shown, from });
-    from += c.cells.length;
+  const blockAt = pickOf("block", choice);
+  // the block's cells in document order: each run of own cells is a part, each section a part; a section's tools follow
+  // the block's choice for every part its own choice does not set (`applyUnder`)
+  const parts: Part[] = layoutParts(cells).map((p, k) => {
+    const id = p.section ? `s${k}` : `own${k}`;
+    const own = p.section?.choice;
+    return { id, section: p.section, choice: own ?? choice, cells: applyUnder(p.cells, choice, blockAt, own, pickOf(id, own)), from: p.from };
   });
   const flat = parts.flatMap((p) => p.cells);
   // with an aside (a host's comments), each cell carries it; text-like cells shrink to their text so the aside sits at its end
@@ -151,36 +142,45 @@ export default function Cells({ cells, choice, address = "ex" }: { cells: Cell[]
         return <HeadphonesNotice key={i} />;
       case "tool": {
         // a new option remounts the tool, so what it was playing stops
-        const key = `${i}-${p.choice ? pickOf(p.section?.choice ? p.id : "block", p.choice) : ""}`;
+        const key = `${i}-${blockAt}-${p.section?.choice ? pickOf(p.id, p.section.choice) : ""}`;
         return framed
           ? <ToolFrame key={key} type={s.tool.type}><ExerciseTool tool={s.tool} /></ToolFrame>
           : <ToolBox key={key} type={s.tool.type}><ExerciseTool tool={s.tool} /></ToolBox>;
       }
     }
   };
-  // the part's items, "Start exercise" (shown only when there is more than one thing to start) before its first tool
+  // the chips of a choice of options sit where the step-choice tool sat: after the text that names the selector, right
+  // before the first tool they move ("Use the Key selector below"). A section's own: before its first tool; the block's:
+  // before the first tool of the block, in document order.
+  const chipRow = (id: string, c: Choice | undefined) => {
+    if (!c || isOpen(c)) return null;
+    const row = <ChoiceChips options={c.options} label={c.label} value={pickOf(id, c)} onChange={(index) => setPicked((k) => ({ ...k, [id]: index }))} />;
+    return framed ? <ToolFrame type="choice">{row}</ToolFrame> : <div className="-mb-1 pt-1">{row}</div>;
+  };
+  const firstBlockTool = flat.findIndex((c) => c.type === "tool");
+  // the part's items: the chips, then "Start exercise" (shown only when there is more than one thing to start), before its first tool
   const items = (p: Part) => {
     const firstTool = p.cells.findIndex((c) => c.type === "tool");
     return p.cells.map((c, j) => {
       const i = p.from + j;
       const node = withAside(item(p, c, i), i);
-      return j === firstTool ? <Fragment key={i}><StartExercise />{node}</Fragment> : node;
+      if (j !== firstTool) return node;
+      return (
+        <Fragment key={i}>
+          {i === firstBlockTool && chipRow("block", choice)}
+          {p.section && chipRow(p.id, p.section.choice)}
+          <StartExercise />
+          {node}
+        </Fragment>
+      );
     });
-  };
-  // the chips of a choice of options, in the part's header; the block's choice is drawn once, on the first part that holds it
-  const chips = (p: Part) => {
-    const c = p.section?.choice ?? (p === parts[0] ? choice : undefined);
-    if (!c || isOpen(c)) return null;
-    const id = p.section?.choice ? p.id : "block";
-    const row = <ChoiceChips options={c.options} label={c.label} value={pickOf(id, c)} onChange={(index) => setPicked((k) => ({ ...k, [id]: index }))} />;
-    return framed ? <ToolFrame type="choice">{row}</ToolFrame> : <div className="-mb-1 pt-1">{row}</div>;
   };
   // framed (the review view): each step after the first starts under a rule, so the parts of a singing exercise read apart
   return (
     <div className={framed ? "flex flex-col" : "flex flex-col gap-7"}>
       {parts.map((p, k) => {
         const rule = framed && k > 0 ? "mt-7 border-t-2 border-slate-700 pt-6" : "";
-        if (!p.section) return <div key={p.id} className={rule}><ExerciseStep><div className="flex flex-col gap-3">{chips(p)}{items(p)}</div></ExerciseStep></div>;
+        if (!p.section) return <div key={p.id} className={rule}><ExerciseStep><div className="flex flex-col gap-3">{items(p)}</div></ExerciseStep></div>;
         return (
           <div key={p.id} className={rule}>
             <ExerciseStep>
@@ -190,7 +190,7 @@ export default function Cells({ cells, choice, address = "ex" }: { cells: Cell[]
                   {p.section.heading}
                   {p.section.minutes && <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] font-medium tabular-nums text-slate-300">{p.section.minutes} min</span>}
                 </h4>
-                <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{chips(p)}{items(p)}<ToExerciseTop /></div>
+                <div className="ml-[4px] flex flex-col gap-3 border-l border-slate-700/70 pl-5">{items(p)}<ToExerciseTop /></div>
               </div>
             </ExerciseStep>
           </div>

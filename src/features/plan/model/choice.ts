@@ -1,7 +1,7 @@
 import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM } from "@/features/backing/model";
 import { TOOL_LEVELS } from "@/features/exercises/basics/levels";
 import { keyName } from "@/features/theory/keySlug";
-import { PART_NAMES, canFollowPart, hasLevel, setLevel, toolsOf, type Cell, type Choice, type ChoiceOption, type PartName, type PlanTool, type SectionCell } from "./tools";
+import { PART_NAMES, canFollowPart, hasLevel, setLevel, toolsOf, type Cell, type Choice, type ChoiceOption, type PartName, type PlainCell, type PlanTool, type SectionCell } from "./tools";
 import { transposeTool } from "./transpose";
 import type { Block } from "./types";
 
@@ -120,31 +120,73 @@ export function applyChoice<T extends Cell>(cells: T[], choice: Choice, index: n
 export const resolvedChoice = (block: Pick<Block, "choice">, section?: SectionCell): Choice | undefined => section?.choice ?? block.choice;
 
 /**
+ * A section's cells under both choices, part by part: the block's choice first (at `blockIndex`), then the section's own
+ * (at `sectionIndex`), so a part the section sets wins and the parts it doesn't set come from the block. Either choice may
+ * be absent.
+ */
+export function applyUnder<T extends Cell>(cells: T[], blockChoice: Choice | undefined, blockIndex: number, sectionChoice: Choice | undefined, sectionIndex: number): T[] {
+  const under = blockChoice ? applyChoice(cells, blockChoice, blockIndex) : cells;
+  return sectionChoice ? applyChoice(under, sectionChoice, sectionIndex) : under;
+}
+
+/** One part of a block as drawn: a run of the block's own cells in document order (`section` null), or a section. `from` is where its cells start in `cellsOf(cells)`. */
+export interface LayoutPart { section: SectionCell | null; cells: PlainCell[]; from: number }
+
+/** The block's cells grouped as they are drawn, in document order: each section is a part, and each run of own cells between sections is a part. */
+export function layoutParts(cells: Cell[]): LayoutPart[] {
+  const parts: LayoutPart[] = [];
+  let from = 0;
+  for (const c of cells) {
+    if (c.type === "section") {
+      parts.push({ section: c, cells: c.cells, from });
+      from += c.cells.length;
+      continue;
+    }
+    const last = parts[parts.length - 1];
+    if (last && !last.section) last.cells = [...last.cells, c];
+    else parts.push({ section: null, cells: [c], from });
+    from += 1;
+  }
+  return parts;
+}
+
+/**
  * What's wrong with the choices of a block: nothing to move, a tool that can't change key, a part no tool has, an
  * option 1 that isn't how the tools are written, a tool written in another value than an open choice (it will follow).
- * Worded to be pasted back to the AI. A section without a choice of its own is under the block's.
+ * Worded to be pasted back to the AI. A section's tools are under the block's choice for every part the section's own
+ * choice does not set.
  */
 export function choiceWarnings(block: Pick<Block, "choice" | "cells">): string[] {
   const out: string[] = [];
   const own = block.cells.filter((c): c is Exclude<Cell, SectionCell> => c.type !== "section");
   const sections = block.cells.filter((c): c is SectionCell => c.type === "section");
   if (block.choice) {
-    const under = [...own, ...sections.filter((s) => !s.choice).flatMap((s) => s.cells)];
-    check(block.choice, toolsOf(under), "the block", out);
+    const under: Under[] = [
+      ...toolsOf(own).map((tool) => ({ tool, parts: null })),
+      ...sections.flatMap((s) => toolsOf(s.cells).map((tool) => ({ tool, parts: s.choice ? partsOf(s.choice) : null }))),
+    ];
+    check(block.choice, under, "the block", out);
   }
-  for (const s of sections) if (s.choice) check(s.choice, toolsOf(s.cells), `"${s.heading}"`, out);
+  for (const s of sections) if (s.choice) check(s.choice, toolsOf(s.cells).map((tool) => ({ tool, parts: null })), `"${s.heading}"`, out);
   return out;
 }
 
-function check(choice: Choice, tools: PlanTool[], name: string, out: string[]): void {
+/** A tool under a choice, with the parts another choice already sets on it (null: none). */
+interface Under { tool: PlanTool; parts: PartName[] | null }
+
+function check(choice: Choice, under: Under[], name: string, out: string[]): void {
   const what = isOpen(choice) ? "an open choice" : "a choice";
-  if (!tools.length) {
+  const parts = partsOf(choice);
+  // the tools this choice can reach for at least one of its parts
+  const reach = under.filter((u) => parts.some((p) => !u.parts?.includes(p)));
+  if (!reach.length) {
     out.push(`${name} has ${what}, but no tool for it to move.`);
     return;
   }
   const first = valueOf(choice, 0);
   const off: string[] = [];
-  for (const p of partsOf(choice)) {
+  for (const p of parts) {
+    const tools = under.filter((u) => !u.parts?.includes(p)).map((u) => u.tool);
     const followers = tools.filter((t) => follows(t, p));
     if (p === "key") {
       const stuck = tools.filter((t) => !canFollowPart(t, p)).map((t) => t.type);

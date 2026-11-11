@@ -11,8 +11,8 @@ import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS } from "./tools";
 /** A title read: the words, and the tags found at its end (an unknown hashtag is listed, not kept). */
 export interface TitleTags { title: string; area?: Area; level?: Level; tags: string[]; unknown: string[] }
 
-/** A trailing hashtag: a word of letters and dashes (a `#` before a digit is text, "position #1"). */
-const TRAILING = /\s*#([a-z][a-z-]*)$/i;
+/** A trailing hashtag: a word of letters and dashes after a space (a `#` before a digit is text, "position #1"; a `#` after a letter is a sharp, "C#m"). */
+const TRAILING = /(?:^|\s+)#([a-z][a-z-]*)$/i;
 
 /** The title's trailing hashtags read into fields, in order of appearance; the title trimmed of them, keeping its first hashtag's word when nothing else is left. */
 export function readTitle(raw: string): TitleTags {

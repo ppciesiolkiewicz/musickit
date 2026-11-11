@@ -30,3 +30,10 @@ describe("hashtagLine", () => {
     assert.equal(hashtagLine({}), "");
   });
 });
+
+describe("review fixes", () => {
+  it("a sharp chord at the end of a title is not a hashtag", () => {
+    assert.deepEqual(readTitle("Change from E to C#m"), { title: "Change from E to C#m", tags: [], unknown: [] });
+    assert.deepEqual(readTitle("Key of F#m #guitar"), { title: "Key of F#m", area: "guitar", tags: [], unknown: [] });
+  });
+});

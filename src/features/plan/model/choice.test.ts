@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { MAX_BPM as BACKING_MAX_BPM } from "@/features/backing/model";
 import { parseChoiceDiag, choiceSchema, parseTool, toolsOf, TOOLS, toolInterface, type Cell, type Choice, type ChoiceOption, type PlanTool } from "./tools";
-import { applyChoice, choiceWarnings, follows, partsOf, resolvedChoice, valueOf } from "./choice";
+import { applyChoice, applyUnder, choiceWarnings, follows, layoutParts, partsOf, resolvedChoice, valueOf } from "./choice";
 
 const diag = () => ({ notes: [] as string[] });
 
@@ -180,5 +180,24 @@ describe("choiceWarnings", () => {
     assert.deepEqual(w, ["the block: staff written in G under a choice in A; it will follow A.", "the block: backing-band written in G under a choice in A; it will follow A."]);
     assert.deepEqual(choiceWarnings(block([staff("g", { pinned: ["key"] })], open({ key: 9 }))), []);
     assert.match(choiceWarnings(block([band(70)], open({ bpm: 80 }))).join("\n"), /written in 70 bpm under a choice in 80 bpm; it will follow 80 bpm/);
+  });
+});
+
+describe("per-part resolution (review fix)", () => {
+  const block = (cells: Cell[], choice?: Choice) => ({ ...(choice ? { choice } : {}), cells });
+  it("a section's own choice overrides only the parts it sets; the block's reach the rest", () => {
+    const sec = section("S", [neck()], options([{ bpm: 60 }, { bpm: 80 }])) as Extract<Cell, { type: "section" }>;
+    const out = applyUnder(sec.cells, open({ key: 9, scale: "major-pentatonic" }), 0, sec.choice, 1);
+    const [t] = tools(out);
+    assert.equal(t.key, 9);
+    assert.equal(t.scale, "major-pentatonic");
+    const w = choiceWarnings(block([sec], open({ key: 9 })));
+    assert.ok(w.includes("the block: scale-neck written in G under a choice in A; it will follow A."), w.join("\n"));
+    assert.ok(!w.some((x) => x.includes("no tool for it to move")), w.join("\n"));
+  });
+  it("layoutParts keeps the block's own cells where they were written, with cellsOf offsets", () => {
+    const cells: Cell[] = [{ type: "text", text: "a" }, section("S", [{ type: "text", text: "b" }, neck()]), { type: "text", text: "c" }];
+    const parts = layoutParts(cells);
+    assert.deepEqual(parts.map((p) => [p.section?.heading ?? null, p.from, p.cells.length]), [[null, 0, 1], ["S", 1, 2], [null, 3, 1]]);
   });
 });
