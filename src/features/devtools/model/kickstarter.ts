@@ -141,6 +141,41 @@ Or just reply with a time that suits you.
 
 Piotr`,
   },
+  {
+    label: "Taking over a thread: Bernardinų Giedojimo Mokykla",
+    about: "A reply to a singing school that answered an outreach email from Jesse. The founder takes over, leads with the singing plans and a note, points to the demo for trying it with their own AI, and offers the call.",
+    text: `Hi Rita,
+
+Thanks for the reply. I’m Piotr, the founder of attunr, and I’m taking over from Jesse. I love music, and I’m building attunr to make teaching easier for teachers and practice better for students.
+
+Weekly practice plans
+The vision for attunr is that after each rehearsal the teacher generates each singer’s daily exercises for the next week, with AI helping to create them with embedded interactive components. The idea behind it: 20 minutes of focused practice can be better than an hour of scattered practice, so a singer should never lose time working out what to practise.
+
+A beginner singer’s week of daily exercises: https://www.attunr.app/demo/voice-beginner
+An intermediate singer’s week: https://www.attunr.app/demo/voice-intermediate
+
+Interactive notes
+Apart from AI generating the plans, teachers can also create interactive notes like this one, with the assistance of AI.
+
+An example note, guitar first, then singing: https://www.attunr.app/note/minor-pentatonic
+
+You can try creating both notes and plans yourself. For now this needs your own AI browser extension or any AI chat (Claude, ChatGPT, Gemini etc), so that I can keep the app open for the demo.
+Create a note or a plan here:
+https://www.attunr.app/demo
+
+Be aware that at this stage everything is in demo mode, so you will not necessarily be able to share the plans you create with others.
+
+The website also has a lot of tools to use, such as breathwork and singing runs: https://www.attunr.app
+
+I’m looking for founding partners: schools that use attunr early and say what they need, and that is built first.
+
+Would 30 minutes on a video call be worth it? I’d show attunr working with what you teach, and you’d tell me what Bernardinų Giedojimo Mokykla needs.
+You can pick a time here:
+https://calendly.com/attunrapp/30min
+Or just reply with a time that suits you.
+
+Piotr`,
+  },
 ];
 
 const list = (items: string[]) => items.map((x) => `- ${x}`).join("\n");
