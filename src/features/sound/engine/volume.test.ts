@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULT_VOLUME, clampVolume, getVolume, setVolume } from "./volume";
+import { DEFAULT_VOLUME, MIC_BOOST_DB, clampVolume, getVolume, micBoost, setVolume } from "./volume";
 
 test("clampVolume keeps 0..1 and falls back to the default for junk", () => {
   assert.equal(clampVolume(0.5), 0.5);
@@ -17,4 +17,10 @@ test("setVolume clamps and getVolume reads it back, with no audio or storage", (
   assert.equal(getVolume(), 1);
   setVolume(0);
   assert.equal(getVolume(), 0);
+});
+
+test("micBoost lifts the sound only on a touch screen with the mic open", () => {
+  assert.equal(micBoost(0, true), 1);
+  assert.equal(micBoost(2, false), 1);
+  assert.ok(Math.abs(20 * Math.log10(micBoost(1, true)) - MIC_BOOST_DB) < 1e-9);
 });

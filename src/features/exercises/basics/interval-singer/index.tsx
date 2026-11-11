@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { useToolKeys } from "@/components/practice/toolKeys";
@@ -28,6 +28,21 @@ const LISTEN_AFTER_MS = 400;
 const HOLD_MS = 500;
 /** frames without a pitch before the voice counts as gone */
 const GAP_FRAMES = 6;
+
+/**
+ * True on a touch screen. A phone (an iPhone always, many Android phones too) plays every sound much quieter while a page has
+ * the mic open, so there the mic is opened only once the piano has finished and closed again whenever it plays.
+ */
+const TOUCH = "(pointer: coarse)";
+const useTouch = () => useSyncExternalStore(
+  (fn) => {
+    const mq = window.matchMedia(TOUCH);
+    mq.addEventListener("change", fn);
+    return () => mq.removeEventListener("change", fn);
+  },
+  () => window.matchMedia(TOUCH).matches,
+  () => false,
+);
 
 const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
 
@@ -84,6 +99,8 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   const placed = useMemo(() => placeIn(pc, range, intervals, dir), [pc, range, intervals, dir]);
 
   const [phase, setPhase] = useState<Phase>("idle");
+  // the note played in "prompt" or "hint" has ended, so on a touch screen the mic can open in the wait before listening
+  const [played, setPlayed] = useState(false);
   const [score, setScore] = useState({ right: 0, asked: 0 });
   const [tapped, setTapped] = useState<number | null>(null);
   // whether the question asked has been scored, right or shown
@@ -121,7 +138,14 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     gaps.current = 0;
     pitch.current = hzToMidi(smoother.current.push(p));
   }, []);
-  const { status: micStatus } = useMicPitch(micOn, undefined, onPitch);
+  const touch = useTouch();
+  const listens = micOn && (!touch || phase === "listening" || ((phase === "prompt" || phase === "hint") && played));
+  // a pitch heard before the mic closed is not the voice now
+  useEffect(() => {
+    pitch.current = null;
+    smoother.current.reset();
+  }, [listens]);
+  const { status: micStatus } = useMicPitch(listens, undefined, onPitch);
   const startMic = () => {
     pitch.current = null;
     setMicOn(true);
@@ -147,8 +171,9 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     stopTimers();
     await wakeAudio();
     setPhase("prompt");
+    setPlayed(false);
     sound([midi]);
-    timers.current = [setTimeout(() => setPhase("listening"), NOTE_MS + LISTEN_AFTER_MS)];
+    timers.current = [setTimeout(() => setPlayed(true), NOTE_MS), setTimeout(() => setPhase("listening"), NOTE_MS + LISTEN_AFTER_MS)];
   };
   const next = () => {
     // a new key each time when there is a choice
@@ -176,8 +201,9 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     if (phase === "solved" || phase === "shown") return void tap(targetMidi, -2);
     stopTimers();
     setPhase("hint");
+    setPlayed(false);
     void tap(targetMidi, -2);
-    timers.current = [setTimeout(() => setPhase("listening"), NOTE_MS + LISTEN_AFTER_MS)];
+    timers.current = [setTimeout(() => setPlayed(true), NOTE_MS), setTimeout(() => setPhase("listening"), NOTE_MS + LISTEN_AFTER_MS)];
   };
   useEffect(() => {
     onKey.current = { " ": next, ...(ask !== null ? { r: restart } : {}) };
