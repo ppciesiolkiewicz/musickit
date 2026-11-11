@@ -138,7 +138,7 @@ function NotesCreator() {
 export default function DemoIndex() {
   const cards = demoCards();
   return (
-    <PageShell active="/plan" title="Demos" intro="Two tools, and examples of what you get from them. Open any example and try it. Nothing here is saved.">
+    <PageShell active="/plan" title="Demos" intro="What your students practise with between lessons, and the two tools that make it. Open any example and try it as a student would. Nothing here is saved.">
       <div className="flex flex-col gap-14 pb-10">
         <div>
           <div className="grid gap-4 lg:grid-cols-2">
