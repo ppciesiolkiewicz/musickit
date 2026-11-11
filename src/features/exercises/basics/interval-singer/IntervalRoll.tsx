@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { onANote } from "./asks";
 
-const W = 600;
-const ROW_H = 14;
+/** the width drawn before the box is measured; after, the roll is drawn at its own width in CSS pixels, so its text keeps its size on a phone */
+const START_W = 600;
+/** narrower than this the rows grow taller, so a phone gets a roll it can read and tap */
+const NARROW = 520;
 const GUTTER = 44;
 /** semitones of room above and below the two notes */
 const ROOM = 2;
 /** how much of the voice's past the trail keeps, in ms */
 const TRAIL_MS = 4000;
-const DO_X = [GUTTER + 12, 290];
-const TARGET_X = [310, W - 40];
-/** the voice is drawn here, the trail running left of it */
-const NOW_X = W - 20;
 const BLACK = new Set([1, 3, 6, 8, 10]);
 
 /**
@@ -44,6 +42,22 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
   /** tapped: "do" or "target" */
   onNote: (which: "do" | "target") => void;
 }) {
+  // the box's width, kept up to date: one unit of the drawing is one CSS pixel
+  const box = useRef<HTMLDivElement | null>(null);
+  const [W, setW] = useState(START_W);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setW(Math.max(260, Math.round(e.contentRect.width))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const ROW_H = W < NARROW ? 20 : 14;
+  const mid = GUTTER + (W - GUTTER) / 2;
+  const DO_X = [GUTTER + 12, mid - 10];
+  const TARGET_X = [mid + 10, W - 40];
+  /** the voice is drawn here, the trail running left of it */
+  const NOW_X = W - 20;
   const lo = Math.min(doMidi, low) - ROOM;
   const hi = Math.max(doMidi, high) + ROOM;
   const H = (hi - lo + 1) * ROW_H + 1;
@@ -99,7 +113,8 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
   );
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full select-none rounded-lg border border-slate-800 bg-slate-950/60" role="img" aria-label={`Piano roll: ${doLabel} and the note to sing`}>
+    <div ref={box} className="w-full">
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className="block w-full h-auto select-none rounded-lg border border-slate-800 bg-slate-950/60" role="img" aria-label={`Piano roll: ${doLabel} and the note to sing`}>
       {rows.map((r) => {
         const y = (hi - r) * ROW_H;
         const black = BLACK.has(((r % 12) + 12) % 12);
@@ -108,7 +123,7 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
           <g key={r}>
             <rect x={GUTTER} y={y} width={W - GUTTER} height={ROW_H} fill={black ? "var(--color-slate-900)" : "var(--color-slate-800)"} fillOpacity={black ? 0.9 : 0.35} />
             <rect x={0} y={y} width={GUTTER - 4} height={ROW_H} fill={black ? "var(--color-slate-700)" : "var(--color-slate-300)"} fillOpacity={black ? 1 : 0.85} />
-            {name && <text x={GUTTER - 8} y={y + ROW_H - 3} fontSize={10} textAnchor="end" fill="var(--color-slate-900)" fontWeight={600}>{name}</text>}
+            {name && <text x={GUTTER - 8} y={y + ROW_H / 2 + 3.5} fontSize={10} textAnchor="end" fill="var(--color-slate-900)" fontWeight={600}>{name}</text>}
             <line x1={GUTTER} x2={W} y1={y + ROW_H} y2={y + ROW_H} stroke="var(--color-slate-700)" strokeOpacity={0.4} />
           </g>
         );
@@ -118,5 +133,6 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
       {d && <path d={d} fill="none" stroke="var(--color-sky-300)" strokeOpacity={0.8} strokeWidth={2} strokeLinejoin="round" />}
       {m !== null && <circle cx={NOW_X} cy={yOf(m)} r={6} fill={on ? "var(--color-emerald-400)" : "var(--color-sky-400)"} stroke="var(--color-slate-950)" strokeWidth={1.5} />}
     </svg>
+    </div>
   );
 }
