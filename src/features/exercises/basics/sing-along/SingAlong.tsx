@@ -46,11 +46,11 @@ function MarginArrow({ side, onClick }: { side: "left" | "right"; onClick?: () =
   );
 }
 
-function IconButton({ on, tone = "sky", title, onClick, children }: { on?: boolean; tone?: "sky" | "emerald" | "amber"; title: string; onClick: () => void; children: ReactNode }) {
+function IconButton({ on, tone = "sky", big, title, onClick, children }: { on?: boolean; tone?: "sky" | "emerald" | "amber"; big?: boolean; title: string; onClick: () => void; children: ReactNode }) {
   const lit = { sky: "border-sky-400/70 bg-sky-500/20 text-sky-100", emerald: "border-emerald-400/70 bg-emerald-500/25 text-emerald-100", amber: "border-amber-400/60 bg-amber-500/15 text-amber-200" }[tone];
   return (
     <button type="button" onClick={onClick} title={title} aria-label={title} aria-pressed={on}
-      className={`flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-lg border px-1.5 transition ${on ? lit : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
+      className={`flex items-center justify-center rounded-lg border transition ${big ? "h-11 min-w-14 gap-2 px-3" : "h-8 min-w-8 gap-1.5 px-1.5"} ${on ? lit : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
       {children}
     </button>
   );
@@ -212,8 +212,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
         <span data-tour="sing-play" className="inline-flex items-center gap-1.5">
           <Hint title={sa.playing ? "Stop" : "Play"} description={sa.playing ? "Ends the tune." : "Starts the tune from the start. While it plays, the button turns into Stop."}>
-            <IconButton on={sa.playing} title={`${sa.playing ? "Stop" : "Play"}${spaceArmed ? " (Space)" : ""}`} onClick={sa.playing ? sa.stop : play}>
-              <Icon name={sa.playing ? "square" : "play"} size={sa.playing ? 14 : 15} fill={sa.playing} />
+            <IconButton big on={sa.playing} title={`${sa.playing ? "Stop" : "Play"}${spaceArmed ? " (Space)" : ""}`} onClick={sa.playing ? sa.stop : play}>
+              <Icon name={sa.playing ? "square" : "play"} size={sa.playing ? 18 : 20} fill={sa.playing} />
               {spaceArmed && <KeyCap className="hidden md:inline">Space</KeyCap>}
             </IconButton>
           </Hint>
