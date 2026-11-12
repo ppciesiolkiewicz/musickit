@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import AlsoTry from "@/components/theory/AlsoTry";
 import SingingApp from "@/components/theory/singing/SingingApp";
 import { parseSingingLink } from "@/features/theory/singingLink";
 
@@ -21,6 +22,7 @@ export default async function SingMelodiesPage({ searchParams }: { searchParams:
       intro="Sing short tunes in your key, each ending on a long Do. Start with Easy ones on Do and Re, then try skips, broken chords and leaps. Press play, sing along, and a dot shows your voice on the staff."
     >
       <SingingApp mode="melodies" initial={parseSingingLink(q)} />
+      <AlsoTry group="singing" current="/theory/singing/melodies" />
     </PageShell>
   );
 }

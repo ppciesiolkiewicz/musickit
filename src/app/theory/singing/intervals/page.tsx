@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import AlsoTry from "@/components/theory/AlsoTry";
 import Lesson from "@/components/theory/Lesson";
 import IntervalSingerApp from "@/components/theory/singing/IntervalSingerApp";
 
@@ -20,6 +21,7 @@ export default function SingIntervalPage() {
       <IntervalSingerApp
         lead={<Lesson course="6/every-interval" why="Singing an interval from its name ties the name to the sound, so you can hear it in a song and find it on the neck." tryThis="Start on level 1, P5 and the octave. Move up a level once both feel easy, and turn Show my voice off when you want it harder." />}
       />
+      <AlsoTry group="singing" current="/theory/singing/intervals" />
     </PageShell>
   );
 }

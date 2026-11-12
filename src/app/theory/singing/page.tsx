@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import PageShell from "@/components/PageShell";
+import AlsoTry from "@/components/theory/AlsoTry";
 import Lesson from "@/components/theory/Lesson";
 import SingingApp from "@/components/theory/singing/SingingApp";
 import { parseSingingLink } from "@/features/theory/singingLink";
@@ -34,6 +35,7 @@ export default async function SingingPage({ searchParams }: { searchParams: Prom
         initial={initial}
         lead={<Lesson course="3/solfege" why="Singing a scale is the fastest way to hear it: once your voice can find each degree, your fingers have a sound to aim for." tryThis="Play the scale once and listen, then play it again and sing along with the mic on. The rest at the top is your breath before the way down." />}
       />
+      <AlsoTry group="singing" current="/theory/singing" />
     </PageShell>
   );
 }
