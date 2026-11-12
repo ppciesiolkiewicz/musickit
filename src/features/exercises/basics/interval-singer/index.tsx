@@ -66,7 +66,7 @@ const NO_PITCH = { current: null };
  * there and hands them in as `options`, and the tool then leaves those controls out.
  */
 export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true, picker = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
-  useCoverage({ hints: 5 });
+  useCoverage({ hints: 7 });
   const voice = useVoice(own);
   const range = VOICES[voice] ?? VOICES.tenor;
   const clef = clefFor(range);
@@ -112,8 +112,9 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   };
   useEffect(() => stopTimers, []);
 
-  // the keys, for the tool on screen (a plan may hold more than one), with no modifier and not while typing: Space is
-  // Start / Next (not on a focused button, which Space already presses), R restarts the interval asked
+  // the keys, for the tool on screen (a plan may hold more than one), with no modifier and not while typing: Space
+  // presses the big button (not on a focused button, which Space already presses): Start or Next, or Restart while the
+  // interval is still to sing. Skip has no key, so Space never throws an interval away. R restarts the interval asked
   const onKey = useRef<Record<string, () => void>>({});
   const hotkeys = useToolKeys((e, onControl) => {
     const k = e.key.toLowerCase();
@@ -206,7 +207,8 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     timers.current = [setTimeout(() => setPlayed(true), NOTE_MS), setTimeout(() => setPhase("listening"), NOTE_MS + LISTEN_AFTER_MS)];
   };
   useEffect(() => {
-    onKey.current = { " ": next, ...(ask !== null ? { r: restart } : {}) };
+    const sung = phase === "solved" || phase === "shown";
+    onKey.current = { " ": ask !== null && !sung ? restart : next, ...(ask !== null ? { r: restart } : {}) };
   });
   const reveal = (ok: boolean) => {
     if (targetMidi === null) return;
@@ -236,6 +238,8 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   }, [phase, targetMidi, micOn, cents]);
 
   const found = phase === "solved" || phase === "shown";
+  /** an interval asked and not yet sung: the big button is Restart, and Skip moves on */
+  const waiting = ask !== null && !found;
   const target = useMemo(() => {
     if (!placed || ask === null) return null;
     const label = solfegeOf(ask);
@@ -260,6 +264,7 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     : phase === "listening" ? (micOn ? (dot ? "Sing it and hold the note. The dot turns green on Do and on the note." : "Sing it and hold the note.") : "Switch the mic on to sing your answer.")
     : phase === "solved" ? `Yes: ${target!.label}, ${target!.spelled.name}.` : `It was ${target!.label}, ${target!.spelled.name}.`;
 
+  const big = "inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
   const settings = standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
 
   return (
@@ -267,14 +272,21 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
       <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
       <div className="flex flex-wrap items-center gap-2">
         <span data-tour="interval-singer-start" className="inline-flex">
-          <Hint title={ask === null ? "Start" : "Next"} description="Plays Do, then listens for the interval you sing from it.">
-            <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className="inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50">
-              {ask === null ? "Start" : "Next"}{hotkeys.armed && <KeyCap className="hidden md:inline">Space</KeyCap>}
-            </Button>
-          </Hint>
+          {waiting
+            ? <Hint title="Restart" description="The same interval again: Do plays and the mic listens.">
+              <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (Space)" className={big}>
+                Restart{hotkeys.armed && <KeyCap className="hidden md:inline">Space</KeyCap>}
+              </Button>
+            </Hint>
+            : <Hint title={ask === null ? "Start" : "Next"} description="Plays Do, then listens for the interval you sing from it.">
+              <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className={big}>
+                {ask === null ? "Start" : "Next"}{hotkeys.armed && <KeyCap className="hidden md:inline">Space</KeyCap>}
+              </Button>
+            </Hint>}
         </span>
-        {ask !== null && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart{hotkeys.armed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>}
-        {ask !== null && !found && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
+        {waiting && <Hint title="Skip" description="Moves on to a new interval."><Button size="sm" onClick={next}>Skip</Button></Hint>}
+        {ask !== null && found && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart{hotkeys.armed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>}
+        {waiting && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
           <Hint title="Mic" description="Listens to your voice. Start switches it on for you; this button also opens the list of inputs, with each input's level and Stop.">
             <InputChip status={micStatus} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />

@@ -1,8 +1,8 @@
 /**
  * Sing a given interval from Do: the interval shows by name ("Interval · P5 · Do ↑ Sol"), Do sounds and sits on a piano
  * roll (or a staff, the student's switch), and the student sings the other note with the microphone; held on it, it
- * counts, shows and plays back. Next (or Space) asks another interval from the set, in another key when there are
- * several; R restarts the interval asked, with Do again. Tapping Do or the "?" plays that note. The voice shows as a dot unless `dot` is false (the harder way: no
+ * counts, shows and plays back. Restart (or Space) plays Do again for the interval asked; Skip moves on. Once it is
+ * sung, Next (or Space) asks another interval from the set, in another key when there are several, and R restarts it. Tapping Do or the "?" plays that note. The voice shows as a dot unless `dot` is false (the harder way: no
  * picture of the voice, only whether it counted). A singing exercise.
  * @component interval-singer basic
  */

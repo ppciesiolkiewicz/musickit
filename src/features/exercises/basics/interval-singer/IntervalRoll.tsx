@@ -99,7 +99,13 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
 
   const bar = (midi: number, [x0, x1]: number[], label: string, which: "do" | "target", shown: boolean) => (
     <g role="button" tabIndex={0} aria-label={shown ? `${label}, play it` : `${targetHint}, the note to sing, play it`} className="cursor-pointer" onClick={() => onNote(which)}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onNote(which)}>
+      // a click plays the note but leaves focus where it was: a focused note would take Space, which is Restart's key
+      onMouseDown={(e) => e.preventDefault()}
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault(); // an svg button has no Space of its own: left alone, Space scrolls the page
+        onNote(which);
+      }}>
       <rect x={x0} y={yOf(midi) - ROW_H / 2 + 1} width={x1 - x0} height={ROW_H - 2} rx={3}
         // Do turns green at once while the voice is on it, and fades back when it leaves
         style={{
