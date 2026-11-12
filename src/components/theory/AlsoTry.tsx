@@ -1,28 +1,23 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
-import { THEORY_SECTIONS, TONE, type SectionGroup } from "@/features/theory/sections";
+import { THEORY_SECTIONS, TONE } from "@/features/theory/sections";
 
-/** "Also try": a card for every other page in the page's nav group (label, line, icon and colour from the nav list). */
-export default function AlsoTry({ group, current }: { group: SectionGroup; current: string }) {
-  const others = THEORY_SECTIONS.filter((s) => s.group === group && s.href !== current);
+/** The singing pages that draw your voice on the staff, and Farinelli breathing to go with them. */
+export const STAFF_SINGING = ["/theory/singing", "/theory/singing/melodies", "/theory/singing/runs", "/theory/singing/intervals", "/theory/singing/breathing"];
+
+/** "Also try": a small link for each of `hrefs` but the page you are on (label, icon and colour from the nav list). */
+export default function AlsoTry({ current, hrefs = STAFF_SINGING }: { current: string; hrefs?: string[] }) {
+  const others = hrefs.filter((h) => h !== current).flatMap((h) => THEORY_SECTIONS.filter((s) => s.href === h));
   if (!others.length) return null;
   return (
-    <section aria-labelledby="also-try-h" className="mt-10 border-t border-slate-800/70 pt-6">
-      <h2 id="also-try-h" className="mb-3 text-xs uppercase tracking-widest text-slate-500">Also try</h2>
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {others.map((s) => (
-          <li key={s.href}>
-            <Link href={s.href} className="group flex h-full flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:border-slate-600">
-              <span className="flex items-center justify-between">
-                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${TONE[s.tone].chip} ${TONE[s.tone].icon}`}><Icon name={s.icon} size={18} /></span>
-                <span aria-hidden className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>
-              </span>
-              <span className="font-semibold text-slate-100">{s.label}</span>
-              <span className="text-sm leading-snug text-slate-400">{s.desc}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <nav aria-label="Also try" className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+      <span className="text-xs uppercase tracking-widest text-slate-500">Also try</span>
+      {others.map((s) => (
+        <Link key={s.href} href={s.href} title={s.desc} className="inline-flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/40 py-1 pr-3 pl-1 text-slate-300 transition hover:border-slate-600 hover:text-slate-50">
+          <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${TONE[s.tone].chip} ${TONE[s.tone].icon}`}><Icon name={s.icon} size={14} /></span>
+          {s.label}
+        </Link>
+      ))}
+    </nav>
   );
 }

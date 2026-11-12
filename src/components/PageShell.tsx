@@ -21,7 +21,7 @@ import type { TourStep } from "@/features/guide/tour";
  * for pages that listen or play. `centered` puts the title, intro and content in the middle, for a page that is one small
  * form (log in, create account).
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, action, header, pageId, tour, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, action, header, related, pageId, tour, children }: {
   title: string;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
   eyebrow?: string;
@@ -35,6 +35,8 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   action?: ReactNode;
   /** replaces the plain title, for pages that open with a hero (such a page places its own PageHelp) */
   header?: ReactNode;
+  /** links to related pages, under the intro and its notices (AlsoTry) */
+  related?: ReactNode;
   /** turns on the guide: the level switch, tour button and "?" in the title row, and `Tier` knowing this page */
   pageId?: string;
   /** the page's tour, walked by the tour button; needs `pageId` */
@@ -84,6 +86,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
                   )}
                 </div>
               )}
+              {related}
             </>
           )}
         </header>

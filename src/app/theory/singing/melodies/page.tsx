@@ -17,12 +17,12 @@ export default async function SingMelodiesPage({ searchParams }: { searchParams:
     <PageShell
       active="/theory/singing/melodies"
       full
+      related={<AlsoTry current="/theory/singing/melodies" />}
       devices mic
       title="Sing melodies"
       intro="Sing short tunes in your key, each ending on a long Do. Start with Easy ones on Do and Re, then try skips, broken chords and leaps. Press play, sing along, and a dot shows your voice on the staff."
     >
       <SingingApp mode="melodies" initial={parseSingingLink(q)} />
-      <AlsoTry group="singing" current="/theory/singing/melodies" />
     </PageShell>
   );
 }

@@ -17,12 +17,12 @@ export default async function SingRunsPage({ searchParams }: { searchParams: Pro
     <PageShell
       active="/theory/singing/runs"
       full
+      related={<AlsoTry current="/theory/singing/runs" />}
       devices mic
       title="Sing runs"
       intro="Warm up your voice with runs through your keys, so together they cover your whole range. A bar of chords sets each new key before you sing it. Press play, sing along, and a dot shows your voice on the staff."
     >
       <SingingApp mode="runs" initial={parseSingingLink(q)} />
-      <AlsoTry group="singing" current="/theory/singing/runs" />
     </PageShell>
   );
 }

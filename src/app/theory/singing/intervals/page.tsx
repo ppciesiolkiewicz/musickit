@@ -14,6 +14,7 @@ export default function SingIntervalPage() {
     <PageShell
       active="/theory/singing/intervals"
       full
+      related={<AlsoTry current="/theory/singing/intervals" />}
       devices mic
       title="Sing an interval"
       intro="Sing the gap between two notes. An interval has a name, like P5 or M3. Do plays; sing the other note and hold it, and when the mic hears it, it shows and plays back. Start with small intervals, then add bigger ones in the settings."
@@ -21,7 +22,6 @@ export default function SingIntervalPage() {
       <IntervalSingerApp
         lead={<Lesson course="6/every-interval" why="Singing an interval from its name ties the name to the sound, so you can hear it in a song and find it on the neck." tryThis="Start on level 1, P5 and the octave. Move up a level once both feel easy, and turn Show my voice off when you want it harder." />}
       />
-      <AlsoTry group="singing" current="/theory/singing/intervals" />
     </PageShell>
   );
 }
