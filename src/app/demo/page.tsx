@@ -11,7 +11,7 @@ import GlassShapes from "@/components/landing/GlassShapes";
 
 export const metadata: Metadata = {
   title: "Demos: ready-made AI practice plans and teacher notes · attunr",
-  description: "Ready-made weeks of daily exercises, written by an AI and played in attunr, and notes a teacher made ahead.",
+  description: "Try a week of daily practice written by the AI autoplan, and a lesson note a student can play. No account needed.",
   alternates: { canonical: "/plan" },
   robots: { index: false },
 };
@@ -169,45 +169,41 @@ function Maker() {
   );
 }
 
-/** The stave's five lines (y) and the melody on it (x, y), left and right of the middle, which the caption keeps clear. */
-const STAVE = [165, 195, 225, 255, 285];
-const MELODY: [number, number][] = [[95, 270], [150, 255], [205, 240], [260, 210], [540, 195], [595, 225], [650, 210], [705, 240]];
+/** The three ideas behind the vision, under its head. */
+const VISION_POINTS: { icon: IconName; title: string; text: string }[] = [
+  { icon: "timer", title: "Focus over hours", text: "20 minutes of focused practice can do more than an hour of scattered practice." },
+  { icon: "list", title: "Nothing to work out", text: "Each day's exercises are ready, so the student never loses time deciding what to practise." },
+  { icon: "activity", title: "Practice the teacher can see", text: "How long the student practised, how many days in a row, and how each exercise went, from \"Can't do it yet\" to \"Easy now\"." },
+];
 
 /**
- * The walkthrough to come, at the top of the page: a stave across a 16:9 frame with a short melody on it, and "Video coming soon" in
- * the middle. A note low on the stave has its stem up, a high one down, as on a score.
+ * What attunr is for, at the top of the page, from the facts in the founder's outreach (FACTS in features/devtools/model/kickstarter):
+ * spoken of as the vision, since only the demos below work today.
  */
-function DemoVideo() {
+function Vision() {
   return (
-    <div className="relative isolate mx-auto w-full max-w-3xl">
-      {/* dots behind two corners, so the frame sits on the page's dot field */}
-      <div aria-hidden="true" className="glass-dots hidden sm:block -left-16 -top-12 -z-10 h-56 w-56" />
-      <div aria-hidden="true" className="glass-dots hidden sm:block -bottom-12 -right-16 -z-10 h-56 w-56" />
-      <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-dashed border-sky-400/30 backdrop-blur-xl bg-linear-to-br from-sky-500/10 via-slate-900/70 to-violet-500/10">
-        <svg viewBox="0 0 800 450" className="absolute inset-0 h-full w-full text-sky-300" aria-hidden="true">
-          <g stroke="currentColor" strokeOpacity="0.25" strokeWidth="2">
-            {STAVE.map((y) => <line key={y} x1="40" x2="760" y1={y} y2={y} />)}
-            {[40, 330, 470].map((x) => <line key={x} x1={x} x2={x} y1="165" y2="285" />)}
-            <line x1="752" x2="752" y1="165" y2="285" />
-            <line x1="760" x2="760" y1="165" y2="285" strokeWidth="6" />
-          </g>
-          <g fill="currentColor" stroke="currentColor" strokeWidth="2.5" opacity="0.7">
-            {MELODY.map(([x, y]) => (
-              <g key={x}>
-                <ellipse cx={x} cy={y} rx="13" ry="9" transform={`rotate(-20 ${x} ${y})`} stroke="none" />
-                {y > 225 ? <line x1={x + 12} x2={x + 12} y1={y - 3} y2={y - 75} /> : <line x1={x - 12} x2={x - 12} y1={y + 3} y2={y + 75} />}
-              </g>
-            ))}
-          </g>
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-sky-300/50 bg-slate-950/80 text-sky-300 shadow-lg shadow-sky-950/50">
-            <Icon name="video" size={26} />
-          </span>
-          <p className="rounded-full bg-slate-950/80 px-3 py-1 text-base font-medium text-slate-200">Video coming soon</p>
-        </div>
-      </div>
-    </div>
+    <section aria-labelledby="vision-h" className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-xl sm:p-8">
+      <p className="text-xs font-medium uppercase tracking-[0.2em] text-sky-300">The vision</p>
+      <h2 id="vision-h" className="mt-3 max-w-2xl text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={DISPLAY}>Each lesson sets up the week of practice after it</h2>
+      <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300">
+        At the end of a lesson, the teacher does two things in attunr: makes the student&apos;s daily exercises for the next week, and writes a lesson note the student can play. AI helps draft both. The student opens them at home and practises every day.
+      </p>
+      <ul className="mt-7 grid gap-4 sm:grid-cols-3">
+        {VISION_POINTS.map((p) => (
+          <li key={p.title} className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <span className={`${STEP_TILE} bg-sky-500/15 text-sky-300`}><Icon name={p.icon} size={16} /></span>
+            <h3 className="mt-3 text-base font-semibold text-slate-100">{p.title}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-slate-400">{p.text}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
+        <span>attunr is in demo mode. The examples below work today, with no account.</span>
+        <Link href="/kickstarter" className="inline-flex items-center gap-1 font-medium text-sky-300 transition hover:gap-2 hover:text-sky-200">
+          Become a founding partner <Icon name="chevron-right" size={14} />
+        </Link>
+      </p>
+    </section>
   );
 }
 
@@ -231,14 +227,13 @@ function Divider({ label }: { label: string }) {
 export default function DemoIndex() {
   const cards = demoCards();
   return (
-    <PageShell active="/plan" title="Demos" intro="What your students practise with between lessons, and the two tools that make it. Open any example and try it as a student would. Nothing here is saved." decor={<GlassShapes />}>
+    <PageShell active="/plan" title="Demos" intro="What a student practises with between lessons, and the two tools a teacher makes it with. Open any example and play it as the student would. You don't need an account, and nothing is saved." decor={<GlassShapes />}>
       <div className="flex flex-col gap-12 pb-10">
-        {/* a walkthrough of the page goes here once it is recorded */}
-        <DemoVideo />
+        <Vision />
         {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]">
           <section aria-labelledby="plans-h" className={`${PANEL} border-sky-400/30 bg-linear-to-br from-sky-500/30 via-indigo-500/15 to-violet-600/30 shadow-2xl shadow-sky-950/40`}>
-            <PanelHead id="plans-h" badge="AI autoplan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="Made with the AI autoplan" text="A week of daily exercises each, as the AI wrote it. Open any day and play with its tools." />
+            <PanelHead id="plans-h" badge="AI autoplan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="A week of practice, one day at a time" text="Each card is one student's week, as the AI autoplan wrote it: a few minutes of exercises a day, with the tools to play them on the page. Open a week and try any day." />
             <div className="grid gap-8 sm:grid-cols-2 sm:gap-4">
               {AREAS.map(({ area, name, icon, tile, card }) => {
                 const group = cards.filter((c) => c.area === area);
@@ -256,7 +251,7 @@ export default function DemoIndex() {
           </section>
 
           <section aria-labelledby="notes-h" className={`${PANEL} border-teal-400/30 bg-linear-to-br from-teal-500/30 via-emerald-500/15 to-cyan-600/25 shadow-2xl shadow-teal-950/40`}>
-            <PanelHead id="notes-h" badge="Notes creator" icon="file-text" tone="border-teal-400/40 bg-teal-400/10 text-teal-200" title="Made with the Notes creator" text="A lesson on one page, the way a teacher sends it to a student." />
+            <PanelHead id="notes-h" badge="Notes creator" icon="file-text" tone="border-teal-400/40 bg-teal-400/10 text-teal-200" title="A lesson note that plays" text="Today's material on one page: scales, chords and exercises the student can play. It goes to the student as a link." />
             <div>
               <ColumnHead icon="file-text" tile="bg-teal-500/15 text-teal-300" name="Teacher notes" />
               <ul className="flex flex-col gap-4">
