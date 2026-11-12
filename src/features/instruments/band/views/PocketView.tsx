@@ -246,35 +246,33 @@ export default function PocketView({ band, config, show, pocket = {} }: ViewProp
       <div className={`grid min-w-0 flex-1 gap-x-3 gap-y-2.5 ${stacked ? "md:grid-cols-2 lg:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-1"}`}>
         {has("click") && (
           <Tool label="Click">
-            {/* two lines: the click's buttons, then the tempo (−, its number, +) beside a slider under them; with no slider the tempo stays on the first line */}
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              <div className="flex min-w-0 items-center gap-1">
-                <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
-                {show.levels && <MuteButton className={ibtn} name="metronome" muted={snap.click.muted} onMute={(m) => rig.setClickMuted(m)} />}
-                {show.tempo && !show.tempoSlider && tempoButtons}
-                <Popover label="Tempo and click">
-                  <div className="flex flex-col gap-2.5">
-                    <label className="flex items-center gap-2">
-                      <span className="w-14 shrink-0">Tempo</span>
-                      <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} className="flex-1" aria-label="Tempo" />
-                      <NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" className="w-10 py-0.5 text-slate-200" />
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <span className="w-14 shrink-0">Volume</span>
-                      <Slider min={0} max={1} step={0.01} value={snap.click.volume} onChange={(v) => rig.setClickVolume(v)} className="flex-1" aria-label="Click volume" />
-                    </label>
-                    <button type="button" className={`${ibtn} h-9 w-full text-sm`} onClick={tap} title="Tap a few times in time to set the tempo">Tap tempo</button>
-                    <p className="text-[11px] text-slate-500">One tempo for the click, drone, drums and bass.</p>
-                  </div>
-                </Popover>
-              </div>
-              {show.tempoSlider && (
-                <div className="flex min-w-0 items-center gap-1">
-                  {show.tempo ? tempoButtons : <span className="shrink-0 text-[11px] text-slate-500">Tempo</span>}
-                  <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} size="sm" className="min-w-0 flex-1 px-1.5" aria-label="Tempo" title={`${snap.bpm} bpm`} />
+            {/* the click's buttons; the tempo has a line of its own under it when there is a tempo slider, else it stays here */}
+            <div className="flex min-w-0 flex-1 items-center gap-1">
+              <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
+              {show.levels && <MuteButton className={ibtn} name="metronome" muted={snap.click.muted} onMute={(m) => rig.setClickMuted(m)} />}
+              {show.tempo && !show.tempoSlider && tempoButtons}
+              <Popover label="Tempo and click">
+                <div className="flex flex-col gap-2.5">
+                  <label className="flex items-center gap-2">
+                    <span className="w-14 shrink-0">Tempo</span>
+                    <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} className="flex-1" aria-label="Tempo" />
+                    <NumberField value={snap.bpm} min={MIN_BPM} max={MAX_BPM} onCommit={(bpm) => rig.setTempo(bpm)} aria-label="Tempo in beats per minute" className="w-10 py-0.5 text-slate-200" />
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <span className="w-14 shrink-0">Volume</span>
+                    <Slider min={0} max={1} step={0.01} value={snap.click.volume} onChange={(v) => rig.setClickVolume(v)} className="flex-1" aria-label="Click volume" />
+                  </label>
+                  <button type="button" className={`${ibtn} h-9 w-full text-sm`} onClick={tap} title="Tap a few times in time to set the tempo">Tap tempo</button>
+                  <p className="text-[11px] text-slate-500">One tempo for the click, drone, drums and bass.</p>
                 </div>
-              )}
+              </Popover>
             </div>
+          </Tool>
+        )}
+        {has("click") && show.tempoSlider && (
+          <Tool label="Tempo">
+            {show.tempo && tempoButtons}
+            <Slider min={MIN_BPM} max={MAX_BPM} step={1} value={snap.bpm} onChange={(bpm) => rig.setTempo(bpm)} size="sm" className="h-7 min-w-0 flex-1 px-1.5" aria-label="Tempo" title={`${snap.bpm} bpm`} />
           </Tool>
         )}
         {has("drone") && <>

@@ -259,8 +259,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
             scale: { slug: scale, onPick: pickScale },
             ...(tab === "runs" ? { keys: false as const } : {}),
             labels: false,
-            // a tune or run already carries its own harmony (the piano's chords under it); a drone against that only fights it
-            pocket: { clickAlways: true, onStatus: setPocket, ...(tuneTab ? { drone: false as const } : {}) },
+            pocket: { clickAlways: true, onStatus: setPocket },
             ...(tuneTab ? { filters: (
               <BarRow label="Difficulty">
                 <Select size="sm" value={level} onChange={filter} aria-label="Difficulty" title={level === "all" ? undefined : DIFFICULTIES[level].hint} options={difficulties} />
