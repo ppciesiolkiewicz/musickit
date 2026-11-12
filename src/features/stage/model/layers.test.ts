@@ -403,6 +403,15 @@ test("a widget's grid size comes from its kind, and the camera's from its preset
   near(gridAspect(l({ kind: "camera" } as Subject, FULL)), FRAME_ASPECT);
 });
 
+test("a page set narrower by hand keeps that width, centred in its row; reset, it fills the row again", () => {
+  const page: Layer = { ...layer("p"), subject: { kind: "section", section: "chords" } as Subject };
+  const s = stageReducer({ ...EMPTY_STAGE, layers: [page] }, { type: "setGridWidth", id: "p", width: 0.6 });
+  assert.equal(s.layers[0].gridWidth, 0.6);
+  assert.deepEqual(gridPlace(s.layers[0], false), { span: GRID_COLUMNS, width: 0.6 });
+  assert.deepEqual(gridAutoPlace(s.layers[0]), { span: GRID_COLUMNS, width: 0.6 });
+  assert.equal("gridWidth" in stageReducer(s, { type: "setGridWidth", id: "p", width: null }).layers[0], false);
+});
+
 test("a page takes the grid's whole width; a section that is not a page keeps its kind's", () => {
   const l = (subject: Subject): Layer => ({ ...layer("x"), subject });
   assert.equal(gridSpan(l({ kind: "plugin", plugin: "scale", full: true } as Subject)), GRID_COLUMNS);
@@ -516,7 +525,7 @@ test("setGridWidth clamps, rounds and resets; the resize keys change it on the g
   assert.equal(stageReducer(grid, { type: "resize", id: "a", dw: 0, dh: 0.1 }), grid);
 });
 
-test("a saved grid width comes back in range; a page never keeps one", () => {
+test("a saved grid width comes back in range", () => {
   const saved = { layers: [{ ...layer("a", { kind: "neck" } as Subject), gridWidth: 0.05 }, { ...layer("b", { kind: "neck" } as Subject), gridWidth: "x" }] };
   const s = sanitiseStage(saved, ids);
   assert.equal(s.layers[0].gridWidth, 0.15);

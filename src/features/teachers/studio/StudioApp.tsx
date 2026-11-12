@@ -401,6 +401,27 @@ function Studio({ notes = false, preset }: {
         </aside>
       ) : (
         <aside data-chrome aria-label="Layers" className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col gap-2 self-start overflow-y-auto max-md:static max-md:max-h-none max-md:self-auto">
+          {/* the note's actions first, where they are seen without scrolling past the layers */}
+          <div className="mb-2 flex flex-col gap-2 border-b border-slate-800 pb-3">
+            <SharePopover open={shareInfo} onClose={closeShareInfo} onView={notes ? () => setViewing(true) : undefined}>
+              <button type="button" onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} aria-label="Share as a note" title="Sharing isn't open yet in this demo" className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
+                <Icon name="share-2" size={12} />
+                <span className="min-w-0 truncate">Share as a note</span>
+              </button>
+            </SharePopover>
+            {notes && (
+            <button type="button" onClick={() => setViewing(!viewing)} aria-pressed={viewing} aria-label={viewing ? "Back to editing" : "View as a note"} title={viewing ? "Back to the editor" : "See the note as your students will: read-only, one column"} className={`flex items-center gap-2 rounded-md border px-2 py-1 text-left text-xs hover:border-slate-600 ${viewing ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
+              <Icon name={viewing ? "pencil" : "eye"} size={12} />
+              <span className="min-w-0 flex-1 truncate">{viewing ? "Back to editing" : "View as a note"}</span>
+            </button>
+            )}
+            {notes && grid && devUi() && (
+            <button type="button" onClick={() => setJson(true)} aria-label="Edit as JSON (dev)" title="The whole note as text: its key and its widgets in page order, to read, change and apply in one go. Development only." className="flex items-center gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600">
+              <Icon name="pencil" size={12} />
+              <span className="min-w-0 flex-1 truncate">Edit as JSON (dev)</span>
+            </button>
+            )}
+          </div>
           <div className="flex items-stretch gap-1">
             <div className="min-w-0 flex-1">
               <KeysPanel onAdd={() => setPalette(true)} />
@@ -480,24 +501,6 @@ function Studio({ notes = false, preset }: {
             </span>
           </button>
           )}
-          <SharePopover open={shareInfo} onClose={closeShareInfo} onView={notes ? () => setViewing(true) : undefined}>
-            <button type="button" onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} aria-label="Share as a note" title="Sharing isn't open yet in this demo" className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
-              <Icon name="share-2" size={12} />
-              <span className="min-w-0 truncate">Share as a note</span>
-            </button>
-          </SharePopover>
-          {notes && (
-          <button type="button" onClick={() => setViewing(!viewing)} aria-pressed={viewing} aria-label={viewing ? "Back to editing" : "View as a note"} title={viewing ? "Back to the editor" : "See the note as your students will: read-only, one column"} className={`flex items-center gap-2 rounded-md border px-2 py-1 text-left text-xs hover:border-slate-600 ${viewing ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
-            <Icon name={viewing ? "pencil" : "eye"} size={12} />
-            <span className="min-w-0 flex-1 truncate">{viewing ? "Back to editing" : "View as a note"}</span>
-          </button>
-          )}
-          {notes && grid && devUi() && (
-          <button type="button" onClick={() => setJson(true)} aria-label="Edit as JSON (dev)" title="The whole note as text: its key and its widgets in page order, to read, change and apply in one go. Development only." className="flex items-center gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600">
-            <Icon name="pencil" size={12} />
-            <span className="min-w-0 flex-1 truncate">Edit as JSON (dev)</span>
-          </button>
-          )}
           {!notes && (
           <button
             type="button"
@@ -541,7 +544,7 @@ function Studio({ notes = false, preset }: {
               </ol>
               <VideoPickContext.Provider value={pickIntoPlaceholder}>
                 <MicContext.Provider value={mic}>
-                  <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} pin={false} />
+                  <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} pin={false} flow />
                 </MicContext.Provider>
               </VideoPickContext.Provider>
             </>

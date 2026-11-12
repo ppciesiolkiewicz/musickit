@@ -322,7 +322,8 @@ export const AUTO_NECK_WIDTH = 0.9;
  */
 export function gridAutoPlace(l: Layer): { span: number; width: number } {
   const span = gridSpan(l);
-  if (isPage(l.subject)) return { span, width: 1 };
+  // a page has its whole row, and fills it unless a width was set by hand (the notes creator, where a page grows to its content)
+  if (isPage(l.subject)) return { span, width: l.gridWidth ?? 1 };
   if (span <= GRID_COLUMNS / 4) return l.gridWidth === undefined ? { span, width: 1 } : gridHandPlace(l.gridWidth);
   return { span: GRID_COLUMNS, width: l.gridWidth ?? (hasNeck(l.subject) ? AUTO_NECK_WIDTH : span / GRID_COLUMNS) };
 }
@@ -339,7 +340,8 @@ export function gridHandPlace(w: number): { span: number; width: number } {
 /** A widget's place on the grid: `span` columns and the share of them it fills, centred. A page always takes the whole row. */
 export function gridPlace(l: Layer, auto: boolean): { span: number; width: number } {
   if (auto) return gridAutoPlace(l);
-  if (isPage(l.subject) || l.gridWidth === undefined) return { span: gridSpan(l), width: 1 };
+  if (isPage(l.subject)) return { span: GRID_COLUMNS, width: l.gridWidth ?? 1 };
+  if (l.gridWidth === undefined) return { span: gridSpan(l), width: 1 };
   return gridHandPlace(l.gridWidth);
 }
 
@@ -426,7 +428,7 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
     case "resize":
       if (layoutOf(s) === "grid") {
         const l = s.layers.find((x) => x.id === a.id);
-        return l && a.dw && !isPage(l.subject) ? stageReducer(s, { type: "setGridWidth", id: a.id, width: gridWidthOf(l, !!s.gridAuto) + a.dw }) : s;
+        return l && a.dw ? stageReducer(s, { type: "setGridWidth", id: a.id, width: gridWidthOf(l, !!s.gridAuto) + a.dw }) : s;
       }
       return place(s, a.id, (l) => ({ ...unfill(l), rect: clampRect({ ...l.rect, w: l.rect.w + a.dw, h: l.rect.h + a.dh }) }));
     case "setRect":
@@ -435,7 +437,7 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
       return place(s, a.id, (l) => {
         const rest = { ...l };
         delete rest.gridWidth;
-        return a.width === null || isPage(l.subject) ? rest : { ...rest, gridWidth: clampGridWidth(a.width) };
+        return a.width === null ? rest : { ...rest, gridWidth: clampGridWidth(a.width) };
       });
     case "setView":
       return place(s, a.id, (l) => ({ ...l, view: clampView(a.view) }));
@@ -531,7 +533,7 @@ export function sanitiseStage(raw: unknown, pluginIds: string[]): Stage {
     // a stage saved before z painted in list order
     const z = num(l.z) ?? layers.length;
     const gw = num(l.gridWidth);
-    const gridWidth = gw !== null && !fixed && !isPage(subject) ? clampGridWidth(gw) : undefined;
+    const gridWidth = gw !== null && !fixed ? clampGridWidth(gw) : undefined;
     layers.push({ id: l.id, subject, rect: fixed ?? clampRect({ x, y, w, h }), visible: l.visible !== false, z, ...(view && !fixed ? { view } : {}), ...(restore ? { restore } : {}), ...(gridWidth !== undefined ? { gridWidth } : {}), ...(l.onTop === true ? { onTop: true as const } : {}) });
   }
   layers.splice(0, layers.length, ...restack(layers, paintOrder(layers)));

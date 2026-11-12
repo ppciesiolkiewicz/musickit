@@ -48,11 +48,13 @@ interface FrameProps {
   keepShape?: boolean;
   /** the widgets' hover toolbar has Pin (default); the notes creator turns it off */
   pin?: boolean;
+  /** the grid: widgets grow to their content and never scroll inside (the notes creator, like the note it makes) */
+  flow?: boolean;
 }
 
 /** The 16:9 frame, in the stage's layout. The two share nothing but how a widget is drawn inside its box (`LayerParts`). */
 export default function StageFrame(props: FrameProps) {
-  return layoutOf(props.stage) === "grid" ? <GridFrame stage={props.stage} renderLayer={props.renderLayer} onAction={props.onAction} pin={props.pin} /> : <FreeFrame {...props} />;
+  return layoutOf(props.stage) === "grid" ? <GridFrame stage={props.stage} renderLayer={props.renderLayer} onAction={props.onAction} pin={props.pin} flow={props.flow} /> : <FreeFrame {...props} />;
 }
 
 /**

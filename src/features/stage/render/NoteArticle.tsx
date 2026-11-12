@@ -18,7 +18,7 @@ function Figure({ layer, children }: { layer: Layer; children: (readOnly: true) 
   // a tune or a run streams across its staff, and a backing track lays its bars out in a row, so each takes the whole column, as a neck does
   const wide = layer.subject.kind === "tool" && (layer.subject.tool.type === "melody-singer" || layer.subject.tool.type === "run-singer" || layer.subject.tool.type === "backing-track");
   // a width set by hand on the grid is kept
-  const share = page ? 1 : layer.gridWidth !== undefined ? layer.gridWidth : layer.subject.kind === "neck" || layer.subject.kind === "position" || wide ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
+  const share = layer.gridWidth !== undefined ? layer.gridWidth : page ? 1 : layer.subject.kind === "neck" || layer.subject.kind === "position" || wide ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
   return (
     <figure className="mx-auto w-full" style={{ maxWidth: `${share * 100}%` }}>
       <div className={`overflow-hidden rounded-xl bg-slate-950 ring-1 ring-slate-800 [container-type:inline-size]`} style={{ aspectRatio: aspect ?? 16 / 9 }}>

@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Mous
 import { LayerBody, LayerToolbar, useWidgetZoom } from "./LayerParts";
 import { GRID_COLUMNS, fixedRect, gridAspect, gridLayers, gridPlace, gridSpanNarrow, gridWidthOf, type Layer, type Stage, type StageAction } from "./model/layers";
 import { isPage, subjectTitle } from "./model/subject";
-import { InGrid, ScrollInBox } from "./render/shape";
+import { FlowInBox, InGrid, ScrollInBox } from "./render/shape";
 
 /** pixels a pointer moves inside a widget before it counts as a drag (below that, the click reaches the widget: a strum, a note) */
 const DRAG_SLOP = 4;
@@ -48,10 +48,11 @@ class WidgetTouchSensor extends TouchSensor {
   static activators = [{ eventName: "onTouchStart" as const, handler: ({ nativeEvent: e }: RTouchEvent) => e.touches.length === 1 && !onControl(e) }];
 }
 
-function GridItem({ layer: l, selected, aspect, auto, pin, onShape, onAction, children }: { layer: Layer; selected: boolean; aspect: number; auto: boolean; pin: boolean; onShape: (id: string, aspect: number) => void; onAction: (a: StageAction) => void; children: ReactNode }) {
+function GridItem({ layer: l, selected, aspect, auto, pin, flow, move, onShape, onAction, children }: { layer: Layer; selected: boolean; aspect: number; auto: boolean; pin: boolean; flow: boolean; move: { up: string | null; down: string | null }; onShape: (id: string, aspect: number) => void; onAction: (a: StageAction) => void; children: ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: l.id });
   const media = l.subject.kind === "camera" || l.subject.kind === "screen";
-  const page = isPage(l.subject);
+  // flowing, a page takes its content's shape like any widget, so nothing scrolls inside it
+  const page = isPage(l.subject) && !flow;
   const place = gridPlace(l, auto);
   return (
     <div
@@ -68,11 +69,11 @@ function GridItem({ layer: l, selected, aspect, auto, pin, onShape, onAction, ch
       onPointerDownCapture={() => onAction({ type: "select", id: l.id })}
     >
       <LayerBody layer={l} card={!media} onShape={onShape}>
-        <ScrollInBox.Provider value={page}>{children}</ScrollInBox.Provider>
+        {flow ? <FlowInBox.Provider value>{children}</FlowInBox.Provider> : <ScrollInBox.Provider value={page}>{children}</ScrollInBox.Provider>}
       </LayerBody>
       <div className={`pointer-events-none absolute inset-0 rounded-xl ring-2 ring-sky-400/80 ${SHOW}`} />
       {!page && <WidthHandle layer={l} auto={auto} onAction={onAction} />}
-      {!media && <LayerToolbar layer={l} filled={false} canFill={false} pin={pin} onAction={onAction} className={`absolute right-1.5 top-1.5 z-10 ${SHOW}`} />}
+      {!media && <LayerToolbar layer={l} filled={false} canFill={false} pin={pin} move={move} onAction={onAction} className={`absolute right-1.5 top-1.5 z-10 ${SHOW}`} />}
     </div>
   );
 }
@@ -126,7 +127,7 @@ function WidthHandle({ layer: l, auto, onAction }: { layer: Layer; auto: boolean
  * order (`@dnd-kit`). The frame is at least 16:9 and grows with its widgets, so the page's own scroll goes through them, and a new
  * widget at the end is scrolled into view. The brand marks are not grid items: they keep their corner of the frame's first screen.
  */
-export default function GridFrame({ stage, renderLayer, onAction, pin = true }: { stage: Stage; renderLayer: (l: Layer) => ReactNode; onAction: (a: StageAction) => void; /** Pin in the hover toolbar (off in the notes creator) */ pin?: boolean }) {
+export default function GridFrame({ stage, renderLayer, onAction, pin = true, flow = false }: { stage: Stage; renderLayer: (l: Layer) => ReactNode; onAction: (a: StageAction) => void; /** Pin in the hover toolbar (off in the notes creator) */ pin?: boolean; /** every widget grows to its content and none scrolls inside, as in the note it makes (the notes creator) */ flow?: boolean }) {
   const frame = useRef<HTMLDivElement>(null);
   useWidgetZoom(frame, stage.layers, onAction);
   const sensors = useSensors(useSensor(WidgetMouseSensor, { activationConstraint: { distance: DRAG_SLOP } }), useSensor(WidgetTouchSensor, { activationConstraint: { delay: TOUCH_HOLD_MS, tolerance: TOUCH_SLOP } }));
@@ -168,8 +169,8 @@ export default function GridFrame({ stage, renderLayer, onAction, pin = true }: 
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={items.map((l) => l.id)} strategy={rectSortingStrategy}>
             <div className={`relative grid items-start ${SPACING}`} style={{ gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0, 1fr))` }}>
-              {items.map((l) => (
-                <GridItem key={l.id} layer={l} selected={stage.selected === l.id} aspect={shapes[l.id] ?? gridAspect(l)} auto={!!stage.gridAuto} pin={pin} onShape={onShape} onAction={onAction}>
+              {items.map((l, i) => (
+                <GridItem key={l.id} layer={l} selected={stage.selected === l.id} aspect={shapes[l.id] ?? gridAspect(l)} auto={!!stage.gridAuto} pin={pin} flow={flow} move={{ up: items[i - 1]?.id ?? null, down: items[i + 1]?.id ?? null }} onShape={onShape} onAction={onAction}>
                   {renderLayer(l)}
                 </GridItem>
               ))}

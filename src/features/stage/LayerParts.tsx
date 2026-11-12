@@ -57,12 +57,13 @@ export function LayerBody({ layer, card, onShape, children }: { layer: Layer; ca
 
 const TOOL = "flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700";
 
-/** A widget's hover toolbar: pin (unless `pin` is false: the notes creator), fill the frame or go back, delete. Brand marks only have delete. Never recorded (`data-chrome`). */
+/** A widget's hover toolbar: move up or down the page (the grid), pin (unless `pin` is false: the notes creator), fill the frame or go back, delete. Brand marks only have delete. Never recorded (`data-chrome`). */
 export function LayerToolbar({
   layer: l,
   filled,
   canFill = true,
   pin = true,
+  move,
   aspect,
   onAction,
   className,
@@ -76,6 +77,8 @@ export function LayerToolbar({
   canFill?: boolean;
   /** offer the pin button (the studio); the notes creator has no pinning */
   pin?: boolean;
+  /** the grid: the widgets before and after this one on the page, to swap places with (null at the top or the bottom) */
+  move?: { up: string | null; down: string | null };
   /** the content's shape when it is filled, read at the click */
   aspect?: () => number | null;
   onAction: (a: StageAction) => void;
@@ -87,6 +90,16 @@ export function LayerToolbar({
   const card = !fixedRect(l.subject);
   return (
     <div data-chrome className={`flex gap-1.5 ${className}`} style={style} onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave} onPointerDown={(e) => e.stopPropagation()}>
+      {move && (
+        <>
+          <button type="button" title="Move up the page" aria-label="Move up the page" disabled={!move.up} onClick={() => move.up && onAction({ type: "reorder", id: l.id, over: move.up })} className={`${TOOL} text-slate-300 hover:text-sky-300 disabled:opacity-30`}>
+            <Icon name="chevron-down" size={13} className="rotate-180" />
+          </button>
+          <button type="button" title="Move down the page" aria-label="Move down the page" disabled={!move.down} onClick={() => move.down && onAction({ type: "reorder", id: l.id, over: move.down })} className={`${TOOL} text-slate-300 hover:text-sky-300 disabled:opacity-30`}>
+            <Icon name="chevron-down" size={13} />
+          </button>
+        </>
+      )}
       {card && pin && (
         <button
           type="button"
