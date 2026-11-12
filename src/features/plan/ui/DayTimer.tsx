@@ -37,17 +37,25 @@ function chime() {
  * The day's countdown, floating at the side of the page: the whole day's minutes, the exercise the time is in now, pause /
  * resume and reset. It starts by itself when `autoStart` (the day shown on page load), saves the used seconds through `onSave`
  * every few seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. The running
- * exercise goes to `onExercise`; a chime at zero. Time is kept from the clock, so a background tab stays right. On a phone it
+ * exercise goes to `onExercise`; a chime at zero. The exercise it names is `focused`, the card in view (not where the day's
+ * minutes would put it): while it runs, each second goes to that exercise's spent time, saved with the elapsed seconds. Time is kept from the clock, so a background tab stays right. On a phone it
  * is one short row (ring, time left, the exercise's own time and number, the buttons side by side), so it covers little of
  * the exercise under it.
  */
-export default function DayTimer({ minutes, titles, label, elapsed: saved, autoStart, onSave, onExercise, above }: {
+export default function DayTimer({ minutes, titles, label, elapsed: saved, spent: savedSpent, focused, autoStart, onSave, onExercise, onSpent, above }: {
   minutes: number[]; titles: string[]; label: string; elapsed: number; autoStart: boolean;
-  onSave: (elapsed: number) => void; onExercise: (index: number | null) => void;
+  /** seconds already spent on each exercise of the day */
+  spent: number[];
+  /** the exercise card in view, null when none is */
+  focused: number | null;
+  onSave: (elapsed: number, spent: number[]) => void; onExercise: (index: number | null) => void;
+  /** the seconds per exercise each time they grow */
+  onSpent?: (spent: number[]) => void;
   /** small controls floating over the timer in the same corner */
   above?: ReactNode;
 }) {
   const [elapsed, setElapsed] = useState(saved);
+  const [spent, setSpent] = useState(savedSpent);
   // set while running: the clock time the countdown would have started at, had it never paused
   const [since, setSince] = useState<number | null>(null);
   const clock = dayClock(minutes, elapsed);
@@ -55,42 +63,65 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, autoS
 
   const save = useRef(onSave);
   const report = useRef(onExercise);
+  const grow = useRef(onSpent);
   useEffect(() => {
     save.current = onSave;
     report.current = onExercise;
+    grow.current = onSpent;
   });
   const now = useRef(elapsed);
+  const spentNow = useRef(spent);
+  const focus = useRef(focused);
+  // the elapsed seconds last counted into `spent`
+  const counted = useRef(elapsed);
   useEffect(() => {
     now.current = elapsed;
+    spentNow.current = spent;
+    focus.current = focused;
   });
+  const store = () => save.current(now.current, spentNow.current);
   // leaving the day (another day, another page) keeps where it stood
-  useEffect(() => () => save.current(now.current), []);
+  useEffect(() => () => store(), []);
 
-  const start = () => setSince(Date.now() - now.current * 1000);
+  const start = () => {
+    counted.current = now.current;
+    setSince(Date.now() - now.current * 1000);
+  };
   const pause = () => {
     setSince(null);
-    save.current(now.current);
+    store();
   };
 
   useEffect(() => {
-    if (autoStart && clock.left > 0) setSince(Date.now() - now.current * 1000);
+    if (autoStart && clock.left > 0) start();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- page load only
 
   const total = clock.total;
   useEffect(() => {
     if (since === null) return;
     const tick = () => {
-      const s = Math.floor((Date.now() - since) / 1000);
+      const s = Math.min(Math.floor((Date.now() - since) / 1000), total);
+      const step = s - counted.current;
+      counted.current = s;
+      const f = focus.current;
+      if (step > 0 && f !== null) {
+        const next = spentNow.current.slice();
+        next[f] = (next[f] ?? 0) + step;
+        spentNow.current = next;
+        setSpent(next);
+        grow.current?.(next);
+      }
+      now.current = s;
       setElapsed(s);
       if (s >= total) {
         setSince(null);
-        save.current(s);
+        save.current(s, spentNow.current);
         chime();
       }
     };
     const t = setInterval(tick, 250);
-    const keep = setInterval(() => save.current(now.current), SAVE_EVERY_MS);
-    const away = () => save.current(now.current);
+    const keep = setInterval(() => save.current(now.current, spentNow.current), SAVE_EVERY_MS);
+    const away = () => save.current(now.current, spentNow.current);
     window.addEventListener("pagehide", away);
     document.addEventListener("visibilitychange", away);
     return () => {
@@ -101,7 +132,8 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, autoS
     };
   }, [since, total]);
 
-  const exercise = clock.left > 0 && (running || elapsed > 0) ? clock.exercise : null;
+  const exercise = clock.left > 0 && (running || elapsed > 0) ? focused : null;
+  const leftInExercise = exercise === null ? 0 : Math.max(0, (minutes[exercise] ?? 0) * 60 - (spent[exercise] ?? 0));
   useEffect(() => report.current(exercise), [exercise]);
 
   const p = clock.total ? 1 - clock.left / clock.total : 0;
@@ -126,7 +158,7 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, autoS
         </p>
         <p className={`text-lg font-semibold sm:text-2xl leading-tight tabular-nums ${finished ? "text-emerald-300" : "text-slate-50"}`} aria-live="off">{fmt(clock.left)}</p>
         <p className="truncate text-xs text-slate-400" title={exercise !== null ? titles[exercise] : undefined}>
-          {finished ? "Day's practice time done" : exercise !== null ? <><span className="tabular-nums text-slate-200">{fmt(clock.leftInExercise)}</span> · <span className="text-sky-300">{exercise + 1}.<span className="max-sm:hidden"> {titles[exercise]}</span></span></> : `${minutes.length} exercises · ${Math.round(clock.total / 60)} min`}
+          {finished ? "Day's practice time done" : exercise !== null ? <><span className="tabular-nums text-slate-200">{fmt(leftInExercise)}</span> · <span className="text-sky-300">{exercise + 1}.<span className="max-sm:hidden"> {titles[exercise]}</span></span></> : `${minutes.length} exercises · ${Math.round(clock.total / 60)} min`}
         </p>
       </div>
       <div className="flex items-center gap-1 sm:flex-col">
@@ -135,7 +167,7 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, autoS
             <Icon name={running ? "pause" : "play"} size={16} />
           </Button>
         )}
-        <Button size="icon-md" onClick={() => { setSince(null); setElapsed(0); save.current(0); }} aria-label="Reset the day's timer" title="Reset" disabled={elapsed === 0 && !running}>
+        <Button size="icon-md" onClick={() => { setSince(null); setElapsed(0); now.current = 0; counted.current = 0; save.current(0, spentNow.current); }} aria-label="Reset the day's timer" title="Reset" disabled={elapsed === 0 && !running}>
           <Icon name="rotate-ccw" size={13} />
         </Button>
       </div>

@@ -27,6 +27,31 @@ const rowOf = (p: StoredPlan, current: boolean): PlanRow => ({
 /** The stored plans: the current one first, then the history in its own order (newest first). */
 export const planRows = (state: PlanState): PlanRow[] => [...(state.current ? [rowOf(state.current, true)] : []), ...state.history.map((p) => rowOf(p, false))];
 
+/** One exercise's time as /dev/data lists it: what the day timer counted while its card was in view. */
+export interface SpentRow {
+  plan: string;
+  /** 0-based */
+  day: number;
+  exercise: string;
+  planned: number;
+  /** seconds */
+  spent: number;
+}
+
+/** Every exercise with time on it, of the current plan and the history, in plan, day and exercise order. */
+export const spentRows = (state: PlanState): SpentRow[] =>
+  [...(state.current ? [state.current] : []), ...state.history].flatMap((p) =>
+    p.config.days.flatMap((d, di) =>
+      d.exercises.flatMap((e, ei) => {
+        const s = p.spent?.[`${di}:${ei}`];
+        return typeof s === "number" && s > 0 ? [{ plan: p.config.title, day: di, exercise: e.title, planned: e.minutes, spent: Math.floor(s) }] : [];
+      }),
+    ),
+  );
+
+/** Seconds as m:ss. */
+export const clockLabel = (s: number): string => `${Math.floor(s / 60)}:${String(Math.floor(s) % 60).padStart(2, "0")}`;
+
 /** The progress log, newest rating first; `topic` (a topic id) keeps only that topic's rows. */
 export const logRows = (entries: ProgressEntry[], topic?: string): ProgressEntry[] =>
   entries.filter((e) => !topic || e.topic === topic).sort((a, b) => b.at.localeCompare(a.at));

@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Icon from "@/components/Icon";
-import { HUE_TONES, StarRating, hueAt, type Hue } from "@/components/ui";
+import { HUE_TONES, Popover, StarRating, hueAt, type Hue } from "@/components/ui";
 import { DISPLAY } from "@/components/landing/Display";
 import Cells from "./Cells";
 import { ExerciseSettings } from "@/components/practice/exerciseSettings";
@@ -43,10 +44,12 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
  * One exercise as the player sees it: a card coloured by its place in the day (`index`), the title in the display face,
  * its hashtags (area, level, kind) small and muted after it, "Learn before" links, its cells (text, steps and tools, set
  * up and ready to play), why, "Explore more" links, and the stars that rate it (and mark it done) when `onRate` is given.
- * `now` (the exercise the day timer is in) only lifts the card a little: the timer is a guide, not a rule.
+ * `now` (the card in view while the day timer runs) only lifts the card a little: the timer is a guide, not a rule. With
+ * `spent`, the planned minutes become `SpentTime`: time on it so far of the time planned, with a bar that fills to green.
  */
-export default function ExerciseCard({ exercise: e, index, done = false, now = false, rating = null, onRate, address }: {
+export default function ExerciseCard({ exercise: e, index, done = false, now = false, spent, rating = null, onRate, address }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
+  /** seconds spent on it so far; without it only the planned minutes show */ spent?: number;
   /** how the player rated it; null when not rated */ rating?: Stars | null;
   /** rate it (or clear the rating with null); without it the card has no stars */ onRate?: (stars: Stars | null) => void;
   /** which exercise, for a `SectionAside` */ address?: string;
@@ -63,7 +66,9 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-semibold tabular-nums ${HUE_TONES[hue].disc[1]}`}>{index + 1}</span>
         <h3 className={`text-xl ${done ? "text-slate-400 line-through" : "text-slate-50"}`} style={DISPLAY}>{e.title}</h3>
-        <span className="ml-auto flex items-center gap-1 text-xs text-slate-400"><Icon name="timer" size={12} />{e.minutes} min</span>
+        {spent === undefined
+          ? <span className="ml-auto flex items-center gap-1 text-xs text-slate-400"><Icon name="timer" size={12} />{e.minutes} min</span>
+          : <SpentTime seconds={spent} minutes={e.minutes} />}
       </div>
       {tags && <p className="text-xs text-slate-500 sm:pl-11">{tags}</p>}
       <LinkSlot title="Learn before" hrefs={e.learnBefore ?? []} />
@@ -77,5 +82,40 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
         </div>
       )}
     </section>
+  );
+}
+
+/**
+ * Time on an exercise of the time planned ("2 min / 5 min") over a thin bar: sky while it fills, green once the planned time
+ * is reached, a brighter green with a glow past half again, and a star at twice the planned time. Hover (or tap) for what
+ * the numbers mean.
+ */
+function SpentTime({ seconds, minutes }: { seconds: number; minutes: number }) {
+  const [open, setOpen] = useState(false);
+  const p = minutes > 0 ? seconds / (minutes * 60) : 0;
+  const bar = p >= 2 ? "bg-emerald-300 shadow-[0_0_8px] shadow-emerald-300/80" : p >= 1.5 ? "bg-emerald-400 shadow-[0_0_6px] shadow-emerald-400/60" : p >= 1 ? "bg-emerald-500" : "bg-sky-400";
+  const note = p >= 2 ? `Time on this exercise so far: twice the ${minutes} min planned.` : `Time on this exercise so far, of ${minutes} min planned.`;
+  return (
+    <span className="ml-auto">
+      <Popover open={open} side="left" content={note}>
+        <button
+          type="button"
+          onPointerEnter={(ev) => ev.pointerType === "mouse" && setOpen(true)}
+          onPointerLeave={(ev) => ev.pointerType === "mouse" && setOpen(false)}
+          onClick={() => setOpen((o) => !o)}
+          onBlur={() => setOpen(false)}
+          aria-label={note}
+          className="flex cursor-default flex-col items-end gap-1"
+        >
+          <span className={`flex items-center gap-1 text-xs tabular-nums ${p >= 1 ? "text-emerald-300" : "text-slate-400"}`}>
+            {p >= 2 ? <Icon name="star" size={12} fill className="text-amber-300" /> : <Icon name="timer" size={12} />}
+            {Math.floor(seconds / 60)} min / {minutes} min
+          </span>
+          <span aria-hidden className="h-1 w-full overflow-hidden rounded-full bg-slate-800">
+            <span className={`block h-full rounded-full transition-[width] duration-500 ${bar}`} style={{ width: `${Math.min(1, p) * 100}%` }} />
+          </span>
+        </button>
+      </Popover>
+    </span>
   );
 }

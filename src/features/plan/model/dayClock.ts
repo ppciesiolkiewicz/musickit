@@ -26,3 +26,16 @@ export const elapsedOf = (elapsed: Record<string, number> | undefined, day: numb
   const v = elapsed?.[String(day)];
   return typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.floor(v) : 0;
 };
+
+/** The seconds spent on each of a day's `count` exercises, from `StoredPlan.spent`, made safe like `elapsedOf`. */
+export const spentOf = (spent: Record<string, number> | undefined, day: number, count: number): number[] =>
+  Array.from({ length: count }, (_, i) => elapsedOf(spent && { [String(day)]: spent[`${day}:${i}`] }, day));
+
+/** `StoredPlan.spent` with a day's seconds per exercise written in (keys `${day}:${exercise}`; zeros are left out). */
+export function withSpent(spent: Record<string, number> | undefined, day: number, seconds: number[]): Record<string, number> {
+  const next = Object.fromEntries(Object.entries(spent ?? {}).filter(([k]) => !k.startsWith(`${day}:`)));
+  seconds.forEach((s, i) => {
+    if (s > 0) next[`${day}:${i}`] = Math.floor(s);
+  });
+  return next;
+}

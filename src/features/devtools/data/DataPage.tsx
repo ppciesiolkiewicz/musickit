@@ -8,7 +8,7 @@ import { PLAN_KEY, localPlanStore } from "@/features/plan/store/localPlanStore";
 import { PROGRESS_KEY, localProgressStore } from "@/features/progress/localProgressStore";
 import type { ProgressEntry } from "@/features/progress/log";
 import { starText } from "@/features/progress/stars";
-import { logRows, planRows, sizeLabel, storageRows, type StorageRow } from "../model/dataView";
+import { clockLabel, logRows, planRows, sizeLabel, spentRows, storageRows, type StorageRow } from "../model/dataView";
 
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const TH = "px-2 py-1.5 text-left text-xs font-medium uppercase tracking-wider text-slate-400";
@@ -145,6 +145,7 @@ export default function DataPage() {
 
   const plans = useMemo(() => planRows(state), [state]);
   const rows = useMemo(() => logRows(log, topic), [log, topic]);
+  const spent = useMemo(() => spentRows(state), [state]);
   const titles = useMemo(() => new Map(plans.map((p) => [p.id, p.title])), [plans]);
   const a = state.answers;
 
@@ -194,6 +195,28 @@ export default function DataPage() {
           </div>
         ) : EMPTY}
         <Raw value={{ current: state.current, history: state.history }} />
+      </Block>
+
+      <Block title="Time per exercise" about="Seconds the day timer ran while each exercise was the card in view (StoredPlan.spent), against its planned minutes.">
+        {spent.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead><tr><th className={TH}>Plan</th><th className={TH}>Day</th><th className={TH}>Exercise</th><th className={TH}>Planned</th><th className={TH}>Spent</th></tr></thead>
+              <tbody>
+                {spent.map((r) => (
+                  <tr key={`${r.plan}:${r.day}:${r.exercise}`} className="border-t border-slate-800">
+                    <td className={TD}>{r.plan}</td>
+                    <td className={`${TD} tabular-nums`}>{r.day + 1}</td>
+                    <td className={TD}>{r.exercise}</td>
+                    <td className={`${TD} tabular-nums`}>{r.planned} min</td>
+                    <td className={`${TD} tabular-nums ${r.spent >= r.planned * 60 ? "text-emerald-300" : ""}`}>{clockLabel(r.spent)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : EMPTY}
+        <Raw value={{ current: state.current?.spent ?? null, history: state.history.map((p) => ({ id: p.id, spent: p.spent ?? null })) }} />
       </Block>
 
       <Block title="Progress log" about={`One row per rated exercise, from localStorage "${PROGRESS_KEY}". Rows stay when a plan leaves the history.`}>

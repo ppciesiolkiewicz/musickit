@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, HUE_TONES, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
+import { withSpent } from "./model/dayClock";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { backfill, entryFor } from "./model/progressLog";
@@ -79,9 +80,16 @@ export default function PlanApp() {
     if (row) progress.put(row);
     else progress.remove(id);
   };
-  // the floating day timer's used seconds; ignored when the plan it counted for is no longer the current one
-  const saveElapsed = (planId: string, d: number, seconds: number) =>
-    update((s) => (s.current?.id === planId && s.current.elapsed?.[String(d)] !== seconds ? { ...s, current: { ...s.current, elapsed: { ...s.current.elapsed, [String(d)]: seconds } } } : s));
+  // the floating day timer's used seconds and the seconds spent on each exercise; ignored when the plan it counted for is no
+  // longer the current one
+  const saveElapsed = (planId: string, d: number, seconds: number, spent: number[]) =>
+    update((s) => {
+      const c = s.current;
+      if (c?.id !== planId) return s;
+      const nextSpent = withSpent(c.spent, d, spent);
+      if (c.elapsed?.[String(d)] === seconds && sameSeconds(nextSpent, c.spent ?? {})) return s;
+      return { ...s, current: { ...c, elapsed: { ...c.elapsed, [String(d)]: seconds }, spent: nextSpent } };
+    });
 
   if (!loaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
@@ -219,3 +227,7 @@ function Reminder({ state, update }: { state: PlanState; update: (c: (s: PlanSta
     </div>
   );
 }
+
+/** True when two `StoredPlan.spent` maps hold the same seconds (key order aside). */
+const sameSeconds = (a: Record<string, number>, b: Record<string, number>) =>
+  Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => b[k] === v);

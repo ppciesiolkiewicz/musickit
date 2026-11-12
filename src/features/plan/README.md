@@ -35,11 +35,15 @@ browser.
    Every rating also goes to the **progress log** (`src/features/progress`, one row per rated exercise, by exercise id),
    which outlives the plan history.
    **One floating day timer** (`ui/DayTimer.tsx`, bottom right) counts down the whole day's minutes: it starts by itself
-   for the day shown on page load, can be paused, resumed and reset, shows the exercise the time falls in (`model/dayClock.ts`)
-   and lifts that card a little (no tag: the timer is a guide), and chimes at zero. On a phone it is one short row: ring,
+   for the day shown on page load, can be paused, resumed and reset, and chimes at zero. It names the exercise whose card is
+   in view (the one across the middle of the screen, or the last one at the end of the page; `useInView` in `WeekView`),
+   lifts that card a little (no tag: the timer is a guide), and while it runs adds each second to that exercise's spent time
+   (`StoredPlan.spent`, keyed `${day}:${exercise}`, `spentOf`/`withSpent` in `model/dayClock.ts`). Each card shows that time
+   of its planned time ("2 min / 5 min", whole minutes) over a thin bar: sky while it fills, green at the planned time, a brighter
+   glowing green past 1.5×, and a star at 2×; hovering or tapping it explains the numbers. /dev/data lists the spent times. On a phone it is one short row: ring,
    time left, the exercise's own time and number, the buttons side by side. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
-   every 5 seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. There is no
-   per-exercise timer.
+   every 5 seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. The spent seconds
+   are saved with them. There is no per-exercise countdown, and resetting the day's timer keeps the spent times.
    No settings column: the exercises set their own keys and always count from the scale's root (`FixedLabelRoot`), so the
    only setting is the Labels dropdown, floating over the day timer in the bottom-right corner; on a phone it sits in the
    header row with the reminder instead.
