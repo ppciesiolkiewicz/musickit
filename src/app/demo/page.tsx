@@ -163,23 +163,23 @@ function Maker() {
   return (
     <section aria-labelledby="maker-h" className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-xl sm:p-8">
       <Founder id="maker-h" title="Questions about a demo? Write to me." text={<>I build attunr. If an example doesn&apos;t play right, or you&apos;d like one for what you teach, tell me here.</>}>
-        <ContactForm source="demo" initialMessage={"Hi Piotr, I tried the demos. "} cta="Send message" done="I'll reply by email." note="I only use your email to reply. No newsletter." />
+        <ContactForm source="demo" initialMessage={"Hi Pio, I tried the demos. "} cta="Send message" done="I'll reply by email." note="I only use your email to reply. No newsletter." />
       </Founder>
     </section>
   );
 }
 
 /** Where attunr could go, one direction to a card. Only the practice plans and the notes are built; the rest is the vision. */
-const DIRECTIONS: { icon: IconName; title: string; text: string }[] = [
-  { icon: "target", title: "Every student practises the right thing", text: "The exact material for where each student is, in their key and position, ready every day. The minutes they do practise count for more." },
-  { icon: "activity", title: "Teachers see the week between lessons", text: "How long, how often and how each exercise felt to the student, so the next lesson starts from what happened at home." },
-  { icon: "pencil", title: "Material in your own teaching style", text: "Notes and plans drafted the way you teach, for kids and adults alike, so making them takes minutes, not evenings." },
-  { icon: "layout-dashboard", title: "A studio run from one place", text: "Every lesson in one calendar, and one profile for each teacher and each student." },
-  { icon: "graduation-cap", title: "Teaching that reaches past the lesson", text: "Your interactive notes, with your own videos in them, sold as short courses." },
+const DIRECTIONS: { icon: IconName; title: string }[] = [
+  { icon: "target", title: "Every student practises the right thing" },
+  { icon: "activity", title: "Teachers see the week between lessons" },
+  { icon: "pencil", title: "Material in your own teaching style" },
+  { icon: "layout-dashboard", title: "A studio run from one place" },
+  { icon: "graduation-cap", title: "Your notes sold as short courses" },
 ];
 
 /**
- * Where attunr is heading, at the top of the page, from the facts in the founder's outreach (FACTS in features/devtools/model/kickstarter).
+ * Where attunr is heading, below the demos and tools, from the facts in the founder's outreach (FACTS in features/devtools/model/kickstarter).
  * It speaks of directions, not features, and says plainly that only the demos below work today.
  */
 function Vision() {
@@ -188,24 +188,23 @@ function Vision() {
       <p className="text-xs font-medium uppercase tracking-[0.2em] text-sky-300">The vision</p>
       <h2 id="vision-h" className="mt-3 max-w-2xl text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={DISPLAY}>Where attunr is going</h2>
       <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300">
-        It starts with two things a teacher makes at the end of a lesson: the student&apos;s daily exercises for the week, and a lesson note the student can play. From there, it can grow into the place where a teacher plans practice, sees how it went and runs their teaching.
+        Today: practice plans and lesson notes. Next, the place a teacher plans practice, sees how it went and runs their teaching.
       </p>
       <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DIRECTIONS.map((d) => (
           <li key={d.title} className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
             <span className={`${STEP_TILE} bg-sky-500/15 text-sky-300`}><Icon name={d.icon} size={16} /></span>
             <h3 className="mt-3 text-base font-semibold text-slate-100">{d.title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-slate-400">{d.text}</p>
           </li>
         ))}
         <li className="flex flex-col justify-center rounded-2xl border border-dashed border-sky-400/30 bg-sky-400/5 p-4">
           <p className="text-sm leading-relaxed text-slate-300">
-            <b className="font-semibold text-slate-100">Music teaching needs a human.</b> The motivation and the guidance come from the teacher. AI is only there to make the work easier.
+            <b className="font-semibold text-slate-100">Music teaching needs a human.</b> AI only makes the work easier.
           </p>
         </li>
       </ul>
       <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
-        <span>Only the plans and notes below work today. Where it goes next is decided with the first studios that use it.</span>
+        <span>What comes next is decided with the first studios.</span>
         <Link href="/kickstarter" className="inline-flex items-center gap-1 font-medium text-sky-300 transition hover:gap-2 hover:text-sky-200">
           Become a founding partner <Icon name="chevron-right" size={14} />
         </Link>
@@ -220,7 +219,7 @@ function Divider({ label }: { label: string }) {
     <div className="flex items-center gap-4" role="separator" aria-label={label}>
       <span className="h-px flex-1 bg-linear-to-r from-transparent via-sky-400/70 to-violet-400/80" />
       <span className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-slate-300">
-        <Icon name="sparkles" size={13} className="text-sky-300" /> {label}
+        <Icon name="sparkles" size={13} className="text-sky-300" /> <span className="underline decoration-sky-400/70 underline-offset-4">{label}</span>
       </span>
       <span className="h-px flex-1 bg-linear-to-l from-transparent via-teal-400/70 to-violet-400/80" />
     </div>
@@ -234,9 +233,8 @@ function Divider({ label }: { label: string }) {
 export default function DemoIndex() {
   const cards = demoCards();
   return (
-    <PageShell active="/plan" title="Demos" intro="What a student practises with between lessons, and the two tools a teacher makes it with. Open any example and play it as the student would. You don't need an account, and nothing is saved." decor={<GlassShapes />}>
+    <PageShell active="/plan" eyebrow="Demos" title="Practice that sounds like your lessons" intro="Hi, I'm Pio. I'm building attunr to make teaching easier for teachers and practice better for students. It's in demo mode, so try anything below. No account needed." decor={<GlassShapes />}>
       <div className="flex flex-col gap-12 pb-10">
-        <Vision />
         {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]">
           <section aria-labelledby="plans-h" className={`${PANEL} border-sky-400/30 bg-linear-to-br from-sky-500/30 via-indigo-500/15 to-violet-600/30 shadow-2xl shadow-sky-950/40`}>
@@ -284,7 +282,7 @@ export default function DemoIndex() {
           </section>
         </div>
 
-        <Divider label="The tools that made them" />
+        <Divider label="Made with two simple tools" />
 
         <div>
           <div className="grid gap-4 lg:grid-cols-2">
@@ -296,6 +294,8 @@ export default function DemoIndex() {
             <span><b className="font-semibold text-slate-200">In the beta, the AI part runs on your own AI.</b> Use an AI extension in your browser, such as Claude in Chrome, or paste the prompt into any AI chat. That&apos;s how attunr stays free and open.</span>
           </p>
         </div>
+
+        <Vision />
 
         <Maker />
       </div>

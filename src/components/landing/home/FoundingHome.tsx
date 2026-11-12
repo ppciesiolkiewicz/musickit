@@ -38,7 +38,7 @@ const OFFER: { big: string; text: string; tone: string }[] = [
 const QUESTIONS: { q: string; a: string }[] = [
   { q: `Why ${FOUNDING_PARTNERS_NEEDED}?`, a: "That is how many I need to start: enough to pay for the work and to tell me what a studio needs." },
   { q: "Is it finished?", a: "No. attunr is a beta. It works and you can try it today, and I'm still improving it." },
-  { q: "Who is behind it?", a: "I'm Piotr. I build attunr, and it is an Australian company. When you write, you write to me." },
+  { q: "Who is behind it?", a: "I'm Pio. I build attunr, and it is an Australian company. When you write, you write to me." },
 ];
 
 /** The hero's bottom padding fades to nothing, taking the backdrop with it. */
@@ -176,7 +176,7 @@ export default function FoundingHome() {
               <p id="join-h" className="text-3xl text-slate-50" style={DISPLAY}>Become a founding partner</p>
               <p className="mt-2 text-sm text-slate-400">Leave your email and a few words about what you teach. I&apos;ll write back.</p>
             </div>
-            <ContactForm source="founding-partners" initialMessage={"Hi Piotr, I'd like to become a founding partner. A bit about what I teach: "} cta="Send message" done="I'll reply by email." note="I only use your email to reply. No newsletter." />
+            <ContactForm source="founding-partners" initialMessage={"Hi Pio, I'd like to become a founding partner. A bit about what I teach: "} cta="Send message" done="I'll reply by email." note="I only use your email to reply. No newsletter." />
           </div>
         </section>
 

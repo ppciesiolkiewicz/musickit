@@ -21,7 +21,7 @@ import { Check, IdeasSection, PlanSection, SkillsSection } from "./PracticeSecti
  * name reads as them. With no photo the story shows on its own.
  */
 const STORY: { name: string; detail: string; headline: string; quote: ReactNode; before: string[]; after: string[]; photo: PhotoKey | null } = {
-  name: "Piotr",
+  name: "Pio",
   detail: "founder of attunr",
   headline: "I was stuck, so I built the practice app I needed.",
   quote: <>I practised and practised and wasn&apos;t getting better. I kept running out of ideas for what to work on, and the apps that turned practice into a game just didn&apos;t work for me. What works is drills: repeating them until my hands know them, and understanding why they work. So I built attunr. It brings me new ideas every day, with interactive exercises and diagrams I can actually practise with. <Mark tone="var(--color-amber-400)">It&apos;s not a game. It&apos;s practice.</Mark></>,

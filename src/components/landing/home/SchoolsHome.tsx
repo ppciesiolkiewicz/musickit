@@ -362,8 +362,8 @@ export default function SchoolsHome() {
         {/* Contact */}
         <section id="contact" aria-labelledby="contact-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="ls-card rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6 sm:p-8">
-            <Founder id="contact-h" title="Bring attunr to your school" text={<>I&apos;m Piotr, and I build attunr. Leave your email and I&apos;ll get in touch to set it up with you for your teachers and students, under your brand if you want it. Your teachers can try the tools today, for free.</>}>
-              <ContactForm source="schools" initialMessage={"Hi Piotr, I run a music school and I'd like to talk about using attunr for our teachers and students. Could you get in touch?"} cta="Talk to us" done="Thanks. I'll email you to talk about your school." note="I only use your email to reply. No newsletter." />
+            <Founder id="contact-h" title="Bring attunr to your school" text={<>I&apos;m Pio, and I build attunr. Leave your email and I&apos;ll get in touch to set it up with you for your teachers and students, under your brand if you want it. Your teachers can try the tools today, for free.</>}>
+              <ContactForm source="schools" initialMessage={"Hi Pio, I run a music school and I'd like to talk about using attunr for our teachers and students. Could you get in touch?"} cta="Talk to us" done="Thanks. I'll email you to talk about your school." note="I only use your email to reply. No newsletter." />
             </Founder>
           </div>
         </section>
