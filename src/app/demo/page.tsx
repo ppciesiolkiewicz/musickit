@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 };
 
 /** The groups the plans sit in, each with its icon and colour. Class names are written out whole so Tailwind keeps them. */
-const AREAS: { area: DemoCard["area"]; name: string; icon: IconName; tile: string }[] = [
-  { area: "guitar", name: "Guitar", icon: "guitar", tile: "bg-amber-500/15 text-amber-300" },
-  { area: "voice", name: "Voice", icon: "mic", tile: "bg-violet-500/15 text-violet-300" },
+const AREAS: { area: DemoCard["area"]; name: string; icon: IconName; tile: string; card: string }[] = [
+  { area: "guitar", name: "Guitar", icon: "guitar", tile: "bg-amber-500/15 text-amber-300", card: "border-t-amber-400/60 hover:border-amber-400/50" },
+  { area: "voice", name: "Voice", icon: "mic", tile: "bg-violet-500/15 text-violet-300", card: "border-t-violet-400/60 hover:border-violet-400/50" },
 ];
 
 /** One colour per level, so the cards read easiest to hardest at a glance. */
@@ -27,14 +27,29 @@ const LEVEL: Record<DemoCard["level"], { name: string; chip: string; day: string
   advanced: { name: "Advanced", chip: "border-rose-400/40 text-rose-300", day: "bg-rose-400/50" },
 };
 
-const CARD = "group flex h-full flex-col rounded-2xl border border-slate-800 bg-slate-900/50 p-5 text-slate-100 transition hover:-translate-y-0.5 hover:border-slate-600 hover:bg-slate-900/80";
+/** A card on a coloured panel: dark glass, a coloured top edge (`accent` gives its colour and hover border). */
+const CARD = "group flex h-full flex-col rounded-2xl border border-t-2 border-white/10 bg-slate-950/55 p-5 text-slate-100 shadow-lg shadow-black/20 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-950/75";
 
-function SectionHead({ id, title, text }: { id: string; title: string; text: string }) {
+/** A panel's head: its tool's badge, as on the tool below, then the title and its line. */
+function PanelHead({ id, badge, icon, tone, title, text }: { id: string; badge: string; icon: IconName; tone: string; title: string; text: string }) {
   return (
-    <div className="mb-5">
-      <h2 id={id} className="text-2xl text-slate-50 sm:text-3xl" style={DISPLAY}>{title}</h2>
-      <p className="mt-1 text-sm text-slate-400">{text}</p>
+    <div className="mb-6">
+      <p className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] ${tone}`}>
+        <Icon name={icon} size={13} /> {badge}
+      </p>
+      <h2 id={id} className="mt-4 text-3xl leading-tight text-slate-50 text-balance" style={DISPLAY}>{title}</h2>
+      <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-300/80">{text}</p>
     </div>
+  );
+}
+
+/** A column's label over its cards: a coloured tile and a name. */
+function ColumnHead({ icon, tile, name }: { icon: IconName; tile: string; name: string }) {
+  return (
+    <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-200">
+      <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${tile}`}><Icon name={icon} size={15} /></span>
+      {name}
+    </h3>
   );
 }
 
@@ -46,10 +61,10 @@ function OpenLink({ children }: { children: string }) {
   );
 }
 
-function PlanCard({ demo }: { demo: DemoCard }) {
+function PlanCard({ demo, accent }: { demo: DemoCard; accent: string }) {
   const level = LEVEL[demo.level];
   return (
-    <Link href={`/demo/${demo.slug}`} className={CARD} aria-label={`${demo.label}: ${demo.title}`}>
+    <Link href={`/demo/${demo.slug}`} className={`${CARD} ${accent}`} aria-label={`${demo.label}: ${demo.title}`}>
       <div className="flex items-center gap-2 text-xs">
         <span className={`rounded-full border px-2 py-0.5 font-medium ${level.chip}`}>{level.name}</span>
         <span className="flex items-center gap-1 text-slate-400"><Icon name="timer" size={13} /> {demo.minutes} min a day</span>
@@ -76,6 +91,9 @@ const AUTOPLAN_STEPS: { icon: IconName; text: string }[] = [
   { icon: "puzzle", text: "Your AI extension reads the prompt on the page and sends your plan back." },
   { icon: "play", text: "A new day of exercises opens each day, and each week builds on the last." },
 ];
+
+/** An example panel: on wide screens it spans the two shared rows (head, cards) as a subgrid. */
+const PANEL = "rounded-3xl border p-5 sm:p-7 lg:row-span-2 lg:grid lg:grid-rows-subgrid";
 
 const TOOL = "flex flex-col rounded-3xl border p-6 sm:p-8";
 const STEP_TILE = "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg";
@@ -138,11 +156,11 @@ function NotesCreator() {
 function Divider({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-4" role="separator" aria-label={label}>
-      <span className="h-px flex-1 bg-linear-to-r from-transparent to-slate-700" />
-      <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
+      <span className="h-px flex-1 bg-linear-to-r from-transparent via-sky-400/70 to-violet-400/80" />
+      <span className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-900/80 px-4 py-1.5 text-xs font-medium uppercase tracking-[0.2em] text-slate-300">
         <Icon name="sparkles" size={13} className="text-sky-300" /> {label}
       </span>
-      <span className="h-px flex-1 bg-linear-to-l from-transparent to-slate-700" />
+      <span className="h-px flex-1 bg-linear-to-l from-transparent via-teal-400/70 to-violet-400/80" />
     </div>
   );
 }
@@ -156,21 +174,19 @@ export default function DemoIndex() {
   return (
     <PageShell active="/plan" title="Demos" intro="What your students practise with between lessons, and the two tools that make it. Open any example and try it as a student would. Nothing here is saved.">
       <div className="flex flex-col gap-12 pb-10">
-        <div className="grid gap-12 lg:grid-cols-[2fr_1fr] lg:gap-0">
-          <section aria-labelledby="plans-h" className="lg:pr-8">
-            <SectionHead id="plans-h" title="Made with the AI autoplan" text="A week of daily exercises each, as the AI wrote it. Open any day and play with its tools." />
+        {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
+        <div className="grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]">
+          <section aria-labelledby="plans-h" className={`${PANEL} border-sky-400/30 bg-linear-to-br from-sky-500/30 via-indigo-500/15 to-violet-600/30 shadow-2xl shadow-sky-950/40`}>
+            <PanelHead id="plans-h" badge="AI autoplan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="Made with the AI autoplan" text="A week of daily exercises each, as the AI wrote it. Open any day and play with its tools." />
             <div className="grid gap-8 sm:grid-cols-2 sm:gap-4">
-              {AREAS.map(({ area, name, icon, tile }) => {
+              {AREAS.map(({ area, name, icon, tile, card }) => {
                 const group = cards.filter((c) => c.area === area);
                 if (!group.length) return null;
                 return (
                   <div key={area}>
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-300">
-                      <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${tile}`}><Icon name={icon} size={15} /></span>
-                      {name}
-                    </h3>
+                    <ColumnHead icon={icon} tile={tile} name={name} />
                     <ul className="flex flex-col gap-4">
-                      {group.map((demo) => <li key={demo.slug}><PlanCard demo={demo} /></li>)}
+                      {group.map((demo) => <li key={demo.slug}><PlanCard demo={demo} accent={card} /></li>)}
                     </ul>
                   </div>
                 );
@@ -178,22 +194,31 @@ export default function DemoIndex() {
             </div>
           </section>
 
-          <section aria-labelledby="notes-h" className="lg:border-l lg:border-slate-800 lg:pl-8">
-            <SectionHead id="notes-h" title="Made with the Notes creator" text="A lesson on one page, the way a teacher sends it to a student." />
-            {/* a spacer the height of the plans' Guitar and Voice labels, so the first cards line up across the columns */}
-            <div className="mb-3 hidden h-7 lg:block" aria-hidden />
-            <ul className="flex flex-col gap-4">
-              {Object.entries(PRESET_INFO).map(([slug, note]) => (
-                <li key={slug}>
-                  <Link href={`/note/${slug}`} className={CARD}>
-                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500/15 text-teal-300"><Icon name="file-text" size={18} /></span>
-                    <h3 className="mt-4 text-xl leading-snug text-slate-50 text-balance" style={DISPLAY}>{note.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-slate-400">{note.description}</p>
-                    <div className="mt-auto"><OpenLink>Open the note</OpenLink></div>
+          <section aria-labelledby="notes-h" className={`${PANEL} border-teal-400/30 bg-linear-to-br from-teal-500/30 via-emerald-500/15 to-cyan-600/25 shadow-2xl shadow-teal-950/40`}>
+            <PanelHead id="notes-h" badge="Notes creator" icon="file-text" tone="border-teal-400/40 bg-teal-400/10 text-teal-200" title="Made with the Notes creator" text="A lesson on one page, the way a teacher sends it to a student." />
+            {/* the notes are fewer than the plans: they stay in view while the plans scroll by */}
+            <div className="lg:sticky lg:top-24 lg:self-start">
+              <ColumnHead icon="file-text" tile="bg-teal-500/15 text-teal-300" name="Teacher notes" />
+              <ul className="flex flex-col gap-4">
+                {Object.entries(PRESET_INFO).map(([slug, note]) => (
+                  <li key={slug}>
+                    <Link href={`/note/${slug}`} className={`${CARD} border-t-teal-400/60 hover:border-teal-400/50`}>
+                      <h3 className="text-xl leading-snug text-slate-50 text-balance" style={DISPLAY}>{note.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-slate-400">{note.description}</p>
+                      <div className="mt-auto"><OpenLink>Open the note</OpenLink></div>
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link href="/teachers/studio?notes=1" className="group flex flex-col rounded-2xl border border-dashed border-teal-400/40 bg-teal-400/5 p-5 transition hover:border-teal-300/70 hover:bg-teal-400/10">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-400/15 text-teal-300"><Icon name="plus" size={18} /></span>
+                    <h3 className="mt-4 text-xl leading-snug text-slate-50" style={DISPLAY}>Write your own note</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-400">Start from an empty page in the Notes creator.</p>
+                    <OpenLink>Open the Notes creator</OpenLink>
                   </Link>
                 </li>
-              ))}
-            </ul>
+              </ul>
+            </div>
           </section>
         </div>
 
