@@ -9,7 +9,7 @@ import { seenKey, type TourStep } from "./tour";
 
 /** The singing player (`SingAlong`) the melody, run and string singers share. */
 const singAlong = (what: string, notes: string): TourStep[] => [
-  { target: "sing-play", title: "Play and stop", text: `Play runs ${what} from the start. A bar moves along the notes as they play.` },
+  { target: "sing-play", title: "Play and stop", text: `Play runs ${what} from the start. A bar moves along the notes as they play, and Play turns into Stop.` },
   { target: "sing-mic", title: "Sing with the mic", text: "Switch the mic on and sing along. A dot shows the note you sing, so you can see when you are on it." },
   { target: "sing-tune", title: "The notes", text: notes },
   { target: "sing-loop", title: "Loop a part", text: "Loop a hard part: drag the markers on the strip to pick it.", minLevel: "standard" },

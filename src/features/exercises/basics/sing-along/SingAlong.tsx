@@ -50,7 +50,7 @@ function IconButton({ on, tone = "sky", title, onClick, children }: { on?: boole
   const lit = { sky: "border-sky-400/70 bg-sky-500/20 text-sky-100", emerald: "border-emerald-400/70 bg-emerald-500/25 text-emerald-100", amber: "border-amber-400/60 bg-amber-500/15 text-amber-200" }[tone];
   return (
     <button type="button" onClick={onClick} title={title} aria-label={title} aria-pressed={on}
-      className={`grid h-8 w-8 place-items-center rounded-lg border transition ${on ? lit : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
+      className={`flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-lg border px-1.5 transition ${on ? lit : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
       {children}
     </button>
   );
@@ -63,8 +63,9 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
 ];
 
 /**
- * A tune to sing along: play, stop and the mic as icons (any button switches the mic on); in the settings dropdown, what is
- * heard (the tune, its chords when it has them, the metronome) as a row of switches, each on or off while it plays, the bar running either way; a loop over a part of
+ * A tune to sing along: one Play button that turns into Stop while the tune plays (the Space key cap inside it), and the
+ * mic (any button switches it on); mute buttons for the tune and its chords (when it has them) beside them, and the
+ * metronome in the settings dropdown, each on or off while it plays, the bar running either way; a loop over a part of
  * the tune set on a strip of the whole tune (on by default, over all of it; the strip shows only while looping), and the tune drawn on an endless staff or
  * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
  * sliding under a bar that stays put so the voice dot holds its place. It is the same player moved over the page, so a
@@ -164,7 +165,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   const tune = useRef<HTMLDivElement | null>(null);
   const play = () => {
     void sa.play();
-    if (!full) tune.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    if (!full) tune.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
   // Space presses Play, or Stop while the tune plays
   const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(() => (sa.playing ? sa.stop() : play()), setRoot);
@@ -210,33 +211,39 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       <div aria-hidden className="my-1 h-px w-1/3 bg-slate-700" />
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
         <span data-tour="sing-play" className="inline-flex items-center gap-1.5">
-          <Hint title="Play" description="Starts the tune from the start.">
-            <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={play}>
-              <Icon name="play" size={15} />
+          <Hint title={sa.playing ? "Stop" : "Play"} description={sa.playing ? "Ends the tune." : "Starts the tune from the start. While it plays, the button turns into Stop."}>
+            <IconButton on={sa.playing} title={`${sa.playing ? "Stop" : "Play"}${spaceArmed ? " (Space)" : ""}`} onClick={sa.playing ? sa.stop : play}>
+              <Icon name={sa.playing ? "square" : "play"} size={sa.playing ? 14 : 15} fill={sa.playing} />
+              {spaceArmed && <KeyCap className="hidden md:inline">Space</KeyCap>}
             </IconButton>
           </Hint>
-          <Hint title="Stop" description="Ends the tune.">
-            <IconButton title="Stop" onClick={sa.stop}>
-              <Icon name="square" size={14} />
-            </IconButton>
-          </Hint>
-          {spaceArmed && <KeyCap className="hidden text-slate-400 md:inline">Space</KeyCap>}
         </span>
         <span data-tour="sing-mic" className="inline-flex">
           <Hint title="Mic" description="Marks the note you're on. Play starts it for you; this button also opens the list of inputs, with each input's level and Stop.">
             <InputChip status={sa.status} mic={{ on: sa.mic, onToggle: sa.toggleMic }} />
           </Hint>
         </span>
+        {LAYERS.filter((l) => l.id === "tune" || (l.id === "chords" && chords.length)).map((l) => {
+          const on = sa.heard[l.id];
+          return (
+            <Hint key={l.id} title={`Mute ${l.label.toLowerCase()}`} description={`Silences ${l.what}. The bar keeps going.`}>
+              <IconButton on={!on} tone="amber" title={on ? `Mute ${l.what}` : `Hear ${l.what}`} onClick={() => sa.toggleHeard(l.id)}>
+                <Icon name={l.icon} size={14} />
+                <span className={`text-[11px] ${on ? "" : "line-through"}`}>{l.label}</span>
+              </IconButton>
+            </Hint>
+          );
+        })}
         <Hint title="Volume" description="Sets every sound in the app, not just this tune.">
           <span className="ml-1 flex items-center border-l border-slate-800 pl-2"><Volume /></span>
         </Hint>
         {full && nav?.label && <span className="tabular-nums text-slate-300">{nav.label}</span>}
         <span className="ml-auto" />
-        <Hint title="Sound and view settings" description="Accuracy, melody view, what is heard, play-ahead, share.">
+        <Hint title="Sound and view settings" description="Accuracy, melody view, the metronome, play-ahead, share.">
           <ToolSettings volume={false} accuracy view more={<>
             <DropdownSection title="Playback">
               <div role="group" aria-label="Playback" className="flex w-fit overflow-hidden rounded-lg border border-slate-700">
-                {LAYERS.filter((l) => l.id !== "chords" || chords.length).map((l) => {
+                {LAYERS.filter((l) => l.id === "click").map((l) => {
                   const on = sa.heard[l.id];
                   return (
                     <button key={l.id} type="button" aria-pressed={on} onClick={() => sa.toggleHeard(l.id)}
