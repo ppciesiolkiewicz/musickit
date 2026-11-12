@@ -38,7 +38,7 @@ const span = (lo: number, hi: number, keep: (m: number) => boolean = () => true)
 function casio(id: keyof typeof INSTRUMENTS): SampleSet {
   const c = INSTRUMENTS[id];
   const files = Object.fromEntries(Object.entries(c.urls as Record<string, string>).map(([note, file]) => [noteToMidi(note)!, c.baseUrl + file]));
-  return { id: "casio", label: `Casio SA-10 (in the app: ${c.label})`, about: "The app's own samples today, from a Casio SA-10 soundfont.", files };
+  return { id: "casio", label: `In the app: ${c.label}`, about: "The app's own samples, as the sound engine's config lists them (scripts/fetch-samples.mts). Its old measurements on this page are of the Casio set they replaced.", files };
 }
 
 /** tonejs-instruments' note lists ("A#1=As1 …": the note, then the file it plays), copied from its Tonejs-Instruments.js */
