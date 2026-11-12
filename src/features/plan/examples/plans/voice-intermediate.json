@@ -5,9 +5,9 @@
     "voice"
   ],
   "level": "intermediate",
-  "updated": "2026-11-10",
+  "updated": "2026-11-12",
   "model": "claude-fable-5-2",
-  "minutes": 20,
+  "minutes": 22,
   "concepts": [
     "leaps",
     "runs",
@@ -18,11 +18,11 @@
     "agents": 1,
     "teaching": 2
   },
-  "note": "An intermediate voice week at 20 minutes a day, built from every singing tool so no two days look alike: leaps are the key skill and return daily in new forms (heard in the ear game, sung from Do in interval-singer with and without the picture, inside melody-singer tunes in two keys by a choice Key selector, and in lines over a backing-track), with breathwork to open, runs from run-singer, sight-singing, and a harmony line that comes back faster in choice stages.",
+  "note": "An intermediate voice week at 22 minutes a day, built from every singing tool so no two days look alike: leaps are the key skill and return daily in new forms (heard in the ear game, sung from Do in interval-singer with and without the picture, inside melody-singer tunes in two keys by a choice Key selector, and in lines over a backing-track), with breathwork to open, runs from run-singer, sight-singing, and a harmony line that comes back faster in choice stages.",
   "plan": {
     "title": "Week 1: leaps, runs and a line of your own",
     "summary": "Sing 4ths, 5ths and octaves in tune, first from Do, then inside tunes and over chords. Each day opens with breath, has an ear game or a run in the middle, and ends with a tune in two keys and a line you make up.",
-    "progress": "Breath & range: in, hold and out from 4 counts up to 10, a hiss into a buzz, a long even breath out. Next: counts up to 12, and holding the high Do.\nPitch: slides and then leaps cleanly from Do to the high Do over an A drone. Next: the same without the slide first.\nIntervals & leaps: hears 4ths, 5ths and octaves rising and falling, sings them up from Do in C, D and F, also without seeing the voice. Falling leaps are sung only inside tunes so far. Next: sing them down from Do, add the 6th.\nRuns: five-note run in eighths and sixteenths, a run with turns, a nine-note run, each up by semitones. Next: the octave run, slowly.\nMelodies: medium tunes with a 4th, a 5th and an octave in D and F, four short tunes read from the staff before hearing them. Next: longer tunes to read.\nHarmony & improvising: holds roots and a Mi Fa Re Mi line over I-IV-V-I in D and F up to 90, makes up lines from Do Mi Sol over four chords. Next: a line a 3rd above a tune.",
+    "progress": "Breath & range: in, hold and out from 4 counts up to 10, a hiss into a buzz, a long even breath out. Next: counts up to 12, and holding the high Do.\nPitch: slides and then leaps cleanly from Do to the high Do over an A drone. Next: the same without the slide first.\nIntervals & leaps: hears 3rds, 4ths, 5ths, 6ths and octaves rising, falling and together, sings the 3rd, 4th, 5th and octave up from Do in six keys from C to A, also without seeing the voice. Falling leaps are sung only inside tunes so far. Next: sing them down from Do, and sing the 6th.\nRuns: five-note run in eighths and sixteenths, a run with turns, a nine-note run, each up by semitones. Next: the octave run, slowly.\nMelodies: medium tunes with a 4th, a 5th and an octave in D and F, four short tunes read from the staff before hearing them. Next: longer tunes to read.\nHarmony & improvising: holds roots and a Mi Fa Re Mi line over I-IV-V-I in D and F up to 90, makes up lines from Do Mi Sol over four chords. Next: a line a 3rd above a tune.",
     "days": [
       {
         "theme": "The 4th and the 5th",
@@ -60,8 +60,8 @@
             ]
           },
           {
-            "title": "4th or 5th?",
-            "minutes": 3,
+            "title": "The 4th, the 5th and their neighbours",
+            "minutes": 5,
             "level": "intermediate",
             "area": "voice",
             "tags": [
@@ -79,15 +79,18 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays Do and then a note a 4th or a 5th above it: hum the second note back, then pick P4 for a 4th or P5 for a 5th."
+                "text": "Press Start below. The game plays Do and then a note a 3rd, a 4th, a 5th, a 6th or an octave above it. Hum the second note back, then pick its name: P4 for a 4th, P5 for a 5th."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    4,
                     5,
-                    7
+                    7,
+                    9,
+                    12
                   ],
                   "dir": "up"
                 }
@@ -95,7 +98,7 @@
             ]
           },
           {
-            "title": "Sing the 4th and the 5th",
+            "title": "Sing the 3rd, the 4th and the 5th",
             "minutes": 5,
             "level": "intermediate",
             "area": "voice",
@@ -113,7 +116,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below: Do sounds, and the leap to sing shows by name. Hear the landing note in your head first, then sing it on \"oo\" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again."
+                "text": "Press Start below: Do sounds, and the leap to sing shows by name, a 3rd, a 4th or a 5th. Hear the landing note in your head first, then sing it on \"oo\" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again."
               },
               {
                 "type": "tool",
@@ -122,10 +125,13 @@
                   "key": "c",
                   "keys": [
                     "c",
-                    "d"
+                    "d",
+                    "f",
+                    "g"
                   ],
                   "voice": "tenor",
                   "intervals": [
+                    4,
                     5,
                     7
                   ],
@@ -250,8 +256,8 @@
             ]
           },
           {
-            "title": "4th or 5th, falling",
-            "minutes": 3,
+            "title": "Leaps, falling",
+            "minutes": 5,
             "level": "intermediate",
             "area": "voice",
             "tags": [
@@ -269,15 +275,17 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays a note and then one a 4th or a 5th below it: hum the lower note back, then pick P4 or P5."
+                "text": "Press Start below. The game plays a note and then one a 3rd, a 4th, a 5th or an octave below it. Hum the lower note back, then pick its name."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    4,
                     5,
-                    7
+                    7,
+                    12
                   ],
                   "dir": "down"
                 }
@@ -460,8 +468,8 @@
             ]
           },
           {
-            "title": "5th or octave?",
-            "minutes": 3,
+            "title": "From the 4th up to the octave",
+            "minutes": 5,
             "level": "intermediate",
             "area": "voice",
             "tags": [
@@ -471,7 +479,7 @@
             "concepts": [
               "leaps"
             ],
-            "why": "The high Do is the same note as Do, so the two blend into one sound where Sol stands apart: listen for the blend.",
+            "why": "The high Do is the same note as Do, so the two blend into one sound where every other leap stands apart: listen for the blend first.",
             "learnBefore": [
               "/course/6/every-interval",
               "/course/6/singing-leaps"
@@ -479,14 +487,17 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays Do and then a note a 5th or an octave above it: hum the second note back, then pick P5 or P8, the octave."
+                "text": "Press Start below. The game plays Do and then a note a 4th, a 5th, a 6th or an octave above it. Hum the second note back, then pick its name: P8 is the octave, m6 and M6 the minor and major 6th."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    5,
                     7,
+                    8,
+                    9,
                     12
                   ],
                   "dir": "up"
@@ -495,7 +506,7 @@
             ]
           },
           {
-            "title": "Sing the 5th and the octave",
+            "title": "Sing the 4th, the 5th and the octave",
             "minutes": 5,
             "level": "intermediate",
             "area": "voice",
@@ -513,7 +524,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below: Do sounds, and the leap to sing shows by name. For the octave, think of Sol on the way up and go past it. Sing the landing note on \"oo\", hold it until it counts, then press Next. If a leap misses, press Restart to hear Do again."
+                "text": "Press Start below: Do sounds, and the leap to sing shows by name, a 4th, a 5th or an octave. For the octave, think of Sol on the way up and go past it. Sing the landing note on \"oo\", hold it until it counts, then press Next. If a leap misses, press Restart to hear Do again."
               },
               {
                 "type": "tool",
@@ -522,10 +533,14 @@
                   "key": "c",
                   "keys": [
                     "c",
-                    "d"
+                    "d",
+                    "f",
+                    "g",
+                    "a"
                   ],
                   "voice": "tenor",
                   "intervals": [
+                    5,
                     7,
                     12
                   ],
@@ -653,7 +668,7 @@
           },
           {
             "title": "Two notes at once",
-            "minutes": 3,
+            "minutes": 5,
             "level": "intermediate",
             "area": "voice",
             "tags": [
@@ -670,14 +685,16 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays two notes at the same time, a 3rd or a 5th apart: hum the lower one, then the upper one, then pick M3 for a 3rd or P5 for a 5th."
+                "text": "Press Start below. The game plays two notes at the same time, a 3rd, a 4th or a 5th apart. Hum the lower one, then the upper one, then pick its name: m3 or M3 for a minor or major 3rd, P4 or P5."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    3,
                     4,
+                    5,
                     7
                   ],
                   "dir": "together"
@@ -908,8 +925,8 @@
             ]
           },
           {
-            "title": "4th, 5th or octave?",
-            "minutes": 3,
+            "title": "Six leaps to tell apart",
+            "minutes": 5,
             "level": "intermediate",
             "area": "voice",
             "tags": [
@@ -919,7 +936,7 @@
             "concepts": [
               "leaps"
             ],
-            "why": "With three leaps to choose from a guess stops working, so the ear has to know each one by its own sound.",
+            "why": "With six leaps to choose from a guess stops working, so the ear has to know each one by its own sound.",
             "learnBefore": [
               "/course/6/every-interval",
               "/course/6/singing-leaps"
@@ -927,15 +944,18 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays Do and then a note a 4th, a 5th or an octave above it: sing the second note back on \"la\", then pick P4, P5 or P8."
+                "text": "Press Start below. The game plays Do and then a note a 3rd, a 4th, a 5th, a 6th or an octave above it. Sing the second note back on \"la\", then pick its name."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    3,
+                    4,
                     5,
                     7,
+                    9,
                     12
                   ],
                   "dir": "up"
@@ -1076,7 +1096,7 @@
         "exercises": [
           {
             "title": "Leaps you can't see",
-            "minutes": 4,
+            "minutes": 5,
             "level": "intermediate",
             "area": "voice",
             "tags": [
@@ -1103,10 +1123,14 @@
                   "keys": [
                     "c",
                     "d",
-                    "f"
+                    "e",
+                    "f",
+                    "g",
+                    "a"
                   ],
                   "voice": "tenor",
                   "intervals": [
+                    4,
                     5,
                     7,
                     12
@@ -1386,7 +1410,7 @@
           },
           {
             "title": "The week's leaps, falling",
-            "minutes": 3,
+            "minutes": 5,
             "level": "intermediate",
             "area": "voice",
             "tags": [
@@ -1404,15 +1428,18 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays a note and then one a 4th, a 5th or an octave below it: sing the lower note back on \"la\", then pick P4, P5 or P8."
+                "text": "Press Start below. The game plays a note and then one a 3rd, a 4th, a 5th, a 6th or an octave below it. Sing the lower note back on \"la\", then pick its name."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    3,
+                    4,
                     5,
                     7,
+                    9,
                     12
                   ],
                   "dir": "down"

@@ -6,7 +6,7 @@
     "theory"
   ],
   "level": "intermediate",
-  "updated": "2026-11-10",
+  "updated": "2026-11-12",
   "model": "claude-fable-5-2",
   "minutes": 30,
   "concepts": [
@@ -868,7 +868,7 @@
             ]
           },
           {
-            "title": "b7 or 7?",
+            "title": "b7, 7 or octave?",
             "minutes": 5,
             "level": "intermediate",
             "area": "theory",
@@ -883,7 +883,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below and the game plays an interval. Pick its name: a minor 7th (as in D7) or a major 7th (as in Gmaj7)."
+                "text": "Press Start below and the game plays an interval. Pick its name: m7 for a minor 7th (as in D7), M7 for a major 7th (as in Gmaj7), P8 for the octave."
               },
               {
                 "type": "tool",
@@ -891,7 +891,8 @@
                   "type": "interval-ears",
                   "set": [
                     10,
-                    11
+                    11,
+                    12
                   ],
                   "dir": "up"
                 }

@@ -7,7 +7,7 @@
   "level": "advanced",
   "updated": "2026-11-12",
   "model": "claude-fable-5-2",
-  "minutes": 25,
+  "minutes": 27,
   "concepts": [
     "leaps",
     "singing-intervals",
@@ -20,7 +20,7 @@
     "agents": 1,
     "teaching": 4
   },
-  "note": "An advanced voice week at 25 minutes a day, every tool set to the level: the hard leaps (tritone, minor 6th, both 7ths, minor 3rd) are found from a neighbour, then sung down, in any key and with the voice hidden; expert runs in sixteenths state their range; expert tunes from the 7ths, octave and past-the-octave stages are read from the staff with no chords before they are heard. Guide tones are the key skill and return on five days in new forms: two lines over a ii-V-I by a Key selector, round a turnaround, faster by a Stage selector, landing on the 3rd or 7th, and from memory on day 7.",
+  "note": "An advanced voice week at 27 minutes a day, every tool set to the level: the hard leaps (tritone, minor 6th, both 7ths, minor 3rd) are found from a neighbour, then sung down, in any key and with the voice hidden; expert runs in sixteenths state their range; expert tunes from the 7ths, octave and past-the-octave stages are read from the staff with no chords before they are heard. Guide tones are the key skill and return on five days in new forms: two lines over a ii-V-I by a Key selector, round a turnaround, faster by a Stage selector, landing on the 3rd or 7th, and from memory on day 7.",
   "plan": {
     "title": "Week 1: hard leaps, fast runs and lines that follow the chords",
     "summary": "Sing the leaps that are hard to hear, first from a neighbour you know, then in any key without seeing your voice. Each day opens with breath or a slide, has an ear game and a fast run in the middle, and ends with a tune to read or a line of your own over the chords.",
@@ -62,8 +62,8 @@
             ]
           },
           {
-            "title": "Tritone, 5th or minor 6th?",
-            "minutes": 3,
+            "title": "Around the 5th",
+            "minutes": 5,
             "level": "advanced",
             "area": "voice",
             "tags": [
@@ -80,16 +80,18 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays Do and then a note a tritone, a 5th or a minor 6th above it. Hum the second note back, then pick TT for the tritone, P5 for the 5th or m6 for the minor 6th."
+                "text": "Press Start below. The game plays Do and then a note a 4th, a tritone, a 5th or a 6th above it. Hum the second note back, then pick its name: TT for the tritone, m6 for the minor 6th."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    5,
                     6,
                     7,
-                    8
+                    8,
+                    9
                   ],
                   "dir": "up"
                 }
@@ -97,7 +99,7 @@
             ]
           },
           {
-            "title": "Sing the tritone and the minor 6th",
+            "title": "Sing the tritone, the 5th and the minor 6th",
             "minutes": 5,
             "level": "advanced",
             "area": "voice",
@@ -124,13 +126,18 @@
                 "tool": {
                   "type": "interval-singer",
                   "voice": "tenor",
-                  "key": "d",
+                  "key": "c",
                   "keys": [
+                    "c",
                     "d",
-                    "f"
+                    "e-flat",
+                    "f",
+                    "g",
+                    "a"
                   ],
                   "intervals": [
                     6,
+                    7,
                     8
                   ]
                 }
@@ -354,8 +361,8 @@
             ]
           },
           {
-            "title": "Minor 7th, major 7th or octave?",
-            "minutes": 3,
+            "title": "6ths, 7ths or octave?",
+            "minutes": 5,
             "level": "advanced",
             "area": "voice",
             "tags": [
@@ -372,13 +379,15 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays Do and then a note a 7th or an octave above it. Hum the second note back, then pick m7 for the minor 7th, M7 for the major 7th or P8 for the octave."
+                "text": "Press Start below. The game plays Do and then a note a 6th, a 7th or an octave above it. Hum the second note back, then pick its name: m7 for the minor 7th, M7 for the major 7th, P8 for the octave."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    8,
+                    9,
                     10,
                     11,
                     12
@@ -389,7 +398,7 @@
             ]
           },
           {
-            "title": "Sing the two 7ths",
+            "title": "Sing the two 7ths and the octave",
             "minutes": 5,
             "level": "advanced",
             "area": "voice",
@@ -419,11 +428,16 @@
                   "key": "c",
                   "keys": [
                     "c",
-                    "e-flat"
+                    "d",
+                    "e-flat",
+                    "f",
+                    "g",
+                    "b-flat"
                   ],
                   "intervals": [
                     10,
-                    11
+                    11,
+                    12
                   ]
                 }
               }
@@ -581,8 +595,8 @@
             ]
           },
           {
-            "title": "3rds and 6ths, falling",
-            "minutes": 3,
+            "title": "3rds to 6ths, falling",
+            "minutes": 5,
             "level": "advanced",
             "area": "voice",
             "tags": [
@@ -599,7 +613,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays a note and then one a 3rd or a 6th below it. Hum the lower note back, then pick m3 or M3 for a minor or major 3rd, m6 or M6 for a minor or major 6th."
+                "text": "Press Start below. The game plays a note and then one a 3rd, a 4th, a 5th or a 6th below it. Hum the lower note back, then pick its name: m3 or M3 for a minor or major 3rd, m6 or M6 for a minor or major 6th."
               },
               {
                 "type": "tool",
@@ -608,6 +622,8 @@
                   "set": [
                     3,
                     4,
+                    5,
+                    7,
                     8,
                     9
                   ],
@@ -647,7 +663,11 @@
                   "key": "c",
                   "keys": [
                     "c",
-                    "e-flat"
+                    "d",
+                    "e-flat",
+                    "f",
+                    "g",
+                    "b-flat"
                   ],
                   "intervals": [
                     3,
@@ -852,7 +872,7 @@
           },
           {
             "title": "Two notes at once",
-            "minutes": 3,
+            "minutes": 5,
             "level": "advanced",
             "area": "voice",
             "tags": [
@@ -869,14 +889,16 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below. The game plays two notes at the same time. Hum the lower one, then the upper one, then pick TT, m6, m7 or M7."
+                "text": "Press Start below. The game plays two notes at the same time. Hum the lower one, then the upper one, then pick its name: M3, TT, P5, m6, m7 or M7."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    4,
                     6,
+                    7,
                     8,
                     10,
                     11
@@ -1072,7 +1094,7 @@
           },
           {
             "title": "Every hard leap, falling",
-            "minutes": 3,
+            "minutes": 5,
             "level": "advanced",
             "area": "voice",
             "tags": [
@@ -1136,11 +1158,7 @@
                   "type": "interval-singer",
                   "voice": "tenor",
                   "key": "c",
-                  "keys": [
-                    "c",
-                    "e-flat",
-                    "f"
-                  ],
+                  "keys": "random",
                   "intervals": [
                     6,
                     8,
@@ -1355,7 +1373,7 @@
           },
           {
             "title": "Leaps wider than an octave",
-            "minutes": 4,
+            "minutes": 5,
             "level": "advanced",
             "area": "voice",
             "tags": [
@@ -1652,7 +1670,7 @@
           },
           {
             "title": "All twelve, falling",
-            "minutes": 3,
+            "minutes": 5,
             "level": "advanced",
             "area": "voice",
             "tags": [

@@ -5,9 +5,9 @@
     "voice"
   ],
   "level": "beginner",
-  "updated": "2026-11-10",
+  "updated": "2026-11-12",
   "model": "claude-fable-5",
-  "minutes": 15,
+  "minutes": 17,
   "concepts": [
     "in-tune-over-drone",
     "do-mi-sol-skips",
@@ -18,11 +18,11 @@
     "agents": 1,
     "teaching": 4
   },
-  "note": "A beginner voice week at 15 minutes a day: a warm-up, an ear game and one longer musical piece that ends in a tune or line the student makes up. Every tune comes back in a second key through a Key selector, Do Mi Sol moves through three keys, one warm-up climbs a tempo ladder of stages and one opens with breathwork. Every note asked for is low in the voice, and where the singer could wander up the staff (the first staff, a slide, a skip up to Sol, a made-up line) one underlined care line says not to reach for high notes.",
+  "note": "A beginner voice week at 17 minutes a day: a warm-up, an ear game and one longer musical piece that ends in a tune or line the student makes up. Every tune comes back in a second key through a Key selector, Do Mi Sol moves through three keys, one warm-up climbs a tempo ladder of stages and one opens with breathwork. Every note asked for is low in the voice, and where the singer could wander up the staff (the first staff, a slide, a skip up to Sol, a made-up line) one underlined care line says not to reach for high notes.",
   "plan": {
     "title": "Week 1: Do Mi Sol, in tune, your way",
     "summary": "Sing in tune over a drone and skip through Do Mi Sol, one idea a day: each day a short warm-up, an ear game, and a longer musical piece that ends with a tune or line you make up.",
-    "progress": "Pitch: finds the low Do over a drone in C, D and F and hears when it settles; slides and hums into Sol. Next: find Do without the hum first.\nBreath & range: paced breath 3 to 6 counts, holds the low Do in G and D on \"oo\". All notes stayed in the low part of the range, with a line not to reach for high notes. Next: hold Sol, breath 3 to 7.\nIntervals & leaps: tells steps from skips, 3rds from 5ths and 5ths from 6ths by ear, sings Do Mi Sol in A, C and D and Do Re Mi on the beat up to 92 bpm. Falling skips are less sure. Next: sing a 4th.\nMelodies: easy step and skip tunes, each in two keys (C, D, G, A, F), one medium tune in A and D, own lines over two and three chords. Next: medium tunes in two keys.",
+    "progress": "Pitch: finds the low Do over a drone in C, D and F and hears when it settles; slides and hums into Sol. Next: find Do without the hum first.\nBreath & range: paced breath 3 to 6 counts, holds the low Do in G and D on \"oo\". All notes stayed in the low part of the range, with a line not to reach for high notes. Next: hold Sol, breath 3 to 7.\nIntervals & leaps: tells steps, minor and major 3rds, 5ths and 6ths apart by ear, rising and falling, sings Do Mi Sol in A, C and D and Do Re Mi on the beat up to 92 bpm. Falling skips are less sure. Next: sing a 4th.\nMelodies: easy step and skip tunes, each in two keys (C, D, G, A, F), one medium tune in A and D, own lines over two and three chords. Next: medium tunes in two keys.",
     "days": [
       {
         "theme": "Home over a drone",
@@ -64,7 +64,7 @@
           },
           {
             "title": "Steps or skips?",
-            "minutes": 3,
+            "minutes": 5,
             "level": "beginner",
             "area": "voice",
             "tags": [
@@ -86,7 +86,8 @@
                   "type": "interval-ears",
                   "set": [
                     2,
-                    4
+                    4,
+                    7
                   ],
                   "dir": "up"
                 }
@@ -235,27 +236,28 @@
           },
           {
             "title": "3rd or 5th?",
-            "minutes": 3,
+            "minutes": 5,
             "level": "beginner",
             "area": "voice",
             "tags": [
               "ear"
             ],
             "topic": "voice-intervals",
-            "why": "Mi and Sol are the two notes a skip from Do usually lands on, so telling them apart is half of singing a skip in tune.",
+            "why": "Mi and Sol are the two notes a skip from Do usually lands on, and a minor 3rd sits a half step under Mi, so telling the three apart is half of singing a skip in tune.",
             "learnBefore": [
               "/course/3/intervals"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below to hear Do and then Mi or Sol. Sing the second note back on \"la\", then answer."
+                "text": "Press Start below to hear Do and then a note a 3rd or a 5th above it. Sing the second note back on \"la\", then pick its name: M3 or m3 for a major or minor 3rd, P5 for a 5th."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    3,
                     4,
                     7
                   ],
@@ -418,8 +420,8 @@
             ]
           },
           {
-            "title": "5th or 6th?",
-            "minutes": 3,
+            "title": "3rd, 5th or 6th?",
+            "minutes": 5,
             "level": "beginner",
             "area": "voice",
             "tags": [
@@ -433,13 +435,14 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below to hear Do and then Sol or La. Hum the second note back, then answer."
+                "text": "Press Start below to hear Do and then Mi, Sol or La. Hum the second note back, then answer."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    4,
                     7,
                     9
                   ],
@@ -585,7 +588,7 @@
           },
           {
             "title": "Skips, falling",
-            "minutes": 3,
+            "minutes": 5,
             "level": "beginner",
             "area": "voice",
             "tags": [
@@ -606,6 +609,7 @@
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    3,
                     4,
                     7
                   ],
@@ -768,7 +772,7 @@
           },
           {
             "title": "Steps and skips, mixed",
-            "minutes": 3,
+            "minutes": 5,
             "level": "beginner",
             "area": "voice",
             "tags": [
@@ -783,7 +787,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below to hear a step, a 3rd or a 5th. Hum it back, then answer."
+                "text": "Press Start below to hear a step, a 3rd, a 5th or a 6th. Hum it back, then answer."
               },
               {
                 "type": "tool",
@@ -791,8 +795,10 @@
                   "type": "interval-ears",
                   "set": [
                     2,
+                    3,
                     4,
-                    7
+                    7,
+                    9
                   ],
                   "dir": "up"
                 }
@@ -934,7 +940,7 @@
           },
           {
             "title": "Hear and sing back",
-            "minutes": 3,
+            "minutes": 5,
             "level": "beginner",
             "area": "voice",
             "tags": [
@@ -948,15 +954,17 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below to hear a 3rd or a 5th. Sing both notes back on \"la\" before you answer."
+                "text": "Press Start below to hear a 3rd, a 5th or a 6th. Sing both notes back on \"la\" before you answer."
               },
               {
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
                   "set": [
+                    3,
                     4,
-                    7
+                    7,
+                    9
                   ],
                   "dir": "up"
                 }
@@ -1078,7 +1086,7 @@
           },
           {
             "title": "The week's intervals",
-            "minutes": 3,
+            "minutes": 5,
             "level": "beginner",
             "area": "voice",
             "tags": [
@@ -1100,6 +1108,7 @@
                   "type": "interval-ears",
                   "set": [
                     2,
+                    3,
                     4,
                     7,
                     9
