@@ -3,12 +3,12 @@
 import { useEffect, useRef } from "react";
 import Icon from "@/components/Icon";
 
-function Video({ stream, fit }: { stream: MediaStream; fit: "cover" | "contain" }) {
+function Video({ stream, fit, mirrored = false }: { stream: MediaStream; fit: "cover" | "contain"; mirrored?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     if (ref.current && ref.current.srcObject !== stream) ref.current.srcObject = stream;
   }, [stream]);
-  return <video ref={ref} autoPlay muted playsInline className={`h-full w-full ${fit === "cover" ? "object-cover" : "object-contain"}`} />;
+  return <video ref={ref} autoPlay muted playsInline className={`h-full w-full ${fit === "cover" ? "object-cover" : "object-contain"} ${mirrored ? "-scale-x-100" : ""}`} />;
 }
 
 export interface MediaControls {
@@ -18,6 +18,9 @@ export interface MediaControls {
   onClose: () => void;
   /** "camera" or "screen share", for the buttons' names */
   name: string;
+  /** the camera only: the picture is flipped left to right, and the button that flips it */
+  mirrored?: boolean;
+  onToggleMirror?: () => void;
 }
 
 const cornerBtn = "flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 text-slate-200 ring-1 ring-slate-700 hover:bg-slate-800";
@@ -26,6 +29,11 @@ const cornerBtn = "flex h-6 w-6 items-center justify-center rounded-md bg-slate-
 function Corner({ c }: { c: MediaControls }) {
   return (
     <div data-chrome className="absolute right-1.5 top-1.5 z-10 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100" onPointerDown={(e) => e.stopPropagation()}>
+      {c.onToggleMirror && (
+        <button type="button" title={`Mirror ${c.name}`} aria-label={`Mirror ${c.name}`} aria-pressed={c.mirrored ?? false} onClick={c.onToggleMirror} className={`${cornerBtn} ${c.mirrored ? "text-sky-300 ring-sky-500/60" : ""}`}>
+          <Icon name="flip-horizontal" size={13} />
+        </button>
+      )}
       <button type="button" title={c.full ? `Minimize ${c.name}` : `Fullscreen ${c.name}`} aria-label={c.full ? `Minimize ${c.name}` : `Fullscreen ${c.name}`} onClick={c.onToggleFull} className={cornerBtn}>
         <Icon name={c.full ? "minimize" : "maximize"} size={13} />
       </button>
@@ -44,7 +52,7 @@ export function CameraLayer({ stream, error, onStart, controls }: { stream: Medi
   return (
     <div className="relative h-full w-full">
       {stream ? (
-        <div className="h-full w-full overflow-hidden rounded-md bg-black"><Video stream={stream} fit="cover" /></div>
+        <div className="h-full w-full overflow-hidden rounded-md bg-black"><Video stream={stream} fit="cover" mirrored={controls?.mirrored} /></div>
       ) : (
         <div className="flex h-full w-full items-center justify-center rounded-md border border-dashed border-slate-700 bg-slate-900/60">
           <button data-chrome type="button" onClick={onStart} className="rounded-md border border-slate-600 px-3 py-1.5 text-sm text-slate-200 hover:border-slate-400">

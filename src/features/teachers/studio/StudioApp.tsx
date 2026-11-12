@@ -312,6 +312,7 @@ function Studio({ notes = false, preset }: {
             name: kind === "camera" ? "camera" : "screen share",
             onToggleFull: () => runCommand(kind === "camera" ? (full ? "camera-corner" : "camera-full") : full ? "screen-corner" : "screen-full"),
             onClose: () => runCommand(kind === "camera" ? "camera-off" : "screen-stop"),
+            ...(kind === "camera" ? { mirrored: camera.mirrored, onToggleMirror: camera.toggleMirror } : {}),
           };
           return kind === "camera" ? (
             <CameraLayer stream={camera.stream} error={camera.error} onStart={() => void camera.start()} controls={controls} />
