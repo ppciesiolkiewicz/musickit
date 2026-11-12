@@ -234,7 +234,9 @@ export default function PocketView({ band, config, show, pocket = {} }: ViewProp
   </>;
 
   return (
-    <div ref={root} data-tour="pocket-tools" className={`flex min-w-0 items-stretch gap-2 ${stacked ? "lg:flex-col lg:gap-4" : ""} ${className}`}>
+    // framed, the beat dots riding its top edge; a host sets the frame a little nearer its own edge than its content (`className`)
+    <div ref={root} data-tour="pocket-tools" className={`relative flex min-w-0 items-stretch gap-2 rounded-xl border border-slate-800 p-2.5 pt-4 ${stacked ? "lg:flex-col lg:gap-4" : ""} ${className}`}>
+      {show.beats && <BeatDots rig={rig} playing={anyOn} className="absolute left-1/2 top-0 flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full bg-slate-950 px-2.5 py-1" />}
       <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} everything on the next beat (Space stops and brings back)`}
         className={`flex w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border ${stacked ? "lg:w-full lg:flex-row lg:gap-2 lg:py-2" : ""} text-[10px] font-medium uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`}>
         <Icon name={anyOn ? "square" : "play"} size={18} fill />
@@ -250,7 +252,6 @@ export default function PocketView({ band, config, show, pocket = {} }: ViewProp
                 <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
                 {show.levels && <MuteButton className={ibtn} name="metronome" muted={snap.click.muted} onMute={(m) => rig.setClickMuted(m)} />}
                 {show.tempo && !show.tempoSlider && tempoButtons}
-                {show.beats && <BeatDots rig={rig} playing={anyOn} />}
                 <Popover label="Tempo and click">
                   <div className="flex flex-col gap-2.5">
                     <label className="flex items-center gap-2">
@@ -284,6 +285,13 @@ export default function PocketView({ band, config, show, pocket = {} }: ViewProp
 
         {has("drums") && <SequencerLine band={band} p="drums" label="Drums" show={show} onToggle={() => toggle("drums")} />}
         {has("bass") && <SequencerLine band={band} p="bass" label="Bass" show={show} onToggle={() => toggle("bass")} />}
+        {show.levels && <>
+          <div role="separator" className="col-span-full border-t border-slate-800" />
+          {/* one volume for all of it, click included */}
+          <Tool label="Volume">
+            <Slider min={0} max={1} step={0.01} value={snap.master} onChange={(v) => rig.setMaster(v)} size="sm" className="h-7 min-w-0 flex-1 px-1.5" aria-label="Volume of the click, drone, drums and bass" title={`${Math.round(snap.master * 100)}%`} />
+          </Tool>
+        </>}
       </div>
     </div>
   );

@@ -25,6 +25,20 @@ describe("jam part levels", () => {
     assert.equal(parts.bass.volume, 1);
   });
 
+  it("saves and loads the master volume, repaired, full by default", () => {
+    const rig = new JamRig();
+    assert.equal(rig.snapshot().master, 1);
+    rig.setMaster(0.3);
+    assert.equal(rig.snapshot().master, 0.3);
+    const again = new JamRig();
+    again.load(JSON.parse(JSON.stringify(rig.save())));
+    assert.equal(again.snapshot().master, 0.3);
+    again.setMaster(5);
+    assert.equal(again.snapshot().master, 1);
+    again.load({ bpm: 90, parts: {} });
+    assert.equal(again.snapshot().master, 1);
+  });
+
   it("mutes the following click by default and saves its mute", () => {
     assert.equal(new JamRig().snapshot().click.muted, false);
     const rig = new JamRig({ followClick: true });

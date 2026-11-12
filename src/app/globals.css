@@ -69,19 +69,6 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
   transform: translate(-50%, -50%) rotate(45deg); background: var(--color-sky-300);
   box-shadow: 0 0 0 4px var(--color-slate-950), 0 0 12px color-mix(in oklab, var(--color-sky-400) 80%, transparent);
 }
-/* the pocket-tools divider: the same rule, but it switches from a horizontal line above to a vertical one on the
-   left once there is room to sit beside the settings instead of under them (matches the xl breakpoint it used to
-   switch at with border-l-2/border-t-0; plain media query since Tailwind's `xl:` variant can't target a CSS class
-   defined outside its utility layer). */
-@media (min-width: 1280px) {
-  .pocket-rule::before {
-    top: 0; bottom: 0; left: 0; right: auto; width: 1px; height: auto;
-    background: linear-gradient(180deg, transparent, color-mix(in oklab, var(--color-sky-400) 35%, transparent) 18%, color-mix(in oklab, var(--color-sky-300) 70%, transparent) 50%, color-mix(in oklab, var(--color-sky-400) 35%, transparent) 82%, transparent);
-  }
-  .pocket-rule::after { top: 50%; left: 0; }
-}
-
-
 /* Wide content (necks, position boxes) on a page that is narrower than the screen: reach back out into the spare
    room on each side, up to the old 96rem page width, keeping a 1.5rem gutter. No spare room on phones, so no change there. */
 @utility bleed {

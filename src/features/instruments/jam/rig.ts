@@ -39,9 +39,11 @@ export interface JamSnapshot {
    * also whenever another part or a follower plays; `muted` silences it and keeps it going
    */
   click: { on: boolean; running: boolean; volume: number; muted: boolean };
+  /** the volume of everything the rig plays, click included: 0 to 1 */
+  master: number;
 }
 /** The rig's save. A page that hosts a follower writes its settings beside these (the jam page's `loops`, `jam/page.ts`). */
-export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; click?: { volume?: number; muted?: boolean }; levels?: Partial<Record<JamPart, Partial<PartLevel>>>; groove?: GrooveId | null }
+export interface JamSaved { bpm: number; parts: Partial<Record<JamPart, Partial<SequencerState>>>; click?: { volume?: number; muted?: boolean }; levels?: Partial<Record<JamPart, Partial<PartLevel>>>; groove?: GrooveId | null; master?: number }
 
 /** The rig's grid, as a follower sees it (handed over in `JamRig.follow`). */
 export interface GridHost {
@@ -95,6 +97,9 @@ export class JamRig {
   private readonly followClick: boolean;
   private groove: GrooveId | null = null;
   private levels: Record<JamPart, PartLevel> = { drone: DEFAULT_LEVEL, drums: DEFAULT_LEVEL, bass: DEFAULT_LEVEL };
+  private master = 1;
+  /** every part and the click go through it on their way to `out` */
+  private masterGain: GainNode | null = null;
 
   constructor({ followClick = false }: { followClick?: boolean } = {}) {
     this.followClick = followClick;
@@ -122,6 +127,7 @@ export class JamRig {
       tempoLocked: this.tempoLocked,
       followersOn: this.followers.some((f) => (f.on ? f.on() : f.busy())),
       click: { on: this.clickOn, running: !!this.clickTrack?.playing && !this.clickTrack.ending, volume: this.clickVolume, muted: this.clickMuted },
+      master: this.master,
     };
   }
 
@@ -192,6 +198,7 @@ export class JamRig {
       this.clickVolume = clampClick({ volume: saved.click.volume }).volume;
       if (typeof saved.click.muted === "boolean") this.clickMuted = saved.click.muted;
     }
+    this.setMaster(saved.master ?? 1, false);
     this.followers.forEach((f) => f.onTempo(this.bpm));
     this.changed();
   }
@@ -202,19 +209,22 @@ export class JamRig {
   }
 
   save(): JamSaved {
-    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, click: { volume: this.clickVolume, muted: this.clickMuted }, levels: { ...this.levels }, groove: this.groove };
+    return { bpm: this.bpm, parts: { drone: this.seqs.drone.serialize(), drums: this.seqs.drums.serialize(), bass: this.seqs.bass.serialize() }, click: { volume: this.clickVolume, muted: this.clickMuted }, levels: { ...this.levels }, groove: this.groove, master: this.master };
   }
 
   /** Make the sound: every part into `out`. Call from a person's click, once the context is running. */
   attach(ctx: AudioContext, out: AudioNode) {
     if (this.ctx) return;
     this.ctx = ctx;
+    const master = (this.masterGain = ctx.createGain());
+    master.gain.value = this.master;
+    master.connect(out);
     for (const p of JAM_PARTS) {
       this.seqs[p].attach(ctx);
-      this.seqs[p].toSpeakers!.connect(out);
+      this.seqs[p].toSpeakers!.connect(master);
       this.applyLevel(p);
     }
-    this.clickTrack = new ClickTrack(ctx, out);
+    this.clickTrack = new ClickTrack(ctx, master);
   }
 
   get attached() {
@@ -357,6 +367,14 @@ export class JamRig {
     if (!this.ctx || this.anchor === null || !this.busy()) return null;
     const i = beatIndexAt(this.ctx.currentTime, this.anchor, this.bpm);
     return i < 0 ? null : beatOf(i, BEATS_PER_BAR);
+  }
+
+  /** The volume of everything the rig plays, click included (heard at once). */
+  setMaster(volume: number, notify = true) {
+    const v = Number(volume);
+    this.master = Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 1;
+    if (this.masterGain && this.ctx) this.masterGain.gain.setTargetAtTime(this.master, this.ctx.currentTime, 0.015);
+    if (notify) this.changed();
   }
 
   /** A part's volume and mute (heard at once, without a click). */

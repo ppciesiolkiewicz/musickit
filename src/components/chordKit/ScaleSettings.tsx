@@ -260,7 +260,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
         {pocket && (
           <PracticeBand view="pocket" storageKey="musickit.pocket"
             config={{ parts: pocket.drone === false ? ["click", "drums", "bass"] : ["click", "drone", "drums", "bass"], keyPc: tonicPc }}
-            pocket={{ onStatus: onPocket, clickAlways: pocket.clickAlways, stacked: side, lines: config.input && <InputLine />, className: `panel-rule pt-5 ${side ? "" : "pocket-rule xl:pt-0 xl:pl-6"}` }} />
+            pocket={{ onStatus: onPocket, clickAlways: pocket.clickAlways, stacked: side, lines: config.input && <InputLine />, className: "-mx-2" }} />
         )}
         {!pocket && config.input && <div className="panel-rule pt-5"><InputLine /></div>}
       </div>
