@@ -7,15 +7,6 @@ new1:
 Interval exercise and possibly some other exercises should show "Start screen" Maybe with a button to start whole exercise.
 
 
-new2:
-Let's unify the experiene of hot keys.
-I like interval-ears style wherre space changes to button and skip has no hotkey:
-
-
-new3:
-add props for interval singer to play both notes autplan can choose to make it easier for beginners.
-
-
 64. Bad content example:
 Press Start below: Do sounds, and the leap to sing shows by name. Hear the landing note in your head first, then sing it on "oo" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again.
 
@@ -126,6 +117,10 @@ Like - seeing chords within a scale!
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] new3. Interval singer play: "both" (Do, then the note to sing), for the plan to pick for beginners. Also: Do sits lower in the voice (a tenor's leaps had reached G4-B4).
+
+[DONE] new2. Hot keys unified: Space presses the big button (Play / Start / Next) on every player, Skip has no key (useSpaceKey).
+
 [DONE] 68. Video tool for note creator and notes
 - recording new video capability for note creator (saving etc.)
 - choosing from existing videos for autoplan
