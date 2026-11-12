@@ -6,7 +6,7 @@
 import type { NoteRequest, SampleBackend, SoundingNote } from "../backend";
 import { getInstrumentConfig } from "../instruments";
 import { pickSample } from "../notes";
-import { cachedSample, instrumentSamples, loadSample } from "../samples";
+import { cachedSample, instrumentSamples, loadInstrumentSamples, loadSample } from "../samples";
 
 /** A tap let go before its note started (the output was still settling) is heard for this long, not lost. */
 const SHORTEST_NOTE = 0.12;
@@ -49,8 +49,9 @@ export function createBufferBackend(ctx: BaseAudioContext): SampleBackend {
       return !!m && !!cachedSample(m.url);
     },
     async load(instrumentId, midi) {
-      const urls = midi === undefined ? instrumentSamples(instrumentId).map((s) => s.url) : [match(instrumentId, midi)?.url].filter((u): u is string => !!u);
-      await Promise.all(urls.map(loadSample));
+      if (midi === undefined) return loadInstrumentSamples(instrumentId);
+      const url = match(instrumentId, midi)?.url;
+      if (url) await loadSample(url);
     },
     start(instrumentId, note, destination) {
       const m = match(instrumentId, note.midi);

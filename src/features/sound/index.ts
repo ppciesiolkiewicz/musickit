@@ -18,7 +18,7 @@ export { useInstrumentOptions } from "./engine/useInstrumentOptions";
 export { registerRuntimeInstrument, replaceRuntimeInstruments, unregisterRuntimeInstrument, type RuntimeInstrument } from "./engine/runtime";
 export { createPlayer, type Player, type PlayerOptions, type Voice } from "./engine/player";
 export { midiToHz, midiToName, noteToMidi, type NoteLike } from "./engine/notes";
-export { preloadInstrument } from "./engine/samples";
+export { preloadInstrument } from "./engine/backends/choose";
 export { scheduleNote, type ScheduledNote } from "./engine/scheduled";
 export { takeAudioFocus } from "./engine/focus";
 export { useAudioFocus } from "./engine/useAudioFocus";

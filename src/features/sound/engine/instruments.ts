@@ -93,8 +93,9 @@ export function allInstrumentOptions(): { label: string; value: string }[] {
   return [...builtIn, ...runtimeInstrumentOptions(), { label: "Oscillator", value: OSCILLATOR_ID }];
 }
 
-export function getInstrumentConfig(id: string): { label: string; urls: Record<string, string>; baseUrl: string; attack: number; release: number; strict: boolean; tuning?: Tuning } | null {
-  const config = (INSTRUMENTS[id as InstrumentId] as InstrumentConfig | undefined) ?? getRuntimeInstrument(id);
+export function getInstrumentConfig(id: string): { label: string; urls: Record<string, string>; baseUrl: string; attack: number; release: number; strict: boolean; runtime: boolean; tuning?: Tuning } | null {
+  const builtIn = INSTRUMENTS[id as InstrumentId] as InstrumentConfig | undefined;
+  const config = builtIn ?? getRuntimeInstrument(id);
   if (!config) return null;
-  return { label: config.label, urls: config.urls, baseUrl: config.baseUrl, attack: config.attack ?? DEFAULT_ATTACK, release: config.release ?? DEFAULT_RELEASE, strict: (config as { strict?: boolean }).strict === true, tuning: (config as { tuning?: Tuning }).tuning };
+  return { label: config.label, urls: config.urls, baseUrl: config.baseUrl, attack: config.attack ?? DEFAULT_ATTACK, release: config.release ?? DEFAULT_RELEASE, strict: (config as { strict?: boolean }).strict === true, runtime: !builtIn, tuning: (config as { tuning?: Tuning }).tuning };
 }

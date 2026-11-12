@@ -1,9 +1,9 @@
 import { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "./context";
 import type { SampleBackend, SoundingNote } from "./backend";
-import { bufferBackendFor } from "./backends/buffer";
+import { liveBackend } from "./backends/choose";
 import { getInstrumentConfig, OSCILLATOR_ID } from "./instruments";
 import { midiToHz, noteToMidi, pickSample, type NoteLike } from "./notes";
-import { instrumentSamples, preloadInstrument } from "./samples";
+import { instrumentSamples } from "./samples";
 
 /** Something that can sound notes. The looper's instruments, the keyboards and the chord pages all use this one shape. */
 export interface Voice {
@@ -27,7 +27,7 @@ export interface PlayerOptions {
   instrumentId?: string;
   /** where the sound goes; the app's main output by default */
   destination?: () => AudioNode;
-  /** what plays the samples; the buffer player on the app's context by default */
+  /** what plays the samples; by default the one `liveBackend` picks for the instrument */
   backend?: (instrumentId: string) => SampleBackend;
 }
 
@@ -67,7 +67,7 @@ function oscillator(midi: number, velocity: number, at: number, dest: AudioNode)
 export function createPlayer(options: PlayerOptions = {}): Player {
   let instrumentId = options.instrumentId ?? "PIANO";
   const dest = options.destination ?? getOutputBus;
-  const backendOf = options.backend ?? (() => bufferBackendFor(getAudioContext()));
+  const backendOf = options.backend ?? liveBackend;
   const sounding = new Map<number, SoundingNote>();
   /** notes pressed whose sample is still loading */
   const waiting = new Set<number>();
@@ -97,7 +97,7 @@ export function createPlayer(options: PlayerOptions = {}): Player {
       player.allOff();
       instrumentId = id;
     },
-    preload: () => (instrumentId === OSCILLATOR_ID ? Promise.resolve() : preloadInstrument(instrumentId)),
+    preload: () => (instrumentId === OSCILLATOR_ID || !getInstrumentConfig(instrumentId) ? Promise.resolve() : backendOf(instrumentId).load(instrumentId)),
     noteOn(note, velocity = 0.8) {
       const midi = noteToMidi(note);
       if (midi === null) return;

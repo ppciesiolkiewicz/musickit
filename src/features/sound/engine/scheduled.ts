@@ -1,6 +1,5 @@
-import { getAudioContext } from "./context";
 import type { SampleBackend } from "./backend";
-import { bufferBackendFor } from "./backends/buffer";
+import { liveBackend } from "./backends/choose";
 import { getInstrumentConfig } from "./instruments";
 import { pickSample } from "./notes";
 import { instrumentSamples } from "./samples";
@@ -17,8 +16,8 @@ export interface ScheduledNote {
   destination: AudioNode;
 }
 
-/** What plays scheduled notes; the buffer player on the app's context by default. */
-let backendOf: (instrumentId: string) => SampleBackend = () => bufferBackendFor(getAudioContext());
+/** What plays scheduled notes; by default the one `liveBackend` picks for the instrument. */
+let backendOf: (instrumentId: string) => SampleBackend = liveBackend;
 export const setScheduledBackend = (fn: (instrumentId: string) => SampleBackend) => {
   backendOf = fn;
 };

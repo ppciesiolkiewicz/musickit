@@ -34,6 +34,7 @@ export function instrumentSamples(instrumentId: string): { midi: number; url: st
   });
 }
 
-export async function preloadInstrument(instrumentId: string): Promise<void> {
+/** Every sample of an instrument fetched and decoded. `preloadInstrument` (backends/choose.ts) is the public one: it readies the backend too. */
+export async function loadInstrumentSamples(instrumentId: string): Promise<void> {
   await Promise.all(instrumentSamples(instrumentId).map((s) => loadSample(s.url)));
 }

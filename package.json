@@ -45,7 +45,8 @@
     "postgres": "^4.1.0",
     "posthog-js": "^1.440.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "tone": "^15.1.22"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
@@ -58,7 +59,6 @@
     "node-web-audio-api": "^2.2.0",
     "smplr": "^1.2.0",
     "tailwindcss": "^4.3.3",
-    "tone": "^15.1.22",
     "typescript": "^5"
   }
 }
