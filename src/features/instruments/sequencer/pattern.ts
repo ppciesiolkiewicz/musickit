@@ -40,6 +40,14 @@ export function fromRows(rows: string[]): Cells {
   return cells;
 }
 
+/** The preset these cells are, unchanged (its id), or undefined once a step has been edited. */
+export function presetOf(presets: Preset[], cells: Cells): string | undefined {
+  return presets.find((p) => {
+    const want = fromRows(p.rows);
+    return want.length === cells.length && want.every((row, l) => row.every((v, s) => (cells[l]?.[s] ?? 0) === v));
+  })?.id;
+}
+
 export interface Preset {
   id: string;
   name: string;

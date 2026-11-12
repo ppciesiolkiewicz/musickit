@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { BASS_PRESETS, DRUM_PRESETS, emptyCells, fromRows, stepAt, stepsInPattern, MAX_STEPS } from "./pattern";
+import { BASS_PRESETS, DRUM_PRESETS, emptyCells, fromRows, presetOf, stepAt, stepsInPattern, MAX_STEPS } from "./pattern";
 
 describe("sequencer pattern", () => {
   it("counts steps for bars and beats", () => {
@@ -40,5 +40,13 @@ describe("bass key", () => {
     assert.equal(lanesIn(BASS, 2).at(-1)?.label, "D2");
     assert.deepEqual(lanesIn(BASS, DEFAULT_KEY), BASS.lanes);
     assert.deepEqual(lanesIn(DRUMS, 2), DRUMS.lanes);
+  });
+  it("names the preset a pattern is, until a step is edited", () => {
+    const p = DRUM_PRESETS[1];
+    const cells = fromRows(p.rows);
+    assert.equal(presetOf(DRUM_PRESETS, cells), p.id);
+    cells[0][3] = cells[0][3] ? 0 : 1;
+    assert.equal(presetOf(DRUM_PRESETS, cells), undefined);
+    assert.equal(presetOf(DRUM_PRESETS, emptyCells(cells.length)), DRUM_PRESETS.find((d) => d.rows.every((r) => !/[xX]/.test(r)))?.id);
   });
 });

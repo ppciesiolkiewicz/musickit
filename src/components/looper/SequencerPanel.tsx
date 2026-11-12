@@ -29,7 +29,7 @@ export default function SequencerPanel({ engine, snap, id }: { engine: LooperEng
   const set = (patch: SeqPatch) => engine.do({ type: "sequencer.set", id, patch });
   return (
     <div className="flex min-w-0 flex-col gap-2 p-2">
-      <PatternBar instrument={inst} bars={sq.bars} onPreset={(preset) => set({ preset })} onBars={(bars) => set({ bars })} onClear={() => set({ clear: true })}
+      <PatternBar instrument={inst} cells={sq.cells} bars={sq.bars} onPreset={(preset) => set({ preset })} onBars={(bars) => set({ bars })} onClear={() => set({ clear: true })}
         leading={head}
         trailing={strip && (
           <PartLevel name={sq.name} volume={strip.volume} muted={strip.muted} onMute={(muted) => engine.do({ type: "input.set", id: strip.id, patch: { muted } })} onVolume={(volume) => engine.do({ type: "input.set", id: strip.id, patch: { volume } })} />

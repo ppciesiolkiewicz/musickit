@@ -135,7 +135,7 @@ export default function FullView({ band, config, show, ready: hostReady }: ViewP
           <PartCard key={p} tone={PART_TONE[p]} label={inst.name} tour={p === "drums" ? "jam-band" : undefined}>
             {show.patterns ? (
               <>
-                <PatternBar instrument={inst} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)} leading={leading} trailing={trailing} />
+                <PatternBar instrument={inst} cells={v.state.cells} bars={v.state.bars} onPreset={(id) => rig.loadPreset(p, id)} onBars={(b) => rig.setBars(p, b)} onClear={() => rig.clear(p)} leading={leading} trailing={trailing} />
                 <StepGrid instrument={inst} cells={v.state.cells} steps={v.steps} beatsPerBar={BEATS_PER_BAR} musicKey={p === "bass" ? drone.state.drone.root : undefined} position={() => rig.position(p)} onStep={(l, s, val) => rig.setStep(p, l, s, val)} fit />
               </>
             ) : (

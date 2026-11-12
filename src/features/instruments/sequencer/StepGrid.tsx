@@ -3,7 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { lanesIn, type Instrument } from "./sequencer";
-import type { Cells } from "./pattern";
+import { presetOf, type Cells } from "./pattern";
 import { ibtn, Select } from "@/components/ui";
 import { degreeColour } from "@/features/theory/scales";
 
@@ -15,14 +15,14 @@ const ACCENT_RING = "ring-2 ring-inset ring-white/70";
 
 
 /**
- * The pattern's settings row: load a preset, one or two bars, clear. `leading` and `trailing` are the host's own controls (the looper
+ * The pattern's settings row: load a preset (showing the one `cells` are, if any), one or two bars, clear. `leading` and `trailing` are the host's own controls (the looper
  * puts the instrument and where the sound goes there; a page its play button).
  */
-export function PatternBar({ instrument, bars, onPreset, onBars, onClear, leading, trailing }: { instrument: Instrument; bars: number; onPreset: (id: string) => void; onBars: (bars: number) => void; onClear: () => void; leading?: ReactNode; trailing?: ReactNode }) {
+export function PatternBar({ instrument, cells, bars, onPreset, onBars, onClear, leading, trailing }: { instrument: Instrument; cells?: Cells; bars: number; onPreset: (id: string) => void; onBars: (bars: number) => void; onClear: () => void; leading?: ReactNode; trailing?: ReactNode }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {leading}
-      <Select value="" onChange={(id) => id && onPreset(id)} aria-label="Load a pattern" options={[{ value: "", label: "Pattern…", disabled: true }, ...instrument.presets.map((p) => ({ value: p.id, label: p.name }))]} />
+      <Select value={cells ? presetOf(instrument.presets, cells) ?? "" : ""} onChange={(id) => id && onPreset(id)} aria-label="Load a pattern" options={[{ value: "", label: "Pattern…", disabled: true }, ...instrument.presets.map((p) => ({ value: p.id, label: p.name }))]} />
       <Select value={bars} onChange={onBars} aria-label="Bars in the pattern" options={[{ value: 1, label: "1 bar" }, { value: 2, label: "2 bars" }]} />
       {trailing}
       <button type="button" className={ibtn} onClick={onClear} title="Clear the pattern" aria-label="Clear the pattern"><Icon name="trash" /></button>

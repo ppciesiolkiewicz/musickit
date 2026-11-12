@@ -55,7 +55,7 @@ export function PlayButton({ on, label, onClick }: { on: boolean; label: string;
   );
 }
 
-/** A sliders button with a panel under it (a full-screen sheet on a phone); closes on a click outside or Escape. */
+/** A sliders button with a panel under it (a full-screen sheet on a phone); closes on a click outside or Escape. Always the last thing on its line, pushed to the right edge. */
 export function Popover({ label, wide, children }: { label: string; wide?: boolean; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
@@ -96,7 +96,7 @@ export function Popover({ label, wide, children }: { label: string; wide?: boole
     };
   }, [open]);
   return (
-    <div ref={wrap} className="relative shrink-0">
+    <div ref={wrap} className="relative ml-auto shrink-0">
       <button type="button" className={`${POCKET_BUTTON} ${open ? "!border-sky-400 !text-sky-200" : ""}`} aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((v) => !v)} title={label} aria-label={label}>
         <Icon name="sliders-horizontal" size={14} />
       </button>
