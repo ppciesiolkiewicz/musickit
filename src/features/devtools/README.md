@@ -49,7 +49,8 @@ notes by example with file, in section order, with a warning when outdated; outd
 
 What the practice plan keeps in this browser, read-only (`data/DataPage.tsx`, rows from `model/dataView.ts`): the first
 questionnaire's answers (each topic with the line picked), the plans (current and history, with how many exercises are
-rated), the progress log (`musickit.progress`: one row per rated exercise, newest first, with a topic filter), and the
+rated), time per exercise (what the day timer counted while each card was in view, against its planned minutes;
+`spentRows`), the progress log (`musickit.progress`: one row per rated exercise, newest first, with a topic filter), and the
 progress summary the AI returned with each plan, which the app shows nowhere else. Every block has its raw JSON, folded,
 with a copy button. Below those, everything else this site keeps: every localStorage and sessionStorage key (sorted, with
 size and its value, JSON unfolded; `model/dataView.ts` `storageRows`) and each IndexedDB database's stores with record
@@ -95,5 +96,5 @@ returns one.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `examples/ExampleViewer.tsx`: the examples page.
 - `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner email brief; its facts, voice and samples.
-- `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `logRows`).
+- `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `spentRows`, `logRows`).
 - Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.

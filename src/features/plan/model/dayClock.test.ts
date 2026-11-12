@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { dayClock, elapsedOf } from "./dayClock";
+import { dayClock, elapsedOf, spentOf, withSpent } from "./dayClock";
 
 describe("dayClock", () => {
   it("lays the exercises end to end", () => {
@@ -21,5 +21,15 @@ describe("elapsedOf", () => {
     assert.equal(elapsedOf({ "2": -3 }, 2), 0);
     assert.equal(elapsedOf({ "2": NaN }, 2), 0);
     assert.equal(elapsedOf(undefined, 0), 0);
+  });
+});
+
+describe("spentOf / withSpent", () => {
+  it("reads a day's seconds per exercise, missing ones as 0", () => {
+    assert.deepEqual(spentOf({ "1:0": 30, "1:2": 12.9, "0:0": 5 }, 1, 3), [30, 0, 12]);
+    assert.deepEqual(spentOf(undefined, 0, 2), [0, 0]);
+  });
+  it("writes one day, keeps the others, drops zeros", () => {
+    assert.deepEqual(withSpent({ "0:0": 5, "1:0": 9, "1:1": 4 }, 1, [20, 0]), { "0:0": 5, "1:0": 20 });
   });
 });

@@ -19,12 +19,16 @@ test("every library video is a config in videos/, with its length and only forma
 
 test("only a video with an uploaded format is offered, and its file is under the base", () => {
   assert.ok(publishedVideos().every((v) => v.published.length > 0));
-  const v = libraryVideo("c-major-do-re-mi-long")!;
-  assert.equal(videoUrl(v), `${VIDEO_BASE}/c-major-do-re-mi-long-9x16.mp4`);
+  const v = libraryVideo("c-major-first-steps")!;
+  assert.equal(videoUrl(v), `${VIDEO_BASE}/c-major-first-steps-16x9.mp4`);
   // a format that isn't uploaded falls back to one that is
-  assert.equal(videoUrl(v, "16x9"), `${VIDEO_BASE}/c-major-do-re-mi-long-9x16.mp4`);
+  assert.equal(videoUrl(v, "9x16"), `${VIDEO_BASE}/c-major-first-steps-16x9.mp4`);
   assert.equal(videoUrl({ ...v, published: [] }), null);
   assert.equal(libraryVideo("nope"), null);
+});
+
+test("the library is horizontal only", () => {
+  for (const v of VIDEO_LIBRARY) assert.ok(v.published.every((f) => f === "16x9"), v.id);
 });
 
 test("a length reads in minutes, or seconds under one", () => {

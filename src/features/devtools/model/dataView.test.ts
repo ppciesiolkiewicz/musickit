@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { logRows, planRows, sizeLabel, storageRows } from "./dataView";
+import { clockLabel, logRows, planRows, sizeLabel, spentRows, storageRows } from "./dataView";
 import { EMPTY_STATE, type PlanState, type StoredPlan } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 
@@ -47,4 +47,14 @@ test("sizeLabel: bytes, kB, MB", () => {
   assert.equal(sizeLabel(812), "812 B");
   assert.equal(sizeLabel(4200), "4.2 kB");
   assert.equal(sizeLabel(1_300_000), "1.3 MB");
+});
+
+test("spentRows: exercises with time on them, current plan first; clockLabel as m:ss", () => {
+  const state: PlanState = { ...EMPTY_STATE, current: { ...plan("c", 0), spent: { "0:1": 75.4, "2:0": 0 } }, history: [{ ...plan("h", 0), spent: { "6:0": 9 } }] };
+  assert.deepEqual(spentRows(state), [
+    { plan: "Plan c", day: 0, exercise: "B", planned: 5, spent: 75 },
+    { plan: "Plan h", day: 6, exercise: "A", planned: 5, spent: 9 },
+  ]);
+  assert.equal(clockLabel(75), "1:15");
+  assert.equal(clockLabel(9), "0:09");
 });

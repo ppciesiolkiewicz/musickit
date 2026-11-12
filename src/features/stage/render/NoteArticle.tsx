@@ -10,14 +10,15 @@ import { TextBlocks } from "./TextWidget";
 /** Types of widget (a quarter or a third of a row on the grid) are never drawn narrower than this share of the article's column. */
 const MIN_SHARE = 0.4;
 
-/** One widget in the article: as wide as its kind is on the grid (at least MIN_SHARE), in the shape of its own content, centred. A page grows to its content: nothing scrolls inside. */
+/** One widget in the article: as wide as it was set by hand on the grid, else as its kind is there (at least MIN_SHARE), in the shape of its own content, centred. A page grows to its content: nothing scrolls inside. */
 function Figure({ layer, children }: { layer: Layer; children: (readOnly: true) => React.ReactNode }) {
   const [aspect, setAspect] = useState<number | null>(null);
   const report = useCallback((a: number) => setAspect((cur) => (cur === a ? cur : a)), []);
   const page = isPage(layer.subject);
   // a tune or a run streams across its staff, and a backing track lays its bars out in a row, so each takes the whole column, as a neck does
   const wide = layer.subject.kind === "tool" && (layer.subject.tool.type === "melody-singer" || layer.subject.tool.type === "run-singer" || layer.subject.tool.type === "backing-track");
-  const share = page ? 1 : layer.subject.kind === "neck" || layer.subject.kind === "position" || wide ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
+  // a width set by hand on the grid is kept
+  const share = layer.gridWidth !== undefined ? layer.gridWidth : page ? 1 : layer.subject.kind === "neck" || layer.subject.kind === "position" || wide ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
   return (
     <figure className="mx-auto w-full" style={{ maxWidth: `${share * 100}%` }}>
       <div className={`overflow-hidden rounded-xl bg-slate-950 ring-1 ring-slate-800 [container-type:inline-size]`} style={{ aspectRatio: aspect ?? 16 / 9 }}>

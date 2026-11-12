@@ -36,6 +36,8 @@ export interface Layer {
   restore?: FrameRect;
   /** paint order: a higher z is drawn over a lower one. The stage keeps them 0..n-1 */
   z: number;
+  /** the grid: the share of the frame's width the widget was resized to by hand (MIN_GRID_WIDTH..1); missing = its kind's own */
+  gridWidth?: number;
   /** pinned: drawn over every widget that is not, and the audio input lights the notes it hears on it; missing = not pinned */
   onTop?: true;
 }
@@ -257,6 +259,8 @@ export type StageAction =
   | { type: "setLayout"; layout: Layout }
   /** the grid's order: drop `id` where `over` is */
   | { type: "reorder"; id: string; over: string }
+  /** the grid: the share of the frame's width a widget takes, set by hand; null = back to its kind's own */
+  | { type: "setGridWidth"; id: string; width: number | null }
   /** the free layout: rows inside the frame, once. The grid: switches its Auto layout on or off */
   | { type: "autoLayout" };
 
@@ -300,6 +304,14 @@ export function gridSpanNarrow(l: Layer): number {
   return gridSpan(l) <= 4 ? GRID_COLUMNS / 2 : GRID_COLUMNS;
 }
 
+/** the narrowest a widget can be resized to on the grid, as a share of the frame's width */
+export const MIN_GRID_WIDTH = 0.15;
+/** A hand-set grid width, kept in range and rounded to a whole percent. */
+export const clampGridWidth = (w: number): number => Math.round(Math.min(1, Math.max(MIN_GRID_WIDTH, w)) * 100) / 100;
+
+/** The fewest columns, of the widths that fill a row together, that hold a share `w` of the row. */
+const spanFor = (w: number): number => [3, 4, 6].find((c) => w <= c / GRID_COLUMNS + 1e-9) ?? GRID_COLUMNS;
+
 /** With the grid's Auto layout on, a widget with a neck takes this share of its row. */
 export const AUTO_NECK_WIDTH = 0.9;
 
@@ -310,8 +322,33 @@ export const AUTO_NECK_WIDTH = 0.9;
  */
 export function gridAutoPlace(l: Layer): { span: number; width: number } {
   const span = gridSpan(l);
-  if (isPage(l.subject) || span <= GRID_COLUMNS / 4) return { span, width: 1 };
-  return { span: GRID_COLUMNS, width: hasNeck(l.subject) ? AUTO_NECK_WIDTH : span / GRID_COLUMNS };
+  // a page has its whole row, and fills it unless a width was set by hand (the notes creator, where a page grows to its content)
+  if (isPage(l.subject)) return { span, width: l.gridWidth ?? 1 };
+  if (span <= GRID_COLUMNS / 4) return l.gridWidth === undefined ? { span, width: 1 } : gridHandPlace(l.gridWidth);
+  return { span: GRID_COLUMNS, width: l.gridWidth ?? (hasNeck(l.subject) ? AUTO_NECK_WIDTH : span / GRID_COLUMNS) };
+}
+
+/**
+ * A widget resized by hand on the grid, with Auto layout off (or a chord, which shares its row): the fewest columns of the widths that
+ * fill a row together that hold its width, and the share of them it fills, centred.
+ */
+export function gridHandPlace(w: number): { span: number; width: number } {
+  const span = spanFor(w);
+  return { span, width: Math.min(1, (w * GRID_COLUMNS) / span) };
+}
+
+/** A widget's place on the grid: `span` columns and the share of them it fills, centred. A page always takes the whole row. */
+export function gridPlace(l: Layer, auto: boolean): { span: number; width: number } {
+  if (auto) return gridAutoPlace(l);
+  if (isPage(l.subject)) return { span: GRID_COLUMNS, width: l.gridWidth ?? 1 };
+  if (l.gridWidth === undefined) return { span: gridSpan(l), width: 1 };
+  return gridHandPlace(l.gridWidth);
+}
+
+/** The share of the frame's width a widget fills on the grid now. */
+export function gridWidthOf(l: Layer, auto: boolean): number {
+  const { span, width } = gridPlace(l, auto);
+  return (span / GRID_COLUMNS) * width;
 }
 
 /** A widget's shape (width over height, pixels) until it reports its content's, or when it has none to report. */
@@ -389,10 +426,19 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
       if (layoutOf(s) === "grid") return nudgeOrder(s, a.id, a.dx || a.dy);
       return place(s, a.id, (l) => ({ ...unfill(l), rect: clampRect({ ...l.rect, x: l.rect.x + a.dx, y: l.rect.y + a.dy }) }));
     case "resize":
-      if (layoutOf(s) === "grid") return s;
+      if (layoutOf(s) === "grid") {
+        const l = s.layers.find((x) => x.id === a.id);
+        return l && a.dw ? stageReducer(s, { type: "setGridWidth", id: a.id, width: gridWidthOf(l, !!s.gridAuto) + a.dw }) : s;
+      }
       return place(s, a.id, (l) => ({ ...unfill(l), rect: clampRect({ ...l.rect, w: l.rect.w + a.dw, h: l.rect.h + a.dh }) }));
     case "setRect":
       return place(s, a.id, (l) => ({ ...unfill(l), rect: clampRect(a.rect) }));
+    case "setGridWidth":
+      return place(s, a.id, (l) => {
+        const rest = { ...l };
+        delete rest.gridWidth;
+        return a.width === null ? rest : { ...rest, gridWidth: clampGridWidth(a.width) };
+      });
     case "setView":
       return place(s, a.id, (l) => ({ ...l, view: clampView(a.view) }));
     case "toggleFill":
@@ -486,7 +532,9 @@ export function sanitiseStage(raw: unknown, pluginIds: string[]): Stage {
     const restore = !fixed && bx !== null && by !== null && bw !== null && bh !== null ? clampRect({ x: bx, y: by, w: bw, h: bh }) : undefined;
     // a stage saved before z painted in list order
     const z = num(l.z) ?? layers.length;
-    layers.push({ id: l.id, subject, rect: fixed ?? clampRect({ x, y, w, h }), visible: l.visible !== false, z, ...(view && !fixed ? { view } : {}), ...(restore ? { restore } : {}), ...(l.onTop === true ? { onTop: true as const } : {}) });
+    const gw = num(l.gridWidth);
+    const gridWidth = gw !== null && !fixed ? clampGridWidth(gw) : undefined;
+    layers.push({ id: l.id, subject, rect: fixed ?? clampRect({ x, y, w, h }), visible: l.visible !== false, z, ...(view && !fixed ? { view } : {}), ...(restore ? { restore } : {}), ...(gridWidth !== undefined ? { gridWidth } : {}), ...(l.onTop === true ? { onTop: true as const } : {}) });
   }
   layers.splice(0, layers.length, ...restack(layers, paintOrder(layers)));
   const selected = typeof o.selected === "string" && layers.some((l) => l.id === o.selected) ? o.selected : null;

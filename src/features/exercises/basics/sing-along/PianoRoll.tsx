@@ -15,7 +15,7 @@ import { DOT, PLAYED, camera, inView, judge } from "./view";
 
 const BEAT_W = 56;
 const BEAT_W_16TH = 72;
-const ROW_H = 12;
+const ROW_H = 18;
 /** semitones of room above and below the tune */
 const ROOM = 3;
 const GUTTER = 44;
@@ -103,7 +103,7 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
                 <rect x={GUTTER} y={y} width={W - GUTTER} height={ROW_H} fill={scaleNote ? "var(--color-slate-800)" : "var(--color-slate-900)"} fillOpacity={scaleNote ? 0.7 : 0.9} />
                 <line x1={GUTTER} x2={W} y1={y + ROW_H} y2={y + ROW_H} stroke="var(--color-slate-800)" strokeWidth={0.5} />
                 {scaleNote && (
-                  <text x={GUTTER - 4} y={y + ROW_H - 2.5} textAnchor="end" fontSize={9} fill={scaleNote.label === "R" ? "var(--color-slate-200)" : "var(--color-slate-500)"} fontWeight={scaleNote.label === "R" ? 700 : 400}>
+                  <text x={GUTTER - 4} y={y + ROW_H / 2 + 3.5} textAnchor="end" fontSize={10} fill={scaleNote.label === "R" ? "var(--color-slate-200)" : "var(--color-slate-500)"} fontWeight={scaleNote.label === "R" ? 700 : 400}>
                     {solfege(scaleNote.label)} {midiToName(m)}
                   </text>
                 )}
@@ -135,7 +135,7 @@ export default function PianoRoll({ frame, notes, chords, ladder, beatMs, tapped
                     return (
                       <g key={`n${c.i}`} role="button" aria-label={`Play ${n.spelled.name}`} className="cursor-pointer" onClick={() => onNote(c.i)}>
                         <rect x={x + 1} y={yOf(n.midi) - ROW_H / 2 + 1} width={w} height={ROW_H - 2} rx={3} fill={col} fillOpacity={on ? 0.95 : 0.55} stroke={on ? (j.hit ? DOT.in : "white") : "none"} strokeWidth={1.5} />
-                        {w > 24 && <text x={x + 5} y={yOf(n.midi) + 3.5} fontSize={9} fontWeight={700} fill="var(--color-slate-950)">{solfege(n.label)}</text>}
+                        {w > 24 && <text x={x + 5} y={yOf(n.midi) + 4} fontSize={11} fontWeight={700} fill="var(--color-slate-950)">{solfege(n.label)}</text>}
                       </g>
                     );
                   })}

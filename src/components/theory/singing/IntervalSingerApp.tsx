@@ -95,7 +95,7 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   return (
     <WithSettings side bar={bar}>
       {lead}
-      <section className={panel}>
+      <section className={`${panel} mx-auto w-full max-w-3xl`}>
         <IntervalSinger key={voice} voice={voice} intervals={intervals} dir={dir} options={options} />
       </section>
     </WithSettings>

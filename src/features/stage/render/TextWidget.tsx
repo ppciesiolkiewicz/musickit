@@ -54,6 +54,19 @@ export default function TextWidget({ text, onChange }: { text: string; onChange:
       el.removeEventListener("change", read);
     };
   }, []);
+  // the box grows to its words and never scrolls: CSS does it where `field-sizing` works, else its height follows the text, at any width
+  useEffect(() => {
+    const el = box.current;
+    if (!el || CSS.supports("field-sizing", "content")) return;
+    const grow = () => {
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    };
+    grow();
+    const ro = new ResizeObserver(grow);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [text]);
   // named by its first line, so one text box can be told from the next without seeing the page
   const first = text.split("\n").map((l) => l.replace(/^#{1,3}\s+/, "").trim()).find(Boolean);
   return (
@@ -68,7 +81,7 @@ export default function TextWidget({ text, onChange }: { text: string; onChange:
         aria-label={first ? `Text: ${first.slice(0, 60)}` : "Text"}
         spellCheck
         style={{ fieldSizing: "content" } as CSSProperties}
-        className="min-h-24 w-full resize-none bg-transparent text-xl leading-relaxed text-slate-200 outline-none placeholder:text-slate-600"
+        className="min-h-24 w-full resize-none overflow-hidden bg-transparent text-xl leading-relaxed text-slate-200 outline-none placeholder:text-slate-600"
       />
     </div>
   );

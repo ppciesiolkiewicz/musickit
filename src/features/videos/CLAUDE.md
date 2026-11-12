@@ -7,6 +7,6 @@ What it is and where things live: `README.md`. Keep it true in the same commit a
 - No camera or microphone prompt without a click (**Start camera**); the recorder lets go of the camera when it closes or a take stops.
 - A recording lives in this browser only. Every place that adds one says so; never promise that a shared note plays it elsewhere.
 - Every IndexedDB call fails soft (null, `[]`, false), as private windows refuse storage.
-- A library entry is offered (palette, prompt) only when `published` names a format that is uploaded. Don't list a format that isn't.
+- A library entry is offered (palette, prompt) only when `published` names a format that is uploaded. Don't list a format that isn't. The library is horizontal only: `published` holds `"16x9"` or nothing.
 - Words: `title` and `about` are teaching text (`teaching-voice`); the dialog and recorder are interface copy (`design:ux-copy` with "Words about the app").
 - Every change: tests, `npx tsc --noEmit` (ignore `.next/`), eslint on the feature.

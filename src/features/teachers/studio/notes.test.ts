@@ -15,8 +15,8 @@ test("a note round-trips and drops live widgets", async () => {
 test("the notes creator opens an empty grid with One per row on, and leaves any other stage as it was", () => {
   assert.equal(notesStart(EMPTY_STAGE).gridAuto, true);
   assert.equal(notesStart(EMPTY_STAGE).layout, "grid");
-  assert.equal(notesStart(stage).gridAuto, undefined, "a stage with widgets keeps its switch off");
-  assert.equal(notesStart({ ...EMPTY_STAGE, layout: "free" }).gridAuto, undefined);
+  assert.equal(notesStart(stage).gridAuto, true, "a stage with widgets is put on One per row too");
+  assert.deepEqual([notesStart({ ...EMPTY_STAGE, layout: "free" }).layout, notesStart({ ...EMPTY_STAGE, layout: "free" }).gridAuto], ["grid", true]);
 });
 
 test("a note keeps the grid's auto layout", async () => {
@@ -72,7 +72,7 @@ test("a note's text that cannot be read says why, and a widget that cannot be re
   assert.match((readNoteText("{ nope", []) as { error: string }).error, /^Not JSON/);
   assert.match((readNoteText("[]", []) as { error: string }).error, /widgets/);
   assert.match((readNoteText('{"key":null}', []) as { error: string }).error, /widgets/);
-  const r = readNoteText(JSON.stringify({ widgets: [{ kind: "text", text: "a" }, { kind: "no-such" }, 7, { kind: "camera" }, { kind: "tool", tool: { type: "run-singer", run: 108 } }] }), []);
+  const r = readNoteText(JSON.stringify({ widgets: [{ kind: "text", text: "a" }, { kind: "no-such" }, 7, { kind: "camera" }, { kind: "tool", tool: { type: "run-singer", run: 122 } }] }), []);
   assert.ok("stage" in r);
   assert.deepEqual(r.left, ["2 (kind no-such)", "3 (kind ?)", "4 (kind camera)"]);
   assert.deepEqual(r.stage.layers.map((l) => l.subject.kind), ["text", "tool"]);

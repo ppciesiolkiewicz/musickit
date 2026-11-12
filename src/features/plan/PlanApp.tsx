@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, HUE_TONES, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
+import { withSpent } from "./model/dayClock";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { backfill, entryFor } from "./model/progressLog";
@@ -15,6 +16,7 @@ import { askNotifications, confirmReminder, notificationsSupported } from "./rem
 import { usePlan } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
+import SharePopover from "@/features/teachers/studio/SharePopover";
 import { DISPLAY } from "@/components/landing/Display";
 import { FixedLabelRoot, LabelSelect } from "@/features/theory/useLabelSystem";
 
@@ -42,6 +44,9 @@ export default function PlanApp() {
   const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode ?? null));
   const [today, setToday] = useState(() => localDate());
   const [day, setDay] = useState<number | null>(null);
+  // sharing is not open in the demo: Share plan says so
+  const [shareInfo, setShareInfo] = useState(false);
+  const closeShareInfo = useCallback(() => setShareInfo(false), []);
 
   useEffect(() => {
     const t = setInterval(() => setToday(localDate()), 60_000);
@@ -75,18 +80,25 @@ export default function PlanApp() {
     if (row) progress.put(row);
     else progress.remove(id);
   };
-  // the floating day timer's used seconds; ignored when the plan it counted for is no longer the current one
-  const saveElapsed = (planId: string, d: number, seconds: number) =>
-    update((s) => (s.current?.id === planId && s.current.elapsed?.[String(d)] !== seconds ? { ...s, current: { ...s.current, elapsed: { ...s.current.elapsed, [String(d)]: seconds } } } : s));
+  // the floating day timer's used seconds and the seconds spent on each exercise; ignored when the plan it counted for is no
+  // longer the current one
+  const saveElapsed = (planId: string, d: number, seconds: number, spent: number[]) =>
+    update((s) => {
+      const c = s.current;
+      if (c?.id !== planId) return s;
+      const nextSpent = withSpent(c.spent, d, spent);
+      if (c.elapsed?.[String(d)] === seconds && sameSeconds(nextSpent, c.spent ?? {})) return s;
+      return { ...s, current: { ...c, elapsed: { ...c.elapsed, [String(d)]: seconds }, spent: nextSpent } };
+    });
 
   if (!loaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
   const modal = flow && (
     <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} onPlan={onPlan} onClose={() => setFlow(null)} />
   );
-  const primary = "!border-sky-400/80 !bg-sky-500/25 !text-sky-50 shadow-md shadow-sky-500/20 hover:!bg-sky-500/40";
+  const primary = "!rounded-xl !border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 shadow-md shadow-sky-500/20 transition hover:!bg-sky-400";
   // the header's controls: one height, big enough to hit with a guitar in the other hand
-  const big = "h-10 px-4 text-sm";
+  const big = "h-10 !rounded-xl px-4 text-sm";
 
   if (!plan) {
     return (
@@ -115,17 +127,21 @@ export default function PlanApp() {
     <FixedLabelRoot value="scale">
       {/* necks keep the page's margins rather than bleeding to the window's edge */}
       <div className="flex flex-col gap-4 pb-28 [&_.bleed]:mx-0">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        {/* the plan's header: clear of the page intro above, the title given room, then its controls on their own row */}
+        <div className="mt-4 mb-2 flex flex-col gap-5 sm:mt-6">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
-            <h2 className="mt-0.5 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
-            {plan.config.summary && <p className="mt-1 max-w-3xl text-sm text-slate-400">{plan.config.summary}</p>}
+            <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
+            {plan.config.summary && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">{plan.config.summary}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Reminder state={state} update={update} />
             <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
             <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
             <Button onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
+            <SharePopover open={shareInfo} onClose={closeShareInfo} thing="a plan">
+              <Button onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} title="Sharing isn't open yet in this demo" className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
+            </SharePopover>
           </div>
         </div>
 
@@ -211,3 +227,7 @@ function Reminder({ state, update }: { state: PlanState; update: (c: (s: PlanSta
     </div>
   );
 }
+
+/** True when two `StoredPlan.spent` maps hold the same seconds (key order aside). */
+const sameSeconds = (a: Record<string, number>, b: Record<string, number>) =>
+  Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => b[k] === v);

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { DISPLAY } from "@/components/landing/Display";
 import DayTimer, { Corner } from "./DayTimer";
 import ExerciseCard from "./ExerciseCard";
-import { elapsedOf } from "../model/dayClock";
+import { elapsedOf, spentOf } from "../model/dayClock";
 import { dayProgress, doneKey } from "../model/schedule";
 import { PLAN_DAYS, type StoredPlan } from "../model/types";
 import type { Stars } from "@/features/progress/stars";
@@ -13,12 +13,13 @@ import type { Stars } from "@/features/progress/stars";
 /**
  * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day's
  * exercises, each an `ExerciseCard`. One floating timer counts down the whole day (`DayTimer`): it starts by itself for the day shown on page
- * load, its used time is saved with the plan, and the card its time falls in is lifted a little (no tag: the timer is a guide).
+ * load, its used time is saved with the plan. The card in view (the one across the middle of the screen, or the last one
+ * once the page is scrolled to the end) is the exercise the timer names and counts time for, and it is lifted a little.
  */
 export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, corner }: {
   plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;
-  /** saves the day timer's used seconds; without it (a preview) there is no timer */
-  onElapsed?: (planId: string, day: number, seconds: number) => void;
+  /** saves the day timer's used seconds and the seconds spent on each exercise; without it (a preview) there is no timer */
+  onElapsed?: (planId: string, day: number, seconds: number, spent: number[]) => void;
   /** small controls floating in the bottom-right corner, over the timer */
   corner?: ReactNode;
 }) {
@@ -27,6 +28,12 @@ export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, c
   // only the day shown when the page opened starts its timer by itself
   const [autoDay, setAutoDay] = useState<number | null>(day <= today ? day : null);
   const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
+  const cards = useRef<(HTMLLIElement | null)[]>([]);
+  const focused = useInView(cards, day);
+  // the timer's seconds per exercise as they count, so the cards show them live; until it reports, the saved ones
+  const [live, setLive] = useState<{ day: number; spent: number[] } | null>(null);
+  const saved = spentOf(plan.spent, day, d.exercises.length);
+  const spent = live?.day === day ? live.spent : saved;
   const openDay = (i: number) => {
     setAutoDay(null);
     setNow(null);
@@ -69,8 +76,8 @@ export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, c
           const done = !!plan.done[doneKey(day, i)];
           const isNow = now === i && !done;
           return (
-            <li key={`${day}:${i}`}>
-              <ExerciseCard exercise={e} index={i} done={done} now={isNow} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={(s) => onRate(day, i, s)} address={`d${day}.e${i}`} />
+            <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
+              <ExerciseCard exercise={e} index={i} done={done} now={isNow} spent={onElapsed ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={(s) => onRate(day, i, s)} address={`d${day}.e${i}`} />
             </li>
           );
         })}
@@ -82,11 +89,60 @@ export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, c
         titles={d.exercises.map((e) => e.title)}
         label={`Day ${day + 1}`}
         elapsed={elapsedOf(plan.elapsed, day)}
+        spent={saved}
+        focused={focused}
         autoStart={autoDay === day}
-        onSave={(s) => onElapsed(plan.id, day, s)}
+        onSave={(s, spent) => onElapsed(plan.id, day, s, spent)}
         onExercise={setNow}
+        onSpent={(s) => setLive({ day, spent: s })}
         above={corner}
       /> : <Corner above={corner} />}
     </div>
   );
+}
+
+/**
+ * Which of the cards is in view: the one crossing the middle of the screen, else the nearest to it; once the page is scrolled
+ * to the end, the last card on screen (a short last card can never reach the middle). Null when none is on screen.
+ */
+function useInView(cards: React.RefObject<(HTMLLIElement | null)[]>, day: number): number | null {
+  const [at, setAt] = useState<number | null>(null);
+  useEffect(() => {
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const h = window.innerHeight;
+      const mid = h / 2;
+      const end = window.scrollY + h >= document.documentElement.scrollHeight - 4;
+      let best: number | null = null;
+      let gap = Infinity;
+      cards.current.forEach((el, i) => {
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        if (r.bottom <= 0 || r.top >= h) return;
+        if (end) {
+          best = i;
+          return;
+        }
+        const g = r.top > mid ? r.top - mid : r.bottom < mid ? mid - r.bottom : 0;
+        if (g < gap) {
+          gap = g;
+          best = i;
+        }
+      });
+      setAt(best);
+    };
+    const queue = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+    measure();
+    window.addEventListener("scroll", queue, { passive: true });
+    window.addEventListener("resize", queue);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", queue);
+      window.removeEventListener("resize", queue);
+    };
+  }, [cards, day]);
+  return at;
 }

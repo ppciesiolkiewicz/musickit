@@ -3,7 +3,8 @@
  * plan pick by id. Pure: no React, no browser.
  *
  * A video's files are served from `VIDEO_BASE` as `<id>-<format>.mp4`. `published` lists the formats that are uploaded there; a video
- * with none is kept here (its words are written) but is offered nowhere until one is.
+ * with none is kept here (its words are written) but is offered nowhere until one is. The library is horizontal only (16:9): a tall
+ * video is not published, even when its config has one.
  */
 
 export type VideoFormat = "16x9" | "9x16";
@@ -33,7 +34,7 @@ export const VIDEO_LIBRARY: LibraryVideo[] = [
     about: "Three short tunes on Do and Re in C major. Sing each one along with the piano until the step from Do to Re feels easy.",
     area: "voice",
     seconds: 88,
-    published: [],
+    published: ["16x9"],
   },
   {
     id: "c-major-do-re-mi-long",
@@ -41,7 +42,8 @@ export const VIDEO_LIBRARY: LibraryVideo[] = [
     about: "Twelve tunes in C major, from Do and Re up to Sol, each a little harder than the last. Sing each one along with the piano on the note names.",
     area: "voice",
     seconds: 448,
-    published: ["9x16"],
+    // its 16:9 render is still to make (a 7-minute render, which needs disk space)
+    published: [],
   },
 ];
 
