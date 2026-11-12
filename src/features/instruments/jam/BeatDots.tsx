@@ -6,9 +6,9 @@ import { BEATS_PER_BAR, type JamRig } from "./rig";
 /**
  * One dot per beat of the shared grid, the current one lit and beat 1 amber; read every frame, so React does not re-render.
  * Small and hidden on a phone for the pocket tools; `big` for the jam's metronome card, shown everywhere. `className` replaces the small
- * dots' own layout (the pocket view sets them on its frame).
+ * dots' own layout and `dot` their size (the pocket view sets them, a little bigger, on its frame).
  */
-export default function BeatDots({ rig, playing, big = false, className }: { rig: JamRig; playing: boolean; big?: boolean; className?: string }) {
+export default function BeatDots({ rig, playing, big = false, className, dot }: { rig: JamRig; playing: boolean; big?: boolean; className?: string; dot?: string }) {
   const refs = useRef<(HTMLSpanElement | null)[]>([]);
   useEffect(() => {
     let raf = 0;
@@ -27,7 +27,7 @@ export default function BeatDots({ rig, playing, big = false, className }: { rig
   return (
     <span className={big ? "flex shrink-0 items-center gap-2.5 px-1" : className ?? "hidden w-14 items-center justify-center gap-1 sm:flex"} aria-hidden>
       {Array.from({ length: BEATS_PER_BAR }, (_, i) => (
-        <span key={i} ref={(el) => { refs.current[i] = el; }} className={`${big ? "h-3.5 w-3.5" : "h-2 w-2"} rounded-full opacity-30 transition-transform duration-75 ${i === 0 ? "bg-amber-400" : "bg-sky-400"}`} />
+        <span key={i} ref={(el) => { refs.current[i] = el; }} className={`${dot ?? (big ? "h-3.5 w-3.5" : "h-2 w-2")} rounded-full opacity-30 transition-transform duration-75 ${i === 0 ? "bg-amber-400" : "bg-sky-400"}`} />
       ))}
     </span>
   );
