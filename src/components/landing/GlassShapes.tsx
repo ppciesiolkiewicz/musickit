@@ -40,11 +40,15 @@ const GLOWS: Glow[] = [
   { at: "-right-20 top-[80%] size-80", colour: "sky", d: 8 },
 ];
 
+/** Fewer, bigger patches than shapes: one high on each side by the video, then down the page between the shapes. */
 const DOTS: Dots[] = [
-  { at: "left-2 top-[9%] h-40 w-48", d: 6 },
-  { at: "right-4 top-[38%] h-48 w-40", d: 6 },
-  { at: "left-4 top-[55%] h-40 w-44", d: 6 },
-  { at: "right-0 top-[88%] h-36 w-44", d: 6 },
+  { at: "left-0 top-[6%] h-64 w-64", d: 6 },
+  { at: "right-0 top-[12%] h-56 w-56", d: 8 },
+  { at: "left-2 top-[28%] h-48 w-48", d: 6 },
+  { at: "right-4 top-[38%] h-60 w-52", d: 6 },
+  { at: "left-4 top-[55%] h-56 w-56", d: 8 },
+  { at: "right-2 top-[66%] h-48 w-48", d: 6 },
+  { at: "right-0 top-[88%] h-52 w-56", d: 6 },
 ];
 
 const depth = (d: number) => ({ "--d": d }) as CSSProperties;

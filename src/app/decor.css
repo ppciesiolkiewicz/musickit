@@ -60,13 +60,34 @@
   opacity: 0.3;
 }
 
-/* a patch of dots, like a fretboard's inlays seen from far off */
+/* a patch of dots, like a fretboard's inlays seen from far off: sparse and faint at the edge, denser and bigger toward the middle.
+   Three layers on one grid: the wide sparse one, a half-step grid between its dots (::before) and big bright dots (::after),
+   each fading out sooner than the last */
 .glass-dots {
   position: absolute;
   background-image: radial-gradient(color-mix(in oklab, white 22%, transparent) 1.2px, transparent 1.6px);
   background-size: 18px 18px;
   -webkit-mask: radial-gradient(closest-side, #000, transparent);
   mask: radial-gradient(closest-side, #000, transparent);
+}
+.glass-dots::before,
+.glass-dots::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.glass-dots::before {
+  background-image: radial-gradient(color-mix(in oklab, white 18%, transparent) 1.1px, transparent 1.5px);
+  background-size: 18px 18px;
+  background-position: 9px 9px;
+  -webkit-mask: radial-gradient(closest-side, #000 20%, transparent 65%);
+  mask: radial-gradient(closest-side, #000 20%, transparent 65%);
+}
+.glass-dots::after {
+  background-image: radial-gradient(color-mix(in oklab, white 34%, transparent) 2px, transparent 2.6px);
+  background-size: 18px 18px;
+  -webkit-mask: radial-gradient(closest-side, #000, transparent 40%);
+  mask: radial-gradient(closest-side, #000, transparent 40%);
 }
 
 /* parallax: across its pass through the screen, a piece slides from --d×4px below its place to --d×4px above it.
