@@ -18,7 +18,7 @@ import { Modal } from "@/components/ui";
 import { VideoChooser, type ChooserTab } from "@/features/videos/VideoChooser";
 import type { VideoRef } from "@/features/videos/ref";
 import NoteView, { NoteReader } from "./NoteView";
-import { useNoteViewMode } from "./NoteViewMode";
+import { BackToEditing, useNoteViewMode } from "./NoteViewMode";
 import { noteHeader } from "./notes";
 import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
 import { devUi } from "@/features/devtools/gate";
@@ -343,12 +343,11 @@ function Studio({ notes = false, preset }: {
     const body = mode ? noteHeader(stage).body : stage;
     return (
       <div className="mx-auto w-full max-w-[80rem]">
+        {/* the page's header carries Back to editing when it shares the mode */}
+        {!mode && <BackToEditing onBack={() => setViewing(false)} />}
         <VoicePicker data={body}>
           <NoteReader stage={body} footer={false} />
         </VoicePicker>
-        <button type="button" onClick={() => setViewing(false)} className="fixed bottom-20 right-6 z-40 flex items-center gap-2 rounded-full border border-sky-400/60 bg-sky-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-black/40 hover:bg-sky-500">
-          <Icon name="pencil" size={15} /> Back to editing
-        </button>
       </div>
     );
   }
