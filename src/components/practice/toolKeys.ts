@@ -140,3 +140,22 @@ export function useToolKeys<T extends HTMLElement = HTMLDivElement>(onKey: ToolK
   const armed = useSyncExternalStore(subscribe, () => enabled && target === id, () => false);
   return { ref, armed };
 }
+
+/**
+ * Space presses a tool's big button (Play, Start, Next): the one key every tool shares. Not while a button or link has
+ * focus, whose own Space presses it, and never a Skip. `also` is another ref for the same element (an audio focus).
+ * Off while `press` is undefined.
+ */
+export function useSpaceKey<T extends HTMLElement = HTMLDivElement>(press: (() => void) | undefined, also?: (el: T | null) => void): { ref: (el: T | null) => void; armed: boolean } {
+  const keys = useToolKeys<T>((e, onControl) => {
+    if (e.key !== " " || onControl || !press) return;
+    press();
+    return true;
+  }, !!press);
+  const own = keys.ref;
+  const ref = useCallback((el: T | null) => {
+    own(el);
+    also?.(el);
+  }, [own, also]);
+  return { ref, armed: keys.armed };
+}

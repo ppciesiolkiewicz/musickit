@@ -2,7 +2,7 @@
 
 import type { ReactNode, Ref } from "react";
 import Icon from "@/components/Icon";
-import { Button, HUE_TONES, hueAt, type Hue } from "@/components/ui";
+import { Button, HUE_TONES, KeyCap, hueAt, type Hue } from "@/components/ui";
 
 /**
  * The look the exercise players share with the backing track: a card with a sky hairline, a round Play, a labelled
@@ -19,14 +19,17 @@ export function PlayerCard({ children, ref, className = "" }: { children: ReactN
   );
 }
 
-/** A round Play / Stop: sky at rest, green and pulsing while it plays. */
-export function PlayButton({ playing, onClick, disabled, "data-tour": tour }: { playing: boolean; onClick(): void; disabled?: boolean; "data-tour"?: string }) {
+/** A round Play / Stop: sky at rest, green and pulsing while it plays. `space`: the Space key cap beside it (`useSpaceKey`'s `armed`). */
+export function PlayButton({ playing, onClick, disabled, space, "data-tour": tour }: { playing: boolean; onClick(): void; disabled?: boolean; space?: boolean; "data-tour"?: string }) {
   return (
+    <span className="inline-flex shrink-0 items-center gap-1.5">
     <button type="button" data-tour={tour} disabled={disabled} onClick={onClick} aria-pressed={playing} aria-label={playing ? "Stop" : "Play"}
       className={`relative grid h-12 w-12 shrink-0 place-items-center rounded-full text-slate-950 shadow-lg transition active:scale-95 disabled:opacity-60 ${playing ? "bg-emerald-400 shadow-emerald-500/40 hover:bg-emerald-300" : "bg-sky-400 shadow-sky-500/40 hover:bg-sky-300"}`}>
       {playing && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-emerald-400/30 [animation-duration:1.6s]" />}
       <Icon name={playing ? "square" : "play"} size={20} fill className={playing ? "" : "translate-x-0.5"} />
     </button>
+    {space && <KeyCap className="hidden text-slate-400 md:inline">Space</KeyCap>}
+    </span>
   );
 }
 

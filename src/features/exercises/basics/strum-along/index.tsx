@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Hint } from "@/components/ui";
+import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { CLICK_MAX_BPM, CLICK_MIN_BPM, ClickTrack, clampClick } from "@/features/instruments/model";
 import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
@@ -66,6 +67,7 @@ export function View({ chords, bpm: initial, per = "bar", beats = 4, pattern }: 
     track.current.start(params(bpm));
     setPlaying(true);
   };
+  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(() => void toggle());
   const tempo = (next: number) => {
     setBpm(next);
     track.current?.set(params(next));
@@ -84,10 +86,10 @@ export function View({ chords, bpm: initial, per = "bar", beats = 4, pattern }: 
   const barMin = per === "bar" ? beats * beatMin + 16 : beats * (Math.max(beatMin, 48) + 22);
   const barMax = per === "bar" ? beats * beatMax + 16 : beats * (Math.max(beatMax, 104) + 22);
   return (
-    <PlayerCard>
+    <PlayerCard ref={spaceRef}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <Hint title={playing ? "Stop" : "Play"} description="Starts the metronome with a count-in, and lights each strum as it comes.">
-          <PlayButton playing={playing} onClick={() => void toggle()} data-tour="strum-along-play" />
+          <PlayButton playing={playing} onClick={() => void toggle()} space={spaceArmed} data-tour="strum-along-play" />
         </Hint>
         <TempoControl bpm={bpm} min={CLICK_MIN_BPM} max={MAX_BPM} onChange={tempo} data-tour="strum-along-tempo" />
         <BeatMeter beats={beats} beat={beatNow} />

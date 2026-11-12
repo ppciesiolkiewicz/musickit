@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Scale } from "@tonaljs/tonal";
 import Icon, { type IconName } from "@/components/Icon";
 import { useAudioFocus } from "@/features/sound";
-import { Button, Field, HUE_TONES, NumberField, Select, Slider, type Hue, type SelectGroup } from "@/components/ui";
+import { useSpaceKey } from "@/components/practice/toolKeys";
+import { Button, Field, HUE_TONES, KeyCap, NumberField, Select, Slider, type Hue, type SelectGroup } from "@/components/ui";
 import type { Band, BandSnapshot } from "../audio/band";
 import type { Part } from "../model/arrange";
 import { MAX_BPM, MIN_BPM } from "../model/clock";
@@ -85,45 +86,29 @@ function usePosition(band: Band, playing: boolean) {
   return playing ? pos : null;
 }
 
-/** Space plays and stops, unless a text field has the keyboard. Off when `on` is false. */
-function useSpaceToggle(band: Band, on: boolean) {
-  useEffect(() => {
-    if (!on) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code !== "Space" || e.repeat) return;
-      const t = e.target as HTMLElement | null;
-      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA)$/.test(t.tagName))) return;
-      e.preventDefault();
-      band.toggle();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [band, on]);
-}
-
 /**
  * A backing track from a chord progression: drums, bass and chords in any key, mode and style, the tempo changed live
  * without losing sound quality (notes are scheduled, never stretched). Changes made while it plays come in on the next bar.
  */
 export default function BackingTrack() {
   const { band, snap } = useBand();
-  return <BackingPlayer band={band} snap={snap} spaceKey />;
+  return <BackingPlayer band={band} snap={snap} />;
 }
 
 /**
  * The player for a band someone else holds (`useBand`): play and tempo, progression, key and style, the chords, the mixer.
  * It holds the app's audio focus while it plays (another source starting, or the player scrolling away, stops it), in
- * `group` when an exercise step started it. `spaceKey`: Space plays and stops, for a page with one player. `scale`: the
+ * `group` when an exercise step started it. Space plays and stops (`useSpaceKey`: the player on screen takes it when a page has several). `scale`: the
  * key and its scale's notes under the chords (the page shows them; a plan exercise says what to play in its own text).
  * `parts`: the mixer rows shown, each "on" or "off" (the student mutes and unmutes it) or "always" (no mute button); a part
  * left out has no row and the host keeps it muted. Absent: every part, all switchable.
  */
-export function BackingPlayer({ band, snap, group, spaceKey = false, scale: showScale = true, parts }: { band: Band; snap: BandSnapshot; group?: string; spaceKey?: boolean; scale?: boolean; parts?: Partial<Record<Part, "on" | "off" | "always">> }) {
+export function BackingPlayer({ band, snap, group, scale: showScale = true, parts }: { band: Band; snap: BandSnapshot; group?: string; scale?: boolean; parts?: Partial<Record<Part, "on" | "off" | "always">> }) {
   const { settings, playing, arrangement } = snap;
   const focus = useAudioFocus(playing, () => band.stop(), group);
   const style = findStyle(settings.style);
   const pos = usePosition(band, playing);
-  useSpaceToggle(band, spaceKey);
+  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(() => band.toggle(), focus);
 
   const mode = MODES.find((m) => m.id === bandMode(settings))!;
   const groups = useMemo(
@@ -135,15 +120,16 @@ export function BackingPlayer({ band, snap, group, spaceKey = false, scale: show
   const shown = (Object.keys(PART_INFO) as Part[]).filter((p) => !parts || parts[p]);
 
   return (
-    <div ref={focus} className="flex min-w-0 flex-col gap-4">
+    <div ref={spaceRef} className="flex min-w-0 flex-col gap-4">
       <section aria-label="Backing track" className="relative flex min-w-0 flex-col gap-5 overflow-hidden rounded-2xl border border-slate-700/70 bg-linear-to-b from-sky-500/[0.07] via-slate-900/70 to-slate-900/70 p-4 shadow-xl shadow-black/20 sm:p-6">
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-sky-400/60 to-transparent" />
         <div data-tour="backing-play" className="flex items-center gap-4 sm:gap-6">
-          <button type="button" onClick={() => band.toggle()} aria-pressed={playing} aria-label={playing ? "Stop" : "Play"} title={playing ? (spaceKey ? "Stop (Space)" : "Stop") : spaceKey ? "Play (Space)" : "Play"}
+          <button type="button" onClick={() => band.toggle()} aria-pressed={playing} aria-label={playing ? "Stop" : "Play"} title={playing ? "Stop (Space)" : "Play (Space)"}
             className={`relative grid h-16 w-16 shrink-0 place-items-center rounded-full text-slate-950 shadow-lg transition active:scale-95 ${playing ? "bg-emerald-400 shadow-emerald-500/40 hover:bg-emerald-300" : "bg-sky-400 shadow-sky-500/40 hover:bg-sky-300"}`}>
             {playing && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-emerald-400/30 [animation-duration:1.6s]" />}
             <Icon name={playing ? "square" : "play"} size={24} fill className={playing ? "" : "translate-x-0.5"} />
           </button>
+          {spaceArmed && <KeyCap className="-ml-2 hidden text-slate-400 md:inline sm:-ml-4">Space</KeyCap>}
           <div className="flex min-w-0 flex-1 flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2 text-sm text-slate-300">
               <span className="mr-1 flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.14em] text-slate-500 sm:w-auto">

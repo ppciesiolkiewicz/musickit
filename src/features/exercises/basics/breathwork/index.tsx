@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExtern
 import Icon from "@/components/Icon";
 import { Checkbox } from "@/components/ui";
 import { useStepPart } from "@/components/practice/exerciseStep";
+import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useAudioFocus, wakeAudio } from "@/features/sound";
 import { PlayButton, PlayerCard } from "../../play-along/PlayerParts";
 import { TITLES, breathPlan, farinelliCounts, fullness, phaseAt, totalSeconds, type BreathDrill, type BreathKind } from "./breaths";
@@ -105,6 +106,8 @@ export function View({ drill = "farinelli", from, to, seconds, rounds }: Breathw
   const group = useStepPart({ kind: "play", on: running, start, stop });
   const focusRef = useAudioFocus(running, stop, group);
   const safety = useSafety();
+  const playStop = () => (running ? stop() : void start());
+  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(playStop, focusRef);
 
   const toggleMute = () => {
     setMuted((m) => {
@@ -131,7 +134,7 @@ export function View({ drill = "farinelli", from, to, seconds, rounds }: Breathw
         : `Round ${phase.round} of ${lastRound}`;
 
   return (
-    <PlayerCard ref={focusRef}>
+    <PlayerCard ref={spaceRef}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Breathwork</p>
@@ -166,7 +169,7 @@ export function View({ drill = "farinelli", from, to, seconds, rounds }: Breathw
       </div>
 
       <div className="flex items-center gap-3 border-t border-slate-800 pt-3">
-        <PlayButton data-tour="breath-play" playing={running} onClick={() => (running ? stop() : void start())} />
+        <PlayButton data-tour="breath-play" playing={running} onClick={playStop} space={spaceArmed} />
         <p className="min-h-10 flex-1 text-sm leading-snug text-slate-300">
           {running ? <><span className="mr-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Tip</span>{tip}</> : WHAT[drill]}
         </p>

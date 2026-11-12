@@ -6,6 +6,7 @@ import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { useAudioFocus } from "@/features/sound";
 import { useStepPart } from "@/components/practice/exerciseStep";
+import { useSpaceKey } from "@/components/practice/toolKeys";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { COMP_PATTERNS, type CompPattern } from "@/lib/practice/comping";
 import { chordCues, cuesOf, type Marks } from "../cues/cues";
@@ -73,6 +74,8 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   const chordNow = now?.chord ?? (pos >= 0 ? solo?.chord : undefined);
   const aim = solo?.targets.length ? `land on ${solo.targets.map((pc) => noteOf(pc, parseChordQuery(solo.chord)?.rootPc ?? keyPc ?? 0).name).join(" or ")}` : undefined;
   const hint = pos < 0 ? timeline.hints?.[0]?.text : [...(timeline.hints ?? [])].reverse().find((h) => h.at <= pos)?.text;
+  const playStop = () => (player.playing ? player.stop() : void player.start());
+  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(player.starting ? undefined : playStop, focus);
   const changeTempo = (b: number) => {
     const v = Math.min(MAX_BPM, Math.max(MIN_BPM, b));
     setTempoState(v);
@@ -80,10 +83,10 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   };
 
   return (
-    <PlayerCard ref={focus}>
+    <PlayerCard ref={spaceRef}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <Hint title={player.playing ? "Stop" : "Play"} description="Starts the backing and the part to play along with. It loops until you stop it.">
-          <PlayButton playing={player.playing} disabled={player.starting} onClick={() => (player.playing ? player.stop() : void player.start())} data-tour="play-along-play" />
+          <PlayButton playing={player.playing} disabled={player.starting} onClick={playStop} space={spaceArmed} data-tour="play-along-play" />
         </Hint>
         <TempoControl bpm={tempo} min={MIN_BPM} max={MAX_BPM} step={2} onChange={changeTempo} data-tour="play-along-tempo" />
         <BeatMeter beats={BEATS_PER_BAR} beat={pos < 0 ? null : pos % BEATS_PER_BAR} />

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { Hint } from "@/components/ui";
+import { Hint, KeyCap } from "@/components/ui";
+import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { clickAt } from "@/features/instruments/click/click";
 import { getAudioContext, getOutputBus, midiToHz, takeAudioFocus, wakeAudio } from "@/features/sound";
@@ -147,16 +148,19 @@ function Player({ steps, bpm, hint, group = 4, show }: { steps: DrillStep[]; bpm
     timer.current = setInterval(tick, 60000 / bpm);
     setPlaying(true);
   };
+  const playStop = () => (playing ? stop() : void start());
+  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(playStop);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
+    <div ref={spaceRef} className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
       <div className="flex flex-wrap items-center gap-3">
         <Hint title={playing ? "Stop" : "Play"} description="Starts the metronome and sounds the drill with it, one note per beat, lighting the note playing.">
-          <button type="button" data-tour="drill-play" onClick={() => (playing ? stop() : void start())} aria-label={playing ? "Stop" : "Play"} title={playing ? "Stop" : "Play"}
+          <button type="button" data-tour="drill-play" onClick={playStop} aria-label={playing ? "Stop" : "Play"} title={playing ? "Stop" : "Play"}
             className="rounded-lg border border-sky-400/70 bg-sky-500/20 p-2 text-sky-100">
             <Icon name={playing ? "square" : "play"} size={16} />
           </button>
         </Hint>
+        {spaceArmed && <KeyCap className="-ml-1.5 hidden text-slate-400 md:inline">Space</KeyCap>}
         <span className="text-sm text-slate-300">{bpm} bpm, one note per beat · {hint}</span>
         {!show && both && (
           <div role="group" aria-label="Under the tab" className="ml-auto flex overflow-hidden rounded-lg border border-slate-700 text-xs">

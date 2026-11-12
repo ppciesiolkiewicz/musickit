@@ -13,7 +13,7 @@ Drums, bass and chords played from a chord progression (`/theory/backing`). Layo
    - `song.ts` `Song`: the arrangement repeating, a new one taking over on the next bar line (`restart` for a new progression).
    - `settings.ts` what is chosen and saved, `clampSettings` validates anything.
 2. **audio/** `Band` only schedules: it asks `Song` for each window's notes, `TempoClock` for their times, and plays them on `PartVoice`s (`voices.ts`). Every change goes through `band.set(patch)`. Voices and the context are injected (`BandDeps`), so a test or another host can swap them.
-3. **ui/** `BackingTrack` (the page: `useBand` with its save in localStorage `musickit.backing`, Space plays) draws `BackingPlayer` (the player and the audio focus). A host that sets the band up itself (the plan's `backing-track` tool) calls `useBand({ initial, storageKey: null })` and draws `BackingPlayer` with its step's focus `group`; `useBand` stops the band on unmount.
+3. **ui/** `BackingTrack` (the page: `useBand` with its save in localStorage `musickit.backing`) draws `BackingPlayer` (the player and the audio focus; Space plays and stops it through `useSpaceKey`, so on a page with several the player on screen takes it). A host that sets the band up itself (the plan's `backing-track` tool) calls `useBand({ initial, storageKey: null })` and draws `BackingPlayer` with its step's focus `group`; `useBand` stops the band on unmount.
 
 ## Adding things
 - **A progression**: one entry in `PROGRESSIONS`; check its chords with `npm run -s theory -- fit <chords>` and that the test "every curated progression parses in every key" passes.

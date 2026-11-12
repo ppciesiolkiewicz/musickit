@@ -4,7 +4,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExter
 import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
-import { DropdownSection, Hint, HintToggle } from "@/components/ui";
+import { DropdownSection, Hint, HintToggle, KeyCap } from "@/components/ui";
+import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import ToolSettings, { Volume } from "@/components/practice/ToolSettings";
@@ -159,6 +160,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
     root.current = el;
     focus(el);
   }, [focus]);
+  // Space presses Play, or Stop while the tune plays
+  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(() => (sa.playing ? sa.stop() : void sa.play()), setRoot);
   const wasFull = useRef(full);
   useLayoutEffect(() => {
     if (wasFull.current && !full) root.current?.scrollIntoView({ block: "nearest" });
@@ -183,7 +186,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   const seg = (on: boolean) => `px-2.5 py-1 text-[11px] transition ${on ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`;
 
   const view = (
-    <div ref={setRoot} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}
+    <div ref={spaceRef} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}
       className={full ? `fixed inset-0 z-[70] flex flex-col gap-4 overflow-hidden bg-slate-950 p-4 pb-2 sm:p-6 sm:pb-3 ${nav ? "px-12 sm:px-16" : ""}` : "flex flex-col gap-2"}>
       {full && nav && <MarginArrow side="left" onClick={nav.prev} />}
       {full && nav && <MarginArrow side="right" onClick={nav.next} />}
@@ -211,6 +214,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
               <Icon name="square" size={14} />
             </IconButton>
           </Hint>
+          {spaceArmed && <KeyCap className="hidden text-slate-400 md:inline">Space</KeyCap>}
         </span>
         <span data-tour="sing-mic" className="inline-flex">
           <Hint title="Mic" description="Marks the note you're on. Play starts it for you; this button also opens the list of inputs, with each input's level and Stop.">
