@@ -1,6 +1,7 @@
 import type { Tuning } from "./notes";
 import { getRuntimeInstrument, runtimeInstrumentOptions } from "./runtime";
 import SAMPLES from "./samples.generated.json";
+import MEASURED from "./tuning.generated.json";
 
 export interface InstrumentConfig {
   label: string;
@@ -17,8 +18,12 @@ export interface InstrumentConfig {
 const DEFAULT_ATTACK = 0;
 const DEFAULT_RELEASE = 0.3;
 
-/** Where each instrument's samples are, as `npm run samples:fetch` wrote them (sources in scripts/fetch-samples.mts). */
-const sampled = (id: keyof typeof SAMPLES) => ({ urls: SAMPLES[id].urls as Record<string, string>, baseUrl: SAMPLES[id].baseUrl });
+/** Where each instrument's samples are (`npm run samples:fetch`) and how far each measures off its note (`npm run samples:measure`). */
+const sampled = (id: keyof typeof SAMPLES) => ({
+  urls: SAMPLES[id].urls as Record<string, string>,
+  baseUrl: SAMPLES[id].baseUrl,
+  tuning: (MEASURED.tuning as Record<string, Tuning>)[id],
+});
 
 /**
  * The built-in instruments. The ids are kept whatever plays them, since saved looper projects and backing styles name them:
