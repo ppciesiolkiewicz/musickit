@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, HUE_TONES, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
@@ -15,6 +15,7 @@ import { askNotifications, confirmReminder, notificationsSupported } from "./rem
 import { usePlan } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
+import SharePopover from "@/features/teachers/studio/SharePopover";
 import { DISPLAY } from "@/components/landing/Display";
 import { FixedLabelRoot, LabelSelect } from "@/features/theory/useLabelSystem";
 
@@ -42,6 +43,9 @@ export default function PlanApp() {
   const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode ?? null));
   const [today, setToday] = useState(() => localDate());
   const [day, setDay] = useState<number | null>(null);
+  // sharing is not open in the demo: Share plan says so
+  const [shareInfo, setShareInfo] = useState(false);
+  const closeShareInfo = useCallback(() => setShareInfo(false), []);
 
   useEffect(() => {
     const t = setInterval(() => setToday(localDate()), 60_000);
@@ -115,17 +119,21 @@ export default function PlanApp() {
     <FixedLabelRoot value="scale">
       {/* necks keep the page's margins rather than bleeding to the window's edge */}
       <div className="flex flex-col gap-4 pb-28 [&_.bleed]:mx-0">
-        <div className="flex flex-wrap items-start justify-between gap-3">
+        {/* the plan's header: clear of the page intro above, the title given room, then its controls on their own row */}
+        <div className="mt-4 mb-2 flex flex-col gap-5 sm:mt-6">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
-            <h2 className="mt-0.5 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
-            {plan.config.summary && <p className="mt-1 max-w-3xl text-sm text-slate-400">{plan.config.summary}</p>}
+            <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
+            {plan.config.summary && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">{plan.config.summary}</p>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Reminder state={state} update={update} />
             <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
             <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
             <Button onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
+            <SharePopover open={shareInfo} onClose={closeShareInfo} thing="a plan">
+              <Button onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} title="Sharing isn't open yet in this demo" className={big}><Icon name="share-2" size={16} />Share plan</Button>
+            </SharePopover>
           </div>
         </div>
 

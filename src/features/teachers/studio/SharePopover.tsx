@@ -5,11 +5,11 @@ import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 
 /**
- * Share as a note in the demo: a popover beside the button, amber like the app's other heads-up notices, saying sharing isn't open
- * yet. In the notes creator it offers View as a note (`onView`). Closes on ✕, Esc or a press outside it and its button. Drawn on the page
+ * Share in the demo: a popover beside the button, amber like the app's other heads-up notices, saying sharing isn't open
+ * yet. `thing` names what can't be sent (a note in the notes creator, a plan on the AI practice plan page). In the notes creator it offers View as a note (`onView`). Closes on ✕, Esc or a press outside it and its button. Drawn on the page
  * (a portal, fixed beside the button; under it on a narrow window), as the side panel scrolls and would clip it.
  */
-export default function SharePopover({ open, onClose, onView, children }: { open: boolean; onClose: () => void; onView?: () => void; /** the button it belongs to */ children: ReactNode }) {
+export default function SharePopover({ open, onClose, onView, thing = "a note", children }: { open: boolean; thing?: string; onClose: () => void; onView?: () => void; /** the button it belongs to */ children: ReactNode }) {
   const box = useRef<HTMLDivElement>(null);
   const pop = useRef<HTMLDivElement>(null);
   const [at, setAt] = useState<{ left: number; top: number } | null>(null);
@@ -53,7 +53,7 @@ export default function SharePopover({ open, onClose, onView, children }: { open
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-amber-200">Sharing isn&apos;t open yet</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-300">
-                This is a demo, so a note can&apos;t be sent as a link yet.{onView ? " Press View as a note to see the note as your students will." : ""}
+                This is a demo, so {thing} can&apos;t be sent as a link yet.{onView ? " Press View as a note to see the note as your students will." : ""}
               </p>
             </div>
             <button type="button" aria-label="Close" onClick={onClose} className="-mr-1 -mt-1 rounded-md p-1 text-slate-400 hover:text-slate-100">

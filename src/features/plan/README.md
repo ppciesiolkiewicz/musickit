@@ -59,7 +59,7 @@ browser.
    prompt sends it back in place of the earlier weeks. The prompt uses the newest summary any stored plan has (a reply
    may come without one), with the weeks practised since it in full; with no summary at all, the two weeks before this
    one go in full. An earlier plan started again keeps the running plan's summary (`restartPlan`).
-5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted.
+5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted. **Share plan**, beside it, only opens a popover saying sharing isn't open in the demo (the notes creator's `SharePopover`, `teachers/studio`).
 6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open. Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
 
 ## Demos
