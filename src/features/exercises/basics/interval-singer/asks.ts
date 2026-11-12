@@ -26,18 +26,22 @@ export function longName(semis: number): string {
 /** The solfège of the note `semis` from Do: Sol for 7, Sol for -5 (the Sol under Do) */
 export const solfegeOf = (semis: number): string => SOLFEGE[((semis % 12) + 12) % 12];
 
+/** how far under the middle of the range the asked span is centred, in semitones */
+const EASY_BELOW_MID = 3;
+
 /** The intervals asked, signed by direction (up +, down -). */
 export const signedOf = (semis: number[], dir: IntervalDir): number[] =>
   semis.flatMap((s) => (dir === "up" ? [s] : dir === "down" ? [-s] : [s, -s]));
 
 /**
  * Do in the voice: the key's note (`keyPc`) in the range from which the most of the asked intervals land inside it,
- * and of those the one whose span sits nearest the middle of the range. With it, the intervals that fit from there.
- * null when no Do in the range fits any interval.
+ * and of those the one whose span sits nearest a minor 3rd under the middle of the range (a voice's easy notes sit
+ * lower than the middle of its two octaves: a tenor's C3 to C5 is easiest around A3, and G4 and up is hard for one who
+ * is new). With it, the intervals that fit from there. null when no Do in the range fits any interval.
  */
 export function placeDo(keyPc: number, range: Range, semis: number[], dir: IntervalDir): { midi: number; asks: number[] } | null {
   const signed = signedOf(semis, dir);
-  const mid = (range.low + range.high) / 2;
+  const mid = (range.low + range.high) / 2 - EASY_BELOW_MID;
   let best: { midi: number; asks: number[]; off: number } | null = null;
   for (let m = range.low; m <= range.high; m++) {
     if (((m - keyPc) % 12 + 12) % 12 !== 0) continue;

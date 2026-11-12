@@ -60,12 +60,13 @@ const NO_PITCH = { current: null };
 /**
  * Sing a named interval from Do: the interval shows as a name ("Interval · P5"), Do sounds and sits on a piano roll (the
  * default) or the staff, and the student sings the other note; held on it for a moment, it counts, shows and plays back.
+ * With `play` "both", the note to sing sounds after Do, so the student hears the leap first (the easier way).
  * With `dot` (the default) the voice is drawn as a dot; without it the student sings blind and only hears whether it
  * counted (the harder way); either is a switch on the tool too. `picker` false leaves the Keys switch and key chips out
  * (an exercise does: its keys are set, and a step-choice changes them). A page with a side panel holds the keys, view and dot
  * there and hands them in as `options`, and the tool then leaves those controls out.
  */
-export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", dot: dotProp = true, picker = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
+export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", play = "do", dot: dotProp = true, picker = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; /** "both": Do and then the note sound before the student sings (the easier way); "do": only Do */ play?: "do" | "both"; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
   useCoverage({ hints: 7 });
   const voice = useVoice(own);
   const range = VOICES[voice] ?? VOICES.tenor;
@@ -116,7 +117,7 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   // presses the big button (not on a focused button, which Space already presses): Start or Next, or Restart while the
   // interval is still to sing. Skip has no key, so Space never throws an interval away. R restarts the interval asked
   const onKey = useRef<Record<string, () => void>>({});
-  const hotkeys = useToolKeys((e, onControl) => {
+  const { ref: keysRef, armed: keysArmed } = useToolKeys((e, onControl) => {
     const k = e.key.toLowerCase();
     if (!(k in onKey.current) || (k === " " && onControl)) return;
     onKey.current[k]();
@@ -167,14 +168,17 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     }, NOTE_MS);
   };
 
-  // Do sounds, then the mic listens
-  const prompt = async (midi = doMidi) => {
+  // Do sounds (and with `play` "both" the note after it), then the mic listens
+  const both = play === "both";
+  const prompt = async (midi: number, target: number) => {
     stopTimers();
     await wakeAudio();
     setPhase("prompt");
     setPlayed(false);
-    sound([midi]);
-    timers.current = [setTimeout(() => setPlayed(true), NOTE_MS), setTimeout(() => setPhase("listening"), NOTE_MS + LISTEN_AFTER_MS)];
+    const notes = both ? [midi, target] : [midi];
+    sound(notes);
+    const end = notes.length * NOTE_MS;
+    timers.current = [setTimeout(() => setPlayed(true), end), setTimeout(() => setPhase("listening"), end + LISTEN_AFTER_MS)];
   };
   const next = () => {
     // a new key each time when there is a choice
@@ -187,13 +191,13 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     setAsk(s);
     counted.current = false;
     setScore((x) => ({ ...x, asked: x.asked + 1 }));
-    void prompt(there.doNote.midi);
+    void prompt(there.doNote.midi, there.doNote.midi + s);
     if (!micOn) startMic();
   };
   // the same interval again: the answer hidden, Do played, the mic listening; a second try doesn't count twice
   const restart = () => {
     if (ask === null) return;
-    void prompt();
+    void prompt(doMidi, doMidi + ask);
     if (!micOn) startMic();
   };
   // the note to sing, on a tap; while it is still to find the mic waits it out as it does Do, so the piano can't answer for the student
@@ -258,34 +262,35 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
 
   if (!placed || !staff) return <p className="text-sm text-rose-300">None of these intervals fits the {range.label.toLowerCase()} voice.</p>;
 
-  const message = ask === null ? "Press Start: Do plays, then sing the interval named above from it."
-    : phase === "prompt" ? "Here is Do…"
+  const message = ask === null ? (both ? "Press Start: Do and then the note play. Sing the note back from Do." : "Press Start: Do plays, then sing the interval named above from it.")
+    : phase === "prompt" ? (both ? "Here is Do, then the note…" : "Here is Do…")
     : phase === "hint" ? "Here is the note…"
     : phase === "listening" ? (micOn ? (dot ? "Sing it and hold the note. The dot turns green on Do and on the note." : "Sing it and hold the note.") : "Switch the mic on to sing your answer.")
     : phase === "solved" ? `Yes: ${target!.label}, ${target!.spelled.name}.` : `It was ${target!.label}, ${target!.spelled.name}.`;
 
+  const doPlays = both ? "Do and the note play" : "Do plays";
   const big = "inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
   const settings = standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
 
   return (
-    <div ref={hotkeys.ref} className="flex flex-col gap-3">
+    <div ref={keysRef} className="flex flex-col gap-3">
       <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
       <div className="flex flex-wrap items-center gap-2">
         <span data-tour="interval-singer-start" className="inline-flex">
           {waiting
-            ? <Hint title="Restart" description="The same interval again: Do plays and the mic listens.">
-              <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (Space)" className={big}>
-                Restart{hotkeys.armed && <KeyCap className="hidden md:inline">Space</KeyCap>}
+            ? <Hint title="Restart" description={`The same interval again: ${doPlays} and the mic listens.`}>
+              <Button size="sm" onClick={restart} title={`The same interval again: ${doPlays} and the mic listens (Space)`} className={big}>
+                Restart{keysArmed && <KeyCap className="hidden md:inline">Space</KeyCap>}
               </Button>
             </Hint>
-            : <Hint title={ask === null ? "Start" : "Next"} description="Plays Do, then listens for the interval you sing from it.">
+            : <Hint title={ask === null ? "Start" : "Next"} description={both ? "Plays Do and then the note, then listens for you to sing the note." : "Plays Do, then listens for the interval you sing from it."}>
               <Button size="sm" onClick={next} title={`${ask === null ? "Start" : "Next interval"} (Space)`} className={big}>
-                {ask === null ? "Start" : "Next"}{hotkeys.armed && <KeyCap className="hidden md:inline">Space</KeyCap>}
+                {ask === null ? "Start" : "Next"}{keysArmed && <KeyCap className="hidden md:inline">Space</KeyCap>}
               </Button>
             </Hint>}
         </span>
         {waiting && <Hint title="Skip" description="Moves on to a new interval."><Button size="sm" onClick={next}>Skip</Button></Hint>}
-        {ask !== null && found && <Button size="sm" onClick={restart} title="The same interval again: Do plays and the mic listens (R)" className="inline-flex items-center gap-1.5">Restart{hotkeys.armed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>}
+        {ask !== null && found && <Button size="sm" onClick={restart} title={`The same interval again: ${doPlays} and the mic listens (R)`} className="inline-flex items-center gap-1.5">Restart{keysArmed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>}
         {waiting && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
           <Hint title="Mic" description="Listens to your voice. Start switches it on for you; this button also opens the list of inputs, with each input's level and Stop.">

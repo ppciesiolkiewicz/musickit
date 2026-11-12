@@ -42,7 +42,8 @@ describe("placeDo", () => {
           for (const s of p.asks) assert.ok(p.midi + s >= v.low && p.midi + s <= v.high);
         }
   });
-  it("keeps C in the middle of a tenor's range for a fifth up", () => assert.equal(placeDo(0, VOICES.tenor, [7], "up")!.midi, 60));
+  it("keeps a tenor's 5th up from C low, C3 to G3, not C4 to G4", () => assert.equal(placeDo(0, VOICES.tenor, [7], "up")!.midi, 48));
+  it("keeps a tenor's 3rd and 5th up from D under A3 at the top", () => assert.equal(placeDo(2, VOICES.tenor, [4, 7], "up")!.midi, 50));
   it("drops what can't fit", () => {
     // two octaves up and down do not fit in a two-octave range at once
     const p = placeDo(0, VOICES.tenor, [24], "both")!;
