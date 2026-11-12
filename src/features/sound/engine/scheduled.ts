@@ -1,7 +1,9 @@
 import { getAudioContext } from "./context";
+import type { SampleBackend } from "./backend";
+import { bufferBackendFor } from "./backends/buffer";
 import { getInstrumentConfig } from "./instruments";
 import { pickSample } from "./notes";
-import { cachedSample, instrumentSamples, loadSample } from "./samples";
+import { instrumentSamples } from "./samples";
 
 export interface ScheduledNote {
   instrumentId: string;
@@ -15,6 +17,12 @@ export interface ScheduledNote {
   destination: AudioNode;
 }
 
+/** What plays scheduled notes; the buffer player on the app's context by default. */
+let backendOf: (instrumentId: string) => SampleBackend = () => bufferBackendFor(getAudioContext());
+export const setScheduledBackend = (fn: (instrumentId: string) => SampleBackend) => {
+  backendOf = fn;
+};
+
 /**
  * Play one sampled note at a set time, for anything that schedules ahead on the AudioContext clock (the backing band).
  * The sample is only re-pitched to the note, never stretched, so a tempo change costs no sound quality.
@@ -22,30 +30,11 @@ export interface ScheduledNote {
  */
 export function scheduleNote(n: ScheduledNote): boolean {
   const config = getInstrumentConfig(n.instrumentId);
-  const match = config ? pickSample(n.midi, instrumentSamples(n.instrumentId), config.strict) : null;
-  if (!config || !match) return false;
-  const buffer = cachedSample(match.sample.url);
-  if (!buffer) {
-    void loadSample(match.sample.url).catch(() => undefined);
-    return false;
-  }
-  const ctx = getAudioContext();
-  const src = ctx.createBufferSource();
-  src.buffer = buffer;
-  src.playbackRate.value = match.rate;
-  const gain = ctx.createGain();
-  const peak = 0.8 * Math.max(0.05, Math.min(1, n.velocity));
-  const attack = Math.max(0.003, config.attack);
-  const release = Math.max(0.03, config.release);
-  const off = n.when + Math.max(0.02, n.duration);
-  gain.gain.setValueAtTime(0, n.when);
-  gain.gain.linearRampToValueAtTime(peak, n.when + attack);
-  gain.gain.setValueAtTime(peak, off);
-  gain.gain.linearRampToValueAtTime(0.0001, off + release);
-  src.connect(gain);
-  gain.connect(n.destination);
-  src.start(n.when);
-  src.stop(off + release + 0.02);
-  src.onended = () => gain.disconnect();
-  return true;
+  if (!config || !pickSample(n.midi, instrumentSamples(n.instrumentId), config.strict)) return false;
+  const backend = backendOf(n.instrumentId);
+  // a scheduled velocity is 0–1 at full scale; the backends take 0.8 as a normal press
+  const started = backend.start(n.instrumentId, { midi: n.midi, at: n.when, velocity: n.velocity * 0.8, duration: n.duration }, n.destination);
+  if (started) return true;
+  void backend.load(n.instrumentId, n.midi).catch(() => undefined);
+  return false;
 }

@@ -1,7 +1,9 @@
 import { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "./context";
+import type { SampleBackend, SoundingNote } from "./backend";
+import { bufferBackendFor } from "./backends/buffer";
 import { getInstrumentConfig, OSCILLATOR_ID } from "./instruments";
 import { midiToHz, noteToMidi, pickSample, type NoteLike } from "./notes";
-import { cachedSample, instrumentSamples, loadSample, preloadInstrument } from "./samples";
+import { instrumentSamples, preloadInstrument } from "./samples";
 
 /** Something that can sound notes. The looper's instruments, the keyboards and the chord pages all use this one shape. */
 export interface Voice {
@@ -16,86 +18,75 @@ export interface Player extends Voice {
   preload(): Promise<void>;
 }
 
-interface Sounding {
-  gain: GainNode;
-  stop: (at: number) => void;
-  release: number;
-  /** when it starts on the audio clock, and how it gets to its peak */
-  at: number;
-  attack: number;
-  peak: number;
-}
-
 /** A tap let go before its note started (the output was still settling) is heard for this long, not lost. */
 const SHORTEST_NOTE = 0.12;
+/** a note pressed again while still sounding fades this fast */
+const QUICK = 0.03;
 
 export interface PlayerOptions {
   instrumentId?: string;
   /** where the sound goes; the app's main output by default */
   destination?: () => AudioNode;
+  /** what plays the samples; the buffer player on the app's context by default */
+  backend?: (instrumentId: string) => SampleBackend;
+}
+
+/** The oscillator: a triangle at the note, for the "Oscillator" instrument and an id with no config. */
+function oscillator(midi: number, velocity: number, at: number, dest: AudioNode): SoundingNote {
+  const ctx = getAudioContext();
+  const peak = 0.75 * 0.8 * Math.max(0.05, Math.min(1, velocity / 0.8));
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0, at);
+  gain.gain.linearRampToValueAtTime(peak, at + 0.01);
+  gain.connect(dest);
+  const osc = ctx.createOscillator();
+  osc.type = "triangle";
+  osc.frequency.value = midiToHz(midi);
+  osc.connect(gain);
+  osc.start(at);
+  const ended: (() => void)[] = [];
+  osc.onended = () => {
+    gain.disconnect();
+    ended.forEach((fn) => fn());
+  };
+  return {
+    at,
+    release(t, seconds = 0.15) {
+      const from = Math.max(t, at + (t < at ? SHORTEST_NOTE : 0));
+      gain.gain.cancelScheduledValues(from);
+      gain.gain.setValueAtTime(t < at ? peak : gain.gain.value, from);
+      gain.gain.linearRampToValueAtTime(0.001, from + seconds);
+      osc.stop(from + seconds + 0.05);
+    },
+    stop: (t) => osc.stop(t),
+    onEnded: (fn) => ended.push(fn),
+  };
 }
 
 /** A player with its own instrument and its own set of sounding notes, sharing the app's samples and AudioContext. */
 export function createPlayer(options: PlayerOptions = {}): Player {
   let instrumentId = options.instrumentId ?? "PIANO";
   const dest = options.destination ?? getOutputBus;
-  const sounding = new Map<number, Sounding>();
+  const backendOf = options.backend ?? (() => bufferBackendFor(getAudioContext()));
+  const sounding = new Map<number, SoundingNote>();
   /** notes pressed whose sample is still loading */
   const waiting = new Set<number>();
 
-  const start = (midi: number, velocity: number, buffer: AudioBuffer | null, rate: number, attack: number, release: number) => {
-    const ctx = getAudioContext();
-    const t = audioStartTime();
-    const gain = ctx.createGain();
-    const peak = 0.8 * Math.max(0.05, Math.min(1, velocity / 0.8));
-    gain.gain.setValueAtTime(0, t);
-    gain.connect(dest());
-    if (buffer) {
-      const src = ctx.createBufferSource();
-      src.buffer = buffer;
-      src.playbackRate.value = rate;
-      src.connect(gain);
-      gain.gain.linearRampToValueAtTime(peak, t + (attack || 0.01));
-      src.start(t);
-      src.onended = () => {
-        gain.disconnect();
-        if (sounding.get(midi)?.gain === gain) sounding.delete(midi);
-      };
-      sounding.set(midi, { gain, release, stop: (at) => src.stop(at), at: t, attack: attack || 0.01, peak });
-    } else {
-      const osc = ctx.createOscillator();
-      osc.type = "triangle";
-      osc.frequency.value = midiToHz(midi);
-      osc.connect(gain);
-      gain.gain.linearRampToValueAtTime(peak * 0.75, t + 0.01);
-      osc.start(t);
-      osc.onended = () => {
-        gain.disconnect();
-        if (sounding.get(midi)?.gain === gain) sounding.delete(midi);
-      };
-      sounding.set(midi, { gain, release: 0.15, stop: (at) => osc.stop(at), at: t, attack: 0.01, peak: peak * 0.75 });
-    }
+  const keep = (midi: number, note: SoundingNote) => {
+    sounding.set(midi, note);
+    note.onEnded(() => {
+      if (sounding.get(midi) === note) sounding.delete(midi);
+    });
   };
 
   const release = (midi: number, quick = false) => {
     const s = sounding.get(midi);
     if (!s) return;
     sounding.delete(midi);
-    const ctx = getAudioContext();
-    const now = ctx.currentTime;
-    if (now < s.at) {
-      if (quick) return s.stop(now); // replaced or silenced before it sounded
-      const off = s.at + Math.max(s.attack, SHORTEST_NOTE);
-      s.gain.gain.setValueAtTime(s.peak, off);
-      s.gain.gain.linearRampToValueAtTime(0.001, off + s.release);
-      s.stop(off + s.release + 0.05);
-      return;
-    }
-    const r = quick ? 0.03 : s.release;
-    s.gain.gain.cancelScheduledValues(now);
-    s.gain.gain.setValueAtTime(s.gain.gain.value, now);
-    s.gain.gain.linearRampToValueAtTime(0.001, now + r);
-    s.stop(now + r + 0.05);
+    const now = getAudioContext().currentTime;
+    // replaced or silenced before it sounded: never heard
+    if (quick && now < s.at) return s.stop(now);
+    s.release(now, quick ? QUICK : undefined);
   };
 
   const player: Player = {
@@ -113,15 +104,18 @@ export function createPlayer(options: PlayerOptions = {}): Player {
       void wakeAudio();
       release(midi, true);
       const config = getInstrumentConfig(instrumentId);
-      const match = config ? pickSample(midi, instrumentSamples(instrumentId), config.strict) : null;
-      if (config?.strict && !match) return; // a pad without a sample, or a sampler with none, stays silent
-      if (!config || !match) return start(midi, velocity, null, 1, 0, 0.15);
-      const buffer = cachedSample(match.sample.url);
-      if (buffer) return start(midi, velocity, buffer, match.rate, config.attack, config.release);
+      if (!config) return keep(midi, oscillator(midi, velocity, audioStartTime(), dest()));
+      // a pad without a sample, or a sampler with none, stays silent
+      if (!pickSample(midi, instrumentSamples(instrumentId), config.strict)) return;
+      const id = instrumentId;
+      const backend = backendOf(id);
+      const started = backend.start(id, { midi, at: audioStartTime(), velocity }, dest());
+      if (started) return keep(midi, started);
       waiting.add(midi);
-      void loadSample(match.sample.url).then((buf) => {
+      void backend.load(id, midi).then(() => {
         if (!waiting.delete(midi)) return; // released before it loaded
-        start(midi, velocity, buf, match.rate, config.attack, config.release);
+        const late = backend.start(id, { midi, at: audioStartTime(), velocity }, dest());
+        if (late) keep(midi, late);
       });
     },
     noteOff(note) {
@@ -132,7 +126,8 @@ export function createPlayer(options: PlayerOptions = {}): Player {
     },
     allOff() {
       waiting.clear();
-      [...sounding].forEach(([m, s]) => release(m, getAudioContext().currentTime < s.at));
+      const now = getAudioContext().currentTime;
+      [...sounding.keys()].forEach((m) => release(m, now < sounding.get(m)!.at));
     },
   };
   return player;

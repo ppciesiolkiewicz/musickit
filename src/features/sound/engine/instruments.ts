@@ -1,3 +1,4 @@
+import type { Tuning } from "./notes";
 import { getRuntimeInstrument, runtimeInstrumentOptions } from "./runtime";
 
 export interface InstrumentConfig {
@@ -6,6 +7,8 @@ export interface InstrumentConfig {
   baseUrl: string;
   attack?: number;
   release?: number;
+  /** cents each sample file measures off its note (keyed by the sample's MIDI note), played shifted back by that */
+  tuning?: Tuning;
 }
 
 const DEFAULT_ATTACK = 0;
@@ -90,8 +93,8 @@ export function allInstrumentOptions(): { label: string; value: string }[] {
   return [...builtIn, ...runtimeInstrumentOptions(), { label: "Oscillator", value: OSCILLATOR_ID }];
 }
 
-export function getInstrumentConfig(id: string): { label: string; urls: Record<string, string>; baseUrl: string; attack: number; release: number; strict: boolean } | null {
+export function getInstrumentConfig(id: string): { label: string; urls: Record<string, string>; baseUrl: string; attack: number; release: number; strict: boolean; tuning?: Tuning } | null {
   const config = (INSTRUMENTS[id as InstrumentId] as InstrumentConfig | undefined) ?? getRuntimeInstrument(id);
   if (!config) return null;
-  return { label: config.label, urls: config.urls, baseUrl: config.baseUrl, attack: config.attack ?? DEFAULT_ATTACK, release: config.release ?? DEFAULT_RELEASE, strict: (config as { strict?: boolean }).strict === true };
+  return { label: config.label, urls: config.urls, baseUrl: config.baseUrl, attack: config.attack ?? DEFAULT_ATTACK, release: config.release ?? DEFAULT_RELEASE, strict: (config as { strict?: boolean }).strict === true, tuning: (config as { tuning?: Tuning }).tuning };
 }

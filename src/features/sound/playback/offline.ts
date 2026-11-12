@@ -1,6 +1,6 @@
+import { createBufferBackend } from "../engine/backends/buffer";
 import { getInstrumentConfig } from "../engine/instruments";
-import { noteToMidi, pickSample } from "../engine/notes";
-import { instrumentSamples, loadSample } from "../engine/samples";
+import { noteToMidi } from "../engine/notes";
 import type { Step } from "./sequence";
 
 export interface OfflineClick {
@@ -9,38 +9,22 @@ export interface OfflineClick {
   accent: boolean;
 }
 
-/** Timed notes (and metronome clicks) rendered off the clock to a stereo buffer, sounding as the live player does. */
+/**
+ * Timed notes (and metronome clicks) rendered off the clock to a stereo buffer, sounding as the live player does. Always on our
+ * buffer player: it plays on any context, and touches no global state the live sound depends on.
+ */
 export async function renderOffline(o: { steps: Step[]; clicks?: OfflineClick[]; durationMs: number; instrumentId?: string; sampleRate?: number }): Promise<AudioBuffer> {
   const { steps, clicks = [], durationMs, instrumentId = "PIANO", sampleRate = 48000 } = o;
   const ctx = new OfflineAudioContext(2, Math.ceil((durationMs / 1000) * sampleRate), sampleRate);
-  const config = getInstrumentConfig(instrumentId);
-  if (!config) throw new Error(`${instrumentId}: an instrument without samples cannot be rendered offline`);
-  const samples = instrumentSamples(instrumentId);
+  if (!getInstrumentConfig(instrumentId)) throw new Error(`${instrumentId}: an instrument without samples cannot be rendered offline`);
+  const backend = createBufferBackend(ctx);
 
-  // same envelope as the live player: ramp up over the attack, ramp down over the release from the note's end
   for (const s of steps) {
     const midi = noteToMidi(s.note);
     if (midi === null) continue;
-    const match = pickSample(midi, samples, config.strict);
-    if (!match) continue; // a strict instrument without that note stays silent, as live
-    const buffer = await loadSample(match.sample.url);
-    const t = s.at / 1000;
-    const off = (s.at + s.hold) / 1000;
-    const release = config.release ?? 0.3;
-    const peak = 0.8 * Math.max(0.05, Math.min(1, (s.velocity ?? 0.8) / 0.8));
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(peak, t + (config.attack || 0.01));
-    // a note released before its attack ends is cut where the ramp has got to
-    gain.gain.setValueAtTime(Math.min(peak, peak * ((off - t) / (config.attack || 0.01))), Math.max(t, off));
-    gain.gain.linearRampToValueAtTime(0.001, Math.max(t, off) + release);
-    gain.connect(ctx.destination);
-    const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    src.playbackRate.value = match.rate;
-    src.connect(gain);
-    src.start(t);
-    src.stop(Math.max(t, off) + release + 0.05);
+    await backend.load(instrumentId, midi);
+    // a strict instrument without that note gives null and stays silent, as live
+    backend.start(instrumentId, { midi, at: s.at / 1000, velocity: s.velocity ?? 0.8, duration: s.hold / 1000 }, ctx.destination);
   }
 
   for (const c of clicks) {
