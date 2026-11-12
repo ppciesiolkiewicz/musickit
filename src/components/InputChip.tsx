@@ -111,7 +111,7 @@ export default function InputChip({ status = "off", mic, align = "left", mode = 
         aria-expanded={open}
         aria-label={`Input: ${name}${message ? `. ${message}` : ""}`}
         title={message ?? (mic ? (mic.on ? "Pick the input, or stop the microphone" : "Start the microphone and pick the input") : "The input the app listens to")}
-        className={`flex h-7 max-w-48 items-center gap-1.5 rounded-full border px-2.5 text-xs transition focus-visible:outline-2 focus-visible:outline-sky-400 ${tone}`}
+        className={`flex h-7 max-w-48 items-center gap-1.5 rounded-full border px-2.5 text-xs transition lg:h-9 lg:max-w-56 lg:px-3.5 lg:text-sm focus-visible:outline-2 focus-visible:outline-sky-400 ${tone}`}
       >
         <Icon name={blocked ? "alert-triangle" : "mic"} size={13} className={`shrink-0 ${status === "asking" ? "animate-pulse" : ""}`} />
         <span className="min-w-0 truncate">{mic && !mic.on ? "Start microphone" : name}</span>

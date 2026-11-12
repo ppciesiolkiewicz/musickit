@@ -52,7 +52,7 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const ROW_H = W < NARROW ? 20 : 14;
+  const ROW_H = W < NARROW ? 20 : 18;
   const mid = GUTTER + (W - GUTTER) / 2;
   const DO_X = [GUTTER + 12, mid - 10];
   const TARGET_X = [mid + 10, W - 40];
