@@ -6,6 +6,7 @@ import { BetaBadge, DISPLAY } from "@/components/landing/Display";
 import { demoCards, type DemoCard } from "@/features/plan";
 import { PRESET_INFO } from "@/features/teachers/studio";
 import ContactForm from "@/components/landing/ContactForm";
+import Founder from "@/components/landing/Founder";
 import GlassShapes from "@/components/landing/GlassShapes";
 
 export const metadata: Metadata = {
@@ -154,20 +155,13 @@ function NotesCreator() {
   );
 }
 
-/** Who made the demos, and a form to write to the founder. The photo is the founder's own. */
+/** Who made the demos, and a form to write to the founder. */
 function Maker() {
   return (
-    <section aria-labelledby="maker-h" className="grid items-center gap-8 rounded-3xl border border-white/10 bg-slate-900/60 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-        {/* eslint-disable-next-line @next/next/no-img-element -- a small square photo, already sized */}
-        <img src="/images/founder.jpg" alt="Piotr, founder of attunr, playing bass on stage" width={160} height={160} loading="lazy" className="size-28 shrink-0 rounded-full border border-white/15 object-cover shadow-xl shadow-sky-950/50 ring-4 ring-sky-400/15 sm:size-36" />
-        <div>
-          <h2 id="maker-h" className="text-3xl leading-tight text-slate-50 text-balance" style={DISPLAY}>Questions about a demo? Write to me.</h2>
-          <p className="mt-3 text-sm leading-relaxed text-slate-300">I build attunr. If an example doesn&apos;t play right, or you&apos;d like one for what you teach, tell me here.</p>
-          <p className="mt-2 text-sm text-slate-400"><b className="text-slate-200">Piotr</b>, founder of attunr</p>
-        </div>
-      </div>
-      <ContactForm source="demo" initialMessage={"Hi Piotr, I tried the demos. "} cta="Send message" done="I'll reply by email." note="I only use your email to reply. No newsletter." />
+    <section aria-labelledby="maker-h" className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 sm:p-8">
+      <Founder id="maker-h" title="Questions about a demo? Write to me." text={<>I build attunr. If an example doesn&apos;t play right, or you&apos;d like one for what you teach, tell me here.</>}>
+        <ContactForm source="demo" initialMessage={"Hi Piotr, I tried the demos. "} cta="Send message" done="I'll reply by email." note="I only use your email to reply. No newsletter." />
+      </Founder>
     </section>
   );
 }
