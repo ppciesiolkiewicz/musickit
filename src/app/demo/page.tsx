@@ -95,10 +95,13 @@ const AUTOPLAN_STEPS: { icon: IconName; text: string }[] = [
   { icon: "play", text: "A new day of exercises opens each day, and each week builds on the last." },
 ];
 
-/** An example panel: on wide screens it spans the two shared rows (head, cards) as a subgrid. */
-const PANEL = "rounded-3xl border p-5 sm:p-7 lg:row-span-2 lg:grid lg:grid-rows-subgrid";
+/**
+ * An example panel: on wide screens it spans the two shared rows (head, cards) as a subgrid. Every section on the page is frosted
+ * (backdrop-blur), so a glass shape sliding behind one shows blurred under it, never sharp through it.
+ */
+const PANEL = "rounded-3xl border backdrop-blur-xl p-5 sm:p-7 lg:row-span-2 lg:grid lg:grid-rows-subgrid";
 
-const TOOL = "flex flex-col rounded-3xl border p-6 sm:p-8";
+const TOOL = "flex flex-col rounded-3xl border backdrop-blur-xl p-6 sm:p-8";
 const STEP_TILE = "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg";
 
 function Autoplan() {
@@ -158,7 +161,7 @@ function NotesCreator() {
 /** Who made the demos, and a form to write to the founder. */
 function Maker() {
   return (
-    <section aria-labelledby="maker-h" className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 sm:p-8">
+    <section aria-labelledby="maker-h" className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-xl sm:p-8">
       <Founder id="maker-h" title="Questions about a demo? Write to me." text={<>I build attunr. If an example doesn&apos;t play right, or you&apos;d like one for what you teach, tell me here.</>}>
         <ContactForm source="demo" initialMessage={"Hi Piotr, I tried the demos. "} cta="Send message" done="I'll reply by email." note="I only use your email to reply. No newsletter." />
       </Founder>
@@ -180,7 +183,7 @@ function DemoVideo() {
       {/* dots behind two corners, so the frame sits on the page's dot field */}
       <div aria-hidden="true" className="glass-dots hidden sm:block -left-16 -top-12 -z-10 h-56 w-56" />
       <div aria-hidden="true" className="glass-dots hidden sm:block -bottom-12 -right-16 -z-10 h-56 w-56" />
-      <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-dashed border-sky-400/30 bg-linear-to-br from-sky-500/10 via-slate-900/70 to-violet-500/10">
+      <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-dashed border-sky-400/30 backdrop-blur-xl bg-linear-to-br from-sky-500/10 via-slate-900/70 to-violet-500/10">
         <svg viewBox="0 0 800 450" className="absolute inset-0 h-full w-full text-sky-300" aria-hidden="true">
           <g stroke="currentColor" strokeOpacity="0.25" strokeWidth="2">
             {STAVE.map((y) => <line key={y} x1="40" x2="760" y1={y} y2={y} />)}
@@ -286,7 +289,7 @@ export default function DemoIndex() {
             <Autoplan />
             <NotesCreator />
           </div>
-          <p className="mt-4 flex gap-2 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3 text-sm text-slate-400">
+          <p className="mt-4 flex gap-2 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3 text-sm text-slate-400 backdrop-blur-xl">
             <Icon name="info" size={16} className="mt-0.5 shrink-0 text-sky-300" />
             <span><b className="font-semibold text-slate-200">In the beta, the AI part runs on your own AI.</b> Use an AI extension in your browser, such as Claude in Chrome, or paste the prompt into any AI chat. That&apos;s how attunr stays free and open.</span>
           </p>

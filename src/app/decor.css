@@ -52,6 +52,16 @@
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
 
+/* a music sign inside a shape, in place of the ring: drawn in the ring's gradient (GlassShapes), with the ring's glow */
+.glass-glyph {
+  position: absolute;
+  inset: 20%;
+  opacity: 0.85;
+  filter:
+    drop-shadow(0 0 4px color-mix(in oklab, var(--inlay) 70%, transparent))
+    drop-shadow(0 0 16px color-mix(in oklab, var(--inlay-2) 45%, transparent));
+}
+
 /* a soft blur of colour behind the shapes */
 .glass-glow {
   position: absolute;
@@ -98,7 +108,7 @@
 }
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .glass-shape, .glass-inlay, .glass-glow, .glass-dots {
+    .glass-shape, .glass-inlay, .glass-glyph, .glass-glow, .glass-dots {
       animation: glass-parallax linear both;
       animation-timeline: view();
     }
