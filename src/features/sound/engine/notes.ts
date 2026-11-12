@@ -18,16 +18,34 @@ export const midiToName = (midi: number): string => `${SHARPS[((midi % 12) + 12)
 
 export const midiToHz = (midi: number): number => 440 * 2 ** ((midi - 69) / 12);
 
-/** The sample closest to `target` (in semitones) and the playback rate that tunes it to the target. */
+/** Cents each sample file measures off its note at A440 (+ sharp), keyed by the sample's MIDI note. */
+export type Tuning = Record<number, number>;
+
+/** The shift that puts a sample right under a tuning: minus what it measures, 0 when it is not measured. */
+export const tunedCents = (tuning: Tuning | undefined, sampleMidi: number): number => -(tuning?.[sampleMidi] ?? 0) || 0;
+
+/**
+ * The sample closest to `target` (in semitones) and the playback rate that tunes it to the target. On a tie the higher sample
+ * wins, as Tone.js's Sampler picks, so a tuning keyed by sample means the same note under either.
+ */
 export function closestSample<T extends { midi: number }>(target: number, samples: readonly T[]): { sample: T; rate: number } | null {
   let best: T | null = null;
-  for (const s of samples) if (best === null || Math.abs(s.midi - target) < Math.abs(best.midi - target)) best = s;
+  for (const s of samples) {
+    if (best === null) best = s;
+    else {
+      const d = Math.abs(s.midi - target), b = Math.abs(best.midi - target);
+      if (d < b || (d === b && s.midi > best.midi)) best = s;
+    }
+  }
   return best ? { sample: best, rate: 2 ** ((target - best.midi) / 12) } : null;
 }
 
-/** The sample a note plays: the closest one tuned to it, or with `strict` only a sample recorded at exactly that note (untuned). */
-export function pickSample<T extends { midi: number }>(target: number, samples: readonly T[], strict = false): { sample: T; rate: number } | null {
-  if (!strict) return closestSample(target, samples);
-  const s = samples.find((x) => x.midi === target);
-  return s ? { sample: s, rate: 1 } : null;
+/**
+ * The sample a note plays: the closest one tuned to it, or with `strict` only a sample recorded at exactly that note (not moved).
+ * A `tuning` shifts the rate back by the chosen sample's measured cents, strict or not.
+ */
+export function pickSample<T extends { midi: number }>(target: number, samples: readonly T[], strict = false, tuning?: Tuning): { sample: T; rate: number } | null {
+  const hit = strict ? (() => { const s = samples.find((x) => x.midi === target); return s ? { sample: s, rate: 1 } : null; })() : closestSample(target, samples);
+  if (!hit || !tuning) return hit;
+  return { sample: hit.sample, rate: hit.rate * 2 ** (tunedCents(tuning, hit.sample.midi) / 1200) };
 }

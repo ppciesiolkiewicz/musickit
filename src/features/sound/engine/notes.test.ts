@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { closestSample, midiToHz, midiToName, noteToMidi, pickSample } from "./notes";
+import { closestSample, midiToHz, midiToName, noteToMidi, pickSample, tunedCents } from "./notes";
 
 test("note names and numbers convert both ways", () => {
   assert.equal(noteToMidi("C4"), 60);
@@ -30,5 +30,21 @@ test("strict: only a sample at exactly the note plays, untuned", () => {
   assert.deepEqual(pickSample(38, samples, true), { sample: { midi: 38 }, rate: 1 });
   assert.equal(pickSample(37, samples, true), null);
   assert.equal(pickSample(60, [], true), null);
-  assert.equal(pickSample(37, samples)!.sample.midi, 36);
+  assert.equal(pickSample(37, samples)!.sample.midi, 38); // a tie goes up
+});
+
+test("a tie goes to the higher sample, as Tone.js picks", () => {
+  assert.equal(closestSample(61, [{ midi: 60 }, { midi: 62 }])!.sample.midi, 62);
+});
+
+test("a tuning shifts the rate back by the sample's cents", () => {
+  const m = pickSample(60, [{ midi: 60 }], false, { 60: 10 })!;
+  assert.ok(Math.abs(m.rate - 2 ** (-10 / 1200)) < 1e-12);
+  assert.ok(Math.abs(pickSample(62, [{ midi: 60 }], false, { 60: 10 })!.rate - 2 ** (2 / 12) * 2 ** (-10 / 1200)) < 1e-12);
+  assert.equal(tunedCents(undefined, 60), 0);
+  assert.equal(tunedCents({ 60: -4 }, 60), 4);
+});
+
+test("strict keeps the tuning: an exact sample still gets its correction", () => {
+  assert.ok(Math.abs(pickSample(38, [{ midi: 38 }], true, { 38: 6 })!.rate - 2 ** (-6 / 1200)) < 1e-12);
 });
