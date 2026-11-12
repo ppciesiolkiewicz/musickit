@@ -45,6 +45,9 @@ function CareLine({ children }: { children: ReactNode }) {
   );
 }
 
+/** The width of the text column: a tool keeps to it, so a step reads as one column, its text then its tool. */
+const MEASURE = "w-full max-w-3xl";
+
 /**
  * A tool framed with its type named above it, in the review view (`SectionAside`), so the boundary between tool and text
  * reads. Its tour button sits at the end of the caption and walks only this frame.
@@ -52,7 +55,7 @@ function CareLine({ children }: { children: ReactNode }) {
 function ToolFrame({ type, children }: { type: string; children: ReactNode }) {
   const [root, setRoot] = useState<HTMLElement | null>(null);
   return (
-    <figure ref={setRoot} className="my-1 overflow-hidden rounded-xl border border-slate-600/80 bg-slate-950/60">
+    <figure ref={setRoot} className={`my-1 overflow-hidden rounded-xl border border-slate-600/80 bg-slate-950/60 ${MEASURE}`}>
       <figcaption className="flex items-center gap-2 border-b border-slate-700/70 bg-slate-800/60 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-300">
         <span aria-hidden className="size-1.5 rounded-full bg-amber-400" />
         {type.replace(/-/g, " ")}
@@ -67,7 +70,7 @@ function ToolFrame({ type, children }: { type: string; children: ReactNode }) {
 function ToolBox({ type, children }: { type: string; children: ReactNode }) {
   const [root, setRoot] = useState<HTMLElement | null>(null);
   return (
-    <div ref={setRoot} className="flex flex-col gap-1 py-1">
+    <div ref={setRoot} className={`flex flex-col gap-1 py-1 ${MEASURE}`}>
       <div className="flex justify-end"><ToolTour type={type} root={root} /></div>
       {children}
     </div>
@@ -152,7 +155,7 @@ export default function Cells({ cells, choice, address = "ex" }: { cells: Cell[]
   const chipRow = (id: string, c: Choice | undefined) => {
     if (!c || isOpen(c)) return null;
     const row = <ChoiceChips options={c.options} label={c.label} value={pickOf(id, c)} onChange={(index) => setPicked((k) => ({ ...k, [id]: index }))} />;
-    return framed ? <ToolFrame type="choice">{row}</ToolFrame> : <div className="-mb-1 pt-1">{row}</div>;
+    return framed ? <ToolFrame type="choice">{row}</ToolFrame> : <div className={`-mb-1 pt-1 ${MEASURE}`}>{row}</div>;
   };
   const firstBlockTool = flat.findIndex((c) => c.type === "tool");
   // the part's items: the chips, then "Start exercise" (shown only when there is more than one thing to start), before its first tool
