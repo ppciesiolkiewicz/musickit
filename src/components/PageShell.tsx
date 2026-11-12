@@ -21,7 +21,7 @@ import type { TourStep } from "@/features/guide/tour";
  * for pages that listen or play. `centered` puts the title, intro and content in the middle, for a page that is one small
  * form (log in, create account).
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, action, header, related, pageId, tour, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, action, header, related, pageId, tour, decor, children }: {
   title: string;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
   eyebrow?: string;
@@ -41,14 +41,17 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   pageId?: string;
   /** the page's tour, walked by the tour button; needs `pageId` */
   tour?: TourStep[];
+  /** decoration drawn behind the whole page, from the nav down (GlassShapes); it sits under the content and takes no clicks */
+  decor?: ReactNode;
   children: ReactNode;
 }) {
   const section = sectionFor(active);
   const theory = active.startsWith("/theory/");
   const heading = <PageHeading title={title} eyebrow={eyebrow} bar={pageBar(active)} centered={centered} />;
   return (
-    <div className="app-bg min-h-screen text-slate-200">
-      <div className={`mx-auto flex w-full flex-col gap-4 pt-8 pb-3 sm:pt-12 sm:pb-4 ${full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
+    <div className={`app-bg min-h-screen text-slate-200 ${decor ? "isolate" : ""}`}>
+      <div className={`${decor ? "relative " : ""}mx-auto flex w-full flex-col gap-4 pt-8 pb-3 sm:pt-12 sm:pb-4 ${full ? "px-3 sm:px-6 lg:px-8" : wide ? "max-w-[96rem] px-3 sm:px-5" : "max-w-[80rem] px-3 sm:px-6 lg:px-8"}`}>
+        {decor}
         <PreloadPiano />
         <PracticeReminder />
         <AgentExerciseTools />

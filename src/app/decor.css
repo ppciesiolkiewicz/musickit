@@ -1,0 +1,85 @@
+/*
+ * Decorative glass shapes behind a page (components/landing/GlassShapes.tsx): frosted squares and rounds, each with a
+ * glowing two-colour ring inside. As the page scrolls, each shape slides by its own depth (--d), so the near ones pass faster
+ * than the far ones: a CSS scroll-driven animation, no script. Where that isn't supported, or with reduced motion, they stand still.
+ */
+
+/* the layer: spans its container and reaches out into the spare room either side of the page. `clip`, not `hidden`, so it
+   never adds a scrollbar and is not a scroll container of its own (which would stop the shapes' scroll timeline) */
+.glass-field {
+  position: absolute;
+  inset-block: 0;
+  inset-inline: calc(-1 * clamp(0px, (100vw - 100%) / 2 - 1rem, 14rem));
+  overflow: clip;
+  pointer-events: none;
+  z-index: -1;
+  /* fade out at the bottom, so a clipped glow never ends in a hard line */
+  -webkit-mask: linear-gradient(#000 calc(100% - 12rem), transparent);
+  mask: linear-gradient(#000 calc(100% - 12rem), transparent);
+}
+
+.glass-shape {
+  position: absolute;
+  background: color-mix(in oklab, var(--color-slate-800) 40%, transparent);
+  border: 1px solid color-mix(in oklab, white 9%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 12%, transparent), 0 24px 48px -24px rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+}
+
+/* the glowing ring inside a shape, from --inlay to --inlay-2 */
+.glass-inlay {
+  position: absolute;
+  inset: 12%;
+  border-radius: inherit;
+  opacity: 0.75;
+  box-shadow:
+    0 0 24px 2px color-mix(in oklab, var(--inlay) 35%, transparent),
+    0 0 70px 14px color-mix(in oklab, var(--inlay-2) 18%, transparent),
+    inset 0 0 28px 4px color-mix(in oklab, var(--inlay-2) 28%, transparent),
+    inset 0 0 70px 10px color-mix(in oklab, var(--inlay) 14%, transparent);
+}
+.glass-inlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  opacity: 0.8;
+  background: linear-gradient(135deg, color-mix(in oklab, var(--inlay) 45%, white), var(--inlay) 30%, color-mix(in oklab, var(--inlay) 50%, var(--inlay-2)) 50%, var(--inlay-2) 72%, color-mix(in oklab, var(--inlay-2) 45%, white));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+
+/* a soft blur of colour behind the shapes */
+.glass-glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.3;
+}
+
+/* a patch of dots, like a fretboard's inlays seen from far off */
+.glass-dots {
+  position: absolute;
+  background-image: radial-gradient(color-mix(in oklab, white 22%, transparent) 1.2px, transparent 1.6px);
+  background-size: 18px 18px;
+  -webkit-mask: radial-gradient(closest-side, #000, transparent);
+  mask: radial-gradient(closest-side, #000, transparent);
+}
+
+/* parallax: across its pass through the screen, a piece slides from --d×4px below its place to --d×4px above it.
+   It moves `transform` only, so Tailwind's rotate-* (the `rotate` property) still applies. */
+@keyframes glass-parallax {
+  from { transform: translateY(calc(var(--d, 0) * 4px)); }
+  to { transform: translateY(calc(var(--d, 0) * -4px)); }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .glass-shape, .glass-inlay, .glass-glow, .glass-dots {
+      animation: glass-parallax linear both;
+      animation-timeline: view();
+    }
+  }
+}

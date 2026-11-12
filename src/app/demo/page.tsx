@@ -5,6 +5,8 @@ import Icon, { type IconName } from "@/components/Icon";
 import { BetaBadge, DISPLAY } from "@/components/landing/Display";
 import { demoCards, type DemoCard } from "@/features/plan";
 import { PRESET_INFO } from "@/features/teachers/studio";
+import ContactForm from "@/components/landing/ContactForm";
+import GlassShapes from "@/components/landing/GlassShapes";
 
 export const metadata: Metadata = {
   title: "Demos: ready-made AI practice plans and teacher notes · attunr",
@@ -152,6 +154,24 @@ function NotesCreator() {
   );
 }
 
+/** Who made the demos, and a form to write to the founder. The photo is the founder's own. */
+function Maker() {
+  return (
+    <section aria-labelledby="maker-h" className="grid items-center gap-8 rounded-3xl border border-white/10 bg-slate-900/60 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        {/* eslint-disable-next-line @next/next/no-img-element -- a small square photo, already sized */}
+        <img src="/images/founder.jpg" alt="Piotr, founder of attunr, playing bass on stage" width={160} height={160} loading="lazy" className="size-28 shrink-0 rounded-full border border-white/15 object-cover shadow-xl shadow-sky-950/50 ring-4 ring-sky-400/15 sm:size-36" />
+        <div>
+          <h2 id="maker-h" className="text-3xl leading-tight text-slate-50 text-balance" style={DISPLAY}>Questions about a demo? Write to me.</h2>
+          <p className="mt-3 text-sm leading-relaxed text-slate-300">I build attunr. If an example doesn&apos;t play right, or you&apos;d like one for what you teach, tell me here.</p>
+          <p className="mt-2 text-sm text-slate-400"><b className="text-slate-200">Piotr</b>, founder of attunr</p>
+        </div>
+      </div>
+      <ContactForm source="demo" initialMessage={"Hi Piotr, I tried the demos. "} cta="Send message" done="I'll reply by email." note="I only use your email to reply. No newsletter." />
+    </section>
+  );
+}
+
 /** A ruled line with a label in the middle, between the examples and the tools that made them. */
 function Divider({ label }: { label: string }) {
   return (
@@ -172,7 +192,7 @@ function Divider({ label }: { label: string }) {
 export default function DemoIndex() {
   const cards = demoCards();
   return (
-    <PageShell active="/plan" title="Demos" intro="What your students practise with between lessons, and the two tools that make it. Open any example and try it as a student would. Nothing here is saved.">
+    <PageShell active="/plan" title="Demos" intro="What your students practise with between lessons, and the two tools that make it. Open any example and try it as a student would. Nothing here is saved." decor={<GlassShapes />}>
       <div className="flex flex-col gap-12 pb-10">
         {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]">
@@ -196,8 +216,7 @@ export default function DemoIndex() {
 
           <section aria-labelledby="notes-h" className={`${PANEL} border-teal-400/30 bg-linear-to-br from-teal-500/30 via-emerald-500/15 to-cyan-600/25 shadow-2xl shadow-teal-950/40`}>
             <PanelHead id="notes-h" badge="Notes creator" icon="file-text" tone="border-teal-400/40 bg-teal-400/10 text-teal-200" title="Made with the Notes creator" text="A lesson on one page, the way a teacher sends it to a student." />
-            {/* the notes are fewer than the plans: they stay in view while the plans scroll by */}
-            <div className="lg:sticky lg:top-24 lg:self-start">
+            <div>
               <ColumnHead icon="file-text" tile="bg-teal-500/15 text-teal-300" name="Teacher notes" />
               <ul className="flex flex-col gap-4">
                 {Object.entries(PRESET_INFO).map(([slug, note]) => (
@@ -234,6 +253,8 @@ export default function DemoIndex() {
             <span><b className="font-semibold text-slate-200">In the beta, the AI part runs on your own AI.</b> Use an AI extension in your browser, such as Claude in Chrome, or paste the prompt into any AI chat. That&apos;s how attunr stays free and open.</span>
           </p>
         </div>
+
+        <Maker />
       </div>
     </PageShell>
   );
