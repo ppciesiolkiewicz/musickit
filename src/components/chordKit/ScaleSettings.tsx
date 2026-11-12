@@ -80,7 +80,7 @@ function InputLine() {
 /** A section of the bar: a heading and its rows, set off from the one above by a rule. */
 function BarSection({ title, first = false, children }: { title?: string; first?: boolean; children: ReactNode }) {
   return (
-    <section aria-label={title} className={`flex flex-col gap-1.5 ${first ? "" : "panel-rule pt-5"}`}>
+    <section aria-label={title} className={`flex flex-col gap-2 ${first ? "" : "panel-rule pt-5"}`}>
       {title && <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-300">{title}</h3>}
       {children}
     </section>
@@ -91,8 +91,9 @@ function BarSection({ title, first = false, children }: { title?: string; first?
 export function BarRow({ label, info, children }: { label: string; info?: ReactNode; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span className="flex w-20 shrink-0 items-center gap-1 text-[11px] uppercase tracking-wider text-slate-500">
+    // the label sits level with the first line of chips (h-8: a chip and the row's py-0.5), also when they wrap
+    <div className="flex flex-wrap items-start gap-x-2 gap-y-1">
+      <span className="flex h-8 w-20 shrink-0 items-center gap-1 text-[11px] uppercase tracking-wider text-slate-500">
         {label}
         {info && <InfoButton open={open} onClick={() => setOpen((v) => !v)} label={`About ${label.toLowerCase()}`} />}
       </span>
@@ -200,7 +201,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
   const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
     // breaks out of the page column to span the window, less a small gutter each side; as a side column it fills the window's height
-    <div data-tour="scale-settings" className={`sticky top-2 z-20 mx-[calc(50%-50vw+0.5rem)] flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2.5 shadow-lg sm:px-6 sm:py-3 shadow-black/30 backdrop-blur ${side ? SIDE : ""}`}>
+    <div data-tour="scale-settings" className={`sticky top-2 z-20 mx-[calc(50%-50vw+0.5rem)] flex flex-col gap-3 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2.5 shadow-lg sm:px-6 sm:py-3 shadow-black/30 backdrop-blur ${side ? SIDE : ""}`}>
       <button
         type="button"
         onClick={toggle}
@@ -230,8 +231,8 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
         </span>
       </button>
       {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
-      <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-2 overflow-y-auto sm:max-h-none sm:overflow-visible ${side ? "lg:flex" : "xl:flex-row xl:items-center"}`}>
-        <div className="flex min-w-0 flex-1 flex-col gap-4">
+      <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-5 overflow-y-auto sm:max-h-none sm:overflow-visible ${side ? "lg:flex" : "xl:flex-row xl:items-center xl:gap-6"}`}>
+        <div className="flex min-w-0 flex-1 flex-col gap-5">
           {filters && (
             <BarSection title="Filter" first>{filters}</BarSection>
           )}

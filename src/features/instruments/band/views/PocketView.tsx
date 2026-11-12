@@ -32,10 +32,10 @@ function DroneLine({ band, keyPc, levels, sound, onToggle }: { band: Band; keyPc
   const { rig, snap } = band;
   const drone = snap.parts.drone.state.drone;
   return (
-    <Tool label="Drone" gap="gap-2">
+    <Tool label="Drone">
       {/* two lines, as the click's: its buttons, then the volume on a slider under them */}
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-1">
           <PlayButton on={snap.parts.drone.state.playing} label="drone" onClick={onToggle} />
           {levels && <MuteButton className={ibtn} name="drone" muted={snap.parts.drone.muted} onMute={(muted) => rig.setLevel("drone", { muted })} />}
           <button type="button" className={ibtn} disabled={drone.octave <= DRONE_MIN_OCTAVE} onClick={() => rig.setDrone({ octave: drone.octave - 1 })} aria-label="Octave down">−</button>
@@ -226,18 +226,18 @@ export default function PocketView({ band, config, show, pocket = {} }: ViewProp
 
 
   return (
-    <div ref={root} data-tour="pocket-tools" className={`flex min-w-0 items-stretch gap-2 ${stacked ? "lg:flex-col" : ""} ${className}`}>
+    <div ref={root} data-tour="pocket-tools" className={`flex min-w-0 items-stretch gap-2 ${stacked ? "lg:flex-col lg:gap-4" : ""} ${className}`}>
       <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} everything on the next beat (Space stops and brings back)`}
-        className={`flex w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border ${stacked ? "lg:w-full lg:flex-row lg:gap-2 lg:py-1.5" : ""} text-[10px] font-medium uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`}>
+        className={`flex w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border ${stacked ? "lg:w-full lg:flex-row lg:gap-2 lg:py-2" : ""} text-[10px] font-medium uppercase tracking-wider transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-slate-700 bg-slate-900 text-slate-200 hover:border-slate-500"}`}>
         <Icon name={anyOn ? "square" : "play"} size={18} fill />
         {anyOn ? "Stop" : "All"}
       </button>
 
-      <div className={`grid min-w-0 flex-1 gap-x-3 gap-y-1.5 ${stacked ? "md:grid-cols-2 lg:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-1"}`}>
+      <div className={`grid min-w-0 flex-1 gap-x-3 gap-y-2.5 ${stacked ? "md:grid-cols-2 lg:grid-cols-1" : "md:grid-cols-2 xl:grid-cols-1"}`}>
         {has("click") && (
           <Tool label="Click">
             {/* two lines: the click's buttons, then the tempo on a slider under them */}
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               <div className="flex min-w-0 items-center gap-1">
                 <PlayButton on={snap.click.on} label="metronome" onClick={toggleClick} />
                 {show.levels && <MuteButton className={ibtn} name="metronome" muted={snap.click.muted} onMute={(m) => rig.setClickMuted(m)} />}
@@ -273,7 +273,7 @@ export default function PocketView({ band, config, show, pocket = {} }: ViewProp
           </Tool>
         )}
         {has("drone") && <>
-          {has("click") && <div role="separator" className="col-span-full my-1 border-t border-slate-800" />}
+          {has("click") && <div role="separator" className="col-span-full border-t border-slate-800" />}
           <DroneLine band={band} onToggle={() => toggle("drone")} keyPc={keyPc} levels={show.levels} sound={show.droneSound} />
         </>}
         {lines}

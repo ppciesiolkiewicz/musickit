@@ -33,8 +33,9 @@ export type PocketStatus = {
 /** One tool on one line: a small label, then its controls. Exported as `PocketLine` for a host's own lines. */
 export function PocketLine({ label, gap = "gap-1", children }: { label: string; gap?: string; children: ReactNode }) {
   return (
-    <div role="group" aria-label={label} className={`flex min-w-0 items-center ${gap}`}>
-      <span className="w-12 shrink-0 text-[11px] uppercase tracking-wider text-slate-500">{label}</span>
+    // the label sits level with the first row of controls (h-7, a button's height), also when a slider row follows under them
+    <div role="group" aria-label={label} className={`flex min-w-0 items-start ${gap}`}>
+      <span className="flex h-7 w-14 shrink-0 items-center text-[11px] uppercase tracking-wider text-slate-500">{label}</span>
       {children}
     </div>
   );
