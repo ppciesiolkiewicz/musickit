@@ -28,7 +28,7 @@ export const PRESET_TUNES = {
   /** Sol La Sol 1: "5 6 5 3 | 1w" */
   solLaSol: 36,
   /** Pentatonic runs 1: "1's 6s 5s 3s 5s 3s 2s 1s 2h | 1w" */
-  pentatonicRun: 108,
+  pentatonicRun: 122,
 };
 
 /**

@@ -23,7 +23,7 @@ const linkOk = (href: string) => {
   const path = href.split(/[?#]/)[0];
   const m = /^\/course\/([^/]+)\/([^/]+)$/.exec(path);
   if (m) return !!findSection(m[1], m[2]);
-  return THEORY_SECTIONS.some((s) => { const p = s.href.split("#")[0]; return path === p || path.startsWith(`${p}/`); });
+  return THEORY_SECTIONS.some((s) => { const p = s.href.split(/[?#]/)[0]; return path === p || path.startsWith(`${p}/`); });
 };
 
 describe("course content: every stage", () => {

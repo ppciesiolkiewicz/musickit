@@ -12,7 +12,8 @@ describe("spotlight search", () => {
   });
 
   it("puts a label that starts with the query first", () => {
-    assert.equal(searchFor(entries, "tun")[0].href, "/tuner");
+    assert.equal(searchFor(entries, "tuner")[0].href, "/tuner");
+    assert.equal(searchFor(entries, "tune b")[0].href, "/theory/tune-by-ear");
   });
 
   it("finds scales by name and alias, ignoring accents", () => {
