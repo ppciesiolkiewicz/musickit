@@ -3,6 +3,7 @@ import { Anton, Cormorant_Garamond, DM_Serif_Display, Fraunces, Geist, Geist_Mon
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import NoControlFocus from "@/components/NoControlFocus";
+import SoundPreload from "@/components/SoundPreload";
 import CopyNotes from "@/features/devtools/copy/CopyNotes";
 import { devUi } from "@/features/devtools/gate";
 import QuickRecord from "@/features/recorder/QuickRecord";
@@ -145,6 +146,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${outfit.variable} ${styleFonts} antialiased`}
       >
         <NoControlFocus />
+        <SoundPreload />
         {children}
         <QuickRecord />
         <Spotlight />
