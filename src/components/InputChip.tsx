@@ -88,8 +88,8 @@ export default function InputChip({ status = "off", mic, align = "left", mode = 
     if (!open && mic && !mic.on) mic.onToggle();
     setOpen(!open);
   };
+  // a neutral pill whether the mic is on or off: a green dot says it's listening
   const tone = blocked ? "border-rose-500/60 bg-rose-500/10 text-rose-200"
-    : mic ? `border-emerald-400/60 hover:bg-emerald-500/20 ${mic.on ? "bg-emerald-500/25 text-emerald-100" : "bg-emerald-500/10 text-emerald-200"}`
     : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-slate-500 hover:text-slate-100";
 
   const body = (
@@ -113,6 +113,7 @@ export default function InputChip({ status = "off", mic, align = "left", mode = 
         title={message ?? (mic ? (mic.on ? "Pick the input, or stop the microphone" : "Start the microphone and pick the input") : "The input the app listens to")}
         className={`flex h-7 max-w-48 items-center gap-1.5 rounded-full border px-2.5 text-xs transition lg:h-9 lg:max-w-56 lg:px-3.5 lg:text-sm focus-visible:outline-2 focus-visible:outline-sky-400 ${tone}`}
       >
+        {mic?.on && !blocked && <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px] shadow-emerald-400/70" />}
         <Icon name={blocked ? "alert-triangle" : "mic"} size={13} className={`shrink-0 ${status === "asking" ? "animate-pulse" : ""}`} />
         <span className="min-w-0 truncate">{mic && !mic.on ? "Start microphone" : name}</span>
         {levels.length > 0 && (
