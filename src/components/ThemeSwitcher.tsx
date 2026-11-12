@@ -130,7 +130,7 @@ export default function ThemeSwitcher({ className = "", compact = false, autoOpe
                   }}
                   className={`group flex flex-col items-center gap-1.5 text-[13px] focus-visible:outline-none ${on ? "font-semibold text-[#18181b]" : "text-[#3f3f46]"}`}
                 >
-                  <span className={`grid h-14 w-14 place-items-center rounded-full border-2 text-[28px] transition group-hover:-translate-y-0.5 group-hover:scale-105 group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-[#18181b] ${on ? "border-[#18181b] bg-white" : "border-[#e4e4e7] bg-[#f0f0f2]"} ${on && intro ? "style-pulse" : ""}`} aria-hidden>
+                  <span className={`grid h-14 w-14 place-items-center rounded-full border-2 text-[28px] transition group-hover:-translate-y-0.5 group-hover:scale-105 group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-[#18181b] ${on ? "border-[#18181b] bg-[#fff]" : "border-[#e4e4e7] bg-[#f0f0f2]"} ${on && intro ? "style-pulse" : ""}`} aria-hidden>
                     {s.emoji}
                   </span>
                   {s.label}
@@ -146,7 +146,7 @@ export default function ThemeSwitcher({ className = "", compact = false, autoOpe
             </InfoTip>
             {LEVELS.map((l) => (
               <button key={l} type="button" aria-pressed={level === l} onClick={() => setLevel(l)} title={`${LEVEL_LABEL[l]} on every page`}
-                className={`rounded-full border px-3 py-1 ${level === l ? "border-[#18181b] bg-white font-semibold text-[#18181b]" : "border-[#e4e4e7] bg-[#f0f0f2] text-[#3f3f46] hover:text-[#18181b]"}`}>
+                className={`rounded-full border px-3 py-1 ${level === l ? "border-[#18181b] bg-[#fff] font-semibold text-[#18181b]" : "border-[#e4e4e7] bg-[#f0f0f2] text-[#3f3f46] hover:text-[#18181b]"}`}>
                 {LEVEL_LABEL[l]}
               </button>
             ))}
