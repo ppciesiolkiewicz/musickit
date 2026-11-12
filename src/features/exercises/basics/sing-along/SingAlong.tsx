@@ -160,8 +160,14 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
     root.current = el;
     focus(el);
   }, [focus]);
+  // Play brings the tune itself into view, so the bar is seen from its first beat
+  const tune = useRef<HTMLDivElement | null>(null);
+  const play = () => {
+    void sa.play();
+    if (!full) tune.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  };
   // Space presses Play, or Stop while the tune plays
-  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(() => (sa.playing ? sa.stop() : void sa.play()), setRoot);
+  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(() => (sa.playing ? sa.stop() : play()), setRoot);
   const wasFull = useRef(full);
   useLayoutEffect(() => {
     if (wasFull.current && !full) root.current?.scrollIntoView({ block: "nearest" });
@@ -205,7 +211,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
         <span data-tour="sing-play" className="inline-flex items-center gap-1.5">
           <Hint title="Play" description="Starts the tune from the start.">
-            <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={() => void sa.play()}>
+            <IconButton on={sa.playing} title={sa.playing ? "Play from the start" : "Play"} onClick={play}>
               <Icon name="play" size={15} />
             </IconButton>
           </Hint>
@@ -259,7 +265,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       </div>}
       <div ref={body} className={full ? "flex min-h-0 flex-1 touch-pan-y flex-col overflow-hidden" : "contents"}
         onPointerDown={full ? swipeStart : undefined} onPointerUp={full ? swipeEnd : undefined} onPointerCancel={() => { swipe.current = null; }}>
-        <div data-tour="sing-tune" className={full ? "my-auto" : ""}>
+        <div ref={tune} data-tour="sing-tune" className={full ? "my-auto" : ""}>
         {look === "staff" ? (
           <StreamStaff frame={sa.frame} notes={notes} chords={chords} ladder={ladder} clef={clef} beatMs={beatMs} tapped={tapped} onNote={onNote} scale={size} cents={cents} lagMs={lagMs} />
         ) : (
