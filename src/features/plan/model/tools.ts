@@ -20,6 +20,7 @@ import { isSingingLabels, type SingingLabels } from "@/features/theory/labels";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { layersOf, othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
+import { lengthLabel, libraryVideo, publishedVideos } from "@/features/videos/library";
 import type { CatalogueEntry } from "./catalogue";
 import type { Area } from "./concepts";
 import type { Level } from "./types";
@@ -97,6 +98,8 @@ type PlanToolProps =
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
+  /** a published video of the library (`@/features/videos/library`), by its id */
+  | { type: "video"; video: string }
   | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; level?: ToolLevel; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
@@ -521,6 +524,15 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
         ...(beats !== null && beats !== 4 ? { beats } : {}),
         ...(strokes ? { pattern: strokes.map((b) => b.join(" ")).join(" | ") } : {}),
       };
+    },
+  },
+  video: {
+    parse(t, d) {
+      const v = typeof t.video === "string" ? libraryVideo(t.video) : null;
+      if (!v) return no(d, `${bad("video", t.video)} (an id from the video list)`);
+      // a stored plan keeps a video whose file went offline; the player says it can't be loaded
+      if (!v.published.length && !d.stored) return no(d, `video "${v.id}" is not published yet`);
+      return { type: "video", video: v.id };
     },
   },
   "finger-pattern": {
@@ -967,10 +979,15 @@ function describe(d: ComponentDoc): string {
   const text = d.description.replace(/\s+/g, " ");
   if (d.name === "melody-singer") return `${text} ${pickLine("Tune", STAGES)}`;
   if (d.name === "run-singer") return `${text} ${pickLine("Run", RUN_STAGES)}`;
+  if (d.name === "video") return `${text} ${videoLine()}`;
   return text;
 }
+/** The published videos, for the AI to pick one from: id, title, what is in it, length. */
+const videoLine = () =>
+  `Videos: ${publishedVideos().map((v) => `"${v.id}" (${v.title}, ${v.area}, ${lengthLabel(v.seconds)}: ${v.about})`).join("; ")}.`;
 const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p.required ? "" : "?"}: ${p.type}${p.description ? ` (${p.description})` : ""}`;
-const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name));
+// the video tool is offered only while the library has a video to watch
+const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name) && (d.name !== "video" || publishedVideos().length > 0));
 const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape");
 
 /** The tools, as an MCP server would list them: name, description, props; guitar-play-along's shapes listed under it. */

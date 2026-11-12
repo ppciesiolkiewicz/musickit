@@ -40,10 +40,6 @@ and add to these pages. Rank pages and provide me your understanding which pages
 
 67. mirror camera
 
-68. Video tool for note creator and notes
-- recording new video capability for note creator (saving etc.)
-- choosing from existing videos for autoplan
-
 69. Reusable notes and plans, reusable videosx1
 
 57. Coming soon:
@@ -119,6 +115,10 @@ Like - seeing chords within a scale!
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] 68. Video tool for note creator and notes
+- recording new video capability for note creator (saving etc.)
+- choosing from existing videos for autoplan
+Done 2026-11-12: a Video widget for notes and the studio. The palette's Video section has Video and Record a video, which open Add a video: Library (the practice videos), My videos (watch, add, download, delete) and Record (Start camera, Record / Stop, name it, Save and add to the note, Record again, Download). Recordings are kept in this browser only (IndexedDB); a shared note plays them only there and says so elsewhere. The AI plan has a `video` tool and picks from the published library by id (src/features/videos/library.ts). Only one library video is published so far (Do Re Mi Fa Sol, 9:16): the files still need a host (NEXT_PUBLIC_VIDEO_BASE); locally they're served from public/videos (git-ignored). Checked in the browser except a real camera take.
 [DONE] 62. Timer on mobile should be smaller and label selector embeded in settings ections above "Day .."
 Remove now tag - timer is just motivational guidance
 

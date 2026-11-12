@@ -219,6 +219,15 @@ test("a headphones notice is kept as it is and has a title", () => {
   assert.equal(subjectTitle({ kind: "headphones" }), "Use headphones");
 });
 
+test("a video widget keeps a video it can read, and is named by it", () => {
+  const lib = { kind: "video", video: { source: "library", id: "c-major-do-re-mi-long" } } as const;
+  assert.deepEqual(sanitiseSubject(lib, []), lib);
+  assert.equal(subjectTitle(lib), "Video · Do Re Mi Fa Sol");
+  assert.deepEqual(sanitiseSubject({ kind: "video", video: { source: "recording", id: "a1", title: "Warm-up" } }, []), { kind: "video", video: { source: "recording", id: "a1", title: "Warm-up" } });
+  assert.equal(sanitiseSubject({ kind: "video", video: { source: "library", id: "gone" } }, []), null);
+  assert.equal(sanitiseSubject({ kind: "video" }, []), null);
+});
+
 test("text splits into headings and paragraphs", () => {
   assert.deepEqual(parseText("# Title\n## One\n\nFirst line\nsecond line\n\n### Two\nBody\n#### Four"), [
     { type: "title", text: "Title" },

@@ -52,6 +52,9 @@ export function stageCommand(stage: Stage, cmd: StudioCommand, newId: () => stri
     case "clear":
       return [{ type: "clear" }];
     case "screen-share":
+    // the host opens the video dialog; the widget is added from there
+    case "video-add":
+    case "video-record":
       return [];
   }
 }

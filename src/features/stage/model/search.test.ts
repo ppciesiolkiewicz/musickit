@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { groupResults, paletteCatalog, paletteChoice, searchPalette } from "./search";
+import { groupResults, isNoteCommand, paletteCatalog, paletteChoice, searchPalette } from "./search";
 import { FAMILIES } from "./families";
 import { followMaster, isControl, takesMic, isPage, keyOf, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, withKey, withMaster, withOwnKey, type Subject } from "./subject";
 
@@ -165,7 +165,7 @@ test("the catalog lists every widget in the master key, by section, plus camera 
 
 test("the catalog comes in section order, each section in one run, subsections together", () => {
   const c = paletteCatalog(ids, E_MINOR);
-  assert.deepEqual([...new Set(c.map((r) => r.group))], ["setup", "scale", "chords", "caged", "theory", "pages", "text", "brand", "studio"]);
+  assert.deepEqual([...new Set(c.map((r) => r.group))], ["setup", "scale", "chords", "caged", "theory", "pages", "text", "video", "brand", "studio"]);
   assert.deepEqual(c.filter((r) => r.group === "scale").map((r) => r.label), ["Scale", "Relative modes", "Intervals within each mode", "Staff", "Melody"]);
   assert.deepEqual(groupResults(c).flatMap((g) => g.results), c);
 });
@@ -179,11 +179,13 @@ test("ranked groups keep the best result first", () => {
 
 const commandsOf = (r: ReturnType<typeof paletteCatalog>) => r.flatMap((x) => (x.action.type === "command" ? [`${x.label}=${x.action.command}`] : []));
 test("the catalog offers Camera and Screen share when neither is on the stage", () => {
-  assert.deepEqual(commandsOf(paletteCatalog(ids, EMPTY_KEY, { camera: "none", screen: "none" })), ["Camera=camera-corner", "Screen share=screen-share"]);
+  assert.deepEqual(commandsOf(paletteCatalog(ids, EMPTY_KEY, { camera: "none", screen: "none" })), ["Video=video-add", "Record a video=video-record", "Camera=camera-corner", "Screen share=screen-share"]);
 });
 
 test("with them on the stage it offers close, and fullscreen or minimize, whichever is not the current one", () => {
   assert.deepEqual(commandsOf(paletteCatalog(ids, EMPTY_KEY, { camera: "corner", screen: "full" })), [
+    "Video=video-add",
+    "Record a video=video-record",
     "Fullscreen camera=camera-full",
     "Close camera=camera-off",
     "Minimize screen share=screen-corner",
@@ -314,6 +316,15 @@ test("the headphones notice is in the catalog's Text section and found by name",
   assert.equal(row?.group, "text");
   assert.equal(row?.label, "Use headphones");
   assert.deepEqual(add("headphones"), [{ kind: "headphones" }]);
+});
+
+test("the video commands are in the catalog's Video section, found by name, and offered to notes", () => {
+  const rows = paletteCatalog(ids, EMPTY_KEY).filter((r) => r.group === "video");
+  assert.deepEqual(rows.map((r) => r.action.type === "command" && r.action.command), ["video-add", "video-record"]);
+  assert.ok(rows.every((r) => r.action.type === "command" && isNoteCommand(r.action.command)));
+  assert.equal(isNoteCommand("camera-corner"), false);
+  const found = searchPalette("record", ids, EMPTY_KEY);
+  assert.ok(found.some((r) => r.action.type === "command" && r.action.command === "video-record"));
 });
 
 test("the audio input lights the widgets that draw fretboards and chord boxes", () => {

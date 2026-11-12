@@ -10,6 +10,7 @@ import { ARP_QUALITIES } from "@/lib/chordKit/arpeggios";
 import { CAGED_LETTERS, formsFor, type CagedLetter } from "@/lib/chordKit/caged";
 import type { PositionKind } from "@/lib/chordKit/scalePositions";
 import { TOOLS, type PlanTool, type ToolName } from "@/features/plan/model/tools";
+import { refTitle, sanitiseVideoRef, type VideoRef } from "@/features/videos/ref";
 import { STAGE_TOOLS, toolKey, withToolKey } from "./toolKey";
 import { ARP_ROOT_STRINGS, cagedQualityOf as cagedQuality, describeParts } from "./families";
 
@@ -60,6 +61,8 @@ export type Subject =
   | { kind: "text"; text: string }
   /** a notice in a note: use headphones, so the microphone doesn't hear the app's own sound (fixed words, `HeadphonesNotice`) */
   | { kind: "headphones" }
+  /** a video: one from the library, or one the teacher recorded, kept in that browser (`@/features/videos`) */
+  | { kind: "video"; video: VideoRef }
   | { kind: "camera" }
   | { kind: "screen" }
   /** widget videos only (not in the palette): the tune's notes across a following staff; `beats` is how many fit across, absent = the staff's default 10 */
@@ -102,7 +105,7 @@ export function parseText(text: string): TextBlock[] {
   return out;
 }
 
-export type StudioCommand = "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-corner" | "screen-full" | "screen-stop" | "clear";
+export type StudioCommand = "video-add" | "video-record" | "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-corner" | "screen-full" | "screen-stop" | "clear";
 
 export interface PaletteResult {
   id: string;
@@ -127,6 +130,7 @@ export const PALETTE_GROUPS = {
   theory: "Theory",
   pages: "Cheatsheet pages",
   text: "Text",
+  video: "Video",
   brand: "Brand",
   studio: "Studio",
 } as const;
@@ -348,6 +352,8 @@ export function subjectName(s: Subject): string {
     }
     case "headphones":
       return "Use headphones";
+    case "video":
+      return `Video · ${refTitle(s.video)}`;
     case "camera":
       return "Camera";
     case "screen":
@@ -460,6 +466,10 @@ export function sanitiseSubject(raw: unknown, pluginIds: string[]): Subject | nu
       return { kind: o.kind };
     case "text":
       return typeof o.text === "string" ? { kind: "text", text: o.text.slice(0, TEXT_MAX) } : null;
+    case "video": {
+      const video = sanitiseVideoRef(o.video);
+      return video ? { kind: "video", video } : null;
+    }
     case "melody": {
       const beats = o.beats;
       return typeof beats === "number" && Number.isInteger(beats) && beats >= MELODY_BEATS.min && beats <= MELODY_BEATS.max ? { kind: "melody", beats } : { kind: "melody" };

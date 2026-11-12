@@ -8,7 +8,7 @@ import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import { isLive } from "./notes";
 import FamilyStep, { FamilyEditor } from "./FamilyStep";
 import {
-  FAMILIES, PALETTE_GROUPS, addableValues, describeSubject, familyOf, groupResults, isControl, isPage, paletteCatalog, paletteChoice, pinAgainst, takesMic, searchPalette, stepValues,
+  FAMILIES, PALETTE_GROUPS, addableValues, describeSubject, familyOf, groupResults, isControl, isNoteCommand, isPage, paletteCatalog, paletteChoice, pinAgainst, takesMic, searchPalette, stepValues,
   subjectIdentity, type Family, type FamilyValues, type Layer, type MediaState, type PaletteResult, type Subject,
 } from "@/features/stage";
 
@@ -87,7 +87,8 @@ export default function Palette({ notes = false, pluginIds, stageKey, media, lay
         const f = familyById(a.familyId);
         return !!f && !(notes && isLive(f.make({}, a.key)));
       }
-      return !notes || (a.type === "add" && !isLive(a.subject));
+      // the notes creator offers widgets it can share, and the commands that add one (a video)
+      return !notes || (a.type === "add" && !isLive(a.subject)) || (a.type === "command" && isNoteCommand(a.command));
     });
   };
   // eslint-disable-next-line react-hooks/exhaustive-deps -- resultsFor reads exactly these

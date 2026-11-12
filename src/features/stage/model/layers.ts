@@ -221,6 +221,8 @@ function baseRect(s: Subject): FrameRect {
       return { x: 0.05, y: 0.08, w: 0.9, h: 0.2 };
     case "headphones":
       return { x: 0.05, y: 0.08, w: 0.9, h: 0.1 };
+    case "video":
+      return { x: 0.2, y: 0.1, w: 0.6, h: 0.6 };
   }
 }
 

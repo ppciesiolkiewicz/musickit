@@ -237,7 +237,7 @@ underscores across notes and explained words, and `ui/Cells.tsx` draws the line 
 "reach for high notes" are in `GLOSSARY`, so the app adds the (i) and the link to the lesson by itself.
 
 The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,
-`staff`, `backing-band` (`parts`: each part offered, mapped to `"on"`, `"off"` or `"always"`), `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `breathwork` (`drill`; `from` and `to` kept only for farinelli, `seconds` and `rounds` only for the others; it can't change key with a choice), `strum-along`,
+`staff`, `backing-band` (`parts`: each part offered, mapped to `"on"`, `"off"` or `"always"`), `note-finder`, `interval-ears`, `arpeggio-neck`, `melody-singer`, `run-singer`, `string-singer`, `breathwork` (`drill`; `from` and `to` kept only for farinelli, `seconds` and `rounds` only for the others; it can't change key with a choice), `strum-along`, `video` (a library video by its id, `@/features/videos`: only a published one parses from the AI, a stored one is kept; the prompt lists the published ones with title, area, length and line, and leaves the tool out while there are none; it can't change key),
 `backing-track` (the backing tracks player, drums, bass and keys: a curated `progression` id or the lesson's own `numerals`
 (pasted `chords` are read into numerals in the `key` at parse, so moving the key moves them), `key`, optional `style`,
 `bpm` and `parts` (drums, bass, keys, each `"on"`, `"off"` or `"always"`, a part left out silent with no row; all `"on"` stores no `parts`); with neither a known progression nor chords the tool

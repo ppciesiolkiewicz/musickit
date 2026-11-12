@@ -88,6 +88,15 @@ describe("tools", () => {
     assert.ok(!("pick" in picked!));
     assert.deepEqual(parseTool({ type: "run-singer", run: runChoices()[0].id, key: "c" }), { type: "run-singer", run: runChoices()[0].id });
   });
+  it("reads a video by its library id, only a published one, and lists the published videos for the AI", () => {
+    assert.deepEqual(parseTool({ type: "video", video: "c-major-do-re-mi-long" }), { type: "video", video: "c-major-do-re-mi-long" });
+    assert.match(parseToolDiag({ type: "video", video: "c-major-first-steps" }).dropped ?? "", /not published/);
+    assert.match(parseToolDiag({ type: "video", video: "nope" }).dropped ?? "", /unreadable video/);
+    assert.deepEqual(parseToolDiag({ type: "video", video: "c-major-first-steps" }, { stored: true }).tool, { type: "video", video: "c-major-first-steps" });
+    const line = toolInterface().find((l) => l.startsWith("- video "));
+    assert.match(line ?? "", /"c-major-do-re-mi-long" \(Do Re Mi Fa Sol, voice, 7 min/);
+    assert.doesNotMatch(line ?? "", /c-major-first-steps/);
+  });
   it("keeps a singer's chords on unless turned off", () => {
     const run = runChoices()[0].id;
     assert.deepEqual(parseTool({ type: "run-singer", run, key: "c", chords: false }), { type: "run-singer", run, chords: false });

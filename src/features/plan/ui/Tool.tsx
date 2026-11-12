@@ -18,6 +18,7 @@ import { View as StrumAlong } from "@/features/exercises/basics/strum-along";
 import { View as FingerPattern } from "@/features/exercises/basics/finger-pattern";
 import { View as LegatoTrill } from "@/features/exercises/basics/legato-trill";
 import { View as PickingDrill } from "@/features/exercises/basics/picking-drill";
+import { View as Video } from "@/features/exercises/basics/video";
 import type { PlanTool } from "../model/tools";
 import type { Voice } from "@/features/theory/singing";
 import type { ExternalInput } from "@/features/tuner";
@@ -78,6 +79,8 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "backing-track":
       return <BackingTrack progression={tool.progression} numerals={tool.numerals} keyPc={tool.key} style={tool.style} bpm={tool.bpm} parts={tool.parts} />;
+    case "video":
+      return <Video video={tool.video} />;
     case "strum-along":
       return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} pattern={tool.pattern} />;
     case "finger-pattern":

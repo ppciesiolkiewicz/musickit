@@ -11,7 +11,7 @@
 export { default as StageFrame } from "./StageFrame";
 export * from "./model/subject";
 export * from "./model/layers";
-export { groupResults, paletteCatalog, paletteChoice, searchPalette, type PaletteChoice } from "./model/search";
+export { groupResults, isNoteCommand, paletteCatalog, paletteChoice, searchPalette, type PaletteChoice } from "./model/search";
 export { FAMILIES, addableValues, allOptions, describeSubject, familyOf, isAll, stepValues, toggleAll, toggleOption, updateSubject, visibleControls, type Family, type FamilyControl, type FamilyValue, type FamilyValues } from "./model/families";
 export * from "./model/keys";
 export { mediaState, stageCommand, toggleFull, NO_MEDIA, type MediaPlace, type MediaState } from "./model/commands";

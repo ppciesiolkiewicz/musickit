@@ -11,6 +11,7 @@ import { Tool } from "@/features/plan/ui/Tool";
 import { LevelPin } from "@/features/guide/Tier";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Tuner } from "@/features/tuner";
+import { VideoPlayer } from "@/features/videos/VideoPlayer";
 import { nextMelody } from "../model/families";
 import { melodyDesignWidth } from "../model/melody";
 import { cagedQualityOf, parseText, withOwnKey, type Subject } from "../model/subject";
@@ -31,7 +32,7 @@ import SectionWidget from "./SectionWidget";
 import TextWidget, { TextBlocks } from "./TextWidget";
 
 /** design width each kind is laid out at before it is scaled into its rect */
-const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, arpeggio: 980, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, text: 760, headphones: 760, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
+const WIDTH: Record<Subject["kind"], number> = { chord: 240, plugin: 640, position: 980, band: 360, section: 760, bubble: 900, neck: 980, caged: 1100, arpeggio: 980, tool: 980, key: 760, tuner: 520, mic: 360, logo: 300, url: 520, text: 760, headphones: 760, video: 760, camera: 0, screen: 0, melody: 0, countdown: 600, intro: 1000, progress: 400, next: 760 };
 /** a cheatsheet page in full is laid out as wide as on the site */
 const FULL_WIDTH = 1200;
 
@@ -142,6 +143,13 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
       break;
     case "headphones":
       body = <div className="p-3"><HeadphonesNotice /></div>;
+      break;
+    case "video":
+      body = (
+        <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
+          <VideoPlayer video={subject.video} />
+        </div>
+      );
       break;
     case "key":
       body = <KeyWidget value={stageKey} onChange={onStageKey} />;

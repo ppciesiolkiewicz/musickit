@@ -62,3 +62,6 @@ next-env.d.ts
 tasks.txt
 .tasks.txt.swp
 *.swp
+
+# library videos (src/features/videos/library.ts): hosted, not committed; copy rendered ones here for local dev
+/public/videos/

@@ -213,6 +213,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Technique for the hands: finger-pattern (fingers on frets, dexterity), picking-drill (alternate picking, string skipping), legato-trill (hammer-ons and pull-offs).",
       "- Singing: staff with the mic for notes of a scale or chord; melody-singer for a tune; run-singer for a run that climbs a semitone each pass; interval-singer for a named interval from Do; string-singer for the guitar's open strings. Breathing before or apart from singing: breathwork (no mic).",
       "- Ears, listening only: interval-ears to name intervals or chords.",
+      "- Singing or playing along with a practice video made ahead: video, by an id from its list, when one fits the day's work. Nothing listens to the student. Count the video's length in the exercise's minutes.",
       "- The same drill again with one thing changed (faster, another key, another position, the next level): a section with a \"choice\" of options in its header; the tools inside follow the chip the student picks.",
       "",
     ]),

@@ -99,6 +99,9 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
   "finger-pattern": drill("Under it, the finger to use for each note."),
   "picking-drill": drill("Under it, the pick stroke for each note: ↓ down, ↑ up."),
   "legato-trill": drill("Pick only the first note. Hammer on and pull off the rest."),
+  video: [
+    { target: "video-player", title: "The video", text: "Press the play button on the video to start it, then play or sing along. Drag along the bar under the picture to go back to a part." },
+  ],
 };
 
 /** The page id a tool type's tour seen flag is stored under (`useTourSeen`). */

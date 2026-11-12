@@ -13,6 +13,8 @@ import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import { encodeNote, noteFromHash } from "./notes";
 import NoteJson from "./NoteJson";
+import { Modal } from "@/components/ui";
+import { VideoChooser, type ChooserTab } from "@/features/videos/VideoChooser";
 import NoteView from "./NoteView";
 import { presetStage, savePresetDraft } from "./presetNotes";
 import Palette from "./Palette";
@@ -96,6 +98,8 @@ function Studio({ notes = false, preset }: {
   const keep = useCallback((s: Parameters<typeof savePresetDraft>[1]) => { if (preset) savePresetDraft(preset, s); }, [preset]);
   const [stage, dispatch, load] = useStage(PLUGIN_IDS, notes, start, keep);
   const [json, setJson] = useState(false);
+  /** the Add a video dialog, open on this tab */
+  const [videoPick, setVideoPick] = useState<ChooserTab | null>(null);
   const grid = layoutOf(stage) === "grid";
   // the Layers list on the grid: the page top to bottom, then what is not on the grid (the brand marks keep their corner)
   const onPage = grid ? gridLayers(stage) : [];
@@ -196,6 +200,8 @@ function Studio({ notes = false, preset }: {
   const runCommand = useCallback(
     (cmd: StudioCommand) => {
       if (cmd === "screen-share") void startScreen();
+      else if (cmd === "video-add") setVideoPick("library");
+      else if (cmd === "video-record") setVideoPick("record");
       else for (const a of stageCommand(stageRef.current, cmd, () => crypto.randomUUID())) dispatch(a);
     },
     [dispatch, startScreen],
@@ -217,7 +223,7 @@ function Studio({ notes = false, preset }: {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       // the preview has its own keys; the stage's would move widgets nobody can see
-      if (palette || video) return;
+      if (palette || video || videoPick) return;
       if (help) {
         setHelp(false);
         e.preventDefault();
@@ -285,7 +291,7 @@ function Studio({ notes = false, preset }: {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [palette, help, video, dispatch, runCommand]);
+  }, [palette, help, video, videoPick, dispatch, runCommand]);
 
   if (!mounted) return null;
 
@@ -495,6 +501,18 @@ function Studio({ notes = false, preset }: {
 
       {palette && <Palette notes={notes} pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onUpdate={(id, subject) => dispatch({ type: "swap", id, subject })} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
+      {videoPick && (
+        <Modal title="Add a video" medium onClose={() => setVideoPick(null)}>
+          <VideoChooser
+            start={videoPick}
+            addTo={notes ? "the note" : "the stage"}
+            onPick={(video) => {
+              dispatch({ type: "addSubject", id: crypto.randomUUID(), subject: { kind: "video", video } });
+              setVideoPick(null);
+            }}
+          />
+        </Modal>
+      )}
       {json && <NoteJson stage={stage} pluginIds={PLUGIN_IDS} onApply={load} onClose={() => setJson(false)} />}
     </div>
   );

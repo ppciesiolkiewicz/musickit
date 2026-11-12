@@ -37,6 +37,7 @@ const TOOL_TOUR_SOURCES: Record<ToolName, string[]> = (() => {
     "finger-pattern": [basics("finger-pattern"), drills],
     "picking-drill": [basics("picking-drill"), drills],
     "legato-trill": [basics("legato-trill"), drills],
+    video: [basics("video")],
   };
 })();
 
