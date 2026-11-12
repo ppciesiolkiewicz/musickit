@@ -88,9 +88,9 @@ export default function PlanApp() {
   const modal = flow && (
     <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} onPlan={onPlan} onClose={() => setFlow(null)} />
   );
-  const primary = "!border-sky-400/80 !bg-sky-500/25 !text-sky-50 shadow-md shadow-sky-500/20 hover:!bg-sky-500/40";
+  const primary = "!rounded-xl !border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 shadow-md shadow-sky-500/20 transition hover:!bg-sky-400";
   // the header's controls: one height, big enough to hit with a guitar in the other hand
-  const big = "h-10 px-4 text-sm";
+  const big = "h-10 !rounded-xl px-4 text-sm";
 
   if (!plan) {
     return (
@@ -132,7 +132,7 @@ export default function PlanApp() {
             <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
             <Button onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
             <SharePopover open={shareInfo} onClose={closeShareInfo} thing="a plan">
-              <Button onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} title="Sharing isn't open yet in this demo" className={big}><Icon name="share-2" size={16} />Share plan</Button>
+              <Button onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} title="Sharing isn't open yet in this demo" className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
             </SharePopover>
           </div>
         </div>

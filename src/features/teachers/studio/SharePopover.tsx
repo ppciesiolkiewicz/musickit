@@ -6,7 +6,7 @@ import Icon from "@/components/Icon";
 
 /**
  * Share in the demo: a popover beside the button, amber like the app's other heads-up notices, saying sharing isn't open
- * yet. `thing` names what can't be sent (a note in the notes creator, a plan on the AI practice plan page). In the notes creator it offers View as a note (`onView`). Closes on ✕, Esc or a press outside it and its button. Drawn on the page
+ * yet. `thing` names what can't be sent (a note in the notes creator, a plan on the AI practice plan page). Says that once sharing opens, a teacher assigns it to students there. In the notes creator it offers View as a note (`onView`). Closes on ✕, Esc or a press outside it and its button. Drawn on the page
  * (a portal, fixed beside the button; under it on a narrow window), as the side panel scrolls and would clip it.
  */
 export default function SharePopover({ open, onClose, onView, thing = "a note", children }: { open: boolean; thing?: string; onClose: () => void; onView?: () => void; /** the button it belongs to */ children: ReactNode }) {
@@ -55,13 +55,16 @@ export default function SharePopover({ open, onClose, onView, thing = "a note", 
               <p className="mt-1 text-xs leading-relaxed text-slate-300">
                 This is a demo, so {thing} can&apos;t be sent as a link yet.{onView ? " Press View as a note to see the note as your students will." : ""}
               </p>
+              <p className="mt-2 text-xs leading-relaxed text-slate-300">
+                Once sharing opens, you can assign {thing} to your students right here, and they open it from their own account.
+              </p>
             </div>
             <button type="button" aria-label="Close" onClick={onClose} className="-mr-1 -mt-1 rounded-md p-1 text-slate-400 hover:text-slate-100">
               <Icon name="x" size={14} />
             </button>
           </div>
           {onView && (
-            <button type="button" onClick={() => { onClose(); onView(); }} className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-100 hover:bg-amber-500/20">
+            <button type="button" onClick={() => { onClose(); onView(); }} className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-400 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-amber-500/20 transition hover:bg-amber-300">
               <Icon name="eye" size={12} /> View as a note
             </button>
           )}

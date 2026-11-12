@@ -481,9 +481,9 @@ function Studio({ notes = false, preset }: {
           </button>
           )}
           <SharePopover open={shareInfo} onClose={closeShareInfo} onView={notes ? () => setViewing(true) : undefined}>
-            <button type="button" onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} aria-label="Share as a note" title="Sharing isn't open yet in this demo" className="mt-2 flex w-full items-center gap-2 rounded-md border border-sky-500/60 bg-sky-500/10 px-2 py-1 text-left text-xs text-sky-100 hover:border-sky-400">
+            <button type="button" onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} aria-label="Share as a note" title="Sharing isn't open yet in this demo" className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
               <Icon name="share-2" size={12} />
-              <span className="min-w-0 flex-1 truncate">Share as a note</span>
+              <span className="min-w-0 truncate">Share as a note</span>
             </button>
           </SharePopover>
           {notes && (
