@@ -29,6 +29,12 @@ export function NoteViewProvider({ children }: { children: ReactNode }) {
 /** The page's View as a note state, or null outside a `NoteViewProvider` (the creator then keeps its own). */
 export const useNoteViewMode = () => useContext(Ctx);
 
+/**
+ * View as a note's column, for its header and its article: as wide as a note's own page draws them (80rem less the page's side
+ * padding), centred, so the creator's full-width page reads like the note does.
+ */
+export const NOTE_COLUMN = "mx-auto w-full max-w-[76rem]";
+
 /** The eyebrow over a note's title, on a demo note's page and in View as a note. */
 export const NOTE_EYEBROW = "A note from your teacher";
 
@@ -42,13 +48,13 @@ export function NotesCreatorHeader({ title, intro, bar, action }: { title: strin
   if (mode?.viewing && mode.stage) {
     const note = noteHeader(mode.stage);
     const back = <BackToEditing onBack={() => mode.setViewing(false)} />;
-    if (note.title === null) return <>{back}<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{NOTE_EYEBROW}</p></>;
+    if (note.title === null) return <div className={NOTE_COLUMN}>{back}<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{NOTE_EYEBROW}</p></div>;
     return (
-      <>
+      <div className={NOTE_COLUMN}>
         {back}
         <PageHeading title={note.title} eyebrow={NOTE_EYEBROW} bar={bar} />
         {note.intro && <PageIntro>{note.intro}</PageIntro>}
-      </>
+      </div>
     );
   }
   const heading = <PageHeading title={title} bar={bar} />;

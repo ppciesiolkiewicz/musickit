@@ -5,7 +5,7 @@ import { SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sort
 import { CSS } from "@dnd-kit/utilities";
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as RMouseEvent, type ReactNode, type TouchEvent as RTouchEvent } from "react";
 import { LayerBody, LayerToolbar, useWidgetZoom } from "./LayerParts";
-import { GRID_COLUMNS, fixedRect, gridAspect, gridAutoPlace, gridLayers, gridSpan, gridSpanNarrow, type Layer, type Stage, type StageAction } from "./model/layers";
+import { GRID_COLUMNS, fixedRect, gridAspect, gridLayers, gridPlace, gridSpanNarrow, gridWidthOf, type Layer, type Stage, type StageAction } from "./model/layers";
 import { isPage, subjectTitle } from "./model/subject";
 import { InGrid, ScrollInBox } from "./render/shape";
 
@@ -19,7 +19,7 @@ const TOUCH_SLOP = 8;
 const SPACING = "gap-[0.6cqw] p-[0.6cqw] @max-[640px]:gap-2 @max-[640px]:p-1";
 /** Spans come from the CSS variables an item sets, so the frame's width picks between them. */
 const SPAN = "[grid-column:span_var(--span)] @max-[640px]:[grid-column:span_var(--span-narrow)]";
-/** With Auto layout on, the share of its columns a widget fills, centred; a phone-wide frame keeps its usual widths. */
+/** The share of its columns a widget fills, centred (Auto layout, or a width set by hand); a phone-wide frame keeps its usual widths. */
 const AUTO_WIDTH = "w-[var(--auto-width)] justify-self-center @max-[640px]:w-auto @max-[640px]:justify-self-auto";
 /**
  * A page: one screen tall (56.25cqw, less the 2 × 0.6cqw around it), or most of a phone's, with a strip left free on its right where the
@@ -37,7 +37,7 @@ const SHOW = "opacity-0 transition-opacity group-hover:opacity-100 group-data-[s
  * (a writing or AI helper) is a custom element whose inside the page sees only as its host, and a drag must not start from it either.
  */
 const onControl = (e: Event) =>
-  e.composedPath().some((n) => n instanceof Element && (n.matches("button,input,select,textarea,a,[contenteditable]") || n.tagName.includes("-")));
+  e.composedPath().some((n) => n instanceof Element && (n.matches("button,input,select,textarea,a,[contenteditable],[data-resize]") || n.tagName.includes("-")));
 
 /** A widget's own controls work as controls: a drag never starts from them. */
 class WidgetMouseSensor extends MouseSensor {
@@ -52,7 +52,7 @@ function GridItem({ layer: l, selected, aspect, auto, pin, onShape, onAction, ch
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: l.id });
   const media = l.subject.kind === "camera" || l.subject.kind === "screen";
   const page = isPage(l.subject);
-  const place = auto ? gridAutoPlace(l) : null;
+  const place = gridPlace(l, auto);
   return (
     <div
       ref={setNodeRef}
@@ -63,22 +63,64 @@ function GridItem({ layer: l, selected, aspect, auto, pin, onShape, onAction, ch
       tabIndex={-1}
       data-layer={l.id}
       data-selected={selected}
-      className={`group relative outline-none ${SPAN} ${page ? PAGE : ""} ${place && !page ? AUTO_WIDTH : ""} ${isDragging ? "z-10 opacity-80" : ""}`}
-      style={{ "--span": place?.span ?? gridSpan(l), "--span-narrow": gridSpanNarrow(l), "--auto-width": place ? `${place.width * 100}%` : undefined, aspectRatio: page ? undefined : aspect, transform: CSS.Translate.toString(transform), transition } as CSSProperties}
+      className={`group relative outline-none ${SPAN} ${page ? PAGE : ""} ${page ? "" : AUTO_WIDTH} ${isDragging ? "z-10 opacity-80" : ""}`}
+      style={{ "--span": place.span, "--span-narrow": gridSpanNarrow(l), "--auto-width": `${place.width * 100}%`, aspectRatio: page ? undefined : aspect, transform: CSS.Translate.toString(transform), transition } as CSSProperties}
       onPointerDownCapture={() => onAction({ type: "select", id: l.id })}
     >
       <LayerBody layer={l} card={!media} onShape={onShape}>
         <ScrollInBox.Provider value={page}>{children}</ScrollInBox.Provider>
       </LayerBody>
       <div className={`pointer-events-none absolute inset-0 rounded-xl ring-2 ring-sky-400/80 ${SHOW}`} />
+      {!page && <WidthHandle layer={l} auto={auto} onAction={onAction} />}
       {!media && <LayerToolbar layer={l} filled={false} canFill={false} pin={pin} onAction={onAction} className={`absolute right-1.5 top-1.5 z-10 ${SHOW}`} />}
     </div>
   );
 }
 
 /**
+ * The thin bar on a widget's right edge that sets its width on the grid by hand (`gridWidth`); its height follows its content's shape.
+ * The widget is centred, so it grows on both sides and the edge follows the pointer. A double click gives it back its kind's width.
+ * Shown on hover or selection, never on a phone-wide frame, where widths are the narrow spans.
+ */
+function WidthHandle({ layer: l, auto, onAction }: { layer: Layer; auto: boolean; onAction: (a: StageAction) => void }) {
+  const drag = useRef<{ x: number; w: number; row: number } | null>(null);
+  return (
+    <div
+      data-resize
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={`Width of ${subjectTitle(l.subject)}`}
+      title="Drag to change the width. Double-click to reset it."
+      className={`absolute -right-2 top-0 bottom-0 z-10 flex w-4 cursor-ew-resize touch-none items-center justify-center @max-[640px]:hidden ${SHOW}`}
+      onPointerDown={(e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const grid = e.currentTarget.closest("[data-layer]")?.parentElement;
+        if (!grid) return;
+        const cs = getComputedStyle(grid);
+        const row = grid.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        drag.current = { x: e.clientX, w: gridWidthOf(l, auto), row };
+        e.currentTarget.setPointerCapture(e.pointerId);
+        onAction({ type: "select", id: l.id });
+      }}
+      onPointerMove={(e) => {
+        const d = drag.current;
+        if (!d || d.row <= 0) return;
+        onAction({ type: "setGridWidth", id: l.id, width: d.w + (2 * (e.clientX - d.x)) / d.row });
+      }}
+      onPointerUp={() => (drag.current = null)}
+      onPointerCancel={() => (drag.current = null)}
+      onDoubleClick={() => onAction({ type: "setGridWidth", id: l.id, width: null })}
+    >
+      <span className="h-10 max-h-[60%] w-1.5 rounded-full bg-sky-400 shadow ring-1 ring-slate-950" />
+    </div>
+  );
+}
+
+/**
  * The grid layout's 16:9 frame: exactly what a recording shows (`data-stage-frame`). A CSS grid of GRID_COLUMNS columns: each widget
- * spans its kind's columns (`gridSpan`) and takes the shape of its content, so nothing is resized by hand; a page (`isPage`) is the
+ * spans its kind's columns (`gridSpan`), or the width it was given by hand on its right edge (`gridPlace`), and takes the shape of its content; a page (`isPage`) is the
  * frame's width (less a strip that still scrolls the frame) and one screen tall, and scrolls inside itself. On a phone-wide frame the spans,
  * the spacing and a page's height change by container query. Dragging one changes the
  * order (`@dnd-kit`). The frame is at least 16:9 and grows with its widgets, so the page's own scroll goes through them, and a new

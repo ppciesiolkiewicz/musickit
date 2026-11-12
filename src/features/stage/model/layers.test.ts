@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_KEY } from "@/features/creator/model/key";
-import { AUTO_NECK_WIDTH, CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FRAME_ASPECT, FULL, GRID_COLUMNS, KEEP_IN, arrangeRects, gridAspect, gridAutoPlace, gridLayers, gridSpan, gridSpanNarrow, layoutOf, MAX_ZOOM, MIN_SIZE, addSubject, drawZ, paintOrder, clampRect, defaultRect, fillRect, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
+import { AUTO_NECK_WIDTH, CAMERA_CORNER, DEFAULT_VIEW, EMPTY_STAGE, FRAME_ASPECT, FULL, GRID_COLUMNS, KEEP_IN, arrangeRects, gridAspect, gridAutoPlace, gridHandPlace, gridLayers, gridPlace, gridWidthOf, gridSpan, gridSpanNarrow, layoutOf, MAX_ZOOM, MIN_SIZE, addSubject, drawZ, paintOrder, clampRect, defaultRect, fillRect, fixedRect, hasAspect, panView, resizeFrom, resizeKeepingShape, withAspect, sanitiseStage, stageReducer, zoomAt, type Layer, type Stage } from "./layers";
 import { updateSubject } from "./families";
 import { subjectIdentity, type Subject } from "./subject";
 
@@ -474,15 +474,51 @@ test("with the grid's auto layout on, a neck takes 90% of its own row, most othe
   assert.deepEqual(gridAutoPlace(l({ kind: "section", section: "chords" } as Subject)), { span: GRID_COLUMNS, width: 1 }, "a page keeps its whole row");
 });
 
-test("the keyboard on the grid: a nudge moves one place, resize keys do nothing", () => {
+test("the keyboard on the grid: a nudge moves one place, a resize key changes only the width", () => {
   const s = gridOf("a", "b", "c");
   assert.deepEqual(orderOf(stageReducer(s, { type: "move", id: "a", dx: 0.01, dy: 0 })), ["b", "a", "c"]);
   assert.deepEqual(orderOf(stageReducer(s, { type: "move", id: "c", dx: 0, dy: -0.01 })), ["a", "c", "b"]);
   assert.equal(stageReducer(s, { type: "move", id: "a", dx: -0.01, dy: 0 }), s);
-  assert.equal(stageReducer(s, { type: "resize", id: "a", dw: 0.01, dh: 0 }), s);
+  assert.equal(stageReducer(s, { type: "resize", id: "a", dw: 0.01, dh: 0 }).layers[0].gridWidth, 0.26);
+  assert.equal(stageReducer(s, { type: "resize", id: "a", dw: 0, dh: 0.01 }), s);
 });
 
 test("the brand marks are not on the grid", () => {
   const s = addSubject(addSubject(EMPTY_STAGE, "logo", { kind: "logo" } as Subject), "a", aChord("x"));
   assert.deepEqual(orderOf(s), ["a"]);
+});
+
+test("a grid widget resized by hand keeps its width, on its own row with Auto layout and in the fewest columns without", () => {
+  const neck = { ...layer("n", { kind: "neck" } as Subject), gridWidth: 0.6 };
+  assert.deepEqual(gridPlace(neck, true), { span: GRID_COLUMNS, width: 0.6 });
+  assert.deepEqual(gridPlace(neck, false), { span: GRID_COLUMNS, width: 0.6 * 12 / GRID_COLUMNS });
+  const hand = (w: number, span: number, width: number) => {
+    assert.equal(gridHandPlace(w).span, span);
+    near(gridHandPlace(w).width, width);
+  };
+  hand(0.4, 6, 0.8);
+  hand(0.2, 3, 0.8);
+  // a chord shares its row, resized or not
+  assert.equal(gridPlace({ ...layer("c"), gridWidth: 0.3 }, true).span, 4);
+  near(gridWidthOf({ ...layer("c"), gridWidth: 0.3 }, true), 0.3);
+  near(gridWidthOf(layer("c"), true), 0.25);
+});
+
+test("setGridWidth clamps, rounds and resets; the resize keys change it on the grid", () => {
+  const grid: Stage = { ...EMPTY_STAGE, layout: "grid", gridAuto: true, layers: [layer("a", { kind: "neck" } as Subject)] };
+  const w = (s: Stage) => s.layers[0].gridWidth;
+  assert.equal(w(stageReducer(grid, { type: "setGridWidth", id: "a", width: 0.5234 })), 0.52);
+  assert.equal(w(stageReducer(grid, { type: "setGridWidth", id: "a", width: 3 })), 1);
+  assert.equal(w(stageReducer(grid, { type: "setGridWidth", id: "a", width: 0 })), 0.15);
+  const set = stageReducer(grid, { type: "setGridWidth", id: "a", width: 0.5 });
+  assert.equal("gridWidth" in stageReducer(set, { type: "setGridWidth", id: "a", width: null }).layers[0], false);
+  assert.equal(w(stageReducer(grid, { type: "resize", id: "a", dw: -0.1, dh: 0 })), 0.8);
+  assert.equal(stageReducer(grid, { type: "resize", id: "a", dw: 0, dh: 0.1 }), grid);
+});
+
+test("a saved grid width comes back in range; a page never keeps one", () => {
+  const saved = { layers: [{ ...layer("a", { kind: "neck" } as Subject), gridWidth: 0.05 }, { ...layer("b", { kind: "neck" } as Subject), gridWidth: "x" }] };
+  const s = sanitiseStage(saved, ids);
+  assert.equal(s.layers[0].gridWidth, 0.15);
+  assert.equal("gridWidth" in s.layers[1], false);
 });

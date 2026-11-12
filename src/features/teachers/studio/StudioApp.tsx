@@ -18,7 +18,7 @@ import { Modal } from "@/components/ui";
 import { VideoChooser, type ChooserTab } from "@/features/videos/VideoChooser";
 import type { VideoRef } from "@/features/videos/ref";
 import NoteView, { NoteReader } from "./NoteView";
-import { BackToEditing, useNoteViewMode } from "./NoteViewMode";
+import { BackToEditing, NOTE_COLUMN, useNoteViewMode } from "./NoteViewMode";
 import { noteHeader } from "./notes";
 import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
 import { devUi } from "@/features/devtools/gate";
@@ -342,7 +342,7 @@ function Studio({ notes = false, preset }: {
     // the page's header already shows the note's title and line; without a shared mode the article keeps them
     const body = mode ? noteHeader(stage).body : stage;
     return (
-      <div className="mx-auto w-full max-w-[80rem]">
+      <div className={NOTE_COLUMN}>
         {/* the page's header carries Back to editing when it shares the mode */}
         {!mode && <BackToEditing onBack={() => setViewing(false)} />}
         <VoicePicker data={body}>
