@@ -126,6 +126,8 @@ export function createPlayer(options: PlayerOptions = {}): Player {
     },
     allOff() {
       waiting.clear();
+      // nothing sounding: no clock to read (and no AudioContext made for nothing)
+      if (!sounding.size) return;
       const now = getAudioContext().currentTime;
       [...sounding.keys()].forEach((m) => release(m, now < sounding.get(m)!.at));
     },

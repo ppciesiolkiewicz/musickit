@@ -97,7 +97,12 @@ export default function SiteFooter({ variant = "default" }: { variant?: "default
 
       <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-slate-800/70 pt-6 text-xs text-slate-500 sm:flex-row">
         <p>© {new Date().getFullYear()} attunr. ABN 48 737 987 261. All rights reserved.</p>
-        <p>Photos from Unsplash. Made for people who&apos;d rather play.</p>
+        <p>
+          Photos from Unsplash. Sounds from{" "}
+          <a href="https://github.com/nbrosowsky/tonejs-instruments" className="underline decoration-slate-700 underline-offset-2 hover:text-slate-300">tonejs-instruments</a> and{" "}
+          <a href="https://github.com/gleitz/midi-js-soundfonts" className="underline decoration-slate-700 underline-offset-2 hover:text-slate-300">Fluid R3 GM</a>,{" "}
+          <a href="https://creativecommons.org/licenses/by/3.0/" className="underline decoration-slate-700 underline-offset-2 hover:text-slate-300">CC BY 3.0</a>. Made for people who&apos;d rather play.
+        </p>
       </div>
     </footer>
   );

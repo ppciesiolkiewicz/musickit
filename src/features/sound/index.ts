@@ -6,6 +6,14 @@
  *   playback/  timed notes: sequences, melodies, strums
  *   keyboard/  the two keyboards that play it: Piano (chromatic, MIDI input, scale highlighting) and ScalePiano
  *              (the computer keys locked to a key and scale). Both play the sampled instruments by default.
+ *
+ * Samples are played by a backend (`engine/backend.ts`), so what plays them can be swapped: Tone.js (`backends/tone.ts`) for
+ * the built-in instruments, our buffer player (`backends/buffer.ts`) for the sampler's instruments, strict pads and offline
+ * renders; `backends/choose.ts` decides. Every built-in sample is played shifted back by the cents it measures off its note
+ * (`tuning.generated.json`), so the app's notes are at A440 equal temperament, the pitch the singing tools judge against.
+ *
+ *   npm run samples:fetch     the samples into public/instruments (sources and licences: scripts/fetch-samples.mts)
+ *   npm run samples:measure   their tuning; files it cannot trust play as recorded, values set by ear go in engine/tuningPins.ts
  */
 export { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "./engine/context";
 export { canChooseOutput, cleanDeviceName, findDevice, listAudioDevices, openInputStream, readDeviceChoice, revealDevices, serverDeviceChoice, setDeviceChoice, subscribeDeviceChoice, INPUT_CHANNELS, type AudioDevice, type DeviceChoice, type InputChannel } from "./engine/devices";

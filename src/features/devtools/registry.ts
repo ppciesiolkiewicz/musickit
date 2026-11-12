@@ -57,6 +57,5 @@ export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/onboarding", label: "Onboarding coverage", tone: "stories", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
   { href: "/dev/data", label: "Data", tone: "data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
   { href: "/dev/notes", label: "Copy notes", tone: "notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
-  { href: "/dev/pianos", label: "Instrument tuning", tone: "stories", desc: "Temporary. Hear instrument sample sets and players side by side, see how far each note is from A440 with and without pitch correction, and sing against them." },
   { href: "/dev/kickstarter", label: "Kickstarter", tone: "pitch", desc: "Paste an email thread with a music school; your AI extension drafts the founding-partner reply from the voice, the facts and the demo links." },
 ];
