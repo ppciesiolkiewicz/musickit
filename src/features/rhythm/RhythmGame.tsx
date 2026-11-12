@@ -340,6 +340,39 @@ export default function RhythmGame() {
   return (
     <div className="flex flex-col gap-4">
       <div data-tour="rhythm-pick"><GameChoice label="Rhythm" options={PATTERNS.map((p) => ({ id: p.id, title: p.name, about: p.hint }))} value={s.pattern} onChange={(pattern) => update({ pattern })} tone="violet" disabled={playing} /></div>
+      <aside data-tour="rhythm-setup" aria-label="Setup" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+        <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the round</h2>
+        {playing && <p className="text-xs text-slate-400">These stay as they are until the round ends. Offset and sensitivity still change as you play.</p>}
+        <div inert={playing} className={`flex flex-col gap-3 transition-opacity ${playing ? "opacity-50" : ""}`}>
+        <ChipRow label="Play with" info="Space or a tap is the quickest way to learn a rhythm. Strum listens to your guitar through the mic, so you practise with your real strumming hand.">
+          <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); setError(null); update({ input: "keys" }); } }}>Space / tap</Chip>
+          <Chip on={s.input === "mic"} onClick={() => !playing && update({ input: "mic" })}>Strum (mic)</Chip>
+        </ChipRow>
+        <ChipRow label="Tempo" info="How fast the beat goes, in beats per minute. Start slow enough to hit every note, then raise it a little.">
+          <Slider aria-label="Tempo" value={s.bpm} min={MIN_BPM} max={MAX_BPM} step={1} disabled={playing} onChange={(bpm) => update({ bpm })} className="w-48 max-w-full" />
+          <span className="flex w-20 items-baseline gap-1 whitespace-nowrap text-xs text-slate-300"><NumberField value={s.bpm} min={MIN_BPM} max={MAX_BPM} disabled={playing} onCommit={(bpm) => update({ bpm })} aria-label="Tempo in beats per minute" className="w-10 py-0.5" />BPM</span>
+        </ChipRow>
+        <ChipRow label="Bars" info="How long a round lasts. Short rounds suit a new rhythm. Long rounds show whether you can keep it steady.">
+          {BAR_CHOICES.map((b) => <Chip key={b} on={b === s.bars} onClick={() => !playing && update({ bars: b })}>{b}</Chip>)}
+        </ChipRow>
+        <ChipRow label="Click" info={s.input === "mic" ? "The microphone can hear the click from your speakers and take it for a strum. With headphones, keep the click on; on speakers, let it count you in and keep time yourself." : undefined}>
+          <Chip on={s.click[s.input] === "on"} onClick={() => update({ click: { ...s.click, [s.input]: "on" } })}>All the way</Chip>
+          <Chip on={s.click[s.input] === "count-in"} onClick={() => update({ click: { ...s.click, [s.input]: "count-in" } })}>Count-in only</Chip>
+        </ChipRow>
+        </div>
+        <div className="flex flex-col gap-3 border-t border-slate-800 pt-3">
+        <ChipRow label="Offset" info="Speakers, keyboards and microphones add a little delay, so a hit that feels on time can show as late. Play a round as steadily as you can and press Use as my offset, or set it here. Each input keeps its own.">
+          <Slider aria-label="Offset" value={Math.round(offset * 1000)} min={-OFFSET_LIMIT * 1000} max={OFFSET_LIMIT * 1000} step={1} onChange={(v) => update({ offset: { ...s.offset, [s.input]: v / 1000 } })} className="w-48 max-w-full" />
+          <span className="w-16 text-xs tabular-nums text-slate-300">{Math.round(offset * 1000)} ms</span>
+          {offset !== 0 && <Button size="sm" onClick={() => update({ offset: { ...s.offset, [s.input]: 0 } })}>Reset</Button>}
+        </ChipRow>
+        {s.input === "mic" && (
+          <ChipRow label="Sensitivity" info="How loud a strum has to be, against what was ringing just before, to count. Raise it if you get hits you did not play; lower it if soft strums are missed.">
+            <Slider aria-label="Sensitivity" value={20 - s.riseDb} min={4} max={16} step={0.5} onChange={(v) => update({ riseDb: 20 - v })} className="w-48 max-w-full" />
+          </ChipRow>
+        )}
+        </div>
+      </aside>
       <Stage tone="violet">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -396,40 +429,6 @@ export default function RhythmGame() {
           </div>
         )}
       </Stage>
-
-      <aside data-tour="rhythm-setup" aria-label="Setup" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-        <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the round</h2>
-        {playing && <p className="text-xs text-slate-400">These stay as they are until the round ends. Offset and sensitivity still change as you play.</p>}
-        <div inert={playing} className={`flex flex-col gap-3 transition-opacity ${playing ? "opacity-50" : ""}`}>
-        <ChipRow label="Play with" info="Space or a tap is the quickest way to learn a rhythm. Strum listens to your guitar through the mic, so you practise with your real strumming hand.">
-          <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); setError(null); update({ input: "keys" }); } }}>Space / tap</Chip>
-          <Chip on={s.input === "mic"} onClick={() => !playing && update({ input: "mic" })}>Strum (mic)</Chip>
-        </ChipRow>
-        <ChipRow label="Tempo" info="How fast the beat goes, in beats per minute. Start slow enough to hit every note, then raise it a little.">
-          <Slider aria-label="Tempo" value={s.bpm} min={MIN_BPM} max={MAX_BPM} step={1} disabled={playing} onChange={(bpm) => update({ bpm })} className="w-48 max-w-full" />
-          <span className="flex w-20 items-baseline gap-1 whitespace-nowrap text-xs text-slate-300"><NumberField value={s.bpm} min={MIN_BPM} max={MAX_BPM} disabled={playing} onCommit={(bpm) => update({ bpm })} aria-label="Tempo in beats per minute" className="w-10 py-0.5" />BPM</span>
-        </ChipRow>
-        <ChipRow label="Bars" info="How long a round lasts. Short rounds suit a new rhythm. Long rounds show whether you can keep it steady.">
-          {BAR_CHOICES.map((b) => <Chip key={b} on={b === s.bars} onClick={() => !playing && update({ bars: b })}>{b}</Chip>)}
-        </ChipRow>
-        <ChipRow label="Click" info={s.input === "mic" ? "The microphone can hear the click from your speakers and take it for a strum. With headphones, keep the click on; on speakers, let it count you in and keep time yourself." : undefined}>
-          <Chip on={s.click[s.input] === "on"} onClick={() => update({ click: { ...s.click, [s.input]: "on" } })}>All the way</Chip>
-          <Chip on={s.click[s.input] === "count-in"} onClick={() => update({ click: { ...s.click, [s.input]: "count-in" } })}>Count-in only</Chip>
-        </ChipRow>
-        </div>
-        <div className="flex flex-col gap-3 border-t border-slate-800 pt-3">
-        <ChipRow label="Offset" info="Speakers, keyboards and microphones add a little delay, so a hit that feels on time can show as late. Play a round as steadily as you can and press Use as my offset, or set it here. Each input keeps its own.">
-          <Slider aria-label="Offset" value={Math.round(offset * 1000)} min={-OFFSET_LIMIT * 1000} max={OFFSET_LIMIT * 1000} step={1} onChange={(v) => update({ offset: { ...s.offset, [s.input]: v / 1000 } })} className="w-48 max-w-full" />
-          <span className="w-16 text-xs tabular-nums text-slate-300">{Math.round(offset * 1000)} ms</span>
-          {offset !== 0 && <Button size="sm" onClick={() => update({ offset: { ...s.offset, [s.input]: 0 } })}>Reset</Button>}
-        </ChipRow>
-        {s.input === "mic" && (
-          <ChipRow label="Sensitivity" info="How loud a strum has to be, against what was ringing just before, to count. Raise it if you get hits you did not play; lower it if soft strums are missed.">
-            <Slider aria-label="Sensitivity" value={20 - s.riseDb} min={4} max={16} step={0.5} onChange={(v) => update({ riseDb: 20 - v })} className="w-48 max-w-full" />
-          </ChipRow>
-        )}
-        </div>
-      </aside>
     </div>
   );
 }

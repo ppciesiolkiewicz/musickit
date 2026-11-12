@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
-import { useStepPart } from "@/components/practice/exerciseStep";
+import { ToolHeadphonesHint, useStepPart } from "@/components/practice/exerciseStep";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import ToolSettings from "@/components/practice/ToolSettings";
 import InputChip from "@/components/InputChip";
@@ -297,6 +297,7 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
             <InputChip status={micStatus} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />
           </Hint>
         </span>
+        <ToolHeadphonesHint />
         {score.asked > 0 && <span className="text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
         <span className="ml-auto" />
         {options ? settings : <>

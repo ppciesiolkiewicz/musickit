@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExter
 import { createPortal } from "react-dom";
 import Icon from "@/components/Icon";
 import InputChip from "@/components/InputChip";
+import { ToolHeadphonesHint } from "@/components/practice/exerciseStep";
 import { DropdownSection, Hint, HintToggle, KeyCap } from "@/components/ui";
 import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useCoverage } from "@/features/guide/useCoverage";
@@ -223,6 +224,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
             <InputChip status={sa.status} mic={{ on: sa.mic, onToggle: sa.toggleMic }} />
           </Hint>
         </span>
+        <ToolHeadphonesHint />
         {LAYERS.filter((l) => l.id === "tune" || (l.id === "chords" && chords.length)).map((l) => {
           const on = sa.heard[l.id];
           return (

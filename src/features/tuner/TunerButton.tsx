@@ -86,11 +86,11 @@ export default function TunerButton({ className = "" }: { className?: string }) 
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-label="Tuner"
         title="Tuner"
-        className="flex h-8 items-center gap-1.5 rounded-full border border-sky-500/45 bg-slate-900/70 px-2.5 sm:pr-3 text-slate-100 backdrop-blur transition hover:border-sky-400"
+        className="flex h-8 w-8 items-center justify-center rounded-full border border-sky-500/45 bg-slate-900/70 text-slate-100 backdrop-blur transition hover:border-sky-400"
       >
         <span className={running ? "text-emerald-400" : "text-sky-400"}><Fork /></span>
-        <span className="hidden text-sm leading-none sm:inline">Tuner</span>
       </button>
       {open && (
         // the app's own panel, like the audio devices menu, so it follows the style

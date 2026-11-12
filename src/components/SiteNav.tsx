@@ -67,7 +67,7 @@ export default function SiteNav({ active, devices = false }: { active: string; d
       ))}
       <SpotlightButton className="ml-auto" />
       {active !== "/tuner" && <TunerButton className="sm:mr-1.5" />}
-      <ThemeSwitcher compact autoOpen={active === "/players"} />
+      <ThemeSwitcher autoOpen={active === "/players"} />
       {devices && <AudioDevicesButton className="sm:ml-1.5" />}
       <AccountLink className="sm:ml-1.5" />
     </nav>

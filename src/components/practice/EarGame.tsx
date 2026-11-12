@@ -43,6 +43,8 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   const [q, setQ] = useState<EarQuestion | null>(null);
   const [answered, setAnswered] = useState<{ pick: string; ok: boolean } | null>(null);
   const [score, setScore] = useState<Score>({});
+  /** The last question answered: its notes stay laid out (hidden) under the next question, so the page doesn't jump. */
+  const [shown, setShown] = useState<EarQuestion | null>(null);
   const answers = activeAnswers(s);
 
   const update = (patch: Partial<EarSettings>) => {
@@ -51,6 +53,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     if (syncUrl) writeQuery(settingsQuery(next));
     setQ(null);
     setAnswered(null);
+    setShown(null);
   };
   const next = () => {
     const n = nextEarQuestion(s, Math.random, q ?? undefined);
@@ -65,6 +68,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     if (!q || answered) return;
     const ok = a === q.answer;
     setAnswered({ pick: a, ok });
+    setShown(q);
     setScore((sc) => recordScore(sc, q.answer, ok));
   };
 
@@ -95,7 +99,9 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
       }
     }
   });
-  const info = q && s.kind === "interval" ? INTERVALS.find((i) => i.short === q.answer) : undefined;
+  // laid out (hidden) from the first question on: the last answered one, else the current one
+  const laid = shown ?? q;
+  const info = laid && s.kind === "interval" ? INTERVALS.find((i) => i.short === laid.answer) : undefined;
 
   const total = Object.values(score).reduce((n, v) => n + v.total, 0);
   const right = Object.values(score).reduce((n, v) => n + v.right, 0);
@@ -122,7 +128,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             <Chip on={!s.wide} onClick={() => update({ wide: false })}>Within an octave</Chip>
             <Chip on={s.wide} onClick={() => update({ wide: true })}>Multi-octave</Chip>
           </ChipRow>
-          <ChipRow label="Played" info="Rising plays the low note first, Falling plays the high note first, and Together plays both at once.">{DIRS.map((d) => <Chip key={d.id} on={s.direction === d.id} onClick={() => update({ direction: d.id })}>{d.mark} {d.label}</Chip>)}</ChipRow>
+          <ChipRow label="Direction" info="Rising plays the low note first, Falling plays the high note first, and Together plays both at once.">{DIRS.map((d) => <Chip key={d.id} on={s.direction === d.id} onClick={() => update({ direction: d.id })}>{d.mark} {d.label}</Chip>)}</ChipRow>
         </>
       )}
       <p className="mt-1 text-xs text-slate-400">These settings are in the page address. Copy the link to give a student the same set-up.</p>
@@ -132,6 +138,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   return (
     <div ref={keys.ref} className="flex flex-col gap-4">
       {!bare && <div data-tour="ears-setup"><GameChoice label="What to train" options={KINDS} value={s.kind} onChange={(kind) => update({ kind })} tone="sky" /></div>}
+      {setup}
       <Stage tone="sky">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -165,7 +172,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             const isRight = answered && a === q?.answer, wrong = answered && !answered.ok && a === answered.pick;
             return (
               <button key={a} type="button" onClick={() => pick(a)} disabled={!q}
-                className={`relative cursor-pointer rounded-xl border-2 px-3 py-3 text-base font-semibold transition active:scale-[0.96] disabled:cursor-default disabled:opacity-40 ${isRight ? "border-emerald-400 bg-emerald-500/25 text-emerald-50" : wrong ? "border-rose-400 bg-rose-500/25 text-rose-50" : "border-slate-600 bg-slate-800 text-slate-50 hover:border-sky-400 hover:bg-slate-700"}`}>
+                className={`relative cursor-pointer rounded-xl border-2 px-3 py-3 text-lg font-semibold shadow-md shadow-black/30 transition active:scale-[0.96] disabled:cursor-default disabled:opacity-50 ${isRight ? "border-emerald-400 bg-emerald-500/25 text-emerald-50" : wrong ? "border-rose-400 bg-rose-500/25 text-rose-50" : "border-sky-300/50 bg-sky-500/15 text-sky-50 hover:border-sky-300 hover:bg-sky-500/30"}`}>
                 {s.kind === "chord" ? labelOf(a) : a}
                 {keys.armed && ANSWER_KEYS[i] && <KeyCap className="absolute right-1 top-1 hidden md:block">{ANSWER_KEYS[i]}</KeyCap>}
               </button>
@@ -173,10 +180,10 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
           })}
         </div>
         {keys.armed && <p className="hidden text-xs text-slate-400 md:block">Keys: Space presses the big button, R replays, numbers answer</p>}
-        {answered && q && (
-          <div className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300">
+        {laid && (
+          <div aria-hidden={!answered || undefined} className={`flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300 ${answered ? "" : "invisible"}`}>
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}
-            <div className="max-w-md"><MiniPiano from={pianoFrom(q.midi)} octaves={Math.max(...q.midi) - pianoFrom(q.midi) >= 24 ? 3 : 2} lit={q.midi.map((m, i) => ({ midi: m, label: i === 0 ? "1st" : "", colour: i === 0 ? "#f8fafc" : "#f59e0b" }))} /></div>
+            <div className="max-w-md"><MiniPiano from={pianoFrom(laid.midi)} octaves={Math.max(...laid.midi) - pianoFrom(laid.midi) >= 24 ? 3 : 2} lit={laid.midi.map((m, i) => ({ midi: m, label: i === 0 ? "1st" : "", colour: i === 0 ? "#f8fafc" : "#f59e0b" }))} /></div>
           </div>
         )}
       </Stage>
@@ -195,7 +202,6 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
           </ul>
         </section>
       )}
-      {setup}
     </div>
   );
 }

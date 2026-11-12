@@ -151,6 +151,16 @@ export function StartExercise() {
   );
 }
 
+/**
+ * "Use headphones" on a tool that listens while it plays its own sound (a tune, a Do), in an exercise step that has no
+ * "Start exercise" to carry it: a step with one such tool has a single part to start, so the button, and its hint, is not shown.
+ */
+export function ToolHeadphonesHint() {
+  const step = useContext(StepContext);
+  if (!step || step.leads.length >= 2) return null;
+  return <HeadphonesHint />;
+}
+
 /** Why headphones help when the mic listens while the step plays a drone, a click or chords. */
 function HeadphonesHint() {
   return (

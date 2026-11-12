@@ -7,20 +7,6 @@ new1:
 Interval exercise and possibly some other exercises should show "Start screen" Maybe with a button to start whole exercise.
 
 
-64. Bad content example:
-Press Start below: Do sounds, and the leap to sing shows by name. Hear the landing note in your head first, then sing it on "oo" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again.
-
-Let's also start storing these pieces in like tmp/bad_examples.txt in this project or somewhere, 
-We will use them later to really get the copies right
-
-66.
-"Your own, with a leap" exercise - I think we need to improve label to use headphones and add them to more basic components.
- I can see that later exercise has label but former not because it looks we add it at the wrong level
-
-63. Which interval exercise:
-answers look kind of muted compared to "Replay" - improve.
-I'd like the UI to not jump when i move through this exercise.
-
 60.
 How did it go?
 
@@ -60,29 +46,8 @@ This probably could use some sort of injection mechanism or predefined slots.
 
 ======================== Small ========================
 
-33. [NEW 2026-11-09 09:46] Setup above the game on ears and rhythm (/theory/ears, /theory/rhythm)
-Original: "Lets put it above the game" (ears) / "Move this one above the game" (rhythm) / "Direction is better word for this label than "Played""
-- Move "Set up the training" above the game (src/components/practice/EarGame.tsx:157).
-- Move "Set up the round" above the game (src/features/rhythm/RhythmGame.tsx:400).
-- Ears: rename the "Played" label to "Direction".
-
-26. [NEW 2026-11-09 09:46] Sing an interval: Restart and Do buttons (/theory/singing/intervals)
-Original: "Restart Should only appear after they correctly guessed interval. "Hear Do" should be called "Play first note (Do)""
-- Restart shows only after the student has sung the interval correctly.
-- Rename "Hear Do" to "Play first note (Do)".
-- Where: src/features/exercises/basics/interval-singer/index.tsx:227
-
-27. [NEW 2026-11-09 09:46] Sing an interval: starting the exercise starts the mic (/theory/singing/intervals)
-Original: "For interval exercise starting exercise should start the microphone"
-
 39. [NEW 2026-11-09 09:46] Allow reconfiguring widgets in notes creator / video studio
 - when widget is on stage - show settings button next to scale selector - this will open pallette search and focus config for selected widget and allow prop
-
-30. [NEW 2026-11-09 09:46] Hint button: Esc inside the circle, morphs to an oval (/theory/singing/runs and everywhere HintToggle is used)
-Original: "Esc should be within circle and it should just morph into oval - add animation"
-- When the hint is on, the "?" circle morphs into an oval that holds Esc, with an animation.
-- Replaces the [Esc] shown next to the button (see the DONE "Esc to close 'tool hint'" item).
-
 
 ======================== Medium ========================
 
@@ -117,6 +82,17 @@ Like - seeing chords within a scale!
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] 64. Bad content examples are kept in tmp/bad_examples.txt (git-ignored), starting with the interval singing text from this ticket.
+[DONE] 66. "Use headphones" on tools that listen and play on their own
+Done: the hint sat only beside "Start exercise", which shows when a step has two or more things to start, so a step with one melody singer or interval singer (it plays the tune or Do and listens) never had it. Those two tools now show "Use headphones" beside their mic, only inside an exercise step and only when the step has no Start exercise (which already carries it). Checked in the browser on /dev/examples (a melody singer step).
+[DONE] 63. Which interval: answers and no jumping (/theory/ears)
+Done: the answer buttons are tinted like Replay (sky frame and fill, larger text), and faded less before Start. The answer panel (memory hook and piano) is laid out from the first question on and only hidden until you answer, so the buttons and the score no longer move between questions. Checked in the browser: the game's height stays the same from the first question through answers and Next.
+[DONE] 33. Setup above the game on ears and rhythm
+Done: "Set up the training" and "Set up the round" now sit above the game; the ears "Played" label is now "Direction". The two page tours show the setup step second, in page order. Checked in the browser on both pages.
+[DONE] 27. Sing an interval: Start starts the mic. Already done by 41: Start (and Restart) switch the mic on.
+[DONE] 30. Hint button: Esc inside the circle, morphs to an oval. Already done by 41 ("The two (i) buttons").
+[DONE] Nav: theme, tuner and Log in
+Done: the style picker shows only its palette icon (its name is still read out to screen readers); the tuner shows only its fork icon; Log in (and a logged-in name) is a rounded button with a person icon, tinted like the other nav buttons. Checked in the browser on desktop width; not checked at phone width.
 [DONE] new3. Interval singer play: "both" (Do, then the note to sing), for the plan to pick for beginners. Also: Do sits lower in the voice (a tenor's leaps had reached G4-B4).
 
 [DONE] new2. Hot keys unified: Space presses the big button (Play / Start / Next) on every player, Skip has no key (useSpaceKey).

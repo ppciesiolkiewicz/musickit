@@ -12,7 +12,6 @@ import { canFullscreen, enterFullscreen, exitFullscreen, isFullscreen, onFullscr
 export const THEME_BOOT = `try{var t=localStorage.getItem("${THEME_KEY}");if(${JSON.stringify(STYLES.map((s) => s.id))}.indexOf(t)>=0)document.documentElement.dataset.theme=t}catch(e){}`;
 
 /** The style's own headline face, for its name on the button; Default uses the Fraunces wordmark face. */
-const labelFont = (id: StyleId) => (id === "plain" ? "var(--font-display), serif" : `var(--font-${id}), var(--font-display), serif`);
 
 const LEVEL_LABEL: Record<Level, string> = { simple: "Simplified", standard: "Advanced" };
 
@@ -58,11 +57,11 @@ const subscribe = (cb: () => void) => {
 const toggleFullscreen = () => (isFullscreen() ? exitFullscreen() : enterFullscreen());
 
 /**
- * The palette button, named after the current music style in that style's own font, and the style picker it opens.
+ * The palette button (an icon; its accessible name says the current music style) and the style picker it opens.
  * With `autoOpen`, on a first visit the picker opens by itself with the current pick (Default) pulsing; closing it without
  * choosing settles on Default. Shared by every page; knows nothing about any feature.
  */
-export default function ThemeSwitcher({ className = "", compact = false, autoOpen = false }: { className?: string; /** only the palette on phones, to leave room for a button beside it */ compact?: boolean; /** open by itself on a first visit (only the players' home; everywhere else the picker waits for a click) */ autoOpen?: boolean }) {
+export default function ThemeSwitcher({ className = "", autoOpen = false }: { className?: string; /** open by itself on a first visit (only the players' home; everywhere else the picker waits for a click) */ autoOpen?: boolean }) {
   const style = useSyncExternalStore(subscribe, readStyle, () => DEFAULT_STYLE);
   const fullscreen = useSyncExternalStore(onFullscreenChange, isFullscreen, () => false);
   const fullscreenable = useSyncExternalStore(onFullscreenChange, canFullscreen, () => false);
@@ -107,10 +106,9 @@ export default function ThemeSwitcher({ className = "", compact = false, autoOpe
         aria-expanded={open}
         aria-label={`Style: ${current.label}`}
         title="Pick a style"
-        className={`flex h-8 items-center gap-1.5 rounded-full border border-sky-500/45 bg-slate-900/70 pl-2.5 ${compact ? "pr-2.5 sm:pr-3" : "pr-3"} text-slate-100 backdrop-blur transition hover:border-sky-400`}
+        className="flex h-8 w-8 items-center justify-center rounded-full border border-sky-500/45 bg-slate-900/70 text-slate-100 backdrop-blur transition hover:border-sky-400"
       >
         <Icon name="palette" size={15} className="text-sky-400" />
-        <span className={`whitespace-nowrap text-[15px] leading-none ${compact ? "hidden sm:inline" : ""}`} style={{ fontFamily: labelFont(style) }}>{current.label}</span>
       </button>
       {open && (
         // deliberately neutral: the same plain card whatever style is on
