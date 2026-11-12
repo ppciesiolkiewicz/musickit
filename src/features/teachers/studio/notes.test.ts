@@ -15,8 +15,8 @@ test("a note round-trips and drops live widgets", async () => {
 test("the notes creator opens an empty grid with One per row on, and leaves any other stage as it was", () => {
   assert.equal(notesStart(EMPTY_STAGE).gridAuto, true);
   assert.equal(notesStart(EMPTY_STAGE).layout, "grid");
-  assert.equal(notesStart(stage).gridAuto, undefined, "a stage with widgets keeps its switch off");
-  assert.equal(notesStart({ ...EMPTY_STAGE, layout: "free" }).gridAuto, undefined);
+  assert.equal(notesStart(stage).gridAuto, true, "a stage with widgets is put on One per row too");
+  assert.deepEqual([notesStart({ ...EMPTY_STAGE, layout: "free" }).layout, notesStart({ ...EMPTY_STAGE, layout: "free" }).gridAuto], ["grid", true]);
 });
 
 test("a note keeps the grid's auto layout", async () => {

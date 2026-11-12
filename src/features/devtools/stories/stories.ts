@@ -47,7 +47,7 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "string-singer", name: "Open strings, up and back", props: {} },
   { tool: "string-singer", name: "Pairs", props: { drill: "pairs" } },
   { tool: "string-singer", name: "Fifth fret, no metronome", props: { drill: "fifth-fret", metronome: false } },
-  { tool: "video", name: "Do Re Mi Fa Sol (9:16)", props: { video: "c-major-do-re-mi-long" } },
+  { tool: "video", name: "First steps: Do and Re", props: { video: "c-major-first-steps" } },
   { tool: "breathwork", name: "Farinelli 4 to 8", props: {} },
   { tool: "breathwork", name: "Farinelli, short", props: { from: 2, to: 4 } },
   { tool: "breathwork", name: "Sss-zzz", props: { drill: "sss-zzz", seconds: 4, rounds: 2 } },

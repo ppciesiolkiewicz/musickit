@@ -5,3 +5,4 @@
 export { default as StudioApp } from "./StudioApp";
 export { default as PresetNote, PresetHeader } from "./PresetNote";
 export { PRESET_INFO, presetInfo } from "./presetInfo";
+export { NoteViewProvider, NotesCreatorHeader, NOTE_EYEBROW } from "./NoteViewMode";

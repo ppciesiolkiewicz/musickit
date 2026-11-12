@@ -8,6 +8,7 @@ test("a library ref keeps a known id, a recording a plain id and a clean name", 
   assert.deepEqual(sanitiseVideoRef({ source: "recording", id: "ab-12", title: "  My   scales \n take " }), { source: "recording", id: "ab-12", title: "My scales take" });
   assert.deepEqual(sanitiseVideoRef({ source: "recording", id: "ab-12" }), { source: "recording", id: "ab-12", title: "My video" });
   assert.equal(sanitiseVideoRef({ source: "recording", id: "../x" }), null);
+  assert.deepEqual(sanitiseVideoRef({ source: "placeholder", id: "x", title: "y" }), { source: "placeholder" });
   assert.equal(sanitiseVideoRef({ source: "url", id: "x" }), null);
   assert.equal(sanitiseVideoRef("c-major-first-steps"), null);
 });
@@ -16,4 +17,5 @@ test("a name is cut at 80 characters, and a ref has a title", () => {
   assert.equal(cleanTitle("x".repeat(100)).length, 80);
   assert.equal(refTitle({ source: "library", id: "c-major-do-re-mi-long" }), "Do Re Mi Fa Sol");
   assert.equal(refTitle({ source: "recording", id: "a", title: "Warm-up" }), "Warm-up");
+  assert.equal(refTitle({ source: "placeholder" }), "Placeholder");
 });

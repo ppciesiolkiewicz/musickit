@@ -11,7 +11,9 @@ import { Tool } from "@/features/plan/ui/Tool";
 import { LevelPin } from "@/features/guide/Tier";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Tuner } from "@/features/tuner";
+import { VideoPlaceholderButton } from "@/features/videos/Placeholder";
 import { VideoPlayer } from "@/features/videos/VideoPlayer";
+import { VideoPickContext } from "./VideoPickContext";
 import { nextMelody } from "../model/families";
 import { melodyDesignWidth } from "../model/melody";
 import { cagedQualityOf, parseText, withOwnKey, type Subject } from "../model/subject";
@@ -56,6 +58,7 @@ export interface StageWidgetProps {
  */
 export default function StageWidget({ subject, onSubjectChange, stageKey, onStageKey, renderMedia, readOnly = false }: StageWidgetProps) {
   const ctx = useMemo(() => ("key" in subject ? keyContext(withTonic(subject.key)) : null), [subject]);
+  const pickVideo = useContext(VideoPickContext);
   if (subject.kind === "camera" || subject.kind === "screen") return <>{renderMedia?.(subject) ?? null}</>;
   // a key changed from inside the widget (a mode picked in Same notes) is pinned on it, like one changed with its tags
   const ownKey = (key: KeyChoice) => onSubjectChange(withOwnKey(subject, key));
@@ -147,7 +150,11 @@ export default function StageWidget({ subject, onSubjectChange, stageKey, onStag
     case "video":
       body = (
         <div className="rounded-xl border border-slate-800 bg-slate-950 p-3">
-          <VideoPlayer video={subject.video} />
+          {subject.video.source === "placeholder" && !readOnly && pickVideo ? (
+            <VideoPlaceholderButton onOpen={() => pickVideo((video) => onSubjectChange({ kind: "video", video }))} />
+          ) : (
+            <VideoPlayer video={subject.video} />
+          )}
         </div>
       );
       break;

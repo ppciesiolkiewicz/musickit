@@ -11,24 +11,27 @@ import { deleteVideo, getVideo, listVideos, onVideosChange, type SavedVideoInfo 
 import { VideoPlayer } from "./VideoPlayer";
 import { VideoRecorder } from "./VideoRecorder";
 
-export type ChooserTab = "library" | "mine" | "record";
+export type ChooserTab = "mine" | "record" | "placeholder" | "library";
+/** The teacher's own first, the attunr library last. */
 const TABS: { id: ChooserTab; label: string }[] = [
-  { id: "library", label: "Library" },
   { id: "mine", label: "My videos" },
   { id: "record", label: "Record" },
+  { id: "placeholder", label: "Placeholder" },
+  { id: "library", label: "attunr video library" },
 ];
 
 const add = `${btnBaseSm} border-sky-500 bg-sky-600 text-white hover:bg-sky-500`;
 
 /**
- * Picks a video to add: one from the library, one of the teacher's own (kept in this browser), or a new one recorded here. `addTo`
+ * Picks a video to add: one of the teacher's own (kept in this browser), a new one recorded here, a placeholder to fill in later,
+ * or one from the attunr library. `addTo`
  * names where it goes ("the note"); `onPick` gets the video.
  */
-export function VideoChooser({ start = "library", addTo, onPick }: { start?: ChooserTab; addTo: string; onPick: (ref: VideoRef) => void }) {
+export function VideoChooser({ start = "mine", addTo, onPick }: { start?: ChooserTab; addTo: string; onPick: (ref: VideoRef) => void }) {
   const [tab, setTab] = useState<ChooserTab>(start);
   return (
     <div className="flex flex-col gap-4">
-      <div role="tablist" aria-label="Where the video comes from" className="flex gap-2">
+      <div role="tablist" aria-label="Where the video comes from" className="flex flex-wrap gap-2">
         {TABS.map((t) => (
           <Button key={t.id} role="tab" aria-selected={tab === t.id} pressed={tab === t.id} onClick={() => setTab(t.id)}>
             {t.label}
@@ -38,6 +41,16 @@ export function VideoChooser({ start = "library", addTo, onPick }: { start?: Cho
       {tab === "library" && <Library addTo={addTo} onPick={onPick} />}
       {tab === "mine" && <Mine addTo={addTo} onPick={onPick} onRecord={() => setTab("record")} />}
       {tab === "record" && <VideoRecorder addTo={addTo} onSaved={onPick} />}
+      {tab === "placeholder" && (
+        <div className="flex flex-col items-start gap-3">
+          <p className="text-sm leading-relaxed text-slate-400">
+            Save a place for a video you will make later. People reading the note see “Video coming soon”. Press the placeholder in the creator to record the video or pick one.
+          </p>
+          <button type="button" onClick={() => onPick({ source: "placeholder" })} className={add}>
+            <Icon name="plus" size={12} /> Add a placeholder
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -45,7 +58,7 @@ export function VideoChooser({ start = "library", addTo, onPick }: { start?: Cho
 function Library({ addTo, onPick }: { addTo: string; onPick: (ref: VideoRef) => void }) {
   const videos = publishedVideos();
   const [watching, setWatching] = useState<string | null>(null);
-  if (!videos.length) return <p className="text-sm text-slate-400">The library has no videos yet. Press Record above to make your own.</p>;
+  if (!videos.length) return <p className="text-sm text-slate-400">The attunr video library has no videos yet. Press Record above to make your own.</p>;
   return (
     <ul className="flex flex-col gap-3">
       {videos.map((v) => (

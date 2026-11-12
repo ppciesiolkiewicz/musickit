@@ -1,10 +1,11 @@
 import { libraryVideo } from "./library";
 
 /**
- * Which video a widget plays: one from the library (by its id), or one the teacher recorded, kept in this browser (`store.ts`) by its
- * id, with the name it was saved under so a page without the file can still say which it was. Plain JSON. Pure.
+ * Which video a widget plays: one from the library (by its id), one the teacher recorded, kept in this browser (`store.ts`) by its
+ * id, with the name it was saved under so a page without the file can still say which it was, or a placeholder for a video still to
+ * come (the creator opens the recorder from it; a reader sees "Video coming soon"). Plain JSON. Pure.
  */
-export type VideoRef = { source: "library"; id: string } | { source: "recording"; id: string; title: string };
+export type VideoRef = { source: "library"; id: string } | { source: "recording"; id: string; title: string } | { source: "placeholder" };
 
 /** The longest name a recording keeps. */
 export const TITLE_MAX = 80;
@@ -14,6 +15,7 @@ const RECORDING_ID = /^[A-Za-z0-9-]{1,64}$/;
 export function sanitiseVideoRef(raw: unknown): VideoRef | null {
   if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return null;
   const o = raw as Record<string, unknown>;
+  if (o.source === "placeholder") return { source: "placeholder" };
   if (typeof o.id !== "string") return null;
   if (o.source === "library") return libraryVideo(o.id) ? { source: "library", id: o.id } : null;
   if (o.source === "recording" && RECORDING_ID.test(o.id)) return { source: "recording", id: o.id, title: cleanTitle(o.title) };
@@ -27,4 +29,4 @@ export function cleanTitle(v: unknown): string {
 }
 
 /** The video's name as a list or a title shows it. */
-export const refTitle = (r: VideoRef): string => (r.source === "library" ? libraryVideo(r.id)?.title ?? "Video" : r.title);
+export const refTitle = (r: VideoRef): string => (r.source === "library" ? libraryVideo(r.id)?.title ?? "Video" : r.source === "recording" ? r.title : "Placeholder");

@@ -226,6 +226,8 @@ test("a video widget keeps a video it can read, and is named by it", () => {
   assert.deepEqual(sanitiseSubject({ kind: "video", video: { source: "recording", id: "a1", title: "Warm-up" } }, []), { kind: "video", video: { source: "recording", id: "a1", title: "Warm-up" } });
   assert.equal(sanitiseSubject({ kind: "video", video: { source: "library", id: "gone" } }, []), null);
   assert.equal(sanitiseSubject({ kind: "video" }, []), null);
+  assert.deepEqual(sanitiseSubject({ kind: "video", video: { source: "placeholder" } }, []), { kind: "video", video: { source: "placeholder" } });
+  assert.equal(subjectTitle({ kind: "video", video: { source: "placeholder" } }), "Video · Placeholder");
 });
 
 test("text splits into headings and paragraphs", () => {

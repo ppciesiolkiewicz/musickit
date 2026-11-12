@@ -20,5 +20,6 @@ export { default as NoteArticle } from "./render/NoteArticle";
 export { CameraLayer, ScreenLayer, type MediaControls } from "./render/MediaLayer";
 export { MicContext, type MicInput } from "./render/MicWidget";
 export { TimelineContext, type StageTimeline } from "./render/TimelineContext";
+export { VideoPickContext } from "./render/VideoPickContext";
 export { useAudioInput } from "./render/useAudioInput";
 export { DEFAULT_AUDIO_INPUT, activeSource, sanitiseAudioInput, type AudioInputSetup, type AudioSource, type InputChannel, type SourceSetup } from "./model/audioInput";

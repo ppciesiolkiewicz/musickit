@@ -46,11 +46,13 @@ interface FrameProps {
   renderLayer: (l: Layer) => ReactNode;
   onAction: (a: StageAction) => void;
   keepShape?: boolean;
+  /** the widgets' hover toolbar has Pin (default); the notes creator turns it off */
+  pin?: boolean;
 }
 
 /** The 16:9 frame, in the stage's layout. The two share nothing but how a widget is drawn inside its box (`LayerParts`). */
 export default function StageFrame(props: FrameProps) {
-  return layoutOf(props.stage) === "grid" ? <GridFrame stage={props.stage} renderLayer={props.renderLayer} onAction={props.onAction} /> : <FreeFrame {...props} />;
+  return layoutOf(props.stage) === "grid" ? <GridFrame stage={props.stage} renderLayer={props.renderLayer} onAction={props.onAction} pin={props.pin} /> : <FreeFrame {...props} />;
 }
 
 /**
@@ -66,7 +68,7 @@ export default function StageFrame(props: FrameProps) {
  * Widgets are opaque cards (the brand marks and the camera and screen excepted). With `keepShape`, each widget's frame takes the
  * shape of what it shows (reported by its FitBox), and a corner drag keeps that shape. Each widget can fill the frame and go back.
  */
-function FreeFrame({ stage, renderLayer, onAction, keepShape = true }: FrameProps) {
+function FreeFrame({ stage, renderLayer, onAction, keepShape = true, pin = true }: FrameProps) {
   const frame = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
   const dragged = useRef(false);
@@ -218,6 +220,7 @@ function FreeFrame({ stage, renderLayer, onAction, keepShape = true }: FrameProp
         return (
           <LayerToolbar
             layer={l}
+            pin={pin}
             filled={!!l.restore}
             onAction={onAction}
             aspect={() => (keepShape ? (aspects.current[l.id] ?? null) : null)}

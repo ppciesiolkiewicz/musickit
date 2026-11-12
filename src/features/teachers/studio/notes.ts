@@ -19,8 +19,8 @@ async function pipe(bytes: Uint8Array, stream: CompressionStream | Decompression
   return new Uint8Array(await out.arrayBuffer());
 }
 
-/** How the notes creator opens without a shared note: an empty grid starts with One per row on. A stage with widgets, or on Free, stays as it was left. */
-export const notesStart = (saved: Stage): Stage => (saved.layers.length === 0 && saved.layout === "grid" ? { ...saved, gridAuto: true } : saved);
+/** The notes creator has one layout: the grid with One per row on. Every stage it opens or loads (saved, shared, typed as JSON) is put on it. */
+export const notesStart = (saved: Stage): Stage => ({ ...saved, layout: "grid", gridAuto: true });
 
 /** The stage as a short URL-safe string: its layers and key (no selection, no live widgets), deflated when the browser can. */
 export async function encodeNote(stage: Stage): Promise<string> {

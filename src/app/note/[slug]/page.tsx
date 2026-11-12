@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import PageShell from "@/components/PageShell";
 import { pageBar } from "@/components/PageHeading";
 import Icon from "@/components/Icon";
-import { PRESET_INFO, PresetHeader, PresetNote, StudioApp, presetInfo } from "@/features/teachers/studio";
+import { NOTE_EYEBROW, NoteViewProvider, NotesCreatorHeader, PRESET_INFO, PresetHeader, PresetNote, StudioApp, presetInfo } from "@/features/teachers/studio";
 
 type Params = { slug: string };
 type Search = Record<string, string | string[] | undefined>;
@@ -33,15 +33,19 @@ export default async function NotePage({ params, searchParams }: { params: Promi
   if (!note) notFound();
   if (editing(await searchParams)) {
     return (
-      <PageShell active={ACTIVE} full title="Notes creator" intro={`“${note.title}”, open to change: add, move or remove widgets, then share it as a link. This is a demo page: your changes are kept as you make them, so View the note shows them, until you reload.`}
-        action={<Link href={`/note/${slug}`} className={ACTION}><Icon name="eye" size={15} />View the note</Link>}>
-        <StudioApp notes preset={slug} />
-      </PageShell>
+      <NoteViewProvider>
+        <PageShell active={ACTIVE} full title="Notes creator" header={
+          <NotesCreatorHeader title="Notes creator" bar={pageBar(ACTIVE)} intro={`“${note.title}”, open to change: add, move or remove widgets. This is a demo page: your changes are kept as you make them, so View the note shows them, until you reload.`}
+            action={<Link href={`/note/${slug}`} className={ACTION}><Icon name="eye" size={15} />View the note</Link>} />
+        }>
+          <StudioApp notes preset={slug} />
+        </PageShell>
+      </NoteViewProvider>
     );
   }
   return (
     <PageShell active={ACTIVE} devices title={note.title} header={
-      <PresetHeader slug={slug} title={note.title} intro={note.description} eyebrow="A note from your teacher" bar={pageBar(ACTIVE)}
+      <PresetHeader slug={slug} title={note.title} intro={note.description} eyebrow={NOTE_EYEBROW} bar={pageBar(ACTIVE)}
         action={<Link href={`/note/${slug}?edit=true`} className={ACTION}><Icon name="pencil" size={15} />Edit this note</Link>} />
     }>
       <PresetNote slug={slug} />

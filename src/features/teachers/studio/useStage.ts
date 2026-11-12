@@ -37,7 +37,7 @@ export default function useStage(pluginIds: string[], notes = false, preset: Sta
     if (notes) saved = notesStart(saved);
     // a shared note in the link wins over the last visit
     const note = notes ? noteFromHash(window.location.hash) : null;
-    if (note) void decodeNote(note, pluginIds).then((s) => send({ type: "load", stage: s ?? saved }));
+    if (note) void decodeNote(note, pluginIds).then((s) => send({ type: "load", stage: s ? notesStart(s) : saved }));
     else send({ type: "load", stage: saved });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -55,6 +55,6 @@ export default function useStage(pluginIds: string[], notes = false, preset: Sta
 
   const dispatch = useCallback((a: StageAction) => send(a), []);
   /** the whole stage replaced in one go (the note read back from its text) */
-  const load = useCallback((stage: Stage) => send({ type: "load", stage }), []);
+  const load = useCallback((stage: Stage) => send({ type: "load", stage: notes ? notesStart(stage) : stage }), [notes]);
   return [held.stage, dispatch, load];
 }

@@ -57,11 +57,12 @@ export function LayerBody({ layer, card, onShape, children }: { layer: Layer; ca
 
 const TOOL = "flex h-6 w-6 items-center justify-center rounded-md bg-slate-950/80 ring-1 ring-slate-700";
 
-/** A widget's hover toolbar: pin, fill the frame or go back, delete. Brand marks only have delete. Never recorded (`data-chrome`). */
+/** A widget's hover toolbar: pin (unless `pin` is false: the notes creator), fill the frame or go back, delete. Brand marks only have delete. Never recorded (`data-chrome`). */
 export function LayerToolbar({
   layer: l,
   filled,
   canFill = true,
+  pin = true,
   aspect,
   onAction,
   className,
@@ -73,6 +74,8 @@ export function LayerToolbar({
   filled: boolean;
   /** the grid gives each widget its own size, so there it has no fill button */
   canFill?: boolean;
+  /** offer the pin button (the studio); the notes creator has no pinning */
+  pin?: boolean;
   /** the content's shape when it is filled, read at the click */
   aspect?: () => number | null;
   onAction: (a: StageAction) => void;
@@ -84,7 +87,7 @@ export function LayerToolbar({
   const card = !fixedRect(l.subject);
   return (
     <div data-chrome className={`flex gap-1.5 ${className}`} style={style} onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave} onPointerDown={(e) => e.stopPropagation()}>
-      {card && (
+      {card && pin && (
         <button
           type="button"
           title={l.onTop ? "Unpin: let other widgets cover it" : "Pin: keep it over the other widgets, and light the notes the audio input hears on it"}

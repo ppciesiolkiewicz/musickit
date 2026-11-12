@@ -48,7 +48,7 @@ class WidgetTouchSensor extends TouchSensor {
   static activators = [{ eventName: "onTouchStart" as const, handler: ({ nativeEvent: e }: RTouchEvent) => e.touches.length === 1 && !onControl(e) }];
 }
 
-function GridItem({ layer: l, selected, aspect, auto, onShape, onAction, children }: { layer: Layer; selected: boolean; aspect: number; auto: boolean; onShape: (id: string, aspect: number) => void; onAction: (a: StageAction) => void; children: ReactNode }) {
+function GridItem({ layer: l, selected, aspect, auto, pin, onShape, onAction, children }: { layer: Layer; selected: boolean; aspect: number; auto: boolean; pin: boolean; onShape: (id: string, aspect: number) => void; onAction: (a: StageAction) => void; children: ReactNode }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: l.id });
   const media = l.subject.kind === "camera" || l.subject.kind === "screen";
   const page = isPage(l.subject);
@@ -71,7 +71,7 @@ function GridItem({ layer: l, selected, aspect, auto, onShape, onAction, childre
         <ScrollInBox.Provider value={page}>{children}</ScrollInBox.Provider>
       </LayerBody>
       <div className={`pointer-events-none absolute inset-0 rounded-xl ring-2 ring-sky-400/80 ${SHOW}`} />
-      {!media && <LayerToolbar layer={l} filled={false} canFill={false} onAction={onAction} className={`absolute right-1.5 top-1.5 z-10 ${SHOW}`} />}
+      {!media && <LayerToolbar layer={l} filled={false} canFill={false} pin={pin} onAction={onAction} className={`absolute right-1.5 top-1.5 z-10 ${SHOW}`} />}
     </div>
   );
 }
@@ -84,7 +84,7 @@ function GridItem({ layer: l, selected, aspect, auto, onShape, onAction, childre
  * order (`@dnd-kit`). The frame is at least 16:9 and grows with its widgets, so the page's own scroll goes through them, and a new
  * widget at the end is scrolled into view. The brand marks are not grid items: they keep their corner of the frame's first screen.
  */
-export default function GridFrame({ stage, renderLayer, onAction }: { stage: Stage; renderLayer: (l: Layer) => ReactNode; onAction: (a: StageAction) => void }) {
+export default function GridFrame({ stage, renderLayer, onAction, pin = true }: { stage: Stage; renderLayer: (l: Layer) => ReactNode; onAction: (a: StageAction) => void; /** Pin in the hover toolbar (off in the notes creator) */ pin?: boolean }) {
   const frame = useRef<HTMLDivElement>(null);
   useWidgetZoom(frame, stage.layers, onAction);
   const sensors = useSensors(useSensor(WidgetMouseSensor, { activationConstraint: { distance: DRAG_SLOP } }), useSensor(WidgetTouchSensor, { activationConstraint: { delay: TOUCH_HOLD_MS, tolerance: TOUCH_SLOP } }));
@@ -127,7 +127,7 @@ export default function GridFrame({ stage, renderLayer, onAction }: { stage: Sta
           <SortableContext items={items.map((l) => l.id)} strategy={rectSortingStrategy}>
             <div className={`relative grid items-start ${SPACING}`} style={{ gridTemplateColumns: `repeat(${GRID_COLUMNS}, minmax(0, 1fr))` }}>
               {items.map((l) => (
-                <GridItem key={l.id} layer={l} selected={stage.selected === l.id} aspect={shapes[l.id] ?? gridAspect(l)} auto={!!stage.gridAuto} onShape={onShape} onAction={onAction}>
+                <GridItem key={l.id} layer={l} selected={stage.selected === l.id} aspect={shapes[l.id] ?? gridAspect(l)} auto={!!stage.gridAuto} pin={pin} onShape={onShape} onAction={onAction}>
                   {renderLayer(l)}
                 </GridItem>
               ))}
@@ -147,7 +147,7 @@ export default function GridFrame({ stage, renderLayer, onAction }: { stage: Sta
           <LayerBody layer={l} card={false}>
             {renderLayer(l)}
           </LayerBody>
-          <LayerToolbar layer={l} filled={false} onAction={onAction} className={`absolute right-1.5 top-1.5 ${SHOW}`} />
+          <LayerToolbar layer={l} filled={false} pin={pin} onAction={onAction} className={`absolute right-1.5 top-1.5 ${SHOW}`} />
         </div>
       ))}
     </div>

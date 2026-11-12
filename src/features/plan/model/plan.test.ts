@@ -88,14 +88,13 @@ describe("tools", () => {
     assert.ok(!("pick" in picked!));
     assert.deepEqual(parseTool({ type: "run-singer", run: runChoices()[0].id, key: "c" }), { type: "run-singer", run: runChoices()[0].id });
   });
-  it("reads a video by its library id, only a published one, and lists the published videos for the AI", () => {
-    assert.deepEqual(parseTool({ type: "video", video: "c-major-do-re-mi-long" }), { type: "video", video: "c-major-do-re-mi-long" });
-    assert.match(parseToolDiag({ type: "video", video: "c-major-first-steps" }).dropped ?? "", /not published/);
+  it("reads a video by its library id and lists the published videos for the AI", () => {
+    assert.deepEqual(parseTool({ type: "video", video: "c-major-first-steps" }), { type: "video", video: "c-major-first-steps" });
+    assert.match(parseToolDiag({ type: "video", video: "c-major-do-re-mi-long" }).dropped ?? "", /not published/);
+    assert.deepEqual(parseToolDiag({ type: "video", video: "c-major-do-re-mi-long" }, { stored: true }).tool, { type: "video", video: "c-major-do-re-mi-long" });
     assert.match(parseToolDiag({ type: "video", video: "nope" }).dropped ?? "", /unreadable video/);
-    assert.deepEqual(parseToolDiag({ type: "video", video: "c-major-first-steps" }, { stored: true }).tool, { type: "video", video: "c-major-first-steps" });
     const line = toolInterface().find((l) => l.startsWith("- video "));
-    assert.match(line ?? "", /"c-major-do-re-mi-long" \(Do Re Mi Fa Sol, voice, 7 min/);
-    assert.doesNotMatch(line ?? "", /c-major-first-steps/);
+    assert.match(line ?? "", /"c-major-first-steps" \(First steps: Do and Re, voice, 1 min/);
   });
   it("keeps a singer's chords on unless turned off", () => {
     const run = runChoices()[0].id;
