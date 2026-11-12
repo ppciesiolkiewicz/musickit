@@ -23,7 +23,8 @@
     "deps:feature": "f=${F:-plan}; mkdir -p .deps && npx dependency-cruiser src/features/$f --output-type mermaid > .deps/$f.mmd && echo wrote .deps/$f.mmd",
     "video": "node scripts/video/render.mjs",
     "brand": "node scripts/brand/generate.mjs",
-    "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts src/features/instruments/*/*.test.ts src/lib/improv/*.test.ts src/features/sound/engine/*.test.ts src/features/tuner/*.test.ts src/features/rhythm/*.test.ts src/features/theory/*.test.ts src/features/course/*.test.ts src/features/theory/piano/*.test.ts src/lib/practice/*.test.ts src/features/widgets/*.test.ts src/features/creator/model/*.test.ts src/features/sampler/*.test.ts src/features/sampler/model/*.test.ts src/features/sampler/server/*.test.ts src/features/nam/*.test.ts src/features/nam/server/*.test.ts src/features/earlyAccess/*.test.ts src/features/contact/*.test.ts src/features/styles/*.test.ts src/features/guide/*.test.ts src/features/stage/model/*.test.ts src/features/teachers/video/model/*.test.ts src/features/teachers/studio/*.test.ts src/features/search/*.test.ts src/features/exercises/*/*.test.ts src/features/exercises/*/*/*.test.ts src/features/plan/model/*.test.ts src/features/plan/intake/*.test.ts src/features/progress/*.test.ts src/features/account/*.test.ts src/features/account/server/*.test.ts src/features/plan/examples/*.test.ts src/features/devtools/*.test.ts src/features/devtools/*/*.test.ts src/features/backing/*/*.test.ts"
+    "test": "npx tsx --test src/lib/chordKit/*.test.ts src/lib/looper/*.test.ts src/features/instruments/*/*.test.ts src/lib/improv/*.test.ts src/features/sound/engine/*.test.ts src/features/tuner/*.test.ts src/features/rhythm/*.test.ts src/features/theory/*.test.ts src/features/course/*.test.ts src/features/theory/piano/*.test.ts src/lib/practice/*.test.ts src/features/widgets/*.test.ts src/features/creator/model/*.test.ts src/features/sampler/*.test.ts src/features/sampler/model/*.test.ts src/features/sampler/server/*.test.ts src/features/nam/*.test.ts src/features/nam/server/*.test.ts src/features/earlyAccess/*.test.ts src/features/contact/*.test.ts src/features/styles/*.test.ts src/features/guide/*.test.ts src/features/stage/model/*.test.ts src/features/teachers/video/model/*.test.ts src/features/teachers/studio/*.test.ts src/features/search/*.test.ts src/features/exercises/*/*.test.ts src/features/exercises/*/*/*.test.ts src/features/plan/model/*.test.ts src/features/plan/intake/*.test.ts src/features/progress/*.test.ts src/features/account/*.test.ts src/features/account/server/*.test.ts src/features/plan/examples/*.test.ts src/features/devtools/*.test.ts src/features/devtools/*/*.test.ts src/features/backing/*/*.test.ts",
+    "pianos:measure": "tsx scripts/measure-pianos.mts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -54,7 +55,10 @@
     "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.0",
+    "node-web-audio-api": "^2.2.0",
+    "smplr": "^1.2.0",
     "tailwindcss": "^4.3.3",
+    "tone": "^15.1.22",
     "typescript": "^5"
   }
 }

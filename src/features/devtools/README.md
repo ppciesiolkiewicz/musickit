@@ -97,3 +97,21 @@ returns one.
 - `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner email brief; its facts, voice and samples.
 - `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `logRows`).
 - Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
+
+## Instrument tuning (`/dev/pianos`) — TEMPORARY
+
+**To delete once a sample source is chosen** (it pulls three dev dependencies just for this): `src/app/dev/pianos/`,
+`src/features/devtools/pianos/`, `scripts/measure-pianos.mts`, the `pianos:measure` script and the `smplr`, `tone` and
+`node-web-audio-api` dev dependencies in `package.json`, and its line in `registry.ts`.
+
+Compares ways to play an instrument and how far each note is from A440. `pianos/instruments.ts` lists the instruments and their
+sample sets: the app's Casio samples (read from the sound engine's own config), tonejs-instruments, Salamander and FatBoy files,
+and their General MIDI soundfont names. `pianos/backends.ts` puts every way to play behind one shape (`PianoBackend`: `load`,
+`play`), with an optional `tuning` setting: our own player over each sample set, Tone.js's Sampler over the tonejs-instruments
+files, smplr's soundfont (MusyngKite) and Splendid Grand Piano, and an exact synth tone as the yardstick.
+
+`npm run pianos:measure` (optionally `-- piano/ cello/own`) renders every note G2–C6 of every backend offline in Node
+(node-web-audio-api), once as recorded and once with that measurement as its tuning, reads each note's pitch 0.3 s in with the
+tuner's YIN, and writes `pianos/tuning.generated.json`. Files node-web-audio-api cannot decode (smplr's ogg/m4a) go through
+macOS `afconvert`, so the script runs on a Mac. The page shows those numbers on each key; *Correct pitch* plays with the tuning;
+the mic shows how far your voice is from the tapped note.
