@@ -5,8 +5,8 @@ Videos a note or an exercise plays: the app's library of practice videos, and th
 | File | What |
 | --- | --- |
 | `library.ts` | `VIDEO_LIBRARY`: the practice videos rendered from `videos/<id>.json` (`npm run video`), with title, line, area, length and the formats uploaded (`published`). Files are `VIDEO_BASE/<id>-<format>.mp4`; `VIDEO_BASE` is `NEXT_PUBLIC_VIDEO_BASE` or `/videos` (`public/videos/`, git-ignored). A video with nothing published is offered nowhere. Pure. |
-| `ref.ts` | `VideoRef`: `{ source: "library", id }`, `{ source: "recording", id, title }` or `{ source: "placeholder" }`, and `sanitiseVideoRef`. Pure. |
-| `Placeholder.tsx` | A placeholder: **Video coming soon** for a reader, **Record this video** (a button the host wires to its recorder) in the creator. |
+| `ref.ts` | `VideoRef`: `{ source: "library", id }`, `{ source: "recording", id, title }` or `{ source: "placeholder", text? }`, and `sanitiseVideoRef`. Pure. |
+| `Placeholder.tsx` | A placeholder: **Video coming soon** for a reader (with the placeholder's `text` under it, when it has one), **Record this video** (a button the host wires to its recorder) in the creator. |
 | `recording.ts` | The recorder's pure parts: the recorded type, file names, a take's default name, the ten-minute limit. |
 | `store.ts` | The teacher's own videos in IndexedDB (`musickit-videos`): save, list, get, rename, delete. In this browser only, nothing uploaded. |
 | `VideoPlayer.tsx` | Plays a ref with the browser's controls; a recording not in this browser, or a file that won't load, says so; a placeholder reads Video coming soon. |

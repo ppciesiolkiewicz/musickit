@@ -2,12 +2,13 @@ import Icon from "@/components/Icon";
 
 const frame = "flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-4 text-center";
 
-/** A placeholder as a reader sees it: a video to come, in the shape a video will take. */
-export function VideoComingSoon() {
+/** A placeholder as a reader sees it: a video to come, in the shape a video will take, with the placeholder's own line under it when it has one. */
+export function VideoComingSoon({ text }: { text?: string }) {
   return (
     <div className={`${frame} border-slate-700 bg-slate-900/60`}>
       <Icon name="video" size={28} className="text-slate-500" />
       <p className="text-base font-medium text-slate-300">Video coming soon</p>
+      {text && <p className="max-w-sm text-sm text-slate-400">{text}</p>}
     </div>
   );
 }

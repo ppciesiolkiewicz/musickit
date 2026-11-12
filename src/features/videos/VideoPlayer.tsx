@@ -38,11 +38,11 @@ function useSource(video: Exclude<VideoRef, { source: "placeholder" }>): Source 
 }
 
 /**
- * A video from the library or the teacher's own, with the browser's controls; a placeholder reads "Video coming soon". A tall (9:16) video stands in the middle at a phone's
+ * A video from the library or the teacher's own, with the browser's controls; a placeholder reads "Video coming soon", with its text under it. A tall (9:16) video stands in the middle at a phone's
  * width. Used by the stage's video widget and the plan's `video` tool.
  */
 export function VideoPlayer({ video }: { video: VideoRef }) {
-  return video.source === "placeholder" ? <VideoComingSoon /> : <FilePlayer video={video} />;
+  return video.source === "placeholder" ? <VideoComingSoon text={video.text} /> : <FilePlayer video={video} />;
 }
 
 function FilePlayer({ video }: { video: Exclude<VideoRef, { source: "placeholder" }> }) {

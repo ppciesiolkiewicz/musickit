@@ -18,6 +18,9 @@ const C = 0;
 /** A singer tool whose key is its own: the note's key (A minor) never moves it. */
 const sung = (tool: Extract<Subject, { kind: "tool" }>["tool"]): Subject => ({ kind: "tool", tool, pinned: ["tonic"] });
 
+/** A video still to record, saying what goes there: a preset shows a teacher what a note can hold. */
+const video: Subject = { kind: "video", video: { source: "placeholder", text: "A teacher records their own videos for a note and can use each one again anywhere in it." } };
+
 /**
  * Tunes and a run from the singing books, by their number there (`BOOK`, `RUNS` in theory/singingMelodies). The texts beside them
  * name their notes, so a test checks each number is still the tune written here.
@@ -42,8 +45,10 @@ export const PRESET_NOTES: Record<string, { stage: Stage }> = {
       { kind: "text", text: "# A minor pentatonic: play it, then sing it\n\nFind the five notes of A minor pentatonic in position 1, play them over a band, then sing the same notes." },
       { kind: "headphones" },
       { kind: "text", text: "Five notes are enough for most rock, blues and pop solos: A, C, D, E and G. Find them on the neck first, then sing them, so your ears know the notes your fingers play." },
+      video,
       { kind: "text", text: "### Position 1\n\nStart here. The root A is on fret 5 of both E strings. Tap a note below to hear it, then play the position up and down until your fingers find the notes without looking." },
       { kind: "position", positionKind: "pentatonic", index: 0, ...keyed },
+      video,
       { kind: "text", text: "### The whole neck\n\nThis is all of A minor. Find position 1 in it, then follow your five notes up the neck.\nThe two notes the pentatonic leaves out, B and F, belong to A minor too: your five notes keep clear of them, so almost nothing clashes." },
       { kind: "neck", ...keyed },
       { kind: "text", text: "### The chords under it\n\nThese are the chords of A minor, the key the pentatonic comes from. Songs in A minor are built from them, and your five notes fit over all of them.\nPlay Am, Dm and Em, one slow strum each, until the changes feel smooth." },
@@ -63,10 +68,12 @@ export const PRESET_NOTES: Record<string, { stage: Stage }> = {
     stage: noteOf([
       { kind: "text", text: "# G, C and D: three chords, one band\n\nLearn the G, C and D chords, change between them in time, then play them with a band." },
       { kind: "text", text: "G, C and D are chords I, IV and V of G major. With these three you can play along with a lot of folk, rock and pop songs." },
+      video,
       { kind: "text", text: "### The three shapes\n\nPress a chord box below to hear it. Strum each chord slowly and let every string ring.\nIf a string sounds dead, press closer to the fret and keep your fingertips up off the strings next to it." },
       { kind: "chord", symbol: "G" },
       { kind: "chord", symbol: "C" },
       { kind: "chord", symbol: "D" },
+      video,
       { kind: "text", text: "### The chords in G\n\nThese are all the chords of G major. Find G, C and D among them: the other four belong to the key too, so you can add them later." },
       { kind: "section", section: "chords", ...inG },
       { kind: "text", text: "### With the band\n\nThe band plays G, G, C and D, one bar each, as a slow rock groove. Press Play below to start the band, then strum down once on each beat.\nStart moving to the next chord on beat 4, so it lands on beat 1.\nIf a change comes late, keep your strumming hand going and catch the next beat 1." },
