@@ -9,6 +9,10 @@ const note = (parts: Subject[]): Stage => noteOf(parts, A_MINOR);
 
 const keyed = { key: A_MINOR };
 
+/** G major: tonic G (pitch class 7), the major family's Ionian mode. */
+const G_MAJOR = { tonicPc: 7, family: 0, mode: 0 };
+const inG = { key: G_MAJOR };
+
 /** C major: Do is C, so Do Re Mi Sol La are C D E G A, the five notes of A minor pentatonic. */
 const C = 0;
 /** A singer tool whose key is its own: the note's key (A minor) never moves it. */
@@ -54,6 +58,23 @@ export const PRESET_NOTES: Record<string, { stage: Stage }> = {
       { kind: "tool", tool: { type: "run-singer", run: PRESET_TUNES.pentatonicRun, voice: "baritone" } },
       { kind: "text", text: "### Make it yours\n\nMake up a short line from your five notes and sing it on \"la\". Then find it in position 1 and play it back." },
     ]),
+  },
+  "three-chords-in-g": {
+    stage: noteOf([
+      { kind: "text", text: "# G, C and D: three chords, one band\n\nLearn the G, C and D chords, change between them in time, then play them with a band." },
+      { kind: "text", text: "G, C and D are chords I, IV and V of G major. With these three you can play along with a lot of folk, rock and pop songs." },
+      { kind: "text", text: "### The three shapes\n\nPress a chord box below to hear it. Strum each chord slowly and let every string ring.\nIf a string sounds dead, press closer to the fret and keep your fingertips up off the strings next to it." },
+      { kind: "chord", symbol: "G" },
+      { kind: "chord", symbol: "C" },
+      { kind: "chord", symbol: "D" },
+      { kind: "text", text: "### The chords in G\n\nThese are all the chords of G major. Find G, C and D among them: the other four belong to the key too, so you can add them later." },
+      { kind: "section", section: "chords", ...inG },
+      { kind: "text", text: "### Slow changes\n\nThe band plays G, C, D and G slowly, one bar each. Press Play below to start the band, then strum down once on each beat.\nStart moving to the next chord on beat 4, so it lands on beat 1.\nIf a change comes late, keep your strumming hand going and catch the next beat 1." },
+      { kind: "tool", tool: { type: "backing-track", numerals: ["I", "IV", "V", "I"], key: G_MAJOR.tonicPc, style: "ballad", bpm: 60 } },
+      { kind: "text", text: "### With the band\n\nNow the band plays G, G, C and D as a rock groove, a little faster. Press Play below to start the band, then strum along with it.\nListen for the bass: it plays the root of each chord, so it tells you when the change comes." },
+      { kind: "tool", tool: { type: "backing-track", progression: "three-chord", key: G_MAJOR.tonicPc, style: "rock", bpm: 90 } },
+      { kind: "text", text: "### Make it yours\n\nPut the three chords in your own order, two bars each, and play them until the changes feel smooth. Then hum a short tune over them." },
+    ], G_MAJOR),
   },
 };
 

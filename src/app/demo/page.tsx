@@ -134,12 +134,71 @@ function NotesCreator() {
   );
 }
 
-/** The two tools on top, then what they make: the plans at /demo/<slug> and the teacher notes at /note/<slug>, so a pitch can link to /demo. */
+/** A ruled line with a label in the middle, between the examples and the tools that made them. */
+function Divider({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-4" role="separator" aria-label={label}>
+      <span className="h-px flex-1 bg-linear-to-r from-transparent to-slate-700" />
+      <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
+        <Icon name="sparkles" size={13} className="text-sky-300" /> {label}
+      </span>
+      <span className="h-px flex-1 bg-linear-to-l from-transparent to-slate-700" />
+    </div>
+  );
+}
+
+/**
+ * What the tools make on top, side by side: the plans at /demo/<slug> (guitar and voice in two columns) and the teacher notes at
+ * /note/<slug>; then the two tools, so a pitch can link to /demo.
+ */
 export default function DemoIndex() {
   const cards = demoCards();
   return (
     <PageShell active="/plan" title="Demos" intro="What your students practise with between lessons, and the two tools that make it. Open any example and try it as a student would. Nothing here is saved.">
-      <div className="flex flex-col gap-14 pb-10">
+      <div className="flex flex-col gap-12 pb-10">
+        <div className="grid gap-12 lg:grid-cols-[2fr_1fr] lg:gap-0">
+          <section aria-labelledby="plans-h" className="lg:pr-8">
+            <SectionHead id="plans-h" title="Made with the AI autoplan" text="A week of daily exercises each, as the AI wrote it. Open any day and play with its tools." />
+            <div className="grid gap-8 sm:grid-cols-2 sm:gap-4">
+              {AREAS.map(({ area, name, icon, tile }) => {
+                const group = cards.filter((c) => c.area === area);
+                if (!group.length) return null;
+                return (
+                  <div key={area}>
+                    <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-300">
+                      <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${tile}`}><Icon name={icon} size={15} /></span>
+                      {name}
+                    </h3>
+                    <ul className="flex flex-col gap-4">
+                      {group.map((demo) => <li key={demo.slug}><PlanCard demo={demo} /></li>)}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section aria-labelledby="notes-h" className="lg:border-l lg:border-slate-800 lg:pl-8">
+            <SectionHead id="notes-h" title="Made with the Notes creator" text="A lesson on one page, the way a teacher sends it to a student." />
+            {/* a spacer the height of the plans' Guitar and Voice labels, so the first cards line up across the columns */}
+            <div className="mb-3 hidden h-7 lg:block" aria-hidden />
+            <ul className="flex flex-col gap-4">
+              {Object.entries(PRESET_INFO).map(([slug, note]) => (
+                <li key={slug}>
+                  <Link href={`/note/${slug}`} className={CARD}>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500/15 text-teal-300"><Icon name="file-text" size={18} /></span>
+                    <h3 className="mt-4 text-xl leading-snug text-slate-50 text-balance" style={DISPLAY}>{note.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-400">{note.description}</p>
+                    <div className="mt-auto"><OpenLink>Open the note</OpenLink></div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </div>
+
+        <Divider label="The tools that made them" />
+
         <div>
           <div className="grid gap-4 lg:grid-cols-2">
             <Autoplan />
@@ -150,43 +209,6 @@ export default function DemoIndex() {
             <span><b className="font-semibold text-slate-200">In the beta, the AI part runs on your own AI.</b> Use an AI extension in your browser, such as Claude in Chrome, or paste the prompt into any AI chat. That&apos;s how attunr stays free and open.</span>
           </p>
         </div>
-
-        <section aria-labelledby="plans-h">
-          <SectionHead id="plans-h" title="Made with the AI autoplan" text="A week of daily exercises each, as the AI wrote it. Open any day and play with its tools." />
-          <div className="flex flex-col gap-8">
-            {AREAS.map(({ area, name, icon, tile }) => {
-              const group = cards.filter((c) => c.area === area);
-              if (!group.length) return null;
-              return (
-                <div key={area}>
-                  <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-300">
-                    <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${tile}`}><Icon name={icon} size={15} /></span>
-                    {name}
-                  </h3>
-                  <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {group.map((demo) => <li key={demo.slug}><PlanCard demo={demo} /></li>)}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <section aria-labelledby="notes-h">
-          <SectionHead id="notes-h" title="Made with the Notes creator" text="A lesson on one page, the way a teacher sends it to a student." />
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(PRESET_INFO).map(([slug, note]) => (
-              <li key={slug}>
-                <Link href={`/note/${slug}`} className={CARD}>
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-500/15 text-teal-300"><Icon name="file-text" size={18} /></span>
-                  <h3 className="mt-4 text-xl leading-snug text-slate-50 text-balance" style={DISPLAY}>{note.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{note.description}</p>
-                  <div className="mt-auto"><OpenLink>Open the note</OpenLink></div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
       </div>
     </PageShell>
   );
