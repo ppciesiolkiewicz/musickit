@@ -73,7 +73,8 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     const set = cur.includes(semis) ? cur.filter((x) => x !== semis) : [...cur, semis];
     if (set.length) update({ custom: set });
   };
-  // Space and Enter go on (or replay while a question waits), R replays, the number keys answer; on a page of several
+  // Space and Enter press the big button: Start or Next, or Replay while a question waits. Skip has no key, so Space
+  // never throws a question away. R replays, the number keys answer; on a page of several
   // tools, the one last tapped or most on screen takes them
   const keys = useToolKeys((e, onControl) => {
     if (e.key === " " || e.key === "Enter") {
@@ -153,7 +154,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
         <div data-tour="interval-ears-play" className="flex flex-wrap items-center gap-2">
           {!q || answered
             ? <Hint title={q ? "Next" : "Start"} description="Plays a new one to name."><button type="button" className={btnBig} onClick={next}><Icon name="play" size={16} />{q ? "Next" : "Start"}{cap("Space")}</button></Hint>
-            : <Hint title="Replay" description="Plays the same one again."><button type="button" className={btnBig} onClick={replay}><Icon name="repeat" size={16} />Replay{cap("R")}</button></Hint>}
+            : <Hint title="Replay" description="Plays the same one again."><button type="button" className={btnBig} onClick={replay}><Icon name="repeat" size={16} />Replay{cap("Space")}</button></Hint>}
           {q && (answered
             ? <Hint title="Replay" description="Plays the same one again."><button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={replay}><Icon name="repeat" size={14} />Replay{cap("R")}</button></Hint>
             : <Hint title="Skip" description="Moves on to a new one."><button type="button" className={`${btn} py-2`} onClick={next}>Skip</button></Hint>)}
@@ -171,7 +172,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             );
           })}
         </div>
-        {keys.armed && <p className="hidden text-xs text-slate-400 md:block">Keys: numbers answer, R replays, Space goes on</p>}
+        {keys.armed && <p className="hidden text-xs text-slate-400 md:block">Keys: Space presses the big button, R replays, numbers answer</p>}
         {answered && q && (
           <div className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300">
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}

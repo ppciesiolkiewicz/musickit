@@ -3,6 +3,16 @@ Ticket content
 
 New:
 
+new1:
+Interval exercise and possibly some other exercises should show "Start screen" Maybe with a button to start whole exercise.
+
+
+new2:
+Let's unify the experiene of hot keys.
+I like interval-ears style wherre space changes to button and skip has no hotkey:
+
+
+
 64. Bad content example:
 Press Start below: Do sounds, and the leap to sing shows by name. Hear the landing note in your head first, then sing it on "oo" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again.
 

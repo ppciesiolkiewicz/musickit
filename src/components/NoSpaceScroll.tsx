@@ -6,8 +6,10 @@ import { useEffect } from "react";
 /** Pages read top to bottom, where Space keeps the browser's page-down: the landing pages, the kickstarter and the demos. */
 const SCROLL_PAGES = new Set(["/", "/teach", "/players", "/landing-1", "/kickstarter", "/dev/kickstarter", "/demo"]);
 
-// where Space is the element's own key: typing, pressing a button, opening a menu
-const OWN_SPACE = 'input, textarea, select, button, a, summary, [contenteditable="true"], [role="button"], [role="checkbox"], [role="switch"], [role="tab"], [role="menuitem"], [role="option"], [role="radio"], [role="slider"]';
+// where the browser gives Space a job of its own: typing, pressing a button, ticking a box, opening a menu or details.
+// A link or an element that only has a role (a `<g role="button">`, a `<div role="tab">`) has none: Space there scrolls
+// the page, so it is stopped like anywhere else. Its own key handler has already run by then.
+const OWN_SPACE = 'input, textarea, select, button, summary, [contenteditable="true"], [contenteditable=""]';
 
 /**
  * On tool pages Space never scrolls the page. Space is a tool's play and next key, so a page jumping down when no tool

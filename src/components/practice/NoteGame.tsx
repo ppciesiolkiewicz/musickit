@@ -33,7 +33,7 @@ type Feedback = { ok: boolean; text: string } | null;
 
 /** The fretboard note game: find a named note (tap or play it), find every instance, or name a lit dot. */
 export default function NoteGame({ initial, syncUrl = true, bare = false }: { initial: NoteSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: only how to answer stays */ bare?: boolean }) {
-  useCoverage({ hints: 1 });
+  useCoverage({ hints: 3 });
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<NoteQuestion | null>(null);
   const [found, setFound] = useState<string[]>([]);
@@ -115,12 +115,18 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
     }
   };
 
-  // Space starts or skips; naming the dot, a letter key answers with that natural note (and stops the notes panel's
-  // shortcut for it). On a page of several tools, the one last tapped or most on screen takes the keys.
+  /** plays the note asked, on the string asked when there is one */
+  const hearNote = (cur: NoteQuestion) => {
+    const p = positionsOf(cur.pc, s).find((x) => x.string === cur.string) ?? positionsOf(cur.pc, s)[0];
+    if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700);
+  };
+  // Space presses the big button: Start, then Hear the note. Skip has no key, so Space never throws a note away. Naming
+  // the dot, a letter key answers with that natural note (and stops the notes panel's shortcut for it). On a page of
+  // several tools, the one last tapped or most on screen takes the keys.
   const keys = useToolKeys((e, onControl) => {
     if (e.key === " ") {
       if (onControl) return;
-      if (q) ask(q);
+      if (q) hearNote(q);
       else {
         showNeck();
         ask(null);
@@ -262,10 +268,12 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
           </div>
         </div>
         <div data-tour="note-finder-start" className="flex flex-wrap items-center gap-2">
-          <Hint title={q ? "Skip" : "Start"} description={q ? "Moves on to the next note." : "Asks for the first note."}>
-            {!q ? <button type="button" className={btnBig} onClick={() => { showNeck(); ask(null); }}><Icon name="play" size={16} />Start{cap("Space")}</button> : <button type="button" className={btnBig} onClick={() => ask(q)}>Skip{cap("Space")}</button>}
-          </Hint>
-          {q && <button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={() => { const p = positionsOf(q.pc, s).find((x) => x.string === q.string) ?? positionsOf(q.pc, s)[0]; if (p) playMelody([OPEN_MIDI[p.string] + p.fret], 700); }}><Icon name="volume-2" size={14} />Hear the note</button>}
+          {!q
+            ? <Hint title="Start" description="Asks for the first note."><button type="button" className={btnBig} onClick={() => { showNeck(); ask(null); }}><Icon name="play" size={16} />Start{cap("Space")}</button></Hint>
+            : <>
+              <Hint title="Hear the note" description="Plays the note to find."><button type="button" className={btnBig} onClick={() => hearNote(q)}><Icon name="volume-2" size={16} />Hear the note{cap("Space")}</button></Hint>
+              <Hint title="Skip" description="Moves on to the next note."><button type="button" className={`${btn} py-2`} onClick={() => ask(q)}>Skip</button></Hint>
+            </>}
           {extras && <span data-tour="note-finder-extras" className="ml-auto flex flex-wrap items-center gap-2">
             <button type="button" className={`${btn} py-2`} onClick={startSprint} disabled={!!sprint && sprintLeft > 0}>60-second sprint</button>
             <Chip on={showHeat} onClick={() => setShowHeat((v) => !v)}>Show weak spots</Chip>
