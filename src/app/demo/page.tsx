@@ -169,36 +169,43 @@ function Maker() {
   );
 }
 
-/** The three ideas behind the vision, under its head. */
-const VISION_POINTS: { icon: IconName; title: string; text: string }[] = [
-  { icon: "timer", title: "Focus over hours", text: "20 minutes of focused practice can do more than an hour of scattered practice." },
-  { icon: "list", title: "Nothing to work out", text: "Each day's exercises are ready, so the student never loses time deciding what to practise." },
-  { icon: "activity", title: "Practice the teacher can see", text: "How long the student practised, how many days in a row, and how each exercise went, from \"Can't do it yet\" to \"Easy now\"." },
+/** Where attunr could go, one direction to a card. Only the practice plans and the notes are built; the rest is the vision. */
+const DIRECTIONS: { icon: IconName; title: string; text: string }[] = [
+  { icon: "target", title: "Every student practises the right thing", text: "The exact material for where each student is, in their key and position, ready every day. The minutes they do practise count for more." },
+  { icon: "activity", title: "Teachers see the week between lessons", text: "How long, how often and how each exercise felt to the student, so the next lesson starts from what happened at home." },
+  { icon: "pencil", title: "Material in your own teaching style", text: "Notes and plans drafted the way you teach, for kids and adults alike, so making them takes minutes, not evenings." },
+  { icon: "layout-dashboard", title: "A studio run from one place", text: "Every lesson in one calendar, and one profile for each teacher and each student." },
+  { icon: "graduation-cap", title: "Teaching that reaches past the lesson", text: "Your interactive notes, with your own videos in them, sold as short courses." },
 ];
 
 /**
- * What attunr is for, at the top of the page, from the facts in the founder's outreach (FACTS in features/devtools/model/kickstarter):
- * spoken of as the vision, since only the demos below work today.
+ * Where attunr is heading, at the top of the page, from the facts in the founder's outreach (FACTS in features/devtools/model/kickstarter).
+ * It speaks of directions, not features, and says plainly that only the demos below work today.
  */
 function Vision() {
   return (
     <section aria-labelledby="vision-h" className="rounded-3xl border border-white/10 bg-slate-900/60 p-6 backdrop-blur-xl sm:p-8">
       <p className="text-xs font-medium uppercase tracking-[0.2em] text-sky-300">The vision</p>
-      <h2 id="vision-h" className="mt-3 max-w-2xl text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={DISPLAY}>Each lesson sets up the week of practice after it</h2>
+      <h2 id="vision-h" className="mt-3 max-w-2xl text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={DISPLAY}>Where attunr is going</h2>
       <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-300">
-        At the end of a lesson, the teacher does two things in attunr: makes the student&apos;s daily exercises for the next week, and writes a lesson note the student can play. AI helps draft both. The student opens them at home and practises every day.
+        It starts with two things a teacher makes at the end of a lesson: the student&apos;s daily exercises for the week, and a lesson note the student can play. From there, it can grow into the place where a teacher plans practice, sees how it went and runs their teaching.
       </p>
-      <ul className="mt-7 grid gap-4 sm:grid-cols-3">
-        {VISION_POINTS.map((p) => (
-          <li key={p.title} className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
-            <span className={`${STEP_TILE} bg-sky-500/15 text-sky-300`}><Icon name={p.icon} size={16} /></span>
-            <h3 className="mt-3 text-base font-semibold text-slate-100">{p.title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-slate-400">{p.text}</p>
+      <ul className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {DIRECTIONS.map((d) => (
+          <li key={d.title} className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <span className={`${STEP_TILE} bg-sky-500/15 text-sky-300`}><Icon name={d.icon} size={16} /></span>
+            <h3 className="mt-3 text-base font-semibold text-slate-100">{d.title}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-slate-400">{d.text}</p>
           </li>
         ))}
+        <li className="flex flex-col justify-center rounded-2xl border border-dashed border-sky-400/30 bg-sky-400/5 p-4">
+          <p className="text-sm leading-relaxed text-slate-300">
+            <b className="font-semibold text-slate-100">Music teaching needs a human.</b> The motivation and the guidance come from the teacher. AI is only there to make the work easier.
+          </p>
+        </li>
       </ul>
       <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
-        <span>attunr is in demo mode. The examples below work today, with no account.</span>
+        <span>Only the plans and notes below work today. Where it goes next is decided with the first studios that use it.</span>
         <Link href="/kickstarter" className="inline-flex items-center gap-1 font-medium text-sky-300 transition hover:gap-2 hover:text-sky-200">
           Become a founding partner <Icon name="chevron-right" size={14} />
         </Link>

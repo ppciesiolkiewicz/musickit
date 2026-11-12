@@ -50,6 +50,12 @@ export const FACTS: string[] = [
   "attunr is in demo mode today. What can be tried now is the demos: interactive lesson notes, weekly practice plans and the free tools on the website.",
   "The vision for attunr is that in each lesson the teacher quickly does two things with attunr: generates the student's daily exercises for the next week, and creates an interactive practice note, with AI helping to draft both. The student then practises with them every day at home.",
   "Quality of practice matters more than hours. Sometimes a student practises for hours and gets very little from it; sometimes 20 minutes of focused practice moves them on a lot. That's why the vision for attunr is to measure how engaged a student is in three ways: how long they practise each day, how consistently they practise from day to day, and how well they feel they played each exercise, rated by themselves from \"Can't do it yet\" to \"Easy now\".",
+  "Why exact material helps: having the exact thing to work on in front of you makes a big difference. A specific scale in a specific key and position gets a student much further than a book or video that shows it in one key and leaves them to transpose it in their head. It won't make a student who doesn't practise start practising, but it makes the minutes they do manage count for more.",
+  "Music teaching needs a human. The motivation and the guidance come from the teacher; the AI tools are only there to make the teacher's work easier.",
+  "Beyond theory, the vision has room for exercises for kids and other learners, help with running a studio, learning materials made automatically in the teacher's own teaching style, and new ways for a teacher to earn from their expertise, such as selling their interactive notes, with their own videos embedded, as short courses. None of this is built yet.",
+  "I won't charge anyone until I know attunr helps them: better teaching, a better student experience, time saved or more income. Early adopters get an extended free trial, a locked-in price and a say in what gets built.",
+  "I'm starting with a small group of 20 to 30 studios, so each one has real influence, and what works for one can be shared with all of them.",
+  "I'm finding out whether attunr is useful for studios. If it isn't, it becomes a drills resource for individual learners. Say this only when being open about where it stands helps the reply.",
   "It could grow to manage more of a music school. Coming soon, not built yet and with no date: tools to run a studio, with scheduling (one calendar for every lesson) and profiles (one for each teacher and each student). What comes next is decided with the founding partners.",
   "Planned after that, not built yet: a teacher builds a course from their interactive notes and their own embedded videos, and sells it through the attunr website.",
   "I'm looking for founding partners: schools and teachers who use it early and help shape it.",
@@ -190,6 +196,32 @@ You can pick a time here:
 https://calendly.com/attunrapp/30min
 Or just reply with a time that suits you.
 
+Piotr`,
+  },
+  {
+    label: "Answering doubts: Jason",
+    about: "A reply to a teacher who said most students won't practise anyway and asked whether this costs money. The founder agrees, says no money is asked for now, asks for feedback, shares the vision and the demo page, is open about where it stands, and asks whether to send an update.",
+    text: `Hi Jason,
+
+Haha, I think you might be right! Thanks for being so direct. I suspect it’s true of most teachers’ students, not just yours.
+
+On the money: fair question, and no, I’m not asking for any. I won’t charge anyone until I know it helps, whether through better teaching, a better student experience, time saved or more income. It’s not there yet. When it is, early adopters will get an extended free trial, a locked-in price and a say in what gets built. I’m starting with a small group of 20–30 studios, so each one has real influence and what works for one can be shared with all of them.
+
+So what I want from you right now is exactly this kind of feedback.
+
+In my own practice, having the exact thing I want to work on in front of me makes a big difference. A specific scale in a specific key and position gets me much further than a book or video that shows it in one key and leaves me to transpose it in my head. It won’t make a student who doesn’t practice start practising, but it can make the ten minutes they do manage count for more.
+
+All the demos are on one page now, including a Notes creator where you can build your own lesson page: https://www.attunr.app/demo
+
+Beyond theory, I see room for exercises for kids and other learners, help with running a studio, learning materials created automatically in your own teaching style, and new ways to earn from your expertise, like selling your interactive notes with your videos embedded as short courses.
+
+To be open with you: I’m finding out whether this is useful for studios. If it isn’t, I’ll turn it into a drills resource for individual learners. Either way, your view helps me decide.
+
+And I strongly believe music teaching needs a human. The motivation and guidance come from you. AI tools are only there to make your work easier.
+
+Would you like me to send you an update once the offer is more complete? Only if you think something like this could make a real difference to your teaching business. If not, no worries at all.
+
+Best,
 Piotr`,
   },
 ];
