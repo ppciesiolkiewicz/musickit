@@ -7,6 +7,7 @@ import Founder from "@/components/landing/Founder";
 import Photo from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
 import Glow from "@/components/landing/Glow";
+import GlassShapes from "@/components/landing/GlassShapes";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { BetaBadge, DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import { LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
@@ -136,9 +137,11 @@ function AdaptiveViewMock() {
 
 export default function SchoolsHome() {
   return (
-    <div className="landing app-bg min-h-screen overflow-hidden text-slate-200">
+    // `overflow-clip`, not `hidden`: a scroll container would stop the glass shapes' scroll-driven parallax
+    <div className="landing app-bg isolate min-h-screen overflow-clip text-slate-200">
       <PreloadPiano />
-      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <GlassShapes />
         <div className="border-b border-slate-800/70 py-2.5 sm:py-4">
           <SiteNav active="/" />
         </div>
