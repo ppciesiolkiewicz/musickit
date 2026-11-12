@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import Icon from "./Icon";
 import { menuClick } from "@/lib/practice/menu";
-import { GROUP_LABEL, THEORY_SECTIONS, TONE, sectionFor, type SectionGroup, type TheorySection } from "@/features/theory/sections";
+import { GROUP_LABEL, TONE, sectionFor, sectionsIn, type SectionGroup, type TheorySection } from "@/features/theory/sections";
 
 const GROUPS = Object.keys(GROUP_LABEL) as SectionGroup[];
 
@@ -36,7 +36,7 @@ export function SectionBlock({ s, current, onPick, roomy }: { s: TheorySection; 
  * A heading is only shown where it tells you something: the group name in a menu of several groups, the sub name always. */
 function columns(groups: SectionGroup[]) {
   return groups.flatMap((g) => {
-    const items = THEORY_SECTIONS.filter((s) => s.group === g);
+    const items = sectionsIn(g);
     const subs = [...new Set(items.map((s) => s.sub))];
     return subs.map((sub) => ({
       key: `${g}:${sub ?? ""}`,
@@ -52,6 +52,9 @@ export default function TheoryMenu({ active, label, groups = GROUPS, className =
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  /** how far the desktop panel moves left of its button so it stays on screen (Tools, the last menu, is wider than the room to its right) */
+  const [shift, setShift] = useState(0);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverOpenedAt = useRef<number | null>(null);
   const panelId = useId();
@@ -99,6 +102,12 @@ export default function TheoryMenu({ active, label, groups = GROUPS, className =
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+  useLayoutEffect(() => {
+    const el = panel.current;
+    if (!open || !el || getComputedStyle(el).position !== "absolute") return setShift(0);
+    const anchor = el.offsetParent?.getBoundingClientRect().left ?? 0;
+    setShift(Math.max(0, anchor + el.offsetWidth - (document.documentElement.clientWidth - 16)));
+  }, [open]);
   useEffect(
     () => () => {
       cancelClose();
@@ -145,7 +154,9 @@ export default function TheoryMenu({ active, label, groups = GROUPS, className =
       </button>
       {open && (
         <div
+          ref={panel}
           id={panelId}
+          style={shift ? { left: -shift } : undefined}
           className="fixed inset-0 z-[2000] overflow-y-auto bg-slate-900 p-3 desk:absolute desk:inset-auto desk:left-0 desk:z-50 desk:mt-1 desk:max-h-[80vh] desk:w-max desk:max-w-[calc(100vw-2rem)] desk:rounded-2xl desk:border desk:border-slate-700 desk:shadow-2xl"
         >
           {/* on a phone the panel covers the screen, so it needs its own way out */}

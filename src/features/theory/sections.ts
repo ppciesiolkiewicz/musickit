@@ -15,6 +15,8 @@ export interface TheorySection {
   group: SectionGroup;
   /** a column inside a big menu (Guitar splits into Explore and Practice) */
   sub?: string;
+  /** other menu columns that list this page too, at their top (the AI plan heads Tools, the circle of fifths sits with the theory tools) */
+  alsoIn?: { group: SectionGroup; sub?: string }[];
 }
 
 export const GROUP_LABEL: Record<SectionGroup, string> = { learn: "Learn", guitar: "Guitar", singing: "Singing", tools: "Tools" };
@@ -36,8 +38,8 @@ export const TONE: Record<Tone, { icon: string; chip: string }> = {
 
 export const THEORY_SECTIONS: TheorySection[] = [
   { group: "learn", href: "/course", tone: "amber", label: "Course", desc: "Learn the neck one position at a time", icon: "graduation-cap" },
-  { group: "learn", href: "/plan", tone: "violet", label: "AI practice plan", desc: "A continuous daily plan for your practice", icon: "sparkles" },
-  { group: "learn", href: "/theory/circle", tone: "sky", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot" },
+  { group: "learn", href: "/plan", tone: "violet", label: "AI practice plan", desc: "A continuous daily plan for your practice", icon: "sparkles", alsoIn: [{ group: "tools", sub: "Plan & notes" }] },
+  { group: "learn", href: "/theory/circle", tone: "sky", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot", alsoIn: [{ group: "tools", sub: "Tuning & theory" }] },
   { group: "guitar", sub: "Explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3" },
   { group: "guitar", sub: "Explore", href: "/theory/triads", tone: "violet", label: "Triads", desc: "Three-note shapes on string sets", icon: "triangle" },
   { group: "guitar", sub: "Explore", href: "/theory/scales", tone: "emerald", label: "Scales", desc: "Every mode, its chords and boxes", icon: "waves" },
@@ -53,14 +55,20 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "singing", href: "/theory/singing/intervals", tone: "violet", label: "Sing an interval", desc: "See its name, hear Do, sing the other note", icon: "target" },
   { group: "singing", href: "/theory/ears", tone: "pink", label: "Ear training", desc: "Name the interval you hear", icon: "ear" },
   { group: "singing", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar" },
-  { group: "tools", href: "/tuner", tone: "rose", label: "Tuner", desc: "Tune your guitar with the mic", icon: "gauge" },
-  { group: "tools", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },
-  { group: "tools", href: "/theory/backing", tone: "pink", label: "Backing tracks", desc: "Drums, bass and chords from a progression, any key and style", icon: "drum" },
-  { group: "tools", href: "/theory/piano", tone: "sky", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
-  { group: "tools", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
-  { group: "tools", href: "/teachers/studio?notes=1", tone: "emerald", label: "Notes creator", desc: "Build a page of notes and share it as a link", icon: "file-text" },
-  { group: "tools", href: "/looper", tone: "teal", label: "Looper", desc: "Record loops and stack takes over drums", icon: "repeat" },
+  { group: "tools", sub: "Plan & notes", href: "/teachers/studio?notes=1", tone: "emerald", label: "Notes creator", desc: "Build a page of notes and share it as a link", icon: "file-text" },
+  { group: "tools", sub: "Tuning & theory", href: "/tuner", tone: "rose", label: "Tuner", desc: "Tune your guitar with the mic", icon: "gauge" },
+  { group: "tools", sub: "Play along", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },
+  { group: "tools", sub: "Play along", href: "/theory/backing", tone: "pink", label: "Backing tracks", desc: "Drums, bass and chords from a progression, any key and style", icon: "drum" },
+  { group: "tools", sub: "Tuning & theory", href: "/theory/piano", tone: "red", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
+  { group: "tools", sub: "Tuning & theory", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
+  { group: "tools", sub: "Play along", href: "/looper", tone: "teal", label: "Looper", desc: "Record loops and stack takes over drums", icon: "repeat" },
 ];
+
+/** The pages a menu lists, in order: any page from another group it also lists (`alsoIn`, placed in that column), then its own. */
+export function sectionsIn(group: SectionGroup): TheorySection[] {
+  const borrowed = THEORY_SECTIONS.flatMap((s) => (s.alsoIn ?? []).filter((a) => a.group === group).map((a) => ({ ...s, group, sub: a.sub })));
+  return [...borrowed, ...THEORY_SECTIONS.filter((s) => s.group === group)];
+}
 
 /** The section a path belongs to: the longest matching href (hash links ignored). */
 export function sectionFor(path: string): TheorySection | undefined {

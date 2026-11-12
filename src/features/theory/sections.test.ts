@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { GROUP_LABEL, THEORY_SECTIONS, sectionFor } from "./sections";
+import { GROUP_LABEL, THEORY_SECTIONS, sectionFor, sectionsIn, type SectionGroup } from "./sections";
 
 const NOT_YET: string[] = [];
 
@@ -32,9 +32,28 @@ describe("theory sections", () => {
 
 describe("section colours", () => {
   it("no two pages in a menu column share a colour", () => {
-    for (const col of new Set(THEORY_SECTIONS.map((s) => `${s.group}:${s.sub ?? ""}`))) {
-      const tones = THEORY_SECTIONS.filter((s) => `${s.group}:${s.sub ?? ""}` === col).map((s) => s.tone);
-      assert.equal(new Set(tones).size, tones.length, col);
+    for (const g of Object.keys(GROUP_LABEL) as SectionGroup[]) {
+      const items = sectionsIn(g);
+      for (const sub of new Set(items.map((s) => s.sub))) {
+        const tones = items.filter((s) => s.sub === sub).map((s) => s.tone);
+        assert.equal(new Set(tones).size, tones.length, `${g}:${sub ?? ""}`);
+      }
     }
+  });
+});
+
+describe("tools menu", () => {
+  it("starts with the AI plan, then the Notes creator", () => {
+    const tools = sectionsIn("tools");
+    assert.deepEqual(tools.filter((s) => s.sub === tools[0].sub).map((s) => s.href), ["/plan", "/teachers/studio?notes=1"]);
+  });
+  it("the AI plan and the circle of fifths stay in Learn and show in Tools", () => {
+    for (const href of ["/plan", "/theory/circle"]) {
+      assert.ok(sectionsIn("learn").some((s) => s.href === href), href);
+      assert.ok(sectionsIn("tools").some((s) => s.href === href), href);
+    }
+  });
+  it("tools split into three columns", () => {
+    assert.equal(new Set(sectionsIn("tools").map((s) => s.sub)).size, 3);
   });
 });
