@@ -81,7 +81,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
       tools={<PocketSection keyPc={tonicPc} side={syncUrl} onStatus={onPocket} lines={<InputSection />} />}>
 
       <ColourKey>
-        Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord.
+        Colour shows a note&apos;s degree, not how high it sounds. A degree has the same colour in every key and every chord, so a shape you know in one key looks the same in the next. Watch the amber note: the 3rd decides major or minor. A 3 makes it major, a ♭3 makes it minor.
       </ColourKey>
 
       <div id="scale-notes" className={`grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_PANEL}`}>
