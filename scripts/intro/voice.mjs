@@ -15,13 +15,14 @@ const MANIFESTS = join(ROOT, "src/features/intro/voices");
 const PUBLIC = join(ROOT, "public/intro");
 
 /**
- * The tour's voices, in the order of ?voice=1|2|3 (VOICES in src/features/intro/data.ts lists the same names).
+ * The tour's voices, in the order of ?voice=1|2|3|4 (VOICES in src/features/intro/data.ts lists the same names).
  * Each keeps the settings it was recorded with.
  */
 const VOICES = {
   george: { id: "JBFqnCBsd6RMkjVDRZzb", settings: { stability: 0.55, similarity_boost: 0.75, style: 0.15, use_speaker_boost: true, speed: 0.95 } }, // warm, calm, clear
   charlie: { id: "IKne3meq5aSn9XLyUdCD", settings: { stability: 0.45, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true, speed: 1 } }, // Australian, casual, friendly
   laura: { id: "FGY2WhTYpPnrIDTdsKH5", settings: { stability: 0.35, similarity_boost: 0.75, style: 0.45, use_speaker_boost: true, speed: 1.05 } }, // upbeat, energetic
+  sarah: { id: "EXAVITQu4vr4xnSDxMaL", settings: { stability: 0.65, similarity_boost: 0.75, style: 0.1, use_speaker_boost: true, speed: 0.95 } }, // calm, soft, reassuring
 };
 
 for (const f of [".env.local", ".env"]) {

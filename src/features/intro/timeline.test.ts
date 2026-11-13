@@ -43,10 +43,10 @@ test("every committed voice matches the script", () => {
   }
 });
 
-test("?voice=1|2|3 picks a voice; anything else plays the default", () => {
+test("?voice=1|2|3|4 picks a voice; anything else plays the default", () => {
   assert.equal(voiceFromQuery("?voice=1"), 0);
-  assert.equal(voiceFromQuery("?voice=3"), 2);
-  for (const q of ["", "?voice=0", "?voice=4", "?voice=two", "?voice=1.5"]) assert.equal(voiceFromQuery(q), DEFAULT_VOICE, q);
+  assert.equal(voiceFromQuery("?voice=4"), 3);
+  for (const q of ["", "?voice=0", "?voice=5", "?voice=two", "?voice=1.5"]) assert.equal(voiceFromQuery(q), DEFAULT_VOICE, q);
 });
 
 test("sceneAt and cueProgress", () => {

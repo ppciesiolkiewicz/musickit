@@ -22,14 +22,14 @@ const KEYFRAMES = `
 `;
 
 /**
- * The quick tour: a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voices/<name>.json`; `?voice=1|2|3` picks the narrator) or, for a
+ * The quick tour: a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voices/<name>.json`; `?voice=1|2|3|4` picks the narrator) or, for a
  * scene not recorded yet, to an estimate, playing silent with its caption. The clock follows the audio while a scene's take
  * plays and the frame clock otherwise, so the picture never runs ahead of the voice. `spaceKey` lets Space play and pause
  * anywhere on the page; off on a page where Space should scroll (the home page). `compact` drops the scene chips and the
  * caption, for a small player beside other content (the demos page).
  */
 export default function IntroPlayer({ spaceKey = true, compact = false }: { spaceKey?: boolean; compact?: boolean }) {
-  // ?voice=1|2|3 picks a narrator; the server renders the default and the client switches after hydrating
+  // ?voice=1|2|3|4 picks a narrator; the server renders the default and the client switches after hydrating
   const voice = useSyncExternalStore(onAddress, () => voiceFromQuery(window.location.search), () => DEFAULT_VOICE);
   const scenes = useMemo(() => timeline(SCRIPT, VOICES[voice]), [voice]);
   const total = totalLength(scenes);
