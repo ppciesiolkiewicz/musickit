@@ -22,7 +22,7 @@ for (const f of [".env.local", ".env"]) {
   }
 }
 const KEY = process.env.ELEVENLABS_API_KEY;
-const VOICE = process.env.ELEVENLABS_VOICE_ID || "JBFqnCBsd6RMkjVDRZzb"; // "George": warm, calm, clear
+const VOICE = process.env.ELEVENLABS_VOICE_ID || "IKne3meq5aSn9XLyUdCD"; // "Charlie": Australian, casual, friendly
 const MODEL = process.env.ELEVENLABS_MODEL || "eleven_multilingual_v2";
 
 /** How the narrator should say words the voice gets wrong. Cue phrases must not contain these words. */
@@ -51,7 +51,7 @@ async function record(text, previous, next) {
       model_id: MODEL,
       previous_text: previous || undefined,
       next_text: next || undefined,
-      voice_settings: { stability: 0.55, similarity_boost: 0.75, style: 0.15, use_speaker_boost: true, speed: 0.95 },
+      voice_settings: { stability: 0.45, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true, speed: 1 },
     }),
   });
   if (!res.ok) throw new Error(`ElevenLabs ${res.status}: ${(await res.text()).slice(0, 400)}`);

@@ -20,7 +20,7 @@ node scripts/intro/voice.mjs --all      # records them all again
 node scripts/intro/voice.mjs --only menu,keys
 ```
 
-The script needs `ELEVENLABS_API_KEY`, read from the environment or else from `.env.local` or `.env`. `ELEVENLABS_VOICE_ID` (default George, `JBFqnCBsd6RMkjVDRZzb`) and `ELEVENLABS_MODEL` (default `eleven_multilingual_v2`) choose the voice and model. Changing either records every scene again, so the tour keeps one voice. It uses the `with-timestamps` endpoint, so the cue times come from the voice itself. "attunr" is sent as "attuner" so the voice says it right (`SAY` in the script). Commit `public/intro/*.mp3` together with `voice.json`. A test fails when only some scenes match their recording.
+The script needs `ELEVENLABS_API_KEY`, read from the environment or else from `.env.local` or `.env`. `ELEVENLABS_VOICE_ID` (default Charlie, `IKne3meq5aSn9XLyUdCD`, Australian and casual) and `ELEVENLABS_MODEL` (default `eleven_multilingual_v2`) choose the voice and model. Changing either records every scene again, so the tour keeps one voice. It uses the `with-timestamps` endpoint, so the cue times come from the voice itself. "attunr" is sent as "attuner" so the voice says it right (`SAY` in the script). Commit `public/intro/*.mp3` together with `voice.json`. The earlier take in George's voice (`JBFqnCBsd6RMkjVDRZzb`) is kept in `public/intro/george/` with its own `voice.json`; the app doesn't use it. A test fails when only some scenes match their recording.
 
 ## Changing the tour
 
