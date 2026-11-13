@@ -75,7 +75,10 @@ imports it, and lists its folders and files. *Render tree*: what a page renders,
 through imports, barrels (`export … from`) and namespaces. *File*: a file's components, imports, imported by, renders,
 rendered by, and `extends` both ways (interfaces, classes, `type A = B & …`). The terminal version is
 `scripts/structure.ts` (`npm run -s structure -- help`: `packages`, `pkg <id>`, `tree <route|file> [N]`, `file <path>`,
-`upward`, `routes`).
+`upward`, `routes`). For a drawn graph, `npm run deps:packages` writes `.deps/packages.mmd` (Mermaid, one box per package, through
+dependency-cruiser's `--collapse`; open it in a Mermaid preview or mermaid.live), and `npm run deps:check` lists the imports
+that break the layer rules in `.dependency-cruiser.cjs`. The SVG scripts (`deps:svg`, `deps:archi`) need Graphviz
+(`brew install graphviz`).
 
 ## Running the prompt
 
