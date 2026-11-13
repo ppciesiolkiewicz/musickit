@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/looper",
     "/plan",
     "/faq",
+    "/intro",
     "/theory/scales",
     "/teachers",
     "/teach",

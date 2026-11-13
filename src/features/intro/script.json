@@ -1,0 +1,47 @@
+{
+  "title": "A quick tour of attunr",
+  "scenes": [
+    {
+      "id": "hello",
+      "caption": "attunr",
+      "text": "This is attunr: practice tools for guitar and singing, right in your browser. Here is a quick look around.",
+      "cues": { "tagline": "practice tools", "look": "Here is" }
+    },
+    {
+      "id": "menu",
+      "caption": "The menu",
+      "text": "The menu at the top has four parts. Learn holds the course and your AI practice plan. Guitar has chords, scales and CAGED, plus drills for the neck. Singing has warm-ups, scales and melodies you sing into the mic. Tools has the tuner, the looper, backing tracks and the notes creator.",
+      "cues": { "learn": "Learn holds", "guitar": "Guitar has", "singing": "Singing has", "tools": "Tools has", "notes": "the notes creator" }
+    },
+    {
+      "id": "plan",
+      "caption": "AI practice plan",
+      "text": "The AI practice plan writes your practice for each day. Answer a few questions, then send the prompt to your own AI and paste its reply back. Each exercise comes with the tool it needs. Rate how it went, and the next plan takes it into account.",
+      "cues": { "answer": "Answer a few", "send": "send the prompt", "paste": "paste its reply", "week": "Each exercise", "rate": "Rate how", "next": "the next plan" }
+    },
+    {
+      "id": "notes",
+      "caption": "Notes creator",
+      "text": "The notes creator makes a page of notes: text, a scale on the neck, chord boxes, a melody or a video. Press slash to add a widget. Change the key, and every widget follows it.",
+      "cues": { "text": "text,", "neck": "a scale on the neck", "chords": "chord boxes", "melody": "a melody", "slash": "Press slash", "key": "Change the key", "follow": "every widget follows" }
+    },
+    {
+      "id": "help",
+      "caption": "Help on every page",
+      "text": "Every page has help by its title. The compass button shows you around the page. The question mark explains what each control does: hover anything to find out. Every exercise has its own compass too.",
+      "cues": { "compass": "The compass", "tour": "shows you around", "hints": "The question mark", "hover": "hover anything", "exercise": "Every exercise" }
+    },
+    {
+      "id": "keys",
+      "caption": "Keys",
+      "text": "To open any page, press Command K, or Control K on Windows, and type its name. On a tool page, Space plays and stops, or presses the big button. In ear training, the number keys answer.",
+      "cues": { "cmdk": "press Command K", "type": "type its name", "space": "Space plays", "big": "presses the big button", "numbers": "the number keys" }
+    },
+    {
+      "id": "end",
+      "caption": "Start",
+      "text": "That's the tour. Press Command K, pick a page, and start playing.",
+      "cues": { "cmdk": "Press Command K" }
+    }
+  ]
+}

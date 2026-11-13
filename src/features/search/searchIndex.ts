@@ -28,6 +28,7 @@ const PAGES: SearchEntry[] = [
   })),
   { href: "/teachers", label: "For teachers", desc: "attunr in your lessons", icon: "graduation-cap", group: "Pages", words: "teach lesson" },
   { href: "/creator", label: "Creator", desc: "Build your own exercises", icon: "pencil", group: "Pages" },
+  { href: "/intro", label: "Quick tour", desc: "A short look around attunr, with sound", icon: "play", group: "Pages", words: "intro tutorial video help start shortcuts keys" },
   { href: "/faq", label: "FAQ", desc: "Answers to common questions", icon: "info", group: "Pages", words: "help questions microphone headphones refund" },
 ];
 
