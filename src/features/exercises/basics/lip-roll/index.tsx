@@ -12,7 +12,7 @@ import { Chip, Hint } from "@/components/ui";
 import { PlayerCard } from "../../play-along/PlayerParts";
 import { useVoice } from "../voiceChoice";
 import { noteLabel, useVoicePitch } from "../voicePitch";
-import { WarmUpBar, useWarmUpKeys, type WarmUpStatus } from "../warmUpBar";
+import { PlayAhead, WarmUpBar, usePlayAhead, useWarmUpKeys, type WarmUpStatus } from "../warmUpBar";
 import { DEFAULTS, EDGE, LIMITS, LIP_ROLL_PLAYS, LIP_ROLL_SPEEDS, clampInt, youStart, glidePath, midiAt, nearPath, roundAt, roundSeconds, type GlidePath, type LipRollShape, type LipRollPlay, type LipRollSpeed, type RoundPhase } from "./glide";
 import { playCue, playGlide, type GlideSound } from "./sound";
 import type { LipRollProps } from "./lip-roll.props";
@@ -46,7 +46,11 @@ const WHAT_PLAY: Record<LipRollPlay, string> = {
  * a little deeper into chest voice. The run lives in refs, apart from the props and choices: a new shape, speed, tone or
  * voice while it runs starts the round on screen again with them, and the run goes on (the round count stays).
  */
-export function View({ shape = "down", speed: speedProp = "medium", play: playProp = "echo", seconds: secondsProp, plays: playsProp, voice: own = "tenor" }: LipRollProps) {
+export function View({ shape = "down", speed: speedProp = "medium", play: playProp = "echo", seconds: secondsProp, plays: playsProp, voice: own = "tenor", controls = true }: LipRollProps & {
+  /** draw the Tone and Speed choices on the tool (a plan); false: the page holds them beside its other choices and hands
+   * them in as `speed` and `play`, and the tool follows those props */
+  controls?: boolean;
+}) {
   useCoverage({ hints: 3 });
   const voice = useVoice(own);
   const known: Voice = voice in VOICES ? voice : "tenor";
@@ -54,14 +58,19 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
   const map = useMemo(() => voiceMap(known), [known]);
   const seconds = clampInt(secondsProp, LIMITS.seconds, DEFAULTS.seconds);
   const plays = clampInt(playsProp, LIMITS.plays, DEFAULTS.plays);
-  const [speed, setSpeed] = useState<LipRollSpeed>(LIP_ROLL_SPEEDS.includes(speedProp) ? speedProp : "medium");
-  const [play, setPlay] = useState<LipRollPlay>(LIP_ROLL_PLAYS.includes(playProp) ? playProp : "echo");
+  const ownSpeed: LipRollSpeed = LIP_ROLL_SPEEDS.includes(speedProp) ? speedProp : "medium";
+  const ownPlay: LipRollPlay = LIP_ROLL_PLAYS.includes(playProp) ? playProp : "echo";
+  // picked on the tool when it draws its own choices, else the props
+  const [speedPicked, setSpeed] = useState(ownSpeed);
+  const [playPicked, setPlay] = useState(ownPlay);
+  const speed = controls ? speedPicked : ownSpeed;
+  const play = controls ? playPicked : ownPlay;
   // round 1's path, for the picture before Start
   const first = useMemo(() => glidePath(shape, map, seconds, speed, 0), [shape, map, seconds, speed]);
   const [path, setPath] = useState(first);
 
   const [status, setStatus] = useState<WarmUpStatus>("idle");
-  const [now, setNow] = useState<{ round: number; phase: RoundPhase; at: number; t: number; voice: number | null } | null>(null);
+  const [now, setNow] = useState<{ round: number; phase: RoundPhase; at: number; voiceAt: number; t: number; voice: number | null } | null>(null);
   const [trace, setTrace] = useState<Point[]>([]);
   const sounds = useRef<GlideSound[]>([]);
   const hush = () => {
@@ -76,6 +85,12 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
     latest.current = { shape, map, seconds, speed, play, plays };
   });
   const [micOff, setMicOff] = useState(false);
+  // the voice is drawn this far behind the playhead, to make up for the mic's delay
+  const [lagMs, setLag] = usePlayAhead();
+  const lag = useRef(lagMs / 1000);
+  useEffect(() => {
+    lag.current = lagMs / 1000;
+  }, [lagMs]);
   const running = status === "running";
   // the mic listens through every pass, the ones with the tone too
   const { pitch, status: micStatus } = useVoicePitch(running && !micOff);
@@ -132,12 +147,15 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
       if (sung) {
         // each pass draws its own line
         if (r.pass !== at.phase) Object.assign(r, { pass: at.phase, line: [] });
+        // the voice heard now was sung a moment ago: drawn `lag` behind the playhead
+        const t = at.at - lag.current;
         const m = pitch.current;
-        if (m !== null) r.line = [...r.line, { at: at.at, midi: m }];
-        else if (r.line.length && r.line[r.line.length - 1].midi !== -1) r.line = [...r.line, { at: at.at, midi: -1 }];
+        if (t < 0) { /* sung before the pass began */ }
+        else if (m !== null) r.line = [...r.line, { at: t, midi: m }];
+        else if (r.line.length && r.line[r.line.length - 1].midi !== -1) r.line = [...r.line, { at: t, midi: -1 }];
         setTrace(r.line);
       }
-      setNow({ round: r.n, phase: at.phase, at: at.at, t: (nowMs - r.t0) / 1000, voice: sung ? pitch.current : null });
+      setNow({ round: r.n, phase: at.phase, at: at.at, voiceAt: Math.max(0, at.at - lag.current), t: (nowMs - r.t0) / 1000, voice: sung ? pitch.current : null });
       id = requestAnimationFrame(frame);
     };
     id = requestAnimationFrame(frame);
@@ -173,7 +191,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
 
   const phase = now?.phase ?? null;
   const voiceNow = now?.voice ?? null;
-  const near = voiceNow !== null && now ? nearPath(shown, now.at, voiceNow, 1.5) : false;
+  const near = voiceNow !== null && now ? nearPath(shown, now.voiceAt, voiceNow, 1.5) : false;
   const word = status === "done" ? "All rounds done"
     : phase === "listen" ? "Lip roll with the tone"
     : phase === "along" ? (near ? "With the tone: on the line" : "Lip roll with the tone")
@@ -192,7 +210,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
   return (
     <PlayerCard ref={cardRef}>
       <div data-tour="lip-roll-start">
-      <WarmUpBar {...actions} armed={armed} skip="the next round" what="Starts the rounds and the mic.">
+      <WarmUpBar {...actions} armed={armed} settings={<PlayAhead ms={lagMs} onChange={setLag} />} skip="the next round" what="Starts the rounds and the mic.">
         <span data-tour="lip-roll-mic" className="inline-flex">
           <Hint title="Audio input" description="Start switches the mic on for you; it draws your line. This button opens the list of inputs, with each input's level.">
             <InputChip quiet status={micStatus} mic={{ on: running && !micOff, onToggle: () => (running ? setMicOff((o) => !o) : void start()) }} />
@@ -200,7 +218,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
         </span>
       </WarmUpBar>
       </div>
-      <div data-tour="lip-roll-options" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
+      {controls && <div data-tour="lip-roll-options" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
         <Hint title="Tone" description="When the tone plays. A new choice starts the round again with it.">
           <span role="group" aria-label="Tone" className="inline-flex flex-wrap items-center gap-1.5">
             <span className="uppercase tracking-wider">Tone</span>
@@ -215,7 +233,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
             </span>
           </Hint>
         )}
-      </div>
+      </div>}
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Warm-up · lip roll</p>
         <h3 className="truncate text-base font-semibold text-slate-100">{TITLES[shape]}</h3>
@@ -232,7 +250,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
         <StartCover show={status === "idle" && !now && trace.length === 0} title={TITLES[shape]} onStart={() => void start()} keyCap={armed ? "Space" : undefined} note="The mic starts with it.">
           {WHAT_PLAY[play]}
         </StartCover>
-        <Roll path={shown} registers={REGISTERS[known]} trace={trace} at={phase === "listen" || phase === "along" || phase === "you" ? now!.at : null} phase={phase} voice={voiceNow} near={near} />
+        <Roll path={shown} registers={REGISTERS[known]} trace={trace} at={phase === "listen" || phase === "along" || phase === "you" ? now!.at : null} voiceAt={now?.voiceAt ?? 0} phase={phase} voice={voiceNow} near={near} />
       </div>
 
       <p className="min-h-10 border-t border-slate-800 pt-3 text-sm leading-snug text-slate-300">
@@ -245,7 +263,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
 const W = 400, H = 200, L = 40, RGT = 12, TOP = 16, BOT = 24;
 
 /** Time across, pitch up: the voice's registers as bands with the breaks between, the tone's path as a wide band, the playhead, and the student's line over it. */
-function Roll({ path, registers, trace, at, phase, voice, near }: { path: GlidePath; registers: Registers; trace: Point[]; at: number | null; phase: RoundPhase | null; voice: number | null; near: boolean }) {
+function Roll({ path, registers, trace, at, voiceAt, phase, voice, near }: { path: GlidePath; registers: Registers; trace: Point[]; at: number | null; /** where the voice dot is drawn: `lag` behind the playhead */ voiceAt: number; phase: RoundPhase | null; voice: number | null; near: boolean }) {
   const lo = path.low - 3, hi = path.high + 3;
   const x = (t: number) => L + (t / path.duration) * (W - L - RGT);
   const y = (m: number) => TOP + ((hi - m) / (hi - lo)) * (H - TOP - BOT);
@@ -296,7 +314,7 @@ function Roll({ path, registers, trace, at, phase, voice, near }: { path: GlideP
         <g>
           <line x1={x(at)} x2={x(at)} y1={TOP - 6} y2={H - BOT + 6} stroke={headTone} strokeOpacity="0.5" strokeWidth="1.5" />
           <circle cx={x(at)} cy={y(midiAt(path, at))} r="6" fill={headTone} opacity={phase === "listen" ? 0.95 : 0.35} />
-          {voice !== null && <circle cx={x(at)} cy={y(Math.min(hi + 1, Math.max(lo - 1, voice)))} r="7" fill={near ? "rgb(52 211 153)" : "rgb(251 191 36)"} stroke="white" strokeOpacity="0.7" strokeWidth="1.5" />}
+          {voice !== null && <circle cx={x(voiceAt)} cy={y(Math.min(hi + 1, Math.max(lo - 1, voice)))} r="7" fill={near ? "rgb(52 211 153)" : "rgb(251 191 36)"} stroke="white" strokeOpacity="0.7" strokeWidth="1.5" />}
         </g>
       )}
       <text x={L} y={H - 6} className="fill-slate-400 text-[11px]">{phase === "you" ? "your turn" : phase === "listen" || phase === "along" ? "with the tone" : ""}</text>

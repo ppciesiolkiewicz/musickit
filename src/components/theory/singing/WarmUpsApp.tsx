@@ -5,6 +5,7 @@ import { GameChoice } from "@/components/practice/shared";
 import Lesson from "@/components/theory/Lesson";
 import { Chip, ChipRow, Select } from "@/components/ui";
 import { View as LipRoll } from "@/features/exercises/basics/lip-roll";
+import { LIP_ROLL_PLAYS, LIP_ROLL_SPEEDS, type LipRollPlay, type LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
 import type { LipRollProps } from "@/features/exercises/basics/lip-roll/lip-roll.props";
 import { View as VoiceHill } from "@/features/exercises/basics/voice-hill";
 import type { VoiceHillProps } from "@/features/exercises/basics/voice-hill/voice-hill.props";
@@ -52,6 +53,13 @@ const SOUNDS: { id: NonNullable<VoiceHillProps["sound"]>; label: string }[] = [
   { id: "ee", label: "“ee”" },
 ];
 
+const PLAY_CHIPS: Record<LipRollPlay, { label: string; title: string }> = {
+  always: { label: "With the tone", title: "The tone plays the whole time and you lip roll with it" },
+  echo: { label: "Tone, then you", title: "A pass with the tone, then the same pass on your own" },
+  silent: { label: "No tone", title: "Follow the line on your own, no tone" },
+};
+const SPEED_CHIPS: Record<LipRollSpeed, string> = { slow: "Slow", medium: "Medium", fast: "Fast" };
+
 const VOICE_OPTIONS = (Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: VOICES[v].label }));
 
 /**
@@ -65,6 +73,8 @@ export default function WarmUpsApp() {
   const [place, setPlace] = useState(PLACES[0].id);
   const [sound, setSound] = useState(SOUNDS[0].id);
   const [voice, setVoice] = useState<Voice>("tenor");
+  const [play, setPlay] = useState<LipRollPlay>("echo");
+  const [speed, setSpeed] = useState<LipRollSpeed>("medium");
   const r = ROLLS.find((x) => x.id === roll)!;
   const h = PLACES.find((x) => x.id === place)!;
   return (
@@ -77,9 +87,17 @@ export default function WarmUpsApp() {
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-3 flex flex-col gap-2">
           {kind === "lip-roll" ? (
-            <ChipRow label="Slide">
-              {ROLLS.map((x) => <Chip key={x.id} on={x.id === roll} onClick={() => setRoll(x.id)} title={x.title}>{x.label}</Chip>)}
-            </ChipRow>
+            <>
+              <ChipRow label="Slide">
+                {ROLLS.map((x) => <Chip key={x.id} on={x.id === roll} onClick={() => setRoll(x.id)} title={x.title}>{x.label}</Chip>)}
+              </ChipRow>
+              <ChipRow label="Tone">
+                {LIP_ROLL_PLAYS.map((m) => <Chip key={m} on={m === play} onClick={() => setPlay(m)} title={PLAY_CHIPS[m].title}>{PLAY_CHIPS[m].label}</Chip>)}
+              </ChipRow>
+              {r.props.shape !== "hold" && <ChipRow label="Speed">
+                {LIP_ROLL_SPEEDS.map((sp) => <Chip key={sp} on={sp === speed} onClick={() => setSpeed(sp)}>{SPEED_CHIPS[sp]}</Chip>)}
+              </ChipRow>}
+            </>
           ) : (
             <>
               <ChipRow label="Place">
@@ -96,7 +114,7 @@ export default function WarmUpsApp() {
           </div>
         </div>
         {kind === "lip-roll"
-          ? <LipRoll {...r.props} voice={voice} />
+          ? <LipRoll {...r.props} play={play} speed={speed} voice={voice} controls={false} />
           : <VoiceHill {...h.props} sound={sound} voice={voice} />}
       </div>
     </div>

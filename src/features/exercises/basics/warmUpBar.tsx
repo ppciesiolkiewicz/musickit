@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import ToolSettings from "@/components/practice/ToolSettings";
-import { Button, Hint, KeyCap } from "@/components/ui";
+import { Button, DropdownSection, Hint, KeyCap, Slider } from "@/components/ui";
+import { DOT_LAG_MS } from "@/components/theory/singing/MelodyStaff";
 import { useCoverage } from "@/features/guide/useCoverage";
 
 export type WarmUpStatus = "idle" | "running" | "done";
@@ -42,13 +43,15 @@ const BIG = "inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 
  * Restart once it is done), then Restart and Skip while it runs, then the tool's own controls (`children`: the mic,
  * Play note), and the volume at the end. The tool wraps it in its own `data-tour` (a literal, for the tour test).
  */
-export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, what, armed, children }: Actions & {
+export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, what, armed, settings, children }: Actions & {
   /** what Skip moves on to, for its hint: "the next round" */
   skip: string;
   /** what Start does, for its hint */
   what: string;
   /** the keys go to this tool: show the key caps */
   armed: boolean;
+  /** more under the settings button beside the volume (the play-ahead) */
+  settings?: ReactNode;
   children?: ReactNode;
 }) {
   useCoverage({ hints: 5 });
@@ -83,7 +86,43 @@ export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, wh
       </span>
       {children}
       <span className="ml-auto" />
-      <Hint title="Volume" description="Sets every sound in the app, not just this warm-up."><ToolSettings /></Hint>
+      <Hint title={settings ? "Settings" : "Volume"} description={settings ? "The volume, and the settings under the button." : "Sets every sound in the app, not just this warm-up."}><ToolSettings more={settings} /></Hint>
     </div>
+  );
+}
+
+/** where the play-ahead is kept: the same one the staff's sing-along and the singing pages use */
+const LAG_KEY = "singing.lag";
+const MAX_LAG_MS = 1000;
+
+/**
+ * The play-ahead, as on the staff: how far behind the playhead your voice is drawn, in ms, to make up for the mic's delay.
+ * Shared with the singing pages (one setting in this browser); the saved one comes back after hydration.
+ */
+export function usePlayAhead(): [number, (ms: number) => void] {
+  const [ms, setMs] = useState(DOT_LAG_MS);
+  useEffect(() => {
+    try {
+      const v: unknown = JSON.parse(window.localStorage.getItem(LAG_KEY) ?? "null");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved pick after hydration
+      if (typeof v === "number" && v >= 0 && v <= MAX_LAG_MS) setMs(v);
+    } catch { /* storage blocked */ }
+  }, []);
+  const pick = (v: number) => {
+    setMs(v);
+    try { window.localStorage.setItem(LAG_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
+  };
+  return [ms, pick];
+}
+
+/** The play-ahead slider, for the settings button (`WarmUpBar`'s `settings`), as on the staff. */
+export function PlayAhead({ ms, onChange }: { ms: number; onChange(ms: number): void }) {
+  return (
+    <DropdownSection title="Play-ahead" info={<>How far behind the playhead your voice is drawn. Raise it when your line runs late against the tone.</>}>
+      <span className="flex items-center gap-2">
+        <Slider min={0} max={MAX_LAG_MS} step={10} value={ms} onChange={onChange} size="sm" className="w-40" aria-label="Play-ahead" />
+        <span className="whitespace-nowrap text-xs tabular-nums text-slate-500">{ms} ms</span>
+      </span>
+    </DropdownSection>
   );
 }
