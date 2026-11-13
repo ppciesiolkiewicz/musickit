@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { ToolHeadphonesHint, useStepPart } from "@/components/practice/exerciseStep";
+import { StartCover } from "@/components/practice/StartCover";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import ToolSettings from "@/components/practice/ToolSettings";
 import InputChip from "@/components/InputChip";
@@ -262,7 +263,8 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
 
   if (!placed || !staff) return <p className="text-sm text-rose-300">None of these intervals fits the {range.label.toLowerCase()} voice.</p>;
 
-  const message = ask === null ? (both ? "Press Start: Do and then the note play. Sing the note back from Do." : "Press Start: Do plays, then sing the interval named above from it.")
+  // before the first Start the cover over the picture says what happens
+  const message = ask === null ? ""
     : phase === "prompt" ? (both ? "Here is Do, then the note…" : "Here is Do…")
     : phase === "hint" ? "Here is the note…"
     : phase === "listening" ? (micOn ? (dot ? "Sing it and hold the note. The dot turns green on Do and on the note." : "Sing it and hold the note.") : "Switch the mic on to sing your answer.")
@@ -325,8 +327,11 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
         </p>
         {ask !== null && <p className="text-sm text-slate-400">{longName(ask)} from Do ({placed.doNote.spelled.name})</p>}
       </div>
-      <p className={`text-sm ${phase === "solved" ? "text-emerald-300" : phase === "shown" ? "text-amber-300" : "text-slate-400"}`} aria-live="polite">{message}</p>
-      <div data-tour="interval-singer-view">
+      <p className={`min-h-5 text-sm ${phase === "solved" ? "text-emerald-300" : phase === "shown" ? "text-amber-300" : "text-slate-400"}`} aria-live="polite">{message}</p>
+      <div data-tour="interval-singer-view" className="relative">
+      <StartCover show={ask === null} title="Sing an interval" onStart={next} keyCap={keysArmed ? "Space" : undefined} note="The mic starts with it.">
+        {both ? "Do plays, then the note. Sing the note back from Do and hold it." : "Do plays and the interval to sing shows above. Sing it from Do and hold the note."}
+      </StartCover>
       {look === "roll" ? (
         <IntervalRoll doMidi={doMidi} low={doMidi + Math.min(0, ...placed.asks, ask ?? 0)} high={doMidi + Math.max(0, ...placed.asks, ask ?? 0)} target={targetMidi} found={found} doLabel={`Do · ${placed.doNote.spelled.name}`} targetLabel={target ? `${target.label} · ${target.spelled.name}` : ""} targetHint={ask !== null && target ? `${shortName(ask)} · ${target.label}` : ""}
           doName={`${placed.doNote.spelled.name}${placed.doNote.spelled.octave}`} targetName={target ? `${target.spelled.name}${target.spelled.octave}` : ""}

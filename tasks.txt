@@ -3,9 +3,6 @@ Ticket content
 
 New:
 
-new1:
-Interval exercise and possibly some other exercises should show "Start screen" Maybe with a button to start whole exercise.
-
 
 60.
 How did it go?
@@ -73,6 +70,8 @@ Like - seeing chords within a scale!
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] new1. Start screen on Sing an interval
+Done: until the first Start, a cover over the piano roll or staff says what happens ("Do plays and the interval to sing shows above. Sing it from Do and hold the note."), with one big Start (Space) and "The mic starts with it." under it. Start plays Do, shows the interval and starts the mic, as the toolbar's Start does. Reusable as StartCover (src/components/practice/StartCover.tsx) for other exercises; not on any other exercise yet, and not in /dev/stories yet. Checked in headless Chrome at desktop and phone width (no sideways scroll); the cover lifts on Start. Left as is: after Start the toolbar wraps to two lines (Restart, Skip, Show me, mic, score), which moves the roll down about 40px.
 [DONE] 36. Ear training: "Custom" level, and levels 5 and 6 merged (/theory/ears, /theory/singing/intervals)
 Done: ears works like Sing an interval: Level 1-5 or Custom; "Your set" is now "Intervals", showing only the level's intervals (disabled) until Custom, which starts from the level it came from. Fixed: changing an interval on level 6 doubled the answer buttons (the set kept duplicates), and the doubled keys left faded stale buttons. Level 6 was the same as 5 (5 already reaches all twelve), so it is gone on both pages; a level 6 from an older link or plan reads as 5. Checked with tests and the rendered page; not clicked through in the browser (extension disconnected).
 [DONE] Direction as chips everywhere
