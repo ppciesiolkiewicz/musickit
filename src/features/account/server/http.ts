@@ -58,9 +58,9 @@ export function resultCookies(result: SignedIn | NeedsProfile, env: Env = proces
     : [cookie(SIGNUP_COOKIE, result.signupToken, { expires: result.expiresAt }, env)];
 }
 
-/** Where the browser goes after the step: the page asked for, or the finish form with that page kept. */
+/** Where the browser goes after the step: the page asked for, or the account setup with that page kept. */
 export const resultPath = (result: SignedIn | NeedsProfile): string =>
-  result.kind === "session" ? result.next : `/register/finish?next=${encodeURIComponent(result.next)}`;
+  result.kind === "session" ? result.next : `/account/setup?next=${encodeURIComponent(result.next)}`;
 
 function withCookies(init: ResponseInit, cookies: string[]): ResponseInit {
   const headers = new Headers(init.headers);
@@ -93,8 +93,9 @@ export function sameOrigin(req: Request): boolean {
  * request (a forged Host header must not end up in a mailed link): AUTH_URL, or the site's public address.
  */
 export function baseUrl(req: Request, env: Env = process.env): string {
+  // an AUTH_URL that isn't an http(s) address (a placeholder left in .env) would mail a link that goes nowhere
   const set = env.AUTH_URL?.trim().replace(/\/$/, "");
-  if (set) return set;
+  if (set && /^https?:\/\/[^/?#\s]+$/.test(set)) return set;
   return env.NODE_ENV === "production" ? SITE_URL : new URL(req.url).origin;
 }
 

@@ -39,24 +39,24 @@ test("links never take their address from the request in production", () => {
   assert.equal(baseUrl(r, { NODE_ENV: "production" }), "https://www.attunr.app");
   assert.equal(baseUrl(r, { NODE_ENV: "production", AUTH_URL: "https://beta.attunr.app/" }), "https://beta.attunr.app");
   assert.equal(baseUrl(req({}), { NODE_ENV: "development" }), "http://localhost:3000");
+  assert.equal(baseUrl(req({}), { NODE_ENV: "development", AUTH_URL: "?" }), "http://localhost:3000", "a placeholder AUTH_URL is ignored");
 });
 
 test("after a step: the page asked for, or the finish form keeping it", () => {
   const at = new Date();
   assert.equal(resultPath({ kind: "session", sessionToken: "s", expiresAt: at, next: "/plan", created: false, account: { id: "1", name: "A", email: "a@b.co", role: "student", createdAt: "" } }), "/plan");
-  assert.equal(resultPath({ kind: "signup", signupToken: "s", expiresAt: at, next: "/plan?day=2" }), "/register/finish?next=%2Fplan%3Fday%3D2");
+  assert.equal(resultPath({ kind: "signup", signupToken: "s", expiresAt: at, next: "/plan?day=2" }), "/account/setup?next=%2Fplan%3Fday%3D2");
 });
 
 test("the mailed link and its email", () => {
   const link = confirmUrl("https://www.attunr.app", "a/b+c");
   assert.equal(link, "https://www.attunr.app/login/confirm?token=a%2Fb%2Bc");
-  const mail = linkEmail("ann@school.com", link, false, {});
+  const mail = linkEmail("ann@school.com", link, {});
   assert.deepEqual(mail.to, ["ann@school.com"]);
   assert.equal(mail.from, "attunr <hello@attunr.app>");
-  assert.match(mail.text, /log in to attunr:\n\nhttps:\/\/www\.attunr\.app\/login\/confirm\?token=/);
+  assert.match(mail.text, /log in to attunr\. If you don't have an account yet, you'll set one up next:\n\nhttps:\/\/www\.attunr\.app\/login\/confirm\?token=/);
   assert.match(mail.text, /20 minutes/);
-  assert.match(linkEmail("ann@school.com", link, true, { AUTH_FROM_EMAIL: "x <x@y.z>" }).text, /create your attunr account/);
-  assert.equal(linkEmail("a@b.co", link, true, { AUTH_FROM_EMAIL: "x <x@y.z>" }).from, "x <x@y.z>");
+  assert.equal(linkEmail("a@b.co", link, { AUTH_FROM_EMAIL: "x <x@y.z>" }).from, "x <x@y.z>");
 });
 
 const idToken = (claims: Record<string, unknown>) => `h.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.sig`;

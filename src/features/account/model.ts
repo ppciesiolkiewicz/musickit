@@ -4,10 +4,8 @@ export type Role = (typeof ROLES)[number];
 
 export const ROLE_LABEL: Record<Role, string> = { student: "Student", teacher: "Teacher", owner: "Owner" };
 
-/** The roles a person can pick when they create their own account. An owner is made by us, with the school. */
-export const SIGNUP_ROLES = ["student", "teacher"] as const satisfies readonly Role[];
-export type SignupRole = (typeof SIGNUP_ROLES)[number];
-export const isSignupRole = (r: unknown): r is SignupRole => (SIGNUP_ROLES as readonly unknown[]).includes(r);
+/** Every account a person makes for themself starts as this. A teacher or an owner is made one by us. */
+export const NEW_ACCOUNT_ROLE: Role = "student";
 
 export interface Account {
   id: string;

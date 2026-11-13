@@ -1,9 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { SIGNUP_ROLES, type SignupRole } from "../model";
-
-/** Shared pieces of the log-in, register and account screens. */
+/** Shared pieces of the log-in, account setup and account screens. */
 
 export const FIELD =
   "w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none";
@@ -33,41 +31,9 @@ export function OrLine() {
   );
 }
 
-const ROLE_TEXT: Record<SignupRole, { label: string; line: string }> = {
-  student: { label: "Student", line: "I'm learning." },
-  teacher: { label: "Teacher", line: "I teach." },
-};
-
-/** Student or Teacher, as two buttons side by side. */
-export function RoleChoice({ value, onChange }: { value: SignupRole | null; onChange: (role: SignupRole) => void }) {
-  return (
-    <fieldset>
-      <legend className={LABEL}>I am a</legend>
-      <div className="grid grid-cols-2 gap-2">
-        {SIGNUP_ROLES.map((r) => {
-          const on = value === r;
-          return (
-            <button
-              key={r}
-              type="button"
-              aria-pressed={on}
-              onClick={() => onChange(r)}
-              className={`rounded-xl border px-4 py-3 text-left transition ${on ? "border-sky-400 bg-sky-500/15 text-sky-50" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}
-            >
-              <span className="block text-sm font-semibold">{ROLE_TEXT[r].label}</span>
-              <span className="block text-xs text-slate-400">{ROLE_TEXT[r].line}</span>
-            </button>
-          );
-        })}
-      </div>
-    </fieldset>
-  );
-}
-
 /** A plain link, not a fetch: the browser itself has to travel to Google and back. */
-export function GoogleButton({ role, next }: { role?: SignupRole | null; next?: string | null }) {
+export function GoogleButton({ next }: { next?: string | null }) {
   const q = new URLSearchParams();
-  if (role) q.set("role", role);
   if (next) q.set("next", next);
   const query = q.toString();
   return (

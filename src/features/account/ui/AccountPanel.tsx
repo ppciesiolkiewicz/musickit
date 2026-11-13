@@ -9,7 +9,7 @@ import { Card, ErrorLine, FIELD, LABEL, PRIMARY, SECONDARY, errorOf, send } from
 /** After anything that changes who is signed in, every page reads its data again. */
 const go = (path: string) => window.location.assign(path);
 
-/** /account: who is logged in, their name, Log out and Delete account. Logged out, it points to the two ways in. */
+/** /account: who is logged in, their name, Log out and Delete account. Logged out, it points to Log in. */
 export default function AccountPanel() {
   const { account, loaded } = useAccount();
   const store = useAccountStore();
@@ -26,7 +26,6 @@ export default function AccountPanel() {
       <Card>
         <p className="text-sm text-slate-300">You are not logged in. Every tool works without an account, and what you do is kept in this browser.</p>
         <Link href="/login" className={PRIMARY}>Log in</Link>
-        <Link href="/register" className={SECONDARY}>Create account</Link>
       </Card>
     );
   }

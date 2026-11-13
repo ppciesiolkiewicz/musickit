@@ -21,7 +21,7 @@ export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;
   const code = q.get("code");
   const state = q.get("state");
-  let kept: { state?: unknown; verifier?: unknown; role?: unknown; next?: unknown };
+  let kept: { state?: unknown; verifier?: unknown; next?: unknown };
   try {
     kept = JSON.parse(readCookie(req, OAUTH_COOKIE) ?? "") as typeof kept;
   } catch {
@@ -34,7 +34,7 @@ export async function GET(req: Request) {
   try {
     const profile = await googleProfile(config, { code, verifier: kept.verifier, redirectUri: googleRedirectUri(base) }, deps.now());
     if (!profile) return fail("google");
-    const result = await googleSignIn(deps, profile, { role: kept.role, next: kept.next, userAgent: req.headers.get("user-agent") });
+    const result = await googleSignIn(deps, profile, { next: kept.next, userAgent: req.headers.get("user-agent") });
     if (!result) return fail("google-unverified");
     return redirect(`${base}${resultPath(result)}`, [...done, ...resultCookies(result)]);
   } catch {

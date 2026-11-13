@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
       { source: "/theory/drone", destination: "/theory/metronome-drone", permanent: true },
       // the four-stage outline was folded into the course
       { source: "/theory/stage/:n", destination: "/course", permanent: true },
+      // there is no separate register form: /login is the one way in, and a new person goes on to the account setup
+      { source: "/register", destination: "/login", permanent: false },
+      { source: "/register/teacher", destination: "/login", permanent: false },
+      { source: "/register/finish", destination: "/account/setup", permanent: false },
       // the old "Start here" hub was folded into the course
       { source: "/theory", destination: "/course", permanent: true },
     ];
