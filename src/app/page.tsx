@@ -12,12 +12,12 @@ export const metadata: Metadata = {
     siteName: "attunr",
     url: "/",
     title: "attunr for music schools: guitar and voice practice between lessons",
-    description: "Daily practice plans for students, playable lesson notes and diagrams for teachers, and a teaching studio for online lessons, under your school's name.",
+    description: "Daily practice plans for students, playable lesson notes and diagrams for teachers, all under your school's name.",
   },
   twitter: {
     card: "summary_large_image",
     title: "attunr for music schools: guitar and voice practice between lessons",
-    description: "Daily practice plans for students, playable lesson notes and diagrams for teachers, and a teaching studio for online lessons, under your school's name.",
+    description: "Daily practice plans for students, playable lesson notes and diagrams for teachers, all under your school's name.",
   },
 };
 

@@ -10,21 +10,20 @@ import Glow from "@/components/landing/Glow";
 import GlassShapes from "@/components/landing/GlassShapes";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { BetaBadge, DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
-import { LessonNoteMock, LiveLessonMock } from "@/components/landing/LessonMocks";
+import { LessonNoteMock } from "@/components/landing/LessonMocks";
 import { SoonHeading, StudioSoonCards } from "@/components/landing/StudioSoon";
 import { degreeColour } from "@/features/theory/scales";
 import { Check, IdeasSection, PLAY_TOOLS, PlanDayCard, SkillsSection } from "./PracticeSections";
 
 /*
  * The home page for music schools, at /: the practice core (drills that build muscle memory) plus what a school gets:
- * teaching resources, the notes creator, tools for online lessons and white-labelling. Players' page: /players.
+ * teaching resources, the notes creator and white-labelling. Players' page: /players.
  */
 
 /** What a school gets, one card each, linking down to its section. */
 const OFFER: { icon: IconName; title: string; text: string; href: string; tone: string }[] = [
   { icon: "layers", title: "Interactive teaching resources", text: "Any scale, chord or CAGED shape on screen, and every note plays.", href: "#resources", tone: "bg-amber-500/15 text-amber-300" },
   { icon: "file-text", title: "Notes creator", text: "Today's lesson on one page, sent to the student as a link.", href: "#notes", tone: "bg-teal-500/15 text-teal-300" },
-  { icon: "share-2", title: "Teaching studio", text: "The teacher's camera beside the diagrams, so an online lesson feels like the room.", href: "#online", tone: "bg-sky-500/15 text-sky-300" },
   { icon: "palette", title: "White-labelling", text: "Your name, logo and colours, so students see your school, not ours.", href: "#white-label", tone: "bg-violet-500/15 text-violet-300" },
 ];
 
@@ -160,20 +159,20 @@ export default function SchoolsHome() {
               <span className="ls-accent block italic text-sky-300">keep coming back.</span>
             </h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">
-              Students often quit when they stop hearing progress, and progress happens between lessons. attunr gives each student <Mark>a short practice plan for every day</Mark>, and gives your guitar and voice teachers playable resources, lesson notes and a studio for teaching online. All of it can carry <Mark tone="var(--color-violet-400)">your school&apos;s name</Mark>.
+              Students often quit when they stop hearing progress, and progress happens between lessons. attunr gives each student <Mark>a short practice plan for every day</Mark>, and gives your guitar and voice teachers playable resources and lesson notes. All of it can carry <Mark tone="var(--color-violet-400)">your school&apos;s name</Mark>.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#contact" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300">
                 Talk to us <Icon name="chevron-right" size={16} />
               </a>
-              <Link href="/teachers/studio" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
-                <Icon name="layers" size={16} /> Open the teaching studio
+              <Link href="/demo" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
+                <Icon name="play" size={16} /> See a demo
               </Link>
             </div>
             <span className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
               <span className="size-1.5 rounded-full bg-sky-300" /> Open beta
             </span>
-            <p className="mt-2 max-w-md text-sm text-slate-400">The tools are free to try today, with no sign-up and nothing to install. The teaching studio runs in desktop Chrome or Edge. We agree white-labelling and setup with each school.</p>
+            <p className="mt-2 max-w-md text-sm text-slate-400">The tools are free to try today, with no sign-up and nothing to install. We agree white-labelling and setup with each school.</p>
           </div>
           <div className="landing-rise relative pb-72 sm:pb-56" style={{ animationDelay: "120ms" }}>
             <Photo name="teacherTablet" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 50vw, 100vw" priority />
@@ -185,7 +184,7 @@ export default function SchoolsHome() {
 
         {/* The offer at a glance */}
         <section aria-label="What your school gets" className="pb-12 sm:pb-16">
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {OFFER.map((o) => (
               <li key={o.title}>
                 <a href={o.href} className="ls-card group flex h-full flex-col gap-3 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 transition hover:-translate-y-0.5 hover:border-slate-600">
@@ -307,41 +306,6 @@ export default function SchoolsHome() {
           </div>
         </section>
 
-        {/* Tools for online lessons */}
-        <section id="online" aria-labelledby="online-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
-          <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
-            <div>
-              <Eyebrow>Teaching studio</Eyebrow>
-              <H2 id="online-h">Teach online <span className="ls-accent italic text-sky-300">like you&apos;re in the room.</span></H2>
-              <p className="mt-4 max-w-lg text-slate-300">
-                No more &ldquo;which fret was that?&rdquo; over a blurry webcam. The teaching studio puts the teacher&apos;s camera next to any neck, chord, scale, metronome or drone. Teachers share it in Zoom, Meet or Teams, and <Mark>the student sees exactly what they mean</Mark>.
-              </p>
-              <ul className="mt-6 flex flex-col gap-4">
-                {[
-                  { icon: "layers" as const, t: "Any diagram, in a second", s: "Type / then “A dorian” or “E shape”, and it's on screen in the lesson's key.", c: "bg-sky-500/15 text-sky-300" },
-                  { icon: "mic" as const, t: "The note you play lights up", s: "With a guitar plugged in, every fretboard on screen shows the note the teacher is playing.", c: "bg-rose-500/15 text-rose-300" },
-                  { icon: "share-2" as const, t: "Camera and screen share", s: "The teacher's camera, a song or a score, side by side with the diagrams.", c: "bg-teal-500/15 text-teal-300" },
-                ].map((x) => (
-                  <li key={x.t} className="flex gap-4">
-                    <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${x.c}`}><Icon name={x.icon} size={20} /></span>
-                    <span><b className="block font-semibold text-slate-100">{x.t}</b><span className="text-sm text-slate-400">{x.s}</span></span>
-                  </li>
-                ))}
-              </ul>
-              <Link href="/teachers/studio" className="ls-btn mt-8 inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40">
-                <Icon name="layers" size={16} /> Open the teaching studio
-              </Link>
-              <p className="mt-3 text-xs text-slate-500">The teaching studio runs in desktop Chrome or Edge.</p>
-            </div>
-            <div className="relative pb-40 sm:pb-24">
-              <Photo name="teacherSmile" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 45vw, 100vw" />
-              <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[70%]">
-                <LiveLessonMock />
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* White-labelling */}
         <section id="white-label" aria-labelledby="white-label-h" className="relative isolate scroll-mt-6 sect-rule py-12 sm:py-16">
           <Glow spots={[{ tone: "violet", at: { right: "-8rem", top: "0" }, size: "38rem", strength: 0.18 }]} />
@@ -374,7 +338,7 @@ export default function SchoolsHome() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <a href="#contact" className="ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">Talk to us <Icon name="chevron-right" size={16} /></a>
-            <Link href="/teachers/studio" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400">Open the teaching studio</Link>
+            <Link href="/demo" className="ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400">See a demo</Link>
           </div>
         </section>
 
