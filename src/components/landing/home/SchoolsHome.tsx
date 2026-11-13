@@ -174,9 +174,10 @@ export default function SchoolsHome() {
             </span>
             <p className="mt-2 max-w-md text-sm text-slate-400">The tools are free to try today, with no sign-up and nothing to install. We agree white-labelling and setup with each school.</p>
           </div>
-          <div className="landing-rise relative pb-72 sm:pb-56" style={{ animationDelay: "120ms" }}>
+          <div className="landing-rise relative" style={{ animationDelay: "120ms" }}>
             <Photo name="teacherTablet" className="ls-photo aspect-4/3 rounded-3xl border border-slate-800" sizes="(min-width: 1024px) 50vw, 100vw" priority />
-            <div className="absolute -bottom-2 left-0 w-[88%] sm:-left-6 sm:w-[58%]">
+            {/* in the flow, pulled up over the photo: opening a plan line grows the card downwards, not up over the photo */}
+            <div className="relative -mt-12 w-[88%] sm:-ml-6 sm:-mt-32 sm:w-[58%]">
               <LessonNoteMock compact />
             </div>
           </div>
