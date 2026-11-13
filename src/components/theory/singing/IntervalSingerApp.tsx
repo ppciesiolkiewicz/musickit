@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
-import { Checkbox, Chip, Select } from "@/components/ui";
+import { Checkbox, Chip, Select, SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
 import { DirectionChips } from "@/components/practice/DirectionChips";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { midiToName } from "@/features/sound";
 import { VOICES, savedVoice, type Voice } from "@/features/theory/singing";
+import { AccuracyRow, VolumeRow } from "@/features/settings";
 import { INTERVALS } from "@/lib/chordKit/intervals";
 import { EAR_LEVELS, levelSemis } from "@/lib/practice/earGame";
 import { View as IntervalSinger } from "@/features/exercises/basics/interval-singer";
@@ -18,7 +18,6 @@ import { panel } from "@/components/practice/shared";
 const VOICE_KEY = "singing.range";
 const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
 const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
-const noTonic = () => {};
 
 /**
  * The Sing an interval page: the plan's `interval-singer` tool on its own, with what it asks in the side panel: the
@@ -58,46 +57,43 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   };
 
   const bar = (
-    <ScaleSettingsBar tonicPc={0} onTonic={noTonic} side config={{
-      keys: false,
-      labels: false,
-      pocket: false,
-      rows: <>
-        <BarRow label="Voice">
+    <SettingsSection first>
+        <SettingsRow label="Voice">
           <Select size="sm" value={voice} onChange={pickVoice} aria-label="Voice"
             options={(Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: `${VOICES[v].label} · ${midiToName(VOICES[v].low)}–${midiToName(VOICES[v].high)}` }))} />
-        </BarRow>
-        {standard && <BarRow label="Keys" info="Where Do comes from: only the keys picked, or a random one of all twelve each time.">
+        </SettingsRow>
+        {standard && <SettingsRow label="Keys" info="Where Do comes from: only the keys picked, or a random one of all twelve each time.">
           <KeysSwitch random={random} onRandom={setRandom} />
           {!random && <KeyChips picked={picked} onToggle={(k) => setPicked((ks) => toggleOne(ks, k))} />}
-        </BarRow>}
-        <BarRow label="Direction">
+        </SettingsRow>}
+        <SettingsRow label="Direction">
           <DirectionChips options={INTERVAL_DIRS} value={dir} onChange={setDir} />
-        </BarRow>
-        <BarRow label="Level" info="Each level adds intervals to the ones before. Start with the 5th and octave, then the 3rds that make chords major or minor. Custom lets you pick your own.">
+        </SettingsRow>
+        <SettingsRow label="Level" info="Each level adds intervals to the ones before. Start with the 5th and octave, then the 3rds that make chords major or minor. Custom lets you pick your own.">
           {EAR_LEVELS.map((l) => <Chip key={l.n} on={level === l.n} onClick={() => setLevel(l.n)} title={l.label}>{l.n}</Chip>)}
           <Chip on={level === "custom"} onClick={pickCustom}>Custom</Chip>
-        </BarRow>
-        <BarRow label="Intervals">
+        </SettingsRow>
+        <SettingsRow label="Intervals">
           {ONE_TO_TWELVE.filter((i) => level === "custom" || intervals.includes(i.semis)).map((i) => (
             <Chip key={i.semis} disabled={level !== "custom"} on={intervals.includes(i.semis)} onClick={() => setCustom((c) => toggleOne(c ?? [], i.semis))}
               title={level !== "custom" ? `The ${i.name}: pick Custom to change the set` : intervals.includes(i.semis) ? (intervals.length > 1 ? `Leave out the ${i.name}` : "At least one interval") : `Ask the ${i.name} too`}>{i.short}</Chip>
           ))}
-        </BarRow>
-        {standard && <BarRow label="View">
+        </SettingsRow>
+        {standard && <SettingsRow label="View">
           <LookSwitch look={options.look} onLook={setLook} />
           <Checkbox checked={options.dot} onChange={setDot} title="Off is harder: you sing without seeing your voice">Show my voice</Checkbox>
-        </BarRow>}
-      </>,
-    }} />
+        </SettingsRow>}
+        {standard && <AccuracyRow />}
+        <VolumeRow />
+    </SettingsSection>
   );
 
   return (
-    <WithSettings side bar={bar}>
+    <SettingsPanel settings={bar}>
       {lead}
       <section className={`${panel} mx-auto w-full max-w-3xl`}>
-        <IntervalSinger key={voice} voice={voice} intervals={intervals} dir={dir} options={options} />
+        <IntervalSinger key={voice} voice={voice} intervals={intervals} dir={dir} options={options} hostSettings />
       </section>
-    </WithSettings>
+    </SettingsPanel>
   );
 }

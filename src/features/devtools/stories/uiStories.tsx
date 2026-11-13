@@ -9,6 +9,7 @@ import { useMicPitch, type MicStatus } from "@/components/practice/useMicPitch";
 import { BackingTrack } from "@/features/backing";
 import type { InputChannel } from "@/features/sound";
 import { DEFAULT_DRONE, DroneControls, JamPage, PracticeBand, clampDrone, type BandConfig, type BandView, type DroneParams } from "@/features/instruments";
+import { Chip, SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
 import type { Props, Story } from "./stories";
 
 /*
@@ -72,9 +73,44 @@ function InputChipStory({ live, status, align, mode }: { live: boolean; status: 
   );
 }
 
+function SettingsPanelStory({ side }: { side: boolean }) {
+  const [speed, setSpeed] = useState("Medium");
+  const [tone, setTone] = useState("Hum");
+  const chips = (all: string[], on: string, set: (v: string) => void) => all.map((v) => <Chip key={v} on={v === on} onClick={() => set(v)}>{v}</Chip>);
+  // the bar spans the window on a page; kept inside the story's frame here
+  return (
+    <div className="[&_[data-tour=settings]]:!mx-0">
+    <SettingsPanel side={side} settings={<SettingsSection first>
+      <SettingsRow label="Speed">{chips(["Slow", "Medium", "Fast"], speed, setSpeed)}</SettingsRow>
+      <SettingsRow label="Sound" info="What to hold: a hum, or a vowel.">{chips(["Hum", "Oo", "Ee"], tone, setTone)}</SettingsRow>
+    </SettingsSection>}>
+      <p className="text-sm text-slate-300">The page: {speed}, {tone}.</p>
+    </SettingsPanel>
+    </div>
+  );
+}
+
 const channelOf = (v: unknown): InputChannel => (v === "1" || v === "2" ? v : "both");
 
 export const UI_GROUPS: UiGroup[] = [
+  {
+    id: "settings-panel",
+    title: "SettingsPanel",
+    keywords: ["settings", "panel", "side", "column", "bar", "layout", "row", "section"],
+    doc: {
+      description: "A page with its settings: a column on the right on wide screens, or a bar above the page (the panel-position button in its header moves every page's settings, one choice for the app; below lg and when embedded it is always the bar, folding itself on a phone's first scroll). Layout only: the page composes its rows (SettingsRow, SettingsSection) and the tool sections beside them (tools). Inside the story frame it shows as the bar.",
+      props: [
+        { name: "settings", type: "ReactNode", required: true, description: "The panel body: SettingsRow and SettingsSection, composed by the page." },
+        { name: "tools", type: "ReactNode", required: false, description: "Tool sections beside the settings (the play-along tools, the input line)." },
+        { name: "name", type: "ReactNode", required: false, description: "The headline beside Settings (the key and scale)." },
+        { name: "summary", type: "ReactNode", required: false, description: "The other settings at a glance, SettingsFact tags, while it is a bar." },
+        { name: "criteria", type: "ReactNode", required: false, description: "Rows that pick what the page shows: a box at the top of the page beside a column, at the end of the settings when embedded." },
+        { name: "side", type: "boolean", required: false, description: "May be a column on wide screens (default true); false for a page embedded in another." },
+      ],
+    },
+    stories: [hand("Two rows over a page", { side: false })],
+    render: (props) => <SettingsPanelStory side={props.side === true} />,
+  },
   {
     id: "input-chip",
     title: "InputChip",

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
+import { SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
+import { AccuracyRow, KeyRow, MAX_LAG_MS, MelodyViewRow, PlayAheadRow, PocketSection, ScaleFacts, keyAndScaleName, usePlayAhead } from "@/features/settings";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import Icon from "@/components/Icon";
 import { Button, Hint, HintProvider, Select, Slider } from "@/components/ui";
@@ -9,14 +10,13 @@ import { useCoverage } from "@/features/guide/useCoverage";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
-import { ACCURACIES, VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
+import { VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, RUNS, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { singingQuery, type SingingLink } from "@/features/theory/singingLink";
 import SingingStaff from "./SingingStaff";
 import MelodyFeed from "./MelodyFeed";
-import { DOT_LAG_MS } from "./MelodyStaff";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 import { panel, writeQuery } from "@/components/practice/shared";
 
@@ -30,9 +30,6 @@ const RESTS = [0, 1, 2, 3, 4];
 /** where the voice picked last is kept (once its range, which still reads back) */
 const VOICE_KEY = "singing.range";
 /** where the play-ahead picked last is kept, in ms (a testing knob: how far the bar runs ahead of the voice dot) */
-const LAG_KEY = "singing.lag";
-const MAX_LAG_MS = 1000;
-const savedLag = (v: unknown): number | null => (typeof v === "number" && v >= 0 && v <= MAX_LAG_MS ? v : null);
 /** which singing page: the scale, the melody book or the runs book (each its own page in the Singing menu) */
 export type SingingMode = "scales" | "melodies" | "runs";
 
@@ -58,25 +55,18 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
   const [scale, setScale] = useState(initial.scale);
   const [voice, setVoice] = useState<Voice>("soprano");
   // how close counts as on the note, shared with the singing tools
-  const [cents, pickAccuracy] = useAccuracy();
+  const [cents] = useAccuracy();
   // how far the bar runs ahead of the voice dot on a melody
-  const [lagMs, setLagMs] = useState(DOT_LAG_MS);
+  const [lagMs, pickLag] = usePlayAhead();
   // the last voice and play-ahead come back after hydration; a pick is kept as it is made
   useEffect(() => {
     let saved: Voice | null = null;
-    let lag: number | null = null;
     try {
       saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null"));
-      lag = savedLag(JSON.parse(window.localStorage.getItem(LAG_KEY) ?? "null"));
     } catch { /* storage blocked */ }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved picks after hydration
     if (saved) setVoice(saved);
-    if (lag !== null) setLagMs(lag);
   }, []);
-  const pickLag = (ms: number) => {
-    setLagMs(ms);
-    try { window.localStorage.setItem(LAG_KEY, JSON.stringify(ms)); } catch { /* storage blocked */ }
-  };
   const lagSlider = (
     <>
       <Slider min={0} max={MAX_LAG_MS} step={10} value={lagMs} onChange={pickLag} size="sm" className="w-40" aria-label="Play-ahead" />
@@ -243,41 +233,37 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
     <Select size="sm" value={voice} onChange={pickVoice} aria-label="Voice"
       options={(Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: `${VOICES[v].label} · ${midiToName(VOICES[v].low)}–${midiToName(VOICES[v].high)}` }))} />
   );
-  const accuracySelect = (
-    <Select size="sm" value={cents} onChange={pickAccuracy} aria-label="Accuracy" title="How close to the note counts as on it"
-      options={ACCURACIES.map((a) => ({ value: a.cents, label: `${a.title} · ±${a.cents}¢` }))} />
-  );
   const difficulties = [...levels.map((i) => ({ value: i as number | "all", label: DIFFICULTIES[i].title })), { value: "all" as const, label: "All" }];
 
   return (
     <HintProvider>
     <div className="flex flex-col gap-5">
-      <WithSettings
-        side
-        bar={
-          <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side config={{
-            scale: { slug: scale, onPick: pickScale },
-            ...(tab === "runs" ? { keys: false as const } : {}),
-            labels: false,
-            pocket: { clickAlways: true, onStatus: setPocket },
-            ...(tuneTab ? { filters: (
-              <BarRow label="Difficulty">
+      <SettingsPanel
+        name={keyAndScaleName(tonicPc, scale)}
+        summary={<ScaleFacts labels={false} pocket={pocket} />}
+        settings={<>
+          {tuneTab && (
+            <SettingsSection title="Filter" first>
+              <SettingsRow label="Difficulty">
                 <Select size="sm" value={level} onChange={filter} aria-label="Difficulty" title={level === "all" ? undefined : DIFFICULTIES[level].hint} options={difficulties} />
-              </BarRow>
-            ) } : {}),
-            rows: <>
-              <BarRow label="Voice">{voiceSelect}</BarRow>
-              {/* the tune tools have their own accuracy in their settings dropdown */}
-              {!tuneTab && <BarRow label="Accuracy">{accuracySelect}</BarRow>}
-              {/* the settings of the drill picked, under the ones every drill shares */}
-              {tab === "scales" && (
-                <BarRow label="Top rest">
-                  <Select size="sm" value={rest} onChange={setRest} aria-label="Rest at the top" options={RESTS.map((n) => ({ value: n, label: n === 0 ? "None" : `${n} beat${n > 1 ? "s" : ""}` }))} />
-                </BarRow>
-              )}
-            </>,
-          }} />
-        }
+              </SettingsRow>
+            </SettingsSection>
+          )}
+          <SettingsSection title="Settings" first={!tuneTab}>
+            <KeyRow tonicPc={tonicPc} onTonic={setTonicPc} scale={{ slug: scale, onPick: pickScale }} keys={tab !== "runs"} />
+            <SettingsRow label="Voice">{voiceSelect}</SettingsRow>
+            <AccuracyRow />
+            {tuneTab && <MelodyViewRow />}
+            {tuneTab && <PlayAheadRow />}
+            {/* the settings of the drill picked, under the ones every drill shares */}
+            {tab === "scales" && (
+              <SettingsRow label="Top rest">
+                <Select size="sm" value={rest} onChange={setRest} aria-label="Rest at the top" options={RESTS.map((n) => ({ value: n, label: n === 0 ? "None" : `${n} beat${n > 1 ? "s" : ""}` }))} />
+              </SettingsRow>
+            )}
+          </SettingsSection>
+        </>}
+        tools={<PocketSection keyPc={tonicPc} side clickAlways onStatus={setPocket} />}
       >
         {/* the page's lead-in sits in the content column, so the settings column starts at the top beside it */}
         {lead}
@@ -313,6 +299,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
               cents={cents}
               lagMs={lagMs}
               playAhead={lagSlider}
+              hostSettings
               tapped={tapped}
               onNote={(t, i) => void tapTune(t, i)}
               onPick={(t) => setActive(t.n)}
@@ -335,7 +322,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
             <SingingStaff ladder={ladder} clef={clef} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} />
           )}
         </section>
-      </WithSettings>
+      </SettingsPanel>
     </div>
     </HintProvider>
   );

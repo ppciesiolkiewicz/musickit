@@ -21,7 +21,8 @@ import TuneButton from "./TuneButton";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { Chip, Info, InfoTip, Section, Select } from "@/components/ui";
 import { degreeInfo } from "@/features/theory/degreeInfo";
-import { BarRow, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
+import { SettingsPanel, SettingsRow, SettingsSection, UNDER_PANEL } from "@/components/ui";
+import { KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocketStatus } from "@/features/settings";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 
 const LANE_COLOURS = ["#f43f5e", "#c084fc", "#facc15", "#4ade80", "#60a5fa"];
@@ -42,35 +43,29 @@ export default function CagedExplorer({ initialRoot = DEFAULT_KEY_PC, initialQua
   const [badges, setBadges] = useState(true);
   const [selected, setSelected] = useState<number | null>(null);
 
-  const th = CAGED_THEORY[quality];
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
   const boxes = useMemo(() => cagedBoxes(rootPc, quality), [rootPc, quality]);
   const notes = useMemo(() => layerNotes(rootPc, quality, arpKind), [rootPc, quality, arpKind]);
   const keyName = ctx.names[0];
 
   const criteria = (
-    <BarRow label="Arpeggio" info="Triad uses the three notes of the chord (root, 3rd, 5th). 7th adds the seventh, giving a maj7 chord in major or m7 in minor.">
+    <SettingsRow label="Arpeggio" info="Triad uses the three notes of the chord (root, 3rd, 5th). 7th adds the seventh, giving a maj7 chord in major or m7 in minor.">
       <Chip on={arpKind === "triad"} onClick={() => setArpKind("triad")}>Triad</Chip>
       <Chip on={arpKind === "seventh"} onClick={() => setArpKind("seventh")}>{quality === "major" ? "Maj7" : "Min7"}</Chip>
-    </BarRow>
+    </SettingsRow>
   );
-  const bar = (
-    <ScaleSettingsBar tonicPc={rootPc} onTonic={setRootPc} side={side} config={{
-      scale: {
-        name: quality === "major" ? "major" : "minor",
-        picker: (
-          <Select size="sm" className="mr-1" value={quality} onChange={setQuality} aria-label="Major or minor"
-            options={[{ value: "major" as const, label: "Major" }, { value: "minor" as const, label: "Minor" }]} />
-        ),
-      },
-      // interval badges on the note-name dots are a labelling choice, so they stay with the labels
-      labels: { extra: <Chip on={badges && labelSystem === "note"} onClick={() => setBadges((v) => !v)} title="With note names as labels, a badge on each dot gives its interval from the root">Interval badges</Chip> },
-      rows: side ? undefined : criteria,
-    }} />
+  const [pocket, onPocket] = usePocketStatus();
+  const qualityPicker = (
+    <Select size="sm" className="mr-1" value={quality} onChange={setQuality} aria-label="Major or minor"
+      options={[{ value: "major" as const, label: "Major" }, { value: "minor" as const, label: "Minor" }]} />
   );
+  // interval badges on the note-name dots are a labelling choice, so they stay with the labels
+  const badgeChip = <Chip on={badges && labelSystem === "note"} onClick={() => setBadges((v) => !v)} title="With note names as labels, a badge on each dot gives its interval from the root">Interval badges</Chip>;
 
   return (
-    <WithSettings side={side} criteria={criteria} bar={bar}>
+    <SettingsPanel side={side} criteria={criteria} name={keyAndScaleName(rootPc, undefined, quality === "major" ? "major" : "minor")} summary={<ScaleFacts pocket={pocket} />}
+      settings={<SettingsSection title="Settings" first><KeyRow tonicPc={rootPc} onTonic={setRootPc} scale={{ picker: qualityPicker }} /><LabelsRow extra={badgeChip} /></SettingsSection>}
+      tools={<PocketSection keyPc={rootPc} side={side} onStatus={onPocket} />}>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
         <DegreeLegend />
         <Info label="What is the CAGED system?">
@@ -90,7 +85,7 @@ export default function CagedExplorer({ initialRoot = DEFAULT_KEY_PC, initialQua
         ))}
       </div>
       {children}
-    </WithSettings>
+    </SettingsPanel>
   );
 }
 
@@ -314,7 +309,7 @@ function BoxCard({ box, index, rootPc, quality, arpKind, labelSystem, badges, no
   const fretText = `frets ${box.from}–${box.to}`;
 
   return (
-    <section id={`box-${box.letter}`} data-tour={index === 0 ? "caged-box" : undefined} className={`bleed ${UNDER_BAR}`}>
+    <section id={`box-${box.letter}`} data-tour={index === 0 ? "caged-box" : undefined} className={`bleed ${UNDER_PANEL}`}>
       <Section
         lead={<>
           <span className="inline-block rounded px-1.5 text-base font-medium" style={{ background: LANE_COLOURS[index % 5], color: DOT_INK }}>{box.letter}</span>

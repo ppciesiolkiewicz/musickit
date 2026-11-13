@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
+import { SettingsPanel, SettingsSection } from "@/components/ui";
+import { VolumeRow } from "@/features/settings";
 import Lesson from "@/components/theory/Lesson";
 import { JamPage } from "@/features/instruments";
 import WireNam from "@/components/WireNam";
@@ -14,14 +16,18 @@ export default function MetronomeDronePage() {
   return (
     <PageShell
       active="/theory/metronome-drone"
+      full
       pageId="metronome-drone"
       tour={METRONOME_DRONE_TOUR}
       title="Metronome & drone"
       intro="Practise to a click or a held note. Play a scale to the click, or hold one note and play a scale, a mode or an arpeggio against it: every mode sounds different over its own root. Add drums and a bass in the drone's key if you want a band."
     >
+      {/* the tool keeps its own tempo, key and style: the panel holds the app's volume */}
+      <SettingsPanel settings={<SettingsSection first><VolumeRow /></SettingsSection>}>
       <Lesson course="9/modes-over-drone" why="A drone fixes the root so you can hear how every other note relates to it; it is the quickest way to feel the colour of a mode." tryThis="Start the drone on D and play D Dorian slowly. Stop on the 6th (B) and listen to how it brightens the minor sound." />
       <WireNam />
       <JamPage />
+      </SettingsPanel>
     </PageShell>
   );
 }

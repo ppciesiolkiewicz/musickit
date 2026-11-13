@@ -12,6 +12,7 @@ import TunerMeter from "./TunerMeter";
 import { useTunerChoice } from "./useTunerChoice";
 import { playReference } from "./reference";
 import TunerSettings, { label } from "./TunerSettings";
+import { SettingsPanel, SettingsSection } from "@/components/ui";
 import { migrateOldInput, openTunerInput, type TunerInput } from "./listen";
 
 const STORE = "musickit.tuner";
@@ -35,7 +36,7 @@ export interface ExternalInput {
  */
 export default function Tuner({ external, guide = false }: {
   external?: ExternalInput;
-  /** on the tuner page: the reference pitch is a Standard control, and while it is hidden the tuner reads at A4 = 440 Hz */
+  /** on the tuner page: the setup is the page's settings panel; the reference pitch is a Standard control, and while it is hidden the tuner reads at A4 = 440 Hz */
   guide?: boolean;
 } = {}) {
   const [status, setStatus] = useState<MicStatus>("off");
@@ -107,9 +108,7 @@ export default function Tuner({ external, guide = false }: {
 
   const signed = (c: number) => `${Math.round(c) > 0 ? "+" : ""}${Math.round(c) || 0}`;
 
-  return (
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(18rem,22rem)_1fr]">
-      {/* the meter first on a phone, beside the setup on a wide screen */}
+  const meter = (
       <section aria-label="Meter" data-tour="tuner-meter" className="flex flex-col items-center gap-5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-6 sm:px-8 sm:py-8 lg:order-2">
         <TunerMeter hz={hz} read={read} idle={(
           <>
@@ -140,15 +139,23 @@ export default function Tuner({ external, guide = false }: {
         </button>
         {error && <p role="alert" className="text-center text-xs text-rose-300">{error}</p>}
       </section>
+  );
+  const setup = <>
+    {/* hidden, a change keeps the saved A4 for when it shows again */}
+    <TunerSettings choice={choice} onChange={(c) => setChoice(showA4 ? c : { ...c, a4: saved.a4 })} noA4={!showA4} />
+    {!external && <div data-tour="tuner-input" className="flex flex-col items-start gap-1.5">
+      <span className={label}>Input</span>
+      <InputChip quiet status={status} mic={{ on: running, onToggle: running ? stop : () => void start() }} />
+    </div>}
+  </>;
 
-      <aside aria-label="Setup" className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 lg:order-1">
-        {/* hidden, a change keeps the saved A4 for when it shows again */}
-        <TunerSettings choice={choice} onChange={(c) => setChoice(showA4 ? c : { ...c, a4: saved.a4 })} noA4={!showA4} />
-        {!external && <div data-tour="tuner-input" className="flex flex-col items-start gap-1.5">
-          <span className={label}>Input</span>
-          <InputChip quiet status={status} mic={{ on: running, onToggle: running ? stop : () => void start() }} />
-        </div>}
-      </aside>
+  // on the tuner page the setup is the page's settings panel, folded on a phone so the meter comes first
+  if (guide) return <SettingsPanel foldOnPhone settings={<SettingsSection first><div className="flex flex-col gap-4">{setup}</div></SettingsSection>}>{meter}</SettingsPanel>;
+  return (
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(18rem,22rem)_1fr]">
+      {/* the meter first on a phone, beside the setup on a wide screen */}
+      {meter}
+      <aside aria-label="Setup" className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 lg:order-1">{setup}</aside>
     </div>
   );
 }

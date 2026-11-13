@@ -22,7 +22,7 @@ function writeQ(v: string) {
 }
 
 /** The key-free explorer: open chords and every movable shape, once, with search. `syncUrl` keeps the search in ?q= (off where several explorers share a page). */
-export default function ShapesTab({ syncUrl = true }: { syncUrl?: boolean }) {
+export default function ShapesTab({ syncUrl = true, labels = true }: { syncUrl?: boolean; /** false: the page holds the labels in its settings panel */ labels?: boolean }) {
   const urlQ = useSyncExternalStore(subscribe, readQ, () => "");
   const [localQ, setLocalQ] = useState("");
   const q = syncUrl ? urlQ : localQ;
@@ -47,6 +47,7 @@ export default function ShapesTab({ syncUrl = true }: { syncUrl?: boolean }) {
           <ChordSearchResults rootPc={chord.rootPc} semis={chord.semis} name={chordLabel(q)} />
         ) : (
           <ShapeBrowser
+            labels={labels}
             entries={entries}
             emptyHint={q.trim() ? `Nothing matches “${q.trim()}”. Try a chord name such as Am7, or a word such as shell, funk or open.` : undefined}
             header={<p className="text-xs text-slate-400">Open chords first, then every movable shape, drawn once. Slide a movable shape&rsquo;s root fret, tap a diagram to hear it, tap tags to filter.</p>}

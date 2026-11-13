@@ -1,8 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Chip, ChipRow } from "@/components/ui";
-import { BarRow } from "@/components/chordKit/ScaleSettings";
+import { Chip, DropdownSection, SettingsRow } from "@/components/ui";
 import type { VoiceHillProps } from "./voice-hill.props";
 
 export type HillPlace = NonNullable<VoiceHillProps["where"]>;
@@ -23,15 +22,16 @@ const SOUNDS: { id: HillSoundChoice; label: string }[] = [
 
 /**
  * The hill's choices (Place, Sound) for a page that holds them. `look` says where they are drawn: "bar" as rows of a
- * settings bar or side column (`ScaleSettingsBar`'s `rows`), "rows" as labelled chip rows in the page.
+ * page's `SettingsPanel`, "menu" as sections of a sliders button.
  */
 export function HillSettings({ place, onPlace, sound, onSound, look = "bar" }: {
   place: HillPlace; onPlace: (p: HillPlace) => void;
   sound: HillSoundChoice; onSound: (s: HillSoundChoice) => void;
-  look?: "bar" | "rows";
+  look?: "bar" | "menu";
 }) {
-  const Row = look === "bar" ? BarRow : ChipRow;
-  const row = (label: string, chips: ReactNode) => <Row label={label}>{chips}</Row>;
+  const row = (label: string, chips: ReactNode) => look === "bar"
+    ? <SettingsRow label={label}>{chips}</SettingsRow>
+    : <DropdownSection title={label}><div className="flex flex-wrap gap-1.5">{chips}</div></DropdownSection>;
   return (
     <>
       {row("Place", HILL_PLACES.map((x) => <Chip key={x.id} on={x.id === place} onClick={() => onPlace(x.id)} title={x.title}>{x.label}</Chip>))}

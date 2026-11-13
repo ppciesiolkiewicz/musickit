@@ -4,7 +4,9 @@ import { fmtDegree, intervalName, scaleToneCaption, scaleToneLabel, solfege, typ
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ColourKey, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
+import { ColourKey } from "./ScaleParts";
+import { SettingsPanel, SettingsSection, UNDER_PANEL } from "@/components/ui";
+import { HeardNoteProvider, InputSection, KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocketStatus } from "@/features/settings";
 import KeySignature from "@/components/theory/KeySignature";
 import { MODE_PAGES, degreeColour, DOT_INK } from "@/features/theory/scales";
 import { ORDINALS } from "@/features/theory/theory";
@@ -102,13 +104,17 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
   const { tap, playScale, playTune } = pentatonicSounds(p, player);
   const activeTone = p.tones.findIndex((t) => t.key === player.active);
 
+  const [pocket, onPocket] = usePocketStatus();
   return (
-    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={syncUrl} config={{ scale: syncUrl ? { slug } : undefined, input: true }} />}>
+    <HeardNoteProvider>
+    <SettingsPanel side={syncUrl} name={keyAndScaleName(tonicPc, syncUrl ? slug : undefined)} summary={<ScaleFacts pocket={pocket} />}
+      settings={<SettingsSection title="Settings" first><KeyRow tonicPc={tonicPc} onTonic={setTonicPc} scale={syncUrl ? { slug } : undefined} /><LabelsRow /></SettingsSection>}
+      tools={<PocketSection keyPc={tonicPc} side={syncUrl} onStatus={onPocket} lines={<InputSection />} />}>
       <ColourKey>
         Colour shows the job a note does in the key, not how high it is. A pentatonic keeps the numbers of the seven-note scale it is cut from, so its 5th is the blue 5th even though it is the 4th note it plays. The 1st degree (home) is white, the 3rd amber, the 5th blue and the 7th rose; the 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree.
       </ColourKey>
 
-      <div id="scale-notes" className={`grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_BAR}`}>
+      <div id="scale-notes" className={`grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_PANEL}`}>
         <div className="flex min-w-0 flex-col gap-3">
           <h2 className="text-2xl font-light tracking-wide text-slate-100">
             {p.title}
@@ -175,6 +181,7 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
         player={player}
         only={{ pent: { name: p.title, degrees: p.degrees, formula: p.formula }, positions: guitar.positions, boxes: guitar.boxes, title: p.title, names: p.names, extra }}
       />
-    </WithSettings>
+    </SettingsPanel>
+    </HeardNoteProvider>
   );
 }

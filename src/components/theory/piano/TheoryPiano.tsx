@@ -1,14 +1,20 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Piano, type PianoKeyInfo } from "@/features/sound";
 import { PIANO_SCALES, makeKey, spellNote, type ScaleId } from "@/features/theory/piano/key";
+import { VolumeRow } from "@/features/settings";
 import { emptyTrail, press, release } from "@/features/theory/piano/trail";
 import GrandStaff from "./GrandStaff";
-import { Select } from "@/components/ui";
+import { SettingsPanel, SettingsSection } from "@/components/ui";
+import { PianoSettings } from "./PianoSettings";
 
-/** The theory piano: pick a key, play, and watch the staff name every note, interval and chord in that key. */
-export default function TheoryPiano() {
+/**
+ * The theory piano: pick a key, play, and watch the staff name every note, interval and chord in that key. The key, scale
+ * and volume sit in the page's settings panel; `lead` and `children` are the page's text before and after the piano, so
+ * the panel runs beside all of it.
+ */
+export default function TheoryPiano({ lead, children }: { lead?: ReactNode; children?: ReactNode }) {
   const [tonicPc, setTonicPc] = useState(0);
   const [scale, setScale] = useState<ScaleId>("major");
   const [trail, setTrail] = useState(emptyTrail);
@@ -27,19 +33,21 @@ export default function TheoryPiano() {
     setTrail(emptyTrail);
   };
 
-  return (
-    <div className="flex flex-col gap-3">
-      <div data-tour="piano-key" className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
-        <label className="flex items-center gap-1.5 text-xs text-slate-400">
-          Key
-          <Select value={tonicPc} onChange={(pc) => changeKey(pc, scale)} aria-label="Key" options={Array.from({ length: 12 }, (_, pc) => ({ value: pc, label: makeKey(pc, scale).tonic }))} />
-        </label>
-        <Select value={scale} onChange={(s) => changeKey(tonicPc, s)} aria-label="Scale" options={PIANO_SCALES.map((s) => ({ value: s.id, label: s.name }))} />
-        <span className="text-sm text-slate-300">{key.tonic} {PIANO_SCALES.find((s) => s.id === scale)?.name.toLowerCase()}</span>
-        <button type="button" onClick={() => setTrail(emptyTrail)} className="ml-auto rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Clear staff</button>
+  const settings = (
+    <SettingsSection first>
+      <div data-tour="piano-key" className="flex flex-col gap-2">
+        <PianoSettings tonicPc={tonicPc} scale={scale} onChange={changeKey} />
       </div>
+      <VolumeRow />
+    </SettingsSection>
+  );
 
-      <div data-tour="piano-staff" className="mx-auto w-full max-w-3xl rounded-2xl border border-slate-800 bg-slate-950/60 p-2">
+  return (
+    <SettingsPanel name={`${key.tonic} ${PIANO_SCALES.find((s) => s.id === scale)?.name.toLowerCase()}`} settings={settings}>
+    {lead}
+    <div className="flex flex-col gap-3">
+      <div data-tour="piano-staff" className="mx-auto flex w-full max-w-3xl flex-col gap-1 rounded-2xl border border-slate-800 bg-slate-950/60 p-2">
+        <button type="button" onClick={() => setTrail(emptyTrail)} className="self-end rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-slate-500">Clear staff</button>
         <GrandStaff steps={trail.steps} signature={key.signature} tonic={key.tonic} numerals={scale !== "chromatic"} />
       </div>
 
@@ -51,5 +59,7 @@ export default function TheoryPiano() {
         />
       </div>
     </div>
+    {children}
+    </SettingsPanel>
   );
 }

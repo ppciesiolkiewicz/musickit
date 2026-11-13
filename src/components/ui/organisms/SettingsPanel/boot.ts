@@ -1,11 +1,16 @@
 /**
  * Where a page's settings sit on wide screens: in a column on the right ("side", the default) or above the page ("top").
  * One choice for the whole app, kept in localStorage and mirrored on <html> as `data-settings="top"`, so CSS (the `side`
- * variant in globals.css) lays the page out before it paints.
+ * variant in globals.css) lays the page out before it paints. No React here: the root layout (a server component) imports it.
  */
 export type SettingsPlace = "side" | "top";
 
 export const SETTINGS_PLACE_KEY = "musickit.settingsPlace";
+
+/** The place a stored value means; anything but "top" is the default. */
+export function readSettingsPlace(stored: string | null): SettingsPlace {
+  return stored === "top" ? "top" : "side";
+}
 
 /** Run in <head> before paint: puts the saved place on <html>. */
 export const SETTINGS_BOOT = `try{if(localStorage.getItem("${SETTINGS_PLACE_KEY}")==="top")document.documentElement.dataset.settings="top"}catch(e){}`;

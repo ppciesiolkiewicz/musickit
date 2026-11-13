@@ -8,7 +8,7 @@ export const SINGING_TOUR: TourStep[] = [
     text: "Why singing a scale helps your playing, one thing to try, and the course lesson about it.",
   },
   {
-    target: "scale-settings",
+    target: "settings",
     title: "Key, scale and voice",
     text: "Pick the key and scale, then your voice type so the notes sit where you can sing them.",
   },

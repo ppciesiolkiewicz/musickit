@@ -13,11 +13,17 @@ import { DEFAULT_KEY_PC } from "@/features/theory/theory";
 import { scaleHref } from "@/features/theory/keySlug";
 import { Chip, Info, Section } from "@/components/ui";
 
-/** Pick a key and mode; see every shape that plays a chord of that key, grouped by shape. */
-export default function KeyTab({ initialTonic = DEFAULT_KEY_PC, initialFamily = 0, initialMode = 0 }: { initialTonic?: number; initialFamily?: number; initialMode?: number } = {}) {
-  const [tonicPc, setTonicPc] = useState(initialTonic);
-  const [fam, setFam] = useState(initialFamily);
-  const [mode, setMode] = useState(initialMode);
+/** A key and mode: the tonic, the scale family and the mode in it. */
+export type ChordKey = { tonicPc: number; family: number; mode: number };
+export const DEFAULT_CHORD_KEY: ChordKey = { tonicPc: DEFAULT_KEY_PC, family: 0, mode: 0 };
+
+/**
+ * See every shape that plays a chord of the key, grouped by shape. The key is the host's (`chordKey`, `onKey`); with
+ * `pickers` the key and mode pickers and the labels sit on the tab, without them the host puts them in its settings panel. A new
+ * family or mode clears the chord picked in the strip (the host remounts the tab with a key on them).
+ */
+export default function KeyTab({ chordKey, onKey, pickers = true }: { chordKey: ChordKey; onKey: (k: ChordKey) => void; pickers?: boolean }) {
+  const { tonicPc, family: fam, mode } = chordKey;
   const [degree, setDegree] = useState<string | null>(null);
 
   const ctx = useMemo(() => makeKeyContext(tonicPc, fam, mode), [tonicPc, fam, mode]);
@@ -29,13 +35,14 @@ export default function KeyTab({ initialTonic = DEFAULT_KEY_PC, initialFamily = 
 
   return (
     <ShapeBrowser
+      labels={pickers}
       entries={entries}
       ctx={ctx}
       forcedTags={degree ? ["d:" + degree] : []}
       header={
         <>
-          <KeyPicker tonicPc={tonicPc} onTonic={setTonicPc} />
-          <ModePicker familyIndex={fam} modeIndex={mode} onChange={(f, m) => { setFam(f); setMode(m); setDegree(null); }} />
+          {pickers && <KeyPicker tonicPc={tonicPc} onTonic={(pc) => onKey({ ...chordKey, tonicPc: pc })} />}
+          {pickers && <ModePicker familyIndex={fam} modeIndex={mode} onChange={(f, m) => onKey({ tonicPc, family: f, mode: m })} />}
           <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-3 text-xs leading-relaxed text-slate-300">
             <div className="mb-1 text-sm font-medium text-slate-100">
               {ctx.names[0]} {ctx.modeName} <span className="font-normal text-slate-500">· {ctx.names.join(" ")}</span>

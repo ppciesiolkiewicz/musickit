@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { GameChoice } from "@/components/practice/shared";
 import Lesson from "@/components/theory/Lesson";
-import { Select } from "@/components/ui";
-import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
+import { Select, SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
 import { midiToName } from "@/features/sound";
 import { View as LipRoll } from "@/features/exercises/basics/lip-roll";
 import type { LipRollPlay, LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
@@ -12,8 +11,8 @@ import { LipRollSettings, type LipRollShape } from "@/features/exercises/basics/
 import { View as VoiceHill } from "@/features/exercises/basics/voice-hill";
 import { HILL_PLACES, HillSettings, type HillPlace, type HillSoundChoice } from "@/features/exercises/basics/voice-hill/settings";
 import { VOICES, type Voice } from "@/features/theory/singing";
+import { VolumeRow } from "@/features/settings";
 
-const noTonic = () => {};
 
 type Kind = "lip-roll" | "voice-hill";
 
@@ -59,22 +58,18 @@ export default function WarmUpsApp() {
   const [speed, setSpeed] = useState<LipRollSpeed>("medium");
   const h = HILL_PLACES.find((x) => x.id === place)!;
   const bar = (
-    <ScaleSettingsBar tonicPc={0} onTonic={noTonic} side config={{
-      keys: false,
-      labels: false,
-      pocket: false,
-      rows: <>
-        <BarRow label="Voice">
+    <SettingsSection first>
+        <SettingsRow label="Voice">
           <Select size="sm" value={voice} onChange={setVoice} options={VOICE_OPTIONS} aria-label="Voice" />
-        </BarRow>
+        </SettingsRow>
         {kind === "lip-roll"
           ? <LipRollSettings shape={shape} onShape={setShape} play={play} onPlay={setPlay} speed={speed} onSpeed={setSpeed} />
           : <HillSettings place={place} onPlace={setPlace} sound={sound} onSound={setSound} />}
-      </>,
-    }} />
+        <VolumeRow />
+    </SettingsSection>
   );
   return (
-    <WithSettings side bar={bar}>
+    <SettingsPanel settings={bar}>
       <div>
         <Lesson course="3/breath-and-holding-a-note" why={LESSON.why} tryThis={LESSON.tryThis} />
         <div data-tour="warm-ups-kind" className="mb-3"><GameChoice label="What to practise" options={KINDS} value={kind} onChange={setKind} tone="sky" /></div>
@@ -83,10 +78,10 @@ export default function WarmUpsApp() {
         </div>
         <div className="mx-auto w-full max-w-2xl">
           {kind === "lip-roll"
-            ? <LipRoll shape={shape} play={play} speed={speed} voice={voice} controls={false} />
-            : <VoiceHill {...h.props} sound={sound} voice={voice} />}
+            ? <LipRoll shape={shape} play={play} speed={speed} voice={voice} hostSettings />
+            : <VoiceHill {...h.props} sound={sound} voice={voice} hostSettings />}
         </div>
       </div>
-    </WithSettings>
+    </SettingsPanel>
   );
 }

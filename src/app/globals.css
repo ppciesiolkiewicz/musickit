@@ -13,8 +13,8 @@
 }
 
 /*
- * A page's settings as a column on the right (`WithSettings` with `side`): `lg` and up, unless the player moved the
- * settings above the page (`data-settings="top"` on <html>, set by SETTINGS_BOOT and the panel's Move above button).
+ * A page's settings as a column on the right (`SettingsPanel` with `side`): `lg` and up, unless the player moved the
+ * settings above the page (`data-settings="top"` on <html>, set by SETTINGS_BOOT and the panel-position button).
  */
 @custom-variant side {
   @media (min-width: 64rem) {

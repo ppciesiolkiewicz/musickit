@@ -10,7 +10,7 @@ import { devUi } from "@/features/devtools/gate";
 import QuickRecord from "@/features/recorder/QuickRecord";
 import Spotlight from "@/features/search/Spotlight";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
-import { SETTINGS_BOOT } from "@/components/chordKit/settingsBoot";
+import { SETTINGS_BOOT } from "@/components/ui";
 import { SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({

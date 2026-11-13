@@ -18,7 +18,7 @@ const PAGE = 6;
  * one picked last (the address keeps it); a press anywhere on a card picks it. Full screen is the active card's own player
  * drawn over the page, so a tune playing plays on as it opens and closes; stepping to a tune not drawn yet draws it.
  */
-export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, beatMs, bpm, active, listen, cents, lagMs, playAhead, tapped, onNote, onPick, onFocus, full, onClose, nav, fullSettings, linkTo, reveal }: {
+export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, beatMs, bpm, active, listen, cents, lagMs, playAhead, tapped, onNote, onPick, onFocus, full, onClose, nav, fullSettings, linkTo, reveal, hostSettings = false }: {
   tunes: BookTune[];
   place: (t: BookTune) => PlacedNote[];
   /** the chords under a tune, named over its staff */
@@ -37,6 +37,8 @@ export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, bea
   lagMs: number;
   /** the play-ahead slider for each card's player */
   playAhead?: ReactNode;
+  /** the page holds accuracy, melody view and play-ahead in its settings panel; a tune open full screen still has its own */
+  hostSettings?: boolean;
   tapped: { n: number; i: number } | null;
   onNote: (t: BookTune, i: number) => void;
   onPick: (t: BookTune) => void;
@@ -112,7 +114,8 @@ export default function MelodyFeed({ tunes, place, chordsOf, ladderOf, clef, bea
                   nav={open ? nav : undefined}
                   settings={open ? fullSettings : undefined}
                   tools={<ShareButton link={() => linkTo(t)} />}
-                  playAhead={playAhead}
+                  playAhead={hostSettings && !open ? undefined : playAhead}
+                  hostSettings={hostSettings && !open}
                 />
               </div>
             </li>

@@ -19,8 +19,8 @@ const COLUMN = "mx-auto w-full max-w-[51rem]";
  * Dark page frame with the attunr nav, the page title and the site footer, shared by every page but the looper and the studio.
  * Pages are 80rem wide with room at the sides; `wide` keeps the full 96rem for tools that fill the screen (the cheatsheet),
  * and `full` spans the whole window (the scales pages, whose settings column sits on the right edge). `full` is only for
- * a page with a settings column (`WithSettings` with `side`, or the studio's panel): without one the page runs edge to edge.
- * With the settings moved above the page (settingsPlace.ts), a `full` page holding `WithSettings` narrows back to 80rem.
+ * a page with a settings column (`SettingsPanel`, or the studio's panel): without one the page runs edge to edge.
+ * With the settings moved above the page (the panel-position button), a `full` page holding a `SettingsPanel` narrows back to 80rem.
  * Necks and other wide pieces reach back out with the `bleed` utility. `devices` puts the audio input and output picker in the nav,
  * for pages that listen or play. `centered` puts the title, intro and content in the middle, for a page that is one small
  * form (log in, create account). `column` keeps the title and content to one reading column in the middle (the plan, whose

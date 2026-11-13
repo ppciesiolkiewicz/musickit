@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
+import { SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
+import { KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocketStatus } from "@/features/settings";
 import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, chordShapesOf, nearbyFourthFifth, triadVoicings, type StringGroup, type TriadQuality, type TriadVoicing } from "@/lib/chordKit/triads";
 import { GROUP_SWATCH, swatchFor } from "./palette";
 import { useHeardNote } from "./heardNote";
@@ -93,21 +94,19 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
     setTimeout(() => setPlaying((p) => (p === id ? null : p)), 600);
   };
 
+  const [pocket, onPocket] = usePocketStatus();
   const criteria = <>
-    <BarRow label="Triad" info="A triad is three notes stacked in thirds. Major is root, major 3rd, 5th. Minor lowers the 3rd. Diminished lowers the 3rd and the 5th. Augmented raises the 5th.">
+    <SettingsRow label="Triad" info="A triad is three notes stacked in thirds. Major is root, major 3rd, 5th. Minor lowers the 3rd. Diminished lowers the 3rd and the 5th. Augmented raises the 5th.">
       {TRIAD_QUALITIES.map((t) => <Chip key={t.id} on={t.id === quality} onClick={() => setQuality(t.id)}>{t.label}</Chip>)}
-    </BarRow>
-    <BarRow label="Strings" info="Which three neighbouring strings the triad is played on. Pick several to compare. The 3-2-1 group is the brightest, 6-5-4 the deepest. The other strings are not played.">
+    </SettingsRow>
+    <SettingsRow label="Strings" info="Which three neighbouring strings the triad is played on. Pick several to compare. The 3-2-1 group is the brightest, 6-5-4 the deepest. The other strings are not played.">
       {STRING_GROUPS.map((g) => <Chip key={g.id} on={groupIds.includes(g.id)} onClick={() => toggleGroup(g.id)}>{g.label}</Chip>)}
-    </BarRow>
+    </SettingsRow>
   </>;
   return (
-    <WithSettings side={side} criteria={criteria} bar={
-      <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={side} config={{
-        labels: { extra: <RootSelect /> },
-        rows: side ? undefined : criteria,
-      }} />
-    }>
+    <SettingsPanel side={side} criteria={criteria} name={keyAndScaleName(tonicPc)} summary={<ScaleFacts pocket={pocket} />}
+      settings={<SettingsSection title="Settings" first><KeyRow tonicPc={tonicPc} onTonic={setTonicPc} /><LabelsRow extra={<RootSelect />} /></SettingsSection>}
+      tools={<PocketSection keyPc={tonicPc} side={side} onStatus={onPocket} />}>
         <p className="px-1 text-xs text-slate-400">
           Showing <b className="text-slate-200">{chordName}</b> ({q.labels.join(" ")}) in every closed voicing on the chosen string groups.
           <Info label="What is a string group?">
@@ -186,6 +185,6 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
           ))}
         </div>
       </section>
-    </WithSettings>
+    </SettingsPanel>
   );
 }

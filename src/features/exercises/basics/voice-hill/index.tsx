@@ -68,7 +68,10 @@ type Hold = "held" | "skipped";
  * The hill (`voice-hill.props.ts`): a ball on a slope or in a valley follows the voice from the mic, and a ring round it
  * fills while the voice stays in the lit place. Each full ring is one hold; a short breath and the next one starts.
  */
-export function View({ where = "low", sound = "hum", seconds: secondsProp, reps: repsProp, voice: own = "tenor" }: VoiceHillProps) {
+export function View({ where = "low", sound = "hum", seconds: secondsProp, reps: repsProp, voice: own = "tenor", hostSettings = false }: VoiceHillProps & {
+  /** the page holds the volume in its settings panel: no volume on the tool */
+  hostSettings?: boolean;
+}) {
   useCoverage({ hints: 2 });
   const voice = useVoice(own);
   const range = VOICES[voice] ?? VOICES.tenor;
@@ -236,7 +239,7 @@ export function View({ where = "low", sound = "hum", seconds: secondsProp, reps:
   return (
     <PlayerCard ref={keysRef}>
       <div data-tour="hill-start">
-      <WarmUpBar {...actions} armed={armed} skip="the next hold" what="Plays the note, then the mic listens while you hold your sound.">
+      <WarmUpBar {...actions} armed={armed} hostSettings={hostSettings} skip="the next hold" what="Plays the note, then the mic listens while you hold your sound.">
         <span data-tour="hill-mic" className="inline-flex">
           <Hint title="Audio input" description="The input the mic uses. Start switches it on: the dot turns from amber to green. Press it to pick another input or see its level.">
             <InputChip quiet status={micStatus} mic={{ on: micOn, onToggle: () => (running ? stop() : void start()) }} />

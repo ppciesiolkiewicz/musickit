@@ -10,12 +10,12 @@ export const PIANO_TOUR: TourStep[] = [
   {
     target: "piano-key",
     title: "Key",
-    text: "Pick the key and scale. Clear staff starts the staff over.",
+    text: "Pick the key and scale here. Every note on the staff is named in it.",
   },
   {
     target: "piano-staff",
     title: "The staff",
-    text: "Each note you play appears here with its scale degree and the interval from the note before. Play notes together and it names the chord.",
+    text: "Each note you play appears here with its scale degree and the interval from the note before. Play notes together and it names the chord. Clear staff starts it over.",
   },
   {
     target: "piano-keys",

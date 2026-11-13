@@ -1,1 +1,1 @@
-export { Tour, type TourStep } from "./Tour";
+export { Tour, TOUR_REVEAL, type TourStep } from "./Tour";

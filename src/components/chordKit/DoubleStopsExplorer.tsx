@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
+import { SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
+import { KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocketStatus } from "@/features/settings";
 import { useHeardNote } from "./heardNote";
 import { strum } from "@/lib/chordKit/playback";
 import { DYAD_STEPS, diatonicDyads, type Dyad, type DyadInterval } from "@/lib/chordKit/scaleChords";
@@ -182,22 +183,20 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
   const lower = STRING_NAMES[strings[0]];
 
   const criteria = <>
-    <BarRow label="Interval" info="Each double stop is two notes of the scale. 5ths are four scale notes apart: the root and 5th of a chord, a power chord in its smallest form. In 3rds the top note is two scale notes up, on the next string. 6ths are the same two notes turned upside down, so they skip a string. 4ths are three scale notes up.">
+    <SettingsRow label="Interval" info="Each double stop is two notes of the scale. 5ths are four scale notes apart: the root and 5th of a chord, a power chord in its smallest form. In 3rds the top note is two scale notes up, on the next string. 6ths are the same two notes turned upside down, so they skip a string. 4ths are three scale notes up.">
       {INTERVALS.map((x) => <Chip key={x.id} on={x.id === interval} onClick={() => pickInterval(x.id)}>{x.label}</Chip>)}
-    </BarRow>
-    <BarRow label="Root on" info={`The string the key's root, ${ctx.names[0]}, is on. The double stops are played on it and the string ${interval === 6 ? "two strings away" : "next to it"}, starting from the root.`}>
+    </SettingsRow>
+    <SettingsRow label="Root on" info={`The string the key's root, ${ctx.names[0]}, is on. The double stops are played on it and the string ${interval === 6 ? "two strings away" : "next to it"}, starting from the root.`}>
       {STRING_NAMES.map((name, i) => <Chip key={i} on={i === rootString} onClick={() => { stop(); setRootString(i); }}>{i === 0 ? "Low E" : i === 5 ? "High e" : name}</Chip>)}
-    </BarRow>
+    </SettingsRow>
   </>;
+  const [pocket, onPocket] = usePocketStatus();
   const picker = <>{MODES.map((m) => <Chip key={m.id} on={m.id === modeId} onClick={() => { stop(); setModeId(m.id); }}>{m.label}</Chip>)}</>;
 
   return (
-    <WithSettings side criteria={criteria} bar={
-      <ScaleSettingsBar tonicPc={tonicPc} onTonic={(pc) => { stop(); setTonicPc(pc); }} side config={{
-        scale: { picker, name: mode.label.toLowerCase() },
-        labels: { extra: <RootSelect /> },
-      }} />
-    }>
+    <SettingsPanel criteria={criteria} name={keyAndScaleName(tonicPc, undefined, mode.label.toLowerCase())} summary={<ScaleFacts pocket={pocket} />}
+      settings={<SettingsSection title="Settings" first><KeyRow tonicPc={tonicPc} onTonic={(pc) => { stop(); setTonicPc(pc); }} scale={{ picker }} /><LabelsRow extra={<RootSelect />} /></SettingsSection>}
+      tools={<PocketSection keyPc={tonicPc} side onStatus={onPocket} />}>
       <p className="px-1 text-xs text-slate-400">
         Showing <b className="text-slate-200">{keyName}</b> in {ivLabel}: {DYAD_STEPS[interval]} scale notes apart, played together.
         <Info label="Why do the shapes change?">
@@ -215,6 +214,6 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
           ? <OctaveNeck ctx={ctx} interval={interval} strings={strings} octave={octave} lit={lit} onPlay={tap} />
           : <p className="text-xs text-slate-500">No {ivLabel} of this scale fit on these strings within 4 frets.</p>}
       </section>
-    </WithSettings>
+    </SettingsPanel>
   );
 }

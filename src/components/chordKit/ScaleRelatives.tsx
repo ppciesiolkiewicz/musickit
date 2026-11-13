@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FAMILIES, type KeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, relativesOf } from "@/features/theory/scales";
 import { scaleHref } from "@/features/theory/keySlug";
-import { ModeAlias } from "./ScaleSettings";
+import { ModeAlias } from "./ScaleParts";
 
 const ORD = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
 

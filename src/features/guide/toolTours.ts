@@ -81,7 +81,7 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
   ],
   "lip-roll": [
     { target: "lip-roll-start", title: "Start", text: "Start begins the rounds and the mic. Restart starts again from round 1, and Skip moves on to the next round." },
-    { target: "lip-roll-options", title: "Tone and speed", text: "Choose when the tone plays and how fast it slides. A change starts the round again with it." },
+    { target: "lip-roll-start", title: "Tone and speed", text: "Press the sliders button at the end of this row to choose when the tone plays and how fast it slides. A change starts the round again with it." },
     { target: "lip-roll-mic", title: "Audio input", text: "This is the input the mic uses: amber until Start switches it on, green while it listens. Press it to pick another input or see its level." },
     { target: "lip-roll-view", title: "Your line", text: "The blue band is the tone's path over your voice's registers. The mic draws your line over it, green where it is close." },
   ],

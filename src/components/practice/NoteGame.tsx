@@ -12,14 +12,15 @@ import {
 } from "@/lib/practice/noteGame";
 import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
-import { GameChoice, SetupTag, Stage, Stat, Target, btn, btnBig, panel, readBest, writeBest, writeQuery } from "./shared";
+import { GameChoice, SetupTag, Stage, Stat, Target, btn, btnBig, readBest, writeBest, writeQuery } from "./shared";
 import { useToolKeys } from "./toolKeys";
-import { Chip, ChipRow, Hint, KeyCap, Stepper } from "@/components/ui";
+import { Chip, ChipRow, Hint, KeyCap, SettingsPanel, SettingsSection } from "@/components/ui";
+import { VolumeRow } from "@/features/settings";
+import { NoteGameSettings, STRING_LETTERS } from "./NoteGameSettings";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 
-const STRING_LETTERS = ["E", "A", "D", "G", "B", "e"];
 const MODES: { id: NoteMode; title: string; about: string }[] = [
   { id: "find", title: "Find it on a string", about: "Get a note and a string, and find the fret." },
   { id: "every", title: "Find every one", about: "Find one note everywhere it sits on your strings." },
@@ -223,27 +224,17 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
     </div>
   );
 
-  const setup = !bare && (
-    <section data-tour="notes-settings" className={`${panel} flex flex-col gap-2`}>
-        <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the game</h2>
-        <ChipRow label="Strings" info="Which strings the questions use. Start with E and A, the roots of most chords, then add the others. The small e is the thin top string.">
-          {STRING_LETTERS.map((l, i) => (
-            <Chip key={l} on={s.strings.includes(i)} onClick={() => update({ strings: s.strings.includes(i) ? s.strings.filter((x) => x !== i) : [...s.strings, i].sort((a, b) => a - b) })}>{l}</Chip>
-          ))}
-        </ChipRow>
-        <ChipRow label="Frets" info="The part of the neck the questions use. Frets outside it are dimmed. Keep it small at first, then widen it as it gets easy.">
-          <Stepper label="From fret" value={`from ${s.from}`} onDec={() => update({ from: Math.max(0, s.from - 1) })} onInc={() => update({ from: Math.min(s.to, s.from + 1) })} decDisabled={s.from <= 0} incDisabled={s.from >= s.to} />
-          <Stepper label="To fret" value={`to ${s.to}`} onDec={() => update({ to: Math.max(s.from, s.to - 1) })} onInc={() => update({ to: Math.min(15, s.to + 1) })} decDisabled={s.to <= s.from} incDisabled={s.to >= 15} />
-        </ChipRow>
-        <ChipRow label="Notes" info="Natural notes have no sharp or flat: A B C D E F G. Flat names call a note B♭ instead of A♯. It is the same note with another name.">
-          <Chip on={s.naturals} onClick={() => update({ naturals: !s.naturals })}>Natural notes only</Chip>
-          <Chip on={s.flats} onClick={() => update({ flats: !s.flats })}>Flat names</Chip>
-        </ChipRow>
-        <p className="mt-1 text-xs text-slate-400">These settings are in the page address. Copy the link to give a student the same exercise.</p>
-    </section>
+  const settings = (
+    <SettingsSection first>
+      <div data-tour="notes-settings" className="flex flex-col gap-2">
+        <NoteGameSettings settings={s} onChange={update} />
+        <VolumeRow />
+      </div>
+      <p className="text-xs text-slate-400">These settings are in the page address. Copy the link to give a student the same exercise.</p>
+    </SettingsSection>
   );
 
-  return (
+  const game = (
     <div ref={keys.ref} className="flex flex-col gap-4">
       {!bare && <div data-tour="notes-setup"><GameChoice label="Game" options={MODES} value={s.mode} onChange={(mode) => update({ mode })} tone="amber" /></div>}
       <div ref={stage} className="scroll-mt-4">
@@ -293,11 +284,12 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
         {q && s.mode === "name" && (
           <div className="flex flex-wrap gap-2">{choices.map((pc) => <button key={pc} type="button" onClick={() => name(pc)} className="min-w-14 cursor-pointer rounded-xl border-2 border-slate-600 bg-slate-800 px-4 py-2 text-base font-semibold text-slate-50 transition hover:border-amber-400 hover:bg-slate-700 active:scale-[0.96]">{pcName(pc, s.flats)}</button>)}</div>
         )}
-        {showHeat && <p className="text-xs text-slate-400">Red cells are where you missed, amber where you were slow. Practise those next: narrow the strings and frets in the setup.</p>}
+        {showHeat && <p className="text-xs text-slate-400">Red cells are where you missed, amber where you were slow. Practise those next: narrow the strings and frets in the settings.</p>}
         {answerBy}
       </Stage>
       </div>
-      {setup}
     </div>
   );
+  // the settings in the page's panel; fixed by the host (an exercise in the plan): none
+  return bare ? game : <SettingsPanel side={syncUrl} settings={settings}>{game}</SettingsPanel>;
 }

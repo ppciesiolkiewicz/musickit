@@ -5,23 +5,20 @@ import { useState } from "react";
 import MiniPiano from "@/components/theory/MiniPiano";
 import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
 import { playMelody, strum } from "@/features/sound";
-import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, levelSemis, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
+import { CHORD_QUALITIES, activeAnswers, nextEarQuestion, recordScore, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import Icon from "@/components/Icon";
 import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, writeQuery } from "./shared";
 import { useToolKeys } from "./toolKeys";
-import { Chip, ChipRow, Hint, KeyCap } from "@/components/ui";
+import { Hint, KeyCap, SettingsPanel, SettingsSection } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
-import { Volume } from "./ToolSettings";
-import { DIRECTIONS, DirectionChips } from "./DirectionChips";
-
-const DIRS: Direction[] = ["up", "down", "together"];
+import { Volume, VolumeRow } from "@/features/settings";
+import { DIRECTIONS } from "./DirectionChips";
+import { EarGameSettings } from "./EarGameSettings";
 
 const KINDS: { id: EarSettings["kind"]; title: string; about: string }[] = [
   { id: "interval", title: "Intervals", about: "Hear two notes and name the gap between them." },
   { id: "chord", title: "Chord quality", about: "Hear a chord and name its kind." },
 ];
-
-const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
 
 /** The keys that pick an answer, in the order the answers are drawn. */
 const ANSWER_KEYS = "1234567890-=";
@@ -71,15 +68,6 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     setScore((sc) => recordScore(sc, q.answer, ok));
   };
 
-  const toggleCustom = (semis: number) => {
-    const cur = s.custom ?? levelSemis(s.level);
-    const set = cur.includes(semis) ? cur.filter((x) => x !== semis) : [...cur, semis];
-    if (set.length) update({ custom: set });
-  };
-  // the first Custom starts from the level it came from
-  const pickCustom = () => {
-    if (!s.custom) update({ custom: levelSemis(s.level) });
-  };
   // Space and Enter press the big button: Start or Next, or Replay while a question waits. Skip has no key, so Space
   // never throws a question away. R replays, the number keys answer; on a page of several
   // tools, the one last tapped or most on screen takes them
@@ -115,36 +103,19 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   /** Key caps only where the keys work: on the tool that has them, not on touch screens. */
   const cap = (key: string) => keys.armed && <KeyCap className="hidden md:inline">{key}</KeyCap>;
 
-  const setup = !bare && (
-    <section data-tour="ears-settings" className={`${panel} flex flex-col gap-2`}>
-      <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the training</h2>
-      {s.kind === "interval" && (
-        <>
-          <ChipRow label="Level" info="Each level adds intervals to the ones before. Start with the 5th and octave, the most open sounds, then the 3rds that make chords major or minor. Custom lets you pick your own.">
-            {EAR_LEVELS.map((l) => <Chip key={l.n} on={!s.custom && s.level === l.n} onClick={() => update({ level: l.n, custom: null })} title={l.label}>{l.n}</Chip>)}
-            <Chip on={!!s.custom} onClick={pickCustom}>Custom</Chip>
-          </ChipRow>
-          <ChipRow label="Intervals" info="The intervals the questions use. Pick Custom to choose them yourself: when two keep getting mixed up, train only those two. m is minor, M is major, P is perfect and TT is the tritone.">
-            {ONE_TO_TWELVE.filter((i) => s.custom || answers.includes(i.short)).map((i) => (
-              <Chip key={i.semis} disabled={!s.custom} on={answers.includes(i.short)} onClick={() => toggleCustom(i.semis)}
-                title={!s.custom ? `The ${i.name}: pick Custom to change the set` : answers.includes(i.short) ? (answers.length > 1 ? `Leave out the ${i.name}` : "At least one interval") : `Ask the ${i.name} too`}>{i.short}</Chip>
-            ))}
-          </ChipRow>
-          <ChipRow label="Span" info="Within an octave, or sometimes an octave wider (a 9th for a 2nd). Wider is harder: answer with the simple interval name.">
-            <Chip on={!s.wide} onClick={() => update({ wide: false })}>Within an octave</Chip>
-            <Chip on={s.wide} onClick={() => update({ wide: true })}>Multi-octave</Chip>
-          </ChipRow>
-          <ChipRow label="Direction" info="Rising plays the low note first, Falling plays the high note first, and Together plays both at once."><DirectionChips options={DIRS} value={s.direction} onChange={(direction) => update({ direction })} /></ChipRow>
-        </>
-      )}
-      <p className="mt-1 text-xs text-slate-400">These settings are in the page address. Copy the link to give a student the same set-up.</p>
-    </section>
+  const settings = (
+    <SettingsSection first>
+      <div data-tour="ears-settings" className="flex flex-col gap-2">
+        <EarGameSettings settings={s} onChange={update} />
+        <VolumeRow />
+      </div>
+      <p className="text-xs text-slate-400">These settings are in the page address. Copy the link to give a student the same set-up.</p>
+    </SettingsSection>
   );
 
-  return (
+  const game = (
     <div ref={keys.ref} className="flex flex-col gap-4">
       {!bare && <div data-tour="ears-setup"><GameChoice label="What to train" options={KINDS} value={s.kind} onChange={(kind) => update({ kind })} tone="sky" /></div>}
-      {setup}
       <Stage tone="sky">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -171,7 +142,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
           {q && (answered
             ? <Hint title="Replay" description="Plays the same one again."><button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={replay}><Icon name="repeat" size={14} />Replay{cap("R")}</button></Hint>
             : <Hint title="Skip" description="Moves on to a new one."><button type="button" className={`${btn} py-2`} onClick={next}>Skip</button></Hint>)}
-          <span className="ml-auto"><Volume /></span>
+          {bare && <span className="ml-auto"><Volume /></span>}
         </div>
         <div data-tour="interval-ears-answers" className={`grid gap-2 ${s.kind === "chord" ? "grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]" : "grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))]"}`}>
           {answers.map((a, i) => {
@@ -210,4 +181,6 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
       )}
     </div>
   );
+  // the settings in the page's panel; fixed by the host (an exercise in the plan): none
+  return bare ? game : <SettingsPanel side={syncUrl} settings={settings}>{game}</SettingsPanel>;
 }

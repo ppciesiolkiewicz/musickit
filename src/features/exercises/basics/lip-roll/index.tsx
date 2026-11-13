@@ -8,11 +8,13 @@ import { useAudioFocus, wakeAudio } from "@/features/sound";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { REGISTERS, voiceMap, type Registers } from "@/features/theory/registers";
 import { VOICES, type Voice } from "@/features/theory/singing";
-import { Chip, Hint } from "@/components/ui";
+import { Hint } from "@/components/ui";
 import { PlayerCard } from "../../play-along/PlayerParts";
 import { useVoice } from "../voiceChoice";
 import { noteLabel, useVoicePitch } from "../voicePitch";
-import { PlayAhead, RollAccuracy, WarmUpBar, usePlayAhead, useRollAccuracy, useWarmUpKeys, type WarmUpStatus } from "../warmUpBar";
+import { WarmUpBar, useRollAccuracy, useWarmUpKeys, type WarmUpStatus } from "../warmUpBar";
+import { usePlayAhead } from "@/features/settings";
+import { LipRollSettings } from "./settings";
 import { DEFAULTS, EDGE, LIMITS, LIP_ROLL_PLAYS, LIP_ROLL_SPEEDS, clampInt, youStart, glidePath, midiAt, nearPath, roundAt, roundSeconds, type GlidePath, type LipRollShape, type LipRollPlay, type LipRollSpeed, type RoundPhase } from "./glide";
 import { playCue, playGlide, type GlideSound } from "./sound";
 import type { LipRollProps } from "./lip-roll.props";
@@ -28,12 +30,6 @@ const TIP_SECONDS = 9;
 
 type Point = { at: number; midi: number };
 
-const SPEED_LABEL: Record<LipRollSpeed, string> = { slow: "Slow", medium: "Medium", fast: "Fast" };
-const PLAY_LABEL: Record<LipRollPlay, { label: string; title: string }> = {
-  always: { label: "With the tone", title: "The tone plays the whole time and you lip roll with it" },
-  echo: { label: "Tone, then you", title: "A pass with the tone, then the same pass on your own" },
-  silent: { label: "No tone", title: "Follow the line on your own, no tone" },
-};
 const WHAT_PLAY: Record<LipRollPlay, string> = {
   always: "Lip roll with the tone the whole way. Your line is drawn over the tone's.",
   echo: "Lip roll with the tone, then once more on your own: its first note sounds and fades as you start.",
@@ -46,12 +42,13 @@ const WHAT_PLAY: Record<LipRollPlay, string> = {
  * a little deeper into chest voice. The run lives in refs, apart from the props and choices: a new shape, speed, tone or
  * voice while it runs starts the round on screen again with them, and the run goes on (the round count stays).
  */
-export function View({ shape = "down", speed: speedProp = "medium", play: playProp = "echo", seconds: secondsProp, plays: playsProp, voice: own = "tenor", controls = true }: LipRollProps & {
-  /** draw the Tone and Speed choices on the tool (a plan); false: the page holds them beside its other choices and hands
-   * them in as `speed` and `play`, and the tool follows those props */
-  controls?: boolean;
+export function View({ shape = "down", speed: speedProp = "medium", play: playProp = "echo", seconds: secondsProp, plays: playsProp, voice: own = "tenor", hostSettings = false }: LipRollProps & {
+  /** the page holds the settings in its settings panel (`LipRollSettings`, the volume, accuracy, play-ahead) and hands
+   * Tone and Speed in as `play` and `speed`: no Tone/Speed row or settings button on the tool. Off (a plan): the tool
+   * draws them itself */
+  hostSettings?: boolean;
 }) {
-  useCoverage({ hints: 3 });
+  useCoverage({ hints: 1 });
   const voice = useVoice(own);
   const known: Voice = voice in VOICES ? voice : "tenor";
   const range = VOICES[known];
@@ -63,8 +60,8 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
   // picked on the tool when it draws its own choices, else the props
   const [speedPicked, setSpeed] = useState(ownSpeed);
   const [playPicked, setPlay] = useState(ownPlay);
-  const speed = controls ? speedPicked : ownSpeed;
-  const play = controls ? playPicked : ownPlay;
+  const speed = !hostSettings ? speedPicked : ownSpeed;
+  const play = !hostSettings ? playPicked : ownPlay;
   // round 1's path, for the picture before Start
   const first = useMemo(() => glidePath(shape, map, seconds, speed, 0), [shape, map, seconds, speed]);
   const [path, setPath] = useState(first);
@@ -86,9 +83,9 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
   });
   const [micOff, setMicOff] = useState(false);
   // the voice is drawn this far behind the playhead, to make up for the mic's delay
-  const [lagMs, setLag] = usePlayAhead();
+  const [lagMs] = usePlayAhead();
   // how close to the line shows green, in semitones
-  const [cents, setCents] = useRollAccuracy();
+  const [cents] = useRollAccuracy();
   const tol = cents / 100;
   const lag = useRef(lagMs / 1000);
   useEffect(() => {
@@ -213,7 +210,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
   return (
     <PlayerCard ref={cardRef}>
       <div data-tour="lip-roll-start">
-      <WarmUpBar {...actions} armed={armed} settings={<><RollAccuracy cents={cents} onChange={setCents} /><PlayAhead ms={lagMs} onChange={setLag} /></>} skip="the next round" what="Starts the rounds and the mic.">
+      <WarmUpBar {...actions} armed={armed} hostSettings={hostSettings} settings={<LipRollSettings look="menu" shape={shape} play={play} onPlay={setPlay} speed={speed} onSpeed={setSpeed} />} skip="the next round" what="Starts the rounds and the mic.">
         <span data-tour="lip-roll-mic" className="inline-flex">
           <Hint title="Audio input" description="The input the mic uses to draw your line. Start switches it on: the dot turns from amber to green. Press it to pick another input or see its level.">
             <InputChip quiet status={micStatus} mic={{ on: running && !micOff, onToggle: () => (running ? setMicOff((o) => !o) : void start()) }} />
@@ -221,22 +218,6 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
         </span>
       </WarmUpBar>
       </div>
-      {controls && <div data-tour="lip-roll-options" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
-        <Hint title="Tone" description="When the tone plays. A new choice starts the round again with it.">
-          <span role="group" aria-label="Tone" className="inline-flex flex-wrap items-center gap-1.5">
-            <span className="uppercase tracking-wider">Tone</span>
-            {LIP_ROLL_PLAYS.map((m) => <Chip key={m} on={m === play} onClick={() => setPlay(m)} title={PLAY_LABEL[m].title}>{PLAY_LABEL[m].label}</Chip>)}
-          </span>
-        </Hint>
-        {shape !== "hold" && (
-          <Hint title="Speed" description="How fast the slide goes. A new speed starts the round again at that speed.">
-            <span role="group" aria-label="Speed" className="inline-flex items-center gap-1.5">
-              <span className="uppercase tracking-wider">Speed</span>
-              {LIP_ROLL_SPEEDS.map((sp) => <Chip key={sp} on={sp === speed} onClick={() => setSpeed(sp)}>{SPEED_LABEL[sp]}</Chip>)}
-            </span>
-          </Hint>
-        )}
-      </div>}
       <div className="min-w-0">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Warm-up · lip roll</p>
         <h3 className="truncate text-base font-semibold text-slate-100">{TITLES[shape]}</h3>

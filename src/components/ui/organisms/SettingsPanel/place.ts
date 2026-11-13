@@ -1,15 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-
-import { SETTINGS_PLACE_KEY, type SettingsPlace } from "./settingsBoot";
-
-export type { SettingsPlace };
-
-// reads and sets where the settings sit (settingsBoot.ts), with a hook for the layout CSS cannot do
+import { SETTINGS_PLACE_KEY, readSettingsPlace, type SettingsPlace } from "./boot";
 
 export function getSettingsPlace(): SettingsPlace {
-  return document.documentElement.dataset.settings === "top" ? "top" : "side";
+  return readSettingsPlace(document.documentElement.dataset.settings ?? null);
 }
 
 export function setSettingsPlace(place: SettingsPlace) {

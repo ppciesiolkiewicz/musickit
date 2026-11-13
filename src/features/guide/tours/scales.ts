@@ -3,7 +3,7 @@ import type { TourStep } from "../tour";
 /** The scales and modes page tour. */
 export const SCALES_TOUR: TourStep[] = [
   {
-    target: "scale-settings",
+    target: "settings",
     title: "Key",
     text: "Pick the key here. Every scale on the page starts on it.",
   },

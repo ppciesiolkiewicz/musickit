@@ -14,7 +14,7 @@ export default async function NotesPage({ searchParams }: { searchParams: Promis
   const sp = await searchParams;
   const q = new URLSearchParams(Object.entries(sp).flatMap(([k, v]) => (typeof v === "string" ? [[k, v]] : [])));
   return (
-    <PageShell active="/theory/notes" devices mic pageId="notes" tour={NOTES_TOUR} title="Fretboard notes" intro="Find every note on the neck. Try the natural notes on the low E string, then the A string, then add more strings. Play the note on your guitar and the mic checks it, or tap the neck.">
+    <PageShell active="/theory/notes" full devices mic pageId="notes" tour={NOTES_TOUR} title="Fretboard notes" intro="Find every note on the neck. Try the natural notes on the low E string, then the A string, then add more strings. Play the note on your guitar and the mic checks it, or tap the neck.">
       <NoteGame initial={parseNoteSettings(q)} />
     </PageShell>
   );

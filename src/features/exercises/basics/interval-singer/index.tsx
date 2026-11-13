@@ -5,7 +5,7 @@ import { useMicPitch } from "@/components/practice/useMicPitch";
 import { ToolHeadphonesHint, useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
 import { useToolKeys } from "@/components/practice/toolKeys";
-import ToolSettings from "@/components/practice/ToolSettings";
+import { ToolSettings } from "@/features/settings";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import { Badge, Button, Checkbox, Hint, KeyCap } from "@/components/ui";
@@ -67,7 +67,7 @@ const NO_PITCH = { current: null };
  * (an exercise does: its keys are set, and a step-choice changes them). A page with a side panel holds the keys, view and dot
  * there and hands them in as `options`, and the tool then leaves those controls out.
  */
-export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", play = "do", dot: dotProp = true, picker = true, options }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; /** "both": Do and then the note sound before the student sings (the easier way); "do": only Do */ play?: "do" | "both"; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean } }) {
+export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", play = "do", dot: dotProp = true, picker = true, options, hostSettings = false }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; /** "both": Do and then the note sound before the student sings (the easier way); "do": only Do */ play?: "do" | "both"; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean }; /** the page holds accuracy and the volume in its settings panel: no settings button here */ hostSettings?: boolean }) {
   useCoverage({ hints: 7 });
   const voice = useVoice(own);
   const range = VOICES[voice] ?? VOICES.tenor;
@@ -273,7 +273,7 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   const doPlays = both ? "Do and the note play" : "Do plays";
   // one width for Start, Restart and Next, so the buttons after it stay put
   const big = "inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
-  const settings = standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
+  const settings = standard && !hostSettings && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
 
   return (
     <div ref={keysRef} className="flex flex-col gap-3">

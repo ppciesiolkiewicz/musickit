@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { useToolKeys } from "@/components/practice/toolKeys";
-import ToolSettings from "@/components/practice/ToolSettings";
-import { Button, DropdownSection, Hint, KeyCap, Slider, Tile, hueAt } from "@/components/ui";
-import { DOT_LAG_MS } from "@/components/theory/singing/MelodyStaff";
+import { Button, Chip, DropdownSection, Hint, KeyCap, SettingsRow, Tile, hueAt } from "@/components/ui";
+import { ToolSettings, savedSetting, type RowLook } from "@/features/settings";
 import { useCoverage } from "@/features/guide/useCoverage";
 
 export type WarmUpStatus = "idle" | "running" | "done";
@@ -43,7 +42,7 @@ const BIG = "inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 !bor
  * Restart once it is done), then Restart and Skip, always drawn and off until it runs so nothing moves on Start, then the tool's own controls (`children`: the mic,
  * Play note), and the volume at the end. The tool wraps it in its own `data-tour` (a literal, for the tour test).
  */
-export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, what, armed, settings, children }: Actions & {
+export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, what, armed, settings, hostSettings = false, children }: Actions & {
   /** what Skip moves on to, for its hint: "the next round" */
   skip: string;
   /** what Start does, for its hint */
@@ -52,6 +51,8 @@ export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, wh
   armed: boolean;
   /** more under the settings button beside the volume (the play-ahead) */
   settings?: ReactNode;
+  /** the page holds the volume and settings in its settings panel: no volume or settings button here */
+  hostSettings?: boolean;
   children?: ReactNode;
 }) {
   useCoverage({ hints: 5 });
@@ -85,44 +86,8 @@ export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, wh
       </span>
       {children}
       <span className="ml-auto" />
-      <Hint title={settings ? "Settings" : "Volume"} description={settings ? "The volume, and the settings under the button." : "Sets every sound in the app, not just this warm-up."}><ToolSettings more={settings} /></Hint>
+      {!hostSettings && <Hint title={settings ? "Settings" : "Volume"} description={settings ? "The volume, and the settings under the button." : "Sets every sound in the app, not just this warm-up."}><ToolSettings more={settings} /></Hint>}
     </div>
-  );
-}
-
-/** where the play-ahead is kept: the same one the staff's sing-along and the singing pages use */
-const LAG_KEY = "singing.lag";
-const MAX_LAG_MS = 1000;
-
-/**
- * The play-ahead, as on the staff: how far behind the playhead your voice is drawn, in ms, to make up for the mic's delay.
- * Shared with the singing pages (one setting in this browser); the saved one comes back after hydration.
- */
-export function usePlayAhead(): [number, (ms: number) => void] {
-  const [ms, setMs] = useState(DOT_LAG_MS);
-  useEffect(() => {
-    try {
-      const v: unknown = JSON.parse(window.localStorage.getItem(LAG_KEY) ?? "null");
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved pick after hydration
-      if (typeof v === "number" && v >= 0 && v <= MAX_LAG_MS) setMs(v);
-    } catch { /* storage blocked */ }
-  }, []);
-  const pick = (v: number) => {
-    setMs(v);
-    try { window.localStorage.setItem(LAG_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
-  };
-  return [ms, pick];
-}
-
-/** The play-ahead slider, for the settings button (`WarmUpBar`'s `settings`), as on the staff. */
-export function PlayAhead({ ms, onChange }: { ms: number; onChange(ms: number): void }) {
-  return (
-    <DropdownSection title="Play-ahead" info={<>How far behind the playhead your voice is drawn. Raise it when your line runs late against the tone.</>}>
-      <span className="flex items-center gap-2">
-        <Slider min={0} max={MAX_LAG_MS} step={10} value={ms} onChange={onChange} size="sm" className="w-40" aria-label="Play-ahead" />
-        <span className="whitespace-nowrap text-xs tabular-nums text-slate-500">{ms} ms</span>
-      </span>
-    </DropdownSection>
   );
 }
 
@@ -138,26 +103,22 @@ export const ROLL_ACCURACIES = [
 ] as const;
 const ROLL_KEY = "musickit.lipRoll.accuracy";
 
-export function useRollAccuracy(): [number, (cents: number) => void] {
-  const [cents, setCents] = useState<number>(ROLL_ACCURACIES[0].cents);
-  useEffect(() => {
-    try {
-      const v: unknown = JSON.parse(window.localStorage.getItem(ROLL_KEY) ?? "null");
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved pick after hydration
-      if (ROLL_ACCURACIES.some((a) => a.cents === v)) setCents(v as number);
-    } catch { /* storage blocked */ }
-  }, []);
-  const pick = (v: number) => {
-    setCents(v);
-    try { window.localStorage.setItem(ROLL_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
-  };
-  return [cents, pick];
-}
+export const useRollAccuracy = savedSetting<number>(ROLL_KEY, ROLL_ACCURACIES[0].cents, (v) => ROLL_ACCURACIES.some((a) => a.cents === v));
 
-/** The lip roll's accuracy tiles, for the settings button, in the look of the singing tools' Accuracy. */
-export function RollAccuracy({ cents, onChange }: { cents: number; onChange(cents: number): void }) {
+const ROLL_INFO = <>How close your line has to be to the tone&apos;s to show green. A semitone is 100 cents (¢). A lip roll wobbles, so start on Easy and move up when your line stays green.</>;
+
+/** The lip roll's accuracy, in the look of the singing tools' Accuracy: a panel row ("bar") or tiles for the settings button ("menu"). */
+export function RollAccuracy({ look = "menu" }: { look?: RowLook }) {
+  const [cents, onChange] = useRollAccuracy();
+  if (look === "bar") {
+    return (
+      <SettingsRow label="Accuracy" info={ROLL_INFO}>
+        {ROLL_ACCURACIES.map((a) => <Chip key={a.title} on={a.cents === cents} onClick={() => onChange(a.cents)} title={`Within ${a.cents} cents of the line shows green`}>{a.title}</Chip>)}
+      </SettingsRow>
+    );
+  }
   return (
-    <DropdownSection title="Accuracy" info={<>How close your line has to be to the tone&apos;s to show green. A semitone is 100 cents (¢). A lip roll wobbles, so start on Easy and move up when your line stays green.</>}>
+    <DropdownSection title="Accuracy" info={ROLL_INFO}>
       <div role="radiogroup" aria-label="Accuracy" className="grid grid-cols-4 gap-1.5">
         {ROLL_ACCURACIES.map((a, i) => (
           <Tile key={a.title} radio hue={hueAt(i + 8)} on={a.cents === cents} onClick={() => onChange(a.cents)} title={`Within ${a.cents} cents of the line shows green`}

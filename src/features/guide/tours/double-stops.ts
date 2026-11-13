@@ -8,7 +8,7 @@ export const DOUBLE_STOPS_TOUR: TourStep[] = [
     text: "What double stops are for, one thing to try, and the course lesson about them.",
   },
   {
-    target: "scale-settings",
+    target: "settings",
     title: "Key and scale",
     text: "Pick the key and the scale the double stops come from.",
   },

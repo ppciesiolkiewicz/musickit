@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { VerticalBoard, vGeometry } from "./VerticalFretboard";
-import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
+import { SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
+import { HeardNoteProvider, InputSection, KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocketStatus } from "@/features/settings";
 import { Badge, FretboardBase, fretGeometry } from "./Fretboard";
 import { DotLabel } from "./DotLabel";
 import { useHeardNote } from "./heardNote";
@@ -259,6 +260,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
   const playNote = (c: NeckCell) => strum([c.midi], { gapMs: 0, holdMs: 700 });
   const pickMode = (f: number, m: number) => { setFam(f); setMode(m); setDegree(0); };
   // the scale as one picker on the key row of the side column
+  const [pocket, onPocket] = usePocketStatus();
   const modeSelect = (
     <Select size="sm" className="mr-1" value={`${fam}:${mode}`} aria-label="Scale"
       onChange={(v) => { const [f, m] = v.split(":").map(Number); pickMode(f, m); }}
@@ -266,40 +268,41 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
       groups={FAMILIES.map((f, fi) => ({ label: f.label, options: f.names.map((n, mi) => ({ value: `${fi}:${mi}`, label: n })) }))} />
   );
   const criteria = <>
-    <BarRow label="On" info="Which note of the scale the arpeggio starts on, shown as a Roman numeral and the note name. An arpeggio is a chord played one note at a time.">
+    <SettingsRow label="On" info="Which note of the scale the arpeggio starts on, shown as a Roman numeral and the note name. An arpeggio is a chord played one note at a time.">
       {ctx.chords.map((c) => (
         <Chip key={c.degree} on={degree === c.degree} onClick={() => setDegree(c.degree)}>{c.roman} <span className="text-slate-400">{ctx.names[c.degree]}</span></Chip>
       ))}
-    </BarRow>
-    <BarRow label="Type" info="The first three buttons use the chord the scale itself builds on that note: a triad (3 notes), a 7th chord (4) or a 9th chord (5), with every note inside the scale. The rest ignore the scale and put any chord type you choose on the same root. For example, a D major arpeggio over C major, where D is the 2nd note and the scale would give you D minor. Notes that are not in the scale get a dashed red outline, so you can see which notes fit and which clash.">
+    </SettingsRow>
+    <SettingsRow label="Type" info="The first three buttons use the chord the scale itself builds on that note: a triad (3 notes), a 7th chord (4) or a 9th chord (5), with every note inside the scale. The rest ignore the scale and put any chord type you choose on the same root. For example, a D major arpeggio over C major, where D is the 2nd note and the scale would give you D minor. Notes that are not in the scale get a dashed red outline, so you can see which notes fit and which clash.">
       {KINDS.map((k) => <Chip key={k.id} on={kind === k.id} onClick={() => setKind(k.id)}>{k.label}</Chip>)}
       <span className="mx-1 h-4 w-px bg-slate-700" aria-hidden />
       {ARP_QUALITIES.map((q) => <Chip key={q.id} on={kind === q.id} onClick={() => setKind(q.id)}>{q.label}</Chip>)}
-    </BarRow>
+    </SettingsRow>
   </>;
 
-  return (
-    <WithSettings side={side} criteria={criteria} bar={
-      <ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={side} config={{
-        // in the column the scale is one picker on the key row; embedded, the family and mode are chip rows of their own
-        scale: side ? { name: ctx.modeName, picker: modeSelect } : undefined,
-        input: true,
-        labels: { extra: <>
+  const labelsExtra = <>
           <RootSelect />
           <Chip on={overlay} onClick={() => setOverlay((v) => !v)}>Overlay the scale</Chip>
           <Chip on={badges} onClick={() => setBadges((v) => !v)}>Degree badges</Chip>
-        </> },
-        rows: side ? undefined : <>
-          <BarRow label="Family" info="Modes come in three families, named after the scale they are rotations of: the major scale, harmonic minor and melodic minor. Each family has seven modes, one starting on each note of the parent scale.">
+        </>;
+  // embedded, the family and mode are chip rows of their own; in the column the scale is one picker on the key row
+  const modeRows = <>
+          <SettingsRow label="Family" info="Modes come in three families, named after the scale they are rotations of: the major scale, harmonic minor and melodic minor. Each family has seven modes, one starting on each note of the parent scale.">
             {FAMILIES.map((f, i) => <Chip key={f.id} on={i === fam} onClick={() => pickMode(i, 0)}>{f.label}</Chip>)}
-          </BarRow>
-          <BarRow label="Mode" info="A mode is a scale built by starting the parent scale on a different note. Dorian, for example, is the major scale started on its 2nd note. Same notes, different home, so a different mood.">
+          </SettingsRow>
+          <SettingsRow label="Mode" info="A mode is a scale built by starting the parent scale on a different note. Dorian, for example, is the major scale started on its 2nd note. Same notes, different home, so a different mood.">
             {FAMILIES[fam].names.map((n, i) => <Chip key={n} on={i === mode} onClick={() => pickMode(fam, i)}>{shortModeName(n)}</Chip>)}
-          </BarRow>
-          {criteria}
-        </>,
-      }} />
-    }>
+          </SettingsRow>
+  </>;
+  return (
+    <HeardNoteProvider>
+    <SettingsPanel side={side} criteria={criteria} name={keyAndScaleName(tonicPc, undefined, side ? ctx.modeName : undefined)} summary={<ScaleFacts pocket={pocket} />}
+      settings={<SettingsSection title="Settings" first>
+        <KeyRow tonicPc={tonicPc} onTonic={setTonicPc} scale={side ? { picker: modeSelect } : undefined} />
+        {!side && modeRows}
+        <LabelsRow extra={labelsExtra} />
+      </SettingsSection>}
+      tools={<PocketSection keyPc={tonicPc} side={side} onStatus={onPocket} lines={<InputSection />} />}>
       <p className="px-1 text-xs text-slate-400">
         Scale: <b className="text-slate-200">{ctx.names[0]} {ctx.modeName}</b> · {ctx.names.join(" ")}
         {page && <> · <Link className="text-sky-300 hover:underline" href={scaleHref(page.slug, tonicPc)}>mode page</Link></>}
@@ -362,6 +365,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
           {positions.map((p) => <ArpBox key={p.id} cells={cells} pos={p} overlay={overlay} labelSystem={labelSystem} badges={badges} onNote={playNote} onPlay={() => playPosition(p)} on={focus === p.id} onPick={() => setFocus(focus === p.id ? null : p.id)} />)}
         </div>
       </section>
-    </WithSettings>
+    </SettingsPanel>
+    </HeardNoteProvider>
   );
 }

@@ -3,7 +3,7 @@ import type { TourStep } from "../tour";
 /** The CAGED page tour. */
 export const CAGED_TOUR: TourStep[] = [
   {
-    target: "scale-settings",
+    target: "settings",
     title: "Key",
     text: "Pick the key and major or minor here. Every box on the page follows it.",
   },

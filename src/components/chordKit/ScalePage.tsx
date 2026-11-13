@@ -4,7 +4,9 @@ import { scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ColourKey, ModeAlias, ScaleSettingsBar, UNDER_BAR, WithSettings } from "./ScaleSettings";
+import { ColourKey, ModeAlias } from "./ScaleParts";
+import { SettingsPanel, SettingsSection, UNDER_PANEL } from "@/components/ui";
+import { HeardNoteProvider, InputSection, KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocketStatus } from "@/features/settings";
 import KeySignature from "@/components/theory/KeySignature";
 import { FAMILIES, makeKeyContext } from "@/features/theory/theory";
 import { MODE_PAGES, type NoteSwap, degreeColour, degreeLabels, relativesOf, stepPattern, DOT_INK } from "@/features/theory/scales";
@@ -68,14 +70,18 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const playScale = () => player.play(line.map((m) => ({ key: `d${degreeOf(m)}`, midi: m })), 240);
   const playTune = (tuneId: string) => player.playTimed(melodyTiming(generateMelody(scalePool(60 + ctx.tonic.pc, ctx.steps), ctx.steps)).map((n) => ({ key: `d${n.note.degree}`, midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
 
+  const [pocket, onPocket] = usePocketStatus();
   return (
-    <WithSettings side={syncUrl} bar={<ScaleSettingsBar tonicPc={tonicPc} onTonic={setTonicPc} side={syncUrl} config={{ scale: syncUrl ? { slug } : undefined, input: true }} />}>
+    <HeardNoteProvider>
+    <SettingsPanel side={syncUrl} name={keyAndScaleName(tonicPc, syncUrl ? slug : undefined)} summary={<ScaleFacts pocket={pocket} />}
+      settings={<SettingsSection title="Settings" first><KeyRow tonicPc={tonicPc} onTonic={setTonicPc} scale={syncUrl ? { slug } : undefined} /><LabelsRow /></SettingsSection>}
+      tools={<PocketSection keyPc={tonicPc} side={syncUrl} onStatus={onPocket} lines={<InputSection />} />}>
 
       <ColourKey>
         Colour shows the job a note does in the key, not how high it is. The 1st degree (home) is white, the 3rd is amber because it decides major or minor, the 5th is blue, and the 7th is rose. The 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree, so the ♭3 is still amber, and its label tells you it is flat. The same note has the same colour in every chord.
       </ColourKey>
 
-      <div id="scale-notes" className={`grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_BAR}`}>
+      <div id="scale-notes" className={`grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_PANEL}`}>
         <div className="flex min-w-0 flex-col gap-3">
         <h2 className="text-2xl font-light tracking-wide text-slate-100">
           {ctx.names[0]} {ctx.modeName}
@@ -140,20 +146,21 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
 
       <ScaleOnGuitar ctx={ctx} player={player} />
 
-      <ScaleRelatives ctx={ctx} familyIndex={familyIndex} className={UNDER_BAR} />
+      <ScaleRelatives ctx={ctx} familyIndex={familyIndex} className={UNDER_PANEL} />
 
-      <ScaleChords ctx={ctx} className={UNDER_BAR} />
+      <ScaleChords ctx={ctx} className={UNDER_PANEL} />
 
-      <ScaleProgressions ctx={ctx} className={UNDER_BAR} />
+      <ScaleProgressions ctx={ctx} className={UNDER_PANEL} />
 
-      <ScaleSongs ctx={ctx} className={UNDER_BAR} />
+      <ScaleSongs ctx={ctx} className={UNDER_PANEL} />
 
-      <section id="sus" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_BAR}`}>
+      <section id="sus" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_PANEL}`}>
         <h2 className="mb-1 text-sm font-medium text-slate-100">Sus and extension chords from each chord</h2>
         <p className="mb-3 text-xs text-slate-400">From {ctx.chords[0].triadName} you can go through the 2nd of the scale to sus2 and 9 chords, through the 4th to sus4 and 11, and so on. All seven chords of {ctx.names[0]} {ctx.modeName}.</p>
         <ChordBubbles ctx={ctx} />
       </section>
 
-    </WithSettings>
+    </SettingsPanel>
+    </HeardNoteProvider>
   );
 }

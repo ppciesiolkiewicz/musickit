@@ -12,6 +12,7 @@ export default function TuneByEarPage() {
   return (
     <PageShell
       active="/theory/tune-by-ear"
+      full
       devices mic
       pageId="tune-by-ear"
       tour={TUNE_BY_EAR_TOUR}

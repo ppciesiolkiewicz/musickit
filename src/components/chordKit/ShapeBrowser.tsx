@@ -18,6 +18,8 @@ interface Props {
   emptyHint?: string;
   /** a degree tag chosen elsewhere (the chord strip) */
   forcedTags?: string[];
+  /** false: the page holds the labels in its settings panel */
+  labels?: boolean;
 }
 
 const ROW_HELP: Record<string, string> = {
@@ -29,7 +31,7 @@ const ROW_HELP: Record<string, string> = {
 };
 
 /** Tag filters + root-string / chord-type sections + one card per shape. Shared by the Shapes and In key tabs. */
-export default function ShapeBrowser({ entries, ctx, header, emptyHint, forcedTags = [] }: Props) {
+export default function ShapeBrowser({ entries, ctx, header, emptyHint, forcedTags = [], labels = true }: Props) {
   const [selected, setSelected] = useState<string[]>(["x:easy", "x:medium"]);
   const [closed, setClosed] = useState<Set<string>>(new Set());
   const active = useMemo(() => [...selected, ...forcedTags.filter((t) => !selected.includes(t))], [selected, forcedTags]);
@@ -103,7 +105,7 @@ export default function ShapeBrowser({ entries, ctx, header, emptyHint, forcedTa
           <button type="button" className="text-sky-300 hover:underline" onClick={collapseAll}>Collapse all</button>
           <button type="button" className="text-sky-300 hover:underline" onClick={expandAll}>Expand all</button>
         </div>
-        <LabelsRow />
+        {labels && <LabelsRow />}
       </div>
 
       {groups.length === 0 && <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-400">{emptyHint ?? "No shapes match these tags. Deselect a tag to widen the search."}</p>}

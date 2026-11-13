@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { SettingsPanel, SettingsSection } from "@/components/ui";
+import { VolumeRow } from "@/features/settings";
 import Icon from "@/components/Icon";
 import {
   CIRCLE, MAJOR, chordFunction, chordsInScaleOrder, circleChords, fifthsPosition, keyName, majorSignature, neighbours, relativeMajor, relativeMinor,
@@ -177,7 +179,16 @@ function FunctionLegend() {
 }
 
 /** The circle page: the circle holding its own key, starting on C major. */
-export function CircleOfFifthsPage() {
+/**
+ * The circle of fifths page: the key is picked on the circle itself, so the settings panel holds only the volume.
+ * `lead` is the page's text before the circle, so the panel runs beside it.
+ */
+export function CircleOfFifthsPage({ lead }: { lead?: ReactNode }) {
   const [k, setK] = useState<CircleKey | null>({ pc: DEFAULT_KEY_PC, minor: false });
-  return <CircleOfFifths value={k} onChange={setK} />;
+  return (
+    <SettingsPanel settings={<SettingsSection first><VolumeRow /></SettingsSection>}>
+      {lead}
+      <CircleOfFifths value={k} onChange={setK} />
+    </SettingsPanel>
+  );
 }

@@ -7,7 +7,7 @@ import MicButton from "@/components/theory/singing/MicButton";
 import InputChip from "@/components/InputChip";
 import SingingStaff from "@/components/theory/singing/SingingStaff";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
-import ToolSettings from "@/components/practice/ToolSettings";
+import { ToolSettings } from "@/features/settings";
 import { IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import type { ExternalInput } from "@/features/tuner";

@@ -8,7 +8,7 @@ export const TRIADS_TOUR: TourStep[] = [
     text: "What triads are for, one thing to try, and the course lesson about them.",
   },
   {
-    target: "scale-settings",
+    target: "settings",
     title: "Root",
     text: "Pick the root note of the triad here.",
   },

@@ -16,7 +16,7 @@ import { NumberField, Slider, Chip, ChipRow, Info } from "@/components/ui";
 const DIFF_ORDER = { easy: 0, medium: 1, hard: 2 } as const;
 
 /** Progressions in modes, as an accordion. Open one to see the form, shapes to use and neck positions. */
-export default function ProgressionsTab({ initialSel = 0 }: { initialSel?: number } = {}) {
+export default function ProgressionsTab({ initialSel = 0, labels = true }: { initialSel?: number; /** false: the page holds the labels in its settings panel */ labels?: boolean } = {}) {
   const resolved = useMemo(() => PROG_LIST.map(resolveProgression), []);
   const [sel, setSel] = useState(initialSel);
   const groups: { heading: string; sub: string; idx: number[] }[] = [];
@@ -28,7 +28,7 @@ export default function ProgressionsTab({ initialSel = 0 }: { initialSel?: numbe
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5"><LabelsRow /></div>
+      {labels && <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5"><LabelsRow /></div>}
       {groups.map((g) => (
         <div key={g.heading + g.idx[0]} className="flex flex-col gap-2">
           <h3 className="text-sm font-medium text-slate-200">{g.heading} <span className="font-normal text-slate-500">· {g.sub}</span></h3>

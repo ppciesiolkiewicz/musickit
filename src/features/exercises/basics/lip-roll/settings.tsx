@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Chip, ChipRow } from "@/components/ui";
-import { BarRow } from "@/components/chordKit/ScaleSettings";
+import { Chip, DropdownSection, SettingsRow } from "@/components/ui";
+import { PlayAheadRow } from "@/features/settings";
+import { RollAccuracy } from "../warmUpBar";
 import { LIP_ROLL_PLAYS, LIP_ROLL_SPEEDS, type LipRollPlay, type LipRollSpeed } from "./glide";
 import type { LipRollProps } from "./lip-roll.props";
 
@@ -23,23 +24,28 @@ const PLAY_CHIPS: Record<LipRollPlay, { label: string; title: string }> = {
 const SPEED_CHIPS: Record<LipRollSpeed, string> = { slow: "Slow", medium: "Medium", fast: "Fast" };
 
 /**
- * The lip roll's choices (Slide, Tone, Speed) for a page that holds them. `look` says where they are drawn: "bar" as
- * rows of a settings bar or side column (`ScaleSettingsBar`'s `rows`), "rows" as labelled chip rows in the page.
- * Speed is left out for One note, which has no slide to pace.
+ * The lip roll's choices (Slide, Tone, Speed, Accuracy, Play-ahead): in a page's settings panel, or under the tool's own
+ * sliders button in the plan. `look` says where they are drawn: "bar" as
+ * rows of a page's `SettingsPanel`, "menu" as sections of a sliders button.
+ * Speed is left out for One note, which has no slide to pace. Accuracy and Play-ahead are saved for the app, so the tool
+ * reads the same values.
  */
 export function LipRollSettings({ shape, onShape, play, onPlay, speed, onSpeed, look = "bar" }: {
-  shape: LipRollShape; onShape: (s: LipRollShape) => void;
+  shape: LipRollShape; /** none: the slide is fixed (an exercise in the plan), so no Slide row */ onShape?: (s: LipRollShape) => void;
   play: LipRollPlay; onPlay: (p: LipRollPlay) => void;
   speed: LipRollSpeed; onSpeed: (s: LipRollSpeed) => void;
-  look?: "bar" | "rows";
+  look?: "bar" | "menu";
 }) {
-  const Row = look === "bar" ? BarRow : ChipRow;
-  const row = (label: string, chips: ReactNode) => <Row label={label}>{chips}</Row>;
+  const row = (label: string, chips: ReactNode) => look === "bar"
+    ? <SettingsRow label={label}>{chips}</SettingsRow>
+    : <DropdownSection title={label}><div className="flex flex-wrap gap-1.5">{chips}</div></DropdownSection>;
   return (
     <>
-      {row("Slide", LIP_ROLL_SHAPES.map((x) => <Chip key={x.id} on={x.id === shape} onClick={() => onShape(x.id)} title={x.title}>{x.label}</Chip>))}
+      {onShape && row("Slide", LIP_ROLL_SHAPES.map((x) => <Chip key={x.id} on={x.id === shape} onClick={() => onShape(x.id)} title={x.title}>{x.label}</Chip>))}
       {row("Tone", LIP_ROLL_PLAYS.map((m) => <Chip key={m} on={m === play} onClick={() => onPlay(m)} title={PLAY_CHIPS[m].title}>{PLAY_CHIPS[m].label}</Chip>))}
       {shape !== "hold" && row("Speed", LIP_ROLL_SPEEDS.map((s) => <Chip key={s} on={s === speed} onClick={() => onSpeed(s)}>{SPEED_CHIPS[s]}</Chip>))}
+      <RollAccuracy look={look} />
+      <PlayAheadRow look={look} />
     </>
   );
 }

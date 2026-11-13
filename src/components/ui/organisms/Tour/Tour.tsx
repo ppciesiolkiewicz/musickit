@@ -13,6 +13,12 @@ export interface TourStep {
 }
 
 /** The card's widest size; on a phone it shrinks to the window less its margins. */
+/**
+ * Sent (bubbling) from a step's section before the tour scrolls to it, so a folded container around it (a settings
+ * panel's body) can open first; a section still hidden then is scrolled to a frame later.
+ */
+export const TOUR_REVEAL = "tour-reveal";
+
 const WIDTH = 288;
 /** Space between the lit section and the card. */
 const GAP = 10;
@@ -137,11 +143,24 @@ export function Tour({ steps, root, open, onClose }: { steps: TourStep[]; root?:
       const top = below + h <= vh - EDGE ? below : above >= EDGE ? above : vh - h - EDGE;
       setPlace({ width, left, top: Math.max(EDGE, top) });
     };
-    if (el) {
-      const r = el.getBoundingClientRect();
+    const reveal = (target: HTMLElement) => {
+      const r = target.getBoundingClientRect();
       const tall = r.height + 2 * PAD > window.innerHeight - 2 * EDGE;
       const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      el.scrollIntoView({ block: tall ? "start" : "center", inline: "nearest", behavior: smooth ? "smooth" : "auto" });
+      target.scrollIntoView({ block: tall ? "start" : "center", inline: "nearest", behavior: smooth ? "smooth" : "auto" });
+    };
+    let opening = 0;
+    if (el) {
+      el.dispatchEvent(new Event(TOUR_REVEAL, { bubbles: true }));
+      const r = el.getBoundingClientRect();
+      // hidden in a folded container that is opening now: scroll once it has a size
+      if (r.width === 0 && r.height === 0) {
+        const target = el;
+        opening = requestAnimationFrame(() => {
+          reveal(target);
+          update();
+        });
+      } else reveal(el);
     }
     update();
     let frame = 0;
@@ -159,6 +178,7 @@ export function Tour({ steps, root, open, onClose }: { steps: TourStep[]; root?:
     if (card.current) observer?.observe(card.current);
     if (el) observer?.observe(el);
     return () => {
+      cancelAnimationFrame(opening);
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", schedule);
       window.removeEventListener("scroll", schedule, true);

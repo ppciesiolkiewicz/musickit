@@ -9,7 +9,7 @@ import { DropdownSection, Hint, HintToggle, KeyCap } from "@/components/ui";
 import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
-import ToolSettings, { Volume } from "@/components/practice/ToolSettings";
+import { ToolSettings, Volume } from "@/features/settings";
 import { useExerciseSetting } from "@/components/practice/exerciseSettings";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import type { Clef } from "@/features/theory/piano/staff";
@@ -75,7 +75,7 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
  * The (?) arms a shared `HintProvider` (from a host up the tree, e.g. the singing page): once armed, hovering a
  * control (or tapping it, on touch) shows what it does instead of firing it.
  */
-export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, listen, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings, playAhead }: {
+export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, listen, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings, playAhead, hostSettings = false }: {
   notes: PlacedNote[];
   chords: MelodyChord[];
   /** the metronome heard from the start; off by default */
@@ -104,6 +104,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   settings?: ReactNode;
   /** the play-ahead slider, in the settings dropdown (how far the moving bar runs ahead of the voice dot) */
   playAhead?: ReactNode;
+  /** the page holds accuracy, melody view and play-ahead in its settings panel: the tool keeps the volume and its own (the click, share). The panel there has the play-along tools, whose own Volume would sit beside the app's */
+  hostSettings?: boolean;
 }) {
   useCoverage({ hints: 8 });
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
@@ -250,8 +252,8 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
         </Hint>
         {full && nav?.label && <span className="tabular-nums text-slate-300">{nav.label}</span>}
         <span className="ml-auto" />
-        <Hint title="Sound and view settings" description="Accuracy, melody view, the metronome, play-ahead, share.">
-          <ToolSettings volume={false} accuracy view more={<>
+        <Hint title="Sound and view settings" description={hostSettings ? "The metronome, share." : "Accuracy, melody view, the metronome, play-ahead, share."}>
+          <ToolSettings volume={false} accuracy={!hostSettings} view={!hostSettings} more={<>
             <DropdownSection title="Playback">
               <div role="group" aria-label="Playback" className="flex w-fit overflow-hidden rounded-lg border border-slate-700">
                 {LAYERS.filter((l) => l.id === "click").map((l) => {

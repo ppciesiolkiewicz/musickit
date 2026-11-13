@@ -8,7 +8,7 @@ export const ARPEGGIOS_TOUR: TourStep[] = [
     text: "What arpeggios are for, one thing to try, and the course lesson that explains them.",
   },
   {
-    target: "scale-settings",
+    target: "settings",
     title: "Key and scale",
     text: "Pick the key and the scale here. The scale stays on the neck behind the arpeggio.",
   },
