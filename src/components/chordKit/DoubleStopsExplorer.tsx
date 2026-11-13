@@ -50,14 +50,14 @@ export function dyadLadder(ctx: KeyContext, interval: DyadInterval, strings: [nu
 }
 
 /**
- * The whole neck lying down, low E at the bottom, with one octave of double stops on it, each numbered by the scale note it starts on (1 the root).
+ * The whole neck lying down, low E at the bottom, with one octave of double stops on it: a line in one colour joins the two notes of each, and the number above it, in the same colour, is the scale note it starts on (1 the root).
  * The two strings played are drawn bright, the rest faint; tap a double stop to hear it.
  */
 function OctaveNeck({ ctx, strings, octave, lit, onPlay }: { ctx: KeyContext; strings: [number, number]; octave: Dyad[]; lit: number | null; onPlay: (i: number) => void }) {
   const [system] = useLabelSystem();
   const heard = useHeardNote();
   const cells = useMemo(() => new Map(scaleCells(ctx).map((c) => [`${c.string}-${c.fret}`, c])), [ctx]);
-  const fretW = 44, left = 66, top = 30, gap = 26;
+  const fretW = 44, left = 66, top = 42, gap = 28;
   const W = left + (SCALE_NECK_FRETS + 0.5) * fretW, H = top + 5 * gap + 30;
   const fx = (f: number) => (f === 0 ? left - 17 : left + (f - 0.5) * fretW);
   const sy = (s: number) => top + (5 - s) * gap;
@@ -81,13 +81,13 @@ function OctaveNeck({ ctx, strings, octave, lit, onPlay }: { ctx: KeyContext; st
         })}
         {octave.map((d, i) => {
           const on = lit === i;
-          const x = (fx(d.frets[0]) + fx(d.frets[1])) / 2;
+          const colour = degreeColour(d.degree);
           return (
             <g key={i} role="button" tabIndex={0} aria-label={`${d.degree + 1}: ${cellOf(strings[0], d.frets[0]).name} and ${cellOf(strings[1], d.frets[1]).name}, frets ${d.frets.join(" and ")}`} onClick={() => onPlay(i)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onPlay(i)} className="cursor-pointer focus:outline-none">
-              <text x={x} y={sy(5) - 16} textAnchor="middle" fontSize={11} fontWeight={700} fill={on ? "#f8fafc" : d.degree === 0 ? "var(--color-slate-100)" : "var(--color-slate-400)"}>{d.degree + 1}</text>
-              {/* a soft frame round the two notes, so each double stop reads as one shape */}
-              <rect x={Math.min(fx(d.frets[0]), fx(d.frets[1])) - 16} y={sy(strings[1]) - 16} width={Math.abs(fx(d.frets[0]) - fx(d.frets[1])) + 32} height={sy(strings[0]) - sy(strings[1]) + 32} rx={16}
-                fill={on ? "rgba(248,250,252,0.14)" : "rgba(148,163,184,0.10)"} stroke={on ? "#f8fafc" : "var(--color-slate-600)"} strokeWidth={on ? 2 : 1} />
+              {/* one colour per double stop: its starting note's, on the line that joins its two notes and on its number */}
+              <line x1={fx(d.frets[0])} x2={fx(d.frets[1])} y1={sy(strings[0])} y2={sy(strings[1])} stroke={on ? "#f8fafc" : colour} strokeWidth={on ? 7 : 5} strokeLinecap="round" opacity={on ? 1 : 0.85} />
+              <circle cx={fx(d.frets[1])} cy={sy(5) - 22} r={9} fill={colour} stroke={on ? "#f8fafc" : DOT_INK} strokeWidth={on ? 2.5 : 1} />
+              <text x={fx(d.frets[1])} y={sy(5) - 22} textAnchor="middle" dominantBaseline="central" fontSize={10.5} fontWeight={800} fill={DOT_INK}>{d.degree + 1}</text>
               {([0, 1] as const).map((k) => {
                 const c = cellOf(strings[k], d.frets[k]);
                 const label = noteLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText });
@@ -95,7 +95,7 @@ function OctaveNeck({ ctx, strings, octave, lit, onPlay }: { ctx: KeyContext; st
                 return (
                   <g key={k}>
                     <title>{hoverLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</title>
-                    <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={on ? 12.5 : 11} fill={degreeColour(c.degree)} stroke={ring ? HEARD : on ? "#f8fafc" : DOT_INK} strokeWidth={ring || on ? 3 : 1.5} />
+                    <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={on ? 12.5 : 11} fill={degreeColour(c.degree)} stroke={ring ? HEARD : on ? "#f8fafc" : colour} strokeWidth={ring || on ? 3 : 2.5} />
                     <text x={fx(d.frets[k])} y={sy(strings[k])} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 8.5 : 10.5} fontWeight={700} fill={DOT_INK}>{label}</text>
                   </g>
                 );
@@ -201,7 +201,7 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
           <h3 className="text-sm font-medium text-slate-100">Up the scale</h3>
           {octave.length > 0 && <button type="button" onClick={() => (running ? stop() : run())} title="Plays the octave up and back down" className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running ? "■ Stop" : "▶ Play"}</button>}
         </div>
-        <p className="mb-3 text-xs text-slate-400">One octave of {keyName} on the {lower} and {STRING_NAMES[strings[1]]} strings, around the root. Each number is the scale note the double stop starts on. Tap one to hear it.</p>
+        <p className="mb-3 text-xs text-slate-400">One octave of {keyName} on the {lower} and {STRING_NAMES[strings[1]]} strings, around the root. A coloured line joins the two notes of each double stop; the number above it, in the same colour, is the scale note it starts on. Tap one to hear it.</p>
         {octave.length
           ? <OctaveNeck ctx={ctx} strings={strings} octave={octave} lit={lit} onPlay={tap} />
           : <p className="text-xs text-slate-500">No {ivLabel} of this scale fit on these strings within 4 frets.</p>}
