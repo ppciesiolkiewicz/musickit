@@ -26,6 +26,7 @@ import type { Degree, Voicing } from "@/features/exercises/timeline/types";
 import { layersOf, othersOf, type Others } from "@/features/exercises/cues/visibility";
 import { parsePlacement, type Placement } from "@/features/exercises/cues/placement";
 import { lengthLabel, libraryVideo, publishedVideos } from "@/features/videos/library";
+import { sanitiseVideoRef, type VideoRef } from "@/features/videos/ref";
 import type { CatalogueEntry } from "./catalogue";
 import type { Area } from "./concepts";
 import type { Level } from "./types";
@@ -115,8 +116,12 @@ type PlanToolProps =
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; /** Do and then the note sound before the student sings; absent: only Do */ play?: "both"; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
-  /** a published video of the library (`@/features/videos/library`), by its id */
-  | { type: "video"; video: string }
+  /**
+   * a published video of the library (`@/features/videos/library`), by its id; or, in a note, `ref`: a teacher's recording
+   * kept in their browser, or a placeholder for a video to make later (the AI plan is not offered videos)
+   */
+  | { type: "video"; video: string; ref?: undefined }
+  | { type: "video"; video?: undefined; ref: Exclude<VideoRef, { source: "library" }> }
   | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; level?: ToolLevel; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
@@ -628,6 +633,11 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
   },
   video: {
     parse(t, d) {
+      if (t.ref !== undefined) {
+        const ref = sanitiseVideoRef(t.ref);
+        if (!ref || ref.source === "library") return no(d, `an unreadable video ref ${JSON.stringify(t.ref)?.slice(0, 40)}`);
+        return { type: "video", ref };
+      }
       const v = typeof t.video === "string" ? libraryVideo(t.video) : null;
       if (!v) return no(d, `${bad("video", t.video)} (an id from the video list)`);
       // a stored plan keeps a video whose file went offline; the player says it can't be loaded
@@ -787,13 +797,13 @@ export const parseTool = (raw: unknown, opts: { stored?: boolean } = {}): PlanTo
 
 /** A cell of a block: a paragraph, numbered steps, a notice, a tool set up, or a section framing cells of its own (one level: a section holds no section). */
 export type Cell =
-  | { type: "text"; text: string }
-  | { type: "list"; items: string[] }
-  | { type: "notice"; notice: "headphones" }
-  | { type: "tool"; tool: PlanTool }
+  | { type: "text"; text: string; id?: string }
+  | { type: "list"; items: string[]; id?: string }
+  | { type: "notice"; notice: "headphones"; id?: string }
+  | { type: "tool"; tool: PlanTool; id?: string }
   | SectionCell;
-/** A step of an exercise: a heading, minutes when it is a timed block, a choice that sets its tools, its cells. */
-export interface SectionCell { type: "section"; heading: string; minutes?: number; choice?: Choice; cells: Exclude<Cell, SectionCell>[] }
+/** A step of an exercise: a heading, minutes when it is a timed block, a choice that sets its tools, its cells. `id`: an editor's handle on the cell, kept through edits. */
+export interface SectionCell { type: "section"; heading: string; minutes?: number; choice?: Choice; cells: Exclude<Cell, SectionCell>[]; id?: string }
 
 /** A cell that is not a section: what a section holds. */
 export type PlainCell = Exclude<Cell, SectionCell>;
@@ -1011,15 +1021,18 @@ const strNoted = (v: unknown, max: number, what: string, notes: string[]): strin
  * are parsed the same way; what they drop is noted on the section ("left out a text (it was empty)"), and a section left
  * with no cell is dropped.
  */
-export function parseCellDiag(raw: unknown, opts: { inSection?: boolean } = {}): CellParse {
+export function parseCellDiag(raw: unknown, opts: { inSection?: boolean; draft?: boolean } = {}): CellParse {
   const s = (raw ?? {}) as Record<string, unknown>;
   const notes: string[] = [];
-  const out = (cell: Cell): CellParse => ({ cell, notes });
+  // an editor's id rides along: a short plain string
+  const id = typeof s.id === "string" && CELL_ID.test(s.id) ? { id: s.id } : {};
+  const out = (cell: Cell): CellParse => ({ cell: { ...cell, ...id }, notes });
   const empty = (what: string): CellParse => ({ cell: null, dropped: `${what} (it was empty)`, notes });
   switch (s.type) {
     case "text": {
       const text = strNoted(s.text, MAX_TEXT, "a text", notes);
-      return text ? out({ type: "text", text }) : empty("a text");
+      // a note being written keeps an empty text box
+      return text ? out({ type: "text", text }) : opts.draft ? out({ type: "text", text: "" }) : empty("a text");
     }
     case "list": {
       const asked = list(s.items);
@@ -1039,7 +1052,7 @@ export function parseCellDiag(raw: unknown, opts: { inSection?: boolean } = {}):
     case "section": {
       if (opts.inSection) return { cell: null, dropped: "a section inside a section", notes };
       const heading = strNoted(s.heading, MAX_HEADING, "a heading", notes);
-      if (!heading) return { cell: null, dropped: "a section with no heading", notes };
+      if (!heading && !opts.draft) return { cell: null, dropped: "a section with no heading", notes };
       const m = Math.round(Number(s.minutes));
       const d: Diag = { notes: [] };
       const choice = s.choice === undefined ? null : parseChoiceDiag(s.choice, d);
@@ -1047,12 +1060,12 @@ export function parseCellDiag(raw: unknown, opts: { inSection?: boolean } = {}):
       if (choice?.dropped) notes.push(`"${heading}": left out ${choice.dropped}.`);
       const cells: PlainCell[] = [];
       for (const c of list(s.cells)) {
-        const p = parseCellDiag(c, { inSection: true });
+        const p = parseCellDiag(c, { inSection: true, draft: opts.draft });
         notes.push(...p.notes);
         if (p.dropped) notes.push(`"${heading}": left out ${p.dropped}.`);
         if (p.cell && p.cell.type !== "section") cells.push(p.cell);
       }
-      if (!cells.length) return { cell: null, dropped: `the section "${heading}" (no cell in it could be shown)`, notes };
+      if (!cells.length && !opts.draft) return { cell: null, dropped: `the section "${heading}" (no cell in it could be shown)`, notes };
       return out({ type: "section", heading, ...(s.minutes != null && Number.isFinite(m) ? { minutes: Math.min(60, Math.max(1, m)) } : {}), ...(choice?.choice ? { choice: choice.choice } : {}), cells });
     }
     case "heading":
@@ -1062,6 +1075,8 @@ export function parseCellDiag(raw: unknown, opts: { inSection?: boolean } = {}):
 }
 
 /** One cell from the AI's JSON, checked; null when empty or not showable. */
+const CELL_ID = /^[A-Za-z0-9_-]{1,24}$/;
+
 export const parseCell = (raw: unknown): Cell | null => parseCellDiag(raw).cell;
 
 /* ---------------------------------------------------------------- what the prompt says */
@@ -1087,7 +1102,9 @@ const videoLine = () =>
   `Videos: ${publishedVideos().map((v) => `"${v.id}" (${v.title}, ${v.area}, ${lengthLabel(v.seconds)}: ${v.about})`).join("; ")}.`;
 const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p.required ? "" : "?"}: ${p.type}${p.description ? ` (${p.description})` : ""}`;
 // the video tool is offered only while the library has a video to watch
-const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name) && (d.name !== "video" || publishedVideos().length > 0));
+/** Tools the parser reads but the AI plan is not offered (the user, 2026-11-13: no videos in the plan for now). */
+export const PROMPT_HIDDEN: ToolName[] = ["video"];
+const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name) && !PROMPT_HIDDEN.includes(d.name as ToolName));
 const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape");
 
 /** The tools, as an MCP server would list them: name, description, props; guitar-play-along's shapes listed under it. */

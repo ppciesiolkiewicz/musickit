@@ -7,4 +7,6 @@
 export interface VideoProps {
   /** the video's id in the library (a string from the list) */
   video: string;
+  /** notes only, never in a plan: a teacher's recording or a placeholder ({ "source": "recording", "id", "title" } or { "source": "placeholder", "text" }) in place of `video` */
+  ref?: { source: string; id?: string; title?: string; text?: string };
 }

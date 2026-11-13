@@ -11,18 +11,10 @@ import LayoutSelector from "./LayoutSelector";
 import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
-import { noteFromHash } from "./notes";
-import NoteJson from "./NoteJson";
 import SharePopover from "./SharePopover";
 import { Modal } from "@/components/ui";
 import { VideoChooser, type ChooserTab } from "@/features/videos/VideoChooser";
 import type { VideoRef } from "@/features/videos/ref";
-import NoteView, { NoteReader } from "./NoteView";
-import { BackToEditing, NOTE_COLUMN, useNoteViewMode } from "./NoteViewMode";
-import { noteHeader } from "./notes";
-import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
-import { devUi } from "@/features/devtools/gate";
-import { presetStage, savePresetDraft } from "./presetNotes";
 import Palette from "./Palette";
 import useStage from "./useStage";
 
@@ -76,41 +68,16 @@ const isTyping = () => {
   return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable);
 };
 
-/** The notes creator's steps, over the page. Each names a control by its label. */
-const NOTE_STEPS = [
-  "Press Add a widget to put a scale, a chord box, a neck, a video or some text on the page.",
-  "Drag a widget to move it up or down the page.",
-  "Press View as a note to see the page as your students will.",
-];
 
-/** The studio, or in the notes creator a shared note's link opened as an article to read (`NoteView`). */
-export default function StudioApp({ notes = false, preset }: {
-  notes?: boolean;
-  /** a preset note's slug (`presetNotes.ts`): the notes creator opens on that note and stores nothing; as a dev demo its changes are kept in memory until a reload, so the note's page shows them */
-  preset?: string;
-}) {
-  // the link's hash is known only in the browser: until then nothing is drawn, as the studio itself waits for hydration
-  const [note, setNote] = useState<string | null | undefined>(undefined);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the hash is read after hydration
-    setNote(notes ? noteFromHash(window.location.hash) : null);
-  }, [notes]);
-  if (note === undefined) return null;
-  return note ? <NoteView note={note} /> : <Studio notes={notes} preset={preset} />;
+/** The video studio: the 16:9 stage, its panel and its keys. (The notes creator is its own page: `@/features/teachers/notes`.) */
+export default function StudioApp() {
+  return <Studio />;
 }
 
 /** The teacher studio: the 16:9 frame in the middle, its layers on the left, the keys that work on the right. */
-function Studio({ notes = false, preset }: {
-  /** the notes creator (?notes=1): the same stage without video, camera, screen or microphone, shared as a link, inside the site's page frame */
-  notes?: boolean;
-  preset?: string;
-}) {
+function Studio() {
   const [mounted, setMounted] = useState(false);
-  // a preset starts as this tab last left it (dev demo), read once, and every change is kept in memory as it is made
-  const [start] = useState(() => (preset ? presetStage(preset) : null));
-  const keep = useCallback((s: Parameters<typeof savePresetDraft>[1]) => { if (preset) savePresetDraft(preset, s); }, [preset]);
-  const [stage, dispatch, load] = useStage(PLUGIN_IDS, notes, start, keep);
-  const [json, setJson] = useState(false);
+  const [stage, dispatch] = useStage(PLUGIN_IDS);
   /** the Add a video dialog, open on this tab; `onPick` puts the video in a placeholder instead of adding a widget */
   const [videoPick, setVideoPick] = useState<{ tab: ChooserTab; onPick?: (video: VideoRef) => void } | null>(null);
   const pickIntoPlaceholder = useCallback((onPick: (video: VideoRef) => void) => setVideoPick({ tab: "record", onPick }), []);
@@ -121,14 +88,6 @@ function Studio({ notes = false, preset }: {
   // sharing is not open in the demo: Share as a note says so (links made before still open)
   const [shareInfo, setShareInfo] = useState(false);
   const closeShareInfo = useCallback(() => setShareInfo(false), []);
-  // the notes creator's View as a note: the note as a demo note's page draws it, in place of the editor. The page's header follows it
-  // when the page shares the mode (`NoteViewProvider`); without one the creator keeps its own
-  const mode = useNoteViewMode();
-  const [ownViewing, setOwnViewing] = useState(false);
-  const viewing = mode ? mode.viewing : ownViewing;
-  const setViewing = mode ? mode.setViewing : setOwnViewing;
-  const setModeStage = mode?.setStage;
-  useEffect(() => setModeStage?.(viewing ? stage : null), [setModeStage, viewing, stage]);
   const [palette, setPalette] = useState(false);
   const [help, setHelp] = useState(false);
   // a video config previewed in place of the stage
@@ -236,7 +195,7 @@ function Studio({ notes = false, preset }: {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       // the preview has its own keys; the stage's would move widgets nobody can see
-      if (palette || video || videoPick || viewing) return;
+      if (palette || video || videoPick) return;
       if (help) {
         setHelp(false);
         e.preventDefault();
@@ -304,7 +263,7 @@ function Studio({ notes = false, preset }: {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [palette, help, video, videoPick, viewing, dispatch, runCommand]);
+  }, [palette, help, video, videoPick, dispatch, runCommand]);
 
   if (!mounted) return null;
 
@@ -337,26 +296,9 @@ function Studio({ notes = false, preset }: {
     </HeardNote.Provider>
   );
 
-  // PageShell already holds the notes creator's <main>
-  if (notes && viewing) {
-    // the page's header already shows the note's title and line; without a shared mode the article keeps them
-    const body = mode ? noteHeader(stage).body : stage;
-    return (
-      <div className={NOTE_COLUMN}>
-        {/* the page's header carries Back to editing when it shares the mode */}
-        {!mode && <BackToEditing onBack={() => setViewing(false)} />}
-        <VoicePicker data={body}>
-          <NoteReader stage={body} footer={false} />
-        </VoicePicker>
-      </div>
-    );
-  }
-
-  const Main = notes ? "div" : "main";
   return (
-    <div className={`grid gap-4 max-md:grid-cols-1 max-md:gap-2 ${notes ? "relative" : "min-h-screen p-4 max-md:p-2"} ${folded ? "grid-cols-[52px_minmax(0,1fr)]" : "grid-cols-[220px_minmax(0,1fr)]"}`}>
-      {/* in the notes creator the site's nav holds the window's corner, so the button stays in the tool's own */}
-      <button data-chrome type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className={`${notes ? "absolute right-0 top-0" : "fixed right-3 top-3"} z-30 max-md:hidden rounded-md border border-slate-800 bg-slate-950/80 p-1 text-slate-400 hover:text-slate-100`}>
+    <div className={`grid gap-4 max-md:grid-cols-1 max-md:gap-2 min-h-screen p-4 max-md:p-2 ${folded ? "grid-cols-[52px_minmax(0,1fr)]" : "grid-cols-[220px_minmax(0,1fr)]"}`}>
+      <button data-chrome type="button" title="Keys (?)" aria-label="Show the keys" onClick={() => setHelp(true)} className={`fixed right-3 top-3 z-30 max-md:hidden rounded-md border border-slate-800 bg-slate-950/80 p-1 text-slate-400 hover:text-slate-100`}>
         <Icon name="info" size={14} />
       </button>
       {folded ? (
@@ -370,16 +312,9 @@ function Studio({ notes = false, preset }: {
           <button type="button" title="Share as a note" aria-label="Share as a note" onClick={() => { setShareInfo(true); toggleFolded(); }} className="rounded-md border border-slate-700 p-1 text-slate-200 hover:border-slate-500">
             <Icon name="share-2" size={14} />
           </button>
-          {notes && (
-            <button type="button" title={viewing ? "Back to editing" : "View as a note"} aria-label={viewing ? "Back to editing" : "View as a note"} aria-pressed={viewing} onClick={() => setViewing(!viewing)} className={`rounded-md border p-1 hover:border-slate-500 ${viewing ? "border-sky-500/60 text-sky-200" : "border-slate-700 text-slate-200"}`}>
-              <Icon name="eye" size={14} />
-            </button>
-          )}
-          {!notes && (
             <button type="button" title="Preview a video config" aria-label="Preview a video config" aria-pressed={!!video} onClick={() => void openVideo()} className={`rounded-md border p-1 hover:border-slate-500 ${video ? "border-sky-500/60 text-sky-200" : "border-slate-700 text-slate-200"}`}>
               <Icon name="play" size={14} />
             </button>
-          )}
           <ul className="mt-1 flex flex-col gap-1 max-md:mt-0 max-md:flex-row max-md:flex-wrap">
             {[...stage.layers].reverse().map((l) => (
               <li key={l.id} className="flex items-center gap-0.5">
@@ -403,24 +338,12 @@ function Studio({ notes = false, preset }: {
         <aside data-chrome aria-label="Layers" className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col gap-2 self-start overflow-y-auto max-md:static max-md:max-h-none max-md:self-auto">
           {/* the note's actions first, where they are seen without scrolling past the layers */}
           <div className="mb-2 flex flex-col gap-2 border-b border-slate-800 pb-3">
-            <SharePopover open={shareInfo} onClose={closeShareInfo} onView={notes ? () => setViewing(true) : undefined}>
+            <SharePopover open={shareInfo} onClose={closeShareInfo} >
               <button type="button" onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} aria-label="Share as a note" title="Sharing isn't open yet in this demo" className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
                 <Icon name="share-2" size={12} />
                 <span className="min-w-0 truncate">Share as a note</span>
               </button>
             </SharePopover>
-            {notes && (
-            <button type="button" onClick={() => setViewing(!viewing)} aria-pressed={viewing} aria-label={viewing ? "Back to editing" : "View as a note"} title={viewing ? "Back to the editor" : "See the note as your students will: read-only, one column"} className={`flex items-center gap-2 rounded-md border px-2 py-1 text-left text-xs hover:border-slate-600 ${viewing ? "border-sky-500/60 bg-sky-500/10 text-sky-100" : "border-slate-800 text-slate-300"}`}>
-              <Icon name={viewing ? "pencil" : "eye"} size={12} />
-              <span className="min-w-0 flex-1 truncate">{viewing ? "Back to editing" : "View as a note"}</span>
-            </button>
-            )}
-            {notes && grid && devUi() && (
-            <button type="button" onClick={() => setJson(true)} aria-label="Edit as JSON (dev)" title="The whole note as text: its key and its widgets in page order, to read, change and apply in one go. Development only." className="flex items-center gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600">
-              <Icon name="pencil" size={12} />
-              <span className="min-w-0 flex-1 truncate">Edit as JSON (dev)</span>
-            </button>
-            )}
           </div>
           <div className="flex items-stretch gap-1">
             <div className="min-w-0 flex-1">
@@ -446,11 +369,9 @@ function Studio({ notes = false, preset }: {
                     {isPage(l.subject) && <PageBadge />}
                     {takesMic(l.subject) && <MicBadge />}
                   </button>
-                  {!notes && (
                   <button type="button" title={l.onTop ? "Unpin" : "Pin over the other widgets (the audio input lights its notes)"} aria-label={`${l.onTop ? "Unpin" : "Pin"} ${name}`} aria-pressed={!!l.onTop} onClick={() => dispatch({ type: "togglePin", id: l.id })} className={`p-0.5 hover:text-slate-100 ${l.onTop ? "text-sky-300" : "text-slate-400"}`}>
                     <Icon name="pin" size={14} />
                   </button>
-                  )}
                   <button type="button" title={l.visible ? "Hide" : "Show"} aria-label={`${l.visible ? "Hide" : "Show"} ${name}`} onClick={() => dispatch({ type: "toggle", id: l.id })} className="p-0.5 text-slate-400 hover:text-slate-100">
                     <Icon name="eye" size={14} />
                   </button>
@@ -501,7 +422,6 @@ function Studio({ notes = false, preset }: {
             </span>
           </button>
           )}
-          {!notes && (
           <button
             type="button"
             onClick={() => void openVideo()}
@@ -511,7 +431,6 @@ function Studio({ notes = false, preset }: {
             <Icon name="play" size={12} />
             <span className="min-w-0 flex-1 truncate">{video ? `Video: ${video.name}` : "Preview a video…"}</span>
           </button>
-          )}
           {camera.stream && camera.devices.length > 1 && (
             <label className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
               Camera
@@ -525,29 +444,12 @@ function Studio({ notes = false, preset }: {
         </aside>
       )}
 
-      <Main className="flex min-w-0 flex-col items-center gap-3">
-        {!notes && <h1 className="sr-only">Studio</h1>}
+      <main className="flex min-w-0 flex-col items-center gap-3">
+        <h1 className="sr-only">Studio</h1>
         {/* as wide as the column, but never taller than the window */}
         <div className="w-full max-w-[calc((100vh-4rem)*16/9)] max-md:max-w-none">
-          {video && !notes ? (
+          {video ? (
             <VideoPreview file={video} pluginIds={PLUGIN_IDS} onClose={() => setVideo(null)} />
-          ) : notes ? (
-            <>
-              {/* pr-6 keeps clear of the keys button in the corner */}
-              <ol className="mb-3 grid gap-x-6 gap-y-1 pr-6 text-sm text-slate-400 sm:grid-cols-3 max-md:pr-0">
-                {NOTE_STEPS.map((t, i) => (
-                  <li key={i} className="flex gap-2">
-                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-sky-500/15 text-xs font-semibold text-sky-200">{i + 1}</span>
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ol>
-              <VideoPickContext.Provider value={pickIntoPlaceholder}>
-                <MicContext.Provider value={mic}>
-                  <StageFrame stage={stage} renderLayer={renderLayer} onAction={dispatch} keepShape={keepShape} pin={false} flow />
-                </MicContext.Provider>
-              </VideoPickContext.Provider>
-            </>
           ) : (
             <>
               {/* pr-6 keeps clear of the keys button in the window's corner */}
@@ -562,15 +464,15 @@ function Studio({ notes = false, preset }: {
             </>
           )}
         </div>
-      </Main>
+      </main>
 
-      {palette && <Palette notes={notes} pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onUpdate={(id, subject) => dispatch({ type: "swap", id, subject })} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
+      {palette && <Palette pluginIds={PLUGIN_IDS} stageKey={stage.key} media={media} layers={stage.layers} onPick={onPick} onUpdate={(id, subject) => dispatch({ type: "swap", id, subject })} onRemove={(id) => dispatch({ type: "remove", id })} onClose={() => setPalette(false)} />}
       {help && <KeysOverlay onClose={() => setHelp(false)} />}
       {videoPick && (
         <Modal title="Add a video" medium onClose={() => setVideoPick(null)}>
           <VideoChooser
             start={videoPick.tab}
-            addTo={notes ? "the note" : "the stage"}
+            addTo="the stage"
             onPick={(video) => {
               if (videoPick.onPick) videoPick.onPick(video);
               else dispatch({ type: "addSubject", id: crypto.randomUUID(), subject: { kind: "video", video } });
@@ -579,7 +481,6 @@ function Studio({ notes = false, preset }: {
           />
         </Modal>
       )}
-      {json && <NoteJson stage={stage} pluginIds={PLUGIN_IDS} onApply={load} onClose={() => setJson(false)} />}
     </div>
   );
 }

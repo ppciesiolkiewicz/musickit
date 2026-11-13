@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import PageShell from "@/components/PageShell";
 import { pageBar } from "@/components/PageHeading";
 import Icon from "@/components/Icon";
-import { NOTE_EYEBROW, NoteViewProvider, NotesCreatorHeader, PRESET_INFO, PresetHeader, PresetNote, StudioApp, presetInfo } from "@/features/teachers/studio";
+import { NOTE_EYEBROW, NoteViewProvider, NotesApp, NotesCreatorHeader, PRESET_INFO, PresetHeader, PresetNote, presetInfo } from "@/features/teachers/notes";
 
 type Params = { slug: string };
 type Search = Record<string, string | string[] | undefined>;
@@ -38,7 +38,7 @@ export default async function NotePage({ params, searchParams }: { params: Promi
           <NotesCreatorHeader title="Notes creator" bar={pageBar(ACTIVE)} intro={`“${note.title}”, open to change: add, move or remove widgets. This is a demo page: your changes are kept as you make them, so View the note shows them, until you reload.`}
             action={<Link href={`/note/${slug}`} className={ACTION}><Icon name="eye" size={15} />View the note</Link>} />
         }>
-          <StudioApp notes preset={slug} />
+          <NotesApp preset={slug} />
         </PageShell>
       </NoteViewProvider>
     );

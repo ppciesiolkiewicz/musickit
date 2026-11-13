@@ -16,6 +16,7 @@ import { askNotifications, confirmReminder, notificationsSupported } from "./rem
 import { usePlan } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
+import { usePlanAgentTools } from "./ui/useBlockAgentTools";
 import SharePopover from "@/features/teachers/studio/SharePopover";
 import { DISPLAY } from "@/components/landing/Display";
 import { FixedLabelRoot, LabelSelect } from "@/features/theory/useLabelSystem";
@@ -69,6 +70,10 @@ export default function PlanApp() {
     setDay(0);
   };
   const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current ? { ...s, current: change(s.current) } : s));
+  // the browser AI's block tools, while a plan runs
+  // the day the player has open in the day editor: the AI leaves it alone until Done
+  const [editingDay, setEditingDay] = useState<number | null>(null);
+  usePlanAgentTools(loaded ? plan : null, (next) => setPlan(() => next), editingDay);
   // a rating goes to the plan (what the week view draws) and to the progress log (the lasting record, one row per exercise)
   const rate = (d: number, e: number, stars: Stars | null) => {
     const at = new Date().toISOString();
@@ -155,7 +160,7 @@ export default function PlanApp() {
           </section>
         )}
 
-        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} onElapsed={saveElapsed} corner={labels} />
+        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} onElapsed={saveElapsed} onEdit={(next) => setPlan(() => next)} onEditing={setEditingDay} corner={labels} />
 
         {state.history.length > 0 && <History plans={state.history} onUse={useAgain} />}
         <div className="flex justify-center">

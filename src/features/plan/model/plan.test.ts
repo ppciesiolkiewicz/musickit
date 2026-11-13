@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
-import { parseExercise, parsePlanConfig } from "./config";
+import { parseBlock, parseExercise, parsePlanConfig } from "./config";
 import { GLOSSARY } from "@/features/course/glossary";
 import { EXERCISE_EXAMPLES } from "../examples";
 import { buildPrompt, weekReport } from "./prompt";
@@ -11,7 +11,7 @@ import { COMPONENT_DOCS } from "@/features/exercises/docs";
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
 import { PROGRESSIONS, STYLES } from "@/features/backing/model";
-import { KEY_PANELS, canFollowPart, cellInterface, cellsOf, degreeSemis, linkResources, parseCellDiag, parseTool, parseToolDiag, toolInterface, toolsOf, type Cell } from "./tools";
+import { KEY_PANELS, PROMPT_HIDDEN, canFollowPart, cellInterface, cellsOf, degreeSemis, linkResources, parseCellDiag, parseTool, parseToolDiag, toolInterface, toolsOf, type Cell } from "./tools";
 import { transposeTool } from "./transpose";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
@@ -89,13 +89,12 @@ describe("tools", () => {
     assert.ok(!("pick" in picked!));
     assert.deepEqual(parseTool({ type: "run-singer", run: runChoices()[0].id, key: "c" }), { type: "run-singer", run: runChoices()[0].id });
   });
-  it("reads a video by its library id and lists the published videos for the AI", () => {
+  it("reads a video by its library id; the AI is not offered videos", () => {
     assert.deepEqual(parseTool({ type: "video", video: "c-major-first-steps" }), { type: "video", video: "c-major-first-steps" });
     assert.match(parseToolDiag({ type: "video", video: "c-major-do-re-mi-long" }).dropped ?? "", /not published/);
     assert.deepEqual(parseToolDiag({ type: "video", video: "c-major-do-re-mi-long" }, { stored: true }).tool, { type: "video", video: "c-major-do-re-mi-long" });
     assert.match(parseToolDiag({ type: "video", video: "nope" }).dropped ?? "", /unreadable video/);
-    const line = toolInterface().find((l) => l.startsWith("- video "));
-    assert.match(line ?? "", /"c-major-first-steps" \(First steps: Do and Re, voice, 1 min/);
+    assert.equal(toolInterface().find((l) => l.startsWith("- video ")), undefined);
   });
   it("keeps a singer's chords on unless turned off", () => {
     const run = runChoices()[0].id;
@@ -411,7 +410,7 @@ describe("the interface the prompt lists", () => {
     assert.equal(cellInterface().length, 5);
     const tools = toolInterface().join("\n");
     const listed = [...tools.matchAll(/^- (\S+) : /gm)].map((m) => m[1]).sort();
-    const docs = COMPONENT_DOCS.filter((d) => d.kind !== "shape" && d.name !== "step-choice").map((d) => d.name).sort(); // step-choice is a choice now, no tool (its component is renamed in Task 10)
+    const docs = COMPONENT_DOCS.filter((d) => d.kind !== "shape" && d.name !== "step-choice" && !PROMPT_HIDDEN.includes(d.name as never)).map((d) => d.name).sort(); // step-choice is a choice now, no tool (its component is renamed in Task 10)
     assert.deepEqual(listed, docs);
     for (const d of COMPONENT_DOCS.filter((d) => d.kind === "shape")) assert.ok(tools.includes(d.name), d.name);
     assert.ok(tools.includes(STAGES[0].title));
@@ -649,5 +648,28 @@ describe("arpeggio-neck views", () => {
     const r = p({ show: ["neck"] }, "C13");
     assert.equal((r.tool as { show?: string[] }).show, undefined);
     assert.ok(r.notes.some((n) => n.includes("show")));
+  });
+});
+
+describe("notes: videos, drafts and cell ids", () => {
+  it("the prompt names no video tool; the parser still reads one", () => {
+    assert.ok(!toolInterface().some((l) => l.startsWith("- video ")));
+    assert.equal(parseToolDiag({ type: "video", ref: { source: "recording", id: "r1", title: "Take 1" } }).tool?.type, "video");
+    assert.equal(parseToolDiag({ type: "video", ref: { source: "placeholder", text: "Show the slide" } }).tool?.type, "video");
+    assert.ok(parseToolDiag({ type: "video", ref: { source: "nope" } }).dropped);
+  });
+  it("a draft keeps an empty text and a section with no heading; a cell keeps its id", () => {
+    assert.deepEqual(parseCellDiag({ type: "text", text: "" }, { draft: true }).cell, { type: "text", text: "" });
+    assert.equal(parseCellDiag({ type: "text", text: "" }).cell, null);
+    assert.deepEqual(parseCellDiag({ type: "section", heading: "", cells: [] }, { draft: true }).cell, { type: "section", heading: "", cells: [] });
+    assert.deepEqual(parseCellDiag({ type: "text", text: "Hi", id: "abc123" }).cell, { type: "text", text: "Hi", id: "abc123" });
+    assert.deepEqual(parseCellDiag({ type: "text", text: "Hi", id: "no spaces!" }).cell, { type: "text", text: "Hi" });
+  });
+  it("parseBlock reads a note: title, key, cells", () => {
+    const r = parseBlock({ title: "T", choice: { open: { key: "a", scale: "dorian" } }, cells: [{ type: "text", text: "" }] }, { draft: true });
+    assert.equal(r.block.title, "T");
+    assert.deepEqual(r.block.choice, { open: { key: 9, scale: "dorian" } });
+    assert.equal(r.block.cells.length, 1);
+    assert.deepEqual(parseBlock(null).block, { title: "", cells: [] });
   });
 });

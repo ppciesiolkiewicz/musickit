@@ -1504,6 +1504,12 @@
         "type": "string",
         "required": true,
         "description": "the video's id in the library (a string from the list)"
+      },
+      {
+        "name": "ref",
+        "type": "{ source: string; id?: string; title?: string; text?: string }",
+        "required": false,
+        "description": "notes only, never in a plan: a teacher's recording or a placeholder ({ \"source\": \"recording\", \"id\", \"title\" } or { \"source\": \"placeholder\", \"text\" }) in place of `video`"
       }
     ]
   },

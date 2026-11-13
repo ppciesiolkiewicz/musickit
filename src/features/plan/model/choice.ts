@@ -112,7 +112,8 @@ export function applyChoice<T extends Cell>(cells: T[], choice: Choice, index: n
   return cells.map((s) => {
     if (s.type !== "tool") return s;
     const tool = applyTo(s.tool, option, first);
-    return tool === s.tool ? s : ({ type: "tool", tool } as T);
+    // the cell's other fields (its editor id) ride along
+    return tool === s.tool ? s : ({ ...s, tool } as T);
   });
 }
 

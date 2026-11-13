@@ -97,7 +97,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "backing-track":
       return <BackingTrack progression={tool.progression} numerals={tool.numerals} keyPc={tool.key} style={tool.style} bpm={tool.bpm} parts={tool.parts} />;
     case "video":
-      return <Video video={tool.video} />;
+      return <Video video={tool.video} videoRef={tool.ref} />;
     case "strum-along":
       return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} pattern={tool.pattern} />;
     case "finger-pattern":

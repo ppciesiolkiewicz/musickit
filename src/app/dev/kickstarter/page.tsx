@@ -2,7 +2,7 @@ import DevShell from "@/features/devtools/DevShell";
 import KickstarterPage from "@/features/devtools/kickstarter/KickstarterPage";
 import type { DemoLink } from "@/features/devtools/model/kickstarter";
 import { DEMO_PLANS } from "@/features/plan";
-import { PRESET_INFO } from "@/features/teachers/studio";
+import { PRESET_INFO } from "@/features/teachers/notes";
 import { SITE_URL } from "@/lib/site";
 
 /** Every page an email may link, by group and strongest first, with its public address: an email goes to someone who can't open localhost. Pages never to link are LINKS_TO_AVOID in the model. */

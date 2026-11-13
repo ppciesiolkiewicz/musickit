@@ -6,7 +6,7 @@ import { TOPICS } from "../intake/topics";
 import { DEFAULT_ANSWERS } from "../intake/answers";
 import { selectExamples } from "./exampleSelection";
 import { EXERCISE_EXAMPLES } from "../examples";
-import { TOOLS } from "./tools";
+import { PROMPT_HIDDEN, TOOLS } from "./tools";
 import type { PlanAnswers, StoredPlan } from "./types";
 
 const last: StoredPlan = {
@@ -28,7 +28,7 @@ test("prompt parts have unique ids in the documented order", () => {
 
 test("the which-tool guide names every tool", () => {
   const guide = promptParts(DEFAULT_ANSWERS, []).find((p) => p.id === "which-tool")?.text ?? "";
-  for (const t of Object.keys(TOOLS)) assert.match(guide, new RegExp(`\\b${t}\\b`), t);
+  for (const t of Object.keys(TOOLS)) if (!PROMPT_HIDDEN.includes(t as never)) assert.match(guide, new RegExp(`\\b${t}\\b`), t);
 });
 
 test("course ratings come after the week, or after the student without one", () => {

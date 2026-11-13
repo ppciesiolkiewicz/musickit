@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import { PLAN_TOUR } from "@/features/guide/tours/plan";
 import { PlanApp } from "@/features/plan";
+import { NotesEditorHost } from "@/features/teachers/notes";
 
 export const metadata: Metadata = {
   title: "AI Guitar Practice Plan: Custom Daily Routines · attunr",
@@ -13,7 +14,10 @@ export default function PlanPage() {
   return (
     <PageShell active="/plan" column devices pageId="plan" tour={PLAN_TOUR} title="AI practice plan" intro="A continuous daily plan for your practice, written by your own AI. A new set of exercises opens each day, and each week builds on the last.">
       {/* no HintProvider: in a plan each tool has one help button, its tour (ToolTour), so SingAlong's "?" stays hidden */}
-      <PlanApp />
+      {/* the day editor gets the studio's widget controls and palette from here (the plan never imports the studio) */}
+      <NotesEditorHost>
+        <PlanApp />
+      </NotesEditorHost>
     </PageShell>
   );
 }

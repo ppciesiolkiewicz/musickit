@@ -85,7 +85,7 @@ export function parseText(text: string): TextBlock[] {
   return out;
 }
 
-export type StudioCommand = "video-add" | "video-record" | "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-corner" | "screen-full" | "screen-stop" | "clear";
+export type StudioCommand = "section-add" | "video-add" | "video-record" | "camera-corner" | "camera-full" | "camera-off" | "screen-share" | "screen-corner" | "screen-full" | "screen-stop" | "clear";
 
 export interface PaletteResult {
   id: string;

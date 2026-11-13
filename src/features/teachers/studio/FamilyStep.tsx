@@ -106,15 +106,17 @@ export default function FamilyStep({ family, values, keepOne = false, idPrefix =
 export function FamilyEditor({ subject, onUpdate }: { subject: Subject; onUpdate: (subject: Subject) => void }) {
   const family = familyOf(subject);
   const [values, setValues] = useState<FamilyValues>(() => (family?.read(subject) ?? {}));
-  const latest = useRef({ family, subject, values, onUpdate });
+  // only a form the teacher changed is ever written: a widget that was just looked at stays exactly as it was stored
+  const [touched, setTouched] = useState(false);
+  const latest = useRef({ family, subject, values, onUpdate, touched });
   useEffect(() => {
-    latest.current = { family, subject, values, onUpdate };
+    latest.current = { family, subject, values, onUpdate, touched };
   });
   // closing commits what was typed: the latest form against the latest widget
   useEffect(
     () => () => {
       const l = latest.current;
-      if (!l.family) return;
+      if (!l.family || !l.touched) return;
       const next = updateSubject(l.subject, l.values);
       if (JSON.stringify(next) !== JSON.stringify(l.subject)) l.onUpdate(next);
     },
@@ -134,6 +136,7 @@ export function FamilyEditor({ subject, onUpdate }: { subject: Subject; onUpdate
       keepOne
       idPrefix="edit-"
       onValues={(next, immediate) => {
+        setTouched(true);
         setValues(next);
         if (immediate) apply(next);
       }}

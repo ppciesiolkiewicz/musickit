@@ -43,6 +43,7 @@ interface CommandDef {
 }
 
 const COMMANDS: CommandDef[] = [
+  { label: "Section", command: "section-add", group: "text", detail: "A frame for one step: a heading, minutes and the widgets under it", words: ["section", "step", "heading", "frame", "part", "minutes"], applies: () => true },
   { label: "Video", command: "video-add", group: "video", detail: "A practice video from the library, or one you recorded", words: ["video", "videos", "clip", "movie", "library", "watch", "my", "add"], applies: () => true },
   { label: "Record a video", command: "video-record", group: "video", detail: "Record yourself with the camera and the microphone", words: ["record", "recording", "video", "film", "camera", "webcam", "yourself", "new"], applies: () => true },
   { label: "Camera", command: "camera-corner", words: ["camera", "webcam", "start", "add"], applies: (m) => m.camera === "none" },
@@ -59,7 +60,7 @@ const COMMANDS: CommandDef[] = [
 const commandResult = (c: CommandDef): PaletteResult => ({ id: `studio:${c.label}`, label: c.label, detail: c.detail ?? "", group: c.group ?? "studio", action: { type: "command", command: c.command } });
 
 /** The commands that add something to a note rather than drive the studio's camera or screen: the notes creator offers them too. */
-export const isNoteCommand = (c: StudioCommand): boolean => c === "video-add" || c === "video-record";
+export const isNoteCommand = (c: StudioCommand): boolean => c === "section-add" || c === "video-add" || c === "video-record";
 
 /** The practice tools' families, in the order the Practice section lists them. */
 const PRACTICE_IDS = FAMILIES.filter((f) => f.group === "practice").map((f) => f.id);

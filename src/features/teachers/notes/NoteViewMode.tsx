@@ -3,18 +3,18 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { PageHeading, PageHeadingRow, PageIntro } from "@/components/PageHeading";
-import type { Stage } from "@/features/stage";
-import { noteHeader } from "./notes";
+import type { Block } from "@/features/plan/model/types";
+import { notePageParts } from "./model/note";
 
 /**
  * The notes creator's View as a note, shared by the page's header and the creator: while `viewing`, the header is the note's own
- * (as on a demo note's page) and the creator shows the article. The creator hands over the stage it is showing (`setStage`).
+ * (as on a demo note's page) and the creator shows the article. The creator hands over the note it is showing (`setNote`).
  */
 interface NoteViewMode {
   viewing: boolean;
   setViewing: (v: boolean) => void;
-  stage: Stage | null;
-  setStage: (s: Stage | null) => void;
+  note: Block | null;
+  setNote: (b: Block | null) => void;
 }
 
 const Ctx = createContext<NoteViewMode | null>(null);
@@ -22,8 +22,8 @@ const Ctx = createContext<NoteViewMode | null>(null);
 /** Wraps a notes creator page (the header and the creator) so View as a note can change both. */
 export function NoteViewProvider({ children }: { children: ReactNode }) {
   const [viewing, setViewing] = useState(false);
-  const [stage, setStage] = useState<Stage | null>(null);
-  return <Ctx.Provider value={{ viewing, setViewing, stage, setStage }}>{children}</Ctx.Provider>;
+  const [note, setNote] = useState<Block | null>(null);
+  return <Ctx.Provider value={{ viewing, setViewing, note, setNote }}>{children}</Ctx.Provider>;
 }
 
 /** The page's View as a note state, or null outside a `NoteViewProvider` (the creator then keeps its own). */
@@ -40,13 +40,13 @@ export const NOTE_EYEBROW = "A note from your teacher";
 
 /**
  * The notes creator page's header: its own title, line and corner `action`, or, while viewing, the note's opening title and the line
- * after it, under "A note from your teacher", as a demo note's page draws them (`PresetHeader`). A note that opens with something else
- * keeps its title in the article, so the header is only the eyebrow. Over it while viewing, **Back to editing**.
+ * after it, under "A note from your teacher", as a demo note's page draws them (`PresetHeader`). A note with no title has only the
+ * eyebrow. Over it while viewing, **Back to editing**.
  */
 export function NotesCreatorHeader({ title, intro, bar, action }: { title: string; intro: string; /** the title rule's colour class (`pageBar`) */ bar: string; action?: ReactNode }) {
   const mode = useNoteViewMode();
-  if (mode?.viewing && mode.stage) {
-    const note = noteHeader(mode.stage);
+  if (mode?.viewing && mode.note) {
+    const note = notePageParts(mode.note);
     const back = <BackToEditing onBack={() => mode.setViewing(false)} />;
     if (note.title === null) return <div className={NOTE_COLUMN}>{back}<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{NOTE_EYEBROW}</p></div>;
     return (

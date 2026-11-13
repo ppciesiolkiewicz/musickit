@@ -4,7 +4,7 @@ import PageShell from "@/components/PageShell";
 import Icon, { type IconName } from "@/components/Icon";
 import { BetaBadge, DISPLAY } from "@/components/landing/Display";
 import { demoCards, type DemoCard } from "@/features/plan";
-import { PRESET_INFO } from "@/features/teachers/studio";
+import { PRESET_INFO } from "@/features/teachers/notes";
 import ContactForm from "@/components/landing/ContactForm";
 import Founder from "@/components/landing/Founder";
 import GlassShapes from "@/components/landing/GlassShapes";

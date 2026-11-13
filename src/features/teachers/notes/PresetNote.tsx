@@ -2,22 +2,21 @@
 
 import type { ReactNode } from "react";
 import { PageHeading, PageHeadingRow, PageIntro } from "@/components/PageHeading";
-import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
-import { NoteReader } from "./NoteView";
-import { noteHeader } from "./notes";
-import { presetStage } from "./presetNotes";
+import { readable } from "@/features/plan/model/editBlock";
+import { notePageParts } from "./model/note";
+import { NoteReader } from "./NoteReader";
+import { presetBlock } from "./presetNotes";
 
 /** The preset as this tab has it (its changes from the creator, a dev demo), else the note in code, split into its header and body. */
 const presetParts = (slug: string) => {
-  const stage = presetStage(slug);
-  return stage ? noteHeader(stage) : null;
+  const block = presetBlock(slug);
+  return block ? notePageParts(readable(block)) : null;
 };
 
 /**
  * A preset note's page header, from the note's own opening: its title and the line about it, as the page frame draws any title,
- * with `action` in the right corner. A note that opens with something else (a notice, a widget) keeps its title where it was put, in
- * the article, so the header is only `eyebrow` and `action`. `title` and `intro` are what the server knows (`presetInfo.ts`), shown when
- * there is no note.
+ * with `action` in the right corner. A note with no title is only `eyebrow` and `action`. `title` and `intro` are what the server
+ * knows (`presetInfo.ts`), shown when there is no note.
  */
 export function PresetHeader({ slug, title, intro, eyebrow, bar, action }: { slug: string; title: string; intro: string; eyebrow: string; /** the title rule's colour class (`pageBar`) */ bar: string; action: ReactNode }) {
   const note = presetParts(slug);
@@ -33,12 +32,8 @@ export function PresetHeader({ slug, title, intro, eyebrow, bar, action }: { slu
   );
 }
 
-/** A preset note drawn as an article, without its opening title and line (`PresetHeader` shows them), under the Your voice picker when it sings; the stage lives in the browser's bundle, the server page only names it. */
+/** A preset note drawn as an article without its opening title and line (`PresetHeader` shows them); the block lives in the browser's bundle, the server page only names it. */
 export default function PresetNote({ slug }: { slug: string }) {
-  const body = presetParts(slug)?.body ?? null;
-  return (
-    <VoicePicker data={body}>
-      <NoteReader stage={body} />
-    </VoicePicker>
-  );
+  const parts = presetParts(slug);
+  return parts ? <NoteReader block={parts.body} body /> : null;
 }

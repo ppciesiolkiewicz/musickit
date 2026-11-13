@@ -4,7 +4,7 @@ import { checkLink, type CatalogueEntry } from "./catalogue";
 import { choiceWarnings } from "./choice";
 import { readTitle } from "./hashtags";
 import { MAX_CELLS, MAX_TAGS, askedTags, cellsOf, exerciseLevelArea, exerciseTags, parseCellDiag, parseChoiceDiag, pickWasInexact, resolveChordPlacement, toolsOf, type Cell } from "./tools";
-import { PLAN_DAYS, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
+import { PLAN_DAYS, type Block, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
 import { topicById } from "../intake/topics";
 
@@ -88,6 +88,30 @@ function topicTags(e: Record<string, unknown>, area: PlanExercise["area"], where
   if (dropped.length) warnings.push(`${where}: left out concepts that are unknown or of another topic: ${dropped.join(", ")}.`);
   if (kept.length) out.concepts = kept;
   return out;
+}
+
+/**
+ * A note: a block alone, with no exercise meta. `draft` keeps what an editor holds while it is being written (an empty text, a
+ * section with no heading or no cells yet); cells keep their `id`. Missing or unreadable input is the empty note.
+ */
+export function parseBlock(raw: unknown, opts: { draft?: boolean } = {}): { block: Block; warnings: string[] } {
+  const warnings: string[] = [];
+  const e = (raw ?? {}) as Record<string, unknown>;
+  const block: Block = { title: str(e.title, 160) ?? "", cells: [] };
+  if (e.choice !== undefined) {
+    const d = { notes: [] as string[] };
+    const c = parseChoiceDiag(e.choice, d);
+    for (const n of d.notes) warnings.push(`the note's choice ${n}`);
+    if (c.choice) block.choice = c.choice;
+  }
+  const out = (Array.isArray(e.cells) ? e.cells : []).map((r) => parseCellDiag(r, { draft: opts.draft }));
+  for (const p of out) {
+    warnings.push(...p.notes);
+    if (p.dropped) warnings.push(`left out ${p.dropped}.`);
+  }
+  block.cells = resolveChordPlacement(out.flatMap((p) => (p.cell ? [p.cell] : [])));
+  warnings.push(...choiceWarnings(block));
+  return { block, warnings };
 }
 
 /** One exercise parsed: `block` is null when the raw had no title; `warnings` are worded to be pasted back to the AI, each starting with `where`. */

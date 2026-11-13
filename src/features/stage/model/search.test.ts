@@ -171,11 +171,13 @@ test("ranked groups keep the best result first", () => {
 
 const commandsOf = (r: ReturnType<typeof paletteCatalog>) => r.flatMap((x) => (x.action.type === "command" ? [`${x.label}=${x.action.command}`] : []));
 test("the catalog offers Camera and Screen share when neither is on the stage", () => {
-  assert.deepEqual(commandsOf(paletteCatalog(ids, EMPTY_KEY, { camera: "none", screen: "none" })), ["Video=video-add", "Record a video=video-record", "Camera=camera-corner", "Screen share=screen-share"]);
+  // Section is the notes creator's: the catalog lists it first, the studio's palette hides it
+  assert.deepEqual(commandsOf(paletteCatalog(ids, EMPTY_KEY, { camera: "none", screen: "none" })), ["Section=section-add", "Video=video-add", "Record a video=video-record", "Camera=camera-corner", "Screen share=screen-share"]);
 });
 
 test("with them on the stage it offers close, and fullscreen or minimize, whichever is not the current one", () => {
   assert.deepEqual(commandsOf(paletteCatalog(ids, EMPTY_KEY, { camera: "corner", screen: "full" })), [
+    "Section=section-add",
     "Video=video-add",
     "Record a video=video-record",
     "Fullscreen camera=camera-full",
