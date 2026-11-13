@@ -29,8 +29,8 @@ browser.
    `close_exercise_tool`. Without WebMCP nothing is loaded; the parser and views load on first call.
 2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position): title in the display face, its hashtags (area, level, kind) small
-   under it, its cells (a section shows its heading, its minutes and the chips of its choice), why, and five stars, "How did it go?" (1 Can't do it yet … 5 Easy now: the
-   scale in `src/features/progress/stars.ts`). Rating an exercise marks it done; tapping the same star again clears both
+   under it, its cells (a section shows its heading, its minutes and the chips of its choice), why, and five stars, "How did it go?" (1 Can't do it yet, 3 Same again next time, 5 Easy now: the
+   scale in `src/features/progress/stars.ts`) and a line under them saying what each rating does to the next plan. Rating an exercise marks it done; tapping the same star again clears both
    (`ratePlan`; ratings in `StoredPlan.rated`, done ticks still in `StoredPlan.done`, which older plans only have).
    Every rating also goes to the **progress log** (`src/features/progress`, one row per rated exercise, by exercise id),
    which outlives the plan history.

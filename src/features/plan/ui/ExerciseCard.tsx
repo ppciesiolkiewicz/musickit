@@ -79,6 +79,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
         <div className="flex flex-col gap-0.5 border-t border-slate-800 pt-3">
           <p className="text-sm text-slate-400">How did it go?</p>
           <StarRating value={rating} labels={STARS.map((s) => STAR_LABELS[s])} label="How did it go?" onChange={(v) => onRate(isStars(v) ? v : null)} />
+          <p className="text-xs text-slate-500">Your stars shape the next plan: 1 or 2 makes it easier, 3 keeps it the same, 4 or 5 moves you on.</p>
         </div>
       )}
     </section>

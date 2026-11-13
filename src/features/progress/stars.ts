@@ -7,7 +7,7 @@ export const STARS: readonly Stars[] = [1, 2, 3, 4, 5];
 export const STAR_LABELS: Record<Stars, string> = {
   1: "Can't do it yet",
   2: "Struggling",
-  3: "Getting there",
+  3: "Same again next time",
   4: "Solid",
   5: "Easy now",
 };

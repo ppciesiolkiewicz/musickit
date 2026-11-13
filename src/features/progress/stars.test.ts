@@ -11,7 +11,7 @@ test("isStars accepts only the integers 1 to 5", () => {
 test("labels read from can't do it yet to easy now", () => {
   assert.equal(STAR_LABELS[1], "Can't do it yet");
   assert.equal(STAR_LABELS[2], "Struggling");
-  assert.equal(STAR_LABELS[3], "Getting there");
+  assert.equal(STAR_LABELS[3], "Same again next time");
   assert.equal(STAR_LABELS[4], "Solid");
   assert.equal(STAR_LABELS[5], "Easy now");
   assert.equal(starText(2), "2★ Struggling");
