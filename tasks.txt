@@ -3,8 +3,25 @@ Ticket content
 
 New:
 
+NEW1: Discalimer to share a not should show now:
+log in to share your note / plan
 
-91. Remove sampler and sampler env
+NEW2:
+Melodies should be bigger by default in notes (also when notes are being edited).
+
+
+
+
+[DONE] 49.
+Use marketing and design ux copy skills.
+I want to generate animation intro that will explain:
+
+- what's in the apps pages - brief of menu (no need to go over all)
+- that each page has a help and exercises also have help
+- that there's "Open any page" hotkey and other hotkeys in apps
+- could this be rendered animation using components?
+- use elevenlabs to generate audio for this
+
 
 47. Identify which pages should have guided tour, e.g. runs / melodies 
 and add to these pages. Rank pages and provide me your understanding which pages need it first.
@@ -12,20 +29,13 @@ and add to these pages. Rank pages and provide me your understanding which pages
   - "This is guided tour for page.. where you can" - adjust copy
   - there's a dev page that accounts for all of them
 
-69. Reusable notes and plans, reusable videosx1
+69. Reusable notes and plans, reusable videos
+- I want to allow composing notes and plans into sharable bundles
+- 
 
-57. Coming soon:
-For online teaching interactive notes are visible on user screen 
-as teacher adds them. (not implemented yet)
-So this is like an online teaching tool
 
-89. Schools selling their own video courses
-Then sets of notes can be bundled in courses and sold
 
-90. Super deferred
-I also want to be able to upload record videos
-directly into the content of the page and be able to upload it to blob.
-This probably could use some sort of injection mechanism or predefined slots.
+
 
 
 ======================== Small ========================
@@ -46,9 +56,24 @@ This probably could use some sort of injection mechanism or predefined slots.
 
 ======================== Large ========================
 
-
 21. Double stop / Triad exercises as well as double stop triad exercises intertwined with solos.
 Like - seeing chords within a scale!
+
+
+
+------ DEFER -----
+91. Remove sampler and sampler env
+57. Coming soon:
+For online teaching interactive notes are visible on user screen 
+as teacher adds them. (not implemented yet)
+So this is like an online teaching tool
+
+89. Schools selling their own video courses
+Then sets of notes can be bundled in courses and sold
+
+90. I also want to be able to upload record videos
+directly into the page content (dev CMS) of the page and be able to upload it to blob.
+This probably could use some sort of injection mechanism or predefined slots.
 
 
 

@@ -17,7 +17,8 @@ export function getDb(env: Env = process.env): Db | null {
   const url = databaseUrl(env);
   if (!url) return null;
   if (held.__musickitDb?.url !== url) {
-    const client = postgres(url, { max: 5, idle_timeout: 20, connect_timeout: 10 });
+    // prepare: false so a transaction pooler (Supabase on port 6543) works: it can't keep prepared statements.
+    const client = postgres(url, { max: 5, idle_timeout: 20, connect_timeout: 10, prepare: false });
     held.__musickitDb = { url, db: drizzle(client, { schema }) };
   }
   return held.__musickitDb.db;

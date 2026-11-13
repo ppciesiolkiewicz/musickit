@@ -47,11 +47,12 @@ function MarginArrow({ side, onClick }: { side: "left" | "right"; onClick?: () =
   );
 }
 
-function IconButton({ on, tone = "sky", big, title, onClick, disabled, children }: { on?: boolean; disabled?: boolean; tone?: "sky" | "emerald" | "amber"; big?: boolean; title: string; onClick: () => void; children: ReactNode }) {
+/** `on` is a switch's state (pressed, and lit); `lit` lights a plain button without making it a switch (Play) */
+function IconButton({ on, lit: litProp, tone = "sky", big, title, onClick, disabled, children }: { on?: boolean; disabled?: boolean; lit?: boolean; tone?: "sky" | "emerald" | "amber"; big?: boolean; title: string; onClick: () => void; children: ReactNode }) {
   const lit = { sky: "border-sky-400/70 bg-sky-500/20 text-sky-100", emerald: "border-emerald-400/70 bg-emerald-500/25 text-emerald-100", amber: "border-amber-400/60 bg-amber-500/15 text-amber-200" }[tone];
   return (
     <button type="button" onClick={onClick} disabled={disabled} title={title} aria-label={title} aria-pressed={on}
-      className={`flex items-center justify-center rounded-lg border transition ${big ? "h-11 min-w-14 gap-2 px-3" : "h-8 min-w-8 gap-1.5 px-1.5"} ${on ? lit : "border-slate-700 text-slate-300 hover:border-slate-500"} disabled:pointer-events-none disabled:opacity-40`}>
+      className={`flex items-center justify-center rounded-lg border transition ${big ? "h-11 min-w-14 gap-2 px-3" : "h-8 min-w-8 gap-1.5 px-1.5"} ${on || litProp ? lit : "border-slate-700 text-slate-300 hover:border-slate-500"} disabled:pointer-events-none disabled:opacity-40`}>
       {children}
     </button>
   );
@@ -66,8 +67,8 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
 /**
  * A tune to sing along: one Play button that turns into Pause while the tune plays and into Resume while it is paused
  * (the Space key cap inside it, so Space pauses and plays on), a Stop beside it (always there, so nothing moves; off until a tune plays), and the
- * mic (any button switches it on); mute buttons for the tune and its chords (when it has them) beside them, and the
- * metronome in the settings dropdown, each on or off while it plays, the bar running either way; a loop over a part of
+ * mic (any button switches it on; plain, so Play is the one green button); mute buttons for the tune, its chords (when it has them)
+ * and the metronome together in a frame under a speaker badge, each on or off while it plays, the bar running either way; a loop over a part of
  * the tune set on a strip of the whole tune (on by default, over all of it; the strip shows only while looping), and the tune drawn on an endless staff or
  * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
  * sliding under a bar that stays put so the voice dot holds its place. It is the same player moved over the page, so a
@@ -104,7 +105,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   settings?: ReactNode;
   /** the play-ahead slider, in the settings dropdown (how far the moving bar runs ahead of the voice dot) */
   playAhead?: ReactNode;
-  /** the page holds accuracy, melody view and play-ahead in its settings panel: the tool keeps the volume and its own (the click, share). The panel there has the play-along tools, whose own Volume would sit beside the app's */
+  /** the page holds accuracy, melody view and play-ahead in its settings panel: the tool keeps the volume and its own (share). The panel there has the play-along tools, whose own Volume would sit beside the app's */
   hostSettings?: boolean;
 }) {
   useCoverage({ hints: 8 });
@@ -196,7 +197,6 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   const size = full ? scale : 1;
   const pass = sa.playing ? passAt(sa.frame.passes, sa.frame.s) : undefined;
   const at = pass ? pass.from + sa.frame.s - pass.start : null;
-  const seg = (on: boolean) => `px-2.5 py-1 text-[11px] transition ${on ? "bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`;
 
   const view = (
     <div ref={spaceRef} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing along" : undefined}
@@ -218,7 +218,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
         <span data-tour="sing-play" className="inline-flex items-center gap-1.5">
           <Hint title={mainTitle} description={!sa.playing ? "Starts the tune from the start. While it plays, the button turns into Pause." : sa.paused ? "Plays on from where you paused." : "Holds the tune where it is. Press again to play on."}>
-            <IconButton big on={sa.playing && !sa.paused} title={`${mainTitle}${spaceArmed ? " (Space)" : ""}`} onClick={main}>
+            <IconButton big lit tone={sa.playing && !sa.paused ? "sky" : "emerald"} title={`${mainTitle}${spaceArmed ? " (Space)" : ""}`} onClick={main}>
               <Icon name={sa.playing && !sa.paused ? "pause" : "play"} size={sa.playing && !sa.paused ? 18 : 20} fill={sa.playing && !sa.paused} />
               {spaceArmed && <KeyCap className="hidden md:inline">Space</KeyCap>}
             </IconButton>
@@ -232,42 +232,32 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
         </span>
         <span data-tour="sing-mic" className="inline-flex">
           <Hint title="Mic" description="Marks the note you're on. Play starts it for you; this button also opens the list of inputs, with each input's level and Stop.">
-            <InputChip status={sa.status} mic={{ on: sa.mic, onToggle: sa.toggleMic }} />
+            <InputChip quiet status={sa.status} mic={{ on: sa.mic, onToggle: sa.toggleMic }} />
           </Hint>
         </span>
         <ToolHeadphonesHint />
-        {LAYERS.filter((l) => l.id === "tune" || (l.id === "chords" && chords.length)).map((l) => {
-          const on = sa.heard[l.id];
-          return (
-            <Hint key={l.id} title={`Mute ${l.label.toLowerCase()}`} description={`Silences ${l.what}. The bar keeps going.`}>
-              <IconButton on={!on} tone="amber" title={on ? `Mute ${l.what}` : `Hear ${l.what}`} onClick={() => sa.toggleHeard(l.id)}>
-                <Icon name={l.icon} size={14} />
-                <span className={`text-[11px] ${on ? "" : "line-through"}`}>{l.label}</span>
-              </IconButton>
-            </Hint>
-          );
-        })}
+        {/* what is heard, in one frame under a speaker badge */}
+        <span role="group" aria-label="Sounds" className="relative ml-1 inline-flex items-center gap-1 rounded-xl border border-slate-800 p-1 pl-6">
+          <Icon name="volume-2" size={12} className="absolute left-1.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          {LAYERS.filter((l) => l.id !== "chords" || chords.length).map((l) => {
+            const on = sa.heard[l.id];
+            return (
+              <Hint key={l.id} title={`Mute ${l.label.toLowerCase()}`} description={`Silences ${l.what}. The bar keeps going.`}>
+                <IconButton on={!on} tone="amber" title={on ? `Mute ${l.what}` : `Hear ${l.what}`} onClick={() => sa.toggleHeard(l.id)}>
+                  <Icon name={l.icon} size={14} />
+                  <span className={`text-[11px] ${on ? "" : "line-through"}`}>{l.label}</span>
+                </IconButton>
+              </Hint>
+            );
+          })}
+        </span>
         <Hint title="Volume" description="Sets every sound in the app, not just this tune.">
           <span className="ml-1 flex items-center border-l border-slate-800 pl-2"><Volume /></span>
         </Hint>
         {full && nav?.label && <span className="tabular-nums text-slate-300">{nav.label}</span>}
         <span className="ml-auto" />
-        <Hint title="Sound and view settings" description={hostSettings ? "The metronome, share." : "Accuracy, melody view, the metronome, play-ahead, share."}>
+        <Hint title="Sound and view settings" description={hostSettings ? "Share." : "Accuracy, melody view, play-ahead, share."}>
           <ToolSettings volume={false} accuracy={!hostSettings} view={!hostSettings} more={<>
-            <DropdownSection title="Playback">
-              <div role="group" aria-label="Playback" className="flex w-fit overflow-hidden rounded-lg border border-slate-700">
-                {LAYERS.filter((l) => l.id === "click").map((l) => {
-                  const on = sa.heard[l.id];
-                  return (
-                    <button key={l.id} type="button" aria-pressed={on} onClick={() => sa.toggleHeard(l.id)}
-                      title={on ? `Mute ${l.what} (the bar keeps going)` : `Hear ${l.what}`}
-                      className={`flex items-center gap-1 ${seg(on)} ${on ? "" : "line-through decoration-slate-500"}`}>
-                      <Icon name={l.icon} size={13} />{l.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </DropdownSection>
             {playAhead && <DropdownSection title="Play-ahead">{playAhead}</DropdownSection>}
             {tools && <DropdownSection title="Share">{tools}</DropdownSection>}
           </>} />
