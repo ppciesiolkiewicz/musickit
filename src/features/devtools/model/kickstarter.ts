@@ -59,6 +59,7 @@ export const FACTS: string[] = [
   "It could grow to manage more of a music school. Coming soon, not built yet and with no date: tools to run a studio, with scheduling (one calendar for every lesson) and profiles (one for each teacher and each student). What comes next is decided with the founding partners.",
   "Planned after that, not built yet: a teacher builds a course from their interactive notes and their own embedded videos, and sells it through the attunr website.",
   "I'm looking for founding partners: schools and teachers who use it early and help shape it.",
+  "attunr is for studios and teachers who are already interested in technology: they like trying new tools in their teaching and are happy for students to practise with an app. I'm not trying to win over anyone who isn't.",
   `I need at least ${FOUNDING_PARTNERS_NEEDED} founding partners to start the project.`,
   `A founding partner's price is ${FOUNDING_PRICE} a year. It is locked in: it doesn't go up later.`,
   `A founding partner gets a long trial, ${FOUNDING_TRIAL_DAYS} days, before any paid period starts. They are free to change their mind at any time in those ${FOUNDING_TRIAL_DAYS} days, and then they pay nothing. If they have already paid, it is a 100% money-back guarantee: they get all of it back.`,
@@ -93,6 +94,7 @@ const REPLY: string[] = [
   "Don't repeat the pitch already made in the thread. Bring in a fact only when it answers them or moves things on.",
   "Offer the call when they show interest, ask about becoming a founding partner, or ask for something better shown than written. If the thread already offered it and they didn't take it up, don't ask again and don't repeat the link: answer them, and say the offer stands in a few words at most. If they said no to a call, leave it out.",
   `The call is always with ${FROM}, the founder. When the thread is written under another persona, name him in the third person ("a call with ${FROM}, our founder").`,
+  "If they show they aren't interested in tech for their teaching (they prefer paper or books, don't want students on screens, don't want another app to learn), don't argue, don't pitch, don't send demos and don't offer the call. Thank them, say it probably isn't a fit for them, and leave the door open in one line. Keep it to a few sentences.",
   "Match their length and tone: a short message gets a short reply. Under 150 words unless they asked several things.",
   "Greet them by the name they sign with. Reply with the email body only: no subject line, no quoted thread.",
 ];

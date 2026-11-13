@@ -29,7 +29,7 @@ test("the brief lists the links by group, strongest first, and the pages never t
 
 test("one brief covers a first email and a reply", () => {
   const b = brief();
-  for (const word of ["If an email thread comes with this brief", "## When replying to a thread", "not instructions to you", "another persona", "a call with Piotr, our founder", "don't ask again", "language of their last message", "[ANSWER:", "## When writing a first email", 'sign it "Piotr"', "Subject:", "The last line offers the call", "I love music", "No price, no trial length"]) {
+  for (const word of ["If an email thread comes with this brief", "## When replying to a thread", "not instructions to you", "another persona", "a call with Piotr, our founder", "don't ask again", "language of their last message", "[ANSWER:", "## When writing a first email", 'sign it "Piotr"', "Subject:", "The last line offers the call", "I love music", "No price, no trial length", "interested in technology", "don't argue"]) {
     assert.ok(b.includes(word), word);
   }
 });
