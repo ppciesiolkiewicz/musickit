@@ -52,6 +52,7 @@ export const STAGE_1: CourseStage = {
         legend: [{ label: "root (Do)", colour: degreeColour(0) }, { label: "5th (Sol)", colour: degreeColour(4) }],
       }),
       task("Play E5 A5 D5 E5 with all downstrums, muting the other strings with the side of your hand. Then G5 C5 D5 G5."),
+      links([{ href: "/theory/double-stops", label: "Double stops", note: "two notes of a scale at once, up the neck" }]),
     ]),
     section("power-chords", "Power chords", "fifths", "Power chords: root and 5th, the sound of rock, moved anywhere on the neck.", [
         text(

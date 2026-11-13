@@ -1,6 +1,6 @@
 import { section, type CourseStage } from "../model";
 import { naturalDots, type Dot } from "../visuals";
-import { C, D, E, G, MAJOR_SEMIS, PATH, links, melody, neck, path, task, text, toneDot, toneDots, tune } from "../build";
+import { A, C, D, E, G, MAJOR_SEMIS, PATH, links, melody, neck, path, task, text, toneDot, toneDots, tune } from "../build";
 
 const MAJOR_TRIAD = [0, 4, 7];
 const at = (root: number, pts: [number, number][]): Dot[] => pts.map(([s, f]) => toneDot(s, f, root));
@@ -67,6 +67,32 @@ export const STAGE_4: CourseStage = {
       }),
       task("Strum the G triad on each string set in turn. Then play G C D G on the top three strings, watching which fingers stay."),
       links([{ href: "/theory/triads", label: "Triads explorer", note: "every triad on every string set" }]),
+    ]),
+    section("chords-in-position", ["Chords inside a position", "Chords in a position"], "triads", "Every chord of the key as a triad on the top three strings inside one scale position, and as a double stop, so chords and a solo share one hand position.", [
+      text(
+        "Every chord of a key sits inside each of its scale positions. On the top three strings a chord is a triad, so inside one position you can strike a chord in the middle of a solo without moving your hand.",
+        "In A minor, position 1 at the 5th fret holds Am, Dm, F and G as triads on the G, B and high e strings. The dots below are labelled by their place in the key, with A, the key's root, as R.",
+      ),
+      neck("Am (amber) straight across the 5th fret, and G (sky) two frets up, both inside position 1.", 3, 9, at(A, [[3, 5], [4, 5], [5, 5], [3, 7], [4, 8], [5, 7]]), {
+        window: { from: 4, to: 8 },
+        paths: [path(PATH.amber, [3, 5], [4, 5], [5, 5]), path(PATH.sky, [3, 7], [4, 8], [5, 7])],
+      }),
+      neck("Dm (lime) and F (rose) share their top two notes. Only the G-string note changes: the 4 for Dm, the ♭3 for F.", 3, 9, at(A, [[3, 7], [3, 5], [4, 6], [5, 5]]), {
+        window: { from: 4, to: 8 },
+        paths: [path(PATH.lime, [3, 7], [4, 6], [5, 5]), path(PATH.rose, [3, 5], [4, 6], [5, 5])],
+      }),
+      text(
+        "Leave out the lowest note and a triad becomes a double stop: two notes of the chord on the B and high e strings. It is lighter than the whole chord, so it fits between the lines of a solo.",
+      ),
+      neck("The top two notes of each triad: Am (amber), Dm and F (lime, the same two notes) and G (sky).", 3, 9, at(A, [[4, 5], [5, 5], [4, 6], [4, 8], [5, 7]]), {
+        window: { from: 4, to: 8 },
+        paths: [path(PATH.amber, [4, 5], [5, 5]), path(PATH.lime, [4, 6], [5, 5]), path(PATH.sky, [4, 8], [5, 7])],
+      }),
+      task("Play Am Dm F G, a bar each: strike the triad on beat 1, then fill the bar with a short line from position 1 that ends on one of the chord's notes. Keep going until the chord and the line sound like one phrase. Then play it again with only the top two notes of each triad."),
+      links([
+        { href: "/theory/double-stops", label: "Double stops", note: "a scale's 3rds, 6ths and 4ths up the neck" },
+        { href: "/theory/triads", label: "Triads explorer", note: "every triad on every string set" },
+      ]),
     ]),
     section("every-note", "Find every note", "basics", "Finding any note on any string with octave shapes and the 12th fret.", [
         text(
