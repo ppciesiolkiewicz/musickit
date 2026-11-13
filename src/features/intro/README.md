@@ -10,6 +10,7 @@
 | `data.ts` | The two JSON files, typed. |
 | `scenes.tsx` | The scenes on a 960 × 540 stage. Each is a pure function of the time into the scene and its cue times. They use the app's own pieces (wordmark, icons, the nav's section list, the compass button), drawn still: the tour never starts the mic or the sound engine. |
 | `IntroPlayer.tsx` | The stage, scaled to fit its column, with Play/Pause (Space), a slider, mute, a chip per scene and the caption. The clock follows the audio while a scene's recording plays, and the frame clock otherwise. Used on `/intro` and in the "Quick tour" section of the home page (`SchoolsHome`), which passes `spaceKey={false}` so Space still scrolls there. |
+| `TourCard.tsx` | The player small beside other content (`compact`: no scene chips or caption), with a Cinema mode button that opens the same player over the page; Escape or Close goes back. On `/demo`, beside the title. |
 
 ## Recording the narration (ElevenLabs)
 

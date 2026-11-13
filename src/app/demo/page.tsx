@@ -8,6 +8,8 @@ import { PRESET_INFO } from "@/features/teachers/notes";
 import ContactForm from "@/components/landing/ContactForm";
 import Founder from "@/components/landing/Founder";
 import GlassShapes from "@/components/landing/GlassShapes";
+import { PageHeading, PageIntro, pageBar } from "@/components/PageHeading";
+import TourCard from "@/features/intro/TourCard";
 
 export const metadata: Metadata = {
   title: "Demos: ready-made AI practice plans and teacher notes · attunr",
@@ -234,7 +236,21 @@ function Divider({ label }: { label: string }) {
 export default function DemoIndex() {
   const cards = demoCards();
   return (
-    <PageShell active="/plan" eyebrow="Demos" title="Practice that sounds like your lessons" intro="Hi, I'm Pio. I'm building attunr to make teaching easier for teachers and practice better for students. It's in demo mode, so try anything below. No account needed." decor={<GlassShapes />}>
+    <PageShell
+      active="/plan"
+      title="Practice that sounds like your lessons"
+      decor={<GlassShapes />}
+      header={
+        // the title and intro, with the quick tour small beside them (Cinema mode opens it over the page)
+        <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-8 lg:grid-cols-[minmax(0,1fr)_26rem]">
+          <div>
+            <PageHeading title="Practice that sounds like your lessons" eyebrow="Demos" bar={pageBar("/plan")} />
+            <PageIntro>Hi, I&apos;m Pio. I&apos;m building attunr to make teaching easier for teachers and practice better for students. It&apos;s in demo mode, so try anything below. No account needed.</PageIntro>
+          </div>
+          <TourCard />
+        </div>
+      }
+    >
       <div className="flex flex-col gap-12 pb-10">
         {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]">

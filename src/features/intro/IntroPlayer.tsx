@@ -19,9 +19,10 @@ const KEYFRAMES = `
  * The quick tour: a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voice.json`) or, for a
  * scene not recorded yet, to an estimate, playing silent with its caption. The clock follows the audio while a scene's take
  * plays and the frame clock otherwise, so the picture never runs ahead of the voice. `spaceKey` lets Space play and pause
- * anywhere on the page; off on a page where Space should scroll (the home page).
+ * anywhere on the page; off on a page where Space should scroll (the home page). `compact` drops the scene chips and the
+ * caption, for a small player beside other content (the demos page).
  */
-export default function IntroPlayer({ spaceKey = true }: { spaceKey?: boolean }) {
+export default function IntroPlayer({ spaceKey = true, compact = false }: { spaceKey?: boolean; compact?: boolean }) {
   const scenes = useMemo(() => timeline(SCRIPT, VOICE), []);
   const total = totalLength(scenes);
   const [t, setT] = useState(0);
@@ -133,8 +134,8 @@ export default function IntroPlayer({ spaceKey = true }: { spaceKey?: boolean })
         </div>
         {!started && (
           <button type="button" onClick={toggle} className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/70 text-slate-100 backdrop-blur-[2px]">
-            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-sky-500 text-white shadow-xl"><Icon name="play" size={34} /></span>
-            <span className="text-lg">Play the tour · {clock(total)}</span>
+            <span className={`flex items-center justify-center rounded-full bg-sky-500 text-white shadow-xl ${compact ? "h-14 w-14" : "h-20 w-20"}`}><Icon name="play" size={compact ? 24 : 34} /></span>
+            <span className={compact ? "text-sm" : "text-lg"}>Play the tour · {clock(total)}</span>
           </button>
         )}
       </div>
@@ -161,6 +162,7 @@ export default function IntroPlayer({ spaceKey = true }: { spaceKey?: boolean })
         )}
       </div>
 
+      {!compact && <>
       <div className="flex flex-wrap gap-2" role="group" aria-label="Jump to a part">
         {scenes.map((s, i) => (
           <button
@@ -176,6 +178,7 @@ export default function IntroPlayer({ spaceKey = true }: { spaceKey?: boolean })
       </div>
 
       <p aria-live="polite" className="min-h-[3.5rem] text-lg leading-relaxed text-slate-200">{started ? scene.text : ""}</p>
+      </>}
     </div>
   );
 }
