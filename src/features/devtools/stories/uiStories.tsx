@@ -21,6 +21,8 @@ import type { Props, Story } from "./stories";
 export interface UiGroup {
   id: string;
   title: string;
+  /** words the sidebar filter finds it by, beside its id, title and story names */
+  keywords: string[];
   doc: { description: string; props: PropDoc[] };
   stories: Story[];
   render: (props: Props) => ReactNode;
@@ -76,6 +78,7 @@ export const UI_GROUPS: UiGroup[] = [
   {
     id: "input-chip",
     title: "InputChip",
+    keywords: ["mic", "microphone", "input", "audio", "level", "device", "chip", "listen"],
     doc: {
       description: "The audio input next to a mic: a mic icon, the chosen input's short name and, while the app listens, a level bar per input (the channel heard brighter). A press opens the input dialog (a modal by default, or a popover under the chip): what the status means, Start / Stop (given mic), the input list with its channels ([Both] [1] [2], AppInputChannels) and the output folded into one row. The choice is the app's one input (musickit.audio.devices), shared with the nav's cog and every page. The live story really opens the microphone.",
       props: [
@@ -108,6 +111,7 @@ export const UI_GROUPS: UiGroup[] = [
   {
     id: "audio-devices",
     title: "AudioDevicesPanel",
+    keywords: ["audio", "devices", "input", "output", "mic", "speaker", "settings", "cog", "interface"],
     doc: {
       description: "The input and output lists with Detect devices, and under the input its channels ([Both] [1] [2], shown for a two-input device): the body of the nav's devices menu (AudioDevicesButton, the cog), of the input chip's dialog and of the studio's Audio input dialog. A press changes the app's real input or output.",
       props: [
@@ -135,6 +139,7 @@ export const UI_GROUPS: UiGroup[] = [
   {
     id: "input-channels",
     title: "InputChannels",
+    keywords: ["channel", "input", "audio interface", "level", "mic", "guitar", "voice"],
     doc: {
       description: "Which channel of a two-input device (an audio interface: guitar on Input 1, voice on Input 2) is heard: Both (the default, mixed), 1 or 2, each with its level beside it, and an (i) note on what the channels are for. AppInputChannels is the app's own, under the input list in every devices panel (the nav's cog, an input chip): it reads and sets the app's channel and the live levels, and hides for a one-input device: heard with one channel, named like one mic (MacBook, built-in, webcam, headset), or two channels whose levels stay equal while loud (the browser copying one mic). The system default shows only once its levels differ. The studio's sources with a device of their own use InputChannels with their own channel.",
       props: [
@@ -157,6 +162,7 @@ export const UI_GROUPS: UiGroup[] = [
   {
     id: "drone-controls",
     title: "DroneControls",
+    keywords: ["drone", "note", "sound", "synth", "wave", "filter", "pitch", "sliders"],
     doc: {
       description: "The note and sound of a drone: the panel behind the pocket view's drone sliders button, also in the looper's drone window. It has no play button and no audio here.",
       props: [
@@ -174,6 +180,7 @@ export const UI_GROUPS: UiGroup[] = [
   {
     id: "practice-band",
     title: "PracticeBand",
+    keywords: ["band", "metronome", "click", "drone", "backing", "drums", "bass", "tempo"],
     doc: {
       description: "The play-along band: click, drone, drums and bass on one JamRig clock, drawn by a view. bar: one folded line for a plan exercise (the backing-band tool), a Play for the chosen parts, a chip per part, tempo and key, and \"More\" for the tempo slider, drone octave, groove and patterns. inline: the parts with no part chips, started by its host (the staff's Play beside the mic; this story's host keeps on / onToggle / onStop). full: the whole band as a page, a card per part with its sound, patterns, groove and levels, and a Play all (Space); the metronome-drone page hosts it on its own rig with loops under it (the JamPage story). pocket: the band in a page's settings bar (the scales pages, the stage), a tall Play all and one line per part with a sliders button for the rest; stacked (a pocket prop) puts one line per tool for the side column. Saved in musickit.practiceBand here; pocket in musickit.pocket, as on the pages.",
       props: [
@@ -209,6 +216,7 @@ export const UI_GROUPS: UiGroup[] = [
   {
     id: "jam-page",
     title: "JamPage",
+    keywords: ["jam", "backing", "improvise", "band", "page"],
     doc: {
       description: "The /theory/metronome-drone player: the full PracticeBand on a JamRig with a following click, and recorded loops under it on the same clock. No props; saved in musickit.jam.",
       props: [],
@@ -219,6 +227,7 @@ export const UI_GROUPS: UiGroup[] = [
   {
     id: "backing-track",
     title: "BackingTrack",
+    keywords: ["backing track", "jam", "progression", "chords", "drums", "bass", "style", "bpm"],
     doc: {
       description: "The /theory/backing player: drums, bass and keys arranged from a chord progression, key and style (features/backing Band, its own clock). No props; saved in musickit.backing.",
       props: [],

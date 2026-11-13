@@ -5,7 +5,7 @@ import Icon from "@/components/Icon";
 import { Tool } from "@/features/plan/ui/ExerciseTool";
 import { parseTool } from "@/features/plan/model/tools";
 import Controls from "./Controls";
-import { storyGroups, type Props, type StoryGroup } from "./stories";
+import { matchesQuery, storyGroups, type Props, type StoryGroup } from "./stories";
 import { UI_GROUPS, type UiGroup } from "./uiStories";
 
 type Tab = "controls" | "json" | "parsed";
@@ -123,7 +123,14 @@ export default function ComponentStories() {
   const q = filter.trim().toLowerCase();
   const kinds = [...new Set(groups.flatMap((g) => ("render" in g ? [] : [g.doc?.kind ?? "stub"])))];
 
-  const matches = (g: Group) => !q || g.id.includes(q) || g.stories.some((s) => s.name.toLowerCase().includes(q));
+  // a group is found by its id, title and keywords, a story by those and its own name, every word of the filter somewhere
+  const groupText = (g: Group) => [g.id, "render" in g ? g.title : "", ...g.keywords].join(" ");
+  const storyHits = (g: Group) => {
+    const all = g.stories.map((s, k) => [s, k] as const);
+    if (!q || matchesQuery(groupText(g), q)) return all;
+    return all.filter(([s]) => matchesQuery(`${groupText(g)} ${s.name}`, q));
+  };
+  const matches = (g: Group) => storyHits(g).length > 0;
   const toolsOf = (kind: string) => groups.filter((g) => !("render" in g) && (g.doc?.kind ?? "stub") === kind && matches(g));
   const uiShown = groups.filter((g) => "render" in g && matches(g));
   const aiCount = kinds.reduce((n, k) => n + toolsOf(k).length, 0);
@@ -139,7 +146,7 @@ export default function ComponentStories() {
   };
 
   const row = (g: Group, n: number) => {
-    const hits = q ? g.stories.map((s, k) => [s, k] as const).filter(([s]) => g.id.includes(q) || s.name.toLowerCase().includes(q)) : null;
+    const hits = q ? storyHits(g) : null;
     if (hits && !hits.length) return null;
     const open = expanded.has(g.id) || (q && hits);
     return (

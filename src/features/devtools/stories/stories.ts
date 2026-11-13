@@ -26,8 +26,46 @@ export interface StoryGroup {
   shape?: string;
   doc?: ComponentDoc;
   shapeDoc?: ComponentDoc;
+  /** words the sidebar filter finds it by, beside its id and story names */
+  keywords: string[];
   stories: Story[];
 }
+
+/** What a dev might type to find a component: what it does, what it trains, what a player hears or sees. */
+export const KEYWORDS: Record<string, string[]> = {
+  "scale-neck": ["scale", "fretboard", "neck", "positions", "boxes", "pentatonic", "mode", "guitar"],
+  "position-neck": ["scale", "position", "box", "fretboard", "neck", "crossing", "join", "shift", "pentatonic", "guitar"],
+  "chord-shapes": ["chord", "shapes", "caged", "voicing", "triad", "diagram", "fingering", "guitar"],
+  staff: ["staff", "notation", "sing", "scale", "voice", "range", "pitch", "mic", "drone", "click", "vocal"],
+  "backing-band": ["backing", "band", "drums", "bass", "metronome", "click", "drone", "tempo", "jam"],
+  "note-finder": ["find notes", "note names", "fretboard", "neck", "memorize", "quiz", "guitar"],
+  "interval-ears": ["ear training", "interval", "hear", "listen", "recognise", "recognize", "quiz", "game"],
+  "arpeggio-neck": ["arpeggio", "chord tones", "triad", "fretboard", "neck", "guitar"],
+  "melody-singer": ["sing", "melody", "tune", "song", "voice", "pitch", "mic", "vocal"],
+  "run-singer": ["sing", "run", "scale", "warm-up", "warmup", "agility", "voice", "pitch", "mic", "vocal"],
+  breathwork: ["breath", "breathing", "farinelli", "exhale", "inhale", "support", "voice", "vocal", "warm-up"],
+  "string-singer": ["sing", "strings", "open strings", "pitch", "tuning", "by ear", "voice", "guitar", "mic"],
+  "interval-singer": ["sing", "interval", "pitch", "voice", "leap", "third", "fifth", "octave", "mic", "vocal", "ear"],
+  "guitar-play-along": ["play along", "guitar", "tab", "timeline", "follow", "mic"],
+  "guitar-play-along/arpeggio-part": ["arpeggio", "chord tones", "play along", "guitar"],
+  "guitar-play-along/chord-steps": ["chords", "riff", "steps", "double stop", "triad", "strum", "play along", "guitar"],
+  "guitar-play-along/melody": ["melody", "tune", "song", "notes", "play along", "guitar"],
+  "guitar-play-along/progression": ["chord progression", "chords", "strum", "changes", "play along", "guitar"],
+  "guitar-play-along/solo-over": ["solo", "improvise", "improv", "lead", "backing", "play along", "guitar"],
+  "guitar-play-along/two-scales": ["two scales", "compare", "scale", "mode", "play along", "guitar"],
+  "backing-track": ["backing track", "jam", "blues", "progression", "drums", "bass", "improvise", "style", "bpm"],
+  "strum-along": ["strum", "strumming", "rhythm", "pattern", "chords", "timing", "guitar"],
+  video: ["video", "watch", "lesson", "clip"],
+  "finger-pattern": ["fingers", "finger pattern", "chromatic", "1234", "spider", "technique", "warm-up", "guitar"],
+  "picking-drill": ["picking", "alternate picking", "pick", "strokes", "technique", "speed", "guitar"],
+  "legato-trill": ["legato", "trill", "hammer-on", "pull-off", "fingers", "technique", "guitar"],
+};
+
+/** Every word of the query is somewhere in the text: "sing interval" finds interval-singer. */
+export const matchesQuery = (text: string, query: string): boolean => {
+  const hay = text.toLowerCase();
+  return query.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.includes(w));
+};
 
 /** Set-ups no example has yet; position-neck's are the corners it was built for. */
 const HAND: { tool: ToolName; name: string; props: Props }[] = [
@@ -108,7 +146,7 @@ export function storyGroups(): StoryGroup[] {
     let g = groups.get(id);
     if (!g) {
       const [tool, shape] = id.split("/") as [ToolName, string | undefined];
-      g = { id, tool, ...(shape ? { shape, shapeDoc: docOf(shape) } : {}), doc: docOf(tool), stories: [] };
+      g = { id, tool, ...(shape ? { shape, shapeDoc: docOf(shape) } : {}), doc: docOf(tool), keywords: KEYWORDS[id] ?? [], stories: [] };
       groups.set(id, g);
     }
     return g;
