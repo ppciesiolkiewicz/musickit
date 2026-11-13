@@ -9,6 +9,8 @@ import { isRunId, isTuneId } from "@/features/exercises/basics/choices";
 import { INTERVAL_DIRS, type IntervalDir } from "@/features/exercises/basics/interval-singer/asks";
 import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/string-singer/strings";
 import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/features/exercises/basics/breathwork/breaths";
+import { HILL_SOUNDS, HILL_WHERE, LIMITS as HILL_LIMITS, type HillSound, type HillWhere } from "@/features/exercises/basics/voice-hill/hill";
+import { LIP_ROLL_SHAPES, LIMITS as LIP_ROLL_LIMITS, type LipRollShape } from "@/features/exercises/basics/lip-roll/glide";
 import { FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
@@ -95,6 +97,8 @@ type PlanToolProps =
   | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "string-singer"; drill?: StringDrill; level?: ToolLevel; metronome?: false }
   | { type: "breathwork"; drill?: BreathDrill; level?: ToolLevel; from?: number; to?: number; seconds?: number; rounds?: number }
+  | { type: "voice-hill"; where?: HillWhere; sound?: HillSound; seconds?: number; reps?: number; voice?: Voice }
+  | { type: "lip-roll"; shape?: LipRollShape; /** semitones, not for "hold" */ span?: number; /** "hold" only */ seconds?: number; plays?: number; voice?: Voice }
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; /** Do and then the note sound before the student sings; absent: only Do */ play?: "both"; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
@@ -436,6 +440,28 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       const seconds = int(t.seconds, ...BREATH_LIMITS.seconds);
       const rounds = int(t.rounds, ...BREATH_LIMITS.rounds);
       return { type: "breathwork", drill, ...(seconds !== null ? { seconds } : {}), ...(rounds !== null ? { rounds } : {}) };
+    },
+  },
+  "voice-hill": {
+    parse(t) {
+      // "low" and "hum" are the defaults, so only another place or sound is kept
+      const where = HILL_WHERE.includes(t.where as HillWhere) && t.where !== "low" ? { where: t.where as HillWhere } : {};
+      const sound = HILL_SOUNDS.includes(t.sound as HillSound) && t.sound !== "hum" ? { sound: t.sound as HillSound } : {};
+      const seconds = int(t.seconds, ...HILL_LIMITS.seconds);
+      const reps = int(t.reps, ...HILL_LIMITS.reps);
+      const voice = voiceOf(t.voice);
+      return { type: "voice-hill", ...where, ...sound, ...(seconds !== null ? { seconds } : {}), ...(reps !== null ? { reps } : {}), ...(voice ? { voice } : {}) };
+    },
+  },
+  "lip-roll": {
+    parse(t) {
+      // "down" is the default; `span` only for a slide, `seconds` only for "hold"
+      const shape = LIP_ROLL_SHAPES.includes(t.shape as LipRollShape) ? (t.shape as LipRollShape) : "down";
+      const span = shape === "hold" ? null : int(t.span, ...LIP_ROLL_LIMITS.span);
+      const seconds = shape === "hold" ? int(t.seconds, ...LIP_ROLL_LIMITS.seconds) : null;
+      const plays = int(t.plays, ...LIP_ROLL_LIMITS.plays);
+      const voice = voiceOf(t.voice);
+      return { type: "lip-roll", ...(shape !== "down" ? { shape } : {}), ...(span !== null ? { span } : {}), ...(seconds !== null ? { seconds } : {}), ...(plays !== null ? { plays } : {}), ...(voice ? { voice } : {}) };
     },
   },
   "string-singer": {

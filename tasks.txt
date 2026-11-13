@@ -46,11 +46,6 @@ This probably could use some sort of injection mechanism or predefined slots.
 
 ======================== Large ========================
 
-22. Add hill exercise to singing. Evaluate exercises from old singing.attunr.app
-I can tell you where attunr repository is but if you check .. it's the projects dir
-
-src/components/Exercise/PitchExercises
-Include also farinelli exercise in our app
 
 21. Double stop / Triad exercises as well as double stop triad exercises intertwined with solos.
 Like - seeing chords within a scale!
@@ -58,6 +53,8 @@ Like - seeing chords within a scale!
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] 22. Hill and lip roll exercises from the old attunr singing app (/theory/singing/warm-ups)
+Done: two new singing tools, also usable in plans. Hill (voice-hill): hold an easy hum, "oo" or "ee" low, in the middle or high in your voice while a ball on a slope or in a valley follows the mic; a ring round the ball fills on the green place, drains slowly off it and waits while you breathe; Play note sounds the edge note. Lip roll (lip-roll): a soft tone slides down, up, as a siren or holds one note, then you lip roll it back while the mic draws your line over its path (green where close). New page "Voice warm-ups" in the Singing menu with a Lip roll and a Hill selector and Your voice. Farinelli was already there (breathwork). Checked on the dev server at desktop width: both start, play and run their rounds. Not checked: the ball and the line with a real voice (no one sang into the mic), and phone width.
 [DONE] Videos in demo notes bigger
 Done: in a note read as an article (/note/<slug>, View as a note), a video takes the whole column, like a neck, unless its width was set by hand on the grid. Checked on /note/minor-pentatonic in headless Chrome.
 [DONE] 65. Sounds to sing on: hard spaces and a line for each sound

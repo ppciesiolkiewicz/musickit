@@ -73,6 +73,17 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "breath-circle", title: "Follow the circle", text: "Breathe in as it grows, hold while it stays, breathe out as it shrinks. The number counts down the phase." },
     { target: "breath-strip", title: "What comes", text: "Every phase of the exercise, in order. The bell at the top switches the sound off." },
   ],
+  "voice-hill": [
+    { target: "hill-play", title: "Start", text: "Play sounds the note, then the mic starts. Press it again to stop." },
+    { target: "hill-view", title: "The hill", text: "The ball shows your voice. Hold it on the green part of the ground until the ring round the ball fills." },
+    { target: "hill-note", title: "Play note", text: "Plays the note at the edge of the green part, to find it again." },
+    { target: "hill-mic", title: "The mic", text: "Listens to your voice. It opens the list of inputs, with each input's level." },
+  ],
+  "lip-roll": [
+    { target: "lip-roll-play", title: "Start", text: "Play starts the rounds: listen to the tone, then lip roll it on your own." },
+    { target: "lip-roll-view", title: "Your line", text: "The blue band is the tone's path. On your turn the mic draws your line over it, green where it is close." },
+    { target: "lip-roll-mic", title: "The mic", text: "Listens on your turn only. Press it to switch it off or pick another input." },
+  ],
   "interval-singer": [
     { target: "interval-singer-start", title: "Start", text: "Start plays Do. Then sing the interval named above from it." },
     { target: "interval-singer-mic", title: "The mic", text: "Keep the mic on and hold the note until it says Yes." },

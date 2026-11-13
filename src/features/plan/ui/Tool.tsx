@@ -13,6 +13,8 @@ import { View as ScaleNeck } from "@/features/exercises/basics/scale-neck";
 import { View as PositionNeck } from "@/features/exercises/basics/position-neck";
 import { View as StringSinger } from "@/features/exercises/basics/string-singer";
 import { View as Breathwork } from "@/features/exercises/basics/breathwork";
+import { View as VoiceHill } from "@/features/exercises/basics/voice-hill";
+import { View as LipRoll } from "@/features/exercises/basics/lip-roll";
 import { View as Staff } from "@/features/exercises/basics/staff";
 import { View as StrumAlong } from "@/features/exercises/basics/strum-along";
 import { View as FingerPattern } from "@/features/exercises/basics/finger-pattern";
@@ -73,6 +75,10 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <StringSinger drill={tool.drill} metronome={tool.metronome} />;
     case "breathwork":
       return <Breathwork drill={tool.drill} from={tool.from} to={tool.to} seconds={tool.seconds} rounds={tool.rounds} />;
+    case "voice-hill":
+      return <VoiceHill where={tool.where} sound={tool.sound} seconds={tool.seconds} reps={tool.reps} voice={tool.voice ?? voice} />;
+    case "lip-roll":
+      return <LipRoll shape={tool.shape} span={tool.span} seconds={tool.seconds} plays={tool.plays} voice={tool.voice ?? voice} />;
     case "interval-singer":
       return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} play={tool.play} dot={tool.dot} picker={tool.picker === true} />;
     case "guitar-play-along":

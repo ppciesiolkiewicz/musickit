@@ -140,7 +140,7 @@ test("each rule is stated once: the repeats are gone, the mic tools include inte
   assert.equal(count(/One chart per step/g), 1);
   assert.equal(count(/never muted when it is part of the exercise/g), 1);
   assert.equal(count(/Never the same stock line on every exercise/g), 1);
-  assert.match(all, /string-singer, interval-singer\) or text that asks to sing/);
+  assert.match(all, /string-singer, interval-singer, voice-hill, lip-roll\) or text that asks to sing/);
 });
 
 test("the rules ask for the student's voice type on staff and singer tools", () => {

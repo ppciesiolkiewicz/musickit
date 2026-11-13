@@ -522,6 +522,43 @@
     ]
   },
   {
+    "name": "lip-roll",
+    "kind": "basic",
+    "description": "A lip roll warm-up with the mic: a soft tone slides (or holds one note) while a line shows its path, then the\nstudent lip rolls the same path back on their own while the mic draws their line over it. Each round is: listen,\nyour turn, a short rest; `plays` rounds in all. The line is loose on purpose: a lip roll is about an easy, steady\nbuzz, not an exact note. The slide sits low in the voice. A singing warm-up, for the start of a voice session.",
+    "props": [
+      {
+        "name": "shape",
+        "type": "\"down\" | \"up\" | \"siren\" | \"hold\"",
+        "required": false,
+        "description": "the path: \"down\" (default; a slide from high to low), \"up\" (low to high), \"siren\" (up and back down) or \"hold\" (one steady note)"
+      },
+      {
+        "name": "span",
+        "type": "number",
+        "required": false,
+        "description": "how wide the slide is, in semitones, 3-12; default 7 (a 5th); 12 is an octave. Not for \"hold\""
+      },
+      {
+        "name": "seconds",
+        "type": "number",
+        "required": false,
+        "description": "\"hold\" only: how long the note lasts, 2-10 seconds; default 5"
+      },
+      {
+        "name": "plays",
+        "type": "number",
+        "required": false,
+        "description": "how many rounds, 1-8; default 3"
+      },
+      {
+        "name": "voice",
+        "type": "\"soprano\" | \"mezzo\" | \"alto\" | \"tenor\" | \"baritone\" | \"bass\"",
+        "required": false,
+        "description": "voice range; default \"tenor\""
+      }
+    ]
+  },
+  {
     "name": "melody",
     "kind": "shape",
     "description": "A tune from the singing book, by number, in a key. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"melody\", \"tune\": 3, \"key\": \"d\" }`",
@@ -1210,6 +1247,43 @@
         "type": "string",
         "required": true,
         "description": "the video's id in the library (a string from the list)"
+      }
+    ]
+  },
+  {
+    "name": "voice-hill",
+    "kind": "basic",
+    "description": "A warm-up for the voice with the mic: the student holds one easy sound (a hum, \"oo\" or \"ee\") in one part of their\nvoice while a ball on a hill shows it. \"low\": the ball rolls down into the hollow as the voice goes low; \"high\": it\nclimbs to the top as the voice goes up, light and easy; \"middle\": it rests in a valley between two marks. Held there,\na ring fills over `seconds`; each full ring is one hold, then a breath, `reps` holds in all. Off the place, sung, the\nring drains slowly; a breath pauses it. Play note sounds the note at the place's edge. No key and no notes to read.\nA singing exercise, for a warm-up or for finding the low and the light high voice.",
+    "props": [
+      {
+        "name": "where",
+        "type": "\"low\" | \"middle\" | \"high\"",
+        "required": false,
+        "description": "where in the voice: \"low\" (default; the bottom of the voice, a tenor's E3 and under), \"middle\" (a few notes over it, a tenor's F3 to B♭3) or \"high\" (the top of the voice, a tenor's F♯4 and over: keep it light)"
+      },
+      {
+        "name": "sound",
+        "type": "\"hum\" | \"oo\" | \"ee\"",
+        "required": false,
+        "description": "the sound to hold: \"hum\" (default), \"oo\" or \"ee\". \"oo\" suits the low and the high voice, a hum any place"
+      },
+      {
+        "name": "seconds",
+        "type": "number",
+        "required": false,
+        "description": "how long each hold lasts, 2-10 seconds; default 3"
+      },
+      {
+        "name": "reps",
+        "type": "number",
+        "required": false,
+        "description": "how many holds, 1-8; default 5"
+      },
+      {
+        "name": "voice",
+        "type": "\"soprano\" | \"mezzo\" | \"alto\" | \"tenor\" | \"baritone\" | \"bass\"",
+        "required": false,
+        "description": "voice range; default \"tenor\""
       }
     ]
   }

@@ -1,6 +1,6 @@
 import { cellsOf, toolsOf, type Cell, type PlanTool } from "./tools";
 
-const MIC_TOOLS = new Set(["melody-singer", "run-singer", "string-singer", "interval-singer"]);
+const MIC_TOOLS = new Set(["melody-singer", "run-singer", "string-singer", "interval-singer", "voice-hill", "lip-roll"]);
 
 /** Wording where the app or backing plays (or the student presses Play), not the student. */
 const NOT_THE_STUDENT = new RegExp(
