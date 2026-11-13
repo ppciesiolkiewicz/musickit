@@ -12,6 +12,23 @@
   }
 }
 
+/*
+ * A page's settings as a column on the right (`WithSettings` with `side`): `lg` and up, unless the player moved the
+ * settings above the page (`data-settings="top"` on <html>, set by SETTINGS_BOOT and the panel's Move above button).
+ */
+@custom-variant side {
+  @media (min-width: 64rem) {
+    :root:not([data-settings="top"]) & {
+      @slot;
+    }
+  }
+}
+
+/* with the settings above the page, a full-width page with a settings column takes the normal page width again */
+:root[data-settings="top"] .page-full:has([data-with-settings]) {
+  max-width: 80rem;
+}
+
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

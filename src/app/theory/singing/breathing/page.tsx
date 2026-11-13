@@ -13,7 +13,6 @@ export default function BreathingPage() {
   return (
     <PageShell
       active="/theory/singing/breathing"
-      full
       title="Farinelli breathing"
       intro="Breathe in, hold and breathe out for the same count. Each cycle adds one count, so each breath lasts a little longer. No mic is needed: the circle grows as you breathe in and shrinks as you breathe out."
     >

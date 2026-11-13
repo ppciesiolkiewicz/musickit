@@ -11,7 +11,9 @@ import { scaleHref, scalesIndexHref } from "@/features/theory/keySlug";
 import { Chip, InfoBox, InfoButton, Select } from "@/components/ui";
 import { DegreeLegend } from "@/components/theory/DegreeLegend";
 import { PocketLine, PracticeBand, type PocketStatus } from "@/features/instruments";
+import Icon from "@/components/Icon";
 import { PHONE_QUERY } from "@/components/usePhone";
+import { getSettingsPlace, setSettingsPlace, useSettingsPlace } from "./settingsPlace";
 import InputChip from "@/components/InputChip";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { HeardNote } from "./heardNote";
@@ -44,12 +46,14 @@ const SetHeard = createContext<((pc: number | null) => void) | null>(null);
 
 function Layout({ bar, side, criteria, children }: { bar: ReactNode; side: boolean; criteria?: ReactNode; children: ReactNode }) {
   if (!side) return <div className="flex flex-col gap-5">{bar}{children}</div>;
+  // `side:` is `lg:` unless the player moved the settings above the page (settingsPlace.ts); then this lays out as `!side`
+  // and PageShell's full-width frame narrows to the normal page width (`data-with-settings`, globals.css)
   return (
     // reaches out over PageShell's right padding so the column sits flush with the window
-    <div className="flex flex-col gap-5 lg:-mr-8 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-x-8">
-      <div className="contents lg:col-start-2 lg:row-start-1 lg:block lg:sticky lg:top-0">{bar}</div>
+    <div data-with-settings className="flex flex-col gap-5 side:-mr-8 side:grid side:grid-cols-[minmax(0,1fr)_22rem] side:items-start side:gap-x-8">
+      <div className="contents side:col-start-2 side:row-start-1 side:block side:sticky side:top-0">{bar}</div>
       {/* necks that bleed past a centred page would run under the column, so they stay in it here */}
-      <div className="flex min-w-0 flex-col gap-5 lg:col-start-1 lg:row-start-1 lg:[&_.bleed]:mx-0">
+      <div className="flex min-w-0 flex-col gap-5 side:col-start-1 side:row-start-1 side:[&_.bleed]:mx-0">
         {criteria && <div data-tour="scale-criteria" className="flex flex-col gap-1.5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3">{criteria}</div>}
         {children}
       </div>
@@ -194,6 +198,8 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
     onStatus?.(s);
   }, [onStatus]);
   const [labels] = useLabelSystem();
+  // moved above the page, a side bar lays its pocket tools out as a bar does
+  const place = useSettingsPlace();
   // no key row at all: a page with neither key chips nor a scale picker (the practice plan)
   const keyRow = config.keys !== false || !!config.scale;
   const keyName = keyRow ? TONICS.find((t) => t.pc === tonicPc)?.name : undefined;
@@ -201,18 +207,19 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
   const labelName = LABEL_SYSTEMS.find((l) => l.id === labels)?.label;
   return (
     // breaks out of the page column to span the window, less a small gutter each side; as a side column it fills the window's height
-    <div data-tour="scale-settings" className={`sticky top-2 z-20 mx-[calc(50%-50vw+0.5rem)] flex flex-col gap-3 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2.5 shadow-lg sm:px-6 sm:py-3 shadow-black/30 backdrop-blur ${side ? SIDE : ""}`}>
+    <div data-tour="scale-settings" className={`sticky top-2 z-20 mx-[calc(50%-50vw+0.5rem)] flex flex-col gap-3 rounded-2xl border border-slate-700 bg-slate-950/90 px-4 py-2.5 shadow-lg sm:px-6 sm:py-3 shadow-black/30 backdrop-blur ${side ? `lg:mx-0 ${SIDE}` : ""}`}>
+      {/* a rule under the header while the settings show, to set it apart from them */}
+      <div className={`flex items-center gap-2 ${open ? "border-b border-slate-800 pb-2.5 sm:pb-3" : ""} ${side ? "side:border-b side:border-slate-800 side:pb-3" : ""}`}>
       <button
         type="button"
         onClick={toggle}
         aria-expanded={open}
-        // a rule under the header while the settings show, to set it apart from them
-        className={`group flex items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${open ? "rounded-b-none border-b border-slate-800 pb-2.5 sm:pb-3" : ""} ${side ? "lg:pointer-events-none lg:rounded-b-none lg:border-b lg:border-slate-800 lg:pb-3" : ""}`}
+        className={`group flex min-w-0 flex-1 items-center gap-2 rounded-md text-left text-xs focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${side ? "side:pointer-events-none" : ""}`}
       >
         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-100">Settings</span>
         <span className="shrink-0 truncate text-sm font-medium text-slate-100">{keyName}{scaleName ? ` ${scaleName}` : ""}</span>
         {/* the rest of the settings at a glance, as room allows */}
-        <span className={`flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap text-slate-400 ${side ? "lg:invisible" : ""}`}>
+        <span className={`flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden whitespace-nowrap text-slate-400 ${side ? "side:invisible" : ""}`}>
           {labelsRow && labelName && <Fact from="sm">{labelName}</Fact>}
           {status && <Fact from="md">{status.bpm} bpm</Fact>}
           {status && pocket?.drone !== false && <Fact from="lg">Drone {status.drone}</Fact>}
@@ -223,15 +230,17 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
             </Fact>
           )}
         </span>
-        <span className={`flex shrink-0 items-center gap-1 rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-100 transition group-hover:border-sky-400 group-hover:text-sky-200 ${side ? "lg:hidden" : ""}`}>
+        <span className={`flex shrink-0 items-center gap-1 rounded-full border border-slate-600 bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-100 transition group-hover:border-sky-400 group-hover:text-sky-200 ${side ? "side:hidden" : ""}`}>
           {open ? "Hide" : "Show"}
           <svg viewBox="0 0 12 12" aria-hidden className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}>
             <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </span>
       </button>
+      {side && <PlaceToggle />}
+      </div>
       {/* hidden rather than unmounted, so the pocket tools keep playing while it is folded */}
-      <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-5 overflow-y-auto sm:max-h-none sm:overflow-visible ${side ? "lg:flex" : "xl:flex-row xl:items-center xl:gap-6"}`}>
+      <div className={`${open ? "flex" : "hidden"} max-h-[70vh] flex-col gap-5 overflow-y-auto sm:max-h-none sm:overflow-visible xl:flex-row xl:items-center xl:gap-6 ${side ? "side:flex side:flex-col side:items-stretch side:gap-5" : ""}`}>
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           {filters && (
             <BarSection title="Filter" first>{filters}</BarSection>
@@ -260,7 +269,7 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
         {pocket && (
           <PracticeBand view="pocket" storageKey="musickit.pocket"
             config={{ parts: pocket.drone === false ? ["click", "drums", "bass"] : ["click", "drone", "drums", "bass"], keyPc: tonicPc }}
-            pocket={{ onStatus: onPocket, clickAlways: pocket.clickAlways, stacked: side, lines: config.input && <InputLine />, className: "-mx-2" }} />
+            pocket={{ onStatus: onPocket, clickAlways: pocket.clickAlways, stacked: side && place === "side", lines: config.input && <InputLine />, className: "-mx-2" }} />
         )}
         {!pocket && config.input && <div className="panel-rule pt-5"><InputLine /></div>}
       </div>
@@ -268,8 +277,28 @@ export function ScaleSettingsBar({ tonicPc, onTonic, side = false, config = {} }
   );
 }
 
-/** The bar as a side column: flush to the window's right edge and as tall as the window, scrolling on its own. */
-const SIDE = "lg:static lg:mx-0 lg:h-dvh lg:overflow-y-auto lg:rounded-none lg:border-y-0 lg:border-r-0 lg:px-4 lg:py-4 lg:shadow-none";
+/**
+ * The bar as a side column: flush to the window's right edge and as tall as the window, scrolling on its own. A bar
+ * that could be a column but was moved above the page (`lg:mx-0` beside this) keeps to the page's width.
+ */
+const SIDE = "side:static side:mx-0 side:h-dvh side:overflow-y-auto side:rounded-none side:border-y-0 side:border-r-0 side:px-4 side:py-4 side:shadow-none";
+
+/** In a side column's header on wide screens: moves every page's settings above the page, or back to the side. */
+function PlaceToggle() {
+  const flip = () => setSettingsPlace(getSettingsPlace() === "top" ? "side" : "top");
+  return (
+    <button type="button" tabIndex={-1} onClick={flip}
+      className="hidden h-7 w-7 shrink-0 place-items-center rounded-full border border-slate-600 bg-slate-800 text-slate-100 transition hover:border-sky-400 hover:text-sky-200 lg:grid">
+      {/* both render; CSS shows the one for where the settings are, so the server and the browser agree. Each shows where it moves them */}
+      <span className="hidden h-full w-full place-items-center side:grid" title="Move above: show the settings above the page, at the normal page width">
+        <Icon name="panel-top" size={15} /><span className="sr-only">Move above</span>
+      </span>
+      <span className="grid h-full w-full place-items-center side:hidden" title="Move to side: show the settings in a column on the right">
+        <Icon name="panel-right" size={15} /><span className="sr-only">Move to side</span>
+      </span>
+    </button>
+  );
+}
 
 const FROM = { sm: "hidden sm:inline-flex", md: "hidden md:inline-flex", lg: "hidden lg:inline-flex" };
 

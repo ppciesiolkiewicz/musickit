@@ -10,6 +10,7 @@ import { devUi } from "@/features/devtools/gate";
 import QuickRecord from "@/features/recorder/QuickRecord";
 import Spotlight from "@/features/search/Spotlight";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
+import { SETTINGS_BOOT } from "@/components/chordKit/settingsBoot";
 import { SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
@@ -138,6 +139,7 @@ export default function RootLayout({
     <html lang="en" data-theme="plain" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        <script dangerouslySetInnerHTML={{ __html: SETTINGS_BOOT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}

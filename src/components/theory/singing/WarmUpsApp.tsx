@@ -3,13 +3,17 @@
 import { useState } from "react";
 import { GameChoice } from "@/components/practice/shared";
 import Lesson from "@/components/theory/Lesson";
-import { Chip, ChipRow, Select } from "@/components/ui";
+import { Select } from "@/components/ui";
+import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
+import { midiToName } from "@/features/sound";
 import { View as LipRoll } from "@/features/exercises/basics/lip-roll";
-import { LIP_ROLL_PLAYS, LIP_ROLL_SPEEDS, type LipRollPlay, type LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
-import type { LipRollProps } from "@/features/exercises/basics/lip-roll/lip-roll.props";
+import type { LipRollPlay, LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
+import { LipRollSettings, type LipRollShape } from "@/features/exercises/basics/lip-roll/settings";
 import { View as VoiceHill } from "@/features/exercises/basics/voice-hill";
-import type { VoiceHillProps } from "@/features/exercises/basics/voice-hill/voice-hill.props";
+import { HILL_PLACES, HillSettings, type HillPlace, type HillSoundChoice } from "@/features/exercises/basics/voice-hill/settings";
 import { VOICES, type Voice } from "@/features/theory/singing";
+
+const noTonic = () => {};
 
 type Kind = "lip-roll" | "voice-hill";
 
@@ -37,86 +41,52 @@ const GUIDE: Record<Kind, string[]> = {
   ],
 };
 
-const ROLLS: { id: string; label: string; title: string; props: LipRollProps }[] = [
-  { id: "down", label: "Slide down", title: "From head voice down to chest voice", props: { shape: "down" } },
-  { id: "siren", label: "Siren", title: "From chest voice up to head voice and back", props: { shape: "siren" } },
-  { id: "hold", label: "One note", title: "One steady chest-voice note", props: { shape: "hold" } },
-];
-const PLACES: { id: NonNullable<VoiceHillProps["where"]>; label: string; title: string; props: VoiceHillProps }[] = [
-  { id: "low", label: "Low", title: "The bottom of your voice, a little lower each hold", props: { where: "low" } },
-  { id: "middle", label: "Middle", title: "The middle of your voice, between two marks", props: { where: "middle", seconds: 5, reps: 3 } },
-  { id: "high", label: "High", title: "Head voice, light and soft", props: { where: "high", seconds: 2 } },
-];
-const SOUNDS: { id: NonNullable<VoiceHillProps["sound"]>; label: string }[] = [
-  { id: "hum", label: "Hum" },
-  { id: "oo", label: "“oo”" },
-  { id: "ee", label: "“ee”" },
-];
-
-const PLAY_CHIPS: Record<LipRollPlay, { label: string; title: string }> = {
-  always: { label: "With the tone", title: "The tone plays the whole time and you lip roll with it" },
-  echo: { label: "Tone, then you", title: "A pass with the tone, then the same pass on your own" },
-  silent: { label: "No tone", title: "Follow the line on your own, no tone" },
-};
-const SPEED_CHIPS: Record<LipRollSpeed, string> = { slow: "Slow", medium: "Medium", fast: "Fast" };
-
-const VOICE_OPTIONS = (Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: VOICES[v].label }));
+const VOICE_OPTIONS = (Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: `${VOICES[v].label} · ${midiToName(VOICES[v].low)}–${midiToName(VOICES[v].high)}` }));
 
 /**
- * The voice warm-ups page: why and what to try (both), what to practise (Lip roll or The hill, two separate tools), what
- * to do in the one picked, its own choices and Your voice. A choice changes the tool's props without remounting it, so
- * a tool that is running keeps running with the new settings.
+ * The voice warm-ups page: why and what to try (both), what to practise (Lip roll or The hill, two separate tools) and
+ * what to do in the one picked, over the tool; the picked tool's own choices and Voice in the settings column, as on the
+ * other singing pages. A choice changes the tool's props without remounting it, so a tool that is running keeps running
+ * with the new settings.
  */
 export default function WarmUpsApp() {
   const [kind, setKind] = useState<Kind>("lip-roll");
-  const [roll, setRoll] = useState(ROLLS[0].id);
-  const [place, setPlace] = useState(PLACES[0].id);
-  const [sound, setSound] = useState(SOUNDS[0].id);
+  const [shape, setShape] = useState<LipRollShape>("down");
+  const [place, setPlace] = useState<HillPlace>("low");
+  const [sound, setSound] = useState<HillSoundChoice>("hum");
   const [voice, setVoice] = useState<Voice>("tenor");
   const [play, setPlay] = useState<LipRollPlay>("echo");
   const [speed, setSpeed] = useState<LipRollSpeed>("medium");
-  const r = ROLLS.find((x) => x.id === roll)!;
-  const h = PLACES.find((x) => x.id === place)!;
-  return (
-    <div>
-      <Lesson course="3/breath-and-holding-a-note" why={LESSON.why} tryThis={LESSON.tryThis} />
-      <div data-tour="warm-ups-kind" className="mb-3"><GameChoice label="What to practise" options={KINDS} value={kind} onChange={setKind} tone="sky" /></div>
-      <div className="mb-4 rounded-xl border border-slate-800 bg-slate-900/30 px-3 py-2 text-sm leading-snug text-slate-300" aria-live="polite">
-        {GUIDE[kind].map((line) => <p key={line}>{line}</p>)}
-      </div>
-      <div className="mx-auto w-full max-w-2xl">
-        <div className="mb-3 flex flex-col gap-2">
-          {kind === "lip-roll" ? (
-            <>
-              <ChipRow label="Slide">
-                {ROLLS.map((x) => <Chip key={x.id} on={x.id === roll} onClick={() => setRoll(x.id)} title={x.title}>{x.label}</Chip>)}
-              </ChipRow>
-              <ChipRow label="Tone">
-                {LIP_ROLL_PLAYS.map((m) => <Chip key={m} on={m === play} onClick={() => setPlay(m)} title={PLAY_CHIPS[m].title}>{PLAY_CHIPS[m].label}</Chip>)}
-              </ChipRow>
-              {r.props.shape !== "hold" && <ChipRow label="Speed">
-                {LIP_ROLL_SPEEDS.map((sp) => <Chip key={sp} on={sp === speed} onClick={() => setSpeed(sp)}>{SPEED_CHIPS[sp]}</Chip>)}
-              </ChipRow>}
-            </>
-          ) : (
-            <>
-              <ChipRow label="Place">
-                {PLACES.map((x) => <Chip key={x.id} on={x.id === place} onClick={() => setPlace(x.id)} title={x.title}>{x.label}</Chip>)}
-              </ChipRow>
-              <ChipRow label="Sound">
-                {SOUNDS.map((x) => <Chip key={x.id} on={x.id === sound} onClick={() => setSound(x.id)}>{x.label}</Chip>)}
-              </ChipRow>
-            </>
-          )}
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="w-28 shrink-0 text-xs uppercase tracking-wider text-slate-400">Your voice</span>
-            <Select value={voice} onChange={setVoice} options={VOICE_OPTIONS} size="sm" aria-label="Your voice" />
-          </div>
-        </div>
+  const h = HILL_PLACES.find((x) => x.id === place)!;
+  const bar = (
+    <ScaleSettingsBar tonicPc={0} onTonic={noTonic} side config={{
+      keys: false,
+      labels: false,
+      pocket: false,
+      rows: <>
+        <BarRow label="Voice">
+          <Select size="sm" value={voice} onChange={setVoice} options={VOICE_OPTIONS} aria-label="Voice" />
+        </BarRow>
         {kind === "lip-roll"
-          ? <LipRoll {...r.props} play={play} speed={speed} voice={voice} controls={false} />
-          : <VoiceHill {...h.props} sound={sound} voice={voice} />}
+          ? <LipRollSettings shape={shape} onShape={setShape} play={play} onPlay={setPlay} speed={speed} onSpeed={setSpeed} />
+          : <HillSettings place={place} onPlace={setPlace} sound={sound} onSound={setSound} />}
+      </>,
+    }} />
+  );
+  return (
+    <WithSettings side bar={bar}>
+      <div>
+        <Lesson course="3/breath-and-holding-a-note" why={LESSON.why} tryThis={LESSON.tryThis} />
+        <div data-tour="warm-ups-kind" className="mb-3"><GameChoice label="What to practise" options={KINDS} value={kind} onChange={setKind} tone="sky" /></div>
+        <div className="mb-4 rounded-xl border border-slate-800 bg-slate-900/30 px-3 py-2 text-sm leading-snug text-slate-300" aria-live="polite">
+          {GUIDE[kind].map((line) => <p key={line}>{line}</p>)}
+        </div>
+        <div className="mx-auto w-full max-w-2xl">
+          {kind === "lip-roll"
+            ? <LipRoll shape={shape} play={play} speed={speed} voice={voice} controls={false} />
+            : <VoiceHill {...h.props} sound={sound} voice={voice} />}
+        </div>
       </div>
-    </div>
+    </WithSettings>
   );
 }
