@@ -6,6 +6,8 @@ import ContactForm from "@/components/landing/ContactForm";
 import Founder from "@/components/landing/Founder";
 import Photo from "@/components/landing/Photo";
 import StyleDivider from "@/components/landing/StyleDivider";
+import SectionNav from "@/components/landing/SectionNav";
+import IntroPlayer from "@/features/intro/IntroPlayer";
 import Glow from "@/components/landing/Glow";
 import GlassShapes from "@/components/landing/GlassShapes";
 import SiteFooter from "@/components/landing/SiteFooter";
@@ -38,6 +40,19 @@ const RESOURCES: { icon: IconName; label: string; href: string }[] = [
   { icon: "triangle", label: "Triads", href: "/theory/triads" },
   { icon: "circle-dot", label: "Circle of fifths", href: "/theory/circle" },
   { icon: "piano", label: "Piano and staff", href: "/theory/piano" },
+];
+
+/** The side rail, one link per section, in page order. */
+const SECTIONS = [
+  { id: "tour", label: "Quick tour" },
+  { id: "philosophy", label: "Our philosophy" },
+  { id: "practice", label: "AI autoplan" },
+  { id: "coming-soon", label: "Coming next" },
+  { id: "resources", label: "Teaching resources" },
+  { id: "colours", label: "Colour system" },
+  { id: "notes", label: "Notes creator" },
+  { id: "white-label", label: "White-labelling" },
+  { id: "contact", label: "Talk to us" },
 ];
 
 const WHITE_LABEL = [
@@ -139,6 +154,7 @@ export default function SchoolsHome() {
     // `overflow-clip`, not `hidden`: a scroll container would stop the glass shapes' scroll-driven parallax
     <div className="landing app-bg isolate min-h-screen overflow-clip text-slate-200">
       <PreloadPiano />
+      <SectionNav items={SECTIONS} />
       <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <GlassShapes />
         <div className="border-b border-slate-800/70 py-2.5 sm:py-4">
@@ -198,10 +214,23 @@ export default function SchoolsHome() {
           </ul>
         </section>
 
+        {/* The quick tour, the same player as /intro */}
+        <section id="tour" aria-labelledby="tour-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
+          <div className="mx-auto max-w-2xl text-center">
+            <Eyebrow>Quick tour</Eyebrow>
+            <H2 id="tour-h">See attunr <span className="ls-accent italic text-sky-300">before you talk to us.</span></H2>
+            <p className="mt-4 text-pretty text-slate-300">A short, narrated walk through the menu, the AI practice plan, the notes creator, the help on every page and the keys that open any page.</p>
+          </div>
+          <div className="mx-auto mt-10 max-w-4xl">
+            <IntroPlayer spaceKey={false} />
+          </div>
+        </section>
+
         <StyleDivider />
 
         {/* The practice core: drills that build muscle memory */}
         <SkillsSection
+          id="philosophy"
           school
           eyebrow="Between lessons"
           title={<>Lessons that start <span className="ls-accent italic text-sky-300">where the last one ended.</span></>}
@@ -281,7 +310,7 @@ export default function SchoolsHome() {
         </section>
 
         {/* One colour language for teachers and students */}
-        <IdeasSection school eyebrow="One colour system across your teachers" title={<>Every teacher, <span className="ls-accent italic text-sky-300">the same method.</span></>} tools={[PLAY_TOOLS]} />
+        <IdeasSection id="colours" school eyebrow="One colour system across your teachers" title={<>Every teacher, <span className="ls-accent italic text-sky-300">the same method.</span></>} tools={[PLAY_TOOLS]} />
 
         {/* Notes creator */}
         <section id="notes" aria-labelledby="notes-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">

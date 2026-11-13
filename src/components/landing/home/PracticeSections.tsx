@@ -84,10 +84,11 @@ export function SkillsSection({
   school = false,
   eyebrow = "Drills for every part of playing",
   title = <>Develop your own <span className="ls-accent italic text-sky-300">guitar senses.</span></>,
+  id,
   intro = <>Not a screen that tells you when you got it right. Drills for your hands, ears, voice and timing that you repeat until <Mark>you can feel it yourself</Mark>, and understand well enough to <Mark>invent your own</Mark>.</>,
-}: { school?: boolean; eyebrow?: ReactNode; title?: ReactNode; intro?: ReactNode }) {
+}: { school?: boolean; id?: string; eyebrow?: ReactNode; title?: ReactNode; intro?: ReactNode }) {
   return (
-    <section aria-labelledby="skills-h" className="sect-rule py-12 sm:py-16">
+    <section id={id} aria-labelledby="skills-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Eyebrow>{eyebrow}</Eyebrow>
         <H2 id="skills-h">{title}</H2>
@@ -173,10 +174,10 @@ export function PlanSection() {
 }
 
 /** `school` writes the card text about students (for the music-school page, where "you" is the school). */
-export function IdeasSection({ school = false, eyebrow = "Free in the app", title = <>Practice that <span className="ls-accent italic text-sky-300">adds up.</span></>, tools = [SEE_TOOLS, PLAY_TOOLS] }: { school?: boolean; eyebrow?: ReactNode; title?: ReactNode; tools?: ToolGroup[] }) {
+export function IdeasSection({ school = false, id, eyebrow = "Free in the app", title = <>Practice that <span className="ls-accent italic text-sky-300">adds up.</span></>, tools = [SEE_TOOLS, PLAY_TOOLS] }: { school?: boolean; eyebrow?: ReactNode; title?: ReactNode; tools?: ToolGroup[]; id?: string }) {
   const dorian = modeSteps(FAMILIES[0], 1);
   return (
-    <section aria-labelledby="ideas-h" className="sect-rule py-12 sm:py-16">
+    <section id={id} aria-labelledby="ideas-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Eyebrow>{eyebrow}</Eyebrow>
         <H2 id="ideas-h">{title}</H2>

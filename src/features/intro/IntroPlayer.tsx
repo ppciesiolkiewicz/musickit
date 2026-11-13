@@ -18,9 +18,10 @@ const KEYFRAMES = `
 /**
  * The quick tour: a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voice.json`) or, for a
  * scene not recorded yet, to an estimate, playing silent with its caption. The clock follows the audio while a scene's take
- * plays and the frame clock otherwise, so the picture never runs ahead of the voice.
+ * plays and the frame clock otherwise, so the picture never runs ahead of the voice. `spaceKey` lets Space play and pause
+ * anywhere on the page; off on a page where Space should scroll (the home page).
  */
-export default function IntroPlayer() {
+export default function IntroPlayer({ spaceKey = true }: { spaceKey?: boolean }) {
   const scenes = useMemo(() => timeline(SCRIPT, VOICE), []);
   const total = totalLength(scenes);
   const [t, setT] = useState(0);
@@ -105,6 +106,7 @@ export default function IntroPlayer() {
   };
 
   useEffect(() => {
+    if (!spaceKey) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code !== "Space" || e.metaKey || e.ctrlKey || e.altKey) return;
       const el = e.target as HTMLElement | null;
@@ -138,7 +140,7 @@ export default function IntroPlayer() {
       </div>
 
       <div className="flex items-center gap-3">
-        <button type="button" onClick={toggle} aria-label={playing ? "Pause" : "Play"} title={playing ? "Pause (Space)" : "Play (Space)"} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white transition hover:bg-sky-400">
+        <button type="button" onClick={toggle} aria-label={playing ? "Pause" : "Play"} title={spaceKey ? (playing ? "Pause (Space)" : "Play (Space)") : playing ? "Pause" : "Play"} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white transition hover:bg-sky-400">
           <Icon name={playing ? "pause" : "play"} size={18} />
         </button>
         <input

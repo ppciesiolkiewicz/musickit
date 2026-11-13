@@ -9,7 +9,7 @@
 | `timeline.ts` | Pure. Scene start times and lengths, cue times. A scene whose text matches its recording uses the recording; otherwise the length is estimated from its word count and the scene plays silent with its caption. |
 | `data.ts` | The two JSON files, typed. |
 | `scenes.tsx` | The scenes on a 960 × 540 stage. Each is a pure function of the time into the scene and its cue times. They use the app's own pieces (wordmark, icons, the nav's section list, the compass button), drawn still: the tour never starts the mic or the sound engine. |
-| `IntroPlayer.tsx` | The stage, scaled to fit its column, with Play/Pause (Space), a slider, mute, a chip per scene and the caption. The clock follows the audio while a scene's recording plays, and the frame clock otherwise. |
+| `IntroPlayer.tsx` | The stage, scaled to fit its column, with Play/Pause (Space), a slider, mute, a chip per scene and the caption. The clock follows the audio while a scene's recording plays, and the frame clock otherwise. Used on `/intro` and in the "Quick tour" section of the home page (`SchoolsHome`), which passes `spaceKey={false}` so Space still scrolls there. |
 
 ## Recording the narration (ElevenLabs)
 
