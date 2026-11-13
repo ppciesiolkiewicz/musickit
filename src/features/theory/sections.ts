@@ -42,6 +42,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "learn", href: "/theory/circle", tone: "sky", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot", alsoIn: [{ group: "tools", sub: "Tuning & theory" }] },
   { group: "guitar", sub: "Explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3" },
   { group: "guitar", sub: "Explore", href: "/theory/triads", tone: "violet", label: "Triads", desc: "Three-note shapes on string sets", icon: "triangle" },
+  { group: "guitar", sub: "Explore", href: "/theory/double-stops", tone: "amber", label: "Double stops", desc: "Two scale notes at once, up the neck", icon: "double-stop" },
   { group: "guitar", sub: "Explore", href: "/theory/scales", tone: "emerald", label: "Scales", desc: "Every mode, its chords and boxes", icon: "waves" },
   { group: "guitar", sub: "Explore", href: "/theory/caged", tone: "rose", label: "CAGED", desc: "One chord, five shapes up the neck", icon: "layers" },
   { group: "guitar", sub: "Explore", href: "/theory/caged#neighbours", tone: "pink", label: "Shape neighbours", desc: "I IV V ii vi without moving your hand", icon: "network" },

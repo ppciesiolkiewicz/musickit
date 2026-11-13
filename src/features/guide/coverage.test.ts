@@ -45,7 +45,7 @@ test("entries sort by kind, then id", () => {
 
 test("every page with a guide is in the static list, with its tour", () => {
   const ids = COVERED_PAGES.map((p) => p.id).sort();
-  assert.deepEqual(ids, ["arpeggios", "backing", "basics", "caged", "chords", "circle", "course", "ears", "faq", "looper", "metronome-drone", "notes", "piano", "plan", "rhythm", "scales", "singing", "triads", "tune-by-ear", "tuner", "tunings"]);
+  assert.deepEqual(ids, ["arpeggios", "backing", "basics", "caged", "chords", "circle", "course", "double-stops", "ears", "faq", "looper", "metronome-drone", "notes", "piano", "plan", "rhythm", "scales", "singing", "triads", "tune-by-ear", "tuner", "tunings"]);
   for (const p of COVERED_PAGES) {
     assert.ok(p.route.startsWith("/"), `${p.id}: route`);
     assert.ok(p.tour.length > 0, `${p.id}: tour`);

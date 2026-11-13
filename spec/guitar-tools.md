@@ -17,6 +17,7 @@ Top nav (`components/SiteNav.tsx`): Home, Theory articles, Tuner and the outline
 |-------|---------|
 | `/theory/chords` | Chord explorer with three tabs: **Shapes**, **In a key**, **Progressions** |
 | `/theory/triads` | Closed triads and inversions by string group |
+| `/theory/double-stops` | A scale's double stops (3rds, 6ths, 4ths) up the neck on each pair of strings |
 | `/theory/scales?key=N` | All 21 modes in the chosen key: every scale degree and note (tap to hear, Play runs the scale up and down), a fretboard of frets 0–12 per mode (toggle Fretboards), step pattern, relative major/minor and sibling modes, links to each mode page and its neck positions |
 | `/theory/scales/[slug]?key=N` | One mode: key picker, the scale on the guitar (whole neck and positions), relatives, every chord with its notes |
 | `/theory/caged` | The CAGED system, major and minor: the five chord forms (C A G E D) in any key, the fret box around each, and its chord, arpeggio, scale and pentatonic as toggleable layers, plus other chords that sit in the box |
@@ -40,6 +41,10 @@ Difficulty is derived from the fingering (fret span, barre, muted gaps, number o
 
 Choose root, triad quality (major, minor, diminished, augmented) and string groups (6-5-4, 5-4-3, 4-3-2, 3-2-1). For each group the three inversions are generated, not tabulated: every fret combination whose notes are the chord tones in the inversion's order, inside one octave and within a 4-fret span. Tap a voicing to hear it.
 
+## Double stops (`/theory/double-stops`)
+
+Pick key, scale (major, minor, dorian, mixolydian), interval (3rds, 6ths, 4ths) and pairs of strings (neighbours for 3rds and 4ths, one string skipped for 6ths). Each pair is the scale in that interval: for every note, the scale note two (3rds), three (4ths) or five (6ths) steps up, so the size follows the scale. Each chosen pair shows a ladder along frets 0–17, from its lowest double stop, each next scale note's pair the nearest one above, both notes within 4 frets. Tap a pair to hear it; Play runs an octave from the lowest root up and back down. Maths in `scaleChords.ts` (`diatonicDyads`), page in `components/chordKit/DoubleStopsExplorer.tsx`; the theory calculator's `dyads` command gives the same pairs.
+
 ## Mode pages (`/theory/scales/[slug]`)
 
 Key picker at the top (stored in `?key=` as a pitch class). Shows the scale coloured by degree, step pattern, relative major/minor (major family), parent scale, differences from the parallel major/minor, and links to the other modes with the same notes. Every diatonic chord lists its stacked notes (R 3 5 7, optionally 9 11 13) coloured by scale degree (1 white, 2 teal, 3 amber, 4 lime, 5 blue, 6 violet, 7 rose), so a note keeps one colour in every chord. Tap a chord to hear it.
@@ -61,6 +66,7 @@ src/lib/chordKit/
 ├── shapeTools.ts    difficulty, mode fit, fret math, tags and filtering
 ├── progressions.ts  progression data, resolving into keys, neck positions
 ├── triads.ts        generated triad voicings
+├── scaleChords.ts   a scale's double stops, and its triads inside one position
 ├── scales.ts        mode pages, relatives, degree colours
 ├── arpeggios.ts     arpeggio notes and neck map
 ├── scalePositions.ts scale notes on the neck, the five pentatonic and scale positions

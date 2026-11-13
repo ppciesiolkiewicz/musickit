@@ -17,6 +17,7 @@ import { RHYTHM_TOUR } from "./tours/rhythm";
 import { SCALES_TOUR } from "./tours/scales";
 import { SINGING_TOUR } from "./tours/singing";
 import { TRIADS_TOUR } from "./tours/triads";
+import { DOUBLE_STOPS_TOUR } from "./tours/double-stops";
 import { TUNE_BY_EAR_TOUR } from "./tours/tune-by-ear";
 import { TUNINGS_TOUR } from "./tours/tunings";
 import { TUNER_TOUR } from "./tours/tuner";
@@ -30,6 +31,7 @@ export const COVERED_PAGES: { id: string; route: string; tour: TourStep[] }[] = 
   { id: "chords", route: "/theory/chords", tour: CHORDS_TOUR },
   { id: "circle", route: "/theory/circle", tour: CIRCLE_TOUR },
   { id: "course", route: "/course", tour: COURSE_TOUR },
+  { id: "double-stops", route: "/theory/double-stops", tour: DOUBLE_STOPS_TOUR },
   { id: "ears", route: "/theory/ears", tour: EARS_TOUR },
   { id: "faq", route: "/faq", tour: FAQ_TOUR },
   { id: "looper", route: "/looper", tour: LOOPER_TOUR },
