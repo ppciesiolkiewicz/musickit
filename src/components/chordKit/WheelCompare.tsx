@@ -95,6 +95,16 @@ export function Peek({ text, children, className = "" }: { text: ReactNode; chil
   );
 }
 
+/** Text that swaps for `hover` while the mouse is over the enclosing `group`, like the label in a neck dot. */
+export function SwapText({ label, hover }: { label: string; hover: string }) {
+  return (
+    <>
+      <span className="group-hover:hidden">{label}</span>
+      <span className="hidden group-hover:inline">{hover}</span>
+    </>
+  );
+}
+
 /**
  * "♭3 for 3" for two seven-note scales, degree by degree; otherwise what each has that the other lacks:
  * "only here: ♭3, ♭7 · only in Major: 2, 4, 7".
@@ -113,9 +123,10 @@ function describe(steps: number[], degrees: string[], other: CompareChoice): str
 /**
  * The scale's wheel, and the scales to compare it with: a few as pills and the rest in a pill dropdown. At rest the wheel is plain;
  * hovering one draws it dashed behind, double rings the shared notes, ghosts its own, and shows what differs in a card floating over
- * the page, so nothing below moves. A tap does the same on a touch screen; nothing is kept.
+ * the page, so nothing below moves. A tap does the same on a touch screen; nothing is kept. While comparing, the dots show degrees, like
+ * the dashed ones, so both scales are read in the same terms; hovering a dot shows its usual label.
  */
-export default function WheelCompare({ steps, degrees, wheelDegrees, labels, active, onNote, pills, groups, onCompare }: {
+export default function WheelCompare({ steps, degrees, wheelDegrees, labels, hoverLabels, active, onNote, pills, groups, onCompare }: {
   steps: number[];
   /** degree label per note ("♭3"), for the card */
   degrees: string[];
@@ -123,6 +134,8 @@ export default function WheelCompare({ steps, degrees, wheelDegrees, labels, act
   wheelDegrees?: number[];
   /** what the dots show, in the chosen label system */
   labels: string[];
+  /** what a dot shows while hovered (see hoverLabel) */
+  hoverLabels: string[];
   active: number | null;
   onNote: (i: number) => void;
   /** always shown */
@@ -143,7 +156,7 @@ export default function WheelCompare({ steps, degrees, wheelDegrees, labels, act
 
   return (
     <figure className="relative flex flex-col items-center gap-2 self-center justify-self-center">
-      <ScaleWheel steps={steps} degrees={wheelDegrees} labels={labels} compare={hovered?.steps} compareLabels={hovered?.degrees} active={active} onNote={onNote} size={220} />
+      <ScaleWheel steps={steps} degrees={wheelDegrees} labels={hovered ? degrees : labels} hoverLabels={hovered ? labels : hoverLabels} compare={hovered?.steps} compareLabels={hovered?.degrees} active={active} onNote={onNote} size={220} />
       <figcaption className="flex max-w-68 flex-col items-center gap-1.5 text-center text-[11px] text-slate-500">
         {/* two fixed lines, kept in place while hidden, so the pills never jump */}
         <span className={`flex flex-col items-start gap-0.5 ${hovered ? "" : "invisible"}`} aria-hidden={!hovered}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { fmtDegree, intervalName, scaleToneCaption, scaleToneLabel, solfege, type LabelSystem } from "@/features/theory/labels";
+import { fmtDegree, hoverLabel, intervalName, scaleToneCaption, scaleToneLabel, solfege, type LabelSystem } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -13,7 +13,7 @@ import { ORDINALS } from "@/features/theory/theory";
 import { PENTATONICS, findPentatonic, pentatonicContext, pentatonicSteps, samePentatonicNotes, type PentatonicContext, type PentatonicTone } from "@/features/theory/pentatonics";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
-import WheelCompare, { SHARED_RING, Peek, compareMark, modeChoice, modeGroups, pentatonicChoice, pentatonicGroup, type CompareChoice } from "./WheelCompare";
+import WheelCompare, { SHARED_RING, Peek, SwapText, compareMark, modeChoice, modeGroups, pentatonicChoice, pentatonicGroup, type CompareChoice } from "./WheelCompare";
 import { useNotePlayer, type NotePlayer } from "./useNotePlayer";
 import { extraCells, pentatonicPositions, type ExtraNote } from "@/lib/chordKit/scalePositions";
 import { generateMelody, melodyTiming } from "@/lib/chordKit/melody";
@@ -103,6 +103,8 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
   const player = useNotePlayer();
   const { tap, playScale, playTune } = pentatonicSounds(p, player);
   const activeTone = p.tones.findIndex((t) => t.key === player.active);
+  const labels = p.tones.map((t) => toneLabel(system, p, t));
+  const hovers = p.tones.map((t) => hoverLabel(system, { name: t.name, semi: t.semis, degreeText: t.label }));
 
   const [pocket, onPocket] = usePocketStatus();
   return (
@@ -127,8 +129,8 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
             {p.tones.map((t, i) => {
               const mark = compareMark(p.steps, i, cmp);
               return (
-                <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="cursor-pointer relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-                  <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${activeTone === i ? "scale-110 ring-[3px] ring-sky-400" : ""} ${mark.shared ? SHARED_RING : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{toneLabel(system, p, t)}</span>
+                <button key={t.key} type="button" onClick={() => tap(i)} title={`${t.name}${t.blue ? " (the blue note)" : ""}: tap to hear it`} className="group cursor-pointer relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${activeTone === i ? "scale-110 ring-[3px] ring-sky-400" : ""} ${mark.shared ? SHARED_RING : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{cmp ? <SwapText label={t.label} hover={labels[i]} /> : <SwapText label={labels[i]} hover={hovers[i]} />}</span>
                   <span className="text-xs tabular-nums text-slate-500">{toneCaption(system, p, t)}</span>
                   {mark.theirs && <span className="pointer-events-none absolute -top-3 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700 bg-slate-900/95 px-1 text-[9px] leading-4 text-slate-300">vs {mark.theirs}</span>}
                 </button>
@@ -167,7 +169,8 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
           steps={p.steps}
           degrees={p.formula}
           wheelDegrees={p.tones.map((t) => t.degree)}
-          labels={p.tones.map((t) => toneLabel(system, p, t))}
+          labels={labels}
+          hoverLabels={hovers}
           active={activeTone >= 0 ? activeTone : null}
           onNote={tap}
           onCompare={setCmp}

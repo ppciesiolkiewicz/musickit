@@ -1,6 +1,6 @@
 "use client";
 
-import { scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
+import { hoverLabel, scaleToneCaption, scaleToneLabel } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -17,7 +17,7 @@ import ScaleSongs from "./ScaleSongs";
 import ScaleRelatives from "./ScaleRelatives";
 import ScaleOnGuitar from "./ScaleOnGuitar";
 import TuneButton from "./TuneButton";
-import WheelCompare, { MAJOR_MODE_CHOICES, SHARED_RING, Peek, compareMark, modeGroups, pentatonicGroup, type CompareChoice } from "./WheelCompare";
+import WheelCompare, { MAJOR_MODE_CHOICES, SHARED_RING, Peek, SwapText, compareMark, modeGroups, pentatonicGroup, type CompareChoice } from "./WheelCompare";
 import { useNotePlayer } from "./useNotePlayer";
 import { scaleLineMidi } from "@/lib/chordKit/scalePositions";
 import { generateMelody, melodyTiming, scalePool } from "@/lib/chordKit/melody";
@@ -63,6 +63,9 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   // the scale hovered under the wheel: the notes, step pattern and wheel all show it
   const [cmp, setCmp] = useState<CompareChoice | null>(null);
   const pattern = stepPattern(ctx.steps);
+  const degrees = degreeLabels(ctx.steps);
+  const labels = ctx.steps.map((_, i) => scaleToneLabel(system, ctx, i));
+  const hovers = ctx.steps.map((semi, i) => hoverLabel(system, { name: ctx.names[i], semi, degreeText: degrees[i] }));
 
   const player = useNotePlayer();
   const line = scaleLineMidi(ctx);
@@ -94,8 +97,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           {ctx.names.map((n, i) => {
             const mark = compareMark(ctx.steps, i, cmp);
             return (
-              <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="cursor-pointer relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-                <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${player.active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""} ${mark.shared ? SHARED_RING : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{scaleToneLabel(system, ctx, i)}</span>
+              <button key={i} type="button" onClick={() => player.tap(`d${i}`, line[i])} title={`${n}: tap to hear it`} className="group cursor-pointer relative flex flex-col items-center gap-0.5 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+                <span className={`flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition ${player.active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""} ${mark.shared ? SHARED_RING : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{cmp ? <SwapText label={degrees[i]} hover={labels[i]} /> : <SwapText label={labels[i]} hover={hovers[i]} />}</span>
                 <span className="text-xs tabular-nums text-slate-500">{scaleToneCaption(system, ctx, i)}</span>
                 {mark.theirs && <span className="pointer-events-none absolute -top-3 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-md border border-slate-700 bg-slate-900/95 px-1 text-[9px] leading-4 text-slate-300">vs {mark.theirs}</span>}
               </button>
@@ -134,10 +137,11 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         {/* the scale as a shape on the ring of twelve notes, another scale dashed behind it, the notes that differ ringed */}
         <WheelCompare
           steps={ctx.steps}
-          degrees={degreeLabels(ctx.steps)}
+          degrees={degrees}
           pills={MAJOR_MODE_CHOICES.filter((c) => c.id !== slug)}
           groups={[...modeGroups([slug, ...MAJOR_MODE_CHOICES.map((c) => c.id)]), pentatonicGroup([])]}
-          labels={ctx.steps.map((_, i) => scaleToneLabel(system, ctx, i))}
+          labels={labels}
+          hoverLabels={hovers}
           active={player.active?.startsWith("d") ? Number(player.active.slice(1)) : null}
           onNote={(d) => player.tap(`d${d}`, line[d])}
           onCompare={setCmp}
