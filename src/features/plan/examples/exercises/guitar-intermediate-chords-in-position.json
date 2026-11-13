@@ -1,0 +1,366 @@
+{
+  "id": "guitar-intermediate-chords-in-position",
+  "kind": "exercise",
+  "areas": [
+    "guitar"
+  ],
+  "level": "intermediate",
+  "updated": "2026-11-13",
+  "model": "claude-opus-5-5",
+  "concepts": [
+    "top-string-triads",
+    "arpeggios-position"
+  ],
+  "docs": {
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Seeing the key's chords inside one scale position, then using them in a solo: a scale-neck with `chords` rings each triad in position 1, a chord-steps riff strikes each triad and picks its notes, both with a Variant selector for a second key (the grips' frets move with the key), a solo-over leaves the bar after the triad free, and a last chord-steps cuts each triad to a double stop on the top two strings. The why says what makes it work (the chords already sit under the hand), so the learner can find the same in another position.",
+  "exercise": {
+    "title": "Chords inside the position",
+    "minutes": 12,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "improv"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "top-string-triads",
+      "arpeggios-position"
+    ],
+    "why": "Every chord of the key is a triad on the top three strings somewhere inside one scale position, so you can strike a chord and carry on soloing without moving your hand.",
+    "learnBefore": [
+      "/course/5/triads",
+      "/course/8/triads-everywhere"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The chords in position 1",
+        "minutes": 3,
+        "choice": {
+          "label": "variant",
+          "options": [
+            {
+              "key": "a",
+              "position": 1
+            },
+            {
+              "key": "d",
+              "position": 1
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord in the Chords row below to ring its notes in the position and hear it. Play that chord as a triad on the G, B and high e strings, then play the scale notes around it.\nGo through each chord until your hand finds it without looking at the neck.\nThen try the other variant. Use the Variant selector below to change the key.\nWhen you change the variant, the position moves up the neck, but each chord sits in the same place inside it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "natural-minor-aeolian",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ],
+              "chords": [
+                "i",
+                "iv",
+                "bVI",
+                "bVII"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Chord, then its notes",
+        "minutes": 3,
+        "choice": {
+          "label": "variant",
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. On each chord, strike the triad on beat 1, then pick three of its notes, one per beat, until the chord and its notes run on without a gap.\nThen try the other variant. Use the Variant selector below to change the key, then press Play to start the backing again.\nWhen you change the variant, the chords are new, but each triad sits in the same place inside the position."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "321",
+                        "fret": 5
+                      },
+                      "5",
+                      "b3",
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "Dm",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "321",
+                        "fret": 6
+                      },
+                      "5",
+                      "b3",
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "F",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321",
+                        "fret": 5
+                      },
+                      "3",
+                      "1",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321",
+                        "fret": 7
+                      },
+                      "3",
+                      "1",
+                      "5"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Solo between the chords",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. When a chord comes round, strike its triad on beat 1, then fill the rest of the bar with a short line from the position. The ringed notes are the chord's own notes, so end the line on one of them.\nKeep going until the triad and the line sound like one phrase."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "scale": "natural-minor-aeolian",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "target": [
+                      "1",
+                      "b3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "Dm",
+                    "target": [
+                      "1",
+                      "b3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "F",
+                    "target": [
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "target": [
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Two notes of each chord",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Now play only the top two notes of each triad, on the B and high e strings: both together, the top one alone, both again, then the lower one. Keep going until your hand moves from pair to pair without looking.\nThen use these double stops between the lines of your next solo over these chords."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1"
+                        ],
+                        "strings": "21",
+                        "fret": 5
+                      },
+                      "1",
+                      {
+                        "grip": [
+                          "5",
+                          "1"
+                        ],
+                        "strings": "21",
+                        "fret": 5
+                      },
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "Dm",
+                    "steps": [
+                      {
+                        "grip": [
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "21",
+                        "fret": 5
+                      },
+                      "5",
+                      {
+                        "grip": [
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "21",
+                        "fret": 5
+                      },
+                      "b3"
+                    ]
+                  },
+                  {
+                    "chord": "F",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3"
+                        ],
+                        "strings": "21",
+                        "fret": 5
+                      },
+                      "3",
+                      {
+                        "grip": [
+                          "1",
+                          "3"
+                        ],
+                        "strings": "21",
+                        "fret": 5
+                      },
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3"
+                        ],
+                        "strings": "21",
+                        "fret": 7
+                      },
+                      "3",
+                      {
+                        "grip": [
+                          "1",
+                          "3"
+                        ],
+                        "strings": "21",
+                        "fret": 7
+                      },
+                      "1"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/double-stops",
+      "/theory/triads"
+    ]
+  }
+}

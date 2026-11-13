@@ -48,8 +48,8 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
 - A plan has `"kind": "plan"`, `"minutes"` (the daily time it is written for) and `"plan": { title, summary, days }`,
   the whole `PlanConfig` the AI returns.
 
-What there is: one exercise per area and level (`<area>-<level>-<what>.json`) and four more (`guitar-new-notes-on-e-and-a`,
-`voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`, `voice-advanced-hard-leaps`: an interval-singer taken up by a choice of levels), all but `voice-beginner-do-mi-sol` and
+What there is: one exercise per area and level (`<area>-<level>-<what>.json`) and five more (`guitar-new-notes-on-e-and-a`,
+`voice-beginner-in-tune-over-drone`, `theory-intermediate-hearing-changes`, `voice-advanced-hard-leaps`: an interval-singer taken up by a choice of levels, `guitar-intermediate-chords-in-position`: the key's triads inside one position, then struck between the lines of a solo and cut to double stops), all but `voice-beginner-do-mi-sol` and
 `voice-advanced-guide-tones` in the new teaching style; the three older showcases and two for the choice (`showcase-stages-tempo-ladder`, `showcase-variants-same-frets`); and seven plans:
 `guitar-beginner` (20 min), `guitar-intermediate` (30), `guitar-advanced` (30), `voice-beginner` (15), `guitar-theory-intermediate` (30),
 `voice-intermediate` (20), `voice-advanced` (25).

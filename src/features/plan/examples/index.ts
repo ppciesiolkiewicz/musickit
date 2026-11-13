@@ -8,6 +8,7 @@ import type { Level } from "../model/types";
 import guitarNewEmAmChanges from "./exercises/guitar-new-em-am-changes.json";
 import guitarBeginnerPentatonicBox1 from "./exercises/guitar-beginner-pentatonic-box1.json";
 import guitarIntermediateJoiningBoxes from "./exercises/guitar-intermediate-joining-boxes.json";
+import guitarIntermediateChordsInPosition from "./exercises/guitar-intermediate-chords-in-position.json";
 import guitarAdvancedDorianOnTheNeck from "./exercises/guitar-advanced-dorian-on-the-neck.json";
 import voiceNewMatchingAPitch from "./exercises/voice-new-matching-a-pitch.json";
 import voiceBeginnerDoMiSol from "./exercises/voice-beginner-do-mi-sol.json";
@@ -85,6 +86,7 @@ export const EXERCISE_EXAMPLES: ExerciseExample[] = [
   guitarNewEmAmChanges,
   guitarBeginnerPentatonicBox1,
   guitarIntermediateJoiningBoxes,
+  guitarIntermediateChordsInPosition,
   guitarAdvancedDorianOnTheNeck,
   voiceNewMatchingAPitch,
   voiceBeginnerDoMiSol,

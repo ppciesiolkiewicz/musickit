@@ -64,6 +64,14 @@ describe("transposeTool", () => {
     assert.equal(sh.key, "b");
     assert.deepEqual(sh.chords.map((c) => c.chord), ["Bm7", "E7"]);
   });
+  it("moves a grip's fret with its chord, an octave down past fret 15", () => {
+    const grip = (fret: number) => ({ grip: ["1", "b3", "5"], strings: "321", fret });
+    const p = transposeTool(tool({ type: "guitar-play-along", bpm: 70, shape: { shape: "chord-steps", chords: [{ chord: "Am", steps: [grip(5), "1"] }, { chord: "G", steps: [grip(12), "1"] }] } }), 5);
+    assert.ok(p.type === "guitar-play-along");
+    const sh = p.shape as unknown as { chords: { chord: string; steps: ({ fret: number } | string)[] }[] };
+    assert.deepEqual(sh.chords.map((c) => c.chord), ["Dm", "C"]);
+    assert.deepEqual(sh.chords.map((c) => (c.steps[0] as { fret: number }).fret), [10, 5]);
+  });
   it("by 0 or 12 is the same tool; keyless tools can't move", () => {
     const t = tool({ type: "staff", scale: "major-ionian", key: "d", voice: "tenor" });
     assert.equal(transposeTool(t, 0), t);

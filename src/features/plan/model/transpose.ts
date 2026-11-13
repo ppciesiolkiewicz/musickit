@@ -35,6 +35,8 @@ function transposeShape(v: unknown, by: number): unknown {
     if (key !== null) out[k] = keySlug(pc(key + by));
     else if (k === "chord" && typeof x === "string") out[k] = transposeChord(x, by);
     else if (k === "chords" && Array.isArray(x)) out[k] = x.map((c) => (typeof c === "string" ? transposeChord(c, by) : transposeShape(c, by)));
+    // a grip's fret moves with its notes, an octave down when it would run past fret 15
+    else if (k === "fret" && typeof x === "number") out[k] = x + by > 15 ? x + by - 12 : x + by;
     else out[k] = transposeShape(x, by);
   }
   return out;
