@@ -9,7 +9,7 @@ export const confirmUrl = (base: string, token: string): string => `${base}/logi
 
 const MINUTES = Math.round(LINK_TTL / 60_000);
 
-/** The Resend request body. The same link logs in or, for a new email, leads to the account setup. */
+/** The Resend request body: a plain-text part and an HTML part. The same link logs in or, for a new email, leads to the account setup. */
 export function linkEmail(to: string, link: string, env: Env) {
   const lead = "Open this link to log in to attunr. If you don't have an account yet, you'll set one up next:";
   const rest = `The link works for ${MINUTES} minutes, and only once.\nIf you didn't ask for it, ignore this email. Nobody can log in without the link.`;
@@ -18,7 +18,66 @@ export function linkEmail(to: string, link: string, env: Env) {
     to: [to],
     subject: "Your attunr log-in link",
     text: `${lead}\n\n${link}\n\n${rest}\n`,
+    html: linkHtml(link),
   };
+}
+
+/* The app's dark palette as hex (mail programs don't read oklch): slate 950/900/800/400/300/100, sky 400, and the
+   logo's seven scale-degree dots. */
+const C = { ground: "#020617", card: "#0f172a", line: "#1e293b", muted: "#94a3b8", body: "#cbd5e1", ink: "#f1f5f9", accent: "#38bdf8" };
+const DOTS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#6366f1", "#a855f7"];
+const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+
+const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/** The HTML part: tables and inline styles only, the one layout every mail program draws the same. */
+function linkHtml(link: string): string {
+  const href = esc(link);
+  const logo = `${esc(new URL(link).origin)}/attunr-transparent.png`;
+  const dots = DOTS.map((c) => `<td width="14%" height="4" style="background:${c};font-size:0;line-height:0;">&nbsp;</td>`).join("");
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
+<title>Your attunr log-in link</title>
+</head>
+<body style="margin:0;padding:0;background:${C.ground};">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">The link works for ${MINUTES} minutes, and only once.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.ground};">
+<tr><td align="center" style="padding:40px 16px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+    <tr><td align="center" style="padding:0 0 28px;">
+      <img src="${logo}" width="160" height="60" alt="attunr" style="display:block;border:0;width:160px;height:60px;color:${C.ink};font:600 28px ${FONT};">
+    </td></tr>
+    <tr><td style="background:${C.card};border:1px solid ${C.line};border-radius:16px;overflow:hidden;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>${dots}</tr></table>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="padding:32px 32px 8px;font:600 22px/1.3 ${FONT};color:${C.ink};">Log in to attunr</td></tr>
+        <tr><td style="padding:0 32px 28px;font:400 15px/1.6 ${FONT};color:${C.body};">Press Log in below to finish logging in. If you don't have an account yet, you'll set one up next.</td></tr>
+        <tr><td style="padding:0 32px 28px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+            <td style="background:${C.accent};border-radius:10px;">
+              <a href="${href}" style="display:inline-block;padding:15px 32px;font:600 15px/1 ${FONT};color:${C.ground};text-decoration:none;border-radius:10px;">Log in</a>
+            </td>
+          </tr></table>
+        </td></tr>
+        <tr><td style="padding:0 32px 28px;font:400 13px/1.6 ${FONT};color:${C.muted};">The link works for ${MINUTES} minutes, and only once.</td></tr>
+        <tr><td style="padding:20px 32px 28px;border-top:1px solid ${C.line};font:400 12px/1.6 ${FONT};color:${C.muted};">
+          If Log in doesn't open, copy this link into your browser:<br>
+          <a href="${href}" style="color:${C.accent};word-break:break-all;">${href}</a>
+        </td></tr>
+      </table>
+    </td></tr>
+    <tr><td align="center" style="padding:24px 16px 0;font:400 12px/1.6 ${FONT};color:${C.muted};">If you didn't ask for it, ignore this email. Nobody can log in without the link.</td></tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>
+`;
 }
 
 /** "sent", or "off" when there is no RESEND_API_KEY. Throws when Resend refuses the mail, with Resend's reason. */

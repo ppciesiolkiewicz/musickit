@@ -56,6 +56,9 @@ test("the mailed link and its email", () => {
   assert.equal(mail.from, "attunr <hello@attunr.app>");
   assert.match(mail.text, /log in to attunr\. If you don't have an account yet, you'll set one up next:\n\nhttps:\/\/www\.attunr\.app\/login\/confirm\?token=/);
   assert.match(mail.text, /20 minutes/);
+  assert.match(mail.html, /<a href="https:\/\/www\.attunr\.app\/login\/confirm\?token=a%2Fb%2Bc"[^>]*>Log in<\/a>/);
+  assert.match(mail.html, /src="https:\/\/www\.attunr\.app\/attunr-transparent\.png"/);
+  assert.match(mail.html, /20 minutes/);
   assert.equal(linkEmail("a@b.co", link, { AUTH_FROM_EMAIL: "x <x@y.z>" }).from, "x <x@y.z>");
 });
 
