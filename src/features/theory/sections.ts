@@ -54,7 +54,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "singing", href: "/theory/singing/breathing", tone: "teal", label: "Farinelli breathing", desc: "Breathe in, hold and out, one count longer each time", icon: "wind" },
   { group: "singing", href: "/theory/singing/intervals", tone: "violet", label: "Sing an interval", desc: "See its name, hear Do, sing the other note", icon: "target" },
   { group: "singing", href: "/theory/ears", tone: "pink", label: "Ear training", desc: "Name the interval you hear", icon: "ear" },
-  { group: "singing", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar" },
+  { group: "singing", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar", alsoIn: [{ group: "guitar", sub: "Practice" }] },
   { group: "tools", sub: "Plan & notes", href: "/teachers/studio?notes=1", tone: "emerald", label: "Notes creator", desc: "Build a page of notes and share it as a link", icon: "file-text" },
   { group: "tools", sub: "Tuning & theory", href: "/tuner", tone: "rose", label: "Tuner", desc: "Tune your guitar with the mic", icon: "gauge" },
   { group: "tools", sub: "Play along", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },

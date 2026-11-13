@@ -10,8 +10,7 @@ Interval exercise and possibly some other exercises should show "Start screen" M
 60.
 How did it go?
 
-
-Improve labels the middle one should kind of mean that we will not go higher speed, count, level
+Improve text in answers - the middle one should kind of mean that we will not go higher speed, count, level
 But this is also maybe already good, give me idea.
 
 65. hard spaces in  `on "la"` etc.
@@ -55,14 +54,6 @@ This probably could use some sort of injection mechanism or predefined slots.
 - Exercises like voice-new-matching-a-pitch ("Hum the drone note") need a voice safety instruction on top + link to an article.
 - Staff ranges must follow user level: e.g. for tenor mute higher notes (high C/B/.. E) depending on accuracy or another level parameter (matching-a-pitch sections 3 and 6). Avoid any voice injuries.
 
-36. [NEW 2026-11-09 09:46] Ear training: "Custom" level (/theory/ears)
-Original: "We are adding "custom" level alongside 1-6: Your set is renamed to "Included intervals"; it's disabled when level 1-6 and only shows already selected notes; when level is custom then behaviour is same as now"
-- Add "Custom" next to levels 1-6.
-- Rename "Your set" to "Included intervals".
-- Levels 1-6: Included intervals is disabled and only shows the level's intervals.
-- Custom: Included intervals works as "Your set" does now.
-- Where: src/components/practice/EarGame.tsx:156
-
 19. Improve copy / add labels - How notes are labelled: note names, intervals from the root (R, b3, p5), scale degrees, or each note's job in the chord. One setting for the whole app; dot colours stay the same either way.
 
 20. Implement exercise stubs. Add a rule that whenever new exercise is added it needs to be added to /dev/stories
@@ -82,6 +73,11 @@ Like - seeing chords within a scale!
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] 36. Ear training: "Custom" level, and levels 5 and 6 merged (/theory/ears, /theory/singing/intervals)
+Done: ears works like Sing an interval: Level 1-5 or Custom; "Your set" is now "Intervals", showing only the level's intervals (disabled) until Custom, which starts from the level it came from. Fixed: changing an interval on level 6 doubled the answer buttons (the set kept duplicates), and the doubled keys left faded stale buttons. Level 6 was the same as 5 (5 already reaches all twelve), so it is gone on both pages; a level 6 from an older link or plan reads as 5. Checked with tests and the rendered page; not clicked through in the browser (extension disconnected).
+[DONE] Direction as chips everywhere
+Done: one DirectionChips component (arrow and name: ↗ Rising, ↘ Falling, ≡ Together, ↕ Both) on ears and Sing an interval; Sing an interval's Direction was a dropdown reading Up / Down / Both. Not checked in the browser.
+[DONE] Tune by ear also in the Guitar menu (Practice column, at its top). Not checked in the browser.
 [DONE] 64. Bad content examples are kept in tmp/bad_examples.txt (git-ignored), starting with the interval singing text from this ticket.
 [DONE] 66. "Use headphones" on tools that listen and play on their own
 Done: the hint sat only beside "Start exercise", which shows when a step has two or more things to start, so a step with one melody singer or interval singer (it plays the tune or Do and listens) never had it. Those two tools now show "Use headphones" beside their mic, only inside an exercise step and only when the step has no Start exercise (which already carries it). Checked in the browser on /dev/examples (a melody singer step).

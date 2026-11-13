@@ -9,9 +9,11 @@ export const EAR_LEVELS: { n: number; label: string; semis: number[] }[] = [
   { n: 2, label: "+ M3, m3", semis: [4, 3] },
   { n: 3, label: "+ P4, M2", semis: [5, 2] },
   { n: 4, label: "+ m2, M6, m6", semis: [1, 9, 8] },
-  { n: 5, label: "+ m7, M7, tritone", semis: [10, 11, 6] },
-  { n: 6, label: "All twelve", semis: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
+  { n: 5, label: "+ m7, M7, tritone: all twelve", semis: [10, 11, 6] },
 ];
+
+/** The top level. A level over it (an older link or plan asked for 6, "all twelve") is the top one: it has every interval. */
+export const TOP_EAR_LEVEL = EAR_LEVELS.length;
 
 /** The intervals of a level and every level under it, in order. */
 export const levelSemis = (level: number): number[] =>
@@ -42,7 +44,7 @@ export function parseEarSettings(q: URLSearchParams): EarSettings {
   const set = (q.get("set") ?? "").split(",").map(Number).filter((n) => Number.isInteger(n) && n >= 1 && n <= 12);
   const dir = q.get("dir");
   return {
-    level: Number.isInteger(lv) && lv >= 1 && lv <= 6 ? lv : 1,
+    level: Number.isInteger(lv) && lv >= 1 && lv <= 6 ? Math.min(lv, TOP_EAR_LEVEL) : 1,
     custom: set.length ? [...new Set(set)] : null,
     direction: dir === "down" || dir === "together" ? dir : "up",
     kind: q.get("kind") === "chord" ? "chord" : "interval",

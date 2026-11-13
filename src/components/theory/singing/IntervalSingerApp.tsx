@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { BarRow, ScaleSettingsBar, WithSettings } from "@/components/chordKit/ScaleSettings";
 import { Checkbox, Chip, Select } from "@/components/ui";
+import { DirectionChips } from "@/components/practice/DirectionChips";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { midiToName } from "@/features/sound";
 import { VOICES, savedVoice, type Voice } from "@/features/theory/singing";
@@ -15,7 +16,6 @@ import { panel } from "@/components/practice/shared";
 
 /** where the voice picked last is kept, shared with the other singing pages */
 const VOICE_KEY = "singing.range";
-const DIR_LABEL: Record<IntervalDir, string> = { up: "Up", down: "Down", both: "Both" };
 const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
 const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
 const noTonic = () => {};
@@ -72,7 +72,7 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
           {!random && <KeyChips picked={picked} onToggle={(k) => setPicked((ks) => toggleOne(ks, k))} />}
         </BarRow>}
         <BarRow label="Direction">
-          <Select size="sm" value={dir} onChange={setDir} aria-label="Direction" options={INTERVAL_DIRS.map((d) => ({ value: d, label: DIR_LABEL[d] }))} />
+          <DirectionChips options={INTERVAL_DIRS} value={dir} onChange={setDir} />
         </BarRow>
         <BarRow label="Level" info="Each level adds intervals to the ones before. Start with the 5th and octave, then the 3rds that make chords major or minor. Custom lets you pick your own.">
           {EAR_LEVELS.map((l) => <Chip key={l.n} on={level === l.n} onClick={() => setLevel(l.n)} title={l.label}>{l.n}</Chip>)}

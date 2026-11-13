@@ -5,24 +5,23 @@ import { useState } from "react";
 import MiniPiano from "@/components/theory/MiniPiano";
 import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
 import { playMelody, strum } from "@/features/sound";
-import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
+import { CHORD_QUALITIES, EAR_LEVELS, activeAnswers, levelSemis, nextEarQuestion, recordScore, type Direction, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import Icon from "@/components/Icon";
 import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, writeQuery } from "./shared";
 import { useToolKeys } from "./toolKeys";
 import { Chip, ChipRow, Hint, KeyCap } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { Volume } from "./ToolSettings";
+import { DIRECTIONS, DirectionChips } from "./DirectionChips";
 
-const DIRS: { id: Direction; label: string; mark: string }[] = [
-  { id: "up", label: "Rising", mark: "↗" },
-  { id: "down", label: "Falling", mark: "↘" },
-  { id: "together", label: "Together", mark: "≡" },
-];
+const DIRS: Direction[] = ["up", "down", "together"];
 
 const KINDS: { id: EarSettings["kind"]; title: string; about: string }[] = [
   { id: "interval", title: "Intervals", about: "Hear two notes and name the gap between them." },
   { id: "chord", title: "Chord quality", about: "Hear a chord and name its kind." },
 ];
+
+const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
 
 /** The keys that pick an answer, in the order the answers are drawn. */
 const ANSWER_KEYS = "1234567890-=";
@@ -73,9 +72,13 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   };
 
   const toggleCustom = (semis: number) => {
-    const cur = s.custom ?? EAR_LEVELS.filter((l) => l.n <= s.level).flatMap((l) => l.semis);
+    const cur = s.custom ?? levelSemis(s.level);
     const set = cur.includes(semis) ? cur.filter((x) => x !== semis) : [...cur, semis];
     if (set.length) update({ custom: set });
+  };
+  // the first Custom starts from the level it came from
+  const pickCustom = () => {
+    if (!s.custom) update({ custom: levelSemis(s.level) });
   };
   // Space and Enter press the big button: Start or Next, or Replay while a question waits. Skip has no key, so Space
   // never throws a question away. R replays, the number keys answer; on a page of several
@@ -117,18 +120,21 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
       <h2 className="mb-1 text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the training</h2>
       {s.kind === "interval" && (
         <>
-          <ChipRow label="Level" info="Each level adds intervals to the ones before. Start with the 5th and octave, the most open sounds, then the 3rds that make chords major or minor.">
+          <ChipRow label="Level" info="Each level adds intervals to the ones before. Start with the 5th and octave, the most open sounds, then the 3rds that make chords major or minor. Custom lets you pick your own.">
             {EAR_LEVELS.map((l) => <Chip key={l.n} on={!s.custom && s.level === l.n} onClick={() => update({ level: l.n, custom: null })} title={l.label}>{l.n}</Chip>)}
-            <span className="ml-1 text-xs text-slate-400">{s.custom ? "Your own set" : EAR_LEVELS.find((l) => l.n === s.level)?.label}</span>
+            <Chip on={!!s.custom} onClick={pickCustom}>Custom</Chip>
           </ChipRow>
-          <ChipRow label="Your set" info="Pick exactly which intervals to practise. When two keep getting mixed up, train only those two. m is minor, M is major, P is perfect and TT is the tritone.">
-            {INTERVALS.map((i) => <Chip key={i.semis} on={answers.includes(i.short)} onClick={() => toggleCustom(i.semis)} title={i.name}>{i.short}</Chip>)}
+          <ChipRow label="Intervals" info="The intervals the questions use. Pick Custom to choose them yourself: when two keep getting mixed up, train only those two. m is minor, M is major, P is perfect and TT is the tritone.">
+            {ONE_TO_TWELVE.filter((i) => s.custom || answers.includes(i.short)).map((i) => (
+              <Chip key={i.semis} disabled={!s.custom} on={answers.includes(i.short)} onClick={() => toggleCustom(i.semis)}
+                title={!s.custom ? `The ${i.name}: pick Custom to change the set` : answers.includes(i.short) ? (answers.length > 1 ? `Leave out the ${i.name}` : "At least one interval") : `Ask the ${i.name} too`}>{i.short}</Chip>
+            ))}
           </ChipRow>
           <ChipRow label="Span" info="Within an octave, or sometimes an octave wider (a 9th for a 2nd). Wider is harder: answer with the simple interval name.">
             <Chip on={!s.wide} onClick={() => update({ wide: false })}>Within an octave</Chip>
             <Chip on={s.wide} onClick={() => update({ wide: true })}>Multi-octave</Chip>
           </ChipRow>
-          <ChipRow label="Direction" info="Rising plays the low note first, Falling plays the high note first, and Together plays both at once.">{DIRS.map((d) => <Chip key={d.id} on={s.direction === d.id} onClick={() => update({ direction: d.id })}>{d.mark} {d.label}</Chip>)}</ChipRow>
+          <ChipRow label="Direction" info="Rising plays the low note first, Falling plays the high note first, and Together plays both at once."><DirectionChips options={DIRS} value={s.direction} onChange={(direction) => update({ direction })} /></ChipRow>
         </>
       )}
       <p className="mt-1 text-xs text-slate-400">These settings are in the page address. Copy the link to give a student the same set-up.</p>
@@ -145,7 +151,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             {bare && (
               <div className="mb-2 flex flex-wrap items-center gap-1.5" aria-label="Set up as">
                 {s.kind === "chord" ? <SetupTag tone="violet">Chord quality</SetupTag> : (() => {
-                  const d = DIRS.find((x) => x.id === s.direction)!;
+                  const d = DIRECTIONS[s.direction];
                   return <>
                     <SetupTag tone="amber"><span aria-hidden className="text-sm leading-none">{d.mark}</span>{d.label}</SetupTag>
                     <SetupTag tone="teal">{s.wide ? "Multi-octave" : "Within an octave"}</SetupTag>

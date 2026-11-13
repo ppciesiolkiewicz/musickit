@@ -9,7 +9,10 @@ const semisOf = (short: string) => INTERVALS.find((i) => i.short === short)!.sem
 
 describe("ear game settings", () => {
   it("levels are cumulative", () => {
-    assert.deepEqual(EAR_LEVELS.map((l) => l.n), [1, 2, 3, 4, 5, 6]);
+    assert.deepEqual(EAR_LEVELS.map((l) => l.n), [1, 2, 3, 4, 5]);
+    assert.equal(activeAnswers(q("level=5")).length, 12);
+    // an older link or plan's level 6 is the top level
+    assert.equal(q("level=6").level, 5);
     assert.deepEqual(activeAnswers(q("level=1")).sort(), ["P5", "P8"]);
     assert.deepEqual(activeAnswers(q("level=3")).map(semisOf).sort((a, b) => a - b), [2, 3, 4, 5, 7, 12]);
     assert.equal(activeAnswers(q("level=6")).length, 12);
