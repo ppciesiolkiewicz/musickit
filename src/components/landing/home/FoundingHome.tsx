@@ -145,6 +145,14 @@ export default function FoundingHome() {
           <ul className="mt-10 grid gap-4 lg:grid-cols-2">
             <StudioSoonCards />
             <li className={CARD}>
+              <SoonHeading icon="video" tone="bg-violet-500/15 text-violet-300" title="Interactive tools for teaching over the internet" />
+              <p className="text-sm leading-relaxed text-slate-400">A video studio for online lessons. Your camera sits beside the neck, the chord boxes, the metronome and the drone, so the student sees exactly what you mean.</p>
+              <div className="mt-auto grid grid-cols-2 gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-4 text-xs text-slate-300" aria-hidden>
+                <span className="flex aspect-video items-center justify-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900"><Icon name="video" size={14} className="text-violet-300" /> Your camera</span>
+                <span className="flex aspect-video items-center justify-center gap-1.5 rounded-lg border border-slate-800 bg-slate-900"><Icon name="layers" size={14} className="text-sky-300" /> The neck</span>
+              </div>
+            </li>
+            <li className={CARD}>
               <SoonHeading icon="book-open" tone="bg-teal-500/15 text-teal-300" title="Courses you can sell" />
               <p className="text-sm leading-relaxed text-slate-400">Build a course from your lesson notes and your own videos, then sell it through attunr.</p>
               <div className="mt-auto flex flex-col gap-1.5 rounded-2xl border border-slate-800 bg-slate-950/40 p-4 text-xs text-slate-300" aria-hidden>

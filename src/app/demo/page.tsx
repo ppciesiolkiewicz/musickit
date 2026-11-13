@@ -174,6 +174,7 @@ const DIRECTIONS: { icon: IconName; title: string }[] = [
   { icon: "target", title: "Every student practises the right thing" },
   { icon: "activity", title: "Teachers see the week between lessons" },
   { icon: "pencil", title: "Material in your own teaching style" },
+  { icon: "video", title: "Interactive tools for teaching over the internet" },
   { icon: "layout-dashboard", title: "A studio run from one place" },
   { icon: "graduation-cap", title: "Your notes sold as short courses" },
 ];
