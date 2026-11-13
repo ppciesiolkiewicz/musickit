@@ -33,7 +33,7 @@ export interface StoryGroup {
 
 /** What a dev might type to find a component: what it does, what it trains, what a player hears or sees. */
 export const KEYWORDS: Record<string, string[]> = {
-  "scale-neck": ["scale", "fretboard", "neck", "positions", "boxes", "pentatonic", "mode", "guitar"],
+  "scale-neck": ["scale", "fretboard", "neck", "positions", "boxes", "pentatonic", "mode", "guitar", "triads in the scale", "chords in the position"],
   "position-neck": ["scale", "position", "box", "fretboard", "neck", "crossing", "join", "shift", "pentatonic", "guitar"],
   "chord-shapes": ["chord", "shapes", "caged", "voicing", "triad", "diagram", "fingering", "guitar"],
   staff: ["staff", "notation", "sing", "scale", "voice", "range", "pitch", "mic", "drone", "click", "vocal"],
@@ -74,6 +74,8 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "scale-neck", name: "Position 1 and the neck, roots in play", props: { scale: "minor-pentatonic", key: "a", boxes: [1], parts: { positions: "always", neck: "on" }, enable: ["1"] } },
   { tool: "scale-neck", name: "Two positions, the neck behind a chip", props: { scale: "minor-pentatonic", key: "a", boxes: [1, 2], parts: { positions: "on", neck: "off" }, highlight: ["1"] } },
   { tool: "scale-neck", name: "The neck alone", props: { scale: "major-ionian", key: "g", parts: { neck: "always" }, highlight: ["1"] } },
+  { tool: "scale-neck", name: "Chords inside A minor position 1 (G B e)", props: { scale: "natural-minor-aeolian", key: "a", boxes: [1], parts: { positions: "always", neck: "on" }, chords: ["i", "iv", "bVI", "bVII"] } },
+  { tool: "scale-neck", name: "Chords inside C major position 2 (D G B)", props: { scale: "major-ionian", key: "c", boxes: [2], chords: ["I", "ii", "IV", "V", "vi"], chordStrings: "432" } },
   { tool: "position-neck", name: "Joining boxes: A minor pentatonic 1 & 2", props: { scale: "minor-pentatonic", key: "a", positions: [1, 2], highlight: ["1", "4", "5"] } },
   { tool: "position-neck", name: "Crossing 1 → 2 (G string)", props: { scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2 }, highlight: ["4", "5"] } },
   { tool: "position-neck", name: "Crossing 1 → 2 on the B string", props: { scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2, string: 2 } } },

@@ -89,8 +89,8 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   position: ScalePosition; cells: ScaleCell[]; rings: boolean; active: string | null; labelSystem: LabelSystem; onNote: (c: ScaleCell) => void;
   /** pitch classes to stand out: every other note is dimmed (none: all notes alike) */
   highlight?: ReadonlySet<number>;
-  /** each pitch class's state; replaces `highlight` when given: hidden notes are not drawn, muted ones dimmed, highlighted ones ringed */
-  states?: (pc: number) => DotState;
+  /** each note's state, by pitch class (and the place, for a state that differs between two places of one note); replaces `highlight` when given: hidden notes are not drawn, muted ones dimmed, highlighted ones ringed */
+  states?: (pc: number, c: ScaleCell) => DotState;
   /** places (`cellKey`) circled with a dashed ring: where two boxes join */
   seam?: ReadonlySet<string>;
   /** the finger that frets a note (1 index ... 4 pinky), shown in a badge; undefined draws none */
@@ -110,9 +110,9 @@ export function PositionBox({ position, cells, rings, active, labelSystem, onNot
   const extra = rings ? cells.filter((c) => c.fret >= from && c.fret <= position.to && !mine.has(cellKey(c))) : [];
   const label = (c: ScaleCell) => noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
   const hover = (c: ScaleCell) => hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText });
-  const drawn = (c: ScaleCell) => !states || states(c.pc) !== "hidden";
-  const dim = (c: ScaleCell) => (states ? states(c.pc) === "muted" : !!highlight && !highlight.has(c.pc));
-  const accent = (c: ScaleCell) => !!states && states(c.pc) === "highlighted";
+  const drawn = (c: ScaleCell) => !states || states(c.pc, c) !== "hidden";
+  const dim = (c: ScaleCell) => (states ? states(c.pc, c) === "muted" : !!highlight && !highlight.has(c.pc));
+  const accent = (c: ScaleCell) => !!states && states(c.pc, c) === "highlighted";
   // lying down, the box is drawn at its own size (dots the same size however many frets it spans), shrinking on a narrow
   // screen only to 60%; past that it scrolls sideways
   const svg = (

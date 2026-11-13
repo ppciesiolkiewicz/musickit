@@ -44,4 +44,14 @@ export interface ScaleNeckProps {
   hide?: (Degree | string)[];
   /** the notes not in `enable`: "muted" (default) or "hidden" */
   others?: "muted" | "hidden";
+  /**
+   * chords of the key to find inside the shown positions, as numerals of the key: ["i","iv","♭VII"] (case and ♭ don't
+   * matter, the key decides the chord). A chip each; pressing one rings that triad wherever the position holds it on
+   * `chordStrings` (the rest faded) and strums it. A chord the positions don't hold there gets no chip: a pentatonic
+   * position lacks two notes of its key, so use the full scale ("natural-minor-aeolian", "major-ionian") for every chord.
+   * For seeing the chords inside a scale, before soloing over them
+   */
+  chords?: string[];
+  /** the three strings the chords sit on, as guitar numbers: "321" (default: G, B, high e), "432", "543", "654" */
+  chordStrings?: string;
 }

@@ -13,6 +13,7 @@ import { CAGED_LETTERS, boxCells, boxChords, boxScaleChords, cagedBoxes, type Ca
 import { neighbours, ruleLetter } from "../src/lib/chordKit/neighbours";
 import { positionsFor, type PositionKind, type ScaleCell } from "../src/lib/chordKit/scalePositions";
 import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, triadVoicings, type TriadQuality } from "../src/lib/chordKit/triads";
+import { DYAD_STEPS, diatonicDyads, dyadPairs, type DyadInterval } from "../src/lib/chordKit/scaleChords";
 
 const HELP = `theory <command> [args] [--flags]       keys: C F# Bb f♯ …   modes: major minor dorian "harmonic minor" "phrygian dominant" …
 
@@ -26,6 +27,10 @@ const HELP = `theory <command> [args] [--flags]       keys: C F# Bb f♯ …   m
         [--slack 1]                          … let voicings reach this many frets past the window
         [--group 321,432]                    … only these string groups (654 543 432 321)
         [--chords I,IV,V]                    … only these degrees (roman, any case, or 1-7)
+  dyads <key> [mode]                       double stops of the scale: two notes 3rds, 4ths or 6ths apart, in the key
+        [--interval 3|4|6]                   … 3rds (default), 4ths, or 6ths (one string between)
+        [--strings 21,32]                    … only these string pairs (guitar numbers, 1 = high e)
+        [--box C|A|G|E|D] [--frets 5-8] [--slack 1]   … as for triads
   neighbours <key> <C|A|G|E|D>             I IV V ii vi iii: the shape of each that sits in the I chord's box
   positions <key> [mode] [pentatonic|scale|3nps]
                                            the scale positions the app draws, with notes per string
@@ -176,23 +181,39 @@ function parseDegrees(s: string | undefined): Set<number> | null {
   );
 }
 
+type FretWindow = { from: number; to: number; source: string };
+
+/** The frets asked for: a CAGED box of the key (--box) or a range (--frets); null for the whole neck. */
+function windowOf(ctx: KeyContext, flags: Record<string, string>): FretWindow | null {
+  if (flags.box) {
+    const tonicTri = ctx.chords[0].tri;
+    if (tonicTri !== "maj" && tonicTri !== "min") fail(`${keyName(ctx)} has no major or minor tonic, so no CAGED box`);
+    const b = findBox(ctx.tonic.pc, tonicTri === "maj" ? "major" : "minor", parseLetter(flags.box));
+    return { from: b.from, to: b.to, source: `${b.letter} shape of ${b.chordName}` };
+  }
+  if (flags.frets) {
+    const m = flags.frets.match(/^(\d+)-(\d+)$/);
+    if (!m) fail(`--frets wants a range like 5-8, not ${flags.frets}`);
+    return { from: Number(m[1]), to: Number(m[2]), source: "frets" };
+  }
+  return null;
+}
+
+/** Frets inside the window (± slack); an open string only counts in a window that starts at the nut. */
+function inWindow(frets: number[], win: FretWindow | null, slack: number): boolean {
+  if (!win) return true;
+  const fretted = frets.filter((f) => f > 0);
+  const lo = fretted.length ? Math.min(...fretted) : 0;
+  return lo >= win.from - slack && Math.max(...frets) <= win.to + slack && (win.from - slack <= 0 || fretted.length === frets.length);
+}
+
 function triads(pos: string[], flags: Record<string, string>) {
   const rootPc = parseKey(pos[0]);
   const { familyIndex, modeIndex } = parseMode(pos[1]);
   const ctx = makeKeyContext(rootPc, familyIndex, modeIndex);
   const chords = modeChords(ctx);
 
-  let win: { from: number; to: number; source: string } | null = null;
-  if (flags.box) {
-    const tonicTri = ctx.chords[0].tri;
-    if (tonicTri !== "maj" && tonicTri !== "min") fail(`${keyName(ctx)} has no major or minor tonic, so no CAGED box`);
-    const b = findBox(rootPc, tonicTri === "maj" ? "major" : "minor", parseLetter(flags.box));
-    win = { from: b.from, to: b.to, source: `${b.letter} shape of ${b.chordName}` };
-  } else if (flags.frets) {
-    const m = flags.frets.match(/^(\d+)-(\d+)$/);
-    if (!m) fail(`--frets wants a range like 5-8, not ${flags.frets}`);
-    win = { from: Number(m[1]), to: Number(m[2]), source: "frets" };
-  }
+  const win = windowOf(ctx, flags);
   const slack = Number(flags.slack ?? 0);
   const groups = flags.group ? STRING_GROUPS.filter((g) => flags.group.split(",").includes(g.id)) : STRING_GROUPS;
   if (!groups.length) fail(`unknown string group ${flags.group} (use 654 543 432 321)`);
@@ -205,13 +226,7 @@ function triads(pos: string[], flags: Record<string, string>) {
     const voicings = groups.flatMap((g) =>
       ([0, 1, 2] as const).flatMap((inv) =>
         triadVoicings((rootPc + ctx.steps[d]) % 12, c.tri as TriadQuality, inv, g)
-          .filter((v) => {
-            if (!win) return true;
-            const fretted = v.frets.filter((f) => f > 0);
-            const lo = fretted.length ? Math.min(...fretted) : 0;
-            // an open string only counts in a window that starts at the nut
-            return lo >= win.from - slack && Math.max(...v.frets) <= win.to + slack && (win.from - slack <= 0 || fretted.length === 3);
-          })
+          .filter((v) => inWindow(v.frets, win, slack))
           .map((v) => ({
             strings: g.id,
             inversion: INVERSIONS[inv].short,
@@ -229,6 +244,40 @@ function triads(pos: string[], flags: Record<string, string>) {
     window: win ? `${range(win.from, win.to)}${slack ? ` ±${slack}` : ""} (${win.source})` : "whole neck 0-17",
     legend: "string group (6 = low E … 1 = high e) · inversion · frets low string first · notes(role)",
     chords: out,
+  };
+}
+
+const GUITAR_NUMBER = (i: number) => 6 - i;
+
+function dyads(pos: string[], flags: Record<string, string>) {
+  const { familyIndex, modeIndex } = parseMode(pos[1]);
+  const ctx = makeKeyContext(parseKey(pos[0]), familyIndex, modeIndex);
+  const interval = Number(flags.interval ?? 3);
+  if (!(interval in DYAD_STEPS)) fail(`--interval is 3, 4 or 6, not ${flags.interval}`);
+  const iv = interval as DyadInterval;
+  const all = dyadPairs(iv);
+  const pairs = flags.strings
+    ? flags.strings.split(",").map((id) => {
+        const p = all.find(([lo, hi]) => `${GUITAR_NUMBER(lo)}${GUITAR_NUMBER(hi)}` === id.trim());
+        if (!p) fail(`strings ${id} don't hold a ${iv === 6 ? "6th (one string between: 31 42 53 64)" : `${iv === 3 ? "3rd" : "4th"} (neighbours: 21 32 43 54 65)`}`);
+        return p;
+      })
+    : all;
+  const win = windowOf(ctx, flags);
+  const slack = Number(flags.slack ?? 0);
+  const sizes: Record<number, string> = { 3: "m3", 4: "M3", 5: "P4", 6: "tritone", 8: "m6", 9: "M6" };
+  return {
+    key: keyName(ctx),
+    interval: `${iv === 3 ? "3rds" : iv === 4 ? "4ths" : "6ths"} (scale notes ${DYAD_STEPS[iv]} steps apart)`,
+    window: win ? `${range(win.from, win.to)}${slack ? ` ±${slack}` : ""} (${win.source})` : "whole neck 0-17",
+    legend: "strings (1 = high e) · frets low string first · lower + upper note (scale degree) · size",
+    pairs: pairs.map(([lo, hi]) => ({
+      strings: `${GUITAR_NUMBER(lo)}${GUITAR_NUMBER(hi)} (${STRING_NAMES[lo]} ${STRING_NAMES[hi]})`,
+      dyads: diatonicDyads(ctx, iv, [lo, hi])
+        .filter((d) => inWindow(d.frets, win, slack))
+        .sort((a, b) => a.lowestFret - b.lowestFret || a.degree - b.degree)
+        .map((d) => `${d.frets.join("-").padEnd(6)} ${ctx.names[d.degree]}(${d.degree + 1}) + ${ctx.names[d.upper]}(${d.upper + 1})  ${sizes[d.semis] ?? d.semis}`),
+    })),
   };
 }
 
@@ -306,6 +355,7 @@ const COMMANDS: Record<string, () => unknown> = {
   boxes: () => boxes(args),
   box: () => box(args, flags),
   triads: () => triads(args, flags),
+  dyads: () => dyads(args, flags),
   neighbours: () => neighbourCmd(args),
   neighbors: () => neighbourCmd(args),
   positions: () => positions(args),

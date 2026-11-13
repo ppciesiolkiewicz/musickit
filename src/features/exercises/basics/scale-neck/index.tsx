@@ -6,7 +6,11 @@ import { useCallback, useMemo, useState } from "react";
 import { PositionBox, ScaleNeck, cellKey } from "@/components/chordKit/ScaleNeck";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
-import { Hint } from "@/components/ui";
+import { ChipRow, Chip, Hint } from "@/components/ui";
+import { strum } from "@/lib/chordKit/playback";
+import { positionTriads, stringGroupOf, voicingKeys } from "@/lib/chordKit/scaleChords";
+import { STRING_GROUPS } from "@/lib/chordKit/triads";
+import type { ScaleCell } from "@/lib/chordKit/scalePositions";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { positionLine, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { SHARP, scaleBoxes, shiftPosition } from "./boxes";
@@ -17,14 +21,17 @@ type PartMode = "on" | "off" | "always";
 export type Parts = Partial<Record<Part, PartMode>>;
 const PART_LABELS: Record<Part, string> = { positions: "Positions", neck: "Neck" };
 const BOXES_ONLY: Parts = { positions: "always" };
+/** the strings a triad sits on, as a player says them */
+const GROUP_WORDS: Record<string, string> = { "321": "G, B and high e", "432": "D, G and B", "543": "A, D and G", "654": "low E, A and D" };
 
 /**
  * The scale's positions on the neck, only the boxes asked for, with any added notes played in them; tap a note to hear
  * it, ▶ to run the box up and down. `parts` adds the whole neck above them, the same notes in play on it and one
  * position framed (the only one shown, else the one whose name was tapped), and chips for the parts the student may
- * show or hide.
+ * show or hide. `chords` (degrees of the key, 0-based) adds a chip per chord: pressing one rings that triad wherever the
+ * shown positions hold it on the `chordStrings` set (the rest of the position faded), on the neck too, and strums it.
  */
-function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others, parts = BOXES_ONLY }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; parts?: Parts }) {
+function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide: hidden, others, parts = BOXES_ONLY, chords, chordStrings }: { slug: string; pc: number; boxes?: number[]; placement?: Placement; add?: number[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; parts?: Parts; chords?: number[]; chordStrings?: string }) {
   useCoverage({ hints: 1 });
   // the marks are semitones above the key; the states work on pitch classes
   const vis = useMemo((): Visibility => {
@@ -35,7 +42,7 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
   const litNames = [...new Set([...(vis.highlight ?? []), ...(add ?? [])])].filter((p) => state(p) === "highlighted").map((p) => SHARP[p]);
   const [system] = useLabelSystem();
   const { active, running, play, tap, stop } = useNotePlayer();
-  const { title, cells: allCells, positions: allPositions } = useMemo(() => scaleBoxes(slug, pc, add), [slug, pc, add]);
+  const { title, ctx, cells: allCells, positions: allPositions } = useMemo(() => scaleBoxes(slug, pc, add), [slug, pc, add]);
   // hidden notes leave the boxes and the rings, and the ▶ run
   const cells = useMemo(() => allCells.filter((c) => state(c.pc) !== "hidden"), [allCells, state]);
   const positions = useMemo(() => allPositions.map((p) => ({ ...p, notes: p.notes.filter((c) => state(c.pc) !== "hidden") })), [allPositions, state]);
@@ -53,6 +60,26 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
     const own = new Set(allPositions.flatMap((p) => p.notes.map((c) => c.pc)));
     return cells.filter((c) => own.has(c.pc));
   }, [cells, allPositions]);
+  // the chords of the key inside the shown positions, and the one picked, ringed on its places
+  const group = stringGroupOf(chordStrings ?? "321") ?? STRING_GROUPS[3];
+  const [picked, setPicked] = useState<number | null>(null);
+  const inBoxes = useMemo(() => (chords?.length ? shown.map((p) => ({ number: p.number, triads: positionTriads(ctx, p, group, chords) })) : []), [chords, shown, ctx, group]);
+  const chordChips = useMemo(() => (chords ?? []).flatMap((d) => {
+    const all = inBoxes.flatMap((b) => b.triads.filter((t) => t.degree === d));
+    return all.length ? [{ degree: d, name: all[0].name, roman: all[0].roman, voicings: all.flatMap((t) => t.voicings) }] : [];
+  }), [chords, inBoxes]);
+  const boxRings = useMemo(() => new Map(inBoxes.map((b) => [b.number, new Set(b.triads.filter((t) => t.degree === picked).flatMap((t) => t.voicings.flatMap(voicingKeys)))])), [inBoxes, picked]);
+  const neckRings = useMemo(() => new Set(picked === null ? [] : positionTriads(ctx, { notes: neckCells }, group, [picked]).flatMap((t) => t.voicings.flatMap(voicingKeys))), [picked, ctx, neckCells, group]);
+  const ringed = (rings: Set<string> | undefined, c: ScaleCell) => {
+    const s = state(c.pc);
+    if (picked === null || s === "hidden") return s;
+    return rings?.has(cellKey(c)) ? "highlighted" : "muted";
+  };
+  const pickChord = (chip: (typeof chordChips)[number]) => {
+    if (picked === chip.degree) return setPicked(null);
+    setPicked(chip.degree);
+    if (chip.voicings[0]) strum(chip.voicings[0].midi, { gapMs: 60, holdMs: 1600 });
+  };
   const offered = (["positions", "neck"] as Part[]).filter((p) => parts[p]);
   const [open, setOpen] = useState<Record<Part, boolean>>({ positions: !!parts.positions && parts.positions !== "off", neck: !!parts.neck && parts.neck !== "off" });
   // the position framed on the neck: the one tapped, else the only one shown
@@ -79,7 +106,14 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
           })}
         </div>
       )}
-      {open.neck && <ScaleNeck cells={neckCells} big={() => true} focus={focus} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} title={`${title} on the guitar neck`} states={(c) => state(c.pc)} />}
+      {chordChips.length > 0 && (
+        <ChipRow label="Chords" info={`Chords of the key, inside the position, on the ${GROUP_WORDS[group.id]} strings. Press a chord to ring its notes and hear it. Press it again to see the whole position.`}>
+          {chordChips.map((c) => (
+            <Chip key={c.degree} on={picked === c.degree} onClick={() => pickChord(c)} title={`Ring ${c.name} in the position and hear it`}>{c.name} · {c.roman}</Chip>
+          ))}
+        </ChipRow>
+      )}
+      {open.neck && <ScaleNeck cells={neckCells} big={() => true} focus={focus} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} title={`${title} on the guitar neck`} states={(c) => ringed(neckRings, c)} />}
       {open.positions && <div data-tour="scale-neck-boxes" className="grid gap-3 lg:grid-cols-2">
         {shown.map((p) => (
           <div key={p.number} className="flex flex-col gap-1">
@@ -91,7 +125,7 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
                 <button type="button" data-tour="scale-neck-play" onClick={() => (running === `box-${p.number}` ? stop() : run(p))} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running === `box-${p.number}` ? "■ Stop" : "▶ Play"}</button>
               </Hint>
             </div>
-            <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={state} />
+            <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={(_, c) => ringed(boxRings.get(p.number), c)} />
           </div>
         ))}
       </div>}

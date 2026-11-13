@@ -23,9 +23,10 @@ export function shiftPosition(p: ScalePosition, shift: number): ScalePosition {
 
 /**
  * The scale (a pentatonic or mode slug) in key `pc` on the neck: its title, every note on the neck and its five positions,
- * with the `add`ed pitch classes from outside the scale played wherever they fall inside each position's frets.
+ * with the `add`ed pitch classes from outside the scale played wherever they fall inside each position's frets, and the key
+ * it is cut from (a pentatonic's major or minor key), whose chords `chords` finds in the positions.
  */
-export function scaleBoxes(slug: string, pc: number, add?: number[]): { title: string; cells: ScaleCell[]; positions: ScalePosition[] } {
+export function scaleBoxes(slug: string, pc: number, add?: number[]): { title: string; ctx: KeyContext; cells: ScaleCell[]; positions: ScalePosition[] } {
   const pent = findPentatonic(slug);
   let base: { title: string; ctx: KeyContext; cells: ScaleCell[]; positions: ScalePosition[] };
   if (pent) {
@@ -46,5 +47,5 @@ export function scaleBoxes(slug: string, pc: number, add?: number[]): { title: s
     const have = new Set(p.notes.map(cellKey));
     return { ...p, notes: [...p.notes, ...added.filter((c) => c.fret >= from && c.fret <= p.to && !have.has(cellKey(c)))] };
   });
-  return { title: `${base.title} + ${add.map((n) => SHARP[n]).join(", ")}`, cells: [...base.cells, ...added], positions };
+  return { title: `${base.title} + ${add.map((n) => SHARP[n]).join(", ")}`, ctx: base.ctx, cells: [...base.cells, ...added], positions };
 }

@@ -193,3 +193,19 @@ describe("list entries it could not read are noted", () => {
     assert.deepEqual((parseTool(stored, { stored: true }) as { enable: number[] }).enable, [0, 3]);
   });
 });
+
+describe("scale-neck chords", () => {
+  it("reads numerals of the key as degrees, once each, and the string set", () => {
+    const t = parseTool({ type: "scale-neck", scale: "natural-minor-aeolian", key: "a", chords: ["i", "iv", "bVII", "♭VII"], chordStrings: "432" });
+    assert.equal(t?.type, "scale-neck");
+    if (t?.type !== "scale-neck") return;
+    assert.deepEqual(t.chords, [0, 3, 6]);
+    assert.equal(t.chordStrings, "432");
+  });
+  it("notes what it can't read and leaves the string set out without chords", () => {
+    assert.ok(notes({ type: "scale-neck", scale: "major-ionian", key: "c", chords: ["I", "x"] }).some((n) => n.includes('"chords"')));
+    assert.ok(notes({ type: "scale-neck", scale: "major-ionian", key: "c", chords: ["I"], chordStrings: "21" }).some((n) => n.includes("chordStrings")));
+    const bare = parseTool({ type: "scale-neck", scale: "major-ionian", key: "c", chordStrings: "432" });
+    assert.ok(bare && !("chordStrings" in bare) && !("chords" in bare));
+  });
+});

@@ -1,4 +1,5 @@
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
+import { degreeOfNumeral, stringGroupOf } from "@/lib/chordKit/scaleChords";
 import { parseKeySlug } from "@/features/theory/keySlug";
 import { findPentatonic } from "@/features/theory/pentatonics";
 import { findModePage } from "@/features/theory/scales";
@@ -85,7 +86,7 @@ type Under = "chords" | "drone" | "none";
  */
 export type PlanTool = PlanToolProps & Pinned;
 type PlanToolProps =
-  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement } & Marks
+  | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement; /** degrees of the key (0-based) found as triads in the positions */ chords?: number[]; /** "321", "432", "543", "654"; absent: "321" */ chordStrings?: string } & Marks
   | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
@@ -288,7 +289,18 @@ const scaleNeck = (t: Record<string, unknown>, d: Diag): PlanTool | null => {
   const add = addOf(t, d);
   const boxes = boxesOf(t.boxes, d);
   const parts = neckParts(t.parts, d);
-  return { type: "scale-neck", scale, key, ...opt("boxes", boxes), ...(parts ? { parts } : { ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}) }), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key, d) };
+  const chords = chordsOf(t, d);
+  const chordStrings = typeof t.chordStrings === "string" && stringGroupOf(t.chordStrings) ? t.chordStrings : undefined;
+  if (t.chordStrings != null && !chordStrings) d.notes.push(`dropped chordStrings ${JSON.stringify(t.chordStrings)?.slice(0, 20)} (use "321", "432", "543" or "654").`);
+  return { type: "scale-neck", scale, key, ...opt("boxes", boxes), ...(parts ? { parts } : { ...(t.neck === true ? { neck: true } : {}), ...(t.positions === false ? { positions: false } : {}) }), ...opt("add", add), ...placementOf(t, boxes), ...marksOf(t, key, d), ...opt("chords", chords), ...(chords.length && chordStrings ? { chordStrings } : {}) };
+};
+
+/** A scale-neck's chords: numerals of the key ("iv", "♭VII") as degrees 0-6, each once, in order; ones that aren't numerals are noted. */
+const chordsOf = (t: Record<string, unknown>, d: Diag): number[] => {
+  // a stored plan holds the degrees themselves
+  const read = (v: unknown) => (typeof v === "string" ? degreeOfNumeral(v) : d.stored && typeof v === "number" ? int(v, 0, 6) : null);
+  lost(d, "chords", t.chords, read);
+  return [...new Set(list(t.chords).map(read).filter((n): n is number => n !== null))];
 };
 
 /** Two different positions 1-5 and maybe a string 1-6 to cross on; null when not. */
