@@ -70,7 +70,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
   const player = useNotePlayer();
   const line = scaleLineMidi(ctx);
   const degreeOf = (midi: number) => ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
-  const playScale = () => player.play(line.map((m) => ({ key: `d${degreeOf(m)}`, midi: m })), 240);
+  const playScale = () => player.play(line.map((m) => ({ key: `d${degreeOf(m)}`, midi: m })), 240, "scale");
   const playTune = (tuneId: string) => player.playTimed(melodyTiming(generateMelody(scalePool(60 + ctx.tonic.pc, ctx.steps), ctx.steps)).map((n) => ({ key: `d${n.note.degree}`, midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
 
   const [pocket, onPocket] = usePocketStatus();
@@ -90,7 +90,8 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
           {ctx.names[0]} {ctx.modeName}
           <ModeAlias familyIndex={familyIndex} modeIndex={modeIndex} />
         </h2>
-        <p className="text-sm text-slate-300">{info.char} <span className="text-slate-400">{info.mood}</span></p>
+        <p className="text-base text-slate-200">{info.mood}</p>
+        <p className="text-sm text-slate-400">{info.char}</p>
         <p className="text-xs text-slate-400"><b className="text-slate-300">Where you hear it:</b> {info.use}</p>
 
         <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
@@ -104,7 +105,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
               </button>
             );
           })}
-          <button type="button" onClick={playScale} className="cursor-pointer ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
+          <button type="button" onClick={() => (player.running === "scale" ? player.stop() : playScale())} aria-pressed={player.running === "scale"} className="cursor-pointer ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">{player.running === "scale" ? "■ Stop" : "▶ Play scale"}</button>
           <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
         </div>
         <KeySignature ctx={ctx} />

@@ -29,7 +29,7 @@ export default function PentatonicCard({ scale, tonicPc, player, system, onOpen 
   const same = useMemo(() => samePentatonicNotes(tonicPc, scale), [tonicPc, scale]);
   const { host } = p;
   const prefix = `${scale.slug}:`;
-  const { tap, playScale, playTune } = pentatonicSounds(p, player, prefix);
+  const { tap, playing, playScale, playTune } = pentatonicSounds(p, player, prefix);
   const active = player.active?.startsWith(prefix) ? player.active.slice(prefix.length) : null;
   const href = scaleHref(scale.slug, tonicPc);
 
@@ -49,7 +49,7 @@ export default function PentatonicCard({ scale, tonicPc, player, system, onOpen 
             <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${active === t.key ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(t.degree), color: DOT_INK }}>{toneLabel(system, p, t)}</span>
           </button>
         ))}
-        <button type="button" onClick={playScale} className="cursor-pointer mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
+        <button type="button" onClick={playScale} aria-pressed={playing} className="cursor-pointer mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">{playing ? "■ Stop" : "▶ Play"}</button>
         <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="mb-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
       </div>
 

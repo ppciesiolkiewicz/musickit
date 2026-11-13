@@ -17,8 +17,8 @@ interface NeckProps {
   big: (c: ScaleCell) => boolean;
   /** off also hides every note outside the focused position */
   rings?: boolean;
-  /** outline this position on the neck */
-  focus?: ScalePosition | null;
+  /** outline this position on the neck, or several (each gets its own outline) */
+  focus?: ScalePosition | readonly ScalePosition[] | null;
   /** fade the notes outside the focused position (off shows every note at full strength) */
   fadeOutside?: boolean;
   active: string | null;
@@ -52,28 +52,34 @@ export function ScaleNeck({ cells, big, rings = true, focus = null, fadeOutside 
   const phone = usePhone();
   const g = compact ? fretGeometry(0, to, 34, 22, 36) : phone ? fretGeometry(0, to, 28, 26, 36) : fretGeometry(0, to, 54, 36, 42);
   const r = compact ? 8.5 : phone ? 11 : 14;
-  const inFocus = new Set(focus?.notes.map(cellKey));
-  const focusFrets = focus?.notes.map((c) => c.fret) ?? [];
-  const shown = cells.filter((c) => c.fret <= to && (!states || states(c) !== "hidden") && (rings || (big(c) && (!focus || inFocus.has(cellKey(c))))));
+  const focusList: readonly ScalePosition[] = !focus ? [] : "notes" in focus ? [focus] : focus;
+  const focused = focusList.length > 0;
+  const inFocus = new Set(focusList.flatMap((p) => p.notes.map(cellKey)));
+  const shown = cells.filter((c) => c.fret <= to && (!states || states(c) !== "hidden") && (rings || (big(c) && (!focused || inFocus.has(cellKey(c))))));
   // rings under the dots, the playing note last so its outline is on top
   shown.sort((a, b) => Number(big(a)) - Number(big(b)) || Number(lit(a)) - Number(lit(b)));
   return (
     <div className="min-w-0">
       <svg viewBox={`0 0 ${g.W} ${g.H}`} width="100%" role="img" aria-label={title}>
         <FretboardBase g={g} markerSize={compact ? 4 : 6} numbersTop />
-        {focus && focusFrets.length > 0 && (
-          <rect
-            x={g.fx(Math.min(...focusFrets)) - r - 5} y={g.sy(5) - r - 5}
-            width={g.fx(Math.max(...focusFrets)) - g.fx(Math.min(...focusFrets)) + 2 * r + 10} height={g.sy(0) - g.sy(5) + 2 * r + 10}
-            rx={r} fill="rgb(56 189 248 / 0.08)" stroke="rgb(56 189 248 / 0.7)" strokeWidth={2}
-          />
-        )}
+        {focusList.map((p, i) => {
+          const frets = p.notes.map((c) => c.fret);
+          if (!frets.length) return null;
+          return (
+            <rect
+              key={i}
+              x={g.fx(Math.min(...frets)) - r - 5} y={g.sy(5) - r - 5}
+              width={g.fx(Math.max(...frets)) - g.fx(Math.min(...frets)) + 2 * r + 10} height={g.sy(0) - g.sy(5) + 2 * r + 10}
+              rx={r} fill="rgb(56 189 248 / 0.08)" stroke="rgb(56 189 248 / 0.7)" strokeWidth={2}
+            />
+          );
+        })}
         {shown.map((c) => (
           <Dot
             key={cellKey(c)} c={c} x={g.fx(c.fret)} y={g.sy(c.string)} r={r} ring={!big(c)}
             label={noteLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
             hover={hoverLabel(labelSystem, { name: c.name, semi: c.semi, degreeText: c.degreeText })}
-            active={lit(c)} dim={(focus !== null && fadeOutside && !inFocus.has(cellKey(c))) || states?.(c) === "muted"} accent={states?.(c) === "highlighted"} finger={fingers?.(c)} onNote={onNote}
+            active={lit(c)} dim={(focused && fadeOutside && !inFocus.has(cellKey(c))) || states?.(c) === "muted"} accent={states?.(c) === "highlighted"} finger={fingers?.(c)} onNote={onNote}
           />
         ))}
       </svg>

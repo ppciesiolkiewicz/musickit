@@ -14,7 +14,7 @@ export default function CirclePage() {
   return (
     <PageShell
       active="/theory/circle"
-      full
+      wide
       pageId="circle"
       tour={CIRCLE_TOUR}
       title="Circle of fifths"

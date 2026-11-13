@@ -20,7 +20,7 @@ export default function ScaleRelatives({ ctx, familyIndex, onPick, className = "
 
   return (
     <section id="relatives" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
-      <h2 className="mb-2 text-sm font-medium text-slate-100">Modes with the same notes as {ctx.names[0]} {ctx.modeName}</h2>
+      <h2 className="mb-2 text-sm font-medium text-slate-100">Related modes <span className="font-normal text-slate-400">· the same notes as {ctx.names[0]} {ctx.modeName}</span></h2>
 
       {fam.scales ? (
         <p className="text-sm text-slate-400">{ctx.modeName} is a scale of its own, not a mode of the major, harmonic minor or melodic minor scale, so no named mode shares its notes.</p>

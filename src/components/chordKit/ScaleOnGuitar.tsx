@@ -44,10 +44,11 @@ export default function ScaleOnGuitar({ ctx, player, only, view }: { ctx: KeyCon
   const [system] = useLabelSystem();
   const [kind, setKind] = useState<PositionKind>(view ? "scale" : "pentatonic");
   const [rings, setRings] = useState(true);
-  const [focus, setFocus] = useState<number | null>(null);
+  /** the positions picked to light up on the neck, by number */
+  const [focus, setFocus] = useState<number[]>([]);
   /** positions shown as their v2 (`alt`), by kind and number */
   const [v2, setV2] = useState<Set<string>>(new Set());
-  const { active, play, playTimed, tap } = player;
+  const { active, running, play, playTimed, tap, stop } = player;
 
   const cells = useMemo(() => [...scaleCells(ctx), ...(only?.extra ?? [])], [ctx, only]);
   const pent = useMemo(() => only?.pent ?? pentatonicOf(ctx.steps), [ctx, only]);
@@ -68,26 +69,30 @@ export default function ScaleOnGuitar({ ctx, player, only, view }: { ctx: KeyCon
     else next.delete(vKey(p));
     return next;
   });
-  const focusedBox = positions.find((p) => p.number === focus);
-  const focused = focusedBox ? shown(focusedBox) : null;
+  const focusedBoxes = positions.filter((p) => focus.includes(p.number));
+  const focused = focusedBoxes.map(shown);
+  const pick = (n: number) => setFocus((f) => (f.includes(n) ? f.filter((x) => x !== n) : [...f, n].sort((a, b) => a - b)));
+  const keep = (n: number) => setFocus((f) => (f.includes(n) ? f : [...f, n].sort((a, b) => a - b)));
   const keyName = only?.title ?? `${ctx.names[0]} ${ctx.modeName}`;
   const byStart = only ? !only.boxes : kind === "3nps";
   /** Switch shapes but keep the picked position: the same number, or the last one when the new kind has fewer. */
   const pickKind = (k: PositionKind) => {
     setKind(k);
-    setFocus((f) => (f === null ? null : Math.min(f, positionsFor(ctx, k).length)));
+    const last = positionsFor(ctx, k).length;
+    setFocus((f) => [...new Set(f.map((n) => Math.min(n, last)))]);
   };
 
   const onNote = (c: ScaleCell) => tap(cellKey(c), c.midi);
+  const runId = (p: ScalePosition) => `position-${p.number}`;
   const playPosition = (p: ScalePosition) => {
-    setFocus(p.number);
+    keep(p.number);
     const up = positionLine(p);
     const line = [...up, ...up.slice(0, -1).reverse()];
-    play(line.map((c) => ({ key: cellKey(c), midi: c.midi })), 220);
+    play(line.map((c) => ({ key: cellKey(c), midi: c.midi })), 220, runId(p));
   };
   /** A short tune using only the position's notes, so it can be played in that box. */
   const playTune = (p: ScalePosition, tuneId: string) => {
-    setFocus(p.number);
+    keep(p.number);
     playTimed(melodyTiming(generateMelody(positionLine(p), ctx.steps)).map((n) => ({ key: cellKey(n.note), midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
   };
 
@@ -135,15 +140,22 @@ export default function ScaleOnGuitar({ ctx, player, only, view }: { ctx: KeyCon
       {showPositions && (
       <>
       {showNeck && <div className="mt-4 min-h-8">
-        {focused ? (
+        {focused.length > 0 ? (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="mr-1 text-xs text-slate-300">Position <b className="text-slate-100">{focused.number}</b>{focusedBox?.alt && <> {focused === focusedBox ? "v1" : "v2"}</>}</span>
-            <button type="button" onClick={() => setFocus(null)} className="ml-1 rounded-full border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-sky-400">
-              ✕ Clear position
+            <span className="mr-1 text-xs text-slate-300">
+              {focused.length === 1 ? "Position" : "Positions"}{" "}
+              {focusedBoxes.map((b, i) => (
+                <span key={b.number}>
+                  <b className="text-slate-100">{b.number}</b>{b.alt && <> {focused[i] === b ? "v1" : "v2"}</>}{i < focusedBoxes.length - 1 ? ", " : ""}
+                </span>
+              ))}
+            </span>
+            <button type="button" onClick={() => setFocus([])} className="ml-1 rounded-full border border-slate-700 px-2.5 py-1 text-xs text-slate-300 hover:border-sky-400">
+              ✕ Clear {focused.length === 1 ? "position" : "positions"}
             </button>
           </div>
         ) : (
-          <p className="text-xs text-slate-400">Pick a position below to outline it on the neck.</p>
+          <p className="text-xs text-slate-400">Pick one or more positions below to outline them on the neck.</p>
         )}
       </div>}
 
@@ -152,17 +164,18 @@ export default function ScaleOnGuitar({ ctx, player, only, view }: { ctx: KeyCon
         style={view ? { gridTemplateColumns: `repeat(${Math.min(Math.max(positions.length, 1), 5)}, minmax(0, 1fr))` } : undefined}
       >
         {positions.map((p) => {
-          const on = focus === p.number;
+          const on = focus.includes(p.number);
           const box = shown(p);
           return (
             <div key={p.number} className={`flex min-w-0 flex-col gap-1.5 rounded-xl border p-2 transition ${on ? "border-sky-500/70 bg-sky-500/5" : "border-slate-800 bg-slate-950/50"}`}>
               <div className="flex flex-col items-start gap-2">
-                <button type="button" onClick={() => setFocus(on ? null : p.number)} aria-pressed={on} className="text-left text-sm font-medium text-slate-100 hover:text-sky-300" title={showNeck ? "Light it up on the neck" : undefined}>
+                <button type="button" onClick={() => pick(p.number)} aria-pressed={on} className="-m-1 w-[calc(100%+0.5rem)] cursor-pointer rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-100 hover:bg-sky-500/10 hover:text-sky-300" title={showNeck ? "Light it up on the neck" : undefined}>
                   Position {p.number}
                   <span className="block text-xs font-normal text-slate-300">
                     {byStart ? <>starts on {ctx.names[p.startDegree]} <span className="text-slate-500">({DEGREE_ORD[p.startDegree]})</span></> : <>root on {rootStrings(p).map((s) => STRING_NAMES[s]).join(", ")}</>}
                   </span>
                   <span className="block text-xs font-normal text-slate-500">frets {box.from}–{box.to}</span>
+                  {showNeck && <span className="block text-xs font-normal text-slate-500">{on ? "Tap to clear" : "Tap to show on the neck"}</span>}
                 </button>
                 {p.alt && (
                   <div className="flex gap-1" role="group" aria-label={`Position ${p.number} variant`}>
@@ -181,7 +194,7 @@ export default function ScaleOnGuitar({ ctx, player, only, view }: { ctx: KeyCon
                   </div>
                 )}
                 <div className="flex flex-wrap gap-1.5">
-                  <button type="button" onClick={() => playPosition(box)} className={`cursor-pointer ${playBtn}`}>▶ Play</button>
+                  <button type="button" onClick={() => (running === runId(box) ? stop() : playPosition(box))} aria-pressed={running === runId(box)} className={`cursor-pointer ${playBtn}`}>{running === runId(box) ? "■ Stop" : "▶ Play"}</button>
                   <TuneButton onPlay={(id) => playTune(box, id)} title="A short tune using only this position's notes, new every time" className={playBtn} />
                 </div>
               </div>
@@ -195,7 +208,7 @@ export default function ScaleOnGuitar({ ctx, player, only, view }: { ctx: KeyCon
       <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
         <span className="inline-flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full bg-slate-300" />{only ? `in ${keyName}: played` : kind === "pentatonic" ? `in the ${pent.name.toLowerCase()}: played` : "in the position: played"}</span>
         {rings && <span className="inline-flex items-center gap-1.5"><span className="inline-block h-3 w-3 rounded-full border-2 border-slate-400" />{only ? `other notes of ${ctx.modeName}: not played` : kind === "pentatonic" ? `other notes of ${ctx.modeName}: not played` : "scale notes outside the position: not played"}</span>}
-        {showPositions && <span>Play runs up the position from its lowest note and back down; Sample melody plays a short tune using only its notes.{showNeck ? " Tap a position's name to see it on the neck." : ""}</span>}
+        {showPositions && <span>Play runs up the position from its lowest note and back down; Sample melody plays a short tune using only its notes.{showNeck ? " Tap a position's name to see it on the neck; pick more than one to see where they join." : ""}</span>}
       </p>
     </section>
   );

@@ -166,7 +166,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
             {modes.map(({ page, ctx, rel, labels, line, cells }) => {
               const active = activeIn(page.slug);
               const degreeOf = (midi: number) => ctx.steps.indexOf((midi - ctx.tonic.pc + 120) % 12);
-              const playScale = () => player.play(line.map((m) => ({ key: `${page.slug}:d${degreeOf(m)}`, midi: m })), 240);
+              const playScale = () => player.play(line.map((m) => ({ key: `${page.slug}:d${degreeOf(m)}`, midi: m })), 240, page.slug);
               const playTune = (tuneId: string) => player.playTimed(melodyTiming(generateMelody(scalePool(60 + ctx.tonic.pc, ctx.steps), ctx.steps)).map((n) => ({ key: `${page.slug}:d${n.note.degree}`, midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId);
               return (
               <article key={page.slug} onClick={(e) => openCard(e, scaleHref(page.slug, tonicPc))} className="group/card flex min-w-0 cursor-pointer flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/60 p-2.5 transition hover:border-sky-400/60">
@@ -184,7 +184,7 @@ export default function ScalesIndex({ initialKey, syncUrl = true }: { initialKey
                       <span className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition ${active === `d${i}` ? "scale-110 ring-[3px] ring-sky-400" : ""}`} style={{ background: degreeColour(i), color: DOT_INK }}>{scaleToneLabel(system, ctx, i)}</span>
                     </button>
                   ))}
-                  <button type="button" onClick={playScale} className="cursor-pointer mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play</button>
+                  <button type="button" onClick={() => (player.running === page.slug ? player.stop() : playScale())} aria-pressed={player.running === page.slug} className="cursor-pointer mb-1 ml-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">{player.running === page.slug ? "■ Stop" : "▶ Play"}</button>
                   <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="mb-1 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
                 </div>
 

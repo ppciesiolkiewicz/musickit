@@ -37,10 +37,15 @@ export function pentatonicSounds(p: PentatonicContext, player: NotePlayer, prefi
   const key = (midi: number) => `${prefix}pc${midi % 12}`;
   // the melody's pool: every tone from the 5th below the root to the 5th above its octave, coloured by host degree
   const pool = [-1, 0, 1].flatMap((oct) => p.tones.map((t) => ({ midi: root + oct * 12 + t.semis, degree: t.degree }))).filter((n) => n.midi >= root - 5 && n.midi <= root + 19);
+  const runId = `${prefix}scale`;
+  const playing = player.running === runId;
   return {
     line,
     tap: (i: number) => player.tap(`${prefix}${p.tones[i].key}`, line[i]),
-    playScale: () => player.play(line.map((m) => ({ key: key(m), midi: m })), 240),
+    /** the scale run is playing: its button shows Stop */
+    playing,
+    /** play the scale up, or stop it while it plays */
+    playScale: () => (playing ? player.stop() : player.play(line.map((m) => ({ key: key(m), midi: m })), 240, runId)),
     playTune: (tuneId: string) =>
       player.playTimed(melodyTiming(generateMelody(pool, p.host.steps)).map((n) => ({ key: key(n.note.midi), midi: n.note.midi, ms: n.ms, velocity: n.velocity })), tuneId),
   };
@@ -101,7 +106,7 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
   // the scale hovered under the wheel: the notes, degrees, step pattern and wheel all show it
   const [cmp, setCmp] = useState<CompareChoice | null>(null);
   const player = useNotePlayer();
-  const { tap, playScale, playTune } = pentatonicSounds(p, player);
+  const { tap, playing, playScale, playTune } = pentatonicSounds(p, player);
   const activeTone = p.tones.findIndex((t) => t.key === player.active);
   const labels = p.tones.map((t) => toneLabel(system, p, t));
   const hovers = p.tones.map((t) => hoverLabel(system, { name: t.name, semi: t.semis, degreeText: t.label }));
@@ -122,7 +127,8 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
             {p.title}
             {scale.alias && <span> ({scale.alias})</span>}
           </h2>
-          <p className="text-sm text-slate-300">{scale.char} <span className="text-slate-400">{scale.mood}</span></p>
+          <p className="text-base text-slate-200">{scale.mood}</p>
+          <p className="text-sm text-slate-400">{scale.char}</p>
           <p className="text-xs text-slate-400"><b className="text-slate-300">Where you hear it:</b> {scale.use}</p>
 
           <div className="flex flex-wrap items-center gap-2" aria-label="Scale notes">
@@ -136,7 +142,7 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
                 </button>
               );
             })}
-            <button type="button" onClick={playScale} className="cursor-pointer ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">▶ Play scale</button>
+            <button type="button" onClick={playScale} aria-pressed={playing} className="cursor-pointer ml-2 rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25">{playing ? "■ Stop" : "▶ Play scale"}</button>
             <TuneButton onPlay={playTune} title="A short tune made from this scale, new every time" className="rounded-full border border-emerald-500 bg-emerald-500/15 px-3 py-1 text-xs text-emerald-100 hover:bg-emerald-500/25" />
           </div>
           <KeySignature ctx={host} />

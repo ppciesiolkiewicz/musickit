@@ -46,7 +46,7 @@ test("a tool that draws the sliders button can hand its settings to the page", (
   }
 });
 
-/** Each tool page that got the panel: its page file and the component that renders the `SettingsPanel`. */
+/** Each tool page that got the panel: its page file and the component that renders the `SettingsPanel`. The circle of fifths has none: its key is picked on the circle and its one setting, the volume, sits beside it. */
 const PANEL_PAGES: [page: string, component: string][] = [
   ["src/app/theory/ears/page.tsx", "src/components/practice/EarGame.tsx"],
   ["src/app/theory/notes/page.tsx", "src/components/practice/NoteGame.tsx"],
@@ -54,7 +54,6 @@ const PANEL_PAGES: [page: string, component: string][] = [
   ["src/app/theory/tune-by-ear/page.tsx", "src/components/theory/TuneByEar.tsx"],
   ["src/app/theory/piano/page.tsx", "src/components/theory/piano/TheoryPiano.tsx"],
   ["src/app/theory/chords/page.tsx", "src/components/chordKit/ChordKit.tsx"],
-  ["src/app/theory/circle/page.tsx", "src/components/theory/CircleOfFifths.tsx"],
   ["src/app/tuner/page.tsx", "src/features/tuner/Tuner.tsx"],
   ["src/app/theory/metronome-drone/page.tsx", "src/app/theory/metronome-drone/page.tsx"],
   ["src/app/theory/rhythm/page.tsx", "src/app/theory/rhythm/page.tsx"],
@@ -109,7 +108,7 @@ test("a full-width page always has a settings panel (the studio's own panel asid
   walk(join(process.cwd(), "src", "app"));
   const studio = ["note/[slug]/page.tsx", "teachers/studio/page.tsx"];
   const full = pages.filter((p) => /<PageShell[^>]*\sfull[\s>]/.test(readFileSync(p, "utf8")) && !studio.some((s) => p.endsWith(s)));
-  assert.ok(full.length >= 22, `only ${full.length} full pages found`);
+  assert.ok(full.length >= 21, `only ${full.length} full pages found`);
   for (const p of full) assert.match(reach(p), /<SettingsPanel\b/, `${p} is full width with no SettingsPanel`);
 });
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { SettingsPanel, SettingsSection } from "@/components/ui";
 import { VolumeRow } from "@/features/settings";
 import Icon from "@/components/Icon";
 import {
@@ -52,7 +51,7 @@ const btn = "rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-xs t
  * The circle of fifths in full: majors outside with their key signatures, relative minors inside, diminished chords in the middle.
  * Choosing a key lights its seven chords and lists its signature, relatives and neighbours. Controlled: the caller keeps the key.
  */
-export default function CircleOfFifths({ value, onChange }: { value: CircleKey | null; onChange: (k: CircleKey) => void }) {
+export default function CircleOfFifths({ value, onChange, aside }: { value: CircleKey | null; onChange: (k: CircleKey) => void; /** shown above the key's details (the page's volume) */ aside?: ReactNode }) {
   const chords = useMemo(() => (value ? circleChords(value) : []), [value]);
   const inKey = (ring: CircleChord["ring"], pos: number) => chords.find((c) => c.ring === ring && c.pos === pos);
   const majorPc = value ? (value.minor ? relativeMajor(value.pc) : value.pc) : null;
@@ -76,10 +75,10 @@ export default function CircleOfFifths({ value, onChange }: { value: CircleKey |
 
   return (
     <div className="@container">
-      <div className="grid gap-4 @3xl:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)]">
+      <div className="grid gap-6 @3xl:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)]">
         {/* the tour lights the wrapper: it finds HTML elements only, not the svg */}
         <div data-tour="circle-wheel" className="min-w-0">
-        <svg viewBox="0 0 400 400" className="mx-auto block w-full max-w-[36rem]" role="group" aria-label="Circle of fifths">
+        <svg viewBox="0 0 400 400" className="mx-auto block w-full max-w-[min(48rem,calc(100dvh-4rem))]" role="group" aria-label="Circle of fifths">
           {[R_MAJ + 22, R_MIN + 20, R_DIM + 16].map((r) => <circle key={r} cx={C} cy={C} r={r} fill="none" stroke="var(--color-slate-800)" />)}
           {centrePos !== null && <path d={slice(centrePos - 1.5, centrePos + 1.5, R_DIM - 16, R_MAJ + 22)} fill="var(--color-sky-500)" fillOpacity={0.08} stroke="var(--color-sky-500)" strokeOpacity={0.35} />}
           {CIRCLE.map((t, pos) => {
@@ -102,6 +101,7 @@ export default function CircleOfFifths({ value, onChange }: { value: CircleKey |
         </div>
 
         <div className="flex flex-col gap-3 text-sm text-slate-300">
+          {aside}
           {value ? <KeyDetails value={value} sig={sig} onChange={pick} /> : <p className="text-slate-400">Click a key on the circle: a major on the outer ring or a minor on the inner one.</p>}
           <section data-tour="circle-read" className="flex flex-col gap-1.5 rounded-xl border border-slate-800 bg-slate-900/40 p-3 text-xs leading-relaxed text-slate-400">
             <h3 className="text-sm font-medium text-slate-100">How to read it</h3>
@@ -180,15 +180,15 @@ function FunctionLegend() {
 
 /** The circle page: the circle holding its own key, starting on C major. */
 /**
- * The circle of fifths page: the key is picked on the circle itself, so the settings panel holds only the volume.
- * `lead` is the page's text before the circle, so the panel runs beside it.
+ * The circle of fifths page: the key is picked on the circle itself, so there is no settings panel. The one setting, the
+ * volume, sits above the key's details, and the circle takes the width a side column would. `lead` is the page's text before it.
  */
 export function CircleOfFifthsPage({ lead }: { lead?: ReactNode }) {
   const [k, setK] = useState<CircleKey | null>({ pc: DEFAULT_KEY_PC, minor: false });
   return (
-    <SettingsPanel settings={<SettingsSection first><VolumeRow /></SettingsSection>}>
+    <div className="flex flex-col gap-5">
       {lead}
-      <CircleOfFifths value={k} onChange={setK} />
-    </SettingsPanel>
+      <CircleOfFifths value={k} onChange={setK} aside={<div className="rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2"><VolumeRow /></div>} />
+    </div>
   );
 }
