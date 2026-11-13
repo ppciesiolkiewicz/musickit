@@ -10,6 +10,8 @@ export interface Term {
   forms: string[];
   short: string;
   href: string;
+  /** a line for each form, keyed by the form in lower case, shown under `short` where that form is found; a term with these is marked once per form */
+  each?: Record<string, string>;
 }
 
 export const GLOSSARY: Term[] = [
@@ -18,7 +20,13 @@ export const GLOSSARY: Term[] = [
   { id: "interval", label: "Interval", forms: ["interval"], short: "The distance between two notes, named by counting the letter names from one to the other: C to E is a 3rd.", href: "/course/3/intervals" },
   { id: "solfege", label: "Solfège", forms: ["solfège", "solfege"], short: "Do, Re, Mi, Fa, Sol, La, Ti: names for the notes of a key. Do is always home, so the names work in any key.", href: "/course/3/solfege" },
   { id: "on-the-note-names", label: "On the note names", forms: ["on the note names"], short: "Sing each note's name as its word: Do, Re, Mi. The names help you remember how each note sounds.", href: "/course/3/solfege" },
-  { id: "sing-on", label: "Sing it on a sound", forms: ['on "ah"', 'on "oo"', 'on "ee"', 'on "la"'], short: "Sing every note on this one sound, with no words, so you hear only the pitch. \"oo\" and \"ee\" are the easiest on high notes.", href: "/course/3/matching-a-pitch" },
+  { id: "sing-on", label: "Sing it on a sound", forms: ['on "ah"', 'on "oo"', 'on "ee"', 'on "la"'], short: "Sing every note on this one sound, with no words, so you hear only the pitch. \"oo\" and \"ee\" are the easiest on high notes.", href: "/course/3/matching-a-pitch",
+    each: {
+      'on "ah"': '"ah" as in "father" (/ɑː/), with your mouth open tall. One "ah" for each note: "ah ah ah".',
+      'on "oo"': '"oo" as in "moon" (/uː/), with your lips round. One "oo" for each note: "oo oo oo".',
+      'on "ee"': '"ee" as in "see" (/iː/), with your lips a little wide. One "ee" for each note: "ee ee ee".',
+      'on "la"': '"la" as in "lark" (/lɑː/): your tongue taps behind your top teeth at the start of each note: "la la la".',
+    } },
   { id: "high-notes", label: "Reaching for high notes", forms: ["reach for high notes", "reach for a high note", "reaching for high notes", "reaching for a high note"], short: "Pushing your voice up to a note that feels tight. Stop below that note and sing where your voice feels easy: your range grows from there.", href: "/course/9/stretching-your-range" },
   { id: "staff", label: "Staff", forms: ["staff"], short: "The five lines music is written on: a note sits higher on it the higher it sounds. While you sing, your pitch shows on it as a line.", href: "/course/3/staff" },
   { id: "tab", label: "Tab", forms: ["tab", "tablature"], short: "Guitar notation: six lines for the strings, low E at the bottom, and a number on a line for the fret to press. 0 means the open string.", href: "/course/1/tab-and-chord-boxes" },
@@ -86,6 +94,12 @@ export const GLOSSARY: Term[] = [
 
 export type Piece = string | { text: string; term: Term };
 
+/** The line a term has for the form found, if any (`each`). */
+export const eachLine = (piece: Exclude<Piece, string>) => piece.term.each?.[piece.text.toLowerCase().replace(/[\s-]+/g, " ")];
+
+/** Spaces that must not break a line: `on "la"` stays on one line, the word and its sound together. */
+export const keepTogether = (text: string) => text.replace(/\b(on)[ \t]+(?=["“])/gi, "$1\u00a0");
+
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const pattern = (form: string) => escape(form).split(/\s+/).join("[\\s-]+") + "(?:e?s)?";
 
@@ -103,9 +117,10 @@ export function explain(texts: string[]): Piece[][] {
     const out: Piece[] = [];
     let last = 0;
     for (const m of text.matchAll(RE)) {
-      const term = ENTRIES[m.slice(1).findIndex((g) => g !== undefined)].term;
-      if (seen.has(term.id)) continue;
-      seen.add(term.id);
+      const { term, form } = ENTRIES[m.slice(1).findIndex((g) => g !== undefined)];
+      const id = term.each ? `${term.id}:${form}` : term.id;
+      if (seen.has(id)) continue;
+      seen.add(id);
       if (m.index > last) out.push(text.slice(last, m.index));
       out.push({ text: m[0], term });
       last = m.index + m[0].length;

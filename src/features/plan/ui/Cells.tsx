@@ -4,7 +4,7 @@ import { Fragment, useContext, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { SectionAsideContext } from "./SectionAside";
 import Explained from "@/components/course/Explained";
-import { explain, type Piece } from "@/features/course/glossary";
+import { explain, keepTogether, type Piece } from "@/features/course/glossary";
 import { inlineNote, markRuns, noteRootFor, splitNotes, type NoteRoot } from "../model/noteText";
 import InlineNote from "./InlineNote";
 import type { Cell, Choice, PlainCell, SectionCell } from "../model/tools";
@@ -22,7 +22,7 @@ import { ExerciseStep, StartExercise } from "@/components/practice/exerciseStep"
 function NoteText({ pieces, root }: { pieces: Piece[]; root: NoteRoot | null }) {
   const parts = pieces.flatMap((p): (string | Exclude<Piece, string> | { note: string })[] => (typeof p === "string" ? splitNotes(p) : [p]));
   const draw = (part: (typeof parts)[number], key: string) => {
-    if (typeof part === "string") return <span key={key}>{part}</span>;
+    if (typeof part === "string") return <span key={key}>{keepTogether(part)}</span>;
     if ("term" in part) return <Explained key={key} pieces={[part]} />;
     const info = inlineNote(part.note, root);
     return info ? <InlineNote key={key} info={info} /> : <span key={key}>{`{{${part.note}}}`}</span>;

@@ -4,18 +4,6 @@ Ticket content
 New:
 
 
-60.
-How did it go?
-
-Improve text in answers - the middle one should kind of mean that we will not go higher speed, count, level
-But this is also maybe already good, give me idea.
-
-65. hard spaces in  `on "la"` etc.
-Also, the content could be improved, giving example like "la la la".
-The content could give example related to specific sound mentioned,
-.e.g. example would say "ee ee" -> also use phonetic alphabet and if you can
- include sound playback I can provide elevenlabs key or maybe you have the skill for this?
-
 91. Remove sampler and sampler env
 
 47. Identify which pages should have guided tour, e.g. runs / melodies 
@@ -70,6 +58,11 @@ Like - seeing chords within a scale!
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] Videos in demo notes bigger
+Done: in a note read as an article (/note/<slug>, View as a note), a video takes the whole column, like a neck, unless its width was set by hand on the grid. Checked on /note/minor-pentatonic in headless Chrome.
+[DONE] 65. Sounds to sing on: hard spaces and a line for each sound
+Done: `on "la"` never breaks across lines (non-breaking space in plan and note text; the underlined term doesn't wrap). The (i) on each sound has its own line under the meaning, with an example word, the IPA and "la la la" (ah, oo, ee, la), and each sound gets its own (i) once. Not done: sound playback. Open: a recorded sung vowel would teach this better than speech; ElevenLabs reads words, it doesn't sing a held vowel.
+[DONE] 60. How did it go? Done earlier in d2a8ef83: 3 stars reads "Same again next time", with a line on what the stars do.
 [DONE] new1. Start screen on Sing an interval
 Done: until the first Start, a cover over the piano roll or staff says what happens ("Do plays and the interval to sing shows above. Sing it from Do and hold the note."), with one big Start (Space) and "The mic starts with it." under it. Start plays Do, shows the interval and starts the mic, as the toolbar's Start does. Reusable as StartCover (src/components/practice/StartCover.tsx) for other exercises; not on any other exercise yet, and not in /dev/stories yet. Checked in headless Chrome at desktop and phone width (no sideways scroll); the cover lifts on Start. Left as is: after Start the toolbar wraps to two lines (Restart, Skip, Show me, mic, score), which moves the roll down about 40px.
 [DONE] 36. Ear training: "Custom" level, and levels 5 and 6 merged (/theory/ears, /theory/singing/intervals)

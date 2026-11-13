@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { explain, GLOSSARY, type Piece } from "./glossary";
+import { eachLine, explain, GLOSSARY, keepTogether, type Piece } from "./glossary";
 import { findSection } from "./course";
 
 const terms = (pieces: Piece[]) => pieces.flatMap((p) => (typeof p === "string" ? [] : [`${p.term.id}:${p.text}`]));
@@ -60,5 +60,19 @@ describe("glossary", () => {
     const out = explain(["Comp here.", "Comp again, then comps."]);
     assert.deepEqual(out.map(terms), [["comp:Comp"], []]);
     assert.equal(out[0].map((p) => (typeof p === "string" ? p : p.text)).join(""), "Comp here.");
+  });
+
+  it("marks each sound to sing on once, with its own line", () => {
+    const out = explain(['Sing it on "la", then on "oo".', 'Again on "LA".']);
+    assert.deepEqual(out.map(terms), [['sing-on:on "la"', 'sing-on:on "oo"'], []]);
+    const found = out[0].filter((p) => typeof p !== "string");
+    assert.match(eachLine(found[0]) ?? "", /la la la/);
+    assert.match(eachLine(found[1]) ?? "", /oo oo oo/);
+    GLOSSARY.forEach((t) => Object.keys(t.each ?? {}).forEach((k) => assert.ok(t.forms.includes(k), k)));
+  });
+
+  it("keeps a sound on the line of its \"on\"", () => {
+    assert.equal(keepTogether('sing it on "la" and on "oo"'), 'sing it on\u00a0"la" and on\u00a0"oo"');
+    assert.equal(keepTogether("go on to the next"), "go on to the next");
   });
 });
