@@ -11,8 +11,8 @@ import { STRING_GROUPS, TRIAD_QUALITIES, triadVoicings, type StringGroup, type T
 const MAX_FRET = 17;
 const MAX_SPAN = 4;
 
-/** A double stop's interval, as scale steps above its lower note: a 3rd is two steps up the scale. */
-export const DYAD_STEPS = { 3: 2, 4: 3, 6: 5 } as const;
+/** A double stop's interval, as scale steps above its lower note: a 3rd is two steps up the scale, a 5th four. */
+export const DYAD_STEPS = { 3: 2, 4: 3, 5: 4, 6: 5 } as const;
 export type DyadInterval = keyof typeof DYAD_STEPS;
 
 export interface Dyad {
@@ -29,7 +29,7 @@ export interface Dyad {
   lowestFret: number;
 }
 
-/** The string pairs a double stop of this interval sits on: neighbours for 3rds and 4ths, one string skipped for 6ths. */
+/** The string pairs a double stop of this interval sits on: neighbours for 3rds, 4ths and 5ths, one string skipped for 6ths. */
 export function dyadPairs(interval: DyadInterval): [number, number][] {
   const gap = interval === 6 ? 2 : 1;
   return Array.from({ length: 6 - gap }, (_, lo) => [lo, lo + gap] as [number, number]);
@@ -37,7 +37,7 @@ export function dyadPairs(interval: DyadInterval): [number, number][] {
 
 /**
  * Every double stop of the key's scale on one pair of strings: for each degree, the degree `interval` up the scale above it
- * (a diatonic 3rd, 4th or 6th, so its size follows the scale), within 4 frets, frets 0-17. Sorted by degree, then fret.
+ * (a diatonic 3rd, 4th, 5th or 6th, so its size follows the scale), within 4 frets, frets 0-17. Sorted by degree, then fret.
  */
 export function diatonicDyads(ctx: KeyContext, interval: DyadInterval, strings: [number, number]): Dyad[] {
   const steps = DYAD_STEPS[interval];

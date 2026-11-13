@@ -9,7 +9,7 @@ import { SCALE_NECK_FRETS, scaleCells, type ScaleCell } from "@/lib/chordKit/sca
 import { DEFAULT_KEY_PC, makeKeyContext, type KeyContext } from "@/features/theory/theory";
 import { degreeColour, DOT_INK } from "@/features/theory/scales";
 import { hoverLabel, noteLabel } from "@/features/theory/labels";
-import { RootSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
+import { RootSelect, useLabelRoot, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { Chip, Info } from "@/components/ui";
 
 /** the scales offered: major and minor. Other modes of the major scale use the same notes as a major key, so the same double stops */
@@ -20,6 +20,7 @@ const MODES = [
 type ModeId = (typeof MODES)[number]["id"];
 
 const INTERVALS: { id: DyadInterval; label: string }[] = [
+  { id: 5, label: "5ths" },
   { id: 3, label: "3rds" },
   { id: 6, label: "6ths" },
   { id: 4, label: "4ths" },
@@ -31,6 +32,9 @@ const pairFor = (s: number, interval: DyadInterval): [number, number] => {
   const gap = interval === 6 ? 2 : 1;
   return s + gap <= 5 ? [s, s + gap] : [s - gap, s];
 };
+/** a note's name above a root, and the colour index of that step (the scale degree it would be in a major or minor scale) */
+const STEP_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♭5", "5", "♭6", "6", "♭7", "7"];
+const STEP_COLOUR = [0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6];
 /** the ring on the note the microphone hears, as on the other necks */
 const HEARD = "#38bdf8";
 
@@ -52,11 +56,13 @@ export function dyadLadder(ctx: KeyContext, interval: DyadInterval, strings: [nu
 }
 
 /**
- * The whole neck lying down, low E at the bottom, with one octave of double stops on it. Each is two notes of the key's chord named above it, joined by a line in that chord's colour, and the chord's root is ringed: the lower note in 3rds, the upper one in 6ths and 4ths.
+ * The whole neck lying down, low E at the bottom, with one octave of double stops on it. Each is two notes of the key's chord named above it, joined by a line in that chord's colour, and the chord's root is ringed: the lower note in 3rds and 5ths, the upper one in 6ths and 4ths.
  * The two strings played are drawn bright, the rest faint; tap a double stop to hear it.
  */
 function OctaveNeck({ ctx, interval, strings, octave, lit, onPlay }: { ctx: KeyContext; interval: DyadInterval; strings: [number, number]; octave: Dyad[]; lit: number | null; onPlay: (i: number) => void }) {
   const [system] = useLabelSystem();
+  // "Count from: Chord root" labels and colours each double stop's notes from its own chord's root
+  const [from] = useLabelRoot();
   const heard = useHeardNote();
   const cells = useMemo(() => new Map(scaleCells(ctx).map((c) => [`${c.string}-${c.fret}`, c])), [ctx]);
   const fretW = 44, left = 66, top = 84, gap = 28;
@@ -83,9 +89,10 @@ function OctaveNeck({ ctx, interval, strings, octave, lit, onPlay }: { ctx: KeyC
         })}
         {octave.map((d, i) => {
           const on = lit === i;
-          // the chord this double stop is part of: in 3rds the lower note is its root; 6ths and 4ths turn the pair round, so the upper note is
-          const rootK = interval === 3 ? 0 : 1;
-          const chord = ctx.chords[interval === 3 ? d.degree : d.upper];
+          // the chord this double stop is part of: in 3rds and 5ths the lower note is its root; 6ths and 4ths turn the pair round, so the upper note is
+          const lowerRoot = interval === 3 || interval === 5;
+          const rootK = lowerRoot ? 0 : 1;
+          const chord = ctx.chords[lowerRoot ? d.degree : d.upper];
           const colour = degreeColour(chord.degree);
           const px = fx(d.frets[rootK]), py = sy(5) - (i % 2 ? 56 : 32), pw = chord.triadName.length * 7 + 14;
           return (
@@ -97,13 +104,16 @@ function OctaveNeck({ ctx, interval, strings, octave, lit, onPlay }: { ctx: KeyC
               <text x={px} y={py} textAnchor="middle" dominantBaseline="central" fontSize={10.5} fontWeight={800} fill={DOT_INK}>{chord.triadName}</text>
               {([0, 1] as const).map((k) => {
                 const c = cellOf(strings[k], d.frets[k]);
-                const label = noteLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText });
+                const semi = from === "chord" ? (c.pc - ctx.tonic.pc - ctx.steps[chord.degree] + 24) % 12 : c.semi;
+                const named = { name: c.name, semi, degreeText: from === "chord" ? STEP_TEXT[semi] : c.degreeText };
+                const fill = degreeColour(from === "chord" ? STEP_COLOUR[semi] : c.degree);
+                const label = noteLabel(system, named);
                 const ring = heard === c.pc;
                 return (
                   <g key={k}>
-                    <title>{`${hoverLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText })}${k === rootK ? `, the root of ${chord.triadName}` : ""}`}</title>
+                    <title>{`${hoverLabel(system, named)}${k === rootK ? `, the root of ${chord.triadName}` : ""}`}</title>
                     {k === rootK && <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={16} fill="none" stroke="#f8fafc" strokeWidth={2.5} />}
-                    <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={on ? 12.5 : 11} fill={degreeColour(c.degree)} stroke={ring ? HEARD : on ? "#f8fafc" : colour} strokeWidth={ring || on ? 3 : 2.5} />
+                    <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={on ? 12.5 : 11} fill={fill} stroke={ring ? HEARD : on ? "#f8fafc" : colour} strokeWidth={ring || on ? 3 : 2.5} />
                     <text x={fx(d.frets[k])} y={sy(strings[k])} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 8.5 : 10.5} fontWeight={700} fill={DOT_INK}>{label}</text>
                   </g>
                 );
@@ -172,7 +182,7 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
   const lower = STRING_NAMES[strings[0]];
 
   const criteria = <>
-    <BarRow label="Interval" info="Each double stop is two notes of the scale. In 3rds the top note is two scale notes up, on the next string. 6ths are the same two notes turned upside down, so they skip a string. 4ths are three scale notes up.">
+    <BarRow label="Interval" info="Each double stop is two notes of the scale. 5ths are four scale notes apart: the root and 5th of a chord, a power chord in its smallest form. In 3rds the top note is two scale notes up, on the next string. 6ths are the same two notes turned upside down, so they skip a string. 4ths are three scale notes up.">
       {INTERVALS.map((x) => <Chip key={x.id} on={x.id === interval} onClick={() => pickInterval(x.id)}>{x.label}</Chip>)}
     </BarRow>
     <BarRow label="Root on" info={`The string the key's root, ${ctx.names[0]}, is on. The double stops are played on it and the string ${interval === 6 ? "two strings away" : "next to it"}, starting from the root.`}>

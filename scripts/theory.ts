@@ -27,8 +27,8 @@ const HELP = `theory <command> [args] [--flags]       keys: C F# Bb f♯ …   m
         [--slack 1]                          … let voicings reach this many frets past the window
         [--group 321,432]                    … only these string groups (654 543 432 321)
         [--chords I,IV,V]                    … only these degrees (roman, any case, or 1-7)
-  dyads <key> [mode]                       double stops of the scale: two notes 3rds, 4ths or 6ths apart, in the key
-        [--interval 3|4|6]                   … 3rds (default), 4ths, or 6ths (one string between)
+  dyads <key> [mode]                       double stops of the scale: two notes 3rds, 4ths, 5ths or 6ths apart, in the key
+        [--interval 3|4|5|6]                 … 3rds (default), 4ths, 5ths, or 6ths (one string between)
         [--strings 21,32]                    … only these string pairs (guitar numbers, 1 = high e)
         [--box C|A|G|E|D] [--frets 5-8] [--slack 1]   … as for triads
   neighbours <key> <C|A|G|E|D>             I IV V ii vi iii: the shape of each that sits in the I chord's box
@@ -253,22 +253,22 @@ function dyads(pos: string[], flags: Record<string, string>) {
   const { familyIndex, modeIndex } = parseMode(pos[1]);
   const ctx = makeKeyContext(parseKey(pos[0]), familyIndex, modeIndex);
   const interval = Number(flags.interval ?? 3);
-  if (!(interval in DYAD_STEPS)) fail(`--interval is 3, 4 or 6, not ${flags.interval}`);
+  if (!(interval in DYAD_STEPS)) fail(`--interval is 3, 4, 5 or 6, not ${flags.interval}`);
   const iv = interval as DyadInterval;
   const all = dyadPairs(iv);
   const pairs = flags.strings
     ? flags.strings.split(",").map((id) => {
         const p = all.find(([lo, hi]) => `${GUITAR_NUMBER(lo)}${GUITAR_NUMBER(hi)}` === id.trim());
-        if (!p) fail(`strings ${id} don't hold a ${iv === 6 ? "6th (one string between: 31 42 53 64)" : `${iv === 3 ? "3rd" : "4th"} (neighbours: 21 32 43 54 65)`}`);
+        if (!p) fail(`strings ${id} don't hold a ${iv === 6 ? "6th (one string between: 31 42 53 64)" : `${iv === 3 ? "3rd" : iv === 4 ? "4th" : "5th"} (neighbours: 21 32 43 54 65)`}`);
         return p;
       })
     : all;
   const win = windowOf(ctx, flags);
   const slack = Number(flags.slack ?? 0);
-  const sizes: Record<number, string> = { 3: "m3", 4: "M3", 5: "P4", 6: "tritone", 8: "m6", 9: "M6" };
+  const sizes: Record<number, string> = { 3: "m3", 4: "M3", 5: "P4", 6: "tritone", 7: "P5", 8: "m6", 9: "M6" };
   return {
     key: keyName(ctx),
-    interval: `${iv === 3 ? "3rds" : iv === 4 ? "4ths" : "6ths"} (scale notes ${DYAD_STEPS[iv]} steps apart)`,
+    interval: `${iv === 3 ? "3rds" : iv === 4 ? "4ths" : iv === 5 ? "5ths" : "6ths"} (scale notes ${DYAD_STEPS[iv]} steps apart)`,
     window: win ? `${range(win.from, win.to)}${slack ? ` ±${slack}` : ""} (${win.source})` : "whole neck 0-17",
     legend: "strings (1 = high e) · frets low string first · lower + upper note (scale degree) · size",
     pairs: pairs.map(([lo, hi]) => ({

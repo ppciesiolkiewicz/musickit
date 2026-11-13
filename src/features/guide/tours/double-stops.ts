@@ -15,7 +15,7 @@ export const DOUBLE_STOPS_TOUR: TourStep[] = [
   {
     target: "scale-criteria",
     title: "Interval and root",
-    text: "Pick 3rds, 6ths or 4ths, and the string the root is on. The pair of strings follows from it.",
+    text: "Pick 5ths, 3rds, 6ths or 4ths, and the string the root is on. The pair of strings follows from it.",
   },
   {
     target: "double-stops-ladder",

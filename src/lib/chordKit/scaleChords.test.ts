@@ -66,3 +66,12 @@ describe("triads inside a position", () => {
     assert.equal(stringGroupOf("21"), null);
   });
 });
+
+describe("5ths", () => {
+  it("are perfect but for one: the 7th degree's is diminished", () => {
+    const d = diatonicDyads(C_MAJOR, 5, [3, 4]);
+    const size = (deg: number) => d.find((x) => x.degree === deg)!.semis;
+    assert.deepEqual([0, 1, 2, 3, 4, 5, 6].map(size), [7, 7, 7, 7, 7, 7, 6]);
+    assert.deepEqual(dyadPairs(5).length, 5);
+  });
+});
