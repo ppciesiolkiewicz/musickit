@@ -14,12 +14,12 @@ export const DOUBLE_STOPS_TOUR: TourStep[] = [
   },
   {
     target: "scale-criteria",
-    title: "Interval, strings and root",
-    text: "Pick 3rds, 6ths or 4ths, the pair of strings to play them on, and where on the neck the root is.",
+    title: "Interval and root",
+    text: "Pick 3rds, 6ths or 4ths, and the string the root is on. The pair of strings follows from it.",
   },
   {
     target: "double-stops-ladder",
     title: "Up the scale",
-    text: "One octave of double stops, numbered from the root. Tap one to hear it, or press Play to hear the octave up and back down.",
+    text: "One octave of double stops from the root. Each is two notes of the chord named above it, and that chord's root is ringed. Tap one to hear it, or press Play to hear the octave up and back down.",
   },
 ];

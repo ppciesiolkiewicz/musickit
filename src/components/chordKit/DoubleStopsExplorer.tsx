@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BarRow, ScaleSettingsBar, WithSettings } from "./ScaleSettings";
 import { useHeardNote } from "./heardNote";
 import { strum } from "@/lib/chordKit/playback";
-import { DYAD_STEPS, diatonicDyads, dyadPairs, type Dyad, type DyadInterval } from "@/lib/chordKit/scaleChords";
+import { DYAD_STEPS, diatonicDyads, type Dyad, type DyadInterval } from "@/lib/chordKit/scaleChords";
 import { SCALE_NECK_FRETS, scaleCells, type ScaleCell } from "@/lib/chordKit/scalePositions";
 import { DEFAULT_KEY_PC, makeKeyContext, type KeyContext } from "@/features/theory/theory";
 import { degreeColour, DOT_INK } from "@/features/theory/scales";
@@ -26,9 +26,11 @@ const INTERVALS: { id: DyadInterval; label: string }[] = [
 ];
 
 const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
-const pairId = ([lo, hi]: [number, number]) => `${6 - lo}${6 - hi}`;
-/** the pair a double stop of this interval is played on most: B and e for 3rds, G and e for 6ths, G and B for 4ths */
-const defaultPair = (interval: DyadInterval) => (interval === 6 ? "31" : interval === 4 ? "32" : "21");
+/** the pair of strings for a root on string `s` (0 the low E): `s` and the string above it (two above for 6ths), or below it on the top strings */
+const pairFor = (s: number, interval: DyadInterval): [number, number] => {
+  const gap = interval === 6 ? 2 : 1;
+  return s + gap <= 5 ? [s, s + gap] : [s - gap, s];
+};
 /** the ring on the note the microphone hears, as on the other necks */
 const HEARD = "#38bdf8";
 
@@ -50,14 +52,14 @@ export function dyadLadder(ctx: KeyContext, interval: DyadInterval, strings: [nu
 }
 
 /**
- * The whole neck lying down, low E at the bottom, with one octave of double stops on it: a line in one colour joins the two notes of each, and the number above it, in the same colour, is the scale note it starts on (1 the root).
+ * The whole neck lying down, low E at the bottom, with one octave of double stops on it. Each is two notes of the key's chord named above it, joined by a line in that chord's colour, and the chord's root is ringed: the lower note in 3rds, the upper one in 6ths and 4ths.
  * The two strings played are drawn bright, the rest faint; tap a double stop to hear it.
  */
-function OctaveNeck({ ctx, strings, octave, lit, onPlay }: { ctx: KeyContext; strings: [number, number]; octave: Dyad[]; lit: number | null; onPlay: (i: number) => void }) {
+function OctaveNeck({ ctx, interval, strings, octave, lit, onPlay }: { ctx: KeyContext; interval: DyadInterval; strings: [number, number]; octave: Dyad[]; lit: number | null; onPlay: (i: number) => void }) {
   const [system] = useLabelSystem();
   const heard = useHeardNote();
   const cells = useMemo(() => new Map(scaleCells(ctx).map((c) => [`${c.string}-${c.fret}`, c])), [ctx]);
-  const fretW = 44, left = 66, top = 42, gap = 28;
+  const fretW = 44, left = 66, top = 84, gap = 28;
   const W = left + (SCALE_NECK_FRETS + 0.5) * fretW, H = top + 5 * gap + 30;
   const fx = (f: number) => (f === 0 ? left - 17 : left + (f - 0.5) * fretW);
   const sy = (s: number) => top + (5 - s) * gap;
@@ -81,20 +83,26 @@ function OctaveNeck({ ctx, strings, octave, lit, onPlay }: { ctx: KeyContext; st
         })}
         {octave.map((d, i) => {
           const on = lit === i;
-          const colour = degreeColour(d.degree);
+          // the chord this double stop is part of: in 3rds the lower note is its root; 6ths and 4ths turn the pair round, so the upper note is
+          const rootK = interval === 3 ? 0 : 1;
+          const chord = ctx.chords[interval === 3 ? d.degree : d.upper];
+          const colour = degreeColour(chord.degree);
+          const px = fx(d.frets[rootK]), py = sy(5) - (i % 2 ? 56 : 32), pw = chord.triadName.length * 7 + 14;
           return (
-            <g key={i} role="button" tabIndex={0} aria-label={`${d.degree + 1}: ${cellOf(strings[0], d.frets[0]).name} and ${cellOf(strings[1], d.frets[1]).name}, frets ${d.frets.join(" and ")}`} onClick={() => onPlay(i)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onPlay(i)} className="cursor-pointer focus:outline-none">
-              {/* one colour per double stop: its starting note's, on the line that joins its two notes and on its number */}
+            <g key={i} role="button" tabIndex={0} aria-label={`${chord.triadName}: ${cellOf(strings[0], d.frets[0]).name} and ${cellOf(strings[1], d.frets[1]).name}, frets ${d.frets.join(" and ")}`} onClick={() => onPlay(i)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onPlay(i)} className="cursor-pointer focus:outline-none">
+              {/* one colour per double stop, its chord's: on the line that joins its two notes and on the chord's name above */}
               <line x1={fx(d.frets[0])} x2={fx(d.frets[1])} y1={sy(strings[0])} y2={sy(strings[1])} stroke={on ? "#f8fafc" : colour} strokeWidth={on ? 7 : 5} strokeLinecap="round" opacity={on ? 1 : 0.85} />
-              <circle cx={fx(d.frets[1])} cy={sy(5) - 22} r={9} fill={colour} stroke={on ? "#f8fafc" : DOT_INK} strokeWidth={on ? 2.5 : 1} />
-              <text x={fx(d.frets[1])} y={sy(5) - 22} textAnchor="middle" dominantBaseline="central" fontSize={10.5} fontWeight={800} fill={DOT_INK}>{d.degree + 1}</text>
+              <line x1={px} x2={px} y1={py + 9} y2={sy(5) - 17} stroke={colour} strokeWidth={1} opacity={0.5} />
+              <rect x={px - pw / 2} y={py - 9} width={pw} height={18} rx={9} fill={colour} stroke={on ? "#f8fafc" : DOT_INK} strokeWidth={on ? 2.5 : 1} />
+              <text x={px} y={py} textAnchor="middle" dominantBaseline="central" fontSize={10.5} fontWeight={800} fill={DOT_INK}>{chord.triadName}</text>
               {([0, 1] as const).map((k) => {
                 const c = cellOf(strings[k], d.frets[k]);
                 const label = noteLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText });
                 const ring = heard === c.pc;
                 return (
                   <g key={k}>
-                    <title>{hoverLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</title>
+                    <title>{`${hoverLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText })}${k === rootK ? `, the root of ${chord.triadName}` : ""}`}</title>
+                    {k === rootK && <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={16} fill="none" stroke="#f8fafc" strokeWidth={2.5} />}
                     <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={on ? 12.5 : 11} fill={degreeColour(c.degree)} stroke={ring ? HEARD : on ? "#f8fafc" : colour} strokeWidth={ring || on ? 3 : 2.5} />
                     <text x={fx(d.frets[k])} y={sy(strings[k])} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 8.5 : 10.5} fontWeight={700} fill={DOT_INK}>{label}</text>
                   </g>
@@ -113,9 +121,8 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
   const [tonicPc, setTonicPc] = useState(initialTonic);
   const [modeId, setModeId] = useState<ModeId>("major");
   const [interval, setInterval_] = useState<DyadInterval>(3);
-  const [pair, setPair] = useState(defaultPair(3));
-  // the root the octave starts from, as its fret on the lower string; null: the lowest that fits
-  const [rootFret, setRootFret] = useState<number | null>(null);
+  // the string the key's root is on where the octave starts (0 the low E); the pair of strings follows from it
+  const [rootString, setRootString] = useState(4);
   // the double stop sounding, by its place in the octave
   const [lit, setLit] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
@@ -123,12 +130,13 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
 
   const mode = MODES.find((m) => m.id === modeId)!;
   const ctx = useMemo(() => makeKeyContext(tonicPc, 0, mode.modeIndex), [tonicPc, mode.modeIndex]);
-  const strings = dyadPairs(interval).find((p) => pairId(p) === pair) ?? dyadPairs(interval).at(-1)!;
-  const ladder = useMemo(() => dyadLadder(ctx, interval, strings), [ctx, interval, strings]);
-  // every root on these strings; the octave is 8 double stops in a row with the picked root in it, starting on it where there is room
-  const roots = useMemo(() => ladder.flatMap((d, i) => (d.degree === 0 ? [{ i, fret: d.frets[0] }] : [])), [ladder]);
-  const root = roots.find((r) => r.fret === rootFret) ?? roots.find((r) => r.i + 7 < ladder.length) ?? roots[0];
-  const start = root ? Math.max(0, Math.min(root.i, ladder.length - 8)) : 0;
+  const strings = pairFor(rootString, interval);
+  const rootK = strings[0] === rootString ? 0 : 1;
+  const ladder = useMemo(() => dyadLadder(ctx, interval, pairFor(rootString, interval)), [ctx, interval, rootString]);
+  // the double stops with the key's root on the root string; the octave starts on the first with room for eight after it
+  const at = ladder.flatMap((d, i) => (d.midi[rootK] % 12 === ctx.tonic.pc ? [i] : []));
+  const from = at.find((i) => i + 7 < ladder.length) ?? at[0] ?? 0;
+  const start = Math.max(0, Math.min(from, ladder.length - 8));
   const octave = ladder.slice(start, start + 8);
 
   const stop = () => {
@@ -158,8 +166,6 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
   const pickInterval = (iv: DyadInterval) => {
     stop();
     setInterval_(iv);
-    setPair(defaultPair(iv));
-    setRootFret(null);
   };
   const ivLabel = INTERVALS.find((x) => x.id === interval)!.label;
   const keyName = `${ctx.names[0]} ${mode.label.toLowerCase()}`;
@@ -169,22 +175,15 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
     <BarRow label="Interval" info="Each double stop is two notes of the scale. In 3rds the top note is two scale notes up, on the next string. 6ths are the same two notes turned upside down, so they skip a string. 4ths are three scale notes up.">
       {INTERVALS.map((x) => <Chip key={x.id} on={x.id === interval} onClick={() => pickInterval(x.id)}>{x.label}</Chip>)}
     </BarRow>
-    <BarRow label="Strings" info="The two strings the double stops are played on. 6ths have one string between their two notes: let a finger of your fretting hand rest on it so it stays quiet.">
-      {dyadPairs(interval).slice().reverse().map((p) => (
-        <Chip key={pairId(p)} on={pairId(p) === pairId(strings)} onClick={() => { stop(); setPair(pairId(p)); setRootFret(null); }}>{`${STRING_NAMES[p[0]]} ${STRING_NAMES[p[1]]}`}</Chip>
-      ))}
+    <BarRow label="Root on" info={`The string the key's root, ${ctx.names[0]}, is on. The double stops are played on it and the string ${interval === 6 ? "two strings away" : "next to it"}, starting from the root.`}>
+      {STRING_NAMES.map((name, i) => <Chip key={i} on={i === rootString} onClick={() => { stop(); setRootString(i); }}>{i === 0 ? "Low E" : i === 5 ? "High e" : name}</Chip>)}
     </BarRow>
-    {roots.length > 0 && (
-      <BarRow label="Root at" info={`Where the root sits on the ${lower} string. The double stops shown are the eight around it, starting on it where the neck has room.`}>
-        {roots.map((r) => <Chip key={r.fret} on={r.fret === root?.fret} onClick={() => { stop(); setRootFret(r.fret); }}>{r.fret === 0 ? "Open" : `Fret ${r.fret}`}</Chip>)}
-      </BarRow>
-    )}
   </>;
-  const picker = <>{MODES.map((m) => <Chip key={m.id} on={m.id === modeId} onClick={() => { stop(); setModeId(m.id); setRootFret(null); }}>{m.label}</Chip>)}</>;
+  const picker = <>{MODES.map((m) => <Chip key={m.id} on={m.id === modeId} onClick={() => { stop(); setModeId(m.id); }}>{m.label}</Chip>)}</>;
 
   return (
     <WithSettings side criteria={criteria} bar={
-      <ScaleSettingsBar tonicPc={tonicPc} onTonic={(pc) => { stop(); setTonicPc(pc); setRootFret(null); }} side config={{
+      <ScaleSettingsBar tonicPc={tonicPc} onTonic={(pc) => { stop(); setTonicPc(pc); }} side config={{
         scale: { picker, name: mode.label.toLowerCase() },
         labels: { extra: <RootSelect /> },
       }} />
@@ -201,9 +200,9 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
           <h3 className="text-sm font-medium text-slate-100">Up the scale</h3>
           {octave.length > 0 && <button type="button" onClick={() => (running ? stop() : run())} title="Plays the octave up and back down" className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running ? "■ Stop" : "▶ Play"}</button>}
         </div>
-        <p className="mb-3 text-xs text-slate-400">One octave of {keyName} on the {lower} and {STRING_NAMES[strings[1]]} strings, around the root. A coloured line joins the two notes of each double stop; the number above it, in the same colour, is the scale note it starts on. Tap one to hear it.</p>
+        <p className="mb-3 text-xs text-slate-400">{`One octave of ${keyName} on the ${lower} and ${STRING_NAMES[strings[1]]} strings. Each double stop is two notes of the chord named above it, joined in that chord's colour, and the ringed note is the chord's root. Tap one to hear it.`}</p>
         {octave.length
-          ? <OctaveNeck ctx={ctx} strings={strings} octave={octave} lit={lit} onPlay={tap} />
+          ? <OctaveNeck ctx={ctx} interval={interval} strings={strings} octave={octave} lit={lit} onPlay={tap} />
           : <p className="text-xs text-slate-500">No {ivLabel} of this scale fit on these strings within 4 frets.</p>}
       </section>
     </WithSettings>
