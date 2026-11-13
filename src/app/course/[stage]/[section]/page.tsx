@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import PageShell from "@/components/PageShell";
+import CourseShell from "@/components/course/CourseShell";
 import Icon from "@/components/Icon";
 import { DISPLAY, Eyebrow } from "@/components/landing/Display";
 import SectionPanel, { StageLine } from "@/components/course/SectionPanel";
@@ -61,7 +61,7 @@ export default async function CourseSectionPage({ params }: { params: Promise<Pa
     </div>
   );
   return (
-    <PageShell active="/course" title={section.title} header={header}>
+    <CourseShell title={section.title} header={header}>
       <div className="flex items-start gap-8 pb-24 lg:pb-0">
         <SectionPanel stage={stage} current={section.slug} />
         <div className="min-w-0 flex-1">
@@ -82,6 +82,6 @@ export default async function CourseSectionPage({ params }: { params: Promise<Pa
           </nav>
         </div>
       </div>
-    </PageShell>
+    </CourseShell>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import PageShell from "@/components/PageShell";
+import CourseShell from "@/components/course/CourseShell";
 import Icon, { type IconName } from "@/components/Icon";
 import { DISPLAY, Eyebrow } from "@/components/landing/Display";
 import CourseIndex from "@/components/course/CourseIndex";
@@ -39,10 +39,7 @@ function Hero() {
   return (
     <section aria-labelledby="course-h" className="grid grid-cols-1 items-center gap-8 pb-4 pt-2 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
       <div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Eyebrow>The self-paced course</Eyebrow>
-          <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 text-xs font-medium text-amber-200">Work in progress · new sections added often</span>
-        </div>
+        <Eyebrow>The self-paced course</Eyebrow>
         <h1 id="course-h" className="text-4xl leading-[1.04] text-slate-50 text-balance sm:text-6xl" style={DISPLAY}>
           Learn guitar on your own, <span className="italic text-sky-300">one position at a time.</span>
         </h1>
@@ -77,12 +74,12 @@ function Hero() {
 
 export default function CoursePage() {
   return (
-    <PageShell active="/course" pageId="course" title="Course" header={<Hero />}>
+    <CourseShell pageId="course" title="Course" header={<Hero />}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }}
       />
       <CourseIndex />
-    </PageShell>
+    </CourseShell>
   );
 }
