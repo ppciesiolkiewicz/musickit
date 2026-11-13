@@ -49,7 +49,8 @@ export interface Frame {
 
 /**
  * One clock for a tune sung along: Play runs the bar over the passes (the loop region again and again, or the whole tune
- * once) with what is heard of it (`Heard`, each switched on and off while it runs), Stop puts it back at the start. The voice is kept as a trail on the
+ * once) with what is heard of it (`Heard`, each switched on and off while it runs), Pause holds the bar where it is and
+ * Resume runs it on from there, Stop puts it back at the start. The voice is kept as a trail on the
  * stream's beats while the bar runs; passes and trail long gone by are dropped. A new tune is a new mount (key it); a new
  * `beatMs` is not: the bar keeps its place and runs on at the new tempo.
  */
@@ -67,6 +68,8 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false, loop
     setMic(listen);
   }
   const [playing, setPlaying] = useState(false);
+  /** held by Pause: `playing` stays true (the tune is still out, not stopped), the clock stands at `held` */
+  const [paused, setPaused] = useState(false);
   const [heard, setHeard] = useState<Heard>({ tune: true, chords: true, click });
   const [loop, setLoopState] = useState(true);
   const [region, setRegionState] = useState<Region>({ from: 0, to: total });
@@ -76,6 +79,8 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false, loop
   // the clock's state lives in refs, read by the timers and the frame loop; `frame` is what is drawn
   const t0 = useRef(0);
   const run = useRef(false);
+  /** the stream beat the bar stands on while paused (0 when stopped) */
+  const held = useRef(0);
   const [first] = useState(() => fill([], { from: 0, to: total }, AHEAD, notes, chords, total));
   const passes = useRef<Pass[]>(first);
   const trail = useRef<TrailPoint[]>([]);
@@ -92,7 +97,7 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false, loop
 
   // the clock's tempo, moved by the effect below so the bar keeps its place when the tempo changes
   const beat = useRef(beatMs);
-  const beatNow = useCallback(() => (run.current ? (performance.now() - t0.current) / beat.current : 0), []);
+  const beatNow = useCallback(() => (run.current ? (performance.now() - t0.current) / beat.current : held.current), []);
   const draw = useCallback(() => {
     setFrame({ s: beatNow(), passes: passes.current, trail: [...trail.current], midi: pitch.current });
   }, [beatNow]);
@@ -127,9 +132,11 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false, loop
 
   const stop = useCallback(() => {
     run.current = false;
+    held.current = 0;
     hush();
     restart();
     setPlaying(false);
+    setPaused(false);
     draw();
   }, [hush, restart, draw]);
 
@@ -246,15 +253,40 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false, loop
     const piano = getSharedPiano();
     await Promise.all([wakeAudio(), piano.preload().catch(() => undefined)]);
     restart();
+    held.current = 0;
     t0.current = performance.now() + START_MS;
     run.current = true;
     setPlaying(true);
+    setPaused(false);
+    draw();
+  };
+
+  /** hold the bar where it is: what was put ahead is cut and the ringing notes hushed; passes and trail stay */
+  const pause = () => {
+    if (!run.current) return;
+    held.current = beatNow();
+    run.current = false;
+    hush();
+    setPaused(true);
+    draw();
+  };
+
+  /** run on from the beat the bar was held on */
+  const resume = async () => {
+    if (run.current || !paused) return;
+    micOn();
+    await wakeAudio();
+    const s = held.current;
+    t0.current = performance.now() + START_MS - s * beat.current;
+    scheduled.current = s;
+    run.current = true;
+    setPaused(false);
     draw();
   };
 
   const setActive = (r: Region | null) => {
     activeRef.current = r;
-    if (run.current) {
+    if (run.current || paused) {
       const s = beatNow();
       // what was put on timers is put again from the new passes; a note ringing rings on
       ons.current.forEach(clearTimeout);
@@ -278,6 +310,9 @@ export function useSingAlong({ notes, chords, beatMs, total, click = false, loop
     status,
     mic,
     playing,
+    paused,
+    pause,
+    resume,
     loop,
     region,
     play,

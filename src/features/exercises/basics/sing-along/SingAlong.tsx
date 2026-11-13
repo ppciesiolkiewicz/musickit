@@ -47,11 +47,11 @@ function MarginArrow({ side, onClick }: { side: "left" | "right"; onClick?: () =
   );
 }
 
-function IconButton({ on, tone = "sky", big, title, onClick, children }: { on?: boolean; tone?: "sky" | "emerald" | "amber"; big?: boolean; title: string; onClick: () => void; children: ReactNode }) {
+function IconButton({ on, tone = "sky", big, title, onClick, disabled, children }: { on?: boolean; disabled?: boolean; tone?: "sky" | "emerald" | "amber"; big?: boolean; title: string; onClick: () => void; children: ReactNode }) {
   const lit = { sky: "border-sky-400/70 bg-sky-500/20 text-sky-100", emerald: "border-emerald-400/70 bg-emerald-500/25 text-emerald-100", amber: "border-amber-400/60 bg-amber-500/15 text-amber-200" }[tone];
   return (
-    <button type="button" onClick={onClick} title={title} aria-label={title} aria-pressed={on}
-      className={`flex items-center justify-center rounded-lg border transition ${big ? "h-11 min-w-14 gap-2 px-3" : "h-8 min-w-8 gap-1.5 px-1.5"} ${on ? lit : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
+    <button type="button" onClick={onClick} disabled={disabled} title={title} aria-label={title} aria-pressed={on}
+      className={`flex items-center justify-center rounded-lg border transition ${big ? "h-11 min-w-14 gap-2 px-3" : "h-8 min-w-8 gap-1.5 px-1.5"} ${on ? lit : "border-slate-700 text-slate-300 hover:border-slate-500"} disabled:pointer-events-none disabled:opacity-40`}>
       {children}
     </button>
   );
@@ -64,7 +64,8 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
 ];
 
 /**
- * A tune to sing along: one Play button that turns into Stop while the tune plays (the Space key cap inside it), and the
+ * A tune to sing along: one Play button that turns into Pause while the tune plays and into Resume while it is paused
+ * (the Space key cap inside it, so Space pauses and plays on), a Stop beside it (always there, so nothing moves; off until a tune plays), and the
  * mic (any button switches it on); mute buttons for the tune and its chords (when it has them) beside them, and the
  * metronome in the settings dropdown, each on or off while it plays, the bar running either way; a loop over a part of
  * the tune set on a strip of the whole tune (on by default, over all of it; the strip shows only while looping), and the tune drawn on an endless staff or
@@ -104,7 +105,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   /** the play-ahead slider, in the settings dropdown (how far the moving bar runs ahead of the voice dot) */
   playAhead?: ReactNode;
 }) {
-  useCoverage({ hints: 7 });
+  useCoverage({ hints: 8 });
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   // looping a part is a Standard control; hidden, the clock loops the whole tune
   const looping = useLevelAtLeast("standard");
@@ -168,8 +169,10 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
     void sa.play();
     if (!full) tune.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
-  // Space presses Play, or Stop while the tune plays
-  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(() => (sa.playing ? sa.stop() : play()), setRoot);
+  // Space presses the big button: Play, Pause while the tune plays, Resume while it is paused
+  const main = !sa.playing ? play : sa.paused ? () => void sa.resume() : sa.pause;
+  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(main, setRoot);
+  const mainTitle = !sa.playing ? "Play" : sa.paused ? "Resume" : "Pause";
   const wasFull = useRef(full);
   useLayoutEffect(() => {
     if (wasFull.current && !full) root.current?.scrollIntoView({ block: "nearest" });
@@ -212,10 +215,16 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
       <div aria-hidden className="my-1 h-px w-1/3 bg-slate-700" />
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
         <span data-tour="sing-play" className="inline-flex items-center gap-1.5">
-          <Hint title={sa.playing ? "Stop" : "Play"} description={sa.playing ? "Ends the tune." : "Starts the tune from the start. While it plays, the button turns into Stop."}>
-            <IconButton big on={sa.playing} title={`${sa.playing ? "Stop" : "Play"}${spaceArmed ? " (Space)" : ""}`} onClick={sa.playing ? sa.stop : play}>
-              <Icon name={sa.playing ? "square" : "play"} size={sa.playing ? 18 : 20} fill={sa.playing} />
+          <Hint title={mainTitle} description={!sa.playing ? "Starts the tune from the start. While it plays, the button turns into Pause." : sa.paused ? "Plays on from where you paused." : "Holds the tune where it is. Press again to play on."}>
+            <IconButton big on={sa.playing && !sa.paused} title={`${mainTitle}${spaceArmed ? " (Space)" : ""}`} onClick={main}>
+              <Icon name={sa.playing && !sa.paused ? "pause" : "play"} size={sa.playing && !sa.paused ? 18 : 20} fill={sa.playing && !sa.paused} />
               {spaceArmed && <KeyCap className="hidden md:inline">Space</KeyCap>}
+            </IconButton>
+          </Hint>
+          {/* always there, so the buttons don't move as the tune starts */}
+          <Hint title="Stop" description="Ends the tune. Play starts it again from the start.">
+            <IconButton big disabled={!sa.playing} title="Stop" onClick={sa.stop}>
+              <Icon name="square" size={16} fill />
             </IconButton>
           </Hint>
         </span>
