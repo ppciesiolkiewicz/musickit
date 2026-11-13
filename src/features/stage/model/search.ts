@@ -9,28 +9,14 @@ import type { KeyChoice } from "@/features/creator/model/key";
 import { CAGED_LETTERS, type CagedLetter } from "@/lib/chordKit/caged";
 import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
 import { NO_MEDIA, type MediaState } from "./commands";
+import { TOOLS } from "@/features/plan/model/tools";
+import { MODE_PAGES } from "@/features/theory/scales";
 import { FAMILIES, keyChoiceText, type Family } from "./families";
+
+const modeSlugOf = (key: KeyChoice) => (MODE_PAGES.find((m) => m.familyIndex === key.family && m.modeIndex === key.mode) ?? MODE_PAGES[0]).slug;
 import { PALETTE_GROUPS, pinAgainst, subjectName, subjectTitle, type PaletteGroup, type PaletteResult, type StudioCommand, type Subject } from "./subject";
 
 const MAX_RESULTS = 12;
-
-/** The cheatsheet pages with a full view, in the cheatsheet's order. */
-const FULL_PAGES = ["scale", "chords", "circle", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
-
-/** Other words a plugin goes by. */
-const PLUGIN_WORDS: Record<string, string[]> = {
-  scale: ["scale", "notes", "intervals", "interval", "degrees"],
-  chords: ["chords", "chord", "library", "search", "shapes"],
-  circle: ["circle", "fifths"],
-  keys: ["keys", "piano", "keyboard"],
-  progressions: ["progressions", "progression"],
-  modes: ["modes", "mode", "scales"],
-  triads: ["triads", "triad"],
-  caged: ["caged"],
-  arpeggios: ["arpeggios", "arpeggio", "arps"],
-  improv: ["improv", "improvisation", "solo"],
-  tunings: ["tunings", "tuning"],
-};
 
 const MODE_WORDS: Record<string, number> = {
   major: 0,
@@ -43,8 +29,6 @@ const MODE_WORDS: Record<string, number> = {
   aeolian: 5,
   locrian: 6,
 };
-
-const ROMAN: Record<string, number> = { i: 0, ii: 1, iii: 2, iv: 3, v: 4, vi: 5, vii: 6 };
 
 interface CommandDef {
   label: string;
@@ -76,6 +60,15 @@ const commandResult = (c: CommandDef): PaletteResult => ({ id: `studio:${c.label
 
 /** The commands that add something to a note rather than drive the studio's camera or screen: the notes creator offers them too. */
 export const isNoteCommand = (c: StudioCommand): boolean => c === "video-add" || c === "video-record";
+
+/** The practice tools' families, in the order the Practice section lists them. */
+const PRACTICE_IDS = FAMILIES.filter((f) => f.group === "practice").map((f) => f.id);
+
+/** One 3-notes-per-string position (1-7) of the key, as the position-neck tool. */
+function threeNps(key: KeyChoice, position: number): Subject {
+  const tool = TOOLS["position-neck"].parse({ type: "position-neck", key: key.tonicPc ?? 0, scale: modeSlugOf(key), kind: "3nps", positions: [position] });
+  return { kind: "tool", tool: tool! };
+}
 
 /** A catalog entry: a result and the words a search finds it by. */
 interface Entry {
@@ -121,14 +114,16 @@ function variants(f: Family, key: KeyChoice): Entry[] {
       return [
         // 3 notes per string is one position at a time: the stage's own `position` widget
         ...range(POSITION_COUNT["3nps"]).map((n) =>
-          one({ kind: "position", positionKind: "3nps", index: n - 1, key }, ["3nps", "nps", "three", "notes", "per", "string", "box", "boxes", "pos", "position", String(n)], n - 1, `3 notes per string, position ${n}`),
+          one(threeNps(key, n), ["3nps", "nps", "three", "notes", "per", "string", "box", "boxes", "pos", "position", String(n)], n - 1, `3 notes per string, position ${n}`),
         ),
         one(f.make({ show: ["neck"] }, key), ["fretboard", "neck", "scale", "notes", "whole"], undefined, "Fretboard"),
         one(f.make({ show: ["neck", "positions"] }, key), ["fretboard", "positions", "guitar", "neck", "overview"], undefined, "Fretboard positions"),
       ];
+    case "chord-circle":
+      return range(7).map((d) => one(f.make({ degree: d }, key), ["sus", "extensions", ["i", "ii", "iii", "iv", "v", "vi", "vii"][d - 1]]));
     case "caged":
       return [
-        one(f.make({}, key), ["fretboard", "neck", "map", "boxes", "whole", "overview"]),
+        one(f.make({}, key), ["fretboard", "neck", "map", "boxes", "whole", "overview"], undefined, "CAGED fretboard"),
         ...CAGED_LETTERS.map((l) => one(f.make({ shapes: [l] }, key), ["shape", "box", l.toLowerCase()])),
       ];
     default:
@@ -140,13 +135,11 @@ function variants(f: Family, key: KeyChoice): Entry[] {
  * Every widget there is, in `key`, by section and subsection. A family is its row (the catalog), or its row and its single variants
  * (`search`: "pent pos 2", "fretboard", "e shape").
  */
-function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
-  const has = (id: string) => pluginIds.includes(id);
+function entries(key: KeyChoice, search = false): Entry[] {
   const fam = (id: string) => {
     const f = familyById(id);
     return search ? [familyEntry(f, key), ...variants(f, key)] : [familyEntry(f, key)];
   };
-  const panel = (id: string, group: PaletteGroup, detail: string, sub?: string) => (has(id) ? [entry({ kind: "plugin", plugin: id, key }, group, detail, PLUGIN_WORDS[id] ?? [], sub)] : []);
   const out: Entry[] = [
     entry({ kind: "key" }, "setup", "The master key and scale every widget follows", ["key", "scale", "master", "root", "mode"]),
     entry({ kind: "band", key }, "setup", "Click, drone, drums and bass", ["metronome", "drone", "band", "drums", "bass", "click", "tempo"]),
@@ -154,28 +147,24 @@ function entries(pluginIds: string[], key: KeyChoice, search = false): Entry[] {
     entry({ kind: "mic" }, "setup", "Guitar or voice: lights the notes you play on pinned and selected widgets", ["mic", "microphone", "guitar", "voice", "listen", "input", "audio", "hear", "notes", "accuracy"]),
     // the Scale family: the scales page's guitar section (neck and positions) of any key and scale
     ...fam("scale"),
-    entry({ kind: "section", section: "relatives", key }, "scale", "Modes that share the notes", ["relative", "relatives", "modes", "mode", "same", "notes"]),
-    ...panel("scale", "scale", "Every interval of the mode"),
+    ...fam("relative-modes"),
+    ...fam("mode-intervals"),
     ...fam("staff"),
     ...fam("melody"),
   ];
   // a family without a subsection comes first in its section, above the first subsection heading
   out.push(...fam("chord-shapes"));
-  out.push(entry({ kind: "section", section: "chords", key }, "chords", "The chord on every note of the scale", ["chords", "chord", "every", "diatonic", "in", "key"], "In the key"));
-  out.push(...panel("triads", "chords", "One chord in three inversions", "In the key"));
-  out.push(...panel("arpeggios", "chords", "The chords note by note", "In the key"));
+  out.push(...fam("key-chords"));
+  out.push(...fam("triads"));
   out.push(...fam("arpeggio"));
-  out.push(...panel("progressions", "chords", "Common progressions in the key", "In the key"));
-  for (let degree = 0; degree < 7; degree++) out.push(entry({ kind: "bubble", key, degree }, "chords", "Circle diagram", ["sus", "extensions", "extension", "bubble", "bubbles", Object.keys(ROMAN)[degree]], "Sus & extensions"));
+  out.push(...fam("progressions"));
+  out.push(...fam("chord-circle"));
   out.push(...fam("caged"));
-  out.push(...panel("caged", "caged", "The five shapes, compact", "The whole neck"));
-  out.push(...panel("circle", "theory", "Keys and their neighbours"));
-  out.push(...panel("keys", "theory", "The scale on a piano"));
-  out.push(...panel("improv", "theory", "What to play over the key"));
-  out.push(...panel("tunings", "theory", "Open and alternate tunings"));
-  for (const id of FULL_PAGES) {
-    if (has(id)) out.push(entry({ kind: "plugin", plugin: id, full: true, key }, "pages", "The whole page, as on the cheatsheet", ["page", "full", "cheatsheet", ...(PLUGIN_WORDS[id] ?? [])]));
-  }
+  out.push(...fam("circle-of-fifths"));
+  out.push(...fam("piano-keys"));
+  out.push(...fam("improvisation"));
+  out.push(...fam("tunings"));
+  for (const id of PRACTICE_IDS) out.push(...fam(id));
   out.push(entry({ kind: "text", text: "" }, "text", "Words between the widgets: headings and paragraphs", ["text", "words", "note", "paragraph", "heading", "title", "write", "article"]));
   out.push(entry({ kind: "headphones" }, "text", "A notice for notes that listen with the microphone", ["headphones", "headphone", "notice", "disclaimer", "warning", "microphone", "mic", "speakers"]));
   out.push(entry({ kind: "logo" }, "brand", "The attunr wordmark", ["logo", "brand", "wordmark", "attunr"]));
@@ -196,7 +185,7 @@ export function groupResults(results: PaletteResult[], ranked = false): { group:
  * tuner), Scale, Chords, CAGED, Theory, the cheatsheet pages in full, Brand, then the camera and screen share. All in the master key.
  */
 export function paletteCatalog(pluginIds: string[], stageKey: KeyChoice, media: MediaState = NO_MEDIA): PaletteResult[] {
-  const out = entries(pluginIds, stageKey).map((e) => e.result);
+  const out = entries(stageKey).map((e) => e.result);
   out.push(...COMMANDS.filter((c) => c.command !== "clear" && c.applies(media)).map(commandResult));
   return groupResults(out).flatMap((g) => g.results);
 }
@@ -284,7 +273,7 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
   const pent = p.rest.some((w) => w === "pent" || w === "pentatonic");
   // a pentatonic with no major/minor word is the minor one, the one guitarists mean
   const key = keyFor(p, pent ? 5 : 0) ?? modeOnStage(p, stageKey);
-  const all = entries(pluginIds, key ?? stageKey, true);
+  const all = entries(key ?? stageKey, true);
   let found: Entry[];
   // only a key or a mode ("a dorian", "ionian"): the families that take it, one row each, in it
   const keyOnly = p.shapes.length === 0 && p.rest.length === 0;

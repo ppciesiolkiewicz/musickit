@@ -56,6 +56,17 @@ export function transposeTool(tool: PlanTool, by: number): PlanTool {
     case "position-neck":
       return { ...tool, key: pc(tool.key + d), ...(tool.add ? { add: tool.add.map((a) => pc(a + d)) } : {}) };
     case "staff":
+    case "relative-modes":
+    case "mode-intervals":
+    case "key-chords":
+    case "triads":
+    case "progressions":
+    case "circle-of-fifths":
+    case "piano-keys":
+    case "improvisation":
+    case "tunings":
+    case "chord-circle":
+    case "caged-neck":
     case "backing-band":
     case "backing-track":
     case "melody-singer":

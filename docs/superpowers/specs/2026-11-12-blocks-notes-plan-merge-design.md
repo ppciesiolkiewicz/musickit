@@ -1,6 +1,6 @@
 # Blocks: one format for notes and plan exercises (design)
 
-Status: waiting for approval. Nothing is built.
+Status: approved. Plan 1 (the block format) is built and merged. Plans 2 (the reader) and 3 (new tools and one family table) are built on `worktree-blocks-notes-plan-merge`; plans 4–6 (block editor and notes creator, plan edited in place, WebMCP block tools) are to come.
 
 ## Why
 

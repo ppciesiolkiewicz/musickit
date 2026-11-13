@@ -1,11 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { sanitiseStage } from "./layers";
 import { EMPTY_KEY, type KeyChoice } from "@/features/creator/model/key";
 import { TOOLS, type PlanTool } from "@/features/plan/model/tools";
 import { defaultRect } from "./layers";
 import { FAMILIES } from "./families";
 import { paletteCatalog } from "./search";
-import { followMaster, parseText, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, takesMic, withMaster, withOwnKey, type Subject } from "./subject";
+import { fillsColumn, followMaster, parseText, pinAgainst, sanitiseSubject, subjectIdentity, subjectTitle, takesMic, withMaster, withOwnKey, type Subject } from "./subject";
 import { STAGE_TOOLS, toolKey, withToolKey } from "./toolKey";
 
 test("a melody keeps a whole number of beats across from 2 to 16", () => {
@@ -50,13 +51,12 @@ test("a tool subject holds the parsed plan tool", () => {
   assert.deepEqual(sanitiseSubject({ kind: "tool", tool: pent, pinned: ["scale"] }, ids), { kind: "tool", tool: pent });
 });
 
-test("a tool that can't be shown, or that a stage doesn't hold, is not a subject", () => {
+test("a tool that can't be shown is not a subject; a stage holds every tool", () => {
   assert.equal(sanitiseSubject({ kind: "tool", tool: { ...pent, scale: "no-such-scale" } }, ids), null);
   assert.equal(sanitiseSubject({ kind: "tool", tool: { type: "no-such-tool", key: 9 } }, ids), null);
-  assert.equal(sanitiseSubject({ kind: "tool", tool: { type: "note-finder", query: "" } }, ids), null);
   assert.equal(sanitiseSubject({ kind: "tool" }, ids), null);
   assert.equal(sanitiseSubject({ kind: "tool", tool: "scale-neck" }, ids), null);
-  assert.deepEqual(STAGE_TOOLS, ["scale-neck", "position-neck", "arpeggio-neck", "chord-shapes", "staff", "melody-singer", "run-singer", "backing-track"]);
+  assert.deepEqual(STAGE_TOOLS, Object.keys(TOOLS));
 });
 
 test("the master moves an unpinned tool's key, never a pinned one's, never its scale", () => {
@@ -148,62 +148,42 @@ test("a tool's default place: wide necks 0.6 Ã— 0.5 of the frame, the rest 0.4 Ã
   assert.deepEqual(size({ kind: "tool", tool: { type: "chord-shapes", chords: ["Am"] } }), [0.4, 0.4]);
 });
 
-test("every older subject kind loads as it was saved", () => {
+test("every subject kind loads as it was saved", () => {
   const key: KeyChoice = { tonicPc: 9, family: 0, mode: 5 };
   const old: Subject[] = [
     { kind: "chord", symbol: "Am7" },
-    { kind: "plugin", plugin: "scale", key },
-    { kind: "plugin", plugin: "modes", full: true, key, pinned: ["scale"] },
-    { kind: "position", positionKind: "pentatonic", index: 1, key },
-    { kind: "position", positionKind: "3nps", index: 6, key, pinned: ["tonic", "scale"] },
     { kind: "band", key },
-    { kind: "section", section: "relatives", key },
-    { kind: "bubble", degree: 3, key },
-    { kind: "neck", key: EMPTY_KEY },
-    { kind: "caged", shape: "E", key },
-    { kind: "caged", shape: null, key, pinned: ["tonic"] },
     { kind: "key" }, { kind: "tuner" }, { kind: "mic" }, { kind: "logo" }, { kind: "url" }, { kind: "camera" }, { kind: "screen" },
     { kind: "melody", beats: 8 }, { kind: "melody" }, { kind: "countdown" }, { kind: "intro" }, { kind: "progress" }, { kind: "next" },
   ];
   for (const s of old) assert.deepEqual(sanitiseSubject(JSON.parse(JSON.stringify(s)), ids), s, s.kind);
 });
 
-test("CAGED shapes: several letters in CAGED order, deduped, unknown dropped, empty falls back to shape", () => {
+test("a removed subject is dropped on load; the stage keeps the rest", () => {
   const key: KeyChoice = { tonicPc: 9, family: 0, mode: 5 };
-  const clean = (o: object) => sanitiseSubject({ kind: "caged", key, ...o }, ids);
-  assert.deepEqual(clean({ shape: null, shapes: ["E", "A"] }), { kind: "caged", shape: null, shapes: ["A", "E"], key });
-  assert.deepEqual(clean({ shape: null, shapes: ["E", "x", "E", "C"] }), { kind: "caged", shape: null, shapes: ["C", "E"], key });
-  assert.deepEqual(clean({ shape: "G", shapes: [] }), { kind: "caged", shape: "G", key });
-  assert.deepEqual(clean({ shape: "G", shapes: ["z"] }), { kind: "caged", shape: "G", key });
-  assert.deepEqual(clean({ shape: "E" }), { kind: "caged", shape: "E", key });
+  for (const old of [
+    { kind: "caged", shape: "E", key },
+    { kind: "plugin", plugin: "circle", key },
+    { kind: "section", section: "chords", key },
+    { kind: "bubble", degree: 3, key },
+    { kind: "neck", key },
+    { kind: "position", positionKind: "pentatonic", index: 1, key },
+    { kind: "arpeggio", key, degree: 4, type: "seventh" },
+  ]) assert.equal(sanitiseSubject(old, ids), null, old.kind);
+  const stage = sanitiseStage({ layers: [
+    { id: "a", subject: { kind: "caged", shape: "E", key }, rect: { x: 0, y: 0, w: 0.5, h: 0.5 }, visible: true, z: 0 },
+    { id: "b", subject: { kind: "plugin", plugin: "circle", key }, rect: { x: 0, y: 0, w: 0.5, h: 0.5 }, visible: true, z: 1 },
+    { id: "c", subject: { kind: "tool", tool: { type: "triads", key: 9, scale: "natural-minor-aeolian" } }, rect: { x: 0, y: 0, w: 0.5, h: 0.5 }, visible: true, z: 2 },
+  ] }, ids);
+  assert.deepEqual(stage.layers.map((l) => l.id), ["c"]);
 });
 
-test("CAGED shapes: the name lists the letters, the identity ignores the key and keeps the shapes", () => {
-  const key: KeyChoice = { tonicPc: 9, family: 0, mode: 5 };
-  const two: Subject = { kind: "caged", shape: null, shapes: ["A", "E"], key };
+test("a CAGED widget saves its shapes; the identity ignores the key and keeps the shapes", () => {
+  const two: Subject = { kind: "tool", tool: { type: "caged-neck", key: 9, scale: "natural-minor-aeolian", shapes: ["A", "E"] } };
+  assert.deepEqual(sanitiseSubject(JSON.parse(JSON.stringify(two)), ids), two);
   assert.match(subjectTitle(two), /A, E/);
-  const one: Subject = { kind: "caged", shape: "E", key };
-  assert.doesNotMatch(subjectTitle(one), /A, E/);
-  assert.equal(subjectIdentity(two), subjectIdentity({ ...two, key: EMPTY_KEY }));
-  assert.notEqual(subjectIdentity(two), subjectIdentity({ ...two, shapes: ["A", "D"] }));
-  assert.notEqual(subjectIdentity(two), subjectIdentity({ kind: "caged", shape: null, key }));
-});
-
-test("an arpeggio widget follows the master, pins, saves and takes the audio input", () => {
-  const arp: Subject = { kind: "arpeggio", key: { tonicPc: 0, family: 0, mode: 0 }, degree: 4, type: "seventh", neck: true, roots: [6, 5] };
-  const dorian = { tonicPc: 2, family: 0, mode: 1 };
-  assert.deepEqual(withMaster(arp, dorian), { ...arp, key: dorian });
-  assert.deepEqual(withMaster({ ...arp, pinned: ["scale"] }, dorian), { ...arp, pinned: ["scale"], key: { tonicPc: 2, family: 0, mode: 0 } });
-  assert.deepEqual(sanitiseSubject(arp, ids), arp);
-  assert.equal(takesMic(arp), true);
-  // what can't be drawn is dropped
-  assert.equal(sanitiseSubject({ ...arp, degree: 7 }, ids), null);
-  assert.equal(sanitiseSubject({ ...arp, type: "nope" }, ids), null);
-  // only real root strings stay; none left is all of them
-  assert.deepEqual(sanitiseSubject({ ...arp, roots: [1, 5, "x"] }, ids), { ...arp, roots: [5] });
-  assert.equal("roots" in sanitiseSubject({ ...arp, roots: [1] }, ids)!, false);
-  // hiding the positions needs the neck to show
-  assert.equal("positions" in sanitiseSubject({ kind: "arpeggio", key: arp.key, degree: 0, type: "triad", positions: false }, ids)!, false);
+  assert.equal(subjectIdentity(two), subjectIdentity({ kind: "tool", tool: { type: "caged-neck", key: 2, scale: "natural-minor-aeolian", shapes: ["A", "E"] } }));
+  assert.notEqual(subjectIdentity(two), subjectIdentity({ kind: "tool", tool: { type: "caged-neck", key: 9, scale: "natural-minor-aeolian", shapes: ["A", "D"] } }));
 });
 
 test("a text widget keeps its words, cut at the limit, and has a title", () => {
@@ -245,4 +225,15 @@ test("the palette offers a text widget once, in its own section", () => {
   const rows = paletteCatalog([], EMPTY_KEY, { camera: "off", screen: "off" } as never).filter((r) => r.action.type === "add" && r.action.subject.kind === "text");
   assert.equal(rows.length, 1);
   assert.equal(rows[0].group, "text");
+});
+
+test("final: in an article a neck, a tune, a backing track and a video take the whole column", () => {
+  const tool = (t: Record<string, unknown>): Subject => ({ kind: "tool", tool: t as never });
+  assert.ok(fillsColumn(tool({ type: "scale-neck", scale: "natural-minor-aeolian", key: 9, neck: true, positions: false })));
+  assert.ok(fillsColumn(tool({ type: "position-neck", scale: "major-ionian", key: 0 })));
+  assert.ok(fillsColumn(tool({ type: "caged-neck", key: 0, scale: "major-ionian" })));
+  assert.ok(fillsColumn(tool({ type: "backing-track", key: 0, progression: "aeolian" })));
+  assert.ok(fillsColumn({ kind: "video", video: { source: "placeholder" } } as Subject));
+  assert.ok(!fillsColumn(tool({ type: "chord-shapes", chords: ["G"] })));
+  assert.ok(!fillsColumn({ kind: "chord", symbol: "G" }));
 });

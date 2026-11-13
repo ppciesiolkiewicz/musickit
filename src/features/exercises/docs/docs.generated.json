@@ -57,6 +57,18 @@
         "type": "\"muted\" | \"hidden\"",
         "required": false,
         "description": "the notes not in `enable`: \"muted\" (default) or \"hidden\""
+      },
+      {
+        "name": "show",
+        "type": "(\"neck\" | \"positions\")[]",
+        "required": false,
+        "description": "the arpeggio as the arpeggios page draws it, instead of the box: [\"neck\"] for every note on the whole neck,\n[\"positions\"] for the positions it falls into, or both. For a triad or a 7th chord (\"Am\", \"G7\", \"Cmaj7\", \"Bm7b5\");\n`boxes`, `placement`, `part` and the marks apply to the box only"
+      },
+      {
+        "name": "roots",
+        "type": "number[]",
+        "required": false,
+        "description": "with `show`: the strings the root is shown on, 2 to 6 (6 is the low E): [6, 5]; absent: all of them"
       }
     ]
   },
@@ -233,6 +245,56 @@
     ]
   },
   {
+    "name": "caged-neck",
+    "kind": "basic",
+    "description": "The CAGED shapes of the key's chord on the guitar neck (the minor shapes when the scale has a minor 3rd): with `shapes`, those shapes one under another, each with its chord, arpeggio, pentatonic and scale; without, all five on the whole neck. Use it for how the five shapes join up the neck.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
+      },
+      {
+        "name": "shapes",
+        "type": "string[]",
+        "required": false,
+        "description": "the shapes to show, from \"C\", \"A\", \"G\", \"E\", \"D\"; absent: all five on the whole neck"
+      }
+    ]
+  },
+  {
+    "name": "chord-circle",
+    "kind": "basic",
+    "description": "One chord of the key in the middle, with its sus and extended chords around it (sus2, sus4, add9, 7th, 9th); tap one to hear it. Use it to show what a chord can turn into while it still fits the key.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
+      },
+      {
+        "name": "degree",
+        "type": "number",
+        "required": false,
+        "description": "the chord in the middle: the note of the scale it is built on, 1 to 7 (1 is the key's own chord); absent: 1"
+      }
+    ]
+  },
+  {
     "name": "chord-shapes",
     "kind": "basic",
     "description": "One chord diagram per chord, in order, with the finger that frets each note on its dot (a switch shows intervals\ninstead); tap a diagram to strum it. Show a fingering with this, never describe it in text.",
@@ -291,6 +353,25 @@
         "type": "string[]",
         "required": false,
         "description": "cue text per step, in order; missing ones get a default cue on a box change"
+      }
+    ]
+  },
+  {
+    "name": "circle-of-fifths",
+    "kind": "basic",
+    "description": "The circle of fifths, majors outside and their relative minors inside, with the key's neighbours marked: the keys next to it are the chords of the key. Tapping a key on the circle moves the panel there. Use it for how keys are related and why some keys share most of their chords.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
       }
     ]
   },
@@ -383,6 +464,25 @@
         "type": "\"chords\" | \"drone\" | \"none\"",
         "required": false,
         "description": "what sounds under the steps besides the click when the shape has no comping `backing`: \"chords\" (each chord held; the default when the steps are single notes over chords), \"drone\" (the key's root held; the shape's key, else the first chord's root) or \"none\""
+      }
+    ]
+  },
+  {
+    "name": "improvisation",
+    "kind": "basic",
+    "description": "Ideas to improvise with in the key: a rhythm made from two counts against each other, and one short motive turned round, written in the key's notes. Use it to give a student something to make up lines from, next to a backing-track or a drone.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
       }
     ]
   },
@@ -481,6 +581,25 @@
         "type": "boolean",
         "required": false,
         "description": "show the Keys switch and the twelve key chips on the tool, so the student picks the keys; default false: the keys are the ones set here, and a choice with `key` options on the section is how the student changes key"
+      }
+    ]
+  },
+  {
+    "name": "key-chords",
+    "kind": "basic",
+    "description": "The chord on every note of the scale, with its numeral; tap a chord to hear it. Use it for the chords of a key as a set; triads for one chord's shapes on the guitar.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
       }
     ]
   },
@@ -633,6 +752,25 @@
     ]
   },
   {
+    "name": "mode-intervals",
+    "kind": "basic",
+    "description": "The notes of the key on one panel: spelled, numbered from the root and coloured by degree, with the step pattern and what the mode is used for. Use it beside a scale-neck to show what sets a mode apart (the ♭3 of Dorian, the ♯4 of Lydian).",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
+      }
+    ]
+  },
+  {
     "name": "note-finder",
     "kind": "basic",
     "description": "A game to find notes on the fretboard: find a named note, play every note, or name the note shown.",
@@ -666,6 +804,25 @@
         "type": "number",
         "required": false,
         "description": "last fret of the range, 0-24"
+      }
+    ]
+  },
+  {
+    "name": "piano-keys",
+    "kind": "basic",
+    "description": "A piano keyboard with the key's notes marked in their degree colours; tap a key to hear it. Use it to show a scale's notes laid out in a row, apart from the guitar.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
       }
     ]
   },
@@ -730,10 +887,16 @@
         "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
       },
       {
+        "name": "kind",
+        "type": "\"3nps\"",
+        "required": false,
+        "description": "\"3nps\" for the scale's seven 3-notes-per-string positions, one framed at a time (`positions` holds one, 1 to 7; no `cross`, no `placement`); absent: the scale's own five positions"
+      },
+      {
         "name": "positions",
         "type": "number[]",
         "required": false,
-        "description": "the positions framed (1-based, 1 to 5); absent: position 1, or the two in `cross`"
+        "description": "the positions framed (1-based, 1 to 5; with `kind` \"3nps\", one of 1 to 7); absent: position 1, or the two in `cross`"
       },
       {
         "name": "placement",
@@ -867,6 +1030,44 @@
         "type": "Place[]",
         "required": false,
         "description": "box and part per chord, in order: [{ \"box\": 1, \"part\": \"lower\" }]"
+      }
+    ]
+  },
+  {
+    "name": "progressions",
+    "kind": "basic",
+    "description": "Common chord progressions that suit the key's mode, written as chords in the key; tap one to hear it. Use it to show which progressions a mode is heard in, not to play along (backing-track does that).",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
+      }
+    ]
+  },
+  {
+    "name": "relative-modes",
+    "kind": "basic",
+    "description": "The modes that share the key's notes, each starting from another note of the scale. Tap one to see the same notes from its own root. Use it to show that a mode is the key's notes heard from a new home note; it has nothing to play along with.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
       }
     ]
   },
@@ -1203,6 +1404,44 @@
         "type": "string",
         "required": false,
         "description": "one bar of strokes, the same every bar: D down, U up, . a miss (the hand moves, no strings); 1-4 strokes a beat, the\nsame count in every beat, so beats × 1, 2, 3 or 4 strokes. \"D D D D\" downs on the beat, \"D U D U D U D U\" eighths,\n\"D . D U . U D U\" the island strum, \"D . . U . U D U D . . U . U D U\" sixteenths; default a down on every beat"
+      }
+    ]
+  },
+  {
+    "name": "triads",
+    "kind": "basic",
+    "description": "One chord of the key as a triad in its three inversions on one group of three strings; the student picks the chord and the string group on the tool. Use it for triad shapes on the guitar; key-chords for the chords of a key as a set.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
+      }
+    ]
+  },
+  {
+    "name": "tunings",
+    "kind": "basic",
+    "description": "An instrument's tuning, string by string, with the open strings that are notes of the key lit, since they ring freely in it; the student picks the instrument and the tuning on the tool. Use it for open and alternate tunings.",
+    "props": [
+      {
+        "name": "key",
+        "type": "string",
+        "required": true,
+        "description": "the key's root note: \"c\", \"f-sharp\", \"b-flat\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": true,
+        "description": "scale slug, e.g. \"major-ionian\", \"dorian\", \"natural-minor-aeolian\"; a pentatonic or blues slug is drawn in the major or minor scale it comes from"
       }
     ]
   },

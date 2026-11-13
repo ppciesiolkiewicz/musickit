@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
-import { SectionAsideContext, type SectionAside } from "@/features/plan/ui/SectionAside";
+import { CellAsideContext, type CellAside } from "@/features/plan/ui/reader/aside";
 import type { PlainCell as Section } from "@/features/plan/model/tools";
 import { pinSection, quoteOf, sectionHash, sectionText } from "../model/comments";
 import { placeOf, stateOf, type CopyNote } from "../model/copyNotes";
@@ -74,9 +74,9 @@ function CommentSlot({ example, address, index, section }: { example: string; ad
 
 /** Makes every section rendered inside commentable, the comments belonging to `example`. */
 export function CommentsFor({ example, children }: { example: string; children: ReactNode }) {
-  // called as a function by Sections (not mounted as a component): the slot it returns is the component
-  const aside = useMemo<SectionAside>(() => (at) => <CommentSlot example={example} {...at} />, [example]); // eslint-disable-line react/display-name -- a render function, not a component
-  return <SectionAsideContext.Provider value={aside}>{children}</SectionAsideContext.Provider>;
+  // called as a function by the block reader (not mounted as a component): the slot it returns is the component
+  const aside = useMemo<CellAside>(() => (at) => <CommentSlot example={example} {...at} />, [example]); // eslint-disable-line react/display-name -- a render function, not a component
+  return <CellAsideContext.Provider value={aside}>{children}</CellAsideContext.Provider>;
 }
 
 /** How many notes an example has, for its closed card. */

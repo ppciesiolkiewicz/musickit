@@ -3,12 +3,11 @@
 import { useState } from "react";
 import Icon from "@/components/Icon";
 import { HUE_TONES, Popover, StarRating, hueAt, type Hue } from "@/components/ui";
-import { DISPLAY } from "@/components/landing/Display";
-import Cells from "./Cells";
+import { BlockBody, BlockTitle } from "./reader/BlockArticle";
 import { ExerciseSettings } from "@/components/practice/exerciseSettings";
 import { catalogue, linkLabel, type CatalogueEntry } from "../model/catalogue";
 import { hashtagLine } from "../model/hashtags";
-import type { PlanExercise } from "../model/types";
+import type { Block, PlanExercise } from "../model/types";
 import { STARS, STAR_LABELS, isStars, type Stars } from "@/features/progress/stars";
 
 /** The left edge of the i-th exercise, written out whole so Tailwind sees it. */
@@ -42,7 +41,7 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
 
 /**
  * One exercise as the player sees it: a card coloured by its place in the day (`index`), the title in the display face,
- * its hashtags (area, level, kind) small and muted after it, "Learn before" links, its cells (text, steps and tools, set
+ * its hashtags (area, level, kind) small and muted after it, "Learn before" links, its block read by the reader (`BlockBody`) (text, steps and tools, set
  * up and ready to play), why, "Explore more" links, and the stars that rate it (and mark it done) when `onRate` is given.
  * `now` (the card in view while the day timer runs) only lifts the card a little: the timer is a guide, not a rule. With
  * `spent`, the planned minutes become `SpentTime`: time on it so far of the time planned, with a bar that fills to green.
@@ -52,10 +51,12 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   /** seconds spent on it so far; without it only the planned minutes show */ spent?: number;
   /** how the player rated it; null when not rated */ rating?: Stars | null;
   /** rate it (or clear the rating with null); without it the card has no stars */ onRate?: (stars: Stars | null) => void;
-  /** which exercise, for a `SectionAside` */ address?: string;
+  /** which exercise, for a `CellAside` */ address?: string;
 }) {
   const hue = hueAt(index);
   const tags = hashtagLine(e);
+  // the reader gets the block alone, never what the plan knows about it
+  const block: Block = { title: e.title, ...(e.choice ? { choice: e.choice } : {}), cells: e.cells };
   return (
     <section
       data-tour="plan-exercise"
@@ -65,14 +66,14 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-semibold tabular-nums ${HUE_TONES[hue].disc[1]}`}>{index + 1}</span>
-        <h3 className={`text-xl ${done ? "text-slate-400 line-through" : "text-slate-50"}`} style={DISPLAY}>{e.title}</h3>
+        <BlockTitle title={e.title} size="card" done={done} />
+        {tags && <span className="text-xs text-slate-500">{tags}</span>}
         {spent === undefined
           ? <span className="ml-auto flex items-center gap-1 text-xs text-slate-400"><Icon name="timer" size={12} />{e.minutes} min</span>
           : <SpentTime seconds={spent} minutes={e.minutes} />}
       </div>
-      {tags && <p className="text-xs text-slate-500 sm:pl-11">{tags}</p>}
       <LinkSlot title="Learn before" hrefs={e.learnBefore ?? []} />
-      <ExerciseSettings><Cells cells={e.cells} choice={e.choice} address={address} /></ExerciseSettings>
+      <ExerciseSettings><BlockBody block={block} size="card" address={address} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       <LinkSlot title="Explore more" hrefs={e.exploreMore ?? []} />
       {onRate && (

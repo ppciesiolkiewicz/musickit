@@ -1,4 +1,6 @@
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
+import { CAGED_LETTERS, type CagedLetter } from "@/lib/chordKit/caged";
+import { arpTypeOf } from "@/lib/chordKit/arpeggios";
 import { degreeOfNumeral, stringGroupOf } from "@/lib/chordKit/scaleChords";
 import { parseKeySlug } from "@/features/theory/keySlug";
 import { findPentatonic } from "@/features/theory/pentatonics";
@@ -85,15 +87,25 @@ type Under = "chords" | "drone" | "none";
  * degree strings itself (`arpeggio-neck` `part`, `guitar-play-along` `enable` and `highlight`). A guitar-play-along keeps its checked shape, never events.
  */
 export type PlanTool = PlanToolProps & Pinned;
+
+/** The theory panels as tools: each draws one view of a key (`key` and `scale`, written as on `scale-neck`) and nothing else. */
+export const KEY_PANELS = ["relative-modes", "mode-intervals", "key-chords", "triads", "progressions", "circle-of-fifths", "piano-keys", "improvisation", "tunings"] as const;
+export type KeyPanelName = (typeof KEY_PANELS)[number];
+
 type PlanToolProps =
   | { type: "scale-neck"; scale: string; key: number; boxes?: number[]; /** the views drawn, with the marks on both (index.tsx `Boxes`); absent: the boxes alone, or `neck` / `positions` */ parts?: NeckParts; /** the scales page's guitar section (the studio's Scale widget): the whole neck above the boxes, no marks */ neck?: boolean; /** false: no boxes (the neck alone) */ positions?: boolean; /** pitch classes from outside the scale */ add?: number[]; placement?: Placement; /** degrees of the key (0-based) found as triads in the positions */ chords?: number[]; /** "321", "432", "543", "654"; absent: "321" */ chordStrings?: string } & Marks
-  | { type: "position-neck"; scale: string; key: number; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
+  | { type: "position-neck"; scale: string; key: number; /** "3nps": the scale's seven 3-notes-per-string positions, one at a time; absent: its own five */ kind?: "3nps"; positions?: number[]; placement?: Placement; /** strings 1-6, 6 = low E */ cross?: { from: number; to: number; string?: number }; add?: number[]; outside?: "muted" | "hidden"; picker?: boolean } & Marks
+  | { type: KeyPanelName; key: number; scale: string }
+  /** the chord on `degree` (1-7) of the scale, with its sus and extended chords around it */
+  | { type: "chord-circle"; key: number; scale: string; degree: number }
+  /** the CAGED shapes of the key's major or minor chord: `shapes` stacked in CAGED order; absent: all five on the whole neck */
+  | { type: "caged-neck"; key: number; scale: string; shapes?: CagedLetter[] }
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
   | { type: "backing-band"; bpm: number; key: number; /** the parts offered and how; never empty */ parts: BandParts }
   | { type: "note-finder"; level?: ToolLevel; query: string }
   | { type: "interval-ears"; query: string; level?: ToolLevel; /** intervals may span more than an octave */ wide?: boolean }
-  | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement } & Marks
+  | { type: "arpeggio-neck"; chord: string; boxes?: number[]; part?: Degree[]; placement?: Placement; /** the arpeggios page's views instead of the box: the whole neck and/or its positions */ show?: NeckPart[]; /** with `show`: the root strings shown, 2-6 (6 = low E); absent: all */ roots?: number[] } & Marks
   | { type: "melody-singer"; tune: number; key: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "run-singer"; run: number; voice?: Voice; chords?: false; metronome?: true }
   | { type: "string-singer"; drill?: StringDrill; level?: ToolLevel; metronome?: false }
@@ -311,10 +323,21 @@ const crossOf = (v: unknown): { from: number; to: number; string?: number } | nu
   return from !== null && to !== null && from !== to ? { from, to, ...(string !== null ? { string } : {}) } : null;
 };
 
+/** position-neck in 3 notes per string: one position of seven, framed on the whole neck; no crossing, no placement. */
+const threeNps = (t: Record<string, unknown>, d: Diag, scale: string, key: number): PlanTool => {
+  const asked = list(t.positions);
+  if (asked.length > 1) d.notes.push("shows one position at a time in 3nps; kept the first.");
+  const at = asked.length ? intOr(d, "positions", asked[0], 1, 7, 1) : 1;
+  if (t.cross != null) d.notes.push("dropped cross (3nps shows one position).");
+  return { type: "position-neck", scale, key, kind: "3nps", positions: [at], ...opt("add", addOf(t, d)), ...bool("picker", t.picker), ...marksOf(t, key, d) };
+};
+
 const positionNeck = (t: Record<string, unknown>, d: Diag): PlanTool | null => {
   const sk = scaleKey(t, d);
   if (!sk) return null;
   const { scale, key } = sk;
+  if (t.kind != null && t.kind !== "3nps") d.notes.push(`dropped kind ${JSON.stringify(t.kind)?.slice(0, 20)} (only "3nps").`);
+  if (t.kind === "3nps") return threeNps(t, d, scale, key);
   const add = addOf(t, d);
   const cross = crossOf(t.cross);
   const positions = boxesOf(t.positions, d, "positions");
@@ -390,7 +413,45 @@ const voiceOrTenor = (d: Diag, v: unknown): Voice => {
   return voice ?? "tenor";
 };
 
+/** A key panel: its scale and key, nothing else. */
+const keyPanel = (type: KeyPanelName): ToolSpec => ({ parse: (t, d) => { const sk = scaleKey(t, d); return sk && { type, ...sk }; } });
+
+/** CAGED letters, in CAGED order, each once; unknown ones are noted. */
+const shapesOf = (v: unknown, d: Diag): CagedLetter[] => {
+  const asked = list(v).map(String);
+  const bad = asked.filter((l) => !(CAGED_LETTERS as readonly string[]).includes(l));
+  if (bad.length) d.notes.push(`dropped shapes ${JSON.stringify(bad).slice(0, 40)} (use C, A, G, E or D).`);
+  return CAGED_LETTERS.filter((l) => asked.includes(l));
+};
+
+/** arpeggio-neck's `show` and `roots`: only for a chord the arpeggios page can draw (`arpTypeOf`). */
+const arpViews = (t: Record<string, unknown>, chord: string, d: Diag): { show?: NeckPart[]; roots?: number[] } => {
+  const show = list(t.show).filter((v): v is NeckPart => NECK_PARTS.includes(v as NeckPart));
+  if (!show.length) return {};
+  if (!arpTypeOf(chord)) {
+    d.notes.push(`dropped show (the arpeggios page has no ${chord} arpeggio); drew the box.`);
+    return {};
+  }
+  const asked = list(t.roots);
+  const roots = [...new Set(asked.map((r) => int(r, 2, 6)).filter((r): r is number => r !== null))].sort((a, b) => b - a);
+  if (roots.length < asked.length) d.notes.push("dropped roots outside 2-6 (6 is the low E).");
+  return { show: NECK_PARTS.filter((p) => show.includes(p)).reverse(), ...opt("roots", roots) };
+};
+
 const PARSERS: { [N in ToolName]: ToolSpec } = {
+  ...(Object.fromEntries(KEY_PANELS.map((n) => [n, keyPanel(n)])) as { [N in KeyPanelName]: ToolSpec }),
+  "chord-circle": {
+    parse(t, d) {
+      const sk = scaleKey(t, d);
+      return sk && { type: "chord-circle", ...sk, degree: intOr(d, "degree", t.degree, 1, 7, 1, true) };
+    },
+  },
+  "caged-neck": {
+    parse(t, d) {
+      const sk = scaleKey(t, d);
+      return sk && { type: "caged-neck", ...sk, ...opt("shapes", shapesOf(t.shapes, d)) };
+    },
+  },
   "scale-neck": { parse: scaleNeck },
   "position-neck": { parse: positionNeck },
   "chord-shapes": {
@@ -434,7 +495,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       if (!isChord(t.chord)) return no(d, bad("chord", t.chord));
       const boxes = boxesOf(t.boxes, d).slice(0, 2);
       lost(d, "part", t.part, degreeSemis);
-      return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxes), ...opt("part", degreeStrings(t.part)), ...placementOf(t, boxes), ...marksOf(t, parseChordQuery(t.chord)!.rootPc, d) };
+      return { type: "arpeggio-neck", chord: t.chord, ...opt("boxes", boxes), ...opt("part", degreeStrings(t.part)), ...placementOf(t, boxes), ...arpViews(t, t.chord, d), ...marksOf(t, parseChordQuery(t.chord)!.rootPc, d) };
     },
   },
   "melody-singer": { parse: (t, d) => singer(t, d, "tune", isTuneId, BOOK) },

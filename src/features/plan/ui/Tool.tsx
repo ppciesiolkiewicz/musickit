@@ -21,6 +21,17 @@ import { View as FingerPattern } from "@/features/exercises/basics/finger-patter
 import { View as LegatoTrill } from "@/features/exercises/basics/legato-trill";
 import { View as PickingDrill } from "@/features/exercises/basics/picking-drill";
 import { View as Video } from "@/features/exercises/basics/video";
+import { View as RelativeModes } from "@/features/exercises/basics/relative-modes";
+import { View as ModeIntervals } from "@/features/exercises/basics/mode-intervals";
+import { View as KeyChords } from "@/features/exercises/basics/key-chords";
+import { View as Triads } from "@/features/exercises/basics/triads";
+import { View as Progressions } from "@/features/exercises/basics/progressions";
+import { View as CircleOfFifths } from "@/features/exercises/basics/circle-of-fifths";
+import { View as PianoKeys } from "@/features/exercises/basics/piano-keys";
+import { View as Improvisation } from "@/features/exercises/basics/improvisation";
+import { View as Tunings } from "@/features/exercises/basics/tunings";
+import { View as ChordCircle } from "@/features/exercises/basics/chord-circle";
+import { View as CagedNeck } from "@/features/exercises/basics/caged-neck";
 import type { PlanTool } from "../model/tools";
 import type { Voice } from "@/features/theory/singing";
 import type { ExternalInput } from "@/features/tuner";
@@ -54,7 +65,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "scale-neck":
       return <ScaleNeck slug={tool.scale} pc={tool.key} boxes={tool.boxes} parts={tool.parts} neck={tool.neck} positions={tool.positions} placement={tool.placement} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} chords={tool.chords} chordStrings={tool.chordStrings} />;
     case "position-neck":
-      return <PositionNeck slug={tool.scale} pc={tool.key} positions={tool.positions} placement={tool.placement} cross={tool.cross} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} outside={tool.outside} picker={tool.picker} />;
+      return <PositionNeck slug={tool.scale} pc={tool.key} kind={tool.kind} positions={tool.positions} placement={tool.placement} cross={tool.cross} add={tool.add} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} outside={tool.outside} picker={tool.picker} />;
     case "chord-shapes":
       return <ChordShapes chords={tool.chords} voicing={tool.voicing} />;
     case "staff":
@@ -66,7 +77,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "interval-ears":
       return <IntervalEars query={tool.query} />;
     case "arpeggio-neck":
-      return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} placement={tool.placement} part={tool.part} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} />;
+      return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} placement={tool.placement} part={tool.part} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} show={tool.show} roots={tool.roots} />;
     case "melody-singer":
       return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "run-singer":
@@ -93,6 +104,28 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <FingerPattern fingers={tool.fingers} fret={tool.fret} strings={tool.strings} show={tool.show} bpm={tool.bpm} />;
     case "picking-drill":
       return <PickingDrill strokes={tool.strokes} notesPerString={tool.notesPerString} strings={tool.strings} skip={tool.skip} bpm={tool.bpm} />;
+    case "relative-modes":
+      return <RelativeModes pc={tool.key} scale={tool.scale} />;
+    case "mode-intervals":
+      return <ModeIntervals pc={tool.key} scale={tool.scale} />;
+    case "key-chords":
+      return <KeyChords pc={tool.key} scale={tool.scale} />;
+    case "triads":
+      return <Triads pc={tool.key} scale={tool.scale} />;
+    case "progressions":
+      return <Progressions pc={tool.key} scale={tool.scale} />;
+    case "circle-of-fifths":
+      return <CircleOfFifths pc={tool.key} scale={tool.scale} />;
+    case "piano-keys":
+      return <PianoKeys pc={tool.key} scale={tool.scale} />;
+    case "improvisation":
+      return <Improvisation pc={tool.key} scale={tool.scale} />;
+    case "tunings":
+      return <Tunings pc={tool.key} scale={tool.scale} />;
+    case "chord-circle":
+      return <ChordCircle pc={tool.key} scale={tool.scale} degree={tool.degree} />;
+    case "caged-neck":
+      return <CagedNeck pc={tool.key} scale={tool.scale} shapes={tool.shapes} />;
     case "legato-trill":
       return <LegatoTrill fingers={tool.fingers} string={tool.string} fret={tool.fret} bpm={tool.bpm} />;
   }

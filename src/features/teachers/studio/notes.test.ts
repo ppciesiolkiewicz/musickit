@@ -53,11 +53,11 @@ test("the tunes a preset note's text describes are still at their numbers in the
 
 test("a note's text is its key and its widgets in page order, and reads back as the same note", () => {
   const key = { tonicPc: 9, family: 0, mode: 5 };
-  const stage = noteOf([{ kind: "text", text: "## One" }, { kind: "neck", key }, { kind: "text", text: "Two" }], key);
+  const stage = noteOf([{ kind: "text", text: "## One" }, { kind: "band", key }, { kind: "text", text: "Two" }], key);
   // the page order is `order`, not the list's
   const moved = { ...stage, order: ["w3", "w1", "w2"] };
   const text = noteText(moved);
-  assert.deepEqual(JSON.parse(text), { key, widgets: [{ kind: "text", text: "Two" }, { kind: "text", text: "## One" }, { kind: "neck", key }] });
+  assert.deepEqual(JSON.parse(text), { key, widgets: [{ kind: "text", text: "Two" }, { kind: "text", text: "## One" }, { kind: "band", key }] });
   const back = readNoteText(text, []);
   assert.ok("stage" in back);
   assert.deepEqual(back.left, []);
@@ -91,5 +91,5 @@ test("a note's header is its opening title and the paragraph straight after it; 
   assert.deepEqual([headed.title, headed.intro, texts(headed.body)], ["T", null, ["## Section\n\nWords."]]);
   const only = noteHeader(noteOf([{ kind: "text", text: "# Just a title" }], key));
   assert.deepEqual([only.title, only.intro, texts(only.body)], ["Just a title", null, [""]]);
-  for (const s of [noteOf([{ kind: "text", text: "## A heading\n\n# Later" }], key), noteOf([{ kind: "neck", key }, { kind: "text", text: "# T" }], key), noteOf([], key)]) assert.deepEqual(noteHeader(s), { title: null, intro: null, body: s });
+  for (const s of [noteOf([{ kind: "text", text: "## A heading\n\n# Later" }], key), noteOf([{ kind: "band", key }, { kind: "text", text: "# T" }], key), noteOf([], key)]) assert.deepEqual(noteHeader(s), { title: null, intro: null, body: s });
 });

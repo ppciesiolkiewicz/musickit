@@ -11,5 +11,5 @@
 export { default as CreatorApp } from "./CreatorApp";
 export { useCreatorKey, CreatorKeyProvider, KeyScope } from "./KeyProvider";
 export { default as KeyBar } from "./KeyBar";
-export { EMPTY_KEY, keyContext, keyTitle, sanitiseKey, type KeyChoice } from "./model/key";
+export { EMPTY_KEY, keyChoiceFor, keyContext, keyTitle, sanitiseKey, type KeyChoice } from "./model/key";
 export { PLUGINS, type PluginDef } from "./plugins/registry";

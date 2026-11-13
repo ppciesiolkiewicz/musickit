@@ -61,6 +61,17 @@ export const KEYWORDS: Record<string, string[]> = {
   "finger-pattern": ["fingers", "finger pattern", "chromatic", "1234", "spider", "technique", "warm-up", "guitar"],
   "picking-drill": ["picking", "alternate picking", "pick", "strokes", "technique", "speed", "guitar"],
   "legato-trill": ["legato", "trill", "hammer-on", "pull-off", "fingers", "technique", "guitar"],
+  "relative-modes": ["modes", "relative", "same notes", "parent scale", "theory"],
+  "mode-intervals": ["intervals", "mode", "degrees", "notes of the key", "formula", "theory"],
+  "key-chords": ["chords", "diatonic", "numerals", "chords in the key", "harmony", "theory"],
+  "triads": ["triads", "inversions", "string sets", "chord shapes", "guitar"],
+  "progressions": ["progressions", "chords", "harmony", "numerals", "theory"],
+  "circle-of-fifths": ["circle of fifths", "keys", "key signature", "relative minor", "theory"],
+  "piano-keys": ["piano", "keyboard", "scale", "notes", "theory"],
+  "improvisation": ["improvise", "improvisation", "motive", "rhythm", "schillinger", "ideas"],
+  "tunings": ["tunings", "open tuning", "drop d", "strings", "guitar"],
+  "chord-circle": ["sus", "extensions", "add9", "chord", "bubble", "harmony"],
+  "caged-neck": ["caged", "shapes", "neck", "chords", "arpeggio", "guitar"],
 };
 
 /** Every word of the query is somewhere in the text: "sing interval" finds interval-singer. */
@@ -77,6 +88,8 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "scale-neck", name: "Chords inside A minor position 1 (G B e)", props: { scale: "natural-minor-aeolian", key: "a", boxes: [1], parts: { positions: "always", neck: "on" }, chords: ["i", "iv", "bVI", "bVII"] } },
   { tool: "scale-neck", name: "Chords inside C major position 2 (D G B)", props: { scale: "major-ionian", key: "c", boxes: [2], chords: ["I", "ii", "IV", "V", "vi"], chordStrings: "432" } },
   { tool: "position-neck", name: "Joining boxes: A minor pentatonic 1 & 2", props: { scale: "minor-pentatonic", key: "a", positions: [1, 2], highlight: ["1", "4", "5"] } },
+  { tool: "arpeggio-neck", name: "Am on the whole neck and its positions, roots on 6 and 5", props: { chord: "Am", show: ["neck", "positions"], roots: [6, 5] } },
+  { tool: "position-neck", name: "3 notes per string, C major position 3", props: { scale: "major-ionian", key: "c", kind: "3nps", positions: [3] } },
   { tool: "position-neck", name: "Crossing 1 → 2 (G string)", props: { scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2 }, highlight: ["4", "5"] } },
   { tool: "position-neck", name: "Crossing 1 → 2 on the B string", props: { scale: "minor-pentatonic", key: "a", cross: { from: 1, to: 2, string: 2 } } },
   { tool: "position-neck", name: "Crossing 2 → 3, others hidden", props: { scale: "minor-pentatonic", key: "a", cross: { from: 2, to: 3 }, outside: "hidden" } },
@@ -116,6 +129,18 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "backing-track", name: "Andalusian in E minor, bossa", props: { progression: "andalusian", key: "e", style: "bossa", bpm: 110 } },
   { tool: "guitar-play-along", name: "Am arpeggio 1-3-5, box 1 to box 2", props: { shape: { shape: "arpeggio-part", chords: ["Am"], degrees: ["1", "3", "5"], bars: 4, place: [{ box: 1, part: "lower" }, { box: 1, part: "upper" }, { box: 2, part: "lower" }, { box: 2, part: "upper" }] }, bpm: 70, view: "neck" } },
   { tool: "guitar-play-along", name: "C Am F G, 1-3 per chord", props: { shape: { shape: "arpeggio-part", chords: ["C", "Am", "F", "G"], degrees: ["1", "3"], bars: 4 }, bpm: 80 } },
+  { tool: "relative-modes", name: "A minor and its relatives", props: {"key": "a", "scale": "natural-minor-aeolian"} },
+  { tool: "mode-intervals", name: "D Dorian", props: {"key": "d", "scale": "dorian"} },
+  { tool: "key-chords", name: "G major", props: {"key": "g", "scale": "major-ionian"} },
+  { tool: "triads", name: "C major", props: {"key": "c", "scale": "major-ionian"} },
+  { tool: "progressions", name: "A minor", props: {"key": "a", "scale": "natural-minor-aeolian"} },
+  { tool: "circle-of-fifths", name: "E major", props: {"key": "e", "scale": "major-ionian"} },
+  { tool: "piano-keys", name: "A minor pentatonic, drawn in A minor", props: {"key": "a", "scale": "minor-pentatonic"} },
+  { tool: "improvisation", name: "D Dorian", props: {"key": "d", "scale": "dorian"} },
+  { tool: "tunings", name: "E minor", props: {"key": "e", "scale": "natural-minor-aeolian"} },
+  { tool: "chord-circle", name: "C major, the V chord", props: {"key": "c", "scale": "major-ionian", "degree": 5} },
+  { tool: "caged-neck", name: "G major, the whole neck", props: {"key": "g", "scale": "major-ionian"} },
+  { tool: "caged-neck", name: "A minor, E and C shapes", props: { key: "a", scale: "natural-minor-aeolian", shapes: ["C", "E"] } },
 ];
 
 const groupId = (tool: string, props: Props): string => {

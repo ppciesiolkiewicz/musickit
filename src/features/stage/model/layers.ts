@@ -181,21 +181,13 @@ function baseRect(s: Subject): FrameRect {
   switch (s.kind) {
     case "chord":
       return { x: 0.05, y: 0.08, w: 0.22, h: 0.42 };
-    case "plugin":
-    case "position":
-      return { x: 0.05, y: 0.08, w: 0.5, h: 0.42 };
     case "band":
       return { x: 0.02, y: 0.66, w: 0.34, h: 0.3 };
-    case "section":
-    case "bubble":
-      return { x: 0.05, y: 0.08, w: 0.5, h: 0.5 };
-    case "neck":
-    case "arpeggio":
-    case "caged":
-      return { x: 0.05, y: 0.08, w: 0.7, h: 0.42 };
     case "tool":
-      // the necks that run the whole fretboard are wide; the rest are boxes
-      return s.tool.type === "scale-neck" || s.tool.type === "position-neck" ? { x: 0.05, y: 0.08, w: 0.6, h: 0.5 } : { x: 0.05, y: 0.08, w: 0.4, h: 0.4 };
+      // the necks that run the whole fretboard are wide; the theory panels are half the frame; the rest are boxes
+      if (["scale-neck", "position-neck", "caged-neck"].includes(s.tool.type)) return { x: 0.05, y: 0.08, w: 0.6, h: 0.5 };
+      if (["relative-modes", "mode-intervals", "key-chords", "triads", "progressions", "chord-circle", "circle-of-fifths", "piano-keys", "improvisation", "tunings"].includes(s.tool.type)) return { x: 0.05, y: 0.08, w: 0.5, h: 0.5 };
+      return { x: 0.05, y: 0.08, w: 0.4, h: 0.4 };
     case "key":
       return { x: 0.02, y: 0.02, w: 0.42, h: 0.16 };
     case "tuner":

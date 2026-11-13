@@ -36,7 +36,7 @@ plan's `ExerciseCard`, a plan in the real week view, with the parser's warnings.
 complete 7-day plan for `/plan`'s paste step (`planToCopy`: an exercise becomes a week of itself).
 
 **Section notes.** Every section of a rendered example has a pencil at its end (`examples/Comments.tsx`, through the plan's
-`SectionAsideContext`): a shortcut to a dev note (see *Dev notes*) with a `section` anchor: the example, the exercise's
+`CellAsideContext`, `ui/reader/aside.ts`): a shortcut to a dev note (see *Dev notes*) with a `section` anchor: the example, the exercise's
 address (`ex`, or `d2.e1` in a plan) and the section's index, a hash of the section (`model/comments.ts` `sectionHash`)
 and the example file's last commit from `GET /api/dev/commit` (`server/git.ts`: HEAD, and each example file's last commit
 and uncommitted state). When the section's hash no longer matches, the note turns orange ("section changed", with *keep*

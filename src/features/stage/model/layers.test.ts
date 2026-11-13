@@ -8,7 +8,7 @@ import { subjectIdentity, type Subject } from "./subject";
 const ids = ["scale", "chords", "circle", "keys", "progressions", "modes", "triads", "caged", "arpeggios", "improv", "tunings"];
 const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≉ ${b}`);
 const chord: Subject = { kind: "chord", symbol: "E6" };
-const scale: Subject = { kind: "plugin", plugin: "scale", key: EMPTY_KEY };
+const scale: Subject = { kind: "band", key: EMPTY_KEY };
 const layer = (id: string, subject: Subject = chord): Layer => ({ id, subject, rect: { x: 0.1, y: 0.1, w: 0.3, h: 0.3 }, visible: true, z: 0 });
 /** a stage painted in list order */
 /** free layout: where a rect is the widget's place */
@@ -140,25 +140,14 @@ test("setStageKey moves every key-aware layer to the master, never the chord, an
   const e = { tonicPc: 4, family: 0, mode: 5 };
   const s0 = withLayers(
     layer("chord"),
-    layer("p", scale),
-    layer("pos", { kind: "position", key: EMPTY_KEY, positionKind: "pentatonic", index: 0 }),
     layer("band", { kind: "band", key: EMPTY_KEY }),
-    layer("sec", { kind: "section", section: "chords", key: EMPTY_KEY }),
-    layer("neck", { kind: "neck", key: EMPTY_KEY }),
-    layer("caged", { kind: "caged", key: EMPTY_KEY, shape: "E" }),
+    layer("triads", { kind: "tool", tool: { type: "triads", key: 0, scale: "major-ionian" } }),
   );
   const s = stageReducer(s0, { type: "setStageKey", key: e });
   assert.deepEqual(s.key, e);
   assert.deepEqual(s.layers[0].subject, chord);
-  for (const l of s.layers.slice(1)) assert.deepEqual((l.subject as { key: unknown }).key, e);
-});
-
-test("setStageKey keeps a pinned mode and moves its root, so modes of one root can be compared", () => {
-  const dorian = { tonicPc: 9, family: 0, mode: 1 };
-  const phrygian = { tonicPc: 9, family: 0, mode: 2 };
-  const s0 = withLayers(layer("d", { kind: "neck", key: dorian, pinned: ["scale"] }), layer("p", { kind: "neck", key: phrygian, pinned: ["scale"] }), layer("f", { kind: "neck", key: dorian }));
-  const s = stageReducer(s0, { type: "setStageKey", key: { tonicPc: 0, family: 0, mode: 0 } });
-  assert.deepEqual(s.layers.map((l) => (l.subject as { key: unknown }).key), [{ ...dorian, tonicPc: 0 }, { ...phrygian, tonicPc: 0 }, { tonicPc: 0, family: 0, mode: 0 }]);
+  assert.deepEqual((s.layers[1].subject as { key: unknown }).key, e);
+  assert.deepEqual(s.layers[2].subject, { kind: "tool", tool: { type: "triads", key: 4, scale: "major-ionian" } });
 });
 
 test("addSubject: one camera, one screen, one key; screen at the bottom, camera above it, widgets above both", () => {
@@ -398,13 +387,13 @@ test("a widget's grid size comes from its kind, and the camera's from its preset
   const l = (subject: Subject, rect = FULL): Layer => ({ ...layer("x"), subject, rect });
   assert.equal(gridSpan(l(aChord("x"))), 3);
   assert.equal(gridSpan(l({ kind: "camera" } as Subject, CAMERA_CORNER)), 3);
-  assert.equal(gridSpan(l({ kind: "neck" } as Subject)), 6);
+  assert.equal(gridSpan(l({ kind: "tool", tool: { type: "scale-neck", scale: "major-ionian", key: 0, neck: true, positions: false } } as Subject)), 6);
   assert.equal(gridSpan(l({ kind: "camera" } as Subject, FULL)), GRID_COLUMNS);
   near(gridAspect(l({ kind: "camera" } as Subject, FULL)), FRAME_ASPECT);
 });
 
 test("a page set narrower by hand keeps that width, centred in its row; reset, it fills the row again", () => {
-  const page: Layer = { ...layer("p"), subject: { kind: "section", section: "chords" } as Subject };
+  const page: Layer = { ...layer("p"), subject: { kind: "tool", tool: { type: "key-chords", key: 0, scale: "major-ionian" } } as Subject };
   const s = stageReducer({ ...EMPTY_STAGE, layers: [page] }, { type: "setGridWidth", id: "p", width: 0.6 });
   assert.equal(s.layers[0].gridWidth, 0.6);
   assert.deepEqual(gridPlace(s.layers[0], false), { span: GRID_COLUMNS, width: 0.6 });
@@ -412,18 +401,17 @@ test("a page set narrower by hand keeps that width, centred in its row; reset, i
   assert.equal("gridWidth" in stageReducer(s, { type: "setGridWidth", id: "p", width: null }).layers[0], false);
 });
 
-test("a page takes the grid's whole width; a section that is not a page keeps its kind's", () => {
+test("a page takes the grid's whole width; a theory panel that is not a page keeps its kind's", () => {
   const l = (subject: Subject): Layer => ({ ...layer("x"), subject });
-  assert.equal(gridSpan(l({ kind: "plugin", plugin: "scale", full: true } as Subject)), GRID_COLUMNS);
-  assert.equal(gridSpan(l({ kind: "section", section: "chords" } as Subject)), GRID_COLUMNS);
-  assert.equal(gridSpan(l({ kind: "section", section: "relatives" } as Subject)), 6);
+  assert.equal(gridSpan(l({ kind: "tool", tool: { type: "key-chords", key: 0, scale: "major-ionian" } } as Subject)), GRID_COLUMNS);
+  assert.equal(gridSpan(l({ kind: "tool", tool: { type: "relative-modes", key: 0, scale: "major-ionian" } })), 6);
 });
 
 test("on a narrow frame a small widget takes half a row and anything bigger all of it", () => {
   const l = (subject: Subject): Layer => ({ ...layer("x"), subject });
   assert.equal(gridSpanNarrow(l(aChord("x"))), 6);
-  assert.equal(gridSpanNarrow(l({ kind: "neck" } as Subject)), GRID_COLUMNS);
-  assert.equal(gridSpanNarrow(l({ kind: "section", section: "chords" } as Subject)), GRID_COLUMNS);
+  assert.equal(gridSpanNarrow(l({ kind: "tool", tool: { type: "scale-neck", scale: "major-ionian", key: 0, neck: true, positions: false } } as Subject)), GRID_COLUMNS);
+  assert.equal(gridSpanNarrow(l({ kind: "tool", tool: { type: "key-chords", key: 0, scale: "major-ionian" } } as Subject)), GRID_COLUMNS);
 });
 
 test("the layouts never touch each other's arrangement", () => {
@@ -472,15 +460,15 @@ test("auto layout in the free layout does not switch the grid's", () => {
 test("with the grid's auto layout on, a neck takes 90% of its own row, most others keep their width alone on a row", () => {
   const l = (subject: Subject): Layer => ({ ...layer("x"), subject });
   const neck = { span: GRID_COLUMNS, width: AUTO_NECK_WIDTH };
-  assert.deepEqual(gridAutoPlace(l({ kind: "neck" } as Subject)), neck);
-  assert.deepEqual(gridAutoPlace(l({ kind: "caged", shape: "E" } as Subject)), neck);
-  assert.deepEqual(gridAutoPlace(l({ kind: "arpeggio" } as Subject)), neck);
-  assert.deepEqual(gridAutoPlace(l({ kind: "position" } as Subject)), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "scale-neck", scale: "major-ionian", key: 0, neck: true, positions: false } } as Subject)), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "caged-neck", key: 0, scale: "major-ionian", shapes: ["E"] } })), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "arpeggio-neck", chord: "Am" } })), neck);
+  assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "position-neck", key: 0, scale: "major-ionian" } })), neck);
   assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "scale-neck" } } as Subject)), neck);
   assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "staff" } } as Subject)), { span: GRID_COLUMNS, width: 0.5 });
   assert.deepEqual(gridAutoPlace(l({ kind: "key" })), { span: GRID_COLUMNS, width: 0.5 });
   assert.deepEqual(gridAutoPlace(l(aChord("x"))), { span: 3, width: 1 }, "a chord still shares its row");
-  assert.deepEqual(gridAutoPlace(l({ kind: "section", section: "chords" } as Subject)), { span: GRID_COLUMNS, width: 1 }, "a page keeps its whole row");
+  assert.deepEqual(gridAutoPlace(l({ kind: "tool", tool: { type: "key-chords", key: 0, scale: "major-ionian" } } as Subject)), { span: GRID_COLUMNS, width: 1 }, "a page keeps its whole row");
 });
 
 test("the keyboard on the grid: a nudge moves one place, a resize key changes only the width", () => {
@@ -498,7 +486,7 @@ test("the brand marks are not on the grid", () => {
 });
 
 test("a grid widget resized by hand keeps its width, on its own row with Auto layout and in the fewest columns without", () => {
-  const neck = { ...layer("n", { kind: "neck" } as Subject), gridWidth: 0.6 };
+  const neck = { ...layer("n", { kind: "tool", tool: { type: "scale-neck", scale: "major-ionian", key: 0, neck: true, positions: false } } as Subject), gridWidth: 0.6 };
   assert.deepEqual(gridPlace(neck, true), { span: GRID_COLUMNS, width: 0.6 });
   assert.deepEqual(gridPlace(neck, false), { span: GRID_COLUMNS, width: 0.6 * 12 / GRID_COLUMNS });
   const hand = (w: number, span: number, width: number) => {
@@ -514,7 +502,7 @@ test("a grid widget resized by hand keeps its width, on its own row with Auto la
 });
 
 test("setGridWidth clamps, rounds and resets; the resize keys change it on the grid", () => {
-  const grid: Stage = { ...EMPTY_STAGE, layout: "grid", gridAuto: true, layers: [layer("a", { kind: "neck" } as Subject)] };
+  const grid: Stage = { ...EMPTY_STAGE, layout: "grid", gridAuto: true, layers: [layer("a", { kind: "tool", tool: { type: "scale-neck", scale: "major-ionian", key: 0, neck: true, positions: false } } as Subject)] };
   const w = (s: Stage) => s.layers[0].gridWidth;
   assert.equal(w(stageReducer(grid, { type: "setGridWidth", id: "a", width: 0.5234 })), 0.52);
   assert.equal(w(stageReducer(grid, { type: "setGridWidth", id: "a", width: 3 })), 1);
@@ -526,7 +514,7 @@ test("setGridWidth clamps, rounds and resets; the resize keys change it on the g
 });
 
 test("a saved grid width comes back in range", () => {
-  const saved = { layers: [{ ...layer("a", { kind: "neck" } as Subject), gridWidth: 0.05 }, { ...layer("b", { kind: "neck" } as Subject), gridWidth: "x" }] };
+  const saved = { layers: [{ ...layer("a", { kind: "tool", tool: { type: "scale-neck", scale: "major-ionian", key: 0, neck: true, positions: false } } as Subject), gridWidth: 0.05 }, { ...layer("b", { kind: "tool", tool: { type: "scale-neck", scale: "major-ionian", key: 0, neck: true, positions: false } } as Subject), gridWidth: "x" }] };
   const s = sanitiseStage(saved, ids);
   assert.equal(s.layers[0].gridWidth, 0.15);
   assert.equal("gridWidth" in s.layers[1], false);

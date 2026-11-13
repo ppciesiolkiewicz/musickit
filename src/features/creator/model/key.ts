@@ -3,6 +3,8 @@
  * Pure functions on top of the theory feature; no React, no sound. Every plugin reads this and nothing else about "the key".
  */
 import { FAMILIES, TONICS, majorSignature, makeKeyContext, shortModeName, type KeyContext } from "@/features/theory";
+import { findPentatonic } from "@/features/theory/pentatonics";
+import { findModePage } from "@/features/theory/scales";
 
 export interface KeyChoice {
   /** 0..11 (C = 0), or null when no key is chosen: plugins then show their general page */
@@ -22,6 +24,16 @@ export function sanitiseKey(raw: unknown): KeyChoice {
   const mode = isInt(o.mode, 0, FAMILIES[family].names.length - 1) ? o.mode : 0;
   const tonicPc = o.tonicPc === null || o.tonicPc === undefined ? null : isInt(o.tonicPc, 0, 11) ? o.tonicPc : null;
   return { tonicPc, family, mode };
+}
+
+/**
+ * The key a tool's `key` and `scale` slug name: a mode page is its family and mode, a pentatonic (or blues) the major-scale
+ * mode it is cut from; an unknown slug is the major scale.
+ */
+export function keyChoiceFor(pc: number, scale: string): KeyChoice {
+  const page = findModePage(scale);
+  if (page) return { tonicPc: pc, family: page.familyIndex, mode: page.modeIndex };
+  return { tonicPc: pc, family: 0, mode: findPentatonic(scale)?.host ?? 0 };
 }
 
 /** The theory of the chosen key, or null when there is none. */

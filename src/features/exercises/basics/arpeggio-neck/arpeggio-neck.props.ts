@@ -30,4 +30,12 @@ export interface ArpeggioNeckProps {
   hide?: (Degree | string)[];
   /** the notes not in `enable`: "muted" (default) or "hidden" */
   others?: "muted" | "hidden";
+  /**
+   * the arpeggio as the arpeggios page draws it, instead of the box: ["neck"] for every note on the whole neck,
+   * ["positions"] for the positions it falls into, or both. For a triad or a 7th chord ("Am", "G7", "Cmaj7", "Bm7b5");
+   * `boxes`, `placement`, `part` and the marks apply to the box only
+   */
+  show?: ("neck" | "positions")[];
+  /** with `show`: the strings the root is shown on, 2 to 6 (6 is the low E): [6, 5]; absent: all of them */
+  roots?: number[];
 }

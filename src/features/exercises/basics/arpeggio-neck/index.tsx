@@ -13,6 +13,9 @@ import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import type { ScaleCell, ScalePosition } from "@/lib/chordKit/scalePositions";
 import type { Degree } from "../../timeline/types";
 import { arpeggioPartNotes } from "../arpeggio";
+import { ArpeggioOnGuitar } from "@/components/chordKit/ArpeggiosExplorer";
+import { arpTypeOf } from "@/lib/chordKit/arpeggios";
+import { keyChoiceFor, keyContext } from "@/features/creator";
 
 const SHARP = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
 const SEMI_TEXT = ["1", "♭2", "2", "♭3", "3", "4", "♯4", "5", "♭6", "6", "♭7", "7"];
@@ -23,7 +26,29 @@ const SEMI_DEGREE = [0, 1, 1, 2, 2, 3, 4, 4, 4, 5, 6, 6];
  * A chord's arpeggio in one box, or two neighbouring boxes drawn as one with the shared notes ringed (the seam); only the
  * `part` asked for; tap a note to hear it, ▶ to run it up and down.
  */
-export function View({ chord, boxes: asked, placement, part, enable, highlight, mute, hide, others }: { chord: string; boxes?: number[]; placement?: Placement; part?: Degree[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
+export function View(props: { chord: string; boxes?: number[]; placement?: Placement; part?: Degree[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; show?: ("neck" | "positions")[]; roots?: number[] }) {
+  const type = props.show?.length ? arpTypeOf(props.chord) : null;
+  return type ? <PageViews chord={props.chord} type={type} show={props.show!} roots={props.roots} /> : <Boxes {...props} />;
+}
+
+/**
+ * The arpeggios page's views of the chord (the whole neck and/or its positions, `roots` the root strings), drawn in a key
+ * on the chord's own root: major for a major 3rd, minor for a minor one, the chord on degree 1.
+ */
+function PageViews({ chord, type, show, roots }: { chord: string; type: string; show: ("neck" | "positions")[]; roots?: number[] }) {
+  useCoverage({});
+  const q = parseChordQuery(chord);
+  const root = q?.rootPc ?? null, minor = !!q?.semis.includes(3);
+  const ctx = useMemo(() => (root === null ? null : keyContext(keyChoiceFor(root, minor ? "natural-minor-aeolian" : "major-ionian"))), [root, minor]);
+  if (!ctx) return null;
+  return (
+    <div data-tour="arpeggio-neck-box">
+      <ArpeggioOnGuitar ctx={ctx} degree={0} type={type} neck={show.includes("neck")} positions={show.includes("positions")} roots={roots} />
+    </div>
+  );
+}
+
+function Boxes({ chord, boxes: asked, placement, part, enable, highlight, mute, hide, others }: { chord: string; boxes?: number[]; placement?: Placement; part?: Degree[]; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others }) {
   useCoverage({ hints: 1 });
   const [system] = useLabelSystem();
   const { active, running, play, tap, stop } = useNotePlayer();

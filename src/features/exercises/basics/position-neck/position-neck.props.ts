@@ -14,7 +14,9 @@ export interface PositionNeckProps {
   scale: string;
   /** the key's root note: "c", "f-sharp", "b-flat" */
   key: string;
-  /** the positions framed (1-based, 1 to 5); absent: position 1, or the two in `cross` */
+  /** "3nps" for the scale's seven 3-notes-per-string positions, one framed at a time (`positions` holds one, 1 to 7; no `cross`, no `placement`); absent: the scale's own five positions */
+  kind?: "3nps";
+  /** the positions framed (1-based, 1 to 5; with `kind` "3nps", one of 1 to 7); absent: position 1, or the two in `cross` */
   positions?: number[];
   /** where on the neck, instead of `positions`, as on `scale-neck`: { "by": "root", "string": 5 } frames the position with the root on the A string */
   placement?: Placement;

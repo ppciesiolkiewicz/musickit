@@ -7,11 +7,8 @@ const A_MINOR = { tonicPc: 9, family: 0, mode: 5 };
 /** A preset's widgets in reading order, in A minor. */
 const note = (parts: Subject[]): Stage => noteOf(parts, A_MINOR);
 
-const keyed = { key: A_MINOR };
-
 /** G major: tonic G (pitch class 7), the major family's Ionian mode. */
 const G_MAJOR = { tonicPc: 7, family: 0, mode: 0 };
-const inG = { key: G_MAJOR };
 
 /** C major: Do is C, so Do Re Mi Sol La are C D E G A, the five notes of A minor pentatonic. */
 const C = 0;
@@ -47,12 +44,12 @@ export const PRESET_NOTES: Record<string, { stage: Stage }> = {
       { kind: "text", text: "Five notes are enough for most rock, blues and pop solos: A, C, D, E and G. Find them on the neck first, then sing them, so your ears know the notes your fingers play." },
       video,
       { kind: "text", text: "### Position 1\n\nStart here. The root A is on fret 5 of both E strings. Tap a note below to hear it, then play the position up and down until your fingers find the notes without looking." },
-      { kind: "position", positionKind: "pentatonic", index: 0, ...keyed },
+      { kind: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: A_MINOR.tonicPc!, boxes: [1] } },
       video,
       { kind: "text", text: "### The whole neck\n\nThis is all of A minor. Find position 1 in it, then follow your five notes up the neck.\nThe two notes the pentatonic leaves out, B and F, belong to A minor too: your five notes keep clear of them, so almost nothing clashes." },
-      { kind: "neck", ...keyed },
+      { kind: "tool", tool: { type: "scale-neck", scale: "natural-minor-aeolian", key: A_MINOR.tonicPc!, neck: true, positions: false } },
       { kind: "text", text: "### The chords under it\n\nThese are the chords of A minor, the key the pentatonic comes from. Songs in A minor are built from them, and your five notes fit over all of them.\nPlay Am, Dm and Em, one slow strum each, until the changes feel smooth." },
-      { kind: "section", section: "chords", ...keyed },
+      { kind: "tool", tool: { type: "key-chords", key: A_MINOR.tonicPc!, scale: "natural-minor-aeolian" } },
       { kind: "text", text: "### Over a rock groove\n\nThe band plays Am, F, G and Am, one bar each, as a rock groove: the snare hits on beats 2 and 4, and the bass plays the root of each chord, two notes to a beat. Press Play below to start the band, then play position 1 over it.\nLand on A when a phrase ends: it is the note that sounds like home.\nIf the groove feels fast, play one note on beat 1 of each bar, then add more as it settles." },
       { kind: "tool", tool: { type: "backing-track", progression: "aeolian", key: A_MINOR.tonicPc, style: "rock", bpm: 100 } },
       { kind: "text", text: "### Sing the same notes\n\nNow put the guitar down. Call C Do, and three of your five notes are Do, Re and Mi: C, D and E. Press Play below to hear the tune: the mic starts with it, and your line shows on the staff. Sing along on the note names until they come without thinking." },
@@ -75,7 +72,7 @@ export const PRESET_NOTES: Record<string, { stage: Stage }> = {
       { kind: "chord", symbol: "D" },
       video,
       { kind: "text", text: "### The chords in G\n\nThese are all the chords of G major. Find G, C and D among them: the other four belong to the key too, so you can add them later." },
-      { kind: "section", section: "chords", ...inG },
+      { kind: "tool", tool: { type: "key-chords", key: G_MAJOR.tonicPc!, scale: "major-ionian" } },
       { kind: "text", text: "### With the band\n\nThe band plays G, G, C and D, one bar each, as a slow rock groove. Press Play below to start the band, then strum down once on each beat.\nStart moving to the next chord on beat 4, so it lands on beat 1.\nIf a change comes late, keep your strumming hand going and catch the next beat 1." },
       { kind: "tool", tool: { type: "backing-track", progression: "three-chord", key: G_MAJOR.tonicPc, style: "rock", bpm: 70 } },
       { kind: "text", text: "### Make it yours\n\nPut the three chords in your own order, two bars each, and play them until the changes feel smooth. Then hum a short tune over them." },

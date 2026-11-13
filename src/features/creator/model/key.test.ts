@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CIRCLE, EMPTY_KEY, fifthsPosition, fromQuery, keyContext, keySignature, keyTitle, majorSignature, sanitiseKey, scaleMidis, setMode, toQuery } from "./key";
+import { CIRCLE, EMPTY_KEY, keyChoiceFor, fifthsPosition, fromQuery, keyContext, keySignature, keyTitle, majorSignature, sanitiseKey, scaleMidis, setMode, toQuery } from "./key";
 
 test("no key gives no context and a general title", () => {
   assert.equal(keyContext(EMPTY_KEY), null);
@@ -53,4 +53,12 @@ test("the scale for playing starts on the tonic and ends an octave up", () => {
   assert.equal(m[0] % 12, 9);
   assert.equal(m[7] - m[0], 12);
   assert.ok(m[0] >= 60 && m[0] < 72);
+});
+
+test("keyChoiceFor: a mode page is its family and mode; a pentatonic its host mode", () => {
+  assert.deepEqual(keyChoiceFor(9, "natural-minor-aeolian"), { tonicPc: 9, family: 0, mode: 5 });
+  assert.deepEqual(keyChoiceFor(2, "dorian"), { tonicPc: 2, family: 0, mode: 1 });
+  assert.deepEqual(keyChoiceFor(9, "minor-pentatonic"), keyChoiceFor(9, "natural-minor-aeolian"));
+  assert.deepEqual(keyChoiceFor(0, "major-pentatonic"), keyChoiceFor(0, "major-ionian"));
+  assert.deepEqual(keyChoiceFor(4, "no-such-scale"), { tonicPc: 4, family: 0, mode: 0 });
 });

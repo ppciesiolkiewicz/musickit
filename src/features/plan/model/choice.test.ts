@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { MAX_BPM as BACKING_MAX_BPM } from "@/features/backing/model";
 import { parseChoiceDiag, choiceSchema, parseTool, toolsOf, TOOLS, toolInterface, type Cell, type Choice, type ChoiceOption, type PlanTool } from "./tools";
-import { applyChoice, applyUnder, choiceWarnings, follows, layoutParts, partsOf, resolvedChoice, valueOf } from "./choice";
+import { applyChoice, applyUnder, choiceWarnings, drawnParts, follows, keyBarValue, layoutParts, partsOf, pickAt, resolvedChoice, valueOf } from "./choice";
 
 const diag = () => ({ notes: [] as string[] });
 
@@ -199,5 +199,44 @@ describe("per-part resolution (review fix)", () => {
     const cells: Cell[] = [{ type: "text", text: "a" }, section("S", [{ type: "text", text: "b" }, neck()]), { type: "text", text: "c" }];
     const parts = layoutParts(cells);
     assert.deepEqual(parts.map((p) => [p.section?.heading ?? null, p.from, p.cells.length]), [[null, 0, 1], ["S", 1, 2], [null, 3, 1]]);
+  });
+});
+
+describe("drawnParts", () => {
+  const toolAt = (parts: ReturnType<typeof drawnParts>, k: number) => tools(parts[k].cells)[0];
+  it("an open block choice sets the tools and draws no chips", () => {
+    const parts = drawnParts({ choice: open({ key: 9 }), cells: [neck()] }, {});
+    assert.equal(toolAt(parts, 0).key, 9);
+    assert.equal(parts[0].chips, null);
+  });
+  it("a section's chip moves only that section; the block's chips move the rest", () => {
+    const block = { choice: options([{ key: 0 }, { key: 7 }]), cells: [band(60, "c"), section("S", [band(60, "c")], options([{ bpm: 60 }, { bpm: 80 }]))] };
+    const sec = drawnParts(block, { s1: 1 });
+    assert.equal(toolAt(sec, 1).bpm, 80);
+    assert.equal(toolAt(sec, 1).key, 0);
+    assert.equal(toolAt(sec, 0).bpm, 60);
+    assert.deepEqual(sec.map((p) => p.chips), [null, block.cells[1].type === "section" ? block.cells[1].choice : null]);
+    const all = drawnParts(block, { block: 1 });
+    assert.equal(toolAt(all, 0).key, 7);
+    assert.equal(toolAt(all, 1).key, 7);
+  });
+  it("a pick past the options is option 1", () => {
+    const choice = options([{ key: 0 }, { key: 7 }]);
+    assert.equal(pickAt(choice, { block: 5 }, "block"), 0);
+    assert.equal(pickAt(choice, { block: 1 }, "block"), 1);
+    assert.equal(pickAt(choice, {}, "block"), 0);
+    assert.equal(pickAt(open({ key: 2 }), { block: 1 }, "block"), 0);
+    assert.equal(pickAt(undefined, { block: 1 }, "block"), 0);
+  });
+  it("parts in document order, with flat offsets and stable ids", () => {
+    const t = (text: string): Cell => ({ type: "text", text });
+    const parts = drawnParts({ cells: [section("A", [t("a"), t("b")]), t("c"), section("B", [t("d")])] }, {});
+    assert.deepEqual(parts.map((p) => [p.id, p.from]), [["s0", 0], ["own1", 2], ["s2", 3]]);
+  });
+  it("keyBarValue: only an open block choice, and only when the host asks", () => {
+    assert.deepEqual(keyBarValue({ choice: open({ key: 9, scale: "minor-pentatonic" }) }, true), { key: 9, scale: "minor-pentatonic" });
+    assert.equal(keyBarValue({ choice: open({ key: 9 }) }, false), null);
+    assert.equal(keyBarValue({ choice: options([{ key: 0 }, { key: 7 }]) }, true), null);
+    assert.equal(keyBarValue({}, true), null);
   });
 });

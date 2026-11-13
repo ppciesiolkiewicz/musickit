@@ -5,7 +5,8 @@ import { noteState, type Others, type Visibility } from "../../cues/visibility";
 import { pickBox, type Placement } from "../../cues/placement";
 import { FretboardBase, STRING_NAMES, fretGeometry, type FretGeometry } from "@/components/chordKit/Fretboard";
 import { NoteDot } from "@/components/chordKit/NoteDot";
-import { cellKey } from "@/components/chordKit/ScaleNeck";
+import { ScaleNeck, cellKey } from "@/components/chordKit/ScaleNeck";
+import { keyChoiceFor, keyContext } from "@/features/creator";
 import { useNotePlayer } from "@/components/chordKit/useNotePlayer";
 import usePhone from "@/components/usePhone";
 import { hoverLabel, noteLabel } from "@/features/theory/labels";
@@ -14,7 +15,7 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { Hint } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
-import { SCALE_NECK_FRETS, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
+import { SCALE_NECK_FRETS, positionsFor, scaleCells, type ScaleCell, type ScalePosition } from "@/lib/chordKit/scalePositions";
 import { scaleBoxes, shiftPosition } from "../scale-neck/boxes";
 import { CROSS_STRING, crossingPath, upAndDown, type Crossing } from "./crossing";
 
@@ -24,6 +25,8 @@ const CROSS = "var(--color-amber-300)";
 export interface PositionNeckViewProps {
   slug: string;
   pc: number;
+  /** "3nps": one of the scale's seven 3-notes-per-string positions, framed on the whole neck */
+  kind?: "3nps";
   /** framed positions, 1-based; absent: position 1 (or the crossing's two, or the placement's) */
   positions?: number[];
   placement?: Placement;
@@ -47,6 +50,7 @@ export interface PositionNeckViewProps {
  * the way across from one to the other. Tap a note to hear it, ▶ to play what is framed.
  */
 export function View(props: PositionNeckViewProps) {
+  if (props.kind === "3nps") return <ThreeNps slug={props.slug} pc={props.pc} position={props.positions?.[0] ?? 1} />;
   // the picker's choices start again whenever the exercise's own settings change
   return <Neck key={JSON.stringify(props)} {...props} />;
 }
@@ -269,5 +273,22 @@ function Thumb({ p }: { p: ScalePosition }) {
       {Array.from({ length: 6 }, (_, s) => <line key={`s${s}`} x1={left} x2={W - left} y1={y(s)} y2={y(s)} stroke="#7a869b" strokeWidth={0.6} />)}
       {p.notes.map((c) => <circle key={cellKey(c)} cx={x(c.fret)} cy={y(c.string)} r={2.6} fill={degreeColour(c.degree)} stroke={c.degree === 0 ? "var(--color-slate-50)" : "none"} strokeWidth={1} />)}
     </svg>
+  );
+}
+
+/** One 3-notes-per-string position of the scale, framed on the whole neck, the rest faint; tap a note to hear it. */
+function ThreeNps({ slug, pc, position }: { slug: string; pc: number; position: number }) {
+  useCoverage({});
+  const [system] = useLabelSystem();
+  const player = useNotePlayer();
+  const ctx = useMemo(() => keyContext(keyChoiceFor(pc, slug)), [pc, slug]);
+  const cells = useMemo(() => (ctx ? scaleCells(ctx) : []), [ctx]);
+  const positions = useMemo(() => (ctx ? positionsFor(ctx, "3nps") : []), [ctx]);
+  if (!ctx) return null;
+  const focus = positions[Math.min(position, positions.length) - 1] ?? null;
+  return (
+    <div data-tour="position-neck-neck">
+      <ScaleNeck cells={cells} big={() => true} focus={focus} fadeOutside active={player.active} labelSystem={system} onNote={(c) => player.tap(cellKey(c), c.midi)} title={`${ctx.names[0]} ${ctx.modeName} · 3 notes per string, position ${position}`} />
+    </div>
   );
 }

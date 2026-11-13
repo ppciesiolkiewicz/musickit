@@ -114,6 +114,39 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
   video: [
     { target: "video-player", title: "The video", text: "Press the play button on the video to start it, then play or sing along. Drag along the bar under the picture to go back to a part." },
   ],
+  "relative-modes": [
+    { target: "relative-modes-panel", title: "The modes", text: "Each row is a mode made of the key's notes. Tap one to see the notes from its own root." },
+  ],
+  "mode-intervals": [
+    { target: "mode-intervals-panel", title: "The notes", text: "The key's notes, numbered from the root. The colours match the dots on the neck." },
+  ],
+  "key-chords": [
+    { target: "key-chords-panel", title: "The chords", text: "One chord on each note of the scale. Tap a chord to hear it." },
+  ],
+  "triads": [
+    { target: "triads-panel", title: "The triads", text: "One chord in three shapes on three strings. Pick the chord and the strings to see its shapes there." },
+  ],
+  "progressions": [
+    { target: "progressions-panel", title: "Progressions", text: "Chord progressions heard in this key. Tap one to hear it." },
+  ],
+  "circle-of-fifths": [
+    { target: "circle-of-fifths-panel", title: "The circle", text: "The key's neighbours sit next to it. Tap a key on the circle to move there." },
+  ],
+  "piano-keys": [
+    { target: "piano-keys-panel", title: "The piano", text: "The key's notes are marked. Tap a key to hear it." },
+  ],
+  "improvisation": [
+    { target: "improvisation-panel", title: "Ideas", text: "A rhythm and a short tune in the key's notes, to make up your own lines from." },
+  ],
+  "tunings": [
+    { target: "tunings-panel", title: "The tuning", text: "Each string's note. The open strings that are in the key are lit." },
+  ],
+  "chord-circle": [
+    { target: "chord-circle-panel", title: "The chord", text: "The key's chord in the middle, the chords it can turn into around it. Tap one to hear it." },
+  ],
+  "caged-neck": [
+    { target: "caged-neck-panel", title: "The shapes", text: "The CAGED shapes of the chord, joined up the neck. Tap a dot to hear its note." },
+  ],
 };
 
 /** The page id a tool type's tour seen flag is stored under (`useTourSeen`). */

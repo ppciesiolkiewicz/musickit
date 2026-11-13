@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { GRID_COLUMNS, gridLayers, gridSpan, type Layer, type Stage } from "../model/layers";
-import { isPage, parseText } from "../model/subject";
+import { fillsColumn, isPage, parseText } from "../model/subject";
 import HeadphonesNotice from "./HeadphonesNotice";
 import { FlowInBox, ShapeReport } from "./shape";
 import { TextBlocks } from "./TextWidget";
@@ -16,9 +16,9 @@ function Figure({ layer, children }: { layer: Layer; children: (readOnly: true) 
   const report = useCallback((a: number) => setAspect((cur) => (cur === a ? cur : a)), []);
   const page = isPage(layer.subject);
   // a tune or a run streams across its staff, a backing track lays its bars out in a row, and a video is watched, so each takes the whole column, as a neck does
-  const wide = layer.subject.kind === "video" || layer.subject.kind === "tool" && (layer.subject.tool.type === "melody-singer" || layer.subject.tool.type === "run-singer" || layer.subject.tool.type === "backing-track");
+  const wide = fillsColumn(layer.subject);
   // a width set by hand on the grid is kept
-  const share = layer.gridWidth !== undefined ? layer.gridWidth : page ? 1 : layer.subject.kind === "neck" || layer.subject.kind === "position" || wide ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
+  const share = layer.gridWidth !== undefined ? layer.gridWidth : page ? 1 : wide ? 1 : Math.max(MIN_SHARE, gridSpan(layer) / GRID_COLUMNS);
   return (
     <figure className="mx-auto w-full" style={{ maxWidth: `${share * 100}%` }}>
       <div className={`overflow-hidden rounded-xl bg-slate-950 ring-1 ring-slate-800 [container-type:inline-size]`} style={{ aspectRatio: aspect ?? 16 / 9 }}>

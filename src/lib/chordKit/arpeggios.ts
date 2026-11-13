@@ -1,4 +1,5 @@
 import { OPEN_MIDI } from "./shapeTools";
+import { parseChordQuery } from "./chordSearch";
 import { degreeLabel, type KeyContext } from "@/features/theory/theory";
 
 /** Arpeggio qualities you can lay over any root of a scale. "diatonic" uses the chord the scale itself stacks there. */
@@ -216,4 +217,18 @@ export function arpPositions(cells: NeckCell[]): ArpPosition[] {
     }
   }
   return out;
+}
+
+/**
+ * The arpeggio type a chord symbol is: an `ARP_QUALITIES` id ("Am" → "min", "G7" → "7"), "ninth" for maj9 and m9 (degree 1's
+ * 9th in a major or minor key on the chord's root), or null when the arpeggios page can't draw it ("C13", "G9").
+ */
+export function arpTypeOf(chord: string): string | null {
+  const semis = parseChordQuery(chord)?.semis;
+  if (!semis) return null;
+  const key = [...new Set(semis.map((s) => ((s % 12) + 12) % 12))].sort((a, b) => a - b).join(",");
+  const q = ARP_QUALITIES.find((x) => x.semis.join(",") === key)?.id;
+  if (q) return q;
+  // maj9 and m9 are the "ninth" of a major or minor key's degree 1, which is how the arpeggio-neck draws a chord on its own root
+  return key === "0,2,4,7,11" || key === "0,2,3,7,10" ? "ninth" : null;
 }

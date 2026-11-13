@@ -97,7 +97,7 @@ store/
   localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
   usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
-ui/               PlanFlow, PromptAndPaste, WeekView, Cells (a block's cells in order, each section a headed step under a thin rule, like an article, ending in a small "Top of section" button that scrolls back to its heading; under a SectionAside, the /dev/examples review view, each tool is framed with its type; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
+ui/               PlanFlow, PromptAndPaste, WeekView, reader/ (the block reader: `BlockArticle` for a note's page, `BlockTitle` and `BlockBody` for a plan card; a block's cells in order, each section a headed step under a thin rule, like an article, ending in a small "Top of section" button that scrolls back to its heading; an open block choice drawn as the key bar only when the host says `keyBar`; under a `CellAsideContext` (`reader/aside.ts`), the /dev/examples review view, each tool is framed with its type; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history, a Back to top button; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
@@ -237,7 +237,7 @@ dot inline (`ui/InlineNote.tsx`, the same `NoteDot` the necks use): coloured by 
 setting (`useLabelSystem`), the other name on hover, played on tap. `model/noteText.ts` splits the tokens out and reads
 them against the root of the tool after the text (else the one before); a token it can't read stays as text. A line
 written between underscores (`_Don't reach for high notes._`) is a care line: `markRuns` (same file) pairs the
-underscores across notes and explained words, and `ui/Cells.tsx` draws the line over a low band of amber. The words
+underscores across notes and explained words, and `ui/reader/NoteText.tsx` draws the line over a low band of amber. The words
 "reach for high notes" are in `GLOSSARY`, so the app adds the (i) and the link to the lesson by itself.
 
 The tools are the learning components of `src/features/exercises` (see its README): `scale-neck`, `chord-shapes`,

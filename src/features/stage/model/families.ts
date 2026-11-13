@@ -1,8 +1,10 @@
 /**
- * The palette's widget families: one row each (Scale, CAGED, Arpeggio, Chord shapes, Staff, Melody), curated here. A family makes a widget
- * from its main props (`controls`: key, scale, what to show, boxes, shapes, chord), reads them back from a widget on the stage and
- * names it in one line ("Scale · C major · neck, positions 1–2"). Most families are a learning component of the AI plan (a `tool`
- * subject); CAGED and Arpeggio wrap the stage's own `caged` and `arpeggio` subjects (older `arpeggio-neck` tools still read as Arpeggio widgets and are made over when edited). The Scale family is the `scale-neck` tool: the scales page's guitar section,
+ * The palette's widget families: one row each, curated here: Scale, CAGED, Arpeggio, Chord shapes, Staff, Melody, the theory panels
+ * (Relative modes … Tunings, Sus & extensions) and the practice tools (Backing band … Strum along). A family makes a widget from its
+ * main props (`controls`: key, scale, what to show, boxes, shapes, chord, level, tempo), reads them back from a widget on the stage
+ * and names it in one line ("Scale · C major · neck, positions 1–2"). Every family makes a learning component of the AI plan (a
+ * `tool` subject): CAGED the `caged-neck`, Arpeggio the `arpeggio-neck` on the chord its values name (`arpChordSymbol`), a theory
+ * panel its own tool in the key it is added in. The Scale family is the `scale-neck` tool: the scales page's guitar section,
  * set up by its props; the stage's older neck, overview and position subjects still read as Scale widgets and are made over into the
  * tool when edited. A tool keeps the props a family doesn't list. Pure: no React. Imports only types from subject.ts, which takes its
  * tool names from here.
@@ -14,9 +16,9 @@ import { PENTATONICS, findPentatonic } from "@/features/theory/pentatonics";
 import { MODE_PAGES, findModePage } from "@/features/theory/scales";
 import { VOICES, type Voice } from "@/features/theory/singing";
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
-import { ARP_QUALITIES } from "@/lib/chordKit/arpeggios";
+import { ARP_QUALITIES, arpTypeOf } from "@/lib/chordKit/arpeggios";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
-import { CAGED_LETTERS, type CagedLetter, type CagedQuality } from "@/lib/chordKit/caged";
+import { CAGED_LETTERS, type CagedQuality } from "@/lib/chordKit/caged";
 import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
 import type { PaletteGroup, Subject } from "./subject";
 import { toolKey } from "./toolKey";
@@ -149,35 +151,16 @@ function runs(ns: number[]): string {
   return out.join(", ");
 }
 
-/** a Scale widget's main props; null when it is not one (the intervals, the relative modes and a 3-notes-per-string position are widgets of their own) */
+/** a Scale widget's main props; null when it is not one */
 function scaleRead(s: Subject): FamilyValues | null {
-  const all = range(POSITIONS);
-  const legacy = (key: KeyChoice, scale: string, show: string[], boxes = all): FamilyValues => ({ key: tonicOf(key), scale, show, boxes });
-  switch (s.kind) {
-    case "tool": {
-      const t = toolOf(s, "scale-neck");
-      if (!t || !(findPentatonic(t.scale) || findModePage(t.scale))) return null;
-      return { key: t.key, scale: t.scale, show: [...(t.neck ? ["neck"] : []), ...(t.positions === false ? [] : ["positions"])], boxes: boxesRead(t, all) };
-    }
-    case "position":
-      if (s.positionKind === "3nps") return null;
-      // the old single boxes (Pentatonic box 2, Scale position 3): the neck with that position lit
-      return legacy(s.key, s.positionKind === "pentatonic" ? (cagedQualityOf(s.key) === "minor" ? "minor-pentatonic" : "major-pentatonic") : modeSlug(s.key), ["neck", "positions"], [s.index + 1]);
-    case "neck":
-      return legacy(s.key, modeSlug(s.key), ["neck"]);
-    case "section":
-      return s.section === "guitar" ? legacy(s.key, modeSlug(s.key), ["neck", "positions"]) : null;
-    default:
-      return null;
-  }
+  const t = toolOf(s, "scale-neck");
+  if (!t || !(findPentatonic(t.scale) || findModePage(t.scale))) return null;
+  return { key: t.key, scale: t.scale, show: [...(t.neck ? ["neck"] : []), ...(t.positions === false ? [] : ["positions"])], boxes: boxesRead(t, range(POSITIONS)) };
 }
 
 /** A Scale widget's key as a `KeyChoice`: a tool's tonic in the mode its slug names (a pentatonic: its host mode). */
 function scaleKeyOf(s: Subject): KeyChoice {
-  if (s.kind !== "tool") return "key" in s ? s.key : { tonicPc: null, family: 0, mode: 0 };
-  const t = toolOf(s, "scale-neck")!;
-  const page = findModePage(t.scale);
-  return page ? { tonicPc: t.key, family: page.familyIndex, mode: page.modeIndex } : { tonicPc: t.key, family: 0, mode: findPentatonic(t.scale)?.host ?? 0 };
+  return toolKeyChoice(toolOf(s, "scale-neck")!);
 }
 
 function scaleMake(v: FamilyValues, key: KeyChoice): Subject {
@@ -245,11 +228,19 @@ const scale = family({
 });
 
 const OVERVIEW = "overview";
+
+/** A tool's key as a `KeyChoice`: its tonic in the mode its scale slug names (a pentatonic: its host mode). */
+const toolKeyChoice = (t: { key: number; scale: string }): KeyChoice => {
+  const page = findModePage(t.scale);
+  return page ? { tonicPc: t.key, family: page.familyIndex, mode: page.modeIndex } : { tonicPc: t.key, family: 0, mode: findPentatonic(t.scale)?.host ?? 0 };
+};
+
 const caged = family({
   id: "caged",
   title: "CAGED",
   words: ["caged", "shape", "shapes", "box", "boxes", "fretboard", "neck", ...CAGED_LETTERS.map((l) => l.toLowerCase())],
   group: "caged",
+  tool: "caged-neck",
   controls: [
     {
       name: "shapes", label: "Shapes", kind: "multi", alone: OVERVIEW, default: [OVERVIEW],
@@ -258,21 +249,26 @@ const caged = family({
   ],
   make(v, key) {
     const picked = strs(v.shapes);
-    const shapes = CAGED_LETTERS.filter((l) => picked.includes(l));
-    // no letter is the overview: the five boxes on the whole neck. One letter is the single `shape` older widgets (and builds) have
-    if (shapes.length === 1) return { kind: "caged", key, shape: shapes[0] };
-    return shapes.length ? { kind: "caged", key, shape: null, shapes } : { kind: "caged", key, shape: null };
+    // no letter is the overview: the five shapes on the whole neck
+    return toolSubject({ type: "caged-neck", key: tonicOf(key), scale: modeSlug(key), shapes: CAGED_LETTERS.filter((l) => picked.includes(l)) });
   },
   read(s) {
-    if (s.kind !== "caged") return null;
-    const shapes: string[] = s.shapes?.length ? s.shapes : s.shape ? [s.shape] : [OVERVIEW];
-    return { shapes };
+    const t = toolOf(s, "caged-neck");
+    return t ? { shapes: t.shapes?.length ? [...t.shapes] : [OVERVIEW] } : null;
+  },
+  // the shapes change; the key and its scale (major or minor shapes) stay the widget's own
+  update(s, values) {
+    const t = toolOf(s, "caged-neck");
+    if (!t) return s;
+    const picked = strs(values.shapes ?? (t.shapes ?? []));
+    const tool = toolSubject({ ...t, shapes: CAGED_LETTERS.filter((l) => picked.includes(l)) });
+    return "pinned" in s && s.pinned ? ({ ...tool, pinned: s.pinned } as Subject) : tool;
   },
   parts(s) {
-    const c = s as Extract<Subject, { kind: "caged" }>;
-    const letters: CagedLetter[] = c.shapes?.length ? c.shapes : c.shape ? [c.shape] : [];
+    const t = toolOf(s, "caged-neck")!;
+    const letters = t.shapes ?? [];
     const detail = letters.length ? `${letters.join(", ")} shape${letters.length > 1 ? "s" : ""}` : "whole neck";
-    return { name: "CAGED", key: keyText(c.key.tonicPc, cagedQualityOf(c.key)), detail };
+    return { name: "CAGED", key: keyText(t.key, cagedQualityOf(toolKeyChoice(t))), detail };
   },
 });
 
@@ -280,13 +276,14 @@ const caged = family({
 
 const ARP_KINDS = [{ value: "triad", label: "Scale triad" }, { value: "seventh", label: "Scale 7th" }, { value: "ninth", label: "Scale 9th" }];
 const ARP_TYPES = [...ARP_KINDS, ...ARP_QUALITIES.map((q) => ({ value: q.id, label: q.label }))];
-const typeText = (type: string) => ARP_TYPES.find((t) => t.value === type)?.label ?? type;
 /** the strings a position's root can sit on, low to high: guitar numbering, as the arpeggios page counts them */
 export const ARP_ROOT_STRINGS = [6, 5, 4, 3, 2];
 const ORDINAL: Record<number, string> = { 6: "6th", 5: "5th", 4: "4th", 3: "3rd", 2: "2nd" };
 const ARP_SCALES = MODE_PAGES.map((m) => ({ value: m.slug, label: m.name }));
-/** The Key control's value: what the widget draws, the site's default key when it has no root yet. */
-const arpTonic = (key: KeyChoice) => key.tonicPc ?? DEFAULT_KEY_PC;
+/** a quality's chord symbol after the root, as `parseChordQuery` reads it */
+const QUALITY_SUFFIX: Record<string, string> = { maj: "", min: "m", dim: "dim", aug: "aug", maj7: "maj7", "7": "7", m7: "m7", m7b5: "m7b5", dim7: "dim7", mmaj7: "mMaj7" };
+/** a scale 7th's 9th: maj7 → maj9, m7 → m9, 7 → 9; others have no 9th here and stay the 7th */
+const NINTH: Record<string, string> = { maj7: "maj9", m7: "m9", "7": "9" };
 
 /** The chords of the key the values name, to start the arpeggio on: "V · G". */
 function arpDegreeOptions(v: FamilyValues) {
@@ -296,75 +293,83 @@ function arpDegreeOptions(v: FamilyValues) {
   return ctx.chords.map((c) => ({ value: c.degree, label: `${c.roman} · ${ctx.names[c.degree]}` }));
 }
 
-/** An older arpeggio widget (`arpeggio-neck`, a typed chord in one or two boxes) as these controls: the chord's root as the key, on I, the nearest type. */
-function arpLegacyValues(t: ToolOf<"arpeggio-neck">): FamilyValues {
-  const q = parseChordQuery(t.chord);
-  const semis = q?.semis ?? [0, 4, 7];
-  const overlap = (qs: number[]) => qs.filter((n) => semis.includes(n)).length - qs.filter((n) => !semis.includes(n)).length;
-  const nearest = ARP_QUALITIES.reduce((best, x) => (overlap(x.semis) > overlap(best.semis) ? x : best));
-  const fromBoxes = t.boxes?.map((b) => 7 - b).filter((n) => ARP_ROOT_STRINGS.includes(n)) ?? [];
-  const placed = t.placement?.by === "root" ? [t.placement.string] : [];
-  const roots = fromBoxes.length ? fromBoxes : placed.length ? placed : [6];
-  return { key: q?.rootPc ?? 0, scale: semis.includes(3) ? "natural-minor-aeolian" : MODE_PAGES[0].slug, degree: 0, type: nearest.id, show: ["positions"], roots };
+/**
+ * The chord symbol the Arpeggio family's values name: the scale's own triad, 7th or 9th on `degree` (0-6) of `key`, or an
+ * `ARP_QUALITIES` quality on that degree's root ("Dm", "Dm7", "Dm9", "Gm").
+ */
+export function arpChordSymbol(key: KeyChoice, degree: number, type: string): string {
+  const ctx = keyContext({ ...key, tonicPc: key.tonicPc ?? DEFAULT_KEY_PC })!;
+  const ch = ctx.chords[Math.min(Math.max(Math.round(degree), 0), 6)];
+  if (type === "triad") return ch.triadName;
+  if (type === "seventh") return ch.seventhName;
+  if (type === "ninth") return NINTH[ch.seventh] ? `${ch.root}${NINTH[ch.seventh]}` : ch.seventhName;
+  return `${ch.root}${QUALITY_SUFFIX[type] ?? ""}`;
 }
 
+/** The `ARP_QUALITIES` quality closest to a chord's notes (G9 → 7): most notes shared, fewest added. */
+function nearestQuality(semis: number[]): string {
+  const pcs = semis.map((n) => ((n % 12) + 12) % 12);
+  const score = (qs: number[]) => qs.filter((n) => pcs.includes(n)).length - qs.filter((n) => !pcs.includes(n)).length;
+  return ARP_QUALITIES.reduce((best, x) => (score(x.semis) > score(best.semis) ? x : best)).id;
+}
+
+/** An arpeggio widget's values: the chord's root as the key, in major or minor by its 3rd, on I, its type. */
 function arpRead(s: Subject): FamilyValues | null {
-  if (s.kind === "arpeggio") {
-    const slug = MODE_PAGES.find((m) => m.familyIndex === s.key.family && m.modeIndex === s.key.mode)?.slug ?? MODE_PAGES[0].slug;
-    return { key: arpTonic(s.key), scale: slug, degree: s.degree, type: s.type, show: [...(s.neck ? ["neck"] : []), ...(s.positions === false ? [] : ["positions"])], roots: s.roots ?? ARP_ROOT_STRINGS };
-  }
   const t = toolOf(s, "arpeggio-neck");
-  return t ? arpLegacyValues(t) : null;
+  if (!t) return null;
+  const q = parseChordQuery(t.chord);
+  const minor = !!q?.semis.includes(3);
+  return {
+    key: q?.rootPc ?? 0, scale: minor ? "natural-minor-aeolian" : MODE_PAGES[0].slug, degree: 0, type: arpTypeOf(t.chord) ?? nearestQuality(q?.semis ?? [0, 4, 7]),
+    show: t.show ?? ["positions"], roots: t.roots ?? ARP_ROOT_STRINGS,
+  };
 }
 
 function arpMake(v: FamilyValues, key: KeyChoice): Subject {
   const page = findModePage(str(v.scale) ?? "");
-  const family = page ? page.familyIndex : key.family;
-  const mode = page ? page.modeIndex : key.mode;
-  // the Key control shows the default for a key with no root: left there it stays no root, so the widget follows the master once it is set
-  const picked = typeof v.key === "number" && Number.isInteger(v.key) && v.key >= 0 && v.key < 12 ? v.key : null;
-  const tonicPc = picked === null || picked === arpTonic(key) ? key.tonicPc : picked;
+  const tonicPc = typeof v.key === "number" && Number.isInteger(v.key) && v.key >= 0 && v.key < 12 ? v.key : tonicOf(key);
+  const own: KeyChoice = { tonicPc, family: page ? page.familyIndex : key.family, mode: page ? page.modeIndex : key.mode };
   const degree = typeof v.degree === "number" && Number.isInteger(v.degree) && v.degree >= 0 && v.degree <= 6 ? v.degree : 0;
   const type = ARP_TYPES.find((t) => t.value === v.type)?.value ?? "seventh";
-  const show = strs(v.show);
-  const neck = show.includes("neck");
+  // nothing shown is the positions, as on the Scale family
+  const show = NECK_SHOWS.filter((x) => strs(v.show).includes(x));
   const roots = ARP_ROOT_STRINGS.filter((n) => nums(v.roots)?.includes(n));
-  return {
-    kind: "arpeggio", key: { tonicPc, family, mode }, degree, type,
-    // nothing shown is the positions, as on the Scale family
-    ...(neck ? { neck: true } : {}), ...(neck && !show.includes("positions") ? { positions: false } : {}),
-    ...(roots.length ? { roots } : { roots: ARP_ROOT_STRINGS }),
-  };
+  return toolSubject({ type: "arpeggio-neck", chord: arpChordSymbol(own, degree, type), show: show.length ? show : ["positions"], ...(roots.length && roots.length < ARP_ROOT_STRINGS.length ? { roots } : {}) });
 }
+const NECK_SHOWS = ["neck", "positions"];
 
 /**
- * New main props in the widget's own key. A key or scale picked here pins that part, as on the widget's tags. An older widget is
- * made over only when something really changed (closing its editor must not turn a G9 into the nearest type); its scale was never
- * the master's, so it stays pinned.
+ * New main props: the chord made afresh, the tool's other props kept. Nothing really changed (closing the editor) leaves it as it
+ * is, so a typed G9 never turns into the nearest type; a key picked here pins the tonic.
  */
 function arpUpdate(s: Subject, values: FamilyValues): Subject {
   const current = arpRead(s);
-  if (!current) return s;
+  if (!current || s.kind !== "tool") return s;
   const merged = { ...current, ...values };
-  const legacy = s.kind === "tool";
-  if (legacy && JSON.stringify(merged) === JSON.stringify(current)) return s;
-  const page = findModePage(str(current.scale) ?? "");
-  const own: KeyChoice = s.kind === "arpeggio" ? s.key : { tonicPc: current.key as number, family: page?.familyIndex ?? 0, mode: page?.modeIndex ?? 0 };
-  const made = arpMake(merged, own);
-  const pins = new Set<"tonic" | "scale">("pinned" in s ? (s.pinned ?? []) : []);
-  if (merged.key !== current.key) pins.add("tonic");
-  if (legacy || merged.scale !== current.scale) pins.add("scale");
-  return pins.size ? ({ ...made, pinned: [...pins] } as Subject) : made;
+  if (JSON.stringify(merged) === JSON.stringify(current)) return s;
+  // only what it shows changed: the chord stays exactly as written (G9 stays G9, C#m keeps its spelling)
+  if (["key", "scale", "degree", "type"].every((k) => JSON.stringify(merged[k]) === JSON.stringify(current[k]))) {
+    const { show: _s, roots: _r, ...rest } = s.tool as Record<string, unknown>;
+    void _s; void _r;
+    const show = NECK_SHOWS.filter((x) => strs(merged.show).includes(x));
+    const roots = ARP_ROOT_STRINGS.filter((n) => nums(merged.roots)?.includes(n));
+    const tool = toolSubject({ ...rest, show: show.length ? show : ["positions"], ...(roots.length && roots.length < ARP_ROOT_STRINGS.length ? { roots } : {}) });
+    return s.pinned ? ({ ...tool, pinned: s.pinned } as Subject) : tool;
+  }
+  const made = arpMake(merged, { tonicPc: current.key as number, family: 0, mode: 0 });
+  if (made.kind !== "tool") return s;
+  const { show: _show, roots: _roots, ...kept } = s.tool as Record<string, unknown>;
+  void _show; void _roots;
+  const tool = toolSubject({ ...kept, ...made.tool });
+  const pinned = s.pinned ?? (merged.key !== current.key ? ["tonic"] : undefined);
+  return pinned ? ({ ...tool, pinned } as Subject) : tool;
 }
 
 function arpParts(s: Subject): Parts {
-  const t = toolOf(s, "arpeggio-neck");
-  if (t) return { name: "Arpeggio", key: t.chord, detail: numbered("box", t.boxes) };
-  const a = s as Extract<Subject, { kind: "arpeggio" }>;
-  const roman = keyContext({ ...a.key, tonicPc: arpTonic(a.key) })!.chords[a.degree].roman;
-  const roots = a.roots ?? ARP_ROOT_STRINGS;
-  const where = a.positions === false ? null : roots.length === ARP_ROOT_STRINGS.length ? "all positions" : `root on ${roots.map((n) => ORDINAL[n]).join(", ")}`;
-  return { name: "Arpeggio", key: keyChoiceText(a.key), detail: [`${roman} ${typeText(a.type)}`, a.neck ? "neck" : null, where].filter(Boolean).join(", ") };
+  const t = toolOf(s, "arpeggio-neck")!;
+  const roots = t.roots ?? ARP_ROOT_STRINGS;
+  const where = t.show ? [t.show.includes("neck") ? "neck" : null, !t.show.includes("positions") ? null : roots.length === ARP_ROOT_STRINGS.length ? "all positions" : `root on ${roots.map((n) => ORDINAL[n]).join(", ")}`] : [numbered("box", t.boxes)];
+  return { name: "Arpeggio", key: t.chord, detail: where.filter(Boolean).join(", ") || null };
 }
 
 const arpeggio = family({
@@ -373,6 +378,7 @@ const arpeggio = family({
   words: ["arpeggio", "arpeggios", "arp", "arps", "chord", "box", "boxes", "root", "string"],
   group: "chords",
   sub: "In the key",
+  tool: "arpeggio-neck",
   controls: [
     { name: "key", label: "Key", kind: "choice", options: KEY_OPTIONS, default: DEFAULT_KEY_PC },
     { name: "scale", label: "Scale", kind: "choice", options: ARP_SCALES, default: MODE_PAGES[0].slug },
@@ -524,7 +530,106 @@ const melody = family({
   },
 });
 
-const ALL = [scale, caged, arpeggio, chordShapes, staff, melody];
+/* ---------------------------------------------------------------- the theory panels */
+
+type PanelTool = Extract<PlanTool, { key: number; scale: string }>;
+
+/**
+ * A theory panel as a family: a tool in the key it is added in, with no controls of its own (the chord circle has On). Its key
+ * and scale are the widget's: they follow the master as any tool's key does.
+ */
+function panel(id: Extract<ToolName, "relative-modes" | "mode-intervals" | "key-chords" | "triads" | "progressions" | "circle-of-fifths" | "piano-keys" | "improvisation" | "tunings" | "chord-circle">, title: string, words: string[], group: PaletteGroup, sub?: string, controls: FamilyControl[] = []) {
+  return family({
+    id, title, words, group, ...(sub ? { sub } : {}), tool: id, controls,
+    make: (v, key) => toolSubject({ type: id, key: tonicOf(key), scale: modeSlug(key), ...(id === "chord-circle" ? { degree: typeof v.degree === "number" ? v.degree : 1 } : {}) }),
+    read(s): FamilyValues | null {
+      const t = toolOf(s, id);
+      if (!t) return null;
+      return t.type === "chord-circle" ? { degree: t.degree } : {};
+    },
+    // the controls change; the key and the scale stay the widget's own
+    update(s, values) {
+      const t = toolOf(s, id);
+      if (!t) return s;
+      const tool = toolSubject({ ...t, ...(t.type === "chord-circle" && typeof values.degree === "number" ? { degree: values.degree } : {}) });
+      return "pinned" in s && s.pinned ? ({ ...tool, pinned: s.pinned } as Subject) : tool;
+    },
+    parts(s) {
+      const t = toolOf(s, id) as PanelTool;
+      const roman = t.type === "chord-circle" ? keyContext(toolKeyChoice(t))?.chords[t.degree - 1]?.roman : null;
+      return { name: title, key: keyText(t.key, scaleText(t.scale)), detail: roman ?? null };
+    },
+  });
+}
+
+const DEGREES = Array.from({ length: 7 }, (_, i) => ({ value: i + 1, label: ["I", "II", "III", "IV", "V", "VI", "VII"][i] }));
+const PANELS = [
+  panel("relative-modes", "Relative modes", ["relative", "relatives", "modes", "mode", "same", "notes"], "scale"),
+  panel("mode-intervals", "Intervals of the mode", ["intervals", "interval", "mode", "degrees", "formula", "notes"], "scale"),
+  panel("key-chords", "Chords in the key", ["chords", "chord", "every", "diatonic", "in", "key"], "chords", "In the key"),
+  panel("triads", "Triads", ["triads", "triad", "inversions", "inversion"], "chords", "In the key"),
+  panel("progressions", "Progressions", ["progressions", "progression", "chords"], "chords", "In the key"),
+  panel("chord-circle", "Sus & extensions", ["sus", "extensions", "extension", "bubble", "bubbles", "add9"], "chords", "Sus & extensions", [{ name: "degree", label: "On", kind: "choice", options: DEGREES, default: 1 }]),
+  panel("circle-of-fifths", "Circle of fifths", ["circle", "fifths", "keys", "neighbours"], "theory"),
+  panel("piano-keys", "Piano keys", ["piano", "keys", "keyboard"], "theory"),
+  panel("improvisation", "Improvisation", ["improvisation", "improvise", "improv", "motive", "rhythm"], "theory"),
+  panel("tunings", "Tunings", ["tunings", "tuning", "open", "drop"], "theory"),
+];
+
+/* ---------------------------------------------------------------- the practice tools */
+
+const LEVELS = ["new", "beginner", "intermediate", "advanced"].map((value) => ({ value, label: value[0].toUpperCase() + value.slice(1) }));
+const TEMPOS = [50, 60, 70, 80, 90, 100, 120].map((value) => ({ value, label: `${value} bpm` }));
+const levelControl: FamilyControl = { name: "level", label: "Level", kind: "choice", options: LEVELS, default: "beginner" };
+const tempoControl = (d: number): FamilyControl => ({ name: "bpm", label: "Tempo", kind: "choice", options: TEMPOS, default: d });
+const BAND_PART_OPTIONS = [{ value: "click", label: "Click" }, { value: "drone", label: "Drone" }, { value: "drums", label: "Drums" }, { value: "bass", label: "Bass" }];
+/** I, V, vi and IV of the key, as chord names: a strum-along's chords when none are typed */
+const fourChords = (key: KeyChoice) => [0, 4, 5, 3].map((d) => chordsOf(key)[d].triadName);
+
+/**
+ * A plan-only tool as a family: made from the parser's defaults and the few controls it has (the rest are the parser's), so a
+ * teacher picks a level or a tempo and the tool sets itself up from it.
+ */
+function practice(id: Extract<ToolName, "backing-band" | "note-finder" | "interval-ears" | "string-singer" | "interval-singer" | "breathwork" | "finger-pattern" | "picking-drill" | "legato-trill" | "strum-along">, title: string, words: string[], controls: FamilyControl[], base: (key: KeyChoice) => Record<string, unknown>, detail: (t: PlanTool) => string | null) {
+  return family({
+    id, title, words, group: "practice", tool: id, controls,
+    make(v, key) {
+      const own = Object.fromEntries(controls.flatMap((c) => (v[c.name] === undefined ? [] : [[c.name, c.name === "parts" ? Object.fromEntries(strs(v.parts).map((p) => [p, "on"])) : v[c.name]]])));
+      return toolSubject({ type: id, ...Object.fromEntries(controls.map((c) => [c.name, c.name === "parts" ? Object.fromEntries((c.default as string[]).map((p) => [p, "on"])) : c.default])), ...base(key), ...own });
+    },
+    read(s) {
+      const t = toolOf(s, id) as Record<string, unknown> | null;
+      if (!t) return null;
+      return Object.fromEntries(controls.map((c) => [c.name, c.name === "parts" ? Object.keys((t.parts as object) ?? {}) : ((t[c.name] as FamilyValue | undefined) ?? c.default)]));
+    },
+    // only the controls changed are written; the tool keeps the rest (a strum-along's chords, a band part's mode, a trill's string)
+    update(s, values) {
+      const t = toolOf(s, id) as Record<string, unknown> | null;
+      if (!t) return s;
+      const old = (t.parts ?? {}) as Record<string, string>;
+      const changed = controls.flatMap((c) => (values[c.name] === undefined ? [] : [[c.name, c.name === "parts" ? Object.fromEntries(strs(values.parts).map((p) => [p, old[p] ?? "on"])) : values[c.name]]]));
+      const tool = toolSubject({ ...t, ...Object.fromEntries(changed) });
+      return "pinned" in s && s.pinned ? ({ ...tool, pinned: s.pinned } as Subject) : tool;
+    },
+    parts: (s) => ({ name: title, key: null, detail: detail(toolOf(s, id)!) }),
+  });
+}
+
+const lvl = (t: PlanTool) => ("level" in t && t.level ? LEVELS.find((l) => l.value === t.level)!.label.toLowerCase() : null);
+const PRACTICE = [
+  practice("backing-band", "Backing band", ["backing", "band", "metronome", "click", "drone", "drums", "bass", "tempo"], [{ name: "parts", label: "Parts", kind: "multi", options: BAND_PART_OPTIONS, default: ["click", "drone"] }, tempoControl(80)], (key) => ({ key: tonicOf(key) }), (t) => (t.type === "backing-band" ? `${Object.keys(t.parts).join(", ")} · ${t.bpm} bpm` : null)),
+  practice("note-finder", "Note finder", ["note", "finder", "find", "notes", "fretboard", "game"], [levelControl], () => ({}), lvl),
+  practice("interval-ears", "Interval ears", ["interval", "intervals", "ears", "ear", "hear", "game"], [levelControl], () => ({}), lvl),
+  practice("string-singer", "Sing the strings", ["sing", "strings", "open", "string", "singer"], [levelControl], () => ({}), lvl),
+  practice("interval-singer", "Sing intervals", ["sing", "interval", "intervals", "singer", "do"], [levelControl], (key) => ({ key: tonicOf(key) }), lvl),
+  practice("breathwork", "Breathwork", ["breath", "breathing", "breathwork", "exhale"], [levelControl], () => ({}), lvl),
+  practice("finger-pattern", "Finger pattern", ["finger", "fingers", "pattern", "dexterity", "technique"], [levelControl, tempoControl(60)], () => ({}), lvl),
+  practice("picking-drill", "Picking drill", ["picking", "pick", "alternate", "drill", "technique"], [levelControl, tempoControl(60)], () => ({}), lvl),
+  practice("legato-trill", "Legato trill", ["legato", "trill", "hammer", "pull", "technique"], [levelControl, tempoControl(60)], () => ({ string: 3, fret: 5 }), lvl),
+  practice("strum-along", "Strum along", ["strum", "strumming", "chords", "rhythm"], [tempoControl(80)], (key) => ({ chords: fourChords(key) }), (t) => (t.type === "strum-along" ? `${t.chords.join(", ")} · ${t.bpm} bpm` : null)),
+];
+
+const ALL = [scale, caged, arpeggio, chordShapes, staff, melody, ...PANELS, ...PRACTICE];
 
 /** The palette's families, in its order. */
 export const FAMILIES: Family[] = ALL;

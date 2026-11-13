@@ -40,6 +40,17 @@ const TOOL_TOUR_SOURCES: Record<ToolName, string[]> = (() => {
     "picking-drill": [basics("picking-drill"), drills],
     "legato-trill": [basics("legato-trill"), drills],
     video: [basics("video")],
+    "relative-modes": [basics("relative-modes")],
+    "mode-intervals": [basics("mode-intervals")],
+    "key-chords": [basics("key-chords")],
+    "triads": [basics("triads")],
+    "progressions": [basics("progressions")],
+    "circle-of-fifths": [basics("circle-of-fifths")],
+    "piano-keys": [basics("piano-keys")],
+    "improvisation": [basics("improvisation")],
+    "tunings": [basics("tunings")],
+    "chord-circle": [basics("chord-circle")],
+    "caged-neck": [basics("caged-neck")],
   };
 })();
 

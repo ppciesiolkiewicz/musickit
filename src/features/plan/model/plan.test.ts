@@ -11,7 +11,8 @@ import { COMPONENT_DOCS } from "@/features/exercises/docs";
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
 import { PROGRESSIONS, STYLES } from "@/features/backing/model";
-import { cellInterface, cellsOf, degreeSemis, linkResources, parseCellDiag, parseTool, parseToolDiag, toolInterface, toolsOf, type Cell } from "./tools";
+import { KEY_PANELS, canFollowPart, cellInterface, cellsOf, degreeSemis, linkResources, parseCellDiag, parseTool, parseToolDiag, toolInterface, toolsOf, type Cell } from "./tools";
+import { transposeTool } from "./transpose";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
 import { dayIndex, dayProgress, localDate, weekOver } from "./schedule";
@@ -563,5 +564,90 @@ describe("parseExercise", () => {
     assert.ok(r.warnings.includes("Ex: section minutes didn't add up to 10; scaled them."));
     const one = ex({ title: "T", minutes: 8 });
     assert.ok(one.warnings.includes("Ex: over 5 minutes in one block; split it into sections with minutes."));
+  });
+});
+
+describe("key panel tools", () => {
+  it("every key panel parses like scale-neck", () => {
+    for (const type of KEY_PANELS) {
+      assert.deepEqual(parseTool({ type, key: "a", scale: "dorian" }), { type, key: 9, scale: "dorian" });
+      assert.match(parseToolDiag({ type, key: "a" }).dropped ?? "", /\(no scale\)/);
+      assert.match(parseToolDiag({ type, scale: "dorian" }).dropped ?? "", /\(no key\)/);
+    }
+  });
+  it("a pentatonic scale is kept as written", () => {
+    assert.deepEqual(parseTool({ type: "triads", key: "a", scale: "minor-pentatonic" }), { type: "triads", key: 9, scale: "minor-pentatonic" });
+  });
+  it("chord-circle degree", () => {
+    assert.equal((parseTool({ type: "chord-circle", key: "c", scale: "major-ionian", degree: 5 }) as { degree: number }).degree, 5);
+    const nine = parseToolDiag({ type: "chord-circle", key: "c", scale: "major-ionian", degree: 9 });
+    assert.equal((nine.tool as { degree: number }).degree, 1);
+    assert.ok(nine.notes.some((n) => n.includes("degree")));
+    assert.equal((parseTool({ type: "chord-circle", key: "c", scale: "major-ionian" }) as { degree: number }).degree, 1);
+  });
+  it("caged-neck shapes", () => {
+    assert.deepEqual((parseTool({ type: "caged-neck", key: "c", scale: "major-ionian", shapes: ["E", "C", "E"] }) as { shapes?: string[] }).shapes, ["C", "E"]);
+    const x = parseToolDiag({ type: "caged-neck", key: "c", scale: "major-ionian", shapes: ["X"] });
+    assert.deepEqual(x.tool, { type: "caged-neck", key: 0, scale: "major-ionian" });
+    assert.ok(x.notes.some((n) => n.includes("shapes")));
+  });
+  it("the master moves a key panel", () => {
+    const t = parseTool({ type: "chord-circle", key: "a", scale: "natural-minor-aeolian", degree: 2 })!;
+    assert.deepEqual(transposeTool(t, 6 - 9), { type: "chord-circle", key: 6, scale: "natural-minor-aeolian", degree: 2 });
+    assert.equal((transposeTool(parseTool({ type: "caged-neck", key: "c", scale: "major-ionian" })!, 2) as { key: number }).key, 2);
+  });
+  it("a choice's scale and key move a key panel", () => {
+    const t = parseTool({ type: "triads", key: "c", scale: "major-ionian" })!;
+    assert.equal(canFollowPart(t, "scale"), true);
+    assert.equal(canFollowPart(t, "key"), true);
+  });
+});
+
+describe("position-neck kind 3nps", () => {
+  const p = (extra: Record<string, unknown>) => parseToolDiag({ type: "position-neck", key: "c", scale: "major-ionian", kind: "3nps", ...extra });
+  it("keeps the kind and a position up to 7", () => {
+    assert.deepEqual(p({ positions: [7] }).tool, { type: "position-neck", key: 0, scale: "major-ionian", kind: "3nps", positions: [7] });
+  });
+  it("a position past 7 is position 1, with a note", () => {
+    const r = p({ positions: [8] });
+    assert.deepEqual((r.tool as { positions?: number[] }).positions, [1]);
+    assert.ok(r.notes.some((n) => n.includes("positions")));
+  });
+  it("one position at a time: the first is kept", () => {
+    const r = p({ positions: [2, 3] });
+    assert.deepEqual((r.tool as { positions?: number[] }).positions, [2]);
+    assert.ok(r.notes.some((n) => n.includes("one position")));
+  });
+  it("a crossing is dropped, with a note", () => {
+    const r = p({ positions: [2], cross: { from: 1, to: 2 } });
+    assert.equal((r.tool as { cross?: unknown }).cross, undefined);
+    assert.ok(r.notes.some((n) => n.includes("cross")));
+  });
+  it("an unknown kind is left out, with a note", () => {
+    const r = parseToolDiag({ type: "position-neck", key: "c", scale: "major-ionian", kind: "other", positions: [1] });
+    assert.equal((r.tool as { kind?: string }).kind, undefined);
+    assert.ok(r.notes.some((n) => n.includes("kind")));
+  });
+});
+
+describe("arpeggio-neck views", () => {
+  const p = (extra: Record<string, unknown>, chord = "Am") => parseToolDiag({ type: "arpeggio-neck", chord, ...extra });
+  it("keeps show and root strings", () => {
+    const t = p({ show: ["neck", "positions"], roots: [6, 5] }).tool as { show?: string[]; roots?: number[] };
+    assert.deepEqual(t.show, ["neck", "positions"]);
+    assert.deepEqual(t.roots, [6, 5]);
+  });
+  it("drops a root string outside 2-6, with a note", () => {
+    const r = p({ show: ["neck"], roots: [1, 5] });
+    assert.deepEqual((r.tool as { roots?: number[] }).roots, [5]);
+    assert.ok(r.notes.some((n) => n.includes("roots")));
+  });
+  it("roots without show are left out", () => {
+    assert.equal((p({ roots: [5] }).tool as { roots?: number[] }).roots, undefined);
+  });
+  it("a chord the arpeggios page can't draw keeps the box view, with a note", () => {
+    const r = p({ show: ["neck"] }, "C13");
+    assert.equal((r.tool as { show?: string[] }).show, undefined);
+    assert.ok(r.notes.some((n) => n.includes("show")));
   });
 });

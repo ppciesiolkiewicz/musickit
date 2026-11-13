@@ -3,11 +3,11 @@
  * components' `key` pitch class (an arpeggio's chord root). The scale slug is the tool's own and never follows the master.
  */
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
-import type { PlanTool, ToolName } from "@/features/plan/model/tools";
+import { TOOLS, type PlanTool, type ToolName } from "@/features/plan/model/tools";
 import { transposeTool } from "@/features/plan/model/transpose";
 
 /** The learning components a stage may hold as widgets; the families draw from these. */
-export const STAGE_TOOLS: ToolName[] = ["scale-neck", "position-neck", "arpeggio-neck", "chord-shapes", "staff", "melody-singer", "run-singer", "backing-track"];
+export const STAGE_TOOLS: ToolName[] = Object.keys(TOOLS) as ToolName[];
 
 /** The tool's key as a pitch class (an arpeggio's chord root), or null when it has none (chord shapes, games without a key). */
 export function toolKey(tool: PlanTool): number | null {

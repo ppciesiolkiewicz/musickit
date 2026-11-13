@@ -206,3 +206,36 @@ function check(choice: Choice, under: Under[], name: string, out: string[]): voi
   }
   if (off.length) out.push(`${name}: the choice's option 1 should match the tools as written (its ${off.join(" and ")}).`);
 }
+
+/** The picked option per choice id ("block", or a part's id from `drawnParts`), as an index into its options. */
+export type Picks = Record<string, number>;
+
+/** The option a choice is at: the pick, or option 1 when there is none, it is past the options, or the choice is open or absent. */
+export function pickAt(choice: Choice | undefined, picks: Picks, id: string): number {
+  if (!choice || isOpen(choice)) return 0;
+  const at = picks[id] ?? 0;
+  return Number.isInteger(at) && at >= 0 && at < choice.options.length ? at : 0;
+}
+
+/**
+ * One part of a block as the reader draws it: `id` ("own<k>" or "s<k>", the key of its pick), the section or null, the
+ * choice whose chips sit in its header (a section's own options; null for the block's own cells, whose chips the reader
+ * draws once, before the block's first tool, and when the choice is open), its cells with every choice applied, and `from` as in `layoutParts`.
+ */
+export interface DrawnPart { id: string; section: SectionCell | null; chips: Choice | null; cells: PlainCell[]; from: number }
+
+/** The block's parts in document order, each with its cells set to the picked options (the block's first, then a section's own). */
+export function drawnParts(block: Pick<Block, "choice" | "cells">, picks: Picks): DrawnPart[] {
+  const blockAt = pickAt(block.choice, picks, "block");
+  const chipsOf = (c: Choice | undefined) => (c && !isOpen(c) ? c : null);
+  return layoutParts(block.cells).map((p, k) => {
+    const id = p.section ? `s${k}` : `own${k}`;
+    const own = p.section?.choice;
+    return { id, section: p.section, chips: chipsOf(own), cells: applyUnder(p.cells, block.choice, blockAt, own, pickAt(own, picks, id)), from: p.from };
+  });
+}
+
+/** The open value the reader draws as the key bar: only when the host asks (a block with no exercise metadata, a note) and the block's choice is open. */
+export function keyBarValue(block: Pick<Block, "choice">, keyBar: boolean): ChoiceOption | null {
+  return keyBar && block.choice && isOpen(block.choice) ? block.choice.open : null;
+}
