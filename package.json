@@ -10,6 +10,7 @@
     "lint": "eslint",
     "docs:exercises": "tsx scripts/gen-exercise-docs.ts",
     "theory": "npx tsx scripts/theory.ts",
+    "structure": "npx tsx scripts/structure.ts",
     "db:up": "docker compose up -d --wait db",
     "db:down": "docker compose down",
     "db:generate": "drizzle-kit generate",
