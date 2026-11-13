@@ -6,7 +6,8 @@ import { useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
 import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useAudioFocus, wakeAudio } from "@/features/sound";
-import { VOICES } from "@/features/theory/singing";
+import { REGISTERS, voiceMap, type Registers } from "@/features/theory/registers";
+import { VOICES, type Voice } from "@/features/theory/singing";
 import { PlayButton, PlayerCard } from "../../play-along/PlayerParts";
 import { useVoice } from "../voiceChoice";
 import { noteLabel, useTouch, useVoicePitch } from "../voicePitch";
@@ -28,7 +29,6 @@ const TIPS = [
   "Close is good enough. An easy, steady buzz matters more than the exact note.",
 ];
 const TIP_SECONDS = 9;
-const SPAN_NAME: Record<number, string> = { 3: "a minor 3rd", 4: "a major 3rd", 5: "a 4th", 7: "a 5th", 12: "an octave" };
 
 type Point = { at: number; midi: number };
 
@@ -36,13 +36,13 @@ type Point = { at: number; midi: number };
  * The lip roll (`lip-roll.props.ts`): each round the tone sounds along its path while a playhead runs over it, then the
  * playhead runs again in silence while the mic draws the student's line. A short rest, then the next round.
  */
-export function View({ shape = "down", span: spanProp, seconds: secondsProp, plays: playsProp, voice: own = "tenor" }: LipRollProps) {
+export function View({ shape = "down", seconds: secondsProp, plays: playsProp, voice: own = "tenor" }: LipRollProps) {
   const voice = useVoice(own);
-  const range = VOICES[voice] ?? VOICES.tenor;
-  const span = clampInt(spanProp, LIMITS.span, DEFAULTS.span);
+  const known: Voice = voice in VOICES ? voice : "tenor";
+  const range = VOICES[known];
   const seconds = clampInt(secondsProp, LIMITS.seconds, DEFAULTS.seconds);
   const plays = clampInt(playsProp, LIMITS.plays, DEFAULTS.plays);
-  const path = useMemo(() => glidePath(shape, range, span, seconds), [shape, range, span, seconds]);
+  const path = useMemo(() => glidePath(shape, voiceMap(known), seconds), [shape, known, seconds]);
   const total = roundSeconds(path);
 
   const [status, setStatus] = useState<"idle" | "running" | "done">("idle");
@@ -125,7 +125,7 @@ export function View({ shape = "down", span: spanProp, seconds: secondsProp, pla
     : shape === "hold" ? `${noteLabel(path.low)} for ${seconds} seconds` : `${noteLabel(path.low)} to ${noteLabel(path.high)}`;
   const tip = TIPS[Math.floor((now?.t ?? 0) / TIP_SECONDS) % TIPS.length];
   const micNote = micStatusMessage(micStatus);
-  const meta = `${shape === "hold" ? `${seconds} seconds` : SPAN_NAME[span] ?? `${span} semitones`} · ${plays} ${plays === 1 ? "round" : "rounds"} · ${range.label}`;
+  const meta = `${shape === "hold" ? `chest voice · ${seconds} seconds` : shape === "siren" ? "chest to head voice and back" : shape === "up" ? "chest to head voice" : "head to chest voice"} · ${plays} ${plays === 1 ? "round" : "rounds"} · ${range.label}`;
 
   return (
     <PlayerCard ref={spaceRef}>
@@ -150,7 +150,7 @@ export function View({ shape = "down", span: spanProp, seconds: secondsProp, pla
         <StartCover show={status === "idle" && !now && trace.length === 0} title={TITLES[shape]} onStart={() => void start()} keyCap={spaceArmed ? "Space" : undefined} note="The mic starts with it. It listens only on your turn.">
           {WHAT[shape]}
         </StartCover>
-        <Roll path={path} trace={trace} at={phase === "listen" || phase === "you" ? now!.at : null} phase={phase} voice={voiceNow} near={near} />
+        <Roll path={path} registers={REGISTERS[known]} trace={trace} at={phase === "listen" || phase === "you" ? now!.at : null} phase={phase} voice={voiceNow} near={near} />
       </div>
 
       <div className="flex items-center gap-3 border-t border-slate-800 pt-3">
@@ -163,10 +163,10 @@ export function View({ shape = "down", span: spanProp, seconds: secondsProp, pla
   );
 }
 
-const W = 400, H = 180, L = 40, RGT = 12, TOP = 16, BOT = 24;
+const W = 400, H = 200, L = 40, RGT = 12, TOP = 16, BOT = 24;
 
-/** Time across, pitch up: the tone's path as a wide band, the playhead, and the student's line over it. */
-function Roll({ path, trace, at, phase, voice, near }: { path: GlidePath; trace: Point[]; at: number | null; phase: RoundPhase | null; voice: number | null; near: boolean }) {
+/** Time across, pitch up: the voice's registers as bands with the breaks between, the tone's path as a wide band, the playhead, and the student's line over it. */
+function Roll({ path, registers, trace, at, phase, voice, near }: { path: GlidePath; registers: Registers; trace: Point[]; at: number | null; phase: RoundPhase | null; voice: number | null; near: boolean }) {
   const lo = path.low - 3, hi = path.high + 3;
   const x = (t: number) => L + (t / path.duration) * (W - L - RGT);
   const y = (m: number) => TOP + ((hi - m) / (hi - lo)) * (H - TOP - BOT);
@@ -185,9 +185,25 @@ function Roll({ path, trace, at, phase, voice, near }: { path: GlidePath; trace:
   }
   const rows = Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
   const named = new Set([path.low, path.high]);
+  // chest up to the first break, the middle voice between the breaks, head voice from the second; each clipped to the picture
+  const edge = (m: number) => Math.min(hi, Math.max(lo, m - 0.5));
+  const bands = [
+    { name: "head voice", top: hi, bottom: edge(registers.secondo), fill: "fill-violet-400/[0.07]", text: "fill-violet-300/80" },
+    { name: "middle", top: edge(registers.secondo), bottom: edge(registers.primo), fill: "fill-slate-400/[0.03]", text: "fill-slate-400/80" },
+    { name: "chest voice", top: edge(registers.primo), bottom: lo, fill: "fill-amber-400/[0.06]", text: "fill-amber-200/80" },
+  ].filter((b) => y(b.bottom) - y(b.top) >= 16);
   const headTone = phase === "you" ? "rgb(196 181 253)" : "rgb(125 211 252)";
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full rounded-xl bg-slate-950/40" role="img" aria-label="The tone's path, and your line drawn over it on your turn">
+      {bands.map((b) => (
+        <g key={b.name}>
+          <rect x={L} width={W - L - RGT} y={y(b.top)} height={Math.max(0, y(b.bottom) - y(b.top))} className={b.fill} />
+          <text x={W - RGT - 6} y={y(b.top) + 13} textAnchor="end" className={`text-[11px] font-medium ${b.text}`}>{b.name}</text>
+        </g>
+      ))}
+      {[registers.primo, registers.secondo].filter((m) => m - 0.5 > lo && m - 0.5 < hi).map((m) => (
+        <line key={m} x1={L} x2={W - RGT} y1={y(m - 0.5)} y2={y(m - 0.5)} stroke="rgb(203 213 225)" strokeOpacity="0.35" strokeDasharray="2 4" />
+      ))}
       {rows.map((m) => (
         <g key={m}>
           <line x1={L} x2={W - RGT} y1={y(m)} y2={y(m)} stroke="rgb(148 163 184)" strokeOpacity={named.has(m) ? 0.22 : 0.07} />

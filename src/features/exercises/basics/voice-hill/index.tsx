@@ -7,6 +7,7 @@ import { useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
 import { useSpaceKey } from "@/components/practice/toolKeys";
 import { getAudioContext, getOutputBus, getSharedPiano, wakeAudio } from "@/features/sound";
+import { voiceMap } from "@/features/theory/registers";
 import { VOICES } from "@/features/theory/singing";
 import { PlayButton, PlayerCard } from "../../play-along/PlayerParts";
 import { useVoice } from "../voiceChoice";
@@ -67,7 +68,7 @@ type Status = "idle" | "holding" | "rest" | "done";
 export function View({ where = "low", sound = "hum", seconds: secondsProp, reps: repsProp, voice: own = "tenor" }: VoiceHillProps) {
   const voice = useVoice(own);
   const range = VOICES[voice] ?? VOICES.tenor;
-  const zone = useMemo(() => zoneFor(where, range), [where, range]);
+  const zone = useMemo(() => zoneFor(where, voiceMap(voice in VOICES ? voice : "tenor")), [where, voice]);
   const seconds = clampInt(secondsProp, LIMITS.seconds, DEFAULTS.seconds);
   const reps = clampInt(repsProp, LIMITS.reps, DEFAULTS.reps);
 

@@ -1,15 +1,15 @@
 /**
- * A lip roll warm-up with the mic: a soft tone slides (or holds one note) while a line shows its path, then the
- * student lip rolls the same path back on their own while the mic draws their line over it. Each round is: listen,
- * your turn, a short rest; `plays` rounds in all. The line is loose on purpose: a lip roll is about an easy, steady
- * buzz, not an exact note. The slide sits low in the voice. A singing warm-up, for the start of a voice session.
+ * A lip roll warm-up with the mic: a soft tone slides from head voice down to chest voice (or back up, or holds one
+ * note) while a line shows its path over the voice's registers, then the student lip rolls the same path on their own
+ * while the mic draws their line over it. Each round is: listen, your turn, a short rest; `plays` rounds in all. The
+ * slide crosses both breaks of the voice type (typical ones, `REGISTERS`), so it smooths the change from head to chest
+ * voice. The line is loose on purpose: a lip roll is about an easy, steady buzz, not an exact note. A singing warm-up,
+ * for the start of a voice session.
  * @component lip-roll basic
  */
 export interface LipRollProps {
-  /** the path: "down" (default; a slide from high to low), "up" (low to high), "siren" (up and back down) or "hold" (one steady note) */
+  /** the path: "down" (default; from head voice to chest voice), "up" (chest to head voice), "siren" (up and back down) or "hold" (one steady chest-voice note) */
   shape?: "down" | "up" | "siren" | "hold";
-  /** how wide the slide is, in semitones, 3-12; default 7 (a 5th); 12 is an octave. Not for "hold" */
-  span?: number;
   /** "hold" only: how long the note lasts, 2-10 seconds; default 5 */
   seconds?: number;
   /** how many rounds, 1-8; default 3 */

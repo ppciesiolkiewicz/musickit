@@ -1,15 +1,20 @@
 import type { Range } from "@/features/theory/singing";
+import type { Registers } from "@/features/theory/registers";
+
+/** A voice's range and where it changes register. */
+export type VoiceMap = Range & Registers;
 
 /**
  * The lip roll's pure model: the path the tone takes (a slide, a siren or one held note) as points in time and pitch,
- * the pitch on it at a time, and one round's phases (listen, then your turn). No React, no sound.
+ * the pitch on it at a time, and one round's phases (listen, then your turn). It runs from head voice to chest voice, from
+ * the voice's registers (`REGISTERS`). No React, no sound.
  */
 
 export const LIP_ROLL_SHAPES = ["down", "up", "siren", "hold"] as const;
 export type LipRollShape = (typeof LIP_ROLL_SHAPES)[number];
 
-export const LIMITS = { span: [3, 12], plays: [1, 8], seconds: [2, 10] } as const;
-export const DEFAULTS = { span: 7, plays: 3, seconds: 5 } as const;
+export const LIMITS = { plays: [1, 8], seconds: [2, 10] } as const;
+export const DEFAULTS = { plays: 3, seconds: 5 } as const;
 
 /** A point of the path: `t` seconds from its start, `midi` the pitch. */
 export interface PathPoint { t: number; midi: number }
@@ -19,19 +24,23 @@ export interface GlidePath { points: PathPoint[]; duration: number; low: number;
 const EDGE = 1;
 
 /**
- * The tone's path in a voice: a slide starts 3 semitones over the bottom of the range and spans `span` semitones (a 5th
- * by default); "down" from its top note, "up" from its bottom, "siren" up and back down; "hold" one note, 5 semitones
- * over the bottom, for `seconds`. A slide holds its first and last note a second each and takes a quarter second a semitone
- * between them, never under 2.5 seconds.
+ * Where a lip roll goes in a voice (`voiceMap`): a slide from head voice to chest voice, its top 3 semitones over the second
+ * break and its bottom 7 under the first (a 5th down into chest voice), both kept inside the voice's comfortable range
+ * (a bass reaches only 2 semitones into head voice before its top). "hold" is one chest-voice note, 5 semitones under the first break.
  */
-export function glidePath(shape: LipRollShape, range: Range, span: number = DEFAULTS.span, seconds: number = DEFAULTS.seconds): GlidePath {
-  if (shape === "hold") {
-    const m = range.low + 5;
-    return { points: [{ t: 0, midi: m }, { t: seconds, midi: m }], duration: seconds, low: m, high: m };
-  }
-  const low = range.low + 3;
-  const high = low + span;
-  const ramp = Math.max(2.5, span * 0.25);
+export function rollNotes(v: VoiceMap): { high: number; low: number; hold: number } {
+  return { high: Math.min(v.high, v.secondo + 3), low: Math.max(v.low, v.primo - 7), hold: Math.max(v.low, v.primo - 5) };
+}
+
+/**
+ * The tone's path in a voice: "down" from head voice to chest voice, "up" the other way, "siren" up and back down,
+ * "hold" one chest-voice note for `seconds`. A slide holds its first and last note a second each and takes a quarter
+ * second a semitone between them, never under 2.5 seconds.
+ */
+export function glidePath(shape: LipRollShape, v: VoiceMap, seconds: number = DEFAULTS.seconds): GlidePath {
+  const { high, low, hold } = rollNotes(v);
+  if (shape === "hold") return { points: [{ t: 0, midi: hold }, { t: seconds, midi: hold }], duration: seconds, low: hold, high: hold };
+  const ramp = Math.max(2.5, (high - low) * 0.25);
   const [a, b] = shape === "up" || shape === "siren" ? [low, high] : [high, low];
   const points: PathPoint[] = [{ t: 0, midi: a }, { t: EDGE, midi: a }, { t: EDGE + ramp, midi: b }];
   if (shape === "siren") points.push({ t: EDGE + ramp + 0.6, midi: b }, { t: EDGE + 2 * ramp + 0.6, midi: a }, { t: 2 * EDGE + 2 * ramp + 0.6, midi: a });

@@ -8,7 +8,7 @@
  * @component voice-hill basic
  */
 export interface VoiceHillProps {
-  /** where in the voice: "low" (default; the bottom of the voice, a tenor's E3 and under), "middle" (a few notes over it, a tenor's F3 to B♭3) or "high" (the top of the voice, a tenor's F♯4 and over: keep it light) */
+  /** where in the voice: "low" (default; the bottom of the voice, a tenor's E3 and under), "middle" (a few notes over it, a tenor's F3 to B♭3) or "high" (head voice, over the second break: a tenor's G4 and over; keep it light) */
   where?: "low" | "middle" | "high";
   /** the sound to hold: "hum" (default), "oo" or "ee". "oo" suits the low and the high voice, a hum any place */
   sound?: "hum" | "oo" | "ee";

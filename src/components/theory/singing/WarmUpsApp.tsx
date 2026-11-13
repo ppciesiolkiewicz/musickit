@@ -12,13 +12,13 @@ type WarmUp = { id: string; label: string; title: string } & ({ tool: "lip-roll"
 
 /** The warm-ups in the order to do them: lip rolls first to loosen up, then the low voice, the middle, and the light high voice last. */
 const WARM_UPS: WarmUp[] = [
-  { id: "roll-down", label: "Slide down", title: "A lip roll sliding down a 5th", tool: "lip-roll", props: { shape: "down" } },
-  { id: "roll-siren", label: "Siren", title: "A lip roll up an octave and back", tool: "lip-roll", props: { shape: "siren", span: 12 } },
-  { id: "roll-hold", label: "One note", title: "A lip roll on one steady note", tool: "lip-roll", props: { shape: "hold" } },
+  { id: "roll-down", label: "Slide down", title: "A lip roll from head voice down to chest voice", tool: "lip-roll", props: { shape: "down" } },
+  { id: "roll-siren", label: "Siren", title: "A lip roll from chest voice up to head voice and back", tool: "lip-roll", props: { shape: "siren" } },
+  { id: "roll-hold", label: "One note", title: "A lip roll on one steady chest-voice note", tool: "lip-roll", props: { shape: "hold" } },
   { id: "hill-low-hum", label: "Low hum", title: "Hum low and roll the ball into the hollow", tool: "voice-hill", props: { where: "low", sound: "hum" } },
   { id: "hill-low-oo", label: "Low oo", title: "Sing “oo” low", tool: "voice-hill", props: { where: "low", sound: "oo" } },
   { id: "hill-middle", label: "Middle oo", title: "Sing “oo” in the middle of your voice", tool: "voice-hill", props: { where: "middle", sound: "oo", seconds: 5, reps: 3 } },
-  { id: "hill-high", label: "High oo", title: "Sing “oo” light and high", tool: "voice-hill", props: { where: "high", sound: "oo", seconds: 2 } },
+  { id: "hill-high", label: "High oo", title: "Sing “oo” light and high, in head voice", tool: "voice-hill", props: { where: "high", sound: "oo", seconds: 2 } },
 ];
 
 const VOICE_OPTIONS = (Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: VOICES[v].label }));

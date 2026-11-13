@@ -98,7 +98,7 @@ type PlanToolProps =
   | { type: "string-singer"; drill?: StringDrill; level?: ToolLevel; metronome?: false }
   | { type: "breathwork"; drill?: BreathDrill; level?: ToolLevel; from?: number; to?: number; seconds?: number; rounds?: number }
   | { type: "voice-hill"; where?: HillWhere; sound?: HillSound; seconds?: number; reps?: number; voice?: Voice }
-  | { type: "lip-roll"; shape?: LipRollShape; /** semitones, not for "hold" */ span?: number; /** "hold" only */ seconds?: number; plays?: number; voice?: Voice }
+  | { type: "lip-roll"; shape?: LipRollShape; /** "hold" only */ seconds?: number; plays?: number; voice?: Voice }
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; /** Do and then the note sound before the student sings; absent: only Do */ play?: "both"; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
@@ -455,13 +455,12 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
   },
   "lip-roll": {
     parse(t) {
-      // "down" is the default; `span` only for a slide, `seconds` only for "hold"
+      // "down" is the default; `seconds` only for "hold"
       const shape = LIP_ROLL_SHAPES.includes(t.shape as LipRollShape) ? (t.shape as LipRollShape) : "down";
-      const span = shape === "hold" ? null : int(t.span, ...LIP_ROLL_LIMITS.span);
       const seconds = shape === "hold" ? int(t.seconds, ...LIP_ROLL_LIMITS.seconds) : null;
       const plays = int(t.plays, ...LIP_ROLL_LIMITS.plays);
       const voice = voiceOf(t.voice);
-      return { type: "lip-roll", ...(shape !== "down" ? { shape } : {}), ...(span !== null ? { span } : {}), ...(seconds !== null ? { seconds } : {}), ...(plays !== null ? { plays } : {}), ...(voice ? { voice } : {}) };
+      return { type: "lip-roll", ...(shape !== "down" ? { shape } : {}), ...(seconds !== null ? { seconds } : {}), ...(plays !== null ? { plays } : {}), ...(voice ? { voice } : {}) };
     },
   },
   "string-singer": {

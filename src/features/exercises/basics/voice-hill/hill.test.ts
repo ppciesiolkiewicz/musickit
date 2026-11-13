@@ -1,14 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { VOICES } from "@/features/theory/singing";
+import { voiceMap } from "@/features/theory/registers";
 import { ballX, heightAt, inZone, stepHold, towards, zoneFor, zoneX } from "./hill";
 
-const tenor = VOICES.tenor;
+const tenor = voiceMap("tenor");
 
-test("zones sit in the voice: low E3 and under, middle F3 to Bb3, high F#4 and over for a tenor", () => {
+test("zones sit in the voice: low E3 and under, middle F3 to Bb3, high (head voice) G4 and over for a tenor", () => {
   assert.deepEqual(zoneFor("low", tenor), { lo: -Infinity, hi: 52, ref: 52 });
   assert.deepEqual(zoneFor("middle", tenor), { lo: 53, hi: 58, ref: 55 });
-  assert.deepEqual(zoneFor("high", tenor), { lo: 66, hi: Infinity, ref: 66 });
+  assert.deepEqual(zoneFor("high", tenor), { lo: 67, hi: Infinity, ref: 67 });
 });
 
 test("in the zone with slack at its closed ends, and which way to move", () => {
