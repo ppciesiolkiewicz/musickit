@@ -36,6 +36,7 @@ export default function SoloView({ targets, mode, others, keyPc }: { targets: So
     }
     return out;
   }, [shown, root]);
+  const stab = useMemo(() => (targets.stab ? new Set(targets.stab.map(cellKey)) : undefined), [targets.stab]);
   const stateOf = (pc: number): DotState => (lit.has(pc) ? "highlighted" : muted.has(pc) ? "muted" : "normal");
   const over = targets.chord ? ` over ${targets.chord}` : "";
   if (mode === "notes")
@@ -43,7 +44,8 @@ export default function SoloView({ targets, mode, others, keyPc }: { targets: So
   return (
     <div className="flex flex-col gap-1">
       {mode === "tab" && <p className="text-[11px] text-slate-500">Improvise: no fixed tab. Aim for the ringed notes{over}.</p>}
-      <ScaleNeck cells={cells} big={() => true} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} title={`Notes to play from${over}`} states={(c) => stateOf(c.pc)} />
+      {stab && <p className="text-[11px] text-slate-400">Strike the lit {targets.chord} on beat 1, then improvise.</p>}
+      <ScaleNeck cells={cells} big={() => true} active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} title={`Notes to play from${over}`} states={(c) => stateOf(c.pc)} sounding={stab} />
     </div>
   );
 }

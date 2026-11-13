@@ -1,6 +1,7 @@
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { buildLadder, VOICES } from "@/features/theory/singing";
 import type { Timeline, TimelineEvent } from "../timeline/types";
+import { gripCells, type Fret } from "../cues/cues";
 
 /** What to play from at a beat of an improvised timeline (solo-over, two-scales). */
 export interface SoloTargets {
@@ -16,6 +17,8 @@ export interface SoloTargets {
   muted: number[];
   /** the sounding chord's target notes, named above the neck */
   targets: number[];
+  /** the places of the sounding chord's stab, the grip struck on its beat 1 (string 0 the low E); absent: none */
+  stab?: Fret[];
 }
 
 type ChordEv = Extract<TimelineEvent, { type: "chord" }>;
@@ -30,6 +33,24 @@ const targetsOf = (c: ChordEv): number[] => {
   return (c.highlight ?? []).map((s) => (((root + s) % 12) + 12) % 12);
 };
 const scalePcs = (e: ScaleEv): number[] => [...(buildLadder(e.scale, e.key, VOICES.tenor)?.pcs ?? [])];
+
+/**
+ * Where each chord's stab sits, by the chord's `at`: near its own `fret`, else near the stab before it (the first near
+ * the 5th fret), so the hand stays in one place as the chords change.
+ */
+export function stabPlaces(t: Timeline): Map<number, Fret[]> {
+  const out = new Map<number, Fret[]>();
+  let near = 5;
+  for (const c of t.events.filter((e): e is ChordEv => e.type === "chord").sort((a, b) => a.at - b.at)) {
+    if (!c.stab) continue;
+    const root = parseChordQuery(c.name)?.rootPc ?? 0;
+    const cells = gripCells(c.stab.semis.map((s) => (root + s) % 12), c.stab.strings, c.stab.fret ?? near);
+    if (!cells) continue;
+    out.set(c.at, cells.map(({ string, fret }) => ({ string, fret })));
+    near = cells.reduce((a, x) => a + x.fret, 0) / cells.length;
+  }
+  return out;
+}
 
 /** Whether a timeline is improvised over (no fixed notes): the views draw the notes to play from, not cues. */
 export const isSolo = (t: Timeline): boolean => !!t.free;
@@ -50,6 +71,7 @@ export function soloTargets(t: Timeline, beat: number): SoloTargets | null {
   const now = [...scales].reverse().find((e) => e.at <= at) ?? scales[0];
   const nowPcs = new Set(now ? scalePcs(now) : all);
   const sw = t.free === "switch";
+  const stab = c?.stab ? stabPlaces(t).get(c.at) : undefined;
   return {
     chord: c?.name ?? "",
     ...(sw && now ? { scale: buildLadder(now.scale, now.key, VOICES.tenor)?.title } : {}),
@@ -57,5 +79,6 @@ export function soloTargets(t: Timeline, beat: number): SoloTargets | null {
     lit: !c ? [] : targetsOf(c).length ? sorted(targetsOf(c)) : sorted(tonesOf(c).filter((pc) => set.has(pc))),
     muted: sw ? all.filter((pc) => !nowPcs.has(pc)) : [],
     targets: c ? sorted(targetsOf(c)) : [],
+    ...(stab ? { stab } : {}),
   };
 }

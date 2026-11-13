@@ -1007,7 +1007,7 @@
   {
     "name": "solo-over",
     "kind": "shape",
-    "description": "Improvise over chords. The code comps the chords (bass + chord by default). The neck shows one fixed set of notes for\nthe whole progression: the exercise's `scale` (from `key`) plus every chord's own `scale` (from the chord root), or\nthe chord tones when no scale is given. Nothing moves but the highlight: the sounding chord's `target` degrees\n(major-relative, from the chord root), also named above the neck (\"land on B\"), with the optional `approach` hint.\nNo fixed notes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"solo-over\", \"key\": \"a\", \"scale\": \"minor-pentatonic\", \"chords\": [{ \"chord\": \"Am7\", \"target\": [\"1\"] }, { \"chord\": \"D7\", \"target\": [\"3\"], \"approach\": \"land on F♯ on beat 1\" }] }`",
+    "description": "Improvise over chords. The code comps the chords (bass + chord by default). The neck shows one fixed set of notes for\nthe whole progression: the exercise's `scale` (from `key`) plus every chord's own `scale` (from the chord root), or\nthe chord tones when no scale is given. Nothing moves but the highlight: the sounding chord's `target` degrees\n(major-relative, from the chord root), also named above the neck (\"land on B\"), with the optional `approach` hint.\nA chord's `stab` is a grip the student strikes on its beat 1 before improvising (a triad from the position on\n`\"321\"`), lit on the neck while the chord sounds: chords and a solo in one hand position.\nNo fixed notes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"solo-over\", \"key\": \"a\", \"scale\": \"minor-pentatonic\", \"chords\": [{ \"chord\": \"Am7\", \"target\": [\"1\"] }, { \"chord\": \"D7\", \"target\": [\"3\"], \"approach\": \"land on F♯ on beat 1\" }] }`",
     "props": [
       {
         "name": "shape",
@@ -1029,9 +1029,9 @@
       },
       {
         "name": "chords",
-        "type": "{ chord: string; scale?: string; target: Degree[]; approach?: string }[]",
+        "type": "{ chord: string; scale?: string; target: Degree[]; approach?: string; stab?: Grip }[]",
         "required": true,
-        "description": "chords in order with an optional extra scale slug (from the chord root), target degrees and optional hint"
+        "description": "chords in order with an optional extra scale slug (from the chord root), target degrees, optional hint and stab: { \"grip\": [\"1\",\"b3\",\"5\"], \"strings\": \"321\", \"fret\": 5 }"
       },
       {
         "name": "bars",

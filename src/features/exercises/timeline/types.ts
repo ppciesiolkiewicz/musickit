@@ -18,7 +18,7 @@ export type Step =
 /** `at` and `beats` are in beats from the start; `highlight` is semitones above the chord root. */
 export type TimelineEvent =
   | { type: "scale"; at: number; key: number; scale: string }
-  | { type: "chord"; at: number; beats: number; name: string; voicing: Voicing; place?: Place; backing?: CompPattern; highlight?: number[] }
+  | { type: "chord"; at: number; beats: number; name: string; voicing: Voicing; place?: Place; backing?: CompPattern; highlight?: number[]; /** solo-over: the grip the student strikes on its beat 1 before improvising */ stab?: Extract<Step, { kind: "grip" }> }
   | { type: "step"; at: number; beats: number; chord: string; step: Step; place?: Place; cue?: string };
 
 export interface Timeline {

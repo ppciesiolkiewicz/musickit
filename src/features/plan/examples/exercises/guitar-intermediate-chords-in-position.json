@@ -15,7 +15,7 @@
     "agents": 1,
     "teaching": 5
   },
-  "note": "Seeing the key's chords inside one scale position, then using them in a solo: a scale-neck with `chords` rings each triad in position 1, a chord-steps riff strikes each triad and picks its notes, both with a Variant selector for a second key (the grips' frets move with the key), a solo-over leaves the bar after the triad free, and a last chord-steps cuts each triad to a double stop on the top two strings. The why says what makes it work (the chords already sit under the hand), so the learner can find the same in another position.",
+  "note": "Seeing the key's chords inside one scale position, then using them in a solo: a scale-neck with `chords` rings each triad in position 1, a chord-steps riff strikes each triad and picks its notes, both with a Variant selector for a second key (the grips' frets move with the key), a solo-over lights each chord's triad as a `stab` to strike on beat 1 and leaves the rest of the bar free, and a last chord-steps cuts each triad to a double stop on the top two strings. The why says what makes it work (the chords already sit under the hand), so the learner can find the same in another position.",
   "exercise": {
     "title": "Chords inside the position",
     "minutes": 12,
@@ -190,7 +190,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. When a chord comes round, strike its triad on beat 1, then fill the rest of the bar with a short line from the position. The ringed notes are the chord's own notes, so end the line on one of them.\nKeep going until the triad and the line sound like one phrase."
+            "text": "Press Play below to start the backing. When a chord comes round, strike the lit triad on beat 1, then fill the rest of the bar with a short line from the position. The ringed notes are the chord's own notes, so end the line on one of them.\nKeep going until the triad and the line sound like one phrase."
           },
           {
             "type": "tool",
@@ -207,7 +207,16 @@
                       "1",
                       "b3",
                       "5"
-                    ]
+                    ],
+                    "stab": {
+                      "grip": [
+                        "1",
+                        "b3",
+                        "5"
+                      ],
+                      "strings": "321",
+                      "fret": 5
+                    }
                   },
                   {
                     "chord": "Dm",
@@ -215,7 +224,16 @@
                       "1",
                       "b3",
                       "5"
-                    ]
+                    ],
+                    "stab": {
+                      "grip": [
+                        "1",
+                        "b3",
+                        "5"
+                      ],
+                      "strings": "321",
+                      "fret": 6
+                    }
                   },
                   {
                     "chord": "F",
@@ -223,7 +241,16 @@
                       "1",
                       "3",
                       "5"
-                    ]
+                    ],
+                    "stab": {
+                      "grip": [
+                        "1",
+                        "3",
+                        "5"
+                      ],
+                      "strings": "321",
+                      "fret": 5
+                    }
                   },
                   {
                     "chord": "G",
@@ -231,7 +258,16 @@
                       "1",
                       "3",
                       "5"
-                    ]
+                    ],
+                    "stab": {
+                      "grip": [
+                        "1",
+                        "3",
+                        "5"
+                      ],
+                      "strings": "321",
+                      "fret": 7
+                    }
                   }
                 ]
               },

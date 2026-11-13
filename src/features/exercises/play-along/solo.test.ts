@@ -63,3 +63,16 @@ test("a backed progression with no steps shows the backing as played: bass on 1 
   assert.ok(cs.every((c, i) => !cs[i + 1] || c.at + c.beats <= cs[i + 1].at), "a ringing bass note is not drawn over the next hit");
   assert.ok(cs[1].frets.every((f) => f.string >= 2));
 });
+
+test("a chord's stab: its grip in place while the chord sounds, the next one near it", () => {
+  const triad = (fret?: number) => ({ grip: ["1", "b3", "5"], strings: "321", ...(fret ? { fret } : {}) });
+  const major = { grip: ["1", "3", "5"], strings: "321" };
+  const u = soloOver({ shape: "solo-over", key: "a", scale: "natural-minor-aeolian", bpm: 70, chords: [{ chord: "Am", target: ["1"], stab: triad(5) }, { chord: "Dm", target: ["1"], stab: triad() }, { chord: "G", target: ["1"], stab: major }, { chord: "Em", target: ["1"] }] })!;
+  const at = (beat: number) => soloTargets(u, beat)?.stab?.map((f) => `${f.string}:${f.fret}`).join(" ");
+  // A minor position 1, as `theory triads A minor --box E --group 321`: Am 5-5-5, Dm 7-6-5, G 7-8-7
+  assert.equal(at(0), "3:5 4:5 5:5");
+  assert.equal(at(-1), "3:5 4:5 5:5");
+  assert.equal(at(5), "3:7 4:6 5:5");
+  assert.equal(at(9), "3:7 4:8 5:7");
+  assert.equal(soloTargets(u, 13)?.stab, undefined);
+});

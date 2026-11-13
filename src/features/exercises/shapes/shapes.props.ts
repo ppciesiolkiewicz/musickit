@@ -154,6 +154,8 @@ export interface MelodyShape extends ShapeCommon {
  * the whole progression: the exercise's `scale` (from `key`) plus every chord's own `scale` (from the chord root), or
  * the chord tones when no scale is given. Nothing moves but the highlight: the sounding chord's `target` degrees
  * (major-relative, from the chord root), also named above the neck ("land on B"), with the optional `approach` hint.
+ * A chord's `stab` is a grip the student strikes on its beat 1 before improvising (a triad from the position on
+ * `"321"`), lit on the neck while the chord sounds: chords and a solo in one hand position.
  * No fixed notes, nothing graded. Each chord takes `bars` bars (default 1). `bpm` goes on the play-along.
  *
  * Example: `{ "shape": "solo-over", "key": "a", "scale": "minor-pentatonic", "chords": [{ "chord": "Am7", "target": ["1"] }, { "chord": "D7", "target": ["3"], "approach": "land on F♯ on beat 1" }] }`
@@ -165,8 +167,8 @@ export interface SoloOverShape extends ShapeCommon {
   key: string;
   /** the scale improvised in, from `key`, for the whole progression: "minor-pentatonic", "dorian" */
   scale?: string;
-  /** chords in order with an optional extra scale slug (from the chord root), target degrees and optional hint */
-  chords: { chord: string; scale?: string; target: Degree[]; approach?: string }[];
+  /** chords in order with an optional extra scale slug (from the chord root), target degrees, optional hint and stab: { "grip": ["1","b3","5"], "strings": "321", "fret": 5 } */
+  chords: { chord: string; scale?: string; target: Degree[]; approach?: string; stab?: Grip }[];
   /** bars per chord, default 1 */
   bars?: number;
   /** comping pattern for the backing */
