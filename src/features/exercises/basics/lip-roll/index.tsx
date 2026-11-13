@@ -193,12 +193,11 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
     <PlayerCard ref={cardRef}>
       <div data-tour="lip-roll-start">
       <WarmUpBar {...actions} armed={armed} skip="the next round" what="Starts the rounds and the mic.">
-        {/* the mic shows once Start has been pressed: Start opens it */}
-        {status !== "idle" && <span data-tour="lip-roll-mic" className="inline-flex">
-          <Hint title="Mic" description="Listens while you lip roll and draws your line. This button also opens the list of inputs, with each input's level.">
-            <InputChip status={micStatus} mic={{ on: running && !micOff, onToggle: () => (running ? setMicOff((o) => !o) : void start()) }} />
+        <span data-tour="lip-roll-mic" className="inline-flex">
+          <Hint title="Audio input" description="Start switches the mic on for you; it draws your line. This button opens the list of inputs, with each input's level.">
+            <InputChip quiet status={micStatus} mic={{ on: running && !micOff, onToggle: () => (running ? setMicOff((o) => !o) : void start()) }} />
           </Hint>
-        </span>}
+        </span>
       </WarmUpBar>
       </div>
       <div data-tour="lip-roll-options" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">

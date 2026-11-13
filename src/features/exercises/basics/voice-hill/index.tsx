@@ -237,12 +237,11 @@ export function View({ where = "low", sound = "hum", seconds: secondsProp, reps:
     <PlayerCard ref={keysRef}>
       <div data-tour="hill-start">
       <WarmUpBar {...actions} armed={armed} skip="the next hold" what="Plays the note, then the mic listens while you hold your sound.">
-        {/* the mic shows once Start has been pressed: Start opens it */}
-        {status !== "idle" && <span data-tour="hill-mic" className="inline-flex">
-          <Hint title="Mic" description="Listens to your voice. This button also opens the list of inputs, with each input's level.">
-            <InputChip status={micStatus} mic={{ on: micOn, onToggle: () => (running ? stop() : void start()) }} />
+        <span data-tour="hill-mic" className="inline-flex">
+          <Hint title="Audio input" description="Start switches the mic on for you. This button opens the list of inputs, with each input's level.">
+            <InputChip quiet status={micStatus} mic={{ on: micOn, onToggle: () => (running ? stop() : void start()) }} />
           </Hint>
-        </span>}
+        </span>
         <Hint title="Play note" description={`Plays ${noteLabel(zone.ref)}, the edge of the green part, to find it again.`}>
           <Button size="sm" data-tour="hill-note" onClick={() => void playNote()} title={`Play ${noteLabel(zone.ref)}`} className="inline-flex items-center gap-1.5">
             <Icon name="volume-2" size={14} />Play note

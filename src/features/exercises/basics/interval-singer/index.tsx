@@ -294,12 +294,11 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
         {waiting && <Hint title="Skip" description="Moves on to a new interval."><Button size="sm" onClick={next}>Skip</Button></Hint>}
         {ask !== null && found && <Button size="sm" onClick={restart} title={`The same interval again: ${doPlays} and the mic listens (R)`} className="inline-flex items-center gap-1.5">Restart{keysArmed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>}
         {waiting && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
-        {/* the mic shows once Start has been pressed: Start opens it */}
-        {ask !== null && <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
-          <Hint title="Mic" description="Listens to your voice. Start switched it on for you; this button also opens the list of inputs, with each input's level and Stop.">
-            <InputChip status={micStatus} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />
+        <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
+          <Hint title="Audio input" description="Start switches the mic on for you. This button opens the list of inputs, with each input's level and Start / Stop.">
+            <InputChip quiet status={micStatus} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />
           </Hint>
-        </span>}
+        </span>
         <ToolHeadphonesHint />
         {score.asked > 0 && <span className="text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
         <span className="ml-auto" />
