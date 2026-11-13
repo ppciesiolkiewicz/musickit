@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { SCRIPT, VOICE } from "./data";
+import { DEFAULT_VOICE, SCRIPT, VOICES, voiceFromQuery } from "./data";
 import { BREATH, cueProgress, phraseIndex, sceneAt, timeline, totalLength, type VoiceManifest } from "./timeline";
 
 test("every cue phrase is in its scene's text", () => {
@@ -34,11 +34,19 @@ test("a recording of the same text sets the length and cues; a stale one is igno
   assert.equal(timeline(SCRIPT, stale)[0].audio, undefined);
 });
 
-test("the committed recording matches the script", () => {
-  const t = timeline(SCRIPT, VOICE);
-  const recorded = t.filter((s) => s.audio).length;
-  // either nothing is recorded yet, or every scene is: a half-stale tour sounds broken
-  assert.ok(recorded === 0 || recorded === t.length, `${recorded} of ${t.length} scenes recorded; run node scripts/intro/voice.mjs`);
+test("every committed voice matches the script", () => {
+  for (const v of VOICES) {
+    const t = timeline(SCRIPT, v);
+    const recorded = t.filter((s) => s.audio).length;
+    // either nothing is recorded yet, or every scene is: a half-stale tour sounds broken
+    assert.ok(recorded === 0 || recorded === t.length, `${v.voice}: ${recorded} of ${t.length} scenes recorded; run node scripts/intro/voice.mjs --voice <name>`);
+  }
+});
+
+test("?voice=1|2|3 picks a voice; anything else plays the default", () => {
+  assert.equal(voiceFromQuery("?voice=1"), 0);
+  assert.equal(voiceFromQuery("?voice=3"), 2);
+  for (const q of ["", "?voice=0", "?voice=4", "?voice=two", "?voice=1.5"]) assert.equal(voiceFromQuery(q), DEFAULT_VOICE, q);
 });
 
 test("sceneAt and cueProgress", () => {

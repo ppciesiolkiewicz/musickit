@@ -2,7 +2,7 @@
   "scenes": {
     "hello": {
       "text": "This is attunr: practice tools for guitar and singing, right in your browser. Here is a quick look around.",
-      "file": "/intro/hello.mp3",
+      "file": "/intro/charlie/hello.mp3",
       "duration": 7.63,
       "cues": {
         "tagline": 1.49,
@@ -11,7 +11,7 @@
     },
     "menu": {
       "text": "The menu at the top has four parts. Learn holds the course and your AI practice plan. Guitar has chords, scales and CAGED, plus drills for the neck. Singing has warm-ups, scales and melodies you sing into the mic. Tools has the tuner, the looper, backing tracks and the notes creator.",
-      "file": "/intro/menu.mp3",
+      "file": "/intro/charlie/menu.mp3",
       "duration": 22.26,
       "cues": {
         "learn": 2.98,
@@ -23,7 +23,7 @@
     },
     "plan": {
       "text": "The AI practice plan writes your practice for each day. Answer a few questions, then send the prompt to your own AI and paste its reply back. Each exercise comes with the tool it needs. Rate how it went, and the next plan takes it into account.",
-      "file": "/intro/plan.mp3",
+      "file": "/intro/charlie/plan.mp3",
       "duration": 15.52,
       "cues": {
         "answer": 3.3,
@@ -36,7 +36,7 @@
     },
     "notes": {
       "text": "The notes creator makes a page of notes: text, a scale on the neck, chord boxes, a melody or a video. Press slash to add a widget. Change the key, and every widget follows it.",
-      "file": "/intro/notes.mp3",
+      "file": "/intro/charlie/notes.mp3",
       "duration": 14.64,
       "cues": {
         "text": 2.94,
@@ -50,7 +50,7 @@
     },
     "help": {
       "text": "Every page has help by its title. The compass button shows you around the page. The question mark explains what each control does: hover anything to find out. Every exercise has its own compass too.",
-      "file": "/intro/help.mp3",
+      "file": "/intro/charlie/help.mp3",
       "duration": 14.41,
       "cues": {
         "compass": 2.89,
@@ -62,7 +62,7 @@
     },
     "keys": {
       "text": "To open any page, press Command K, or Control K on Windows, and type its name. On a tool page, Space plays and stops, or presses the big button. In ear training, the number keys answer.",
-      "file": "/intro/keys.mp3",
+      "file": "/intro/charlie/keys.mp3",
       "duration": 14.36,
       "cues": {
         "cmdk": 1.36,
@@ -74,7 +74,7 @@
     },
     "end": {
       "text": "That's the tour. Press Command K, pick a page, and start playing.",
-      "file": "/intro/end.mp3",
+      "file": "/intro/charlie/end.mp3",
       "duration": 4.79,
       "cues": {
         "cmdk": 1.2

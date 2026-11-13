@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Icon from "@/components/Icon";
-import { SCRIPT, VOICE } from "./data";
+import { DEFAULT_VOICE, SCRIPT, VOICES, voiceFromQuery } from "./data";
 import { SCENES } from "./scenes";
 import { clock, sceneAt, timeline, totalLength } from "./timeline";
+
+/** Back and forward change the address (and with it `?voice`). */
+function onAddress(change: () => void) {
+  window.addEventListener("popstate", change);
+  return () => window.removeEventListener("popstate", change);
+}
 
 const W = 960;
 const H = 540;
@@ -16,14 +22,16 @@ const KEYFRAMES = `
 `;
 
 /**
- * The quick tour: a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voice.json`) or, for a
+ * The quick tour: a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voices/<name>.json`; `?voice=1|2|3` picks the narrator) or, for a
  * scene not recorded yet, to an estimate, playing silent with its caption. The clock follows the audio while a scene's take
  * plays and the frame clock otherwise, so the picture never runs ahead of the voice. `spaceKey` lets Space play and pause
  * anywhere on the page; off on a page where Space should scroll (the home page). `compact` drops the scene chips and the
  * caption, for a small player beside other content (the demos page).
  */
 export default function IntroPlayer({ spaceKey = true, compact = false }: { spaceKey?: boolean; compact?: boolean }) {
-  const scenes = useMemo(() => timeline(SCRIPT, VOICE), []);
+  // ?voice=1|2|3 picks a narrator; the server renders the default and the client switches after hydrating
+  const voice = useSyncExternalStore(onAddress, () => voiceFromQuery(window.location.search), () => DEFAULT_VOICE);
+  const scenes = useMemo(() => timeline(SCRIPT, VOICES[voice]), [voice]);
   const total = totalLength(scenes);
   const [t, setT] = useState(0);
   const [playing, setPlaying] = useState(false);

@@ -5,22 +5,23 @@
 | File | What |
 | --- | --- |
 | `script.json` | The narration, one entry per scene: `id`, `caption` (the scene's chip), `text` (what is said, also shown under the stage), `cues` (cue name → a phrase of `text`; the animation step fires when the narrator starts that phrase). A test checks that every phrase is in its text. |
-| `voice.json` | The recorded narration: for each scene the text it was recorded from, its file (`/intro/<id>.mp3` in `public/`), its length and the second each cue starts. Written by `scripts/intro/voice.mjs`; don't edit it by hand. |
+| `voices/<name>.json` | One recorded narration per voice (george, charlie, laura): for each scene the text it was recorded from, its file (`/intro/<name>/<id>.mp3` in `public/`), its length and the second each cue starts. Written by `scripts/intro/voice.mjs`; don't edit them by hand. |
 | `timeline.ts` | Pure. Scene start times and lengths, cue times. A scene whose text matches its recording uses the recording; otherwise the length is estimated from its word count and the scene plays silent with its caption. |
-| `data.ts` | The two JSON files, typed. |
+| `data.ts` | The script and the voices, typed. `VOICES` is in the order `?voice=1\|2\|3` picks them: George, Charlie, Laura. Without `?voice` (or with a number out of range) the tour plays Charlie. |
 | `scenes.tsx` | The scenes on a 960 × 540 stage. Each is a pure function of the time into the scene and its cue times. They use the app's own pieces (wordmark, icons, the nav's section list, the compass button), drawn still: the tour never starts the mic or the sound engine. |
-| `IntroPlayer.tsx` | The stage, scaled to fit its column, with Play/Pause (Space), a slider, mute, a chip per scene and the caption. The clock follows the audio while a scene's recording plays, and the frame clock otherwise. Used on `/intro` and in the "Quick tour" section of the home page (`SchoolsHome`), which passes `spaceKey={false}` so Space still scrolls there. |
+| `IntroPlayer.tsx` | The stage, scaled to fit its column, with Play/Pause (Space), a slider, mute, a chip per scene and the caption. The clock follows the audio while a scene's recording plays, and the frame clock otherwise. It reads `?voice=` from the page address after mounting, so `/?voice=3`, `/intro?voice=1` and `/demo?voice=2` each pick a narrator. Used on `/intro` and in the "Quick tour" section of the home page (`SchoolsHome`), which passes `spaceKey={false}` so Space still scrolls there. |
 | `TourCard.tsx` | The player small beside other content (`compact`: no scene chips or caption), with a Cinema mode button that opens the same player over the page; Escape or Close goes back. On `/demo`, beside the title. |
 
 ## Recording the narration (ElevenLabs)
 
 ```
-node scripts/intro/voice.mjs            # records the scenes whose text changed
-node scripts/intro/voice.mjs --all      # records them all again
+node scripts/intro/voice.mjs                  # Charlie: records the scenes whose text changed
+node scripts/intro/voice.mjs --voice laura    # the same for another voice
+node scripts/intro/voice.mjs --voice george --all
 node scripts/intro/voice.mjs --only menu,keys
 ```
 
-The script needs `ELEVENLABS_API_KEY`, read from the environment or else from `.env.local` or `.env`. `ELEVENLABS_VOICE_ID` (default Charlie, `IKne3meq5aSn9XLyUdCD`, Australian and casual) and `ELEVENLABS_MODEL` (default `eleven_multilingual_v2`) choose the voice and model. Changing either records every scene again, so the tour keeps one voice. It uses the `with-timestamps` endpoint, so the cue times come from the voice itself. "attunr" is sent as "attuner" so the voice says it right (`SAY` in the script). Commit `public/intro/*.mp3` together with `voice.json`. The earlier take in George's voice (`JBFqnCBsd6RMkjVDRZzb`) is kept in `public/intro/george/` with its own `voice.json`; the app doesn't use it. A test fails when only some scenes match their recording.
+The script needs `ELEVENLABS_API_KEY`, read from the environment or else from `.env.local` or `.env`. The voices are `VOICES` in the script, each with its ElevenLabs voice id and the settings it was recorded with: George (`JBFqnCBsd6RMkjVDRZzb`, warm and calm), Charlie (`IKne3meq5aSn9XLyUdCD`, Australian and casual) and Laura (`FGY2WhTYpPnrIDTdsKH5`, upbeat). `--voice` picks one (default charlie); a new voice also goes in `VOICES` in `data.ts`. `ELEVENLABS_MODEL` (default `eleven_multilingual_v2`) picks the model. Changing a voice id or the model records all of that voice's scenes again, so each take stays one voice. When the script changes, record every voice again. It uses the `with-timestamps` endpoint, so the cue times come from the voice itself. "attunr" is sent as "attuner" so the voice says it right (`SAY` in the script). Commit `public/intro/<name>/*.mp3` together with `voices/<name>.json`. A test fails when a voice has only some scenes matching their recording.
 
 ## Changing the tour
 

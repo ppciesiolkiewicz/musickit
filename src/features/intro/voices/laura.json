@@ -1,0 +1,86 @@
+{
+  "scenes": {
+    "hello": {
+      "text": "This is attunr: practice tools for guitar and singing, right in your browser. Here is a quick look around.",
+      "file": "/intro/laura/hello.mp3",
+      "duration": 6.37,
+      "cues": {
+        "tagline": 1.05,
+        "look": 4.72
+      }
+    },
+    "menu": {
+      "text": "The menu at the top has four parts. Learn holds the course and your AI practice plan. Guitar has chords, scales and CAGED, plus drills for the neck. Singing has warm-ups, scales and melodies you sing into the mic. Tools has the tuner, the looper, backing tracks and the notes creator.",
+      "file": "/intro/laura/menu.mp3",
+      "duration": 17.98,
+      "cues": {
+        "learn": 2.32,
+        "guitar": 5.27,
+        "singing": 9.72,
+        "tools": 13.55,
+        "notes": 16.65
+      }
+    },
+    "plan": {
+      "text": "The AI practice plan writes your practice for each day. Answer a few questions, then send the prompt to your own AI and paste its reply back. Each exercise comes with the tool it needs. Rate how it went, and the next plan takes it into account.",
+      "file": "/intro/laura/plan.mp3",
+      "duration": 14.55,
+      "cues": {
+        "answer": 3.4,
+        "send": 5.04,
+        "paste": 6.84,
+        "week": 8.48,
+        "rate": 11.13,
+        "next": 12.24
+      }
+    },
+    "notes": {
+      "text": "The notes creator makes a page of notes: text, a scale on the neck, chord boxes, a melody or a video. Press slash to add a widget. Change the key, and every widget follows it.",
+      "file": "/intro/laura/notes.mp3",
+      "duration": 11.71,
+      "cues": {
+        "text": 2.42,
+        "neck": 3.01,
+        "chords": 4.14,
+        "melody": 5.16,
+        "slash": 6.93,
+        "key": 8.72,
+        "follow": 9.81
+      }
+    },
+    "help": {
+      "text": "Every page has help by its title. The compass button shows you around the page. The question mark explains what each control does: hover anything to find out. Every exercise has its own compass too.",
+      "file": "/intro/laura/help.mp3",
+      "duration": 12.13,
+      "cues": {
+        "compass": 2.06,
+        "tour": 2.93,
+        "hints": 4.57,
+        "hover": 7.63,
+        "exercise": 9.33
+      }
+    },
+    "keys": {
+      "text": "To open any page, press Command K, or Control K on Windows, and type its name. On a tool page, Space plays and stops, or presses the big button. In ear training, the number keys answer.",
+      "file": "/intro/laura/keys.mp3",
+      "duration": 12.36,
+      "cues": {
+        "cmdk": 1.36,
+        "type": 4.48,
+        "space": 6.63,
+        "big": 8.49,
+        "numbers": 10.77
+      }
+    },
+    "end": {
+      "text": "That's the tour. Press Command K, pick a page, and start playing.",
+      "file": "/intro/laura/end.mp3",
+      "duration": 4.1,
+      "cues": {
+        "cmdk": 1.08
+      }
+    }
+  },
+  "voice": "FGY2WhTYpPnrIDTdsKH5",
+  "model": "eleven_multilingual_v2"
+}
