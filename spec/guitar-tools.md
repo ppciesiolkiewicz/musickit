@@ -43,7 +43,7 @@ Choose root, triad quality (major, minor, diminished, augmented) and string grou
 
 ## Double stops (`/theory/double-stops`)
 
-Pick key, scale (major, minor, dorian, mixolydian), interval (3rds, 6ths, 4ths) and pairs of strings (neighbours for 3rds and 4ths, one string skipped for 6ths). Each pair is the scale in that interval: for every note, the scale note two (3rds), three (4ths) or five (6ths) steps up, so the size follows the scale. Each chosen pair shows a ladder along frets 0–17, from its lowest double stop, each next scale note's pair the nearest one above, both notes within 4 frets. Tap a pair to hear it; Play runs an octave from the lowest root up and back down. Maths in `scaleChords.ts` (`diatonicDyads`), page in `components/chordKit/DoubleStopsExplorer.tsx`; the theory calculator's `dyads` command gives the same pairs.
+Pick key, scale (major or minor: the other modes of the major scale give the same double stops as a major key), interval (3rds, 6ths, 4ths), one pair of strings (neighbours for 3rds and 4ths, one string skipped for 6ths) and **Root at**, the fret of the root on the pair's lower string that the octave starts from (only roots with a whole octave above them). Each double stop is a scale note with the scale note two (3rds), three (4ths) or five (6ths) steps up, so the size follows the scale; each next one sits nearest above the last, both notes within 4 frets. The whole neck shows only that octave, numbered 1 to 8, the two strings played bright. Tap one to hear it; Play runs the octave up and back down. Maths in `scaleChords.ts` (`diatonicDyads`), page in `components/chordKit/DoubleStopsExplorer.tsx`; the theory calculator's `dyads` command gives the same pairs.
 
 ## Mode pages (`/theory/scales/[slug]`)
 

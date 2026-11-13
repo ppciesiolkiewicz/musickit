@@ -12,12 +12,10 @@ import { hoverLabel, noteLabel } from "@/features/theory/labels";
 import { RootSelect, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { Chip, Info } from "@/components/ui";
 
-/** the scales offered: the major scale's modes a double stop is most often played in */
+/** the scales offered: major and minor. Other modes of the major scale use the same notes as a major key, so the same double stops */
 const MODES = [
   { id: "major", label: "Major", modeIndex: 0 },
   { id: "minor", label: "Minor", modeIndex: 5 },
-  { id: "dorian", label: "Dorian", modeIndex: 1 },
-  { id: "mixolydian", label: "Mixolydian", modeIndex: 4 },
 ] as const;
 type ModeId = (typeof MODES)[number]["id"];
 
@@ -29,8 +27,8 @@ const INTERVALS: { id: DyadInterval; label: string }[] = [
 
 const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
 const pairId = ([lo, hi]: [number, number]) => `${6 - lo}${6 - hi}`;
-/** the two highest pairs: where double stops are played most */
-const defaultPairs = (interval: DyadInterval) => dyadPairs(interval).slice(-2).map(pairId);
+/** the pair a double stop of this interval is played on most: B and e for 3rds, G and e for 6ths, G and B for 4ths */
+const defaultPair = (interval: DyadInterval) => (interval === 6 ? "31" : interval === 4 ? "32" : "21");
 /** the ring on the note the microphone hears, as on the other necks */
 const HEARD = "#38bdf8";
 
@@ -51,41 +49,45 @@ export function dyadLadder(ctx: KeyContext, interval: DyadInterval, strings: [nu
   }
 }
 
-/** A pair of strings drawn lying down, low string at the bottom, with its ladder of double stops; tap one to hear it. */
-function PairNeck({ ctx, strings, ladder, lit, onPlay }: { ctx: KeyContext; strings: [number, number]; ladder: Dyad[]; lit: number | null; onPlay: (i: number) => void }) {
+/**
+ * The whole neck lying down, low E at the bottom, with one octave of double stops on it, each numbered by the scale note it starts on (1 the root).
+ * The two strings played are drawn bright, the rest faint; tap a double stop to hear it.
+ */
+function OctaveNeck({ ctx, strings, octave, lit, onPlay }: { ctx: KeyContext; strings: [number, number]; octave: Dyad[]; lit: number | null; onPlay: (i: number) => void }) {
   const [system] = useLabelSystem();
   const heard = useHeardNote();
   const cells = useMemo(() => new Map(scaleCells(ctx).map((c) => [`${c.string}-${c.fret}`, c])), [ctx]);
-  const [lo, hi] = strings;
-  const rows = hi - lo; // 1, or 2 when a string is skipped
-  const fretW = 44, left = 46, top = 16, gap = 30;
-  const W = left + (SCALE_NECK_FRETS + 0.5) * fretW, H = top * 2 + rows * gap + 14;
+  const fretW = 44, left = 66, top = 30, gap = 26;
+  const W = left + (SCALE_NECK_FRETS + 0.5) * fretW, H = top + 5 * gap + 30;
   const fx = (f: number) => (f === 0 ? left - 17 : left + (f - 0.5) * fretW);
-  const sy = (s: number) => top + (hi - s) * gap;
+  const sy = (s: number) => top + (5 - s) * gap;
   const MARKS = [3, 5, 7, 9, 12, 15, 17];
   const cellOf = (s: number, f: number) => cells.get(`${s}-${f}`) as ScaleCell;
   return (
     <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${W} ${H}`} className="min-w-[640px]" width="100%" role="img" aria-label={`Double stops on the ${STRING_NAMES[lo]} and ${STRING_NAMES[hi]} strings`}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="min-w-[640px]" width="100%" role="img" aria-label={`One octave of double stops on the ${STRING_NAMES[strings[0]]} and ${STRING_NAMES[strings[1]]} strings`}>
         {Array.from({ length: SCALE_NECK_FRETS + 1 }, (_, f) => (
-          <line key={f} x1={left + f * fretW} x2={left + f * fretW} y1={top} y2={top + rows * gap} stroke="var(--color-slate-600)" strokeWidth={f === 0 ? 3 : 1} />
+          <line key={f} x1={left + f * fretW} x2={left + f * fretW} y1={sy(5)} y2={sy(0)} stroke="var(--color-slate-700)" strokeWidth={f === 0 ? 3 : 1} />
         ))}
-        {MARKS.map((f) => <text key={f} x={fx(f)} y={H - 4} textAnchor="middle" fontSize={11} fill="var(--color-slate-500)">{f}</text>)}
-        {Array.from({ length: rows + 1 }, (_, i) => {
-          const s = lo + i;
-          const played = s === lo || s === hi;
+        {MARKS.map((f) => <text key={f} x={fx(f)} y={H - 6} textAnchor="middle" fontSize={11} fill="var(--color-slate-500)">{f}</text>)}
+        {STRING_NAMES.map((name, s) => {
+          const played = strings.includes(s);
           return (
             <g key={s}>
-              <line x1={left} x2={W} y1={sy(s)} y2={sy(s)} stroke="var(--color-slate-500)" strokeWidth={played ? 1.4 : 0.6} strokeDasharray={played ? undefined : "3 4"} />
-              <text x={4} y={sy(s)} dominantBaseline="central" fontSize={12} fill={played ? "var(--color-slate-300)" : "var(--color-slate-600)"}>{STRING_NAMES[s]}</text>
+              <line x1={left} x2={W} y1={sy(s)} y2={sy(s)} stroke={played ? "var(--color-slate-400)" : "var(--color-slate-700)"} strokeWidth={played ? 1.6 : 1} />
+              <text x={4} y={sy(s)} dominantBaseline="central" fontSize={12} fontWeight={played ? 700 : 400} fill={played ? "var(--color-slate-200)" : "var(--color-slate-600)"}>{name}</text>
             </g>
           );
         })}
-        {ladder.map((d, i) => {
+        {octave.map((d, i) => {
           const on = lit === i;
+          const x = (fx(d.frets[0]) + fx(d.frets[1])) / 2;
           return (
-            <g key={i} role="button" tabIndex={0} aria-label={`${cellOf(lo, d.frets[0]).name} and ${cellOf(hi, d.frets[1]).name}, frets ${d.frets.join(" and ")}`} onClick={() => onPlay(i)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onPlay(i)} className="cursor-pointer focus:outline-none">
-              <line x1={fx(d.frets[0])} x2={fx(d.frets[1])} y1={sy(lo)} y2={sy(hi)} stroke={on ? "#f8fafc" : "var(--color-slate-500)"} strokeWidth={on ? 3 : 2} />
+            <g key={i} role="button" tabIndex={0} aria-label={`${d.degree + 1}: ${cellOf(strings[0], d.frets[0]).name} and ${cellOf(strings[1], d.frets[1]).name}, frets ${d.frets.join(" and ")}`} onClick={() => onPlay(i)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onPlay(i)} className="cursor-pointer focus:outline-none">
+              <text x={x} y={sy(5) - 16} textAnchor="middle" fontSize={11} fontWeight={700} fill={on ? "#f8fafc" : d.degree === 0 ? "var(--color-slate-100)" : "var(--color-slate-400)"}>{d.degree + 1}</text>
+              {/* a soft frame round the two notes, so each double stop reads as one shape */}
+              <rect x={Math.min(fx(d.frets[0]), fx(d.frets[1])) - 16} y={sy(strings[1]) - 16} width={Math.abs(fx(d.frets[0]) - fx(d.frets[1])) + 32} height={sy(strings[0]) - sy(strings[1]) + 32} rx={16}
+                fill={on ? "rgba(248,250,252,0.14)" : "rgba(148,163,184,0.10)"} stroke={on ? "#f8fafc" : "var(--color-slate-600)"} strokeWidth={on ? 2 : 1} />
               {([0, 1] as const).map((k) => {
                 const c = cellOf(strings[k], d.frets[k]);
                 const label = noteLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText });
@@ -93,7 +95,7 @@ function PairNeck({ ctx, strings, ladder, lit, onPlay }: { ctx: KeyContext; stri
                 return (
                   <g key={k}>
                     <title>{hoverLabel(system, { name: c.name, semi: c.semi, degreeText: c.degreeText })}</title>
-                    <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={on ? 13 : 11.5} fill={degreeColour(c.degree)} stroke={ring ? HEARD : on ? "#f8fafc" : DOT_INK} strokeWidth={ring || on ? 3 : 1.5} />
+                    <circle cx={fx(d.frets[k])} cy={sy(strings[k])} r={on ? 12.5 : 11} fill={degreeColour(c.degree)} stroke={ring ? HEARD : on ? "#f8fafc" : DOT_INK} strokeWidth={ring || on ? 3 : 1.5} />
                     <text x={fx(d.frets[k])} y={sy(strings[k])} textAnchor="middle" dominantBaseline="central" fontSize={label.length > 2 ? 8.5 : 10.5} fontWeight={700} fill={DOT_INK}>{label}</text>
                   </g>
                 );
@@ -106,72 +108,83 @@ function PairNeck({ ctx, strings, ladder, lit, onPlay }: { ctx: KeyContext; stri
   );
 }
 
-/** The double stops page: the key's scale in 3rds, 6ths or 4ths, as a ladder up the neck on each chosen pair of strings. */
+/** The double stops page: the key's scale in 3rds, 6ths or 4ths on one pair of strings, one octave from a root picked on the neck. */
 export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: { initialTonic?: number } = {}) {
   const [tonicPc, setTonicPc] = useState(initialTonic);
   const [modeId, setModeId] = useState<ModeId>("major");
   const [interval, setInterval_] = useState<DyadInterval>(3);
-  const [pairIds, setPairIds] = useState<string[]>(defaultPairs(3));
-  // what is sounding: a pair's id and the index of the stop on its ladder
-  const [lit, setLit] = useState<{ pair: string; i: number } | null>(null);
-  const [running, setRunning] = useState<string | null>(null);
+  const [pair, setPair] = useState(defaultPair(3));
+  // the root the octave starts from, as its fret on the lower string; null: the lowest that fits
+  const [rootFret, setRootFret] = useState<number | null>(null);
+  // the double stop sounding, by its place in the octave
+  const [lit, setLit] = useState<number | null>(null);
+  const [running, setRunning] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const mode = MODES.find((m) => m.id === modeId)!;
   const ctx = useMemo(() => makeKeyContext(tonicPc, 0, mode.modeIndex), [tonicPc, mode.modeIndex]);
-  const ladders = useMemo(() => dyadPairs(interval).filter((p) => pairIds.includes(pairId(p))).reverse()
-    .map((p) => ({ id: pairId(p), strings: p, ladder: dyadLadder(ctx, interval, p) })), [ctx, interval, pairIds]);
+  const strings = dyadPairs(interval).find((p) => pairId(p) === pair) ?? dyadPairs(interval).at(-1)!;
+  const ladder = useMemo(() => dyadLadder(ctx, interval, strings), [ctx, interval, strings]);
+  // every root on these strings; the octave is 8 double stops in a row with the picked root in it, starting on it where there is room
+  const roots = useMemo(() => ladder.flatMap((d, i) => (d.degree === 0 ? [{ i, fret: d.frets[0] }] : [])), [ladder]);
+  const root = roots.find((r) => r.fret === rootFret) ?? roots.find((r) => r.i + 7 < ladder.length) ?? roots[0];
+  const start = root ? Math.max(0, Math.min(root.i, ladder.length - 8)) : 0;
+  const octave = ladder.slice(start, start + 8);
 
   const stop = () => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    setRunning(null);
+    setRunning(false);
     setLit(null);
   };
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const sound = (d: Dyad) => strum([...d.midi], { gapMs: 12, holdMs: 700 });
-  const tap = (pair: string, d: Dyad, i: number) => {
+  const tap = (i: number) => {
     stop();
-    sound(d);
-    setLit({ pair, i });
-    timers.current.push(setTimeout(() => setLit((l) => (l?.pair === pair && l.i === i ? null : l)), 600));
+    sound(octave[i]);
+    setLit(i);
+    timers.current.push(setTimeout(() => setLit((l) => (l === i ? null : l)), 600));
   };
-  /** an octave from the lowest root up and back down, one pair every 600 ms */
-  const run = (pair: string, ladder: Dyad[]) => {
+  /** the octave up and back down, one double stop every 600 ms */
+  const run = () => {
     stop();
-    const from = Math.max(0, ladder.findIndex((d) => d.degree === 0));
-    const up = ladder.map((d, i) => ({ d, i })).slice(from, from + 8);
-    const seq = [...up, ...up.slice(0, -1).reverse()];
-    setRunning(pair);
-    seq.forEach(({ d, i }, k) => timers.current.push(setTimeout(() => { sound(d); setLit({ pair, i }); }, k * 600)));
-    timers.current.push(setTimeout(() => { setRunning(null); setLit(null); }, seq.length * 600));
+    const seq = [...octave.keys(), ...[...octave.keys()].reverse().slice(1)];
+    setRunning(true);
+    seq.forEach((i, k) => timers.current.push(setTimeout(() => { sound(octave[i]); setLit(i); }, k * 600)));
+    timers.current.push(setTimeout(() => { setRunning(false); setLit(null); }, seq.length * 600));
   };
 
   const pickInterval = (iv: DyadInterval) => {
     stop();
     setInterval_(iv);
-    setPairIds(defaultPairs(iv));
+    setPair(defaultPair(iv));
+    setRootFret(null);
   };
-  const togglePair = (id: string) => setPairIds((s) => (s.includes(id) ? (s.length > 1 ? s.filter((x) => x !== id) : s) : [...s, id]));
   const ivLabel = INTERVALS.find((x) => x.id === interval)!.label;
   const keyName = `${ctx.names[0]} ${mode.label.toLowerCase()}`;
+  const lower = STRING_NAMES[strings[0]];
 
   const criteria = <>
     <BarRow label="Interval" info="Each double stop is two notes of the scale. In 3rds the top note is two scale notes up, on the next string. 6ths are the same two notes turned upside down, so they skip a string. 4ths are three scale notes up.">
       {INTERVALS.map((x) => <Chip key={x.id} on={x.id === interval} onClick={() => pickInterval(x.id)}>{x.label}</Chip>)}
     </BarRow>
-    <BarRow label="Strings" info="The two strings the double stops are played on. Pick several to compare. 6ths have one string between their two notes: let a finger of your fretting hand rest on it so it stays quiet.">
+    <BarRow label="Strings" info="The two strings the double stops are played on. 6ths have one string between their two notes: let a finger of your fretting hand rest on it so it stays quiet.">
       {dyadPairs(interval).slice().reverse().map((p) => (
-        <Chip key={pairId(p)} on={pairIds.includes(pairId(p))} onClick={() => togglePair(pairId(p))}>{`Strings ${pairId(p).split("").join("-")} (${STRING_NAMES[p[0]]} ${STRING_NAMES[p[1]]})`}</Chip>
+        <Chip key={pairId(p)} on={pairId(p) === pairId(strings)} onClick={() => { stop(); setPair(pairId(p)); setRootFret(null); }}>{`${STRING_NAMES[p[0]]} ${STRING_NAMES[p[1]]}`}</Chip>
       ))}
     </BarRow>
+    {roots.length > 0 && (
+      <BarRow label="Root at" info={`Where the root sits on the ${lower} string. The double stops shown are the eight around it, starting on it where the neck has room.`}>
+        {roots.map((r) => <Chip key={r.fret} on={r.fret === root?.fret} onClick={() => { stop(); setRootFret(r.fret); }}>{r.fret === 0 ? "Open" : `Fret ${r.fret}`}</Chip>)}
+      </BarRow>
+    )}
   </>;
-  const picker = <>{MODES.map((m) => <Chip key={m.id} on={m.id === modeId} onClick={() => { stop(); setModeId(m.id); }}>{m.label}</Chip>)}</>;
+  const picker = <>{MODES.map((m) => <Chip key={m.id} on={m.id === modeId} onClick={() => { stop(); setModeId(m.id); setRootFret(null); }}>{m.label}</Chip>)}</>;
 
   return (
     <WithSettings side criteria={criteria} bar={
-      <ScaleSettingsBar tonicPc={tonicPc} onTonic={(pc) => { stop(); setTonicPc(pc); }} side config={{
+      <ScaleSettingsBar tonicPc={tonicPc} onTonic={(pc) => { stop(); setTonicPc(pc); setRootFret(null); }} side config={{
         scale: { picker, name: mode.label.toLowerCase() },
         labels: { extra: <RootSelect /> },
       }} />
@@ -184,23 +197,14 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
       </p>
 
       <section data-tour="double-stops-ladder" className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
-        <h3 className="mb-1 text-sm font-medium text-slate-100">Up the scale</h3>
-        <p className="mb-3 text-xs text-slate-400">One double stop for each note of {keyName}, low to high, on each pair of strings. Tap one to hear it.</p>
-        <div className="flex flex-col gap-5">
-          {ladders.map(({ id, strings, ladder }) => (
-            <div key={id}>
-              <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-slate-300">
-                <span>Strings {id.split("").join("-")}</span>
-                <span className="rounded-md border border-slate-700 bg-slate-950/60 px-1.5 py-px font-mono text-[10px] font-medium normal-case tracking-normal text-slate-400">{STRING_NAMES[strings[0]]} {STRING_NAMES[strings[1]]}</span>
-                <button type="button" onClick={() => (running === id ? stop() : run(id, ladder))} title="Plays an octave from the lowest root, up and back down" className="rounded border border-slate-700 px-2 py-0.5 text-[11px] font-medium normal-case tracking-normal text-slate-300 hover:border-slate-500">{running === id ? "■ Stop" : "▶ Play"}</button>
-                <span aria-hidden className="h-px flex-1 bg-slate-800" />
-              </div>
-              {ladder.length
-                ? <PairNeck ctx={ctx} strings={strings} ladder={ladder} lit={lit?.pair === id ? lit.i : null} onPlay={(i) => tap(id, ladder[i], i)} />
-                : <p className="text-xs text-slate-500">No {ivLabel} of this scale fit on these strings within 4 frets.</p>}
-            </div>
-          ))}
+        <div className="mb-1 flex items-center gap-2">
+          <h3 className="text-sm font-medium text-slate-100">Up the scale</h3>
+          {octave.length > 0 && <button type="button" onClick={() => (running ? stop() : run())} title="Plays the octave up and back down" className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running ? "■ Stop" : "▶ Play"}</button>}
         </div>
+        <p className="mb-3 text-xs text-slate-400">One octave of {keyName} on the {lower} and {STRING_NAMES[strings[1]]} strings, around the root. Each number is the scale note the double stop starts on. Tap one to hear it.</p>
+        {octave.length
+          ? <OctaveNeck ctx={ctx} strings={strings} octave={octave} lit={lit} onPlay={tap} />
+          : <p className="text-xs text-slate-500">No {ivLabel} of this scale fit on these strings within 4 frets.</p>}
       </section>
     </WithSettings>
   );
