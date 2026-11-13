@@ -11,7 +11,7 @@ import { INTERVAL_DIRS, type IntervalDir } from "@/features/exercises/basics/int
 import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/string-singer/strings";
 import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/features/exercises/basics/breathwork/breaths";
 import { HILL_SOUNDS, HILL_WHERE, LIMITS as HILL_LIMITS, type HillSound, type HillWhere } from "@/features/exercises/basics/voice-hill/hill";
-import { LIP_ROLL_SHAPES, LIMITS as LIP_ROLL_LIMITS, type LipRollShape } from "@/features/exercises/basics/lip-roll/glide";
+import { LIP_ROLL_PLAYS, LIP_ROLL_SHAPES, LIP_ROLL_SPEEDS, LIMITS as LIP_ROLL_LIMITS, type LipRollPlay, type LipRollShape, type LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
 import { FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
@@ -99,7 +99,7 @@ type PlanToolProps =
   | { type: "string-singer"; drill?: StringDrill; level?: ToolLevel; metronome?: false }
   | { type: "breathwork"; drill?: BreathDrill; level?: ToolLevel; from?: number; to?: number; seconds?: number; rounds?: number }
   | { type: "voice-hill"; where?: HillWhere; sound?: HillSound; seconds?: number; reps?: number; voice?: Voice }
-  | { type: "lip-roll"; shape?: LipRollShape; /** "hold" only */ seconds?: number; plays?: number; voice?: Voice }
+  | { type: "lip-roll"; shape?: LipRollShape; /** not for "hold" */ speed?: LipRollSpeed; play?: LipRollPlay; /** "hold" only */ seconds?: number; plays?: number; voice?: Voice }
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; /** Do and then the note sound before the student sings; absent: only Do */ play?: "both"; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
@@ -467,12 +467,14 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
   },
   "lip-roll": {
     parse(t) {
-      // "down" is the default; `seconds` only for "hold"
+      // "down", "medium" and "echo" are the defaults; `speed` only for a slide, `seconds` only for "hold"
       const shape = LIP_ROLL_SHAPES.includes(t.shape as LipRollShape) ? (t.shape as LipRollShape) : "down";
       const seconds = shape === "hold" ? int(t.seconds, ...LIP_ROLL_LIMITS.seconds) : null;
       const plays = int(t.plays, ...LIP_ROLL_LIMITS.plays);
       const voice = voiceOf(t.voice);
-      return { type: "lip-roll", ...(shape !== "down" ? { shape } : {}), ...(seconds !== null ? { seconds } : {}), ...(plays !== null ? { plays } : {}), ...(voice ? { voice } : {}) };
+      const speed = shape !== "hold" && LIP_ROLL_SPEEDS.includes(t.speed as LipRollSpeed) && t.speed !== "medium" ? { speed: t.speed as LipRollSpeed } : {};
+      const play = LIP_ROLL_PLAYS.includes(t.play as LipRollPlay) && t.play !== "echo" ? { play: t.play as LipRollPlay } : {};
+      return { type: "lip-roll", ...(shape !== "down" ? { shape } : {}), ...speed, ...play, ...(seconds !== null ? { seconds } : {}), ...(plays !== null ? { plays } : {}), ...(voice ? { voice } : {}) };
     },
   },
   "string-singer": {

@@ -78,7 +78,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "voice-hill":
       return <VoiceHill where={tool.where} sound={tool.sound} seconds={tool.seconds} reps={tool.reps} voice={tool.voice ?? voice} />;
     case "lip-roll":
-      return <LipRoll shape={tool.shape} seconds={tool.seconds} plays={tool.plays} voice={tool.voice ?? voice} />;
+      return <LipRoll shape={tool.shape} speed={tool.speed} play={tool.play} seconds={tool.seconds} plays={tool.plays} voice={tool.voice ?? voice} />;
     case "interval-singer":
       return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} play={tool.play} dot={tool.dot} picker={tool.picker === true} />;
     case "guitar-play-along":

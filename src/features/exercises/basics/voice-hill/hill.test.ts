@@ -11,6 +11,11 @@ test("zones sit in the voice: low E3 and under, middle F3 to Bb3, high (head voi
   assert.deepEqual(zoneFor("high", tenor), { lo: 67, hi: Infinity, ref: 67 });
 });
 
+test("low goes a semitone lower each hold, down to the bottom of the range", () => {
+  assert.deepEqual([0, 1, 2, 3, 4, 5, 6].map((h) => zoneFor("low", tenor, h).hi), [52, 51, 50, 49, 48, 48, 48]);
+  assert.equal(zoneFor("middle", tenor, 3).lo, 53);
+});
+
 test("in the zone with slack at its closed ends, and which way to move", () => {
   const z = zoneFor("middle", tenor);
   assert.equal(inZone(52.7, z, 40), true);

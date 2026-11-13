@@ -51,3 +51,39 @@ export function playGlide(path: GlidePath, delay = 0.12): GlideSound {
     },
   };
 }
+
+/**
+ * The starting note of the student's own pass: the same voice, sounding `delay` seconds from now at full level and fading
+ * to nothing over `seconds`, while the line is still flat, so the student starts on it and carries on alone.
+ */
+export function playCue(midi: number, delay: number, seconds: number): GlideSound {
+  const ctx = getAudioContext();
+  const t0 = ctx.currentTime + delay;
+  const osc = ctx.createOscillator();
+  osc.type = "triangle";
+  osc.frequency.value = midiToHz(midi);
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 1400;
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(0, t0);
+  env.gain.linearRampToValueAtTime(0.2, t0 + 0.06);
+  env.gain.linearRampToValueAtTime(0, t0 + seconds);
+  osc.connect(filter).connect(env).connect(getOutputBus());
+  osc.start(t0);
+  osc.stop(t0 + seconds + 0.05);
+  return {
+    t0,
+    ctx,
+    stop: () => {
+      env.gain.cancelScheduledValues(ctx.currentTime);
+      env.gain.setTargetAtTime(0, ctx.currentTime, 0.02);
+      setTimeout(() => {
+        try {
+          osc.stop();
+        } catch { /* already stopped */ }
+        env.disconnect();
+      }, 120);
+    },
+  };
+}

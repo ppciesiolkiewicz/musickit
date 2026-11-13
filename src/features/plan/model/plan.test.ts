@@ -115,6 +115,8 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "string-singer", drill: "strings", voice: "alto" }), { type: "string-singer" });
     assert.deepEqual(parseTool({ type: "string-singer", drill: "pairs" }), { type: "string-singer", drill: "pairs" });
     assert.deepEqual(parseTool({ type: "breathwork" }), { type: "breathwork" });
+    assert.deepEqual(parseTool({ type: "lip-roll", shape: "siren", speed: "slow", play: "always", span: 9 }), { type: "lip-roll", shape: "siren", speed: "slow", play: "always" });
+    assert.deepEqual(parseTool({ type: "lip-roll", shape: "hold", speed: "fast", play: "echo", seconds: 4 }), { type: "lip-roll", shape: "hold", seconds: 4 });
     assert.deepEqual(parseTool({ type: "breathwork", drill: "farinelli", from: 3, to: 7, rounds: 2 }), { type: "breathwork", from: 3, to: 7 });
     assert.deepEqual(parseTool({ type: "breathwork", from: 6, to: 4 }), { type: "breathwork", from: 6 });
     assert.deepEqual(parseTool({ type: "breathwork", drill: "sss-zzz", seconds: 5, rounds: 2, from: 3 }), { type: "breathwork", drill: "sss-zzz", seconds: 5, rounds: 2 });

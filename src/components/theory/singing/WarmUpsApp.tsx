@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { GameChoice } from "@/components/practice/shared";
+import Lesson from "@/components/theory/Lesson";
 import { Chip, ChipRow, Select } from "@/components/ui";
 import { View as LipRoll } from "@/features/exercises/basics/lip-roll";
 import type { LipRollProps } from "@/features/exercises/basics/lip-roll/lip-roll.props";
@@ -8,48 +10,94 @@ import { View as VoiceHill } from "@/features/exercises/basics/voice-hill";
 import type { VoiceHillProps } from "@/features/exercises/basics/voice-hill/voice-hill.props";
 import { VOICES, type Voice } from "@/features/theory/singing";
 
-type WarmUp = { id: string; label: string; title: string } & ({ tool: "lip-roll"; props: LipRollProps } | { tool: "voice-hill"; props: VoiceHillProps });
+type Kind = "lip-roll" | "voice-hill";
 
-/** The warm-ups in the order to do them: lip rolls first to loosen up, then the low voice, the middle, and the light high voice last. */
-const WARM_UPS: WarmUp[] = [
-  { id: "roll-down", label: "Slide down", title: "A lip roll from head voice down to chest voice", tool: "lip-roll", props: { shape: "down" } },
-  { id: "roll-siren", label: "Siren", title: "A lip roll from chest voice up to head voice and back", tool: "lip-roll", props: { shape: "siren" } },
-  { id: "roll-hold", label: "One note", title: "A lip roll on one steady chest-voice note", tool: "lip-roll", props: { shape: "hold" } },
-  { id: "hill-low-hum", label: "Low hum", title: "Hum low and roll the ball into the hollow", tool: "voice-hill", props: { where: "low", sound: "hum" } },
-  { id: "hill-low-oo", label: "Low oo", title: "Sing “oo” low", tool: "voice-hill", props: { where: "low", sound: "oo" } },
-  { id: "hill-middle", label: "Middle oo", title: "Sing “oo” in the middle of your voice", tool: "voice-hill", props: { where: "middle", sound: "oo", seconds: 5, reps: 3 } },
-  { id: "hill-high", label: "High oo", title: "Sing “oo” light and high, in head voice", tool: "voice-hill", props: { where: "high", sound: "oo", seconds: 2 } },
+/** The two warm-ups, picked like the ear game's Intervals and Chord quality: what each is, in a line. */
+const KINDS: { id: Kind; title: string; about: string }[] = [
+  { id: "lip-roll", title: "Lip roll", about: "Hear the tone slide, then lip roll it back from head voice to chest voice." },
+  { id: "voice-hill", title: "The hill", about: "Hold one easy sound low, in the middle or high while a ball shows your voice." },
+];
+
+/** Why the warm-ups matter and what to try, for both: over the choice of exercise. */
+const LESSON = {
+  why: "A voice warms up best with almost no effort: a lip roll loosens it while it slides through its breaks, and an easy held sound shows where its low, middle and head voice sit.",
+  tryThis: "Do the lip roll first, then the hill. Pick your voice before you start, so every note sits where it is easy.",
+};
+
+/** What to do in the exercise picked, under the choice. */
+const GUIDE: Record<Kind, string[]> = {
+  "lip-roll": [
+    "Let your lips buzz loosely and follow the tone from head voice down into chest voice. Each round goes a little deeper.",
+    "Start on Slow with the tone, then try the pass on your own. Don't push to stay on the line: an easy, steady buzz matters more.",
+  ],
+  "voice-hill": [
+    "Hold one easy sound and keep the ball on the green part until the ring fills. Low goes a semitone lower each hold.",
+    "Let a hum wobble a little to stay loose. Go High last, on “oo”, light and soft.",
+  ],
+};
+
+const ROLLS: { id: string; label: string; title: string; props: LipRollProps }[] = [
+  { id: "down", label: "Slide down", title: "From head voice down to chest voice", props: { shape: "down" } },
+  { id: "siren", label: "Siren", title: "From chest voice up to head voice and back", props: { shape: "siren" } },
+  { id: "hold", label: "One note", title: "One steady chest-voice note", props: { shape: "hold" } },
+];
+const PLACES: { id: NonNullable<VoiceHillProps["where"]>; label: string; title: string; props: VoiceHillProps }[] = [
+  { id: "low", label: "Low", title: "The bottom of your voice, a little lower each hold", props: { where: "low" } },
+  { id: "middle", label: "Middle", title: "The middle of your voice, between two marks", props: { where: "middle", seconds: 5, reps: 3 } },
+  { id: "high", label: "High", title: "Head voice, light and soft", props: { where: "high", seconds: 2 } },
+];
+const SOUNDS: { id: NonNullable<VoiceHillProps["sound"]>; label: string }[] = [
+  { id: "hum", label: "Hum" },
+  { id: "oo", label: "“oo”" },
+  { id: "ee", label: "“ee”" },
 ];
 
 const VOICE_OPTIONS = (Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: VOICES[v].label }));
 
-/** The voice warm-ups page: a Lip roll and a Hill selector (one warm-up at a time) and Your voice over the tool. A new pick starts it over. */
-export default function WarmUpsApp({ lead }: { lead?: ReactNode }) {
-  const [id, setId] = useState(WARM_UPS[0].id);
+/**
+ * The voice warm-ups page: why and what to try (both), what to practise (Lip roll or The hill, two separate tools), what
+ * to do in the one picked, its own choices and Your voice. A choice changes the tool's props without remounting it, so
+ * a tool that is running keeps running with the new settings.
+ */
+export default function WarmUpsApp() {
+  const [kind, setKind] = useState<Kind>("lip-roll");
+  const [roll, setRoll] = useState(ROLLS[0].id);
+  const [place, setPlace] = useState(PLACES[0].id);
+  const [sound, setSound] = useState(SOUNDS[0].id);
   const [voice, setVoice] = useState<Voice>("tenor");
-  const w = WARM_UPS.find((x) => x.id === id)!;
-  const row = (tool: WarmUp["tool"], label: string) => (
-    <ChipRow label={label}>
-      {WARM_UPS.filter((x) => x.tool === tool).map((x) => (
-        <Chip key={x.id} on={x.id === id} onClick={() => setId(x.id)} title={x.title}>{x.label}</Chip>
-      ))}
-    </ChipRow>
-  );
+  const r = ROLLS.find((x) => x.id === roll)!;
+  const h = PLACES.find((x) => x.id === place)!;
   return (
     <div>
-      {lead}
-      <div className="mx-auto w-full max-w-xl">
+      <Lesson course="3/breath-and-holding-a-note" why={LESSON.why} tryThis={LESSON.tryThis} />
+      <div data-tour="warm-ups-kind" className="mb-3"><GameChoice label="What to practise" options={KINDS} value={kind} onChange={setKind} tone="sky" /></div>
+      <div className="mb-4 rounded-xl border border-slate-800 bg-slate-900/30 px-3 py-2 text-sm leading-snug text-slate-300" aria-live="polite">
+        {GUIDE[kind].map((line) => <p key={line}>{line}</p>)}
+      </div>
+      <div className="mx-auto w-full max-w-2xl">
         <div className="mb-3 flex flex-col gap-2">
-          {row("lip-roll", "Lip roll")}
-          {row("voice-hill", "The hill")}
+          {kind === "lip-roll" ? (
+            <ChipRow label="Slide">
+              {ROLLS.map((x) => <Chip key={x.id} on={x.id === roll} onClick={() => setRoll(x.id)} title={x.title}>{x.label}</Chip>)}
+            </ChipRow>
+          ) : (
+            <>
+              <ChipRow label="Place">
+                {PLACES.map((x) => <Chip key={x.id} on={x.id === place} onClick={() => setPlace(x.id)} title={x.title}>{x.label}</Chip>)}
+              </ChipRow>
+              <ChipRow label="Sound">
+                {SOUNDS.map((x) => <Chip key={x.id} on={x.id === sound} onClick={() => setSound(x.id)}>{x.label}</Chip>)}
+              </ChipRow>
+            </>
+          )}
           <div className="flex flex-wrap items-center gap-1.5">
             <span className="w-28 shrink-0 text-xs uppercase tracking-wider text-slate-400">Your voice</span>
             <Select value={voice} onChange={setVoice} options={VOICE_OPTIONS} size="sm" aria-label="Your voice" />
           </div>
         </div>
-        {w.tool === "lip-roll"
-          ? <LipRoll key={`${w.id}-${voice}`} {...w.props} voice={voice} />
-          : <VoiceHill key={`${w.id}-${voice}`} {...w.props} voice={voice} />}
+        {kind === "lip-roll"
+          ? <LipRoll {...r.props} voice={voice} />
+          : <VoiceHill {...h.props} sound={sound} voice={voice} />}
       </div>
     </div>
   );

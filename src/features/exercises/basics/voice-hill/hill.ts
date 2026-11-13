@@ -20,10 +20,14 @@ export interface Zone { lo: number; hi: number; ref: number }
 /**
  * Where each place sits in a voice: "low" at or under the 5th semitone from the bottom of its range, "middle" from the
  * 6th to the 11th semitone (both chest voice, as the old attunr warm-ups placed them), "high" in head voice, at or over
- * its second break (`REGISTERS`). For a tenor: E3 and under, F3 to B♭3, G4 and over.
+ * its second break (`REGISTERS`). For a tenor: E3 and under, F3 to B♭3, G4 and over. "low" goes a semitone lower with
+ * each `hold` (0 the first), down to the bottom of the range and no further: a tenor's E3, E♭3, D3, D♭3, C3.
  */
-export function zoneFor(where: HillWhere, range: Range & Registers): Zone {
-  if (where === "low") return { lo: -Infinity, hi: range.low + 4, ref: range.low + 4 };
+export function zoneFor(where: HillWhere, range: Range & Registers, hold = 0): Zone {
+  if (where === "low") {
+    const hi = Math.max(range.low, range.low + 4 - hold);
+    return { lo: -Infinity, hi, ref: hi };
+  }
   if (where === "high") return { lo: range.secondo, hi: Infinity, ref: range.secondo };
   return { lo: range.low + 5, hi: range.low + 10, ref: range.low + 7 };
 }

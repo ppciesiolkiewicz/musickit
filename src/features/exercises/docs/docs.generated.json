@@ -524,13 +524,25 @@
   {
     "name": "lip-roll",
     "kind": "basic",
-    "description": "A lip roll warm-up with the mic: a soft tone slides from head voice down to chest voice (or back up, or holds one\nnote) while a line shows its path over the voice's registers, then the student lip rolls the same path on their own\nwhile the mic draws their line over it. Each round is: listen, your turn, a short rest; `plays` rounds in all. The\nslide crosses both breaks of the voice type (typical ones, `REGISTERS`), so it smooths the change from head to chest\nvoice. The line is loose on purpose: a lip roll is about an easy, steady buzz, not an exact note. A singing warm-up,\nfor the start of a voice session.",
+    "description": "A lip roll warm-up with the mic: a soft tone slides from head voice down to chest voice (or back up, or holds one\nnote) while a line shows its path over the voice's registers, and the student lip rolls it while the mic draws their\nline over it: with the tone, then on their own (the default), with the tone only, or with no tone (`play`). Each round\ngoes a little deeper into chest voice (one note: a semitone lower), then a short rest; `plays` rounds in all. The\nslide crosses both breaks of the voice type (typical ones, `REGISTERS`), so it smooths the change from head to chest\nvoice. The line is loose on purpose: a lip roll is about an easy, steady buzz, not an exact note. A singing warm-up,\nfor the start of a voice session.",
     "props": [
       {
         "name": "shape",
         "type": "\"down\" | \"up\" | \"siren\" | \"hold\"",
         "required": false,
         "description": "the path: \"down\" (default; from head voice to chest voice), \"up\" (chest to head voice), \"siren\" (up and back down) or \"hold\" (one steady chest-voice note)"
+      },
+      {
+        "name": "speed",
+        "type": "\"slow\" | \"medium\" | \"fast\"",
+        "required": false,
+        "description": "how fast the tone slides: \"slow\", \"medium\" (default) or \"fast\"; the student can change it on the tool. Not for \"hold\""
+      },
+      {
+        "name": "play",
+        "type": "\"always\" | \"echo\" | \"silent\"",
+        "required": false,
+        "description": "when the tone plays: \"echo\" (default; a pass with the tone, then the same pass on your own, its first note sounding and fading as you start), \"always\" (the tone the whole time, lip rolled with) or \"silent\" (no tone, only the line); the student can change it on the tool"
       },
       {
         "name": "seconds",
@@ -1265,7 +1277,7 @@
         "name": "where",
         "type": "\"low\" | \"middle\" | \"high\"",
         "required": false,
-        "description": "where in the voice: \"low\" (default; the bottom of the voice, a tenor's E3 and under), \"middle\" (a few notes over it, a tenor's F3 to B♭3) or \"high\" (head voice, over the second break: a tenor's G4 and over; keep it light)"
+        "description": "where in the voice: \"low\" (default; the bottom of the voice: each hold a semitone lower, a tenor's E3 and under down to C3 and under, the new note played in the breath between), \"middle\" (a few notes over it, a tenor's F3 to B♭3) or \"high\" (head voice, over the second break: a tenor's G4 and over; keep it light)"
       },
       {
         "name": "sound",

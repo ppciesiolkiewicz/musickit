@@ -5,13 +5,15 @@ import Icon from "@/components/Icon";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
-import { useSpaceKey } from "@/components/practice/toolKeys";
 import { getAudioContext, getOutputBus, getSharedPiano, wakeAudio } from "@/features/sound";
+import { useCoverage } from "@/features/guide/useCoverage";
 import { voiceMap } from "@/features/theory/registers";
 import { VOICES } from "@/features/theory/singing";
-import { PlayButton, PlayerCard } from "../../play-along/PlayerParts";
+import { Button, Hint } from "@/components/ui";
+import { PlayerCard } from "../../play-along/PlayerParts";
 import { useVoice } from "../voiceChoice";
 import { noteLabel, useVoicePitch } from "../voicePitch";
+import { WarmUpBar, useWarmUpKeys } from "../warmUpBar";
 import { DEFAULTS, LIMITS, ballX, clampInt, heightAt, inZone, stepHold, towards, zoneFor, zoneX, type HillSound, type HillWhere } from "./hill";
 import type { VoiceHillProps } from "./voice-hill.props";
 
@@ -30,13 +32,13 @@ const DOING: Record<HillSound, string> = { hum: "hum", oo: "sing on “oo”", e
 const NOW: Record<HillSound, string> = { hum: "Hum now", oo: "Sing “oo”", ee: "Sing “ee”" };
 
 const WHAT: Record<HillWhere, (s: HillSound) => string> = {
-  low: (s) => `Roll the ball down into the hollow: ${DOING[s]} on a low, easy note. Hold it there until the ring fills.`,
-  middle: (s) => `Rest the ball in the valley: ${DOING[s]} on an easy note in the middle of your voice. Hold it there until the ring fills.`,
-  high: (s) => `Lift the ball to the top of the hill: ${DOING[s]} on a light, high note. Hold it there until the ring fills.`,
+  low: (s) => `Roll the ball down into the hollow: ${DOING[s]} on a low, easy note. Let the sound wobble a little to keep it loose, but keep the ball on the green part until the ring fills.`,
+  middle: (s) => `Rest the ball in the valley: ${DOING[s]} on an easy note in the middle of your voice. Let the sound wobble a little to keep it loose, but keep the ball on the green part until the ring fills.`,
+  high: (s) => `Lift the ball to the top of the hill: ${DOING[s]} on a light, high note. Keep the ball on the green part until the ring fills.`,
 };
 const TIPS: Record<HillWhere, string[]> = {
-  low: ["Let your jaw hang loose.", "Low and easy: there is no need to push down.", "Breathe whenever you need to. The ring waits."],
-  middle: ["Keep the sound steady and relaxed.", "Feel where the buzz sits: lips, face or chest.", "Breathe whenever you need to. The ring waits."],
+  low: ["Wobble the sound a little: the ball can move, as long as it stays on the green part.", "Let your jaw hang loose.", "Low and easy: there is no need to push down.", "Breathe whenever you need to. The ring waits."],
+  middle: ["Wobble the sound a little: the ball can move, as long as it stays between the marks.", "Keep the sound relaxed.", "Feel where the buzz sits: lips, face or chest.", "Breathe whenever you need to. The ring waits."],
   high: ["Keep it light and soft, like a sigh.", "Too much effort? Go a little lower: easy is the point.", "Breathe whenever you need to. The ring waits."],
 };
 const TIP_SECONDS = 8;
@@ -60,74 +62,120 @@ function chime() {
 }
 
 type Status = "idle" | "holding" | "rest" | "done";
+type Hold = "held" | "skipped";
 
 /**
  * The hill (`voice-hill.props.ts`): a ball on a slope or in a valley follows the voice from the mic, and a ring round it
  * fills while the voice stays in the lit place. Each full ring is one hold; a short breath and the next one starts.
  */
 export function View({ where = "low", sound = "hum", seconds: secondsProp, reps: repsProp, voice: own = "tenor" }: VoiceHillProps) {
+  useCoverage({ hints: 2 });
   const voice = useVoice(own);
   const range = VOICES[voice] ?? VOICES.tenor;
-  const zone = useMemo(() => zoneFor(where, voiceMap(voice in VOICES ? voice : "tenor")), [where, voice]);
+  const map = useMemo(() => voiceMap(voice in VOICES ? voice : "tenor"), [voice]);
   const seconds = clampInt(secondsProp, LIMITS.seconds, DEFAULTS.seconds);
   const reps = clampInt(repsProp, LIMITS.reps, DEFAULTS.reps);
 
   const [status, setStatus] = useState<Status>("idle");
-  const [done, setDone] = useState(0);
+  // each hold so far: held to the end, or skipped
+  const [holds, setHolds] = useState<Hold[]>([]);
+  // the place of the hold being sung (low steps down a semitone a hold); the frame loop reads it from the ref
+  const zone = useMemo(() => zoneFor(where, map, Math.min(holds.length, reps - 1)), [where, map, holds.length, reps]);
+  const zoneRef = useRef(zone);
+  useEffect(() => {
+    zoneRef.current = zone;
+  }, [zone]);
   const [micOn, setMicOn] = useState(false);
   const { pitch, status: micStatus } = useVoicePitch(micOn);
 
-  // what each frame draws, kept in one state so a frame is one render
-  const startX = where === "low" ? 0.82 : where === "high" ? 0.18 : 0.15;
+  // what each frame draws, kept in one state so a frame is one render; the ball starts away from the place and
+  // stays where it is when the settings change
+  const [startX] = useState(where === "low" ? 0.82 : where === "high" ? 0.18 : 0.15);
   const [frame, setFrame] = useState({ x: startX, heard: null as number | null, progress: 0, t: 0 });
-  const live = useRef({ x: startX, progress: 0, t: 0, restLeft: 0, done: 0, status: "idle" as Status });
-  const raf = useRef(0);
+  const live = useRef({ x: startX, progress: 0, t: 0, restLeft: 0, holds: [] as Hold[], status: "idle" as Status });
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // the settings the frame loop and the holds read, always the latest props
+  const cfg = useRef({ seconds, reps, where });
+  useEffect(() => {
+    cfg.current = { seconds, reps, where };
+  });
+
   const stop = useCallback(() => {
-    cancelAnimationFrame(raf.current);
     if (timer.current) clearTimeout(timer.current);
     setMicOn(false);
     live.current.status = "idle";
     setStatus((s) => (s === "done" ? s : "idle"));
   }, []);
   useEffect(() => () => {
-    cancelAnimationFrame(raf.current);
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
   const playNote = useCallback(async () => {
     await wakeAudio();
     const piano = getSharedPiano();
-    const m = Math.round(zone.ref);
+    const m = Math.round(zoneRef.current.ref);
     piano.noteOn(m);
     setTimeout(() => piano.noteOff(m), NOTE_MS * 0.9);
-  }, [zone.ref]);
+  }, []);
 
-  const loop = useCallback(() => {
+  /** a breath before the next hold; the note plays in it once the place has moved, so the mic never counts the piano */
+  const breathe = useCallback((withNote: boolean) => {
+    const s = live.current;
+    s.status = "rest";
+    s.restLeft = REST_SECONDS;
+    s.progress = 0;
+    setStatus("rest");
+    if (withNote) setTimeout(() => void playNote(), 250);
+  }, [playNote]);
+
+  /** the hold being sung ends, held or skipped: a breath before the next (`rest`), or straight on, or the end */
+  const finish = useCallback((how: Hold, rest: boolean) => {
+    const s = live.current;
+    s.holds = [...s.holds, how];
+    s.progress = 0;
+    setHolds(s.holds);
+    if (s.holds.length >= cfg.current.reps) {
+      s.status = "done";
+      setStatus("done");
+      setMicOn(false);
+    } else if (rest) {
+      // low steps down a semitone a hold: its new note plays in the breath
+      breathe(cfg.current.where === "low");
+    } else {
+      s.status = "holding";
+      setStatus("holding");
+    }
+  }, [breathe]);
+
+  // Start and Restart: the holds start over from the first; the note plays, then the mic opens
+  const start = useCallback(async () => {
+    if (timer.current) clearTimeout(timer.current);
+    live.current = { ...live.current, progress: 0, t: 0, restLeft: 0, holds: [], status: "holding" };
+    setHolds([]);
+    setStatus("holding");
+    await playNote();
+    timer.current = setTimeout(() => setMicOn(true), NOTE_MS);
+  }, [playNote]);
+
+  // the frame loop runs while it runs: it fills or drains the hold, counts the breath and moves the ball
+  const running = status === "holding" || status === "rest";
+  useEffect(() => {
+    if (!running) return;
+    let id = 0;
     let last = performance.now();
-    const tick = (now: number) => {
+    const frame = (now: number) => {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       const s = live.current;
       const m = pitch.current;
       s.t += dt;
       if (s.status === "holding") {
-        const heard = m === null ? "none" : inZone(m, zone, CENTS) ? "in" : "out";
-        s.progress = stepHold(s.progress, heard, dt, seconds);
+        const heard = m === null ? "none" : inZone(m, zoneRef.current, CENTS) ? "in" : "out";
+        s.progress = stepHold(s.progress, heard, dt, cfg.current.seconds);
         if (s.progress >= 1) {
-          s.done += 1;
           chime();
-          setDone(s.done);
-          if (s.done >= reps) {
-            s.status = "done";
-            setStatus("done");
-            setMicOn(false);
-          } else {
-            s.status = "rest";
-            s.restLeft = REST_SECONDS;
-            setStatus("rest");
-          }
+          finish("held", true);
         }
       } else if (s.status === "rest") {
         s.restLeft -= dt;
@@ -137,29 +185,37 @@ export function View({ where = "low", sound = "hum", seconds: secondsProp, reps:
           setStatus("holding");
         }
       }
-      if (m !== null) s.x += (ballX(m, zone) - s.x) * Math.min(1, FOLLOW * dt * 60);
+      if (m !== null) s.x += (ballX(m, zoneRef.current) - s.x) * Math.min(1, FOLLOW * dt * 60);
       setFrame({ x: s.x, heard: m, progress: s.progress, t: s.t });
-      if (s.status === "holding" || s.status === "rest") raf.current = requestAnimationFrame(tick);
+      if (s.status === "holding" || s.status === "rest") id = requestAnimationFrame(frame);
     };
-    raf.current = requestAnimationFrame(tick);
-  }, [pitch, zone, seconds, reps]);
+    id = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(id);
+  }, [running, pitch, finish]);
 
-  const start = useCallback(async () => {
-    cancelAnimationFrame(raf.current);
-    if (timer.current) clearTimeout(timer.current);
-    live.current = { x: startX, progress: 0, t: 0, restLeft: 0, done: 0, status: "holding" };
-    setDone(0);
-    setStatus("holding");
-    // the note first, then the mic, so the mic doesn't hear the piano (and a phone doesn't play it quietly)
-    await playNote();
-    timer.current = setTimeout(() => setMicOn(true), NOTE_MS);
-    loop();
-  }, [startX, playNote, loop]);
+  // new settings while it runs (place, sound, voice, length): the holds start over on them after a breath with the
+  // new note, and it keeps running
+  const settings = `${where}|${sound}|${voice}|${seconds}|${reps}`;
+  const lastSettings = useRef(settings);
+  useEffect(() => {
+    if (settings === lastSettings.current) return;
+    lastSettings.current = settings;
+    if (live.current.status !== "holding" && live.current.status !== "rest") return;
+    live.current.holds = [];
+    setHolds([]);
+    breathe(true);
+  }, [settings, breathe]);
 
-  const running = status === "holding" || status === "rest";
   useStepPart({ kind: "mic", on: running, start, stop });
-  const playStop = () => (running ? stop() : void start());
-  const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(playStop);
+  // Skip: the hold being sung counts as skipped and the next starts now (low: after a breath with its new note); in the breath, the breath is cut short
+  const skip = () => {
+    const s = live.current;
+    if (s.status === "holding") finish("skipped", where === "low");
+    else if (s.status === "rest") s.restLeft = 0;
+  };
+  const actions = { status: running ? "running" as const : status === "done" ? "done" as const : "idle" as const, onStart: () => void start(), onStop: stop, onRestart: () => void start(), onSkip: skip };
+  const { ref: keysRef, armed } = useWarmUpKeys(actions);
+  const done = holds.length;
 
   const dir = frame.heard === null ? null : towards(frame.heard, zone, CENTS);
   const inside = running && dir === 0;
@@ -178,20 +234,26 @@ export function View({ where = "low", sound = "hum", seconds: secondsProp, reps:
   const title = `${PLACE[where]} ${SOUND[sound]}`;
 
   return (
-    <PlayerCard ref={spaceRef}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Warm-up · the hill</p>
-          <h3 className="truncate text-base font-semibold text-slate-100">{title}</h3>
-          <p className="text-xs tabular-nums text-slate-400">{seconds} seconds × {reps} · {range.label}</p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <button type="button" data-tour="hill-note" onClick={() => void playNote()} title={`Play ${noteLabel(zone.ref)}, the edge of the place to aim for`}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-700 px-3 text-xs font-medium text-slate-300 transition hover:border-slate-500 hover:text-slate-100">
+    <PlayerCard ref={keysRef}>
+      <div data-tour="hill-start">
+      <WarmUpBar {...actions} armed={armed} skip="the next hold" what="Plays the note, then the mic listens while you hold your sound.">
+        {/* the mic shows once Start has been pressed: Start opens it */}
+        {status !== "idle" && <span data-tour="hill-mic" className="inline-flex">
+          <Hint title="Mic" description="Listens to your voice. This button also opens the list of inputs, with each input's level.">
+            <InputChip status={micStatus} mic={{ on: micOn, onToggle: () => (running ? stop() : void start()) }} />
+          </Hint>
+        </span>}
+        <Hint title="Play note" description={`Plays ${noteLabel(zone.ref)}, the edge of the green part, to find it again.`}>
+          <Button size="sm" data-tour="hill-note" onClick={() => void playNote()} title={`Play ${noteLabel(zone.ref)}`} className="inline-flex items-center gap-1.5">
             <Icon name="volume-2" size={14} />Play note
-          </button>
-          <span data-tour="hill-mic"><InputChip status={micStatus} mic={{ on: micOn, onToggle: () => (running ? stop() : void start()) }} align="right" /></span>
-        </div>
+          </Button>
+        </Hint>
+      </WarmUpBar>
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Warm-up · the hill</p>
+        <h3 className="truncate text-base font-semibold text-slate-100">{title}</h3>
+        <p className="text-xs tabular-nums text-slate-400">{seconds} seconds × {reps} · {range.label}</p>
       </div>
 
       <div className="flex flex-col items-center gap-0.5 text-center" aria-live="polite">
@@ -201,31 +263,28 @@ export function View({ where = "low", sound = "hum", seconds: secondsProp, reps:
       </div>
 
       <div data-tour="hill-view" className="relative">
-        <StartCover show={status === "idle" && done === 0} title={title} onStart={() => void start()} keyCap={spaceArmed ? "Space" : undefined} note="The note plays first, then the mic starts.">
+        <StartCover show={status === "idle" && done === 0} title={title} onStart={() => void start()} keyCap={armed ? "Space" : undefined} note="The note plays first, then the mic starts.">
           {WHAT[where](sound)}
         </StartCover>
         <Hill where={where} zone={zoneX(zone)} edgeLabels={[Number.isFinite(zone.lo) ? noteLabel(zone.lo) : null, Number.isFinite(zone.hi) ? noteLabel(zone.hi) : null]}
           x={frame.x} heard={running && frame.heard !== null} inside={inside} toward={running && dir ? dir : 0} progress={frame.progress} resting={status === "rest"} done={status === "done"} />
       </div>
 
-      <Reps total={reps} done={done} current={running ? done : -1} progress={frame.progress} />
+      <Reps total={reps} holds={holds} current={running ? done : -1} progress={frame.progress} />
 
-      <div className="flex items-center gap-3 border-t border-slate-800 pt-3">
-        <PlayButton data-tour="hill-play" playing={running} onClick={playStop} space={spaceArmed} />
-        <p className="min-h-10 flex-1 text-sm leading-snug text-slate-300">
-          {running ? <><span className="mr-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Tip</span>{tip}</> : status === "done" ? "Press Play to go again." : `Hold it ${reps} times, ${seconds} seconds each, with a breath between.`}
-        </p>
-      </div>
+      <p className="min-h-10 border-t border-slate-800 pt-3 text-sm leading-snug text-slate-300">
+        {running ? <><span className="mr-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Tip</span>{tip}</> : status === "done" ? "Press Restart above to go again." : where === "low" ? `Hold it ${reps} times, ${seconds} seconds each, a little lower each time. The new note plays in the breath between.` : `Hold it ${reps} times, ${seconds} seconds each, with a breath between.`}
+      </p>
     </PlayerCard>
   );
 }
 
-/** One dot a hold: filled when done, the one being held filling as its ring does. */
-function Reps({ total, done, current, progress }: { total: number; done: number; current: number; progress: number }) {
+/** One bar a hold: green when held, faint and struck when skipped, the one being held filling as its ring does. */
+function Reps({ total, holds, current, progress }: { total: number; holds: Hold[]; current: number; progress: number }) {
   return (
-    <div className="flex items-center justify-center gap-1.5" aria-label={`${done} of ${total} holds done`}>
+    <div className="flex items-center justify-center gap-1.5" aria-label={`${holds.length} of ${total} holds done`}>
       {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={`relative h-2 w-8 overflow-hidden rounded-full ${i < done ? "bg-emerald-400" : "bg-slate-700/70"}`}>
+        <span key={i} title={holds[i] === "skipped" ? "Skipped" : undefined} className={`relative h-2 w-8 overflow-hidden rounded-full ${holds[i] === "held" ? "bg-emerald-400" : holds[i] === "skipped" ? "bg-slate-500/40 outline outline-1 outline-dashed outline-slate-500" : "bg-slate-700/70"}`}>
           {i === current && <span className="absolute inset-y-0 left-0 bg-emerald-400/80" style={{ width: `${progress * 100}%` }} />}
         </span>
       ))}

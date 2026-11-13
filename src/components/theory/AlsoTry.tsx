@@ -3,7 +3,7 @@ import Icon from "@/components/Icon";
 import { THEORY_SECTIONS, TONE } from "@/features/theory/sections";
 
 /** The singing pages that draw your voice on the staff, and Farinelli breathing to go with them. */
-export const STAFF_SINGING = ["/theory/singing", "/theory/singing/melodies", "/theory/singing/runs", "/theory/singing/intervals", "/theory/singing/warm-ups", "/theory/singing/breathing"];
+export const STAFF_SINGING = ["/theory/singing/warm-ups", "/theory/singing", "/theory/singing/melodies", "/theory/singing/runs", "/theory/singing/intervals", "/theory/singing/breathing"];
 
 /** "Also try": a small link, opening in a new tab so the page you sing on stays, for each of `hrefs` but the page you are on (label, icon and colour from the nav list). */
 export default function AlsoTry({ current, hrefs = STAFF_SINGING }: { current: string; hrefs?: string[] }) {
