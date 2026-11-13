@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import ToolSettings from "@/components/practice/ToolSettings";
-import { Button, DropdownSection, Hint, KeyCap, Slider } from "@/components/ui";
+import { Button, DropdownSection, Hint, KeyCap, Slider, Tile, hueAt } from "@/components/ui";
 import { DOT_LAG_MS } from "@/components/theory/singing/MelodyStaff";
 import { useCoverage } from "@/features/guide/useCoverage";
 
@@ -122,6 +122,50 @@ export function PlayAhead({ ms, onChange }: { ms: number; onChange(ms: number): 
         <Slider min={0} max={MAX_LAG_MS} step={10} value={ms} onChange={onChange} size="sm" className="w-40" aria-label="Play-ahead" />
         <span className="whitespace-nowrap text-xs tabular-nums text-slate-500">{ms} ms</span>
       </span>
+    </DropdownSection>
+  );
+}
+
+/**
+ * How close a lip roll has to be to the tone's line to count as on it, in cents: wider than a sung note's (`ACCURACIES`),
+ * since a lip roll buzzes and wobbles. Kept in this browser.
+ */
+export const ROLL_ACCURACIES = [
+  { title: "Easy", cents: 150 },
+  { title: "Medium", cents: 100 },
+  { title: "Hard", cents: 50 },
+  { title: "Pro", cents: 25 },
+] as const;
+const ROLL_KEY = "musickit.lipRoll.accuracy";
+
+export function useRollAccuracy(): [number, (cents: number) => void] {
+  const [cents, setCents] = useState<number>(ROLL_ACCURACIES[0].cents);
+  useEffect(() => {
+    try {
+      const v: unknown = JSON.parse(window.localStorage.getItem(ROLL_KEY) ?? "null");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved pick after hydration
+      if (ROLL_ACCURACIES.some((a) => a.cents === v)) setCents(v as number);
+    } catch { /* storage blocked */ }
+  }, []);
+  const pick = (v: number) => {
+    setCents(v);
+    try { window.localStorage.setItem(ROLL_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
+  };
+  return [cents, pick];
+}
+
+/** The lip roll's accuracy tiles, for the settings button, in the look of the singing tools' Accuracy. */
+export function RollAccuracy({ cents, onChange }: { cents: number; onChange(cents: number): void }) {
+  return (
+    <DropdownSection title="Accuracy" info={<>How close your line has to be to the tone&apos;s to show green. A semitone is 100 cents (¢). A lip roll wobbles, so start on Easy and move up when your line stays green.</>}>
+      <div role="radiogroup" aria-label="Accuracy" className="grid grid-cols-4 gap-1.5">
+        {ROLL_ACCURACIES.map((a, i) => (
+          <Tile key={a.title} radio hue={hueAt(i + 8)} on={a.cents === cents} onClick={() => onChange(a.cents)} title={`Within ${a.cents} cents of the line shows green`}
+            icon={<span className="text-[11px] font-semibold tabular-nums">±{a.cents}</span>}>
+            {a.title}
+          </Tile>
+        ))}
+      </div>
     </DropdownSection>
   );
 }

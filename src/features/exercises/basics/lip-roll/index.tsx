@@ -12,7 +12,7 @@ import { Chip, Hint } from "@/components/ui";
 import { PlayerCard } from "../../play-along/PlayerParts";
 import { useVoice } from "../voiceChoice";
 import { noteLabel, useVoicePitch } from "../voicePitch";
-import { PlayAhead, WarmUpBar, usePlayAhead, useWarmUpKeys, type WarmUpStatus } from "../warmUpBar";
+import { PlayAhead, RollAccuracy, WarmUpBar, usePlayAhead, useRollAccuracy, useWarmUpKeys, type WarmUpStatus } from "../warmUpBar";
 import { DEFAULTS, EDGE, LIMITS, LIP_ROLL_PLAYS, LIP_ROLL_SPEEDS, clampInt, youStart, glidePath, midiAt, nearPath, roundAt, roundSeconds, type GlidePath, type LipRollShape, type LipRollPlay, type LipRollSpeed, type RoundPhase } from "./glide";
 import { playCue, playGlide, type GlideSound } from "./sound";
 import type { LipRollProps } from "./lip-roll.props";
@@ -87,6 +87,9 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
   const [micOff, setMicOff] = useState(false);
   // the voice is drawn this far behind the playhead, to make up for the mic's delay
   const [lagMs, setLag] = usePlayAhead();
+  // how close to the line shows green, in semitones
+  const [cents, setCents] = useRollAccuracy();
+  const tol = cents / 100;
   const lag = useRef(lagMs / 1000);
   useEffect(() => {
     lag.current = lagMs / 1000;
@@ -191,7 +194,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
 
   const phase = now?.phase ?? null;
   const voiceNow = now?.voice ?? null;
-  const near = voiceNow !== null && now ? nearPath(shown, now.voiceAt, voiceNow, 1.5) : false;
+  const near = voiceNow !== null && now ? nearPath(shown, now.voiceAt, voiceNow, tol) : false;
   const word = status === "done" ? "All rounds done"
     : phase === "listen" ? "Lip roll with the tone"
     : phase === "along" ? (near ? "With the tone: on the line" : "Lip roll with the tone")
@@ -210,7 +213,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
   return (
     <PlayerCard ref={cardRef}>
       <div data-tour="lip-roll-start">
-      <WarmUpBar {...actions} armed={armed} settings={<PlayAhead ms={lagMs} onChange={setLag} />} skip="the next round" what="Starts the rounds and the mic.">
+      <WarmUpBar {...actions} armed={armed} settings={<><RollAccuracy cents={cents} onChange={setCents} /><PlayAhead ms={lagMs} onChange={setLag} /></>} skip="the next round" what="Starts the rounds and the mic.">
         <span data-tour="lip-roll-mic" className="inline-flex">
           <Hint title="Audio input" description="The input the mic uses to draw your line. Start switches it on: the dot turns from amber to green. Press it to pick another input or see its level.">
             <InputChip quiet status={micStatus} mic={{ on: running && !micOff, onToggle: () => (running ? setMicOff((o) => !o) : void start()) }} />
@@ -250,7 +253,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
         <StartCover show={status === "idle" && !now && trace.length === 0} title={TITLES[shape]} onStart={() => void start()} keyCap={armed ? "Space" : undefined} note="The mic starts with it.">
           {WHAT_PLAY[play]}
         </StartCover>
-        <Roll path={shown} registers={REGISTERS[known]} trace={trace} at={phase === "listen" || phase === "along" || phase === "you" ? now!.at : null} voiceAt={now?.voiceAt ?? 0} phase={phase} voice={voiceNow} near={near} />
+        <Roll path={shown} registers={REGISTERS[known]} trace={trace} at={phase === "listen" || phase === "along" || phase === "you" ? now!.at : null} voiceAt={now?.voiceAt ?? 0} phase={phase} voice={voiceNow} near={near} tol={tol} />
       </div>
 
       <p className="min-h-10 border-t border-slate-800 pt-3 text-sm leading-snug text-slate-300">
@@ -263,7 +266,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
 const W = 400, H = 200, L = 40, RGT = 12, TOP = 16, BOT = 24;
 
 /** Time across, pitch up: the voice's registers as bands with the breaks between, the tone's path as a wide band, the playhead, and the student's line over it. */
-function Roll({ path, registers, trace, at, voiceAt, phase, voice, near }: { path: GlidePath; registers: Registers; trace: Point[]; at: number | null; /** where the voice dot is drawn: `lag` behind the playhead */ voiceAt: number; phase: RoundPhase | null; voice: number | null; near: boolean }) {
+function Roll({ path, registers, trace, at, voiceAt, phase, voice, near, tol }: { /** semitones off the line that still show green */ tol: number; path: GlidePath; registers: Registers; trace: Point[]; at: number | null; /** where the voice dot is drawn: `lag` behind the playhead */ voiceAt: number; phase: RoundPhase | null; voice: number | null; near: boolean }) {
   const lo = path.low - 3, hi = path.high + 3;
   const x = (t: number) => L + (t / path.duration) * (W - L - RGT);
   const y = (m: number) => TOP + ((hi - m) / (hi - lo)) * (H - TOP - BOT);
@@ -274,7 +277,7 @@ function Roll({ path, registers, trace, at, voiceAt, phase, voice, near }: { pat
   for (const p of trace) {
     if (p.midi < 0) { prev = null; continue; }
     const m = Math.min(hi + 1, Math.max(lo - 1, p.midi));
-    const ok = nearPath(path, p.at, p.midi, 1.5);
+    const ok = nearPath(path, p.at, p.midi, tol);
     const seg = `${x(p.at).toFixed(1)},${y(m).toFixed(1)}`;
     if (!prev || runs[runs.length - 1].near !== ok) runs.push({ d: `M${prev ? `${x(prev.at).toFixed(1)},${y(Math.min(hi + 1, Math.max(lo - 1, prev.midi))).toFixed(1)}L` : ""}${seg}`, near: ok });
     else runs[runs.length - 1].d += `L${seg}`;

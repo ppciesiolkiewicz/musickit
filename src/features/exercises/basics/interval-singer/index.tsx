@@ -271,7 +271,8 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     : phase === "solved" ? `Yes: ${target!.label}, ${target!.spelled.name}.` : `It was ${target!.label}, ${target!.spelled.name}.`;
 
   const doPlays = both ? "Do and the note play" : "Do plays";
-  const big = "inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
+  // one width for Start, Restart and Next, so the buttons after it stay put
+  const big = "inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
   const settings = standard && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
 
   return (
@@ -291,16 +292,17 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
               </Button>
             </Hint>}
         </span>
-        {waiting && <Hint title="Skip" description="Moves on to a new interval."><Button size="sm" onClick={next}>Skip</Button></Hint>}
-        {ask !== null && found && <Button size="sm" onClick={restart} title={`The same interval again: ${doPlays} and the mic listens (R)`} className="inline-flex items-center gap-1.5">Restart{keysArmed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>}
-        {waiting && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
+        {/* always drawn, off until they apply, so nothing moves as the question changes */}
+        <Hint title="Skip" description="Moves on to a new interval."><Button size="sm" disabled={!waiting} onClick={next}>Skip</Button></Hint>
+        <Button size="sm" disabled={!waiting} onClick={() => reveal(false)}>Show me</Button>
+        <Button size="sm" disabled={!(ask !== null && found)} onClick={restart} title={`The same interval again: ${doPlays} and the mic listens (R)`} className="inline-flex items-center gap-1.5">Restart{keysArmed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>
         <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
           <Hint title="Audio input" description="The input the mic uses. Start switches it on: the dot turns from amber to green. Press it to pick another input, see its level, or stop it.">
             <InputChip quiet status={micStatus} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />
           </Hint>
         </span>
         <ToolHeadphonesHint />
-        {score.asked > 0 && <span className="text-sm tabular-nums text-slate-400">{score.right}/{score.asked} sung</span>}
+        <span className={`text-sm tabular-nums text-slate-400 ${score.asked > 0 ? "" : "invisible"}`} aria-hidden={score.asked === 0}>{score.right}/{score.asked} sung</span>
         <span className="ml-auto" />
         {options ? settings : <>
         <Badge>{range.label}</Badge>
