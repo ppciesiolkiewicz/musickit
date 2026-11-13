@@ -339,3 +339,14 @@ test("final: a practice tool keeps what its controls don't set", () => {
   const t = up({ type: "legato-trill", fingers: "13", string: 2, fret: 7, bpm: 60, level: "beginner" }, { level: "advanced" });
   assert.deepEqual([t.string, t.fret, t.level], [2, 7, "advanced"]);
 });
+
+test("a family's form starts on its key and scale: the Arpeggio in C harmonic minor stays harmonic minor", () => {
+  const C_HARMONIC_MINOR: KeyChoice = { tonicPc: 0, family: 1, mode: 0 };
+  const arp = stepValues(family("arpeggio"), C_HARMONIC_MINOR);
+  assert.equal(arp.key, 0);
+  assert.equal(arp.scale, "harmonic-minor");
+  assert.equal(arp.degree, 0);
+  // its seventh on I is the harmonic minor's own: Cm(maj7)
+  assert.match(describeSubject(family("arpeggio").make(addableValues(arp), C_HARMONIC_MINOR))!, /^Arpeggio · Cm/);
+  assert.equal(stepValues(family("scale"), C_HARMONIC_MINOR).scale, "harmonic-minor");
+});

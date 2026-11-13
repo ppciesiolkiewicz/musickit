@@ -46,7 +46,7 @@ const rowFamily = (r: PaletteResult | undefined) => (r?.action.type === "family"
 /** A family row opened: its add form in the row's key. */
 const opened = (r: PaletteResult | undefined): Open | null => {
   const family = rowFamily(r);
-  return family && r?.action.type === "family" ? { family, key: r.action.key, values: stepValues(family, r.action.key) } : null;
+  return family && r?.action.type === "family" ? { family, key: r.action.key, values: { ...stepValues(family, r.action.key), ...r.action.values } } : null;
 };
 
 /**

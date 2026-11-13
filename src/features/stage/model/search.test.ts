@@ -338,3 +338,21 @@ test("3 notes per string is a position-neck", () => {
 test("the practice tools sit under Practice", () => {
   assert.ok(paletteCatalog(ids, A_DORIAN).some((r) => r.group === "practice" && r.action.type === "family" && r.action.familyId === "note-finder"));
 });
+
+test("a scale named in more than one word is the key: c harmonic minor arpeggios is the Arpeggio row in C harmonic minor", () => {
+  const C_HARMONIC_MINOR = { tonicPc: 0, family: 1, mode: 0 };
+  assert.deepEqual(familyRows("c harmonic minor arpeggios")[0], { type: "family", familyId: "arpeggio", key: C_HARMONIC_MINOR });
+  assert.deepEqual(familyRows("C harmonic minor scales")[0], { type: "family", familyId: "scale", key: C_HARMONIC_MINOR });
+  assert.ok(searchPalette("c harmonic minor arpeggio", ids, EMPTY_KEY).every((r) => r.action.type === "family"));
+  // a key alone lists the families in it
+  assert.ok(familyRows("a melodic minor").every((f) => f.key.family === 2 && f.key.mode === 0 && f.key.tonicPc === 9));
+  assert.deepEqual(familyRows("e phrygian dominant arp")[0].key, { tonicPc: 4, family: 1, mode: 4 });
+  assert.deepEqual(familyRows("d natural minor scale")[0].key, { tonicPc: 2, family: 0, mode: 5 });
+  assert.deepEqual(familyRows("dorian b2 arpeggios")[0].key, { tonicPc: null, family: 2, mode: 1 });
+});
+
+test("a named pentatonic opens the Scale family on it", () => {
+  assert.deepEqual(familyRows("a minor pentatonic scale")[0].values, { scale: "minor-pentatonic" });
+  assert.deepEqual(familyRows("c major pent")[0].values, { scale: "major-pentatonic" });
+  assert.equal(searchPalette("a pentatonic", ids, EMPTY_KEY)[0].detail, "A minor pentatonic");
+});

@@ -10,7 +10,7 @@ import { formsFor, type CagedLetter } from "@/lib/chordKit/caged";
 import { TOOLS, type PlanTool, type ToolName } from "@/features/plan/model/tools";
 import { refTitle, sanitiseVideoRef, type VideoRef } from "@/features/videos/ref";
 import { STAGE_TOOLS, toolKey, withToolKey } from "./toolKey";
-import { describeParts } from "./families";
+import { describeParts, type FamilyValues } from "./families";
 
 export { cagedQualityOf } from "./families";
 
@@ -96,9 +96,10 @@ export interface PaletteResult {
   sub?: string;
   /**
    * `add` puts the subject on the stage; `command` runs a studio command; `family` offers a widget family (`families.ts`) in `key`:
-   * the palette opens it in place, its props to pick and its widgets on the stage.
+   * the palette opens it in place, its props to pick and its widgets on the stage. `values` are props the search line set
+   * beyond the key ("c minor pentatonic scale": the Scale family on the minor pentatonic).
    */
-  action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand } | { type: "family"; familyId: string; key: KeyChoice };
+  action: { type: "add"; subject: Subject } | { type: "command"; command: StudioCommand } | { type: "family"; familyId: string; key: KeyChoice; values?: FamilyValues };
 }
 
 /** The palette's categories, in the order it lists them, with the name on each separator. */

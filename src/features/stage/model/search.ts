@@ -11,6 +11,8 @@ import { POSITION_COUNT } from "@/lib/chordKit/scalePositions";
 import { NO_MEDIA, type MediaState } from "./commands";
 import { TOOLS } from "@/features/plan/model/tools";
 import { MODE_PAGES } from "@/features/theory/scales";
+import { findPentatonic } from "@/features/theory/pentatonics";
+import { tonicName } from "@/features/theory/theory";
 import { FAMILIES, keyChoiceText, type Family } from "./families";
 
 const modeSlugOf = (key: KeyChoice) => (MODE_PAGES.find((m) => m.familyIndex === key.family && m.modeIndex === key.mode) ?? MODE_PAGES[0]).slug;
@@ -201,9 +203,40 @@ export function tonicPc(token: string): number | null {
   return (LETTER_PC[m[1].toLowerCase()] + acc + 12) % 12;
 }
 
+/** "Locrian ♮6", "#5", "b2" in words: "locrian natural 6", "sharp 5", "flat 2". A lone "b" or "f#" stays a note. */
+const spellAccidentals = (s: string) =>
+  s.toLowerCase()
+    .replace(/♮\s*(\d)/g, " natural $1")
+    .replace(/(^|\s)[#♯](\d)/g, "$1sharp $2")
+    .replace(/♯\s*(\d)/g, " sharp $1")
+    .replace(/(^|\s)[b♭](\d)/g, "$1flat $2")
+    .replace(/♭\s*(\d)/g, " flat $1");
+const scaleWords = (name: string) => spellAccidentals(name).split(/[^a-z0-9]+/).filter(Boolean);
+
+/**
+ * Every scale a typed line can name by more than one word or by a name outside `MODE_WORDS` ("harmonic minor", "phrygian
+ * dominant", "melodic minor", "persian"), as its family and mode, longest first so "double harmonic major" beats "harmonic".
+ */
+interface ScaleName {
+  words: string[];
+  family: number;
+  mode: number;
+}
+const SCALE_NAMES: ScaleName[] = [
+  ...MODE_PAGES.map((m) => ({ words: scaleWords(m.name), family: m.familyIndex, mode: m.modeIndex })),
+  { words: ["natural", "minor"], family: 0, mode: 5 },
+]
+  .filter((n) => n.words.length > 1 || !(n.words[0] in MODE_WORDS))
+  .sort((a, b) => b.words.length - a.words.length);
+
+/** The scale named at `words[i]`, or null. */
+const scaleAt = (words: string[], i: number): ScaleName | null => SCALE_NAMES.find((n) => n.words.every((w, k) => words[i + k] === w)) ?? null;
+
 interface Parsed {
   words: string[];
   tonic: number | null;
+  /** the scale family the mode is of: 0 the major modes, then harmonic minor, melodic minor, double harmonic */
+  family: number;
   mode: number | null;
   box: number | null;
   /** CAGED shapes named with "shape" after them ("e shape", "c shape a shape"); those letters are not the tonic */
@@ -213,39 +246,53 @@ interface Parsed {
 }
 
 function parse(q: string): Parsed {
-  const words = q.toLowerCase().replace(/^[\s/]+/, "").split(/\s+/).filter(Boolean);
+  const words = spellAccidentals(q.replace(/^[\s/]+/, "")).split(/\s+/).filter(Boolean);
   let tonic: number | null = null;
+  let family = 0;
   let mode: number | null = null;
   let box: number | null = null;
   const shapes: CagedLetter[] = [];
   const rest: string[] = [];
-  words.forEach((w, i) => {
+  for (let i = 0; i < words.length; i++) {
+    const w = words[i];
     const letter = CAGED_LETTERS.find((l) => l.toLowerCase() === w);
     if (letter && words[i + 1] === "shape") {
       shapes.push(letter);
-      return;
+      continue;
     }
     if (tonic === null && tonicPc(w) !== null) {
       tonic = tonicPc(w);
-      return;
+      continue;
+    }
+    const named: ScaleName | null = mode === null ? scaleAt(words, i) : null;
+    if (named) {
+      family = named.family;
+      mode = named.mode;
+      i += named.words.length - 1;
+      continue;
     }
     if (mode === null && w in MODE_WORDS) {
       mode = MODE_WORDS[w];
-      return;
+      continue;
     }
     if (/^\d+$/.test(w) && ["pos", "position", "box"].includes(words[i - 1] ?? "")) {
       box = Number(w) - 1;
-      return;
+      continue;
     }
     rest.push(w);
-  });
-  return { words, tonic, mode, box, shapes, rest };
+  }
+  return { words, tonic, family, mode, box, shapes, rest };
 }
 
-const keyFor = (p: Parsed, fallbackMode = 0): KeyChoice | null => (p.tonic === null ? null : { tonicPc: p.tonic, family: 0, mode: p.mode ?? fallbackMode });
+const keyFor = (p: Parsed, fallbackMode = 0): KeyChoice | null =>
+  p.tonic === null ? null : p.mode === null ? { tonicPc: p.tonic, family: 0, mode: fallbackMode } : { tonicPc: p.tonic, family: p.family, mode: p.mode };
 /** a mode named without a root ("dorian") is that mode on the stage's root, so modes of one root can be compared */
 const modeOnStage = (p: Parsed, stageKey: KeyChoice): KeyChoice | null =>
-  p.tonic === null && p.mode !== null ? { tonicPc: stageKey.tonicPc, family: 0, mode: p.mode } : null;
+  p.tonic === null && p.mode !== null ? { tonicPc: stageKey.tonicPc, family: p.family, mode: p.mode } : null;
+
+/** "major pent", "c pentatonic", "a minor pentatonic": the pentatonic slug, minor unless the line says major; null when none is named */
+const pentatonicNamed = (p: Parsed): string | null =>
+  !p.rest.some((w) => w === "pent" || w === "pentatonic") ? null : p.family === 0 && p.mode === 0 ? "major-pentatonic" : "minor-pentatonic";
 
 /** every typed word starts one of the entry's words */
 const matches = (e: Entry, typed: string[]) => typed.every((w) => e.words.some((x) => x.startsWith(w)));
@@ -292,7 +339,14 @@ export function searchPalette(query: string, pluginIds: string[], stageKey: KeyC
     if (p.box !== null) found = found.filter((e) => e.box === p.box);
     found = found.map((e, i) => ({ e, i, score: nameScore(e, typed) })).sort((a, b) => b.score - a.score || a.i - b.i).map((x) => x.e);
   }
+  const pentSlug = pentatonicNamed(p);
   const keyed = found.map((e): PaletteResult => {
+    // "c minor pentatonic scales": the Scale family opens on the pentatonic, not the key's whole scale
+    if (e.result.action.type === "family" && e.result.action.familyId === "scale" && pentSlug) {
+      const pc = e.result.action.key.tonicPc;
+      const name = findPentatonic(pentSlug)!.name.toLowerCase();
+      return { ...e.result, detail: pc === null ? name : `${tonicName(pc)} ${name}`, action: { ...e.result.action, values: { scale: pentSlug } } };
+    }
     if (e.result.action.type !== "add") return e.result;
     const subject = pinAgainst(e.result.action.subject, stageKey, key ?? stageKey);
     return { ...e.result, label: subject === e.result.action.subject ? e.result.label : subjectTitle(subject), action: { type: "add", subject } };

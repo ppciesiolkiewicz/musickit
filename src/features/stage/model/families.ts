@@ -673,9 +673,18 @@ export function updateSubject(s: Subject, values: FamilyValues): Subject {
 
 type OptionValue = string | number;
 
-/** The values a family's add form starts from in `key`: what the family makes there (the key's scale, its chord, box 1). */
+/**
+ * The values a family's add form starts from in `key`: what the family makes there (the key's scale, its chord, box 1), its Key and
+ * Scale controls on the key itself (an arpeggio reads its chord back as only major or minor, so C harmonic minor would open as C
+ * minor).
+ */
 export function stepValues(f: Family, key: KeyChoice): FamilyValues {
-  return f.read(f.make({}, key)) ?? {};
+  const v = f.read(f.make({}, key)) ?? {};
+  const control = (name: string) => f.controls.find((c) => c.name === name);
+  const slug = modeSlug(key);
+  if (control("key") && key.tonicPc !== null) v.key = key.tonicPc;
+  if (control("scale")?.options?.some((o) => o.value === slug)) v.scale = slug;
+  return v;
 }
 
 /** The controls shown for these values (a control with `when` only where it applies). */
