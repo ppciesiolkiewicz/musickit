@@ -36,11 +36,11 @@ export function useWarmUpKeys({ status, onStart, onStop, onRestart }: Actions) {
 }
 
 /** the big button's look, as on the other singing tools (Sing an interval's Start and Next) */
-const BIG = "inline-flex items-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
+const BIG = "inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
 
 /**
  * The warm-ups' toolbar, laid out like the other singing tools': the big button first (Start; Stop while it runs;
- * Restart once it is done), then Restart and Skip while it runs, then the tool's own controls (`children`: the mic,
+ * Restart once it is done), then Restart and Skip, always drawn and off until it runs so nothing moves on Start, then the tool's own controls (`children`: the mic,
  * Play note), and the volume at the end. The tool wraps it in its own `data-tour` (a literal, for the tour test).
  */
 export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, what, armed, settings, children }: Actions & {
@@ -73,16 +73,15 @@ export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, wh
             </Button>
           </Hint>
         )}
-        {running && <>
-          <Hint title="Restart" description="Starts again from the first one.">
-            <Button size="sm" onClick={onRestart} title="Start again from the first one (R)" className="inline-flex items-center gap-1.5">
-              Restart{armed && <KeyCap className="hidden md:inline">R</KeyCap>}
-            </Button>
-          </Hint>
-          <Hint title="Skip" description={`Moves on to ${skip}.`}>
-            <Button size="sm" onClick={onSkip} title={`Move on to ${skip}`}>Skip</Button>
-          </Hint>
-        </>}
+        {/* always drawn, so nothing moves on Start: off until it runs */}
+        <Hint title="Restart" description="Starts again from the first one.">
+          <Button size="sm" disabled={!running} onClick={onRestart} title="Start again from the first one (R)" className="inline-flex items-center gap-1.5">
+            Restart{armed && <KeyCap className="hidden md:inline">R</KeyCap>}
+          </Button>
+        </Hint>
+        <Hint title="Skip" description={`Moves on to ${skip}.`}>
+          <Button size="sm" disabled={!running} onClick={onSkip} title={`Move on to ${skip}`}>Skip</Button>
+        </Hint>
       </span>
       {children}
       <span className="ml-auto" />

@@ -212,7 +212,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
       <div data-tour="lip-roll-start">
       <WarmUpBar {...actions} armed={armed} settings={<PlayAhead ms={lagMs} onChange={setLag} />} skip="the next round" what="Starts the rounds and the mic.">
         <span data-tour="lip-roll-mic" className="inline-flex">
-          <Hint title="Audio input" description="Start switches the mic on for you; it draws your line. This button opens the list of inputs, with each input's level.">
+          <Hint title="Audio input" description="The input the mic uses to draw your line. Start switches it on: the dot turns from amber to green. Press it to pick another input or see its level.">
             <InputChip quiet status={micStatus} mic={{ on: running && !micOff, onToggle: () => (running ? setMicOff((o) => !o) : void start()) }} />
           </Hint>
         </span>

@@ -295,7 +295,7 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
         {ask !== null && found && <Button size="sm" onClick={restart} title={`The same interval again: ${doPlays} and the mic listens (R)`} className="inline-flex items-center gap-1.5">Restart{keysArmed && <KeyCap className="hidden md:inline">R</KeyCap>}</Button>}
         {waiting && <Button size="sm" onClick={() => reveal(false)}>Show me</Button>}
         <span data-tour="interval-singer-mic" className="inline-flex items-center gap-2">
-          <Hint title="Audio input" description="Start switches the mic on for you. This button opens the list of inputs, with each input's level and Start / Stop.">
+          <Hint title="Audio input" description="The input the mic uses. Start switches it on: the dot turns from amber to green. Press it to pick another input, see its level, or stop it.">
             <InputChip quiet status={micStatus} mic={{ on: micOn, onToggle: () => (micOn ? setMicOn(false) : startMic()) }} />
           </Hint>
         </span>

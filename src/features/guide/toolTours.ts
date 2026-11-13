@@ -77,12 +77,12 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "hill-start", title: "Start", text: "Start plays the note, then the mic listens. Restart starts the holds again from the first, and Skip moves on to the next hold." },
     { target: "hill-view", title: "The hill", text: "The ball shows your voice. Hold it on the green part of the ground until the ring round the ball fills." },
     { target: "hill-note", title: "Play note", text: "Plays the note at the edge of the green part, to find it again." },
-    { target: "hill-mic", title: "Audio input", text: "Start switches the mic on. Press Audio input to pick another input or see its level." },
+    { target: "hill-mic", title: "Audio input", text: "This is the input the mic uses: amber until Start switches it on, green while it listens. Press it to pick another input or see its level." },
   ],
   "lip-roll": [
     { target: "lip-roll-start", title: "Start", text: "Start begins the rounds and the mic. Restart starts again from round 1, and Skip moves on to the next round." },
     { target: "lip-roll-options", title: "Tone and speed", text: "Choose when the tone plays and how fast it slides. A change starts the round again with it." },
-    { target: "lip-roll-mic", title: "Audio input", text: "Start switches the mic on. Press Audio input to pick another input or see its level." },
+    { target: "lip-roll-mic", title: "Audio input", text: "This is the input the mic uses: amber until Start switches it on, green while it listens. Press it to pick another input or see its level." },
     { target: "lip-roll-view", title: "Your line", text: "The blue band is the tone's path over your voice's registers. The mic draws your line over it, green where it is close." },
   ],
   "interval-singer": [

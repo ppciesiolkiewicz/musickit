@@ -53,11 +53,11 @@ function placeList(chip: DOMRect, align: "left" | "right"): React.CSSProperties 
  * every chip and the nav show and change the same one. `status` is the host's listener; without it the chip only shows the input.
  * Given `mic` (the host's own mic switch) it is the one mic button: it reads "Start microphone" while off, a press starts the mic and
  * opens the list, and the list holds Start / Stop. With `quiet` the host's own Start opens the mic (an exercise's Start or Play), so the
- * chip reads "Audio input" while off and a press only opens the list (which still holds Start / Stop): it stays in place, never
- * a second start button. Without `mic` the host opens the mic itself (on Start, on Record), so a press only opens the list.
+ * chip always names the input it will use, with an amber dot while not yet listening (green once it is), and a press only opens
+ * the list (which still holds Start / Stop): it stays in place, never a second start button. Without `mic` the host opens the mic itself (on Start, on Record), so a press only opens the list.
  * `mode` "modal" (the default) opens the list as a dialog over the page (the whole screen on a phone); "popover" drops it under the chip.
  */
-export default function InputChip({ status = "off", mic, quiet = false, align = "left", mode = "modal", className = "" }: { status?: MicStatus; mic?: { on: boolean; onToggle: () => void }; /** the host's Start opens the mic: "Audio input" while off, and a press only opens the list */ quiet?: boolean; align?: "left" | "right"; mode?: "modal" | "popover"; className?: string }) {
+export default function InputChip({ status = "off", mic, quiet = false, align = "left", mode = "modal", className = "" }: { status?: MicStatus; mic?: { on: boolean; onToggle: () => void }; /** the host's Start opens the mic: the input's name with an amber dot while off, and a press only opens the list */ quiet?: boolean; align?: "left" | "right"; mode?: "modal" | "popover"; className?: string }) {
   const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
   const live = useSyncExternalStore(subscribeLiveInput, readLiveInput, serverLiveInput);
   const [open, setOpen] = useState(false);
@@ -86,6 +86,8 @@ export default function InputChip({ status = "off", mic, quiet = false, align = 
   const message = micStatusMessage(status);
   const blocked = status === "denied" || status === "insecure" || status === "error";
   const levels = live.listening ? live.levels : [];
+  // a quiet chip before Start: the input it will use, not listening yet
+  const waiting = quiet && !!mic && !mic.on && !blocked;
   const press = () => {
     if (!open && mic && !mic.on && !quiet) mic.onToggle();
     setOpen(!open);
@@ -111,13 +113,14 @@ export default function InputChip({ status = "off", mic, quiet = false, align = 
         onClick={press}
         aria-haspopup="dialog"
         aria-expanded={open}
-        aria-label={`Input: ${name}${message ? `. ${message}` : ""}`}
-        title={message ?? (mic ? (mic.on ? "Pick the input, or stop the microphone" : quiet ? "Pick the input. Start switches the microphone on" : "Start the microphone and pick the input") : "The input the app listens to")}
+        aria-label={`Input: ${name}${message ? `. ${message}` : waiting ? ". Not listening yet" : ""}`}
+        title={message ?? (mic ? (mic.on ? "Pick the input, or stop the microphone" : quiet ? "Not listening yet: Start switches the microphone on. Press to pick the input" : "Start the microphone and pick the input") : "The input the app listens to")}
         className={`flex h-7 max-w-48 items-center gap-1.5 rounded-full border px-2.5 text-xs transition lg:h-9 lg:max-w-56 lg:px-3.5 lg:text-sm focus-visible:outline-2 focus-visible:outline-sky-400 ${tone}`}
       >
         {mic?.on && !blocked && <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_6px] shadow-emerald-400/70" />}
+        {waiting && <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-amber-400 shadow-[0_0_6px] shadow-amber-400/50" />}
         <Icon name={blocked ? "alert-triangle" : "mic"} size={13} className={`shrink-0 ${status === "asking" ? "animate-pulse" : ""}`} />
-        <span className="min-w-0 truncate">{mic && !mic.on ? (quiet ? "Audio input" : "Start microphone") : name}</span>
+        <span className="min-w-0 truncate">{mic && !mic.on && !quiet ? "Start microphone" : name}</span>
         {levels.length > 0 && (
           <span className="flex shrink-0 items-end gap-0.5">
             {levels.map((l, i) => <LevelBar key={i} level={l} heard={levels.length === 1 || channelHeard(choice.channel, i)} />)}

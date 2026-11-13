@@ -238,7 +238,7 @@ export function View({ where = "low", sound = "hum", seconds: secondsProp, reps:
       <div data-tour="hill-start">
       <WarmUpBar {...actions} armed={armed} skip="the next hold" what="Plays the note, then the mic listens while you hold your sound.">
         <span data-tour="hill-mic" className="inline-flex">
-          <Hint title="Audio input" description="Start switches the mic on for you. This button opens the list of inputs, with each input's level.">
+          <Hint title="Audio input" description="The input the mic uses. Start switches it on: the dot turns from amber to green. Press it to pick another input or see its level.">
             <InputChip quiet status={micStatus} mic={{ on: micOn, onToggle: () => (running ? stop() : void start()) }} />
           </Hint>
         </span>
