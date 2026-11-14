@@ -30,3 +30,7 @@ test("the login link carries where to come back to", () => {
   assert.equal(loginHref("/plan?day=2"), "/login?next=%2Fplan%3Fday%3D2");
   assert.equal(loginHref("/practice"), "/login?next=%2Fpractice");
 });
+
+test("files in public/ with no extension and Vercel's own paths are public", () => {
+  for (const p of ["/models/crepe/group1-shard1of1", "/models/crepe/model.json", "/videos/x", "/intro/scene1", "/_vercel/insights/view", "/_vercel/insights/event"]) assert.equal(isPublicPath(p), true, p);
+});

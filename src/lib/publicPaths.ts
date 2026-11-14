@@ -7,8 +7,11 @@
 /** The pages a visitor reads: the two home pages, the FAQ, the demo plans, logging in, and pages left as they were. */
 const MARKETING = ["/", "/players", "/faq", "/demo", "/login", "/account/setup", "/kickstarter", "/landing-1", "/intro"];
 
-/** Public but not for reading: APIs, Next's own files, and the page the video render script opens with no session. */
-const OTHER = ["/api", "/_next", "/teachers/video/render"];
+/**
+ * Public but not for reading: APIs, Next's and Vercel's own paths, the folders of `public/` (the pitch model's weight files
+ * have no extension), and the page the video render script opens with no session.
+ */
+const OTHER = ["/api", "/_next", "/_vercel", "/images", "/instruments", "/intro", "/models", "/videos", "/teachers/video/render"];
 
 /** The path itself or anything under it ("/demo" covers "/demo/guitar-beginner", not "/demox"). */
 const under = (path: string, base: string) => (base === "/" ? path === "/" : path === base || path.startsWith(`${base}/`));
