@@ -229,3 +229,7 @@ test("the page to open next is always on this site", () => {
   assert.equal(safeNext("/plan?day=2#top"), "/plan?day=2#top");
   for (const bad of ["//evil.com", "/\\evil.com", "https://evil.com", "plan", "", "/a b", null, 5, `/${"x".repeat(600)}`]) assert.equal(safeNext(bad), null, String(bad));
 });
+
+test("with nowhere else to go, logging in lands on the plan", () => {
+  assert.equal(AFTER_LOGIN, "/plan");
+});

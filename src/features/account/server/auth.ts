@@ -48,7 +48,7 @@ export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Da
 export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString() });
 
 /** Where to go after signing in when no page was asked for. */
-export const AFTER_LOGIN = "/account";
+export const AFTER_LOGIN = "/plan";
 
 /** A path on this site, or null: never another site ("//evil.com", "/\\evil.com", "https://..."). */
 export function safeNext(next: unknown): string | null {

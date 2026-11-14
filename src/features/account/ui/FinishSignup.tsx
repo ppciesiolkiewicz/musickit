@@ -32,7 +32,7 @@ export default function FinishSignup({ next }: { next: string | null }) {
     e.preventDefault();
     setBusy(true);
     const r = await send("/api/auth/signup", "POST", { name });
-    if (r.ok) return window.location.assign(typeof r.body.redirect === "string" ? r.body.redirect : (next ?? "/account"));
+    if (r.ok) return window.location.assign(typeof r.body.redirect === "string" ? r.body.redirect : (next ?? "/plan"));
     setBusy(false);
     if (r.status === 410) return setGone(errorOf(r));
     setError(errorOf(r));
