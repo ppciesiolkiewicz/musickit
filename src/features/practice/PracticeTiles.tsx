@@ -17,7 +17,7 @@ const TILE: Record<Tone, string> = {
 
 /**
  * Every tool, drill and lesson page as a wall of flat tiles (Windows Phone style): one solid colour each (the page's own
- * tone), the icon bottom left and the name under it. A wide tile (a headline tool) also shows its one-line description.
+ * tone), the icon at the top and the name at the bottom left. A wide tile (a headline tool) also shows its one-line description.
  */
 export default function PracticeTiles() {
   return (
