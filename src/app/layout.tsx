@@ -9,6 +9,7 @@ import CopyNotes from "@/features/devtools/copy/CopyNotes";
 import { devUi } from "@/features/devtools/gate";
 import QuickRecord from "@/features/recorder/QuickRecord";
 import Spotlight from "@/features/search/Spotlight";
+import LoginGuard from "@/features/account/ui/LoginGuard";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
 import { SETTINGS_BOOT } from "@/components/ui";
 import { SITE_URL } from "@/lib/site";
@@ -154,6 +155,7 @@ export default function RootLayout({
         {children}
         <QuickRecord />
         <Spotlight />
+        <LoginGuard />
         {devUi() && <CopyNotes />}
         <Analytics />
       </body>
