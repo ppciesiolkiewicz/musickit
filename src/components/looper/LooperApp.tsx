@@ -306,7 +306,7 @@ export default function LooperApp() {
           </Tier>
           <button type="button" className={ibtn} onClick={() => setSettingsOpen(true)} title="Settings" aria-label="Settings" data-tour="looper-settings"><Icon name="settings" /></button>
           <ThemeSwitcher />
-          <Link href="/" className={ibtn} title="Back to the home page" aria-label="Back to the home page"><Icon name="x" /></Link>
+          <Link href="/practice" className={ibtn} title="Back to Practice" aria-label="Back to Practice"><Icon name="x" /></Link>
         </div>
       </div>
       {snap.error && <p role="alert" className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-2 text-xs text-rose-200">{snap.error}</p>}
