@@ -1,4 +1,4 @@
-import { and, count, eq, gt, gte, isNull, lte } from "drizzle-orm";
+import { and, count, eq, gt, gte, isNotNull, isNull, lt, lte, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
 import { authTokens, identities, sessions, users } from "@/lib/db/schema";
 import type { AuthRepo, TokenRow } from "./repo";
@@ -8,6 +8,7 @@ const userCols = { id: users.id, email: users.email, name: users.name, role: use
 const tokenCols = {
   kind: authTokens.kind,
   tokenHash: authTokens.tokenHash,
+  codeHash: authTokens.codeHash,
   email: authTokens.email,
   name: authTokens.name,
   role: authTokens.role,
@@ -64,6 +65,13 @@ export function drizzleRepo(db: Db): AuthRepo {
     async takeToken(hash, kind, now) {
       const [row] = await db.update(authTokens).set({ usedAt: now }).where(liveToken(hash, kind, now)).returning(tokenCols);
       return row ?? null;
+    },
+    async tryCodes(email, maxTries, now) {
+      return db
+        .update(authTokens)
+        .set({ tries: sql`${authTokens.tries} + 1` })
+        .where(and(eq(authTokens.email, email), eq(authTokens.kind, "email_link"), isNotNull(authTokens.codeHash), isNull(authTokens.usedAt), gt(authTokens.expiresAt, now), lt(authTokens.tries, maxTries)))
+        .returning(tokenCols);
     },
     async createSession(session, now) {
       await db.insert(sessions).values({ ...session, createdAt: now, lastSeenAt: now });

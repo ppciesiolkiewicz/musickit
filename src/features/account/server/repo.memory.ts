@@ -4,7 +4,7 @@ import type { AuthRepo, TokenRow, UserRow } from "./repo";
 export function memoryRepo() {
   const users: UserRow[] = [];
   const identities: { userId: string; provider: string; providerAccountId: string }[] = [];
-  const tokens: (TokenRow & { createdAt: Date; usedAt: Date | null })[] = [];
+  const tokens: (TokenRow & { createdAt: Date; usedAt: Date | null; tries: number })[] = [];
   const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
   let n = 0;
 
@@ -39,7 +39,7 @@ export function memoryRepo() {
       if (!identities.some((x) => x.provider === provider && x.providerAccountId === providerAccountId)) identities.push({ userId, provider, providerAccountId });
     },
     async createToken(token, now) {
-      tokens.push({ ...token, createdAt: now, usedAt: null });
+      tokens.push({ ...token, createdAt: now, usedAt: null, tries: 0 });
     },
     async countTokens(email, kind, since) {
       return tokens.filter((t) => t.email === email && t.kind === kind && t.createdAt >= since).length;
@@ -51,6 +51,11 @@ export function memoryRepo() {
       const token = live(hash, kind, now);
       if (token) token.usedAt = now;
       return token;
+    },
+    async tryCodes(email, maxTries, now) {
+      const open = tokens.filter((t) => t.email === email && t.kind === "email_link" && t.codeHash && !t.usedAt && t.expiresAt > now && t.tries < maxTries);
+      for (const t of open) t.tries++;
+      return open;
     },
     async createSession(session, now) {
       sessions.push({ tokenHash: session.tokenHash, userId: session.userId, expiresAt: session.expiresAt, lastSeenAt: now });

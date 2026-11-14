@@ -15,6 +15,8 @@ export type TokenKind = "email_link" | "signup";
 export interface TokenRow {
   kind: TokenKind;
   tokenHash: string;
+  /** The 6-digit code mailed with an email link, hashed with the email (`hashCode`). */
+  codeHash: string | null;
   email: string;
   name: string | null;
   role: Role | null;
@@ -52,6 +54,11 @@ export interface AuthRepo {
   peekToken(tokenHash: string, kind: TokenKind, now: Date): Promise<TokenRow | null>;
   /** The same, and marks it used in one step, so two requests can't both take it. */
   takeToken(tokenHash: string, kind: TokenKind, now: Date): Promise<TokenRow | null>;
+  /**
+   * A try at the email's codes: the live email links with a code and fewer than `maxTries` tries each get one more try,
+   * in one step, and come back. The caller compares the code.
+   */
+  tryCodes(email: string, maxTries: number, now: Date): Promise<TokenRow[]>;
 
   createSession(session: { tokenHash: string; userId: string; userAgent: string | null; expiresAt: Date }, now: Date): Promise<void>;
   /** The session's user when the session has not expired. */

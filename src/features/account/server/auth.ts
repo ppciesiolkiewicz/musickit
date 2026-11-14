@@ -1,6 +1,6 @@
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomInt } from "node:crypto";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, isEmail, type Account } from "../model";
-import type { AuthRepo, UserRow } from "./repo";
+import type { AuthRepo, TokenRow, UserRow } from "./repo";
 
 /**
  * Sign-in, as rules over the repo: mailed links, Google, sessions. No HTTP and no database here; the routes in
@@ -12,28 +12,38 @@ import type { AuthRepo, UserRow } from "./repo";
 const MINUTE = 60_000;
 const DAY = 24 * 60 * MINUTE;
 
-/** How long a mailed link works. */
-export const LINK_TTL = 20 * MINUTE;
+/** How long a mailed link, and the code in the same email, work. */
+export const LINK_TTL = 60 * MINUTE;
 /** How long somebody with a proven email has to give their name. */
 export const SIGNUP_TTL = 30 * MINUTE;
-export const SESSION_TTL = 30 * DAY;
+/** A year from the last visit: somebody who comes back now and then is never logged out. (Browsers cap a cookie at 400 days.) */
+export const SESSION_TTL = 365 * DAY;
 /** A session used after this much time gets its full life again. */
 const SESSION_REFRESH = DAY;
 /** At most this many links to one email in `LINK_WINDOW`. */
 export const LINK_LIMIT = 3;
 export const LINK_WINDOW = 15 * MINUTE;
+/** At most this many in a day. With `CODE_TRIES`, this keeps guessing a 6-digit code hopeless: 50 guesses a day. */
+export const LINK_DAY_LIMIT = 10;
+/** Wrong guesses one code takes before it stops working. */
+export const CODE_TRIES = 5;
 
 export interface AuthDeps {
   repo: AuthRepo;
   now: () => Date;
   /** A new unguessable token. */
   token: () => string;
+  /** A new 6-digit code, for the email. */
+  code: () => string;
 }
 
 export const newToken = (): string => randomBytes(32).toString("base64url");
 export const hashToken = (token: string): string => createHash("sha256").update(token).digest("hex");
+export const newCode = (): string => String(randomInt(0, 1_000_000)).padStart(6, "0");
+/** A code is stored hashed with its email, like a token. */
+export const hashCode = (email: string, code: string): string => hashToken(`${email}:${code}`);
 
-export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Date(), token: newToken });
+export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Date(), token: newToken, code: newCode });
 
 export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString() });
 
@@ -74,16 +84,17 @@ async function startSignup(deps: AuthDeps, proof: { email: string; name: string 
   const now = deps.now();
   const signupToken = deps.token();
   const expiresAt = later(now, SIGNUP_TTL);
-  await deps.repo.createToken({ kind: "signup", tokenHash: hashToken(signupToken), role: null, expiresAt, ...proof }, now);
+  await deps.repo.createToken({ kind: "signup", tokenHash: hashToken(signupToken), codeHash: null, role: null, expiresAt, ...proof }, now);
   return { kind: "signup", signupToken, expiresAt, next: proof.next ?? AFTER_LOGIN };
 }
 
-export type LinkError = "email" | "limit";
-export type LinkRequest = { ok: true; email: string; token: string; expiresAt: Date } | { ok: false; error: LinkError };
+export type LinkError = "email" | "limit" | "daily";
+export type LinkRequest = { ok: true; email: string; token: string; code: string; expiresAt: Date } | { ok: false; error: LinkError };
 
 /**
- * A link to mail. There is one form for logging in and for a new account: the link signs in an email that has an
- * account, and leads to the account setup for one that has none. The answer never says which.
+ * A link and a code to mail; either one proves the email. There is one form for logging in and for a new account: the
+ * proof signs in an email that has an account, and leads to the account setup for one that has none. The answer
+ * never says which.
  */
 export async function requestEmailLink(deps: AuthDeps, input: { email: unknown; next?: unknown }): Promise<LinkRequest> {
   const email = typeof input.email === "string" ? cleanEmail(input.email) : "";
@@ -91,18 +102,38 @@ export async function requestEmailLink(deps: AuthDeps, input: { email: unknown; 
 
   const now = deps.now();
   if ((await deps.repo.countTokens(email, "email_link", new Date(now.getTime() - LINK_WINDOW))) >= LINK_LIMIT) return { ok: false, error: "limit" };
+  if ((await deps.repo.countTokens(email, "email_link", new Date(now.getTime() - DAY))) >= LINK_DAY_LIMIT) return { ok: false, error: "daily" };
 
   const token = deps.token();
+  const code = deps.code();
   const expiresAt = later(now, LINK_TTL);
-  await deps.repo.createToken({ kind: "email_link", tokenHash: hashToken(token), email, name: null, role: null, provider: null, providerAccountId: null, next: safeNext(input.next), expiresAt }, now);
-  return { ok: true, email, token, expiresAt };
+  await deps.repo.createToken({ kind: "email_link", tokenHash: hashToken(token), codeHash: hashCode(email, code), email, name: null, role: null, provider: null, providerAccountId: null, next: safeNext(input.next), expiresAt }, now);
+  return { ok: true, email, token, code, expiresAt };
 }
 
 /** The mailed link was opened and confirmed. Signs in, or, for an email with no account, asks for the name. */
 export async function openEmailLink(deps: AuthDeps, token: unknown, userAgent: string | null): Promise<SignedIn | NeedsProfile | null> {
   if (typeof token !== "string" || !token) return null;
   const row = await deps.repo.takeToken(hashToken(token), "email_link", deps.now());
-  if (!row) return null;
+  return row ? emailProven(deps, row, userAgent) : null;
+}
+
+/**
+ * The code from the email was typed in. Every try, right or wrong, uses one of each live code's `CODE_TRIES`, counted
+ * before the code is compared, so guesses sent at once can't get past the limit. The code is then spent like the link.
+ */
+export async function openEmailCode(deps: AuthDeps, input: { email: unknown; code: unknown }, userAgent: string | null): Promise<SignedIn | NeedsProfile | null> {
+  const email = typeof input.email === "string" ? cleanEmail(input.email) : "";
+  const code = typeof input.code === "string" ? input.code.replace(/[\s-]/g, "") : "";
+  if (!isEmail(email) || !/^\d{6}$/.test(code)) return null;
+  const now = deps.now();
+  const hash = hashCode(email, code);
+  const match = (await deps.repo.tryCodes(email, CODE_TRIES, now)).find((t) => t.codeHash === hash);
+  const row = match && (await deps.repo.takeToken(match.tokenHash, "email_link", now));
+  return row ? emailProven(deps, row, userAgent) : null;
+}
+
+async function emailProven(deps: AuthDeps, row: TokenRow, userAgent: string | null): Promise<SignedIn | NeedsProfile> {
   const had = await deps.repo.userByEmail(row.email);
   if (had) return startSession(deps, had, row.next, userAgent, false);
   return startSignup(deps, { email: row.email, name: null, provider: null, providerAccountId: null, next: row.next });

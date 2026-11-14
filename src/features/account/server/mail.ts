@@ -7,18 +7,22 @@ type Env = Record<string, string | undefined>;
 /** The page the mailed link opens. It shows one button; the token is used only when that is pressed, so a mail scanner opening the link does not spend it. */
 export const confirmUrl = (base: string, token: string): string => `${base}/login/confirm?token=${encodeURIComponent(token)}`;
 
-const MINUTES = Math.round(LINK_TTL / 60_000);
+/** How long the link and the code work, in words: "1 hour", "20 minutes". The log-in page shows it too. */
+export const LINK_LIFE = LINK_TTL % 3_600_000 === 0 ? (LINK_TTL === 3_600_000 ? "1 hour" : `${LINK_TTL / 3_600_000} hours`) : `${Math.round(LINK_TTL / 60_000)} minutes`;
 
-/** The Resend request body: a plain-text part and an HTML part. The same link logs in or, for a new email, leads to the account setup. */
-export function linkEmail(to: string, link: string, env: Env) {
+/**
+ * The Resend request body: a plain-text part and an HTML part. The link and the code each log in or, for a new email,
+ * lead to the account setup. The code is in the subject, so a phone's notice shows it.
+ */
+export function linkEmail(to: string, link: string, code: string, env: Env) {
   const lead = "Open this link to log in to attunr. If you don't have an account yet, you'll set one up next:";
-  const rest = `The link works for ${MINUTES} minutes, and only once.\nIf you didn't ask for it, ignore this email. Nobody can log in without the link.`;
+  const rest = `The link and the code work for ${LINK_LIFE}, and only once.\nIf you didn't ask for them, ignore this email. Nobody can log in without them.`;
   return {
     from: env.AUTH_FROM_EMAIL?.trim() || env.CONTACT_FROM_EMAIL?.trim() || "attunr <hello@attunr.app>",
     to: [to],
-    subject: "Your attunr log-in link",
-    text: `${lead}\n\n${link}\n\n${rest}\n`,
-    html: linkHtml(link),
+    subject: `Your attunr log-in code: ${code}`,
+    text: `${lead}\n\n${link}\n\nOr type this code on the log-in page: ${code}\n\n${rest}\n`,
+    html: linkHtml(link, code),
   };
 }
 
@@ -31,7 +35,7 @@ const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 /** The HTML part: tables and inline styles only, the one layout every mail program draws the same. */
-function linkHtml(link: string): string {
+function linkHtml(link: string, code: string): string {
   const href = esc(link);
   const logo = `${esc(new URL(link).origin)}/attunr-transparent.png`;
   const dots = DOTS.map((c) => `<td width="14%" height="4" style="background:${c};font-size:0;line-height:0;">&nbsp;</td>`).join("");
@@ -45,7 +49,7 @@ function linkHtml(link: string): string {
 <title>Your attunr log-in link</title>
 </head>
 <body style="margin:0;padding:0;background:${C.ground};">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;">The link works for ${MINUTES} minutes, and only once.</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">Your code is ${esc(code)}. It works for ${LINK_LIFE}, and only once.</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.ground};">
 <tr><td align="center" style="padding:40px 16px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
@@ -64,14 +68,16 @@ function linkHtml(link: string): string {
             </td>
           </tr></table>
         </td></tr>
-        <tr><td style="padding:0 32px 28px;font:400 13px/1.6 ${FONT};color:${C.muted};">The link works for ${MINUTES} minutes, and only once.</td></tr>
+        <tr><td style="padding:0 32px 8px;font:400 15px/1.6 ${FONT};color:${C.body};">Or type this code on the log-in page:</td></tr>
+        <tr><td style="padding:0 32px 28px;font:600 32px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:6px;color:${C.ink};">${esc(code)}</td></tr>
+        <tr><td style="padding:0 32px 28px;font:400 13px/1.6 ${FONT};color:${C.muted};">The link and the code work for ${LINK_LIFE}, and only once.</td></tr>
         <tr><td style="padding:20px 32px 28px;border-top:1px solid ${C.line};font:400 12px/1.6 ${FONT};color:${C.muted};">
           If Log in doesn't open, copy this link into your browser:<br>
           <a href="${href}" style="color:${C.accent};word-break:break-all;">${href}</a>
         </td></tr>
       </table>
     </td></tr>
-    <tr><td align="center" style="padding:24px 16px 0;font:400 12px/1.6 ${FONT};color:${C.muted};">If you didn't ask for it, ignore this email. Nobody can log in without the link.</td></tr>
+    <tr><td align="center" style="padding:24px 16px 0;font:400 12px/1.6 ${FONT};color:${C.muted};">If you didn't ask for them, ignore this email. Nobody can log in without them.</td></tr>
   </table>
 </td></tr>
 </table>

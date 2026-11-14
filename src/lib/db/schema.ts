@@ -1,4 +1,4 @@
-import { index, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
@@ -63,6 +63,9 @@ export const authTokens = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     kind: authTokenKind("kind").notNull(),
     tokenHash: text("token_hash").notNull().unique(),
+    /** An email link's 6-digit code, hashed with the email, and how many tries it has taken. */
+    codeHash: text("code_hash"),
+    tries: integer("tries").notNull().default(0),
     email: text("email").notNull(),
     name: text("name"),
     role: userRole("role"),

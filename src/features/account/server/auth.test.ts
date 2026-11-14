@@ -2,12 +2,16 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   AFTER_LOGIN,
+  CODE_TRIES,
+  LINK_DAY_LIMIT,
   LINK_LIMIT,
+  LINK_WINDOW,
   LINK_TTL,
   SESSION_TTL,
   finishSignup,
   googleSignIn,
   hashToken,
+  openEmailCode,
   openEmailLink,
   pendingSignup,
   rename,
@@ -22,12 +26,13 @@ import { memoryRepo } from "./repo.memory";
 
 const START = Date.UTC(2026, 10, 11, 12, 0, 0);
 
-/** Deps over the memory repo, with a clock the test moves and tokens "t1", "t2", ... */
+/** Deps over the memory repo, with a clock the test moves, tokens "t1", "t2", ... and codes "100001", "100002", ... */
 function setup() {
   const store = memoryRepo();
   let time = START;
   let n = 0;
-  const deps: AuthDeps = { repo: store.repo, now: () => new Date(time), token: () => `t${++n}` };
+  let c = 100_000;
+  const deps: AuthDeps = { repo: store.repo, now: () => new Date(time), token: () => `t${++n}`, code: () => String(++c) };
   return { ...store, deps, wait: (ms: number) => void (time += ms) };
 }
 
@@ -100,6 +105,54 @@ test("requesting a link checks the email and is limited per email", async () => 
   for (let i = 0; i < LINK_LIMIT; i++) assert.ok((await requestEmailLink(deps, { email: "a@b.co" })).ok);
   assert.deepEqual(await requestEmailLink(deps, { email: "A@B.co" }), { ok: false, error: "limit" });
   assert.ok((await requestEmailLink(deps, { email: "other@b.co" })).ok, "another email is not held back");
+});
+
+test("requesting links is also limited per day", async () => {
+  const { deps, wait } = setup();
+  for (let i = 0; i < LINK_DAY_LIMIT; i++) {
+    if (i && i % LINK_LIMIT === 0) wait(LINK_WINDOW + 1);
+    assert.ok((await requestEmailLink(deps, { email: "a@b.co" })).ok);
+  }
+  wait(LINK_WINDOW + 1);
+  assert.deepEqual(await requestEmailLink(deps, { email: "a@b.co" }), { ok: false, error: "daily" });
+  wait(24 * 3600_000);
+  assert.ok((await requestEmailLink(deps, { email: "a@b.co" })).ok);
+});
+
+test("the mailed code signs in like the link, once, for its own email, and is stored hashed", async () => {
+  const { deps, tokens, wait } = setup();
+  const sent = await requestEmailLink(deps, { email: "Ann@School.com", next: "/plan" });
+  assert.ok(sent.ok);
+  assert.equal(sent.code, "100001");
+  assert.ok(!JSON.stringify(tokens).includes("100001"), "the code is not stored as typed");
+
+  assert.equal(await openEmailCode(deps, { email: "bob@school.com", code: "100001" }, null), null, "another email's code proves nothing");
+  const r = await openEmailCode(deps, { email: " ann@school.com", code: "100 001" }, null);
+  assert.ok(r?.kind === "signup");
+  assert.equal(r.next, "/plan");
+  assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: "100001" }, null), null, "used once");
+  assert.equal(await openEmailLink(deps, sent.token, null), null, "the code and the link are one proof");
+
+  const late = await requestEmailLink(deps, { email: "ann@school.com" });
+  assert.ok(late.ok);
+  wait(LINK_TTL + 1);
+  assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: late.code }, null), null, "expired");
+  assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: "12345" }, null), null);
+  assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: 100002 }, null), null);
+});
+
+test("a code stops working after its wrong tries, even the right one", async () => {
+  const { deps } = setup();
+  const sent = await requestEmailLink(deps, { email: "ann@school.com" });
+  assert.ok(sent.ok);
+  for (let i = 0; i < CODE_TRIES - 1; i++) assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: "999999" }, null), null);
+  assert.ok(await openEmailCode(deps, { email: "ann@school.com", code: sent.code }, null), "the last try still works");
+
+  const again = await requestEmailLink(deps, { email: "ann@school.com" });
+  assert.ok(again.ok);
+  for (let i = 0; i < CODE_TRIES; i++) await openEmailCode(deps, { email: "ann@school.com", code: "999999" }, null);
+  assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: again.code }, null), null);
+  assert.ok(await openEmailLink(deps, again.token, null), "the link in the same email still works");
 });
 
 test("Google: a new person is asked for the name, with Google's offered, and the next time is known by the Google id", async () => {

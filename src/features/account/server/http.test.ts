@@ -51,15 +51,18 @@ test("after a step: the page asked for, or the finish form keeping it", () => {
 test("the mailed link and its email", () => {
   const link = confirmUrl("https://www.attunr.app", "a/b+c");
   assert.equal(link, "https://www.attunr.app/login/confirm?token=a%2Fb%2Bc");
-  const mail = linkEmail("ann@school.com", link, {});
+  const mail = linkEmail("ann@school.com", link, "042917", {});
   assert.deepEqual(mail.to, ["ann@school.com"]);
   assert.equal(mail.from, "attunr <hello@attunr.app>");
   assert.match(mail.text, /log in to attunr\. If you don't have an account yet, you'll set one up next:\n\nhttps:\/\/www\.attunr\.app\/login\/confirm\?token=/);
-  assert.match(mail.text, /20 minutes/);
+  assert.equal(mail.subject, "Your attunr log-in code: 042917");
+  assert.match(mail.text, /Or type this code on the log-in page: 042917\n/);
+  assert.match(mail.text, /work for 1 hour/);
   assert.match(mail.html, /<a href="https:\/\/www\.attunr\.app\/login\/confirm\?token=a%2Fb%2Bc"[^>]*>Log in<\/a>/);
   assert.match(mail.html, /src="https:\/\/www\.attunr\.app\/attunr-transparent\.png"/);
-  assert.match(mail.html, /20 minutes/);
-  assert.equal(linkEmail("a@b.co", link, { AUTH_FROM_EMAIL: "x <x@y.z>" }).from, "x <x@y.z>");
+  assert.match(mail.html, />042917</);
+  assert.match(mail.html, /work for 1 hour/);
+  assert.equal(linkEmail("a@b.co", link, "000000", { AUTH_FROM_EMAIL: "x <x@y.z>" }).from, "x <x@y.z>");
 });
 
 const idToken = (claims: Record<string, unknown>) => `h.${Buffer.from(JSON.stringify(claims)).toString("base64url")}.sig`;
