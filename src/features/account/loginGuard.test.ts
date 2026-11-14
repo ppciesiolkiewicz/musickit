@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { stashHash, takeHash } from "./loginGuard";
+import { sendToLogin, stashHash, takeHash } from "./loginGuard";
 
 /** A Storage in memory. */
 function memory(): Storage {
@@ -43,4 +43,12 @@ test("an empty hash is not stored", () => {
   stashHash(s, "/plan", "", 0);
   stashHash(s, "/plan", "#", 0);
   assert.equal(s.length, 0);
+});
+
+test("only a definite 'signed out' sends a person to log in, never a check that failed", () => {
+  // the server clears the hint cookie when the session is gone; a network or server error leaves it
+  assert.equal(sendToLogin(false, false), true);
+  assert.equal(sendToLogin(false, true), false);
+  assert.equal(sendToLogin(true, false), false);
+  assert.equal(sendToLogin(true, true), false);
 });

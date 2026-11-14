@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { isPublicPath, loginHref } from "@/lib/publicPaths";
-import { stashHash, takeHash } from "../loginGuard";
-import { accountsOpen } from "../serverAccountStore";
+import { sendToLogin, stashHash, takeHash } from "../loginGuard";
+import { accountsOpen, hasSessionHint } from "../serverAccountStore";
 import { useAccount } from "../useAccount";
 
 /**
@@ -24,6 +24,7 @@ export default function LoginGuard() {
       store = window.localStorage;
     } catch {}
     if (!account) {
+      if (!sendToLogin(false, hasSessionHint())) return;
       if (store) stashHash(store, path, hash, Date.now());
       window.location.replace(loginHref(path + search));
       return;

@@ -29,3 +29,10 @@ export function takeHash(store: Storage, path: string, now: number): string | nu
   store.removeItem(KEY);
   return s.hash;
 }
+
+/**
+ * Whether a page should send this person to log in, once the account check is done. The server clears the session hint
+ * cookie when the session is gone, so a hint still there after an empty answer means the check failed (offline, a server
+ * error): stay on the page.
+ */
+export const sendToLogin = (signedIn: boolean, hintLeft: boolean): boolean => !signedIn && !hintLeft;
