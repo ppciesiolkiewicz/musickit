@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import CoachingHome from "@/components/landing/home/CoachingHome";
+import AutoplanHome, { PlayersEnding } from "@/components/landing/home/AutoplanHome";
 
-/* The home page for players: practice, the video course and private lessons. Music schools have theirs at /. */
+/* The home page for players. Music schools have theirs at /. */
 
 export const metadata: Metadata = {
-  title: "Daily Guitar Practice: Drills for Hands, Ears & Timing · attunr",
-  description: "Build essential guitar senses with interactive drills for hands, ears, voice, and timing. Get a daily AI practice plan and master the fretboard step-by-step.",
+  title: "Daily AI Guitar & Voice Practice Plan · attunr",
+  description: "Answer a few questions and your own AI writes a week of short guitar or voice exercises, each with the diagram, drone or backing it needs. Every week builds on the last.",
   alternates: { canonical: "/players" },
 };
 
 export default function PlayersPage() {
-  return <CoachingHome />;
+  return <AutoplanHome audience="players" ending={<PlayersEnding />} />;
 }

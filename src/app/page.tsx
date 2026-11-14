@@ -1,26 +1,19 @@
 import type { Metadata } from "next";
-import SchoolsHome from "@/components/landing/home/SchoolsHome";
+import AutoplanHome, { SchoolsEnding } from "@/components/landing/home/AutoplanHome";
 
-/* The home page, for music schools (the main product). Players have theirs at /players; the footer links between them. */
+/* The home page, for music schools. Players have theirs at /players; a logged-in person is sent to /plan (src/proxy.ts). */
+
+const TITLE = "attunr for music schools: a daily AI practice plan for every student";
+const DESCRIPTION = "Each guitar and voice student gets a daily practice plan written by their own AI, with the diagrams, drones and backing each exercise needs. Teachers send lesson notes as a link.";
 
 export const metadata: Metadata = {
-  title: "attunr for Music Schools: Guitar Practice, Notes & Teaching",
-  description: "Give guitar students daily practice plans, teachers playable lesson notes and diagrams, and deliver branded online lessons under your music school's name.",
+  title: "attunr for Music Schools: AI Practice Plans for Guitar & Voice",
+  description: DESCRIPTION,
   alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    siteName: "attunr",
-    url: "/",
-    title: "attunr for music schools: guitar and voice practice between lessons",
-    description: "Daily practice plans for students, playable lesson notes and diagrams for teachers, all under your school's name.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "attunr for music schools: guitar and voice practice between lessons",
-    description: "Daily practice plans for students, playable lesson notes and diagrams for teachers, all under your school's name.",
-  },
+  openGraph: { type: "website", siteName: "attunr", url: "/", title: TITLE, description: DESCRIPTION },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 export default function Home() {
-  return <SchoolsHome />;
+  return <AutoplanHome audience="schools" ending={<SchoolsEnding />} />;
 }

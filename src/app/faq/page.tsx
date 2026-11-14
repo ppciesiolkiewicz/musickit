@@ -85,9 +85,10 @@ const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "Getting started",
     items: [
-      { q: "Is attunr free?", a: <>Yes. The tools, theory pages and exercises are free, and you don&apos;t need an account. Only the video course is paid.</> },
+      { q: "Is attunr free?", a: <>Yes, while it is in beta. You need an account: <A href="/login">log in</A> with your email or Google, and a new account is made the first time.</> },
       { q: "Where is my practice saved?", a: <>In this browser, on this device. Your plan, settings and progress stay here between visits. If you clear your browser&apos;s site data, or open attunr on another device or browser, you start fresh.</> },
-      { q: "Where do I start?", a: <>Make an <A href="/plan">AI practice plan</A> for a new set of exercises each day, start the <A href="/course">course</A>, or pick a tool from the menu at the top. Tune up first with the <A href="/tuner">tuner</A>.</> },
+      { q: "Where do I start?", a: <>Make an <A href="/plan">AI practice plan</A>: it opens a new set of exercises each day. Every other tool and lesson is in <A href="/practice">Practice</A>. Tune up first with the <A href="/tuner">tuner</A>.</> },
+      { q: "I teach guitar or voice. Can I use attunr?", a: <>Yes. A teacher gets the same app as a student: the plan, Notes and Practice. Notes is made for lessons: lay out what you taught on one page and send it to the student as a link.</> },
     ],
   },
   {
@@ -110,9 +111,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "The video course",
     items: [
-      { q: "When does the course open?", a: <>It is in early access now. Join from the <A href="/players#course">course section</A> to get the early-access price and every style course free as it launches. Prices may change before launch.</> },
       { q: "Can I get a refund?", a: <>Yes. Every bundle has a 30-day money-back guarantee: email us within 30 days of buying for a full refund, no reason needed.</> },
-      { q: "I teach guitar. Can I use attunr?", a: <>Yes. See <A href="/teach">Teach on attunr</A>.</> },
     ],
   },
 ];

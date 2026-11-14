@@ -1,64 +1,19 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import Wordmark from "@/components/Wordmark";
-import { devOnly } from "@/features/devtools/gate";
-
-/** The players' home page (src/app/players/page.tsx); plain / is the music-school one. */
-const PLAYERS = "/players";
 
 type Column = { title: string; links: { href: string; label: string }[] };
 
+/** The two home pages, the app's three places (they need a login), the demo plans and help. */
 const COLUMNS: Column[] = [
-  {
-    title: "attunr for",
-    links: [
-      { href: "/", label: "Music schools" },
-      { href: PLAYERS, label: "Players" },
-    ],
-  },
-  {
-    title: "Learn",
-    links: [
-      { href: `${PLAYERS}#course`, label: "Video course" },
-      { href: `${PLAYERS}#lessons`, label: "Private lessons" },
-      { href: `${PLAYERS}#lessons`, label: "VIP coaching" },
-    ],
-  },
-  {
-    title: "Free tools",
-    links: [
-      { href: "/theory/scales", label: "Scales" },
-      { href: "/theory/metronome-drone", label: "Metronome & drone" },
-      { href: "/looper", label: "Looper" },
-      { href: "/tuner", label: "Tuner" },
-    ],
-  },
-  {
-    title: "Teachers",
-    links: [
-      { href: "/teach", label: "Teach on attunr" },
-      { href: "/#white-label", label: "White-labelling" },
-      // the video studio is dev-only for now, like its card on /teach
-      ...(devOnly() ? [{ href: "/teachers/studio", label: "Teaching studio" }] : []),
-      { href: "/teachers/studio?notes=1", label: "Notes creator" },
-      { href: "/kickstarter", label: "Founding partners" },
-    ],
-  },
-  {
-    title: "Help",
-    links: [
-      { href: "/faq", label: "FAQ" },
-    ],
-  },
+  { title: "attunr for", links: [{ href: "/", label: "Music schools" }, { href: "/players", label: "Players" }] },
+  { title: "The app", links: [{ href: "/plan", label: "Plan" }, { href: "/teachers/studio?notes=1", label: "Notes" }, { href: "/practice", label: "Practice" }] },
+  { title: "See it first", links: [{ href: "/demo", label: "Demos" }] },
+  { title: "Help", links: [{ href: "/faq", label: "FAQ" }] },
 ];
 
 function Heading({ children }: { children: ReactNode }) {
   return <p className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">{children}</p>;
-}
-
-/** The music-school home leaves out what is for players and solo teachers: the Learn column (course, lessons, coaching) and "Teach on attunr". */
-function schoolColumns(): Column[] {
-  return COLUMNS.filter((c) => c.title !== "Learn").map((c) => ({ ...c, links: c.links.filter((l) => l.href !== "/teach") }));
 }
 
 /** Grid classes per column count; written out in full so Tailwind sees them. */
@@ -67,9 +22,9 @@ const GRID: Record<number, { grid: string; brand: string }> = {
   5: { grid: "sm:grid-cols-5 lg:grid-cols-[minmax(0,1.6fr)_repeat(5,minmax(0,1fr))]", brand: "sm:col-span-5" },
 };
 
-/** The site footer, on every page: brand, then the two home pages (schools at /, players at /players), Learn, Free tools, Teachers (the teaching pitch, the notes creator, and the video studio in dev only) and Help. variant="schools" (the music-school home) drops the player and solo-teacher links. */
-export default function SiteFooter({ variant = "default" }: { variant?: "default" | "schools" }) {
-  const columns = variant === "schools" ? schoolColumns() : COLUMNS;
+/** The site footer, on every page: brand, then the two home pages, the app (Plan, Notes, Practice), Demos and Help. */
+export default function SiteFooter() {
+  const columns = COLUMNS;
   const layout = GRID[columns.length];
   return (
     <footer className="border-t border-slate-800/70 pt-12 pb-8 text-sm sm:pt-16">
