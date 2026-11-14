@@ -147,8 +147,8 @@ export function LessonNoteMock({ compact = false, startOn = "b1" }: { compact?: 
   const [done, setDone] = useState<Record<Step, boolean>>({ b1: true, b2: startOn === "imp", imp: false });
   const box: Box = step === "b2" ? 2 : 1;
   const items: { id: Step; t: string }[] = [
-    { id: "b1", t: "Box 1 up and down, landing on R" },
-    { id: "b2", t: "Box 2, the same way, from the 7th fret" },
+    { id: "b1", t: "Position 1 up and down, landing on R" },
+    { id: "b2", t: "Position 2, the same way, from the 7th fret" },
     { id: "imp", t: "Improvise over the A minor loop, 5 min a day" },
   ];
   const pick = (id: Step) => {
@@ -160,7 +160,7 @@ export function LessonNoteMock({ compact = false, startOn = "b1" }: { compact?: 
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-widest text-slate-500">Lesson note · week 3</p>
-          <p className="text-lg text-slate-100" style={DISPLAY}>Minor pentatonic, box {box}</p>
+          <p className="text-lg text-slate-100" style={DISPLAY}>Minor pentatonic, position {box}</p>
         </div>
         <span className="rounded-full border border-slate-700 px-2 py-0.5 text-[11px] text-slate-400">Preview</span>
       </div>
