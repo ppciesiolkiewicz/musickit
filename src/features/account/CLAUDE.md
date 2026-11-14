@@ -3,7 +3,9 @@
 - **Ask through `useAccount()`.** A screen that splits by role calls `can("<feature>")`; it never compares roles
   itself, never reads the account keys in localStorage and never reads the cookies. A new split is one entry in
   `FEATURES` (`model.ts`).
-- **Nobody signed in can use everything.** `account: null` is every visitor. Don't make a page need an account.
+- **The app needs a login; every role gets all of it.** Which pages a visitor may open is one list,
+  `src/lib/publicPaths.ts`, read by the proxy (`src/proxy.ts`), `ui/LoginGuard` and the nav. Nothing is gated when
+  accounts are off. A teacher gets the same app as a student: `FEATURES` gives every feature to every role.
 - **A visitor's stored data never moves.** Plans and progress sit under the same localStorage keys whether or not
   anyone is logged in. Putting a real account's data somewhere else is the data move, and it has to carry the old data
   over.

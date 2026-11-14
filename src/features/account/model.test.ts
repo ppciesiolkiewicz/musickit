@@ -8,11 +8,9 @@ test("nobody signed in can use every feature", () => {
   for (const f of Object.keys(FEATURES) as Feature[]) assert.equal(can(null, f), true);
 });
 
-test("the notes creator and AI plans are for teachers and owners, not students", () => {
-  for (const f of ["notesCreator", "aiPlan"] as const) {
-    assert.equal(can(acc({ role: "student" }), f), false);
-    assert.equal(can(acc({ role: "teacher" }), f), true);
-    assert.equal(can(acc({ role: "owner" }), f), true);
+test("every role can use every feature: a teacher gets the same app as a student", () => {
+  for (const f of Object.keys(FEATURES) as Feature[]) {
+    for (const role of ROLES) assert.equal(can(acc({ role }), f), true, `${role} ${f}`);
   }
 });
 

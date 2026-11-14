@@ -18,7 +18,7 @@ export const useAccountStore = (): AccountStore => useContext(StoreContext);
 
 /**
  * Who is using the app. `account` is null when nobody is signed in: the local person, who may use everything
- * (see `can` in model.ts). `can("aiPlan")` is the one question a screen asks before showing a role's feature.
+ * (see `can` in model.ts). `can("aiPlan")` is the one question a screen asks before showing a role's feature (today every role may).
  * Until `loaded`, nobody is signed in, the same as on the server.
  */
 export function useAccount() {

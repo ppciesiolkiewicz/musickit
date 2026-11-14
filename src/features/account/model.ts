@@ -18,14 +18,14 @@ export interface Account {
 }
 
 /**
- * The parts of the app that belong to some roles only, each with the roles that may use it.
- * A new split is one line here and a `can(account, "<feature>")` where the screen decides.
+ * The parts of the app, each with the roles that may use it. Today every role uses everything: a teacher gets the same
+ * app as a student. A new split is one line here and a `can(account, "<feature>")` where the screen decides.
  */
 export const FEATURES = {
   /** The notes creator (/creator, the studio's preset notes). */
-  notesCreator: ["teacher", "owner"],
-  /** Having the AI write a plan. A student gets plans from a teacher. */
-  aiPlan: ["teacher", "owner"],
+  notesCreator: ["student", "teacher", "owner"],
+  /** Having the AI write a plan. */
+  aiPlan: ["student", "teacher", "owner"],
 } as const satisfies Record<string, readonly Role[]>;
 export type Feature = keyof typeof FEATURES;
 

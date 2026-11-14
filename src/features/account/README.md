@@ -8,8 +8,11 @@ person with no account yet goes on to the account setup, which asks only for the
 
 - `model.ts`: `Role` (student, teacher, owner; an owner runs a school and can do all a teacher can), `NEW_ACCOUNT_ROLE`
   (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role), `FEATURES` (the parts
-  of the app that belong to some roles: the notes creator and AI plans are for teachers and owners) and
-  `can(account, feature)`.
+  of the app with the roles that may use them; today every role gets every feature) and `can(account, feature)`.
+- `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout). The server half
+  is `src/proxy.ts`, which only checks that the session cookie is there; both read the public paths from
+  `src/lib/publicPaths.ts`. The guard catches a stale cookie and the notes creator (its shared note is in the URL hash,
+  which the server never sees), and keeps that hash across logging in.
 - `AccountStore.ts`: `current()` and `signOut()`, all a page needs.
 - `serverAccountStore.ts`: the real store, over `/api/auth`. `accountsOpen()` says whether the site has accounts at all.
 - `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session, and nothing at all when
