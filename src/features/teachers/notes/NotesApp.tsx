@@ -194,8 +194,10 @@ function Creator({ preset }: { preset?: string }) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
-      <aside data-chrome aria-label="Note" className="flex flex-col gap-2 self-start md:sticky md:top-4">
+    // on a wide screen the note sits on the page's middle line, under the title's column and a little wider than it;
+    // the rail hangs in the left margin and the right margin stays empty to match
+    <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[minmax(12rem,1fr)_minmax(0,60rem)_minmax(12rem,1fr)]">
+      <aside data-chrome aria-label="Note" className="flex flex-col gap-2 self-start md:sticky md:top-4 xl:w-full xl:max-w-[220px] xl:justify-self-end">
         <SharePopover open={share} onClose={() => setShare(false)} onView={() => setViewing(true)}>
           <button type="button" disabled={empty} onClick={() => setShare((s) => !s)} aria-expanded={share} className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40">
             <Icon name="share-2" size={12} />
@@ -220,7 +222,8 @@ function Creator({ preset }: { preset?: string }) {
 
       <main className="flex min-w-0 flex-col gap-4">
         {agent && <AgentLine />}
-        <ol className="grid gap-x-6 gap-y-1 text-sm text-slate-400 sm:grid-cols-3">
+        {/* the steps keep the title's column, so the note is the one thing that steps out */}
+        <ol className="grid gap-x-6 gap-y-1 text-sm text-slate-400 sm:grid-cols-3 xl:mx-auto xl:w-full xl:max-w-[51rem]">
           {NOTE_STEPS.map((t, i) => (
             <li key={i} className="flex gap-2">
               <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-sky-500/15 text-xs font-semibold text-sky-200">{i + 1}</span>
