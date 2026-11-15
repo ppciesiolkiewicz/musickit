@@ -2,7 +2,7 @@ import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { baseFixture, PLAYER_A as A, PLAYER_B as B, PLAYER_C as C, type LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
-import type { BlockFilter, BlockOrder, Scope } from "./types";
+import type { BlockFilter, BlockOrder, PlanFilter, Scope } from "./types";
 
 /** What every `LibraryRepo` must do, run against `make(data)`: the memory repo now, Postgres later. */
 export function libraryRepoContract(make: (data: LibraryData) => Promise<LibraryRepo>): void {
@@ -190,6 +190,176 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       for (const [scope, filter] of [[all, {}], [{}, {}], [{ player: A }, { player: "had" }], [all, { tags: ["slow"] }]] as [Scope, BlockFilter][]) {
         assert.equal(await r.countBlocks(scope, filter), (await r.listBlocks(scope, filter, "newest", 1000)).length);
       }
+    });
+  });
+
+  describe("library repo: plans", () => {
+    const planIds = async (scope: Scope, filter: PlanFilter = {}, make_: (d: LibraryData) => LibraryData = (d) => d) =>
+      (await (await make(make_(baseFixture()))).listPlans(scope, filter, 100)).map((p) => p.id);
+    const keys = (o: object) => Object.keys(o).sort();
+
+    test("a plan is listed when enabled, and the not enabled one only with includeNotEnabled, by id", async () => {
+      assert.deepEqual(await planIds({}), ["P1", "P2", "P4"]);
+      assert.deepEqual(await planIds({ player: A }), ["P1", "P2", "P4"]);
+      assert.deepEqual(await planIds({ includeNotEnabled: true }), ["P1", "P2", "P3", "P4"]);
+      const r = await repo();
+      assert.equal(await r.getPlan({}, "P3", false), null);
+      assert.equal((await r.getPlan({ includeNotEnabled: true }, "P3", false))?.id, "P3");
+      assert.equal(await r.getPlan(all, "nope", false), null);
+    });
+    test("plan ids order bytewise and the limit is respected", async () => {
+      const make_ = (d: LibraryData): LibraryData => ({ ...d, plans: [...d.plans, { ...d.plans[0], id: "alpha-plan" }, { ...d.plans[0], id: "Zed-plan" }] });
+      assert.deepEqual(await planIds(all, {}, make_), ["P1", "P2", "P3", "P4", "Zed-plan", "alpha-plan"]);
+      assert.deepEqual((await (await repo()).listPlans(all, {}, 2)).map((p) => p.id), ["P1", "P2"]);
+    });
+    test("scope.planIds narrows the list and getPlan, even with includeNotEnabled", async () => {
+      assert.deepEqual(await planIds({ planIds: ["P2", "P3"] }), ["P2"]);
+      assert.deepEqual(await planIds({ planIds: ["P2", "P3"], includeNotEnabled: true }), ["P2", "P3"]);
+      assert.deepEqual(await planIds({ planIds: [], includeNotEnabled: true }), []);
+      const r = await repo();
+      assert.equal(await r.getPlan({ planIds: ["P2"], includeNotEnabled: true }, "P1", false), null);
+      assert.equal((await r.getPlan({ planIds: ["P2"], includeNotEnabled: true }, "P2", false))?.id, "P2");
+    });
+    test("filters", async () => {
+      assert.deepEqual(await planIds(all, { areas: ["rhythm"] }), ["P2"]);
+      assert.deepEqual(await planIds(all, { areas: ["ear", "theory"] }), ["P1", "P3"]);
+      assert.deepEqual(await planIds(all, { levels: ["beginner"] }), ["P1", "P2", "P3"]);
+      assert.deepEqual(await planIds(all, { levels: ["advanced"] }), []);
+      assert.deepEqual(await planIds(all, { levels: ["intermediate"] }), ["P1", "P2"]);
+      assert.deepEqual(await planIds(all, { topics: ["guitar-scales", "ear"] }), ["P1"]);
+      assert.deepEqual(await planIds(all, { topics: ["rhythm"] }), ["P2"]);
+      assert.deepEqual(await planIds(all, { model: "m1" }), ["P1", "P3"]);
+      assert.deepEqual(await planIds(all, { promptVersion: 4 }), ["P2"]);
+      assert.deepEqual(await planIds(all, { docsAgents: 2 }), ["P1", "P2"]);
+      assert.deepEqual(await planIds(all, { docsTeaching: 3 }), ["P2"]);
+      assert.deepEqual(await planIds(all, { levels: ["beginner"], topics: ["ear"], model: "m1" }), ["P1", "P3"]);
+    });
+    test("a plan filter sees the plan's blocks even when a block is not visible to the caller", async () => {
+      assert.deepEqual(await planIds({}, { topics: ["ear"] }), ["P1"]);
+    });
+    test("days, minutes, blocks, topics and concepts come from the plan's block rows", async () => {
+      const p1 = (await (await repo()).getPlan({}, "P1", false))!;
+      assert.deepEqual([p1.id, p1.title, p1.days, p1.minutes, p1.blocks], ["P1", "Plan P1", 2, 40, 3]);
+      assert.deepEqual(p1.answers, { areas: ["guitar", "theory"] });
+      assert.deepEqual(p1.provenance, { model: "m1", promptVersion: 3, docsAgents: 2, docsTeaching: 2 });
+      assert.deepEqual(p1.topics, [{ id: "guitar-scales", count: 2 }, { id: "ear", count: 1 }]);
+      assert.deepEqual(p1.concepts, [{ id: "pentatonic", count: 2 }, { id: "intervals", count: 1 }, { id: "major-scale", count: 1 }]);
+      const p2 = (await (await repo()).getPlan({}, "P2", false))!;
+      assert.deepEqual([p2.days, p2.minutes, p2.blocks], [1, 30, 2]);
+      assert.deepEqual(p2.topics, [{ id: "rhythm", count: 1 }, { id: "theory-basics", count: 1 }]);
+      assert.deepEqual(p2.concepts, []);
+    });
+    test("reviews are a count and a mean, and a plan without any has a null mean", async () => {
+      const r = await repo();
+      assert.deepEqual((await r.getPlan({}, "P1", false))?.reviews, { count: 2, mean: 3 });
+      assert.deepEqual((await r.getPlan({}, "P2", false))?.reviews, { count: 0, mean: null });
+    });
+    test("hadShare is the owned share of the plan's blocks for the player, null without one", async () => {
+      const r = await repo();
+      const share = async (scope: Scope, id: string) => (await r.getPlan(scope, id, false))?.hadShare;
+      assert.ok(Math.abs((await share({ player: A }, "P1"))! - 1 / 3) < 1e-9);
+      assert.equal(await share({ player: A }, "P2"), 1);
+      assert.equal(await share({ player: C }, "P2"), 0);
+      assert.equal(await share({}, "P1"), null);
+      assert.equal((await r.listPlans({}, {}, 10)).every((p) => p.hadShare === null), true);
+      assert.deepEqual((await r.listPlans({ player: C }, {}, 10)).map((p) => p.hadShare), [0, 0, 0]);
+    });
+    test("a plan with no block rows lists with zeros and an empty schedule", async () => {
+      const r = await repo();
+      const p4 = (await r.listPlans({ player: A }, {}, 10)).find((p) => p.id === "P4")!;
+      assert.deepEqual([p4.days, p4.minutes, p4.blocks, p4.hadShare], [0, 0, 0, 0]);
+      assert.deepEqual([p4.topics, p4.concepts], [[], []]);
+      assert.equal(p4.answers, null);
+      assert.deepEqual((await r.getPlan({ player: A }, "P4", false))?.schedule, []);
+    });
+    test("the schedule is by day and place, with the block titles, and the reply only when asked", async () => {
+      const r = await repo();
+      const p1 = (await r.getPlan({}, "P1", false))!;
+      assert.deepEqual(p1.schedule, [
+        { day: 0, place: 0, blockId: "S1", title: "Block S1", minutes: 10 },
+        { day: 0, place: 1, blockId: "S2", title: "Block S2", minutes: 15 },
+        { day: 1, place: 0, blockId: "S1", title: "Block S1", minutes: 10 },
+        { day: 1, place: 1, blockId: "X", title: "Block X", minutes: 5 },
+      ]);
+      assert.equal("reply" in p1, false);
+      assert.equal((await r.getPlan({}, "P1", true))?.reply, "reply P1");
+    });
+    test("no other player's id appears in a plan result", async () => {
+      const r = await repo();
+      const list = await r.listPlans(all, {}, 100);
+      const details = await Promise.all(list.map((p) => r.getPlan(all, p.id, true)));
+      const text = JSON.stringify([list, details]);
+      for (const other of [B, C]) assert.ok(!text.includes(other), `result contains ${other}`);
+    });
+    test("a plan summary, a detail and a schedule row have exactly these keys", async () => {
+      const r = await repo();
+      const [s] = await r.listPlans(all, {}, 1);
+      assert.deepEqual(keys(s), ["answers", "blocks", "concepts", "days", "hadShare", "id", "minutes", "provenance", "reviews", "title", "topics"]);
+      assert.deepEqual(keys(s.reviews), ["count", "mean"]);
+      assert.deepEqual(keys(s.provenance), ["docsAgents", "docsTeaching", "model", "promptVersion"]);
+      assert.deepEqual(keys(s.topics[0]), ["count", "id"]);
+      const d = (await r.getPlan(all, "P1", true))!;
+      assert.deepEqual(keys(d), [...keys(s), "reply", "schedule"].sort());
+      assert.deepEqual(keys(d.schedule[0]), ["blockId", "day", "minutes", "place", "title"]);
+    });
+  });
+
+  describe("library repo: coverage", () => {
+    test("counts visible blocks and plans per topic and level, and leaves out blocks that are not visible", async () => {
+      const c = await (await repo()).coverage({});
+      assert.deepEqual(c.topics, [
+        { topic: "guitar-scales", level: "beginner", blocks: 1, plans: 1, times: 2, seconds: 900 },
+        { topic: "guitar-scales", level: "intermediate", blocks: 1, plans: 1, times: 2, seconds: 350 },
+        { topic: "naming", level: "advanced", blocks: 2, plans: 0, times: 3, seconds: 600 },
+        { topic: "theory-basics", level: "advanced", blocks: 1, plans: 0, times: 0, seconds: 0 },
+        { topic: "theory-basics", level: "intermediate", blocks: 1, plans: 1, times: 0, seconds: 0 },
+      ]);
+      assert.deepEqual(c.concepts, [
+        { concept: "major-scale", blocks: 1, plans: 1, times: 2, seconds: 900 },
+        { concept: "pentatonic", blocks: 2, plans: 1, times: 4, seconds: 1250 },
+      ]);
+    });
+    test("includeNotEnabled and the player's own blocks add blocks and plans", async () => {
+      const c = await (await repo()).coverage(all);
+      assert.deepEqual(c.topics, [
+        { topic: "ear", level: "beginner", blocks: 1, plans: 2, times: 0, seconds: 0 },
+        { topic: "guitar-scales", level: "beginner", blocks: 2, plans: 1, times: 2, seconds: 900 },
+        { topic: "guitar-scales", level: "intermediate", blocks: 1, plans: 1, times: 2, seconds: 350 },
+        { topic: "naming", level: "advanced", blocks: 2, plans: 0, times: 3, seconds: 600 },
+        { topic: "rhythm", level: "beginner", blocks: 1, plans: 1, times: 0, seconds: 0 },
+        { topic: "theory-basics", level: "advanced", blocks: 1, plans: 0, times: 0, seconds: 0 },
+        { topic: "theory-basics", level: "intermediate", blocks: 1, plans: 1, times: 0, seconds: 0 },
+      ]);
+      assert.deepEqual(c.concepts, [
+        { concept: "intervals", blocks: 1, plans: 2, times: 0, seconds: 0 },
+        { concept: "major-scale", blocks: 1, plans: 1, times: 2, seconds: 900 },
+        { concept: "pentatonic", blocks: 2, plans: 1, times: 4, seconds: 1250 },
+      ]);
+    });
+    test("the seconds of a pair are the block totals of its visible blocks", async () => {
+      const r = await repo();
+      const c = await r.coverage(all);
+      const blocks = await r.listBlocks(all, {}, "newest", 100);
+      for (const row of c.topics) {
+        const own = blocks.filter((b) => b.topic === row.topic && b.level === row.level);
+        assert.equal(row.seconds, own.reduce((n, b) => n + b.use.seconds, 0));
+        assert.equal(row.times, own.reduce((n, b) => n + b.use.times, 0));
+        assert.equal(row.blocks, own.length);
+      }
+    });
+    test("scope.planIds narrows the plans counted, not the blocks", async () => {
+      const c = await (await repo()).coverage({ ...all, planIds: ["P2"] });
+      assert.equal(c.topics.find((t) => t.topic === "guitar-scales" && t.level === "beginner")?.plans, 0);
+      assert.equal(c.topics.find((t) => t.topic === "guitar-scales" && t.level === "beginner")?.blocks, 2);
+      assert.equal(c.topics.find((t) => t.topic === "rhythm")?.plans, 1);
+    });
+    test("an empty library has no plans, no coverage and no blocks", async () => {
+      const r = await make({ users: [], blocks: [], owners: [], progress: [], dayTimes: [], plans: [], planBlocks: [], reviews: [] });
+      assert.deepEqual(await r.listPlans(all, {}, 10), []);
+      assert.equal(await r.getPlan(all, "P1", true), null);
+      assert.deepEqual(await r.coverage(all), { topics: [], concepts: [] });
+      assert.deepEqual(await r.listBlocks(all, {}, "newest", 10), []);
+      assert.equal(await r.countBlocks(all, {}), 0);
     });
   });
 }

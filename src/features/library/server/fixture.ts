@@ -32,6 +32,10 @@ const block = (id: string, createdAt: string, extra: Partial<LibraryData["blocks
   id, content: { title: `Block ${id}`, cells: [] }, area: "guitar", topic: "guitar-scales", concepts: [], level: null, tags: [], parentId: null,
   model: null, promptVersion: null, docsAgents: null, docsTeaching: null, createdAt: new Date(createdAt), ...extra,
 });
+const plan = (id: string, extra: Partial<LibraryData["plans"][number]>): LibraryData["plans"][number] => ({
+  id, title: `Plan ${id}`, answers: null, model: "m1", reply: "", source: "seed", promptVersion: null, docsAgents: null, docsTeaching: null,
+  enabledForReuse: false, createdAt: new Date("2026-02-01T00:00:00Z"), ...extra,
+});
 const owner = (userId: string | null, blockId: string, enabledForReuse: boolean, source: LibraryData["owners"][number]["source"]): LibraryData["owners"][number] =>
   ({ userId, blockId, source, enabledForReuse, createdAt: new Date("2026-01-01T00:00:00Z") });
 const entry = (userId: string, exerciseId: string, blockId: string, stars: ProgressEntry["stars"], at: string): LibraryData["progress"][number] => ({
@@ -43,7 +47,8 @@ const entry = (userId: string, exerciseId: string, blockId: string, stars: Progr
  * Two players (A, B) and the app. S1 and S2 are seed blocks enabled for reuse; X is an example block, app-owned and not enabled; PA
  * is A's private edit; R is a block A and B both own and both rated (A 3 stars, then 5 stars later in another slot; B 2 stars), not
  * enabled. PB is B's, enabled for reuse; D has two owner rows (A's not enabled, B's enabled); Zed and alpha are seed blocks with the
- * same created_at. A also owns S2 and rated it 2 stars. Timer rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
+ * same created_at. Plans: P1 and P2 enabled, P3 (the app's, X only) not enabled, P4 enabled with no block rows and null answers. P1
+ * holds S1 on two days, S2 and X; P2 holds R and D. Two reviews, A (4 stars) and B (2 stars), both of P1. A also owns S2 and rated it 2 stars. Timer rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
  */
 export function baseFixture(): LibraryData {
   return {
@@ -86,8 +91,24 @@ export function baseFixture(): LibraryData {
       // a non-number slot next to a valid one: the valid one counts
       { userId: PLAYER_B, planId: "p-7", day: 0, elapsed: 50, spent: { e1: 50, e2: "x" }, blocks: { e1: "S2", e2: "S2" } },
     ],
-    plans: [],
-    planBlocks: [],
-    reviews: [],
+    plans: [
+      plan("P1", { answers: { areas: ["guitar", "theory"] }, model: "m1", reply: "reply P1", promptVersion: 3, docsAgents: 2, docsTeaching: 2, enabledForReuse: true }),
+      plan("P2", { answers: { areas: ["rhythm"] }, model: "m2", reply: "reply P2", promptVersion: 4, docsAgents: 2, docsTeaching: 3, enabledForReuse: true }),
+      plan("P3", { answers: { areas: ["ear"] }, model: "m1", reply: "reply P3", enabledForReuse: false }),
+      plan("P4", { answers: null, model: "m3", reply: "reply P4", enabledForReuse: true }),
+    ],
+    planBlocks: [
+      { planId: "P1", day: 0, place: 0, blockId: "S1", minutes: 10 },
+      { planId: "P1", day: 0, place: 1, blockId: "S2", minutes: 15 },
+      { planId: "P1", day: 1, place: 0, blockId: "S1", minutes: 10 },
+      { planId: "P1", day: 1, place: 1, blockId: "X", minutes: 5 },
+      { planId: "P2", day: 0, place: 0, blockId: "R", minutes: 20 },
+      { planId: "P2", day: 0, place: 1, blockId: "D", minutes: 10 },
+      { planId: "P3", day: 0, place: 0, blockId: "X", minutes: 10 },
+    ],
+    reviews: [
+      { userId: PLAYER_A, planId: "rp-1", libraryPlanId: "P1", title: "P1", stars: 4, why: null, at: new Date("2026-04-01T10:00:00Z") },
+      { userId: PLAYER_B, planId: "rp-2", libraryPlanId: "P1", title: "P1", stars: 2, why: "too long", at: new Date("2026-04-02T10:00:00Z") },
+    ],
   };
 }

@@ -1,7 +1,9 @@
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
-import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, BlockUse, PlayerBlock, Scope } from "./types";
+import type {
+  BlockDetail, BlockFilter, BlockOrder, BlockSummary, BlockUse, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope,
+} from "./types";
 
 type Row = LibraryData["blocks"][number];
 
@@ -85,6 +87,56 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   const found = (scope: Scope, f: BlockFilter) => data.blocks.filter((b) => visible(scope, b) && matches(scope, f, b));
   const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
+  type Plan = LibraryData["plans"][number];
+
+  /** A plan is visible when enabled for reuse or the scope includes the not enabled, and inside `scope.planIds` when that is set. */
+  const planVisible = (scope: Scope, p: Plan): boolean =>
+    (p.enabledForReuse || scope.includeNotEnabled === true) && (scope.planIds === undefined || scope.planIds.includes(p.id));
+
+  /** The plan's distinct blocks, from its rows whether or not each block is visible to the caller. */
+  const planBlockRows = (planId: string): Row[] => {
+    const ids = new Set(data.planBlocks.filter((r) => r.planId === planId).map((r) => r.blockId));
+    return data.blocks.filter((b) => ids.has(b.id));
+  };
+
+  const counts = (values: string[]): Count[] => {
+    const m = new Map<string, number>();
+    for (const v of values) m.set(v, (m.get(v) ?? 0) + 1);
+    return [...m].map(([id, count]) => ({ id, count })).sort((a, b) => b.count - a.count || byId(a, b));
+  };
+
+  const planSummary = (scope: Scope, p: Plan): PlanSummary => {
+    const rows = data.planBlocks.filter((r) => r.planId === p.id);
+    const blocks = planBlockRows(p.id);
+    const stars = data.reviews.filter((r) => r.libraryPlanId === p.id).map((r) => r.stars);
+    return {
+      id: p.id, title: p.title, answers: p.answers,
+      provenance: { model: p.model, promptVersion: p.promptVersion, docsAgents: p.docsAgents, docsTeaching: p.docsTeaching },
+      days: new Set(rows.map((r) => r.day)).size,
+      minutes: sum(rows.map((r) => r.minutes)),
+      blocks: blocks.length,
+      topics: counts(blocks.flatMap((b) => (b.topic !== null ? [b.topic] : []))),
+      concepts: counts(blocks.flatMap((b) => [...new Set(b.concepts)])),
+      reviews: { count: stars.length, mean: stars.length ? sum(stars) / stars.length : null },
+      hadShare: scope.player === undefined ? null : blocks.length ? blocks.filter((b) => had(scope.player!, b.id)).length / blocks.length : 0,
+    };
+  };
+
+  const planMatches = (f: PlanFilter, p: Plan): boolean => {
+    if (f.model !== undefined && p.model !== f.model) return false;
+    if (f.promptVersion !== undefined && p.promptVersion !== f.promptVersion) return false;
+    if (f.docsAgents !== undefined && p.docsAgents !== f.docsAgents) return false;
+    if (f.docsTeaching !== undefined && p.docsTeaching !== f.docsTeaching) return false;
+    if (f.areas?.length) {
+      const areas = isMap(p.answers) && Array.isArray(p.answers.areas) ? p.answers.areas : [];
+      if (!f.areas.some((a) => areas.includes(a))) return false;
+    }
+    const blocks = planBlockRows(p.id);
+    if (f.levels?.length && !blocks.some((b) => b.level !== null && f.levels!.includes(b.level))) return false;
+    if (f.topics?.length && !f.topics.every((t) => blocks.some((b) => b.topic === t))) return false;
+    return true;
+  };
+
   return {
     async countBlocks(scope, filter) {
       return found(scope, filter).length;
@@ -100,6 +152,37 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
       const b = data.blocks.find((x) => x.id === id);
       if (!b || !visible(scope, b)) return null;
       return { ...summary(scope, b), content: b.content, parentId: b.parentId };
+    },
+    async listPlans(scope, filter, limit) {
+      return data.plans.filter((p) => planVisible(scope, p) && planMatches(filter, p)).sort(byId)
+        .slice(0, Math.max(0, limit)).map((p) => planSummary(scope, p));
+    },
+    async getPlan(scope, id, withReply): Promise<PlanDetail | null> {
+      const p = data.plans.find((x) => x.id === id);
+      if (!p || !planVisible(scope, p)) return null;
+      const schedule = data.planBlocks.filter((r) => r.planId === id).sort((a, b) => a.day - b.day || a.place - b.place)
+        .map((r) => ({ day: r.day, place: r.place, blockId: r.blockId, title: data.blocks.find((b) => b.id === r.blockId)?.content.title ?? "", minutes: r.minutes }));
+      return { ...planSummary(scope, p), schedule, ...(withReply ? { reply: p.reply } : {}) };
+    },
+    async coverage(scope) {
+      const blocks = data.blocks.filter((b) => visible(scope, b));
+      const plans = data.plans.filter((p) => planVisible(scope, p)).map((p) => planBlockRows(p.id));
+      const rows = (match: (b: Row) => boolean) => {
+        const own = blocks.filter(match);
+        const t = own.map((b) => totals(b.id));
+        return {
+          blocks: own.length, plans: plans.filter((pb) => pb.some(match)).length,
+          times: sum(t.map((u) => u.times)), seconds: sum(t.map((u) => u.seconds)),
+        };
+      };
+      const pairs = new Map<string, { topic: string; level: string }>();
+      for (const b of blocks) if (b.topic !== null && b.level !== null) pairs.set(`${b.topic}\u0000${b.level}`, { topic: b.topic, level: b.level });
+      const topics: CoverageRow[] = [...pairs.values()]
+        .sort((a, b) => (a.topic < b.topic ? -1 : a.topic > b.topic ? 1 : a.level < b.level ? -1 : a.level > b.level ? 1 : 0))
+        .map(({ topic, level }) => ({ topic, level, ...rows((b) => b.topic === topic && b.level === level) }));
+      const concepts: ConceptCoverage[] = [...new Set(blocks.flatMap((b) => b.concepts))].sort()
+        .map((concept) => ({ concept, ...rows((b) => b.concepts.includes(concept)) }));
+      return { topics, concepts };
     },
     async userExists(id) {
       return data.users.some((u) => u.id === id);

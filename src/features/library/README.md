@@ -16,10 +16,10 @@ Other players appear only as totals (`use`: times, seconds, ratings by stars). N
 
 ## Files (`server/`)
 
-- `types.ts`: `Scope`, `BlockSummary`, `BlockDetail`, `BlockFilter`, `BlockOrder`.
+- `types.ts`: `Scope`, `BlockSummary`, `BlockDetail`, `BlockFilter`, `BlockOrder`, `PlanSummary`, `PlanDetail`, `PlanFilter`, `CoverageRow`, `ConceptCoverage`.
 - `repo.ts`: the `LibraryRepo` interface.
 - `repo.memory.ts`: the repo over plain rows, the readable statement of the rules.
 - `fixture.ts`: `LibraryData` (rows shaped like the tables in `src/lib/db/schema.ts`) and `baseFixture()`.
 - `repoContract.ts`: `libraryRepoContract(make)`, the tests every repo must pass; `repo.memory.test.ts` runs it on the memory repo.
 
-Plans and coverage come next; `LibraryData` already has their rows.
+Plans have their own gate: enabled for reuse, or `includeNotEnabled`, and `scope.planIds` narrows them. A plan's schedule, counts, topics, concepts and filters come from its `practice_plan_blocks` rows whether or not each block is visible to the caller. `coverage` counts only blocks visible under the scope, and only pairs and concepts with at least one; its `plans` counts visible plans with a block of that topic and level (or concept).

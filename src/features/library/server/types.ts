@@ -57,3 +57,49 @@ export interface BlockFilter {
   docsTeaching?: number;
   player?: PlayerMode;
 }
+
+/** An id (a topic or a concept) with how many distinct blocks of a plan carry it. */
+export interface Count { id: string; count: number }
+
+export interface PlanSummary {
+  id: string;
+  title: string;
+  answers: unknown;
+  provenance: Provenance;
+  /** distinct days in the plan's block rows */
+  days: number;
+  /** the minutes of all the plan's block rows added */
+  minutes: number;
+  /** distinct blocks in the plan's block rows */
+  blocks: number;
+  /** by count, highest first, then id */
+  topics: Count[];
+  concepts: Count[];
+  /** only totals: how many players rated it and the mean of their stars (null when none) */
+  reviews: { count: number; mean: number | null };
+  /** only with `scope.player`: the share of the plan's distinct blocks the player owns (0 when the plan has none), else null */
+  hadShare: number | null;
+}
+
+export interface PlanDetail extends PlanSummary {
+  /** by day, then place */
+  schedule: { day: number; place: number; blockId: string; title: string; minutes: number }[];
+  /** only when asked for */
+  reply?: string;
+}
+
+/** `areas` matches a plan whose `answers.areas` has any of them; `levels` a plan with a block at any of them; `topics` a plan with blocks for every one of them. */
+export interface PlanFilter {
+  areas?: string[];
+  levels?: string[];
+  topics?: string[];
+  model?: string;
+  promptVersion?: number;
+  docsAgents?: number;
+  docsTeaching?: number;
+}
+
+/** Only pairs with at least one visible block. `plans`: visible plans with a block of that topic and level. */
+export interface CoverageRow { topic: string; level: string; blocks: number; plans: number; times: number; seconds: number }
+/** Only concepts with at least one visible block. `plans`: visible plans with a block of that concept. */
+export interface ConceptCoverage { concept: string; blocks: number; plans: number; times: number; seconds: number }
