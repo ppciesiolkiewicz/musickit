@@ -2,10 +2,11 @@
 
 import { ACCOUNT_CHANGED_WORDS, accountHeaders, isAccountChanged } from "../serverAccountStore";
 import type { ReactNode } from "react";
+import Icon from "@/components/Icon";
 /** Shared pieces of the log-in and account screens. */
 
 export const FIELD =
-  "w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none";
+  "w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none aria-[invalid=true]:border-rose-400/70 aria-[invalid=true]:focus:border-rose-300";
 export const LABEL = "mb-1.5 block text-xs font-medium text-slate-400";
 export const PRIMARY =
   "inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:opacity-60";
@@ -14,12 +15,18 @@ export const SECONDARY =
 export const LINK = "font-medium text-sky-300 underline-offset-2 hover:underline";
 
 /** The framed column every one of these screens sits in. */
-export function Card({ children }: { children: ReactNode }) {
-  return <div className="flex w-full max-w-md flex-col gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-5 sm:p-6">{children}</div>;
+export function Card({ children, wide = false }: { children: ReactNode; /** room for a row of plans side by side (setup) */ wide?: boolean }) {
+  return <div className={`flex w-full flex-col gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-5 sm:p-6 ${wide ? "max-w-4xl sm:p-8" : "max-w-md"}`}>{children}</div>;
 }
 
-export function ErrorLine({ children }: { children: ReactNode }) {
-  return children ? <p role="alert" className="text-sm text-rose-300">{children}</p> : null;
+/** A failure in words, with a mark so it doesn't rest on colour alone. `id` lets a field point at it (`aria-describedby`). */
+export function ErrorLine({ children, id }: { children: ReactNode; id?: string }) {
+  return children ? (
+    <p id={id} role="alert" className="flex items-start gap-1.5 text-sm text-rose-300">
+      <Icon name="alert-triangle" size={14} className="mt-[3px] shrink-0" />
+      <span>{children}</span>
+    </p>
+  ) : null;
 }
 
 export function OrLine() {

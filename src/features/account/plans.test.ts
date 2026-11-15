@@ -1,6 +1,14 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { allowanceLabel, bothPricesLabel, canChoose, modelLabel, priceLabel, savingLabel, studentsLabel, trialLabel, yearlyCents, type Plan } from "./plans";
+import { allowanceLabel, bestSavingLabel, bothPricesLabel, canChoose, modelLabel, mostStudents, priceLabel, savingLabel, studentsLabel, trialLabel, yearlyCents, type Plan } from "./plans";
+
+test("the most students a plan on offer takes", () => {
+  const t = (students: number | null, enabled = true) => ({ students, enabled, role: "teacher" as const });
+  const student = { students: 0, enabled: true, role: "student" as const };
+  assert.equal(mostStudents([student, t(15), t(50), t(null, false)]), 50);
+  assert.equal(mostStudents([student, t(15), t(null)]), null);
+  assert.equal(mostStudents([student]), null);
+});
 
 test("plan labels", () => {
   const student = { monthCents: 900, yearCents: 2700 };
@@ -10,6 +18,9 @@ test("plan labels", () => {
   assert.equal(savingLabel(student), "Save 75%");
   assert.equal(savingLabel({ monthCents: 900, yearCents: 7200 }), "Save 33%");
   assert.equal(savingLabel({ monthCents: 900, yearCents: 10800 }), null);
+  assert.equal(bestSavingLabel([{ monthCents: 500, yearCents: 5000 }, { monthCents: 1500, yearCents: 15000 }]), "Save 17%");
+  assert.equal(bestSavingLabel([student, { monthCents: 900, yearCents: 7200 }]), "Save up to 75%");
+  assert.equal(bestSavingLabel([{ monthCents: 900, yearCents: 10800 }]), null);
   assert.equal(yearlyCents(student, "month"), 10800);
   assert.equal(trialLabel({ trialDays: 14 }), "First 14 days free");
   assert.equal(trialLabel({ trialDays: 0 }), null);

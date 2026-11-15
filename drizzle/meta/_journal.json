@@ -120,6 +120,20 @@
       "when": 1794748993303,
       "tag": "0016_blocks_and_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794751006746,
+      "tag": "0017_lower_prices_reuse_first",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794754733605,
+      "tag": "0018_higher_prices_half_off_yearly",
+      "breakpoints": true
     }
   ]
 }

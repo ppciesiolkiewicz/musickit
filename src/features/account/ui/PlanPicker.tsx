@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
-import { allowanceLabel, priceCents, priceLabel, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
-import { ErrorLine, PRIMARY, errorOf, send } from "./parts";
+import { CONTACT_EMAIL, allowanceLabel, bestSavingLabel, mostStudents, priceCents, priceLabel, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
+import { ErrorLine, LINK, PRIMARY, errorOf, send } from "./parts";
 
 export type Loaded = { plans: Plan[]; current: string | null; billing: Billing };
 
@@ -12,7 +13,7 @@ export function PlanLines({ plan, trial: showTrial = true }: { plan: Plan; /** o
   const students = studentsLabel(plan);
   const trial = showTrial ? trialLabel(plan) : null;
   return (
-    <ul className="text-xs text-slate-400">
+    <ul className="flex flex-col gap-0.5 text-xs leading-relaxed text-slate-400">
       {students && <li>{students}</li>}
       <li>{allowanceLabel(plan)}</li>
       {plan.role === "teacher" && <li>Share plans with your students</li>}
@@ -22,41 +23,75 @@ export function PlanLines({ plan, trial: showTrial = true }: { plan: Plan; /** o
   );
 }
 
-/** Monthly or Yearly: how every price below is shown and paid. */
-export function BillingSwitch({ billing, onChange }: { billing: Billing; onChange: (b: Billing) => void }) {
+/** Under the plans, here and on /account/setup: where a teacher with more students than any plan takes writes to us. Nothing when a plan on offer takes any number. */
+export function MoreStudentsLine({ plans }: { plans: Plan[] }) {
+  const most = mostStudents(plans);
+  if (most === null) return null;
   return (
-    <div role="group" aria-label="Billing" className="inline-flex self-start rounded-lg border border-slate-700 p-0.5">
-      {(["month", "year"] as const).map((b) => (
-        <button
-          key={b}
-          type="button"
-          aria-pressed={billing === b}
-          onClick={() => onChange(b)}
-          className={`rounded-md px-3 py-1.5 text-sm transition ${billing === b ? "bg-sky-400/15 font-semibold text-sky-200" : "text-slate-400 hover:text-slate-200"}`}
-        >
-          {b === "month" ? "Monthly" : "Yearly"}
-        </button>
-      ))}
+    <p className="text-xs text-slate-400">
+      More than {most} students? Email <a className={LINK} href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and we&apos;ll set up a plan for you.
+    </p>
+  );
+}
+
+/**
+ * Monthly or Yearly: how every price below is shown and paid. Yearly carries what it saves (`bestSavingLabel`) as a badge
+ * that stays on while Monthly is chosen, so the cheaper way is seen before it is picked.
+ */
+export function BillingSwitch({ billing, plans, onChange }: { billing: Billing; plans: Plan[]; onChange: (b: Billing) => void }) {
+  const saving = bestSavingLabel(plans);
+  return (
+    <div role="group" aria-label="Billing" className="inline-flex self-start rounded-xl border border-slate-700 bg-slate-950/60 p-1">
+      {(["month", "year"] as const).map((b) => {
+        const on = billing === b;
+        return (
+          <button
+            key={b}
+            type="button"
+            aria-pressed={on}
+            onClick={() => onChange(b)}
+            className={`no-chrome inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${on ? "bg-sky-400 text-slate-950 shadow-sm shadow-sky-500/30" : "text-slate-400 hover:bg-slate-800/70 hover:text-slate-100"}`}
+          >
+            {b === "month" ? "Monthly" : "Yearly"}
+            {b === "year" && saving && (
+              <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${on ? "bg-slate-950/20 text-slate-950" : "bg-emerald-500/20 text-emerald-300"}`}>{saving}</span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-/** One plan to pick, as a radio card: its name, its price paid this way, what it gives. */
-export function PlanOption({ plan, billing, checked, mine, trial = true, onPick }: { plan: Plan; billing: Billing; checked: boolean; /** "Your plan" note */ mine?: string | null; trial?: boolean; onPick: () => void }) {
+/**
+ * Each plan's colour, by its place in the list, so a plan looks the same here and on /account. Rose and red are left out:
+ * on these screens they mean an error.
+ */
+const PLAN_HUES: Hue[] = ["sky", "amber", "violet", "emerald", "teal", "pink"];
+export const planHue = (i: number): Hue => PLAN_HUES[i % PLAN_HUES.length];
+
+/**
+ * One plan to pick, as a radio card in its own colour: its name, its price paid this way under it, what it gives. The same
+ * card in setup's row of plans and in /account's column.
+ */
+export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "sky", onPick }: { plan: Plan; billing: Billing; checked: boolean; /** "Your plan" note */ mine?: string | null; trial?: boolean; hue?: Hue; onPick: () => void }) {
   const saving = billing === "year" ? savingLabel(plan) : null;
+  const tone = HUE_TONES[hue];
   return (
-    <label className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition ${checked ? "border-sky-400/60 bg-sky-400/5" : "border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}>
-      <input type="radio" name="plan" value={plan.id} checked={checked} onChange={onPick} className="mt-1 accent-sky-400" />
-      <span className="flex flex-1 flex-col gap-1">
-        <span className="flex flex-wrap items-baseline justify-between gap-2">
-          <span className="text-sm font-semibold text-slate-100">{plan.name}</span>
-          <span className="text-sm text-slate-300">
-            {priceLabel(plan, billing)}
-            {saving && <span className="ml-2 rounded bg-emerald-500/15 px-1.5 py-0.5 text-[11px] text-emerald-300">{saving}</span>}
+    <label className={`relative flex h-full cursor-pointer gap-3 overflow-hidden rounded-xl border p-4 pt-5 transition ${checked ? tone.on : tone.off}`}>
+      <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${tone.fill} ${checked ? "" : "opacity-70"}`} />
+      <input type="radio" name="plan" value={plan.id} checked={checked} onChange={onPick} className={`mt-[3px] size-4 shrink-0 self-start accent-current ${tone.ink}`} />
+      <span className="flex flex-1 flex-col gap-2">
+        <span className="flex flex-col gap-0.5">
+          <span className={`text-base font-semibold ${checked ? "text-slate-50" : tone.ink}`}>{plan.name}</span>
+          <span className="flex flex-wrap items-baseline gap-x-1.5">
+            <span className="text-lg font-semibold text-slate-50">{dollars(priceCents(plan, billing))}</span>
+            <span className="text-xs text-slate-400">a {billing}</span>
           </span>
         </span>
+        {saving && <span className="self-start rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-300">{saving}</span>}
         <PlanLines plan={plan} trial={trial} />
-        {mine && <span className="text-xs font-medium text-sky-300">{mine}</span>}
+        {mine && <span className={`text-xs font-medium ${tone.ink}`}>{mine}</span>}
       </span>
     </label>
   );
@@ -66,13 +101,14 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, onPick 
  * What the chosen plan costs and when, above where the card details will go. A placeholder: nothing is charged during
  * the beta, and there is no payment provider yet.
  */
-export function PaymentBox({ plan, billing, trial }: { plan: Plan; billing: Billing; /** a new account's first plan starts with the free trial; a change doesn't */ trial: boolean }) {
+export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; billing: Billing; /** the chosen plan's colour, for its dot */ hue?: Hue; /** a new account's first plan starts with the free trial; a change doesn't */ trial: boolean }) {
   const price = priceLabel(plan, billing);
   const days = plan.trialDays === 1 ? "1 day" : `${plan.trialDays} days`;
   return (
     <section aria-labelledby="payment-heading" className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
       <h3 id="payment-heading" className="text-sm font-semibold text-slate-200">Payment</h3>
       <p className="text-sm text-slate-300">
+        <span aria-hidden className={`mr-2 inline-block size-2 rounded-full align-middle ${HUE_TONES[hue].fill}`} />
         {plan.name}, {price}.{" "}
         {trial && plan.trialDays > 0 ? `${days} free, then ${dollars(priceCents(plan, billing))} every ${billing}.` : `${dollars(priceCents(plan, billing))} every ${billing}.`}
       </p>
@@ -87,7 +123,8 @@ export function PaymentBox({ plan, billing, trial }: { plan: Plan; billing: Bill
  * The Plan part of /account: the plans the person can choose, the one they are on and how they pay. Picking a plan or the
  * other billing shows what it costs and the payment box; Move to … moves them at once, with no payment during the beta,
  * and reloads the page, since a Teacher plan changes the role every page reads. Leaving a Teacher plan for Student says
- * first that it takes away sharing plans.
+ * first that it takes away sharing plans; a Teacher plan with fewer students says its limit. Both say the students keep
+ * the plans already shared: an invite claimed is a copy in the student's own plans (`claimInvite`).
  */
 export default function PlanPicker({ account }: { account: Account }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -112,6 +149,11 @@ export default function PlanPicker({ account }: { account: Account }) {
   const changes = !!chosen && (chosen.id !== loaded?.current || shownBilling !== loaded?.billing);
   const losesSharing = !!chosen && can(account, "sharePlan") && !can({ ...account, role: roleOnPlan(account.role, chosen) }, "sharePlan");
   const samePlan = chosen?.id === loaded?.current;
+  // a Teacher plan that takes fewer students than the one they're on (null: any number)
+  const currentPlan = loaded?.plans.find((p) => p.id === loaded.current) ?? null;
+  const cap = (p: Plan) => p.students ?? Infinity;
+  const fewerStudents = !!chosen && !!currentPlan && !losesSharing && chosen.role === "teacher" && cap(chosen) < cap(currentPlan);
+  const KEEP = "Students you've already shared plans with keep those plans.";
 
   const move = async () => {
     if (!chosen) return;
@@ -130,12 +172,13 @@ export default function PlanPicker({ account }: { account: Account }) {
       {!loaded && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
       {loaded && (
         <>
-          <BillingSwitch billing={shownBilling} onChange={(b) => { setBilling(b); setError(null); }} />
+          <BillingSwitch billing={shownBilling} plans={loaded.plans} onChange={(b) => { setBilling(b); setError(null); }} />
           <div role="radiogroup" aria-labelledby="plan-heading" className="flex flex-col gap-2">
-            {loaded.plans.map((p) => (
+            {loaded.plans.map((p, i) => (
               <PlanOption
                 key={p.id}
                 plan={p}
+                hue={planHue(i)}
                 billing={shownBilling}
                 checked={p.id === chosenId}
                 mine={p.id === loaded.current ? `Your plan, paid ${loaded.billing === "month" ? "monthly" : "yearly"}` : null}
@@ -144,10 +187,12 @@ export default function PlanPicker({ account }: { account: Account }) {
               />
             ))}
           </div>
+          <MoreStudentsLine plans={loaded.plans} />
           {changes && chosen && (
             <div className="flex flex-col gap-2">
-              <PaymentBox plan={chosen} billing={shownBilling} trial={loaded?.current === null} />
-              {losesSharing && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">On {chosen.name} you won&apos;t be able to share plans with your students.</p>}
+              <PaymentBox plan={chosen} hue={planHue(loaded.plans.indexOf(chosen))} billing={shownBilling} trial={loaded?.current === null} />
+              {losesSharing && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">On {chosen.name} you won&apos;t be able to share plans with your students. {KEEP}</p>}
+              {fewerStudents && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">{chosen.name} takes up to {chosen.students} students. {KEEP}</p>}
               <button type="button" disabled={busy} className={PRIMARY} onClick={() => void move()}>
                 {busy ? "Saving…" : samePlan ? `Pay ${shownBilling === "month" ? "monthly" : "yearly"}` : `Move to ${chosen.name}`}
               </button>

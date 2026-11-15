@@ -16,6 +16,17 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   (the enabled plans, plus the one the person is on even when turned off), `canChoose` (an enabled plan paid either way, or their own plan, even turned off, paid the other way), `roleOnPlan`, `Billing` (`"month" | "year"`) and the labels.
   Every plan can be paid monthly or yearly (migration `0013_yearly_and_monthly`, 2026-11-15): Student $9 a month or $27 a year,
   Teacher Basic $9 or $72, Pro $29 or $232, Unlimited $59 or $472 (a Teacher year is 8 months), each with 14 days free.
+  Now (`0017_lower_prices_reuse_first`, 2026-11-15): Student $2.99 a month or $19 a year, Teacher Basic $5.99 or $48,
+  Pro $14.99 or $120, Unlimited $79.99 or $640. Teacher Basic takes 15 students and Pro 50; Unlimited, any number, is
+  priced well above Pro so that Pro's 50 reads as the one to take.
+  Now (`0018_higher_prices_half_off_yearly`, 2026-11-15): Student $5.99 a month or $36 a year, Teacher Basic $11.99 or $72,
+  Pro $29.99 or $180. A year is half of twelve months on each. Raised so that fewer accounts pay the fixed costs: 26
+  Student accounts paid yearly, where 0017's prices took 50. Teacher Unlimited is deleted from the table (an account on it has no plan and
+  chooses again on `/account/setup`): a price for any number of students read oddly beside Pro's 50, and a teacher with
+  more students gets a plan made for them, a row of its own. In its
+  place `MoreStudentsLine` (`ui/PlanPicker.tsx`), under the plans on `/account/setup` and `/account`: "More than 50
+  students? Email hello@attunr.app and we'll set up a plan for you.", the number from `mostStudents` and the address
+  `CONTACT_EMAIL` (`plans.ts`). It shows nothing while a plan on offer takes any number.
   How a person pays is `users.billing` (accounts from before kept their plan's old period). The old single price,
   `plans.price_cents` and `plans.period`, is still in the table, unused and nullable, for the build before; drop it in a
   later migration. The free trial is shown, not kept: no trial start is stored and nothing ends it.
@@ -26,13 +37,19 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   reuses and none always writes. The plan is for Haiku to decide each autoplan (reuse a library plan that fits, or write a
   new one), held to this share. Migration `0010_lower_prices_more_reuse` lowered the prices on the strength of reuse and sets
   Student at 5 (its price stays $27 a year, `0011_student_stays_27`), Teacher Basic $9 a month at 10, Pro $29 at 15, Unlimited $59 at 25 (`0015_month_prices_99` makes the monthly prices $3.99 Student, $8.99, $28.99 and $58.99; yearly prices stay): about 85 to 90% margin, which
-  needs a library of many pre-written Fable plans. /terms says an autoplan is written new or picked by the AI. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
+  needs a library of many pre-written Fable plans. `0017_lower_prices_reuse_first` about halves every price but Unlimited's and sets every
+  plan to 1 (nearly all reuse, the lowest the check allows): the AI then costs a few cents to about $5 a player a year,
+  and the payment fee is most of the cost (`0018_higher_prices_half_off_yearly` raises the prices and leaves reuse at 1). /terms says an autoplan is written new or picked by the AI. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
 - `ui/SetupForm.tsx` (`/account/setup`): where an account with no plan (`Account.needsSetup`) stays. Its name (empty
   while it is only the email's stand-in, `emailName`; Google's filled in) and a plan from the same list, none chosen for
-  them, paid Monthly or Yearly (the switch above the plans), saved together by `POST /api/account/setup` with
+  them, paid Monthly or Yearly (the switch beside the Plan heading), saved together by `POST /api/account/setup` with
   `{ name, planId, billing }` (`setUpAccount` in `server/auth.ts`: the plan and billing are checked before anything
   changes), then on to the page it was going to. Under the plans, `PaymentBox`: the chosen plan, its price, its free
   trial, and a dashed box where the card details will go. A placeholder: there is no payment provider yet.
+  A Continue that can't go on marks what is missing (a red name field, a red ring round the plans, each with its
+  line) and scrolls the first of them into view and focuses it.
+  The card is wide (`Card wide`): the plans sit side by side and wrap to one column on a phone. Each plan card has its
+  own colour (`planHue`, by its place in the list, the same on `/account`; no rose or red, which mean an error).
 - `ui/PlanPicker.tsx`: the Plan part of `/account` (and `PlanLines`, what a plan gives, shared with the setup page). `GET /api/account/plan` gives `{ plans, current, billing }`. The same Monthly/Yearly switch
   and plan cards as setup; picking another plan, or the other billing, shows `PaymentBox` (no trial line: the trial is for a
   new account) and a Move to … (or Pay monthly / Pay yearly) button, which `POST`s `{ planId, billing }` and moves the person

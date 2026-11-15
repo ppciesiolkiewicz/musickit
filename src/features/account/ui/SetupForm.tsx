@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
-import { BillingSwitch, PaymentBox, PlanOption, type Loaded } from "./PlanPicker";
+import { BillingSwitch, MoreStudentsLine, PaymentBox, PlanOption, planHue, type Loaded } from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
 /**
@@ -12,7 +12,8 @@ import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
  * one step, then on to `next`. A name that is only the email's stand-in (`emailName`) starts empty, to be typed; Google's
  * is filled in to keep or change. No plan is chosen for them; they pick it paid monthly or yearly, and the payment box
  * under it shows what it costs. Nothing is charged during the beta. The page reloads into `next`, since a Teacher plan
- * changes the role every page reads.
+ * changes the role every page reads. A Continue that can't go on brings the first thing to fix into view and focus,
+ * since on a phone the name sits a screen above the button.
  */
 export default function SetupForm({ next }: { next: string }) {
   const { account, loaded: accountLoaded } = useAccount();
@@ -22,7 +23,10 @@ export default function SetupForm({ next }: { next: string }) {
   const [billing, setBilling] = useState<Billing | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [planError, setPlanError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const plansRef = useRef<HTMLFieldSetElement>(null);
 
   useEffect(() => {
     let live = true;
@@ -45,25 +49,44 @@ export default function SetupForm({ next }: { next: string }) {
   const save = async (e: FormEvent) => {
     e.preventDefault();
     const noName = !shown.trim();
+    const noPlan = !chosen && !!plans;
     setNameError(noName ? "Type your name." : null);
-    setError(chosen || !plans ? null : "Choose a plan.");
-    if (noName || !chosen) return;
-    setBusy(true);
+    setPlanError(noPlan ? "Choose a plan." : null);
     setError(null);
+    if (noName) return showName();
+    if (noPlan) return showPlans();
+    if (!chosen) return;
+    setBusy(true);
     const r = await send("/api/account/setup", "POST", { name: shown, planId: chosen, billing: shownBilling });
     if (r.ok) return window.location.assign(next);
     setBusy(false);
-    if (r.body.field === "name") setNameError(errorOf(r));
-    else setError(errorOf(r));
+    if (r.body.field === "name") {
+      setNameError(errorOf(r));
+      showName();
+    } else setError(errorOf(r));
   };
 
+  // the field itself takes focus (a phone keyboard opens on it); the plans are a group, so they are scrolled to and the
+  // first card focused without a jump of its own
+  const showName = () => {
+    nameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    nameRef.current?.focus({ preventScroll: true });
+  };
+  const showPlans = () => {
+    plansRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    plansRef.current?.querySelector<HTMLInputElement>("input[type=radio]")?.focus({ preventScroll: true });
+  };
+  const pick = (id: string) => { setPlanId(id); setPlanError(null); setError(null); };
+
   return (
-    <Card>
-      <form noValidate onSubmit={(e) => void save(e)} className="flex flex-col gap-4">
-        <label>
-          <span className={LABEL}>Your name</span>
+    <Card wide>
+      <form noValidate onSubmit={(e) => void save(e)} className="flex flex-col gap-5">
+        <div className="flex w-full flex-col sm:max-w-sm [&>p]:mt-1.5">
+          <label htmlFor="setup-name" className={LABEL}>Your name</label>
           <input
-            className={FIELD}
+            id="setup-name"
+            ref={nameRef}
+            className={`${FIELD} scroll-mt-24`}
             value={shown}
             onChange={(e) => { setName(e.target.value); setNameError(null); }}
             placeholder={askName ? "First name, or what students call you" : undefined}
@@ -71,24 +94,42 @@ export default function SetupForm({ next }: { next: string }) {
             autoFocus={askName}
             maxLength={80}
             aria-invalid={!!nameError}
+            aria-describedby={nameError ? "setup-name-error" : undefined}
           />
-        </label>
-        <ErrorLine>{nameError}</ErrorLine>
+          <ErrorLine id="setup-name-error">{nameError}</ErrorLine>
+        </div>
 
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-1 text-sm font-semibold text-slate-200">Plan</legend>
-          <p className="text-xs text-slate-500">Free while in beta: choosing a plan doesn&apos;t ask for payment. You can change it later on your account page.</p>
+        <fieldset
+          ref={plansRef}
+          aria-invalid={!!planError}
+          aria-describedby={planError ? "setup-plan-error" : undefined}
+          className="flex scroll-mt-24 flex-col gap-3 border-t border-slate-800 pt-5 metal-rule"
+        >
+          <legend className="sr-only">Plan</legend>
+          {/* the legend's visible twin: a <legend> can't sit in a flex row beside the switch */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div className="flex flex-col gap-1">
+              <span aria-hidden className="text-sm font-semibold text-slate-200">Plan</span>
+              <p className="max-w-md text-xs text-slate-500">Free while in beta: choosing a plan doesn&apos;t ask for payment. You can change it later on your account page.</p>
+            </div>
+            {plans && <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={plans.plans} onChange={(b) => { setBilling(b); setError(null); }} /></div>}
+          </div>
           {!plans && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
-          {plans && <BillingSwitch billing={shownBilling} onChange={(b) => { setBilling(b); setError(null); }} />}
-          {plans?.plans.map((p) => (
-            <PlanOption key={p.id} plan={p} billing={shownBilling} checked={p.id === chosen} trial={plans.current === null} onPick={() => { setPlanId(p.id); setError(null); }} />
-          ))}
+          <ErrorLine id="setup-plan-error">{planError}</ErrorLine>
+          {plans && (
+            <div className={`grid gap-3 rounded-2xl transition sm:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] ${planError ? "ring-1 ring-rose-400/60 ring-offset-4 ring-offset-slate-900" : ""}`}>
+              {plans.plans.map((p, i) => (
+                <PlanOption key={p.id} plan={p} hue={planHue(i)} billing={shownBilling} checked={p.id === chosen} trial={plans.current === null} onPick={() => pick(p.id)} />
+              ))}
+            </div>
+          )}
+          {plans && <MoreStudentsLine plans={plans.plans} />}
         </fieldset>
 
-        {chosenPlan && <PaymentBox plan={chosenPlan} billing={shownBilling} trial={plans?.current === null} />}
+        {chosenPlan && plans && <PaymentBox plan={chosenPlan} hue={planHue(plans.plans.indexOf(chosenPlan))} billing={shownBilling} trial={plans.current === null} />}
 
         <ErrorLine>{error}</ErrorLine>
-        <button type="submit" disabled={busy || !plans} className={PRIMARY}>{busy ? "Saving…" : "Continue"}</button>
+        <button type="submit" disabled={busy || !plans} className={`${PRIMARY} sm:w-auto sm:self-end sm:px-12`}>{busy ? "Saving…" : "Continue"}</button>
       </form>
     </Card>
   );

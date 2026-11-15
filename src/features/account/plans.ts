@@ -10,7 +10,7 @@ import type { Role } from "./model";
  * Every plan uses the same model, `SUBSCRIPTION_MODEL`.
  */
 export interface Plan {
-  /** "student", "teacher-basic", "teacher-pro", "teacher-unlimited". */
+  /** "student", "teacher-basic", "teacher-pro"; a plan made for one teacher with more students gets an id of its own. */
   id: string;
   name: string;
   /** The role the plan gives: choosing a Teacher plan makes a student a teacher. An owner stays an owner. */
@@ -95,6 +95,14 @@ export const savingLabel = (p: Pick<Plan, "monthCents" | "yearCents">): string |
   return pct > 0 ? `Save ${pct}%` : null;
 };
 
+/** On the Yearly switch: "Save 17%" when every plan saves the same, "Save up to 33%" when they differ; null when none saves. */
+export const bestSavingLabel = (plans: Pick<Plan, "monthCents" | "yearCents">[]): string | null => {
+  const pcts = plans.map((p) => Math.round(yearSaving(p) * 100));
+  const best = Math.max(0, ...pcts);
+  if (best === 0) return null;
+  return pcts.every((x) => x === best) ? `Save ${best}%` : `Save up to ${best}%`;
+};
+
 /** "First 14 days free"; null with no trial. */
 export const trialLabel = (p: Pick<Plan, "trialDays">): string | null => (p.trialDays > 0 ? `First ${p.trialDays} days free` : null);
 
@@ -105,6 +113,19 @@ export const allowanceLabel = (p: Pick<Plan, "autoplansPerMonth">): string =>
 /** "Up to 10 students", "Any number of students"; null for a student's own plan. */
 export const studentsLabel = (p: Pick<Plan, "students">): string | null =>
   p.students === null ? "Any number of students" : p.students > 0 ? `Up to ${p.students} students` : null;
+
+/** Where a teacher with more students than any plan takes writes to us. The address on /terms. */
+export const CONTACT_EMAIL = "hello@attunr.app";
+
+/**
+ * The most students a plan on offer takes, for the "More than 50 students?" line under the plans. Null when there is
+ * nothing to say: no Teacher plan on offer, or one that takes any number.
+ */
+export const mostStudents = (plans: Pick<Plan, "students" | "enabled" | "role">[]): number | null => {
+  const offered = plans.filter((p) => p.enabled && p.role === "teacher");
+  if (!offered.length || offered.some((p) => p.students === null)) return null;
+  return Math.max(...offered.map((p) => p.students ?? 0));
+};
 
 /** The model's name as people know it: "claude-sonnet-5-5" → "Sonnet 5.5". */
 export const modelLabel = (id: string): string => {
