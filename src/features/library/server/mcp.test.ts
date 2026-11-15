@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
 import { PLAYER_A, baseFixture } from "./fixture";
-import { DEV_ARGS, devScope, devTools, handleRpc } from "./mcp";
+import { DEV_ARGS, devScope, devTools, handleRpc, localRequest } from "./mcp";
 import type { Deps } from "./query";
 import { memoryLibraryRepo } from "./repo.memory";
 
@@ -119,4 +119,28 @@ test("include_not_enabled shows the example block; a bad player is a tool error"
   assert.ok(r.content[0].text.includes("player"));
   const mine = JSON.parse((await call(d, "find_blocks", { player: PLAYER_A, mine: "had" })).content[0].text) as unknown[];
   assert.equal(mine.length, 4);
+});
+
+test("localRequest accepts this machine only", () => {
+  const ok = (origin: string | null, host: string | null) => localRequest({ origin, host });
+  assert.ok(ok(null, "localhost:3000"));
+  assert.ok(ok(null, "127.0.0.1"));
+  assert.ok(ok(null, "[::1]:3000"));
+  for (const o of ["http://localhost", "http://localhost:3000", "http://127.0.0.1:3000", "http://[::1]:3000"]) assert.ok(ok(o, "localhost:3000"), o);
+  for (const o of ["https://evil.example", "null", "http://localhost.evil.example", "http://evil.example:3000", ""]) assert.ok(!ok(o, "localhost:3000"), o);
+  for (const h of ["evil.example:3000", "localhost.evil.example", "", null]) assert.ok(!ok(null, h), String(h));
+});
+
+test("tools/call with params that are not an object is an invalid-params error", async () => {
+  for (const params of [[], "text", 5]) assert.equal(((await handleRpc(deps(), rpc("tools/call", params))).body as Answer).error?.code, -32602);
+});
+
+test("devScope with arguments that are not an object is an error", async () => {
+  for (const a of [[], "text", 5]) assert.ok("error" in (await devScope(a, deps())));
+  assert.deepEqual(await devScope(null, deps()), { scope: {}, args: {} });
+});
+
+test("include_not_enabled false shows no example block", async () => {
+  const r = await call(deps(), "find_blocks", { include_not_enabled: false });
+  assert.ok(!(JSON.parse(r.content[0].text) as { id: string }[]).some((b) => b.id === "X"));
 });

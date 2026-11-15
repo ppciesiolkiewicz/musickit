@@ -45,6 +45,17 @@ export async function devScope(args: unknown, d: Deps): Promise<{ scope: Scope; 
   return { scope, args: rest };
 }
 
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+const hostName = (hostPort: string) => hostPort.replace(/:\d+$/, "").toLowerCase();
+
+/** A request from this machine: a `Host` of localhost, 127.0.0.1 or [::1], and no `Origin` or a local one. Stops DNS rebinding and cross-site posts. */
+export function localRequest(headers: { origin: string | null; host: string | null }): boolean {
+  if (headers.host === null || !LOCAL_HOSTS.has(hostName(headers.host))) return false;
+  if (headers.origin === null) return true;
+  const m = /^http:\/\/([^/:]+|\[[0-9a-f:]+\])(:\d+)?$/i.exec(headers.origin);
+  return m !== null && LOCAL_HOSTS.has(m[1].toLowerCase());
+}
+
 type Id = string | number | null;
 const reply = (id: Id, result: unknown) => ({ status: 200, body: { jsonrpc: "2.0", id, result } });
 const fail = (id: Id, code: number, message: string) => ({ status: 200, body: { jsonrpc: "2.0", id, error: { code, message } } });
