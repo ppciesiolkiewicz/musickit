@@ -29,10 +29,10 @@ const owns = (player: string, id: SQL): SQL => sql`exists (select 1 from block_o
 
 /**
  * One row per (day timer row, block) where the timer counted seconds on the block: the positive numbers in `spent` of the slots
- * `blocks` maps to that block, added. A row whose `blocks` or `spent` is not an object, and a slot whose `spent` is not a number, adds nothing.
+ * `blocks` maps to that block, added. A row whose `blocks` or `spent` is not an object, a slot mapped to anything but a string, and a slot whose `spent` is not a number add nothing.
  */
 function timed(player?: string): SQL {
-  const who = player !== undefined ? sql`where t.user_id::text = ${player}` : sql``;
+  const who = player !== undefined ? sql`and t.user_id::text = ${player}` : sql``;
   return sql`(
     select s.block_id, sum(s.secs) as seconds
     from (
@@ -40,7 +40,7 @@ function timed(player?: string): SQL {
         case when jsonb_typeof(t.spent) = 'object' and jsonb_typeof(t.spent -> b.key) = 'number' then (t.spent ->> b.key)::float8 end as secs
       from plan_day_times t
       cross join lateral jsonb_each(case when jsonb_typeof(t.blocks) = 'object' then t.blocks else '{}'::jsonb end) b
-      ${who}
+      where jsonb_typeof(b.value) = 'string' ${who}
     ) s
     where s.secs > 0 and s.block_id is not null
     group by s.user_id, s.plan_id, s.day, s.block_id
@@ -60,17 +60,18 @@ const ratingTotals = sql`(
   from progress_entries where block_id is not null group by block_id
 )`;
 
-/** The player's latest rating per block id (latest `at`, bytewise). */
+/** The player's latest rating per block id: latest string `at` (bytewise), an entry without one last, then the lowest exercise id. */
 const latestRating = (player: string): SQL => sql`(
   select distinct on (block_id) block_id,
-    case when entry ->> 'stars' in ('1', '2', '3', '4', '5') then (entry ->> 'stars')::int end as stars, entry ->> 'at' as at
+    case when entry ->> 'stars' in ('1', '2', '3', '4', '5') then (entry ->> 'stars')::int end as stars,
+    case when jsonb_typeof(entry -> 'at') = 'string' then entry ->> 'at' end as at
   from progress_entries
   where block_id is not null and user_id::text = ${player}
-  order by block_id, entry ->> 'at' collate "C" desc
+  order by block_id, (case when jsonb_typeof(entry -> 'at') = 'string' then entry ->> 'at' end) collate "C" desc nulls last, exercise_id collate "C"
 )`;
 
 interface BlockRow {
-  id: string; title: string | null; area: string | null; topic: string | null; concepts: string[]; level: string | null; tags: string[];
+  id: string; title: string; area: string | null; topic: string | null; concepts: string[]; level: string | null; tags: string[];
   model: string | null; prompt_version: number | null; docs_agents: number | null; docs_teaching: number | null;
   content: Block; parent_id: string | null;
   times: number; seconds: number; rated: number; s1: number; s2: number; s3: number; s4: number; s5: number;
@@ -110,7 +111,7 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
     ? sql`left join ${latestRating(p)} l on l.block_id = b.id left join ${timeTotals(p)} m on m.block_id = b.id`
     : sql``;
   return sql`
-    select b.id, b.content ->> 'title' as title, b.area, b.topic, b.concepts, b.level, b.tags,
+    select b.id, (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, b.area, b.topic, b.concepts, b.level, b.tags,
       b.model, b.prompt_version, b.docs_agents, b.docs_teaching, b.content, b.parent_id,
       coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds,
       coalesce(r.rated, 0) as rated, coalesce(r.s1, 0) as s1, coalesce(r.s2, 0) as s2, coalesce(r.s3, 0) as s3, coalesce(r.s4, 0) as s4, coalesce(r.s5, 0) as s5
@@ -125,7 +126,7 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
 
 function summaryOf(scope: Scope, r: BlockRow): BlockSummary {
   return {
-    id: r.id, title: r.title as string, area: r.area, topic: r.topic, concepts: r.concepts, level: r.level, tags: r.tags,
+    id: r.id, title: r.title, area: r.area, topic: r.topic, concepts: r.concepts, level: r.level, tags: r.tags,
     provenance: { model: r.model, promptVersion: r.prompt_version, docsAgents: r.docs_agents, docsTeaching: r.docs_teaching },
     use: { times: r.times, seconds: r.seconds, rated: r.rated, stars: [r.s1, r.s2, r.s3, r.s4, r.s5] },
     ...(scope.player !== undefined ? { mine: { stars: r.my_stars as Stars | null, ratedAt: r.my_at, times: r.my_times, seconds: r.my_seconds } } : {}),
@@ -221,7 +222,7 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
       const [r] = await rows<PlanRow>(planQuery(scope, sql`p.id = ${id} and ${planVisible(scope)}`, sql``));
       if (!r) return null;
       const schedule = await rows<{ day: number; place: number; blockId: string; title: string; minutes: number }>(sql`
-        select ppb.day, ppb.place, ppb.block_id as "blockId", coalesce(b.content ->> 'title', '') as title, ppb.minutes
+        select ppb.day, ppb.place, ppb.block_id as "blockId", (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, ppb.minutes
         from practice_plan_blocks ppb left join blocks b on b.id = ppb.block_id
         where ppb.plan_id = ${id}
         order by ppb.day, ppb.place`);

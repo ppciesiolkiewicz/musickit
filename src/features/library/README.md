@@ -21,6 +21,7 @@ Other players appear only as totals (`use`: times, seconds, ratings by stars). N
 - `repo.memory.ts`: the repo over plain rows, the readable statement of the rules.
 - `fixture.ts`: `LibraryData` (rows shaped like the tables in `src/lib/db/schema.ts`) and `baseFixture()`.
 - `repo.drizzle.ts`: `drizzleLibraryRepo(db)`, the same rules in SQL. Every caller value is a bound parameter; player ids are compared as text, so an id that is not a UUID matches nothing.
+- `testDatabase.ts`: `localTestDatabase(url)`, the guard of the Postgres test script (below).
 - `repoContract.ts`: `libraryRepoContract(make)`, the tests every repo must pass; `repo.memory.test.ts` runs it on the memory repo.
 
 ## Testing against Postgres
@@ -31,6 +32,6 @@ Other players appear only as totals (`use`: times, seconds, ratings by stars). N
 LIBRARY_TEST_DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit_test npm run -s test:library-db
 ```
 
-It refuses any database that is not on `localhost` or `127.0.0.1` with a name ending in `_test`, drops and remakes that database's `public` schema, runs the migrations, and empties the tables before each test. It never reads `.env` or `.env.local`. Create the database once on the local server: `docker exec musickit-db psql -U musickit -d postgres -c "create database musickit_test"`.
+It refuses any database that is not on `localhost` or `127.0.0.1` with a name ending in `_test`, and any address with a query string or hash (postgres.js would take `?host=` from it) (`server/testDatabase.ts`, `localTestDatabase`); it connects by the checked parts only and hands the migrations a URL rebuilt from them. It drops and remakes that database's `public` schema, runs the migrations, and empties the tables before each test. It never reads `.env` or `.env.local`. Create the database once on the local server: `docker exec musickit-db psql -U musickit -d postgres -c "create database musickit_test"`.
 
 Plans have their own gate: enabled for reuse, or `includeNotEnabled`, and `scope.planIds` narrows them. A plan's schedule, counts, topics, concepts and filters come from its `practice_plan_blocks` rows whether or not each block is visible to the caller. `coverage` counts only blocks visible under the scope, and only pairs and concepts with at least one; its `plans` counts visible plans with a block of that topic and level (or concept).

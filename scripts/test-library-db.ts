@@ -4,7 +4,7 @@
  *
  *   LIBRARY_TEST_DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit_test npm run -s test:library-db
  *
- * Only a local database whose name ends in `_test`: it drops and recreates that database's `public` schema, runs the
+ * Only a local database whose name ends in `_test`, with no query string (`localTestDatabase`): it drops and recreates that database's `public` schema, runs the
  * migrations (run from the repo root), and truncates every table before each test. It never reads .env or .env.local. Not part of `npm test`.
  */
 import { execFileSync } from "node:child_process";
@@ -20,19 +20,19 @@ import type { BlockKey } from "../src/features/plan/model/blockId";
 import { libraryRepoContract } from "../src/features/library/server/repoContract";
 import { drizzleLibraryRepo } from "../src/features/library/server/repo.drizzle";
 import { PLAYER_A, type LibraryData } from "../src/features/library/server/fixture";
+import { localTestDatabase } from "../src/features/library/server/testDatabase";
 import { drizzleUserDataRepo } from "../src/features/userData/server/repo.drizzle";
 import type { NewBlock, Provenance } from "../src/features/userData/server/repo";
 
-const url = process.env.LIBRARY_TEST_DATABASE_URL?.trim() ?? "";
-const parsed = URL.canParse(url) ? new URL(url) : null;
-const name = parsed?.pathname.replace(/^\//, "") ?? "";
-if (!parsed || !["localhost", "127.0.0.1"].includes(parsed.hostname) || !name.endsWith("_test")) {
-  console.error("Set LIBRARY_TEST_DATABASE_URL to a local database whose name ends in _test, such as");
+const target = localTestDatabase(process.env.LIBRARY_TEST_DATABASE_URL);
+if (!target) {
+  console.error("Set LIBRARY_TEST_DATABASE_URL to a local database whose name ends in _test, with no query string, such as");
   console.error("postgres://musickit:musickit@localhost:5433/musickit_test (its public schema is dropped and remade).");
   process.exit(1);
 }
-
-const client = postgres(url, { max: 1, prepare: false, connect_timeout: 10, onnotice: () => {} });
+// connect by the checked parts only, never by the raw string
+const { host, port, database, username, password, url } = target;
+const client = postgres({ host, port, database, username, password, max: 1, prepare: false, connect_timeout: 10, onnotice: () => {} });
 const db: Db = drizzle(client, { schema });
 after(() => client.end({ timeout: 5 }));
 

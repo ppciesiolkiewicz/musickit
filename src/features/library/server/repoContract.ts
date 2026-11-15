@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { baseFixture, PLAYER_A as A, PLAYER_B as B, PLAYER_C as C, type LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
 import type { BlockFilter, BlockOrder, PlanFilter, Scope } from "./types";
+import type { Block } from "@/features/plan/model/types";
+import type { ProgressEntry } from "@/features/progress/log";
 
 /** What every `LibraryRepo` must do, run against `make(data)`: the memory repo now, Postgres later. */
 export function libraryRepoContract(make: (data: LibraryData) => Promise<LibraryRepo>): void {
@@ -149,6 +151,46 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       const r = await repo();
       assert.equal((await r.getBlock({}, "S1"))?.mine, undefined);
       assert.ok((await r.listBlocks({}, {}, "newest", 10)).every((b) => b.mine === undefined));
+    });
+  });
+
+  describe("library repo: odd rows", () => {
+    /** A rating of `blockId` by `userId`; `at` left out when undefined. */
+    const rating = (userId: string, exerciseId: string, blockId: string, stars: number, at?: string): LibraryData["progress"][number] => ({
+      userId, exerciseId, blockId,
+      entry: { id: `${userId}-${exerciseId}`, planId: "p-1", exerciseId, day: 0, exercise: 0, title: "t", blockId, stars, ...(at !== undefined ? { at } : {}) } as unknown as ProgressEntry,
+    });
+    test("a rating without a date is older than any dated one", async () => {
+      const d = baseFixture();
+      // e-r0 sorts before A's dated e-r1 and e-r2, so it would win if undated came first or ties went by exercise id alone
+      const r = await make({ ...d, progress: [rating(A, "e-r0", "R", 1), ...d.progress] });
+      const rr = await r.getBlock({ player: A }, "R");
+      assert.deepEqual([rr?.mine?.stars, rr?.mine?.ratedAt], [5, "2026-03-05T10:00:00.000Z"]);
+    });
+    test("two ratings at the same time: the lower exercise id is the latest", async () => {
+      const d = baseFixture();
+      const at = "2026-03-09T10:00:00.000Z";
+      const r = await make({ ...d, progress: [...d.progress, rating(B, "e-t2", "S2", 4, at), rating(B, "e-t1", "S2", 2, at)] });
+      assert.deepEqual((await r.getBlock({ player: B }, "S2"))?.mine?.stars, 2);
+    });
+    test("a timer slot mapped to a number names no block, even one whose id is that number's text", async () => {
+      const d = baseFixture();
+      const seven = { ...d.blocks[0], id: "7" };
+      const r = await make({
+        ...d,
+        blocks: [...d.blocks, seven],
+        owners: [...d.owners, { userId: null, blockId: "7", source: "seed", enabledForReuse: true, createdAt: new Date("2026-01-01T00:00:00Z") }],
+        dayTimes: [...d.dayTimes, { userId: A, planId: "p-n", day: 0, elapsed: 100, spent: { e1: 100 }, blocks: { e1: 7 } }],
+      });
+      const b = await r.getBlock({ player: A }, "7");
+      assert.deepEqual([b?.use.times, b?.use.seconds, b?.mine?.times, b?.mine?.seconds], [0, 0, 0, 0]);
+    });
+    test("a block whose content has no title has the title \"\"", async () => {
+      const d = baseFixture();
+      const r = await make({ ...d, blocks: d.blocks.map((b) => (b.id === "S1" ? { ...b, content: { cells: [] } as unknown as Block } : b)) });
+      assert.equal((await r.getBlock({}, "S1"))?.title, "");
+      assert.equal((await r.listBlocks({}, { level: "beginner" }, "newest", 10)).find((b) => b.id === "S1")?.title, "");
+      assert.equal((await r.getPlan({}, "P1", false))?.schedule[0].title, "");
     });
   });
 

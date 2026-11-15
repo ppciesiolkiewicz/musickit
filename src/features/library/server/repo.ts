@@ -2,7 +2,10 @@ import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, ConceptCoverag
 
 /**
  * Reads the library. Nothing here writes. A block with several owner rows is listed once. Ties in an order break by id, compared
- * bytewise (JS `<`; `collate "C"` in SQL), so "Zed" comes before "alpha". The same holds for plan ids.
+ * bytewise (JS `<`; `collate "C"` in SQL), so "Zed" comes before "alpha". The same holds for plan ids. The player's latest rating
+ * (`mine`, `player: "repeat"`) is the one with the latest string `at`, bytewise; one without an `at` is older than any dated one,
+ * and a tie goes to the lower exercise id. A timer slot counts only when `blocks` maps it to a string block id. A block whose
+ * content has no string title has the title "".
  *
  * Blocks and plans are gated apart. A plan is visible when it is enabled for reuse or the scope has `includeNotEnabled`, and
  * `scope.planIds` narrows plans to those ids. A plan's `schedule`, `blocks`, `days`, `minutes`, `topics`, `concepts`, its filters

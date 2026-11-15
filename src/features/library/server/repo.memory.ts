@@ -44,9 +44,18 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
     return { times: t.length, seconds: sum(t), rated: rows.length, stars };
   };
 
-  const latest = (id: string, player: string): { stars: Stars; at: string } | null => {
-    const rows = ratings(id, player).sort((a, b) => (a.entry.at < b.entry.at ? 1 : a.entry.at > b.entry.at ? -1 : 0));
-    return rows[0] ? { stars: rows[0].entry.stars, at: rows[0].entry.at } : null;
+  /** An entry's `at` when it is a string, else null. */
+  const atOf = (r: LibraryData["progress"][number]): string | null => (typeof r.entry.at === "string" ? r.entry.at : null);
+  const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
+
+  /** The player's latest rating of the block: latest `at` (bytewise), an entry without one last, then the lowest exercise id. */
+  const latest = (id: string, player: string): { stars: Stars; at: string | null } | null => {
+    const rows = ratings(id, player).sort((a, b) => {
+      const x = atOf(a), y = atOf(b);
+      if (x !== y) return x === null ? 1 : y === null ? -1 : cmp(y, x);
+      return cmp(a.exerciseId, b.exerciseId);
+    });
+    return rows[0] ? { stars: rows[0].entry.stars, at: atOf(rows[0]) } : null;
   };
 
   const mine = (id: string, player: string): PlayerBlock => {
@@ -54,8 +63,16 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
     return { stars: l?.stars ?? null, ratedAt: l?.at ?? null, times: t.length, seconds: sum(t) };
   };
 
+  /** The block's title, or "" when its content has none. */
+  const titleOf = (b: Row): string => (typeof b.content.title === "string" ? b.content.title : "");
+
+  const blockTitle = (id: string): string => {
+    const b = data.blocks.find((x) => x.id === id);
+    return b ? titleOf(b) : "";
+  };
+
   const summary = (scope: Scope, b: Row): BlockSummary => ({
-    id: b.id, title: b.content.title, area: b.area, topic: b.topic, concepts: [...b.concepts], level: b.level, tags: [...b.tags],
+    id: b.id, title: titleOf(b), area: b.area, topic: b.topic, concepts: [...b.concepts], level: b.level, tags: [...b.tags],
     provenance: { model: b.model, promptVersion: b.promptVersion, docsAgents: b.docsAgents, docsTeaching: b.docsTeaching },
     use: totals(b.id),
     ...(scope.player !== undefined ? { mine: mine(b.id, scope.player) } : {}),
@@ -162,7 +179,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
       const p = data.plans.find((x) => x.id === id);
       if (!p || !planVisible(scope, p)) return null;
       const schedule = data.planBlocks.filter((r) => r.planId === id).sort((a, b) => a.day - b.day || a.place - b.place)
-        .map((r) => ({ day: r.day, place: r.place, blockId: r.blockId, title: data.blocks.find((b) => b.id === r.blockId)?.content.title ?? "", minutes: r.minutes }));
+        .map((r) => ({ day: r.day, place: r.place, blockId: r.blockId, title: blockTitle(r.blockId), minutes: r.minutes }));
       return { ...planSummary(scope, p), schedule, ...(withReply ? { reply: p.reply } : {}) };
     },
     async coverage(scope) {
