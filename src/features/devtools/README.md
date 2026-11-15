@@ -133,6 +133,16 @@ tracked step's ratings and dates. Nothing is written by
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
 example library, so the diagram changes when they do. It writes nothing.
 
+**Proposed: overlapping steps** (`model/proposal.ts`, `path/ProposalView.tsx`). A second view of the page, a proposal
+for NEW13 that nothing in the app reads. `PROPOSAL` folds today's concepts into tracks (one skill each, often several
+concepts merged, a few new), and every step of a track has its own level. A track is drawn as a bar from the level of
+its first step to the level of its last, its steps in the columns of their levels, so tracks in one topic overlap. A
+step's `after` names steps of other tracks to learn first, as `trackId:n`, drawn as arrows (into another area: listed
+under the diagram). A step with `ladder` ("ladderId:key") is one a ladder in `steps.ts` stands for (blue); the rest are
+amber. Picking a track lists the concepts it replaces with their level today, and its steps. Tests
+(`model/proposal.test.ts`) keep it to the catalogue: every concept in exactly one track, levels never go down, ladder
+steps real and used once, `after` never pointing at a higher level. The student overlay is drawn only on "Today".
+
 ## Library (`/dev/library`)
 
 A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days, reviews), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows what is not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. Code: `library/load.ts` (the loader), `library/params.ts` (address parameters, minutes), `library/LibraryPage.tsx` (tables), `src/app/dev/library`.

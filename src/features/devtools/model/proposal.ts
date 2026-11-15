@@ -1,0 +1,380 @@
+import type { Area } from "@/features/plan/model/concepts";
+import type { Level } from "@/features/plan/model/types";
+
+/*
+ * A proposed learning path with steps that overlap the levels (NEW13 in tasks.txt), drawn on /dev/path under
+ * "Proposed". Today a concept sits at one level; here a track (one skill, often several of today's concepts merged)
+ * runs across the levels its steps reach, and each step has its own level. So tracks in one topic interleave: the
+ * first triads come before CAGED, the last after it. A step may say which steps of other tracks come first (`after`).
+ * Nothing in the app reads this yet: it is a proposal to look at, and the source for moving steps into the plan model.
+ */
+
+export interface ProposedStep {
+  level: Level;
+  name: string;
+  holds: string;
+  /** the ladder step in the code that stands for it, as "ladderId:key" (model/steps.ts LADDERS); none: not implemented */
+  ladder?: string;
+  /** steps of other tracks to learn first, as "trackId:n", n counted from 1 */
+  after?: string[];
+}
+
+export interface Track {
+  id: string;
+  label: string;
+  area: Area;
+  /** the questionnaire topic (intake/topics.ts) */
+  topic: string;
+  /** today's concepts this track takes the place of; empty for a concept that is new */
+  merges: string[];
+  /** easiest first; levels never go down */
+  steps: ProposedStep[];
+}
+
+type Opts = { ladder?: string; after?: string[] };
+const s = (level: Level, name: string, holds = "", o: Opts = {}): ProposedStep => ({ level, name, holds, ...o });
+const N = "new", B = "beginner", I = "intermediate", A = "advanced";
+const track = (area: Area, topic: string, id: string, label: string, merges: string[], steps: ProposedStep[]): Track => ({ id, label, area, topic, merges, steps });
+const g = (topic: string, id: string, label: string, merges: string[], steps: ProposedStep[]) => track("guitar", `guitar-${topic}`, id, label, merges, steps);
+const v = (topic: string, id: string, label: string, merges: string[], steps: ProposedStep[]) => track("voice", `voice-${topic}`, id, label, merges, steps);
+const t = (topic: string, id: string, label: string, merges: string[], steps: ProposedStep[]) => track("theory", `theory-${topic}`, id, label, merges, steps);
+
+export const PROPOSAL: Track[] = [
+  // ---- Guitar
+  g("basic-chords", "open-chords", "Open chords", ["open-chords", "one-minute-changes"], [
+    s(N, "Em, Am", "two-finger and three-finger shapes"),
+    s(N, "E, A, D", ""),
+    s(N, "One-minute changes", "two chords, count the changes"),
+    s(B, "G, C", ""),
+    s(B, "Changes in time", "on the beat at 60"),
+    s(I, "Songs with four chords", "changes on the bar line, no gaps"),
+  ]),
+  g("basic-chords", "strumming", "Strumming", ["strumming-patterns"], [
+    s(N, "Down strums on the beat", ""),
+    s(N, "Down and up in eighths", ""),
+    s(B, "Island strum", "a missed strum in the middle"),
+    s(I, "Sixteenth patterns", ""),
+    s(I, "Muted chucks", "the backbeat on 2 and 4"),
+    s(A, "Fingerpicking pattern", "thumb on the root, fingers on the top strings"),
+  ]),
+  g("basic-chords", "power-chords", "Power chords", ["power-chords"], [
+    s(B, "Root on string 6", "one shape, moved along the string"),
+    s(B, "Root on string 5", "the same shape one string over"),
+    s(I, "Palm-muted riffs", "between both roots, in eighths"),
+  ]),
+  g("barre-chords", "barre", "Barre chords", ["bm-f-barre"], [
+    s(B, "Small F", "four strings, a short barre"),
+    s(B, "Bm", "barre with the root on string 5"),
+    s(I, "Full F", "barre with the root on string 6"),
+    s(I, "Changes to a barre in time", ""),
+    s(A, "Barre shapes anywhere", "major, minor and 7 on both roots"),
+  ]),
+  g("extended-chords", "seventh-shapes", "7th chord shapes", [], [
+    s(B, "Open dominant 7ths", "E7, A7, D7, G7, B7"),
+    s(B, "Open minor and major 7ths", "Am7, Em7, Dm7, Cmaj7, Fmaj7"),
+    s(I, "Barre 7ths", "roots on strings 6 and 5", { after: ["barre:3"] }),
+  ]),
+  g("extended-chords", "sus-add9", "Sus & add9 shapes", ["sus-add9-shapes"], [
+    s(B, "Dsus2, Dsus4", "one finger off or on a D"),
+    s(I, "Asus and Esus", ""),
+    s(I, "Cadd9 and G", "two fingers stay put"),
+    s(A, "Moving sus shapes", "on a barre, up the neck", { after: ["barre:5"] }),
+  ]),
+  g("extended-chords", "shells", "Shells & comping", ["shells-comping"], [
+    s(I, "Shells, root on 6", "root, 3rd, 7th", { after: ["seventh-shapes:3"] }),
+    s(I, "Shells, root on 5", ""),
+    s(A, "9ths and 13ths on top", ""),
+    s(A, "Comping a ii–V–I", "", { after: ["ii-v-i:1"] }),
+  ]),
+  g("caged", "triads", "Triads", ["top-string-triads", "triads-every-set"], [
+    s(B, "Strings 3 2 1", "major triads"),
+    s(B, "Strings 3 2 1", "minor triads"),
+    s(B, "Strings 4 3 2", "major and minor"),
+    s(I, "Strings 5 4 3", "major and minor"),
+    s(I, "Strings 6 5 4", "major and minor"),
+    s(I, "One set up the neck", "the three inversions of one chord, joined"),
+    s(A, "Every set", "one chord across all four sets", { after: ["caged:6"] }),
+    s(A, "Diminished and augmented", ""),
+  ]),
+  g("caged", "caged", "CAGED shapes", ["caged"], [
+    s(I, "E shape", "", { after: ["barre:3"] }),
+    s(I, "A shape", "", { after: ["barre:2"] }),
+    s(I, "C shape", ""),
+    s(I, "G shape", ""),
+    s(A, "D shape", ""),
+    s(A, "One chord in all five", "linked up the neck"),
+    s(A, "Every chord of a key in one area", ""),
+  ]),
+  g("caged", "arpeggios", "Arpeggios", ["arpeggios-position"], [
+    s(I, "In the E shape", "major and minor", { after: ["caged:1"] }),
+    s(I, "In the A shape", "major and minor", { after: ["caged:2"] }),
+    s(A, "7th arpeggios", ""),
+    s(A, "Through all five shapes", "", { after: ["caged:6"] }),
+  ]),
+  g("scales", "notes-on-neck", "Notes on the neck", ["notes-e-a-strings", "find-every-note"], [
+    s(N, "E and A, frets 0 to 5", "natural notes", { ladder: "note-finder:new" }),
+    s(B, "E and A, frets 0 to 12", "natural notes", { ladder: "note-finder:beginner" }),
+    s(I, "Every string, frets 0 to 12", "sharps and flats too", { ladder: "note-finder:intermediate" }),
+    s(A, "Every string, frets 0 to 15", "", { ladder: "note-finder:advanced" }),
+  ]),
+  g("scales", "pentatonic-positions", "Pentatonic positions", ["pentatonic-box-1", "five-pentatonic-boxes", "joining-positions"], [
+    s(B, "Position 1, minor", "from the root on string 6"),
+    s(B, "Position 1, major", "the same shape, the root moved"),
+    s(B, "Position 2", "next to position 1"),
+    s(I, "Joining 1 and 2", "slide between them"),
+    s(I, "Positions 3, 4, 5", ""),
+    s(A, "The whole neck in one key", ""),
+    s(A, "Across three positions", "runs that move along the neck"),
+  ]),
+  g("scales", "major-on-neck", "Major scale & modes on the neck", ["modes-on-neck"], [
+    s(I, "Major scale, root on 6", "one position"),
+    s(I, "Major scale, root on 5", ""),
+    s(A, "Dorian", "", { after: ["modes:1"] }),
+    s(A, "Mixolydian", ""),
+    s(A, "Phrygian", ""),
+    s(A, "Lydian", ""),
+    s(A, "Locrian", ""),
+  ]),
+  g("scales", "guitar-melodies", "Melodies", ["guitar-melodies-new", "guitar-melodies-beginner", "guitar-melodies-intermediate", "guitar-melodies-advanced"], [
+    s(N, "One string", ""),
+    s(B, "Open position", "a few strings"),
+    s(I, "Up the neck", "eighths and dotted notes"),
+    s(A, "Shifting positions", ""),
+    s(A, "Modal tunes", "", { after: ["major-on-neck:3"] }),
+  ]),
+  g("techniques", "spider", "The spider", ["spider"], [
+    s(N, "Fingers 1 2 3 4 from fret 5", "", { ladder: "finger-pattern:new" }),
+    s(B, "Fingers 1 2 3 4 from fret 1", "", { ladder: "finger-pattern:beginner" }),
+    s(I, "Fingers 1 3 2 4", "", { ladder: "finger-pattern:intermediate" }),
+    s(A, "Fingers 1 4 2 3", "", { ladder: "finger-pattern:advanced" }),
+  ]),
+  g("techniques", "picking", "Picking & string skipping", ["string-skipping"], [
+    s(N, "Down strokes", "four notes a string", { ladder: "picking-drill:new" }),
+    s(B, "Down and up", "four notes a string", { ladder: "picking-drill:beginner" }),
+    s(I, "Three notes a string", "", { ladder: "picking-drill:intermediate" }),
+    s(A, "Skipping a string", "two notes a string", { ladder: "picking-drill:advanced" }),
+  ]),
+  g("techniques", "legato", "Hammer-ons & pull-offs", ["hammer-pull"], [
+    s(N, "Fingers 1 and 2", "", { ladder: "legato-trill:new" }),
+    s(B, "Fingers 1 and 3", "", { ladder: "legato-trill:beginner" }),
+    s(I, "Fingers 2 and 3", "", { ladder: "legato-trill:intermediate" }),
+    s(A, "Fingers 3 and 4", "", { ladder: "legato-trill:advanced" }),
+  ]),
+  g("techniques", "bends-slides", "Bends & slides", ["bends-slides"], [
+    s(B, "Slides", "", { after: ["pentatonic-positions:1"] }),
+    s(I, "Half-step bend", "up one fret's pitch"),
+    s(I, "Whole-step bend", "up two frets' pitch"),
+    s(A, "Bends in tune, with vibrato", "", { after: ["legato:3"] }),
+  ]),
+
+  // ---- Voice
+  v("pitch", "pitch", "Pitch", ["matching-a-pitch", "in-tune-over-drone"], [
+    s(N, "Match a note", "in your easy range"),
+    s(N, "Match notes the piano plays", ""),
+    s(B, "Hold Do over a drone", ""),
+    s(B, "Steps over a drone", ""),
+    s(I, "Notes across your range", ""),
+    s(A, "A whole song in tune", ""),
+  ]),
+  v("intervals", "steps-to-leaps", "Steps, skips & leaps", ["do-re-mi-steps", "do-mi-sol-skips", "leaps"], [
+    s(N, "Do Re", "", { ladder: "melody-stages:do-re" }),
+    s(N, "Up to Mi", "", { ladder: "melody-stages:mi" }),
+    s(N, "Up to Fa", "", { ladder: "melody-stages:fa" }),
+    s(N, "Up to Sol", "", { ladder: "melody-stages:sol" }),
+    s(B, "Skips through the chord", "", { ladder: "melody-stages:skips" }),
+    s(B, "Thirds", "Do Mi Re Fa Mi Sol", { ladder: "melody-stages:thirds" }),
+    s(B, "Up to La", "", { ladder: "melody-stages:la" }),
+    s(B, "Up to Ti", "the note that leads home", { ladder: "melody-stages:ti" }),
+    s(B, "The home chord broken", "", { ladder: "melody-stages:arpeggio" }),
+    s(I, "The chords next door", "", { ladder: "melody-stages:chords" }),
+    s(I, "Under Do", "Ti, La, Sol", { ladder: "melody-stages:under" }),
+    s(I, "4ths", "", { ladder: "melody-stages:fourths" }),
+    s(I, "5ths", "", { ladder: "melody-stages:fifths" }),
+    s(A, "6ths", "", { ladder: "melody-stages:sixths" }),
+    s(A, "7ths", "", { ladder: "melody-stages:sevenths" }),
+    s(A, "Octave", "", { ladder: "melody-stages:octave" }),
+    s(A, "10ths", "", { ladder: "melody-stages:tenths" }),
+  ]),
+  v("intervals", "singing-intervals", "Singing intervals from Do", ["singing-intervals"], [
+    s(N, "3rd and 5th", "up", { ladder: "interval-singer:new" }),
+    s(B, "3rd, 5th, octave", "up", { ladder: "interval-singer:beginner", after: ["steps-to-leaps:5"] }),
+    s(I, "4th, 5th, 6th, octave", "up", { ladder: "interval-singer:intermediate" }),
+    s(A, "Every interval", "up and down, Do in a random key", { ladder: "interval-singer:advanced" }),
+  ]),
+  v("melodies", "tunes", "Tunes by ear", ["voice-melodies-easy"], [
+    s(N, "Easy", "from Do, by step", { ladder: "melody-difficulty:Easy" }),
+    s(B, "Medium", "skips, a start off Do", { ladder: "melody-difficulty:Medium" }),
+    s(I, "Hard", "leaps, notes under Do", { ladder: "melody-difficulty:Hard" }),
+    s(A, "Expert", "awkward leaps, dotted rhythms", { ladder: "melody-difficulty:Expert" }),
+  ]),
+  v("melodies", "sight-singing", "Sight-singing", ["sight-singing"], [
+    s(B, "Steps from the staff", "", { after: ["tunes:1"] }),
+    s(I, "Skips from the staff", ""),
+    s(I, "Rhythm from the staff", "eighths and rests"),
+    s(A, "A new tune from the staff", ""),
+  ]),
+  v("melodies", "singing-modes", "Singing the modes", [], [
+    s(I, "Dorian", "over a drone", { after: ["modes:1"] }),
+    s(I, "Mixolydian", ""),
+    s(A, "Phrygian", ""),
+    s(A, "Lydian", ""),
+    s(A, "Locrian", ""),
+  ]),
+  v("breath-range", "breath", "Breath & holding a note", ["breath-holding-note"], [
+    s(N, "Counts 2 to 5", "", { ladder: "farinelli:new" }),
+    s(B, "Counts 3 to 8", "", { ladder: "farinelli:beginner" }),
+    s(I, "Counts 4 to 10", "", { ladder: "farinelli:intermediate" }),
+    s(A, "Counts 4 to 20", "", { ladder: "farinelli:advanced" }),
+  ]),
+  v("breath-range", "range", "Stretching your range", ["stretch-range"], [
+    s(B, "Lip rolls through the middle", ""),
+    s(I, "Slides across the break", ""),
+    s(I, "A few notes higher and lower", ""),
+    s(A, "Top and bottom with ease", ""),
+  ]),
+  v("runs", "runs", "Runs", ["runs", "fast-runs"], [
+    s(B, "Do to Sol and back", "eighths, then sixteenths", { ladder: "run-stages:five" }),
+    s(B, "The home chord, quick", "", { ladder: "run-stages:arpeggio-run" }),
+    s(I, "Turns", "the note above, the note, the note below", { ladder: "run-stages:turns" }),
+    s(I, "Pentatonic runs", "", { ladder: "run-stages:pentatonic-run" }),
+    s(A, "Up to the high Re", "", { ladder: "run-stages:nine" }),
+    s(A, "The whole scale", "in sixteenths", { ladder: "run-stages:octave-run" }),
+    s(A, "Fast", "the runs at a faster tempo"),
+  ]),
+  v("harmony", "harmony-line", "Harmony", ["harmony-line"], [
+    s(N, "Hold your note", "while another one sounds"),
+    s(B, "A 5th under the tune", "held"),
+    s(I, "3rds above a tune", ""),
+    s(I, "A harmony line over chords", ""),
+  ]),
+  v("harmony", "improvise", "Improvising a melody", ["improvise-melody"], [
+    s(I, "Chord tones over one chord", "", { after: ["harmony-line:2"] }),
+    s(A, "Over changing chords", ""),
+    s(A, "Question and answer", "phrases that reply"),
+  ]),
+
+  // ---- Theory & ear
+  t("basics", "beat", "Steady beat & rhythm", ["steady-beat"], [
+    s(N, "Clap on the beat", ""),
+    s(N, "Count 1 2 3 4", ""),
+    s(B, "Eighths", ""),
+    s(I, "Sixteenths and rests", ""),
+    s(A, "Syncopation", ""),
+    s(A, "Metronome on 2 and 4", ""),
+  ]),
+  t("basics", "note-names", "Note names", ["note-names"], [
+    s(N, "A to G", "the seven letters"),
+    s(B, "Sharps and flats", ""),
+    s(I, "Notes on the staff", "treble clef"),
+    s(A, "Name notes quickly", ""),
+  ]),
+  t("ear", "home-and-colour", "Home note & major/minor", ["do-as-home", "major-vs-minor"], [
+    s(N, "Do as home", ""),
+    s(N, "Major or minor chord", ""),
+    s(B, "Major or minor key", ""),
+    s(I, "La as home", "the minor home", { after: ["scales:4"] }),
+  ]),
+  t("ear", "intervals", "Intervals by ear", ["intervals"], [
+    s(N, "5th, octave", "", { ladder: "interval-ears:1" }),
+    s(B, "Major and minor 3rd", "", { ladder: "interval-ears:2" }),
+    s(B, "4th, 2nd", "", { ladder: "interval-ears:3" }),
+    s(I, "Minor 2nd, 6ths", "", { ladder: "interval-ears:4" }),
+    s(A, "7ths, tritone", "all twelve", { ladder: "interval-ears:5" }),
+  ]),
+  t("ear", "hearing-changes", "Hearing chord changes", ["hearing-changes"], [
+    s(B, "When the chord changes", ""),
+    s(I, "1, 4 or 5", "", { after: ["chords-of-a-key:1"] }),
+    s(I, "The 6 too", ""),
+    s(A, "A song's chords by ear", ""),
+  ]),
+  t("scales-keys", "scales", "Scales", ["pentatonic", "major-scale", "natural-minor", "relative-major-minor"], [
+    s(B, "Minor pentatonic", "1 b3 4 5 b7"),
+    s(B, "Major pentatonic", "1 2 3 5 6"),
+    s(B, "Major scale", ""),
+    s(I, "Natural minor", ""),
+    s(I, "Relative major and minor", "same notes, another home"),
+  ]),
+  t("scales-keys", "keys", "Keys & the circle of fifths", ["circle-of-fifths", "changing-key"], [
+    s(B, "One sharp, one flat", "G and F"),
+    s(I, "The sharp keys", "round the circle", { after: ["scales:3"] }),
+    s(I, "The flat keys", ""),
+    s(A, "Moving to a close key", ""),
+    s(A, "Up a step for the last chorus", ""),
+  ]),
+  t("building-chords", "sevenths-up", "7ths up to 13ths", ["seventh-chords", "extended-chords"], [
+    s(B, "Major and minor triads", "1 3 5, 1 b3 5"),
+    s(B, "Dominant 7", "1 3 5 b7"),
+    s(I, "Major 7", "1 3 5 7"),
+    s(I, "Minor 7", "1 b3 5 b7"),
+    s(I, "Half-diminished", "1 b3 b5 b7"),
+    s(A, "9ths", "a 7th chord with the 9"),
+    s(A, "13ths", "a 7th chord with the 13"),
+  ]),
+  t("building-chords", "sus", "Sus & add9", ["sus-chords"], [
+    s(B, "sus4", "1 4 5"),
+    s(I, "sus2", "1 2 5"),
+    s(I, "add9", "1 3 5 9"),
+  ]),
+  t("building-chords", "dim-aug", "Diminished & augmented", ["diminished", "augmented"], [
+    s(I, "Diminished triad", "1 b3 b5"),
+    s(I, "Augmented triad", "1 3 #5"),
+    s(A, "Diminished 7", "1 b3 b5 bb7"),
+  ]),
+  t("progressions", "chords-of-a-key", "Chords of a key", ["chords-in-key"], [
+    s(B, "1, 4, 5", "", { after: ["scales:3"] }),
+    s(B, "The 6", "the relative minor chord"),
+    s(I, "The 2 and 3", ""),
+    s(I, "All seven", ""),
+  ]),
+  t("progressions", "styles", "Chords in styles", ["chords-pop-rock", "chords-folk", "chords-blues", "chords-jazz"], [
+    s(B, "Pop: 1 5 6 4", ""),
+    s(I, "Folk", ""),
+    s(I, "12-bar blues", "", { after: ["sevenths-up:2"] }),
+    s(A, "Jazz standards", "", { after: ["ii-v-i:2"] }),
+  ]),
+  t("progressions", "ii-v-i", "ii–V–I & guide tones", ["ii-v-i", "guide-tones"], [
+    s(I, "ii–V–I in major", "", { after: ["sevenths-up:4"] }),
+    s(A, "ii–V–i in minor", ""),
+    s(A, "Guide tones", "the 3rds and 7ths through the changes"),
+  ]),
+  t("modes", "modes", "Modes", ["modes", "lydian-locrian"], [
+    s(I, "Dorian", "minor with a major 6th", { after: ["scales:3"] }),
+    s(I, "Mixolydian", "major with a b7"),
+    s(A, "Phrygian", "minor with a b2"),
+    s(A, "Lydian", "major with a #4"),
+    s(A, "Locrian", "minor with a b2 and a b5"),
+  ]),
+  t("modes", "minor-colours", "Minor colours", ["harmonic-minor", "melodic-minor"], [
+    s(I, "Harmonic minor", "natural minor with a raised 7th", { after: ["scales:4"] }),
+    s(I, "The 5 chord in minor", "major, from the raised 7th"),
+    s(A, "Melodic minor", "raised 6th and 7th"),
+  ]),
+];
+
+/** A step pointed at by "trackId:n". */
+export function stepAt(ref: string, tracks: Track[] = PROPOSAL): { track: Track; step: ProposedStep; index: number } | undefined {
+  const [id, n] = ref.split(":");
+  const track = tracks.find((x) => x.id === id);
+  const index = Number(n) - 1;
+  return track && track.steps[index] ? { track, step: track.steps[index], index } : undefined;
+}
+
+const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
+export const levelIndex = (level: Level) => LEVELS.indexOf(level);
+
+/** The first and last level a track's steps reach, as indexes 0 to 3. */
+export function spanOf(track: Track): [number, number] {
+  return [levelIndex(track.steps[0].level), levelIndex(track.steps[track.steps.length - 1].level)];
+}
+
+/** Counts for the line above the diagram, over the tracks given. */
+export function proposalStats(tracks: Track[]): { tracks: number; merged: number; added: number; steps: number; fromLadder: number; spanning: number } {
+  return {
+    tracks: tracks.length,
+    merged: tracks.reduce((n, x) => n + x.merges.length, 0),
+    added: tracks.filter((x) => x.merges.length === 0).length,
+    steps: tracks.reduce((n, x) => n + x.steps.length, 0),
+    fromLadder: tracks.reduce((n, x) => n + x.steps.filter((st) => st.ladder).length, 0),
+    spanning: tracks.filter((x) => { const [a, b] = spanOf(x); return b > a; }).length,
+  };
+}

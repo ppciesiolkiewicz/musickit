@@ -11,6 +11,7 @@ import { useProgress } from "@/features/progress/useProgress";
 import { areaPath, chain, gaps, wrap, type PathNode } from "../model/path";
 import { EXAMPLE_STUDENTS, exampleRatings, stepProgress, stepRatings, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
 import type { SpareSteps, Step } from "../model/steps";
+import ProposalView from "./ProposalView";
 
 const LABEL_W = 150, COL_W = 236, NODE_W = 208, NODE_H = 40, GAP = 8, RUNG_H = 32, STEP_H = 12, PAD = 10, HEAD_H = 30;
 const WIDTH = LABEL_W + COL_W * LEVEL_ORDER.length;
@@ -241,6 +242,7 @@ export default function PathView({ nodes: list, spare }: { nodes: PathNode[]; sp
   const [area, setArea] = useState<Area>("guitar");
   const [sel, setSel] = useState<string | null>(null);
   const [who, setWho] = useState("none");
+  const [view, setView] = useState<"today" | "proposed">("today");
   const [today] = useState(() => localDate());
   const { state: { current, history }, loaded: planLoaded } = usePlan();
   const { entries, loaded: entriesLoaded } = useProgress();
@@ -266,6 +268,32 @@ export default function PathView({ nodes: list, spare }: { nodes: PathNode[]; sp
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Which path">
+        {([["today", "Today"], ["proposed", "Proposed: overlapping steps"]] as const).map(([id, label]) => (
+          <button
+            key={id} type="button" aria-pressed={view === id} onClick={() => setView(id)}
+            className={`${BTN} ${view === id ? "border-violet-400 bg-violet-500/20 text-violet-100" : "border-slate-700 text-slate-300 hover:border-slate-400"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {view === "proposed" && (
+        <>
+          <div className="flex flex-wrap items-center gap-2">
+            {AREAS.map((a) => (
+              <button
+                key={a.id} type="button" aria-pressed={a.id === area} onClick={() => pickArea(a.id)}
+                className={`${BTN} ${a.id === area ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-300 hover:border-slate-400"}`}
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+          <ProposalView area={area} nodes={nodes} onArea={pickArea} />
+        </>
+      )}
+      <div hidden={view !== "today"} className="space-y-4">
       <p className="text-sm text-slate-400">
         The path as the code has it: each topic of the first questionnaire is a row, each level a column, and a concept sits where
         its topic and level meet. An arrow runs from a concept to the one that builds on it. Pick a concept to see its whole chain.
@@ -401,6 +429,7 @@ export default function PathView({ nodes: list, spare }: { nodes: PathNode[]; sp
       {selected
         ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} pick={(id, a) => { setArea(a); setSel(id); }} />
         : <p className="text-sm text-slate-500">No concept picked.</p>}
+      </div>
     </div>
   );
 }
