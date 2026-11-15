@@ -78,8 +78,8 @@ development mails nothing: the link is shown on the page and printed in the serv
 reason (`[auth] the log-in email ... was not sent`). An `AUTH_URL` that isn't an http(s) address is ignored. `.env.example` lists the rest
 (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_URL`, `AUTH_FROM_EMAIL`).
 
-`npm run db:wipe` empties a local database (every table and the migration record); `npm run db:migrate` makes the tables
-again. It refuses a database that isn't on localhost unless you pass `-- --yes-really`.
+`npm run db:wipe` deletes every row in a local database: accounts, sessions and saved data. The tables and the
+migration record stay. It refuses a database that isn't on localhost unless you pass `-- --yes-really`.
 
 A changed table: edit `src/lib/db/schema.ts`, then `npm run db:generate` and `npm run db:migrate`. Commit the new file
 in `/drizzle`. Production: set `DATABASE_URL` (and run `db:migrate` against it) before the deploy; the site reads at
