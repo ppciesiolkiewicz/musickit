@@ -3,7 +3,73 @@ Ticket content
 
 New:
 
-NEW3: [NEW 2026-11-15] Selling attunr: what the terms and the home pages now promise but the app can't do yet
+
+NEW7: [NEW 2026-11-15] Autoplans on the server: reuse first, then the right model
+Use brainstorming first (the brainstorming skill), before any spec or code.
+The flow:
+0. Match the request against the seed library in our own code (no AI): a shortlist of library plans that fit the
+   player's answers.
+1. Assess with a cheap model: it can query only that shortlist, through a tool (MCP), and says whether one plan fits.
+   The server sets what "matches" means; the model can't widen the search.
+2. Decide, in the same call: if nothing fits, which writer a new plan needs (cheap writer, or a dearer one for hard plans).
+3. Dispatch to that model to write the plan; store it in the library for the next player.
+To settle in brainstorming:
+- MCP server or plain tool definitions in the API request (MCP pays off if the dev tools and the browser's AI use the
+  same query). Or no tool at all: shortlist summaries in the prompt, plus get_plan(id) only when a summary isn't enough.
+- Each tool call is a round trip that sends the conversation again: cap the calls, and use prompt caching.
+- Which models: the Assess / Write / Hard plans picks on /dev/costs (Other models on OpenRouter) are from price only.
+  Check which support tool calling on OpenRouter, then run the shortlist on our prompts (npm run compare-models).
+- The writer prompt is about 108k tokens, over Haiku 5.5's 100k line, so every plan costs 5x. Getting it under 100k
+  (the library no longer in the prompt) cuts that without changing model.
+- Keep new_plan_percent as the share written new, and record per autoplan what happened (reused, which model wrote it,
+  tokens) so /dev/costs can use real numbers instead of PICK_TOKENS and the chance.
+- Allowances, Batch (half price, results within the hour, up to 24 hours) and what the player sees while a plan is written.
+Then: /dev/costs models assess as one request; add tool calls per assess once the design is set.
+
+NEW6:
+WhatsApp and text message reminders.
+
+NEW5: [NEW 2026-11-15] Account data on the server: what's left after the move (commit 5ca5a409)
+Spec: docs/superpowers/specs/2026-11-15-account-data-on-server-design.md
+Plan: docs/superpowers/plans/2026-11-15-account-data-on-server.md
+Before release (only checkable with the real Vercel Blob store and production):
+- Upload a take and check where the file lands: it must be on <store>.private.blob.vercel-storage.com. If it isn't,
+  every upload is refused and deleted.
+- A WebM with codecs is accepted by the upload token.
+- A shared note's video plays and seeks in a private window (HTTP 206 with content-range).
+- Deleting a video, or an account that has one, removes the file from the store.
+- Apply migrations 0002–0004 on Supabase (through the pooler).
+- On Vercel a stopped share link gives a real 404 (with Deployment Protection on it gives 200 with the notice).
+Smaller issues:
+- A note naming a deleted video gets the "still uploading" line on Share and can't be shared until that video is
+  taken out. Give it its own message, or skip gone videos.
+- A refused load reuses the "Not saved… make your change again" lines, which read off when nothing was changed.
+- Deleting a take whose file uploaded but whose row didn't leaves an orphan file in the Blob store (also a refused
+  upload whose id is taken).
+- A claimer who lost their copy can't get it back once the invite is stopped (the stopped check runs before the copy lookup).
+- A second open /plan tab can overwrite a just-claimed copy (last write wins); reopening the invite brings it back.
+- claimInvite can say ok with a plan id that was trimmed away when the current plan alone is close to 2 MB.
+- Leaving a page right after a plan change: a plan document over 60 KB can't use keepalive, so on mobile the last
+  second of changes can be lost.
+- Queued takes of a deleted account stay in that browser's IndexedDB.
+- Not unit-tested: the upload runner (uploads.ts, serverVideos.ts: 409, file-up retry, fallback), the account,
+  share and claim routes, and routes' 404/413/400 answers.
+- Upload errors: the fallback complete call's words replace the real upload error.
+- My videos: Delete pressed just after the upload picks the take up can bring the video back from the server.
+- SharePopover: a non-JSON answer leaves Share stuck busy.
+- Share links: no length cap on the id before the database lookup; dates shown two ways (locale vs en-GB).
+- Shared-page prefetch skip relies on the Accept header (unverified against real Next prefetch); client navigation to a
+  stopped link answers 200 with the notice.
+- A 409 when completing an upload confirms that another person's video id exists.
+- Share plan shows on the site without a database (answers 503).
+- useLevel's showMore/showLess step from a snapshot taken outside the update.
+- localDocs.ts (local records/about and the course-notes v1→v2 move) has no tests.
+- resolveChordPlacement drops a cell's id; it now runs on every stored load.
+- /dev/data shows only browser data, not a signed-in player's server data.
+- Dev hydration warnings seen (NoControlFocus tabindex, SpotlightButton): check whether they are new.
+- Test accounts from the browser checks (task3@example.com, t13@example.com and others) are in the local database.
+
+NEW3:[NEW 2026-11-15] Selling attunr: what the terms and the home pages now promise but the app can't do yet
 Written today: /terms (src/app/terms/page.tsx), a Pricing section on / and /players, prices in src/features/account/pricing.ts
 ($27 a year, 8 AI autoplans a month or 24 AI notes, every tool unlimited, 30-day money-back, schools by agreement).
 Each line below is a thing the words now say that the code doesn't do. A changed term = raise UPDATED on /terms.
@@ -86,6 +152,12 @@ Like - seeing chords within a scale!
 
 
 ------ DEFER -----
+92. [NEW 2026-11-15] Internationalisation with geolocation
+- Pick the language from the visitor's country (Vercel's x-vercel-ip-country header, read in the proxy), fall back to Accept-Language, and let a language switcher override it (cookie). /pl/..., /de/... routes with hreflang and a per-locale sitemap.
+- Rough size (estimate 2026-11-15): infra 2-3 days (next-intl or own, locale routing, geo, switcher, SEO); moving ~1,600+ hardcoded UI strings out of ~480 .tsx files 1-2 weeks; then about 1 week per language for the teaching text (course ~146 KB, 34 plan examples, glossary, about lines, tours) with AI translation plus a native musician's review. So ~3-4 weeks for the first extra language, ~1 week for each after. Geolocation itself is half a day.
+- Hard parts: note names differ by country (B/H in German and Polish; fixed Do solfège in FR/IT/ES/PT), so the theory code and staff labels need a naming setting, not just translation. The AI plan prompt must write in the player's language and its writing rules (teaching-voice) are English-only. ElevenLabs voiceovers and videos per language. Every later text change then lands in N languages: the teaching skills and DOC_VERSIONS need a per-language story.
+- Start with one language that has players (Polish?) before building for many.
+
 91. Remove sampler and sampler env
 57. Coming soon:
 For online teaching interactive notes are visible on user screen 
@@ -102,6 +174,8 @@ This probably could use some sort of injection mechanism or predefined slots.
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+[DONE] NEW4. The day timer sent the whole plan to the server every 5 seconds
+Done: the timer's seconds now live apart from the plan: a plan_day_times table (one row per player, plan and day: used seconds, and seconds per exercise keyed by exercise id), GET/PUT /api/me/plan/time. A timer save is a few bytes and never reads or writes the plan document; it saves once a minute while running and on pause, tab hide, leaving the day or page, and at zero (small enough for keepalive). elapsed/spent are gone from StoredPlan (old ones are dropped on read, not moved). An exercise changed in the day editor gets a new id, so its old seconds stop counting. Locally the records are under musickit.planTimes; /dev/data reads them there. Migration drizzle/0006_plan_day_times.sql. Checked: types, lint, 495 tests. Not checked in the browser (the dev server's DB calls hung), migration not applied locally.
 [DONE] 22. Hill and lip roll exercises from the old attunr singing app (/theory/singing/warm-ups)
 Done: two new singing tools, also usable in plans. Hill (voice-hill): hold an easy hum, "oo" or "ee" low, in the middle or high in your voice while a ball on a slope or in a valley follows the mic; a ring round the ball fills on the green place, drains slowly off it and waits while you breathe; Play note sounds the edge note. Lip roll (lip-roll): a soft tone slides down, up, as a siren or holds one note, then you lip roll it back while the mic draws your line over its path (green where close). New page "Voice warm-ups" in the Singing menu with a Lip roll and a Hill selector and Your voice. Farinelli was already there (breathwork). Checked on the dev server at desktop width: both start, play and run their rounds. Not checked: the ball and the line with a real voice (no one sang into the mic), and phone width.
 [DONE] Videos in demo notes bigger
