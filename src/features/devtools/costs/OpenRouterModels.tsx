@@ -2,13 +2,37 @@
 
 import { useState } from "react";
 import { PRICING } from "@/features/account/pricing";
-import { BASELINE_ID, OPENROUTER_CHECKED, estimateOpenRouter } from "../model/openRouter";
-import type { PlanTokens } from "../model/unitEconomics";
+import { InfoTip } from "@/components/ui";
+import { BASELINE_ID, OPENROUTER_CHECKED, ROLES, estimateOpenRouter, openRouterCost, type Role } from "../model/openRouter";
+import { PICK_TOKENS, type PlanTokens } from "../model/unitEconomics";
 
 /**
  * "Other models on OpenRouter": what an autoplan would cost on each model in `model/openRouter.ts`, on Haiku 5.5's
  * measured tokens, and what is left of the Student price. A price comparison only: none has been run on the plan prompt.
+ * Models that suit a step of the autoplan recipe (`ROLES`) carry its badge, and a switch shows one step's picks.
  */
+
+const ROLE_STYLE: Record<Role, string> = {
+  assess: "bg-emerald-500/15 text-emerald-300",
+  write: "bg-sky-500/15 text-sky-300",
+  hard: "bg-violet-500/15 text-violet-300",
+};
+
+/** The recipe, behind the (i) by the heading. */
+function Recipe() {
+  return (
+    <>
+      <p className="font-semibold text-slate-100">How an autoplan would be made</p>
+      <ol className="flex list-decimal flex-col gap-1 pl-4">
+        <li><span className="text-slate-100">Match</span> the request against the seed library. No AI.</li>
+        <li><span className="text-slate-100">Assess</span> the matches with a cheap model: does one fit?</li>
+        <li><span className="text-slate-100">Decide</span> which writer a new plan needs, in the same call.</li>
+        <li><span className="text-slate-100">Write</span> on that model: a cheap writer for most, a dearer one for hard plans.</li>
+      </ol>
+      <p className="text-slate-400">The badges are picks from price and what each model is. None has been run on our prompts yet. An assess call is costed at {Math.round(PICK_TOKENS.input / 1000)}k tokens in and {PICK_TOKENS.output} out, as on the sections above.</p>
+    </>
+  );
+}
 
 const usd = (x: number) => {
   const sign = x < 0 ? "−" : "";
@@ -23,10 +47,14 @@ export default function OpenRouterModels({ tokens, fee: provider }: { tokens: Pl
   const price = PRICING.player.priceNumber;
   const fee = (price * provider.percent) / 100 + provider.fixed;
   const email = (365 * 0.4) / 1000;
+  const [role, setRole] = useState<Role | "all">("all");
 
   return (
     <section id="openrouter" className="scroll-mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
-      <h2 className="text-base font-semibold text-slate-100">Other models on OpenRouter</h2>
+      <h2 className="flex items-center gap-2 text-base font-semibold text-slate-100">
+        Other models on OpenRouter
+        <InfoTip label="How an autoplan would be made" align="center"><Recipe /></InfoTip>
+      </h2>
       <p className="mb-4 max-w-3xl text-xs text-slate-400">
         Models to weigh against Haiku 5.5, at OpenRouter&apos;s list prices (checked {OPENROUTER_CHECKED}). None has been run on the plan prompt, so each is costed on Haiku 5.5&apos;s measured tokens{ref ? ` (${k(ref.input)} in, ${k(ref.output)} out a plan)` : ""}: a price comparison, not a quality one. A prompt past a model&apos;s long-prompt line is billed at its dearer price, all of it (in amber when this plan crosses it). Their tokenisers differ, and a reasoning model can write many more output tokens. Left of {usd(price)} takes off the Stripe fee and one email a day. Edit the list in <code className="text-slate-300">src/features/devtools/model/openRouter.ts</code>.
       </p>
@@ -42,12 +70,19 @@ export default function OpenRouterModels({ tokens, fee: provider }: { tokens: Pl
             <input type="range" min={0} max={120} step={1} value={plansPerMonth} onChange={(e) => setPlansPerMonth(Number(e.target.value))} className="w-full accent-sky-400" />
             <span className="text-xs text-slate-500">The Student allowance is {PRICING.player.plansPerMonth}; Teacher plans go to 300.</span>
           </label>
+          <div role="group" aria-label="Show" className="mb-2 inline-flex rounded-md border border-slate-700 p-0.5">
+            {([["all", "All models"], ...Object.entries(ROLES).map(([id, v]) => [id, v.label])] as [Role | "all", string][]).map(([v, text]) => (
+              <button key={v} type="button" aria-pressed={role === v} onClick={() => setRole(v)} className={`rounded px-2 py-1 text-xs ${role === v ? "bg-slate-700 text-slate-50" : "text-slate-400 hover:text-slate-200"}`}>{text}</button>
+            ))}
+          </div>
+          {role !== "all" && <p className="mb-2 text-xs text-slate-400">{ROLES[role].about}</p>}
           <div className="overflow-x-auto">
             <table className="w-full min-w-[48rem] text-right text-sm">
               <thead className="text-xs text-slate-400">
                 <tr className="border-b border-slate-800">
                   <th className="py-2 text-left font-medium">Model</th>
                   <th className="font-medium">$ per M in / out</th>
+                  <th className="font-medium">An assess call</th>
                   <th className="font-medium">An autoplan</th>
                   <th className="font-medium">vs Haiku</th>
                   <th className="font-medium">AI a year</th>
@@ -55,21 +90,24 @@ export default function OpenRouterModels({ tokens, fee: provider }: { tokens: Pl
                 </tr>
               </thead>
               <tbody>
-                {estimateOpenRouter(ref, plansPerMonth).map(({ model: m, perPlan, aiYear, vsBaseline }) => {
+                {estimateOpenRouter(ref, plansPerMonth).filter(({ model: m }) => role === "all" || m.fit?.roles.includes(role)).map(({ model: m, perPlan, aiYear, vsBaseline }) => {
                   const left = price - aiYear - fee - email;
                   const base = m.id === BASELINE_ID;
                   return (
                     <tr key={m.id} className={`border-b border-slate-800/60 align-top text-slate-200 ${base ? "bg-sky-500/5" : ""}`}>
                       <td className="py-2 text-left">
                         <span className="font-semibold">{m.label}</span>
-                        {base && <span className="ml-2 rounded bg-sky-500/15 px-1.5 py-0.5 text-[11px] text-sky-300">in use</span>}
+                        {base && <span className="ml-2 rounded bg-slate-500/20 px-1.5 py-0.5 text-[11px] text-slate-300">in use</span>}
+                        {m.fit?.roles.map((x) => <span key={x} className={`ml-2 rounded px-1.5 py-0.5 text-[11px] ${ROLE_STYLE[x]}`}>{ROLES[x].label}</span>)}
                         <span className="block text-xs text-slate-400">{m.about}</span>
+                        {m.fit && <span className="block text-xs text-slate-300">Pick: {m.fit.why}.</span>}
                         <span className="block font-mono text-xs text-slate-500">{m.id}</span>
                       </td>
                       <td className="py-2 font-mono text-xs text-slate-400">
                         {m.input} / {m.output}
                         {m.long && <span className={`block ${ref.input >= m.long.from ? "text-amber-300" : ""}`}>{m.long.input} / {m.long.output} from {k(m.long.from)}</span>}
                       </td>
+                      <td className={`py-2 ${role === "assess" ? "text-slate-50" : "text-slate-400"}`}>{usd(openRouterCost(m, PICK_TOKENS.input, PICK_TOKENS.output))}</td>
                       <td className="py-2">{usd(perPlan)}</td>
                       <td className={`py-2 ${vsBaseline < 1 ? "text-emerald-300" : vsBaseline > 1 ? "text-amber-300" : "text-slate-400"}`}>{vsBaseline.toFixed(vsBaseline < 1 ? 2 : 1)}×</td>
                       <td className="py-2">{usd(aiYear)}</td>

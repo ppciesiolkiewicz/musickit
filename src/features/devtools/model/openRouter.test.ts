@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { BASELINE_ID, OPENROUTER_MODELS, estimateOpenRouter, openRouterCost } from "./openRouter";
+import { BASELINE_ID, OPENROUTER_MODELS, ROLES, estimateOpenRouter, openRouterCost } from "./openRouter";
 
 const close = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≠ ${b}`);
 
@@ -25,4 +25,9 @@ test("a prompt over the long-prompt line is billed at the dearer price, all of i
   close(openRouterCost(haiku, 108_000, 56_000), (108_000 * 0.5 + 56_000 * 2.5) / 1e6);
   const glm = OPENROUTER_MODELS.find((m) => m.id === "z-ai/glm-5.3-flash")!;
   close(openRouterCost(glm, 108_000, 56_000), (108_000 * 0.04 + 56_000 * 0.078) / 1e6);
+});
+
+test("every step of the recipe has a pick, and every pick says why", () => {
+  for (const role of Object.keys(ROLES)) assert.ok(OPENROUTER_MODELS.some((m) => m.fit?.roles.includes(role as keyof typeof ROLES)), role);
+  for (const m of OPENROUTER_MODELS) if (m.fit) assert.ok(m.fit.roles.length > 0 && m.fit.why.length > 0, m.id);
 });
