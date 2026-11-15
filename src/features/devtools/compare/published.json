@@ -1,0 +1,960 @@
+{
+ "runs": [
+  {
+   "id": "2026-11-15T03-53-20-acz5",
+   "at": "2026-11-15T03:53:20.322Z",
+   "mode": "first",
+   "model": "claude-sonnet-5-5",
+   "ok": true,
+   "title": "Week 1: tune up, first open chords and a loop you can strum",
+   "warnings": 0,
+   "durationMs": 232541,
+   "costUsd": 0.9153749999999999,
+   "usage": {
+    "input": 4,
+    "output": 29763,
+    "cacheRead": 0,
+    "cacheWrite": 69293
+   },
+   "persona": "guitar-new",
+   "chars": 177069,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T03-53-20-m8dv",
+   "at": "2026-11-15T03:53:20.320Z",
+   "mode": "first",
+   "model": "claude-haiku-5-5",
+   "ok": true,
+   "title": "Week 1: your first chords, strumming and the beat",
+   "warnings": 0,
+   "durationMs": 275865,
+   "costUsd": 2.1022515,
+   "usage": {
+    "input": 8,
+    "output": 52834,
+    "cacheRead": 69293,
+    "cacheWrite": 69355
+   },
+   "persona": "guitar-new",
+   "chars": 177069,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T03-59-43-gynv",
+   "at": "2026-11-15T03:59:43.271Z",
+   "mode": "first",
+   "model": "claude-haiku-5-5",
+   "ok": true,
+   "title": "Week 1: pentatonic to major, barre changes, funk and blues",
+   "warnings": 6,
+   "durationMs": 362627,
+   "costUsd": 3.0382700000000007,
+   "usage": {
+    "input": 12,
+    "output": 76234,
+    "cacheRead": 137922,
+    "cacheWrite": 101059
+   },
+   "persona": "guitar-intermediate",
+   "chars": 174076,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T03-59-43-j4kv",
+   "at": "2026-11-15T03:59:43.272Z",
+   "mode": "first",
+   "model": "ollama:huihui_ai/qwen3.5-abliterated:9b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 301708,
+   "persona": "guitar-new",
+   "chars": 177069,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T03-59-43-kqq0",
+   "at": "2026-11-15T03:59:43.270Z",
+   "mode": "first",
+   "model": "claude-sonnet-5-5",
+   "ok": true,
+   "title": "Week 1: smoother changes, a first barre, and pentatonic into the major scale",
+   "warnings": 0,
+   "durationMs": 263600,
+   "costUsd": 0.6234146,
+   "usage": {
+    "input": 4,
+    "output": 36631,
+    "cacheRead": 69282,
+    "cacheWrite": 0
+   },
+   "persona": "guitar-beginner",
+   "chars": 177043,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T03-59-43-pbij",
+   "at": "2026-11-15T03:59:43.268Z",
+   "mode": "first",
+   "model": "claude-haiku-5-5",
+   "ok": true,
+   "title": "Week 1: spider, first changes, the Bm barre, and the major scale from your penta",
+   "warnings": 0,
+   "durationMs": 290053,
+   "costUsd": 1.5951910000000002,
+   "usage": {
+    "input": 8,
+    "output": 58907,
+    "cacheRead": 138626,
+    "cacheWrite": 0
+   },
+   "persona": "guitar-beginner",
+   "chars": 177043,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-04-07-z8j0",
+   "at": "2026-11-15T04:04:07.024Z",
+   "mode": "first",
+   "model": "claude-sonnet-5-5",
+   "ok": true,
+   "title": "Week 1: blues chords, joined positions and the shapes of CAGED",
+   "warnings": 0,
+   "durationMs": 297354,
+   "costUsd": 1.0642760000000002,
+   "usage": {
+    "input": 4,
+    "output": 39859,
+    "cacheRead": 0,
+    "cacheWrite": 68930
+   },
+   "persona": "guitar-intermediate",
+   "chars": 174076,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-2kk5",
+   "at": "2026-11-15T04:05:06.797Z",
+   "mode": "first",
+   "model": "ollama:huihui_ai/qwen3.5-abliterated:9b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 3,
+   "persona": "voice-intermediate",
+   "chars": 176763,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-32np",
+   "at": "2026-11-15T04:05:06.766Z",
+   "mode": "first",
+   "model": "ollama:llama3.2:latest",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 8,
+   "persona": "guitar-advanced",
+   "chars": 193210,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-55b1",
+   "at": "2026-11-15T04:05:06.702Z",
+   "mode": "first",
+   "model": "ollama:llama3.1:8b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 8,
+   "persona": "guitar-beginner",
+   "chars": 177043,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-5z2m",
+   "at": "2026-11-15T04:05:06.777Z",
+   "mode": "first",
+   "model": "ollama:llama3.1:8b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 4,
+   "persona": "guitar-advanced",
+   "chars": 193210,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-6gpz",
+   "at": "2026-11-15T04:05:06.682Z",
+   "mode": "first",
+   "model": "ollama:huihui_ai/qwen3.5-abliterated:9b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 7,
+   "persona": "guitar-beginner",
+   "chars": 177043,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-9lxk",
+   "at": "2026-11-15T04:05:06.818Z",
+   "mode": "first",
+   "model": "ollama:huihui_ai/qwen3.5-abliterated:9b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 5,
+   "persona": "theory-only",
+   "chars": 173604,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-alsj",
+   "at": "2026-11-15T04:05:06.792Z",
+   "mode": "first",
+   "model": "ollama:llama3.1:8b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 4,
+   "persona": "voice-beginner",
+   "chars": 169532,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-f2hf",
+   "at": "2026-11-15T04:05:06.824Z",
+   "mode": "first",
+   "model": "ollama:llama3.2:latest",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 7,
+   "persona": "theory-only",
+   "chars": 173604,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-gh6a",
+   "at": "2026-11-15T04:05:06.789Z",
+   "mode": "first",
+   "model": "ollama:llama3.2:latest",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 2,
+   "persona": "voice-beginner",
+   "chars": 169532,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-i65s",
+   "at": "2026-11-15T04:05:06.757Z",
+   "mode": "first",
+   "model": "ollama:huihui_ai/qwen3.5-abliterated:9b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 6,
+   "persona": "guitar-advanced",
+   "chars": 193210,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-mhhp",
+   "at": "2026-11-15T04:05:06.728Z",
+   "mode": "first",
+   "model": "ollama:llama3.1:8b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 3,
+   "persona": "guitar-intermediate",
+   "chars": 174076,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-nroc",
+   "at": "2026-11-15T04:05:06.782Z",
+   "mode": "first",
+   "model": "ollama:huihui_ai/qwen3.5-abliterated:9b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 6,
+   "persona": "voice-beginner",
+   "chars": 169532,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-qwax",
+   "at": "2026-11-15T04:05:06.691Z",
+   "mode": "first",
+   "model": "ollama:llama3.2:latest",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 8,
+   "persona": "guitar-beginner",
+   "chars": 177043,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-sgqf",
+   "at": "2026-11-15T04:05:06.714Z",
+   "mode": "first",
+   "model": "ollama:huihui_ai/qwen3.5-abliterated:9b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 5,
+   "persona": "guitar-intermediate",
+   "chars": 174076,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-vmx8",
+   "at": "2026-11-15T04:05:06.833Z",
+   "mode": "first",
+   "model": "ollama:llama3.1:8b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 5,
+   "persona": "theory-only",
+   "chars": 173604,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-wen7",
+   "at": "2026-11-15T04:05:06.801Z",
+   "mode": "first",
+   "model": "ollama:llama3.2:latest",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 6,
+   "persona": "voice-intermediate",
+   "chars": 176763,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-z78t",
+   "at": "2026-11-15T04:05:06.721Z",
+   "mode": "first",
+   "model": "ollama:llama3.2:latest",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 6,
+   "persona": "guitar-intermediate",
+   "chars": 174076,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-05-06-zvj5",
+   "at": "2026-11-15T04:05:06.808Z",
+   "mode": "first",
+   "model": "ollama:llama3.1:8b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 5,
+   "persona": "voice-intermediate",
+   "chars": 176763,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-11-57-ehcm",
+   "at": "2026-11-15T04:11:57.325Z",
+   "mode": "first",
+   "model": "ollama:llama3.1:8b",
+   "ok": false,
+   "error": "Ollama not reachable at http://localhost:11434: fetch failed",
+   "durationMs": 865357,
+   "persona": "guitar-new",
+   "chars": 177069,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-24-04-f55v",
+   "at": "2026-11-15T04:24:04.157Z",
+   "mode": "first",
+   "model": "claude-sonnet-5-5",
+   "ok": true,
+   "title": "Week 1: from Do Mi Sol to the 4th, 5th, 6th and octave",
+   "warnings": 3,
+   "durationMs": 517824,
+   "costUsd": 1.153893,
+   "usage": {
+    "input": 4,
+    "output": 45833,
+    "cacheRead": 0,
+    "cacheWrite": 68933
+   },
+   "persona": "voice-intermediate",
+   "chars": 176763,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-24-04-ll5h",
+   "at": "2026-11-15T04:24:04.116Z",
+   "mode": "first",
+   "model": "claude-sonnet-5-5",
+   "ok": true,
+   "title": "Week 1: Steady breath, steady notes",
+   "warnings": 3,
+   "durationMs": 379774,
+   "costUsd": 0.822262,
+   "usage": {
+    "input": 4,
+    "output": 25003,
+    "cacheRead": 0,
+    "cacheWrite": 66090
+   },
+   "persona": "voice-beginner",
+   "chars": 169532,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-32-42-emcp",
+   "at": "2026-11-15T04:32:42.365Z",
+   "mode": "first",
+   "model": "claude-sonnet-5-5",
+   "ok": true,
+   "title": "Week 1: hear the 3rd and the 1, 4, 5 chords",
+   "warnings": 0,
+   "durationMs": 160539,
+   "costUsd": 0.8133980000000001,
+   "usage": {
+    "input": 4,
+    "output": 23216,
+    "cacheRead": 0,
+    "cacheWrite": 68746
+   },
+   "persona": "theory-only",
+   "chars": 173604,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-36-48-h38x",
+   "at": "2026-11-15T04:36:48.237Z",
+   "mode": "first",
+   "model": "claude-haiku-5-5",
+   "ok": true,
+   "title": "Week 1: Do, Re, and one step at a time",
+   "warnings": 1,
+   "durationMs": 273879,
+   "costUsd": 1.6326999999999998,
+   "usage": {
+    "input": 4,
+    "output": 61959,
+    "cacheRead": 66090,
+    "cacheWrite": 0
+   },
+   "persona": "voice-beginner",
+   "chars": 169532,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-43-06-pnlr",
+   "at": "2026-11-15T04:43:06.966Z",
+   "mode": "first",
+   "model": "claude-opus-5-5",
+   "ok": true,
+   "title": "Week 1: your first chords, in time",
+   "warnings": 0,
+   "durationMs": 180134,
+   "costUsd": 0.9067398,
+   "usage": {
+    "input": 2,
+    "output": 17105,
+    "cacheRead": 0,
+    "cacheWrite": 69699
+   },
+   "persona": "guitar-new",
+   "chars": 177069,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-43-07-gy85",
+   "at": "2026-11-15T04:43:07.021Z",
+   "mode": "first",
+   "model": "claude-opus-5-5",
+   "ok": true,
+   "title": "Week 1: smoother changes, power chords and your first barre",
+   "warnings": 0,
+   "durationMs": 223037,
+   "costUsd": 1.0369312,
+   "usage": {
+    "input": 2,
+    "output": 23619,
+    "cacheRead": 0,
+    "cacheWrite": 69688
+   },
+   "persona": "guitar-beginner",
+   "chars": 177043,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-43-07-xqtd",
+   "at": "2026-11-15T04:43:07.058Z",
+   "mode": "first",
+   "model": "claude-opus-5-5",
+   "ok": true,
+   "title": "Week 1: the dominant 7th, from blues to funk",
+   "warnings": 0,
+   "durationMs": 342087,
+   "costUsd": 1.286778,
+   "usage": {
+    "input": 2,
+    "output": 36254,
+    "cacheRead": 0,
+    "cacheWrite": 69336
+   },
+   "persona": "guitar-intermediate",
+   "chars": 174076,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-46-07-2oa0",
+   "at": "2026-11-15T04:46:07.121Z",
+   "mode": "first",
+   "model": "claude-haiku-5-5",
+   "ok": true,
+   "title": "Drop 2 and the moving 3rd and 7th: ii-V-I in C and F",
+   "warnings": 0,
+   "durationMs": 218641,
+   "costUsd": 0.0489942,
+   "usage": {
+    "input": 2,
+    "output": 51702,
+    "cacheRead": 0,
+    "cacheWrite": 76907
+   },
+   "persona": "guitar-advanced",
+   "chars": 193210,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-46-50-9qpx",
+   "at": "2026-11-15T04:46:50.079Z",
+   "mode": "first",
+   "model": "claude-sonnet-5-5",
+   "ok": true,
+   "title": "Week 1: drop voicings for ii–V–I comping",
+   "warnings": 0,
+   "durationMs": 356276,
+   "costUsd": 0.8656601,
+   "usage": {
+    "input": 2,
+    "output": 55035,
+    "cacheRead": 0,
+    "cacheWrite": 76886
+   },
+   "persona": "guitar-advanced",
+   "chars": 193210,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-49-45-ay36",
+   "at": "2026-11-15T04:49:45.975Z",
+   "mode": "first",
+   "model": "claude-opus-5-5",
+   "ok": true,
+   "title": "Week 1: from Do Re Mi to Do Mi Sol, on a steady breath",
+   "warnings": 12,
+   "durationMs": 154276,
+   "costUsd": 0.885934,
+   "usage": {
+    "input": 2,
+    "output": 17362,
+    "cacheRead": 0,
+    "cacheWrite": 66496
+   },
+   "persona": "voice-beginner",
+   "chars": 169532,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-52-20-ijcl",
+   "at": "2026-11-15T04:52:20.290Z",
+   "mode": "first",
+   "model": "claude-haiku-5-5",
+   "ok": true,
+   "title": "Week 1: leaps from Do, up and down",
+   "warnings": 2,
+   "durationMs": 182052,
+   "costUsd": 0.043227299999999996,
+   "usage": {
+    "input": 2,
+    "output": 44697,
+    "cacheRead": 0,
+    "cacheWrite": 69364
+   },
+   "persona": "voice-intermediate",
+   "chars": 176763,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-52-46-yg7g",
+   "at": "2026-11-15T04:52:46.395Z",
+   "mode": "first",
+   "model": "claude-opus-5-5",
+   "ok": true,
+   "title": "Week 1: from Do Mi Sol to leaps, runs and a harmony line",
+   "warnings": 6,
+   "durationMs": 237252,
+   "costUsd": 1.0993053,
+   "usage": {
+    "input": 2,
+    "output": 26879,
+    "cacheRead": 0,
+    "cacheWrite": 69339
+   },
+   "persona": "voice-intermediate",
+   "chars": 176763,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-55-22-n2ri",
+   "at": "2026-11-15T04:55:22.378Z",
+   "mode": "first",
+   "model": "claude-haiku-5-5",
+   "ok": true,
+   "title": "Week 1: home, major and minor, and the chords of a key",
+   "warnings": 0,
+   "durationMs": 103503,
+   "costUsd": 0.032982700000000004,
+   "usage": {
+    "input": 2,
+    "output": 24327,
+    "cacheRead": 0,
+    "cacheWrite": 69177
+   },
+   "persona": "theory-only",
+   "chars": 173604,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-56-43-jvru",
+   "at": "2026-11-15T04:56:43.689Z",
+   "mode": "first",
+   "model": "claude-opus-5-5",
+   "ok": true,
+   "title": "Week 1: The chords of a key, by ear",
+   "warnings": 2,
+   "durationMs": 104447,
+   "costUsd": 0.7787111000000001,
+   "usage": {
+    "input": 2,
+    "output": 10925,
+    "cacheRead": 0,
+    "cacheWrite": 69152
+   },
+   "persona": "theory-only",
+   "chars": 173604,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T04-58-37-z9ao",
+   "at": "2026-11-15T04:58:37.742Z",
+   "mode": "first",
+   "model": "claude-opus-5-5",
+   "ok": true,
+   "title": "Week 1: ii–V–I with drop voicings",
+   "warnings": 0,
+   "durationMs": 439646,
+   "costUsd": 1.0647435,
+   "usage": {
+    "input": 2,
+    "output": 52080,
+    "cacheRead": 76882,
+    "cacheWrite": 0
+   },
+   "persona": "guitar-advanced",
+   "chars": 193210,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T05-15-31-cdz5",
+   "at": "2026-11-15T05:15:31.512Z",
+   "mode": "first",
+   "model": "ollama:llama3.2:latest",
+   "ok": false,
+   "error": "timed out after 30 minutes",
+   "durationMs": 2546368,
+   "persona": "guitar-new",
+   "chars": 177069,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T06-45-08-67iu",
+   "at": "2026-11-15T06:45:08.806Z",
+   "mode": "first",
+   "model": "claude-fable-5-2",
+   "ok": true,
+   "title": "Week 1: fast runs, rich chords",
+   "warnings": 6,
+   "durationMs": 489257,
+   "costUsd": 3.4518470000000003,
+   "usage": {
+    "input": 2,
+    "output": 55279,
+    "cacheRead": 0,
+    "cacheWrite": 77056
+   },
+   "persona": "voice-guitar-advanced",
+   "chars": 193641,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T06-45-08-bocy",
+   "at": "2026-11-15T06:45:08.809Z",
+   "mode": "first",
+   "model": "claude-sonnet-5-5",
+   "ok": true,
+   "title": "Week 1: fast runs and richer chords",
+   "warnings": 7,
+   "durationMs": 305264,
+   "costUsd": 0.792829,
+   "usage": {
+    "input": 2,
+    "output": 47681,
+    "cacheRead": 0,
+    "cacheWrite": 77060
+   },
+   "persona": "voice-guitar-advanced",
+   "chars": 193641,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T06-45-08-j0c9",
+   "at": "2026-11-15T06:45:08.810Z",
+   "mode": "first",
+   "model": "claude-haiku-5-5",
+   "ok": true,
+   "title": "Week 1: fast runs over richer chords",
+   "warnings": 15,
+   "durationMs": 516477,
+   "costUsd": 0.10082069999999999,
+   "usage": {
+    "input": 4,
+    "output": 124401,
+    "cacheRead": 0,
+    "cacheWrite": 154224
+   },
+   "persona": "voice-guitar-advanced",
+   "chars": 193641,
+   "edited": []
+  },
+  {
+   "id": "2026-11-15T06-45-08-qws7",
+   "at": "2026-11-15T06:45:08.808Z",
+   "mode": "first",
+   "model": "claude-opus-5-5",
+   "ok": true,
+   "title": "Week 1: fast runs, richer chords",
+   "warnings": 5,
+   "durationMs": 359613,
+   "costUsd": 1.4230310000000002,
+   "usage": {
+    "input": 2,
+    "output": 39940,
+    "cacheRead": 0,
+    "cacheWrite": 77056
+   },
+   "persona": "voice-guitar-advanced",
+   "chars": 193641,
+   "edited": []
+  }
+ ],
+ "assessments": [
+  {
+   "candidateId": "2026-11-15T06-45-08-bocy",
+   "referenceId": "2026-11-15T06-45-08-67iu",
+   "persona": "voice-guitar-advanced",
+   "at": "2026-11-15T06:53:53.400Z",
+   "judge": "claude-fable-5-2",
+   "durationMs": 86995,
+   "usage": {
+    "input": 2,
+    "output": 8327,
+    "cacheRead": 0,
+    "cacheWrite": 134287
+   },
+   "verdict": {
+    "score": 6,
+    "summary": "The candidate is a followable, mostly accurate plan, but it is clearly behind the reference on the player's two goals. Fast vocal runs are never built from slow to fast: the same expert run-singer blocks recur on days 1, 3, 5 and 7 with no tempo ladder, where the reference stages sixteenths on a click and aims runs at chords. The \"richer chords\" work is mostly sus/add9 and 7ths the player already uses, with only one 9th chord and no real shells, and there are a few rule breaks and text/tool mismatches.",
+    "criteria": [
+     {
+      "id": "fit",
+      "score": 3,
+      "note": "Baritone voice and 45 minutes a day are respected, but much time goes to things the player already does (the sus/add9 strum on Days 1 and 5, picking, trill and finger drills every day), the unanswered ear topic jumps straight to advanced on Day 2, and the runs skip the slow-to-fast bridge the player asked for."
+     },
+     {
+      "id": "week",
+      "score": 3,
+      "note": "The G turnaround ties the days together and Day 7 revisits Day 1, but the key skill returns in the same form each time (three run-singer blocks), Day 5 exercise 4 nearly repeats Day 1 exercise 4, and Day 5 ends on an ear quiz rather than something musical."
+     },
+     {
+      "id": "music",
+      "score": 4,
+      "note": "Chord 3rds, guide-tone lines, the D-to-E bend and the solo targets all check out; the slips are the false \"small steps\" claim on Day 1 exercise 5 and \"Shells\" on Day 4 that are full barre chords."
+     },
+     {
+      "id": "tools",
+      "score": 3,
+      "note": "Tools are mostly valid and well chosen (turnaround four ways, triads on three string sets, solo-over targets), but two 6-minute single blocks break the rule, there is no staff-with-click ladder for the runs, and several highlights or settings disagree with the text."
+     },
+     {
+      "id": "text",
+      "score": 3,
+      "note": "Plain and in the app's voice, but thinner than the reference: several run-singer steps omit the run's range, the hard-leaps block names no leaps and gives no way to find them, and some lines contradict their tool or themselves."
+     }
+    ],
+    "stronger": [
+     "Day 2 exercise 4 works one progression four ways in a single exercise (heard as arpeggios, shapes, sixteenth strum, comping over drums and bass), as the prompt's progression rule asks.",
+     "Day 6 exercise 4 puts the turnaround's triads on three string sets and then uses them as solo targets; the reference covers only two sets and never solos on them.",
+     "Guitar speed and bends get direct work (Day 3 exercise 2, A Dorian in staged sixteenths with a crossing; Day 3 exercise 4, bend to pitch over a drone), so the Scales and Techniques topics are touched where the reference leaves them out.",
+     "The sung turnaround line returns in new keys (G on Day 1, A on Day 6, A and D on Day 7), a clear transposition thread.",
+     "The parser found no sing-and-play clash in the candidate, where it flagged one in the reference (Day 6 exercise 4)."
+    ],
+    "weaker": [
+     "Vocal runs have no tempo progression: Day 1 exercise 3 goes straight to three expert run-singers under the title \"slow and clean\", and Days 3, 5 and 7 repeat the format, while the reference ladders two then four notes per beat on a click from 54 to 80.",
+     "Richer chords are thin: D9 is the only 9th chord all week, there are no Am9/Dm9/G9 and no second key for the comping, and Days 1 and 5 spend 24 minutes on sus/add9 eighth-note strums the player already uses in songs.",
+     "Day 4 exercise 4 promises shells but gives single guide tones and then full barre shapes; the reference plays real root-3rd-7th grips and turns them into fills between sung lines.",
+     "Day 7's review (exercise 3) is the identical three run-singers from Day 1 with nothing measurable changed; the reference restarts the run at the tempo where Day 1 ended.",
+     "Day 2 exercise 5's hard-leaps block is a bare level-advanced interval-singer with no named leaps and no neighbour-note method, unlike the reference's 7ths-from-high-Do and either-side-of-Sol blocks.",
+     "About 10 minutes most days go to generic technique warm-ups (picking, trills, finger pattern) that serve neither stated goal directly, crowding out chord-aware run work."
+    ],
+    "mistakes": [
+     "Day 2 exercise 2 and Day 6 exercise 2: each is one 6-minute section, breaking the rule that an exercise over 5 minutes has two or more timed blocks (the parser flagged both).",
+     "Day 1 exercise 5, section 1: the text says the line of 3rds \"moves by small steps\", but 3-1-4-7 (B, G, C, F♯) moves by a third, a fourth and a tritone.",
+     "Day 4 exercise 4: titled \"Shells\" yet no shell grip appears; the chord-shapes are full barre Am7, D9 and Gmaj7, and the tab section uses D7 while the grips and strum use D9.",
+     "Day 2 exercise 1, low hold: the text says to hum the note but the voice-hill is set to \"oo\".",
+     "Day 7 exercise 5, section 2: the text asks for a run into each chord's 3rd (degrees 3, 1, 4, 7) but the staff rings only 2 and 3; the progress note also claims the Dorian work aims at the 6th, which no exercise rings or names.",
+     "Run-singer steps omit the run's range, which the prompt requires: Day 1 exercise 3 (nine-note), Day 3 exercise 3 (turn), Day 5 exercise 3 (both runs) and Day 7 exercise 3 (the last two)."
+    ]
+   }
+  },
+  {
+   "candidateId": "2026-11-15T06-45-08-j0c9",
+   "referenceId": "2026-11-15T06-45-08-67iu",
+   "persona": "voice-guitar-advanced",
+   "at": "2026-11-15T06:53:53.400Z",
+   "judge": "claude-fable-5-2",
+   "durationMs": 66851,
+   "usage": {
+    "input": 2,
+    "output": 6572,
+    "cacheRead": 0,
+    "cacheWrite": 124425
+   },
+   "verdict": {
+    "score": 4,
+    "summary": "The candidate is followable but clearly behind the reference. Its core skill, fast runs, is only ever a run-singer with the metronome switched off or on, and many of its picks resolve to the same run 117 while the text calls them turns, the nine-note run or the octave run. The guitar time goes mostly to things this player already does (joining pentatonic positions, barre changes, sus/add9 eighth-note strumming) instead of richer chords, and several prompt rules are broken.",
+    "criteria": [
+     {
+      "id": "fit",
+      "score": 2,
+      "note": "The guitar work sits below the player's lines (Day 2 ex 3 and Day 3 ex 1 pentatonic crossings, Day 5 ex 2 barre changes, Day 4 ex 3 downstrums at 84), 'richer chords' is mostly sus/add9 they already use, and the unanswered ear topic opens with 12 minutes of all twelve intervals."
+     },
+     {
+      "id": "week",
+      "score": 2,
+      "note": "Runs return daily but as the same slow/click toggle with no tempo ladder, Day 7 ex 1 repeats Day 1 ex 3 unchanged, and Days 1, 3, 4 and 5 end on a drill or ear game rather than something musical."
+     },
+     {
+      "id": "music",
+      "score": 3,
+      "note": "Chord-tone degrees and targets check out, but runs are mislabelled against what the tool plays, Day 4 ex 3 has no shells, Day 4 ex 1 reverses zzz-sss, and Day 2 ex 4 calls a line of 3rds stepwise."
+     },
+     {
+      "id": "tools",
+      "score": 2,
+      "note": "Run-singer has no tempo, so 'slow' is not set; Day 2 ex 3 has 7 tools, Day 3 ex 4 repeats an identical tool across two blocks, and there are no stage or key selectors, no interval-singer and no staff with a click for speed work."
+     },
+     {
+      "id": "text",
+      "score": 3,
+      "note": "The text is plain and short and names what Play starts, but it rarely says what to listen for, gives no 'why', states a run's range only once, and several run blocks name no vowel."
+     }
+    ],
+    "stronger": [
+     "Day 7 ex 4 has the singer hold chord tones over the same Cadd9, Asus2, Am7, Dsus4 chords strummed on Day 1, a direct link between the guitar and voice work.",
+     "Day 6 ex 4 takes one sevenths tune through three keys (C, A, F), a clear second-key and third-key return.",
+     "Interval ear training covers up, down and together across Day 1 ex 4 and Day 7 ex 3."
+    ],
+    "weaker": [
+     "No controlled speed-building for runs: the reference uses staffs with a click and tempo stages in sixteenths (its Day 1 ex 2, Day 7 ex 2), while the candidate only toggles the metronome on a run-singer.",
+     "Richer chords are barely taught: no 9th-chord vocabulary beyond one D9, no shells, no triads and no comping over drums and bass, where the reference builds Am9/D9/Gmaj7, shells and turnarounds.",
+     "Run blocks are long bare drills of 10 to 16 minutes (Day 2 ex 2, Day 4 ex 4, Day 5 ex 3), with no runs aimed at chords or improvised over a band.",
+     "Guitar time goes to already-mastered topics: A minor pentatonic crossings 1→2 and 2→3 (Day 2 ex 3, Day 3 ex 1) and barre changes (Day 5 ex 2).",
+     "Day 7 is not a felt-progress review: Day 7 ex 1 is the same tools as Day 1 with no further stage, and the day ends on held chord notes rather than a set or jam.",
+     "No 'why', no Stage or Key selectors, no hard-leap singing, and the warm-ups are less varied."
+    ],
+    "mistakes": [
+     "Day 2 ex 3 has 7 tools; the limit is 6.",
+     "Day 1 ex 3, Day 2 ex 2, Day 3 ex 2, Day 4 ex 4 and Day 7 ex 1: the expert 'turns', 'nine' and 'octave-run' picks did not match and all resolve to run 117, so the text names runs the tool does not play; Day 5 ex 3 'turns' plays runs 118 and 123, and 118 was also Day 4's 'next octave run'.",
+     "Day 4 ex 3 is titled 'Shell chords on ii-V-I' but shows only a strum-along of Dm7, G7, Cmaj7 with no shell grips; its 'D D D D' at 84 is tagged advanced.",
+     "Day 1 ex 4 drills the unanswered ear topic at advanced level for 12 minutes instead of testing it gently; Day 5 ex 4 tags I-IV-V hearing, a beginner ear task, as advanced.",
+     "Day 3 ex 4 uses the identical interval-ears chord tool in two consecutive blocks with nothing changed; Day 4 ex 1's text says hiss then voice while the tool is zzz-sss (voice first).",
+     "Day 2 ex 4 section 3 says 'let the line move by a step where it can' for 4, 7, 3 (D, G♯, C♯ in A), which leaps a tritone and a 4th; Day 6 ex 1 'Solo on the guide tones' section 3 targets 5ths, which are not guide tones."
+    ]
+   }
+  },
+  {
+   "candidateId": "2026-11-15T06-45-08-qws7",
+   "referenceId": "2026-11-15T06-45-08-67iu",
+   "persona": "voice-guitar-advanced",
+   "at": "2026-11-15T06:53:53.400Z",
+   "judge": "claude-fable-5-2",
+   "durationMs": 109328,
+   "usage": {
+    "input": 2,
+    "output": 10802,
+    "cacheRead": 0,
+    "cacheWrite": 130377
+   },
+   "verdict": {
+    "score": 8,
+    "summary": "The candidate is a coherent, well-balanced week that serves both asks (fast runs, richer chords) and comes close to the reference, with tighter links between the chords the player comps and the chords they then sing over. It falls short mainly on pitching: runs and ear work start at the top level instead of being staged up or tested gently. It also has two run-singer blocks that resolve to the same run, a progress note recording a drill that is not in the plan, and several singing steps without a vowel or a stated run range.",
+    "criteria": [
+     {
+      "id": "fit",
+      "score": 4,
+      "note": "Every day adds up to 45 minutes, baritone is set throughout and both goals are served, but Day 1 exercise 2 opens with an expert run and sixteenths at 66-88 for a singer whose slow runs are clean, and the unanswered ear topic gets all twelve intervals falling (Day 3 exercise 3) instead of a gentle test."
+     },
+     {
+      "id": "week",
+      "score": 5,
+      "note": "Runs return in a new form on Days 1, 2, 3, 5, 6 and 7 (click stages, turns, runs into chord tones, octave runs, a run inside a made-up tune), the chord work builds from 9th shapes to shells to sus triads to a mixed comp, and Day 7 returns to Day 1's run and soul turn at faster stages."
+     },
+     {
+      "id": "music",
+      "score": 4,
+      "note": "The harmony checks out (the A and D soul turns, guide tones 4-4-3 and 1-7-7 in A, B as the 3rd of G7 in D Dorian, the sus grips), but Day 1 exercise 2 says the notes are the same after moving from A to C, and Day 6 exercise 2 promises nearest-note voice leading its root-position grips do not set up."
+     },
+     {
+      "id": "tools",
+      "score": 4,
+      "note": "Tool choice is mostly right (a staff with its own click, backing-track without keys for comping, chord-steps grips, solo-over stabs), but Day 5 exercise 2's nine-note and octave picks both fall back to run 117, Day 2 exercise 4's turns pick also misses, and Day 2 exercise 3 jumps straight to no-dot, up-and-down, random-key leaps with no stage choice."
+     },
+     {
+      "id": "text",
+      "score": 4,
+      "note": "The text is plain and short, in the prompt's voice, with correct selector wording, but several run-singer steps omit the run's range (Day 2 exercise 4, Day 5 exercise 2, Day 7 exercise 2) and several singing steps name no vowel (Day 3 exercise 4 sections 2-3, Day 7 exercise 4 sections 1-3)."
+     }
+    ],
+    "stronger": [
+     "The guitar and voice work share keys and progressions on the same day: Day 1 exercise 3 comps Amaj9-F#m9-Bm9-E13 and exercise 4 sings runs over those same chords, and Day 4 sings guide tones in A before comping Bm9-E13-Amaj9; the reference links its two halves more loosely.",
+     "The chord vocabulary is richer and closer to soul and R&B: maj9, m9 and 13 chords, plus sus2/sus4 moves on top-string triads (Day 3 exercise 2), speak directly to 'richer chords under my voice'.",
+     "The ear work is tied to the week's chords: Day 6 exercise 3 uses wide intervals to hear the 9ths and 13ths being played, correctly tagged multi-octave.",
+     "Day 5 exercise 3 combines chords-in-position, a triad and double-stop riff and stab-then-fill into one fill-between-vocal-lines skill, which the reference only reaches through shells.",
+     "Fewer run-singer picks miss the book (3 fallbacks against the reference's 6)."
+    ],
+    "weaker": [
+     "Runs are pitched at expert/advanced from Day 1 with sixteenths at 66-88; the reference starts at hard runs, eighths, then sixteenths at 54-66, a safer ramp for someone whose slow runs are clean.",
+     "The ear topic was unanswered, yet its first test is advanced intervals going down and together (Day 3 exercise 3), then wide (Day 6 exercise 3); the reference tests with seventh-chord naming and an intermediate-to-advanced stage choice.",
+     "The hard leaps (Day 2 exercise 3) go from two guided blocks straight to all leaps up and down, random key, no dot; the reference uses a Stage selector that starts on familiar leaps.",
+     "Several run-singer steps do not state the run's range, and several improvising sections name no vowel; the reference does both consistently.",
+     "Some long sections are 5 minutes on one unchanged tool (the chord-shapes blocks on Day 1 exercise 3 and Day 4 exercise 5), and several sections have no tool and rely on 'Keep the band going' (Day 3 exercise 4, Day 5 exercise 4, Day 7 exercise 4).",
+     "The warm-ups are thinner on breath (breathwork only on Days 3 and 5), and turns get one session where the reference builds them into later runs and guide-tone lines."
+    ],
+    "mistakes": [
+     "Progress note: records 'legato trill 3-4 to 116' under Techniques, but no legato-trill exercise exists anywhere in the plan, so next week's memory is wrong.",
+     "Day 5, exercise 2: the 'Nine notes' and 'The octave run' sections both resolve to run 117 (no expert nine or octave-run match), so two blocks play the same run while the text describes two different ones; neither states a range.",
+     "Day 2, exercise 4: the expert 'turns' pick has no exact match and falls back to run 117, so 'Hear the turn' may not play a turn; the step also omits the run's range.",
+     "Day 1, exercise 2, section 3: the text says 'When you change the direction, the notes are the same' although the staff has moved from A to C minor pentatonic; the section 1 run-singer run (major, La to high Do) is also not the minor pentatonic run then drilled as 'the run'.",
+     "Day 3, exercise 3 and Day 6, exercise 3: an unanswered topic (ear) is drilled at advanced level (all twelve intervals down, together, wide) with no gentle test first, against the planning rule.",
+     "Day 3, exercise 2: the concept 'top-string-triads' belongs to guitar-caged, not the exercise's topic guitar-extended-chords, and the parser dropped it."
+    ]
+   }
+  }
+ ]
+}

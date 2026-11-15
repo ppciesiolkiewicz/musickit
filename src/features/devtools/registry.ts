@@ -7,6 +7,8 @@ export interface DevTool {
   label: string;
   desc: string;
   tone: DevTone;
+  /** also on the live site, for anyone logged in (its page sits under src/app/dev/(live)); linked from nowhere there */
+  live?: true;
 }
 
 /** Literal class strings per tone, so Tailwind sees them. */
@@ -49,15 +51,18 @@ export const TONE_CLASSES: Record<DevTone, { tab: string; active: string; card: 
   },
 };
 
-/** The /dev index; a new tool is one entry here and one page under src/app/dev. */
+/** The /dev index; a new tool is one entry here and one page under src/app/dev/(local), or (live) with `live: true`. */
 export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/prompt", label: "Prompt studio", tone: "prompt", desc: "The autoplan prompt as labelled parts: edit them, run it with the local Claude, see the plan it writes." },
-  { href: "/dev/compare-models", label: "Compare AI models for autoplan", tone: "prompt", desc: "A plan for each made-up player from Claude and local Ollama models, priced as if through the API. Written with npm run compare-models." },
-  { href: "/dev/examples", label: "Prompt examples", tone: "prompt", desc: "Every example the prompt carries, rendered as the player would see it." },
-  { href: "/dev/stories", label: "Component stories", tone: "stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
+  { href: "/dev/compare-models", label: "Compare AI models for autoplan", tone: "prompt", live: true, desc: "A plan for each made-up player from Claude and local Ollama models, priced as if through the API. Written with npm run compare-models." },
+  { href: "/dev/examples", label: "Prompt examples", tone: "prompt", live: true, desc: "Every example the prompt carries, rendered as the player would see it." },
+  { href: "/dev/stories", label: "Component stories", tone: "stories", live: true, desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
   { href: "/dev/onboarding", label: "Onboarding coverage", tone: "stories", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
   { href: "/dev/structure", label: "Code structure", tone: "index", desc: "How src is built: packages by layer and what imports what, a page's render tree, and any file's imports, renders and extends." },
-  { href: "/dev/data", label: "Data", tone: "data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
+  { href: "/dev/data", label: "Data", tone: "data", live: true, desc: "Answers, plans, ratings and the AI's summaries in this browser." },
   { href: "/dev/notes", label: "Copy notes", tone: "notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
   { href: "/dev/kickstarter", label: "Kickstarter", tone: "pitch", desc: "Paste an email thread with a music school; your AI extension drafts the founding-partner reply from the voice, the facts and the demo links." },
 ];
+
+/** The tools this build shows: every one in development, the `live` ones on the live site. */
+export const shownTools = (local: boolean): DevTool[] => (local ? DEV_TOOLS : DEV_TOOLS.filter((t) => t.live));

@@ -1,7 +1,7 @@
 type Env = { NODE_ENV?: string; NEXT_PUBLIC_DEV_UI?: string };
 
-/** Dev tools run everywhere except a production build. */
-export const devOnly = (env: Env = process.env): boolean => env.NODE_ENV !== "production";
+/** Dev tools run everywhere except a production build. The default reads NODE_ENV by name so client code gets it too. */
+export const devOnly = (env: Env = { NODE_ENV: process.env.NODE_ENV }): boolean => env.NODE_ENV !== "production";
 
 /**
  * The dev overlays on real pages (notes, tool names and params, draft stories): on in development unless

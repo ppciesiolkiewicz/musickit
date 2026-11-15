@@ -24,7 +24,7 @@ name is changed on `/account`.
   menu of Your profile and Log out, opened on hover or a tap).
 - `server/`: sign-in itself, server only.
   - `auth.ts`: the rules, with no HTTP and no SQL in them: `requestEmailLink`, `openEmailLink`, `openEmailCode`, `googleSignIn`,
-    `startName`, `sessionAccount`, `signOut`, `rename`.
+    `startName`, `sessionAccount`, `peekSession` (the same without renewing, for a server page), `signOut`, `rename`.
   - `repo.ts`: what those rules need from storage. `repo.drizzle.ts` is Postgres, `repo.memory.ts` is for tests.
   - `http.ts`: cookies, the same-site check, `auth()` (null when there is no database), `requestAccount(req)`.
   - `google.ts`: the Google code flow with PKCE. `mail.ts`: the email with the link and the code, sent through Resend.

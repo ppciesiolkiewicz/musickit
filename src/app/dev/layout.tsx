@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { notFound } from "next/navigation";
-import { devOnly } from "@/features/devtools/gate";
 
 export const metadata: Metadata = { title: "Dev tools · attunr", robots: { index: false } };
 
-/** Local-only tools; a production build answers 404. Each page sets its own frame (DevShell). */
+/**
+ * Tools for working on the app. Each page sets its own frame (DevShell). `(local)` answers 404 in a production build;
+ * `(live)` is on the live site for anyone logged in, linked from nowhere.
+ */
 export default function DevLayout({ children }: { children: ReactNode }) {
-  if (!devOnly()) notFound();
   return children;
 }

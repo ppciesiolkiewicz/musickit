@@ -15,6 +15,7 @@ import {
   rename,
   requestEmailLink,
   safeNext,
+  peekSession,
   sessionAccount,
   signOut,
   startName,
@@ -226,4 +227,14 @@ test("the page to open next is always on this site", () => {
 
 test("with nowhere else to go, logging in lands on the plan", () => {
   assert.equal(AFTER_LOGIN, "/plan");
+});
+
+test("peekSession finds the account without renewing the session", async () => {
+  const { deps, sessions, wait } = setup();
+  const r = await signUp(deps, "ann@school.com", "Ann");
+  wait(2 * 24 * 3600_000);
+  assert.equal((await peekSession(deps, r.sessionToken))?.email, "ann@school.com");
+  assert.equal(sessions[0].expiresAt.getTime(), START + SESSION_TTL, "not renewed");
+  assert.equal(await peekSession(deps, "nope"), null);
+  assert.equal(await peekSession(deps, undefined), null);
 });
