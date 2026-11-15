@@ -62,6 +62,7 @@ export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/path", label: "Learning path", tone: "index", desc: "The path as a diagram: an area's topics down, levels across, every concept with an arrow to what builds on it, and which have no example or course page." },
   { href: "/dev/data", label: "Data", tone: "data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
   { href: "/dev/progress", label: "Progress", tone: "data", desc: "The player's progress outcome: its inputs, then per concept, topic and area, the streak days and time, as of any date." },
+  { href: "/dev/library", label: "Library", tone: "data", desc: "What the practice-plan library holds: blocks, plans, times and minutes by topic and level, then plans and the blocks of one topic. The same queries as the MCP tools." },
   { href: "/dev/plan-reviews", label: "Plan reviews", tone: "prompt", desc: "Every player's star rating and reason for a finished plan, newest first, from the plan_reviews table." },
   { href: "/dev/notes", label: "Copy notes", tone: "notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
   { href: "/dev/kickstarter", label: "Kickstarter", tone: "pitch", desc: "Paste an email thread with a music school; your AI extension drafts the founding-partner reply from the voice, the facts and the demo links." },
