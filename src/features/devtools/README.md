@@ -45,6 +45,15 @@ note to its section as it is now (`repinSectionNotes`; those on gone sections st
 notes by example with file, in section order, with a warning when outdated; outdated is checked against every example
 (`exampleSections`), open or not.
 
+## More demos (`/dev/more-demos`, temporary)
+
+A plan for each made-up player (`model/personas.ts`) from each pinned model (`DEMO_MODELS` in `model/models.ts`: Haiku 5.5,
+Sonnet 5.5, Opus 5.5, Fable 5.2), in a table (`moredemos/MoreDemosPage.tsx`). Every cell shows an estimate at API prices
+(`model/pricing.ts`: the composed prompt as input, a reply the size of the demo plans × 1.5 for thinking as output) and,
+once run, the cost the CLI reports, the time, the plan's title and warnings; clicking it renders the plan. Fable is
+unticked by default, so *Run all ticked* leaves it out; it runs three at a time and skips cells already done. Runs go
+through `/api/dev/run` and so land in the prompt history; the cell → run id map is in `localStorage` `musickit.dev.moreDemos`.
+
 ## Data (`/dev/data`)
 
 What the practice plan keeps in this browser, read-only (`data/DataPage.tsx`, rows from `model/dataView.ts`): the first
@@ -98,7 +107,8 @@ returns one.
 
 - `gate.ts`: `devOnly`, `devGate`, `devUi` (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
 - `registry.ts`: the tools listed on `/dev`.
-- `model/models.ts`: the Claude models a run can use.
+- `model/models.ts`: the Claude models a run can use: the studio's CLI aliases and the pinned `DEMO_MODELS`.
+- `model/pricing.ts`, `model/personas.ts`, `moredemos/`: /dev/more-demos.
 - `model/history.ts`: run records, summaries, ids, request checks, `describeReply`.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.
