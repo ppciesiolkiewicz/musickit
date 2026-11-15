@@ -79,7 +79,7 @@ npm run db:migrate   # make the tables
 and `DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit` in `.env.local`. Without `RESEND_API_KEY`,
 development mails nothing: the link is shown on the page and printed in the server log. When Resend refuses the mail
 (or can't be reached), development shows the link the same way with Resend's reason, and every environment logs the
-reason (`[auth] the log-in email ... was not sent`). An `AUTH_URL` that isn't an http(s) address is ignored. `.env.example` lists the rest
+reason (`[auth] the log-in email ... was not sent`). Each try at Resend gives up after 8 s and a timeout, a lost connection, a 429 or a 5xx is tried once more with the same `Idempotency-Key` (`MAIL_TIMEOUT`, `MAIL_TRIES`), so one email is never sent twice. The page itself gives up on any account request after 30 s (`SEND_TIMEOUT` in `ui/parts.tsx`) and shows the error under the form. An `AUTH_URL` that isn't an http(s) address is ignored. `.env.example` lists the rest
 (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_URL`, `AUTH_FROM_EMAIL`).
 
 `npm run db:wipe` deletes every row in a local database: accounts, sessions and saved data. The tables and the

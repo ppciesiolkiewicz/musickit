@@ -86,15 +86,31 @@ function linkHtml(link: string, code: string): string {
 `;
 }
 
-/** "sent", or "off" when there is no RESEND_API_KEY. Throws when Resend refuses the mail, with Resend's reason. */
+/** How long one try at Resend may take, and how many tries. Two 8 s tries keep the log-in page's wait under 20 s. */
+export const MAIL_TIMEOUT = 8_000;
+export const MAIL_TRIES = 2;
+
+/**
+ * "sent", or "off" when there is no RESEND_API_KEY. A try that times out, can't connect, or gets a 429 or 5xx is tried
+ * once more, with the same Idempotency-Key so Resend never sends the email twice. Throws with Resend's reason when the
+ * mail is refused or the last try fails.
+ */
 export async function sendMail(mail: ReturnType<typeof linkEmail>, env: Env = process.env, fetcher: typeof fetch = fetch): Promise<"sent" | "off"> {
   const apiKey = env.RESEND_API_KEY?.trim();
   if (!apiKey) return "off";
-  const res = await fetcher("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
-    body: JSON.stringify(mail),
-  });
-  if (!res.ok) throw new Error(`resend ${res.status}: ${(await res.text().catch(() => "")).slice(0, 500)}`);
-  return "sent";
+  const headers = { authorization: `Bearer ${apiKey}`, "content-type": "application/json", "idempotency-key": crypto.randomUUID() };
+  let reason = "";
+  for (let attempt = 1; attempt <= MAIL_TRIES; attempt++) {
+    let res: Response;
+    try {
+      res = await fetcher("https://api.resend.com/emails", { method: "POST", headers, body: JSON.stringify(mail), signal: AbortSignal.timeout(MAIL_TIMEOUT) });
+    } catch (e) {
+      reason = e instanceof Error && e.name === "TimeoutError" ? `resend timed out after ${MAIL_TIMEOUT / 1000} s` : `resend unreachable: ${e instanceof Error ? e.message : String(e)}`;
+      continue;
+    }
+    if (res.ok) return "sent";
+    reason = `resend ${res.status}: ${(await res.text().catch(() => "")).slice(0, 500)}`;
+    if (res.status !== 429 && res.status < 500) break;
+  }
+  throw new Error(reason);
 }

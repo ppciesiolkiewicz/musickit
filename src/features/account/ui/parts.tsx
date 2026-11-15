@@ -53,18 +53,23 @@ export function GoogleButton({ next }: { next?: string | null }) {
 export type Posted = { ok: boolean; status: number; body: Record<string, unknown> };
 
 /** A JSON request to one of the auth routes. Never throws: no network comes back as `status: 0` with a line to show. */
+/** How long the page waits for an answer before it gives up and says so. Longer than the server's own email tries. */
+export const SEND_TIMEOUT = 30_000;
+
 export async function send(url: string, method: "POST" | "PATCH" | "DELETE" | "GET", data?: unknown): Promise<Posted> {
   try {
     const res = await fetch(url, {
       method,
       cache: "no-store",
+      signal: AbortSignal.timeout(SEND_TIMEOUT),
       // the account the page loaded for: a change sent after someone else logged in is refused (409 account-changed)
       headers: accountHeaders(data === undefined ? {} : { "content-type": "application/json" }),
       ...(data === undefined ? {} : { body: JSON.stringify(data) }),
     });
     const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     return { ok: res.ok, status: res.status, body };
-  } catch {
+  } catch (e) {
+    if (e instanceof Error && e.name === "TimeoutError") return { ok: false, status: 0, body: { error: "The server took too long to answer. Try again in a minute." } };
     return { ok: false, status: 0, body: { error: "Couldn't reach the server. Check your connection and try again." } };
   }
 }
