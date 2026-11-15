@@ -3,7 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { PRICING } from "@/features/account/pricing";
 import { SUBSCRIPTION_MODEL, type Billing, type Plan } from "@/features/account/plans";
-import { startShares } from "../model/growth";
+import { startMix } from "../model/growth";
 import type { DevModel } from "../model/models";
 import { atScale, playerYear, type Assumptions, type PlanTokens } from "../model/unitEconomics";
 import { reusedShare, type ReuseInfo } from "./PlanCosts";
@@ -109,7 +109,7 @@ const yearOf = (o: Pick<Offer, "month" | "year">, b: Billing) => (b === "month" 
 /** The plans as offers, in `sort` order; without a database, the one Student offer of `pricing.ts`. Reuse starts at the plan's internal chance, as on Plans. */
 function offersFrom(plans: Plan[] | null, reuse: ReuseInfo | null): Offer[] {
   if (!plans || plans.length === 0) {
-    return [{ id: "student", name: "Student (pricing.ts)", enabled: true, month: 9, year: PRICING.player.priceNumber, allowance: PRICING.player.plansPerMonth, batch: false, reuse: 0 }];
+    return [{ id: "student", name: "Student (pricing.ts)", enabled: true, month: 5.99, year: PRICING.player.priceNumber, allowance: PRICING.player.plansPerMonth, batch: false, reuse: 0 }];
   }
   return [...plans].sort((a, b) => a.sort - b.sort).map((p) => {
     return {
@@ -150,7 +150,7 @@ const MIX_COLOUR = "#e2e8f0";
 /** The starting mix: the enabled plans shared as on Over time, a disabled plan at 0. */
 function mixFrom(offers: Offer[]): Record<string, number> {
   const on = offers.filter((o) => o.enabled);
-  const shares = startShares(on.length);
+  const shares = startMix(on.map((o) => o.id));
   return Object.fromEntries(offers.map((o) => [o.id, o.enabled ? shares[on.indexOf(o)] : 0]));
 }
 

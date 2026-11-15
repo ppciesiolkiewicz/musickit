@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { SUBSCRIPTION_MODEL, modelLabel, type Plan } from "@/features/account/plans";
-import { lifetimeValue, project, startShares, type GrowthInputs, type GrowthMonth, type GrowthPlan } from "../model/growth";
+import { lifetimeValue, project, startMix, type GrowthInputs, type GrowthMonth, type GrowthPlan } from "../model/growth";
 import { playerYear, type PlanTokens } from "../model/unitEconomics";
 import { reusedShare, type ReuseInfo } from "./PlanCosts";
 
@@ -132,7 +132,7 @@ function GrowthChart({ months, view }: { months: GrowthMonth[]; view: View }) {
 export default function OverTime({ plans, tokens, reuse, fee, fixedMonthly }: { plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null; fee: { percent: number; fixed: number }; /** US$ a month, from the list at the top of the page */ fixedMonthly: number }) {
   const sorted = useMemo(() => [...(plans ?? [])].filter((p) => p.enabled).sort((a, b) => a.sort - b.sort), [plans]);
   const model = tokens.find((t) => t.model === SUBSCRIPTION_MODEL) ?? null;
-  const [shares, setShares] = useState<number[]>(() => startShares(sorted.length));
+  const [shares, setShares] = useState<number[]>(() => startMix(sorted.map((p) => p.id)));
   const [g, setG] = useState<Omit<GrowthInputs, "fee" | "fixedMonthly">>({ months: 36, trialsStart: 100, growth: 0.08, conversion: 0.25, yearlyShare: 0.5, monthlyChurn: 0.06, yearlyRenewal: 0.6 });
   const [usage, setUsage] = useState(0.6);
   const [multiple, setMultiple] = useState(4);
