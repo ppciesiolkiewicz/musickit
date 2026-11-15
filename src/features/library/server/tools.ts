@@ -104,12 +104,12 @@ function parseArgs(spec: Spec, tool: string, args: unknown): Parsed {
   if (args === undefined || args === null) args = {};
   if (typeof args !== "object" || Array.isArray(args)) return { ok: false, error: `${tool}: the arguments must be an object` };
   const given = args as Record<string, unknown>;
-  const values: Record<string, unknown> = {};
+  const values: Record<string, unknown> = Object.create(null);
   for (const key of Object.keys(given)) {
     if (IGNORED.has(key)) continue;
+    if (!Object.hasOwn(spec.args, key)) return { ok: false, error: `${tool}: unknown argument "${key}"` };
     const a = spec.args[key];
     const v = given[key];
-    if (!a) return { ok: false, error: `${tool}: unknown argument "${key}"` };
     if (v === undefined) continue;
     if (a.type === "string" && !(typeof v === "string" && v !== "")) return { ok: false, error: `"${key}" must be a non-empty string` };
     if (a.type === "integer" && !(typeof v === "number" && Number.isInteger(v))) return { ok: false, error: `"${key}" must be a whole number` };
@@ -118,7 +118,7 @@ function parseArgs(spec: Spec, tool: string, args: unknown): Parsed {
     if (a.type === "enum" && !(typeof v === "string" && a.values.includes(v))) return { ok: false, error: `"${key}" must be one of: ${a.values.join(", ")}` };
     values[key] = v;
   }
-  for (const key of spec.required ?? []) if (!(key in values)) return { ok: false, error: `"${key}" is required` };
+  for (const key of spec.required ?? []) if (!Object.hasOwn(values, key)) return { ok: false, error: `"${key}" is required` };
   return { ok: true, values };
 }
 
@@ -136,10 +136,10 @@ export async function callTool(d: Deps, scope: Scope, name: string, args: unknow
   const parsed = parseArgs(spec, name, args);
   if (!parsed.ok) return parsed;
   const v = parsed.values;
-  const needsPlayer = () => (scope.player === undefined ? "no player in scope" : null);
+  const noPlayer = scope.player === undefined ? "no player in scope" : null;
   switch (name) {
     case "find_blocks": {
-      if (v.mine !== undefined && needsPlayer()) return { ok: false, error: `"mine": ${needsPlayer()}` };
+      if (v.mine !== undefined && noPlayer) return { ok: false, error: `"mine": ${noPlayer}` };
       const filter: BlockFilter = {
         area: v.area as string | undefined, topic: v.topic as string | undefined, concepts: v.concepts as string[] | undefined,
         level: v.level as string | undefined, tags: v.tags as string[] | undefined, ...versions(v), player: v.mine as PlayerMode | undefined,
@@ -160,9 +160,11 @@ export async function callTool(d: Deps, scope: Scope, name: string, args: unknow
     }
     case "library_coverage":
       return { ok: true, data: await libraryCoverage(d, scope) };
-    default: {
+    case "player_progress": {
       const progress = await playerProgress(d, scope);
-      return progress ? { ok: true, data: progress } : { ok: false, error: needsPlayer() ?? "no player in scope" };
+      return progress ? { ok: true, data: progress } : { ok: false, error: noPlayer ?? "no player in scope" };
     }
+    default:
+      return { ok: false, error: `unknown tool "${name}"` };
   }
 }

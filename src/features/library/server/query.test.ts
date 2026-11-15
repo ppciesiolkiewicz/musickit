@@ -76,3 +76,10 @@ test("playerProgress for A: rated topic and concept are no longer not-yet, block
   // another player's data is not read for A
   assert.equal((await playerProgress(deps({ userData }), { player: PLAYER_B }))?.outcome.areas.flatMap((a) => a.topics).find((t) => t.topic === "guitar-scales")?.ratings, 0);
 });
+
+test("playerProgress for a player with no plan document and no progress answers", async () => {
+  const r = await playerProgress(deps(), { player: PLAYER_B });
+  assert.ok(r);
+  assert.equal(r.outcome.seconds.total, 0);
+  assert.equal(r.outcome.streak.days, 0);
+});

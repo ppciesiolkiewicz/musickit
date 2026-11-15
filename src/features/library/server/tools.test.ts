@@ -67,3 +67,31 @@ test("scope-like keys in the arguments change nothing", async () => {
   assert.ok(!(await callTool(d, {}, "get_plan", { id: "P3", includeNotEnabled: true })).ok);
   assert.ok(!(await callTool(d, {}, "player_progress", { player: PLAYER_A })).ok);
 });
+
+test("inherited and prototype keys are not arguments", async () => {
+  const d = deps();
+  const proto = await callTool(d, {}, "get_block", JSON.parse('{"__proto__":{"id":5}}'));
+  assert.ok(!proto.ok);
+  const proto2 = await callTool(d, {}, "find_blocks", JSON.parse('{"__proto__":{"mine":"x","limit":"9"}}'));
+  assert.ok(!proto2.ok && proto2.error.includes("__proto__"));
+  for (const [key, v] of [["constructor", 1], ["toString", "x"], ["hasOwnProperty", 1]] as const) {
+    const r = await callTool(d, {}, "find_blocks", { [key]: v });
+    assert.ok(!r.ok && r.error.includes(key), `${key}`);
+  }
+});
+
+test("argument shapes: no arguments, wrong types, odd numbers", async () => {
+  const d = deps();
+  assert.ok((await callTool(d, {}, "find_blocks", null)).ok);
+  assert.ok((await callTool(d, {}, "find_blocks", undefined)).ok);
+  assert.ok(!(await callTool(d, {}, "find_blocks", "limit")).ok);
+  assert.ok(!(await callTool(d, {}, "find_blocks", [{ limit: 1 }])).ok);
+  const frac = await callTool(d, {}, "find_blocks", { limit: 1.5 });
+  assert.ok(!frac.ok && frac.error.includes("limit"));
+  const neg = await callTool(d, {}, "find_blocks", { limit: -5 });
+  assert.ok(neg.ok && (neg.data as unknown[]).length === 1);
+  const c = await callTool(d, {}, "find_blocks", { concepts: [1] });
+  assert.ok(!c.ok && c.error.includes("concepts"));
+  const n = await callTool(d, {}, "find_blocks", { topic: { a: 1 } });
+  assert.ok(!n.ok && n.error.includes("topic"));
+});
