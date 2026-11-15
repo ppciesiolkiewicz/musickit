@@ -44,6 +44,10 @@ export function memoryRepo() {
     async countTokens(email, kind, since) {
       return tokens.filter((t) => t.email === email && t.kind === kind && t.createdAt >= since).length;
     },
+    async lastTokenAt(email, kind) {
+      const times = tokens.filter((t) => t.email === email && t.kind === kind).map((t) => t.createdAt.getTime());
+      return times.length ? new Date(Math.max(...times)) : null;
+    },
     async peekToken(hash, kind, now) {
       return live(hash, kind, now);
     },

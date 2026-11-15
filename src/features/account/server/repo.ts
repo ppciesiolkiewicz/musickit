@@ -50,6 +50,8 @@ export interface AuthRepo {
   createToken(token: TokenRow, now: Date): Promise<void>;
   /** How many tokens of this kind were made for the email since `since`. */
   countTokens(email: string, kind: TokenKind, since: Date): Promise<number>;
+  /** When the newest token of this kind was made for the email, or null when there is none. */
+  lastTokenAt(email: string, kind: TokenKind): Promise<Date | null>;
   /** The token when it is unused and not expired; it stays usable. */
   peekToken(tokenHash: string, kind: TokenKind, now: Date): Promise<TokenRow | null>;
   /** The same, and marks it used in one step, so two requests can't both take it. */

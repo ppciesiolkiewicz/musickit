@@ -5,6 +5,7 @@ import {
   CODE_TRIES,
   LINK_DAY_LIMIT,
   LINK_LIMIT,
+  RESEND_WAIT,
   LINK_WINDOW,
   LINK_TTL,
   SESSION_TTL,
@@ -78,6 +79,7 @@ test("a link works once, and not after it expires", async () => {
   assert.ok(await openEmailLink(deps, first, null));
   assert.equal(await openEmailLink(deps, first, null), null);
 
+  wait(RESEND_WAIT);
   const second = await link(deps, { email: "ann@school.com" });
   wait(LINK_TTL + 1);
   assert.equal(await openEmailLink(deps, second, null), null);
@@ -86,8 +88,9 @@ test("a link works once, and not after it expires", async () => {
 });
 
 test("a link for an email with an account signs in to it", async () => {
-  const { deps, users } = setup();
+  const { deps, users, wait } = setup();
   await signUp(deps, "ann@school.com", "Ann");
+  wait(RESEND_WAIT);
   const again = await openEmailLink(deps, await link(deps, { email: "ann@school.com" }), null);
   assert.ok(again?.kind === "session");
   assert.equal(again.created, false);
@@ -96,11 +99,24 @@ test("a link for an email with an account signs in to it", async () => {
   assert.equal(users.length, 1);
 });
 
+test("a new link to the same email waits RESEND_WAIT after the last one", async () => {
+  const { deps, wait } = setup();
+  assert.ok((await requestEmailLink(deps, { email: "a@b.co" })).ok);
+  wait(20_000);
+  assert.deepEqual(await requestEmailLink(deps, { email: "A@B.co" }), { ok: false, error: "wait", waitMs: RESEND_WAIT - 20_000 });
+  assert.ok((await requestEmailLink(deps, { email: "other@b.co" })).ok, "another email is not held back");
+  wait(RESEND_WAIT - 20_000);
+  assert.ok((await requestEmailLink(deps, { email: "a@b.co" })).ok);
+});
+
 test("requesting a link checks the email and is limited per email", async () => {
-  const { deps } = setup();
+  const { deps, wait } = setup();
   assert.deepEqual(await requestEmailLink(deps, { email: "ann" }), { ok: false, error: "email" });
   assert.deepEqual(await requestEmailLink(deps, { email: 7 }), { ok: false, error: "email" });
-  for (let i = 0; i < LINK_LIMIT; i++) assert.ok((await requestEmailLink(deps, { email: "a@b.co" })).ok);
+  for (let i = 0; i < LINK_LIMIT; i++) {
+    assert.ok((await requestEmailLink(deps, { email: "a@b.co" })).ok);
+    wait(RESEND_WAIT);
+  }
   assert.deepEqual(await requestEmailLink(deps, { email: "A@B.co" }), { ok: false, error: "limit" });
   assert.ok((await requestEmailLink(deps, { email: "other@b.co" })).ok, "another email is not held back");
 });
@@ -110,6 +126,7 @@ test("requesting links is also limited per day", async () => {
   for (let i = 0; i < LINK_DAY_LIMIT; i++) {
     if (i && i % LINK_LIMIT === 0) wait(LINK_WINDOW + 1);
     assert.ok((await requestEmailLink(deps, { email: "a@b.co" })).ok);
+    wait(RESEND_WAIT);
   }
   wait(LINK_WINDOW + 1);
   assert.deepEqual(await requestEmailLink(deps, { email: "a@b.co" }), { ok: false, error: "daily" });
@@ -131,6 +148,7 @@ test("the mailed code signs in like the link, once, for its own email, and is st
   assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: "100001" }, null), null, "used once");
   assert.equal(await openEmailLink(deps, sent.token, null), null, "the code and the link are one proof");
 
+  wait(RESEND_WAIT);
   const late = await requestEmailLink(deps, { email: "ann@school.com" });
   assert.ok(late.ok);
   wait(LINK_TTL + 1);
@@ -140,12 +158,13 @@ test("the mailed code signs in like the link, once, for its own email, and is st
 });
 
 test("a code stops working after its wrong tries, even the right one", async () => {
-  const { deps } = setup();
+  const { deps, wait } = setup();
   const sent = await requestEmailLink(deps, { email: "ann@school.com" });
   assert.ok(sent.ok);
   for (let i = 0; i < CODE_TRIES - 1; i++) assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: "999999" }, null), null);
   assert.ok(await openEmailCode(deps, { email: "ann@school.com", code: sent.code }, null), "the last try still works");
 
+  wait(RESEND_WAIT);
   const again = await requestEmailLink(deps, { email: "ann@school.com" });
   assert.ok(again.ok);
   for (let i = 0; i < CODE_TRIES; i++) await openEmailCode(deps, { email: "ann@school.com", code: "999999" }, null);

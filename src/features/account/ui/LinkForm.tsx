@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { cleanEmail } from "../model";
 import { Card, ErrorLine, FIELD, GoogleButton, LABEL, LINK, OrLine, PRIMARY, errorOf, send } from "./parts";
 
 /** Why Google sent the person back to /login without signing in (`?error=`, set by the callback route). */
@@ -15,21 +16,57 @@ type State =
   | { kind: "idle" }
   | { kind: "sending" }
   | { kind: "error"; message: string }
+  /** The server holds back another email to this address for a while; the line counts down. */
+  | { kind: "wait" }
   | { kind: "sent"; email: string; lasts: string; devLink: string | null; devCode: string | null; devError: string | null };
 
 /**
  * /login: the one way in. A form that mails a link and a 6-digit code (then a field for the code), and "Continue with Google" when the site has Google's keys. There
  * is no separate register form: an email or a Google account with no account yet gets one, named from Google or the email.
  */
+/** A countdown for one email address: `start(email, seconds)` begins it, and it ticks down once a second to 0. */
+function useResendWait() {
+  const [wait, setWait] = useState<{ email: string; at: number; now: number } | null>(null);
+  const at = wait?.at ?? null;
+  useEffect(() => {
+    if (at === null) return;
+    const id = window.setInterval(() => {
+      const now = Date.now();
+      setWait((w) => (w ? { ...w, now } : w));
+      if (now >= at) window.clearInterval(id);
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [at]);
+  const start = (email: string, seconds: unknown) => {
+    if (typeof seconds !== "number" || seconds <= 0) return;
+    const now = Date.now();
+    setWait({ email: cleanEmail(email), at: now + seconds * 1000, now });
+  };
+  const secondsLeft = wait ? Math.max(0, Math.ceil((wait.at - wait.now) / 1000)) : 0;
+  return { email: wait?.email ?? null, secondsLeft, start };
+}
+
 export default function LinkForm({ google, next, error }: { google: boolean; next: string | null; error?: string }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<State>(error && GOOGLE_ERRORS[error] ? { kind: "error", message: GOOGLE_ERRORS[error] } : { kind: "idle" });
+  // The server sends one email to an address a minute (RESEND_WAIT); another address can be sent to straight away.
+  const resend = useResendWait();
+  const secondsLeft = resend.secondsLeft;
+  const waiting = secondsLeft > 0 && cleanEmail(email) === resend.email;
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (waiting) return;
     setState({ kind: "sending" });
     const r = await send("/api/auth/email-link", "POST", { email, next });
-    if (!r.ok) return setState({ kind: "error", message: errorOf(r) });
+    if (!r.ok) {
+      if (r.body.field === "wait" && typeof r.body.wait === "number") {
+        resend.start(email, r.body.wait);
+        return setState({ kind: "wait" });
+      }
+      return setState({ kind: "error", message: errorOf(r) });
+    }
+    resend.start(String(r.body.email ?? email), r.body.resendIn);
     const text = (v: unknown) => (typeof v === "string" ? v : null);
     setState({ kind: "sent", email: String(r.body.email ?? email), lasts: text(r.body.lasts) ?? "1 hour", devLink: text(r.body.devLink), devCode: text(r.body.devCode), devError: text(r.body.devError) });
   };
@@ -51,7 +88,11 @@ export default function LinkForm({ google, next, error }: { google: boolean; nex
           </p>
         )}
         <CodeForm email={state.email} />
-        <button type="button" className={`${LINK} self-start text-sm`} onClick={() => setState({ kind: "idle" })}>Send a new email</button>
+        {secondsLeft > 0 ? (
+          <p className="text-sm text-slate-500">You can send a new email in {secondsLeft} seconds.</p>
+        ) : (
+          <button type="button" className={`${LINK} self-start text-sm`} onClick={() => setState({ kind: "idle" })}>Send a new email</button>
+        )}
       </Card>
     );
   }
@@ -63,8 +104,14 @@ export default function LinkForm({ google, next, error }: { google: boolean; nex
           <span className={LABEL}>Email</span>
           <input className={FIELD} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder="you@example.com" />
         </label>
-        <ErrorLine>{state.kind === "error" ? state.message : null}</ErrorLine>
-        <button type="submit" disabled={state.kind === "sending"} className={PRIMARY}>
+        <ErrorLine>
+          {state.kind === "error"
+            ? state.message
+            : state.kind === "wait" && waiting
+              ? `We just sent a log-in email to this address. Use that one, or send a new one in ${secondsLeft} seconds.`
+              : null}
+        </ErrorLine>
+        <button type="submit" disabled={state.kind === "sending" || waiting} className={PRIMARY}>
           {state.kind === "sending" ? "Sending…" : "Email me a log-in link"}
         </button>
         <p className="text-xs text-slate-500">No password. We email you a link and a code, and either one logs you in.</p>

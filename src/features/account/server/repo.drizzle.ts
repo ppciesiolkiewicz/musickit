@@ -1,4 +1,4 @@
-import { and, count, eq, gt, gte, isNotNull, isNull, lt, lte, sql } from "drizzle-orm";
+import { and, count, eq, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
 import { authTokens, identities, sessions, users } from "@/lib/db/schema";
 import type { AuthRepo, TokenRow } from "./repo";
@@ -57,6 +57,10 @@ export function drizzleRepo(db: Db): AuthRepo {
     async countTokens(email, kind, since) {
       const [row] = await db.select({ n: count() }).from(authTokens).where(and(eq(authTokens.email, email), eq(authTokens.kind, kind), gte(authTokens.createdAt, since)));
       return row?.n ?? 0;
+    },
+    async lastTokenAt(email, kind) {
+      const [row] = await db.select({ at: max(authTokens.createdAt) }).from(authTokens).where(and(eq(authTokens.email, email), eq(authTokens.kind, kind)));
+      return row?.at ?? null;
     },
     async peekToken(hash, kind, now) {
       const [row] = await db.select(tokenCols).from(authTokens).where(liveToken(hash, kind, now)).limit(1);

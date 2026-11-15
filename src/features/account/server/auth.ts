@@ -21,6 +21,8 @@ const SESSION_REFRESH = DAY;
 /** At most this many links to one email in `LINK_WINDOW`. */
 export const LINK_LIMIT = 3;
 export const LINK_WINDOW = 15 * MINUTE;
+/** A new link to the same email waits this long after the last one, so a double click or an impatient press sends one email. */
+export const RESEND_WAIT = MINUTE;
 /** At most this many in a day. With `CODE_TRIES`, this keeps guessing a 6-digit code hopeless: 50 guesses a day. */
 export const LINK_DAY_LIMIT = 10;
 /** Wrong guesses one code takes before it stops working. */
@@ -83,8 +85,9 @@ async function userFor(deps: AuthDeps, email: string, name: string): Promise<{ u
   return { user: raced, created: false };
 }
 
-export type LinkError = "email" | "limit" | "daily";
-export type LinkRequest = { ok: true; email: string; token: string; code: string; expiresAt: Date } | { ok: false; error: LinkError };
+export type LinkError = "email" | "wait" | "limit" | "daily";
+/** `waitMs`, with "wait": how long until a new link can be sent. */
+export type LinkRequest = { ok: true; email: string; token: string; code: string; expiresAt: Date } | { ok: false; error: LinkError; waitMs?: number };
 
 /**
  * A link and a code to mail; either one proves the email. There is one form for logging in and for a new account: the
@@ -96,6 +99,9 @@ export async function requestEmailLink(deps: AuthDeps, input: { email: unknown; 
   if (!isEmail(email)) return { ok: false, error: "email" };
 
   const now = deps.now();
+  const last = await deps.repo.lastTokenAt(email, "email_link");
+  const waitMs = last ? last.getTime() + RESEND_WAIT - now.getTime() : 0;
+  if (waitMs > 0) return { ok: false, error: "wait", waitMs };
   if ((await deps.repo.countTokens(email, "email_link", new Date(now.getTime() - LINK_WINDOW))) >= LINK_LIMIT) return { ok: false, error: "limit" };
   if ((await deps.repo.countTokens(email, "email_link", new Date(now.getTime() - DAY))) >= LINK_DAY_LIMIT) return { ok: false, error: "daily" };
 

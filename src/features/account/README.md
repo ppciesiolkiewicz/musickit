@@ -64,7 +64,7 @@ Things that are on purpose:
   Google, never changes the name or role of an account.
 - **The old addresses still work.** `/register` and `/register/teacher` go to `/login`, `/register/finish` to
   `/login` (`next.config.ts`).
-- **Emails are limited**: 3 to one address in 15 minutes, 10 in a day. A link and its code live 1 hour, a session a
+- **Emails are limited**: one to an address a minute (`RESEND_WAIT`; the log-in page counts it down on "Send a new email"), 3 in 15 minutes, 10 in a day. A link and its code live 1 hour, a session a
   year from its last use, so a person who comes back now and then is never logged out.
 
 ## Setting it up
