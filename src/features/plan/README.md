@@ -43,7 +43,8 @@ browser.
    of its planned time ("2 min / 5 min", whole minutes) over a thin bar: sky while it fills, green at the planned time, a brighter
    glowing green past 1.5×, and a star at 2×; hovering or tapping it explains the numbers. /dev/data lists the spent times. On a phone it is one short row: ring,
    time left, the exercise's own time and number, the buttons side by side. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
-   every 5 seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. The spent seconds
+   once a minute while it runs (each save sends the whole plan to the server), on pause, when the tab hides, when the day
+   is left and at zero, so a reload or a later visit picks up where it stopped. The spent seconds
    are saved with them. There is no per-exercise countdown, and resetting the day's timer keeps the spent times.
    No settings column: the exercises set their own keys and always count from the scale's root (`FixedLabelRoot`), so the
    only setting is the Labels dropdown, floating over the day timer in the bottom-right corner; on a phone it sits in the

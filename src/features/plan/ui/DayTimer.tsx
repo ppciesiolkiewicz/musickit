@@ -7,7 +7,9 @@ import { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "@/feat
 import { dayClock } from "../model/dayClock";
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-const SAVE_EVERY_MS = 5000;
+// a checkpoint while it runs; pause, the tab hiding, leaving the day and the end save too. On the server each save sends the
+// whole plan document, so this stays slow (every 5 s was ~720 uploads an hour)
+const SAVE_EVERY_MS = 60_000;
 
 /** A soft two-note chime when time is up, made on the spot (no sample to load). */
 function chime() {
@@ -36,7 +38,7 @@ function chime() {
 /**
  * The day's countdown, floating at the side of the page: the whole day's minutes, the exercise the time is in now, pause /
  * resume and reset. It starts by itself when `autoStart` (the day shown on page load), saves the used seconds through `onSave`
- * every few seconds, on pause and when the tab hides, so a reload or a later visit picks up where it stopped. The running
+ * once a minute, on pause, when the tab hides and when the day is left, so a reload or a later visit picks up where it stopped. The running
  * exercise goes to `onExercise`; a chime at zero. The exercise it names is `focused`, the card in view (not where the day's
  * minutes would put it): while it runs, each second goes to that exercise's spent time, saved with the elapsed seconds. Time is kept from the clock, so a background tab stays right. On a phone it
  * is one short row (ring, time left, the exercise's own time and number, the buttons side by side), so it covers little of
@@ -122,13 +124,17 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, spent
     const t = setInterval(tick, 250);
     const keep = setInterval(() => save.current(now.current, spentNow.current), SAVE_EVERY_MS);
     const away = () => save.current(now.current, spentNow.current);
+    // only on hiding: coming back needs no save, the next checkpoint or pause has it
+    const hidden = () => {
+      if (document.visibilityState === "hidden") away();
+    };
     window.addEventListener("pagehide", away);
-    document.addEventListener("visibilitychange", away);
+    document.addEventListener("visibilitychange", hidden);
     return () => {
       clearInterval(t);
       clearInterval(keep);
       window.removeEventListener("pagehide", away);
-      document.removeEventListener("visibilitychange", away);
+      document.removeEventListener("visibilitychange", hidden);
     };
   }, [since, total]);
 
