@@ -3,7 +3,8 @@ import { bigint, boolean, check, index, integer, jsonb, pgEnum, pgTable, primary
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
- * and `npm run db:migrate` applies it. Never edit a migration that has been applied somewhere.
+ * and `npm run db:migrate` applies it. Never edit a migration that has been applied somewhere. `npm run db:diagram`
+ * redraws docs/db/schema.svg (shown in the README).
  */
 
 const at = (name: string) => timestamp(name, { withTimezone: true, mode: "date" });

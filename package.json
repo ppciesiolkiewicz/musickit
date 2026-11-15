@@ -21,6 +21,7 @@
     "db:seed-plans": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-plans.ts",
     "db:wipe": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-wipe.mjs",
     "db:studio": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/.bin/drizzle-kit studio",
+    "db:diagram": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/db-diagram.mts && dbml-renderer -i docs/db/schema.dbml -o docs/db/schema.svg && echo wrote docs/db/schema.svg",
     "deps": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type mermaid > .deps/deps.mmd",
     "deps:svg": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type dot | dot -T svg > .deps/deps.svg && open .deps/deps.svg",
     "deps:archi": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type archi | dot -T svg > .deps/archi.svg && open .deps/archi.svg",
@@ -58,11 +59,13 @@
     "tone": "^15.1.22"
   },
   "devDependencies": {
+    "@softwaretechnik/dbml-renderer": "^1.0.31",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.19.43",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "dependency-cruiser": "^18.7.2",
+    "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.31.11",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.0",

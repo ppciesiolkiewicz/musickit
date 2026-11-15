@@ -1,0 +1,221 @@
+enum auth_token_kind {
+  email_link
+  signup
+}
+
+enum plan_period {
+  month
+  year
+}
+
+enum share_kind {
+  note
+  plan
+}
+
+enum user_role {
+  student
+  teacher
+  owner
+}
+
+table auth_tokens {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  kind auth_token_kind [not null]
+  token_hash text [not null, unique]
+  code_hash text
+  tries integer [not null, default: 0]
+  email text [not null]
+  name text
+  role user_role
+  provider text
+  provider_account_id text
+  next text
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  expires_at "timestamp with time zone" [not null]
+  used_at "timestamp with time zone"
+
+  indexes {
+    (email, created_at) [name: 'auth_tokens_email']
+    expires_at [name: 'auth_tokens_expires']
+  }
+}
+
+table identities {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  provider text [not null]
+  provider_account_id text [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (provider, provider_account_id) [name: 'identities_provider_account', unique]
+    user_id [name: 'identities_user']
+  }
+}
+
+table plan_claims {
+  share_id text [not null]
+  user_id uuid [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (share_id, user_id) [pk]
+    user_id [name: 'plan_claims_user_id_idx']
+  }
+}
+
+table plan_day_times {
+  user_id uuid [not null]
+  plan_id text [not null]
+  day integer [not null]
+  elapsed integer [not null]
+  spent jsonb [not null]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (user_id, plan_id, day) [pk]
+  }
+}
+
+table plans {
+  id text [pk, not null]
+  name text [not null]
+  role user_role [not null]
+  price_cents integer [not null]
+  period plan_period [not null]
+  students integer
+  autoplans_per_month integer [not null]
+  batch boolean [not null, default: false]
+  enabled boolean [not null, default: true]
+  sort integer [not null, default: 0]
+  new_plan_percent integer [not null, default: 50]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+}
+
+table practice_plans {
+  id text [pk, not null]
+  title text [not null]
+  answers jsonb [not null]
+  model text [not null]
+  reply text [not null]
+  source text [not null]
+  enabled_for_reuse boolean [not null, default: false]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    enabled_for_reuse [name: 'practice_plans_reuse']
+  }
+}
+
+table progress_entries {
+  user_id uuid [not null]
+  exercise_id text [not null]
+  entry jsonb [not null]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (user_id, exercise_id) [name: 'progress_entries_user_exercise', unique]
+  }
+}
+
+table sessions {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  token_hash text [not null, unique]
+  user_id uuid [not null]
+  user_agent text
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  last_seen_at "timestamp with time zone" [not null, default: `now()`]
+  expires_at "timestamp with time zone" [not null]
+
+  indexes {
+    user_id [name: 'sessions_user']
+    expires_at [name: 'sessions_expires']
+  }
+}
+
+table share_videos {
+  share_id text [not null]
+  video_id uuid [not null]
+
+  indexes {
+    (share_id, video_id) [pk]
+    video_id [name: 'share_videos_video_id_idx']
+  }
+}
+
+table shares {
+  id text [pk, not null]
+  user_id uuid [not null]
+  kind share_kind [not null]
+  item_id text [not null]
+  snapshot jsonb [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  stopped_at "timestamp with time zone"
+
+  indexes {
+    (user_id, kind, item_id) [name: 'shares_user_kind_item']
+  }
+}
+
+table user_documents {
+  user_id uuid [not null]
+  kind text [not null]
+  data jsonb [not null]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (user_id, kind) [name: 'user_documents_user_kind', unique]
+  }
+}
+
+table users {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  email text [not null, unique]
+  name text [not null]
+  role user_role [not null]
+  plan_id text [not null, default: 'student']
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+}
+
+table videos {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  title text [not null]
+  type text [not null]
+  seconds integer [not null]
+  width integer [not null]
+  height integer [not null]
+  size bigint [not null]
+  blob_path text [not null, unique]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    user_id [name: 'videos_user_id_idx']
+  }
+}
+
+ref identities_user_id_users_id_fk: identities.user_id > users.id [delete: cascade, update: no action]
+
+ref plan_claims_share_id_shares_id_fk: plan_claims.share_id > shares.id [delete: cascade, update: no action]
+
+ref plan_claims_user_id_users_id_fk: plan_claims.user_id > users.id [delete: cascade, update: no action]
+
+ref plan_day_times_user_id_users_id_fk: plan_day_times.user_id > users.id [delete: cascade, update: no action]
+
+ref progress_entries_user_id_users_id_fk: progress_entries.user_id > users.id [delete: cascade, update: no action]
+
+ref sessions_user_id_users_id_fk: sessions.user_id > users.id [delete: cascade, update: no action]
+
+ref share_videos_share_id_shares_id_fk: share_videos.share_id > shares.id [delete: cascade, update: no action]
+
+ref share_videos_video_id_videos_id_fk: share_videos.video_id > videos.id [delete: cascade, update: no action]
+
+ref shares_user_id_users_id_fk: shares.user_id > users.id [delete: cascade, update: no action]
+
+ref user_documents_user_id_users_id_fk: user_documents.user_id > users.id [delete: cascade, update: no action]
+
+ref users_plan_id_plans_id_fk: users.plan_id > plans.id [delete: no action, update: no action]
+
+ref videos_user_id_users_id_fk: videos.user_id > users.id [delete: cascade, update: no action]

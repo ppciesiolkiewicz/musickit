@@ -20,6 +20,12 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Database schema
+
+![Database schema](docs/db/schema.svg)
+
+The tables are defined in [`src/lib/db/schema.ts`](src/lib/db/schema.ts). After changing it, run `npm run db:diagram` and commit the result. The script writes [`docs/db/schema.dbml`](docs/db/schema.dbml) with [drizzle-dbml-generator](https://github.com/L-Mario564/drizzle-dbml-generator), then draws the diagram above with [dbml-renderer](https://github.com/softwaretechnik-berlin/dbml-renderer). To see the schema as an editable diagram, paste the `.dbml` file into [dbdiagram.io](https://dbdiagram.io).
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
