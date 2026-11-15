@@ -55,7 +55,8 @@ export const plans = pgTable("plans", {
 
 /**
  * The library of practice plans an autoplan can be taken from instead of asking the AI (see `plans.new_plan_percent`).
- * Seeded from the published compare-models plans (`npm run db:seed-plans`); only rows `enabled_for_reuse` are given out.
+ * Seeded from the plan examples and the published Fable compare-models plans (`npm run db:seed-plans`); only rows
+ * `enabled_for_reuse` are given out.
  */
 export const practicePlans = pgTable(
   "practice_plans",
@@ -69,7 +70,7 @@ export const practicePlans = pgTable(
     model: text("model").notNull(),
     /** The model's reply, as a pasted reply: parsed with `parsePlanConfig` when used. */
     reply: text("reply").notNull(),
-    /** Where it came from: "compare-models" for a seeded plan. */
+    /** Where it came from: "example" for a plan example (its id is the example's), "compare-models" for a published Fable plan. */
     source: text("source").notNull(),
     /** `PROMPT_VERSION` the plan was written under; null when unknown. */
     promptVersion: integer("prompt_version"),

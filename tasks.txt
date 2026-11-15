@@ -57,12 +57,16 @@ outcome (/dev/progress first); 3. merge concepts that are one thing at several d
 (with NEW9); 4. seeding agents read steps as gaps (NEW10); 5. teacher views (NEW12); 6. the plan writer gets one line
 per concept, and the shortlist can ask for "the next step" (NEW7).
 
-NEW8: [DONE 2026-11-15, two things left] Querying the library through tools
+NEW8: [DONE 2026-11-16] Querying the library through tools
 Spec: docs/superpowers/specs/2026-11-15-library-query-design.md. Plan: docs/superpowers/plans/2026-11-15-library-query.md.
 Built: src/features/library (README there), POST /api/dev/mcp (.mcp.json), /dev/library, npm run test:library-db.
-Left: (a) apply migration 0019 to the database the dev server uses, then run db:seed-plans and db:seed-blocks, so the
-tools and /dev/library have data (0020 is after it in the journal: check drizzle.__drizzle_migrations, db:migrate skips
-0019 if 0020 was applied alone); (b) then check the live path once: `claude mcp list` and /dev/library in the browser.
+Live on 2026-11-16: 0019 and 0020 are applied on the dev server's database (Supabase). The library was cleared and
+reseeded: 8 plans (the 7 plan examples under their example ids, which the demos name, and the one published Fable plan,
+voice-guitar-advanced), 231 library blocks, 231 plan block rows; the exercise examples' blocks stay "example", not
+enabled. The tools and /dev/library agree. Sonnet/Opus/Haiku compare-models runs are not seeded. More plans: NEW10.
+The plan examples guitar-beginner and guitar-theory-intermediate tag no concepts on their exercises, so they count for
+no concept (or step, NEW13) in coverage; /dev/examples rework and NEW10 should fix that.
+`claude mcp list` shows musickit-library "Pending approval" until a plain `claude` session in the repo approves it.
 1. Model and version on every block and library plan; a table of which blocks a library plan has.
 2. A server query module: find/get blocks, find/get plans, library coverage, a player's progress. The server sets the
    scope; other players only as totals; stars never rank a block as good or bad.
