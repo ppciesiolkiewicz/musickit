@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { SUBSCRIPTION_MODEL, modelLabel, type Plan } from "@/features/account/plans";
-import { lifetimeValue, project, type GrowthInputs, type GrowthMonth, type GrowthPlan } from "../model/growth";
+import { lifetimeValue, project, startShares, type GrowthInputs, type GrowthMonth, type GrowthPlan } from "../model/growth";
 import { playerYear, type PlanTokens } from "../model/unitEconomics";
 import type { ReuseInfo } from "./PlanCosts";
 
@@ -129,13 +129,10 @@ function GrowthChart({ months, view }: { months: GrowthMonth[]; view: View }) {
   );
 }
 
-/** Starting plan mix: most new accounts on the first plan, the rest shared out, fewer on each dearer one. */
-const startShare = (i: number, n: number) => (n === 1 ? 100 : i === 0 ? 70 : Math.round((30 * 2 ** (n - 1 - i)) / (2 ** (n - 1) - 1)));
-
 export default function OverTime({ plans, tokens, reuse, fee }: { plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null; fee: { percent: number; fixed: number } }) {
   const sorted = useMemo(() => [...(plans ?? [])].filter((p) => p.enabled).sort((a, b) => a.sort - b.sort), [plans]);
   const model = tokens.find((t) => t.model === SUBSCRIPTION_MODEL) ?? null;
-  const [shares, setShares] = useState<number[]>(() => sorted.map((_, i) => startShare(i, sorted.length)));
+  const [shares, setShares] = useState<number[]>(() => startShares(sorted.length));
   const [g, setG] = useState<Omit<GrowthInputs, "fee">>({ months: 36, trialsStart: 100, growth: 0.08, conversion: 0.25, yearlyShare: 0.5, monthlyChurn: 0.06, yearlyRenewal: 0.6, fixedMonthly: 60 });
   const [usage, setUsage] = useState(0.6);
   const [multiple, setMultiple] = useState(4);

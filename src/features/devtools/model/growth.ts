@@ -4,6 +4,10 @@
  * numbers on the page, not a forecast.
  */
 
+/** Starting plan mix for n plans in `sort` order, in percent: 70 on the first, the rest shared out, fewer on each dearer one. */
+export const startShares = (n: number): number[] =>
+  Array.from({ length: n }, (_, i) => (n === 1 ? 100 : i === 0 ? 70 : Math.round((30 * 2 ** (n - 1 - i)) / (2 ** (n - 1) - 1))));
+
 /** One plan as the projection needs it. */
 export interface GrowthPlan {
   id: string;

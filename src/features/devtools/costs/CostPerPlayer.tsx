@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { PRICING } from "@/features/account/pricing";
 import { SUBSCRIPTION_MODEL, type Billing, type Plan } from "@/features/account/plans";
+import { startShares } from "../model/growth";
 import type { DevModel } from "../model/models";
 import { atScale, playerYear, type Assumptions, type PlanTokens } from "../model/unitEconomics";
 import type { ReuseInfo } from "./PlanCosts";
@@ -143,7 +144,39 @@ const assumptionsOf = (o: Offer, billing: Billing, usage: number, r: Running, fe
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
-interface Line { o: Offer; colour: string; ys: number[] }
+interface Line { o: Offer; colour: string; ys: number[]; /** the mix of all plans: dashed, no autoplan count in the readout */ mix?: boolean }
+
+const MIX_ID = "mix";
+const MIX_COLOUR = "#e2e8f0";
+
+/** The starting mix: the enabled plans shared as on Over time, a disabled plan at 0. */
+function mixFrom(offers: Offer[]): Record<string, number> {
+  const on = offers.filter((o) => o.enabled);
+  const shares = startShares(on.length);
+  return Object.fromEntries(offers.map((o) => [o.id, o.enabled ? shares[on.indexOf(o)] : 0]));
+}
+
+/**
+ * One account of the mix: each plan as it is on its tab now (price, allowance, reuse, Batch), weighted by its share.
+ * Left is the weighted average of what's left; margin is the weighted left over the weighted price. Null with no share.
+ */
+function mixLine(offers: Offer[], mix: Record<string, number>, model: PlanTokens, billing: Billing, mode: YMode, r: Running, fee: Fee): Line | null {
+  const weighted = offers.map((o) => ({ o, w: mix[o.id] ?? 0 })).filter((x) => x.w > 0);
+  const total = weighted.reduce((s, x) => s + x.w, 0);
+  if (!total) return null;
+  const avg = (f: (o: Offer) => number) => weighted.reduce((s, x) => s + f(x.o) * x.w, 0) / total;
+  const o: Offer = { id: MIX_ID, name: "Mix of all plans", enabled: true, month: avg((p) => p.month), year: avg((p) => p.year), allowance: avg((p) => p.allowance), batch: false, reuse: avg((p) => p.reuse) };
+  const ys = Array.from({ length: Math.round(USAGE_MAX / USAGE_STEP) + 1 }, (_, i) => {
+    let left = 0, price = 0;
+    for (const x of weighted) {
+      const a = assumptionsOf(x.o, billing, i * USAGE_STEP, r, fee);
+      left += playerYear(model, a).left * x.w;
+      price += a.price * x.w;
+    }
+    return mode === "margin" ? (price > 0 ? left / price : 0) : left / total;
+  });
+  return { o, colour: MIX_COLOUR, ys, mix: true };
+}
 
 /** Every drawn plan's line over the share of its allowance used, with a crosshair readout. Click sets the allowance used. */
 function PlansChart({ lines, mode, billing, usage, active, onPick }: { lines: Line[]; mode: YMode; billing: Billing; usage: number; /** the open tab, drawn thicker */ active: string; onPick: (usage: number) => void }) {
@@ -191,10 +224,10 @@ function PlansChart({ lines, mode, billing, usage, active, onPick }: { lines: Li
         <text x={x(1) + 4} y={T + 10} className="fill-slate-500 text-[11px]">full allowance</text>
         {[...lines].sort((a, b) => Number(a.o.id === active) - Number(b.o.id === active)).map(({ o, colour, ys }) => {
           const { points, cut } = clipped(xs, ys, lo);
-          const w = o.id === active ? 3 : 1.75;
+          const w = o.id === active || o.id === MIX_ID ? 3 : 1.75;
           return (
             <g key={o.id}>
-              <polyline fill="none" stroke={colour} strokeWidth={w} strokeLinejoin="round" points={points.map(([px, py]) => `${x(px)},${y(py)}`).join(" ")} />
+              <polyline fill="none" stroke={colour} strokeWidth={w} strokeLinejoin="round" strokeDasharray={o.id === MIX_ID ? "6 4" : undefined} points={points.map(([px, py]) => `${x(px)},${y(py)}`).join(" ")} />
               {cut !== null && <path d={`M${x(cut) - 5},${y(lo) - 6} L${x(cut)},${y(lo)} L${x(cut) + 5},${y(lo) - 6}`} fill="none" stroke={colour} strokeWidth={w} strokeLinecap="round" />}
             </g>
           );
@@ -204,11 +237,11 @@ function PlansChart({ lines, mode, billing, usage, active, onPick }: { lines: Li
       </svg>
       <div aria-live="polite" className="mt-2 flex flex-wrap items-baseline gap-x-5 gap-y-1 rounded-md bg-slate-900/60 px-3 py-2 text-xs">
         <span className="text-slate-400">At {pct(hx)} of the allowance{hover === null ? "" : " (click to set)"}:</span>
-        {lines.map(({ o, colour, ys }) => (
+        {lines.map(({ o, colour, ys, mix }) => (
           <span key={o.id} className="flex items-center gap-1.5">
             <span className="h-0.5 w-3 rounded" style={{ background: colour }} />
             <span className={`font-mono font-semibold tabular-nums ${ys[hi] < 0 ? "text-rose-300" : "text-slate-50"}`}>{fmt(ys[hi])}</span>
-            <span className="text-slate-400">{o.name} ({Number((o.allowance * hx).toFixed(1))} autoplans)</span>
+            <span className="text-slate-400">{o.name} ({mix ? "average " : ""}{Number((o.allowance * hx).toFixed(1))} autoplans)</span>
           </span>
         ))}
         {lines.length === 0 && <span className="text-slate-500">No plan drawn.</span>}
@@ -242,6 +275,8 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
   const [playersLog, setPlayersLog] = useState(3);
   const [fixedMonthly, setFixedMonthly] = useState(60);
   const [table, setTable] = useState(false);
+  const [mix, setMix] = useState<Record<string, number>>(() => mixFrom(originals));
+  const [showMix, setShowMix] = useState(true);
   const setRun = <K extends keyof Running>(key: K) => (v: number) => setRunning((s) => ({ ...s, [key]: v }));
   const model = models.find((m) => m.model === modelId) ?? models[0];
   const colourById = new Map(offers.map((o, i) => [o.id, planColour(i)]));
@@ -257,6 +292,9 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
         }),
       }))
     : [];
+  const combined = model && showMix ? mixLine(offers, mix, model, billing, mode, running, fee) : null;
+  if (combined) lines.push(combined);
+  const mixTotal = Object.values(mix).reduce((s, x) => s + x, 0) || 1;
   const i = Math.max(0, offers.findIndex((o) => o.id === tab));
   const offer = offers[i];
   const original = originals[i];
@@ -298,6 +336,16 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
                   Show
                   <Toggle label="Show" value={mode} onChange={setMode} options={[["left", "Left a year"], ["margin", "Margin"]]} />
                 </span>
+              </Group>
+              <Group title="Mix of all plans">
+                <label className="flex items-center gap-2 text-sm text-slate-300">
+                  <input type="checkbox" checked={showMix} onChange={(e) => setShowMix(e.target.checked)} className="accent-sky-400" />
+                  Draw the mix (dashed)
+                </label>
+                {offers.map((o) => (
+                  <Slider key={o.id} label={o.name} value={mix[o.id] ?? 0} shown={pct((mix[o.id] ?? 0) / mixTotal)} min={0} max={100} step={1} onChange={(v) => setMix((m) => ({ ...m, [o.id]: v }))} />
+                ))}
+                <span className="text-xs text-slate-500">One average paying account: each plan as on its tab now (price, allowance, reuse, Batch), weighted by these shares. Started as the plan mix on Over time.</span>
               </Group>
               <Group title="Running costs, every plan">
                 <Slider label="Emails a day" value={running.emailsPerDay} shown={String(running.emailsPerDay)} min={0} max={3} step={1} onChange={setRun("emailsPerDay")} />

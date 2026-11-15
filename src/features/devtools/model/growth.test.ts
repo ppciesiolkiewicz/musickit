@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { lifetimeValue, project, type GrowthInputs, type GrowthPlan } from "./growth";
+import { lifetimeValue, project, startShares, type GrowthInputs, type GrowthPlan } from "./growth";
 
 const close = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
 const plan: GrowthPlan = { id: "a", month: 9, year: 27, trialDays: 0, share: 1, costPerMonth: 0 };
@@ -45,4 +45,10 @@ test("a lifetime is the margin over the share that leaves", () => {
   close(v.monthly, 90);
   close(v.yearly, 68 / 0.4);
   assert.equal(lifetimeValue(plan, { monthlyChurn: 0, yearlyRenewal: 1, fee: g.fee }).monthly, Infinity);
+});
+
+test("the starting plan mix puts 70 on the first plan and fewer on each dearer one", () => {
+  assert.deepEqual(startShares(1), [100]);
+  assert.deepEqual(startShares(2), [70, 30]);
+  assert.deepEqual(startShares(3), [70, 20, 10]);
 });
