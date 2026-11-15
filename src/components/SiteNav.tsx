@@ -6,20 +6,8 @@ import ThemeSwitcher from "./ThemeSwitcher";
 import Icon from "./Icon";
 import Wordmark from "./Wordmark";
 import { SpotlightButton } from "@/features/search/Spotlight";
+import { APP_PLACES, isUnder } from "@/lib/appPlaces";
 import { isMarketingPath } from "@/lib/publicPaths";
-
-/** The app's three places. Each lists the paths that count as being there, for the current mark. */
-const APP_LINKS = [
-  { href: "/plan", label: "AI autoplan", under: ["/plan"] },
-  { href: "/teachers/studio?notes=1", label: "Interactive notes", under: ["/teachers/studio", "/note", "/creator"] },
-  { href: "/practice", label: "Practice", under: ["/practice", "/theory", "/course", "/tuner", "/looper", "/cheatsheet"] },
-];
-
-// the page path without its query (the notes page is /teachers/studio?notes=1)
-const isUnder = (active: string, paths: string[]) => {
-  const path = active.split("?")[0];
-  return paths.some((p) => path === p || path.startsWith(`${p}/`));
-};
 
 function NavLink({ href, label, current }: { href: string; label: string; current: boolean }) {
   return (
@@ -52,27 +40,27 @@ function DemoLink({ current }: { current: boolean }) {
 }
 
 /**
- * The attunr top navigation, shared by every page. Its bar follows the page: a page a visitor may read
- * (`isMarketingPath`: the home pages, FAQ, demos, logging in) gets the visitor's bar, with Demos and Log in (the switch
- * between the two home pages is at the top of each, and in the footer); every other page is the app, with AI autoplan, Interactive notes and Practice (on a phone the wordmark and buttons take
- * the first row and the three links the second). The tuner button sits left of the style, except on
- * the tuner page; `devices` adds the audio devices button after the style.
+ * The attunr top navigation, shared by every page. Every page shows the app's three places (AI autoplan, Interactive
+ * notes, Practice; on a phone the wordmark and buttons take the first row and the three links the second), so a visitor
+ * sees what is inside; without a login they lead to the login page (src/proxy.ts). A page a visitor may read
+ * (`isMarketingPath`: the home pages, FAQ, demos, logging in) adds Demos and has the wordmark go home (the switch
+ * between the two home pages is at the top of each, and in the footer); on the app's pages the wordmark goes to the
+ * plan, and search and the tuner join the bar. The tuner button sits left of the style, except on the tuner page;
+ * `devices` adds the audio devices button after the style.
  */
 export default function SiteNav({ active, devices = false }: { active: string; devices?: boolean }) {
   const visitor = isMarketingPath(active);
   return (
     <nav aria-label="attunr" className="flex flex-wrap items-center gap-1">
-      <Link href={visitor ? "/" : "/plan"} aria-label={visitor ? "attunr home" : "attunr: your plan"} className={`mr-5 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${visitor ? "hidden sm:inline" : "inline"}`}>
+      <Link href={visitor ? "/" : "/plan"} aria-label={visitor ? "attunr home" : "attunr: your plan"} className="mr-5 inline rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
         <Wordmark className="text-[1.7rem]" />
       </Link>
       {/* the app's three links share a second row on a phone, under the wordmark and the buttons */}
-      {!visitor && (
-        <div className="order-last -ml-2.5 flex w-[calc(100%+0.625rem)] justify-between sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1">
-          {APP_LINKS.map((l) => (
-            <NavLink key={l.href} href={l.href} label={l.label} current={isUnder(active, l.under)} />
-          ))}
-        </div>
-      )}
+      <div className="order-last -ml-2.5 flex w-[calc(100%+0.625rem)] justify-between sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1">
+        {APP_PLACES.map((l) => (
+          <NavLink key={l.href} href={l.href} label={l.label} current={isUnder(active, l.under)} />
+        ))}
+      </div>
       {visitor && <DemoLink current={isUnder(active, ["/demo"])} />}
       <span className="ml-auto" />
       {!visitor && <SpotlightButton />}

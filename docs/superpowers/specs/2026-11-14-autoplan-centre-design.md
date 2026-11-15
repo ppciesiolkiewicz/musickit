@@ -76,8 +76,10 @@ and CLAUDE.md to say so.
 **Practice** (`/practice`), and the account corner (`AccountLink`) on the right. The Learn / Guitar / Singing / Tools
 dropdowns (`TheoryMenu`) leave the nav. On a phone the three items still fit in one row; no hamburger.
 
-Marketing pages keep their own top bar: wordmark, the other home page's link ("For players" / "For music schools"),
-and **Log in**, which says **Open my plan** when the session hint cookie (`mk_in`) is there.
+Marketing pages show the same three items (2026-11-15), so a visitor sees what is inside; without a login each leads
+to `/login?next=…`. They add **Demos**, the wordmark goes to `/`, and search and the tuner stay off. The login page names
+the place the visitor was going to ("to open your AI autoplan") and shows the quick tour (`TourCard`, as on `/demo`)
+beside the form. The three places are one list, `src/lib/appPlaces.ts`.
 
 ### Practice: a page of tiles
 
@@ -129,10 +131,10 @@ the app") for the wording. Plain, short, no hype, no exclamation marks.
 - **The schools page promises no plan hand-over.** Nothing carries a plan from teacher to student and none is built.
   `/` says: every student gets a daily plan from their own AI; teachers use the same app and send lesson notes as a link.
   The stale "A student gets plans from a teacher" comment in `FEATURES` goes.
-- **One `SiteNav`, two bars, chosen by the page.** On a public path (shared list with the proxy, `src/lib/publicPaths.ts`)
-  it shows the public bar: wordmark (to `/`), "For players" / "For music schools", Demos, and the account corner (Log in,
-  or the name). On any other path, the app bar: Plan · Notes · Practice. Demo plans may link to gated tool pages; those
-  go through login.
+- **One `SiteNav`, the three places on every page.** On a public path (shared list with the proxy,
+  `src/lib/publicPaths.ts`) the bar adds Demos and its wordmark goes to `/`; on any other path the wordmark goes to
+  `/plan` and search and the tuner join it. The account corner (Log in, or the name) is on both. Demo plans may link to
+  gated tool pages; those go through login.
 - **`/teachers/video/render` stays public** (the video render script opens it with no session).
 - The client guard lives in the root layout (one small client component), not in `PageShell`, so pages without
   `PageShell` (course, looper, studio, cheatsheet) are covered too. It reuses the public-path list.
