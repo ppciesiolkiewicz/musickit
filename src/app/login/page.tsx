@@ -25,7 +25,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <PageShell centered title="Log in" intro={`Log in with your email or with Google to open ${goingTo(next)}. If you're new, this also creates your account.`} active="/login">
       {databaseUrl() ? (
         <div className="grid w-full max-w-5xl grid-cols-[minmax(0,1fr)] items-start gap-10 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
-          <div className="flex justify-center">
+          {/* side by side, the card's top lines up with the player's, under the tour's "Quick tour" row (30px and its 12px gap) */}
+          <div className="flex justify-center lg:pt-[2.625rem]">
             <LinkForm google={!!googleConfig()} next={next} error={q.error} />
           </div>
           <TourCard />
