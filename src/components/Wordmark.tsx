@@ -2,13 +2,12 @@
 const DOTS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#6366f1", "#a855f7"];
 
 /** The attunr wordmark with a row of seven coloured dots, under it or (`dots="side"`) after it: lowercase Outfit semibold under Default,
- * the style's headline face otherwise (themes.css). In chrome, with glossy dots (decor.css). */
+ * the style's headline face otherwise (themes.css). Plain text, glossy dots (decor.css). */
 export default function Wordmark({ className = "", dots = "under" }: { className?: string; dots?: "under" | "side" }) {
   const side = dots === "side";
   return (
     <span className={`inline-flex items-center whitespace-nowrap leading-none text-slate-100 ${side ? "gap-[0.3em]" : "flex-col"} ${className}`}>
       <span
-        className="metal-logo"
         style={{
           fontFamily: "var(--brand-font, var(--font-brand)), sans-serif",
           fontWeight: "var(--brand-weight, 600)" as unknown as number,
