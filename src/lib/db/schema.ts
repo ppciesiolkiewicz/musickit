@@ -241,7 +241,8 @@ export const blocks = pgTable(
 
 /**
  * The blocks of a library plan (never a player's plan), in order: one row per plan, day and place. Replaced as a whole for a
- * plan (`setPlanBlocks`). Deleting the plan drops its rows; a block is never deleted.
+ * plan (`setPlanBlocks`). Deleting the plan drops its rows; a block is never deleted. The rows name only blocks the app owns:
+ * the library shows the plan to callers who may not see a player's private block.
  */
 export const practicePlanBlocks = pgTable(
   "practice_plan_blocks",

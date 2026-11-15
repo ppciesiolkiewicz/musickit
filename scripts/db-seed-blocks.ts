@@ -19,7 +19,8 @@ async function main() {
   console.log(`Writing to ${new URL(url).host}`);
   const rows = await db
     .select({ id: practicePlans.id, reply: practicePlans.reply, model: practicePlans.model, promptVersion: practicePlans.promptVersion, docsAgents: practicePlans.docsAgents, docsTeaching: practicePlans.docsTeaching })
-    .from(practicePlans);
+    .from(practicePlans)
+    .orderBy(practicePlans.id);
   const plans: SeedPlan[] = rows.map((r) => ({ id: r.id, reply: r.reply, provenance: { model: r.model, promptVersion: r.promptVersion, docsAgents: r.docsAgents, docsTeaching: r.docsTeaching } }));
   const replies = plans.map((p) => p.reply);
   for (const i of unparsedReplies(replies)) console.log(`skipped  ${rows[i].id}  (reply does not parse)`);

@@ -14,6 +14,10 @@ A block is returned only when an owner row is `enabled_for_reuse`, or the player
 
 Other players appear only as totals (`use`: times, seconds, ratings by stars). No function returns another player's id or a single rating of theirs. Stars never order or filter blocks, except the player's own latest stars for `player: "repeat"`.
 
+Plans have their own gate: enabled for reuse, or `includeNotEnabled`, and `scope.planIds` narrows them. A plan's schedule, counts, topics, concepts and filters come from its `practice_plan_blocks` rows whether or not each block is visible to the caller; only a schedule row's title follows the block's gate (the rule `getBlock` uses), and is "" when the caller cannot see the block. A library plan's rows name only blocks the app owns. `coverage` counts only blocks visible under the scope, and only pairs and concepts with at least one; its `plans` counts visible plans with a block of that topic and level (or concept).
+
+`handleRpc` and `devTools` (in `mcp.ts`) build the scope from the tool arguments (`player`, `include_not_enabled`, through `devScope`). They are for the local dev route `/api/dev/mcp` only, never mounted elsewhere; `/dev/library` is the other caller of `devScope`.
+
 ## Files (`server/`)
 
 - `types.ts`: `Scope`, `BlockSummary`, `BlockDetail`, `BlockFilter`, `BlockOrder`, `PlanSummary`, `PlanDetail`, `PlanFilter`, `CoverageRow`, `ConceptCoverage`.
@@ -23,7 +27,7 @@ Other players appear only as totals (`use`: times, seconds, ratings by stars). N
 - `repo.drizzle.ts`: `drizzleLibraryRepo(db)`, the same rules in SQL. Every caller value is a bound parameter; player ids are compared as text, so an id that is not a UUID matches nothing.
 - `testDatabase.ts`: `localTestDatabase(url)`, the guard of the Postgres test script (below).
 - `repoContract.ts`: `libraryRepoContract(make)`, the tests every repo must pass; `repo.memory.test.ts` runs it on the memory repo.
-- `query.ts`: `findBlocks`, `getBlock`, `findPlans`, `getPlan`, `libraryCoverage`, `playerProgress` over a `LibraryRepo` and a `UserDataRepo` (`Deps`). Limits clamp to 1..max (blocks 20/50, plans 10/30); `random-least-used` shuffles the least used fifth; coverage adds zero rows for every topic, level and concept; `playerProgress` builds the progress page's `outcome()` on the server and is null without a player.
+- `query.ts`: `findBlocks`, `getBlock`, `findPlans`, `getPlan`, `libraryCoverage`, `playerProgress` over a `LibraryRepo` and a `UserDataRepo` (`Deps`). Limits clamp to 1..max (blocks 20/50, plans 10/30); `random-least-used` shuffles the least used fifth; coverage adds zero rows for every topic, level and concept; `playerProgress` builds the progress page's `outcome()` on the server from the player's own readers (`readDoc`, `readEntries`, `readAllPlanTimes`), returns at most 50 of the player's blocks with `blocksTotal` beside them, and is null without a player.
 - `tools.ts`: `LIBRARY_TOOLS` (name, description, JSON schema) and `callTool`, which checks arguments by hand. `player`, `planIds`, `includeNotEnabled` and `include_not_enabled` in the arguments are ignored: the scope is the server's.
 - `mcp.ts`: `handleRpc` (the MCP streamable HTTP messages: `initialize`, `ping`, `tools/list`, `tools/call`; stateless, plain JSON), `devTools()` (the tools with the two dev arguments added) and `devScope` (takes `player` and `include_not_enabled` out of the arguments and builds the `Scope`; the only place that reads them). A query that throws becomes a result with `isError` and the text "The library could not be read."; the error is logged with `console.error`.
 
@@ -40,5 +44,3 @@ LIBRARY_TEST_DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit_t
 ```
 
 It refuses any database that is not on `localhost` or `127.0.0.1` with a name ending in `_test`, and any address with a query string or hash (postgres.js would take `?host=` from it) (`server/testDatabase.ts`, `localTestDatabase`); it connects by the checked parts only and hands the migrations a URL rebuilt from them. It drops and remakes that database's `public` schema, runs the migrations, and empties the tables before each test. It never reads `.env` or `.env.local`. Create the database once on the local server: `docker exec musickit-db psql -U musickit -d postgres -c "create database musickit_test"`.
-
-Plans have their own gate: enabled for reuse, or `includeNotEnabled`, and `scope.planIds` narrows them. A plan's schedule, counts, topics, concepts and filters come from its `practice_plan_blocks` rows whether or not each block is visible to the caller. `coverage` counts only blocks visible under the scope, and only pairs and concepts with at least one; its `plans` counts visible plans with a block of that topic and level (or concept).

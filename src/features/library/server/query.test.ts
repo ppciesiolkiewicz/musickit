@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { TOPICS } from "@/features/plan/intake/topics";
 import { CONCEPTS } from "@/features/plan/model/concepts";
+import type { ProgressEntry } from "@/features/progress/log";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
 import { PLAYER_A, PLAYER_B, baseFixture } from "./fixture";
 import { findBlocks, findPlans, getBlock, getPlan, libraryCoverage, playerProgress, type Deps } from "./query";
@@ -72,6 +73,7 @@ test("playerProgress for A: rated topic and concept are no longer not-yet, block
   assert.equal(r.outcome.areas.flatMap((a) => a.topics).flatMap((t) => t.concepts).find((c) => c.id === "pentatonic")?.state, "solid");
   assert.equal(r.outcome.asOf, "2026-11-15");
   assert.deepEqual(r.blocks.map((b) => b.id).sort(), ["D", "PA", "R", "S2"]);
+  assert.equal(r.blocksTotal, 4);
   assert.ok(r.blocks.every((b) => b.mine));
   // another player's data is not read for A
   assert.equal((await playerProgress(deps({ userData }), { player: PLAYER_B }))?.outcome.areas.flatMap((a) => a.topics).find((t) => t.topic === "guitar-scales")?.ratings, 0);
@@ -82,4 +84,27 @@ test("playerProgress for a player with no plan document and no progress answers"
   assert.ok(r);
   assert.equal(r.outcome.seconds.total, 0);
   assert.equal(r.outcome.streak.days, 0);
+});
+
+test("playerProgress caps the blocks at the max and gives the total beside them", async () => {
+  const data = baseFixture();
+  for (let i = 0; i < 55; i++) {
+    const id = `M${String(i).padStart(2, "0")}`;
+    data.blocks.push({ ...data.blocks[0], id });
+    data.owners.push({ userId: PLAYER_A, blockId: id, source: "ai", enabledForReuse: false, createdAt: new Date("2026-01-01T00:00:00Z") });
+  }
+  const r = await playerProgress(deps({ library: memoryLibraryRepo(data) }), { player: PLAYER_A });
+  assert.ok(r);
+  assert.equal(r.blocks.length, 50);
+  assert.equal(r.blocksTotal, 59);
+});
+
+test("playerProgress reads progress the way the player's API does: a broken stored row is ignored", async () => {
+  const userData = memoryUserDataRepo();
+  // stars 9 is not a rating: readEntries drops the row, as GET /api/me/progress does
+  const broken = { id: "p1", planId: "p-1", exerciseId: "e1", day: 0, exercise: 0, title: "S1", area: "guitar", topic: "guitar-scales", stars: 9, at: "2026-11-10T10:00:00Z" };
+  await userData.putProgress(PLAYER_A, broken as unknown as ProgressEntry, now);
+  const r = await playerProgress(deps({ userData }), { player: PLAYER_A });
+  assert.ok(r);
+  assert.equal(r.outcome.areas.flatMap((a) => a.topics).find((t) => t.topic === "guitar-scales")?.ratings, 0);
 });

@@ -66,9 +66,10 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   /** The block's title, or "" when its content has none. */
   const titleOf = (b: Row): string => (typeof b.content.title === "string" ? b.content.title : "");
 
-  const blockTitle = (id: string): string => {
+  /** A schedule row's title: the block's when the block is visible in the scope, else "" (the row's id and minutes stay). */
+  const blockTitle = (scope: Scope, id: string): string => {
     const b = data.blocks.find((x) => x.id === id);
-    return b ? titleOf(b) : "";
+    return b && visible(scope, b) ? titleOf(b) : "";
   };
 
   const summary = (scope: Scope, b: Row): BlockSummary => ({
@@ -179,7 +180,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
       const p = data.plans.find((x) => x.id === id);
       if (!p || !planVisible(scope, p)) return null;
       const schedule = data.planBlocks.filter((r) => r.planId === id).sort((a, b) => a.day - b.day || a.place - b.place)
-        .map((r) => ({ day: r.day, place: r.place, blockId: r.blockId, title: blockTitle(r.blockId), minutes: r.minutes }));
+        .map((r) => ({ day: r.day, place: r.place, blockId: r.blockId, title: blockTitle(scope, r.blockId), minutes: r.minutes }));
       return { ...planSummary(scope, p), schedule, ...(withReply ? { reply: p.reply } : {}) };
     },
     async coverage(scope) {

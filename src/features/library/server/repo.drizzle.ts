@@ -221,8 +221,9 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
     async getPlan(scope, id, withReply): Promise<PlanDetail | null> {
       const [r] = await rows<PlanRow>(planQuery(scope, sql`p.id = ${id} and ${planVisible(scope)}`, sql``));
       if (!r) return null;
+      // a row's title only when its block is visible under the scope's block rule (as `getBlock`); its id and minutes always
       const schedule = await rows<{ day: number; place: number; blockId: string; title: string; minutes: number }>(sql`
-        select ppb.day, ppb.place, ppb.block_id as "blockId", (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, ppb.minutes
+        select ppb.day, ppb.place, ppb.block_id as "blockId", (case when ${blockVisible(scope, sql`ppb.block_id`)} and jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, ppb.minutes
         from practice_plan_blocks ppb left join blocks b on b.id = ppb.block_id
         where ppb.plan_id = ${id}
         order by ppb.day, ppb.place`);

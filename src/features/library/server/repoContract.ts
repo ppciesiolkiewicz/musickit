@@ -318,7 +318,7 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
     });
     test("the schedule is by day and place, with the block titles, and the reply only when asked", async () => {
       const r = await repo();
-      const p1 = (await r.getPlan({}, "P1", false))!;
+      const p1 = (await r.getPlan({ includeNotEnabled: true }, "P1", false))!;
       assert.deepEqual(p1.schedule, [
         { day: 0, place: 0, blockId: "S1", title: "Block S1", minutes: 10 },
         { day: 0, place: 1, blockId: "S2", title: "Block S2", minutes: 15 },
@@ -327,6 +327,19 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       ]);
       assert.equal("reply" in p1, false);
       assert.equal((await r.getPlan({}, "P1", true))?.reply, "reply P1");
+      // X is the app's and not enabled: without includeNotEnabled its row stays, without its title
+      assert.deepEqual((await r.getPlan({}, "P1", false))?.schedule[3], { day: 1, place: 1, blockId: "X", title: "", minutes: 5 });
+    });
+    test("a schedule row on a block the caller cannot see has the title \"\"; ids, minutes and counts stay", async () => {
+      // P4 holds PA, A's private block
+      const d = baseFixture();
+      const r = await make({ ...d, planBlocks: [...d.planBlocks, { planId: "P4", day: 0, place: 0, blockId: "PA", minutes: 5 }] });
+      for (const scope of [{}, { player: B }] as Scope[]) {
+        const p4 = (await r.getPlan(scope, "P4", false))!;
+        assert.deepEqual(p4.schedule, [{ day: 0, place: 0, blockId: "PA", title: "", minutes: 5 }]);
+        assert.deepEqual([p4.days, p4.minutes, p4.blocks], [1, 5, 1]);
+      }
+      assert.deepEqual((await r.getPlan({ player: A }, "P4", false))?.schedule, [{ day: 0, place: 0, blockId: "PA", title: "Block PA", minutes: 5 }]);
     });
     test("no other player's id appears in a plan result", async () => {
       const r = await repo();

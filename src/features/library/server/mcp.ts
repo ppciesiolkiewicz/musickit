@@ -27,7 +27,10 @@ export function devTools(): ToolDef[] {
   });
 }
 
-/** Takes `player` and `include_not_enabled` out of the arguments and builds the scope from them; the rest goes on to the tool. */
+/**
+ * Takes `player` and `include_not_enabled` out of the arguments and builds the scope from them; the rest goes on to the tool.
+ * Dev only: it lets the caller name the player, so it is never used outside `/api/dev/mcp` (through `handleRpc`) and the `/dev/library` page.
+ */
 export async function devScope(args: unknown, d: Deps): Promise<{ scope: Scope; args: unknown } | { error: string }> {
   if (args === undefined || args === null) return { scope: {}, args: {} };
   if (typeof args !== "object" || Array.isArray(args)) return { error: "the arguments must be an object" };
@@ -61,7 +64,10 @@ const reply = (id: Id, result: unknown) => ({ status: 200, body: { jsonrpc: "2.0
 const fail = (id: Id, code: number, message: string) => ({ status: 200, body: { jsonrpc: "2.0", id, error: { code, message } } });
 const toolResult = (text: string, isError: boolean) => ({ content: [{ type: "text", text }], isError });
 
-/** One JSON-RPC message of the MCP streamable HTTP transport, stateless, answered as plain JSON. */
+/**
+ * One JSON-RPC message of the MCP streamable HTTP transport, stateless, answered as plain JSON.
+ * Dev only: the scope comes from the arguments (`devScope`), so the caller names the player. Never mount it outside `/api/dev`.
+ */
 export async function handleRpc(d: Deps, body: unknown): Promise<{ status: number; body?: unknown }> {
   if (typeof body !== "object" || body === null || Array.isArray(body)) return fail(null, -32600, "Invalid request");
   const m = body as { jsonrpc?: unknown; id?: unknown; method?: unknown; params?: unknown };

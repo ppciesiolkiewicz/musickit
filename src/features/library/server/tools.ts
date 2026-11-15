@@ -31,7 +31,8 @@ const SPECS: Record<string, Spec> = {
       "List exercise blocks (one exercise: a title and its tools), with how much they have been used by all players together. " +
       "Use it to find blocks to reuse or to see what the library holds on a topic. Stars say how the player is doing with a block, not how good the block is. " +
       "mine: 'unused' is reusable blocks the player does not have yet, 'had' is blocks the player has had, 'repeat' is blocks the player had and last rated 1 to 3 stars. " +
-      "order: 'least-used' (default) is the fewest seconds practised first, 'random-least-used' picks at random from the least used fifth, 'newest' is the newest first.",
+      "order: 'least-used' (default) is the fewest seconds practised first, 'random-least-used' picks at random from the least used fifth, 'newest' is the newest first. " +
+      `The answer is capped: ${BLOCK_LIMIT.default} blocks by default, at most ${BLOCK_LIMIT.max}. A full page may mean there are more.`,
     args: {
       area: str("An area id: guitar, voice or theory."),
       topic: str("A topic id."),
@@ -45,14 +46,18 @@ const SPECS: Record<string, Spec> = {
     },
   },
   get_block: {
-    description: "One block with its full content, its parent block id, its tags and its use by all players together.",
+    description:
+      "One block with its full content, its parent block id, its tags and its use by all players together. " +
+      "With a player in scope it also returns mine: that player's own history with the block (their latest stars and their timer totals).",
     args: { id: str("The block id.") },
     required: ["id"],
   },
   find_plans: {
     description:
       "List practice plans with their size (days, minutes, blocks), topics, concepts and reviews. Reviews are only a count and a mean of stars. " +
-      "Use it to see what a whole week looks like for a kind of player.",
+      "They come from players' reviews of plans they took from the library; a count of 0 means no review is linked to the plan yet, not that the plan is bad. " +
+      "Use it to see what a whole week looks like for a kind of player. " +
+      `The answer is capped: ${PLAN_LIMIT.default} plans by default, at most ${PLAN_LIMIT.max}. A full page may mean there are more.`,
     args: {
       areas: list("Area ids; a plan whose answers name any of them matches."),
       levels: list("Levels; a plan with a block at any of them matches."),
@@ -69,11 +74,14 @@ const SPECS: Record<string, Spec> = {
   library_coverage: {
     description:
       "How much the library holds for every topic at every level, and for every concept: blocks, plans, times practised and seconds. " +
-      "Read this first to see which topics and levels are thin. A zero row means nothing there yet.",
+      "Read this first to see which topics and levels are thin. A zero row means nothing there yet. " +
+      "Without a player in scope the counts are the reusable library; with one they also include that player's own private blocks.",
     args: {},
   },
   player_progress: {
-    description: "Where the player stands today in every topic and concept (from their ratings, questionnaires and timer), and the blocks they have had. Needs a player.",
+    description:
+      "Where the player stands today in every topic and concept (from their ratings, questionnaires and timer), and the blocks they have had. Needs a player. " +
+      `blocks holds at most ${BLOCK_LIMIT.max} of them, least used first; blocksTotal is how many they have had in all.`,
     args: {},
   },
 };

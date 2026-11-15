@@ -100,7 +100,10 @@ export interface UserDataRepo {
    * is left. `null` is the app. Nothing is deleted.
    */
   addBlocks(userId: string | null, blocks: NewBlock[], now: Date): Promise<void>;
-  /** Replaces the plan's `practice_plan_blocks` rows with these, in one transaction. */
+  /**
+   * Replaces the plan's `practice_plan_blocks` rows with these, in one transaction. A library plan's rows name only blocks the app
+   * owns: the library shows a plan to callers who may not see a player's private block (a schedule row on one has no title).
+   */
   setPlanBlocks(planId: string, rows: PlanBlockRow[]): Promise<void>;
   /**
    * Makes the user's `plan_reviews` rows of these plans match `rows`: a row is added, or changed only when its `at` differs,

@@ -3,7 +3,7 @@ import { CONCEPTS } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER, outcome, type Outcome, type OutcomeInput } from "@/features/plan/model/outcome";
 import { localDate } from "@/features/plan/model/schedule";
 import type { PlanState } from "@/features/plan/model/types";
-import { readAllPlanTimes, readDoc } from "@/features/userData/server/data";
+import { readAllPlanTimes, readDoc, readEntries } from "@/features/userData/server/data";
 import type { UserDataRepo } from "@/features/userData/server/repo";
 import type { LibraryRepo } from "./repo";
 import type { BlockDetail, BlockFilter, BlockSummary, ConceptCoverage, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope } from "./types";
@@ -72,19 +72,25 @@ export async function libraryCoverage(d: Deps, scope: Scope): Promise<{ topics: 
 
 /**
  * Where the player in scope stands (the same `outcome()` the progress page uses, built from the player's stored plan document,
- * ratings and timer rows as of today) and the blocks they have had. Null without `scope.player`.
- * The page builds its input in the browser from hooks, so the server side is assembled here from the same readers the API uses.
+ * ratings and timer rows as of today) and the blocks they have had: at most `BLOCK_LIMIT.max` of them, least used first, with
+ * `blocksTotal` the number they have had in all. Null without `scope.player`.
+ * The page builds its input in the browser from hooks, so the server side is assembled here from the same readers the API uses
+ * (broken progress rows dropped, one per exercise).
  */
-export async function playerProgress(d: Deps, scope: Scope): Promise<{ outcome: Outcome; blocks: BlockSummary[] } | null> {
+export async function playerProgress(d: Deps, scope: Scope): Promise<{ outcome: Outcome; blocks: BlockSummary[]; blocksTotal: number } | null> {
   const player = scope.player;
   if (player === undefined) return null;
   const state = (await readDoc(d.userData, player, "plan")) as PlanState;
   const input: OutcomeInput = {
     plans: [state.current, ...state.history].filter((p) => p !== null),
-    entries: await d.userData.listProgress(player),
+    entries: await readEntries(d.userData, player),
     times: await readAllPlanTimes(d.userData, player),
     answersHistory: state.answersHistory,
   };
   const asOf = (d.today ?? (() => localDate()))();
-  return { outcome: outcome(input, asOf), blocks: await findBlocks(d, scope, { player: "had" }, "least-used", BLOCK_LIMIT.max) };
+  return {
+    outcome: outcome(input, asOf),
+    blocks: await findBlocks(d, scope, { player: "had" }, "least-used", BLOCK_LIMIT.max),
+    blocksTotal: await d.library.countBlocks(scope, { player: "had" }),
+  };
 }
