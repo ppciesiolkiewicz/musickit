@@ -45,7 +45,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
   const shareVideos = new Set<string>();
   /** `plan_claims` rows, as `${shareId} ${userId}`. */
   const claims = new Set<string>();
-  /** `blocks` rows, by id; never changed once set. */
+  /** `blocks` rows, by id; content and tags never change once set, provenance is filled once. */
   const blocks = new Map<string, StoredBlock>();
   /** `practice_plan_blocks` rows, by plan id. */
   const planBlocks = new Map<string, PlanBlockRow[]>();

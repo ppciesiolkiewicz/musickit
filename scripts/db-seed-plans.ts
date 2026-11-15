@@ -1,6 +1,6 @@
 /**
  * Puts the published Fable 5.2 plans (src/features/plan/modelPlans/plans.json) into the practice_plans library at
- * DATABASE_URL, enabled for reuse. A plan already there gets its title, answers and reply refreshed; its
+ * DATABASE_URL, enabled for reuse. A plan already there gets its title, answers, model, reply and versions refreshed; its
  * enabled_for_reuse is left as it is, so a plan turned off in the database stays off.
  *
  *   npm run -s db:seed-plans
@@ -26,7 +26,7 @@ async function main() {
   await db
     .insert(practicePlans)
     .values(rows)
-    .onConflictDoUpdate({ target: practicePlans.id, set: { title: sql`excluded.title`, answers: sql`excluded.answers`, model: sql`excluded.model`, reply: sql`excluded.reply` } });
+    .onConflictDoUpdate({ target: practicePlans.id, set: { title: sql`excluded.title`, answers: sql`excluded.answers`, model: sql`excluded.model`, reply: sql`excluded.reply`, promptVersion: sql`excluded.prompt_version`, docsAgents: sql`excluded.docs_agents`, docsTeaching: sql`excluded.docs_teaching` } });
   for (const r of rows) console.log(`seeded  ${r.id}  ${r.title}`);
   console.log(`${rows.length} plan${rows.length === 1 ? "" : "s"} in practice_plans.`);
 }
