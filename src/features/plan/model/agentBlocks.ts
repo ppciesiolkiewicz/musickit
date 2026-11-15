@@ -23,6 +23,7 @@ const NOTE_PART = [
   "### Notes",
   "A note is one block: a title, an optional choice, and cells. It has no days and needs no minutes; why, links and tags are optional on a note. On the notes creator, write the whole note with write_block (no \"where\").",
   "On the running plan, an exercise is a block with its metadata, as the exercise format says; write_block replaces one, insert_block adds one, remove_block takes one away. A day keeps 2 to 5 exercises.",
+  "Check every block with check_block before you send it with write_block or insert_block. check_block reads it as the page will and changes nothing. Fix what it reports and check again, until it says nothing to fix; then send it.",
 ].join("\n");
 
 /** The definitions, rules and examples of the plan prompt without the student, plus what a note is. */
@@ -60,13 +61,27 @@ export function readNoteReply(block: Block): string {
   return `The note:\n${json(block)}`;
 }
 
-/** The note the AI sent, read by the one parser; refused when it can't be read or has no cells. */
-export function writeNote(raw: unknown): { block: Block | null; reply: string } {
+/** The note the AI sent, read by the one parser: the note and what changed, or why not. */
+function readNote(raw: unknown): { block: Block; warnings: string[] } | { why: string } {
   const obj = asObject(raw);
-  if (!obj || typeof obj !== "object") return { block: null, reply: "The page could not read this as a note. Send the whole note as one JSON object: { \"title\", \"cells\": [...] }." };
+  if (!obj || typeof obj !== "object") return { why: "the page could not read this as a note. Send the whole note as one JSON object: { \"title\", \"cells\": [...] }." };
   const { block, warnings } = parseBlock(obj);
-  if (!block.cells.length) return { block: null, reply: `Refused: the note has no cells it could show.${warnings.length ? `\n${warningsText(warnings)}` : ""}` };
-  return { block, reply: `The note "${block.title}" is on the page.\n${warningsText(warnings)}` };
+  if (!block.cells.length) return { why: `the note has no cells it could show.${warnings.length ? `\n${warningsText(warnings)}` : ""}` };
+  return { block, warnings };
+}
+
+/** write_block on the notes creator: the note read by the one parser; refused when it can't be read or has no cells. */
+export function writeNote(raw: unknown): { block: Block | null; reply: string } {
+  const r = readNote(raw);
+  if ("why" in r) return { block: null, reply: `Refused: ${r.why}` };
+  return { block: r.block, reply: `The note "${r.block.title}" is on the page.\n${warningsText(r.warnings)}` };
+}
+
+/** check_block on the notes creator: what write_block would say, with nothing changed on the page. */
+export function checkNote(raw: unknown): string {
+  const r = readNote(raw);
+  if ("why" in r) return `${CHECKED} write_block would refuse it: ${r.why}`;
+  return `${CHECKED} write_block would take the note "${r.block.title}".\n${checkedText(r.warnings, "write_block")}`;
 }
 
 const starsOf = (plan: StoredPlan, d: number, e: number): string => {
@@ -115,6 +130,19 @@ function readExercise(raw: unknown, where: string, entries: CatalogueEntry[]): {
   if (warnings.some((w) => /no instructions/.test(w))) return { why: `every cell was left out.${said}` };
   if (!block.learnBefore?.length) return { why: `the exercise has no learnBefore link; add an attunr page to learn first.${said}` };
   return { exercise: block, warnings: warnings.filter((w) => !/no instructions/.test(w)) };
+}
+
+const CHECKED = "Checked; nothing on the page changed.";
+const checkedText = (warnings: string[], send: string) =>
+  warnings.length
+    ? ["The page would change or leave out:", ...warnings.map((w) => `- ${w}`), "Fix these and check again."].join("\n")
+    : `Nothing to fix. Send it with ${send}.`;
+
+/** check_block on the plan: what write_block or insert_block would say of this exercise, with nothing saved. */
+export function checkExercise(raw: unknown, entries: CatalogueEntry[]): string {
+  const r = readExercise(raw, "the exercise", entries);
+  if ("why" in r) return `${CHECKED} write_block and insert_block would refuse it: ${r.why}`;
+  return `${CHECKED} The exercise "${r.exercise.title}" can be sent.\n${checkedText(r.warnings, "write_block or insert_block")}`;
 }
 
 type Change = { plan: StoredPlan | null; reply: string };

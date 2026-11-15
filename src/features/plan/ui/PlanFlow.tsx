@@ -10,7 +10,7 @@ import { useAllNotes } from "@/components/course/useCourseNotes";
 import { courseRatings } from "@/features/course/ratings";
 import type { PlanAnswers, PlanConfig, StoredPlan } from "../model/types";
 import { CopyPrompt, PasteBox } from "./PromptAndPaste";
-import { agentReply } from "../model/fixRequest";
+import { agentReply, checkPlanReply } from "../model/fixRequest";
 import { hasBrowserAgentApi, useBrowserAgentTools } from "./useBrowserAgentTools";
 import { areasStep, questionSteps, restSteps, topicSteps } from "../intake/ui/Questionnaire";
 
@@ -85,7 +85,7 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
     setText(reply);
     setStep(steps.length - 1);
     return agentReply(parsePlanConfig(reply, entries));
-  });
+  }, (reply) => checkPlanReply(parsePlanConfig(reply, entries)));
 
   const steps: ModalStep[] = mode === "start"
     ? questionSteps(draft, set)

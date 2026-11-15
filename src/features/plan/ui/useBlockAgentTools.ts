@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { registerAgentTools, type AgentTool } from "@/lib/webmcp";
 
 export { hasBrowserAgentApi } from "@/lib/webmcp";
-import { authoringGuide, insertExercise, readExerciseReply, readNoteReply, readPlanReply, removeExercise, writeExercise, writeNote } from "../model/agentBlocks";
+import { authoringGuide, checkExercise, checkNote, insertExercise, readExerciseReply, readNoteReply, readPlanReply, removeExercise, writeExercise, writeNote } from "../model/agentBlocks";
 import { catalogue } from "../model/catalogue";
 import { randomId } from "../model/exerciseIds";
 import type { Block, StoredPlan } from "../model/types";
@@ -36,7 +36,7 @@ function useLatest<T>(value: T) {
 }
 
 /**
- * The notes creator's tools for the browser's AI (WebMCP): the guide, read_block (the note) and write_block (the whole note,
+ * The notes creator's tools for the browser's AI (WebMCP): the guide, read_block (the note), check_block (reads a note, changes nothing) and write_block (the whole note,
  * read by the one parser and shown at once). Registered while mounted.
  */
 export function useNoteAgentTools(block: Block | null, onChange: (b: Block) => void): void {
@@ -53,8 +53,15 @@ export function useNoteAgentTools(block: Block | null, onChange: (b: Block) => v
           execute: () => (latest.current.block ? readNoteReply(latest.current.block) : "The page has no note open."),
         },
         {
+          name: "check_block",
+          description: "Check a note before you send it: the page reads it as write_block would and answers with what it would change or leave out. Nothing on the page changes. Fix those and check again until it says nothing to fix.",
+          inputSchema: { type: "object", properties: { block: BLOCK }, required: ["block"] },
+          annotations: { readOnlyHint: true },
+          execute: (input) => checkNote(input.block),
+        },
+        {
           name: "write_block",
-          description: "Replace the note on the page with this one. The page checks it like a paste and answers with what it changed or left out; fix those and send the whole note again.",
+          description: "Replace the note on the page with this one. Check it with check_block first. The page answers with what it changed or left out; fix those and send the whole note again.",
           inputSchema: { type: "object", properties: { block: BLOCK }, required: ["block"] },
           execute: (input) => {
             const r = writeNote(input.block);
@@ -72,7 +79,7 @@ export function useNoteAgentTools(block: Block | null, onChange: (b: Block) => v
 }
 
 /**
- * The plan page's tools while a plan runs: the guide, read_plan, read_block, write_block, insert_block and remove_block. A
+ * The plan page's tools while a plan runs: the guide, read_plan, read_block, check_block (reads an exercise, saves nothing), write_block, insert_block and remove_block. A
  * change is saved at once through `editDay`: a rewritten exercise is a new one (its stars cleared), a day keeps 2 to 5.
  */
 export function usePlanAgentTools(plan: StoredPlan | null, onChange: (p: StoredPlan) => void, editing: number | null = null): void {
@@ -108,14 +115,21 @@ export function usePlanAgentTools(plan: StoredPlan | null, onChange: (p: StoredP
         execute: (input) => (latest.current.plan ? readExerciseReply(latest.current.plan, input.where) : "No plan is running."),
       },
       {
+        name: "check_block",
+        description: "Check an exercise before you send it with write_block or insert_block: the page reads it as they would and answers with what it would change or leave out, or why it would refuse it. Nothing is saved. Fix those and check again until it says nothing to fix.",
+        inputSchema: { type: "object", properties: { block: BLOCK }, required: ["block"] },
+        annotations: { readOnlyHint: true },
+        execute: (input) => checkExercise(input.block, catalogue()),
+      },
+      {
         name: "write_block",
-        description: "Replace one exercise of the running week. It is saved at once as a new exercise: its stars and tick are cleared. The page answers with what it changed or left out.",
+        description: "Replace one exercise of the running week. Check it with check_block first. It is saved at once as a new exercise: its stars and tick are cleared. The page answers with what it changed or left out.",
         inputSchema: { type: "object", properties: { where: WHERE, block: BLOCK }, required: ["where", "block"] },
         execute: (input) => withPlan((p) => writeExercise(p, input.where, input.block, catalogue(), randomId, latest.current.editing)),
       },
       {
         name: "insert_block",
-        description: "Add an exercise to a day of the running week, before the exercise numbered in where (one past the last: at the end). A day has 2 to 5 exercises.",
+        description: "Add an exercise to a day of the running week, before the exercise numbered in where (one past the last: at the end). Check it with check_block first. A day has 2 to 5 exercises.",
         inputSchema: { type: "object", properties: { where: WHERE, block: BLOCK }, required: ["where", "block"] },
         execute: (input) => withPlan((p) => insertExercise(p, input.where, input.block, catalogue(), randomId, latest.current.editing)),
       },

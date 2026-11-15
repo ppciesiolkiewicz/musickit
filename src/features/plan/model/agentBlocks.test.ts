@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue } from "./catalogue";
-import { authoringGuide, insertExercise, readExerciseReply, readNoteReply, readPlanReply, removeExercise, writeExercise, writeNote } from "./agentBlocks";
+import { authoringGuide, checkExercise, checkNote, insertExercise, readExerciseReply, readNoteReply, readPlanReply, removeExercise, writeExercise, writeNote } from "./agentBlocks";
 import type { PlanExercise, StoredPlan } from "./types";
 
 const entries = catalogue();
@@ -33,6 +33,23 @@ describe("notes", () => {
     const empty = writeNote({ title: "N", cells: [] });
     assert.equal(empty.block, null);
     assert.match(empty.reply, /no cells/);
+  });
+});
+
+describe("check_block", () => {
+  it("the guide tells the AI to check before it sends", () => assert.match(authoringGuide(entries), /check_block before you send it/));
+  it("a note: what write_block would say, nothing changed", () => {
+    assert.match(checkNote({ title: "N", cells: [{ type: "text", text: "Words" }] }), /nothing on the page changed[\s\S]*would take the note "N"[\s\S]*Nothing to fix/);
+    assert.match(checkNote({ title: "N", cells: [] }), /would refuse it: the note has no cells/);
+    assert.match(checkNote("not json"), /would refuse it/);
+  });
+  it("an exercise: sendable, or why it would be refused", () => {
+    assert.match(checkExercise(raw, entries), /"Rewritten" can be sent\.\nThe page would change or leave out:\n[\s\S]*- the exercise: no topic tag\.\nFix these and check again\.$/);
+    assert.match(checkExercise({ ...raw, minutes: 5, title: "Fine #guitar #beginner #technique #pentatonic" }, entries), /can be sent\.\n(Nothing to fix|The page would)/);
+    const { learnBefore: _l, ...noLink } = raw;
+    void _l;
+    assert.match(checkExercise(noLink, entries), /would refuse it: the exercise has no learnBefore/);
+    assert.match(checkExercise({ ...raw, cells: [{ type: "no-such-tool" }, { type: "text", text: "Do." }] }, entries), /would change or leave out:\n- [\s\S]*check again/);
   });
 });
 

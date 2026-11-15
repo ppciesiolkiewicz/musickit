@@ -10,15 +10,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Version
 
-Version: 1
+Version: 2
 
-This file and the teaching skills (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`, one shared `version:` in their frontmatter) each carry a version. Every example in `src/features/plan/examples` records the two versions it was written to (`"docs": { "agents": 1, "teaching": 1 }`), so an example written to older rules can be found and rewritten.
+This file and the teaching skills (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`, one shared `version:` in their frontmatter) each carry a version. Every example in `src/features/plan/examples` records the two versions it was written to (`"docs": { "agents": 1, "teaching": 1 }`), so an example written to older rules can be found and rewritten. The AI plan prompt, its authoring guide and the page's tools for the browser's AI carry a third, `PROMPT_VERSION` in `src/features/plan/model/prompt.ts`; examples don't record it.
 
 - Raise a version by one when a rule changes what gets written: a new rule, a dropped one, a changed word. A typo, a path or a clearer sentence for the same rule is not a new version.
-- Raise it in the same commit in the document and in `DOC_VERSIONS` (`src/features/plan/examples/index.ts`); a test holds the two together. The four teaching skills move as one.
+- Raise it in the same commit in the document and in its constant (`DOC_VERSIONS` in `src/features/plan/examples/index.ts`, or `PROMPT_VERSION`), with an entry in the changelog, `src/features/plan/model/CHANGELOG.md`: the version, the date, what changed. Tests hold the three together. The four teaching skills move as one.
 - Don't raise an example's tags by hand. They change only when the example is rewritten to the current documents.
 
-Version 0 of this file is everything before versions were kept (2026-11-10). Version 0 of the teaching skills is the older style, from before them; version 1 was once called the "new teaching style"; version 2 (2026-11-10) adds the selector, one control to a sentence, line breaks in a text and no stock lines; version 3 (2026-11-10) adds the underlined care line (`_Don't reach for high notes._`); version 5 (2026-11-12) is the block format: `cells` and `section` cells in place of `sections` and headings, a `choice` on a section or the block in place of the `step-choice` tool, hashtags in a title, no `focus`.
+What each version of each document changed is in that changelog.
 
 ## Where the rules are
 

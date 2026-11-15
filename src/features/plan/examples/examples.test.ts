@@ -9,6 +9,7 @@ import { catalogue } from "../model/catalogue";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "../model/checks";
 import { AREAS, conceptById } from "../model/concepts";
 import { parsePlanConfig } from "../model/config";
+import { PROMPT_VERSION } from "../model/prompt";
 import { topicById } from "../intake/topics";
 import { notePc, splitNotes } from "../model/noteText";
 import { cellsOf, toolsOf, type Cell, type PlanTool } from "../model/tools";
@@ -96,6 +97,14 @@ describe("example library", () => {
     assert.equal(versionIn("AGENTS.md", /^Version: (\d+)$/m), DOC_VERSIONS.agents, "AGENTS.md");
     for (const skill of ["teaching-voice", "course-article", "exercise-example", "review-teaching-text"])
       assert.equal(versionIn(`.claude/skills/${skill}/SKILL.md`, /^version: (\d+)$/m), DOC_VERSIONS.teaching, skill);
+  });
+
+  it("the newest entry of each section in model/CHANGELOG.md is the version in code", () => {
+    const log = readFileSync(join(process.cwd(), "src/features/plan/model/CHANGELOG.md"), "utf8");
+    const newest = (section: string) => Number(log.split(`\n## ${section}\n`)[1]?.match(/^### (\d+)/m)?.[1] ?? NaN);
+    assert.equal(newest("Prompt"), PROMPT_VERSION, "Prompt");
+    assert.equal(newest("Teaching"), DOC_VERSIONS.teaching, "Teaching");
+    assert.equal(newest("AGENTS.md"), DOC_VERSIONS.agents, "AGENTS.md");
   });
 
   it("ids unique; concepts exist (conceptById); areas known", () => {

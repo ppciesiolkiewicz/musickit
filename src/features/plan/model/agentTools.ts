@@ -9,7 +9,7 @@ import { COMPONENT_DOCS } from "@/features/exercises/docs";
 
 /** Put before the plan prompt when the AI reads it through `get_practice_plan_prompt`: the prompt is written for a chat reply. */
 export const PROMPT_VIA_TOOLS =
-  "You are reading this prompt through the page's tools, not from a paste. Where it says to reply with a JSON code block, send that JSON object with submit_practice_plan instead. If it says to ask the student questions first, ask them in your chat, then send the plan.";
+  "You are reading this prompt through the page's tools, not from a paste. Where it says to reply with a JSON code block, check that JSON object with check_practice_plan, fix what it reports and check again until it says nothing to fix, then send it with submit_practice_plan. If it says to ask the student questions first, ask them in your chat, then send the plan.";
 
 /** The names `show_exercise_tool` takes. */
 export const toolNames = (): string[] => COMPONENT_DOCS.filter((d) => d.kind !== "shape").map((d) => d.name);
