@@ -25,11 +25,11 @@ function Recipe() {
       <p className="font-semibold text-slate-100">How an autoplan would be made</p>
       <ol className="flex list-decimal flex-col gap-1 pl-4">
         <li><span className="text-slate-100">Match</span> the request against the seed library. No AI.</li>
-        <li><span className="text-slate-100">Assess</span> the matches with a cheap model: does one fit?</li>
+        <li><span className="text-slate-100">Assess</span> with a cheap model: it looks up library plans through a tool (MCP) that returns only the matches, and says whether one fits.</li>
         <li><span className="text-slate-100">Decide</span> which writer a new plan needs, in the same call.</li>
         <li><span className="text-slate-100">Write</span> on that model: a cheap writer for most, a dearer one for hard plans.</li>
       </ol>
-      <p className="text-slate-400">The badges are picks from price and what each model is. None has been run on our prompts yet. An assess call is costed at {Math.round(PICK_TOKENS.input / 1000)}k tokens in and {PICK_TOKENS.output} out, as on the sections above.</p>
+      <p className="text-slate-400">The badges are picks from price and what each model is. None has been run on our prompts yet. An assess call is costed as one request of {Math.round(PICK_TOKENS.input / 1000)}k tokens in and {PICK_TOKENS.output} out, as on the sections above; each tool call adds a round trip that sends the conversation again.</p>
     </>
   );
 }
