@@ -4,7 +4,44 @@ Ticket content
 New:
 
 
+NEW8: [NEW 2026-11-15] Querying the library through tools (comes first; design approved)
+Spec: docs/superpowers/specs/2026-11-15-library-query-design.md. Next step: the build plan (writing-plans).
+1. Model and version on every block and library plan; a table of which blocks a library plan has.
+2. A server query module: find/get blocks, find/get plans, library coverage, a player's progress. The server sets the
+   scope; other players only as totals; stars never rank a block as good or bad.
+3. Local MCP tools over it for the seeding agents and devtools (.mcp.json), and a bare /dev page.
+
+NEW9: [NEW 2026-11-15] Rework the first questionnaire (after NEW8)
+Use brainstorming first. What /dev/questionnaire showed:
+- Topics whose lines have nothing to tag: Barre chords has one concept (bm-f-barre), so its top two lines are empty;
+  Extended chords has no guitar concept for plain 7th chord shapes (its first line); Theory basics has two concepts,
+  both "new"; Voice runs and Voice melodies have two each.
+- Nothing asks about rhythm and timing beyond "steady beat", fingerpicking, playing whole songs, or reading tab/staff.
+- The intake README says 70 concepts; concepts.ts has 67. Find out which is right.
+- After week 1 the level comes from the stars per block, not from these answers: settle what the questionnaire still
+  has to ask, and how a player says "more of the same" or "something new".
+
+NEW10: [NEW 2026-11-15] Seed more plans and exercises, written by Fable through agents (after NEW8 and NEW9)
+Agents read library_coverage (NEW8) first and write to the gaps, each plan recording its model and versions.
+- Topics with no example exercise: guitar Barre chords, Techniques, Extended chords; voice Breath & range, Runs;
+  theory Basics, Scales & keys. Thin: guitar Basic chords, CAGED; voice Melodies, Harmony; theory Progressions,
+  Modes, Building chords. 22 exercise examples cover 23 of the concepts.
+- Tools no example uses, so the AI has nothing to copy: circle-of-fifths, key-chords, relative-modes, mode-intervals,
+  piano-keys, progressions, triads, improvisation, tunings, chord-circle, caged-neck, voice-hill, lip-roll,
+  string-singer.
+- Plans only exist for guitar (beginner, intermediate, advanced), guitar+theory intermediate and voice (beginner,
+  intermediate, advanced): none for "new", theory alone, or voice with guitar.
+
+NEW11: [NEW 2026-11-15] New exercise components to weigh (after the examples in NEW10 use what exists)
+- A rhythm tool for "Steady beat": src/features/rhythm has a clap-along game with mic onset judging, not in the plan.
+- A bend-to-pitch tool: bends and slides have no tool. Check first whether the play-along tab can show bends.
+- Maybe a chord-change ear quiz: "hearing chord changes" runs on backing-track with no answer check.
+
 NEW7: [NEW 2026-11-15] Autoplans on the server: reuse first, then the right model
+Builds on NEW8 (the query and the tools). Decided there: a fitting whole plan the player hasn't had is used whole;
+otherwise the AI writes one, searching blocks through tools (unused blocks for new things, the blocks they had for the
+same again); the examples leave the writer's prompt and the player's progress and used blocks go in; least-used blocks
+first.
 Use brainstorming first (the brainstorming skill), before any spec or code.
 The flow:
 0. Match the request against the seed library in our own code (no AI): a shortlist of library plans that fit the
