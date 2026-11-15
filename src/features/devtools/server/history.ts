@@ -1,13 +1,19 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { RUN_ID, summaryOf, type RunRecord, type RunSummary } from "../model/history";
+import { DOC_VERSIONS } from "@/features/plan/examples";
+import { PROMPT_VERSION } from "@/features/plan/model/prompt";
+import { RUN_ID, summaryOf, type RunRecord, type RunSummary, type RunVersions } from "../model/history";
 
 /** Where runs are kept: tools/prompt-history at the repo root (gitignored). */
 export const HISTORY_DIR = path.join(process.cwd(), "tools/prompt-history");
 
+/** The versions in the code now, which a run saved now was written to. */
+export const currentVersions = (): RunVersions => ({ prompt: PROMPT_VERSION, agents: DOC_VERSIONS.agents, teaching: DOC_VERSIONS.teaching });
+
+/** Writes the run, stamped with the versions in the code now unless it carries its own. */
 export async function saveRun(r: RunRecord, dir = HISTORY_DIR): Promise<void> {
   await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, `${r.id}.json`), JSON.stringify(r, null, 2) + "\n");
+  await writeFile(path.join(dir, `${r.id}.json`), JSON.stringify({ ...r, versions: r.versions ?? currentVersions() }, null, 2) + "\n");
 }
 
 /** One run, or null when the id isn't a run id or there is no such file. */

@@ -31,7 +31,12 @@ export interface RunRecord {
   usage?: TokenUsage;
   title?: string;
   warnings?: number;
+  /** the versions of the prompt (PROMPT_VERSION) and the writing rules (DOC_VERSIONS) it ran with; absent on runs from before they were kept */
+  versions?: RunVersions;
 }
+
+/** What a run was written to: the prompt's version, AGENTS.md's and the teaching skills'. */
+export interface RunVersions { prompt: number; agents: number; teaching: number }
 
 /** A run in progress, as the studio lists it. */
 export interface ActiveRun { id: string; at: string; model: DevModel }

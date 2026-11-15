@@ -38,7 +38,7 @@ export function libraryRows(plans: Record<string, ModelPlan>, personas: Persona[
     const persona = personas.find((x) => x.id === p.persona);
     const parsed = modelPlan(slug);
     if (!persona || !parsed) continue;
-    rows.push({ id: slug, title: parsed.config.title, answers: persona.answers, model: p.model, reply: p.reply, promptVersion: null, docsAgents: null, docsTeaching: null, source: "compare-models", enabledForReuse: true });
+    rows.push({ id: slug, title: parsed.config.title, answers: persona.answers, model: p.model, reply: p.reply, promptVersion: p.versions?.prompt ?? null, docsAgents: p.versions?.agents ?? null, docsTeaching: p.versions?.teaching ?? null, source: "compare-models", enabledForReuse: true });
   }
   return rows;
 }

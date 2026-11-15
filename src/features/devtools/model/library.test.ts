@@ -18,6 +18,17 @@ test("the library seed is every published Fable plan that parses, with its playe
   }
 });
 
+test("a published plan's versions go on its row; one from before they were kept has none", () => {
+  const [slug, p] = Object.entries(MODEL_PLANS).find(([, x]) => x.model === SEED_MODEL)!;
+  const versions = { prompt: 3, agents: 2, teaching: 5 };
+  const of = (plan: typeof p) => {
+    const r = libraryRows({ [slug]: plan }, PERSONAS)[0];
+    return [r.promptVersion, r.docsAgents, r.docsTeaching];
+  };
+  assert.deepEqual(of({ ...p, versions }), [3, 2, 5]);
+  assert.deepEqual(of({ ...p, versions: undefined }), [null, null, null]);
+});
+
 test("a plan whose player is gone, or by another model, is left out", () => {
   assert.deepEqual(libraryRows(MODEL_PLANS, []), []);
   assert.ok(libraryRows(MODEL_PLANS, PERSONAS, "claude-haiku-5-5").every((r) => r.model === "claude-haiku-5-5"));

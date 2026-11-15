@@ -20,6 +20,8 @@ export interface ModelPlan {
   at: string;
   /** the model's reply, parsed when the page opens */
   reply: string;
+  /** the prompt's and the writing rules' versions the run was written to; absent on runs from before they were kept */
+  versions?: { prompt: number; agents: number; teaching: number };
 }
 
 export const MODEL_PLANS: Record<string, ModelPlan> = PLANS;

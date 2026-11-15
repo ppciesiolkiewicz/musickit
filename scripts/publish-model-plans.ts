@@ -33,7 +33,7 @@ async function main() {
     const persona = PERSONAS.find((p) => p.id === r?.persona);
     if (!r?.reply || !persona || r.model === "pasted") continue;
     const modelLabel = API_PRICES[r.model]?.label ?? (isOllamaModel(r.model) ? ollamaName(r.model) : r.model);
-    out[modelPlanSlug(persona.id, r.model)] = { persona: persona.id, player: persona.label, model: r.model, modelLabel, runId: r.id, at: r.at, reply: r.reply };
+    out[modelPlanSlug(persona.id, r.model)] = { persona: persona.id, player: persona.label, model: r.model, modelLabel, runId: r.id, at: r.at, reply: r.reply, ...(r.versions ? { versions: r.versions } : {}) };
   }
   const sorted = Object.fromEntries(Object.entries(out).sort(([a], [b]) => a.localeCompare(b)));
   await writeFile(OUT, JSON.stringify(sorted, null, 1) + "\n");
