@@ -33,6 +33,10 @@ every prompt part (`promptParts` in the plan model) as a row to switch off or ed
 the result: the reply rendered with the plan's real `WeekView`, its parse warnings and the raw text, beside the history.
 Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answers" only reads `musickit.plan`.
 
+## Questionnaire (`/dev/questionnaire`)
+
+Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, the concepts the prompt offers (in or out), the examples `selectExamples` picks, and the `startOutcome` scores.
+
 ## Prompt examples (`/dev/examples`)
 
 "In the prompt": the example parts `promptParts` builds for the studio's saved answers, each with its "Why it's good" note.

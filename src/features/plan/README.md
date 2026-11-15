@@ -89,6 +89,7 @@ model/            pure, no React; tested in model/plan.test.ts
   concepts.ts     the fine concepts exercises are tagged with, per area and level; each belongs to one questionnaire topic
   exerciseIds.ts  randomId(), withExerciseIds(): an id on every exercise of a plan
   progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
+  outcome.ts      startOutcome(), TopicScore: each topic's starting score from the questionnaire answers (Part C adds the ratings-based outcome)
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   choice.ts       applyChoice(), choiceWarnings(), resolvedChoice(): a choice's value set on the tools under it (one `PARTS` entry per part); transpose.ts moves a tool to another key, `setLevel` (tools.ts) to another level
   checks.ts       mixesSingAndPlay(), tempoWithoutMetronome(): paste-time exercise checks

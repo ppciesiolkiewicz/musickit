@@ -23,6 +23,8 @@ answers.ts    PlanAnswers, DEFAULT_ANSWERS, MINUTES, migrateAnswers(), levelOf()
 ui/           the questionnaire screens as step-modal steps
 ```
 
+`/dev/questionnaire` shows what the answers do.
+
 ## Rule
 
 This folder imports nothing from the plan's prompt, store or week view. It may import types from `../model/concepts`
