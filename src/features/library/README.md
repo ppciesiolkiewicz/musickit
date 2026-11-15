@@ -23,6 +23,8 @@ Other players appear only as totals (`use`: times, seconds, ratings by stars). N
 - `repo.drizzle.ts`: `drizzleLibraryRepo(db)`, the same rules in SQL. Every caller value is a bound parameter; player ids are compared as text, so an id that is not a UUID matches nothing.
 - `testDatabase.ts`: `localTestDatabase(url)`, the guard of the Postgres test script (below).
 - `repoContract.ts`: `libraryRepoContract(make)`, the tests every repo must pass; `repo.memory.test.ts` runs it on the memory repo.
+- `query.ts`: `findBlocks`, `getBlock`, `findPlans`, `getPlan`, `libraryCoverage`, `playerProgress` over a `LibraryRepo` and a `UserDataRepo` (`Deps`). Limits clamp to 1..max (blocks 20/50, plans 10/30); `random-least-used` shuffles the least used fifth; coverage adds zero rows for every topic, level and concept; `playerProgress` builds the progress page's `outcome()` on the server and is null without a player.
+- `tools.ts`: `LIBRARY_TOOLS` (name, description, JSON schema) and `callTool`, which checks arguments by hand. `player`, `planIds`, `includeNotEnabled` and `include_not_enabled` in the arguments are ignored: the scope is the server's.
 
 ## Testing against Postgres
 
