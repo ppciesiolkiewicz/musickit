@@ -179,6 +179,7 @@ returns one.
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the studio's CLI aliases and the pinned `DEMO_MODELS`.
 - `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/`, `server/ollama.ts`, `scripts/compare-models.ts`: /dev/compare-models.
+- `src/app/api/dev/mcp`: the library tools (`features/library`) as a local MCP server, `POST /api/dev/mcp` (stateless, plain JSON; `GET` answers 405, production 404). `.mcp.json` at the repo root registers it as `musickit-library` for Claude Code, so the dev server must be running. It reads the database the dev server is configured with, which must have migration 0019 applied. Every tool also takes `player` (a user id) and `include_not_enabled` (also examples and plans not enabled for reuse); only this route reads them.
 - `model/assess.ts`, `server/assessments.ts`, `compare/AssessmentPanel.tsx`, `src/app/api/dev/assessments`: plans judged against the judge model's own plan.
 - `model/history.ts`: run records, summaries, ids, request checks, `describeReply`.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.

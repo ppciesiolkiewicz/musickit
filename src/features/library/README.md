@@ -25,6 +25,11 @@ Other players appear only as totals (`use`: times, seconds, ratings by stars). N
 - `repoContract.ts`: `libraryRepoContract(make)`, the tests every repo must pass; `repo.memory.test.ts` runs it on the memory repo.
 - `query.ts`: `findBlocks`, `getBlock`, `findPlans`, `getPlan`, `libraryCoverage`, `playerProgress` over a `LibraryRepo` and a `UserDataRepo` (`Deps`). Limits clamp to 1..max (blocks 20/50, plans 10/30); `random-least-used` shuffles the least used fifth; coverage adds zero rows for every topic, level and concept; `playerProgress` builds the progress page's `outcome()` on the server and is null without a player.
 - `tools.ts`: `LIBRARY_TOOLS` (name, description, JSON schema) and `callTool`, which checks arguments by hand. `player`, `planIds`, `includeNotEnabled` and `include_not_enabled` in the arguments are ignored: the scope is the server's.
+- `mcp.ts`: `handleRpc` (the MCP streamable HTTP messages: `initialize`, `ping`, `tools/list`, `tools/call`; stateless, plain JSON), `devTools()` (the tools with the two dev arguments added) and `devScope` (takes `player` and `include_not_enabled` out of the arguments and builds the `Scope`; the only place that reads them). A query that throws becomes a result with `isError` and the text "The library could not be read."; the error is logged with `console.error`.
+
+## How an agent reaches the tools
+
+`.mcp.json` at the repo root points Claude Code at `http://localhost:3000/api/dev/mcp` (server `musickit-library`), so the dev server must be running. It is local only: the route answers 404 in production. It reads the database the dev server is configured with (`DATABASE_URL`), which must have migration 0019 applied. Two extra arguments exist on every tool there and nowhere else: `player` (a user id that exists; puts that player in scope) and `include_not_enabled` (true also shows the app's examples and plans not enabled for reuse). Without them the scope is empty: only blocks and plans enabled for reuse.
 
 ## Testing against Postgres
 
