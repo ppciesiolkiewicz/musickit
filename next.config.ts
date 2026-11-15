@@ -32,8 +32,6 @@ const nextConfig: NextConfig = {
       { source: "/register", destination: "/login", permanent: false },
       { source: "/register/teacher", destination: "/login", permanent: false },
       { source: "/register/finish", destination: "/login", permanent: false },
-      // the name is set on /account now, not on a setup step after logging in
-      { source: "/account/setup", destination: "/account", permanent: false },
       // the old "Start here" hub was folded into the course
       { source: "/theory", destination: "/course", permanent: true },
     ];

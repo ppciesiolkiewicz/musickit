@@ -2,8 +2,8 @@
 
 Who is using the app, and what their role lets them use: students, teachers and owners. People log in with a link or a
 6-digit code we email them, or with Google. There are no passwords and no separate register form: `/login` is the one way in, and a
-person with no account yet gets one straight away, named from Google or from the email (the part before the @). The
-name is changed on `/account`.
+person with no account yet gets one straight away, and goes first to `/account/setup` to give their name (Google's is
+filled in) and choose a plan, with no payment. Both are changed later on `/account`.
 
 ## Parts
 
@@ -22,7 +22,10 @@ name is changed on `/account`.
   new one), held to this share. Migration `0010_lower_prices_more_reuse` lowered the prices on the strength of reuse and sets
   Student at 5 (its price stays $27 a year, `0011_student_stays_27`), Teacher Basic $9 a month at 10, Pro $29 at 15, Unlimited $59 at 25: about 85 to 90% margin, which
   needs a library of many pre-written Fable plans. /terms says an autoplan is written new or picked by the AI. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
-- `ui/PlanPicker.tsx`: the Plan part of `/account`. `GET /api/account/plan` gives `{ plans, current }`; `POST` with
+- `ui/SetupForm.tsx` (`/account/setup`): a new account's first page. Its name (empty when it came from the email,
+  Google's when signed in with Google) and a plan from the same list, saved together by `POST /api/account/setup`
+  (`setUpAccount` in `server/auth.ts`: the plan is checked before anything changes), then on to the page it was going to.
+- `ui/PlanPicker.tsx`: the Plan part of `/account` (and `PlanLines`, what a plan gives, shared with the setup page). `GET /api/account/plan` gives `{ plans, current }`; `POST` with
   `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
   reloads. Leaving a Teacher plan for Student asks first.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
@@ -42,7 +45,7 @@ name is changed on `/account`.
   menu of Your profile and Log out, opened on hover or a tap).
 - `server/`: sign-in itself, server only.
   - `auth.ts`: the rules, with no HTTP and no SQL in them: `requestEmailLink`, `openEmailLink`, `openEmailCode`, `googleSignIn`,
-    `startName`, `sessionAccount`, `peekSession` (the same without renewing, for a server page), `signOut`, `rename`.
+    `startName`, `pathAfterSignIn`, `setUpAccount`, `sessionAccount`, `peekSession` (the same without renewing, for a server page), `signOut`, `rename`.
   - `repo.ts`: what those rules need from storage. `repo.drizzle.ts` is Postgres, `repo.memory.ts` is for tests.
   - `http.ts`: cookies, the same-site check, `auth()` (null when there is no database), `requestAccount(req)`.
   - `google.ts`: the Google code flow with PKCE. `mail.ts`: the email with the link and the code, sent through Resend.
@@ -53,8 +56,8 @@ The tables are in `src/lib/db/schema.ts` and the migrations in `/drizzle`.
 
 | | |
 | --- | --- |
-| Email | `/login`: email → `POST /api/auth/email-link` mails a link and a code → either `/login/confirm?token=`, whose script calls `POST /api/auth/email-link/confirm`, or the code typed on `/login` → `POST /api/auth/email-code`. An email with an account is signed in; one without gets an account named from the email, and is signed in. |
-| Google | `GET /api/auth/google/start` → Google → `GET /api/auth/google/callback`. A known Google id, or a Google-verified email that has an account, logs in. A new person gets an account with Google's name, and is signed in. |
+| Email | `/login`: email → `POST /api/auth/email-link` mails a link and a code → either `/login/confirm?token=`, whose script calls `POST /api/auth/email-link/confirm`, or the code typed on `/login` → `POST /api/auth/email-code`. An email with an account is signed in; one without gets an account named from the email, is signed in, and goes to `/account/setup` for its name and plan. |
+| Google | `GET /api/auth/google/start` → Google → `GET /api/auth/google/callback`. A known Google id, or a Google-verified email that has an account, logs in. A new person gets an account with Google's name, is signed in, and goes to `/account/setup` to keep the name and choose a plan. |
 | Session | `GET /api/auth/session` → `{ account }`. `POST /api/auth/logout`. |
 | Account | `PATCH /api/account` (name), `DELETE /api/account`. Both go through `signedIn` (`userData/server/http.ts`), so a page open for another account than the session's gets 409 `account-changed` and never renames or deletes the account logged in now; `send()` in `ui/parts.tsx` sends `X-Account-Id`, and `errorOf` shows the reload line. |
 
@@ -63,8 +66,11 @@ Things that are on purpose:
 - **The mailed link does nothing alone.** It opens a page whose script spends the token, with no button to press. Mail
   programs fetch links to scan them; a plain fetch runs no script, so it can't use the link up. (A scanner that runs
   the page's script would; then the person asks for a new link or types the code.)
-- **Nobody is asked for a name at sign-in.** A new account starts with Google's name or the email before the @, and
-  is renamed on `/account`. The old `/account/setup` goes to `/account` (`next.config.ts`).
+- **A new account is asked for its name and plan once, after it is made.** Signing in stays one step; the account is
+  made with Google's name or the email before the @, and `pathAfterSignIn` sends a sign-in that made it to
+  `/account/setup?next=…` (`&ask=name` when the name came from the email, so the field starts empty). Leaving the page
+  keeps the account on Student with that name; both change on `/account`. Nothing marks setup as done: the page is
+  shown once because only the sign-in that made the account goes there.
 - **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256.
   A code is stored as the SHA-256 of the email and the code.
 - **The link and the code are one proof.** They are the same row: using one spends the other. The code works on the
@@ -74,7 +80,7 @@ Things that are on purpose:
 - **Two cookies.** `mk_session` (hidden from scripts) is the session. `mk_in` only tells the page that a session
   exists, so a visitor's page never asks the server who they are. The server never trusts `mk_in`.
 - **The answer to "email me a link" never says whether the email has an account.**
-- **A role comes with a plan.** A new account is a student on the Student plan. Choosing a Teacher plan on `/account` makes a student a teacher, and choosing Student makes a teacher a student again; an owner is set by us and stays an owner on any plan. A plan turned off (`enabled = false`) can't be chosen, but whoever is on it keeps it. Logging in again, by link or
+- **A role comes with a plan.** A new account is a student on the Student plan until it chooses one on `/account/setup`. Choosing a Teacher plan there or on `/account` makes a student a teacher, and choosing Student makes a teacher a student again; an owner is set by us and stays an owner on any plan. A plan turned off (`enabled = false`) can't be chosen, but whoever is on it keeps it. Logging in again, by link or
   Google, never changes the name or role of an account.
 - **The old addresses still work.** `/register` and `/register/teacher` go to `/login`, `/register/finish` to
   `/login` (`next.config.ts`).

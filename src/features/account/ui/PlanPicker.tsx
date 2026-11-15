@@ -5,7 +5,20 @@ import { can, type Account } from "../model";
 import { allowanceLabel, priceLabel, roleOnPlan, studentsLabel, type Plan } from "../plans";
 import { ErrorLine, SECONDARY, errorOf, send } from "./parts";
 
-type Loaded = { plans: Plan[]; current: string };
+export type Loaded = { plans: Plan[]; current: string };
+
+/** What a plan gives, under its name and price: here and on /account/setup. */
+export function PlanLines({ plan }: { plan: Plan }) {
+  const students = studentsLabel(plan);
+  return (
+    <ul className="text-xs text-slate-400">
+      {students && <li>{students}</li>}
+      <li>{allowanceLabel(plan)}</li>
+      {plan.role === "teacher" && <li>Share plans with your students</li>}
+      {!plan.enabled && <li>No longer offered. You keep it until you choose another plan.</li>}
+    </ul>
+  );
+}
 
 /**
  * The Plan part of /account: the plans the person can choose and the one they are on. Choosing one moves them at once,
@@ -48,19 +61,13 @@ export default function PlanPicker({ account }: { account: Account }) {
         <ul className="flex flex-col gap-2">
           {loaded.plans.map((p) => {
             const on = p.id === loaded.current;
-            const students = studentsLabel(p);
             return (
               <li key={p.id} className={`flex flex-col gap-1 rounded-xl border p-3 ${on ? "border-sky-400/60 bg-sky-400/5" : "border-slate-800 bg-slate-950/40"}`}>
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <span className="text-sm font-semibold text-slate-100">{p.name}</span>
                   <span className="text-sm text-slate-300">{priceLabel(p)}</span>
                 </div>
-                <ul className="text-xs text-slate-400">
-                  {students && <li>{students}</li>}
-                  <li>{allowanceLabel(p)}</li>
-                  {p.role === "teacher" && <li>Share plans with your students</li>}
-                  {!p.enabled && <li>No longer offered. You keep it until you choose another plan.</li>}
-                </ul>
+                <PlanLines plan={p} />
                 {on ? (
                   <p className="mt-1 text-xs font-medium text-sky-300">Your plan</p>
                 ) : asking?.id === p.id ? (

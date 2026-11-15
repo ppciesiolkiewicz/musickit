@@ -2,7 +2,7 @@ import { getDb } from "@/lib/db/client";
 import { SITE_URL } from "@/lib/site";
 import type { Account } from "../model";
 import { HINT_COOKIE } from "../serverAccountStore";
-import { authDeps, sessionAccount, type AuthDeps, type SignedIn } from "./auth";
+import { authDeps, pathAfterSignIn, sessionAccount, type AuthDeps, type SignedIn } from "./auth";
 import { drizzleRepo } from "./repo.drizzle";
 
 /** What the auth routes share: cookies, the same-site check, JSON answers and the one place that builds `AuthDeps`. */
@@ -53,8 +53,8 @@ export const signOutCookies = (env: Env = process.env): string[] => [clearCookie
 /** The cookies a finished sign-in sets. */
 export const resultCookies = (result: SignedIn, env: Env = process.env): string[] => sessionCookies(result.sessionToken, result.expiresAt, env);
 
-/** Where the browser goes after signing in: the page asked for. */
-export const resultPath = (result: SignedIn): string => result.next;
+/** Where the browser goes after signing in: the page asked for, or first /account/setup for a new account (`pathAfterSignIn`). */
+export const resultPath = (result: SignedIn): string => pathAfterSignIn(result);
 
 function withCookies(init: ResponseInit, cookies: string[]): ResponseInit {
   const headers = new Headers(init.headers);

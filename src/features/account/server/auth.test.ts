@@ -19,6 +19,7 @@ import {
   rename,
   requestEmailLink,
   safeNext,
+  setUpAccount,
   peekSession,
   sessionAccount,
   signOut,
@@ -299,4 +300,33 @@ test("a turned-off plan, an unknown one or the current one can't be chosen, and 
   assert.equal(await choosePlan(deps, account, "student"), null);
   store.planOf.set(account.id, "teacher-old");
   assert.deepEqual((await accountPlans(deps, account.id))?.plans.map((p) => p.id), ["student", "teacher-old", "teacher-pro"]);
+});
+
+test("setup: a new account's name and plan in one step; a bad plan changes nothing", async () => {
+  const store = memoryRepo(PLANS);
+  const deps: AuthDeps = { ...setup().deps, repo: store.repo };
+  const done = await openEmailLink(deps, await link(deps, { email: "ann@school.com" }), null);
+  assert.ok(done);
+  assert.equal(done.nameFrom, "email");
+
+  assert.deepEqual(await setUpAccount(deps, done.account, { name: "  ", planId: "student" }), { ok: false, error: "name" });
+  assert.deepEqual(await setUpAccount(deps, done.account, { name: "Ann", planId: "teacher-old" }), { ok: false, error: "plan" });
+  assert.deepEqual(await setUpAccount(deps, done.account, { name: "Ann", planId: "nope" }), { ok: false, error: "plan" });
+  assert.equal(store.users.find((u) => u.id === done.account.id)?.name, "ann", "nothing changed");
+
+  const kept = await setUpAccount(deps, done.account, { name: "Ann", planId: "student" });
+  assert.ok(kept.ok);
+  assert.deepEqual([kept.account.name, kept.account.role], ["Ann", "student"]);
+
+  const moved = await setUpAccount(deps, kept.account, { name: "Ann Lee", planId: "teacher-pro" });
+  assert.ok(moved.ok);
+  assert.deepEqual([moved.account.name, moved.account.role], ["Ann Lee", "teacher"]);
+  assert.equal(await store.repo.userPlanId(done.account.id), "teacher-pro");
+});
+
+test("Google's name comes with a Google sign-in, for the setup page to keep", async () => {
+  const { deps } = setup();
+  const done = await googleSignIn(deps, ann, { userAgent: null });
+  assert.equal(done?.nameFrom, "google");
+  assert.equal(done?.account.name, "Ann Lee");
 });
