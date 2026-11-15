@@ -70,6 +70,10 @@ table blocks {
   level text
   tags text[] [not null, default: `'{}'::text[]`]
   parent_id text
+  model text
+  prompt_version integer
+  docs_agents integer
+  docs_teaching integer
   created_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
@@ -151,6 +155,19 @@ table plans {
   updated_at "timestamp with time zone" [not null, default: `now()`]
 }
 
+table practice_plan_blocks {
+  plan_id text [not null]
+  day integer [not null]
+  place integer [not null]
+  block_id text [not null]
+  minutes integer [not null]
+
+  indexes {
+    (plan_id, day, place) [pk]
+    block_id [name: 'practice_plan_blocks_block']
+  }
+}
+
 table practice_plans {
   id text [pk, not null]
   title text [not null]
@@ -158,6 +175,9 @@ table practice_plans {
   model text [not null]
   reply text [not null]
   source text [not null]
+  prompt_version integer
+  docs_agents integer
+  docs_teaching integer
   enabled_for_reuse boolean [not null, default: false]
   created_at "timestamp with time zone" [not null, default: `now()`]
 
@@ -272,6 +292,10 @@ ref plan_day_times_user_id_users_id_fk: plan_day_times.user_id > users.id [delet
 ref plan_reviews_user_id_users_id_fk: plan_reviews.user_id > users.id [delete: cascade, update: no action]
 
 ref plan_reviews_library_plan_id_practice_plans_id_fk: plan_reviews.library_plan_id > practice_plans.id [delete: set null, update: no action]
+
+ref practice_plan_blocks_plan_id_practice_plans_id_fk: practice_plan_blocks.plan_id > practice_plans.id [delete: cascade, update: no action]
+
+ref practice_plan_blocks_block_id_blocks_id_fk: practice_plan_blocks.block_id > blocks.id [delete: no action, update: no action]
 
 ref progress_entries_user_id_users_id_fk: progress_entries.user_id > users.id [delete: cascade, update: no action]
 
