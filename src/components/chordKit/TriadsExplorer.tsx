@@ -114,7 +114,7 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
           </Info>
         </p>
 
-      <section data-tour="triads-essential" className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section data-tour="triads-essential" className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <h3 className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-100">
           Essential triads
           <Info label="Essential triads">
@@ -155,7 +155,7 @@ export default function TriadsExplorer({ initialTonic = DEFAULT_KEY_PC, initialQ
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <h3 className="mb-1 flex items-center gap-1 text-sm font-medium text-slate-100">
           All shapes, by string group
           <Info label="All shapes, by string group">

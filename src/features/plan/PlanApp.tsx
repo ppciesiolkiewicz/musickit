@@ -108,7 +108,7 @@ export default function PlanApp() {
   if (!plan) {
     return (
       <div className="flex flex-col gap-4">
-        <section className="flex flex-col items-start gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
+        <section className="flex flex-col items-start gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <ol data-tour="plan-steps" className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
             {["Answer a few questions about where you are and where you want to go", "Copy the prompt into your own AI (ChatGPT, Claude, Gemini…)", "Paste its reply: your exercises, a new set each day"].map((t, i) => (
               <li key={i} className="flex gap-2">

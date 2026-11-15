@@ -223,7 +223,7 @@ export function IdeasSection({ school = false, id, eyebrow = "Free in the app", 
           <ul className={`grid gap-3 ${g.hrefs.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4"}`}>
             {toolsOf(g).map((d) => (
               <li key={d.href}>
-                <Link href={d.href} className="ls-card group flex h-full flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
+                <Link href={d.href} className="ls-card group flex h-full flex-col gap-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4 transition hover:-translate-y-0.5 hover:border-slate-600">
                   <span className="flex items-center justify-between">
                     <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${TONE[d.tone].chip} ${TONE[d.tone].icon}`}><Icon name={d.icon} size={20} /></span>
                     <span aria-hidden className="text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-300">→</span>

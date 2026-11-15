@@ -25,7 +25,7 @@ function LinkCard({ link, kind }: { link: CourseLink; kind: "Explore" | "Practis
   const sec = sectionFor(link.href.split(/[?#]/)[0]);
   const tone = TONE[sec?.tone ?? "sky"];
   return (
-    <Link href={link.href} className="group flex items-start gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-3 transition hover:border-slate-600 hover:bg-slate-800/50">
+    <Link href={link.href} className="group flex items-start gap-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-3 transition hover:border-slate-600 hover:bg-slate-800/50">
       <span className={`grid size-9 shrink-0 place-items-center rounded-xl ${tone.chip}`}><Icon name={kind === "Practise" ? "target" : sec?.icon ?? "music"} size={16} className={tone.icon} /></span>
       <span className="min-w-0 flex-1">
         <span className="block text-[11px] uppercase tracking-wider text-slate-500">{kind}{sec && ` · ${sec.label}`}</span>
@@ -71,7 +71,7 @@ function BlockView({ block }: { block: Block }) {
       return (
         <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {block.songs.map((s) => (
-            <li key={s.title} className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+            <li key={s.title} className="flex flex-col gap-2 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
               <div>
                 <p className="text-lg leading-tight text-slate-50" style={DISPLAY}>{s.title}</p>
                 <p className="text-xs text-slate-500">{s.artist}</p>

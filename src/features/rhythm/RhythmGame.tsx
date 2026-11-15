@@ -340,7 +340,7 @@ export default function RhythmGame() {
   return (
     <div className="flex flex-col gap-4">
       <div data-tour="rhythm-pick"><GameChoice label="Rhythm" options={PATTERNS.map((p) => ({ id: p.id, title: p.name, about: p.hint }))} value={s.pattern} onChange={(pattern) => update({ pattern })} tone="violet" disabled={playing} /></div>
-      <aside data-tour="rhythm-setup" aria-label="Setup" className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <aside data-tour="rhythm-setup" aria-label="Setup" className="flex flex-col gap-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the round</h2>
         {playing && <p className="text-xs text-slate-400">These stay as they are until the round ends. Offset and sensitivity still change as you play.</p>}
         <div inert={playing} className={`flex flex-col gap-3 transition-opacity ${playing ? "opacity-50" : ""}`}>

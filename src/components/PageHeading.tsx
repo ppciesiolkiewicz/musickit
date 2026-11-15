@@ -14,7 +14,7 @@ export const pageBar = (active: string): string => { const s = sectionFor(active
 export function PageHeading({ title, eyebrow, bar = "bg-sky-400", centered = false }: { title: ReactNode; eyebrow?: string; bar?: string; centered?: boolean }) {
   return (
     <>
-      {eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{eyebrow}</p>}
+      {eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-sky-300 metal-text">{eyebrow}</p>}
       <h1 className="text-3xl leading-tight text-slate-50 text-balance sm:text-4xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{title}</h1>
       <span aria-hidden className={`mt-3 block h-0.5 w-12 rounded-full ${centered ? "mx-auto" : ""} ${bar}`} />
     </>

@@ -3,9 +3,9 @@
  * so every theme restyles them. Add `!`-prefixed classes after these to colour a special state (mute, record, playing).
  */
 
-/** Interaction shared by every control: hover lift, press, pressed state (aria-pressed), focus ring, disabled. */
+/** Interaction shared by every control (with the chrome edge, `.metal-btn` in decor.css): hover lift, press, pressed state (aria-pressed), focus ring, disabled. */
 const feel =
-  "transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.96] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-400 aria-pressed:border-sky-500/60 aria-pressed:bg-sky-500/15 aria-pressed:text-sky-100";
+  "metal-btn transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.96] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-sky-400 aria-pressed:border-sky-500/60 aria-pressed:bg-sky-500/15 aria-pressed:text-sky-100";
 
 /** The neutral surface of a control. */
 const surface = "border border-slate-700/80 bg-slate-900 text-slate-200 shadow-[inset_0_1px_0_rgb(255_255_255/0.05),0_1px_2px_rgb(0_0_0/0.15)] hover:border-slate-600 hover:bg-slate-800 hover:text-slate-50";

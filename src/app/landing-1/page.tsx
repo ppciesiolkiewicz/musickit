@@ -189,7 +189,7 @@ export default function LandingOne() {
             </div>
             <ol className="grid grid-cols-1 gap-2 sm:grid-cols-4 lg:grid-cols-7">
               {JOBS.map((j, i) => (
-                <li key={j.label} className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/50 p-3 sm:flex-col sm:items-start sm:gap-2">
+                <li key={j.label} className="flex items-center gap-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/50 p-3 sm:flex-col sm:items-start sm:gap-2">
                   <Dot d={i} label={j.label} size={34} />
                   <span className="flex flex-col gap-0.5 sm:gap-2">
                     <b className="text-sm font-semibold text-slate-100">{j.job}</b>
@@ -226,7 +226,7 @@ export default function LandingOne() {
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {TOOLS.map((t, i) => (
               <li key={t.href} className={i === 0 ? "sm:col-span-2 lg:row-span-2" : i === 1 || i === TOOLS.length - 1 ? "sm:col-span-2" : ""}>
-                <Link href={t.href} className="group flex h-full min-h-44 flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/50 p-5 transition hover:-translate-y-0.5 hover:border-sky-400/70 hover:bg-slate-900">
+                <Link href={t.href} className="group flex h-full min-h-44 flex-col gap-2 metal-panel rounded-2xl border border-slate-800 bg-slate-900/50 p-5 transition hover:-translate-y-0.5 hover:border-sky-400/70 hover:bg-slate-900">
                   <span className="flex items-center gap-3">
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 text-sky-300 transition group-hover:bg-sky-500/20"><Icon name={t.icon} size={20} /></span>
                     <span className={`text-slate-50 ${i === 0 ? "text-2xl" : "text-lg"}`} style={DISPLAY}>{t.label}</span>

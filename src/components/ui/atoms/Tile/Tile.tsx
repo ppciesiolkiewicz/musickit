@@ -15,7 +15,7 @@ export function Tile({ hue, on, onClick, icon, children, title, radio }: {
       onClick={onClick}
       title={title}
       {...(radio ? { role: "radio", "aria-checked": on } : { "aria-pressed": on })}
-      className={`group flex flex-col items-center gap-1.5 rounded-xl border px-1 pb-2 pt-2.5 text-[11px] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hue, on)}`}
+      className={`metal-btn group flex flex-col items-center gap-1.5 rounded-xl border px-1 pb-2 pt-2.5 text-[11px] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hue, on)}`}
     >
       <span className={`grid h-9 w-9 place-items-center rounded-full transition ${on ? lit : `${rest} group-hover:scale-105`}`}>{icon}</span>
       {children}

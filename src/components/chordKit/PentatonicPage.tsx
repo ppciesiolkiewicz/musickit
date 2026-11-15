@@ -121,7 +121,7 @@ export default function PentatonicPage({ slug, initialKey, syncUrl = true }: { s
         Colour shows the job a note does in the key, not how high it is. A pentatonic keeps the numbers of the seven-note scale it is cut from, so its 5th is the blue 5th even though it is the 4th note it plays. The 1st degree (home) is white, the 3rd amber, the 5th blue and the 7th rose; the 2nd, 4th and 6th are teal, lime and violet. A flattened or raised note keeps the colour of its degree.
       </ColourKey>
 
-      <div id="scale-notes" className={`grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_PANEL}`}>
+      <div id="scale-notes" className={`grid gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_PANEL}`}>
         <div className="flex min-w-0 flex-col gap-3">
           <h2 className="text-2xl font-light tracking-wide text-slate-100">
             {p.title}

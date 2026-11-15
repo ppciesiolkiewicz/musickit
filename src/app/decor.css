@@ -125,30 +125,110 @@
   isolation: isolate;
   overflow: hidden;
   background-image:
-    linear-gradient(160deg, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0.07) 34%, rgb(0 0 0 / 0.06) 50%, rgb(255 255 255 / 0.1) 62%, rgb(0 0 0 / 0.28) 100%),
-    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.04) 0 1px, transparent 1px 3px);
+    linear-gradient(160deg, color-mix(in oklab, var(--chrome-hi) 34%, transparent) 0%, color-mix(in oklab, var(--chrome-hi) 9%, transparent) 34%, rgb(0 0 0 / 0.03) 50%, color-mix(in oklab, var(--chrome-hi) 12%, transparent) 62%, rgb(0 0 0 / 0.2) 100%),
+    repeating-linear-gradient(90deg, color-mix(in oklab, var(--chrome-hi) 5%, transparent) 0 1px, transparent 1px 3px);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.4),
-    inset 1px 0 0 rgb(255 255 255 / 0.12),
-    inset 0 -1px 0 rgb(0 0 0 / 0.35),
-    0 1px 2px rgb(0 0 0 / 0.45);
-  text-shadow: 0 1px 1px rgb(0 0 0 / 0.35);
+    inset 0 1px 0 color-mix(in oklab, var(--chrome-hi) 55%, transparent),
+    inset 1px 0 0 color-mix(in oklab, var(--chrome-hi) 14%, transparent),
+    inset 0 -1px 0 rgb(0 0 0 / 0.25),
+    0 1px 2px rgb(0 0 0 / 0.35);
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.3);
   transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s ease, filter 0.22s ease;
 }
 @media (hover: hover) {
   .metal-tile:hover {
     transform: translateY(-5px);
-    filter: brightness(1.08);
+    filter: brightness(1.06) saturate(1.08);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.5),
-      inset 1px 0 0 rgb(255 255 255 / 0.15),
-      inset 0 -1px 0 rgb(0 0 0 / 0.35),
-      0 14px 24px -10px rgb(0 0 0 / 0.75),
-      0 4px 8px rgb(0 0 0 / 0.3);
+      inset 0 1px 0 color-mix(in oklab, var(--chrome-hi) 70%, transparent),
+      inset 1px 0 0 color-mix(in oklab, var(--chrome-hi) 18%, transparent),
+      inset 0 -1px 0 rgb(0 0 0 / 0.25),
+      0 14px 24px -12px rgb(0 0 0 / 0.6),
+      0 4px 8px rgb(0 0 0 / 0.22);
   }
 }
 .metal-tile:focus-visible { transform: translateY(-5px); }
 .metal-tile:active { transform: translateY(-1px) scale(0.98); transition-duration: 0.08s; }
 @media (prefers-reduced-motion: reduce) {
   .metal-tile, .metal-tile:hover, .metal-tile:focus-visible, .metal-tile:active { transform: none; }
+}
+
+/*
+ * Fresh chrome: the app-wide metal accent. Highlights are white with a cool tint of the theme's accent (sky), so each style's
+ * chrome leans its own way; the shade below is a soft drop, not a heavy black. Nothing sweeps or glints on hover: the metal
+ * is in the edges and the face, and stays still. In `@layer components`, so a utility a caller passes (a gradient, a shadow)
+ * still wins over it.
+ *
+ * - .metal-btn   a control: a light top edge, a faint sheen down its face, a brighter edge on hover.
+ * - .metal-panel a card or panel: a bright hairline along the top edge that fades at the corners, a faint brushed face.
+ * - .metal-rule  a bottom border in chrome that fades at both ends (under the nav).
+ * - .metal-text  small type in chrome (badges, eyebrows).
+ * - .metal-logo  the wordmark in polished chrome; .metal-bead its glossy dots.
+ */
+:root {
+  --chrome-hi: color-mix(in oklab, white 80%, var(--color-sky-200));
+  --chrome-lo: color-mix(in oklab, var(--color-slate-950) 70%, var(--color-sky-900));
+  --chrome-text: linear-gradient(100deg, var(--color-slate-400), var(--chrome-hi) 40%, var(--color-sky-300) 58%, var(--chrome-hi) 76%, var(--color-slate-400));
+}
+/* surf is a light style: its chrome is a darker steel so it still reads on the sand */
+:root[data-theme="surf"] {
+  --chrome-hi: color-mix(in oklab, white 70%, var(--color-sky-900));
+  --chrome-lo: oklch(40% 0.03 200);
+  --chrome-text: linear-gradient(100deg, #3c4850, #6b7780 40%, var(--color-sky-400) 58%, #56626b 76%, #3c4850);
+}
+
+@layer components {
+  /* every control gets the chrome: the ones that take .metal-btn, and any hand-styled button or button-like link with a border
+     and a fill. A card that is a link keeps its panel (.metal-panel), a tile its metal; `no-chrome` opts a control out. */
+  .metal-btn,
+  :is(button, a, [role="button"])[class*="border"][class*="bg-"]:not(.metal-panel, .metal-tile, .no-chrome, [class*="bg-transparent"]) {
+    background-image: linear-gradient(180deg, color-mix(in oklab, var(--chrome-hi) 10%, transparent), transparent 55%, color-mix(in oklab, var(--chrome-lo) 18%, transparent));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--chrome-hi) 16%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, var(--chrome-lo) 30%, transparent),
+      0 1px 2px rgb(0 0 0 / 0.18);
+  }
+  @media (hover: hover) {
+    .metal-btn:hover,
+    :is(button, a, [role="button"])[class*="border"][class*="bg-"]:not(.metal-panel, .metal-tile, .no-chrome, [class*="bg-transparent"]):hover {
+      box-shadow:
+        inset 0 1px 0 color-mix(in oklab, var(--chrome-hi) 30%, transparent),
+        inset 0 -1px 0 color-mix(in oklab, var(--chrome-lo) 30%, transparent),
+        0 2px 6px -1px rgb(0 0 0 / 0.25);
+    }
+  }
+
+  .metal-panel {
+    background-image:
+      linear-gradient(90deg, transparent 6%, color-mix(in oklab, var(--chrome-hi) 34%, transparent) 30%, color-mix(in oklab, var(--color-sky-300) 30%, transparent) 55%, color-mix(in oklab, var(--chrome-hi) 24%, transparent) 75%, transparent 94%),
+      linear-gradient(180deg, color-mix(in oklab, var(--chrome-hi) 4.5%, transparent), transparent 9rem),
+      repeating-linear-gradient(90deg, color-mix(in oklab, var(--chrome-hi) 1.6%, transparent) 0 1px, transparent 1px 3px);
+    background-size: 100% 1px, 100% 100%, auto;
+    background-repeat: no-repeat, no-repeat, repeat;
+    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--chrome-hi) 5%, transparent), 0 10px 30px -18px rgb(0 0 0 / 0.5);
+  }
+
+  .metal-rule {
+    border-image: linear-gradient(90deg, transparent, color-mix(in oklab, var(--chrome-hi) 30%, transparent) 25%, color-mix(in oklab, var(--color-sky-300) 40%, transparent) 50%, color-mix(in oklab, var(--chrome-hi) 30%, transparent) 75%, transparent) 1;
+  }
+
+  /* the attunr wordmark: polished chrome, a bright band over a dark line through the middle, like the edge of a fret */
+  .metal-logo {
+    background-image: linear-gradient(180deg, var(--chrome-hi) 0%, color-mix(in oklab, var(--chrome-hi) 85%, var(--color-slate-400)) 42%, color-mix(in oklab, var(--color-slate-500) 80%, var(--color-sky-700)) 54%, var(--chrome-hi) 72%, color-mix(in oklab, var(--chrome-hi) 70%, var(--color-slate-400)) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.35));
+  }
+  /* its dots: small glossy beads, a highlight over each colour */
+  .metal-bead {
+    background-image: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.75) 0 18%, transparent 55%), radial-gradient(circle at 50% 120%, rgb(0 0 0 / 0.35), transparent 60%);
+  }
+
+  .metal-text {
+    background-image: var(--chrome-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }

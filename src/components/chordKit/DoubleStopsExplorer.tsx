@@ -204,7 +204,7 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
         </Info>
       </p>
 
-      <section data-tour="double-stops-ladder" className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section data-tour="double-stops-ladder" className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <div className="mb-1 flex items-center gap-2">
           <h3 className="text-sm font-medium text-slate-100">Up the scale</h3>
           {octave.length > 0 && <button type="button" onClick={() => (running ? stop() : run())} title="Plays the octave up and back down" className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running ? "■ Stop" : "▶ Play"}</button>}

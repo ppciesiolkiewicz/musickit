@@ -25,7 +25,7 @@ export default function ChordSearchResults({ rootPc, semis, name }: { rootPc: nu
   if (!all.length) return <p className="rounded-xl border border-dashed border-slate-700 p-6 text-center text-sm text-slate-400">No shape in the library plays {name} yet.</p>;
   return (
     <section aria-label={`Shapes for ${name}`} className="flex flex-col gap-2">
-      <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <div className="flex flex-col gap-2.5 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         {row("Difficulty", ["x:easy", "x:medium", "x:hard"].filter((t) => all.some((c) => "x:" + c.shape.diff === t)))}
         {row("Style", STYLE_TAGS.filter((t) => tags.includes(t)))}
         {row("Shape", tags.filter((t) => !STYLE_TAGS.includes(t)))}

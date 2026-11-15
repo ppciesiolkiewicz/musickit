@@ -46,7 +46,7 @@ export function SettingsPanel({ settings, tools, name, summary, criteria, side =
       <div className="contents side:col-start-2 side:row-start-1 side:block side:sticky side:top-0">{panel}</div>
       {/* necks that bleed past a centred page would run under the column, so they stay in it here */}
       <div className="flex min-w-0 flex-col gap-5 side:col-start-1 side:row-start-1 side:[&_.bleed]:mx-0">
-        {criteria && <div data-tour="scale-criteria" className="flex flex-col gap-1.5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3">{criteria}</div>}
+        {criteria && <div data-tour="scale-criteria" className="flex flex-col gap-1.5 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-3">{criteria}</div>}
         {children}
       </div>
     </div>

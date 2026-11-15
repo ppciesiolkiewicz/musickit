@@ -101,7 +101,7 @@ export default function CourseIndex() {
         )}
       </div>
 
-      {empty && <p className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 text-sm text-slate-400">Nothing rated here yet. Rate a section with the stars in My notes at its end.</p>}
+      {empty && <p className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4 text-sm text-slate-400">Nothing rated here yet. Rate a section with the stars in My notes at its end.</p>}
 
       {layout === "stage" ? (
         <ol className="relative flex flex-col gap-5">

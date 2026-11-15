@@ -19,7 +19,7 @@ export function Section({
   const [infoOpen, setInfoOpen] = useState(false);
   return (
     <section
-      className={level === 1 ? (accent ? "overflow-hidden rounded-2xl border border-l-4 border-slate-700 bg-slate-900/80 shadow-lg shadow-black/10" : "rounded-2xl border border-slate-800 bg-slate-900/40") : ""}
+      className={level === 1 ? (accent ? "metal-panel overflow-hidden rounded-2xl border border-l-4 border-slate-700 bg-slate-900/80 shadow-lg shadow-black/10" : "metal-panel rounded-2xl border border-slate-800 bg-slate-900/40") : ""}
       style={accent && level === 1 ? { borderLeftColor: accent } : undefined}
     >
       <div className={`flex items-center gap-2 ${accent && level === 1 ? `border-b border-slate-700 bg-slate-800/60 ${isOpen ? "mb-3" : ""}` : ""}`}>

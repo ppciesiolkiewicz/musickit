@@ -243,7 +243,7 @@ export default function QuickRecord() {
           </button>
         </div>
 
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-5">
+        <div className="flex flex-col items-center gap-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-5">
           <InputChip status={recording ? "on" : "off"} align="right" />
           <button type="button" onClick={recording ? stop : () => void start()} aria-pressed={recording} aria-label={recording ? "Stop recording" : "Start recording"}
             ref={(el) => void (pulses.current[1] = el)} data-sound="false"

@@ -64,7 +64,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
         <PreloadPiano />
         <PracticeReminder />
         <AgentExerciseTools />
-        <div className="border-b border-slate-800/70 py-1.5 sm:py-2.5">
+        <div className="metal-rule border-b border-slate-800/70 py-1.5 sm:py-2.5">
           <SiteNav active={active} devices={devices} />
         </div>
         <header className={`pt-6 sm:pt-10 ${centered ? "text-center" : ""} ${column || columnTitle ? COLUMN : ""}`}>

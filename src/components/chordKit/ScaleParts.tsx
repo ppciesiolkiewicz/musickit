@@ -16,7 +16,7 @@ export function ModeAlias({ familyIndex, modeIndex }: { familyIndex: number; mod
 export function ColourKey({ title = "Colour key", children }: { title?: string; children?: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
-    <section aria-label={title} className="flex flex-col gap-1.5 rounded-2xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
+    <section aria-label={title} className="flex flex-col gap-1.5 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
       <h2 className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-slate-400">
         {title}
         {children && <InfoButton open={open} onClick={() => setOpen((v) => !v)} label={`About the ${title.toLowerCase()}`} />}

@@ -14,7 +14,7 @@ export const LINK = "font-medium text-sky-300 underline-offset-2 hover:underline
 
 /** The framed column every one of these screens sits in. */
 export function Card({ children }: { children: ReactNode }) {
-  return <div className="flex w-full max-w-md flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-5 sm:p-6">{children}</div>;
+  return <div className="flex w-full max-w-md flex-col gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-5 sm:p-6">{children}</div>;
 }
 
 export function ErrorLine({ children }: { children: ReactNode }) {

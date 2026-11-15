@@ -89,7 +89,7 @@ export default function ShapeBrowser({ entries, ctx, header, emptyHint, forcedTa
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2.5 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <div className="flex flex-col gap-2.5 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         {header}
         {row("Difficulty", ["x:easy", "x:medium", "x:hard"])}
         {row("Style", styleTags)}

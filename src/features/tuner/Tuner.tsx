@@ -109,7 +109,7 @@ export default function Tuner({ external, guide = false }: {
   const signed = (c: number) => `${Math.round(c) > 0 ? "+" : ""}${Math.round(c) || 0}`;
 
   const meter = (
-      <section aria-label="Meter" data-tour="tuner-meter" className="flex flex-col items-center gap-5 rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-6 sm:px-8 sm:py-8 lg:order-2">
+      <section aria-label="Meter" data-tour="tuner-meter" className="flex flex-col items-center gap-5 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 px-4 py-6 sm:px-8 sm:py-8 lg:order-2">
         <TunerMeter hz={hz} read={read} idle={(
           <>
             <span className="text-2xl font-light text-slate-300">{running ? "Play a string" : "Ready to tune"}</span>
@@ -155,7 +155,7 @@ export default function Tuner({ external, guide = false }: {
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(18rem,22rem)_1fr]">
       {/* the meter first on a phone, beside the setup on a wide screen */}
       {meter}
-      <aside aria-label="Setup" className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4 lg:order-1">{setup}</aside>
+      <aside aria-label="Setup" className="flex flex-col gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4 lg:order-1">{setup}</aside>
     </div>
   );
 }

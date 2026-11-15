@@ -84,7 +84,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
         Colour shows a note&apos;s degree, not how high it sounds. A degree has the same colour in every key and every chord, so a shape you know in one key looks the same in the next. Watch the amber note: the 3rd decides major or minor. A 3 makes it major, a ♭3 makes it minor.
       </ColourKey>
 
-      <div id="scale-notes" className={`grid gap-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_PANEL}`}>
+      <div id="scale-notes" className={`grid gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 md:grid-cols-[minmax(0,1fr)_auto] ${UNDER_PANEL}`}>
         <div className="flex min-w-0 flex-col gap-3">
         <h2 className="text-2xl font-light tracking-wide text-slate-100">
           {ctx.names[0]} {ctx.modeName}
@@ -159,7 +159,7 @@ export default function ScalePage({ familyIndex, modeIndex, initialKey, syncUrl 
 
       <ScaleSongs ctx={ctx} className={UNDER_PANEL} />
 
-      <section id="sus" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_PANEL}`}>
+      <section id="sus" className={`metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${UNDER_PANEL}`}>
         <h2 className="mb-1 text-sm font-medium text-slate-100">Sus and extension chords from each chord</h2>
         <p className="mb-3 text-xs text-slate-400">From {ctx.chords[0].triadName} you can go through the 2nd of the scale to sus2 and 9 chords, through the 4th to sus4 and 11, and so on. All seven chords of {ctx.names[0]} {ctx.modeName}.</p>
         <ChordBubbles ctx={ctx} />

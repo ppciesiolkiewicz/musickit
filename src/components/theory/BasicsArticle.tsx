@@ -13,7 +13,7 @@ const STRINGS = ["E", "A", "D", "G", "B"];
 const ROOT = "#f8fafc", TARGET = "#f59e0b", OTHER = "#38bdf8";
 const NATURALS = [0, 2, 4, 5, 7, 9, 11];
 
-const card = "rounded-2xl border border-slate-800 bg-slate-900/40 p-4";
+const card = "metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4";
 
 /** Natural notes on the low E string next to the white keys of a piano. */
 function Naturals() {

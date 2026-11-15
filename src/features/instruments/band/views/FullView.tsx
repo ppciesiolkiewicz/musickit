@@ -67,7 +67,7 @@ export default function FullView({ band, config, show, ready: hostReady }: ViewP
 
   return (
     <div className="flex min-w-0 flex-col gap-5 px-1 sm:gap-8 sm:px-2 lg:px-4">
-      <div data-tour="jam-all" className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+      <div data-tour="jam-all" className="flex flex-wrap items-center gap-x-5 gap-y-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
         <button type="button" onClick={toggleAll} aria-pressed={anyOn} title={`${anyOn ? "Stop" : "Start"} every part on the next beat (Space)`}
           className={`inline-flex h-12 items-center gap-2.5 rounded-xl border px-5 text-base font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${anyOn ? "border-emerald-400/70 bg-emerald-500/20 text-emerald-100" : "border-sky-400/60 bg-sky-500/15 text-sky-50 shadow-lg shadow-sky-500/10 hover:bg-sky-500/25"}`}>
           <Icon name={anyOn ? "square" : "play"} size={20} fill />{anyOn ? "Stop all" : "Play all"}

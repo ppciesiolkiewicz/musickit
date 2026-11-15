@@ -6,7 +6,7 @@ export default function ScaleSongs({ ctx, className = "" }: { ctx: KeyContext; c
   const songs = songsFor(ctx);
   if (songs.length === 0) return null;
   return (
-    <section id="songs" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
+    <section id="songs" className={`metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
       <h2 className="mb-1 text-sm font-medium text-slate-100">Songs in {ctx.names[0]} {ctx.modeName}</h2>
       <p className="mb-3 text-xs text-slate-400">Well-known recordings in this key. Put one on and play the scale along with it.</p>
       <ul className="flex flex-wrap gap-2">

@@ -66,7 +66,7 @@ export default function CagedExplorer({ initialRoot = DEFAULT_KEY_PC, initialQua
     <SettingsPanel side={side} criteria={criteria} name={keyAndScaleName(rootPc, undefined, quality === "major" ? "major" : "minor")} summary={<ScaleFacts pocket={pocket} />}
       settings={<SettingsSection title="Settings" first><KeyRow tonicPc={rootPc} onTonic={setRootPc} scale={{ picker: qualityPicker }} /><LabelsRow extra={badgeChip} /></SettingsSection>}
       tools={<PocketSection keyPc={rootPc} side={side} onStatus={onPocket} />}>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 px-3 py-2.5">
         <DegreeLegend />
         <Info label="What is the CAGED system?">
           Open chords come in five shapes, named after the chords C, A, G, E and D. Each can be slid up the neck as a barre chord, and each time it lands on the same chord in a different place. Slide all five and they link up in the order C, A, G, E, D, then C again an octave higher, covering the whole neck. Around each chord shape is a box of notes: that is where its arpeggio, scale and pentatonic live. Learn the five boxes and you can play the same key anywhere on the neck.
@@ -101,7 +101,7 @@ function NotesTable({ rootPc, quality, arpKind }: { rootPc: number; quality: Cag
     { title: th.scaleName, notes: fromSemis(th.scale) },
   ];
   return (
-    <section data-tour="caged-notes" className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label="Notes of the selection">
+    <section data-tour="caged-notes" className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label="Notes of the selection">
       <div className="flex flex-col divide-y divide-slate-800/80">
         {rows.map((r) => (
           <div key={r.title} className="flex flex-wrap items-end gap-x-3 gap-y-1 py-2 first:pt-0 last:pb-0">
@@ -125,7 +125,7 @@ function KeyChords({ rootPc, quality, keyName }: { rootPc: number; quality: Cage
   const ctx = useMemo(() => cagedContext(rootPc, quality), [rootPc, quality]);
   const items = useMemo(() => ctx.chords.map((c, d) => ({ c, d, pick: shapesForChord(ctx, d, ["easy", "medium", "hard"], { fit: "triad" })[0] })), [ctx]);
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label={`Chords in ${keyName} ${quality}`}>
+    <section className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5" aria-label={`Chords in ${keyName} ${quality}`}>
       <h2 className="mb-2 text-sm font-medium text-slate-100">
         Chords in {keyName} {quality}
         <Info label="About these chords">The chord built on each note of the scale, with the simplest way to play it: an open chord when there is one, otherwise the first barre shape. The Roman numeral is the degree: capitals are major chords, lower case minor. Tap a diagram to hear it.</Info>

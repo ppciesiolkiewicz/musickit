@@ -19,7 +19,7 @@ export default function ScaleRelatives({ ctx, familyIndex, onPick, className = "
   const href = (s: { modeIndex: number; tonicPc: number }) => scaleHref(MODE_PAGES.find((p) => p.familyIndex === familyIndex && p.modeIndex === s.modeIndex)!.slug, s.tonicPc);
 
   return (
-    <section id="relatives" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
+    <section id="relatives" className={`metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
       <h2 className="mb-2 text-sm font-medium text-slate-100">Related modes <span className="font-normal text-slate-400">· the same notes as {ctx.names[0]} {ctx.modeName}</span></h2>
 
       {fam.scales ? (

@@ -61,7 +61,7 @@ export default function PracticeTiles() {
   return (
     <div className="flex flex-col gap-6">
       <div className="sticky top-2 z-10 -mx-1 px-1">
-        <label className="group/field flex h-14 w-full items-center gap-3 rounded-2xl border border-slate-600/80 bg-slate-900/90 px-4 shadow-lg shadow-black/30 backdrop-blur transition focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/30 lg:max-w-2xl">
+        <label className="metal-panel group/field flex h-14 w-full items-center gap-3 rounded-2xl border border-slate-600/80 bg-slate-900/90 px-4 shadow-lg shadow-black/30 backdrop-blur transition focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-400/30 lg:max-w-2xl">
           <Icon name="search" size={20} className="shrink-0 text-slate-400 group-focus-within/field:text-sky-300" />
           <span className="sr-only">Find a tool or drill</span>
           <input
@@ -110,7 +110,7 @@ export default function PracticeTiles() {
         <div className="grid items-start gap-x-8 gap-y-8 lg:grid-cols-2">
           {groups.map((g) => (
             <section key={g.label} aria-labelledby={`tiles-${g.label}`}>
-              <h2 id={`tiles-${g.label}`} className="mb-2.5 text-sm font-semibold uppercase tracking-[0.16em] text-slate-300">{g.label}</h2>
+              <h2 id={`tiles-${g.label}`} className="mb-2.5 text-sm font-semibold uppercase tracking-[0.16em] text-slate-300 metal-text">{g.label}</h2>
               <ul className="grid grid-flow-dense grid-cols-3 gap-1.5 md:grid-cols-6 lg:grid-cols-4">
                 {g.tiles.map((t) => (
                   <li key={t.href} className={t.wide ? "col-span-3 md:col-span-2" : ""}>

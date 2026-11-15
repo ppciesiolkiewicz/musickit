@@ -192,7 +192,7 @@ export function ArpeggioOnGuitar({ ctx, degree, type, neck, positions: showPosit
     strum([...up, ...up.slice(0, -1).reverse()], { gapMs: 230, holdMs: 700 });
   };
   return (
-    <section className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+    <section className="flex flex-col gap-2 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="text-sm font-medium text-slate-100">{arp.title}</h2>
         <span className="text-xs text-slate-400">{arp.notes.map((n) => `${n.name} (${n.role})`).join(" · ")}</span>
@@ -308,7 +308,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
         {page && <> · <Link className="text-sky-300 hover:underline" href={scaleHref(page.slug, tonicPc)}>mode page</Link></>}
       </p>
 
-      <section data-tour="arp-neck" className="bleed rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+      <section data-tour="arp-neck" className="bleed metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <div className="mb-3 flex flex-wrap items-center gap-3">
           <h2 className="text-sm font-medium text-slate-100">{arp.title}</h2>
           <span className="text-xs text-slate-400">
@@ -336,7 +336,7 @@ export default function ArpeggiosExplorer({ initialTonic = DEFAULT_KEY_PC, initi
         </div>
       </section>
 
-      <section data-tour="arp-positions" className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
+      <section data-tour="arp-positions" className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5">
         <h2 className="mb-2 text-sm font-medium text-slate-100">
           {arp.title} by position
           <Info label="About positions">Each position starts on the root (Do) on one string and climbs the strings above it, one note at a time, without leaving the hand&apos;s reach. Tap a note to hear it, or Play to hear the position up and back.</Info>

@@ -343,7 +343,7 @@ export default function Piano({ destination, voice, keyInfo, onNoteOn, onNoteOff
         </>)}
       </div>
 
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-1.5 sm:p-2">
+      <div className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/60 p-1.5 sm:p-2">
         <div className="relative h-36 w-full touch-none select-none sm:h-44" role="group" aria-label="Piano keys">
           <div className="flex h-full">
             {whites.map((key) => {

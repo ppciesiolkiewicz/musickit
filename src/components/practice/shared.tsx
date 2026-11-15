@@ -4,7 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 
 /** Small pieces both practice games use. */
-export const panel = "rounded-2xl border border-slate-800 bg-slate-900/40 p-4";
+export const panel = "metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4";
 export const btn = "cursor-pointer rounded-lg border border-slate-600 bg-slate-800 px-3 py-1 text-sm text-slate-100 shadow-sm shadow-black/20 transition hover:border-slate-400 hover:bg-slate-700 active:scale-[0.97] disabled:opacity-40";
 export const btnPrimary = "cursor-pointer rounded-lg border border-sky-400/80 bg-sky-500/25 px-4 py-1 text-sm font-semibold text-sky-50 shadow-md shadow-sky-500/20 transition hover:bg-sky-500/40 active:scale-[0.97]";
 

@@ -28,7 +28,7 @@ export default function ScaleChords({ ctx, className = "" }: { ctx: KeyContext; 
 
   return (
     <>
-      <section id="chords" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
+      <section id="chords" className={`metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <h2 className="text-sm font-medium text-slate-100">Every chord in {ctx.names[0]} {ctx.modeName}</h2>
           <span className="ml-auto flex flex-wrap items-center gap-1.5">

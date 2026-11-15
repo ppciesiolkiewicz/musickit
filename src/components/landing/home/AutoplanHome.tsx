@@ -205,7 +205,7 @@ export default function AutoplanHome({ audience, ending }: { audience: Audience;
           <ul className="mt-8 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
             {RESOURCES.map((r) => (
               <li key={r.href}>
-                <Link href={r.href} className="ls-card flex h-full items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/40 p-3 transition hover:border-slate-600">
+                <Link href={r.href} className="ls-card flex h-full items-center gap-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-3 transition hover:border-slate-600">
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-500/15 text-amber-300"><Icon name={r.icon} size={16} /></span>
                   <span className="text-sm text-slate-100">{r.label}</span>
                 </Link>

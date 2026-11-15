@@ -28,7 +28,7 @@ export default function ProgressionsTab({ initialSel = 0, labels = true }: { ini
 
   return (
     <div className="flex flex-col gap-5">
-      {labels && <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5"><LabelsRow /></div>}
+      {labels && <div className="metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5"><LabelsRow /></div>}
       {groups.map((g) => (
         <div key={g.heading + g.idx[0]} className="flex flex-col gap-2">
           <h3 className="text-sm font-medium text-slate-200">{g.heading} <span className="font-normal text-slate-500">· {g.sub}</span></h3>

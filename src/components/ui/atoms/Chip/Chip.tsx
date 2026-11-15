@@ -16,7 +16,7 @@ export function Chip({ on, onClick, onHover, children, count, title, hue, disabl
       onPointerLeave={onHover && ((e) => e.pointerType === "mouse" && onHover(false))}
       title={title}
       aria-pressed={on}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition lg:px-3 lg:py-1 lg:text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${
+      className={`metal-btn inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition lg:px-3 lg:py-1 lg:text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${
         hue ? hueClass(hue, !!on) : on ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
       } ${disabled ? "cursor-default opacity-70" : ""}`}
     >

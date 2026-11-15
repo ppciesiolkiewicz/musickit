@@ -41,7 +41,7 @@ export default function ScaleProgressions({ ctx, className = "" }: { ctx: KeyCon
   };
 
   return (
-    <section id="progressions" className={`rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
+    <section id="progressions" className={`metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-2.5 ${className}`}>
       <h2 className="mb-1 text-sm font-medium text-slate-100">Iconic progressions in {ctx.names[0]} {ctx.modeName}</h2>
       <p className="mb-3 text-xs text-slate-400">A few well-known chord loops that bring out this scale’s sound. Play one through, or tap a chord to hear it.</p>
       <ul className="grid gap-2 lg:grid-cols-2">
