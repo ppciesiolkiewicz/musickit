@@ -5,6 +5,7 @@ import Icon from "../Icon";
 import { NOTE_NAMES, RHYTHM_RATIOS, SCALES, degreeMidi, findScale, interference, invert, makeChallenge, noteName, permutations, retrograde, rotations, type Challenge } from "@/lib/improv/schillinger";
 import { playMelody, silence, startDrone, startLoop, type Hit, type Loop } from "./sound";
 import { DEFAULT_KEY_PC } from "@/features/theory/theory";
+import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
 import { NumberField, Slider, ibtn, Select } from "@/components/ui";
 const card = "flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-3";
 const H2 = ({ icon, children }: { icon: Parameters<typeof Icon>[0]["name"]; children: string }) => <h2 className="flex items-center gap-2 text-sm font-medium text-slate-100"><Icon name={icon} className="text-sky-300" />{children}</h2>;
@@ -167,8 +168,6 @@ function MotiveLab() {
   );
 }
 
-const SEED_KEY = "musickit.improv.stats";
-
 function Games() {
   return (
     <section data-tour="improv-games" className={card} aria-label="Games">
@@ -181,15 +180,6 @@ function Games() {
   );
 }
 
-function loadStats(): { done: number; best: number; streak: number } {
-  try {
-    const j = JSON.parse(window.localStorage.getItem(SEED_KEY) ?? "{}");
-    return { done: Number(j.done) || 0, best: Number(j.best) || 0, streak: 0 };
-  } catch {
-    return { done: 0, best: 0, streak: 0 };
-  }
-}
-
 /** Improv roulette: a random key, scale, rhythm, motive and rule, a timer, and an optional drone and click to play over. */
 function Roulette() {
   const [seed, setSeed] = useState(1);
@@ -197,11 +187,14 @@ function Roulette() {
   const [left, setLeft] = useState<number | null>(null);
   const [drone, setDrone] = useState(false);
   const [click, setClick] = useState(false);
-  const [stats, setStats] = useState({ done: 0, best: 0, streak: 0 });
+  // rounds done and the best streak are the player's records (kept with the account); the streak is this visit's
+  const [records] = useUserDoc("records");
+  const [streak, setStreak] = useState(0);
+  const stats = { ...records.improv, streak };
   const stopDrone = useRef<(() => void) | null>(null);
   const loop = useRef<Loop | null>(null);
 
-  useEffect(() => { setSeed(Math.floor(Math.random() * 1e6)); setStats(loadStats()); }, []);
+  useEffect(() => { setSeed(Math.floor(Math.random() * 1e6)); }, []);
   useEffect(() => { setC(makeChallenge(seed)); setLeft(null); }, [seed]);
   useEffect(() => {
     if (left === null) return;
@@ -223,10 +216,9 @@ function Roulette() {
 
   const it = interference(c.ratio[0], c.ratio[1]);
   const done = () => {
-    const next = { ...stats, done: stats.done + 1, streak: stats.streak + 1 };
-    next.best = Math.max(stats.best, next.streak);
-    setStats(next);
-    try { window.localStorage.setItem(SEED_KEY, JSON.stringify({ done: next.done, best: next.best })); } catch { /* ignore */ }
+    const next = streak + 1;
+    setStreak(next);
+    userDoc("records").update((r) => ({ ...r, improv: { done: r.improv.done + 1, best: Math.max(r.improv.best, next) } }));
     setSeed(Math.floor(Math.random() * 1e6));
   };
   const key = `${NOTE_NAMES[c.root]} ${c.scale.name}`;

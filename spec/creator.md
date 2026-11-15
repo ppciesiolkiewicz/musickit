@@ -8,7 +8,7 @@ Every theory page as a plugin (panel) on one board, all following one key. One k
 Each plugin has a **compact** view (a cheatsheet card) and, for the plugins that come from a theory page, a **full** view: that page itself, started on the board's key. The **Full / Compact** button next to the panel's title switches them. Switching to full grows the panel to at least 960 x 680 (never shrinks it). Views are saved in `musickit.creator.views`. A full view keeps its own pickers; changing the board's key starts it again on the new key. With no key the full views start on C.
 
 ## Key
-`KeyChoice { tonicPc: number | null, family, mode }`. Chosen with the tonic chips, the family and mode selects, or by a plugin (the circle of fifths). Shown with its notes and key signature (the signature of the parent major scale, for the major family). Kept in the URL (`?key=7&family=0&mode=1`, so a link shares it) and in `musickit.creator.key`.
+`KeyChoice { tonicPc: number | null, family, mode }`. Chosen with the tonic chips, the family and mode selects, or by a plugin (the circle of fifths). Shown with its notes and key signature (the signature of the parent major scale, for the major family). Kept in the URL (`?key=7&family=0&mode=1`, so a link shares it) and in the `creator` document of `features/userData` (the account for a signed-in player, `musickit.creator.key` in the browser without one).
 
 ## Plugins
 | Plugin | With a key | With no key |

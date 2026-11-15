@@ -7,4 +7,6 @@ import type { PlanState } from "../model/types";
 export interface PlanStore {
   load(): Promise<PlanState>;
   save(state: PlanState): Promise<void>;
+  /** Sends a save still waiting now and waits for it: true once the latest state is on the server. A store in this browser has none. */
+  flush?(): Promise<boolean>;
 }

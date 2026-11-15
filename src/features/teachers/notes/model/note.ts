@@ -1,56 +1,14 @@
 import { gridLayers, type Stage } from "@/features/stage/model/layers";
 import type { Subject } from "@/features/stage/model/subject";
-import { parseBlock } from "@/features/plan/model/config";
 import { parseToolDiag, type Cell } from "@/features/plan/model/tools";
 import type { Block } from "@/features/plan/model/types";
 
 /**
- * A note is one block. This module is what the notes creator, a shared link and the studio's Share as a note agree on: the
- * link codec, the empty note, and turning a stage or a palette subject into cells. Pure: no React, no storage.
+ * A note is one block. This module is what the notes creator, a shared note's page and the studio's Share as a note agree on:
+ * the empty note, turning a stage or a palette subject into cells, and how a note's page splits it. Pure: no React, no storage.
  */
 
 export const EMPTY_NOTE: Block = { title: "", cells: [] };
-
-const toBase64Url = (bytes: Uint8Array): string => {
-  let bin = "";
-  for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-};
-const fromBase64Url = (s: string): Uint8Array => {
-  const bin = atob(s.replace(/-/g, "+").replace(/_/g, "/"));
-  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
-};
-
-async function pipe(bytes: Uint8Array, stream: CompressionStream | DecompressionStream): Promise<Uint8Array> {
-  const out = new Response(new Blob([bytes as BlobPart]).stream().pipeThrough(stream));
-  return new Uint8Array(await out.arrayBuffer());
-}
-
-/** The block as a short URL-safe string: `b` deflated, or `c` plain JSON where the browser can't deflate. */
-export async function encodeNote(block: Block): Promise<string> {
-  const plain = new TextEncoder().encode(JSON.stringify(block));
-  if (typeof CompressionStream === "undefined") return `c${toBase64Url(plain)}`;
-  return `b${toBase64Url(await pipe(plain, new CompressionStream("deflate-raw")))}`;
-}
-
-/** A link's note: the block, `old` for a link made before notes were blocks (`z`, `j`), or an error. */
-export async function decodeNote(s: string): Promise<{ block: Block } | { old: true } | { error: string }> {
-  if (s[0] === "z" || s[0] === "j") return { old: true };
-  try {
-    const bytes = fromBase64Url(s.slice(1));
-    const plain = s[0] === "b" ? await pipe(bytes, new DecompressionStream("deflate-raw")) : s[0] === "c" ? bytes : null;
-    if (!plain) return { error: "not a note" };
-    return { block: parseBlock(JSON.parse(new TextDecoder().decode(plain)), { draft: true }).block };
-  } catch {
-    return { error: "the link is broken" };
-  }
-}
-
-/** The note in a URL hash (`#note=…`), or null. */
-export function noteFromHash(hash: string): string | null {
-  const m = /^#note=(.+)$/.exec(hash);
-  return m ? m[1] : null;
-}
 
 /** A short id for a cell the editor makes. */
 export const newCellId = (): string => Math.random().toString(36).slice(2, 10).padEnd(6, "0");

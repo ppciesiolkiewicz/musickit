@@ -1,5 +1,6 @@
 import { del, list, put } from "@vercel/blob";
-import { MAX_MODEL_BYTES, NAM_PREFIX, blobToken, checkAccess, describePath, libraryPath, ownPath } from "@/features/nam/server/cloud";
+import { MAX_MODEL_BYTES, NAM_PREFIX, checkAccess, describePath, libraryPath, ownPath } from "@/features/nam/server/cloud";
+import { blobToken } from "@/lib/blob";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

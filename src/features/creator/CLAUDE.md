@@ -7,7 +7,7 @@ The creator (shown as the "Cheatsheet builder" at `/cheatsheet`) is every theory
 - Music theory goes in `features/theory`, not here. If a plugin needs a fact the theory feature does not have, add it there with a test. What stays here is the creator's own choice (`model/key.ts`), how things are voiced for playing (`model/voicing.ts`), and the general (no key) content (`model/generic.ts`).
 
 ## The key
-- One `KeyChoice` (`tonicPc | null`, family, mode) in `KeyProvider`, read with `useCreatorKey()`. It restores from `?key=&family=&mode=` and then `musickit.creator.key`.
+- One `KeyChoice` (`tonicPc | null`, family, mode) in `KeyProvider`, read with `useCreatorKey()`. It restores from `?key=&family=&mode=` (kept as the choice) and then the player's `creator` document (`useUserDoc("creator")`: the server for a signed-in player, `musickit.creator.key` without accounts). `initial` fixes the key and keeps nothing.
 - Every plugin must work with no key: `ctx === null` shows the plugin's general page (labelled "general"), never an empty panel or an error. A plugin may also change the key (the circle of fifths picks one).
 
 ## Plugins

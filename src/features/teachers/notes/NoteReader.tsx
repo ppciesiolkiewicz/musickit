@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { VoicePicker } from "@/features/exercises/basics/voiceChoice";
 import BlockArticle, { BlockBody } from "@/features/plan/ui/reader/BlockArticle";
 import type { Block } from "@/features/plan/model/types";
-import { readable } from "@/features/plan/model/editBlock";
-import { decodeNote } from "./model/note";
 
 /** The way into the notes creator under a note being read. */
 function MakeYourOwn() {
@@ -25,27 +22,6 @@ export function NoteReader({ block, body = false, footer = true }: { block: Bloc
     <div className="flex flex-col gap-12 pt-2 sm:pt-4">
       <VoicePicker data={block}>{body ? <BlockBody block={block} size="page" keyBar /> : <BlockArticle block={block} keyBar />}</VoicePicker>
       {footer && <MakeYourOwn />}
-    </div>
-  );
-}
-
-/** A shared note, opened from its link: read as an article, never editable. A link from before notes were blocks, or a broken one, says so. */
-export default function NoteView({ note }: { note: string }) {
-  const [read, setRead] = useState<Awaited<ReturnType<typeof decodeNote>> | null>(null);
-  useEffect(() => {
-    let live = true;
-    void decodeNote(note).then((r) => live && setRead(r));
-    return () => {
-      live = false;
-    };
-  }, [note]);
-
-  if (!read) return null;
-  if ("block" in read) return <NoteReader block={readable(read.block)} />;
-  return (
-    <div className="flex flex-col gap-12 pt-2 sm:pt-4">
-      <p className="text-center text-slate-400">{"old" in read ? "This note was made with an older version of the notes creator, so it can't be opened." : "This note link could not be opened."}</p>
-      <MakeYourOwn />
     </div>
   );
 }

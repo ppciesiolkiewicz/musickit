@@ -1,31 +1,51 @@
+import { del } from "@vercel/blob";
 import { rename } from "@/features/account/server/auth";
-import { NO_ACCOUNTS, auth, json, readJson, requestAccount, sameOrigin, signOutCookies } from "@/features/account/server/http";
+import { NO_ACCOUNTS, auth, json, readJson, signOutCookies } from "@/features/account/server/http";
+import { signedIn, userData } from "@/features/userData/server/http";
+import { blobToken } from "@/lib/blob";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const LOGGED_OUT = "You are logged out. Log in and try again.";
-
-/** Change the signed-in account's name: JSON { name }. */
+/**
+ * Change the signed-in account's name: JSON { name }. Like every changing route it goes through `signedIn`: 503 without
+ * accounts, 403 from another site, 401 logged out, 409 `account-changed` when `X-Account-Id` names another account.
+ */
 export async function PATCH(req: Request) {
   const deps = auth();
   if (!deps) return json({ error: NO_ACCOUNTS }, 503);
-  if (!sameOrigin(req)) return json({ error: "Bad request." }, 403);
-  const { account, cookies } = await requestAccount(deps, req);
-  if (!account) return json({ error: LOGGED_OUT }, 401, cookies);
+  const me = await signedIn(req, deps);
+  if (me instanceof Response) return me;
+  const { account, cookies } = me;
   const body = await readJson(req);
   const renamed = await rename(deps, account.id, body?.name);
   if (!renamed) return json({ error: "Type your name.", field: "name" }, 400, cookies);
   return json({ ok: true, account: renamed }, 200, cookies);
 }
 
-/** Delete the signed-in account, with its sessions. */
+/**
+ * Delete the signed-in account: its video paths are read first, then the user row is deleted (the database cascades its
+ * sessions, data, shares and videos), then the files. A failed delete strands no file without its row; a file that can't
+ * be deleted is logged, and the account is gone either way.
+ */
 export async function DELETE(req: Request) {
   const deps = auth();
+  // a tab still open from before someone else logged in names its own account: 409, so it never deletes theirs
   if (!deps) return json({ error: NO_ACCOUNTS }, 503);
-  if (!sameOrigin(req)) return json({ error: "Bad request." }, 403);
-  const { account, cookies } = await requestAccount(deps, req);
-  if (!account) return json({ error: LOGGED_OUT }, 401, cookies);
+  const me = await signedIn(req, deps);
+  if (me instanceof Response) return me;
+  const { account } = me;
+  const store = userData();
+  const blobPaths = store ? await store.repo.videoPaths(account.id) : [];
   await deps.repo.deleteUser(account.id);
+  if (blobPaths.length) {
+    const token = blobToken(process.env);
+    try {
+      if (!token) throw new Error("no Blob token");
+      await del(blobPaths, { token });
+    } catch (e) {
+      console.error(`account: ${account.id} deleted, ${blobPaths.length} video file(s) not`, e);
+    }
+  }
   return json({ ok: true }, 200, signOutCookies());
 }

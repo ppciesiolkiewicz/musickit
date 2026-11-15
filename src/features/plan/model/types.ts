@@ -71,6 +71,8 @@ export interface StoredPlan {
   spent?: Record<string, number>;
   /** how the week went, in the player's words, for the next prompt */
   feedback?: string;
+  /** the id of the invite (a plan share) this copy was claimed from; absent for the player's own plans */
+  from?: string;
 }
 
 export interface ReminderSettings {

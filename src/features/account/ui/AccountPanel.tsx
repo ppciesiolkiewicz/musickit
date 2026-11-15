@@ -69,7 +69,7 @@ export default function AccountPanel() {
         {saved && <p role="status" className="text-xs text-emerald-300">Name saved.</p>}
       </form>
 
-      <p className="text-xs text-slate-500">Your plans and progress are still kept in this browser, not in your account.</p>
+      <p className="text-xs text-slate-500">Your plans, progress, notes and videos are kept in your account.</p>
       <ErrorLine>{error}</ErrorLine>
 
       <button type="button" disabled={busy} className={SECONDARY} onClick={() => void store.signOut().then(() => go("/"))}>Log out</button>

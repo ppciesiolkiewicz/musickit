@@ -4,7 +4,9 @@ import { useEffect, useRef, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import { Button, Chip, DropdownSection, Hint, KeyCap, SettingsRow, Tile, hueAt } from "@/components/ui";
-import { ToolSettings, savedSetting, type RowLook } from "@/features/settings";
+import { ToolSettings, type RowLook } from "@/features/settings";
+import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
+import { DEFAULT_ROLL_CENTS, ROLL_ACCURACIES } from "./rollAccuracy";
 import { useCoverage } from "@/features/guide/useCoverage";
 
 export type WarmUpStatus = "idle" | "running" | "done";
@@ -92,18 +94,15 @@ export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, wh
 }
 
 /**
- * How close a lip roll has to be to the tone's line to count as on it, in cents: wider than a sung note's (`ACCURACIES`),
- * since a lip roll buzzes and wobbles. Kept in this browser.
+ * The lip roll's accuracy in cents (`ROLL_ACCURACIES`), shared live by a settings panel and its tool. It is one of the
+ * player's records (`userDoc("records")`, kept with the account); Easy until one is picked or while it loads.
  */
-export const ROLL_ACCURACIES = [
-  { title: "Easy", cents: 150 },
-  { title: "Medium", cents: 100 },
-  { title: "Hard", cents: 50 },
-  { title: "Pro", cents: 25 },
-] as const;
-const ROLL_KEY = "musickit.lipRoll.accuracy";
+export function useRollAccuracy(): [number, (cents: number) => void] {
+  const [records] = useUserDoc("records");
+  return [records.lipRollAccuracy ?? DEFAULT_ROLL_CENTS, setRollAccuracy];
+}
 
-export const useRollAccuracy = savedSetting<number>(ROLL_KEY, ROLL_ACCURACIES[0].cents, (v) => ROLL_ACCURACIES.some((a) => a.cents === v));
+const setRollAccuracy = (cents: number) => userDoc("records").update((r) => ({ ...r, lipRollAccuracy: cents }));
 
 const ROLL_INFO = <>How close your line has to be to the tone&apos;s to show green. A semitone is 100 cents (¢). A lip roll wobbles, so start on Easy and move up when your line stays green.</>;
 

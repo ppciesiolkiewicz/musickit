@@ -34,3 +34,15 @@ test("the login link carries where to come back to", () => {
 test("files in public/ with no extension and Vercel's own paths are public", () => {
   for (const p of ["/models/crepe/group1-shard1of1", "/models/crepe/model.json", "/videos/x", "/intro/scene1", "/_vercel/insights/view", "/_vercel/insights/event"]) assert.equal(isPublicPath(p), true, p);
 });
+
+test("a shared note's page is public; the notes creator and other notes pages are not", () => {
+  assert.equal(isPublicPath("/notes/shared/abc"), true);
+  assert.equal(isPublicPath("/notes/shared/abc_-123"), true);
+  assert.equal(isPublicPath("/notes"), false);
+  assert.equal(isPublicPath("/notes/sharedx"), false);
+  assert.equal(isMarketingPath("/notes/shared/abc"), false);
+});
+
+test("a plan invite needs a login: it shows nothing of the plan before", () => {
+  assert.equal(isPublicPath("/plan/invite/abc"), false);
+});

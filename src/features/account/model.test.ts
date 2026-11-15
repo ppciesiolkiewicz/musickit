@@ -8,10 +8,14 @@ test("nobody signed in can use every feature", () => {
   for (const f of Object.keys(FEATURES) as Feature[]) assert.equal(can(null, f), true);
 });
 
-test("every role can use every feature: a teacher gets the same app as a student", () => {
+test("every role can use every feature but sharePlan: a teacher gets the same app as a student, plus plan invites", () => {
   for (const f of Object.keys(FEATURES) as Feature[]) {
+    if (f === "sharePlan") continue;
     for (const role of ROLES) assert.equal(can(acc({ role }), f), true, `${role} ${f}`);
   }
+  assert.equal(can(acc({ role: "student" }), "sharePlan"), false);
+  assert.equal(can(acc({ role: "teacher" }), "sharePlan"), true);
+  assert.equal(can(acc({ role: "owner" }), "sharePlan"), true);
 });
 
 test("an owner can use everything a teacher can", () => {

@@ -8,18 +8,23 @@ import { withSpent } from "./model/dayClock";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { backfill, entryFor } from "./model/progressLog";
+import { addedPlan, takeAdded } from "./model/added";
 import { useProgress } from "@/features/progress/useProgress";
 import { dayIndex, localDate, ratePlan, restartPlan, startPlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
-import { usePlan } from "./store/usePlan";
+import { usePlan, usePlanStore } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
-import SharePopover from "@/features/teachers/studio/SharePopover";
+import Link from "next/link";
+import SharePopover, { ShareRefused } from "@/features/teachers/studio/SharePopover";
+import { useAccount } from "@/features/account/useAccount";
 import { DISPLAY } from "@/components/landing/Display";
 import { FixedLabelRoot, LabelSelect } from "@/features/theory/useLabelSystem";
+
+const NOT_SAVED = "Your latest change isn't saved yet, so the plan wasn't shared. Wait a moment, then press Share again.";
 
 /** Start `config` today; the running plan, if any, moves to the history. */
 const start = (s: PlanState, config: PlanConfig): PlanState => startPlan(s, config, randomId, localDate());
@@ -45,9 +50,24 @@ export default function PlanApp() {
   const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode ?? null));
   const [today, setToday] = useState(() => localDate());
   const [day, setDay] = useState<number | null>(null);
-  // sharing is not open in the demo: Share plan says so
-  const [shareInfo, setShareInfo] = useState(false);
-  const closeShareInfo = useCallback(() => setShareInfo(false), []);
+  // Share plan: a teacher makes an invite; anyone else is shown what a teacher account does
+  const [shareOpen, setShareOpen] = useState(false);
+  const closeShare = useCallback(() => setShareOpen(false), []);
+  const { can } = useAccount();
+  // a plan just claimed from an invite (?added=<id>): read once, then taken out of the address so a reload doesn't show it again
+  // (the page renders only after the store loads, so reading the address here makes no hydration mismatch)
+  const [addedId, setAddedId] = useState<string | null>(() => (typeof window === "undefined" ? null : takeAdded(window.location.href.slice(window.location.origin.length)).id));
+  // taken out once the plan has loaded, not on mount: the page can mount again before then (the data source settling)
+  useEffect(() => {
+    if (!loaded) return;
+    const { id, rest } = takeAdded(window.location.href.slice(window.location.origin.length));
+    if (id) window.history.replaceState(window.history.state, "", rest);
+  }, [loaded]);
+  const store = usePlanStore();
+  // the invite is made from the stored plan: the latest change has to land first (a store in this browser has it already)
+  const prepareShare = useCallback(async () => {
+    if ((await store.flush?.()) === false) throw new ShareRefused(NOT_SAVED);
+  }, [store]);
 
   useEffect(() => {
     const t = setInterval(() => setToday(localDate()), 60_000);
@@ -55,6 +75,7 @@ export default function PlanApp() {
   }, []);
 
   const plan = state.current;
+  const added = loaded ? addedPlan(state, addedId) : null;
   const todayIdx = plan ? Math.min(dayIndex(plan.startedOn, today), PLAN_DAYS - 1) : 0;
   const over = plan ? weekOver(plan, today) : false;
 
@@ -64,7 +85,7 @@ export default function PlanApp() {
     setDay(0);
   };
   // an earlier plan, started again: it keeps the running plan's progress summary (restartPlan)
-  const useAgain = (config: PlanConfig) => {
+  const startAgain = (config: PlanConfig) => {
     update((s) => restartPlan(s, config, randomId, localDate()));
     setFlow(null);
     setDay(0);
@@ -119,7 +140,7 @@ export default function PlanApp() {
           </ol>
           <Button data-tour="plan-start" onClick={() => setFlow("start")} className={`${primary} px-5 py-2 text-sm`}><Icon name="sparkles" size={16} />Start</Button>
         </section>
-        {state.history.length > 0 && <History plans={state.history} onUse={useAgain} />}
+        {state.history.length > 0 && <History key={added?.id ?? ""} plans={state.history} onUse={startAgain} marked={added?.id} />}
         {modal}
       </div>
     );
@@ -144,11 +165,13 @@ export default function PlanApp() {
             <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
             <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
             <Button onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
-            <SharePopover open={shareInfo} onClose={closeShareInfo} thing="a plan">
-              <Button onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} title="Sharing isn't open yet in this demo" className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
+            <SharePopover kind="plan" itemId={plan.id} open={shareOpen} onClose={closeShare} prepare={prepareShare} instead={can("sharePlan") ? undefined : <UpgradeToTeacher />}>
+              <Button onClick={() => setShareOpen((s) => !s)} aria-expanded={shareOpen} className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
             </SharePopover>
           </div>
         </div>
+
+        {added && <AddedNotice plan={added} onUse={() => { startAgain(added.config); setAddedId(null); }} onClose={() => setAddedId(null)} />}
 
         {over && (
           <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
@@ -162,7 +185,7 @@ export default function PlanApp() {
 
         <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} onElapsed={saveElapsed} onEdit={(next) => setPlan(() => next)} onEditing={setEditingDay} corner={labels} />
 
-        {state.history.length > 0 && <History plans={state.history} onUse={useAgain} />}
+        {state.history.length > 0 && <History key={added?.id ?? ""} plans={state.history} onUse={startAgain} marked={added?.id} />}
         <div className="flex justify-center">
           <Button size="sm" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} title="Scroll back to the top of the page">
             <Icon name="arrow-up" size={12} />Back to top
@@ -175,16 +198,48 @@ export default function PlanApp() {
 }
 
 /** Earlier weeks: what each was and how much got done; any can be started again. */
-function History({ plans, onUse }: { plans: StoredPlan[]; onUse: (c: PlanConfig) => void }) {
+/** Share plan for a player without a teacher account: what one does, and the teacher offer. */
+function UpgradeToTeacher() {
   return (
-    <Section title="Earlier plans" meta={`${plans.length}`} defaultOpen={false}>
+    <div className="mt-3 flex flex-col gap-3">
+      <p className="text-xs leading-relaxed text-slate-300">With a teacher account, you share a plan as a link, and each student who opens it gets their own copy to practise.</p>
+      <Link href="/kickstarter" className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
+        Upgrade to Teacher account
+      </Link>
+    </div>
+  );
+}
+
+/** A plan claimed from an invite went to the earlier plans, as the player had a plan running: says so, with Start again. */
+function AddedNotice({ plan, onUse, onClose }: { plan: StoredPlan; onUse: () => void; onClose: () => void }) {
+  return (
+    <section role="status" className="flex flex-wrap items-start gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
+      <div className="min-w-0 flex-1">
+        <h2 className="text-base text-slate-100">Added to your earlier plans: {plan.config.title}</h2>
+        <p className="text-sm text-slate-400">Your current plan keeps going. To practise the new one, press Start again: the new plan starts today, and your current plan moves to your earlier plans.</p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button onClick={onUse}><Icon name="rotate-ccw" size={14} />Start again</Button>
+        <button type="button" aria-label="Close" onClick={onClose} className="rounded-md p-1 text-slate-400 hover:text-slate-100"><Icon name="x" size={14} /></button>
+      </div>
+    </section>
+  );
+}
+
+/** The earlier plans, folded; open with a plan marked when it was just added from an invite (`marked`). */
+function History({ plans, onUse, marked }: { plans: StoredPlan[]; onUse: (c: PlanConfig) => void; marked?: string }) {
+  return (
+    <Section title="Earlier plans" meta={`${plans.length}`} defaultOpen={!!marked}>
       <ul className="flex flex-col gap-2">
         {plans.map((p) => {
           const total = p.config.days.reduce((n, d) => n + d.exercises.length, 0);
           const done = Object.keys(p.done).length;
           return (
-            <li key={p.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-800 px-3 py-2">
-              <span className="min-w-0 flex-1 text-sm text-slate-200">{p.config.title}</span>
+            <li key={p.id} className={`flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2 ${p.id === marked ? "border-sky-400/70 bg-sky-500/10" : "border-slate-800"}`}>
+              <span className="min-w-0 flex-1 text-sm text-slate-200">
+                {p.id === marked && <span className="mr-2 rounded-full bg-sky-500/20 px-2 py-0.5 text-xs text-sky-200">Just added</span>}
+                {p.config.title}
+              </span>
               <span className="text-xs text-slate-500">started {p.startedOn} · {done}/{total} done</span>
               <Button size="sm" onClick={() => onUse(p.config)}><Icon name="rotate-ccw" size={12} />Start again</Button>
             </li>

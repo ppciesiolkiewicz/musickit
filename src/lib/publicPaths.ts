@@ -7,6 +7,9 @@
 /** The pages a visitor reads: the two home pages, the FAQ, the terms, the demo plans, logging in, and pages left as they were. */
 const MARKETING = ["/", "/players", "/faq", "/terms", "/demo", "/login", "/kickstarter", "/landing-1", "/intro"];
 
+/** The app's pages anyone may open by their link: a shared note (`/notes/shared/<id>`). Not marketing: they show the app's bar. */
+const SHARED = ["/notes/shared"];
+
 /**
  * Public but not for reading: APIs, Next's and Vercel's own paths, the folders of `public/` (the pitch model's weight files
  * have no extension), and the page the video render script opens with no session.
@@ -24,7 +27,7 @@ const isFile = (path: string) => {
 
 export const isMarketingPath = (path: string): boolean => MARKETING.some((b) => under(path, b));
 
-export const isPublicPath = (path: string): boolean => isMarketingPath(path) || OTHER.some((b) => under(path, b)) || isFile(path);
+export const isPublicPath = (path: string): boolean => isMarketingPath(path) || SHARED.some((b) => under(path, b)) || OTHER.some((b) => under(path, b)) || isFile(path);
 
 /** The login page, coming back to `pathAndQuery` afterwards. */
 export const loginHref = (pathAndQuery: string): string => `/login?next=${encodeURIComponent(pathAndQuery)}`;

@@ -9,6 +9,8 @@ export interface NoteStore {
   /** the saved note, or null when there is none (or it can't be read) */
   load(): Promise<Block | null>;
   save(block: Block): Promise<void>;
+  /** sends a save still waiting at once (the server store's debounce) and waits for one already out; true when the note as last saved has landed */
+  flush?(): Promise<boolean>;
 }
 
 export const NOTE_KEY = "musickit.note";
@@ -31,3 +33,14 @@ export const localNoteStore: NoteStore = {
     }
   },
 };
+
+/** A note kept in memory for one visit, saving nothing: a visitor's notes creator. Each call starts empty. */
+export function memoryNoteStore(): NoteStore {
+  let held: Block | null = null;
+  return {
+    load: async () => held,
+    save: async (b) => {
+      held = b;
+    },
+  };
+}

@@ -1,4 +1,4 @@
-import { index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { bigint, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
@@ -78,4 +78,84 @@ export const authTokens = pgTable(
     usedAt: at("used_at"),
   },
   (t) => [index("auth_tokens_email").on(t.email, t.createdAt), index("auth_tokens_expires").on(t.expiresAt)],
+);
+
+/** One JSON document of a player's data per kind (their notes, their plans, and so on). */
+export const userDocuments = pgTable(
+  "user_documents",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    data: jsonb("data").notNull(),
+    updatedAt: at("updated_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("user_documents_user_kind").on(t.userId, t.kind)],
+);
+
+/** A player's progress on one exercise. */
+export const progressEntries = pgTable(
+  "progress_entries",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    exerciseId: text("exercise_id").notNull(),
+    entry: jsonb("entry").notNull(),
+    updatedAt: at("updated_at").notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("progress_entries_user_exercise").on(t.userId, t.exerciseId)],
+);
+
+/** A video a player uploaded. The file is in the private blob store at `blobPath`. */
+export const videos = pgTable(
+  "videos",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    type: text("type").notNull(),
+    seconds: integer("seconds").notNull(),
+    width: integer("width").notNull(),
+    height: integer("height").notNull(),
+    size: bigint("size", { mode: "number" }).notNull(),
+    blobPath: text("blob_path").notNull().unique(),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("videos_user_id_idx").on(t.userId)],
+);
+
+export const shareKind = pgEnum("share_kind", ["note", "plan"]);
+
+/** A frozen copy of a note or a plan, opened by its link. `stoppedAt` is set when the owner stops sharing. */
+export const shares = pgTable(
+  "shares",
+  {
+    id: text("id").primaryKey(),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    kind: shareKind("kind").notNull(),
+    itemId: text("item_id").notNull(),
+    snapshot: jsonb("snapshot").notNull(),
+    createdAt: at("created_at").notNull().defaultNow(),
+    stoppedAt: at("stopped_at"),
+  },
+  (t) => [index("shares_user_kind_item").on(t.userId, t.kind, t.itemId)],
+);
+
+/** The videos a share shows. */
+export const shareVideos = pgTable(
+  "share_videos",
+  {
+    shareId: text("share_id").notNull().references(() => shares.id, { onDelete: "cascade" }),
+    videoId: uuid("video_id").notNull().references(() => videos.id, { onDelete: "cascade" }),
+  },
+  (t) => [primaryKey({ columns: [t.shareId, t.videoId] }), index("share_videos_video_id_idx").on(t.videoId)],
+);
+
+/** A player who took a shared plan as their own. */
+export const planClaims = pgTable(
+  "plan_claims",
+  {
+    shareId: text("share_id").notNull().references(() => shares.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.shareId, t.userId] }), index("plan_claims_user_id_idx").on(t.userId)],
 );

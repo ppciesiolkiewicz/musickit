@@ -9,15 +9,19 @@ name is changed on `/account`.
 
 - `model.ts`: `Role` (student, teacher, owner; an owner runs a school and can do all a teacher can), `NEW_ACCOUNT_ROLE`
   (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role), `FEATURES` (the parts
-  of the app with the roles that may use them; today every role gets every feature), `can(account, feature)` and
+  of the app with the roles that may use them; every role gets every feature except `sharePlan`, for teachers and owners), `can(account, feature)` and
   `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
+- `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
 - `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout). The server half
-  is `src/proxy.ts`, which only checks that the session cookie is there; both read the public paths from
-  `src/lib/publicPaths.ts`. The guard catches a stale cookie and the notes creator (its shared note is in the URL hash,
-  which the server never sees), and keeps that hash across logging in.
+  is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's
+  public API through `src/lib/sharedNoteGone.ts`, so a stopped link is answered with 404 before the page streams: a clear 404
+  only, 2 s at most, failing open); both read the public paths from
+  `src/lib/publicPaths.ts` (public: the marketing pages, the demos, logging in, and a shared note at `/notes/shared/<id>`).
+  The guard catches a stale cookie, and keeps a gated page's URL hash (which the server never sees, such as
+  `/dev/stories#<story>`) across logging in.
 - `AccountStore.ts`: `current()` and `signOut()`, all a page needs.
-- `serverAccountStore.ts`: the real store, over `/api/auth`. `accountsOpen()` says whether the site has accounts at all.
-- `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session, and nothing at all when
+- `serverAccountStore.ts`: the real store, over `/api/auth`. `accountsOpen()` says whether the site has accounts at all. The session is read once per page (`sessionReader`), shared by every `useAccount()`; with the hint cookie, only a 200 answers it (`{ account: null }` is signed out), and a network error or any other answer is asked again after 2, 5, 15, 30 s (`readSession`), the page waiting meanwhile. `pageAccountId()` is the id the page loaded for; `accountHeaders(extra)` adds it as `X-Account-Id` to every request that changes the account or its data (the data clients take it through `userData/client/accountHeader.ts`, since this folder imports no feature), and `isAccountChanged(status, body)` / `ACCOUNT_CHANGED_WORDS` read the server's 409 `account-changed` ("Another account is logged in now. Reload the page, then try again.").
+- `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session (the page's one shared read), and nothing at all when
   there is no session cookie.
 - `ui/`: the screens. `LinkForm` (`/login`), `ConfirmLink` (`/login/confirm`), `AccountPanel`
   (`/account`: the name, Log out, Delete account), `AccountLink` (the corner of the top nav: Log in, or the name with a
@@ -38,7 +42,7 @@ The tables are in `src/lib/db/schema.ts` and the migrations in `/drizzle`.
 | Email | `/login`: email → `POST /api/auth/email-link` mails a link and a code → either `/login/confirm?token=`, whose script calls `POST /api/auth/email-link/confirm`, or the code typed on `/login` → `POST /api/auth/email-code`. An email with an account is signed in; one without gets an account named from the email, and is signed in. |
 | Google | `GET /api/auth/google/start` → Google → `GET /api/auth/google/callback`. A known Google id, or a Google-verified email that has an account, logs in. A new person gets an account with Google's name, and is signed in. |
 | Session | `GET /api/auth/session` → `{ account }`. `POST /api/auth/logout`. |
-| Account | `PATCH /api/account` (name), `DELETE /api/account`. |
+| Account | `PATCH /api/account` (name), `DELETE /api/account`. Both go through `signedIn` (`userData/server/http.ts`), so a page open for another account than the session's gets 409 `account-changed` and never renames or deletes the account logged in now; `send()` in `ui/parts.tsx` sends `X-Account-Id`, and `errorOf` shows the reload line. |
 
 Things that are on purpose:
 
@@ -92,9 +96,7 @@ No `DATABASE_URL` means no accounts: the nav shows no Log in, `/login` says acco
 
 ## Not here yet
 
-- **Plans and progress are not in the account.** A logged-in person's data is still in this browser's shared
-  localStorage keys, the same as a visitor's. Moving it into the database is the next step.
-- No screen asks `can` yet: every tool is open to every role.
+- The plan page's Share plan asks `can("sharePlan")` (Share, or Upgrade to Teacher account), and the share rules (`userData/server/shares.ts`) ask `can(account, "sharePlan")` again on the server.
 - No way to become a teacher from the app: we set the role in the database.
 - Which students a teacher has, schools, and giving a plan to a student are not modelled.
 - Links are limited per email only, not per network address.

@@ -12,6 +12,9 @@ export const pickVideoType = (supported: (type: string) => boolean): string => V
 /** "mp4" or "webm", from a recorded type. */
 export const videoExtension = (type: string): string => (type.startsWith("video/mp4") ? "mp4" : "webm");
 
+/** Where a video's file is stored in the private Blob store: `videos/<userId>/<id>.<webm|mp4>`. The browser uploads to it, and the server checks it is exactly this. */
+export const videoPath = (userId: string, id: string, type: string): string => `videos/${userId}/${id}.${videoExtension(type)}`;
+
 /** "Video 12 Nov, 14:05": a new take's name, from when it was recorded (local time). */
 export function takeTitle(at: Date): string {
   const month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][at.getMonth()];

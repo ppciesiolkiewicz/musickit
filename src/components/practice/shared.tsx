@@ -101,18 +101,3 @@ export function writeQuery(query: string): void {
   window.history.replaceState(null, "", url);
 }
 
-/** Read a best score from localStorage; storage can be missing or blocked. */
-export function readBest(key: string): number {
-  try {
-    return Number(window.localStorage.getItem(key)) || 0;
-  } catch {
-    return 0;
-  }
-}
-export function writeBest(key: string, v: number): void {
-  try {
-    window.localStorage.setItem(key, String(v));
-  } catch {
-    /* storage blocked: the best score just isn't kept */
-  }
-}

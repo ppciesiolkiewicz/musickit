@@ -15,6 +15,7 @@ import ExerciseTool from "../ExerciseTool";
 import { CellAsideContext } from "./aside";
 import KeyBar from "./KeyBar";
 import { NoteText } from "./NoteText";
+import ToolBoundary from "./ToolBoundary";
 import ToolFigure from "./ToolFigure";
 
 /**
@@ -91,7 +92,7 @@ export function BlockBody({ block, size, keyBar = false, address = "ex" }: { blo
         return <div key={i} className={measure}><HeadphonesNotice /></div>;
       case "tool":
         // a new option remounts the tool, so what it was playing stops
-        return <ToolFigure key={`${i}-${blockAt}-${p.chips ? pickAt(p.chips, picks, p.id) : ""}`} type={s.tool.type} look={look} measure={measure}><ExerciseTool tool={s.tool} /></ToolFigure>;
+        return <ToolFigure key={`${i}-${blockAt}-${p.chips ? pickAt(p.chips, picks, p.id) : ""}`} type={s.tool.type} look={look} measure={measure}><ToolBoundary><ExerciseTool tool={s.tool} /></ToolBoundary></ToolFigure>;
     }
   };
   const chipRow = (id: string, c: Choice | null | undefined) => {

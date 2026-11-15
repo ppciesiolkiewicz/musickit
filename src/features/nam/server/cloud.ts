@@ -3,14 +3,16 @@
  * in src/app/api/nam call the Blob SDK. The store token never reaches the browser.
  */
 
+import { blobToken } from "@/lib/blob";
+
 export const NAM_PREFIX = "nam/";
 export const MAX_MODEL_BYTES = 4 * 1024 * 1024; // a server upload on Vercel is limited to about 4.5 MB
 
 /** An optional password for the library. Only `NAM_LIBRARY_PASSWORD` turns it on; without it the library is open to anyone who reaches the site. */
 export const libraryPassword = (env: Record<string, string | undefined>): string | undefined => env.NAM_LIBRARY_PASSWORD?.trim() || undefined;
 
-/** The token of the private store. Prefixed so it does not clash with another store on the project. */
-export const blobToken = (env: Record<string, string | undefined>): string | undefined => (env.MUSICKIT_BLOB_READ_WRITE_TOKEN ?? env.BLOB_READ_WRITE_TOKEN)?.trim() || undefined;
+/** The token of the private store, shared with the other features that use it (`@/lib/blob`). */
+export { blobToken };
 
 export type Access = { ok: true } | { ok: false; status: number; error: string };
 

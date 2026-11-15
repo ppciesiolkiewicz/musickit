@@ -7,7 +7,10 @@ import type { ProgressStore } from "./ProgressStore";
 
 const StoreContext = createContext<ProgressStore>(localProgressStore);
 
-/** Swap the store for a subtree (an API store, a test double). Without it the log lives in localStorage. */
+/**
+ * Swap the store for a subtree. `UserDataProvider` (root layout) picks it for the current data source; the demo plan sets
+ * a memory one. Without a provider the log lives in localStorage.
+ */
 export function ProgressStoreProvider({ store, children }: { store: ProgressStore; children: ReactNode }) {
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
@@ -21,12 +24,16 @@ export function useProgress() {
 
   useEffect(() => {
     let live = true;
-    store.list().then((list) => {
-      if (!live) return;
-      latest.current = list;
-      setEntries(list);
-      setLoaded(true);
-    });
+    // a refused read (logged out) stays not loaded rather than showing an empty log
+    store.list().then(
+      (list) => {
+        if (!live) return;
+        latest.current = list;
+        setEntries(list);
+        setLoaded(true);
+      },
+      () => {},
+    );
     return () => {
       live = false;
     };

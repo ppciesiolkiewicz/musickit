@@ -3,6 +3,7 @@ import PageShell from "@/components/PageShell";
 import { safeNext } from "@/features/account/server/auth";
 import { googleConfig } from "@/features/account/server/google";
 import { NO_ACCOUNTS } from "@/features/account/server/http";
+import { loginWords } from "@/features/account/loginGuard";
 import LinkForm from "@/features/account/ui/LinkForm";
 import TourCard from "@/features/intro/TourCard";
 import { placeFor } from "@/lib/appPlaces";
@@ -21,8 +22,10 @@ function goingTo(next: string | null): string {
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const q = await searchParams;
   const next = safeNext(q.next);
+  // an invite has its own words; otherwise the intro names where the visitor was going
+  const { title, intro } = loginWords(next, goingTo(next));
   return (
-    <PageShell centered title="Log in" intro={`Log in with your email or with Google to open ${goingTo(next)}. If you're new, this also creates your account.`} active="/login">
+    <PageShell centered title={title} intro={intro} active="/login">
       {databaseUrl() ? (
         <div className="grid w-full max-w-5xl grid-cols-[minmax(0,1fr)] items-start gap-10 lg:grid-cols-[minmax(0,28rem)_minmax(0,1fr)]">
           {/* side by side, the card's top lines up with the player's, under the tour's "Quick tour" row (30px and its 12px gap) */}

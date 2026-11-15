@@ -2,9 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { KeyContext } from "@/features/theory";
+import { useUserDoc } from "@/features/userData/client/useUserDoc";
 import { EMPTY_KEY, fromQuery, keyContext, keyTitle, sanitiseKey, setMode as withMode, setTonic as withTonic, toQuery, type KeyChoice } from "./model/key";
-
-const STORE = "musickit.creator.key";
 
 interface Value {
   choice: KeyChoice;
@@ -20,31 +19,31 @@ interface Value {
 
 const Ctx = createContext<Value | null>(null);
 
-/** Holds the one key every plugin follows. It starts empty, then restores the link (?key=) or the last choice; `initial` fixes the start (tests). */
+/**
+ * Holds the one key every plugin follows: the player's `creator` document (`useUserDoc`), on the server for a signed-in
+ * player, in localStorage without accounts. It starts empty, then shows a link's key (?key=), which is kept as the
+ * choice, or else the saved one once it loads. `initial` fixes the start and keeps nothing (tests).
+ */
 export function CreatorKeyProvider({ children, initial }: { children: ReactNode; initial?: KeyChoice }) {
-  const [choice, setChoice] = useState<KeyChoice>(initial ?? EMPTY_KEY);
-  const [ready, setReady] = useState(false);
+  const [stored, store, loaded] = useUserDoc("creator");
+  const [fixed, setFixed] = useState<KeyChoice>(initial ?? EMPTY_KEY);
+  const [linked, setLinked] = useState(false);
 
   useEffect(() => {
-    if (initial) {
-      setReady(true);
-      return;
-    }
-    let start: KeyChoice = EMPTY_KEY;
-    try {
-      start = fromQuery(window.location.search) ?? sanitiseKey(JSON.parse(window.localStorage.getItem(STORE) ?? "null"));
-    } catch {
-      /* use the empty key */
-    }
-    setChoice(start);
-    setReady(true);
+    if (initial) return;
+    const fromLink = fromQuery(window.location.search);
+    if (!fromLink) return;
+    store(fromLink);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the link is only readable after mount
+    setLinked(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const choice = initial ? fixed : stored;
+  const ready = !initial && (loaded || linked);
   useEffect(() => {
     if (!ready) return;
     try {
-      window.localStorage.setItem(STORE, JSON.stringify(choice));
       window.history.replaceState(null, "", window.location.pathname + toQuery(choice));
     } catch {
       /* ignore */
@@ -52,7 +51,7 @@ export function CreatorKeyProvider({ children, initial }: { children: ReactNode;
   }, [choice, ready]);
 
   return (
-    <KeyScope value={choice} onChange={setChoice}>
+    <KeyScope value={choice} onChange={initial ? setFixed : store}>
       {children}
     </KeyScope>
   );

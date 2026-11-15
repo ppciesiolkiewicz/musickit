@@ -2,7 +2,7 @@ import { SeverityNumber } from "@opentelemetry/api-logs";
 import { put } from "@vercel/blob";
 import { after } from "next/server";
 import { flushPostHogLogs, posthogLogsLogger } from "@/lib/posthogLogs";
-import { blobToken } from "@/features/nam/server/cloud";
+import { blobToken } from "@/lib/blob";
 import { parseSignup, signupPath } from "@/features/earlyAccess/signup";
 
 export const runtime = "nodejs";

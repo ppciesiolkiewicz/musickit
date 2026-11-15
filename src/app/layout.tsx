@@ -10,6 +10,8 @@ import { devUi } from "@/features/devtools/gate";
 import QuickRecord from "@/features/recorder/QuickRecord";
 import Spotlight from "@/features/search/Spotlight";
 import LoginGuard from "@/features/account/ui/LoginGuard";
+import UserDataProvider from "@/features/userData/client/UserDataProvider";
+import SaveNotice from "@/features/userData/client/SaveNotice";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
 import { SETTINGS_BOOT } from "@/components/ui";
 import { SITE_URL } from "@/lib/site";
@@ -152,9 +154,13 @@ export default function RootLayout({
         <NoControlFocus />
         <NoSpaceScroll />
         <SoundPreload />
-        {children}
-        <QuickRecord />
-        <Spotlight />
+        <UserDataProvider>
+          {children}
+          <QuickRecord />
+          <Spotlight />
+        </UserDataProvider>
+        {/* once for every page, PageShell or not (the video studio has none) */}
+        <SaveNotice />
         <LoginGuard />
         {devUi() && <CopyNotes />}
         <Analytics />

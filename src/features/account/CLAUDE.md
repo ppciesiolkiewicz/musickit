@@ -3,12 +3,15 @@
 - **Ask through `useAccount()`.** A screen that splits by role calls `can("<feature>")`; it never compares roles
   itself, never reads the account keys in localStorage and never reads the cookies. A new split is one entry in
   `FEATURES` (`model.ts`).
-- **The app needs a login; every role gets all of it.** Which pages a visitor may open is one list,
+- **The app needs a login; every role gets nearly all of it.** Which pages a visitor may open is one list,
   `src/lib/publicPaths.ts`, read by the proxy (`src/proxy.ts`), `ui/LoginGuard` and the nav. Nothing is gated when
-  accounts are off. A teacher gets the same app as a student: `FEATURES` gives every feature to every role.
-- **A visitor's stored data never moves.** Plans and progress sit under the same localStorage keys whether or not
-  anyone is logged in. Putting a real account's data somewhere else is the data move, and it has to carry the old data
-  over.
+  accounts are off. A teacher gets the same app as a student, plus sharing a plan as an invite (`sharePlan`: teachers and owners). With no
+  account (`can(null, …)`, accounts off) everything is allowed, which is safe for `sharePlan` because there is no database to share from.
+- **A signed-in person's data is on the server; device setup stays in the browser.** Plans, progress, notes, about me and
+  videos belong to the account (`features/userData`, `features/videos`). Theme, audio devices, tool knobs and the other
+  device keys stay in the browser. Old browser data was dropped with no import (2026-11-15), so don't write a carry-over.
+  Without accounts (no database) the local source still keeps everything in the browser. Log out and Delete account
+  reload the page, so no in-memory store can send under another account's cookie.
 - **The rules of sign-in live in `server/auth.ts`, and stay pure.** No `Request`, no cookie and no SQL there: they take
   `AuthDeps` (the repo, the clock, the token maker). A route in `app/api/auth` reads the request, calls one of them and
   turns the result into cookies. A new rule gets a test in `server/auth.test.ts` over `repo.memory.ts`.

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Icon from "@/components/Icon";
-import { Button, btnBaseSm } from "@/components/ui";
+import { Button, Notice, btnBaseSm } from "@/components/ui";
+import { useDataSource } from "@/features/userData/client/useDataSource";
 import { clockTime } from "@/features/recorder/recorder";
 import { lengthLabel, publishedVideos } from "./library";
 import type { VideoRef } from "./ref";
-import { videoFileName } from "./recording";
-import { deleteVideo, getVideo, listVideos, onVideosChange, type SavedVideoInfo } from "./store";
+import { useVideoLibrary, type LibraryVideo } from "./uploads";
 import { VideoPlayer } from "./VideoPlayer";
 import { VideoRecorder } from "./VideoRecorder";
 
@@ -23,7 +23,8 @@ const TABS: { id: ChooserTab; label: string }[] = [
 const add = `${btnBaseSm} border-sky-500 bg-sky-600 text-white hover:bg-sky-500`;
 
 /**
- * Picks a video to add: one of the teacher's own (kept in this browser), a new one recorded here, a placeholder to fill in later,
+ * Picks a video to add: one of the teacher's own (uploaded to their account when signed in, else kept in this browser), a new one
+ * recorded here, a placeholder to fill in later,
  * or one from the attunr library. `addTo`
  * names where it goes ("the note"); `onPick` gets the video.
  */
@@ -83,32 +84,37 @@ function Library({ addTo, onPick }: { addTo: string; onPick: (ref: VideoRef) => 
   );
 }
 
+/** The line under a take that isn't uploaded: where it is and what to do. */
+function queueLine(v: LibraryVideo): string | null {
+  if (!v.state) return null;
+  if (v.state === "uploading") return "Uploading. Keep this page open until it finishes.";
+  if (v.state === "waiting")
+    return v.unstored ? "Not uploaded yet. This browser wouldn't keep a copy, so press Download to keep it as a file." : "Not uploaded yet. It stays in this browser until it is.";
+  const why = v.error ? ` ${v.error}` : "";
+  return v.unstored
+    ? `Upload failed.${why} This browser wouldn't keep a copy, so the video is lost when you close this page. Press Download to keep it as a file, or press Try again.`
+    : `Upload failed.${why} The video is still in this browser. Press Try again, or press Download to keep it as a file.`;
+}
+
 function Mine({ addTo, onPick, onRecord }: { addTo: string; onPick: (ref: VideoRef) => void; onRecord: () => void }) {
-  const [videos, setVideos] = useState<SavedVideoInfo[] | null>(null);
+  const { source } = useDataSource();
+  const { videos, refused, retry, download, remove } = useVideoLibrary();
   const [asking, setAsking] = useState<string | null>(null);
   const [watching, setWatching] = useState<string | null>(null);
-  useEffect(() => {
-    const load = () => void listVideos().then(setVideos);
-    load();
-    return onVideosChange(load);
-  }, []);
-
-  const download = async (v: SavedVideoInfo) => {
-    const saved = await getVideo(v.id);
-    if (!saved) return;
-    const url = URL.createObjectURL(saved.blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = videoFileName(v.title, v.type);
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
 
   if (videos === null) return <p className="text-sm text-slate-500">Loading your videos…</p>;
+  const problem = refused && (
+    <Notice tone="warn" icon={<Icon name="alert-triangle" size={16} />}>
+      Your uploaded videos couldn&apos;t be loaded. Reload the page to try again.
+    </Notice>
+  );
   if (!videos.length)
     return (
       <div className="flex flex-col items-start gap-2">
-        <p className="text-sm text-slate-400">You have no videos yet. Record one, and it is kept here, in this browser.</p>
+        {problem}
+        <p className="text-sm text-slate-400">
+          {source === "server" ? "You have no videos yet. Record one, and it is uploaded to your account." : "You have no videos yet. Record one, and it is kept here, in this browser."}
+        </p>
         <Button onClick={onRecord}>
           <Icon name="video" size={14} /> Record a video
         </Button>
@@ -116,19 +122,22 @@ function Mine({ addTo, onPick, onRecord }: { addTo: string; onPick: (ref: VideoR
     );
   return (
     <ul className="flex flex-col gap-3">
+      {problem && <li>{problem}</li>}
       {videos.map((v) => {
         const ref: VideoRef = { source: "recording", id: v.id, title: v.title };
+        const line = queueLine(v);
         return (
           <li key={v.id} className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-slate-900/60 p-3">
             <div className="flex flex-wrap items-baseline gap-x-2">
               <h3 className="text-sm font-semibold text-slate-100">{v.title}</h3>
               <span className="text-xs text-slate-500">{clockTime(v.seconds)} · saved {new Date(v.savedAt).toLocaleDateString()}</span>
             </div>
+            {line && <p className={`text-xs leading-relaxed ${v.state === "failed" || v.unstored ? "text-amber-300" : "text-slate-400"}`}>{line}</p>}
             {watching === v.id && <VideoPlayer video={ref} />}
             {asking === v.id ? (
               <div className="flex flex-wrap items-center gap-2 text-sm text-slate-300">
                 Delete “{v.title}”? A note that holds it can no longer play it.
-                <button type="button" onClick={() => void deleteVideo(v.id).then(() => setAsking(null))} className={`${btnBaseSm} border-rose-500 bg-rose-600 text-white hover:bg-rose-500`}>
+                <button type="button" onClick={() => void remove(v.id).then(() => setAsking(null))} className={`${btnBaseSm} border-rose-500 bg-rose-600 text-white hover:bg-rose-500`}>
                   Delete video
                 </button>
                 <Button size="sm" onClick={() => setAsking(null)}>Keep it</Button>
@@ -141,12 +150,19 @@ function Mine({ addTo, onPick, onRecord }: { addTo: string; onPick: (ref: VideoR
                 <Button size="sm" pressed={watching === v.id} onClick={() => setWatching(watching === v.id ? null : v.id)}>
                   <Icon name="play" size={12} /> {watching === v.id ? "Hide" : "Watch"}
                 </Button>
-                <Button size="sm" onClick={() => void download(v)}>
+                {v.state === "failed" && (
+                  <Button size="sm" onClick={() => retry(v.id)}>
+                    <Icon name="rotate-ccw" size={12} /> Try again
+                  </Button>
+                )}
+                <Button size="sm" onClick={() => void download(v.id)}>
                   <Icon name="download" size={12} /> Download
                 </Button>
-                <Button size="sm" onClick={() => setAsking(v.id)}>
-                  <Icon name="trash" size={12} /> Delete
-                </Button>
+                {v.state !== "uploading" && (
+                  <Button size="sm" onClick={() => setAsking(v.id)}>
+                    <Icon name="trash" size={12} /> Delete
+                  </Button>
+                )}
               </div>
             )}
           </li>

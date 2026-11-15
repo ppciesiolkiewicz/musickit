@@ -19,7 +19,9 @@ export const useAccountStore = (): AccountStore => useContext(StoreContext);
 /**
  * Who is using the app. `account` is null when nobody is signed in: the local person, who may use everything
  * (see `can` in model.ts). `can("aiPlan")` is the one question a screen asks before showing a role's feature (today every role may).
- * Until `loaded`, nobody is signed in, the same as on the server.
+ * Until `loaded`, nobody is signed in, the same as on the server. Every `useAccount()` on a page shares one session read
+ * (`serverAccountStore`), so they all agree; a read that fails (offline, a 5xx) is asked again and stays not `loaded`
+ * meanwhile, so a signed-in player is never taken for a visitor.
  */
 export function useAccount() {
   const store = useContext(StoreContext);

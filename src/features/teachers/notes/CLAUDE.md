@@ -4,7 +4,7 @@ What it is and where things live: `README.md`; behaviour: `spec/notes.md` (keep 
 
 - **A note is a `Block`.** It is changed only through `editBlock` (`@/features/plan/model/editBlock`) and read only through the plan's
   reader. Nothing here knows exercise metadata.
-- **Load and save go through `NoteStore`** (`model/noteStore.ts`). No component touches `localStorage` for the note.
+- **Load and save go through `NoteStore`** (`model/noteStore.ts`). The creator reads it with `useNoteStore()`; no component touches `localStorage` for the note. A refused `load` must leave the creator unloaded (it saves only after a load), so an empty note is never saved over the server copy.
 - **`model/` is pure** and imports the stage's model by path (`@/features/stage/model/...`), never `@/features/stage`: a server page
   imports this feature, and the stage's index brings React context with it. The index exports only what pages need.
 - Imports `@/features/plan` (model, reader, editor), the stage (model, `VideoPickContext`, `familyOf`), the studio's palette, family

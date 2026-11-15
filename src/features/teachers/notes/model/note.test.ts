@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { EMPTY_STAGE } from "@/features/stage";
 import type { Block } from "@/features/plan/model/types";
-import { blockFromStage, cellFromSubject, decodeNote, encodeNote, newCellId, noteFromHash, notePageParts } from "./note";
+import { blockFromStage, cellFromSubject, newCellId, notePageParts } from "./note";
 
 const BLOCK: Block = {
   title: "A minor pentatonic",
@@ -12,24 +12,6 @@ const BLOCK: Block = {
     { type: "section", heading: "Position 1", minutes: 3, cells: [{ type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] } }] },
   ],
 };
-
-test("a note's link reads back as the same block", async () => {
-  const s = await encodeNote(BLOCK);
-  assert.match(s, /^[bc]/);
-  assert.deepEqual(await decodeNote(s), { block: BLOCK });
-});
-
-test("a link of the old stage format says so; a broken one is an error", async () => {
-  assert.deepEqual(await decodeNote("zAbCd"), { old: true });
-  assert.deepEqual(await decodeNote("jAbCd"), { old: true });
-  assert.ok("error" in (await decodeNote("%%")));
-  assert.ok("error" in (await decodeNote("bnotbase64deflate")));
-});
-
-test("noteFromHash reads #note=", () => {
-  assert.equal(noteFromHash("#note=bXYZ"), "bXYZ");
-  assert.equal(noteFromHash("#other"), null);
-});
 
 test("a stage becomes a block: tools, text and the notice; the rest is left out", () => {
   const stage = {

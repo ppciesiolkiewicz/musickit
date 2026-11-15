@@ -1019,9 +1019,9 @@ const strNoted = (v: unknown, max: number, what: string, notes: string[]): strin
  * One cell from the AI's JSON or a stored block, checked, with its diagnosis: what was cut, and why a cell was left out.
  * `inSection`: the cell sits in a section, so a section is left out ("a section inside a section"). A section's own cells
  * are parsed the same way; what they drop is noted on the section ("left out a text (it was empty)"), and a section left
- * with no cell is dropped.
+ * with no cell is dropped. `stored`: a plan this app saved, read again (its tools parsed as stored: nothing is noted).
  */
-export function parseCellDiag(raw: unknown, opts: { inSection?: boolean; draft?: boolean } = {}): CellParse {
+export function parseCellDiag(raw: unknown, opts: { inSection?: boolean; draft?: boolean; stored?: boolean } = {}): CellParse {
   const s = (raw ?? {}) as Record<string, unknown>;
   const notes: string[] = [];
   // an editor's id rides along: a short plain string
@@ -1045,7 +1045,7 @@ export function parseCellDiag(raw: unknown, opts: { inSection?: boolean; draft?:
       return notice ? out({ type: "notice", notice }) : { cell: null, dropped: `a notice of unknown kind ${JSON.stringify(s.notice)?.slice(0, 30)}`, notes };
     }
     case "tool": {
-      const p = parseToolDiag(s.tool);
+      const p = parseToolDiag(s.tool, { stored: opts.stored });
       notes.push(...p.notes);
       return p.tool ? out({ type: "tool", tool: p.tool }) : { cell: null, dropped: p.dropped, notes };
     }
@@ -1060,7 +1060,7 @@ export function parseCellDiag(raw: unknown, opts: { inSection?: boolean; draft?:
       if (choice?.dropped) notes.push(`"${heading}": left out ${choice.dropped}.`);
       const cells: PlainCell[] = [];
       for (const c of list(s.cells)) {
-        const p = parseCellDiag(c, { inSection: true, draft: opts.draft });
+        const p = parseCellDiag(c, { inSection: true, draft: opts.draft, stored: opts.stored });
         notes.push(...p.notes);
         if (p.dropped) notes.push(`"${heading}": left out ${p.dropped}.`);
         if (p.cell && p.cell.type !== "section") cells.push(p.cell);

@@ -6,7 +6,9 @@ import { Button, Notice, btnBase } from "@/components/ui";
 import { clockTime } from "@/features/recorder/recorder";
 import { cleanTitle, type VideoRef } from "./ref";
 import { MAX_TAKE_SECONDS, pickVideoType, takeTitle, videoFileName } from "./recording";
-import { saveVideo } from "./store";
+import { useDataSource } from "@/features/userData/client/useDataSource";
+import { enqueue, keepUnstored, saveVideo } from "./store";
+import { kickUploads } from "./uploads";
 
 type Phase = "off" | "starting" | "ready" | "recording" | "review" | "saving";
 interface Take { blob: Blob; url: string; type: string; seconds: number; width: number; height: number }
@@ -15,8 +17,9 @@ const primary = `${btnBase} border-sky-500 bg-sky-600 text-white hover:bg-sky-50
 const record = `${btnBase} border-rose-500 bg-rose-600 text-white hover:bg-rose-500`;
 
 /**
- * Records the teacher with the camera and the microphone, then plays the take back to name it and save it in this browser
- * (`store.ts`), or download it. Asks for the camera only on **Start camera**; lets go of it when it closes. `addTo` names where a
+ * Records the teacher with the camera and the microphone, then plays the take back to name it and save it, or download it. Signed
+ * in, a saved take is queued in this browser and uploaded (`uploads.ts`); if the browser won't store it, the recorder says the take
+ * is lost should the upload fail, before uploading it from memory. Without accounts it is saved in this browser only (`store.ts`). Asks for the camera only on **Start camera**; lets go of it when it closes. `addTo` names where a
  * saved take goes ("the note"); `onSaved` gets it.
  */
 export function VideoRecorder({ addTo, onSaved }: { addTo: string; onSaved: (ref: VideoRef) => void }) {
@@ -25,6 +28,10 @@ export function VideoRecorder({ addTo, onSaved }: { addTo: string; onSaved: (ref
   const [take, setTake] = useState<Take | null>(null);
   const [title, setTitle] = useState("");
   const [seconds, setSeconds] = useState(0);
+  // signed in, the browser refused to store this take: warned, the next save uploads it from memory
+  const [unstored, setUnstored] = useState(false);
+  const { source, accountId } = useDataSource();
+  const server = source === "server" && accountId !== null;
   const stream = useRef<MediaStream | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement>(null);
@@ -38,6 +45,7 @@ export function VideoRecorder({ addTo, onSaved }: { addTo: string; onSaved: (ref
     if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
     takeUrl.current = null;
     setTake(null);
+    setUnstored(false);
   };
   // let go of the camera and the take when the recorder closes
   useEffect(() => () => {
@@ -120,6 +128,18 @@ export function VideoRecorder({ addTo, onSaved }: { addTo: string; onSaved: (ref
     setPhase("saving");
     setProblem(null);
     const name = cleanTitle(title);
+    if (server && accountId) {
+      const entry = { id: crypto.randomUUID(), accountId, title: name, type: take.type, blob: take.blob, seconds: take.seconds, width: take.width, height: take.height };
+      if (unstored) keepUnstored(entry);
+      else if (!(await enqueue(entry))) {
+        setUnstored(true);
+        setPhase("review");
+        return;
+      }
+      kickUploads(accountId);
+      onSaved({ source: "recording", id: entry.id, title: name });
+      return;
+    }
     const id = await saveVideo({ title: name, type: take.type, blob: take.blob, seconds: take.seconds, width: take.width, height: take.height });
     if (!id) {
       setPhase("review");
@@ -140,6 +160,11 @@ export function VideoRecorder({ addTo, onSaved }: { addTo: string; onSaved: (ref
   return (
     <div className="flex flex-col gap-3">
       {problem && <Notice tone="warn" icon={<Icon name="alert-triangle" size={16} />}>{problem}</Notice>}
+      {unstored && (
+        <Notice tone="warn" icon={<Icon name="alert-triangle" size={16} />}>
+          This browser won&apos;t keep a copy of this video, so if the upload fails, the video is lost. Press Download to keep it as a file first.
+        </Notice>
+      )}
 
       {(phase === "off" || phase === "starting") && (
         <div className="flex aspect-video w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-slate-700 bg-slate-900/60 p-4 text-center">
@@ -180,7 +205,7 @@ export function VideoRecorder({ addTo, onSaved }: { addTo: string; onSaved: (ref
           </label>
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={() => void save()} disabled={phase === "saving"} className={primary}>
-              <Icon name="check" size={12} /> {phase === "saving" ? "Saving…" : `Save and add to ${addTo}`}
+              <Icon name="check" size={12} /> {phase === "saving" ? "Saving…" : unstored ? `Upload and add to ${addTo}` : `Save and add to ${addTo}`}
             </button>
             <Button onClick={again} disabled={phase === "saving"}>
               <Icon name="rotate-ccw" size={12} /> Record again
@@ -193,7 +218,9 @@ export function VideoRecorder({ addTo, onSaved }: { addTo: string; onSaved: (ref
       )}
 
       <p className="text-xs leading-relaxed text-slate-500">
-        Your videos are saved in this browser only. A note you share plays them only in this browser: send the file to anyone else with Download.
+        {server
+          ? "A video you save is uploaded to your account. Until the upload finishes, it stays in this browser."
+          : "Your videos are saved in this browser only. A note you share plays them only in this browser: send the file to anyone else with Download."}
       </p>
     </div>
   );

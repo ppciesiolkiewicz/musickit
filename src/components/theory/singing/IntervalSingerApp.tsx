@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Checkbox, Chip, Select, SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
 import { DirectionChips } from "@/components/practice/DirectionChips";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { midiToName } from "@/features/sound";
-import { VOICES, savedVoice, type Voice } from "@/features/theory/singing";
+import { VOICES, type Voice } from "@/features/theory/singing";
+import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
 import { AccuracyRow, VolumeRow } from "@/features/settings";
 import { INTERVALS } from "@/lib/chordKit/intervals";
 import { EAR_LEVELS, levelSemis } from "@/lib/practice/earGame";
@@ -14,8 +15,6 @@ import { KeyChips, KeysSwitch, LookSwitch, type Look } from "@/features/exercise
 import { INTERVAL_DIRS, toggleOne, type IntervalDir } from "@/features/exercises/basics/interval-singer/asks";
 import { panel } from "@/components/practice/shared";
 
-/** where the voice picked last is kept, shared with the other singing pages */
-const VOICE_KEY = "singing.range";
 const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
 const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
 
@@ -26,7 +25,8 @@ const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
  */
 export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   const standard = useLevelAtLeast("standard");
-  const [voice, setVoice] = useState<Voice>("tenor");
+  // the voice picked last, shared with the other singing pages through the player's "about me"; tenor until it loads or is picked
+  const voice: Voice = useUserDoc("about")[0].voice ?? "tenor";
   const [dir, setDir] = useState<IntervalDir>("up");
   const [level, setLevel] = useState<number | "custom">(1);
   const [custom, setCustom] = useState<number[] | null>(null);
@@ -34,16 +34,7 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   const [random, setRandom] = useState(false);
   const [lookPicked, setLook] = useState<Look>("roll");
   const [dotPicked, setDot] = useState(true);
-  useEffect(() => {
-    let saved: Voice | null = null;
-    try { saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null")); } catch { /* storage blocked */ }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved voice after hydration
-    if (saved) setVoice(saved);
-  }, []);
-  const pickVoice = (v: Voice) => {
-    setVoice(v);
-    try { window.localStorage.setItem(VOICE_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
-  };
+  const pickVoice = (v: Voice) => userDoc("about").update((a) => ({ ...a, voice: v }));
   const intervals = level === "custom" ? custom ?? [] : levelSemis(level);
   // the first Custom starts from the level it came from; after that it keeps its own set
   const pickCustom = () => {

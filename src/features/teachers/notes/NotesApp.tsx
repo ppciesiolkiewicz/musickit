@@ -15,10 +15,10 @@ import { VideoChooser, type ChooserTab } from "@/features/videos/VideoChooser";
 import type { VideoRef } from "@/features/videos/ref";
 import { familyControls, keyOfBlock } from "./NotesEditorHost";
 import Palette from "../studio/Palette";
-import SharePopover from "../studio/SharePopover";
-import { EMPTY_NOTE, cellFromSubject, newCellId, noteFromHash } from "./model/note";
-import { localNoteStore } from "./model/noteStore";
-import NoteView, { NoteReader } from "./NoteReader";
+import SharePopover, { ShareRefused } from "../studio/SharePopover";
+import { EMPTY_NOTE, cellFromSubject, newCellId } from "./model/note";
+import { NoteReader } from "./NoteReader";
+import { useNoteStore } from "./useNoteStore";
 import { BackToEditing, NOTE_COLUMN, useNoteViewMode } from "./NoteViewMode";
 import { presetBlock, savePresetDraft } from "./presetNotes";
 
@@ -30,33 +30,26 @@ const NOTE_STEPS = [
 ];
 
 const RECT = { x: 0, y: 0, w: 1, h: 1 };
+/** Share's refusal when the note's latest change hasn't reached the server: the link would hold an older note. */
+const NOT_SAVED = "Your latest change isn't saved yet, so the note wasn't shared. Wait a moment, then press Share again.";
 const isTyping = () => {
   const el = document.activeElement;
   return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || (el as HTMLElement).isContentEditable);
 };
 
 /**
- * The notes creator: a note (one block) written on the block editor, kept in this browser (`localNoteStore`), or a preset opened
- * with `?edit=true` (kept in this tab only). A shared link (`#note=`) opens the note to read instead.
+ * The notes creator: a note (one block) written on the block editor, kept by the note store (`useNoteStore`: the server when signed in), or a preset opened
+ * with `?edit=true` (kept in this tab only). **Share as a note** shares the stored note as a frozen public link (`SharePopover`).
  */
 export default function NotesApp({ preset }: { preset?: string }) {
-  // the link's hash is known only in the browser: until then nothing is drawn
-  const [link, setLink] = useState<string | null | undefined>(undefined);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the hash is read after hydration
-    setLink(noteFromHash(window.location.hash));
-  }, []);
-  if (link === undefined) return null;
-  return link ? <NoteView note={link} /> : <Creator preset={preset} />;
-}
-
-function Creator({ preset }: { preset?: string }) {
   const [block, setBlock] = useState<Block | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [palette, setPalette] = useState<AddAt | false>(false);
   const [json, setJson] = useState(false);
   const [share, setShare] = useState(false);
+  const closeShare = useCallback(() => setShare(false), []);
   const [videoPick, setVideoPick] = useState<{ tab: ChooserTab; onPick: (video: VideoRef) => void } | null>(null);
+  const store = useNoteStore();
   const mode = useNoteViewMode();
   const [ownViewing, setOwnViewing] = useState(false);
   const viewing = mode ? mode.viewing : ownViewing;
@@ -67,16 +60,17 @@ function Creator({ preset }: { preset?: string }) {
     let live = true;
     const start = (b: Block | null) => live && setBlock(withIds(b ?? EMPTY_NOTE, newCellId));
     if (preset) start(presetBlock(preset));
-    else void localNoteStore.load().then(start);
+    // a refused load leaves the note unloaded: nothing is drawn and nothing saved, so an empty note never replaces the real one
+    else store.load().then(start, () => {});
     return () => {
       live = false;
     };
-  }, [preset]);
+  }, [preset, store]);
 
   // every change is kept, a moment after the last one, and at once when the page is left
   const first = useRef(true);
   const pending = useRef<Block | null>(null);
-  const save = useCallback((b: Block) => (preset ? savePresetDraft(preset, b) : void localNoteStore.save(b)), [preset]);
+  const save = useCallback((b: Block) => (preset ? savePresetDraft(preset, b) : void store.save(b)), [preset, store]);
   useEffect(() => {
     if (!block) return;
     if (first.current) {
@@ -90,6 +84,13 @@ function Creator({ preset }: { preset?: string }) {
     }, 300);
     return () => clearTimeout(t);
   }, [block, save]);
+  // before sharing: the change still waiting goes to the store, and the store sends it, so the link has it
+  const prepareShare = useCallback(async () => {
+    if (pending.current) save(pending.current);
+    pending.current = null;
+    // a store without flush (this browser, memory) has it already
+    if ((await store.flush?.()) === false) throw new ShareRefused(NOT_SAVED);
+  }, [save, store]);
   useEffect(() => {
     const flush = () => {
       if (pending.current) save(pending.current);
@@ -198,7 +199,7 @@ function Creator({ preset }: { preset?: string }) {
     // the rail hangs in the left margin and the right margin stays empty to match
     <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[minmax(12rem,1fr)_minmax(0,60rem)_minmax(12rem,1fr)]">
       <aside data-chrome aria-label="Note" className="flex flex-col gap-2 self-start md:sticky md:top-4 xl:w-full xl:max-w-[220px] xl:justify-self-end">
-        <SharePopover open={share} onClose={() => setShare(false)} onView={() => setViewing(true)}>
+        <SharePopover kind="note" open={share} onClose={closeShare} onView={() => setViewing(true)} prepare={preset ? undefined : prepareShare} instead={preset ? <p className="mt-2 text-xs leading-relaxed text-slate-300">This is a demo note, so it can&apos;t be shared. Press View as a note to see it as a reader will.</p> : undefined}>
           <button type="button" disabled={empty} onClick={() => setShare((s) => !s)} aria-expanded={share} data-tour="notes-share" className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40">
             <Icon name="share-2" size={12} />
             Share as a note

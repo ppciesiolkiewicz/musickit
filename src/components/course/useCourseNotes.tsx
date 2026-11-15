@@ -1,73 +1,62 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { legacyNoteKey } from "@/features/course/legacy";
-import { EMPTY_NOTES, hasNotes, parseNotesStore, type SectionNotes } from "@/features/course/notes";
+import { EMPTY_NOTES, hasNotes, type SectionNotes } from "@/features/course/notes";
+import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
 
 /**
- * The student's course notes and index layout, kept in localStorage and shared by every component on the page
- * (and other tabs, via the storage event). Server render and first paint use the empty store, so hydration always matches.
+ * The student's course notes and the index layout, shared by every component on the page.
+ *
+ * The notes are the player's `course_notes` document (`userDoc`): on the server for a signed-in player, in localStorage
+ * (`musickit.course.notes.v2`) without accounts. The layout belongs to this browser and stays in localStorage (and other
+ * tabs, via the storage event). Server render and first paint use the empty notes and the "stage" layout, so hydration
+ * always matches.
  */
 
-/** v2: stage slugs renumbered 1–11; the old store is read once and moved over. */
-const NOTES_KEY = "musickit.course.notes.v2";
-const OLD_NOTES_KEY = "musickit.course.notes";
 const LAYOUT_KEY = "musickit.course.layout";
 
 export type CourseLayout = "stage" | "topic";
 
-const read = (k: string): string | null => {
-  try { return window.localStorage.getItem(k); } catch { return null; }
-};
-const write = (k: string, v: string) => {
-  try { window.localStorage.setItem(k, v); } catch { /* storage unavailable: keep it for this visit only */ }
-};
+const notesDoc = userDoc("course_notes");
 
-let notes: Record<string, SectionNotes> = {};
 let layout: CourseLayout = "stage";
 let loaded = false;
 const listeners = new Set<() => void>();
-const SERVER_NOTES: Record<string, SectionNotes> = {};
 
-function loadAll() {
-  const stored = read(NOTES_KEY);
-  if (stored === null && read(OLD_NOTES_KEY) !== null) {
-    notes = Object.fromEntries(Object.entries(parseNotesStore(read(OLD_NOTES_KEY))).map(([k, n]) => [legacyNoteKey(k), n]));
-    write(NOTES_KEY, JSON.stringify(notes));
-  } else notes = parseNotesStore(stored);
-  layout = read(LAYOUT_KEY) === "topic" ? "topic" : "stage";
-}
+const readLayout = () => {
+  try { layout = window.localStorage.getItem(LAYOUT_KEY) === "topic" ? "topic" : "stage"; } catch { /* storage unavailable */ }
+};
 
 const emit = () => listeners.forEach((f) => f());
 
 function onStorage(e: StorageEvent) {
-  if (e.key === NOTES_KEY || e.key === LAYOUT_KEY) { loadAll(); emit(); }
+  if (e.key === LAYOUT_KEY) { readLayout(); emit(); }
 }
 
-function subscribe(fn: () => void) {
+function subscribeLayout(fn: () => void) {
   if (!loaded && typeof window !== "undefined") {
     loaded = true;
-    loadAll();
+    readLayout();
     window.addEventListener("storage", onStorage);
   }
   listeners.add(fn);
-  // pick up the stored values after hydration
+  // pick up the stored value after hydration
   queueMicrotask(fn);
   return () => { listeners.delete(fn); };
 }
 
 export function useAllNotes(): Record<string, SectionNotes> {
-  return useSyncExternalStore(subscribe, () => notes, () => SERVER_NOTES);
+  return useUserDoc("course_notes")[0];
 }
 
 /** Merge a change into one section's notes; a section left with nothing noted is removed. */
 export function saveSectionNotes(key: string, patch: Partial<SectionNotes>) {
-  const next = { ...(notes[key] ?? EMPTY_NOTES), ...patch };
-  const copy = { ...notes };
-  if (hasNotes(next)) copy[key] = next; else delete copy[key];
-  notes = copy;
-  write(NOTES_KEY, JSON.stringify(notes));
-  emit();
+  notesDoc.update((notes) => {
+    const next = { ...(notes[key] ?? EMPTY_NOTES), ...patch };
+    const copy = { ...notes };
+    if (hasNotes(next)) copy[key] = next; else delete copy[key];
+    return copy;
+  });
 }
 
 export function useSectionNotes(key: string): [SectionNotes, (patch: Partial<SectionNotes>) => void] {
@@ -76,7 +65,11 @@ export function useSectionNotes(key: string): [SectionNotes, (patch: Partial<Sec
 }
 
 export function useCourseLayout(): [CourseLayout, (v: CourseLayout) => void] {
-  const v = useSyncExternalStore(subscribe, () => layout, () => "stage" as CourseLayout);
-  const set = (next: CourseLayout) => { layout = next; write(LAYOUT_KEY, next); emit(); };
+  const v = useSyncExternalStore(subscribeLayout, () => layout, () => "stage" as CourseLayout);
+  const set = (next: CourseLayout) => {
+    layout = next;
+    try { window.localStorage.setItem(LAYOUT_KEY, next); } catch { /* storage unavailable: keep it for this visit only */ }
+    emit();
+  };
   return [v, set];
 }

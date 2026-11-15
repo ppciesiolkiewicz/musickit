@@ -1,5 +1,6 @@
 import { get } from "@vercel/blob";
-import { blobToken, checkAccess, ownPath } from "@/features/nam/server/cloud";
+import { checkAccess, ownPath } from "@/features/nam/server/cloud";
+import { blobToken } from "@/lib/blob";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

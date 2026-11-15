@@ -19,7 +19,7 @@ const KNOW_TO_STARS: Record<string, Stars> = { new: 1, getting: 2, solid: 4, own
 export const noteKey = (stage: string, section: string) => `${stage}/${section}`;
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
-const parse = (raw: string | null): unknown => {
+const parse = (raw: string | null | undefined): unknown => {
   if (!raw) return null;
   try { return JSON.parse(raw); } catch { return null; }
 };
@@ -34,8 +34,8 @@ function cleanNotes(v: unknown): SectionNotes | null {
 }
 
 /** The stored notes, keyed by `noteKey`. Anything unreadable, or a section with nothing left noted, is dropped; never throws. */
-export function parseNotesStore(raw: string | null): Record<string, SectionNotes> {
-  const v = parse(raw);
+export function parseNotesStore(raw: string | object | null): Record<string, SectionNotes> {
+  const v = typeof raw === "object" && raw !== null ? raw : parse(raw as string | null);
   if (!isObj(v)) return {};
   const out: Record<string, SectionNotes> = {};
   for (const [k, n] of Object.entries(v)) {

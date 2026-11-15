@@ -64,8 +64,9 @@ browser.
    prompt sends it back in place of the earlier weeks. The prompt uses the newest summary any stored plan has (a reply
    may come without one), with the weeks practised since it in full; with no summary at all, the two weeks before this
    one go in full. An earlier plan started again keeps the running plan's summary (`restartPlan`).
-5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted. **Share plan**, beside it, only opens a popover saying sharing isn't open in the demo and that, once it is, a teacher assigns the plan to students there (the notes creator's `SharePopover`, `teachers/studio`).
-6. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open. Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
+5. **Start anew**: the first flow again; its prompt leaves out past weeks. Earlier plans stay listed and can be restarted. **Share plan**, beside it, opens the share popover (`SharePopover`, `teachers/studio`, `kind="plan"`, `itemId` the plan's id). A teacher or owner (`can("sharePlan")`) gets **Share**: it first flushes the plan store (`PlanStore.flush`) and refuses when the latest change hasn't landed, then `POST /api/shares { kind: "plan" }` makes an invite of the stored current plan (`{ config }` only). The live invites are listed by date with **Stop** (not as links: opening one would add a copy to the sharer's own plans). Anyone else sees **Upgrade to Teacher account**, a link to `/kickstarter`, under one line on what a teacher account does.
+6. **An invite** (`/plan/invite/<id>`, `src/app/plan/invite/[id]/page.tsx` + `ui/InviteClaim.tsx`): not public; a signed-out visitor goes to `/login?next=/plan/invite/<id>`, which then reads "Create your account or log in to view" (`loginWords`, `account/loginGuard.ts`). Signed in, the page `POST`s `/api/shares/<id>/claim` (`claimInvite`: a copy, `from` the invite, as the current plan or first in the history; a second claim adds nothing) and does a full page load of `/plan?added=<planId>`, so the per-session plan store reads the new document. When the copy went to the earlier plans (the player had a plan running), `/plan` shows a notice under the header naming it, with **Start again**, and opens Earlier plans with its row marked "Just added" (`model/added.ts`: `addedPlan`, `takeAdded`); once the plan has loaded, `added` is taken out of the address so a reload doesn't show it again. A copy that became the current plan needs no notice. A stopped invite (410) or an unknown one (404) shows a notice; a lost session (401) goes to log in and comes back.
+7. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open. Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
 
 ## Demos
 
@@ -77,7 +78,7 @@ browser.
 
 ```
 model/            pure, no React; tested in model/plan.test.ts
-  types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan, PlanState (the stored document)
+  types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan (`from`: the invite a claimed copy came from), PlanState (the stored document)
   questions.ts    LEVELS (what an exercise is pitched at), labelOf()
   catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those; linkLabel() names a link's page
   tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the cell kinds, the choice, tags, link resources; the prompt's interface is generated from it; legacySections reads older plans
@@ -93,31 +94,36 @@ model/            pure, no React; tested in model/plan.test.ts
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       PROMPT_VERSION (raised with an entry in CHANGELOG.md), buildPrompt(answers, entries, previous, course), weekByTopic(), weekReport()
   CHANGELOG.md    what each version of the prompt, the teaching skills and AGENTS.md changed, newest first; examples.test.ts holds the newest to the code
+  state.ts        sanitiseState(): a stored PlanState made safe, for client and server (localPlanStore re-exports it): every exercise's cells and choice run through the plan's parser again (`parseCellDiag` with `stored`, as a draft), so a tool the reader can't draw is dropped, and an exercise left with no cell shows its title. fitPlanState(s, maxBytes): the oldest earlier plans dropped until the JSON fits (the server's 2 MB cap, `MAX_PLAN_BYTES`)
   schedule.ts     local dates, today's day, progress, when the week is over, startPlan(), ratePlan()
   dayClock.ts     dayClock(): a day's countdown, which exercise its elapsed time falls in; elapsedOf()
 intake/           the first questionnaire, its own feature: topics.ts (18 topics, four lines each), answers.ts (PlanAnswers, migrateAnswers(), levelOf()), ui/ (the screens, RangeFinder); see its README
 store/
-  PlanStore.ts    the storage interface: load() / save() of one PlanState
-  localPlanStore.ts  the localStorage implementation ("musickit.plan"), with sanitising
-  usePlan.tsx     the hook the UI uses, and PlanStoreProvider to swap the store
+  PlanStore.ts    the storage interface: load() / save() of one PlanState, and on the server store flush() (send the waiting save now; true once it landed), used before Share
+  serverPlanStore.ts  createServerPlanStore(): the plan as one document on the server (/api/me/documents/plan), read once per session (loads share the request, then the store keeps the plan) and saved through a DocClient, cut to the server's cap first (`fitPlanState`), so a save is never refused for its size: a signed-in player's store
+  memoryPlanStore.ts  memoryPlanStore(initial): kept for the visit, saving nothing (a visitor, the demo plan)
+  localPlanStore.ts  the localStorage store ("musickit.plan"), only for the site without a database
+  usePlan.tsx     the hook the UI uses, PlanStoreProvider to swap the store, usePlanStore for a reader outside the hook
 examples/         the example library: exercises/*.json, plans/*.json (standalone JSON), index.ts loads them; see its README
-ui/               PlanFlow, PromptAndPaste, useBlockAgentTools (the browser AI's block tools, WebMCP: `get_authoring_guide`, and on the notes creator `read_block` / `check_block` / `write_block` of the note, on `/plan` while a plan runs `read_plan`, `read_block`, `check_block`, `write_block`, `insert_block`, `remove_block`; replies in `model/agentBlocks.ts`, `check_block` reads a block as the write would and changes nothing (`checkNote`, `checkExercise`), the guide tells the AI to check, fix and check again before it sends, every plan change through `editDay`), WeekView (with **Edit** on a day: `DayEditor`, each exercise the block editor under `ExerciseMetaForm` (title with hashtags, minutes, why, links), the paste checks under it with Copy fix request, Add an exercise / Remove exercise within 2–5, Done applies `model/editPlan.ts` `editDay`: an exercise that changed is a new one (new id, its stars, tick and time cleared), the rest keep theirs and move with their place; Cancel drops the draft; the day timer is put away meanwhile; the page wraps the plan in the notes' `NotesEditorHost` for the widget controls and palette), editor/ (`BlockEditor`: a block written as a notebook, the title and key bar in its frame, one column of cells, sections as frames, a gutter on every cell (drag handle, Move up / Move down named with the cell, Add above / Add below / Delete); a tool cell has Settings (the host's controls, `toolControls`) and JSON; changes go through `model/editBlock.ts`), reader/ (the block reader: `BlockArticle` for a note's page, `BlockTitle` and `BlockBody` for a plan card; a block's cells in order, each section a headed step under a thin rule, like an article, ending in a small "Top of section" button that scrolls back to its heading; an open block choice drawn as the key bar only when the host says `keyBar`; under a `CellAsideContext` (`reader/aside.ts`), the /dev/examples review view, each tool is framed with its type; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles), DayTimer (the floating day countdown), ExerciseTool
+ui/               PlanFlow, PromptAndPaste, InviteClaim (the invite page's claim and its notices), useBlockAgentTools (the browser AI's block tools, WebMCP: `get_authoring_guide`, and on the notes creator `read_block` / `check_block` / `write_block` of the note, on `/plan` while a plan runs `read_plan`, `read_block`, `check_block`, `write_block`, `insert_block`, `remove_block`; replies in `model/agentBlocks.ts`, `check_block` reads a block as the write would and changes nothing (`checkNote`, `checkExercise`), the guide tells the AI to check, fix and check again before it sends, every plan change through `editDay`), WeekView (with **Edit** on a day: `DayEditor`, each exercise the block editor under `ExerciseMetaForm` (title with hashtags, minutes, why, links), the paste checks under it with Copy fix request, Add an exercise / Remove exercise within 2–5, Done applies `model/editPlan.ts` `editDay`: an exercise that changed is a new one (new id, its stars, tick and time cleared), the rest keep theirs and move with their place; Cancel drops the draft; the day timer is put away meanwhile; the page wraps the plan in the notes' `NotesEditorHost` for the widget controls and palette), editor/ (`BlockEditor`: a block written as a notebook, the title and key bar in its frame, one column of cells, sections as frames, a gutter on every cell (drag handle, Move up / Move down named with the cell, Add above / Add below / Delete); a tool cell has Settings (the host's controls, `toolControls`) and JSON; changes go through `model/editBlock.ts`), reader/ (the block reader: `BlockArticle` for a note's page, `BlockTitle` and `BlockBody` for a plan card; a block's cells in order, each section a headed step under a thin rule, like an article, ending in a small "Top of section" button that scrolls back to its heading; an open block choice drawn as the key bar only when the host says `keyBar`; under a `CellAsideContext` (`reader/aside.ts`), the /dev/examples review view, each tool is framed with its type; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles; each tool sits in a `ToolBoundary`, so a tool that throws shows "This tool couldn't load." in its place and the rest of the page works), DayTimer (the floating day countdown), ExerciseTool
 PlanApp.tsx       the page body: no plan → Start; a plan → header, week, history, a Back to top button; the flow modal
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
 
 ## Storage, and moving to an API
 
-The UI only talks to `PlanStore`. To keep plans on a server, write a `PlanStore` whose `load`/`save` call the API and
-wrap the page in `<PlanStoreProvider store={apiStore}>`. `PracticeReminder` reads `localPlanStore` directly; point it at
-the same store. The open flow (step, answers, pasted text) is kept in `sessionStorage` (`musickit.plan.flow`) so a
+The UI only talks to `PlanStore`. `UserDataProvider` (`features/userData`, in the root layout) picks the store for every
+page by the data source: a new `createServerPlanStore()` for each signed-in session, a fresh `memoryPlanStore` for a visitor, and
+`localPlanStore` when the site has no database. Until the source is known the store is a waiting one, so the page stays
+in its loading state. `DemoPlan` wraps its plan in its own memory stores, plan and progress. `PracticeReminder` reads the
+same store through `usePlanStore()`: when the page opens or the tab comes back, then again only when the plan it holds
+says a reminder is due. The open flow (step, answers, pasted text) is kept in `sessionStorage` (`musickit.plan.flow`) so a
 reload doesn't lose it; that one stays local.
 
-The progress log has its own store with the same idea (`src/features/progress`: `ProgressStore`, `localProgressStore`
-under `musickit.progress`, `useProgress`, `ProgressStoreProvider`). Exercises get their ids when a plan starts
+The progress log has its own store with the same idea (`src/features/progress`: `ProgressStore`, `serverProgressStore`,
+`memoryProgressStore`, `localProgressStore` under `musickit.progress`, `useProgress`, `ProgressStoreProvider`). Exercises get their ids when a plan starts
 (`startPlan`), new ones each time, also for a plan used again from the history; plans stored before ids get them on load.
-Loading saves back at once whatever it changed (ids, answers moved to the topic shape); the document as it was before
-the first such save is kept once under `musickit.plan.backup`.
+`localPlanStore` saves back at once whatever loading changed (ids, answers moved to the topic shape); no backup is kept.
 
 ## The plan format
 
@@ -188,8 +194,7 @@ step has a "Copy fix request" button (`ui/PromptAndPaste.tsx`) that copies `fixR
 plan, these are the problems, send the whole plan again as one JSON block. An exercise without a known `level` (new,
 beginner, intermediate, advanced), `area` (guitar, voice, theory) or kind tag (`EXERCISE_TAGS`) warns
 (`exerciseLevelArea`, `exerciseTags` in `tools.ts`); fewer than seven days or an empty day is refused. Nothing older is
-read: a stored plan whose exercises have no `cells` is dropped on load (`localPlanStore`, the document backed up once
-under `musickit.plan.backup`), and there is no migration of old tool names or shapes (`migrate.ts` is gone).
+read: a stored plan whose exercises have no `cells` is dropped on load (`sanitiseState`), and there is no migration of old tool names or shapes (`migrate.ts` is gone).
 
 ## The prompt
 

@@ -12,6 +12,7 @@ import useCamera from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import SharePopover from "./SharePopover";
+import { blockFromStage } from "@/features/teachers/notes/model/note";
 import { Modal } from "@/components/ui";
 import { VideoChooser, type ChooserTab } from "@/features/videos/VideoChooser";
 import type { VideoRef } from "@/features/videos/ref";
@@ -19,6 +20,8 @@ import Palette from "./Palette";
 import useStage from "./useStage";
 
 const PLUGIN_IDS = PLUGINS.map((p) => p.id);
+/** the item the stage's note links are listed under (`STUDIO_ITEM` on the server) */
+const STUDIO_ITEM = "studio";
 const SHAPE_STORE = "musickit.studio.keepShape";
 const PANEL_STORE = "musickit.studio.panelFolded";
 const INPUT_STORE = "musickit.studio.audioInput";
@@ -85,7 +88,7 @@ function Studio() {
   // the Layers list on the grid: the page top to bottom, then what is not on the grid (the brand marks keep their corner)
   const onPage = grid ? gridLayers(stage) : [];
   const listed = grid ? [...onPage, ...stage.layers.filter((l) => !onPage.includes(l))] : [...stage.layers].reverse();
-  // sharing is not open in the demo: Share as a note says so (links made before still open)
+  // Share as a note: the stage built into a note and shared as a link, never stored as the teacher's note
   const [shareInfo, setShareInfo] = useState(false);
   const closeShareInfo = useCallback(() => setShareInfo(false), []);
   const [palette, setPalette] = useState(false);
@@ -117,6 +120,7 @@ function Studio() {
   useEffect(() => {
     stageRef.current = stage;
   }, [stage]);
+  const stageNote = useCallback(() => blockFromStage(stageRef.current), []);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- what is stored and the window's width are known only after hydration
@@ -338,8 +342,8 @@ function Studio() {
         <aside data-chrome aria-label="Layers" className="sticky top-4 flex max-h-[calc(100vh-2rem)] flex-col gap-2 self-start overflow-y-auto max-md:static max-md:max-h-none max-md:self-auto">
           {/* the note's actions first, where they are seen without scrolling past the layers */}
           <div className="mb-2 flex flex-col gap-2 border-b border-slate-800 pb-3">
-            <SharePopover open={shareInfo} onClose={closeShareInfo} >
-              <button type="button" onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} aria-label="Share as a note" title="Sharing isn't open yet in this demo" className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
+            <SharePopover kind="note" itemId={STUDIO_ITEM} block={stageNote} open={shareInfo} onClose={closeShareInfo}>
+              <button type="button" onClick={() => setShareInfo((s) => !s)} aria-expanded={shareInfo} aria-label="Share as a note" title="Share the stage as a note, as a link" className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
                 <Icon name="share-2" size={12} />
                 <span className="min-w-0 truncate">Share as a note</span>
               </button>

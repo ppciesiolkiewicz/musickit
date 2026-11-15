@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { sendToLogin, stashHash, takeHash } from "./loginGuard";
+import { loginWords, sendToLogin, stashHash, takeHash } from "./loginGuard";
 
 /** A Storage in memory. */
 function memory(): Storage {
@@ -19,22 +19,22 @@ const MIN = 60_000;
 
 test("a hash stashed before logging in comes back once on the same path", () => {
   const s = memory();
-  stashHash(s, "/teachers/studio", "#note=abc", 0);
-  assert.equal(takeHash(s, "/teachers/studio", 5 * MIN), "#note=abc");
-  assert.equal(takeHash(s, "/teachers/studio", 5 * MIN), null);
+  stashHash(s, "/dev/stories", "#scale-neck~3", 0);
+  assert.equal(takeHash(s, "/dev/stories", 5 * MIN), "#scale-neck~3");
+  assert.equal(takeHash(s, "/dev/stories", 5 * MIN), null);
 });
 
 test("another path doesn't take it, and leaves it for the right one", () => {
   const s = memory();
-  stashHash(s, "/teachers/studio", "#note=abc", 0);
+  stashHash(s, "/dev/stories", "#scale-neck~3", 0);
   assert.equal(takeHash(s, "/plan", MIN), null);
-  assert.equal(takeHash(s, "/teachers/studio", MIN), "#note=abc");
+  assert.equal(takeHash(s, "/dev/stories", MIN), "#scale-neck~3");
 });
 
 test("after an hour the hash is gone", () => {
   const s = memory();
-  stashHash(s, "/teachers/studio", "#note=abc", 0);
-  assert.equal(takeHash(s, "/teachers/studio", 61 * MIN), null);
+  stashHash(s, "/dev/stories", "#scale-neck~3", 0);
+  assert.equal(takeHash(s, "/dev/stories", 61 * MIN), null);
   assert.equal(s.length, 0);
 });
 
@@ -51,4 +51,12 @@ test("only a definite 'signed out' sends a person to log in, never a check that 
   assert.equal(sendToLogin(false, true), false);
   assert.equal(sendToLogin(true, false), false);
   assert.equal(sendToLogin(true, true), false);
+});
+
+test("the login page asks an invited person to create an account or log in; any other next keeps the usual words", () => {
+  assert.equal(loginWords("/plan/invite/abc").title, "Create your account or log in to view");
+  assert.equal(loginWords("/plan").title, "Log in");
+  assert.equal(loginWords(null).title, "Log in");
+  assert.equal(loginWords("/plan/invitex").title, "Log in");
+  assert.notEqual(loginWords("/plan/invite/abc").intro, loginWords(null).intro);
 });

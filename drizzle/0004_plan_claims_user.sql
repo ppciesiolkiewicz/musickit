@@ -1,0 +1,1 @@
+CREATE INDEX "plan_claims_user_id_idx" ON "plan_claims" USING btree ("user_id");

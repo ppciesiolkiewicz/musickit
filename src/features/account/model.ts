@@ -18,14 +18,16 @@ export interface Account {
 }
 
 /**
- * The parts of the app, each with the roles that may use it. Today every role uses everything: a teacher gets the same
- * app as a student. A new split is one line here and a `can(account, "<feature>")` where the screen decides.
+ * The parts of the app, each with the roles that may use it. Most are for every role; sharing a plan is for teachers and
+ * owners. A new split is one line here and a `can(account, "<feature>")` where the screen decides.
  */
 export const FEATURES = {
   /** The notes creator (/creator, the studio's preset notes). */
   notesCreator: ["student", "teacher", "owner"],
   /** Having the AI write a plan. */
   aiPlan: ["student", "teacher", "owner"],
+  /** Sharing a plan as an invite (Share plan). Signing in is needed too: with no database there are no accounts and no sharing. */
+  sharePlan: ["teacher", "owner"],
 } as const satisfies Record<string, readonly Role[]>;
 export type Feature = keyof typeof FEATURES;
 

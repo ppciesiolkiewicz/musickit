@@ -30,5 +30,6 @@ Recording into tracks, the editor, video import and overdub, audio inputs and DI
 ## Notes creator and preset notes
 
 The notes creator is its own page now, on the block editor: `spec/notes.md`. The studio has no notes mode. Its **Share as a note**
-stays the demo popover (sharing isn't open yet).
+builds a note from the stage (`blockFromStage`: its widgets in the grid's order that can be a cell) and shares it as a link through
+the same popover, without touching the teacher's own note; the studio's live links are listed under the item `studio`.
 

@@ -1,0 +1,2 @@
+/** The token of the site's private Vercel Blob store (amp models, contact files, players' videos), or undefined when the site has none. Prefixed so it does not clash with another store on the project. Server only: it never reaches the browser. */
+export const blobToken = (env: Record<string, string | undefined>): string | undefined => (env.MUSICKIT_BLOB_READ_WRITE_TOKEN ?? env.BLOB_READ_WRITE_TOKEN)?.trim() || undefined;

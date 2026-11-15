@@ -26,7 +26,10 @@ Share as a note. Three numbered steps over the editor.
   (inside its section when it is in one), or where Add above / Add below asked.
 - **Kept** in this browser under `musickit.note` (`localNoteStore`, through `NoteStore`: the login project adds an API store). An
   empty note says "Nothing in this note yet." with Add a widget; Share is off until there is something in it.
-- **Share as a note** is the demo popover (sharing isn't open yet). **View as a note** shows the note as its page draws it, the page's
+- **Share as a note** opens the share popover (`SharePopover`): **Share** first sends a change still waiting to be saved, then
+  makes a frozen copy of the stored note at `/notes/shared/<id>`, shown with **Copy link**; under it the note's **Live links**,
+  each with its date and **Stop**. A later edit never reaches a link: to send it, share again. A preset note opened with
+  `?edit=true` can't be shared (the popover says so). **View as a note** shows the note as its page draws it, the page's
   header becoming the note's own, with **Back to editing**. **Edit as JSON (dev)** opens the whole block as JSON; Apply reads it with
   `parseBlock` and lists what it left out.
 
@@ -40,9 +43,11 @@ and examples without the student, plus what a note is; videos are never in it), 
 
 ## Reading a note
 
-- **A shared link** `…?notes=1#note=<b|c><base64url>` (the block's JSON, deflated `b` or plain `c`) opens the note to read: the key
-  bar, the Your voice picker when it sings, the reader's article, **Make your own note**. A link made before notes were blocks (`z`,
-  `j`) says the note was made with an older version; a broken one says it could not be opened.
+- **A shared link** `/notes/shared/<id>` opens the frozen copy to anyone, with no login: the header is the note's title and first
+  text under "Shared note", then the key bar, the Your voice picker when it sings, the reader's article, **Make your own note** and
+  the day it was shared. Its tools run over memory stores, so a reader's changes save nothing. Its recordings play from the server
+  (the owner's own, while the link is live); one deleted since says "This video is gone". A stopped or unknown link answers 404
+  with "This note isn't shared any more". The old `#note=` links are gone.
 - **Preset notes** `/note/<slug>` (`presetNotes.ts`, written as block JSON and read by the same parser): the header is the note's title
   and first text, the article the rest. `?edit=true` opens it in the notes creator; changes are kept in this tab only, so View the note
   shows them until a reload.

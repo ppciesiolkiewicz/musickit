@@ -12,12 +12,13 @@ import {
 } from "@/lib/practice/noteGame";
 import { useMicPitch } from "./useMicPitch";
 import { micGate } from "@/lib/practice/mic";
-import { GameChoice, SetupTag, Stage, Stat, Target, btn, btnBig, readBest, writeBest, writeQuery } from "./shared";
+import { GameChoice, SetupTag, Stage, Stat, Target, btn, btnBig, writeQuery } from "./shared";
 import { useToolKeys } from "./toolKeys";
 import { Chip, ChipRow, Hint, KeyCap, SettingsPanel, SettingsSection } from "@/components/ui";
 import { VolumeRow } from "@/features/settings";
 import { NoteGameSettings, STRING_LETTERS } from "./NoteGameSettings";
 import { useCoverage } from "@/features/guide/useCoverage";
+import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 
@@ -27,7 +28,6 @@ const MODES: { id: NoteMode; title: string; about: string }[] = [
   { id: "name", title: "Name the dot", about: "A dot lights up on the neck. Say which note it is." },
 ];
 const LETTER_PC: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-const BEST_KEY = "musickit.noteGame.best";
 const SPRINT_MS = 60_000;
 
 type Feedback = { ok: boolean; text: string } | null;
@@ -49,12 +49,11 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   const [mic, setMic] = useState(false);
   const [sprint, setSprint] = useState<{ ends: number; count: number } | null>(null);
   const [now, setNow] = useState(0);
-  const [best, setBest] = useState(0);
+  // the best sprint is one of the player's records, kept with the account
+  const best = useUserDoc("records")[0].noteGameBest;
   const asked = useRef(0);
   const gate = useRef(micGate.initial);
   const stage = useRef<HTMLDivElement>(null);
-
-  useEffect(() => setBest(readBest(BEST_KEY)), []); // eslint-disable-line react-hooks/set-state-in-effect -- localStorage is only readable after mount
 
   const update = (patch: Partial<NoteSettings>) => {
     const next = { ...s, ...patch };
@@ -158,10 +157,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
       setNow(t);
       if (t >= sprint.ends) {
         clearInterval(id);
-        if (sprint.count > best) {
-          setBest(sprint.count);
-          writeBest(BEST_KEY, sprint.count);
-        }
+        if (sprint.count > best) userDoc("records").update((r) => ({ ...r, noteGameBest: Math.max(r.noteGameBest, sprint.count) }));
       }
     }, 250);
     return () => clearInterval(id);

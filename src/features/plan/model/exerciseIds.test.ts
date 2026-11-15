@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { parsePlanConfig } from "./config";
 import { withExerciseIds } from "./exerciseIds";
 import { restartPlan, startPlan } from "./schedule";
-import { PLAN_BACKUP_KEY, PLAN_KEY, localPlanStore, sanitiseState } from "../store/localPlanStore";
+import { PLAN_KEY, localPlanStore, sanitiseState } from "../store/localPlanStore";
 import { EMPTY_STATE, type PlanConfig, type StoredPlan } from "./types";
 
 const tagged = (extra: Record<string, unknown> = {}) => ({ title: "Ex", minutes: 5, cells: [{ type: "text", text: "x" }], level: "beginner", area: "guitar", tags: ["technique"], topic: "guitar-caged", ...extra });
@@ -123,7 +123,7 @@ test("a stored day without an exercise list does not break loading, and the othe
   assert.ok(s.current!.config.days.slice(1).every((d) => d.exercises.every((e) => e.id)));
 });
 
-test("loading keeps the stored text as a backup before the first save that changes it, once", async () => {
+test("loading saves back at once what it changed, so a second load changes nothing", async () => {
   const data = new Map<string, string>();
   const g = globalThis as unknown as { window?: unknown };
   const had = g.window;
@@ -133,14 +133,11 @@ test("loading keeps the stored text as a backup before the first save that chang
     data.set(PLAN_KEY, old);
     const first = await localPlanStore.load();
     assert.deepEqual(first.answers!.areas, ["guitar"]);
-    assert.equal(data.get(PLAN_BACKUP_KEY), old);
+    assert.equal(data.get("musickit.plan.backup"), undefined, "no backup is kept");
     assert.notEqual(data.get(PLAN_KEY), old);
     const migrated = data.get(PLAN_KEY)!;
     await localPlanStore.load();
     assert.equal(data.get(PLAN_KEY), migrated, "a second load changes nothing");
-    data.set(PLAN_KEY, JSON.stringify({ ...JSON.parse(migrated), junk: 1 }));
-    await localPlanStore.load();
-    assert.equal(data.get(PLAN_BACKUP_KEY), old, "the first backup is never overwritten");
   } finally {
     g.window = had;
   }
@@ -152,4 +149,11 @@ test("a stored plan whose exercises have no cells (the format before blocks) is 
   assert.equal(s.current, null);
   assert.equal(s.history.length, 1);
   assert.equal(s.history[0].id, "n");
+});
+
+test("a claimed plan keeps the invite it came from; a broken one is dropped", () => {
+  const plan = (id: string, from: unknown): StoredPlan => ({ id, startedOn: "2026-11-01", done: {}, config: config(), from } as StoredPlan);
+  const s = sanitiseState({ current: plan("a", "share-1"), history: [plan("b", 7)] });
+  assert.equal(s.current!.from, "share-1");
+  assert.equal("from" in s.history[0], false);
 });

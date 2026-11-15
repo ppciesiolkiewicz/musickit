@@ -10,7 +10,8 @@ import { useCoverage } from "@/features/guide/useCoverage";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
-import { VOICES, buildLadder, clefFor, hzToMidi, savedVoice, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
+import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
+import { VOICES, buildLadder, clefFor, hzToMidi, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, RUNS, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { useAccuracy } from "@/features/theory/useAccuracy";
@@ -27,8 +28,6 @@ const FALLBACK_BPM = 90;
 /** how long a tapped note sounds */
 const TAP_MS = 900;
 const RESTS = [0, 1, 2, 3, 4];
-/** where the voice picked last is kept (once its range, which still reads back) */
-const VOICE_KEY = "singing.range";
 /** where the play-ahead picked last is kept, in ms (a testing knob: how far the bar runs ahead of the voice dot) */
 /** which singing page: the scale, the melody book or the runs book (each its own page in the Singing menu) */
 export type SingingMode = "scales" | "melodies" | "runs";
@@ -53,30 +52,19 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
   const linked = tuneTab ? book.find((t) => t.n === initial.melody) : undefined;
   const [tonicPc, setTonicPc] = useState(initial.tonicPc);
   const [scale, setScale] = useState(initial.scale);
-  const [voice, setVoice] = useState<Voice>("soprano");
+  // the voice picked last is part of the player's "about me" (kept with the account); soprano until it loads or is picked
+  const voice: Voice = useUserDoc("about")[0].voice ?? "soprano";
   // how close counts as on the note, shared with the singing tools
   const [cents] = useAccuracy();
   // how far the bar runs ahead of the voice dot on a melody
   const [lagMs, pickLag] = usePlayAhead();
-  // the last voice and play-ahead come back after hydration; a pick is kept as it is made
-  useEffect(() => {
-    let saved: Voice | null = null;
-    try {
-      saved = savedVoice(JSON.parse(window.localStorage.getItem(VOICE_KEY) ?? "null"));
-    } catch { /* storage blocked */ }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring the saved picks after hydration
-    if (saved) setVoice(saved);
-  }, []);
   const lagSlider = (
     <>
       <Slider min={0} max={MAX_LAG_MS} step={10} value={lagMs} onChange={pickLag} size="sm" className="w-40" aria-label="Play-ahead" />
       <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">{lagMs} ms</span>
     </>
   );
-  const pickVoice = (v: Voice) => {
-    setVoice(v);
-    try { window.localStorage.setItem(VOICE_KEY, JSON.stringify(v)); } catch { /* storage blocked */ }
-  };
+  const pickVoice = (v: Voice) => userDoc("about").update((a) => ({ ...a, voice: v }));
   const range = VOICES[voice];
   const [rest, setRest] = useState(2);
   // the tune being sung, by number, and the difficulty whose tunes are listed ("all", the whole book, to start with)

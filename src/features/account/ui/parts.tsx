@@ -1,5 +1,6 @@
 "use client";
 
+import { ACCOUNT_CHANGED_WORDS, accountHeaders, isAccountChanged } from "../serverAccountStore";
 import type { ReactNode } from "react";
 /** Shared pieces of the log-in and account screens. */
 
@@ -57,7 +58,9 @@ export async function send(url: string, method: "POST" | "PATCH" | "DELETE" | "G
     const res = await fetch(url, {
       method,
       cache: "no-store",
-      ...(data === undefined ? {} : { headers: { "content-type": "application/json" }, body: JSON.stringify(data) }),
+      // the account the page loaded for: a change sent after someone else logged in is refused (409 account-changed)
+      headers: accountHeaders(data === undefined ? {} : { "content-type": "application/json" }),
+      ...(data === undefined ? {} : { body: JSON.stringify(data) }),
     });
     const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     return { ok: res.ok, status: res.status, body };
@@ -66,4 +69,5 @@ export async function send(url: string, method: "POST" | "PATCH" | "DELETE" | "G
   }
 }
 
-export const errorOf = (r: Posted): string => (typeof r.body.error === "string" ? r.body.error : "Something went wrong. Try again.");
+export const errorOf = (r: Posted): string =>
+  isAccountChanged(r.status, r.body) ? ACCOUNT_CHANGED_WORDS : typeof r.body.error === "string" ? r.body.error : "Something went wrong. Try again.";
