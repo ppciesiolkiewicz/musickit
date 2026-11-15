@@ -22,7 +22,7 @@ test("plan labels", () => {
   assert.equal(bestSavingLabel([student, { monthCents: 900, yearCents: 7200 }]), "Save up to 75%");
   assert.equal(bestSavingLabel([{ monthCents: 900, yearCents: 10800 }]), null);
   assert.equal(yearlyCents(student, "month"), 10800);
-  assert.equal(trialLabel({ trialDays: 14 }), "First 14 days free");
+  assert.equal(trialLabel({ trialDays: 14 }), "14-day free trial, cancel any time");
   assert.equal(trialLabel({ trialDays: 0 }), null);
   assert.equal(allowanceLabel({ autoplansPerMonth: 8 }), "8 AI autoplans a month, or 24 AI notes");
   assert.equal(studentsLabel({ students: 10 }), "Up to 10 students");

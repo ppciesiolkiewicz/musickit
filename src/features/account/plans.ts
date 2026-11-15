@@ -103,8 +103,8 @@ export const bestSavingLabel = (plans: Pick<Plan, "monthCents" | "yearCents">[])
   return pcts.every((x) => x === best) ? `Save ${best}%` : `Save up to ${best}%`;
 };
 
-/** "First 14 days free"; null with no trial. */
-export const trialLabel = (p: Pick<Plan, "trialDays">): string | null => (p.trialDays > 0 ? `First ${p.trialDays} days free` : null);
+/** "14-day free trial, cancel any time"; null with no trial. */
+export const trialLabel = (p: Pick<Plan, "trialDays">): string | null => (p.trialDays > 0 ? `${p.trialDays}-day free trial, cancel any time` : null);
 
 /** "8 AI autoplans a month, or 24 AI notes". */
 export const allowanceLabel = (p: Pick<Plan, "autoplansPerMonth">): string =>
