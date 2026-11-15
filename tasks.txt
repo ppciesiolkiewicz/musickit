@@ -29,6 +29,15 @@ NEW15: [NEW 2026-11-16] Rework /dev/examples
 - Show each example's concepts and the step it works on (`stepOf`), so an example written with raw tool settings, which
   counts for no step, shows up; link each concept to it on /dev/path.
 - Once the proposed path (NEW13) is taken up, tag examples with its tracks and steps instead of today's concepts.
+[2026-11-16 done, first two] /dev/examples shows under each card its concepts, each linked to /dev/path?concept=<id>
+(the path opens on it) with the step its tools are on, "no step" or "no ladder"; a plan says how many exercises tag no
+concept. guitar-beginner, guitar-theory-intermediate and voice-beginner (the third also had none) are tagged, and the
+progression showcase. Still untagged, since their topic has no fitting concept: guitar-beginner's double stops (1);
+guitar-theory-intermediate's 7th shapes, comping, alternate picking and ii-V-I solos (10): the proposed tracks fill
+these. The tags change those exercises' block ids: run db:seed-plans and db:seed-blocks to see them in the library.
+What the page shows now: most ladder concepts in the examples read "no step", because the tools are written with raw
+settings, not `level` (voice-advanced: Singing intervals 11 of 13, Leaps 6 of 6; voice-beginner: Do Re Mi 4, Do Mi Sol
+8; the spider 3 of 3 in guitar-beginner). Rewriting them to levels is example work for NEW10.
 
 NEW12: [NEW 2026-11-15] Teachers assign and generate plans for their students (later; with the schools work in NEW3)
 Use brainstorming first. Decided so far:
@@ -83,7 +92,7 @@ Use brainstorming first. What /dev/questionnaire showed:
   Extended chords has no guitar concept for plain 7th chord shapes (its first line); Theory basics has two concepts,
   both "new"; Voice runs and Voice melodies have two each.
 - Nothing asks about rhythm and timing beyond "steady beat", fingerpicking, playing whole songs, or reading tab/staff.
-- The intake README says 70 concepts; concepts.ts has 67. Find out which is right.
+- The intake README says 70 concepts; concepts.ts has 67. Find out which is right. [2026-11-16: 67; README fixed]
 - After week 1 the level comes from the stars per block, not from these answers: settle what the questionnaire still
   has to ask, and how a player says "more of the same" or "something new".
 - Steps inside a concept (NEW13, see /dev/path): many concepts are one thing at several depths. Merge those (triads on
@@ -101,7 +110,12 @@ Agents read library_coverage (NEW8) first and write to the gaps, each plan recor
 - Before seeding plans that reuse an example block: an example's owner row is stored not enabled, and the seed only
   inserts owner rows, so such a block stays not enabled (get_plan lists it, get_block and `unused` don't). The seed has
   to upgrade the app's owner row to `seed`, enabled. Today 0 of the 35 library blocks are also examples.
+  [2026-11-16 done] seedBlocks promotes them (promoteExampleBlocks; tested on Postgres too).
 - Seed plans record model and versions; the published compare-models plans have none recorded (all null).
+  [2026-11-16 done for new runs] saveRun stamps each run with its versions; publish-model-plans and libraryRows carry
+  them. Runs from before have none, so those stay null rather than guessed.
+- Not started, needs your go: writing plans costs money (a Fable plan run was $3.45), and new examples change what the
+  live plan writer copies, so both wait for you to pick which gaps first.
 - Topics with no example exercise: guitar Barre chords, Techniques, Extended chords; voice Breath & range, Runs;
   theory Basics, Scales & keys. Thin: guitar Basic chords, CAGED; voice Melodies, Harmony; theory Progressions,
   Modes, Building chords. 22 exercise examples cover 23 of the concepts.
@@ -128,6 +142,20 @@ NEW11: [NEW 2026-11-15] New exercise components to weigh (after the examples in 
 - See /dev/path: an amber step (not implemented) has no tool level standing for it. On "Proposed", 160 of 216 steps are
   amber; the tracks with none from a ladder (rhythm, bends, hearing changes, CAGED, triads, chord building) show which
   tools would need levels.
+[2026-11-16 weighed, nothing built] Cheapest first:
+1. Rhythm tool: the engine is built and tested (src/features/rhythm: 5 one-bar patterns, ±35/70/120 ms judging, tap or
+   mic). RhythmGame takes no props and keeps its settings in localStorage; it needs pattern/bpm/bars props, a bare mode,
+   and its Space key handler moved off `window` (two on one page would both fire). Its patterns cover the proposed
+   "Steady beat & rhythm" steps except sixteenths (one new pattern). Wiring is the usual tool list: props file + docs
+   regen, tools.ts (union, PARSERS, LEVELED, levelProps), ui/Tool.tsx, prompt.ts, transpose.ts (no key), checks.ts (it
+   sounds the beat), a tour (toolTours test), a story, a ladder + LINKS in steps.ts.
+2. Chord-change ear quiz: no new tool. A third `kind` in src/lib/practice/earGame.ts asked through interval-ears:
+   I then a chord, answer a numeral; levels IV/V, then + vi, then more. Catch: EarQuestion.midi is one flat list, so
+   chords in sequence need a model change and a change to play().
+3. Bends: nothing exists. No articulation in the timeline step or cue model, TabView draws only fret numbers, even
+   legato-trill shows no h/p. Needs a model field, tab drawing, bent-pitch playback; a bend-to-pitch check would be a
+   new tool on useMicPitch.
+Also: src/features/exercises/CLAUDE.md says the view goes in ui/ExerciseTool.tsx; the switch is in ui/Tool.tsx.
 
 NEW7: [NEW 2026-11-15] Autoplans on the server: reuse first, then the right model
 Steps inside a concept (NEW13, see /dev/path) change what a new plan is written from:

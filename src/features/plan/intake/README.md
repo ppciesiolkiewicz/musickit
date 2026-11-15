@@ -14,7 +14,7 @@ unanswered. The topics come one at a time in a panel whose four lines never move
 who knows their level taps the same spot without moving the pointer; the area's topics are listed under it with
 their answers. Then voice type and range (if they sing), minutes a day, and anything else.
 
-The plan's 70 fine concepts (`../model/concepts.ts`) are not asked about. Each belongs to one topic (`Concept.topic`), and
+The plan's fine concepts (`../model/concepts.ts`, 67 today) are not asked about. Each belongs to one topic (`Concept.topic`), and
 the AI tags exercises with them.
 
 ## Files
