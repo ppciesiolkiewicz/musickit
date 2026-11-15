@@ -26,7 +26,7 @@ const COLUMN = "mx-auto w-full max-w-[51rem]";
  * form (log in, create account). `column` keeps the title and content to one reading column in the middle (the plan, whose
  * cards hold a column of text and tools), while the nav and footer keep the page's width.
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, columnTitle = false, action, header, related, pageId, tour, decor, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, columnTitle = false, action, header, related, pageId, tour, tourNudge = false, decor, children }: {
   title: string;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
   eyebrow?: string;
@@ -50,6 +50,8 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   pageId?: string;
   /** the page's tour, walked by the tour button; needs `pageId` */
   tour?: TourStep[];
+  /** a note beside the tour button pointing at it, until the button is first pressed (pages a new player should not miss) */
+  tourNudge?: boolean;
   /** decoration drawn behind the whole page, from the nav down (GlassShapes); it sits under the content and takes no clicks */
   decor?: ReactNode;
   children: ReactNode;
@@ -79,7 +81,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
           {header ?? (
             <>
               {pageId || action ? (
-                <PageHeadingRow heading={heading} corner={<>{action}{pageId && <PageHelp pageId={pageId} tour={tour} />}</>} />
+                <PageHeadingRow heading={heading} corner={<>{action}{pageId && <PageHelp pageId={pageId} tour={tour} nudge={tourNudge} />}</>} />
               ) : (
                 heading
               )}
