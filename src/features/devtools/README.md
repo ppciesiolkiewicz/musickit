@@ -39,6 +39,11 @@ Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab
 when `selectExamples` picks it for those answers. Opening a card renders it (`model/preview.ts`): an exercise as the
 plan's `ExerciseCard`, a plan in the real week view, with the parser's warnings. **Copy as plan** copies any example as a
 complete 7-day plan for `/plan`'s paste step (`planToCopy`: an exercise becomes a week of itself).
+Under each card's tags, the concepts its exercises are tagged with (`model/exampleSteps.ts`), each a link to
+`/dev/path?concept=<id>` and each with the step its tools are on, read with `stepOf` as a player's rating is: the step's
+name, "no step" (the concept has a ladder but no tool sets a level or stage, so it counts for no step) or "no ladder".
+A plan gathers them over its exercises (how many tag each concept, the steps read, how many said none) and says how
+many of its exercises tag no concept at all.
 
 **Section notes.** Every section of a rendered example has a pencil at its end (`examples/Comments.tsx`, through the plan's
 `CellAsideContext`, `ui/reader/aside.ts`): a shortcut to a dev note (see *Dev notes*) with a `section` anchor: the example, the exercise's
@@ -104,7 +109,7 @@ topic, per concept). A date field sets `asOf` (today at first); a date before an
 ## Learning path (`/dev/path`)
 
 The path a player moves along, as the code has it today, drawn as a diagram (`path/PathView.tsx`, nodes from
-`model/path.ts`). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
+`model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/examples links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
 are columns, each cell starts with the topic's questionnaire line for that level, and every concept of `CONCEPTS` sits in
 the cell of its topic and level. An arrow runs from a concept to each one that names it in `buildsOn`. A concept's edge is
 green with a green dot when an example exercise is tagged with it and grey when none is, a violet dot says an example plan

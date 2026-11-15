@@ -237,10 +237,11 @@ function Detail({ node, nodes, pick, progress, today }: { node: PathNode; nodes:
 }
 
 /** The learning path of one area as a diagram: topics down, levels across, an arrow for every "builds on". */
-export default function PathView({ nodes: list, spare }: { nodes: PathNode[]; spare: SpareSteps[] }) {
+export default function PathView({ nodes: list, spare, initial }: { nodes: PathNode[]; spare: SpareSteps[]; /** a concept to open on */ initial?: string }) {
   const nodes = useMemo(() => new Map(list.map((n) => [n.id, n])), [list]);
-  const [area, setArea] = useState<Area>("guitar");
-  const [sel, setSel] = useState<string | null>(null);
+  const start = initial ? list.find((n) => n.id === initial) : undefined;
+  const [area, setArea] = useState<Area>(start?.area ?? "guitar");
+  const [sel, setSel] = useState<string | null>(start?.id ?? null);
   const [who, setWho] = useState("none");
   const [view, setView] = useState<"today" | "proposed">("today");
   const [today] = useState(() => localDate());

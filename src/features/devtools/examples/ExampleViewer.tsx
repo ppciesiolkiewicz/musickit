@@ -5,14 +5,15 @@ import { useMemo, useState, type ReactNode } from "react";
 import { Chip } from "@/components/ui";
 import { DOC_VERSIONS, EXERCISE_EXAMPLES, PLAN_EXAMPLES, type DocVersions } from "@/features/plan/examples";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
-import { AREAS, conceptById, type Area } from "@/features/plan/model/concepts";
+import { AREAS, type Area } from "@/features/plan/model/concepts";
 import { selectExamples } from "@/features/plan/model/exampleSelection";
 import { LEVELS, labelOf } from "@/features/plan/model/questions";
 import type { Level } from "@/features/plan/model/types";
 import { answersFromText } from "../model/compose";
 import { partAnchor } from "../prompt/PartList";
 import ExamplePreview from "../prompt/ExamplePreview";
-import { planToCopy } from "../model/preview";
+import { parsePreview, planToCopy } from "../model/preview";
+import { exerciseSteps, planSteps, type ConceptAt } from "../model/exampleSteps";
 import { exampleSections, hashesOf, repinSectionNotes } from "../model/comments";
 import type { CopyNote } from "../model/copyNotes";
 import { useCopyNotes, useLinkedNote, useShowSections } from "../copy/store";
@@ -57,6 +58,68 @@ function toolsUsed(value: unknown, counts = new Map<string, number>()): Map<stri
   return counts;
 }
 
+const pathHref = (concept: string) => `/dev/path?concept=${concept}`;
+const stop = (ev: { stopPropagation: () => void }) => ev.stopPropagation();
+
+/** A concept as a link to its box on /dev/path, with what was read for it after. */
+function ConceptLink({ concept, label, children }: { concept: string; label: string; children?: ReactNode }) {
+  return (
+    <Link href={pathHref(concept)} onClick={stop} title="Open this concept on /dev/path" className="inline-flex items-center gap-1 rounded-md border border-slate-600 bg-slate-800/60 px-1.5 text-[11px] text-slate-200 hover:border-sky-500/60">
+      {label}{children}
+    </Link>
+  );
+}
+
+const READ: Record<ConceptAt["read"], { className: string; title: string }> = {
+  step: { className: "text-sky-300", title: "The step read from the exercise's tools" },
+  "no-step": { className: "text-amber-300", title: "The concept has a ladder, but no tool here sets a level or stage: it counts for no step" },
+  "no-ladder": { className: "text-slate-500", title: "The concept has no ladder in the code: no step can be read" },
+};
+
+/**
+ * The concepts the example's exercises are tagged with, each with the step its tools say (`stepOf`), linked to /dev/path.
+ * An exercise lists its own; a plan gathers them over its exercises and says how many are tagged with none.
+ */
+function StepsRow({ json, entries }: { json: string; entries: CatalogueEntry[] }) {
+  const read = useMemo(() => {
+    const p = parsePreview(json, entries);
+    if (!p.ok) return null;
+    if (p.exercise) return { kind: "exercise" as const, at: exerciseSteps(p.exercise) };
+    return p.config ? { kind: "plan" as const, plan: planSteps(p.config.days.flatMap((d) => d.exercises)) } : null;
+  }, [json, entries]);
+  if (!read) return null;
+  if (read.kind === "exercise") {
+    if (!read.at.length) return <span className="text-xs text-rose-300">Tags no concept: counts for no concept or step.</span>;
+    return (
+      <span className="flex flex-wrap gap-1">
+        {read.at.map((c) => (
+          <ConceptLink key={c.concept} concept={c.concept} label={c.label}>
+            <span className={READ[c.read].className} title={READ[c.read].title}>· {c.read === "step" ? c.step : c.read === "no-step" ? "no step" : "no ladder"}</span>
+          </ConceptLink>
+        ))}
+      </span>
+    );
+  }
+  const { concepts, untagged, exercises } = read.plan;
+  return (
+    <span className="flex flex-col gap-1">
+      {untagged > 0 && <span className="text-xs text-rose-300">{untagged} of {exercises} exercises tag no concept: they count for no concept or step.</span>}
+      {concepts.length > 0 && (
+        <span className="flex flex-wrap gap-1">
+          {concepts.map((c) => (
+            <ConceptLink key={c.concept} concept={c.concept} label={c.label}>
+              <span className="text-slate-500" title="Exercises tagged with it">×{c.exercises}</span>
+              {c.steps.length > 0 && <span className={READ.step.className} title={READ.step.title}>· {c.steps.join(", ")}</span>}
+              {c.noStep > 0 && <span className={READ["no-step"].className} title={READ["no-step"].title}>· {c.noStep} no step</span>}
+              {!c.ladder && <span className={READ["no-ladder"].className} title={READ["no-ladder"].title}>· no ladder</span>}
+            </ConceptLink>
+          ))}
+        </span>
+      )}
+    </span>
+  );
+}
+
 /** A card per example; the preview mounts only while open (each one sets up its tools). */
 function ExampleCard({ title, meta, note, json, entries, badge }: { /** the example's id */ title: string; meta?: ReactNode; note?: string; json: string; entries: CatalogueEntry[]; badge?: ReactNode }) {
   // opened or closed by hand, else open when the page was linked to one of its notes (from the Notes bar or /dev/notes)
@@ -76,6 +139,7 @@ function ExampleCard({ title, meta, note, json, entries, badge }: { /** the exam
             <CopyPlan json={json} note={note} />
           </span>
           {meta}
+          <StepsRow json={json} entries={entries} />
           {note && <span className="text-xs text-slate-400">{note}</span>}
           {tools.length > 0 && (
             <span className="flex flex-wrap gap-1">
@@ -237,11 +301,7 @@ export default function ExampleViewer() {
                   )}
                 </>
               }
-              meta={
-                <span className="text-xs text-slate-500">
-                  {e.kind === "plan" ? `${e.minutes} min/day · ` : e.showcase ? `showcase: ${e.showcase} · ` : ""}{e.concepts.map((c) => conceptById(c)?.label ?? c).join(", ")}
-                </span>
-              }
+              meta={e.kind === "plan" || e.showcase ? <span className="text-xs text-slate-500">{e.kind === "plan" ? `${e.minutes} min/day` : `showcase: ${e.showcase}`}</span> : undefined}
               note={e.note}
               json={JSON.stringify(e.kind === "plan" ? e.plan : e.exercise)}
               entries={entries}
