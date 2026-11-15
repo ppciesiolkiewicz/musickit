@@ -72,7 +72,7 @@ function dedupe(list: NewBlock[]): NewBlock[] {
   return [...seen.values()];
 }
 
-/** Puts the library plans' blocks, then the examples', in the library as the app's, then each plan's blocks in `practice_plan_blocks`. Insert-only, so a second run adds no block and a block in both stays `seed`, enabled; the plan rows are replaced with the same ones. */
+/** Puts the library plans' blocks, then the examples', in the library as the app's, then each plan's blocks in `practice_plan_blocks`. Insert-only, so a second run adds no block and a block in both stays `seed`, enabled; the plan rows are replaced with the same ones, and a plan whose reply doesn't parse is left with none. */
 export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Date): Promise<{ library: number; examples: number; planBlocks: number }> {
   const library = libraryPlanBlocks(plans);
   const examples = exampleBlocks();
@@ -80,8 +80,8 @@ export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Dat
   await repo.addBlocks(null, examples, now);
   let planBlocks = 0;
   for (const p of plans) {
+    // a reply that no longer parses clears the plan's rows, so none point at blocks it doesn't hold
     const rows = planBlockRows(p.reply);
-    if (!rows.length) continue;
     await repo.setPlanBlocks(p.id, rows);
     planBlocks += rows.length;
   }

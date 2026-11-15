@@ -101,3 +101,12 @@ test("seedBlocks: sets each plan's blocks, counted, and a second run leaves them
   assert.deepEqual(repo.peekPlanBlocks("p1"), planBlockRows(reply));
   for (const b of libraryPlanBlocks([plan])) assert.deepEqual(repo.peekBlocks().get(b.id)!.provenance, prov);
 });
+
+test("seedBlocks: a plan whose reply no longer parses ends with no block rows", async () => {
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, [plan], NOW);
+  assert.ok(repo.peekPlanBlocks("p1").length > 0);
+  const r = await seedBlocks(repo, [{ ...plan, reply: "not json" }], NOW);
+  assert.deepEqual(repo.peekPlanBlocks("p1"), []);
+  assert.equal(r.planBlocks, 0);
+});
