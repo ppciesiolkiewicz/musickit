@@ -13,7 +13,7 @@ import { dayIndex, localDate, ratePlan, restartPlan, startPlan, weekOver } from 
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
-import { usePlan, usePlanStore } from "./store/usePlan";
+import { usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
@@ -34,7 +34,7 @@ const start = (s: PlanState, config: PlanConfig): PlanState => startPlan(s, conf
  * carries this week's exercises; "Start anew" runs the first flow again with no past in the prompt.
  */
 export default function PlanApp() {
-  const { state, loaded, update, saveTime } = usePlan();
+  const { state, loaded, update } = usePlan();
   const progress = useProgress();
   // ratings given before the log existed: copied into it once, the first time it is found empty
   const filled = useRef(false);
@@ -74,6 +74,8 @@ export default function PlanApp() {
   }, []);
 
   const plan = state.current;
+  // the day timer's seconds, kept apart from the plan
+  const { times, loaded: timesLoaded, saveTime } = usePlanTimes(plan?.id ?? null);
   const added = loaded ? addedPlan(state, addedId) : null;
   const todayIdx = plan ? Math.min(dayIndex(plan.startedOn, today), PLAN_DAYS - 1) : 0;
   const over = plan ? weekOver(plan, today) : false;
@@ -105,11 +107,8 @@ export default function PlanApp() {
     if (row) progress.put(row);
     else progress.remove(id);
   };
-  // the floating day timer's used seconds and the seconds spent on each exercise; ignored when the plan it counted for is no
-  // longer the current one
-  const saveElapsed = (planId: string, d: number, seconds: number, spent: number[]) => saveTime({ planId, day: d, elapsed: seconds, spent });
 
-  if (!loaded) return <p className="text-sm text-slate-500">Loading…</p>;
+  if (!loaded || !timesLoaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
   const modal = flow && (
     <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} onPlan={onPlan} onClose={() => setFlow(null)} />
@@ -175,7 +174,7 @@ export default function PlanApp() {
           </section>
         )}
 
-        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} onElapsed={saveElapsed} onEdit={(next) => setPlan(() => next)} onEditing={setEditingDay} corner={labels} />
+        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} times={times} onTime={saveTime} onEdit={(next) => setPlan(() => next)} onEditing={setEditingDay} corner={labels} />
 
         {state.history.length > 0 && <History key={added?.id ?? ""} plans={state.history} onUse={startAgain} marked={added?.id} />}
         <div className="flex justify-center">

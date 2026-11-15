@@ -1,6 +1,6 @@
 import { and, desc, eq, exists, inArray, isNull, or, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { planClaims, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
+import { planClaims, planDayTimes, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
 import type { ProgressEntry } from "@/features/progress/log";
 import type { ShareRow, UserDataRepo, VideoRow } from "./repo";
 
@@ -26,6 +26,15 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
     },
     async removeProgress(userId, exerciseId) {
       await db.delete(progressEntries).where(and(eq(progressEntries.userId, userId), eq(progressEntries.exerciseId, exerciseId)));
+    },
+    async listPlanTimes(userId, planId) {
+      return db.select({ planId: planDayTimes.planId, day: planDayTimes.day, elapsed: planDayTimes.elapsed, spent: planDayTimes.spent }).from(planDayTimes).where(and(eq(planDayTimes.userId, userId), eq(planDayTimes.planId, planId)));
+    },
+    async putPlanTime(userId, t, now) {
+      await db
+        .insert(planDayTimes)
+        .values({ userId, planId: t.planId, day: t.day, elapsed: t.elapsed, spent: t.spent, updatedAt: now })
+        .onConflictDoUpdate({ target: [planDayTimes.userId, planDayTimes.planId, planDayTimes.day], set: { elapsed: t.elapsed, spent: t.spent, updatedAt: now } });
     },
     async createVideo(row) {
       const made = await db.insert(videos).values(row).onConflictDoNothing().returning({ id: videos.id });

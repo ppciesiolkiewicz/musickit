@@ -1,4 +1,5 @@
 import type { DocKind } from "../model";
+import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
 
 /** A player's uploaded video: the `videos` row. `blobPath` is where its file is in the private Blob store. */
@@ -39,6 +40,10 @@ export interface UserDataRepo {
   /** Replaces the entry for the same exercise. */
   putProgress(userId: string, entry: ProgressEntry, now: Date): Promise<void>;
   removeProgress(userId: string, exerciseId: string): Promise<void>;
+  /** The day timer's records of one plan, as stored. */
+  listPlanTimes(userId: string, planId: string): Promise<unknown[]>;
+  /** Replaces the record of the same plan and day. */
+  putPlanTime(userId: string, time: DayTime, now: Date): Promise<void>;
   /** Stores a new video row; false when its id (or its path) is taken, and then nothing is changed. */
   createVideo(row: VideoRow): Promise<boolean>;
   /** The user's videos, newest first. */

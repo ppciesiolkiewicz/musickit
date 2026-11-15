@@ -132,6 +132,23 @@ export const progressEntries = pgTable(
   (t) => [uniqueIndex("progress_entries_user_exercise").on(t.userId, t.exerciseId)],
 );
 
+/**
+ * The day timer's record of one day of one plan, kept apart from the plan document so a timer save is a few bytes:
+ * the day's used seconds and the seconds per exercise, by exercise id (`features/plan/model/planTime.ts`).
+ */
+export const planDayTimes = pgTable(
+  "plan_day_times",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    planId: text("plan_id").notNull(),
+    day: integer("day").notNull(),
+    elapsed: integer("elapsed").notNull(),
+    spent: jsonb("spent").notNull(),
+    updatedAt: at("updated_at").notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.planId, t.day] })],
+);
+
 /** A video a player uploaded. The file is in the private blob store at `blobPath`. */
 export const videos = pgTable(
   "videos",

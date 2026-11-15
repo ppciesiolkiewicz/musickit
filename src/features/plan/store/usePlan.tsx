@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { withDayTime, type DayTime } from "../model/dayClock";
+import { withDayTime, type DayTime } from "../model/planTime";
 import { EMPTY_STATE, type PlanState } from "../model/types";
 import { localPlanStore } from "./localPlanStore";
 import type { PlanStore } from "./PlanStore";
@@ -20,7 +20,7 @@ export function PlanStoreProvider({ store, children }: { store: PlanStore; child
 /** The store itself, for a reader outside `usePlan` (the practice reminder). */
 export const usePlanStore = (): PlanStore => useContext(StoreContext);
 
-/** The plan state from the store, and `update` to change it: the change shows at once and is saved behind it. `saveTime` is the day timer's. */
+/** The plan state from the store, and `update` to change it: the change shows at once and is saved behind it. */
 export function usePlan() {
   const store = useContext(StoreContext);
   const [state, setState] = useState<PlanState>(EMPTY_STATE);
@@ -53,14 +53,44 @@ export function usePlan() {
     void store.save(next);
   }, [store]);
 
-  // the day timer's seconds: shown like a change, but saved through the store's small `saveTime` where it has one
-  const saveTime = useCallback((time: DayTime) => {
-    const next = withDayTime(latest.current, time);
-    if (next === latest.current) return;
-    latest.current = next;
-    setState(next);
-    void (store.saveTime ? store.saveTime(next, time) : store.save(next));
+  return { state, loaded, update };
+}
+
+/**
+ * The day timer's records of one plan (`planId`, null: no plan), apart from the plan document, and `saveTime` to keep one
+ * day's: it shows at once and is saved behind it. Not `loaded` until they are read, so a timer never starts from 0 over
+ * seconds that were saved.
+ */
+export function usePlanTimes(planId: string | null) {
+  const store = useContext(StoreContext);
+  const [times, setTimes] = useState<{ planId: string | null; list: DayTime[] }>({ planId: null, list: [] });
+  const latest = useRef(times);
+
+  useEffect(() => {
+    if (!planId) return;
+    let live = true;
+    store.loadTimes(planId).then(
+      (list) => {
+        if (!live) return;
+        latest.current = { planId, list };
+        setTimes(latest.current);
+      },
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, [store, planId]);
+
+  const saveTime = useCallback((t: DayTime) => {
+    if (latest.current.planId !== t.planId) return;
+    const list = withDayTime(latest.current.list, t);
+    // a save that changed nothing (the same seconds again) is not sent
+    if (list === latest.current.list) return;
+    latest.current = { planId: t.planId, list };
+    setTimes(latest.current);
+    void store.saveTime(t);
   }, [store]);
 
-  return { state, loaded, update, saveTime };
+  return { times: times.planId === planId ? times.list : [], loaded: !planId || times.planId === planId, saveTime };
 }

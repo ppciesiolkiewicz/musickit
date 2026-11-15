@@ -2,16 +2,19 @@ import { accountHeaders } from "@/features/userData/client/accountHeader";
 import { createDocClient, putDocument, type DocClient } from "@/features/userData/client/docClient";
 import { getJson, loadReporter, type LoadReporter } from "@/features/userData/client/load";
 import { MAX_PLAN_BYTES } from "@/features/userData/model";
+import { parseDayTime, withDayTime, type DayTime } from "../model/planTime";
 import { fitPlanState, sanitiseState } from "../model/state";
 import type { PlanState } from "../model/types";
 import type { PlanStore } from "./PlanStore";
 
 export interface ServerPlanOpts {
   client?: DocClient;
-  /** sends the day timer's seconds alone (`PUT /api/me/plan/time`) */
-  timeClient?: DocClient;
   /** reads the document: `{ data }` */
   get?: () => Promise<unknown>;
+  /** the sender of one day's timer record (tests pass their own) */
+  timeClient?: () => DocClient;
+  /** reads a plan's timer records: `{ days }` */
+  getTimes?: (planId: string) => Promise<unknown>;
   /** tells the save notice about a refused read (tests pass their own to read it) */
   loads?: LoadReporter;
 }
@@ -25,17 +28,20 @@ export interface ServerPlanOpts {
  * and a load always gets the latest saved state. `save` goes through a `DocClient` (debounced, last write wins, retried,
  * shown in the save notice). Another tab's changes show after a reload, as with localStorage before.
  *
- * The day timer's saves (`saveTime`) send only the plan id, the day and its seconds, a few bytes, through a second
- * `DocClient`; the server writes them into its plan. While a whole-plan save is waiting or out, the timer's goes with it
- * instead (the held plan already has the seconds), so a plan landing after them never takes older seconds back.
+ * The day timer's records are rows of their own (`/api/me/plan/time`): read once per plan, and each day saved through its
+ * own `DocClient`, a few bytes and small enough for `keepalive` as the page leaves.
  */
 export function createServerPlanStore(opts: ServerPlanOpts = {}): PlanStore {
   const client = opts.client ?? createDocClient({ put: putDocument("plan") });
-  const times = opts.timeClient ?? createDocClient({ put: putPlanTime });
   const get = opts.get ?? (() => getJson("/api/me/documents/plan"));
+  const getTimes = opts.getTimes ?? ((planId: string) => getJson(`/api/me/plan/time?plan=${encodeURIComponent(planId)}`));
+  const newTimeClient = opts.timeClient ?? (() => createDocClient({ put: putPlanTime }));
   let held: PlanState | null = null;
   let reading: Promise<PlanState> | null = null;
   const loads = opts.loads ?? loadReporter();
+  // per plan: the records read, with the saves made since laid over them
+  const times = new Map<string, Promise<DayTime[]>>();
+  const senders = new Map<string, DocClient>();
 
   const read = (): Promise<PlanState> => {
     reading ??= get().then(
@@ -54,6 +60,25 @@ export function createServerPlanStore(opts: ServerPlanOpts = {}): PlanStore {
     return reading;
   };
 
+  const readTimes = (planId: string): Promise<DayTime[]> => {
+    let r = times.get(planId);
+    if (!r) {
+      r = getTimes(planId).then(
+        (body) => {
+          const days = (body as { days?: unknown } | null)?.days;
+          return Array.isArray(days) ? days.flatMap((d) => parseDayTime(d) ?? []).filter((d) => d.planId === planId) : [];
+        },
+        (e) => {
+          times.delete(planId);
+          loads.refused(e);
+          throw e;
+        },
+      );
+      times.set(planId, r);
+    }
+    return r;
+  };
+
   return {
     async load() {
       return held ?? read();
@@ -63,20 +88,25 @@ export function createServerPlanStore(opts: ServerPlanOpts = {}): PlanStore {
       held = fitPlanState(state, MAX_PLAN_BYTES);
       client.save(held);
     },
-    async saveTime(state, time) {
-      held = state;
-      if (client.status() === "saved") times.save(time);
-      else client.save(fitPlanState(state, MAX_PLAN_BYTES));
+    loadTimes: readTimes,
+    async saveTime(time) {
+      const before = times.get(time.planId);
+      // a save before the read: the read's records with this one laid over them
+      times.set(time.planId, (before ?? readTimes(time.planId)).then((ts) => withDayTime(ts, time), () => [time]));
+      const key = `${time.planId}:${time.day}`;
+      let sender = senders.get(key);
+      if (!sender) senders.set(key, (sender = newTimeClient()));
+      sender.save(time);
     },
     // before sharing: the invite is made from the stored plan, so its latest change has to land first
     flush: async () => {
-      const [plan, time] = await Promise.all([client.flush(), times.flush()]);
-      return plan === "saved" && time === "saved";
+      const all = await Promise.all([client.flush(), ...[...senders.values()].map((s) => s.flush())]);
+      return all.every((s) => s === "saved");
     },
   };
 }
 
-/** Sends the day timer's seconds: `PUT /api/me/plan/time` with `{ time }`. Small enough to go with `keepalive` as the page leaves. */
+/** Sends one day's timer record: `PUT /api/me/plan/time` with `{ time }`. Small enough to go with `keepalive` as the page leaves. */
 const putPlanTime = (time: unknown, init?: { keepalive: boolean }): Promise<Response> =>
   fetch("/api/me/plan/time", {
     method: "PUT",

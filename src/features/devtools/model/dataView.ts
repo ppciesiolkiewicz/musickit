@@ -1,3 +1,4 @@
+import type { DayTime } from "@/features/plan/model/planTime";
 import type { PlanState, StoredPlan } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 
@@ -38,15 +39,16 @@ export interface SpentRow {
   spent: number;
 }
 
-/** Every exercise with time on it, of the current plan and the history, in plan, day and exercise order. */
-export const spentRows = (state: PlanState): SpentRow[] =>
+/** Every exercise with time on it (`times`: the day timer's records), of the current plan and the history, in plan, day and exercise order. */
+export const spentRows = (state: PlanState, times: DayTime[]): SpentRow[] =>
   [...(state.current ? [state.current] : []), ...state.history].flatMap((p) =>
-    p.config.days.flatMap((d, di) =>
-      d.exercises.flatMap((e, ei) => {
-        const s = p.spent?.[`${di}:${ei}`];
-        return typeof s === "number" && s > 0 ? [{ plan: p.config.title, day: di, exercise: e.title, planned: e.minutes, spent: Math.floor(s) }] : [];
-      }),
-    ),
+    p.config.days.flatMap((d, di) => {
+      const t = times.find((x) => x.planId === p.id && x.day === di);
+      return d.exercises.flatMap((e) => {
+        const s = e.id ? t?.spent[e.id] : undefined;
+        return s ? [{ plan: p.config.title, day: di, exercise: e.title, planned: e.minutes, spent: s }] : [];
+      });
+    }),
   );
 
 /** Seconds as m:ss. */

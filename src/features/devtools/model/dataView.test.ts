@@ -3,11 +3,12 @@ import assert from "node:assert/strict";
 import { clockLabel, logRows, planRows, sizeLabel, spentRows, storageRows } from "./dataView";
 import { EMPTY_STATE, type PlanState, type StoredPlan } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
+import type { DayTime } from "@/features/plan/model/planTime";
 
 const plan = (id: string, rated: number, progress?: string): StoredPlan => ({
   id, startedOn: `2026-11-0${id.length}`, done: {},
   rated: Object.fromEntries(Array.from({ length: rated }, (_, i) => [`${i}:0`, { stars: 3 as const, at: "2026-11-10T10:00:00.000Z" }])),
-  config: { title: `Plan ${id}`, ...(progress ? { progress } : {}), days: Array.from({ length: 7 }, (_, d) => ({ theme: `T${d}`, exercises: [{ title: "A", minutes: 5, cells: [] }, { title: "B", minutes: 5, cells: [] }] })) },
+  config: { title: `Plan ${id}`, ...(progress ? { progress } : {}), days: Array.from({ length: 7 }, (_, d) => ({ theme: `T${d}`, exercises: [{ id: `${id}${d}a`, title: "A", minutes: 5, cells: [] }, { id: `${id}${d}b`, title: "B", minutes: 5, cells: [] }] })) },
 });
 
 test("planRows: the current plan first, then the history in its order, with counts and the summary", () => {
@@ -50,8 +51,13 @@ test("sizeLabel: bytes, kB, MB", () => {
 });
 
 test("spentRows: exercises with time on them, current plan first; clockLabel as m:ss", () => {
-  const state: PlanState = { ...EMPTY_STATE, current: { ...plan("c", 0), spent: { "0:1": 75.4, "2:0": 0 } }, history: [{ ...plan("h", 0), spent: { "6:0": 9 } }] };
-  assert.deepEqual(spentRows(state), [
+  const state: PlanState = { ...EMPTY_STATE, current: plan("c", 0), history: [plan("h", 0)] };
+  const times: DayTime[] = [
+    { planId: "h", day: 6, elapsed: 9, spent: { h6a: 9 } },
+    { planId: "c", day: 0, elapsed: 75, spent: { c0b: 75 } },
+    { planId: "gone", day: 0, elapsed: 5, spent: { x: 5 } },
+  ];
+  assert.deepEqual(spentRows(state, times), [
     { plan: "Plan c", day: 0, exercise: "B", planned: 5, spent: 75 },
     { plan: "Plan h", day: 6, exercise: "A", planned: 5, spent: 9 },
   ]);

@@ -37,9 +37,15 @@ const cleanCells = (config: PlanConfig): PlanConfig => ({
   days: config.days.map((d) => (Array.isArray(d?.exercises) ? { ...d, exercises: d.exercises.map(cleanExercise) } : d)),
 });
 
-/** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one) and `from` kept only when it is text. */
+/** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, and the timer's old `elapsed` and `spent` dropped. */
 function cleanPlan(stored: StoredPlan): StoredPlan {
   let p: StoredPlan = { ...stored, config: cleanCells(withExerciseIds(stored.config)) };
+  // the day timer's seconds were kept in the plan before they got their own store (`planTime.ts`); they are not read
+  if ("elapsed" in p || "spent" in p) {
+    p = { ...p };
+    delete (p as { elapsed?: unknown }).elapsed;
+    delete (p as { spent?: unknown }).spent;
+  }
   if (p.from !== undefined && typeof p.from !== "string") {
     p = { ...p };
     delete p.from;

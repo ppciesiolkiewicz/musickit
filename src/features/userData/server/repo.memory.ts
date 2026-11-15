@@ -1,3 +1,4 @@
+import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
 import type { ShareRow, UserDataRepo, VideoRow } from "./repo";
 
@@ -9,6 +10,8 @@ import type { ShareRow, UserDataRepo, VideoRow } from "./repo";
 export function memoryUserDataRepo(): UserDataRepo & { cascadeUser(userId: string): void } {
   const docs = new Map<string, unknown>();
   const progress = new Map<string, ProgressEntry>();
+  /** `plan_day_times` rows, keyed `${userId}/${planId}/${day}`. */
+  const planTimes = new Map<string, DayTime>();
   const videos = new Map<string, VideoRow>();
   const shares = new Map<string, ShareRow>();
   /** `share_videos` rows, as `${shareId} ${videoId}`. */
@@ -42,6 +45,12 @@ export function memoryUserDataRepo(): UserDataRepo & { cascadeUser(userId: strin
     },
     async removeProgress(userId, exerciseId) {
       progress.delete(`${userId}/${exerciseId}`);
+    },
+    async listPlanTimes(userId, planId) {
+      return [...planTimes.entries()].filter(([k]) => k.startsWith(`${userId}/${planId}/`)).map(([, t]) => structuredClone(t));
+    },
+    async putPlanTime(userId, t) {
+      planTimes.set(`${userId}/${t.planId}/${t.day}`, structuredClone(t));
     },
     async createVideo(row) {
       if (videos.has(row.id) || [...videos.values()].some((v) => v.blobPath === row.blobPath)) return false;
@@ -111,6 +120,7 @@ export function memoryUserDataRepo(): UserDataRepo & { cascadeUser(userId: strin
     cascadeUser(userId) {
       for (const k of [...docs.keys()]) if (k.startsWith(`${userId}/`)) docs.delete(k);
       for (const k of [...progress.keys()]) if (k.startsWith(`${userId}/`)) progress.delete(k);
+      for (const k of [...planTimes.keys()]) if (k.startsWith(`${userId}/`)) planTimes.delete(k);
       for (const k of [...claims]) if (k.endsWith(` ${userId}`)) claims.delete(k);
       for (const s of [...shares.values()]) if (s.userId === userId) dropShare(s.id);
       for (const v of [...videos.values()]) if (v.userId === userId) dropVideo(v.id);

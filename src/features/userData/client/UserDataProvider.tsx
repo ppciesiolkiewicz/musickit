@@ -29,7 +29,7 @@ interface UserStores {
 /** A read that never answers: until the source is known, pages stay in their loading state and read no store. */
 const never = <T,>() => new Promise<T>(() => {});
 const WAITING: UserStores = {
-  plan: { load: never, save: async () => {} },
+  plan: { load: never, save: async () => {}, loadTimes: never, saveTime: async () => {} },
   progress: { list: never, put: async () => {}, remove: async () => {} },
   note: { load: never, save: async () => {} },
 };

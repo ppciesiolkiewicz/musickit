@@ -1,5 +1,4 @@
-import { parseDayTime, withDayTime } from "@/features/plan/model/dayClock";
-import type { PlanState } from "@/features/plan/model/types";
+import { parseDayTime, type DayTime } from "@/features/plan/model/planTime";
 import { cleanEntries, type ProgressEntry } from "@/features/progress/log";
 import { isDocKind, maxDocBytes, parseDoc, type DocKind } from "../model";
 import type { UserDataRepo } from "./repo";
@@ -30,15 +29,15 @@ export async function readEntries(repo: UserDataRepo, userId: string): Promise<P
   return cleanEntries(await repo.listProgress(userId));
 }
 
-/**
- * The day timer's seconds written into the stored plan (`PUT /api/me/plan/time`), so the timer never sends the whole plan.
- * False when the time is broken. A time for a plan that is no longer the current one, or that changes nothing, stores nothing.
- */
+/** Stores one day of the day timer's record (`PUT /api/me/plan/time`), replacing that day's; false when it is broken. The plan document is never read. */
 export async function writePlanTime(repo: UserDataRepo, userId: string, raw: unknown, now: Date): Promise<boolean> {
   const time = parseDayTime(raw);
   if (!time) return false;
-  const plan = (await readDoc(repo, userId, "plan")) as PlanState;
-  const next = withDayTime(plan, time);
-  if (next !== plan) await repo.putDoc(userId, "plan", next, now);
+  await repo.putPlanTime(userId, time, now);
   return true;
+}
+
+/** The day timer's records of one plan, re-parsed the way documents are: broken rows dropped. */
+export async function readPlanTimes(repo: UserDataRepo, userId: string, planId: string): Promise<DayTime[]> {
+  return (await repo.listPlanTimes(userId, planId)).flatMap((r) => parseDayTime(r) ?? []);
 }

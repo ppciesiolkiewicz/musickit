@@ -9,8 +9,6 @@ const plan = (): StoredPlan => ({
   config: { title: "W", days: [{ theme: "A", exercises: [ex("x"), ex("y")] }, { theme: "B", exercises: [ex("a"), ex("b"), ex("c"), ex("d")] }] } as never,
   done: { "1:0": true, "1:1": true, "1:2": true, "0:0": true },
   rated: { "1:1": { stars: 4, at: "t" }, "1:2": { stars: 2, at: "t" }, "0:0": { stars: 5, at: "t" } },
-  spent: { "1:2": 60, "1:3": 30 },
-  elapsed: { "1": 300 },
 } as never);
 let n = 0;
 const id = () => `new${n++}`;
@@ -21,7 +19,7 @@ describe("editDay", () => {
     const p = plan();
     assert.equal(editDay(p, 1, draftOf(p, 1), id), p);
   });
-  it("an edited exercise is a new one: new id, its stars, tick and time cleared; the rest kept", () => {
+  it("an edited exercise is a new one: new id (so the timer's seconds by id stop counting for it), its stars and tick cleared; the rest kept", () => {
     const p = plan();
     const d = draftOf(p, 1);
     d.exercises[2] = { ...d.exercises[2], exercise: { ...d.exercises[2].exercise, minutes: 9 } };
@@ -31,8 +29,6 @@ describe("editDay", () => {
     assert.notEqual(e[2].id, "c");
     assert.deepEqual(keys(out.rated), ["0:0", "1:1"]);
     assert.deepEqual(keys(out.done), ["0:0", "1:0", "1:1"]);
-    assert.deepEqual(keys(out.spent), ["1:3"]);
-    assert.deepEqual(out.elapsed, { "1": 300 });
   });
   it("removing an exercise moves the ratings after it", () => {
     const p = plan();
@@ -42,7 +38,6 @@ describe("editDay", () => {
     assert.deepEqual(out.config.days[1].exercises.map((x) => x.id), ["a", "c", "d"]);
     assert.deepEqual(out.rated?.["1:1"], { stars: 2, at: "t" });
     assert.equal(out.rated?.["1:2"], undefined);
-    assert.deepEqual(keys(out.spent), ["1:1", "1:2"]);
   });
   it("an insert shifts the keys after it; the new exercise has a fresh id and no state", () => {
     const p = plan();

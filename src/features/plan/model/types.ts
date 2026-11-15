@@ -65,10 +65,6 @@ export interface StoredPlan {
   done: Record<string, true>;
   /** how each finished exercise went, same keys as `done`; a rated exercise is also in `done` (older plans only have `done`) */
   rated?: Record<string, StarRating>;
-  /** seconds of each day's countdown already used, keyed by day index; the floating timer saves it once a minute (on the server through `PUT /api/me/plan/time`) */
-  elapsed?: Record<string, number>;
-  /** seconds the timer ran while each exercise was the card in view, keyed like `done`; for /dev/data for now */
-  spent?: Record<string, number>;
   /** how the week went, in the player's words, for the next prompt */
   feedback?: string;
   /** the id of the invite (a plan share) this copy was claimed from; absent for the player's own plans */

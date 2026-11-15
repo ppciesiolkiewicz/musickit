@@ -6,7 +6,7 @@ import { DISPLAY } from "@/components/landing/Display";
 import DayTimer, { Corner } from "./DayTimer";
 import DayEditor from "./DayEditor";
 import ExerciseCard from "./ExerciseCard";
-import { elapsedOf, spentOf } from "../model/dayClock";
+import { dayTime, elapsedOn, spentOn, type DayTime } from "../model/planTime";
 import { dayProgress, doneKey } from "../model/schedule";
 import { PLAN_DAYS, type StoredPlan } from "../model/types";
 import type { Stars } from "@/features/progress/stars";
@@ -14,13 +14,15 @@ import type { Stars } from "@/features/progress/stars";
 /**
  * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day's
  * exercises, each an `ExerciseCard`. One floating timer counts down the whole day (`DayTimer`): it starts by itself for the day shown on page
- * load, its used time is saved with the plan. The card in view (the one across the middle of the screen, or the last one
+ * load, its used time is saved apart from the plan (`times`, `onTime`). The card in view (the one across the middle of the screen, or the last one
  * once the page is scrolled to the end) is the exercise the timer names and counts time for, and it is lifted a little.
  */
-export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, onEdit, onEditing, corner }: {
+export default function WeekView({ plan, today, day, onDay, onRate, times = [], onTime, onEdit, onEditing, corner }: {
   plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;
+  /** the day timer's records of this plan (`planTime.ts`), kept apart from the plan */
+  times?: DayTime[];
   /** saves the day timer's used seconds and the seconds spent on each exercise; without it (a preview) there is no timer */
-  onElapsed?: (planId: string, day: number, seconds: number, spent: number[]) => void;
+  onTime?: (time: DayTime) => void;
   /** saves a day edited in place (`DayEditor`); without it the day has no Edit */
   onEdit?: (next: StoredPlan) => void;
   /** told which day is open in the day editor (null: none), so the browser AI's tools leave that day alone */
@@ -40,7 +42,7 @@ export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, o
   const focused = useInView(cards, day);
   // the timer's seconds per exercise as they count, so the cards show them live; until it reports, the saved ones
   const [live, setLive] = useState<{ day: number; spent: number[] } | null>(null);
-  const saved = spentOf(plan.spent, day, d.exercises.length);
+  const saved = spentOn(times, day, d.exercises);
   const spent = live?.day === day ? live.spent : saved;
   const openDay = (i: number) => {
     setAutoDay(null);
@@ -104,24 +106,24 @@ export default function WeekView({ plan, today, day, onDay, onRate, onElapsed, o
           const isNow = now === i && !done;
           return (
             <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
-              <ExerciseCard exercise={e} index={i} done={done} now={isNow} spent={onElapsed ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={(s) => onRate(day, i, s)} address={`d${day}.e${i}`} />
+              <ExerciseCard exercise={e} index={i} done={done} now={isNow} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={(s) => onRate(day, i, s)} address={`d${day}.e${i}`} />
             </li>
           );
         })}
       </ol>
       </>)}
 
-      {onElapsed && editing !== day ? <DayTimer
+      {onTime && editing !== day ? <DayTimer
         // a day whose exercises change (an AI's insert or removal) gets a fresh timer, so it never saves the old order's seconds
         key={`${plan.id}:${day}:${d.exercises.map((e) => e.id).join(",")}`}
         minutes={d.exercises.map((e) => e.minutes)}
         titles={d.exercises.map((e) => e.title)}
         label={`Day ${day + 1}`}
-        elapsed={elapsedOf(plan.elapsed, day)}
+        elapsed={elapsedOn(times, day)}
         spent={saved}
         focused={focused}
         autoStart={autoDay === day}
-        onSave={(s, spent) => onElapsed(plan.id, day, s, spent)}
+        onSave={(s, spent) => onTime(dayTime(plan.id, day, d.exercises, s, spent))}
         onExercise={setNow}
         onSpent={(s) => setLive({ day, spent: s })}
         above={corner}

@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AREAS } from "@/features/plan/model/concepts";
 import { EMPTY_STATE, type PlanState } from "@/features/plan/model/types";
 import { TOPICS, topicById, topicsFor } from "@/features/plan/intake/topics";
-import { PLAN_KEY, localPlanStore } from "@/features/plan/store/localPlanStore";
+import { PLAN_KEY, PLAN_TIMES_KEY, localPlanStore, readLocalTimes } from "@/features/plan/store/localPlanStore";
+import type { DayTime } from "@/features/plan/model/planTime";
 import { PROGRESS_KEY, localProgressStore } from "@/features/progress/localProgressStore";
 import type { ProgressEntry } from "@/features/progress/log";
 import { starText } from "@/features/progress/stars";
@@ -131,12 +132,16 @@ const readStorage = (get: () => Storage): StorageRow[] => {
 export default function DataPage() {
   const [state, setState] = useState<PlanState>(EMPTY_STATE);
   const [log, setLog] = useState<ProgressEntry[]>([]);
+  const [times, setTimes] = useState<DayTime[]>([]);
   const [topic, setTopic] = useState("");
   const [local, setLocal] = useState<StorageRow[]>([]);
   const [session, setSession] = useState<StorageRow[]>([]);
   const [idb, setIdb] = useState<IdbRow[] | null>(null);
   useEffect(() => {
-    void localPlanStore.load().then(setState);
+    void localPlanStore.load().then((s) => {
+      setState(s);
+      setTimes(readLocalTimes());
+    });
     void localProgressStore.list().then(setLog);
     setLocal(readStorage(() => window.localStorage));
     setSession(readStorage(() => window.sessionStorage));
@@ -145,7 +150,7 @@ export default function DataPage() {
 
   const plans = useMemo(() => planRows(state), [state]);
   const rows = useMemo(() => logRows(log, topic), [log, topic]);
-  const spent = useMemo(() => spentRows(state), [state]);
+  const spent = useMemo(() => spentRows(state, times), [state, times]);
   const titles = useMemo(() => new Map(plans.map((p) => [p.id, p.title])), [plans]);
   const a = state.answers;
 
@@ -197,7 +202,7 @@ export default function DataPage() {
         <Raw value={{ current: state.current, history: state.history }} />
       </Block>
 
-      <Block title="Time per exercise" about="Seconds the day timer ran while each exercise was the card in view (StoredPlan.spent), against its planned minutes.">
+      <Block title="Time per exercise" about={`Seconds the day timer ran while each exercise was the card in view (localStorage "${PLAN_TIMES_KEY}"), against its planned minutes.`}>
         {spent.length ? (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
@@ -216,7 +221,7 @@ export default function DataPage() {
             </table>
           </div>
         ) : EMPTY}
-        <Raw value={{ current: state.current?.spent ?? null, history: state.history.map((p) => ({ id: p.id, spent: p.spent ?? null })) }} />
+        <Raw value={times} />
       </Block>
 
       <Block title="Progress log" about={`One row per rated exercise, from localStorage "${PROGRESS_KEY}". Rows stay when a plan leaves the history.`}>

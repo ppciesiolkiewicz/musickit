@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { putEntry, readDoc, readEntries, writeDoc, writePlanTime } from "./data";
+import { putEntry, readDoc, readEntries, readPlanTimes, writeDoc, writePlanTime } from "./data";
 import { memoryUserDataRepo } from "./repo.memory";
 
 const now = new Date("2026-11-15T10:00:00Z");
@@ -58,17 +58,17 @@ test("readEntries drops broken rows and keeps one per exercise", async () => {
   assert.deepEqual(rows.map((r) => r.exerciseId), ["x1"]);
 });
 
-test("writePlanTime writes the timer's seconds into the stored current plan, and nothing for another plan", async () => {
+test("writePlanTime keeps one record per plan and day, apart from the plan; a broken one is refused", async () => {
   const repo = memoryUserDataRepo();
-  const plan = { current: { id: "p", startedOn: "2026-11-01", done: {}, config: { title: "W", days: [] } }, history: [] };
-  await writeDoc(repo, "u1", "plan", plan, now);
-  assert.equal(await writePlanTime(repo, "u1", { planId: "p", day: 1, elapsed: 120, spent: [100, 20] }, now), true);
-  const read = (await readDoc(repo, "u1", "plan")) as { current: { elapsed: unknown; spent: unknown } };
-  assert.deepEqual(read.current.elapsed, { "1": 120 });
-  assert.deepEqual(read.current.spent, { "1:0": 100, "1:1": 20 });
-  assert.equal(await writePlanTime(repo, "u1", { planId: "gone", day: 1, elapsed: 999, spent: [] }, now), true);
-  assert.deepEqual(((await readDoc(repo, "u1", "plan")) as { current: { elapsed: unknown } }).current.elapsed, { "1": 120 });
-  assert.equal(await writePlanTime(repo, "u1", { planId: "p", day: 9, elapsed: 1, spent: [] }, now), false);
-  assert.equal(await writePlanTime(repo, "u2", { planId: "p", day: 1, elapsed: 5, spent: [] }, now), true);
-  assert.equal(await repo.getDoc("u2", "plan"), null, "a player with no plan gets none made");
+  const t = { planId: "p", day: 1, elapsed: 120, spent: { a: 100, b: 20 } };
+  assert.equal(await writePlanTime(repo, "u1", t, now), true);
+  assert.equal(await writePlanTime(repo, "u1", { ...t, elapsed: 130 }, now), true);
+  assert.equal(await writePlanTime(repo, "u1", { ...t, day: 2 }, now), true);
+  assert.equal(await writePlanTime(repo, "u1", { ...t, planId: "other" }, now), true);
+  assert.deepEqual(await readPlanTimes(repo, "u1", "p"), [{ ...t, elapsed: 130 }, { ...t, day: 2 }]);
+  assert.equal(await repo.getDoc("u1", "plan"), null, "no plan document is made");
+  assert.equal(await writePlanTime(repo, "u1", { ...t, day: 9 }, now), false);
+  assert.deepEqual(await readPlanTimes(repo, "u2", "p"), [], "another player's are never read");
+  repo.cascadeUser("u1");
+  assert.deepEqual(await readPlanTimes(repo, "u1", "p"), []);
 });

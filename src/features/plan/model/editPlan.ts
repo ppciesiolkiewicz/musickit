@@ -69,7 +69,6 @@ export function editDay(plan: StoredPlan, day: number, draft: DayDraft, newId: (
     config: { ...plan.config, days },
     done: rekey(plan.done, day, to) ?? {},
     ...(plan.rated ? { rated: rekey(plan.rated, day, to) } : {}),
-    ...(plan.spent ? { spent: rekey(plan.spent, day, to) } : {}),
   };
 }
 
