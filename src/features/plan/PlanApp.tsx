@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, HUE_TONES, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
-import { withSpent } from "./model/dayClock";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { backfill, entryFor } from "./model/progressLog";
@@ -35,7 +34,7 @@ const start = (s: PlanState, config: PlanConfig): PlanState => startPlan(s, conf
  * carries this week's exercises; "Start anew" runs the first flow again with no past in the prompt.
  */
 export default function PlanApp() {
-  const { state, loaded, update } = usePlan();
+  const { state, loaded, update, saveTime } = usePlan();
   const progress = useProgress();
   // ratings given before the log existed: copied into it once, the first time it is found empty
   const filled = useRef(false);
@@ -108,14 +107,7 @@ export default function PlanApp() {
   };
   // the floating day timer's used seconds and the seconds spent on each exercise; ignored when the plan it counted for is no
   // longer the current one
-  const saveElapsed = (planId: string, d: number, seconds: number, spent: number[]) =>
-    update((s) => {
-      const c = s.current;
-      if (c?.id !== planId) return s;
-      const nextSpent = withSpent(c.spent, d, spent);
-      if (c.elapsed?.[String(d)] === seconds && sameSeconds(nextSpent, c.spent ?? {})) return s;
-      return { ...s, current: { ...c, elapsed: { ...c.elapsed, [String(d)]: seconds }, spent: nextSpent } };
-    });
+  const saveElapsed = (planId: string, d: number, seconds: number, spent: number[]) => saveTime({ planId, day: d, elapsed: seconds, spent });
 
   if (!loaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
@@ -287,7 +279,3 @@ function Reminder({ state, update }: { state: PlanState; update: (c: (s: PlanSta
     </div>
   );
 }
-
-/** True when two `StoredPlan.spent` maps hold the same seconds (key order aside). */
-const sameSeconds = (a: Record<string, number>, b: Record<string, number>) =>
-  Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => b[k] === v);

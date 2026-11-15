@@ -1,3 +1,5 @@
+import { PLAN_DAYS, type PlanState } from "./types";
+
 /** Where a day's countdown stands: the whole day's time, what's left, and which exercise that time falls in. */
 export interface DayClock {
   /** the day's seconds: every exercise's minutes */
@@ -38,4 +40,46 @@ export function withSpent(spent: Record<string, number> | undefined, day: number
     if (s > 0) next[`${day}:${i}`] = Math.floor(s);
   });
   return next;
+}
+
+/** True when two `StoredPlan.spent` maps hold the same seconds (key order aside). */
+export const sameSeconds = (a: Record<string, number>, b: Record<string, number>) =>
+  Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([k, v]) => b[k] === v);
+
+/**
+ * What the day timer saves: the used seconds of one day of one plan and the seconds spent on each of its exercises. On the
+ * server it is sent alone (`PUT /api/me/plan/time`), a few bytes, never the whole plan.
+ */
+export interface DayTime {
+  planId: string;
+  day: number;
+  elapsed: number;
+  spent: number[];
+}
+
+/** The most exercises a day's `spent` may list; a day has 2 to 5. */
+const MAX_DAY_EXERCISES = 20;
+const seconds = (v: unknown): number | null => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.floor(v) : null);
+
+/** A sent `DayTime` made safe, or null when it is broken. */
+export function parseDayTime(raw: unknown): DayTime | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as Record<string, unknown>;
+  const day = seconds(r.day);
+  const elapsed = seconds(r.elapsed);
+  if (typeof r.planId !== "string" || !r.planId || r.planId.length > 200) return null;
+  if (day === null || day !== r.day || day >= PLAN_DAYS || elapsed === null) return null;
+  if (!Array.isArray(r.spent) || r.spent.length > MAX_DAY_EXERCISES) return null;
+  const spent = r.spent.map(seconds);
+  if (spent.some((s) => s === null)) return null;
+  return { planId: r.planId, day, elapsed, spent: spent as number[] };
+}
+
+/** The state with the timer's seconds written into the current plan; the same state when it changes nothing or `planId` is no longer the current plan. */
+export function withDayTime(s: PlanState, t: DayTime): PlanState {
+  const c = s.current;
+  if (c?.id !== t.planId) return s;
+  const spent = withSpent(c.spent, t.day, t.spent);
+  if (c.elapsed?.[String(t.day)] === t.elapsed && sameSeconds(spent, c.spent ?? {})) return s;
+  return { ...s, current: { ...c, elapsed: { ...c.elapsed, [String(t.day)]: t.elapsed }, spent } };
 }

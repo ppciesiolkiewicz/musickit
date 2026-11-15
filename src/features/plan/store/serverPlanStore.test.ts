@@ -132,3 +132,30 @@ test("a save over the plan's cap is cut the way the server cuts it, oldest earli
   assert.deepEqual(sent[0].history.map((p) => p.id), ["old0", "old1", "old2", "old3", "old4"]);
   assert.deepEqual(await store.load(), sent[0], "the store keeps what it sent");
 });
+
+test("saveTime sends only the timer's seconds, but rides with a whole-plan save that is waiting", async () => {
+  const clock = heldClock();
+  const plans: unknown[] = [];
+  const times: unknown[] = [];
+  const client = createDocClient({ put: async (b) => (plans.push(b), new Response(null, { status: 200 })), schedule: clock.schedule });
+  const timeClient = createDocClient({ put: async (b) => (times.push(b), new Response(null, { status: 200 })), schedule: clock.schedule });
+  const current: StoredPlan = { id: "p", startedOn: "2026-11-01", done: {}, config: { title: "W", days: [] } };
+  const store = createServerPlanStore({ client, timeClient, get: async () => ({ data: { ...EMPTY_STATE, current } }) });
+  await store.load();
+  const time = { planId: "p", day: 0, elapsed: 60, spent: [60] };
+  const withTime: PlanState = { ...EMPTY_STATE, current: { ...current, elapsed: { "0": 60 }, spent: { "0:0": 60 } } };
+  await store.saveTime!(withTime, time);
+  clock.fire();
+  await settle();
+  assert.deepEqual(times, [time]);
+  assert.deepEqual(plans, [], "the plan itself is not sent");
+  assert.deepEqual(await store.load(), withTime);
+
+  await store.save(withReminder("07:00"));
+  await store.saveTime!(withTime, { ...time, elapsed: 61 });
+  clock.fire();
+  await settle();
+  assert.equal(times.length, 1, "with a plan save waiting, the seconds go with it");
+  assert.deepEqual(plans, [withTime]);
+  assert.equal(await store.flush!(), true);
+});

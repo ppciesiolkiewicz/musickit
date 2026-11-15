@@ -43,7 +43,7 @@ browser.
    of its planned time ("2 min / 5 min", whole minutes) over a thin bar: sky while it fills, green at the planned time, a brighter
    glowing green past 1.5×, and a star at 2×; hovering or tapping it explains the numbers. /dev/data lists the spent times. On a phone it is one short row: ring,
    time left, the exercise's own time and number, the buttons side by side. Its used seconds are saved in the plan (`StoredPlan.elapsed`, per day)
-   once a minute while it runs (each save sends the whole plan to the server), on pause, when the tab hides, when the day
+   once a minute while it runs, on pause, when the tab hides, when the day
    is left and at zero, so a reload or a later visit picks up where it stopped. The spent seconds
    are saved with them. There is no per-exercise countdown, and resetting the day's timer keeps the spent times.
    No settings column: the exercises set their own keys and always count from the scale's root (`FixedLabelRoot`), so the
@@ -101,7 +101,7 @@ model/            pure, no React; tested in model/plan.test.ts
 intake/           the first questionnaire, its own feature: topics.ts (18 topics, four lines each), answers.ts (PlanAnswers, migrateAnswers(), levelOf()), ui/ (the screens, RangeFinder); see its README
 store/
   PlanStore.ts    the storage interface: load() / save() of one PlanState, and on the server store flush() (send the waiting save now; true once it landed), used before Share
-  serverPlanStore.ts  createServerPlanStore(): the plan as one document on the server (/api/me/documents/plan), read once per session (loads share the request, then the store keeps the plan) and saved through a DocClient, cut to the server's cap first (`fitPlanState`), so a save is never refused for its size: a signed-in player's store
+  serverPlanStore.ts  createServerPlanStore(): the plan as one document on the server (/api/me/documents/plan), read once per session (loads share the request, then the store keeps the plan) and saved through a DocClient, cut to the server's cap first (`fitPlanState`), so a save is never refused for its size; the day timer's saves (`saveTime`, `model/dayClock.ts` `DayTime`) send only the plan id, the day and its seconds to `PUT /api/me/plan/time`, which writes them into the stored plan (`withDayTime`), and ride with a whole-plan save that is waiting: a signed-in player's store
   memoryPlanStore.ts  memoryPlanStore(initial): kept for the visit, saving nothing (a visitor, the demo plan)
   localPlanStore.ts  the localStorage store ("musickit.plan"), only for the site without a database
   usePlan.tsx     the hook the UI uses, PlanStoreProvider to swap the store, usePlanStore for a reader outside the hook

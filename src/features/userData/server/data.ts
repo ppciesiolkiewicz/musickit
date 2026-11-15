@@ -1,3 +1,5 @@
+import { parseDayTime, withDayTime } from "@/features/plan/model/dayClock";
+import type { PlanState } from "@/features/plan/model/types";
 import { cleanEntries, type ProgressEntry } from "@/features/progress/log";
 import { isDocKind, maxDocBytes, parseDoc, type DocKind } from "../model";
 import type { UserDataRepo } from "./repo";
@@ -26,4 +28,17 @@ export async function putEntry(repo: UserDataRepo, userId: string, raw: unknown,
 /** The player's progress log as stored, re-parsed the way documents are: broken rows dropped, one row per exercise. */
 export async function readEntries(repo: UserDataRepo, userId: string): Promise<ProgressEntry[]> {
   return cleanEntries(await repo.listProgress(userId));
+}
+
+/**
+ * The day timer's seconds written into the stored plan (`PUT /api/me/plan/time`), so the timer never sends the whole plan.
+ * False when the time is broken. A time for a plan that is no longer the current one, or that changes nothing, stores nothing.
+ */
+export async function writePlanTime(repo: UserDataRepo, userId: string, raw: unknown, now: Date): Promise<boolean> {
+  const time = parseDayTime(raw);
+  if (!time) return false;
+  const plan = (await readDoc(repo, userId, "plan")) as PlanState;
+  const next = withDayTime(plan, time);
+  if (next !== plan) await repo.putDoc(userId, "plan", next, now);
+  return true;
 }

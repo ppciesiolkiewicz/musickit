@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { withDayTime, type DayTime } from "../model/dayClock";
 import { EMPTY_STATE, type PlanState } from "../model/types";
 import { localPlanStore } from "./localPlanStore";
 import type { PlanStore } from "./PlanStore";
@@ -19,7 +20,7 @@ export function PlanStoreProvider({ store, children }: { store: PlanStore; child
 /** The store itself, for a reader outside `usePlan` (the practice reminder). */
 export const usePlanStore = (): PlanStore => useContext(StoreContext);
 
-/** The plan state from the store, and `update` to change it: the change shows at once and is saved behind it. */
+/** The plan state from the store, and `update` to change it: the change shows at once and is saved behind it. `saveTime` is the day timer's. */
 export function usePlan() {
   const store = useContext(StoreContext);
   const [state, setState] = useState<PlanState>(EMPTY_STATE);
@@ -52,5 +53,14 @@ export function usePlan() {
     void store.save(next);
   }, [store]);
 
-  return { state, loaded, update };
+  // the day timer's seconds: shown like a change, but saved through the store's small `saveTime` where it has one
+  const saveTime = useCallback((time: DayTime) => {
+    const next = withDayTime(latest.current, time);
+    if (next === latest.current) return;
+    latest.current = next;
+    setState(next);
+    void (store.saveTime ? store.saveTime(next, time) : store.save(next));
+  }, [store]);
+
+  return { state, loaded, update, saveTime };
 }
