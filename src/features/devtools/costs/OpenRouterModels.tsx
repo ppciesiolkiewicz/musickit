@@ -68,7 +68,7 @@ export default function OpenRouterModels({ tokens, fee: provider }: { tokens: Pl
               <span className="font-mono text-sm font-semibold tabular-nums text-slate-50">{plansPerMonth}</span>
             </span>
             <input type="range" min={0} max={120} step={1} value={plansPerMonth} onChange={(e) => setPlansPerMonth(Number(e.target.value))} className="w-full accent-sky-400" />
-            <span className="text-xs text-slate-500">The Student allowance is {PRICING.player.plansPerMonth}; Teacher plans go to 300.</span>
+            <span className="text-xs text-slate-500">The Student allowance is {PRICING.player.plansPerMonth}; Teacher plans go to 120.</span>
           </label>
           <div role="group" aria-label="Show" className="mb-2 inline-flex rounded-md border border-slate-700 p-0.5">
             {([["all", "All models"], ...Object.entries(ROLES).map(([id, v]) => [id, v.label])] as [Role | "all", string][]).map(([v, text]) => (

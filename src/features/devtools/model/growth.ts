@@ -9,10 +9,9 @@ export const startShares = (n: number): number[] =>
   Array.from({ length: n }, (_, i) => (n === 1 ? 100 : i === 0 ? 70 : Math.round((30 * 2 ** (n - 1 - i)) / (2 ** (n - 1) - 1))));
 
 /**
- * The starting plan mix by plan id, in percent (set 2026-11-15): most payers on Student, nobody counted on Teacher
- * Unlimited. Used when every plan is one of these; any other set of plans starts from `startShares`.
+ * The starting plan mix by plan id, in percent (set 2026-11-15): most payers on Student. Used when every plan is one of these; any other set of plans starts from `startShares`.
  */
-export const START_MIX: Record<string, number> = { student: 73, "teacher-basic": 18, "teacher-pro": 9, "teacher-unlimited": 0 };
+export const START_MIX: Record<string, number> = { student: 73, "teacher-basic": 18, "teacher-pro": 9 };
 
 /** Starting plan mix for these plans, in `sort` order, in percent. */
 export const startMix = (ids: string[]): number[] => (ids.every((id) => id in START_MIX) ? ids.map((id) => START_MIX[id]) : startShares(ids.length));

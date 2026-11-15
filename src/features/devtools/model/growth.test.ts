@@ -53,8 +53,8 @@ test("the starting plan mix puts 70 on the first plan and fewer on each dearer o
   assert.deepEqual(startShares(3), [70, 20, 10]);
 });
 
-test("the plans of the table start at their set mix, with nobody on Teacher Unlimited", () => {
-  assert.deepEqual(startMix(["student", "teacher-basic", "teacher-pro", "teacher-unlimited"]), [73, 18, 9, 0]);
+test("the plans of the table start at their set mix", () => {
+  assert.deepEqual(startMix(["student", "teacher-basic", "teacher-pro"]), [73, 18, 9]);
   assert.deepEqual(startMix(["student", "teacher-pro"]), [73, 9]);
   assert.deepEqual(startMix(["student", "other"]), [70, 30]);
 });
