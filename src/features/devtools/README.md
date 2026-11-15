@@ -45,14 +45,20 @@ note to its section as it is now (`repinSectionNotes`; those on gone sections st
 notes by example with file, in section order, with a warning when outdated; outdated is checked against every example
 (`exampleSections`), open or not.
 
-## More demos (`/dev/more-demos`, temporary)
+## Compare AI models for autoplan (`/dev/compare-models`, `npm run compare-models`)
 
-A plan for each made-up player (`model/personas.ts`) from each pinned model (`DEMO_MODELS` in `model/models.ts`: Haiku 5.5,
-Sonnet 5.5, Opus 5.5, Fable 5.2), in a table (`moredemos/MoreDemosPage.tsx`). Every cell shows an estimate at API prices
-(`model/pricing.ts`: the composed prompt as input, a reply the size of the demo plans × 1.5 for thinking as output) and,
-once run, the cost the CLI reports, the time, the plan's title and warnings; clicking it renders the plan. Fable is
-unticked by default, so *Run all ticked* leaves it out; it runs three at a time and skips cells already done. Runs go
-through `/api/dev/run` and so land in the prompt history; the cell → run id map is in `localStorage` `musickit.dev.moreDemos`.
+A first-week plan for each made-up player (`model/personas.ts`) from each model, to compare models and what they would
+cost. `scripts/compare-models.ts` writes them (`npm run -s compare-models -- help`): Claude models through the local
+claude CLI (the subscription; by default Haiku 5.5, Sonnet 5.5 and Opus 5.5, three at a time; Fable 5.2 only when named),
+Ollama models through the local Ollama (`server/ollama.ts`, one at a time, with a context just large enough for the prompt and a plan, about 64k: the context's cache is what fills the memory;
+`ollama` names every local model). It skips a player and model that already has a plan (a reply that parses) unless `--redo`; `--dry` lists the
+runs and their estimate. Each run is saved to the history with its `persona` and token `usage`.
+
+The page (`compare/CompareModelsPage.tsx`) runs nothing: a table of players × models (the Claude models, then any local model
+that has a plan), the newest plan in each cell (`latestByCell`, `model/compare.ts`), and the plan below when a cell is
+opened. Every cost is as if through the API (`model/pricing.ts`): before a run the composed prompt as input and a reply the
+size of the demo plans × 1.5 for thinking as output; after, the run's tokens at list prices with no caching (`runCost`;
+the CLI's `total_cost_usd` is not used, it doesn't match the list prices). A local Ollama model is priced at what OpenRouter charges for the same open model (a fine-tune as its base); one with no price in `API_PRICES` shows its token count instead.
 
 ## Data (`/dev/data`)
 
@@ -94,7 +100,7 @@ that break the layer rules in `.dependency-cruiser.cjs`. The SVG scripts (`deps:
 `POST /api/dev/run` runs the local `claude` CLI (`server/claude.ts`) in print mode with no tools, no MCP servers, no
 saved session, only project settings, from the temp folder, and with a plain system prompt in place of Claude Code's (that
 one brings auto-memory, and the model "reads its memory" instead of answering; `--bare` would avoid it but fails login).
-The child also drops the `CLAUDE_CODE_*` variables of any Claude session the dev server runs in. So the model sees only the
+The child also drops the `CLAUDE_CODE_*` variables of any Claude session the dev server runs in. It also drops `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN`, so a run always uses the CLI's subscription login and never bills the API. It sets `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 64000: at the CLI's default a long plan runs over, the CLI continues in a second reply, and its `result` keeps only that last part. So the model sees only the
 prompt, like a player's own AI.
 
 A run lives on the server, not in the page (`server/running.ts`): a reload, which any edit to the plan model can cause,
@@ -108,7 +114,7 @@ returns one.
 - `gate.ts`: `devOnly`, `devGate`, `devUi` (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the studio's CLI aliases and the pinned `DEMO_MODELS`.
-- `model/pricing.ts`, `model/personas.ts`, `moredemos/`: /dev/more-demos.
+- `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/`, `server/ollama.ts`, `scripts/compare-models.ts`: /dev/compare-models.
 - `model/history.ts`: run records, summaries, ids, request checks, `describeReply`.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.

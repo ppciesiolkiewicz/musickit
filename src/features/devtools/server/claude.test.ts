@@ -27,6 +27,12 @@ test("parseClaudeResult reads the reply and its cost", () => {
   assert.deepEqual(parseClaudeResult(out, "", 0), { ok: true, text: "pong", costUsd: 0.0141 });
 });
 
+test("parseClaudeResult reads the tokens used", () => {
+  const usage = { input_tokens: 182, output_tokens: 4, cache_read_input_tokens: 10, cache_creation_input_tokens: 20 };
+  const out = JSON.stringify({ type: "result", is_error: false, result: "ok", usage });
+  assert.deepEqual(parseClaudeResult(out, "", 0), { ok: true, text: "ok", usage: { input: 182, output: 4, cacheRead: 10, cacheWrite: 20 } });
+});
+
 test("parseClaudeResult: an error result carries its message", () => {
   const out = JSON.stringify({ type: "result", is_error: true, result: "Not logged in" });
   assert.deepEqual(parseClaudeResult(out, "", 1), { ok: false, error: "Not logged in" });
@@ -78,7 +84,7 @@ test("runClaude: a missing binary says so", async () => {
   assert.equal(!r.ok && r.error, "claude CLI not found on PATH");
 });
 
-test("childEnv drops the parent Claude session's variables, keeps login and the rest", () => {
-  const env = childEnv({ PATH: "/bin", HOME: "/h", CLAUDECODE: "1", CLAUDE_CODE_SESSION_ID: "x", CLAUDE_CODE_MESSAGING_SOCKET: "/s", CLAUDE_CODE_OAUTH_TOKEN: "t", ANTHROPIC_API_KEY: "k" });
-  assert.deepEqual(env, { PATH: "/bin", HOME: "/h", CLAUDE_CODE_OAUTH_TOKEN: "t", ANTHROPIC_API_KEY: "k" });
+test("childEnv drops the parent Claude session's variables and API credentials, keeps the subscription login and the rest", () => {
+  const env = childEnv({ PATH: "/bin", HOME: "/h", CLAUDECODE: "1", CLAUDE_CODE_SESSION_ID: "x", CLAUDE_CODE_MESSAGING_SOCKET: "/s", CLAUDE_CODE_OAUTH_TOKEN: "t", ANTHROPIC_API_KEY: "k", ANTHROPIC_AUTH_TOKEN: "a" });
+  assert.deepEqual(env, { PATH: "/bin", HOME: "/h", CLAUDE_CODE_OAUTH_TOKEN: "t" });
 });

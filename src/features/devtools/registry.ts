@@ -52,7 +52,7 @@ export const TONE_CLASSES: Record<DevTone, { tab: string; active: string; card: 
 /** The /dev index; a new tool is one entry here and one page under src/app/dev. */
 export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/prompt", label: "Prompt studio", tone: "prompt", desc: "The autoplan prompt as labelled parts: edit them, run it with the local Claude, see the plan it writes." },
-  { href: "/dev/more-demos", label: "More demos", tone: "prompt", desc: "Temporary: a plan for each made-up player from Haiku, Sonnet, Opus and Fable, with the estimated API cost of each and what the run cost." },
+  { href: "/dev/compare-models", label: "Compare AI models for autoplan", tone: "prompt", desc: "A plan for each made-up player from Claude and local Ollama models, priced as if through the API. Written with npm run compare-models." },
   { href: "/dev/examples", label: "Prompt examples", tone: "prompt", desc: "Every example the prompt carries, rendered as the player would see it." },
   { href: "/dev/stories", label: "Component stories", tone: "stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
   { href: "/dev/onboarding", label: "Onboarding coverage", tone: "stories", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },

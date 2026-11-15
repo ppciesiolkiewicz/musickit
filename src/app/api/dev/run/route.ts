@@ -1,7 +1,9 @@
 import { catalogue } from "@/features/plan/model/catalogue";
 import { devGate } from "@/features/devtools/gate";
 import { describeReply, newRunId, readRunRequest, type RunRecord } from "@/features/devtools/model/history";
+import { isOllamaModel } from "@/features/devtools/model/models";
 import { runClaude } from "@/features/devtools/server/claude";
+import { runOllama } from "@/features/devtools/server/ollama";
 import { saveRun } from "@/features/devtools/server/history";
 import { cancelRun, endRun, listRunning, startRun } from "@/features/devtools/server/running";
 
@@ -16,7 +18,7 @@ export async function GET() {
 }
 
 /**
- * Run the prompt with the local claude CLI; the run is saved to the history whatever its outcome. It outlives the request
+ * Run the prompt with the local claude CLI, or the local Ollama for an `ollama:` model; the run is saved to the history whatever its outcome. It outlives the request
  * (a dev reload of the page must not kill a three-minute run); only DELETE ?id= cancels it.
  */
 export async function POST(req: Request) {
@@ -29,12 +31,13 @@ export async function POST(req: Request) {
   const id = wanted && !listRunning().some((r) => r.id === wanted) ? wanted : newRunId(at);
   const signal = startRun({ id, at: at.toISOString(), model });
   try {
-    const out = await runClaude(input.prompt, { model, ...(effort ? { effort } : {}) }, signal);
+    const out = isOllamaModel(model) ? await runOllama(input.prompt, model, signal) : await runClaude(input.prompt, { model, ...(effort ? { effort } : {}) }, signal);
     const record: RunRecord = {
       id, at: at.toISOString(), model, ...input,
       ...(out.ok ? { reply: out.text, ...describeReply(out.text, catalogue()) } : { error: out.error }),
       durationMs: out.durationMs,
       ...(out.ok && out.costUsd !== undefined ? { costUsd: out.costUsd } : {}),
+      ...(out.ok && out.usage ? { usage: out.usage } : {}),
     };
     await saveRun(record);
     return json(record);

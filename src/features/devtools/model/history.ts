@@ -7,12 +7,17 @@ export type Overrides = Record<string, { text?: string; off?: boolean }>;
 export type Effort = "low" | "medium" | "high";
 const EFFORTS: Effort[] = ["low", "medium", "high"];
 
+/** The tokens one run used, as the claude CLI reports them. */
+export interface TokenUsage { input: number; output: number; cacheRead: number; cacheWrite: number }
+
 /** One run of the prompt (or one reply pasted from another AI), as kept in tools/prompt-history/<id>.json. */
 export interface RunRecord {
   id: string;
   at: string;
   mode: "first" | "next";
   model: DevModel | "pasted";
+  /** the made-up player it was written for (model/personas.ts), on runs from scripts/compare-models.ts */
+  persona?: string;
   answers: unknown;
   overrides: Overrides;
   previousId?: string;
@@ -23,6 +28,7 @@ export interface RunRecord {
   error?: string;
   durationMs: number;
   costUsd?: number;
+  usage?: TokenUsage;
   title?: string;
   warnings?: number;
 }
@@ -43,6 +49,8 @@ export interface RunSummary {
   warnings?: number;
   durationMs: number;
   costUsd?: number;
+  usage?: TokenUsage;
+  persona?: string;
   chars: number;
   edited: string[];
 }
@@ -66,6 +74,8 @@ export function summaryOf(r: RunRecord): RunSummary {
     ...(r.warnings !== undefined ? { warnings: r.warnings } : {}),
     durationMs: r.durationMs,
     ...(r.costUsd !== undefined ? { costUsd: r.costUsd } : {}),
+    ...(r.usage ? { usage: r.usage } : {}),
+    ...(r.persona ? { persona: r.persona } : {}),
     chars: r.prompt.length,
     edited: r.parts.filter((p) => p.edited).map((p) => p.id),
   };

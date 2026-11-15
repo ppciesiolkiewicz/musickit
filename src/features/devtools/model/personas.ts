@@ -1,6 +1,6 @@
 import type { PlanAnswers } from "@/features/plan/model/types";
 
-/** A made-up player for /dev/more-demos: first-questionnaire answers the prompt is built from. */
+/** A made-up player for /dev/compare-models: first-questionnaire answers the prompt is built from. */
 export interface Persona { id: string; label: string; answers: PlanAnswers }
 
 const p = (id: string, label: string, answers: Partial<PlanAnswers> & Pick<PlanAnswers, "areas">): Persona => ({
@@ -30,7 +30,15 @@ export const PERSONAS: Persona[] = [
     areas: ["voice", "theory"], minutes: 30, styles: "soul, gospel", voice: { type: "tenor" },
     topics: { "voice-pitch": 2, "voice-intervals": 2, "voice-melodies": 2, "voice-runs": 1, "voice-harmony": 1, "theory-ear": 2 },
   }),
-  p("theory-only", "Theory & ear only", {
+  p("voice-guitar-advanced", "Voice + guitar, advanced (baritone)", {
+    areas: ["guitar", "voice"], minutes: 45, styles: "soul, R&B, folk", voice: { type: "baritone" },
+    topics: {
+      "guitar-scales": 3, "guitar-basic-chords": 3, "guitar-barre-chords": 3, "guitar-extended-chords": 2, "guitar-caged": 2, "guitar-techniques": 3,
+      "voice-pitch": 3, "voice-intervals": 3, "voice-melodies": 2, "voice-breath-range": 3, "voice-runs": 2, "voice-harmony": 2,
+    },
+    notes: "I sing and play at gigs. I want cleaner fast runs and richer chords under my voice.",
+  }),
+  p("theory-only","Theory & ear only", {
     areas: ["theory"], minutes: 10,
     topics: { "theory-basics": 2, "theory-ear": 1, "theory-scales-keys": 1, "theory-building-chords": 1 },
   }),
