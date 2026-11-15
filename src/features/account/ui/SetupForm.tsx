@@ -2,22 +2,24 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { emailName } from "../model";
-import { priceLabel } from "../plans";
+import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
-import { PlanLines, type Loaded } from "./PlanPicker";
+import { BillingSwitch, PaymentBox, PlanOption, type Loaded } from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
 /**
  * /account/setup, where a new account stays until it has chosen a plan (`LoginGuard`): its name and its plan, saved in
  * one step, then on to `next`. A name that is only the email's stand-in (`emailName`) starts empty, to be typed; Google's
- * is filled in to keep or change. No plan is chosen for them. Any plan can be chosen with no payment during the beta. The
- * page reloads into `next`, since a Teacher plan changes the role every page reads.
+ * is filled in to keep or change. No plan is chosen for them; they pick it paid monthly or yearly, and the payment box
+ * under it shows what it costs. Nothing is charged during the beta. The page reloads into `next`, since a Teacher plan
+ * changes the role every page reads.
  */
 export default function SetupForm({ next }: { next: string }) {
   const { account, loaded: accountLoaded } = useAccount();
   const [name, setName] = useState<string | null>(null);
   const [plans, setPlans] = useState<Loaded | null>(null);
   const [planId, setPlanId] = useState<string | null>(null);
+  const [billing, setBilling] = useState<Billing | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -37,6 +39,8 @@ export default function SetupForm({ next }: { next: string }) {
   const askName = account.name === emailName(account.email);
   const shown = name ?? (askName ? "" : account.name);
   const chosen = planId ?? plans?.current ?? null;
+  const shownBilling = billing ?? plans?.billing ?? "year";
+  const chosenPlan = plans?.plans.find((p) => p.id === chosen) ?? null;
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
@@ -46,7 +50,7 @@ export default function SetupForm({ next }: { next: string }) {
     if (noName || !chosen) return;
     setBusy(true);
     setError(null);
-    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosen });
+    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosen, billing: shownBilling });
     if (r.ok) return window.location.assign(next);
     setBusy(false);
     if (r.body.field === "name") setNameError(errorOf(r));
@@ -75,25 +79,13 @@ export default function SetupForm({ next }: { next: string }) {
           <legend className="mb-1 text-sm font-semibold text-slate-200">Plan</legend>
           <p className="text-xs text-slate-500">Free while in beta: choosing a plan doesn&apos;t ask for payment. You can change it later on your account page.</p>
           {!plans && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
-          {plans?.plans.map((p) => {
-            const on = p.id === chosen;
-            return (
-              <label
-                key={p.id}
-                className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition ${on ? "border-sky-400/60 bg-sky-400/5" : "border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}
-              >
-                <input type="radio" name="plan" value={p.id} checked={on} onChange={() => { setPlanId(p.id); setError(null); }} className="mt-1 accent-sky-400" />
-                <span className="flex flex-1 flex-col gap-1">
-                  <span className="flex flex-wrap items-baseline justify-between gap-2">
-                    <span className="text-sm font-semibold text-slate-100">{p.name}</span>
-                    <span className="text-sm text-slate-300">{priceLabel(p)}</span>
-                  </span>
-                  <PlanLines plan={p} />
-                </span>
-              </label>
-            );
-          })}
+          {plans && <BillingSwitch billing={shownBilling} onChange={(b) => { setBilling(b); setError(null); }} />}
+          {plans?.plans.map((p) => (
+            <PlanOption key={p.id} plan={p} billing={shownBilling} checked={p.id === chosen} trial={plans.current === null} onPick={() => { setPlanId(p.id); setError(null); }} />
+          ))}
         </fieldset>
+
+        {chosenPlan && <PaymentBox plan={chosenPlan} billing={shownBilling} trial={plans?.current === null} />}
 
         <ErrorLine>{error}</ErrorLine>
         <button type="submit" disabled={busy || !plans} className={PRIMARY}>{busy ? "Saving…" : "Continue"}</button>

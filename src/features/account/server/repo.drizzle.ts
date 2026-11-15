@@ -4,7 +4,7 @@ import { authTokens, identities, plans, sessions, users } from "@/lib/db/schema"
 import type { Plan } from "../plans";
 import type { AuthRepo, TokenRow } from "./repo";
 
-const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, planId: users.planId, createdAt: users.createdAt };
+const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, planId: users.planId, billing: users.billing, createdAt: users.createdAt };
 
 const tokenCols = {
   kind: authTokens.kind,
@@ -39,9 +39,12 @@ export function drizzleRepo(db: Db): AuthRepo {
     },
     async listPlans() {
       // new_plan_percent is an internal cost lever: it stays off `Plan`, which reaches the browser.
-      const { updatedAt, newPlanPercent, ...cols } = getTableColumns(plans);
+      // price_cents and period are the old single price, kept only for the build before this one.
+      const { updatedAt, newPlanPercent, priceCents, period, ...cols } = getTableColumns(plans);
       void updatedAt;
       void newPlanPercent;
+      void priceCents;
+      void period;
       const rows = await db.select(cols).from(plans);
       return rows.map((p): Plan => ({ ...p, role: p.role === "student" ? "student" : "teacher" }));
     },
@@ -49,8 +52,8 @@ export function drizzleRepo(db: Db): AuthRepo {
       const [row] = await db.select(userCols).from(users).where(eq(users.id, id)).limit(1);
       return row ?? null;
     },
-    async setUserPlan(id, planId, role, now) {
-      const [row] = await db.update(users).set({ planId, role, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
+    async setUserPlan(id, planId, billing, role, now) {
+      const [row] = await db.update(users).set({ planId, billing, role, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
       return row ?? null;
     },
     async deleteUser(id) {

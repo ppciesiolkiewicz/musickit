@@ -92,6 +92,20 @@
       "when": 1794743761715,
       "tag": "0012_new_accounts_choose_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794744986134,
+      "tag": "0013_yearly_and_monthly",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1794745588604,
+      "tag": "0014_plan_prices_required",
+      "breakpoints": true
     }
   ]
 }

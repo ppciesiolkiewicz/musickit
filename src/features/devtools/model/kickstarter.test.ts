@@ -41,17 +41,17 @@ test("the brief carries every sample email, fenced, as a model not a source", ()
 });
 
 test("the brief lists the enabled plans after the facts, and none without a database", () => {
-  const plan = { role: "student" as const, period: "year" as const, students: 0, batch: true, enabled: true };
+  const plan = { role: "student" as const, trialDays: 14, students: 0, batch: true, enabled: true };
   const plans = [
-    { ...plan, id: "pro", name: "Teacher Pro", role: "teacher" as const, priceCents: 4900, period: "month" as const, students: 30, autoplansPerMonth: 120, sort: 3 },
-    { ...plan, id: "student", name: "Student", priceCents: 2700, autoplansPerMonth: 8, sort: 1 },
-    { ...plan, id: "old", name: "Old", priceCents: 100, autoplansPerMonth: 1, sort: 2, enabled: false },
+    { ...plan, id: "pro", name: "Teacher Pro", role: "teacher" as const, monthCents: 4900, yearCents: 39200, students: 30, autoplansPerMonth: 120, sort: 3 },
+    { ...plan, id: "student", name: "Student", monthCents: 900, yearCents: 2700, autoplansPerMonth: 8, sort: 1 },
+    { ...plan, id: "old", name: "Old", monthCents: 100, yearCents: 800, autoplansPerMonth: 1, sort: 2, enabled: false },
   ];
   const b = outreachBrief(demos, plans);
   assert.ok(b.includes("## The plans"));
   assert.ok(b.indexOf("## Facts") < b.indexOf("## The plans") && b.indexOf("## The plans") < b.indexOf("## Voice"));
-  assert.ok(b.includes("- Student: $27 a year (US dollars). 8 AI autoplans a month, or 24 AI notes."), b);
-  assert.ok(b.includes("- Teacher Pro: $49 a month (US dollars). Up to 30 students."));
+  assert.ok(b.includes("- Student: $9 a month or $27 a year (US dollars). First 14 days free. 8 AI autoplans a month, or 24 AI notes."), b);
+  assert.ok(b.includes("- Teacher Pro: $49 a month or $392 a year (US dollars). First 14 days free. Up to 30 students."));
   assert.ok(!b.includes("Old:"), "a plan that is off is left out");
   assert.ok(!brief().includes("## The plans"));
 });

@@ -4,7 +4,7 @@
  * nowhere else.
  */
 
-import { allowanceLabel, choosablePlans, priceLabel, studentsLabel, type Plan } from "@/features/account/plans";
+import { allowanceLabel, bothPricesLabel, choosablePlans, studentsLabel, trialLabel, type Plan } from "@/features/account/plans";
 import { FOUNDING_PARTNERS_NEEDED, FOUNDING_PRICE, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
 import { SITE_URL } from "@/lib/site";
 
@@ -255,7 +255,7 @@ function linksSection(demos: DemoLink[]): string {
 export function plansSection(plans: Plan[]): string {
   const shown = choosablePlans(plans, null);
   if (!shown.length) return "";
-  const line = (p: Plan) => [`${p.name}: ${priceLabel(p)} (US dollars).`, studentsLabel(p) && `${studentsLabel(p)}.`, `${allowanceLabel(p)}.`].filter(Boolean).join(" ");
+  const line = (p: Plan) => [`${p.name}: ${bothPricesLabel(p)} (US dollars).`, trialLabel(p) && `${trialLabel(p)}.`, studentsLabel(p) && `${studentsLabel(p)}.`, `${allowanceLabel(p)}.`].filter(Boolean).join(" ");
   return `## The plans\nWhat a person or a school pays outside the founding-partner offer. A founding partner's price is the one in the Facts, locked in. Name a plan or its price only when they ask what attunr costs, never in a first email.\n${list(shown.map(line))}`;
 }
 

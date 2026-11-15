@@ -12,6 +12,7 @@ const at = (name: string) => timestamp(name, { withTimezone: true, mode: "date" 
 /** Same values as `ROLES` in features/account/model.ts. */
 export const userRole = pgEnum("user_role", ["student", "teacher", "owner"]);
 
+/** How often a person pays for their plan: every month or once a year. */
 export const planPeriod = pgEnum("plan_period", ["month", "year"]);
 
 /**
@@ -24,8 +25,18 @@ export const plans = pgTable("plans", {
   name: text("name").notNull(),
   /** The role the plan gives; "student" or "teacher". */
   role: userRole("role").notNull(),
-  priceCents: integer("price_cents").notNull(),
-  period: planPeriod("period").notNull(),
+  /** US cents a month, paid monthly. */
+  monthCents: integer("month_cents").notNull(),
+  /** US cents a year, paid once a year. */
+  yearCents: integer("year_cents").notNull(),
+  /** Days free before the first payment. */
+  trialDays: integer("trial_days").notNull().default(14),
+  /**
+   * Old: one price for one period, before every plan had both (0013). Kept, unused and nullable, so a build that still
+   * reads them keeps working while the new one deploys. Drop them in a later migration.
+   */
+  priceCents: integer("price_cents"),
+  period: planPeriod("period"),
   /** Students a teacher can have; null is no limit, 0 a student's own plan. */
   students: integer("students"),
   autoplansPerMonth: integer("autoplans_per_month").notNull(),
@@ -78,6 +89,8 @@ export const users = pgTable("users", {
    * then (a student meanwhile). Accounts made before setup asked keep the Student plan they were given.
    */
   planId: text("plan_id").references(() => plans.id),
+  /** Whether they pay for the plan monthly or yearly. */
+  billing: planPeriod("billing").notNull().default("year"),
   createdAt: at("created_at").notNull().defaultNow(),
   updatedAt: at("updated_at").notNull().defaultNow(),
 });

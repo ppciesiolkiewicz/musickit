@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { PRICING } from "@/features/account/pricing";
-import { SUBSCRIPTION_MODEL, type Plan } from "@/features/account/plans";
+import { SUBSCRIPTION_MODEL, type Billing, type Plan } from "@/features/account/plans";
 import type { DevModel } from "../model/models";
 import { atScale, playerYear, type Assumptions, type PlanTokens } from "../model/unitEconomics";
 import type { ReuseInfo } from "./PlanCosts";
@@ -91,21 +91,24 @@ interface Offer {
   id: string;
   name: string;
   enabled: boolean;
-  period: "month" | "year";
-  /** US$ a period */
-  amount: number;
+  /** US$ a month, paid monthly */
+  month: number;
+  /** US$ a year, paid yearly */
+  year: number;
   /** autoplans a month */
   allowance: number;
   batch: boolean;
   reuse: number;
 }
 
-const paymentsOf = (o: Pick<Offer, "period">) => (o.period === "month" ? 12 : 1);
+const paymentsOf = (b: Billing) => (b === "month" ? 12 : 1);
+/** US$ a year, paid this way. */
+const yearOf = (o: Pick<Offer, "month" | "year">, b: Billing) => (b === "month" ? o.month * 12 : o.year);
 
 /** The plans as offers, in `sort` order; without a database, the one Student offer of `pricing.ts`. Reuse starts at the plan's internal chance, as on Plans. */
 function offersFrom(plans: Plan[] | null, reuse: ReuseInfo | null): Offer[] {
   if (!plans || plans.length === 0) {
-    return [{ id: "student", name: "Student (pricing.ts)", enabled: true, period: "year", amount: PRICING.player.priceNumber, allowance: PRICING.player.plansPerMonth, batch: false, reuse: 0 }];
+    return [{ id: "student", name: "Student (pricing.ts)", enabled: true, month: 9, year: PRICING.player.priceNumber, allowance: PRICING.player.plansPerMonth, batch: false, reuse: 0 }];
   }
   return [...plans].sort((a, b) => a.sort - b.sort).map((p) => {
     const pct = reuse?.newPlanPercent[p.id] ?? 100;
@@ -113,8 +116,8 @@ function offersFrom(plans: Plan[] | null, reuse: ReuseInfo | null): Offer[] {
       id: p.id,
       name: p.name,
       enabled: p.enabled,
-      period: p.period,
-      amount: p.priceCents / 100,
+      month: p.monthCents / 100,
+      year: p.yearCents / 100,
       allowance: p.autoplansPerMonth,
       batch: p.batch,
       // with no plan enabled for reuse there is nothing to take, so every autoplan is written
@@ -127,9 +130,9 @@ interface Running { emailsPerDay: number; emailPer1000: number; hosting: number 
 type Fee = { percent: number; fixed: number };
 type YMode = "left" | "margin";
 
-const assumptionsOf = (o: Offer, usage: number, r: Running, fee: Fee): Assumptions => ({
-  price: o.amount * paymentsOf(o),
-  payments: paymentsOf(o),
+const assumptionsOf = (o: Offer, billing: Billing, usage: number, r: Running, fee: Fee): Assumptions => ({
+  price: yearOf(o, billing),
+  payments: paymentsOf(billing),
   plansPerMonth: o.allowance * usage,
   batch: o.batch,
   reuse: o.reuse,
@@ -143,11 +146,11 @@ const pct = (x: number) => `${Math.round(x * 100)}%`;
 interface Line { o: Offer; colour: string; ys: number[] }
 
 /** Every drawn plan's line over the share of its allowance used, with a crosshair readout. Click sets the allowance used. */
-function PlansChart({ lines, mode, usage, active, onPick }: { lines: Line[]; mode: YMode; usage: number; /** the open tab, drawn thicker */ active: string; onPick: (usage: number) => void }) {
+function PlansChart({ lines, mode, billing, usage, active, onPick }: { lines: Line[]; mode: YMode; billing: Billing; usage: number; /** the open tab, drawn thicker */ active: string; onPick: (usage: number) => void }) {
   const W = 640, H = 300, L = 56, R = 16, T = 16, B = 34;
   const xs = Array.from({ length: Math.round(USAGE_MAX / USAGE_STEP) + 1 }, (_, i) => i * USAGE_STEP);
   const all = lines.flatMap((l) => l.ys);
-  const top = mode === "margin" ? 1 : Math.max(...lines.map((l) => l.o.amount * paymentsOf(l.o)), 1);
+  const top = mode === "margin" ? 1 : Math.max(...lines.map((l) => yearOf(l.o, billing)), 1);
   const yMax = Math.max(top, ...all), yMin = Math.min(-top, ...all);
   const lo = Math.max(yMin, mode === "margin" ? -1 : -top);
   const fmt = mode === "margin" ? pct : usd;
@@ -233,6 +236,7 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
   const [modelId, setModelId] = useState<DevModel | null>(models.find((m) => m.model === SUBSCRIPTION_MODEL)?.model ?? models[0]?.model ?? null);
   const [usage, setUsage] = useState(1);
   const [mode, setMode] = useState<YMode>("left");
+  const [billing, setBilling] = useState<Billing>("year");
   const [tab, setTab] = useState(originals[0]?.id ?? "");
   const [solo, setSolo] = useState<Set<string>>(new Set());
   const [playersLog, setPlayersLog] = useState(3);
@@ -247,7 +251,7 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
         o,
         colour: colourById.get(o.id)!,
         ys: Array.from({ length: Math.round(USAGE_MAX / USAGE_STEP) + 1 }, (_, i) => {
-          const a = assumptionsOf(o, i * USAGE_STEP, running, fee);
+          const a = assumptionsOf(o, billing, i * USAGE_STEP, running, fee);
           const left = playerYear(model, a).left;
           return mode === "margin" ? (a.price > 0 ? left / a.price : 0) : left;
         }),
@@ -259,11 +263,10 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
   const set = <K extends keyof Offer>(key: K) => (v: Offer[K]) => setOffers((all) => all.map((o) => (o.id === offer.id ? { ...o, [key]: v } : o)));
   const toggleSolo = (id: string) => setSolo((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const players = toPlayers(playersLog);
-  const focusA = offer ? assumptionsOf(offer, usage, running, fee) : null;
+  const focusA = offer ? assumptionsOf(offer, billing, usage, running, fee) : null;
   const focusY = model && focusA ? playerYear(model, focusA) : null;
   const scale = focusY && focusA ? atScale(focusY, focusA.price, players, fixedMonthly) : null;
-  const per = offer?.period === "month" ? "a month" : "a year";
-  const changed = offer && original && (["amount", "allowance", "batch", "reuse"] as const).some((key) => offer[key] !== original[key]);
+  const changed = offer && original && (["month", "year", "allowance", "batch", "reuse"] as const).some((key) => offer[key] !== original[key]);
   const select = "rounded-md border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-100";
 
   return (
@@ -288,6 +291,10 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
                 </label>
                 <Slider label="Allowance used" value={usage} shown={pct(usage)} min={0} max={USAGE_MAX} step={USAGE_STEP} onChange={setUsage} hint="100% is every autoplan of the allowance, every month." />
                 <span className="flex flex-col gap-1 text-sm text-slate-300">
+                  Paid
+                  <Toggle label="Paid" value={billing} onChange={setBilling} options={[["month", "Monthly"], ["year", "Yearly"]]} />
+                </span>
+                <span className="flex flex-col gap-1 text-sm text-slate-300">
                   Show
                   <Toggle label="Show" value={mode} onChange={setMode} options={[["left", "Left a year"], ["margin", "Margin"]]} />
                 </span>
@@ -301,7 +308,7 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
 
             <div className="flex min-w-0 flex-col gap-3">
               <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
-                <PlansChart lines={lines} mode={mode} usage={usage} active={offer.id} onPick={setUsage} />
+                <PlansChart lines={lines} mode={mode} billing={billing} usage={usage} active={offer.id} onPick={setUsage} />
               </div>
 
               <div className="rounded-lg border border-slate-800 bg-slate-950/40">
@@ -326,11 +333,12 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
 
                 <div role="tabpanel" className="p-3">
                   <div className="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-slate-500">
-                    <span>In the database: {usd(original.amount)} {per}, {original.allowance} autoplans a month{original.batch ? ", Batch" : ""}, {pct(original.reuse)} reused{original.period === "month" ? ` (${usd(original.amount * 12)} a year)` : ""}</span>
+                    <span>In the database: {usd(original.month)} a month or {usd(original.year)} a year, {original.allowance} autoplans a month{original.batch ? ", Batch" : ""}, {pct(original.reuse)} reused</span>
                     {changed && <button type="button" onClick={() => setOffers((all) => all.map((o) => (o.id === original.id ? original : o)))} className="text-sky-300 hover:underline">Reset</button>}
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <Slider label={`Price ${per}`} value={offer.amount} shown={usd(offer.amount)} min={1} max={Math.max(offer.period === "month" ? 150 : 100, Math.ceil(original.amount * 2))} step={1} onChange={set("amount")} hint={offer.period === "month" ? `${usd(offer.amount * 12)} a year, twelve payments.` : undefined} />
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                    <Slider label="Price a month" value={offer.month} shown={usd(offer.month)} min={1} max={Math.max(150, Math.ceil(original.month * 2))} step={1} onChange={set("month")} hint={`${usd(offer.month * 12)} a year paid monthly.`} />
+                    <Slider label="Price a year" value={offer.year} shown={usd(offer.year)} min={1} max={Math.max(100, Math.ceil(original.year * 2))} step={1} onChange={set("year")} hint={offer.month > 0 ? `${Math.round((1 - offer.year / (offer.month * 12)) * 100)}% less than monthly.` : undefined} />
                     <Slider label="Allowance, autoplans a month" value={offer.allowance} shown={String(offer.allowance)} min={1} max={Math.max(24, original.allowance * 2)} step={1} onChange={set("allowance")} hint={`At ${pct(usage)}: ${Number((offer.allowance * usage).toFixed(1))} autoplans a month.`} />
                     <Slider label="Plans reused" value={offer.reuse} shown={pct(offer.reuse)} min={0} max={1} step={0.05} onChange={set("reuse")} hint="Autoplans taken from the library: no AI but the decide call." />
                     <label className="flex items-center gap-2 self-start pt-6 text-sm text-slate-300">
@@ -340,7 +348,7 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
                   </div>
                   {focusY && (
                     <p className="mt-3 text-xs text-slate-400">
-                      On {model.label} at {pct(usage)}: costs {usd(focusY.total)} a year (AI {usd(focusY.ai)}, payment {usd(focusY.fee)}), {usd(focusY.left)} left, margin {pct(focusA!.price > 0 ? focusY.left / focusA!.price : 0)}. Breaks even at {Number.isFinite(focusY.breakEvenPlansPerMonth) ? `${pct(focusY.breakEvenPlansPerMonth / offer.allowance)} of the allowance` : "any use"}.
+                      On {model.label} at {pct(usage)}, paid {billing === "month" ? "monthly" : "yearly"}: costs {usd(focusY.total)} a year (AI {usd(focusY.ai)}, payment {usd(focusY.fee)}), {usd(focusY.left)} left, margin {pct(focusA!.price > 0 ? focusY.left / focusA!.price : 0)}. Breaks even at {Number.isFinite(focusY.breakEvenPlansPerMonth) ? `${pct(focusY.breakEvenPlansPerMonth / offer.allowance)} of the allowance` : "any use"}.
                     </p>
                   )}
                 </div>
@@ -401,7 +409,7 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
                   </thead>
                   <tbody>
                     {offers.flatMap((o) => {
-                      const a = assumptionsOf(o, usage, running, fee);
+                      const a = assumptionsOf(o, billing, usage, running, fee);
                       return models.map((m, j) => {
                         const y = playerYear(m, a);
                         return (
@@ -423,7 +431,7 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
                     })}
                   </tbody>
                 </table>
-                <p className="mt-2 text-xs text-slate-500">At {pct(usage)} of each allowance. Break-even is the share of the allowance at which the year costs the price. Haiku 5.5 is billed at its higher rate when the prompt is over 100k tokens.</p>
+                <p className="mt-2 text-xs text-slate-500">At {pct(usage)} of each allowance, paid {billing === "month" ? "monthly" : "yearly"}. Break-even is the share of the allowance at which the year costs the price. Haiku 5.5 is billed at its higher rate when the prompt is over 100k tokens.</p>
               </div>
             )}
           </div>

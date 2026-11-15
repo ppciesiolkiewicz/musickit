@@ -1,5 +1,5 @@
 import type { Role } from "../model";
-import type { Plan } from "../plans";
+import type { Billing, Plan } from "../plans";
 
 /** A user row, as the database holds it. */
 export interface UserRow {
@@ -9,6 +9,8 @@ export interface UserRow {
   role: Role;
   /** Null until the account chooses a plan on /account/setup. */
   planId: string | null;
+  /** How they pay for the plan: monthly or yearly. */
+  billing: Billing;
   createdAt: Date;
 }
 
@@ -46,8 +48,8 @@ export interface AuthRepo {
   updateUserName(id: string, name: string, now: Date): Promise<UserRow | null>;
   /** Every plan, turned off or not. */
   listPlans(): Promise<Plan[]>;
-  /** Moves the user to the plan, with the role it gives, in one step. */
-  setUserPlan(userId: string, planId: string, role: Role, now: Date): Promise<UserRow | null>;
+  /** Moves the user to the plan, paid by `billing`, with the role it gives, in one step. */
+  setUserPlan(userId: string, planId: string, billing: Billing, role: Role, now: Date): Promise<UserRow | null>;
   /** Deletes the user with their sessions and identities. */
   deleteUser(id: string): Promise<void>;
 

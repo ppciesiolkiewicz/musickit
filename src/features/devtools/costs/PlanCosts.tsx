@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SUBSCRIPTION_MODEL, allowanceLabel, modelLabel, priceLabel, studentsLabel, type Plan } from "@/features/account/plans";
+import { SUBSCRIPTION_MODEL, allowanceLabel, modelLabel, priceCents, priceLabel, studentsLabel, trialLabel, type Plan } from "@/features/account/plans";
 import { planYear, type PlanTokens } from "../model/unitEconomics";
 
 /**
@@ -68,10 +68,23 @@ export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no 
                   const pct = reuse?.newPlanPercent[p.id] ?? 100;
                   // with no plan enabled for reuse there is nothing to take, so every autoplan is written
                   const reused = reuse && reuse.library.enabled > 0 ? 1 - pct / 100 : 0;
-                  const y = planYear(p, SUBSCRIPTION_MODEL, tokens, usage, fee, 1, 0.4, reused);
                   const students = studentsLabel(p);
+                  return (["month", "year"] as const).map((billing) => {
+                  const y = planYear({ ...p, priceCents: priceCents(p, billing), period: billing }, SUBSCRIPTION_MODEL, tokens, usage, fee, 1, 0.4, reused);
+                  if (billing === "year") return (
+                    <tr key={`${p.id}-year`} className="border-b border-slate-800/60 align-top text-slate-200">
+                      <td colSpan={3} />
+                      <td className="whitespace-nowrap">{priceLabel(p, "year")}</td>
+                      <td />
+                      <td>{y.perPlan === null ? "" : usd(y.perPlan)}</td>
+                      <td>{usd(y.ai)}</td>
+                      <td>{usd(y.fee)}</td>
+                      <td className={`font-semibold ${y.left < 0 ? "text-rose-300" : "text-emerald-300"}`}>{usd(y.left)}</td>
+                      <td className={`${y.margin < 0 ? "text-rose-300" : "text-slate-200"}`}>{Math.round(y.margin * 100)}%</td>
+                    </tr>
+                  );
                   return (
-                    <tr key={p.id} className="border-b border-slate-800/60 align-top text-slate-200">
+                    <tr key={`${p.id}-month`} className="border-b border-slate-800/30 align-top text-slate-200">
                       <td className="text-left">
                         <span className="font-semibold">{p.name}</span>
                         <span className={`ml-2 rounded px-1.5 py-0.5 text-[11px] ${p.enabled ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-700/50 text-slate-400"}`}>{p.enabled ? "enabled" : "off"}</span>
@@ -80,11 +93,12 @@ export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no 
                       <td className="text-left text-xs text-slate-400">
                         {students && <span className="block">{students}</span>}
                         <span className="block">{allowanceLabel(p)}</span>
+                        {trialLabel(p) && <span className="block">{trialLabel(p)}</span>}
                       </td>
                       <td className="text-left text-xs text-slate-400">
                         {p.batch ? "Batch: half price, minutes later" : "At once"}
                       </td>
-                      <td className="whitespace-nowrap">{priceLabel(p)}{p.period === "month" && <span className="block text-xs text-slate-500">{usd(y.revenue)} a year</span>}</td>
+                      <td className="whitespace-nowrap">{priceLabel(p, "month")}<span className="block text-xs text-slate-500">{usd(y.revenue)} a year</span></td>
                       <td>{pct}%</td>
                       <td>{y.perPlan === null ? <span className="text-xs text-amber-300">no runs</span> : usd(y.perPlan)}</td>
                       <td>{usd(y.ai)}</td>
@@ -93,11 +107,12 @@ export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no 
                       <td className={`${y.margin < 0 ? "text-rose-300" : "text-slate-200"}`}>{Math.round(y.margin * 100)}%</td>
                     </tr>
                   );
+                  });
                 })}
               </tbody>
             </table>
           </div>
-          <p className="mt-2 text-xs text-slate-500">Library: {reuse ? `${reuse.library.enabled} of ${reuse.library.total} plans in practice_plans enabled for reuse` : "not read"}{reuse && reuse.library.enabled === 0 ? ", so every autoplan is costed as written new (npm run -s db:seed-plans)" : ""}. Each year also has one email a day ($0.15). Hosting and fixed costs are under What one player costs. Allowances aren&apos;t enforced yet: the app doesn&apos;t call the AI from the server.</p>
+          <p className="mt-2 text-xs text-slate-500">Library: {reuse ? `${reuse.library.enabled} of ${reuse.library.total} plans in practice_plans enabled for reuse` : "not read"}{reuse && reuse.library.enabled === 0 ? ", so every autoplan is costed as written new (npm run -s db:seed-plans)" : ""}. Each plan has a row paid monthly and one paid yearly. Each year also has one email a day ($0.15). A free trial costs AI with no payment: see Over time. Hosting and fixed costs are under What one player costs. Allowances aren&apos;t enforced yet: the app doesn&apos;t call the AI from the server.</p>
         </>
       )}
     </section>

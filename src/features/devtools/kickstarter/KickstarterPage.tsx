@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
-import { allowanceLabel, choosablePlans, priceLabel, studentsLabel, type Plan } from "@/features/account/plans";
+import { allowanceLabel, bothPricesLabel, choosablePlans, studentsLabel, trialLabel, type Plan } from "@/features/account/plans";
 import { FACTS, LINK_GROUPS, LINKS_TO_AVOID, VOICE, outreachBrief, SAMPLE_EMAILS, type DemoLink } from "../model/kickstarter";
 
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -62,7 +62,7 @@ export default function KickstarterPage({ demos, plans }: { demos: DemoLink[]; /
           <p className="text-sm text-slate-400">No database, so the brief has no plans. Set DATABASE_URL and run npm run db:migrate.</p>
         ) : (
           <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm text-slate-200">
-            {choosablePlans(plans, null).map((p) => <li key={p.id}><span className="font-semibold">{p.name}</span>: {priceLabel(p)}. {[studentsLabel(p), allowanceLabel(p)].filter(Boolean).join(". ")}.</li>)}
+            {choosablePlans(plans, null).map((p) => <li key={p.id}><span className="font-semibold">{p.name}</span>: {bothPricesLabel(p)}. {[trialLabel(p), studentsLabel(p), allowanceLabel(p)].filter(Boolean).join(". ")}.</li>)}
           </ul>
         )}
         <Link href="/dev/costs#plans" className="mt-2 inline-block text-sm text-sky-300 hover:underline">What each costs us →</Link>

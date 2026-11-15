@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { setupHref } from "../loginGuard";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
-import { canChoose, choosablePlans, roleOnPlan, type Plan } from "../plans";
+import { canChoose, choosablePlans, roleOnPlan, type Billing, type Plan } from "../plans";
 import type { AuthRepo, TokenRow, UserRow } from "./repo";
 
 /**
@@ -208,42 +208,45 @@ export async function rename(deps: AuthDeps, userId: string, name: unknown): Pro
 }
 
 /** The plans a person can see and the one they are on (see `choosablePlans`). Null when there is no such user. */
-/** `current` is null for an account that hasn't chosen one yet. */
-export async function accountPlans(deps: AuthDeps, userId: string): Promise<{ plans: Plan[]; current: string | null } | null> {
+/** `current` is null for an account that hasn't chosen one yet; `billing` is how they pay for it. */
+export async function accountPlans(deps: AuthDeps, userId: string): Promise<{ plans: Plan[]; current: string | null; billing: Billing } | null> {
   const user = await deps.repo.userById(userId);
   if (!user) return null;
-  return { plans: choosablePlans(await deps.repo.listPlans(), user.planId), current: user.planId };
+  return { plans: choosablePlans(await deps.repo.listPlans(), user.planId), current: user.planId, billing: user.billing };
 }
 
 /**
- * Moves the person to an enabled plan, with no payment (the beta). The plan's role comes with it, so a Teacher plan
- * makes a student a teacher; an owner stays an owner. Null when the plan can't be chosen: unknown, turned off, or the
- * one they are on.
+ * Moves the person to an enabled plan, paid monthly or yearly, with no payment (the beta). The plan's role comes with
+ * it, so a Teacher plan makes a student a teacher; an owner stays an owner. Their own plan can move to the other
+ * billing. Null when the plan can't be chosen: unknown, turned off, the one they are on paid the same way, or no billing.
  */
-export async function choosePlan(deps: AuthDeps, account: Account, planId: unknown): Promise<Account | null> {
+export async function choosePlan(deps: AuthDeps, account: Account, planId: unknown, billing: unknown): Promise<Account | null> {
   const user = await deps.repo.userById(account.id);
-  const plan = user && canChoose(await deps.repo.listPlans(), user.planId, planId);
+  const plan = user && canChoose(await deps.repo.listPlans(), user, planId, billing);
   if (!plan) return null;
-  const moved = await deps.repo.setUserPlan(account.id, plan.id, roleOnPlan(account.role, plan), deps.now());
+  const moved = await deps.repo.setUserPlan(account.id, plan.id, billing as Billing, roleAfter(user, plan), deps.now());
   return moved ? toAccount(moved) : null;
 }
+
+/** The role after a plan change: the plan's, except that paying for the same plan the other way changes no role. */
+const roleAfter = (user: { role: Account["role"]; planId: string | null }, plan: Plan) => (plan.id === user.planId ? user.role : roleOnPlan(user.role, plan));
 
 export type SetupError = "name" | "plan";
 
 /**
  * /account/setup: the account's name and plan, in one step; a new account has no plan and must choose one. The plan is
- * checked before anything changes, so a bad plan leaves the name as it was. Choosing the plan the account is already on
- * keeps it. No payment (the beta).
+ * checked before anything changes, so a bad plan leaves the name as it was. Choosing the plan the account is already on,
+ * paid the same way, keeps it. No payment (the beta).
  */
-export async function setUpAccount(deps: AuthDeps, account: Account, input: { name: unknown; planId: unknown }): Promise<{ ok: true; account: Account } | { ok: false; error: SetupError }> {
+export async function setUpAccount(deps: AuthDeps, account: Account, input: { name: unknown; planId: unknown; billing: unknown }): Promise<{ ok: true; account: Account } | { ok: false; error: SetupError }> {
   const name = cleanName(input.name);
   if (!name) return { ok: false, error: "name" };
   const had = await deps.repo.userById(account.id);
   if (!had) return { ok: false, error: "plan" };
-  const keeps = had.planId !== null && input.planId === had.planId;
-  const plan = keeps ? null : canChoose(await deps.repo.listPlans(), had.planId, input.planId);
+  const keeps = had.planId !== null && input.planId === had.planId && input.billing === had.billing;
+  const plan = keeps ? null : canChoose(await deps.repo.listPlans(), had, input.planId, input.billing);
   if (!keeps && !plan) return { ok: false, error: "plan" };
   let user = await deps.repo.updateUserName(account.id, name, deps.now());
-  if (user && plan) user = await deps.repo.setUserPlan(account.id, plan.id, roleOnPlan(account.role, plan), deps.now());
+  if (user && plan) user = await deps.repo.setUserPlan(account.id, plan.id, input.billing as Billing, roleAfter(had, plan), deps.now());
   return user ? { ok: true, account: toAccount(user) } : { ok: false, error: "plan" };
 }

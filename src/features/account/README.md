@@ -11,9 +11,14 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role), `FEATURES` (the parts
   of the app with the roles that may use them; every role gets every feature except `sharePlan`, for teachers and owners), `can(account, feature)` and
   `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
-- `plans.ts`: `Plan` (a row of the `plans` table: name, the role it gives, price in US cents a month or a year, students,
+- `plans.ts`: `Plan` (a row of the `plans` table: name, the role it gives, a price in US cents a month (`monthCents`, paid monthly) and one a year (`yearCents`, paid yearly), a free trial (`trialDays`), students,
   AI autoplans a month, Batch, `enabled`, `sort`; every plan's autoplans and notes are written by one model, `SUBSCRIPTION_MODEL`, Haiku 5.5), `choosablePlans`
-  (the enabled plans, plus the one the person is on even when turned off), `canChoose`, `roleOnPlan` and the labels.
+  (the enabled plans, plus the one the person is on even when turned off), `canChoose` (an enabled plan paid either way, or their own plan, even turned off, paid the other way), `roleOnPlan`, `Billing` (`"month" | "year"`) and the labels.
+  Every plan can be paid monthly or yearly (migration `0013_yearly_and_monthly`, 2026-11-15): Student $9 a month or $27 a year,
+  Teacher Basic $9 or $72, Pro $29 or $232, Unlimited $59 or $472 (a Teacher year is 8 months), each with 14 days free.
+  How a person pays is `users.billing` (accounts from before kept their plan's old period). The old single price,
+  `plans.price_cents` and `plans.period`, is still in the table, unused and nullable, for the build before; drop it in a
+  later migration. The free trial is shown, not kept: no trial start is stored and nothing ends it.
   The plans themselves are rows in the database, written by migration `0005_plans` and changed there; their prices and
   allowances come from *Plans* on /dev/costs, which shows what each costs us. Each row also has `new_plan_percent`, internal
   and kept off `Plan`: the chance (0 to 100) that an autoplan on it is written new by the AI; the rest are taken from the
@@ -24,11 +29,15 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   needs a library of many pre-written Fable plans. /terms says an autoplan is written new or picked by the AI. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
 - `ui/SetupForm.tsx` (`/account/setup`): where an account with no plan (`Account.needsSetup`) stays. Its name (empty
   while it is only the email's stand-in, `emailName`; Google's filled in) and a plan from the same list, none chosen for
-  them, saved together by `POST /api/account/setup` (`setUpAccount` in `server/auth.ts`: the plan is checked before
-  anything changes), then on to the page it was going to.
-- `ui/PlanPicker.tsx`: the Plan part of `/account` (and `PlanLines`, what a plan gives, shared with the setup page). `GET /api/account/plan` gives `{ plans, current }`; `POST` with
-  `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
-  reloads. Leaving a Teacher plan for Student asks first.
+  them, paid Monthly or Yearly (the switch above the plans), saved together by `POST /api/account/setup` with
+  `{ name, planId, billing }` (`setUpAccount` in `server/auth.ts`: the plan and billing are checked before anything
+  changes), then on to the page it was going to. Under the plans, `PaymentBox`: the chosen plan, its price, its free
+  trial, and a dashed box where the card details will go. A placeholder: there is no payment provider yet.
+- `ui/PlanPicker.tsx`: the Plan part of `/account` (and `PlanLines`, what a plan gives, shared with the setup page). `GET /api/account/plan` gives `{ plans, current, billing }`. The same Monthly/Yearly switch
+  and plan cards as setup; picking another plan, or the other billing, shows `PaymentBox` (no trial line: the trial is for a
+  new account) and a Move to … (or Pay monthly / Pay yearly) button, which `POST`s `{ planId, billing }` and moves the person
+  at once, with no payment during the beta (`choosePlan` in `server/auth.ts`); the page reloads. Leaving a Teacher plan
+  for Student says above the button that sharing plans goes. Paying for the same plan the other way never changes the role.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
 - `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout), which also keeps an account with no plan out of the three main sections until `/account/setup`. The server half
   is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's
@@ -123,6 +132,6 @@ No `DATABASE_URL` means no accounts: the nav shows no Log in, `/login` says acco
 ## Not here yet
 
 - The plan page's Share plan asks `can("sharePlan")` (Share, or Upgrade to Teacher account), and the share rules (`userData/server/shares.ts`) ask `can(account, "sharePlan")` again on the server.
-- Plans aren't paid for yet, and their allowances (autoplans a month, students) aren't counted or enforced: the app doesn't call the AI from the server.
+- Plans aren't paid for yet: the payment box is a placeholder, and the free trial isn't started, counted or ended. Their allowances (autoplans a month, students) aren't counted or enforced: the app doesn't call the AI from the server.
 - Which students a teacher has, schools, and giving a plan to a student are not modelled.
 - Links are limited per email only, not per network address.
