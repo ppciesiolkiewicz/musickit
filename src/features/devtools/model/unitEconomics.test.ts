@@ -24,7 +24,7 @@ test("plan tokens are the median per model, counting cached input, from runs tha
   assert.deepEqual(t, [{ model: "claude-sonnet-5-5", label: "Sonnet 5.5", runs: 3, input: 70, output: 200 }]);
 });
 
-const A: Assumptions = { price: 27, plansPerMonth: 8, aiShare: 1, batch: false, reuse: 0, emailsPerDay: 1, emailPer1000: 0.4, feePercent: 2.9, feeFixed: 0.3, hosting: 0 };
+const A: Assumptions = { price: 27, plansPerMonth: 8, batch: false, reuse: 0, emailsPerDay: 1, emailPer1000: 0.4, feePercent: 2.9, feeFixed: 0.3, hosting: 0 };
 
 test("a player's year adds the AI, the emails and the fee, and finds the break-even", () => {
   const y = playerYear({ model: "claude-sonnet-5-5", input: 100_000, output: 30_000 }, A);
@@ -45,10 +45,9 @@ test("the Batch API halves the AI and nothing else", () => {
   close(half.fee, full.fee);
 });
 
-test("only the players on attunr's AI cost AI; nobody on it means no break-even", () => {
+test("a monthly plan pays the fixed fee on each of its twelve payments", () => {
   const t = { model: "claude-sonnet-5-5" as const, input: 100_000, output: 30_000 };
-  close(playerYear(t, { ...A, aiShare: 0.25 }).ai, 12);
-  assert.equal(playerYear(t, { ...A, aiShare: 0 }).breakEvenPlansPerMonth, Infinity);
+  close(playerYear(t, { ...A, price: 108, payments: 12 }).fee, 108 * 0.029 + 0.3 * 12);
 });
 
 test("at scale, fixed costs come off the margin, and a losing player never covers them", () => {

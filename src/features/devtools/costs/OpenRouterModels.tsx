@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PRICING } from "@/features/account/pricing";
 import { BASELINE_ID, OPENROUTER_CHECKED, estimateOpenRouter } from "../model/openRouter";
-import { PAYMENT_PROVIDERS, type PlanTokens } from "../model/unitEconomics";
+import type { PlanTokens } from "../model/unitEconomics";
 
 /**
  * "Other models on OpenRouter": what an autoplan would cost on each model in `model/openRouter.ts`, on Haiku 5.5's
@@ -17,11 +17,11 @@ const usd = (x: number) => {
 };
 const k = (n: number) => `${Math.round(n / 1000)}k`;
 
-export default function OpenRouterModels({ tokens }: { tokens: PlanTokens[] }) {
+export default function OpenRouterModels({ tokens, fee: provider }: { tokens: PlanTokens[]; /** the payment provider chosen at the top of the page */ fee: { percent: number; fixed: number } }) {
   const ref = tokens.find((t) => t.model === "claude-haiku-5-5") ?? tokens.find((t) => t.model === "haiku");
   const [plansPerMonth, setPlansPerMonth] = useState<number>(PRICING.player.plansPerMonth);
   const price = PRICING.player.priceNumber;
-  const fee = (price * PAYMENT_PROVIDERS.stripe.percent) / 100 + PAYMENT_PROVIDERS.stripe.fixed;
+  const fee = (price * provider.percent) / 100 + provider.fixed;
   const email = (365 * 0.4) / 1000;
 
   return (

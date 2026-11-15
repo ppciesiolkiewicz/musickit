@@ -56,8 +56,6 @@ export interface Assumptions {
   price: number;
   /** autoplans a player actually has written a month */
   plansPerMonth: number;
-  /** share of players (0 to 1) whose plans attunr's AI writes; the rest paste the prompt into their own AI, which costs nothing */
-  aiShare: number;
   /** the Batch API: half price, the plan arrives minutes later */
   batch: boolean;
   /** share of autoplans (0 to 1) served from the library of plans already written, reused for a player with the same answers: no AI call. Grows as the library does */
@@ -65,9 +63,11 @@ export interface Assumptions {
   emailsPerDay: number;
   /** US$ per 1,000 emails */
   emailPer1000: number;
-  /** the payment provider's cut of the yearly payment */
+  /** the payment provider's cut of each payment */
   feePercent: number;
   feeFixed: number;
+  /** payments a year: 1 on a yearly plan, 12 on a monthly one, each with its fixed fee. Default 1 */
+  payments?: number;
   /** US$ a player a year */
   hosting: number;
 }
@@ -91,18 +91,18 @@ export interface PlayerYear {
   breakEvenPlansPerMonth: number;
 }
 
-/** One player's year on one model. */
+/** One player's year on one model. attunr's AI writes every autoplan. */
 export function playerYear(t: Pick<PlanTokens, "model" | "input" | "output">, a: Assumptions): PlayerYear {
   const perPlan = (requestCost(t.model, t.input, t.output) ?? 0) * (a.batch ? 0.5 : 1);
   const written = 1 - a.reuse;
   // with any reuse, Haiku decides for every autoplan, reused or written
   const each = perPlan * written + (a.reuse > 0 ? pickCost() : 0);
-  const ai = each * a.plansPerMonth * 12 * a.aiShare;
+  const ai = each * a.plansPerMonth * 12;
   const email = (a.emailsPerDay * 365 * a.emailPer1000) / 1000;
-  const fee = a.price > 0 ? (a.price * a.feePercent) / 100 + a.feeFixed : 0;
+  const fee = a.price > 0 ? (a.price * a.feePercent) / 100 + a.feeFixed * (a.payments ?? 1) : 0;
   const total = ai + email + fee + a.hosting;
   const rest = a.price - email - fee - a.hosting;
-  return { perPlan, ai, email, fee, hosting: a.hosting, total, left: a.price - total, breakEvenPlansPerMonth: each > 0 && a.aiShare > 0 ? Math.max(0, rest / (each * 12 * a.aiShare)) : Infinity };
+  return { perPlan, ai, email, fee, hosting: a.hosting, total, left: a.price - total, breakEvenPlansPerMonth: each > 0 ? Math.max(0, rest / (each * 12)) : Infinity };
 }
 
 export interface AtScale { revenue: number; variable: number; fixed: number; profit: number; /** players whose margin pays the fixed costs; null when each player loses money */ playersToCoverFixed: number | null }

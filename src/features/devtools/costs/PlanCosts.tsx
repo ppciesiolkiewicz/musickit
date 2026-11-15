@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { SUBSCRIPTION_MODEL, allowanceLabel, modelLabel, priceLabel, studentsLabel, type Plan } from "@/features/account/plans";
-import { PAYMENT_PROVIDERS, planYear, type PlanTokens } from "../model/unitEconomics";
+import { planYear, type PlanTokens } from "../model/unitEconomics";
 
 /**
  * "Plans": every row of the plans table with what it costs us a year at a share of its allowance, every plan on the one
@@ -24,10 +24,8 @@ export interface ReuseInfo {
   library: { total: number; enabled: number };
 }
 
-export default function PlanCosts({ plans, tokens, reuse }: { /** null: no database, so no plans table */ plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null }) {
+export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no database, so no plans table */ plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null; /** the payment provider chosen at the top of the page */ fee: { percent: number; fixed: number } }) {
   const [usage, setUsage] = useState(1);
-  const [provider, setProvider] = useState<keyof typeof PAYMENT_PROVIDERS>("stripe");
-  const fee = PAYMENT_PROVIDERS[provider];
 
   return (
     <section id="plans" className="scroll-mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
@@ -47,12 +45,6 @@ export default function PlanCosts({ plans, tokens, reuse }: { /** null: no datab
               </span>
               <input type="range" min={0} max={1} step={0.05} value={usage} onChange={(e) => setUsage(Number(e.target.value))} className="w-full accent-sky-400" />
               <span className="text-xs text-slate-500">100% is the worst case: every autoplan of the allowance, every month.</span>
-            </label>
-            <label className="flex flex-col gap-1 text-sm text-slate-300">
-              Payment
-              <select value={provider} onChange={(e) => setProvider(e.target.value as keyof typeof PAYMENT_PROVIDERS)} className="rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-sm text-slate-100">
-                {Object.entries(PAYMENT_PROVIDERS).map(([id, v]) => <option key={id} value={id}>{v.label}</option>)}
-              </select>
             </label>
           </div>
           <div className="overflow-x-auto">
