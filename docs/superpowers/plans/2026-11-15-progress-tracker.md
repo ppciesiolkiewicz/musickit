@@ -12,29 +12,30 @@
 
 ## Global Constraints
 
-- Parts A and B are on main before Task 1 starts. Names used from them, exactly: `TopicScore`, `startOutcome` (`model/outcome.ts`); `PlanExercise.blockId?: string`; `ProgressEntry.blockId?: string`; `DayTime.blocks?: Record<string, string>` (slot id → block id) beside `spent`.
+- Parts A and B are on main before Task 1 starts. Names used from them, exactly: `TopicScore`, `startOutcome` (`model/outcome.ts`); `PlanExercise.blockId?: string`; `ProgressEntry.blockId?: string`; `DayTime.blocks?: Record<string, string>` (slot id → block id) and `DayTime.on?: Record<string, number>` (local `yyyy-mm-dd` → seconds the timer counted that date) beside `spent`, stored in `plan_day_times.blocks` and `plan_day_times.on_dates`.
 - The outcome is one pure function with no clock and no store: every date comes in as `asOf` (local `yyyy-mm-dd`).
 - **Difficulty comes from concepts, not the block's `level` tag.** A concept's level is its `CONCEPTS` level; an entry's or exercise's `level` is never read by the outcome.
 - **Solid block:** latest rating 4 or 5 stars (`SOLID_STARS = 4`).
 - **Concept:** `solid` when the latest-rated block tagged with it is solid; `working` (shown "Working on") when it has ratings but isn't solid; `not-yet` when it has none. Per concept: state, own level, ratings count, last date, seconds.
-- **Topic score** on 0–3: the floor is the latest questionnaire rung up to `asOf`; reached = the higher of that rung and the highest level with a solid concept in the topic; plus (solid concepts one level up) / (concepts one level up). An entry with no concepts counts toward ratings and time, not the score.
+- **Topic score** on 0–3: the floor is the latest questionnaire rung up to `asOf`; with no rung it is 0 ("new") once the topic has any counted rating, and the score is null with neither. A level counts as reached from practice only when every concept of the topic at that level is solid; a level with no concepts in the topic doesn't block (it is never the level checked). Reached = the higher of the floor and the highest level reached from practice; score = reached + (solid concepts at reached + 1) / (concepts at reached + 1); at advanced (3), no fraction. An entry with no concepts counts toward ratings and time (and makes the floor 0), never toward a level or the fraction.
 - **Area:** its six topic scores (the radar's axes).
 - **Time:** day-timer seconds mapped slot → block tags; a block's seconds count in full toward each of its concepts and once toward its topic (and once toward its area).
-- **Streak:** consecutive local days ending on `asOf` or the day before, on which the player rated a block or the day timer counted at least 300 s (`STREAK_SECONDS = 300`).
+- **Streak:** consecutive local days ending on `asOf` or the day before, on which the player rated a block or the day timer counted at least 300 s that date (`STREAK_SECONDS = 300`), read from `DayTime.on`; a record without `on` is dated its plan's `startedOn` + day.
 - **No points, no score, no celebrating** on any player-facing screen: levels by name ("Beginner", "Intermediate"), plain facts ("rated 4 times, last on 12 Nov"), never a number out of 3 or 100, a percentage, or "great job". The streak is a count of days, said plainly. `/dev/progress` may show the raw numbers.
 - Every word a player reads is written after loading the skills in AGENTS.md "Words on the screen": interface copy → `design:ux-copy` with "Words about the app" in `teaching-voice` (if `design:ux-copy` isn't installed, write from "Words about the app" alone and say so). Report every string changed, old → new. "Solid", "Working on", "Not yet" are the spec's words.
 - `/dev/progress` is in the live group (`src/app/dev/(live)/progress`), shows only the signed-in player's own data through the normal stores, bare tables, no charts.
 - `src/features/progress` stays plan-free (its README rule): the outcome lives in `src/features/plan/model/`.
 - Not in this part: block tables, block ids, the plan review, the move-over script, course section ratings feeding the outcome, any prompt change (`PROMPT_VERSION` stays).
 - Before calling a task done: its tests, `npx tsc --noEmit 2>&1 | grep -v '^.next/'`, eslint on the changed files. Keep `src/features/plan/README.md` (and the other READMEs named per task) true in the same commit.
-- Commits go straight to main, one per task: commit only this task's paths via a temp GIT_INDEX_FILE (see memory shared-index-staging); never `git add` in the shared checkout. Every message ends with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+- Commits go straight to main, one per task: commit only this task's paths via a temp GIT_INDEX_FILE (see memory shared-index-staging); never `git add` in the shared checkout. Every message ends with the session's attribution line.
 
 ## Review Focus
 
 - **A player from before this part** (stored `answers`, plans, no `answersHistory`): loading gives one entry with their topics dated their earliest plan's `startedOn`, so their floor is their old answers, not "not answered". No plan at all: no entry is made (nothing to date it by). Tests in Task 1.
 - **A concept rated solid, then rated lower in a later plan:** it goes back to "Working on" and the topic falls back toward the rung, never below the rung. Tests in Task 3.
 - **Entries whose tags no longer match the catalogue** (a concept or topic id removed or renamed, an entry with no tags at all): counted where they can be (totals, the topic named), ignored in the concept table, and nothing throws. Tests in Task 3.
-- **Timer records whose plan has left the plan history** (20 kept, `fitPlanState` drops more): they have no date, so they count toward time in every as-of run and never toward the streak; nothing throws. Tests in Task 4.
+- **Timer records whose plan has left the plan history** (20 kept, `fitPlanState` drops more): with `on` they keep their dates and count as usual; without `on` (saved before Part B) they have no date, so they count toward time in every as-of run and never toward the streak; nothing throws. Tests in Task 4.
+- **A day tab practised on another date** (day 3's tab open on day 5): its seconds go to the dates in `on`, not to `startedOn + 3`. Test in Task 4.
 - **The streak while today's timer runs:** today's saves reach the streak without a reload (the current plan's live records are laid over the all-plans read). Test in Task 6.
 
 ---
@@ -46,7 +47,7 @@
 - Create: `src/features/plan/model/answersHistory.test.ts`
 - Modify: `src/features/plan/model/types.ts` (`AnswersEntry`, `PlanState.answersHistory`, `EMPTY_STATE`)
 - Modify: `src/features/plan/model/state.ts` (`sanitiseState`)
-- Modify: `src/features/plan/model/schedule.ts` (`dayOf`, `addDays`), tests in `src/features/plan/model/plan.test.ts`
+- Modify: `src/features/plan/model/schedule.ts` (`dayOf`; `addDays` already exists from Part B Task 3), tests in `src/features/plan/model/plan.test.ts`
 - Modify: `src/features/plan/ui/PlanFlow.tsx` (`onPlan` gets `asked`)
 - Modify: `src/features/plan/PlanApp.tsx` (`onPlan` records the answers)
 - Modify: any test that deep-equals a sanitised state (run `src/features/plan/model/*.test.ts`, `src/features/plan/store/*.test.ts`, `src/features/userData/*.test.ts`, `src/features/userData/server/*.test.ts`; add `answersHistory: []` where they now differ)
@@ -112,7 +113,7 @@ test("recordAnswers appends the finished answers with their time", () => {
 - [ ] **Step 5: Run, expect PASS** — the two test files, then `npx tsx --test src/features/plan/model/*.test.ts src/features/plan/store/*.test.ts src/features/userData/*.test.ts src/features/userData/server/*.test.ts`; fix deep-equals that now miss `answersHistory: []`. Then tsc and eslint on the changed files.
 
 - [ ] **Step 6: Commit** this task's paths via a temp GIT_INDEX_FILE (see memory shared-index-staging):
-  `feat(plan): remember each finished questionnaire with its date (answersHistory)` + the Co-Authored-By line.
+  `feat(plan): remember each finished questionnaire with its date (answersHistory)` + the session's attribution line.
 
 ### Task 2: read every day-timer record (`PlanStore.loadAllTimes`)
 
@@ -128,8 +129,8 @@ test("recordAnswers appends the finished answers with their time", () => {
 - Modify: `src/features/plan/README.md` (code map: PlanStore, usePlan), `src/features/userData/README.md` (the time route's GET)
 
 **Interfaces:**
-- Produces: `PlanStore.loadAllTimes(): Promise<DayTime[]>` — every plan's records (each passed through `parseDayTime`, so Part B's `blocks` come along).
-- Produces: `UserDataRepo.listAllPlanTimes(userId: string): Promise<unknown[]>` — the user's `plan_day_times` rows, newest `updated_at` first, at most 1000; selects the same columns as `listPlanTimes` (including Part B's `blocks`).
+- Produces: `PlanStore.loadAllTimes(): Promise<DayTime[]>` — every plan's records (each passed through `parseDayTime`, so Part B's `blocks` and `on` come along).
+- Produces: `UserDataRepo.listAllPlanTimes(userId: string): Promise<unknown[]>` — the user's `plan_day_times` rows, newest `updated_at` first, at most 1000; selects the same columns as `listPlanTimes` (including Part B's `blocks` and `on_dates`, read back as `on`).
 - Produces: `readAllPlanTimes(repo: UserDataRepo, userId: string): Promise<DayTime[]>`.
 - Produces: `GET /api/me/plan/time` with no `plan` → `{ days }` of every plan; `?plan=<id>` unchanged; a `plan` over 200 characters still 400.
 - Produces: `ServerPlanOpts.getAllTimes?: () => Promise<unknown>` (default `getJson("/api/me/plan/time")`).
@@ -143,10 +144,11 @@ test("readAllPlanTimes lists every plan's days for this player only", async () =
   const repo = memoryUserDataRepo(); const now = new Date("2026-11-15T12:00:00Z");
   const t = { planId: "p", day: 0, elapsed: 120, spent: { e1: 120 } };
   await writePlanTime(repo, "u1", t, now);
-  await writePlanTime(repo, "u1", { ...t, planId: "q", day: 3 }, now);
+  await writePlanTime(repo, "u1", { ...t, planId: "q", day: 3, on: { "2026-11-14": 120 } }, now);
   await writePlanTime(repo, "u2", { ...t, planId: "r" }, now);
   const all = await readAllPlanTimes(repo, "u1");
   assert.deepEqual(all.map((d) => `${d.planId}:${d.day}`).sort(), ["p:0", "q:3"]);
+  assert.deepEqual(all.find((d) => d.planId === "q")!.on, { "2026-11-14": 120 }); // on_dates comes back as on
 });
 
 // serverPlanStore.test.ts
@@ -175,7 +177,7 @@ test("memory loadAllTimes returns every plan's saved records", async () => {
 - [ ] **Step 4: Run, expect PASS**; tsc; eslint on the changed files.
 
 - [ ] **Step 5: Commit** via a temp GIT_INDEX_FILE (memory shared-index-staging):
-  `feat(plan): PlanStore.loadAllTimes reads every plan's day-timer records` + the Co-Authored-By line.
+  `feat(plan): PlanStore.loadAllTimes reads every plan's day-timer records` + the session's attribution line.
 
 ### Task 3: the outcome — concepts, topics, areas, as of a date
 
@@ -208,20 +210,26 @@ Rules this task pins (the implementer writes the rest):
 - An entry counts when `dayOf(entry.at) <= asOf`. Its concepts are those of `entry.concepts` that `conceptById` knows; its topic is `entry.topic` when `topicById` knows it, else the topic of its first known concept; its area is the topic's area, else `entry.area` when it is an `Area`. Topic and area `ratings` count the entry once; each known concept counts it once.
 - A concept's state: the newest counted entry tagged with it (greatest `at`; a tie goes to the later one in the list) decides — `stars >= SOLID_STARS` → `solid`, else `working`; no entry → `not-yet`. `lastOn` = `dayOf` of that entry's `at`. (Rows are one per slot and a block's tags never change, so "the latest-rated block's latest rating" is this newest entry; an entry without `blockId` is its own block.)
 - The rung: the last entry of `answersHistory` (array order) with `dayOf(at) <= asOf`; its `topics[topic]`, or `null`.
-- The score, as code because the empty-level case is decided here:
+- The score, as code because the empty-level cases are decided here (`concepts` = the topic's `ConceptOutcome`s, `rated` = the topic's counted `ratings > 0`):
 
 ```ts
-const solidTop = max(LEVEL_ORDER.indexOf(c.level) for c of topic's concepts with state "solid"), or null when none;
-const reached = rung === null && solidTop === null ? null : Math.max(rung ?? 0, solidTop ?? 0);
+const at = (i: number) => concepts.filter((c) => LEVEL_ORDER.indexOf(c.level) === i);
+const solid = (c: ConceptOutcome) => c.state === "solid";
+// A level is reached from practice when it has concepts in this topic and every one is solid. Levels are judged
+// one by one: an empty level is never the one checked, so it doesn't block, and a level below need not be solid.
+const practised = [0, 1, 2, 3].filter((i) => at(i).length > 0 && at(i).every(solid));
+const fromPractice = practised.length ? Math.max(...practised) : null;
+const floor = rung ?? (rated ? 0 : null); // no answer: "new" once the topic has any rating
+const reached = floor === null && fromPractice === null ? null : Math.max(floor ?? 0, fromPractice ?? 0);
 if (reached === null) score = null;
-else if (reached >= 3) score = 3;
+else if (reached >= 3) score = 3; // advanced: no fraction
 else {
-  const up = topic's concepts with LEVEL_ORDER.indexOf(level) === reached + 1;
+  const up = at(reached + 1);
   score = reached + (up.length ? up.filter(solid).length / up.length : 0); // no concepts one level up: stays at reached
 }
 ```
 
-- [ ] **Step 1: Write the failing tests** (fixtures: `entry(over)` makes a valid `ProgressEntry` with `planId "p"`, a fresh `exerciseId`, `title "x"`, `stars 3`, `at "2026-11-10T12:00:00.000Z"`; `asked(at, topics)` makes an `AnswersEntry`; `topic(o, id)` finds a `TopicOutcome`; `concept(o, id)` a `ConceptOutcome`. `guitar-caged` has `top-string-triads` (beginner), `caged` and `arpeggios-position` (intermediate), `triads-every-set` (advanced)):
+- [ ] **Step 1: Write the failing tests** (fixtures: `entry(over)` makes a valid `ProgressEntry` with `planId "p"`, a fresh `exerciseId`, `title "x"`, `stars 3`, `at "2026-11-10T12:00:00.000Z"`; `asked(at, topics)` makes an `AnswersEntry`; `topic(o, id)` finds a `TopicOutcome`; `concept(o, id)` a `ConceptOutcome`. Concept levels from `model/concepts.ts`: `guitar-caged` has `top-string-triads` (beginner), `caged` and `arpeggios-position` (intermediate), `triads-every-set` (advanced), nothing at new; `guitar-scales` has two beginner concepts, `pentatonic-box-1` and `guitar-melodies-beginner`; `voice-breath-range` has only `breath-holding-note` (new) and `stretch-range` (advanced)):
 
 ```ts
 const caged = (o: Outcome) => topic(o, "guitar-caged");
@@ -241,20 +249,45 @@ test("outcome: one of two concepts a level up solid adds half a level", () => {
   assert.equal(concept(o, "caged").state, "solid");
   assert.equal(caged(o).score, 1.5);
 });
-test("outcome: a solid concept above the rung lifts the level reached", () => {
+test("outcome: every concept of a level solid reaches it; then the share of the level above is added", () => {
+  const rung1 = [asked("2026-11-01", { "guitar-caged": 1 })];
   const e = [entry({ concepts: ["caged", "arpeggios-position"], stars: 5 })];
-  assert.equal(caged(outcome({ ...IN, entries: e, answersHistory: [asked("2026-11-01", { "guitar-caged": 1 })] }, "2026-11-15")).score, 2);
+  const o = outcome({ ...IN, entries: e, answersHistory: rung1 }, "2026-11-15");
+  assert.equal(caged(o).reached, 2);
+  assert.equal(caged(o).score, 2); // the one advanced concept isn't solid
   const all = [...e, entry({ concepts: ["triads-every-set"], stars: 4 })];
-  assert.equal(caged(outcome({ ...IN, entries: all, answersHistory: [] }, "2026-11-15")).score, 3);
+  assert.equal(caged(outcome({ ...IN, entries: all, answersHistory: rung1 }, "2026-11-15")).score, 3); // advanced: no fraction
+});
+test("outcome: one solid concept doesn't reach its level while another there isn't solid", () => {
+  const o = outcome({ ...IN, entries: [entry({ concepts: ["caged"], stars: 5 })], answersHistory: [] }, "2026-11-15");
+  assert.equal(caged(o).reached, 0); // no rung, one rating: floor 0; intermediate isn't all solid
+  assert.equal(caged(o).score, 0); // and the one beginner concept isn't solid
+});
+test("outcome: a level is judged on its own; the levels below need not be solid", () => {
+  const o = outcome({ ...IN, entries: [entry({ concepts: ["triads-every-set"], stars: 5 })], answersHistory: [] }, "2026-11-15");
+  assert.equal(caged(o).score, 3);
 });
 test("outcome: no rung but a solid concept starts from that concept's level", () => {
   const o = outcome({ ...IN, entries: [entry({ concepts: ["top-string-triads"], stars: 4 })], answersHistory: [] }, "2026-11-15");
-  assert.equal(caged(o).score, 1);
+  assert.equal(caged(o).reached, 1);
+  assert.equal(caged(o).score, 1); // 0 of the 2 intermediate concepts solid
 });
-test("outcome: rated but not solid is working on, and without a rung the score stays null", () => {
-  const o = outcome({ ...IN, entries: [entry({ concepts: ["caged"], stars: 3 })], answersHistory: [] }, "2026-11-15");
-  assert.equal(concept(o, "caged").state, "working");
-  assert.equal(caged(o).score, null);
+test("outcome: no rung and one rating starts from new (0) plus the share of beginner", () => {
+  const solid = outcome({ ...IN, entries: [entry({ concepts: ["pentatonic-box-1"], stars: 4 })], answersHistory: [] }, "2026-11-15");
+  assert.equal(topic(solid, "guitar-scales").reached, 0);
+  assert.equal(topic(solid, "guitar-scales").score, 0.5); // 1 of the 2 beginner concepts
+  const working = outcome({ ...IN, entries: [entry({ concepts: ["pentatonic-box-1"], stars: 3 })], answersHistory: [] }, "2026-11-15");
+  assert.equal(concept(working, "pentatonic-box-1").state, "working");
+  assert.equal(topic(working, "guitar-scales").score, 0);
+});
+test("outcome: no rung and nothing rated is null", () => {
+  assert.equal(topic(outcome({ ...IN, entries: [], answersHistory: [] }, "2026-11-15"), "guitar-scales").score, null);
+});
+test("outcome: a level with no concepts doesn't block, and adds no fraction", () => {
+  const rung1 = [asked("2026-11-01", { "voice-breath-range": 1 })];
+  const t = (e: ProgressEntry[]) => topic(outcome({ ...IN, entries: e, answersHistory: rung1 }, "2026-11-15"), "voice-breath-range");
+  assert.equal(t([]).score, 1); // nothing at intermediate: stays at 1
+  assert.equal(t([entry({ concepts: ["stretch-range"], stars: 5 })]).score, 3); // advanced reached past the empty level
 });
 test("outcome: solid then rated lower is working on again, and the score falls back to the rung, never below", () => {
   const o = outcome({ ...IN, entries: [
@@ -280,14 +313,15 @@ test("outcome as of a date: later ratings and later answers are left out", () =>
   assert.equal(concept(outcome(input, "2026-11-15"), "caged").state, "solid");
   assert.equal(caged(outcome(input, "2026-11-15")).score, 2); // rung 2 already covers caged; the one advanced concept isn't solid
 });
-test("outcome: an entry with no concepts counts toward ratings, not the score; unknown ids are ignored", () => {
+test("outcome: an entry with no concepts counts toward ratings (floor 0), never toward a level; unknown ids are ignored", () => {
   const o = outcome({ ...IN, entries: [
     entry({ topic: "guitar-caged", stars: 5 }),
     entry({ concepts: ["no-such-concept"], topic: "no-such-topic", area: "guitar", stars: 5 }),
     entry({ stars: 5 }),
   ], answersHistory: [] }, "2026-11-15");
   assert.equal(caged(o).ratings, 1);
-  assert.equal(caged(o).score, null);
+  assert.equal(caged(o).score, 0); // rated, so "new"; no concept is solid
+  assert.ok(caged(o).concepts.every((c) => c.state === "not-yet"));
   assert.equal(o.areas[0].ratings, 2); // the caged entry and the one naming only its area
 });
 ```
@@ -299,7 +333,7 @@ test("outcome: an entry with no concepts counts toward ratings, not the score; u
 - [ ] **Step 4: Run, expect PASS**; tsc; eslint.
 
 - [ ] **Step 5: Commit** via a temp GIT_INDEX_FILE (memory shared-index-staging):
-  `feat(plan): the outcome per concept, topic and area from ratings and answers over time` + the Co-Authored-By line.
+  `feat(plan): the outcome per concept, topic and area from ratings and answers over time` + the session's attribution line.
 
 ### Task 4: the outcome — time per category and the streak
 
@@ -308,16 +342,17 @@ test("outcome: an entry with no concepts counts toward ratings, not the score; u
 - Modify: `src/features/plan/README.md` (the Progress paragraph: time and streak rules)
 
 **Interfaces:**
-- Consumes: `DayTime` with Part B's `blocks`; `PlanExercise.blockId`, `ProgressEntry.blockId` (Part B); `addDays`, `dayOf` (Task 1).
+- Consumes: `DayTime` with Part B's `blocks` and `on`; `PlanExercise.blockId`, `ProgressEntry.blockId` (Part B); `addDays`, `dayOf` (Task 1).
 - Produces: `Outcome.seconds`, every `seconds` field, `Outcome.streak` (types from Task 3).
 
 Rules this task pins:
-- A record's date is `addDays(plan.startedOn, record.day)` for the plan in `input.plans` with `id === record.planId`; no such plan → undated. A dated record counts when its date `<= asOf`; an undated one counts toward seconds in every run and never toward the streak.
+- A record's dates: with `on` (non-empty, its seconds summing above 0), the dates in `on` with their seconds. Without it (saved before Part B), one date, `addDays(plan.startedOn, record.day)` for the plan in `input.plans` with `id === record.planId`, holding `elapsed`; no such plan → undated.
+- How much of a record counts as of `asOf`: with `on`, the share `(sum of on[d] for d <= asOf) / (sum of on)`, applied to each slot's seconds (`spent` has no dates of its own; floored per slot); without `on`, all of it when its one date `<= asOf`, none when after; an undated record all of it in every run.
 - A slot's tags (each slot of `record.spent`): (1) the exercise with `id === slot` in that record's plan; else (2) the block id `record.blocks?.[slot]`, tagged by any plan exercise with that `blockId`, else any entry with that `blockId`; else (3) none. Topic and area from those tags by the same rules as an entry's (Task 3). The slot's seconds go to each known concept in full, to its topic once, to its area once.
 - `seconds.total`: every counted slot's seconds; `seconds.sorted`: those that reached a topic or an area.
-- Streak: the practised days are the dates of counted entries plus the dates of dated records with `elapsed >= STREAK_SECONDS`, all `<= asOf`. Start at `asOf` if practised, else at `addDays(asOf, -1)` if practised, else `days: 0, through: null`; count back while each day is practised. `practised` lists every practised day `<= asOf`, newest first, no repeats.
+- Streak: the practised days are the dates of counted entries plus every timer date `<= asOf` whose seconds, summed over all records (`on[d]`, or a record's `elapsed` on its fallback date), reach `STREAK_SECONDS`. An undated record is never a timer date. Start at `asOf` if practised, else at `addDays(asOf, -1)` if practised, else `days: 0, through: null`; count back while each day is practised. `practised` lists every practised day `<= asOf`, newest first, no repeats.
 
-- [ ] **Step 1: Write the failing tests** (fixture `storedPlan(id, startedOn, exercises)` with one day holding the given exercises; `time(planId, day, elapsed, spent, blocks?)`):
+- [ ] **Step 1: Write the failing tests** (fixture `storedPlan(id, startedOn, exercises)` with one day holding the given exercises; `time(planId, day, elapsed, spent, blocks?, on?)`; a record made without `on` is one saved before Part B):
 
 ```ts
 test("time: a slot's seconds go to each of its concepts in full and once to its topic and area", () => {
@@ -335,10 +370,18 @@ test("time: a slot whose plan is gone is found through its block id; with neithe
   assert.equal(topic(o, "voice-pitch").seconds, 300);
   assert.deepEqual(o.seconds, { total: 500, sorted: 300 });
 });
-test("time as of a date: a day after asOf is left out", () => {
+test("time as of a date, no on: a day after asOf is left out", () => {
   const p = storedPlan("p", "2026-11-10", [{ id: "s1", topic: "guitar-caged" }]);
   const o = outcome({ plans: [p], entries: [], answersHistory: [], times: [time("p", 5, 600, { s1: 600 })] }, "2026-11-14");
   assert.equal(o.seconds.total, 0);
+});
+test("time as of a date, with on: the share counted up to asOf, whatever the plan day", () => {
+  const p = storedPlan("p", "2026-11-10", [{ id: "s1", topic: "guitar-caged" }]);
+  const t = time("p", 0, 600, { s1: 600 }, undefined, { "2026-11-12": 300, "2026-11-14": 300 });
+  const at = (asOf: string) => outcome({ plans: [p], entries: [], answersHistory: [], times: [t] }, asOf).seconds.total;
+  assert.equal(at("2026-11-11"), 0); // day 0 is 2026-11-10, but nothing was counted until the 12th
+  assert.equal(at("2026-11-13"), 300);
+  assert.equal(at("2026-11-14"), 600);
 });
 test("streak: consecutive days ending today", () => {
   const e = ["2026-11-13", "2026-11-14", "2026-11-15"].map((d) => entry({ at: `${d}T12:00:00.000Z` }));
@@ -351,12 +394,22 @@ test("streak: a gap breaks it; a later rating than asOf doesn't count", () => {
   const e = ["2026-11-12", "2026-11-14", "2026-11-15", "2026-11-16"].map((d) => entry({ at: `${d}T12:00:00.000Z` }));
   assert.equal(outcome({ plans: [], entries: e, answersHistory: [], times: [] }, "2026-11-15").streak.days, 2);
 });
-test("streak: a timer day counts from 300 seconds; a record whose plan is gone never does", () => {
+test("streak, no on: a timer day is startedOn + day and counts from 300 seconds; without its plan it never does", () => {
   const p = storedPlan("p", "2026-11-10", []);
   const run = (elapsed: number, planId = "p") => outcome({ plans: [p], entries: [], answersHistory: [], times: [time(planId, 2, elapsed, {})] }, "2026-11-12").streak.days;
   assert.equal(run(300), 1);
   assert.equal(run(299), 0);
   assert.equal(run(3000, "gone"), 0);
+});
+test("streak, with on: each date counts its own seconds, summed over records, plan or no plan", () => {
+  const p = storedPlan("p", "2026-11-10", []);
+  const times = [
+    time("p", 0, 500, {}, undefined, { "2026-11-11": 200, "2026-11-12": 300 }),
+    time("gone", 4, 100, {}, undefined, { "2026-11-11": 100 }),
+  ];
+  const o = outcome({ plans: [p], entries: [], answersHistory: [], times }, "2026-11-12");
+  assert.deepEqual(o.streak, { days: 2, through: "2026-11-12", practised: ["2026-11-12", "2026-11-11"] }); // 11th: 200 + 100
+  assert.equal(o.streak.practised.includes("2026-11-10"), false); // day 0's date is not used when on is there
 });
 ```
 
@@ -364,14 +417,14 @@ test("streak: a timer day counts from 300 seconds; a record whose plan is gone n
 - [ ] **Step 3: Implement** time and streak in `outcome` with the rules above.
 - [ ] **Step 4: Run, expect PASS**; tsc; eslint.
 - [ ] **Step 5: Commit** via a temp GIT_INDEX_FILE (memory shared-index-staging):
-  `feat(plan): time per concept and topic, and the day streak, in the outcome` + the Co-Authored-By line.
+  `feat(plan): time per concept and topic, and the day streak, in the outcome` + the session's attribution line.
 
 ### Task 5: `/dev/progress`
 
 **Files:**
 - Create: `src/features/devtools/progress/ProgressPage.tsx` (client component)
 - Create: `src/app/dev/(live)/progress/page.tsx` (`<DevShell><ProgressPage /></DevShell>`, like `(live)/data/page.tsx`)
-- Modify: `src/features/devtools/registry.ts` (one `DEV_TOOLS` entry, `live: true`)
+- Modify: `src/features/devtools/registry.ts` (one `DEV_TOOLS` entry, `live: true`, placed right after the `/dev/data` entry)
 - Modify: `src/features/devtools/gate.test.ts` (the live list)
 - Modify: `src/features/devtools/README.md` ("apart from four" → five, naming Progress; a short section on the page)
 
@@ -381,7 +434,7 @@ test("streak: a timer day counts from 300 seconds; a record whose plan is gone n
 
 - [ ] **Step 1: Update the failing test** — in `gate.test.ts` the live list becomes `["/dev/compare-models", "/dev/examples", "/dev/stories", "/dev/data", "/dev/progress"]`; run `npx tsx --test src/features/devtools/gate.test.ts`, expect FAIL.
 - [ ] **Step 2: Build the page.** Inputs: plans = `[state.current, ...state.history]` without nulls, `entries` from `useProgress`, `times` from `useAllPlanTimes`, `state.answersHistory`; "Loading…" until all three are loaded. A date field for `asOf`, today by default. Bare tables (the `TH`/`TD` look of `DataPage.tsx`), no charts:
-  - Inputs: answers history (`at`, each answered topic and rung); plans (id, title, startedOn); entries (`at`, title, blockId or "—", topic, concepts, stars); day records (planId, day, date or "no date", elapsed, spent by slot, block by slot).
+  - Inputs: answers history (`at`, each answered topic and rung); plans (id, title, startedOn); entries (`at`, title, blockId or "—", topic, concepts, stars); day records (planId, day, dates with seconds from `on`, else `startedOn + day` marked "from plan day", else "no date"; elapsed, spent by slot, block by slot).
   - Per area: label, ratings, seconds, the six topic scores.
   - Per topic: area, label, rung, reached, score (two decimals), ratings, seconds.
   - Per concept: topic, label, level, state, ratings, last date, seconds.
@@ -389,7 +442,7 @@ test("streak: a timer day counts from 300 seconds; a record whose plan is gone n
 - [ ] **Step 3: Run, expect PASS** — the gate test; tsc; eslint on the new and changed files.
 - [ ] **Step 4: Check on the dev server** — open `/dev/progress` signed in (memory notes local-login-db and worktree-dev-and-screenshots; keep the real browser profile's data, memory note browser-test-keep-user-data): rate an exercise on `/plan`, reload, the entry and its concept appear; set the date before it and it drops out.
 - [ ] **Step 5: Commit** via a temp GIT_INDEX_FILE (memory shared-index-staging):
-  `feat(devtools): /dev/progress, the progress outcome's inputs and outputs as tables` + the Co-Authored-By line.
+  `feat(devtools): /dev/progress, the progress outcome's inputs and outputs as tables` + the session's attribution line.
 
 ### Task 6: tracker view model
 
@@ -419,10 +472,16 @@ test("shownAreas: the chosen areas plus any practised one, in screen order", () 
   assert.deepEqual(shownAreas(o, null).map((a) => a.area), ["voice"]);
 });
 test("topicLevel: the level reached by id, and the next one only once something there is solid", () => {
+  assert.deepEqual(topicLevel({ reached: 0, score: 0 } as TopicOutcome), { level: "new", next: null }); // no answer, rated, nothing solid
+  assert.deepEqual(topicLevel({ reached: 0, score: 0.5 } as TopicOutcome), { level: "new", next: "beginner" });
   assert.deepEqual(topicLevel({ reached: 1, score: 1.5 } as TopicOutcome), { level: "beginner", next: "intermediate" });
   assert.deepEqual(topicLevel({ reached: 1, score: 1 } as TopicOutcome), { level: "beginner", next: null });
   assert.deepEqual(topicLevel({ reached: 3, score: 3 } as TopicOutcome), { level: "advanced", next: null });
-  assert.equal(topicLevel({ reached: null, score: null } as TopicOutcome), null);
+  assert.equal(topicLevel({ reached: null, score: null } as TopicOutcome), null); // no answer and nothing rated
+});
+test("topicLevel from a real outcome: rung 1 and one of the two intermediate CAGED concepts solid", () => {
+  const o = outcome({ plans: [], times: [], entries: [entry({ concepts: ["caged"], stars: 4 })], answersHistory: [asked("2026-11-01", { "guitar-caged": 1 })] }, "2026-11-15");
+  assert.deepEqual(topicLevel(o.areas[0].topics.find((t) => t.topic === "guitar-caged")!), { level: "beginner", next: "intermediate" });
 });
 test("minutesOf rounds down", () => assert.equal(minutesOf(359), 5));
 ```
@@ -431,7 +490,7 @@ test("minutesOf rounds down", () => assert.equal(minutesOf(359), 5));
 - [ ] **Step 3: Implement** the four functions.
 - [ ] **Step 4: Run, expect PASS**; tsc; eslint.
 - [ ] **Step 5: Commit** via a temp GIT_INDEX_FILE (memory shared-index-staging):
-  `feat(plan): tracker view helpers (areas shown, level by name, live timer days)` + the Co-Authored-By line.
+  `feat(plan): tracker view helpers (areas shown, level by name, live timer days)` + the session's attribution line.
 
 ### Task 7: the player's tracker on /plan
 
@@ -451,7 +510,7 @@ test("minutesOf rounds down", () => assert.equal(minutesOf(359), 5));
 - [ ] **Step 4: Run** `npx tsx --test src/features/plan/model/*.test.ts`, tsc, eslint on the new and changed files; `grep -nE "score|%" src/features/plan/ui/tracker/*.tsx` shows no rendered score or percent.
 - [ ] **Step 5: Check on the dev server** (memory notes local-login-db, browser-test-keep-user-data; DemoPlan renders `PlanApp` too, so also open `/demo/guitar-beginner` and see the streak at 0 days with nothing broken): on `/plan`, rate an exercise → the streak counts today; open the tracker → the rated concept shows "Working on" or "Solid" with its details on hover and on tap; a phone-width window (memory note worktree-dev-and-screenshots for true mobile width) shows no horizontal scroll. Read every line on the screen against the skills.
 - [ ] **Step 6: Commit** via a temp GIT_INDEX_FILE (memory shared-index-staging):
-  `feat(plan): a day streak on /plan that opens to progress by area, topic and concept` + the Co-Authored-By line. The report lists every new string (old → new is "— → new" for new ones) and what was and wasn't checked in the browser.
+  `feat(plan): a day streak on /plan that opens to progress by area, topic and concept` + the session's attribution line. The report lists every new string (old → new is "— → new" for new ones) and what was and wasn't checked in the browser.
 
 ### Task 8 (optional, after Task 7 reads well): start-vs-now radar per area
 
@@ -467,12 +526,12 @@ Only if the list in Task 7 is on main and the user wants it; skip otherwise (the
 - [ ] **Step 1:** Load the `dataviz` skill and the copy skills (legend words: start and now).
 - [ ] **Step 2: Test** `startDay`: `{ answersHistory: [asked("2026-11-01", {})], plans: [storedPlan("p", "2026-10-20", [])] }` → `"2026-11-01"`; no history → `"2026-10-20"`; nothing → `null`. Run, FAIL; implement; run, PASS.
 - [ ] **Step 3:** Draw it; check on the dev server in light and dark styles and at phone width; drop it if it doesn't read well.
-- [ ] **Step 4: Commit** via a temp GIT_INDEX_FILE (memory shared-index-staging): `feat(plan): start-vs-now radar per area in the tracker` + the Co-Authored-By line.
+- [ ] **Step 4: Commit** via a temp GIT_INDEX_FILE (memory shared-index-staging): `feat(plan): start-vs-now radar per area in the tracker` + the session's attribution line.
 
 ---
 
 ## Self-review
 
-- **Spec coverage:** answersHistory appended on Start and Change my answers (Task 1, `asked`); lazy move-over (Task 1); difficulty from concepts (Task 3, test "block's level tag is not read"); solid = latest 4–5 (Task 3); concept states with level, count, last date, time (Tasks 3–4); topic score with rung floor and fraction (Task 3); area = six topic scores (Task 3); as of any date (Tasks 3–4); time per category (Task 4); streak (Task 4); `/dev/progress` live, own data, bare tables (Task 5); tracker with streak on `/plan`, areas → topics by level name → concepts with hover/tap details (Tasks 6–7); radar optional (Task 8). "In the header if it fits" is left out: `/plan` only.
-- **Decisions this plan makes that the spec doesn't:** a topic with no concepts one level up stays at the level reached; no rung and nothing solid is `null` (shown in words, not as 0); timer records are dated `startedOn + day` and an undated one counts toward time but never the streak; a slot's tags come first from its plan's exercise, then from its block id; `answersHistory` keeps the first entry and the newest 99.
-- **Type consistency:** `AnswersEntry`, `OutcomeInput`, `Outcome`, `TopicOutcome extends TopicScore`, `Streak`, `loadAllTimes`, `useAllPlanTimes`, `listAllPlanTimes`, `readAllPlanTimes`, `mergeTimes`, `shownAreas`, `topicLevel`, `minutesOf`, `startDay` are each defined once and used with the same names after.
+- **Spec coverage:** answersHistory appended on Start and Change my answers (Task 1, `asked`); lazy move-over (Task 1); difficulty from concepts (Task 3, test "block's level tag is not read"); solid = latest 4–5 (Task 3); concept states with level, count, last date, time (Tasks 3–4); topic score with rung floor (0 once rated without a rung, null with neither), level reached only when all its concepts are solid, empty levels not blocking, fraction one level up, none at advanced (Task 3); area = six topic scores (Task 3); as of any date (Tasks 3–4); time per category (Task 4); streak from `DayTime.on`, falling back to `startedOn + day` (Task 4); `/dev/progress` live, own data, bare tables (Task 5); tracker with streak on `/plan`, areas → topics by level name → concepts with hover/tap details (Tasks 6–7); radar optional (Task 8). "In the header if it fits" is left out: `/plan` only.
+- **Decisions this plan makes that the spec doesn't:** levels are judged one by one (a level whose concepts are all solid is reached even when a level below isn't; the rung or the student's answer speaks for those); a topic with no concepts one level up stays at the level reached (no fraction toward a level further up); an entry with no concepts makes the no-rung floor 0 but never moves a level; a record with `on` counts toward as-of time by the share of its `on` seconds up to that date; a record without `on` is dated `startedOn + day`, and one whose plan is gone counts toward time but never the streak; timer seconds per date are summed over records before the 300 s test; a slot's tags come first from its plan's exercise, then from its block id; `answersHistory` keeps the first entry and the newest 99.
+- **Type consistency:** `DayTime.on` (Part B: `Record<string, number>`, column `plan_day_times.on_dates`, read by `listPlanTimes` and `listAllPlanTimes`) and `DayTime.blocks` are the names Part B uses; `AnswersEntry`, `OutcomeInput`, `Outcome`, `TopicOutcome extends TopicScore`, `Streak`, `loadAllTimes`, `useAllPlanTimes`, `listAllPlanTimes`, `readAllPlanTimes`, `mergeTimes`, `shownAreas`, `topicLevel`, `minutesOf`, `startDay` are each defined once and used with the same names after.

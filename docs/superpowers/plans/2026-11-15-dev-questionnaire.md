@@ -47,7 +47,7 @@ Tests for the first three are in Task 1.
 ```ts
 test("startOutcome: every area in AREAS order, six topics each, unanswered is null", () => {
   const out = startOutcome({});
-  assert.deepEqual(out.map((a) => a.area), ["theory", "guitar", "voice"]); // = AREAS.map(a => a.id); assert against that, not literals, if the order differs
+  assert.deepEqual(out.map((a) => a.area), AREAS.map((a) => a.id)); // guitar, voice, theory today; never literals
   assert.ok(out.every((a) => a.topics.length === 6));
   assert.ok(out.every((a) => a.topics.every((t) => t.score === null)));
 });

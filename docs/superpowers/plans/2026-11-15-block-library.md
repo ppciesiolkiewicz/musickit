@@ -25,8 +25,9 @@
 - Out of scope: `answersHistory` and its move-over, the outcome, the tracker, handing library plans to students.
 - Every failure is surfaced (toast or inline error) and every fetch has a timeout; Part B adds no new browser fetch (the review is saved with the plan document).
 - Tests: `npx tsx --test <file>` (if npx stalls, use the cached binary, `ls ~/.npm/_npx/*/node_modules/.bin/tsx`). Types: `npx tsc --noEmit 2>&1 | grep -v '^.next/'` prints nothing. Eslint on changed files: `npx eslint <files>`.
-- Commits: never `git add` into the shared index. Commit only the task's paths via a temp `GIT_INDEX_FILE` (see memory shared-index-staging), then `git reset -q -- <paths>`. Every message ends with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. `next dev` may re-add the AGENTS.md block; leave it out of these commits unless it is the only diff there.
+- Commits: never `git add` into the shared index. Commit only the task's paths via a temp `GIT_INDEX_FILE` (see memory shared-index-staging), then `git reset -q -- <paths>`. Every message ends with the session's attribution line. `next dev` may re-add the AGENTS.md block; leave it out of these commits unless it is the only diff there.
 - DB: before `npm run db:migrate`, `grep DATABASE_URL .env.local`; it points at Supabase (release). Migrate locally with `docker start musickit-db` and `DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit npm run db:migrate`. Applying to Supabase is the user's call, asked for, never done by a task.
+- Nothing from Task 4 on is pushed until the user has run `db:migrate` on the release database; the migration is additive, so running it before the deploy is safe with the old code.
 - Each task keeps the README/CLAUDE.md of the feature it touches true in the same commit.
 
 ## Review Focus
@@ -34,7 +35,10 @@
 - **Same block, different bytes.** A block reloaded after the editor gave its cells `id`s, or with `choice` keys in another order, or concepts listed in another order, must keep its block id; otherwise every edit-free reload would make a "new" block. Test in Task 1.
 - **A forged or stale `blockId` / `parentBlockId` in a saved document.** The stored ids are always the server's own, and a `parent_id` is written only when the saver already owns the parent block, so nobody can hang their row off someone else's private block or claim a wrong id. Tests in Tasks 2 and 4.
 - **A low review whose stars are raised.** Typing a why at 2 stars, then picking 4: the why is not stored (and the box hides); picking 2 again shows an empty box. Typing spaces in the box must not be eaten while typing. Tests in Task 5 (model) and the browser check in Task 6.
-- **An old client or an old row without day blocks.** A `DayTime` with no `blocks`, `blocks: null` (the new column on an old row), or a block for a slot with no seconds must still parse; the stray entry is dropped, not the record. Test in Task 3.
+- **An old client or an old row without day blocks or dates.** A `DayTime` with no `blocks`/`on`, `blocks: null` or `on: null` (the new columns on an old row), a block for a slot with no seconds, or an `on` entry that is not a date or not a whole number ≥ 0 must still parse; the stray entry is dropped, not the record. Test in Task 3.
+- **A damaged exercise in a stored plan** (`concepts: "x"`, `tags: [1, "a"]`, a numeric `topic`): `blockKeyOf` keeps only what is text and never throws, so `sanitiseState` (and so `parseDoc` on the server) still loads the plan. Tests in Tasks 1 and 2.
+- **A library save that fails.** The plan document is saved even when `storePlanBlocks` or `syncPlanReviews` throws; the error is logged, and the next save repairs it (both are idempotent). Tests in Tasks 4 and 5.
+- **The move-over racing a live player.** It writes only `progress_entries.block_id` (and `entry.blockId` inside the row's jsonb) and only `plan_day_times.blocks`, so stars or seconds saved meanwhile are kept. Test in Task 9.
 - **Running a script twice.** The seed and the move-over must add nothing the second time: no duplicate owner rows for the app (`user_id` null, so the unique index is `nulls not distinct`), no changed rows. Tests in Tasks 8 and 9.
 
 ---
@@ -51,7 +55,7 @@
 - Produces:
   - `sha256Hex(text: string): string` — SHA-256 of the UTF-8 bytes (`TextEncoder`), 64 lowercase hex chars; pure TS, synchronous, no `node:crypto`, no `crypto.subtle`.
   - `export interface BlockKey { content: Block; area?: Area; topic?: string; concepts?: string[]; level?: Level; tags?: string[] }`
-  - `blockKeyOf(e: PlanExercise): BlockKey` — `content` is `{ title, choice?, cells }` with every cell `id` removed at every depth; `concepts` and `tags` sorted and de-duplicated, left out when empty; `area`, `topic`, `level` left out when absent. Minutes, why, links, `id`, `blockId`, `parentBlockId` never enter the key.
+  - `blockKeyOf(e: PlanExercise): BlockKey` — `content` is `{ title, choice?, cells }` with every cell `id` removed at every depth; `concepts` and `tags` sorted and de-duplicated, left out when empty; `area`, `topic`, `level` left out when absent. Minutes, why, links, `id`, `blockId`, `parentBlockId` never enter the key. **Never throws on damaged meta** (a stored plan is not re-validated before this runs): `concepts`/`tags` count only when they are arrays, and only their string items are kept (non-strings filtered out); `area`, `topic`, `level` only when they are strings; anything else is treated as absent.
   - `withoutCellIds(cells: Cell[]): Cell[]` — cells without editor ids, sections recursed.
   - `canonicalJson(v: unknown): string` — JSON with object keys sorted at every depth, `undefined` properties dropped; arrays keep their order.
   - `blockIdOf(key: BlockKey): string` — `sha256Hex(canonicalJson(key)).slice(0, 32)`.
@@ -91,6 +95,15 @@ test("minutes, why, links and slot ids do not change the id; title, a cell, leve
 test("empty concepts and tags are the same as none", () => {
   assert.equal(blockIdOf(blockKeyOf({ ...ex, concepts: [], tags: [] })), blockIdOf(blockKeyOf({ ...ex, concepts: undefined, tags: undefined })));
 });
+test("damaged meta never throws: only strings are kept", () => {
+  const bad = { ...ex, concepts: "x", tags: [1, "a"], topic: 7, level: null } as unknown as PlanExercise;
+  const k = blockKeyOf(bad);
+  assert.equal("concepts" in k, false);
+  assert.deepEqual(k.tags, ["a"]);
+  assert.equal("topic" in k, false);
+  assert.equal("level" in k, false);
+  assert.match(blockIdOf(k), /^[0-9a-f]{32}$/);
+});
 ```
 
 - [ ] **Step 2: Run them to verify they fail**
@@ -113,7 +126,7 @@ Commit only this task's paths via a temp GIT_INDEX_FILE (see memory shared-index
 ```
 feat(plan): a block id, the hash of a block's content and tags
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 
 ---
@@ -151,6 +164,27 @@ test("withBlockIds drops a parentBlockId that is not a block id or is the block 
 test("startPlan gives every exercise a block id; the same exercise in two runs has the same block id and new slot ids", ...);
 test("sanitiseState fills block ids on a stored plan without them, history included", ...);
 test("a stored plan's block id is of its cleaned cells: a dropped tool changes it", ...);   // a cell parseCellDiag drops
+test("sanitiseState survives an exercise with concepts: \"x\" and tags: [1, \"a\"]", () => {
+  const s = sanitiseState({ current: storedWith([{ ...ex, concepts: "x", tags: [1, "a"] }]) });
+  assert.ok(s.current);
+  assert.match(s.current!.config.days[0].exercises[0].blockId!, /^[0-9a-f]{32}$/);
+});
+test("every example keeps its block ids through a load: sanitiseState gives what startPlan gave", () => {
+  // each EXERCISE_EXAMPLES[i].exercise (as a one-day week) and each PLAN_EXAMPLES[i].plan, parsed with parsePlanConfig
+  for (const config of allExampleConfigs()) {
+    const started = startPlan(EMPTY_STATE, config, randomId, "2026-11-15");
+    const loaded = sanitiseState(JSON.parse(JSON.stringify(started)));
+    assert.deepEqual(blockIdsOf(loaded.current!), blockIdsOf(started.current!), config.title);
+  }
+});
+test("every example keeps its block ids through a load after editDay", () => {
+  // for each started example: editDay on day 0 with its first exercise's title changed
+  for (const config of allExampleConfigs()) {
+    const edited = editDay(startPlan(EMPTY_STATE, config, randomId, "2026-11-15").current!, 0, draftWithTitle(config, "Changed"), randomId) as StoredPlan;
+    const loaded = sanitiseState(JSON.parse(JSON.stringify({ current: edited })));
+    assert.deepEqual(blockIdsOf(loaded.current!), blockIdsOf(edited), config.title);
+  }
+});
 // editPlan.test.ts
 test("editDay: a changed block gets a new slot id, a new block id and the old one as parentBlockId", ...);
 test("editDay: changing only minutes or why keeps the block id and its parent, and still gives a new slot id", ...);
@@ -161,6 +195,10 @@ test("the prompt never carries block ids", () => {
   assert.equal(/blockId|parentBlockId/.test(p), false);
 });
 ```
+
+(`blockIdsOf(plan)` lists every exercise's `blockId` day by day; `allExampleConfigs()` reads `EXERCISE_EXAMPLES` and `PLAN_EXAMPLES` from `src/features/plan/examples`; `draftWithTitle` builds the `DayDraft` the day editor would send.)
+
+A later change to the parser or `cleanCells` changes what a stored block's cleaned content is, so the next load re-ids those blocks (they get new library rows); ratings already stored keep the old id. Accepted: blocks never change, and the old rows stay. The example tests above catch such a change when it happens, so it is made on purpose.
 
 - [ ] **Step 2: Run them to verify they fail**
 
@@ -184,7 +222,7 @@ README code map: `exerciseIds.ts` gains `withBlockIds()`; the storage section sa
 ```
 feat(plan): every plan exercise carries its block id
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 
 ---
@@ -195,6 +233,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 - Modify: `src/features/progress/log.ts`, test `src/features/progress/log.test.ts`, `src/features/progress/README.md`
 - Modify: `src/features/plan/model/progressLog.ts`, test `progressLog.test.ts`
 - Modify: `src/features/plan/model/planTime.ts`, test `planTime.test.ts`
+- Modify: `src/features/plan/ui/WeekView.tsx` (passes the day's current record to `dayTime`)
 
 **Interfaces:**
 - Consumes: `PlanExercise.blockId` (Task 2).
@@ -203,8 +242,10 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
   - `entryFor(...)` sets `blockId` from the exercise when it has one (signature unchanged).
   - `DayTime.blocks?: Record<string, string>` (slot id → block id), only for slots in `spent`.
   - `parseDayTime(raw)`: `blocks` absent, `null` or not an object → no `blocks`; entries whose key is not in `spent` or whose value is not text ≤ 200 are dropped; empty → no `blocks`. Never a reason to refuse the record.
-  - `dayTime(planId, day, exercises, elapsed, seconds)` (signature unchanged) adds `blocks` for each exercise with an `id`, a `blockId` and seconds > 0.
-  - `withDayTime` returns the same array only when `elapsed`, `spent` and `blocks` are all unchanged.
+  - `DayTime.on?: Record<string, number>` — local `yyyy-mm-dd` → seconds the timer counted on that date (the timer runs on whichever day tab is open, so a plan day is not the date it was practised).
+  - `parseDayTime(raw)`: `on` absent, `null` or not an object → no `on`; entries whose key is not `/^\d{4}-\d{2}-\d{2}$/` or whose value is not a finite number ≥ 0 are dropped, values floored, zeros dropped, at most 31 dates kept (the latest); empty → no `on`. Never a reason to refuse the record.
+  - `dayTime(planId, day, exercises, elapsed, seconds, prev?: DayTime, today: string = localDate())` — adds `blocks` for each exercise with an `id`, a `blockId` and seconds > 0; and `on` = `prev?.on` plus `max(0, floor(elapsed) - (prev?.elapsed ?? 0))` added to `today` (`localDate` from `model/schedule.ts`); left out when empty. A record saved before this part (a `prev` with `elapsed > 0` and no `on`) first gets its earlier seconds put on its plan date, `addDays(startedOn, day)` (pass `startedOn` in; WeekView has the plan; this task adds `addDays(date: string, n: number): string`, a local `yyyy-mm-dd` plus `n` days, to `model/schedule.ts` with a test, unless one already exists), so they never land on today. Test: `prev = { elapsed: 600, no on }`, plan day 1 of a plan started 2026-11-10, saved on 2026-11-15 with elapsed 900 → `on` = `{ "2026-11-11": 600, "2026-11-15": 300 }`. WeekView passes `times.find((t) => t.day === day)` as `prev`.
+  - `withDayTime` returns the same array only when `elapsed`, `spent`, `blocks` and `on` are all unchanged.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -228,6 +269,24 @@ it("parseDayTime keeps a record with no blocks, blocks: null, or a block for a s
   assert.equal(parseDayTime({ ...good, blocks: "x" })?.planId, good.planId);
 });
 it("withDayTime sees a change in blocks alone", ...);
+it("dayTime adds the new seconds to today's date, keeping earlier dates", () => {
+  const first = dayTime("p", 2, [{ ...a, id: "s1" }], 120, [120], undefined, "2026-11-14");
+  assert.deepEqual(first.on, { "2026-11-14": 120 });
+  const next = dayTime("p", 2, [{ ...a, id: "s1" }], 300, [300], first, "2026-11-15");
+  assert.deepEqual(next.on, { "2026-11-14": 120, "2026-11-15": 180 });
+  assert.deepEqual(dayTime("p", 2, [{ ...a, id: "s1" }], 310, [310], next, "2026-11-15").on, { "2026-11-14": 120, "2026-11-15": 190 });
+  assert.equal("on" in dayTime("p", 2, [], 0, [], undefined, "2026-11-15"), false);
+});
+it("parseDayTime keeps on leniently: bad dates, non-numbers and negatives dropped, not the record", () => {
+  assert.deepEqual(parseDayTime({ ...good, on: { "2026-11-14": 60.7, "nope": 5, "2026-11-15": -3, "2026-11-16": "9", "2026-11-17": 0 } })?.on, { "2026-11-14": 60 });
+  assert.deepEqual(parseDayTime({ ...good, on: null }), good);
+  assert.equal(parseDayTime({ ...good, on: [1] })?.planId, good.planId);
+});
+it("withDayTime sees a change in on alone", () => {
+  const t = { ...good, on: { "2026-11-14": 60 } }; const ts = [t];
+  assert.equal(withDayTime(ts, { ...t, on: { "2026-11-14": 60 } }), ts);
+  assert.notEqual(withDayTime(ts, { ...t, on: { "2026-11-14": 61 } }), ts);
+});
 ```
 
 - [ ] **Step 2: Run them to verify they fail**
@@ -243,13 +302,13 @@ Same command. Expected: PASS. Then `npx tsx --test src/features/plan/store/*.tes
 
 - [ ] **Step 5: Docs**
 
-progress README: `ProgressEntry` lists `blockId` ("the block rated, when the plan had one; a row stays one per slot"). plan README: `planTime.ts` line mentions `blocks` (slot → block, for the slots with seconds, so time finds its block without the plan).
+progress README: `ProgressEntry` lists `blockId` ("the block rated, when the plan had one; a row stays one per slot"). plan README: `planTime.ts` line mentions `blocks` (slot → block, for the slots with seconds, so time finds its block without the plan) and `on` (seconds per local date, so a day's time has the dates it was practised).
 
 - [ ] **Step 6: Commit** (temp GIT_INDEX_FILE)
 ```
-feat(progress): ratings and day times carry the block id
+feat(progress): ratings and day times carry the block id, day times their dates
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 
 ---
@@ -264,27 +323,28 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 - Modify: `src/features/userData/README.md`, `src/features/userData/CLAUDE.md`, `README.md` + `docs/db/schema.*` (via `npm run db:diagram`)
 
 **Interfaces:**
-- Consumes: `BlockKey` (Task 1), `PlanExercise.blockId`/`parentBlockId` (Task 2), `DayTime.blocks`, `ProgressEntry.blockId` (Task 3).
+- Consumes: `BlockKey` (Task 1), `PlanExercise.blockId`/`parentBlockId` (Task 2), `DayTime.blocks`, `DayTime.on`, `ProgressEntry.blockId` (Task 3).
 - Produces (schema; also the `plan_reviews` table used by Task 5, made in this migration so there is one):
   - `blockSource = pgEnum("block_source", ["ai", "edit", "seed", "example"])`.
   - `blocks`: `id` text pk; `content` jsonb not null; `area` text; `topic` text; `concepts` text[] not null default `{}`; `level` text; `tags` text[] not null default `{}`; `parent_id` text (no FK; set only to a block the saver owns); `created_at`. Indexes `blocks_area`, `blocks_topic`.
   - `block_owners`: `user_id` uuid null → `users.id` on delete cascade; `block_id` text not null → `blocks.id`; `source` `block_source` not null; `enabled_for_reuse` bool not null default false; `created_at`. `unique("block_owners_user_block").on(user_id, block_id).nullsNotDistinct()`; index `block_owners_block` on `block_id`.
   - `plan_reviews`: `user_id` uuid not null → `users.id` cascade; `plan_id` text not null; `library_plan_id` text null → `practice_plans.id` on delete set null; `title` text not null (the plan's title, for `/dev/plan-reviews`); `stars` integer not null, check 1–5; `why` text; `at` timestamptz not null. Unique `plan_reviews_user_plan` on (user_id, plan_id); index `plan_reviews_at` on `at`.
-  - `progress_entries.block_id` text null, index `progress_entries_block`; `plan_day_times.blocks` jsonb null.
+  - `progress_entries.block_id` text null, index `progress_entries_block`; `plan_day_times.blocks` jsonb null; `plan_day_times.on_dates` jsonb null (Drizzle field `onDates`; holds `DayTime.on`). All in this one migration.
   - `libraryBlocksOf(plans: StoredPlan[]): LibraryBlock[]` with `interface LibraryBlock { id: string; key: BlockKey; parentId?: string; source: "ai" | "edit" }` — one per distinct block id, first seen wins (current plan first); `source` is `edit` when the exercise has a `parentBlockId`, else `ai` (a claimed or pasted plan is `ai`).
   - `slotBlocks(plans: StoredPlan[]): Record<string, string>` — exercise (slot) id → block id, for Task 9.
   - Repo (`repo.ts`): `type BlockSource = "ai" | "edit" | "seed" | "example"`; `interface NewBlock { id: string; key: BlockKey; parentId: string | null; source: BlockSource; enabledForReuse: boolean }`;
     `ownedBlockIds(userId: string, ids: string[]): Promise<Set<string>>`;
     `addBlocks(userId: string | null, blocks: NewBlock[], now: Date): Promise<void>` — one transaction: blocks `on conflict do nothing`, then owner rows `on conflict do nothing`; `null` user is the app.
-    `putProgress` also writes `block_id` (`entry.blockId ?? null`, in values and on update); `putPlanTime` writes `blocks` (`t.blocks ?? null`); `listPlanTimes` selects `blocks`.
+    `putProgress` also writes `block_id` (`entry.blockId ?? null`, in values and on update); `putPlanTime` writes `blocks` (`t.blocks ?? null`) and `on_dates` (`t.on ?? null`), in values and on update; `listPlanTimes` selects `blocks` and `on_dates`, and `readPlanTimes` hands `on_dates` to `parseDayTime` as `on`.
     Memory repo: owner rows keyed `${userId ?? ""} ${blockId}`, so all app (`null`) rows of a block are one, like `nulls not distinct`; `cascadeUser` also drops that user's owner rows (not blocks); test-only `peekBlocks(): Map<string, { key: BlockKey; parentId: string | null }>` and `peekOwners(): { userId: string | null; blockId: string; source: BlockSource; enabledForReuse: boolean }[]` on its return type.
   - `data.ts`: `storePlanBlocks(repo: UserDataRepo, userId: string, state: PlanState, now: Date): Promise<number>` (blocks newly owned) — ids from `libraryBlocksOf([current, ...history])`, minus `ownedBlockIds`; `parentId` kept only when the parent is in the owned set or in this document; `enabledForReuse: false`. `writeDoc` calls it after `putDoc` when `kind === "plan"`, with the parsed state (never the raw body).
+  - **Failure rule:** the document save is what the player asked for, so it succeeds even when a side effect fails. `writeDoc` runs `storePlanBlocks` (and, from Task 5, `syncPlanReviews`) each in its own `try/catch` after `putDoc`, logs the error with context (`console.error("[writeDoc] storePlanBlocks failed", { userId, error })`), and returns as if they had worked. Both are idempotent, so the next save of the plan repairs what was missed.
 
 - [ ] **Step 1: Schema and migration**
 
 Edit `schema.ts` as above (doc comment on each table: what it holds, the never-updated rule, who owns). Then:
 Run: `npx drizzle-kit generate --name blocks_and_reviews`
-Expected: `drizzle/NNNN_blocks_and_reviews.sql` with `CREATE TYPE "block_source"`, three `CREATE TABLE`s, `UNIQUE NULLS NOT DISTINCT`, two `ALTER TABLE … ADD COLUMN`. Read it; nothing else in it.
+Expected: `drizzle/NNNN_blocks_and_reviews.sql` with `CREATE TYPE "block_source"`, three `CREATE TABLE`s, `UNIQUE NULLS NOT DISTINCT`, three `ALTER TABLE … ADD COLUMN` (`progress_entries.block_id`, `plan_day_times.blocks`, `plan_day_times.on_dates`). Read it; nothing else in it.
 Run: `grep DATABASE_URL .env.local; docker start musickit-db; DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit npm run db:migrate`
 Expected: migrations applied, no error. `psql … -c '\d block_owners'` shows the unique index with `NULLS NOT DISTINCT`.
 
@@ -306,7 +366,15 @@ test("two players with the same block share one row and own it each", ...);
 test("a stored block never changes: a later save naming another parent leaves it as it was", ...);
 test("a second save of the same plan adds no rows", ...);   // storePlanBlocks returns 0
 test("deleting an account drops its owner rows, not the blocks", ...);   // cascadeUser("u1")
-test("a progress entry and a day time keep their block ids through the repo", ...);   // putEntry/readEntries, writePlanTime/readPlanTimes
+test("a progress entry and a day time keep their block ids and dates through the repo", ...);   // putEntry/readEntries, writePlanTime/readPlanTimes with on: { "2026-11-14": 60 }
+test("the plan document is saved even when the library insert throws", async () => {
+  const failing = { ...repo, addBlocks: async () => { throw new Error("db down"); } };
+  assert.deepEqual(await writeDoc(failing, "u1", "plan", planDoc([ex]), now), { ok: true });
+  assert.ok(await readDoc(repo, "u1", "plan"));                 // the document is stored
+  assert.equal(repo.peekBlocks().size, 0);
+  await writeDoc(repo, "u1", "plan", planDoc([ex]), now);      // the next save repairs it
+  assert.equal(repo.peekBlocks().size, 1);
+});
 ```
 
 - [ ] **Step 3: Run them to verify they fail**
@@ -325,7 +393,7 @@ Expected: PASS. Then `npx tsc --noEmit 2>&1 | grep -v '^.next/'` prints nothing.
 
 - [ ] **Step 6: Check the Drizzle repo against the local DB**
 
-Start the dev server against the local DB (`DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit npm run dev`; memory local-login-db for signing in), rate one exercise on `/plan`, let the timer run a minute. Then `psql` shows: `blocks` rows for the plan, `block_owners` rows with your user and `ai`, `progress_entries.block_id` set, `plan_day_times.blocks` set. Edit one exercise's text in the day editor → a new `blocks` row with `parent_id`, owner `edit`.
+Start the dev server against the local DB (`DATABASE_URL=postgres://musickit:musickit@localhost:5433/musickit npm run dev`; memory local-login-db for signing in), rate one exercise on `/plan`, let the timer run a minute. Then `psql` shows: `blocks` rows for the plan, `block_owners` rows with your user and `ai`, `progress_entries.block_id` set, `plan_day_times.blocks` and `on_dates` set (today's date). Edit one exercise's text in the day editor → a new `blocks` row with `parent_id`, owner `edit`.
 
 - [ ] **Step 7: Docs**
 
@@ -336,9 +404,10 @@ userData README: the new repo methods, `storePlanBlocks` in `data.ts`, and that 
 feat(db): a shared block library, filled when a plan is saved
 
 blocks (insert-only, id = hash of content and tags), block_owners,
-plan_reviews; progress_entries.block_id and plan_day_times.blocks.
+plan_reviews; progress_entries.block_id, plan_day_times.blocks and
+plan_day_times.on_dates.
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 
 ---
@@ -359,7 +428,7 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
   - Repo: `interface PlanReviewRow { planId: string; libraryPlanId: string | null; title: string; stars: Stars; why: string | null; at: Date }`;
     `syncPlanReviews(userId: string, planIds: string[], rows: PlanReviewRow[]): Promise<void>` — upsert on (user_id, plan_id), updating only when `at` differs; delete the user's rows whose `plan_id` is in `planIds` but not in `rows`. Rows for plans not in `planIds` (dropped from the history) are left.
     `listPlanReviews(limit: number): Promise<(PlanReviewRow & { userId: string })[]>` — every user's, newest `at` first.
-  - `data.ts`: `reviewRowsOf(state: PlanState): PlanReviewRow[]` (pure; `libraryPlanId: null` until a stored plan records its library plan; `title` from `config.title`); `writeDoc` for `plan` also calls `syncPlanReviews(userId, [current, ...history].map(p => p.id), reviewRowsOf(state))`.
+  - `data.ts`: `reviewRowsOf(state: PlanState): PlanReviewRow[]` (pure; `libraryPlanId: null` until a stored plan records its library plan; `title` from `config.title` when it is a string, else `""`); `writeDoc` for `plan` also calls `syncPlanReviews(userId, [current, ...history].map(p => p.id), reviewRowsOf(state))`, under Task 4's failure rule (own `try/catch`, logged, the document save still succeeds).
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -376,6 +445,10 @@ it("reviewPlan sets and clears a review; sanitiseState drops a broken one and ke
 it("raising the stars from 2 to 4 drops the why; back to 2 the why is empty", ...);
 // data.test.ts
 test("a reviewed plan becomes a plan_reviews row with its title", ...);
+test("a plan without a string title gets an empty title", () => {
+  assert.equal(reviewRowsOf(stateWith({ ...reviewedPlan, config: { ...reviewedPlan.config, title: undefined } }))[0].title, "");
+});
+test("the plan document is saved even when syncPlanReviews throws", ...);   // a repo whose syncPlanReviews throws: writeDoc resolves, readDoc has the review
 test("changing the stars replaces the row; clearing the review removes it", ...);
 test("a plan dropped from the history keeps its review row", ...);
 test("listPlanReviews lists every player's, newest first", ...);
@@ -400,7 +473,7 @@ plan README: `StoredPlan.review` (types.ts line), `reviewPlan` in schedule.ts. u
 ```
 feat(plan): a plan review, kept on the plan and in plan_reviews
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 
 ---
@@ -442,7 +515,7 @@ plan README step 4: once the week is over, the first screen asks how the plan wa
 ```
 feat(plan): Plan next week asks how the plan was
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 Report the new strings (none existed before: "— → <new>").
 
@@ -478,7 +551,7 @@ Expected: the review made in Task 6 is listed first with its title.
 ```
 feat(devtools): /dev/plan-reviews lists every plan review
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 
 ---
@@ -529,7 +602,7 @@ Expected: tests PASS; the second run's `select count(*) from block_owners where 
 ```
 feat(db): npm run db:seed-blocks puts the examples and library plans in the block library
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 
 ---
@@ -539,15 +612,18 @@ Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 **Files:**
 - Create: `src/features/userData/server/moveOver.ts`, test `src/features/userData/server/moveOver.test.ts`
 - Create: `scripts/db-move-over-blocks.ts`
-- Modify: `src/features/userData/server/repo.ts`, `repo.drizzle.ts`, `repo.memory.ts` (`planUserIds`)
+- Modify: `src/features/userData/server/repo.ts`, `repo.drizzle.ts`, `repo.memory.ts` (`planUserIds`, `setEntryBlockId`, `setDayTimeBlocks`), test `src/features/userData/server/data.test.ts`
 - Modify: `package.json` (`"db:move-over-blocks": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-move-over-blocks.ts"`)
 - Modify: `src/features/userData/README.md`
 
 **Interfaces:**
-- Consumes: `readDoc` (gives block ids through `sanitiseState`), `storePlanBlocks` (Task 4), `slotBlocks` (Task 4), `listProgress`/`putProgress`, `listPlanTimes`/`putPlanTime`, `parseDayTime`.
+- Consumes: `readDoc` (gives block ids through `sanitiseState`), `storePlanBlocks` (Task 4), `slotBlocks` (Task 4), `listProgress`, `listPlanTimes`, `parseDayTime`.
 - Produces:
   - Repo `planUserIds(): Promise<string[]>` — users with a `plan` document.
-  - `moveOverUser(repo: UserDataRepo, userId: string, now: Date): Promise<{ blocks: number; entries: number; days: number }>` — stores the document's blocks and owner rows (`storePlanBlocks`); for each progress entry without `blockId` whose `exerciseId` is in `slotBlocks`, `putProgress` with `blockId` (also fills the column); for each plan in the document, each day time without `blocks` gets `blocks` for its slots with seconds and a known block. Entries and days whose plan is gone are left as they are. Nothing is deleted. Counts are what it changed.
+  - Repo `setEntryBlockId(userId: string, exerciseId: string, blockId: string): Promise<boolean>` — sets only `progress_entries.block_id` and the row's `entry` jsonb `blockId` key (`entry = jsonb_set(entry, '{blockId}', to_jsonb($blockId))`), `where user_id = $1 and exercise_id = $2 and block_id is null`; no other column is written. True when a row changed.
+  - Repo `setDayTimeBlocks(userId: string, planId: string, day: number, blocks: Record<string, string>): Promise<boolean>` — sets only `plan_day_times.blocks`, `where … and blocks is null`; `elapsed`, `spent`, `on_dates`, `updated_at` untouched. True when a row changed.
+  - The move-over never calls `putProgress` or `putPlanTime`: those rewrite the whole row from what was read, and would undo stars or seconds a player saved meanwhile.
+  - `moveOverUser(repo: UserDataRepo, userId: string, now: Date): Promise<{ blocks: number; entries: number; days: number }>` — stores the document's blocks and owner rows (`storePlanBlocks`); for each progress entry without `blockId` whose `exerciseId` is in `slotBlocks`, `setEntryBlockId`; for each plan in the document, each day time without `blocks` gets `setDayTimeBlocks` for its slots with seconds and a known block. Entries and days whose plan is gone are left as they are. Nothing is deleted. Counts are what it changed.
   - Script: prints the database host, loops `planUserIds()`, prints per-user counts and totals. Not run against Supabase by the task.
 
 - [ ] **Step 1: Write the failing tests**
@@ -558,14 +634,30 @@ test("an entry whose plan is gone keeps no block id, and is not removed", ...);
 test("nothing is deleted: entries, day times and documents count the same before and after", ...);
 test("running it twice changes nothing the second time", async () => { await moveOverUser(repo, "u1", now); assert.deepEqual(await moveOverUser(repo, "u1", now), { blocks: 0, entries: 0, days: 0 }); });
 test("planUserIds lists only users with a plan document", ...);
+// data.test.ts (repo methods)
+test("setEntryBlockId changes only the block id: stars saved after the read are kept", async () => {
+  await putEntry(repo, "u1", { ...row, exerciseId: "s1", stars: 2 }, now);
+  await putEntry(repo, "u1", { ...row, exerciseId: "s1", stars: 5 }, now);          // the player re-rates meanwhile
+  assert.equal(await repo.setEntryBlockId("u1", "s1", B1), true);
+  const [e] = await readEntries(repo, "u1");
+  assert.equal(e.stars, 5); assert.equal(e.blockId, B1);
+  assert.equal(await repo.setEntryBlockId("u1", "s1", B2), false);              // already set: untouched
+});
+test("setDayTimeBlocks changes only blocks: seconds and dates saved after the read are kept", async () => {
+  await writePlanTime(repo, "u1", { planId: "p", day: 0, elapsed: 60, spent: { s1: 60 } }, now);
+  await writePlanTime(repo, "u1", { planId: "p", day: 0, elapsed: 400, spent: { s1: 400 }, on: { "2026-11-15": 340 } }, now); // timer runs meanwhile
+  assert.equal(await repo.setDayTimeBlocks("u1", "p", 0, { s1: B1 }), true);
+  const [t] = await readPlanTimes(repo, "u1", "p");
+  assert.deepEqual([t.elapsed, t.spent, t.on, t.blocks], [400, { s1: 400 }, { "2026-11-15": 340 }, { s1: B1 }]);
+});
 ```
 
 - [ ] **Step 2: Run them to verify they fail**
 
-Run: `npx tsx --test src/features/userData/server/moveOver.test.ts`
-Expected: FAIL, module not found.
+Run: `npx tsx --test src/features/userData/server/moveOver.test.ts src/features/userData/server/data.test.ts`
+Expected: FAIL, module not found; `setEntryBlockId` missing.
 
-- [ ] **Step 3: Implement `moveOverUser`, `planUserIds` (memory and Drizzle) and the script**
+- [ ] **Step 3: Implement `moveOverUser`, `planUserIds`, `setEntryBlockId`, `setDayTimeBlocks` (memory and Drizzle) and the script**
 
 - [ ] **Step 4: Run the tests, then the script on the local DB twice**
 
@@ -580,7 +672,7 @@ userData README: `moveOver.ts` and the script ("one-off; fills `progress_entries
 ```
 feat(db): a one-off move-over gives existing ratings and time their blocks
 
-Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+<the session's attribution line>
 ```
 
 ---
@@ -596,8 +688,8 @@ Expected: all pass, nothing printed.
 
 - [ ] **Step 2: Read the docs against the code**
 
-`src/features/plan/README.md` + `CLAUDE.md`, `src/features/progress/README.md`, `src/features/userData/README.md` + `CLAUDE.md`, `src/features/devtools/README.md`, `src/lib/db/schema.ts` comments: each names `blockId`, `parentBlockId`, `withBlockIds`, `DayTime.blocks`, `StoredPlan.review`, the three tables and the two scripts as built. Fix and commit any that aren't (temp GIT_INDEX_FILE, `docs: …`, Co-Authored-By line).
+`src/features/plan/README.md` + `CLAUDE.md`, `src/features/progress/README.md`, `src/features/userData/README.md` + `CLAUDE.md`, `src/features/devtools/README.md`, `src/lib/db/schema.ts` comments: each names `blockId`, `parentBlockId`, `withBlockIds`, `DayTime.blocks`, `DayTime.on` (`plan_day_times.on_dates`), `StoredPlan.review`, the three tables and the two scripts as built. Fix and commit any that aren't (temp GIT_INDEX_FILE, `docs: …`, the session's attribution line).
 
 - [ ] **Step 3: Report**
 
-State: tests/tsc/eslint results, what was seen on the dev server (Tasks 4, 6, 7), what wasn't, the copy strings from Task 6, that the blocks migration, `db:seed-blocks` and `db:move-over-blocks` ran only on the local DB, and offer to update the DB schema artifact (memory db-schema-artifact).
+State first that nothing from Task 4 on may be pushed until the user has run `db:migrate` on the release database (additive migration, safe before the deploy with the old code), and whether that has happened. Then: tests/tsc/eslint results, what was seen on the dev server (Tasks 4, 6, 7), what wasn't, the copy strings from Task 6, that the blocks migration, `db:seed-blocks` and `db:move-over-blocks` ran only on the local DB, and offer to update the DB schema artifact (memory db-schema-artifact).

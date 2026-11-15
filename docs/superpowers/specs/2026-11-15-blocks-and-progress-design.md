@@ -138,7 +138,7 @@ the document stays self-contained.
 same block in a later plan is a new row, and that is the history. Time stays keyed by slot id in `plan_day_times`,
 and each day's record also carries `blocks: { [slotId]: blockId }` for the slots it has seconds for (*my call*), written
 with every timer save. The plan history drops old plans to stay under its size cap, so time must not need the plan to
-find its block; ratings already don't, through `progress_entries.block_id`.
+find its block; ratings already don't, through `progress_entries.block_id`. The record also carries `on: { [localDate]: seconds }`, the seconds the timer counted on each calendar date (*my call*): the timer runs on whichever day tab is open, so a plan day is not the date it was practised. Both fields are in the one Part B migration.
 
 **Moving over.** Stored plans get `blockId`s lazily on load (as above). A one-off script fills `progress_entries.block_id`
 and the day records' `blocks` from each player's plan document (slot id → block id) and inserts those blocks with owner
@@ -172,9 +172,11 @@ in that one function so they can be tuned:*
 - A concept is **solid** when the latest-rated block tagged with it is solid; **working on** when it has ratings but
   isn't solid; **not yet** when it has none. Per concept: that state, its own level, how many ratings, the last date,
   the time spent.
-- **Topic score** on the 0–3 level scale: start from the latest questionnaire rung for the topic; the level reached is
-  the higher of that rung and the highest level that has a solid concept in the topic; then add the share of the
-  topic's concepts one level up that are solid, as a fraction toward the next level. So moving from easier to harder
+- **Topic score** on the 0–3 level scale: start from the latest questionnaire rung for the topic (with no answer,
+  "new" (0) once the topic has any rating; null with neither); a level counts as reached from practice only when every
+  concept of the topic at that level is solid (a level with no concepts in the topic doesn't block the climb); the level
+  reached is the higher of the two; then add the share of the topic's concepts one level up that are solid, as a
+  fraction toward the next level. So moving from easier to harder
   concepts moves the number, and the student's own answer is the floor. A block with no concepts counts toward time
   and ratings but not the score.
 - **Area**: the six topic scores (the radar's axes).
@@ -183,7 +185,7 @@ in that one function so they can be tuned:*
 - **Time**: seconds from the day timer, mapped slot → block; a block's time counts in full toward each of its concepts
   and once toward its topic.
 - **Streak**: consecutive local days, ending today or yesterday, on which the student rated a block or the day timer
-  counted at least 5 minutes.
+  counted at least 5 minutes that date (`DayTime.on`; a record without it is dated its plan's `startedOn` + day).
 
 **The player's tracker.** The streak, small, where the player sees it on `/plan` (and, if it fits, in the header).
 Opening it shows the areas the student practises; for each, the six topics with their level by name and the concepts
