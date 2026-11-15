@@ -12,6 +12,7 @@
     "theory": "npx tsx scripts/theory.ts",
     "structure": "npx tsx scripts/structure.ts",
     "compare-models": "npx tsx scripts/compare-models.ts",
+    "publish-model-plans": "npx tsx scripts/publish-model-plans.ts",
     "db:up": "docker compose up -d --wait db",
     "db:down": "docker compose down",
     "db:generate": "drizzle-kit generate",
