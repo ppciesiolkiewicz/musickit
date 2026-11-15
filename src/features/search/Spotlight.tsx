@@ -28,7 +28,8 @@ export function SpotlightButton({ className = "" }: { className?: string }) {
 
 /**
  * A spotlight over every page: ⌘K / Ctrl+K (or the nav's search button) opens it, typing filters pages, course sections and
- * scales, arrows move, Enter opens, Escape closes. Lives in the root layout; the index loads on first open.
+ * scales, arrows move, Enter opens, Escape closes. Lives in the root layout; the index loads on first open. A page with its
+ * own search can take ⌘K first: a key already `preventDefault`-ed (by a capture listener) is left alone.
  */
 export default function Spotlight() {
   const router = useRouter();
@@ -42,6 +43,8 @@ export default function Spotlight() {
   useEffect(() => {
     const show = () => setOpen(true);
     const onKey = (e: KeyboardEvent) => {
+      // a page with its own search (Practice's filter) takes ⌘K first and marks it handled
+      if (e.defaultPrevented) return;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((o) => !o);

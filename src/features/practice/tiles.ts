@@ -22,3 +22,15 @@ function groupOf(s: TheorySection): TileGroup | null {
 export function practiceTiles(): { label: TileGroup; tiles: TheorySection[] }[] {
   return TILE_GROUPS.map((label) => ({ label, tiles: THEORY_SECTIONS.filter((s) => groupOf(s) === label) }));
 }
+
+/**
+ * The groups narrowed to the tiles that match a search. Every word must appear in the tile's name, description or group
+ * (any case), so "sing int" finds Sing an interval. A group with no match is left out; an empty search keeps everything.
+ */
+export function filterTiles<G extends { label: string; tiles: TheorySection[] }>(groups: G[], query: string): G[] {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length) return groups;
+  return groups
+    .map((g) => ({ ...g, tiles: g.tiles.filter((t) => words.every((w) => `${t.label} ${t.desc} ${g.label}`.toLowerCase().includes(w))) }))
+    .filter((g) => g.tiles.length > 0);
+}

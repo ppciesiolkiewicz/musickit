@@ -21,7 +21,11 @@ const PUBLIC_LINKS = [
   { href: "/players", label: "Players", under: ["/players"] },
 ];
 
-const isUnder = (active: string, paths: string[]) => paths.some((p) => active === p || active.startsWith(`${p}/`));
+// the page path without its query (the notes page is /teachers/studio?notes=1)
+const isUnder = (active: string, paths: string[]) => {
+  const path = active.split("?")[0];
+  return paths.some((p) => path === p || path.startsWith(`${p}/`));
+};
 
 function NavLink({ href, label, current }: { href: string; label: string; current: boolean }) {
   return (

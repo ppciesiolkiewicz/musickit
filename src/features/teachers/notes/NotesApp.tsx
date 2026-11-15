@@ -108,7 +108,8 @@ function Creator({ preset }: { preset?: string }) {
   const setNote = mode?.setNote;
   useEffect(() => setNote?.(reading), [setNote, reading]);
 
-  // / or ⌘K opens the palette (never while typing, viewing or in a dialog)
+  // / or ⌘K opens the palette (never while typing, viewing or in a dialog); capture phase, so the site search
+  // (Spotlight, which skips a key already handled) doesn't open as well
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (palette !== false || viewing || json || videoPick || isTyping()) return;
@@ -117,8 +118,8 @@ function Creator({ preset }: { preset?: string }) {
         setPalette(selected);
       }
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [palette, viewing, json, videoPick, selected]);
 
   const change = useCallback((b: Block) => setBlock(withIds(b, newCellId)), []);
@@ -235,6 +236,9 @@ function Creator({ preset }: { preset?: string }) {
             <div className="flex flex-col items-center gap-3 py-10 text-center">
               <p className="text-slate-400">Nothing in this note yet.</p>
               <button type="button" onClick={() => setPalette(null)} className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-400">Add a widget</button>
+              <p className="hidden items-center gap-1.5 text-xs text-slate-500 desk:flex">
+                or press <kbd className="rounded border border-slate-600 bg-slate-800/80 px-1.5 py-0.5 font-sans text-[0.7rem] leading-none text-slate-300">/</kbd> or <kbd className="rounded border border-slate-600 bg-slate-800/80 px-1.5 py-0.5 font-sans text-[0.7rem] leading-none text-slate-300">⌘K</kbd>
+              </p>
             </div>
           )}
         </div>

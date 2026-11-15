@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { THEORY_SECTIONS } from "@/features/theory/sections";
-import { practiceTiles } from "./tiles";
+import { filterTiles, practiceTiles } from "./tiles";
 
 const groups = practiceTiles();
 const all = groups.flatMap((g) => g.tiles);
@@ -32,4 +32,21 @@ test("tools sit where a player looks for them", () => {
 
 test("the headline tools are wide", () => {
   assert.deepEqual(all.filter((t) => t.wide).map((t) => t.href).sort(), ["/course", "/looper", "/theory/chords", "/theory/scales", "/tuner"]);
+});
+
+test("the filter keeps every tile for an empty search", () => {
+  assert.deepEqual(filterTiles(groups, "  "), groups);
+});
+
+test("the filter needs every word, in the name, description or group, in any case", () => {
+  const hrefs = (q: string) => filterTiles(groups, q).flatMap((g) => g.tiles.map((t) => t.href));
+  assert.deepEqual(hrefs("SING int").sort(), ["/theory/ears", "/theory/singing/intervals"]);
+  assert.ok(hrefs("tuner").includes("/tuner"));
+  assert.ok(hrefs("singing").includes("/theory/ears"), "matches by group");
+  assert.ok(hrefs("movable").includes("/theory/chords"), "matches by description");
+});
+
+test("the filter drops groups with no match, and finds nothing for nonsense", () => {
+  assert.deepEqual(filterTiles(groups, "looper").map((g) => g.label), ["Play along"]);
+  assert.deepEqual(filterTiles(groups, "zzzz"), []);
 });

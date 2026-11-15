@@ -7,5 +7,5 @@ place, after AI autoplan and Interactive notes (the nav, `src/components/SiteNav
 - `tiles.ts`: `practiceTiles()` groups `THEORY_SECTIONS` (`src/features/theory/sections.ts`) into Guitar, Singing,
   Play along, Tuning & theory and Learn. The plan and the notes creator are left out (they are in the nav). A page added
   to `THEORY_SECTIONS` gets a tile with no change here; `wide: true` there makes its tile wide.
-- `PracticeTiles.tsx`: the tiles. One solid colour per tile from the page's `tone`, the icon at the top, the name at the
+- `PracticeTiles.tsx`: the tiles, in brushed metal (`.metal-tile` in `src/app/decor.css`) that lifts on hover. One colour per tile from the page's `tone`, the icon at the top, the name at the
   bottom; a wide tile adds its `desc`.
