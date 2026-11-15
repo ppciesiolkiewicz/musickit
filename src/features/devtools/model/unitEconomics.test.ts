@@ -65,14 +65,14 @@ test("at scale, fixed costs come off the margin, and a losing player never cover
 test("a plan's year: twelve payments a month, Batch halves the AI, a model with no runs costs no AI", () => {
   const tokens = [{ model: "claude-sonnet-5-5" as const, label: "Sonnet 5.5", runs: 3, input: 100_000, output: 30_000 }];
   const fee = { percent: 2.9, fixed: 0.3 };
-  const y = planYear({ priceCents: 4900, period: "month", autoplansPerMonth: 120, planModel: "claude-sonnet-5-5", batch: true }, tokens, 1, fee, 0);
+  const y = planYear({ priceCents: 4900, period: "month", autoplansPerMonth: 120, batch: true }, "claude-sonnet-5-5", tokens, 1, fee, 0);
   close(y.revenue, 588);
   close(y.perPlan!, 0.25);
   close(y.ai, 0.25 * 120 * 12);
   close(y.fee, 588 * 0.029 + 0.3 * 12);
   close(y.left, 588 - y.ai - y.fee);
-  close(planYear({ priceCents: 4900, period: "month", autoplansPerMonth: 120, planModel: "claude-sonnet-5-5", batch: true }, tokens, 0.5, fee, 0).ai, y.ai / 2);
-  const none = planYear({ priceCents: 2700, period: "year", autoplansPerMonth: 8, planModel: "claude-x", batch: false }, tokens, 1, fee, 0);
+  close(planYear({ priceCents: 4900, period: "month", autoplansPerMonth: 120, batch: true }, "claude-sonnet-5-5", tokens, 0.5, fee, 0).ai, y.ai / 2);
+  const none = planYear({ priceCents: 2700, period: "year", autoplansPerMonth: 8, batch: false }, "claude-x", tokens, 1, fee, 0);
   assert.equal(none.perPlan, null);
   close(none.fee, 27 * 0.029 + 0.3);
 });

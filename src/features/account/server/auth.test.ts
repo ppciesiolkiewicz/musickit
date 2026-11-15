@@ -261,7 +261,7 @@ test("peekSession finds the account without renewing the session", async () => {
   assert.equal(await peekSession(deps, undefined), null);
 });
 
-const PLAN = { priceCents: 1500, period: "month", students: 10, autoplansPerMonth: 40, planModel: "claude-haiku-5-5", noteModel: "claude-haiku-5-5", batch: false } as const;
+const PLAN = { priceCents: 1500, period: "month", students: 10, autoplansPerMonth: 40, batch: false } as const;
 const PLANS: Plan[] = [
   { ...PLAN, id: "teacher-pro", name: "Teacher Pro", role: "teacher", enabled: true, sort: 2 },
   { ...PLAN, id: "student", name: "Student", role: "student", enabled: true, sort: 0 },

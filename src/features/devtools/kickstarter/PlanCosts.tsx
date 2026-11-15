@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { allowanceLabel, modelLabel, priceLabel, studentsLabel, type Plan } from "@/features/account/plans";
+import { SUBSCRIPTION_MODEL, allowanceLabel, modelLabel, priceLabel, studentsLabel, type Plan } from "@/features/account/plans";
 import { PAYMENT_PROVIDERS, planYear, type PlanTokens } from "../model/unitEconomics";
 
 /**
- * "Plans": every row of the plans table with what it costs us a year at a share of its allowance, from the same
- * measured tokens as "What one player costs". Change a plan in the database (the `plans` table); this only reads it.
+ * "Plans": every row of the plans table with what it costs us a year at a share of its allowance, every plan on the one
+ * `SUBSCRIPTION_MODEL`, from the same measured tokens as "What one player costs". Change a plan in the database (the
+ * `plans` table); this only reads it.
  */
 
 const usd = (x: number) => {
@@ -24,7 +25,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
     <section id="plans" className="scroll-mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
       <h2 className="text-base font-semibold text-slate-100">Plans</h2>
       <p className="mb-4 max-w-3xl text-xs text-slate-400">
-        The plans in the database, what a year on each costs us and what is left. An autoplan is costed on the plan&apos;s model from the median tokens of the published runs; AI notes spend the same allowance and are costed as autoplans. Change a plan in the <code className="text-slate-300">plans</code> table. Only enabled plans can be chosen on /account.
+        The plans in the database, what a year on each costs us and what is left. Every plan uses one model, {modelLabel(SUBSCRIPTION_MODEL)} (<code className="text-slate-300">SUBSCRIPTION_MODEL</code>), and an autoplan is costed on it from the median tokens of the published runs; AI notes spend the same allowance and are costed as autoplans. Change a plan in the <code className="text-slate-300">plans</code> table. Only enabled plans can be chosen on /account.
       </p>
       {!plans ? (
         <p className="text-sm text-slate-400">No database, so no plans. Set DATABASE_URL and run npm run db:migrate.</p>
@@ -52,7 +53,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
                 <tr className="border-b border-slate-800">
                   <th className="py-2 text-left font-medium">Plan</th>
                   <th className="text-left font-medium">Gets</th>
-                  <th className="text-left font-medium">Models</th>
+                  <th className="text-left font-medium">Delivery</th>
                   <th className="font-medium">Price</th>
                   <th className="font-medium">An autoplan</th>
                   <th className="font-medium">AI a year</th>
@@ -63,7 +64,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
               </thead>
               <tbody>
                 {[...plans].sort((a, b) => a.sort - b.sort).map((p) => {
-                  const y = planYear(p, tokens, usage, fee);
+                  const y = planYear(p, SUBSCRIPTION_MODEL, tokens, usage, fee);
                   const students = studentsLabel(p);
                   return (
                     <tr key={p.id} className="border-b border-slate-800/60 align-top text-slate-200">
@@ -77,8 +78,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
                         <span className="block">{allowanceLabel(p)}</span>
                       </td>
                       <td className="py-2 text-left text-xs text-slate-400">
-                        <span className="block">Autoplans: {modelLabel(p.planModel)}{p.batch ? " (Batch)" : ""}</span>
-                        <span className="block">Notes: {modelLabel(p.noteModel)}</span>
+                        {p.batch ? "Batch: half price, minutes later" : "At once"}
                       </td>
                       <td className="py-2">{priceLabel(p)}{p.period === "month" && <span className="block text-xs text-slate-500">{usd(y.revenue)} a year</span>}</td>
                       <td className="py-2">{y.perPlan === null ? <span className="text-xs text-amber-300">no runs</span> : usd(y.perPlan)}</td>

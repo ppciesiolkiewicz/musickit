@@ -7,6 +7,7 @@ import type { Role } from "./model";
  *
  * The prices and allowances were set from /dev/kickstarter's "What one player costs" (2026-11-15): the median tokens of a
  * plan per model at API list prices, so every plan still leaves money at its full allowance. See "Plans" on that page.
+ * Every plan uses the same model, `SUBSCRIPTION_MODEL`.
  */
 export interface Plan {
   /** "student", "teacher-basic", "teacher-pro", "teacher-unlimited". */
@@ -21,10 +22,6 @@ export interface Plan {
   students: number | null;
   /** AI autoplans a month. AI notes spend the same allowance, `NOTES_PER_AUTOPLAN` to an autoplan. */
   autoplansPerMonth: number;
-  /** The Claude model that writes an autoplan, by API id (claude-haiku-5-5 …). */
-  planModel: string;
-  /** The Claude model that writes an AI note. */
-  noteModel: string;
   /** Autoplans go through the Batch API: half the price, the plan arrives minutes later. */
   batch: boolean;
   /** Can be chosen. A person already on a plan that is turned off keeps it. */
@@ -34,6 +31,12 @@ export interface Plan {
 }
 
 export const DEFAULT_PLAN_ID = "student";
+
+/**
+ * The one model that writes every autoplan and AI note, on every plan (2026-11-15: Haiku, to keep it cheap). Plans
+ * differ in price, allowance and students, never in model; /dev/kickstarter costs every plan on it.
+ */
+export const SUBSCRIPTION_MODEL = "claude-haiku-5-5";
 
 /** As in `PRICING.player.notesPerPlan`: an AI note spends a third of an autoplan. */
 export const NOTES_PER_AUTOPLAN = 3;

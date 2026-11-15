@@ -27,8 +27,6 @@ export const plans = pgTable("plans", {
   /** Students a teacher can have; null is no limit, 0 a student's own plan. */
   students: integer("students"),
   autoplansPerMonth: integer("autoplans_per_month").notNull(),
-  planModel: text("plan_model").notNull(),
-  noteModel: text("note_model").notNull(),
   batch: boolean("batch").notNull().default(false),
   /** Can be chosen in the app. People already on a turned-off plan keep it. */
   enabled: boolean("enabled").notNull().default(true),

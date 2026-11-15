@@ -12,7 +12,7 @@ name is changed on `/account`.
   of the app with the roles that may use them; every role gets every feature except `sharePlan`, for teachers and owners), `can(account, feature)` and
   `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
 - `plans.ts`: `Plan` (a row of the `plans` table: name, the role it gives, price in US cents a month or a year, students,
-  AI autoplans a month, the Claude models for autoplans and for notes, Batch, `enabled`, `sort`), `choosablePlans`
+  AI autoplans a month, Batch, `enabled`, `sort`; every plan's autoplans and notes are written by one model, `SUBSCRIPTION_MODEL`, Haiku 5.5), `choosablePlans`
   (the enabled plans, plus the one the person is on even when turned off), `canChoose`, `roleOnPlan` and the labels.
   The plans themselves are rows in the database, written by migration `0005_plans` and changed there; their prices and
   allowances come from /dev/kickstarter's *Plans*, which shows what each costs us.

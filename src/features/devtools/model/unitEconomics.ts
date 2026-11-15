@@ -106,14 +106,13 @@ export interface PlanOffer {
   priceCents: number;
   period: "month" | "year";
   autoplansPerMonth: number;
-  planModel: string;
   batch: boolean;
 }
 
 export interface PlanYearResult {
   /** US$ a year */
   revenue: number;
-  /** one autoplan on the plan's model, Batch API applied; null when the model has no measured runs */
+  /** one autoplan on `model`, Batch API applied; null when the model has no measured runs */
   perPlan: number | null;
   ai: number;
   fee: number;
@@ -125,13 +124,14 @@ export interface PlanYearResult {
 }
 
 /**
- * One account's year on a plan, using `usage` (0 to 1) of its autoplan allowance. A monthly plan is twelve payments, so
- * twelve fixed fees. AI notes spend the same allowance as autoplans and are costed as autoplans on the plan's model.
+ * One account's year on a plan, using `usage` (0 to 1) of its autoplan allowance, every autoplan written by `model` (every
+ * plan uses `SUBSCRIPTION_MODEL`). A monthly plan is twelve payments, so twelve fixed fees. AI notes spend the same
+ * allowance as autoplans and are costed as autoplans.
  */
-export function planYear(plan: PlanOffer, tokens: PlanTokens[], usage: number, fee: { percent: number; fixed: number }, emailsPerDay = 1, emailPer1000 = 0.4): PlanYearResult {
+export function planYear(plan: PlanOffer, model: string, tokens: PlanTokens[], usage: number, fee: { percent: number; fixed: number }, emailsPerDay = 1, emailPer1000 = 0.4): PlanYearResult {
   const payments = plan.period === "month" ? 12 : 1;
   const revenue = (plan.priceCents / 100) * payments;
-  const t = tokens.find((x) => x.model === plan.planModel);
+  const t = tokens.find((x) => x.model === model);
   const raw = t ? requestCost(t.model, t.input, t.output) : null;
   const perPlan = raw === null ? null : raw * (plan.batch ? 0.5 : 1);
   const ai = (perPlan ?? 0) * plan.autoplansPerMonth * usage * 12;
