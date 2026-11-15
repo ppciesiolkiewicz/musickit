@@ -199,12 +199,12 @@ function Creator({ preset }: { preset?: string }) {
     <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[minmax(12rem,1fr)_minmax(0,60rem)_minmax(12rem,1fr)]">
       <aside data-chrome aria-label="Note" className="flex flex-col gap-2 self-start md:sticky md:top-4 xl:w-full xl:max-w-[220px] xl:justify-self-end">
         <SharePopover open={share} onClose={() => setShare(false)} onView={() => setViewing(true)}>
-          <button type="button" disabled={empty} onClick={() => setShare((s) => !s)} aria-expanded={share} className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40">
+          <button type="button" disabled={empty} onClick={() => setShare((s) => !s)} aria-expanded={share} data-tour="notes-share" className="flex w-full items-center justify-center gap-2 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40">
             <Icon name="share-2" size={12} />
             Share as a note
           </button>
         </SharePopover>
-        <button type="button" onClick={() => setViewing(true)} className="flex items-center gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600">
+        <button type="button" onClick={() => setViewing(true)} data-tour="notes-view" className="flex items-center gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600">
           <Icon name="eye" size={12} />
           View as a note
         </button>
@@ -214,7 +214,7 @@ function Creator({ preset }: { preset?: string }) {
             Edit as JSON (dev)
           </button>
         )}
-        <button type="button" onClick={() => setPalette(selected)} className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:border-slate-500">
+        <button type="button" onClick={() => setPalette(selected)} data-tour="notes-add" className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:border-slate-500">
           Add a widget
           <span className="rounded border border-slate-700 px-1.5 font-mono text-[10px] text-slate-400">/ or ⌘K</span>
         </button>
@@ -231,7 +231,7 @@ function Creator({ preset }: { preset?: string }) {
             </li>
           ))}
         </ol>
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-6">
+        <div className="rounded-2xl border border-slate-800 bg-slate-950/40 p-4 sm:p-6" data-tour="notes-note">
           <VideoPickContext.Provider value={pickVideo}>
             <BlockEditor block={block} onChange={change} selected={selected} onSelect={setSelected} onAdd={(at) => setPalette(at)} toolControls={familyControls} />
           </VideoPickContext.Provider>

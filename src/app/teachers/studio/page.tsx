@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { pageBar } from "@/components/PageHeading";
+import PageHelp from "@/features/guide/PageHelp";
+import { INTERACTIVE_NOTES_TOUR } from "@/features/guide/tours/interactive-notes";
 import { StudioApp } from "@/features/teachers/studio";
 import { NoteViewProvider, NotesApp, NotesCreatorHeader } from "@/features/teachers/notes";
 
@@ -17,7 +19,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
     return (
       // View as a note changes the header too: the provider holds both
       <NoteViewProvider>
-        <PageShell active="/teachers/studio?notes=1" full columnTitle title="Interactive notes" header={<NotesCreatorHeader title="Interactive notes" intro="Put scales, chords, necks and videos on one page, then share it as a link." bar={pageBar("/teachers/studio?notes=1")} />}>
+        <PageShell active="/teachers/studio?notes=1" full columnTitle pageId="interactive-notes" title="Interactive notes" header={<NotesCreatorHeader title="Interactive notes" intro="Put scales, chords, necks and videos on one page, then share it as a link." bar={pageBar("/teachers/studio?notes=1")} action={<PageHelp pageId="interactive-notes" tour={INTERACTIVE_NOTES_TOUR} nudge />} />}>
           <NotesApp />
         </PageShell>
       </NoteViewProvider>

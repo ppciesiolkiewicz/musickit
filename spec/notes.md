@@ -6,7 +6,9 @@ Design: `docs/superpowers/specs/2026-11-12-blocks-notes-plan-merge-design.md`. P
 ## The notes creator
 
 `/teachers/studio?notes=1` (the Theory menu's **Notes creator**; `/cheatsheet`, `/creator` and `/theory/cheatsheet` redirect there),
-in the site's page frame with its title and line. Three numbered steps over the editor.
+in the site's page frame with its title and line. The tour button in the title row (page id `interactive-notes`, tour in
+`guide/tours/interactive-notes.ts`, with the note beside it until first pressed) walks Add a widget, the note, View as a note and
+Share as a note. Three numbered steps over the editor.
 
 - **The editor** (`BlockEditor`): the note's **Title** and its key bar (**Key**, **Scale**; a note with no key has **Add key**, which
   starts at C major) in the outer frame; under it one column of cells in reading order. A section is a frame of its own: its heading,

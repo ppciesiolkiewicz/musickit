@@ -8,6 +8,7 @@ import { CIRCLE_TOUR } from "./tours/circle";
 import { COURSE_TOUR } from "./tours/course";
 import { EARS_TOUR } from "./tours/ears";
 import { FAQ_TOUR } from "./tours/faq";
+import { INTERACTIVE_NOTES_TOUR } from "./tours/interactive-notes";
 import { LOOPER_TOUR } from "./tours/looper";
 import { METRONOME_DRONE_TOUR } from "./tours/metronome-drone";
 import { NOTES_TOUR } from "./tours/notes";
@@ -34,6 +35,7 @@ export const COVERED_PAGES: { id: string; route: string; tour: TourStep[] }[] = 
   { id: "double-stops", route: "/theory/double-stops", tour: DOUBLE_STOPS_TOUR },
   { id: "ears", route: "/theory/ears", tour: EARS_TOUR },
   { id: "faq", route: "/faq", tour: FAQ_TOUR },
+  { id: "interactive-notes", route: "/teachers/studio?notes=1", tour: INTERACTIVE_NOTES_TOUR },
   { id: "looper", route: "/looper", tour: LOOPER_TOUR },
   { id: "metronome-drone", route: "/theory/metronome-drone", tour: METRONOME_DRONE_TOUR },
   { id: "notes", route: "/theory/notes", tour: NOTES_TOUR },
