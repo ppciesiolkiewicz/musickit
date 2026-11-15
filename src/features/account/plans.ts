@@ -54,7 +54,7 @@ export function canChoose(plans: Plan[], currentId: string | null, planId: unkno
 /** The role a person has after choosing `plan`. An owner runs a school and stays an owner on any plan. */
 export const roleOnPlan = (role: Role, plan: Plan): Role => (role === "owner" ? "owner" : plan.role);
 
-/** "$27 a year", "$15 a month". */
+/** "$15 a year", "$9 a month". */
 export const priceLabel = (p: Pick<Plan, "priceCents" | "period">): string => {
   const d = p.priceCents / 100;
   return `$${Number.isInteger(d) ? d : d.toFixed(2)} a ${p.period}`;

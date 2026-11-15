@@ -18,7 +18,10 @@ name is changed on `/account`.
   allowances come from *Plans* on /dev/costs, which shows what each costs us. Each row also has `new_plan_percent`, internal
   and kept off `Plan`: the chance (0 to 100) that an autoplan on it is written new by the AI; the rest are taken from the
   `practice_plans` library (rows `enabled_for_reuse`). Always 1 to 99, held by a check in the database: no plan only
-  reuses and none always writes. Migration `0009_new_plan_percent_range` sets Student 10, Teacher Basic 25, Pro 50, Unlimited 75. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
+  reuses and none always writes. The plan is for Haiku to decide each autoplan (reuse a library plan that fits, or write a
+  new one), held to this share. Migration `0010_lower_prices_more_reuse` lowered the prices on the strength of reuse and sets
+  Student $15 a year at 5, Teacher Basic $9 a month at 10, Pro $29 at 15, Unlimited $59 at 25: about 85 to 90% margin, which
+  needs a library of many pre-written Fable plans. /terms says an autoplan is written new or picked by the AI. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
 - `ui/PlanPicker.tsx`: the Plan part of `/account`. `GET /api/account/plan` gives `{ plans, current }`; `POST` with
   `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
   reloads. Leaving a Teacher plan for Student asks first.

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { atScale, planTokens, planYear, playerYear, requestCost, type Assumptions } from "./unitEconomics";
+import { atScale, pickCost, planTokens, planYear, playerYear, requestCost, type Assumptions } from "./unitEconomics";
 
 const close = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
 const usage = (input: number, output: number) => ({ input, output, cacheRead: 0, cacheWrite: 0 });
@@ -77,14 +77,15 @@ test("a plan's year: twelve payments a month, Batch halves the AI, a model with 
   close(none.fee, 27 * 0.029 + 0.3);
 });
 
-test("reused plans cost no AI: half reused halves the AI, all reused leaves none", () => {
+test("a reused plan costs only Haiku's decide call, which every autoplan makes once any are reused", () => {
   const t = { model: "claude-sonnet-5-5" as const, input: 100_000, output: 30_000 };
   const full = playerYear(t, A);
-  close(playerYear(t, { ...A, reuse: 0.5 }).ai, full.ai / 2);
-  assert.equal(playerYear(t, { ...A, reuse: 1 }).ai, 0);
-  assert.equal(playerYear(t, { ...A, reuse: 1 }).breakEvenPlansPerMonth, Infinity);
+  const pickYear = pickCost() * A.plansPerMonth * 12;
+  assert.ok(pickCost() > 0 && pickCost() < 0.01);
+  close(playerYear(t, { ...A, reuse: 0.5 }).ai, full.ai / 2 + pickYear);
+  close(playerYear(t, { ...A, reuse: 1 }).ai, pickYear);
   const tokens = [{ ...t, label: "Sonnet 5.5", runs: 1 }];
   const plan = { priceCents: 2700, period: "year" as const, autoplansPerMonth: 8, batch: false };
   const fee = { percent: 0, fixed: 0 };
-  close(planYear(plan, t.model, tokens, 1, fee, 0, 0, 0.75).ai, planYear(plan, t.model, tokens, 1, fee, 0, 0).ai / 4);
+  close(planYear(plan, t.model, tokens, 1, fee, 0, 0, 0.75).ai, planYear(plan, t.model, tokens, 1, fee, 0, 0).ai / 4 + pickYear);
 });

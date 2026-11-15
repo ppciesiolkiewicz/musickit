@@ -11,8 +11,8 @@ const NOTES_PER_PLAN = 3;
 export const PRICING = {
   player: {
     /** shown as written */
-    price: "$27",
-    priceNumber: 27,
+    price: "$15",
+    priceNumber: 15,
     period: "a year",
     plansPerMonth: PLANS_PER_MONTH,
     notesPerPlan: NOTES_PER_PLAN,

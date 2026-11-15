@@ -71,6 +71,13 @@
       "when": 1794741461489,
       "tag": "0009_new_plan_percent_range",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794741669458,
+      "tag": "0010_lower_prices_more_reuse",
+      "breakpoints": true
     }
   ]
 }

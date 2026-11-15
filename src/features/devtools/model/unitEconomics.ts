@@ -21,6 +21,15 @@ export function requestCost(model: DevModel, input: number, output: number): num
   return (input * i + output * o) / 1e6;
 }
 
+/**
+ * Haiku's call that decides, for every autoplan, whether to take a plan from the library or write a new one: the
+ * player's answers and a list of the library's plans in, a choice out. An estimate until it is built and measured.
+ */
+export const PICK_TOKENS = { model: "claude-haiku-5-5" as DevModel, input: 8_000, output: 300 };
+
+/** US$ for one decide call. */
+export const pickCost = (): number => requestCost(PICK_TOKENS.model, PICK_TOKENS.input, PICK_TOKENS.output) ?? 0;
+
 export interface PlanTokens { model: DevModel; label: string; runs: number; input: number; output: number }
 
 const median = (xs: number[]): number => {
@@ -86,12 +95,14 @@ export interface PlayerYear {
 export function playerYear(t: Pick<PlanTokens, "model" | "input" | "output">, a: Assumptions): PlayerYear {
   const perPlan = (requestCost(t.model, t.input, t.output) ?? 0) * (a.batch ? 0.5 : 1);
   const written = 1 - a.reuse;
-  const ai = perPlan * a.plansPerMonth * 12 * a.aiShare * written;
+  // with any reuse, Haiku decides for every autoplan, reused or written
+  const each = perPlan * written + (a.reuse > 0 ? pickCost() : 0);
+  const ai = each * a.plansPerMonth * 12 * a.aiShare;
   const email = (a.emailsPerDay * 365 * a.emailPer1000) / 1000;
   const fee = a.price > 0 ? (a.price * a.feePercent) / 100 + a.feeFixed : 0;
   const total = ai + email + fee + a.hosting;
   const rest = a.price - email - fee - a.hosting;
-  return { perPlan, ai, email, fee, hosting: a.hosting, total, left: a.price - total, breakEvenPlansPerMonth: perPlan > 0 && a.aiShare > 0 && written > 0 ? Math.max(0, rest / (perPlan * 12 * a.aiShare * written)) : Infinity };
+  return { perPlan, ai, email, fee, hosting: a.hosting, total, left: a.price - total, breakEvenPlansPerMonth: each > 0 && a.aiShare > 0 ? Math.max(0, rest / (each * 12 * a.aiShare)) : Infinity };
 }
 
 export interface AtScale { revenue: number; variable: number; fixed: number; profit: number; /** players whose margin pays the fixed costs; null when each player loses money */ playersToCoverFixed: number | null }
@@ -130,7 +141,7 @@ export interface PlanYearResult {
  * One account's year on a plan, using `usage` (0 to 1) of its autoplan allowance, every autoplan written by `model` (every
  * plan uses `SUBSCRIPTION_MODEL`). A monthly plan is twelve payments, so twelve fixed fees. AI notes spend the same
  * allowance as autoplans and are costed as autoplans. `reuse` (0 to 1) of those autoplans come from the library of plans
- * already written and cost no AI.
+ * already written and cost no AI but Haiku's decide call (`PICK_TOKENS`), which every autoplan makes when any are reused.
  */
 export function planYear(plan: PlanOffer, model: string, tokens: PlanTokens[], usage: number, fee: { percent: number; fixed: number }, emailsPerDay = 1, emailPer1000 = 0.4, reuse = 0): PlanYearResult {
   const payments = plan.period === "month" ? 12 : 1;
@@ -138,7 +149,8 @@ export function planYear(plan: PlanOffer, model: string, tokens: PlanTokens[], u
   const t = tokens.find((x) => x.model === model);
   const raw = t ? requestCost(t.model, t.input, t.output) : null;
   const perPlan = raw === null ? null : raw * (plan.batch ? 0.5 : 1);
-  const ai = (perPlan ?? 0) * plan.autoplansPerMonth * usage * (1 - reuse) * 12;
+  const each = (perPlan ?? 0) * (1 - reuse) + (reuse > 0 ? pickCost() : 0);
+  const ai = each * plan.autoplansPerMonth * usage * 12;
   const feeYear = revenue > 0 ? (revenue * fee.percent) / 100 + fee.fixed * payments : 0;
   const email = (emailsPerDay * 365 * emailPer1000) / 1000;
   const total = ai + feeYear + email;

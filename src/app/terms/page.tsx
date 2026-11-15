@@ -74,11 +74,11 @@ const SECTIONS: Section[] = [
       <>
         <p>A player subscription costs {player.price} a year, paid once up front. It gives you:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>{player.plansPerMonth} AI autoplans a month. Each autoplan is one week of exercises written for you.</li>
+          <li>{player.plansPerMonth} AI autoplans a month. Each autoplan is one week of exercises chosen by the AI to fit you.</li>
           <li>The same allowance can be spent on AI-written notes instead: one autoplan counts as {player.notesPerPlan} notes, so up to {player.notesPerMonth} notes a month. AI notes are coming; until they open, the whole allowance is autoplans.</li>
           <li>Unlimited use of every other tool and lesson: Notes you write yourself, Practice, the course, the tuner, the metronome and drone, backing tracks, the looper, the singing and ear drills.</li>
         </ul>
-        <p>The allowance resets at the start of each month of your subscription. Unused autoplans and notes do not carry over. An autoplan or note is spent when the AI writes it, whether or not you keep it.</p>
+        <p>The allowance resets at the start of each month of your subscription. Unused autoplans and notes do not carry over. An autoplan or note is spent when the AI gives it to you, whether or not you keep it.</p>
         <p>When your year ends, your account stays open. You keep every plan and note you made, and you keep unlimited use of every tool. Only new AI autoplans and AI notes need a top-up: a new year, or a smaller top-up of autoplans if we offer one. We do not renew you without asking.</p>
         <p>The price for a new year may change. A year you have paid for is never repriced. We tell you the current price before you pay.</p>
       </>
@@ -117,7 +117,7 @@ const SECTIONS: Section[] = [
     title: "What the AI writes",
     body: (
       <>
-        <p>Autoplans and AI notes are written by an AI from what you tell it and how you rated past exercises. An AI can be wrong: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. attunr checks every plan before it reaches you, but it can&apos;t catch everything.</p>
+        <p>Autoplans and AI notes are made by an AI from what you tell it and how you rated past exercises. For an autoplan, the AI writes a new week or picks one it wrote earlier for a player like you. An AI can be wrong: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. attunr checks every plan before it reaches you, but it can&apos;t catch everything.</p>
         <p>Practise within what feels easy. Stop at any pain in your hands, arms or voice. attunr is not medical advice, and a plan is not a reason to push through pain. If you have an injury or a voice condition, ask a doctor, a physiotherapist or a voice teacher first.</p>
         <p>Where you paste a prompt into your own AI (ChatGPT, Claude, Gemini or another), that AI&apos;s terms apply to what you send it. attunr never sends your data to an AI unless you ask it to write a plan or a note for you.</p>
       </>
