@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { Plan } from "@/features/account/plans";
+import { FIXED_COSTS, FIXED_COSTS_CHECKED, fixedTotal } from "../model/fixedCosts";
 import { PAYMENT_PROVIDERS, type PlanTokens } from "../model/unitEconomics";
 import CostPerPlayer from "./CostPerPlayer";
 import OpenRouterModels from "./OpenRouterModels";
@@ -13,6 +14,9 @@ import PlanCosts, { type ReuseInfo } from "./PlanCosts";
 export default function CostsPage({ planTokens, plans, reuse }: { /** one plan's tokens per model, from the published compare-models runs */ planTokens: PlanTokens[]; /** the plans table; null without a database */ plans: Plan[] | null; /** each plan's chance of a new autoplan and the library; null without a database */ reuse: ReuseInfo | null }) {
   const [provider, setProvider] = useState<keyof typeof PAYMENT_PROVIDERS>("stripe");
   const fee = PAYMENT_PROVIDERS[provider];
+  const [fixedOn, setFixedOn] = useState<Set<string>>(() => new Set(FIXED_COSTS.filter((c) => c.on).map((c) => c.id)));
+  const fixedMonthly = fixedTotal(fixedOn);
+  const toggleFixed = (id: string) => setFixedOn((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -25,10 +29,29 @@ export default function CostsPage({ planTokens, plans, reuse }: { /** one plan's
             {Object.entries(PAYMENT_PROVIDERS).map(([id, v]) => <option key={id} value={id}>{v.label}</option>)}
           </select>
         </label>
+        <details className="mt-3 max-w-2xl rounded-lg border border-slate-800 bg-slate-950/40 p-3 text-sm">
+          <summary className="cursor-pointer text-slate-300">
+            Fixed costs, for every section: <span className="font-mono font-semibold text-slate-50">${fixedMonthly.toFixed(2)}</span> a month (${Math.round(fixedMonthly * 12).toLocaleString("en-US")} a year)
+          </summary>
+          <ul className="mt-3 flex flex-col gap-2">
+            {FIXED_COSTS.map((c) => (
+              <li key={c.id}>
+                <label className="flex items-start gap-2">
+                  <input type="checkbox" checked={fixedOn.has(c.id)} onChange={() => toggleFixed(c.id)} className="mt-1 accent-sky-400" />
+                  <span className="flex-1">
+                    <span className="flex justify-between gap-2 text-slate-200">{c.label}<span className="font-mono tabular-nums">${c.monthly.toFixed(2)}</span></span>
+                    <span className="block text-xs text-slate-500">{c.note}</span>
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-slate-500">List prices for one seat or user, checked {FIXED_COSTS_CHECKED}, before tax and before usage past each plan. Change them in model/fixedCosts.ts.</p>
+        </details>
       </div>
       <PlanCosts plans={plans} tokens={planTokens} reuse={reuse} fee={fee} />
-      <CostPerPlayer models={planTokens} plans={plans} reuse={reuse} fee={fee} />
-      <OverTime plans={plans} tokens={planTokens} reuse={reuse} fee={fee} />
+      <CostPerPlayer models={planTokens} plans={plans} reuse={reuse} fee={fee} fixedMonthly={fixedMonthly} />
+      <OverTime plans={plans} tokens={planTokens} reuse={reuse} fee={fee} fixedMonthly={fixedMonthly} />
       <OpenRouterModels tokens={planTokens} fee={fee} />
     </div>
   );

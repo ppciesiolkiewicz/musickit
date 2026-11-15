@@ -259,7 +259,7 @@ function Toggle<T extends string>({ value, options, onChange, label }: { value: 
   );
 }
 
-export default function CostPerPlayer({ models: given, plans, reuse, fee }: { models: PlanTokens[]; /** null: no database, so the Student offer of `pricing.ts` */ plans: Plan[] | null; reuse: ReuseInfo | null; fee: Fee }) {
+export default function CostPerPlayer({ models: given, plans, reuse, fee, fixedMonthly }: { models: PlanTokens[]; /** null: no database, so the Student offer of `pricing.ts` */ plans: Plan[] | null; reuse: ReuseInfo | null; fee: Fee; /** US$ a month, from the list at the top of the page */ fixedMonthly: number }) {
   const models = useMemo(() => [...given].sort(byOrder), [given]);
   const originals = useMemo(() => offersFrom(plans, reuse), [plans, reuse]);
   const [offers, setOffers] = useState<Offer[]>(originals);
@@ -271,7 +271,6 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
   const [tab, setTab] = useState(originals[0]?.id ?? "");
   const [solo, setSolo] = useState<Set<string>>(new Set());
   const [playersLog, setPlayersLog] = useState(3);
-  const [fixedMonthly, setFixedMonthly] = useState(60);
   const [table, setTable] = useState(false);
   const [mix, setMix] = useState<Record<string, number>>(() => mixFrom(originals));
   const [showMix, setShowMix] = useState(true);
@@ -408,7 +407,7 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee }: { mo
               <p className="mt-1 text-xs text-slate-500">Pick another plan with the tabs above.</p>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
                 <Slider label="Paying accounts" value={playersLog} shown={players.toLocaleString("en-US")} min={1} max={4} step={0.05} onChange={setPlayersLog} />
-                <Slider label="Fixed costs a month" value={fixedMonthly} shown={usd(fixedMonthly)} min={0} max={500} step={5} onChange={setFixedMonthly} hint="Hosting plan, database, email plan: what doesn't grow with accounts." />
+                <p className="text-sm text-slate-300">Fixed costs a month <span className="font-mono font-semibold text-slate-50">{usd(fixedMonthly)}</span><span className="block text-xs text-slate-500">From the list at the top of the page.</span></p>
               </div>
               <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {[

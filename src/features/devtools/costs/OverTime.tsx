@@ -129,11 +129,11 @@ function GrowthChart({ months, view }: { months: GrowthMonth[]; view: View }) {
   );
 }
 
-export default function OverTime({ plans, tokens, reuse, fee }: { plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null; fee: { percent: number; fixed: number } }) {
+export default function OverTime({ plans, tokens, reuse, fee, fixedMonthly }: { plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null; fee: { percent: number; fixed: number }; /** US$ a month, from the list at the top of the page */ fixedMonthly: number }) {
   const sorted = useMemo(() => [...(plans ?? [])].filter((p) => p.enabled).sort((a, b) => a.sort - b.sort), [plans]);
   const model = tokens.find((t) => t.model === SUBSCRIPTION_MODEL) ?? null;
   const [shares, setShares] = useState<number[]>(() => startShares(sorted.length));
-  const [g, setG] = useState<Omit<GrowthInputs, "fee">>({ months: 36, trialsStart: 100, growth: 0.08, conversion: 0.25, yearlyShare: 0.5, monthlyChurn: 0.06, yearlyRenewal: 0.6, fixedMonthly: 60 });
+  const [g, setG] = useState<Omit<GrowthInputs, "fee" | "fixedMonthly">>({ months: 36, trialsStart: 100, growth: 0.08, conversion: 0.25, yearlyShare: 0.5, monthlyChurn: 0.06, yearlyRenewal: 0.6 });
   const [usage, setUsage] = useState(0.6);
   const [multiple, setMultiple] = useState(4);
   const [view, setView] = useState<View>("money");
@@ -146,7 +146,7 @@ export default function OverTime({ plans, tokens, reuse, fee }: { plans: Plan[] 
       : null;
     return { id: p.id, month: p.monthCents / 100, year: p.yearCents / 100, trialDays: p.trialDays, share: shares[i] ?? 0, costPerMonth: y ? (y.ai + y.email) / 12 : 0 };
   });
-  const inputs: GrowthInputs = { ...g, fee };
+  const inputs: GrowthInputs = { ...g, fee, fixedMonthly };
   const months = project(growthPlans, inputs);
   const last = months[months.length - 1];
   const arr = last ? last.mrr * 12 : 0;
@@ -178,8 +178,8 @@ export default function OverTime({ plans, tokens, reuse, fee }: { plans: Plan[] 
               ))}
             </Group>
             <Group title="Costs and value">
+              <p className="text-xs text-slate-500">Fixed costs: {usd(fixedMonthly)} a month, from the list at the top.</p>
               <Slider label="Allowance used" value={usage} shown={pct(usage)} min={0} max={1} step={0.05} onChange={setUsage} />
-              <Slider label="Fixed costs a month" value={g.fixedMonthly} shown={usd(g.fixedMonthly)} min={0} max={2000} step={10} onChange={set("fixedMonthly")} />
               <Slider label="Value, times yearly revenue" value={multiple} shown={`${multiple}×`} min={1} max={10} step={0.5} onChange={setMultiple} hint="What a buyer might pay for each dollar of recurring revenue a year. Small subscription businesses often sell at 2× to 6×." />
               <Slider label="Months" value={g.months} shown={String(g.months)} min={12} max={60} step={6} onChange={set("months")} />
             </Group>
