@@ -30,7 +30,7 @@ export const plans = pgTable("plans", {
   /** US cents a year, paid once a year. */
   yearCents: integer("year_cents").notNull(),
   /** Days free before the first payment. */
-  trialDays: integer("trial_days").notNull().default(14),
+  trialDays: integer("trial_days").notNull().default(30),
   /**
    * Old: one price for one period, before every plan had both (0013). Kept, unused and nullable, so a build that still
    * reads them keeps working while the new one deploys. Drop them in a later migration.

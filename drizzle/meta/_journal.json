@@ -141,6 +141,13 @@
       "when": 1794755579743,
       "tag": "0019_block_provenance_plan_blocks",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794757200285,
+      "tag": "0020_trial_30_days",
+      "breakpoints": true
     }
   ]
 }
