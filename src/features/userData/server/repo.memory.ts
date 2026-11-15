@@ -1,7 +1,17 @@
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { BlockSource, PlanReviewRow, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { BlockSource, PlanBlockRow, PlanReviewRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+
+/** A `blocks` row, as the memory repo keeps it. */
+interface StoredBlock {
+  key: BlockKey;
+  parentId: string | null;
+  provenance: Provenance;
+}
+
+const NO_PROVENANCE: Provenance = { model: null, promptVersion: null, docsAgents: null, docsTeaching: null };
+const isBare = (p: Provenance) => p.model === null && p.promptVersion === null && p.docsAgents === null && p.docsTeaching === null;
 
 /** A `block_owners` row, as the memory repo keeps it. */
 interface OwnerRow {
@@ -19,7 +29,9 @@ interface OwnerRow {
 export function memoryUserDataRepo(): UserDataRepo & {
   cascadeUser(userId: string): void;
   /** Test only: the `blocks` rows. */
-  peekBlocks(): Map<string, { key: BlockKey; parentId: string | null }>;
+  peekBlocks(): Map<string, StoredBlock>;
+  /** Test only: a plan's `practice_plan_blocks` rows. */
+  peekPlanBlocks(planId: string): PlanBlockRow[];
   /** Test only: the `block_owners` rows. */
   peekOwners(): OwnerRow[];
 } {
@@ -34,7 +46,9 @@ export function memoryUserDataRepo(): UserDataRepo & {
   /** `plan_claims` rows, as `${shareId} ${userId}`. */
   const claims = new Set<string>();
   /** `blocks` rows, by id; never changed once set. */
-  const blocks = new Map<string, { key: BlockKey; parentId: string | null }>();
+  const blocks = new Map<string, StoredBlock>();
+  /** `practice_plan_blocks` rows, by plan id. */
+  const planBlocks = new Map<string, PlanBlockRow[]>();
   /** `block_owners` rows, keyed `${userId ?? ""} ${blockId}`, so the app's (null) rows of a block are one, like `nulls not distinct`. */
   const owners = new Map<string, OwnerRow>();
   /** `plan_reviews` rows, keyed `${userId} ${planId}`. */
@@ -88,11 +102,24 @@ export function memoryUserDataRepo(): UserDataRepo & {
       return new Set(ids.filter((id) => owners.has(pair(userId, id))));
     },
     async addBlocks(userId, list) {
-      for (const b of list) if (!blocks.has(b.id)) blocks.set(b.id, { key: structuredClone(b.key), parentId: b.parentId });
+      for (const b of list) if (!blocks.has(b.id)) blocks.set(b.id, { key: structuredClone(b.key), parentId: b.parentId, provenance: { ...NO_PROVENANCE } });
       for (const b of list) {
         const k = pair(userId ?? "", b.id);
         if (!owners.has(k)) owners.set(k, { userId, blockId: b.id, source: b.source, enabledForReuse: b.enabledForReuse });
       }
+      // provenance is filled once, only where all four columns are null
+      for (const b of list) {
+        const row = blocks.get(b.id)!;
+        if (b.provenance && isBare(row.provenance)) row.provenance = { ...b.provenance };
+      }
+      for (const b of list) {
+        const row = blocks.get(b.id)!;
+        const parent = row.parentId ? blocks.get(row.parentId) : undefined;
+        if (parent && isBare(row.provenance)) row.provenance = { ...parent.provenance };
+      }
+    },
+    async setPlanBlocks(planId, rows) {
+      planBlocks.set(planId, structuredClone(rows));
     },
     async syncPlanReviews(userId, planIds, rows) {
       const keep = new Set(rows.map((r) => r.planId));
@@ -182,6 +209,9 @@ export function memoryUserDataRepo(): UserDataRepo & {
     },
     peekBlocks() {
       return structuredClone(blocks);
+    },
+    peekPlanBlocks(planId) {
+      return structuredClone(planBlocks.get(planId) ?? []);
     },
     peekOwners() {
       return [...owners.values()].map((o) => ({ ...o }));

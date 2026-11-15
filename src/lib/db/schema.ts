@@ -71,6 +71,11 @@ export const practicePlans = pgTable(
     reply: text("reply").notNull(),
     /** Where it came from: "compare-models" for a seeded plan. */
     source: text("source").notNull(),
+    /** `PROMPT_VERSION` the plan was written under; null when unknown. */
+    promptVersion: integer("prompt_version"),
+    /** `DOC_VERSIONS.agents` and `.teaching` the plan was written to; null when unknown. */
+    docsAgents: integer("docs_agents"),
+    docsTeaching: integer("docs_teaching"),
     enabledForReuse: boolean("enabled_for_reuse").notNull().default(false),
     createdAt: at("created_at").notNull().defaultNow(),
   },
@@ -206,8 +211,9 @@ export const blockSource = pgEnum("block_source", ["ai", "edit", "seed", "exampl
 
 /**
  * The shared library of exercise blocks: one row per distinct block, whoever has it. The id is the hash of the block's
- * content and tags (`features/plan/model/blockId.ts`), so the same block is one row. Insert-only: a row is never updated or
- * deleted, not even when its last owner deletes their account. Who has a block, and whether it may be reused, is in
+ * content and tags (`features/plan/model/blockId.ts`), so the same block is one row. Insert-only for content and tags: a row
+ * is never deleted, not even when its last owner deletes their account, and its provenance is filled once, only while all
+ * four provenance columns are null. Who has a block, and whether it may be reused, is in
  * `block_owners`; a block is private to its owners until one of their rows is `enabled_for_reuse`.
  */
 export const blocks = pgTable(
@@ -223,9 +229,30 @@ export const blocks = pgTable(
     tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
     /** The block this one was edited from. Not a foreign key; written only when the first saver owned that block or saved it in the same document. */
     parentId: text("parent_id"),
+    /** Provenance: the model that wrote the block, and the prompt and document versions it was written to. All null when unknown. */
+    model: text("model"),
+    promptVersion: integer("prompt_version"),
+    docsAgents: integer("docs_agents"),
+    docsTeaching: integer("docs_teaching"),
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("blocks_area").on(t.area), index("blocks_topic").on(t.topic)],
+);
+
+/**
+ * The blocks of a library plan or of a player's plan, in order: one row per plan, day and place. Replaced as a whole for a
+ * plan (`setPlanBlocks`). Deleting the plan drops its rows; a block is never deleted.
+ */
+export const practicePlanBlocks = pgTable(
+  "practice_plan_blocks",
+  {
+    planId: text("plan_id").notNull().references(() => practicePlans.id, { onDelete: "cascade" }),
+    day: integer("day").notNull(),
+    place: integer("place").notNull(),
+    blockId: text("block_id").notNull().references(() => blocks.id),
+    minutes: integer("minutes").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.planId, t.day, t.place] }), index("practice_plan_blocks_block").on(t.blockId)],
 );
 
 /**

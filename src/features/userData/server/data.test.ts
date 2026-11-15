@@ -92,7 +92,7 @@ test("writing a plan puts its blocks in the library, owned by the player as ai",
   assert.deepEqual(new Set(repo.peekOwners().map((o) => [o.userId, o.source, o.enabledForReuse].join())), new Set(["u1,ai,false"]));
   assert.equal(repo.peekOwners().length, 2);
   assert.equal(repo.peekBlocks().size, 2);
-  assert.deepEqual(repo.peekBlocks().get(idOf(ex)), { key: blockKeyOf(ex), parentId: null });
+  assert.deepEqual(repo.peekBlocks().get(idOf(ex)), { key: blockKeyOf(ex), parentId: null, provenance: { model: null, promptVersion: null, docsAgents: null, docsTeaching: null } });
 });
 
 test("the server works out block ids itself: a sent blockId is not used", async () => {

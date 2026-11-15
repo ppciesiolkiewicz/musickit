@@ -1,8 +1,9 @@
 import { and, desc, eq, exists, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "@/lib/db/client";
-import { blockOwners, blocks, planClaims, planDayTimes, planReviews, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
+import { blockOwners, blocks, planClaims, planDayTimes, practicePlanBlocks, planReviews, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { PlanReviewRow, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { PlanReviewRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A UUID, as the `videos.id` column takes; anything else would make Postgres throw. */
 const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
@@ -95,6 +96,42 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
           .insert(blockOwners)
           .values(list.map((b) => ({ userId, blockId: b.id, source: b.source, enabledForReuse: b.enabledForReuse, createdAt: now })))
           .onConflictDoNothing();
+        // provenance is filled once: only where all four columns are still null
+        const bare = and(isNull(blocks.model), isNull(blocks.promptVersion), isNull(blocks.docsAgents), isNull(blocks.docsTeaching));
+        const groups = new Map<string, { p: Provenance; ids: string[] }>();
+        for (const b of list) {
+          if (!b.provenance) continue;
+          const { model, promptVersion, docsAgents, docsTeaching } = b.provenance;
+          if (model === null && promptVersion === null && docsAgents === null && docsTeaching === null) continue;
+          const g = JSON.stringify([model, promptVersion, docsAgents, docsTeaching]);
+          const grp = groups.get(g) ?? { p: b.provenance, ids: [] };
+          grp.ids.push(b.id);
+          groups.set(g, grp);
+        }
+        for (const { p, ids } of groups.values()) {
+          await tx
+            .update(blocks)
+            .set({ model: p.model, promptVersion: p.promptVersion, docsAgents: p.docsAgents, docsTeaching: p.docsTeaching })
+            .where(and(inArray(blocks.id, ids), bare));
+        }
+        // a listed block with a stored parent and still no provenance takes the parent's
+        const parent = alias(blocks, "parent_block");
+        await tx
+          .update(blocks)
+          .set({
+            model: sql`${parent.model}`,
+            promptVersion: sql`${parent.promptVersion}`,
+            docsAgents: sql`${parent.docsAgents}`,
+            docsTeaching: sql`${parent.docsTeaching}`,
+          })
+          .from(parent)
+          .where(and(inArray(blocks.id, list.map((b) => b.id)), eq(blocks.parentId, parent.id), bare));
+      });
+    },
+    async setPlanBlocks(planId, rows) {
+      await db.transaction(async (tx) => {
+        await tx.delete(practicePlanBlocks).where(eq(practicePlanBlocks.planId, planId));
+        if (rows.length) await tx.insert(practicePlanBlocks).values(rows.map((r) => ({ planId, day: r.day, place: r.place, blockId: r.blockId, minutes: r.minutes })));
       });
     },
     async syncPlanReviews(userId, planIds, rows) {

@@ -35,6 +35,14 @@ export interface ShareRow {
 /** Where an owner got a block (`block_owners.source`): the AI, the player's edit, the app's seed, a hand-written example. */
 export type BlockSource = "ai" | "edit" | "seed" | "example";
 
+/** Who wrote a block and to which rules: the model, the AI prompt's version and the two documents' versions. Each null when unknown. */
+export interface Provenance {
+  model: string | null;
+  promptVersion: number | null;
+  docsAgents: number | null;
+  docsTeaching: number | null;
+}
+
 /** A block to put in the library and the owner row to give it. `parentId` is only ever a block the saver owns. */
 export interface NewBlock {
   id: string;
@@ -42,6 +50,16 @@ export interface NewBlock {
   parentId: string | null;
   source: BlockSource;
   enabledForReuse: boolean;
+  /** Filled once, where the stored block has none (all four columns null); a block with a parent and none takes the parent's. */
+  provenance?: Provenance;
+}
+
+/** One place in a plan: the block on a day at a position, and its minutes (`practice_plan_blocks`). */
+export interface PlanBlockRow {
+  day: number;
+  place: number;
+  blockId: string;
+  minutes: number;
 }
 
 /** A player's review of a plan, the `plan_reviews` row. `libraryPlanId` is the library plan it was taken from, when known. */
@@ -76,10 +94,14 @@ export interface UserDataRepo {
   /** Which of these block ids the user owns (has a `block_owners` row for). */
   ownedBlockIds(userId: string, ids: string[]): Promise<Set<string>>;
   /**
-   * In one transaction: the blocks not stored yet (a stored block is never changed), then the owner rows the user lacks.
-   * `null` is the app. Nothing is updated or deleted.
+   * In one transaction: the blocks not stored yet (a stored block's content and tags are never changed), then the owner
+   * rows the user lacks, then provenance: a listed block whose four provenance columns are all null takes its own
+   * `provenance`, and one that is still all null and has a stored parent takes the parent's. A block with any column set
+   * is left. `null` is the app. Nothing is deleted.
    */
   addBlocks(userId: string | null, blocks: NewBlock[], now: Date): Promise<void>;
+  /** Replaces the plan's `practice_plan_blocks` rows with these, in one transaction. */
+  setPlanBlocks(planId: string, rows: PlanBlockRow[]): Promise<void>;
   /**
    * Makes the user's `plan_reviews` rows of these plans match `rows`: a row is added, or changed only when its `at` differs,
    * and a row of the user whose plan is in `planIds` but not in `rows` is deleted. Rows of plans not in `planIds` (dropped
