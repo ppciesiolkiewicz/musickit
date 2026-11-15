@@ -55,10 +55,26 @@ Ollama models through the local Ollama (`server/ollama.ts`, one at a time, with 
 runs and their estimate. Each run is saved to the history with its `persona` and token `usage`.
 
 The page (`compare/CompareModelsPage.tsx`) runs nothing: a table of players × models (the Claude models, then any local model
-that has a plan), the newest plan in each cell (`latestByCell`, `model/compare.ts`), and the plan below when a cell is
-opened. Every cost is as if through the API (`model/pricing.ts`): before a run the composed prompt as input and a reply the
+that has a plan), the newest plan in each cell (`latestByCell`, `model/compare.ts`) with its parser warnings as a tag. A plan's
+title opens its public page in a new tab, `/demo/models/<player>--<model>` (`MODEL_PLANS` in `src/features/plan/modelPlans`,
+written by `npm run -s publish-model-plans`, `scripts/publish-model-plans.ts`: the newest plan per cell that parses, copied
+out of the gitignored history so the live site has it). A cell whose newest run isn't the published one says *not published*
+until that is run again. Every cost is as if through the API (`model/pricing.ts`): before a run the composed prompt as input and a reply the
 size of the demo plans × 1.5 for thinking as output; after, the run's tokens at list prices with no caching (`runCost`;
 the CLI's `total_cost_usd` is not used, it doesn't match the list prices). A local Ollama model is priced at what OpenRouter charges for the same open model (a fine-tune as its base); one with no price in `API_PRICES` shows its token count instead.
+
+**Assessments.** `npm run -s compare-models -- assess [--players a,b]` has the judge (`JUDGE_MODEL` in `model/assess.ts`, Fable 5.2;
+`--judge` names another Claude model) mark every other model's newest plan for a player against its own newest plan for that
+player, the reference. A player the judge has no plan for is skipped, so write that first (`--models claude-fable-5-2 --players <id>`).
+The judge gets the prompt both plans were written from, the two plans as "reference" and "candidate" (not which model wrote
+which) and the parser's warnings for each, and answers with JSON (`assessPrompt`, `parseVerdict`): a score out of 10 where 10
+is as good as the reference or better, a summary, a mark out of 5 for each of `CRITERIA` (fits the player, shape of the week,
+music facts, use of the tools, teaching text), and lists of what is stronger, weaker and wrong. One file per judged run in
+`tools/prompt-history/assessments/<run id>.json` (`server/assessments.ts`, read by `GET /api/dev/assessments`); a reply
+that doesn't parse is kept with its error. An assessment is skipped when one against today's reference exists, unless
+`--redo`. On the page a judged cell shows **vs Fable 5.2 N/10**; it opens the assessment in a row under the player
+(`compare/AssessmentPanel.tsx`), with links to open that plan or the reference. A mark made against an older reference
+plan says so (`isCurrent`).
 
 ## Data (`/dev/data`)
 
@@ -115,6 +131,7 @@ returns one.
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the studio's CLI aliases and the pinned `DEMO_MODELS`.
 - `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/`, `server/ollama.ts`, `scripts/compare-models.ts`: /dev/compare-models.
+- `model/assess.ts`, `server/assessments.ts`, `compare/AssessmentPanel.tsx`, `src/app/api/dev/assessments`: plans judged against the judge model's own plan.
 - `model/history.ts`: run records, summaries, ids, request checks, `describeReply`.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.
