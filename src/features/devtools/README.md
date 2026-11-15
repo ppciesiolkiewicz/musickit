@@ -114,6 +114,10 @@ to, its course page and its examples. The line beside the area buttons counts th
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
 example library, so the diagram changes when they do. It writes nothing.
 
+## Library (`/dev/library`)
+
+A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days, reviews), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows what is not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. Code: `library/load.ts` (the loader), `library/params.ts` (address parameters, minutes), `library/LibraryPage.tsx` (tables), `src/app/dev/library`.
+
 ## Plan reviews (`/dev/plan-reviews`)
 
 Every player's plan reviews from the `plan_reviews` table (`listPlanReviews(500)`), newest first, as a plain table
@@ -179,7 +183,7 @@ returns one.
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the studio's CLI aliases and the pinned `DEMO_MODELS`.
 - `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/`, `server/ollama.ts`, `scripts/compare-models.ts`: /dev/compare-models.
-- `src/app/api/dev/mcp`: the library tools (`features/library`) as a local MCP server, `POST /api/dev/mcp` (stateless, plain JSON; `GET` answers 405, production 404). `.mcp.json` at the repo root registers it as `musickit-library` for Claude Code, so the dev server must be running. It reads the database the dev server is configured with, which must have migration 0019 applied. Every tool also takes `player` (a user id) and `include_not_enabled` (also examples and plans not enabled for reuse); only this route reads them.
+- `src/app/api/dev/mcp`: the library tools (`features/library`) as a local MCP server, `POST /api/dev/mcp` (stateless, plain JSON; `GET` answers 405, production 404). `.mcp.json` at the repo root registers it as `musickit-library` for Claude Code, so the dev server must be running. It reads the database the dev server is configured with, which must have migration 0019 applied. Every tool also takes `player` (a user id) and `include_not_enabled` (also examples and plans not enabled for reuse); only this route and `/dev/library` read them, both through `devScope`.
 - `model/assess.ts`, `server/assessments.ts`, `compare/AssessmentPanel.tsx`, `src/app/api/dev/assessments`: plans judged against the judge model's own plan.
 - `model/history.ts`: run records, summaries, ids, request checks, `describeReply`.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
