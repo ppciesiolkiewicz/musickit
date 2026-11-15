@@ -144,4 +144,16 @@ describe("user data repo on Postgres: block provenance", () => {
     assert.deepEqual(await rows("p"), [{ day: 1, place: 0, blockId: "c", minutes: 10 }]);
     assert.equal((await rows("q")).length, 1);
   });
+  test("promoteExampleBlocks makes the app's example rows seed, enabled, and leaves every other row", async () => {
+    await fresh();
+    await repo.addBlocks(null, [block("ex", { source: "example" }), block("off", { source: "seed" }), block("on", { source: "seed", enabledForReuse: true })], NOW);
+    await repo.addBlocks(PLAYER_A, [block("ex", { source: "example" })], NOW);
+    assert.equal(await repo.promoteExampleBlocks(["ex", "off", "on", "ex", "missing"]), 1);
+    assert.equal(await repo.promoteExampleBlocks([]), 0);
+    const owners = await db.select({ userId: schema.blockOwners.userId, blockId: schema.blockOwners.blockId, source: schema.blockOwners.source, enabled: schema.blockOwners.enabledForReuse }).from(schema.blockOwners);
+    const of = (userId: string | null, blockId: string) => owners.find((o) => o.userId === userId && o.blockId === blockId);
+    assert.deepEqual([of(null, "ex")?.source, of(null, "ex")?.enabled], ["seed", true]);
+    assert.deepEqual([of(null, "off")?.source, of(null, "off")?.enabled], ["seed", false]);
+    assert.deepEqual([of(PLAYER_A, "ex")?.source, of(PLAYER_A, "ex")?.enabled], ["example", false]);
+  });
 });

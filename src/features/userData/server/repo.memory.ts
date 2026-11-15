@@ -118,6 +118,17 @@ export function memoryUserDataRepo(): UserDataRepo & {
         if (parent && isBare(row.provenance)) row.provenance = { ...parent.provenance };
       }
     },
+    async promoteExampleBlocks(ids) {
+      let n = 0;
+      for (const id of new Set(ids)) {
+        const row = owners.get(pair("", id));
+        if (row && row.userId === null && row.source === "example") {
+          owners.set(pair("", id), { ...row, source: "seed", enabledForReuse: true });
+          n++;
+        }
+      }
+      return n;
+    },
     async setPlanBlocks(planId, rows) {
       planBlocks.set(planId, structuredClone(rows));
     },

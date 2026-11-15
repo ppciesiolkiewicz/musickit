@@ -101,6 +101,12 @@ export interface UserDataRepo {
    */
   addBlocks(userId: string | null, blocks: NewBlock[], now: Date): Promise<void>;
   /**
+   * The app's owner rows of these blocks that are an example's (`source` "example", stored not enabled) become `seed`,
+   * enabled for reuse: a library plan uses the block now. A row of any other source is left as it is, so a seed block
+   * turned off in the database stays off. Returns how many rows changed.
+   */
+  promoteExampleBlocks(ids: string[]): Promise<number>;
+  /**
    * Replaces the plan's `practice_plan_blocks` rows with these, in one transaction. A library plan's rows name only blocks the app
    * owns: the library shows a plan to callers who may not see a player's private block (a schedule row on one has no title).
    */

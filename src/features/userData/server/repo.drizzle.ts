@@ -128,6 +128,15 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
           .where(and(inArray(blocks.id, list.map((b) => b.id)), eq(blocks.parentId, parent.id), bare));
       });
     },
+    async promoteExampleBlocks(ids) {
+      if (!ids.length) return 0;
+      const rows = await db
+        .update(blockOwners)
+        .set({ source: "seed", enabledForReuse: true })
+        .where(and(isNull(blockOwners.userId), eq(blockOwners.source, "example"), inArray(blockOwners.blockId, [...new Set(ids)])))
+        .returning({ id: blockOwners.blockId });
+      return rows.length;
+    },
     async setPlanBlocks(planId, rows) {
       await db.transaction(async (tx) => {
         await tx.delete(practicePlanBlocks).where(eq(practicePlanBlocks.planId, planId));

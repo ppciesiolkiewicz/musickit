@@ -1,7 +1,7 @@
 /**
  * Puts the blocks of the exercise and plan examples (src/features/plan/examples) and of every practice_plans reply into
  * the block library at DATABASE_URL, owned by the app (no user). Library plans' blocks are `seed`, enabled for reuse;
- * the examples' are `example`, not enabled. Each block takes its plan's model and versions (an example's, for an example), and each plan's blocks go in practice_plan_blocks. Blocks are only inserted and provenance filled once, so running it again adds nothing.
+ * the examples' are `example`, not enabled; an example's block that a library plan now uses is promoted to `seed`, enabled. Each block takes its plan's model and versions (an example's, for an example), and each plan's blocks go in practice_plan_blocks. Blocks are only inserted and provenance filled once, so running it again adds nothing.
  *
  *   npm run -s db:seed-blocks
  *
@@ -24,8 +24,8 @@ async function main() {
   const plans: SeedPlan[] = rows.map((r) => ({ id: r.id, reply: r.reply, provenance: { model: r.model, promptVersion: r.promptVersion, docsAgents: r.docsAgents, docsTeaching: r.docsTeaching } }));
   const replies = plans.map((p) => p.reply);
   for (const i of unparsedReplies(replies)) console.log(`skipped  ${rows[i].id}  (reply does not parse)`);
-  const { library, examples, planBlocks } = await seedBlocks(drizzleUserDataRepo(db), plans, new Date());
-  console.log(`${library} library block${library === 1 ? "" : "s"} from ${rows.length} plan${rows.length === 1 ? "" : "s"}, ${examples} example block${examples === 1 ? "" : "s"}, ${planBlocks} plan block row${planBlocks === 1 ? "" : "s"}.`);
+  const { library, examples, planBlocks, promoted } = await seedBlocks(drizzleUserDataRepo(db), plans, new Date());
+  console.log(`${library} library block${library === 1 ? "" : "s"} from ${rows.length} plan${rows.length === 1 ? "" : "s"}, ${examples} example block${examples === 1 ? "" : "s"}, ${planBlocks} plan block row${planBlocks === 1 ? "" : "s"}, ${promoted} example block${promoted === 1 ? "" : "s"} promoted to seed.`);
 }
 
 main()

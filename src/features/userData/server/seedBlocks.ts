@@ -72,11 +72,17 @@ function dedupe(list: NewBlock[]): NewBlock[] {
   return [...seen.values()];
 }
 
-/** Puts the library plans' blocks, then the examples', in the library as the app's, then each plan's blocks in `practice_plan_blocks`. Insert-only, so a second run adds no block and a block in both stays `seed`, enabled; the plan rows are replaced with the same ones, and a plan whose reply doesn't parse is left with none. */
-export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Date): Promise<{ library: number; examples: number; planBlocks: number }> {
+/**
+ * Puts the library plans' blocks, then the examples', in the library as the app's, then each plan's blocks in
+ * `practice_plan_blocks`. Insert-only, so a second run adds no block and a block in both stays `seed`, enabled; the plan
+ * rows are replaced with the same ones, and a plan whose reply doesn't parse is left with none. A library block an
+ * earlier run stored as an example's (not enabled) is promoted to `seed`, enabled; `promoted` counts those.
+ */
+export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Date): Promise<{ library: number; examples: number; planBlocks: number; promoted: number }> {
   const library = libraryPlanBlocks(plans);
   const examples = exampleBlocks();
   await repo.addBlocks(null, library, now);
+  const promoted = await repo.promoteExampleBlocks(library.map((b) => b.id));
   await repo.addBlocks(null, examples, now);
   let planBlocks = 0;
   for (const p of plans) {
@@ -85,5 +91,5 @@ export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Dat
     await repo.setPlanBlocks(p.id, rows);
     planBlocks += rows.length;
   }
-  return { library: library.length, examples: examples.length, planBlocks };
+  return { library: library.length, examples: examples.length, planBlocks, promoted };
 }

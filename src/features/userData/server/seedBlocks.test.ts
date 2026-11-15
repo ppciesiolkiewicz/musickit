@@ -110,3 +110,20 @@ test("seedBlocks: a plan whose reply no longer parses ends with no block rows", 
   assert.deepEqual(repo.peekPlanBlocks("p1"), []);
   assert.equal(r.planBlocks, 0);
 });
+
+test("an example's block a later run finds in a library plan becomes seed, enabled; a seed block turned off stays off", async () => {
+  const repo = memoryUserDataRepo();
+  // an earlier run that had only the examples
+  await seedBlocks(repo, [], NOW);
+  const ids = libraryPlanBlocks([plan]).map((b) => b.id);
+  const before = repo.peekOwners().filter((o) => ids.includes(o.blockId));
+  assert.ok(before.length > 0 && before.every((o) => o.source === "example" && !o.enabledForReuse));
+  const r = await seedBlocks(repo, [plan], NOW);
+  assert.equal(r.promoted, before.length);
+  for (const id of ids) assert.deepEqual(repo.peekOwners().find((o) => o.blockId === id), { userId: null, blockId: id, source: "seed", enabledForReuse: true });
+  // a seed block turned off by hand, and a player's own row, are never touched
+  await repo.addBlocks("u1", [{ ...libraryPlanBlocks([plan])[0], source: "example", enabledForReuse: false }], NOW);
+  assert.equal(await repo.promoteExampleBlocks(ids), 0);
+  assert.deepEqual(repo.peekOwners().find((o) => o.userId === "u1"), { userId: "u1", blockId: ids[0], source: "example", enabledForReuse: false });
+  assert.equal((await seedBlocks(repo, [plan], NOW)).promoted, 0);
+});
