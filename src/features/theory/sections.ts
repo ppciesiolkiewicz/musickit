@@ -40,7 +40,7 @@ export const TONE: Record<Tone, { icon: string; chip: string }> = {
 
 export const THEORY_SECTIONS: TheorySection[] = [
   { group: "learn", href: "/course", tone: "amber", label: "Course", desc: "Learn the neck one position at a time", icon: "graduation-cap", wide: true },
-  { group: "learn", href: "/plan", tone: "violet", label: "AI practice plan", desc: "A continuous daily plan for your practice", icon: "sparkles", alsoIn: [{ group: "tools", sub: "Plan & notes" }] },
+  { group: "learn", href: "/plan", tone: "violet", label: "AI autoplan", desc: "A continuous daily plan for your practice", icon: "sparkles", alsoIn: [{ group: "tools", sub: "Plan & notes" }] },
   { group: "learn", href: "/theory/circle", tone: "sky", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot", alsoIn: [{ group: "tools", sub: "Tuning & theory" }] },
   { group: "learn", href: "/theory/basics", tone: "emerald", label: "Guitar basics", desc: "Strings, frets, notes and intervals", icon: "guitar" },
   { group: "guitar", sub: "Explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3", wide: true },
@@ -60,7 +60,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "singing", href: "/theory/singing/intervals", tone: "violet", label: "Sing an interval", desc: "See its name, hear Do, sing the other note", icon: "target" },
   { group: "singing", href: "/theory/ears", tone: "pink", label: "Ear training", desc: "Name the interval you hear", icon: "ear" },
   { group: "singing", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar", alsoIn: [{ group: "guitar", sub: "Practice" }] },
-  { group: "tools", sub: "Plan & notes", href: "/teachers/studio?notes=1", tone: "emerald", label: "Notes creator", desc: "Build a page of notes and share it as a link", icon: "file-text" },
+  { group: "tools", sub: "Plan & notes", href: "/teachers/studio?notes=1", tone: "emerald", label: "Interactive notes", desc: "Build a page of notes and share it as a link", icon: "file-text" },
   { group: "tools", sub: "Tuning & theory", href: "/tuner", tone: "rose", label: "Tuner", desc: "Tune your guitar with the mic", icon: "gauge", wide: true },
   { group: "tools", sub: "Play along", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },
   { group: "tools", sub: "Play along", href: "/theory/backing", tone: "pink", label: "Backing tracks", desc: "Drums, bass and chords from a progression, any key and style", icon: "drum" },

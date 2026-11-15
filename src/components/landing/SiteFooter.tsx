@@ -7,7 +7,7 @@ type Column = { title: string; links: { href: string; label: string }[] };
 /** The two home pages, the app's three places (they need a login), the demo plans and help. */
 const COLUMNS: Column[] = [
   { title: "attunr for", links: [{ href: "/", label: "Music schools" }, { href: "/players", label: "Players" }] },
-  { title: "The app", links: [{ href: "/plan", label: "Plan" }, { href: "/teachers/studio?notes=1", label: "Notes" }, { href: "/practice", label: "Practice" }] },
+  { title: "The app", links: [{ href: "/plan", label: "AI autoplan" }, { href: "/teachers/studio?notes=1", label: "Interactive notes" }, { href: "/practice", label: "Practice" }] },
   { title: "See it first", links: [{ href: "/demo", label: "Demos" }] },
   { title: "Help", links: [{ href: "/faq", label: "FAQ" }] },
 ];
@@ -22,7 +22,7 @@ const GRID: Record<number, { grid: string; brand: string }> = {
   5: { grid: "sm:grid-cols-5 lg:grid-cols-[minmax(0,1.6fr)_repeat(5,minmax(0,1fr))]", brand: "sm:col-span-5" },
 };
 
-/** The site footer, on every page: brand, then the two home pages, the app (Plan, Notes, Practice), Demos and Help. */
+/** The site footer, on every page: brand, then the two home pages, the app (AI autoplan, Interactive notes, Practice), Demos and Help. */
 export default function SiteFooter() {
   const columns = COLUMNS;
   const layout = GRID[columns.length];

@@ -10,8 +10,8 @@ import { isMarketingPath } from "@/lib/publicPaths";
 
 /** The app's three places. Each lists the paths that count as being there, for the current mark. */
 const APP_LINKS = [
-  { href: "/plan", label: "Plan", under: ["/plan"] },
-  { href: "/teachers/studio?notes=1", label: "Notes", under: ["/teachers/studio", "/note", "/creator"] },
+  { href: "/plan", label: "AI autoplan", under: ["/plan"] },
+  { href: "/teachers/studio?notes=1", label: "Interactive notes", under: ["/teachers/studio", "/note", "/creator"] },
   { href: "/practice", label: "Practice", under: ["/practice", "/theory", "/course", "/tuner", "/looper", "/cheatsheet"] },
 ];
 
@@ -56,7 +56,8 @@ function DemoLink({ current }: { current: boolean }) {
 /**
  * The attunr top navigation, shared by every page. Its bar follows the page: a page a visitor may read
  * (`isMarketingPath`: the home pages, FAQ, demos, logging in) gets the visitor's bar, with the two home pages, Demos and
- * Log in; every other page is the app, with Plan, Notes and Practice. The tuner button sits left of the style, except on
+ * Log in; every other page is the app, with AI autoplan, Interactive notes and Practice (on a phone the wordmark and buttons take
+ * the first row and the three links the second). The tuner button sits left of the style, except on
  * the tuner page; `devices` adds the audio devices button after the style.
  */
 export default function SiteNav({ active, devices = false }: { active: string; devices?: boolean }) {
@@ -64,12 +65,15 @@ export default function SiteNav({ active, devices = false }: { active: string; d
   const links = visitor ? PUBLIC_LINKS : APP_LINKS;
   return (
     <nav aria-label="attunr" className="flex flex-wrap items-center gap-1">
-      <Link href={visitor ? "/" : "/plan"} aria-label={visitor ? "attunr home" : "attunr: your plan"} className="mr-5 hidden rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:inline">
+      <Link href={visitor ? "/" : "/plan"} aria-label={visitor ? "attunr home" : "attunr: your plan"} className={`mr-5 rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${visitor ? "hidden sm:inline" : "inline"}`}>
         <Wordmark className="text-[1.7rem]" />
       </Link>
-      {links.map((l) => (
-        <NavLink key={l.href} href={l.href} label={l.label} current={l.href === "/" ? active === "/" : isUnder(active, l.under)} />
-      ))}
+      {/* the app's three links share a second row on a phone, under the wordmark and the buttons */}
+      <div className={visitor ? "contents" : "order-last -ml-2.5 flex w-[calc(100%+0.625rem)] justify-between sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1"}>
+        {links.map((l) => (
+          <NavLink key={l.href} href={l.href} label={l.label} current={l.href === "/" ? active === "/" : isUnder(active, l.under)} />
+        ))}
+      </div>
       {visitor && <DemoLink current={isUnder(active, ["/demo"])} />}
       <span className="ml-auto" />
       {!visitor && <SpotlightButton />}

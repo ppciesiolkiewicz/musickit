@@ -34,8 +34,8 @@ export default async function NotePage({ params, searchParams }: { params: Promi
   if (editing(await searchParams)) {
     return (
       <NoteViewProvider>
-        <PageShell active={ACTIVE} full title="Notes creator" header={
-          <NotesCreatorHeader title="Notes creator" bar={pageBar(ACTIVE)} intro={`“${note.title}”, open to change: add, move or remove widgets. This is a demo page: your changes are kept as you make them, so View the note shows them, until you reload.`}
+        <PageShell active={ACTIVE} full title="Interactive notes" header={
+          <NotesCreatorHeader title="Interactive notes" bar={pageBar(ACTIVE)} intro={`“${note.title}”, open to change: add, move or remove widgets. This is a demo page: your changes are kept as you make them, so View the note shows them, until you reload.`}
             action={<Link href={`/note/${slug}`} className={ACTION}><Icon name="eye" size={15} />View the note</Link>} />
         }>
           <NotesApp preset={slug} />
