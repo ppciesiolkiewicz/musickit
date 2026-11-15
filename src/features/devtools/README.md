@@ -93,6 +93,14 @@ size and its value, JSON unfolded; `model/dataView.ts` `storageRows`) and each I
 counts only (sampler audio, NAM models). It reads through `localPlanStore` and `localProgressStore` and writes nothing, apart from what
 loading a plan always does (ids for exercises stored without one).
 
+## Progress (`/dev/progress`)
+
+The progress outcome (`outcome()` in `plan/model/outcome.ts`) of whoever is signed in, or of this browser without a
+database, as bare tables (`progress/ProgressPage.tsx`): first its inputs (the questionnaire answers history, the plans, the
+progress entries, the day-timer records with the date each is counted on), then its outputs (streak and time, per area, per
+topic, per concept). A date field sets `asOf` (today at first); a date before an entry drops it out. It reads through
+`usePlan`, `useProgress` and `useAllPlanTimes` and writes nothing.
+
 ## Plan reviews (`/dev/plan-reviews`)
 
 Every player's plan reviews from the `plan_reviews` table (`listPlanReviews(500)`), newest first, as a plain table
@@ -177,5 +185,6 @@ returns one.
 - `costs/PlanCosts.tsx`: the plans table with what a year on each costs and leaves (`planYear`).
 - `costs/OpenRouterModels.tsx`, `model/openRouter.ts`: other OpenRouter models priced on Haiku 5.5's tokens.
 - `structure/StructureView.tsx`, `model/structure.ts`, `server/structure.ts`, `scripts/structure.ts`: the code structure map.
+- `progress/ProgressPage.tsx`: the progress outcome's inputs and outputs.
 - `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `spentRows`, `logRows`).
 - Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.

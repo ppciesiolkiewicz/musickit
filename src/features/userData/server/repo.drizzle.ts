@@ -47,6 +47,14 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
         .from(planDayTimes)
         .where(and(eq(planDayTimes.userId, userId), eq(planDayTimes.planId, planId)));
     },
+    async listAllPlanTimes(userId) {
+      return db
+        .select({ planId: planDayTimes.planId, day: planDayTimes.day, elapsed: planDayTimes.elapsed, spent: planDayTimes.spent, blocks: planDayTimes.blocks, on: planDayTimes.onDates })
+        .from(planDayTimes)
+        .where(eq(planDayTimes.userId, userId))
+        .orderBy(desc(planDayTimes.updatedAt))
+        .limit(1000);
+    },
     async putPlanTime(userId, t, now) {
       await db
         .insert(planDayTimes)

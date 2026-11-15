@@ -12,6 +12,7 @@ export function memoryPlanStore(initial: PlanState = EMPTY_STATE): PlanStore {
       held = s;
     },
     loadTimes: async (planId) => times.filter((t) => t.planId === planId),
+    loadAllTimes: async () => times,
     saveTime: async (t) => {
       times = withDayTime(times, t);
     },

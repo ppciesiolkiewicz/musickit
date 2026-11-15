@@ -15,6 +15,8 @@ export interface ServerPlanOpts {
   timeClient?: () => DocClient;
   /** reads a plan's timer records: `{ days }` */
   getTimes?: (planId: string) => Promise<unknown>;
+  /** reads every plan's timer records: `{ days }` */
+  getAllTimes?: () => Promise<unknown>;
   /** tells the save notice about a refused read (tests pass their own to read it) */
   loads?: LoadReporter;
 }
@@ -35,12 +37,15 @@ export function createServerPlanStore(opts: ServerPlanOpts = {}): PlanStore {
   const client = opts.client ?? createDocClient({ put: putDocument("plan") });
   const get = opts.get ?? (() => getJson("/api/me/documents/plan"));
   const getTimes = opts.getTimes ?? ((planId: string) => getJson(`/api/me/plan/time?plan=${encodeURIComponent(planId)}`));
+  const getAllTimes = opts.getAllTimes ?? (() => getJson("/api/me/plan/time"));
   const newTimeClient = opts.timeClient ?? (() => createDocClient({ put: putPlanTime }));
   let held: PlanState | null = null;
   let reading: Promise<PlanState> | null = null;
   const loads = opts.loads ?? loadReporter();
   // per plan: the records read, with the saves made since laid over them
   const times = new Map<string, Promise<DayTime[]>>();
+  // the records saved in this visit, to lay over a read of every plan's
+  const saved = new Map<string, DayTime>();
   const senders = new Map<string, DocClient>();
 
   const read = (): Promise<PlanState> => {
@@ -89,7 +94,22 @@ export function createServerPlanStore(opts: ServerPlanOpts = {}): PlanStore {
       client.save(held);
     },
     loadTimes: readTimes,
+    // one read each call (the hook reads once per page), with this visit's saves laid over it
+    async loadAllTimes() {
+      let body: unknown;
+      try {
+        body = await getAllTimes();
+      } catch (e) {
+        loads.refused(e);
+        throw e;
+      }
+      const days = (body as { days?: unknown } | null)?.days;
+      let all = Array.isArray(days) ? days.flatMap((d) => parseDayTime(d) ?? []) : [];
+      for (const t of saved.values()) all = withDayTime(all, t);
+      return all;
+    },
     async saveTime(time) {
+      saved.set(`${time.planId}:${time.day}`, time);
       const before = times.get(time.planId);
       // a save before the read: the read's records with this one laid over them
       times.set(time.planId, (before ?? readTimes(time.planId)).then((ts) => withDayTime(ts, time), () => [time]));

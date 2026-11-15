@@ -2,6 +2,7 @@ import { migrateAnswers } from "../intake/answers";
 import { EMPTY_STATE, type PlanReview, type PlanState, type StoredPlan } from "./types";
 import { cleanRating, isStars, type StarRating } from "@/features/progress/stars";
 import { withBlockIds, withExerciseIds } from "./exerciseIds";
+import { cleanAnswersHistory, movedOver } from "./answersHistory";
 import { cleanCells } from "./cleanExercise";
 
 /** A plan this app can show: ids, dates, days, and `cells` on every exercise (a plan stored before blocks has none, and is dropped: nothing old is read). */
@@ -51,10 +52,15 @@ function cleanPlan(stored: StoredPlan): StoredPlan {
 export function sanitiseState(raw: unknown): PlanState {
   const s = (raw ?? {}) as Partial<PlanState>;
   const r = s.reminder;
+  const answers = s.answers && typeof s.answers === "object" ? migrateAnswers(s.answers) : null;
+  const current = isPlan(s.current) ? cleanPlan(s.current) : null;
+  const history = Array.isArray(s.history) ? s.history.filter(isPlan).slice(0, 20).map(cleanPlan) : [];
   return {
-    answers: s.answers && typeof s.answers === "object" ? migrateAnswers(s.answers) : null,
-    current: isPlan(s.current) ? cleanPlan(s.current) : null,
-    history: Array.isArray(s.history) ? s.history.filter(isPlan).slice(0, 20).map(cleanPlan) : [],
+    answers,
+    // a document stored before the history: one entry from the answers, dated the earliest plan's start
+    answersHistory: Array.isArray(s.answersHistory) && s.answersHistory.length ? cleanAnswersHistory(s.answersHistory) : movedOver(answers, [current, ...history].filter((p): p is StoredPlan => !!p)),
+    current,
+    history,
     reminder: {
       enabled: !!r?.enabled,
       time: typeof r?.time === "string" && /^\d\d:\d\d$/.test(r.time) ? r.time : EMPTY_STATE.reminder.time,

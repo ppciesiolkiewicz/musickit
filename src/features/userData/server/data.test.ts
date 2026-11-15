@@ -3,7 +3,7 @@ import test from "node:test";
 import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
 import { EMPTY_STATE, type PlanExercise, type PlanState } from "@/features/plan/model/types";
 import { sanitiseState } from "@/features/plan/model/state";
-import { putEntry, readDoc, readEntries, readPlanTimes, reviewRowsOf, storePlanBlocks, writeDoc, writePlanTime } from "./data";
+import { putEntry, readDoc, readEntries, readAllPlanTimes, readPlanTimes, reviewRowsOf, storePlanBlocks, writeDoc, writePlanTime } from "./data";
 import { memoryUserDataRepo } from "./repo.memory";
 
 const now = new Date("2026-11-15T10:00:00Z");
@@ -295,4 +295,15 @@ test("reviewRowsOf gives one row per plan id, the current plan's first (two rows
   const rows = reviewRowsOf(state);
   assert.equal(rows.length, 1);
   assert.deepEqual([rows[0].title, rows[0].stars], ["Warm-up week", 4]);
+});
+
+test("readAllPlanTimes lists every plan's days for this player only", async () => {
+  const repo = memoryUserDataRepo();
+  const t = { planId: "p", day: 0, elapsed: 120, spent: { e1: 120 } };
+  await writePlanTime(repo, "u1", t, now);
+  await writePlanTime(repo, "u1", { ...t, planId: "q", day: 3, on: { "2026-11-14": 120 } }, now);
+  await writePlanTime(repo, "u2", { ...t, planId: "r" }, now);
+  const all = await readAllPlanTimes(repo, "u1");
+  assert.deepEqual(all.map((d) => `${d.planId}:${d.day}`).sort(), ["p:0", "q:3"]);
+  assert.deepEqual(all.find((d) => d.planId === "q")!.on, { "2026-11-14": 120 }); // on_dates comes back as on
 });

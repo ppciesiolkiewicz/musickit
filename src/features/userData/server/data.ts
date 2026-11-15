@@ -99,3 +99,8 @@ export async function writePlanTime(repo: UserDataRepo, userId: string, raw: unk
 export async function readPlanTimes(repo: UserDataRepo, userId: string, planId: string): Promise<DayTime[]> {
   return (await repo.listPlanTimes(userId, planId)).flatMap((r) => parseDayTime(r) ?? []);
 }
+
+/** The day timer's records of every plan of the player (newest first, at most 1000), re-parsed the way documents are: broken rows dropped. */
+export async function readAllPlanTimes(repo: UserDataRepo, userId: string): Promise<DayTime[]> {
+  return (await repo.listAllPlanTimes(userId)).flatMap((r) => parseDayTime(r) ?? []);
+}

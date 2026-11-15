@@ -66,6 +66,8 @@ export interface UserDataRepo {
   removeProgress(userId: string, exerciseId: string): Promise<void>;
   /** The day timer's records of one plan, as stored. */
   listPlanTimes(userId: string, planId: string): Promise<unknown[]>;
+  /** The day timer's records of every plan of the user, as stored, newest `updated_at` first, at most 1000. */
+  listAllPlanTimes(userId: string): Promise<unknown[]>;
   /**
    * Replaces the record of the same plan and day. A record without `blocks` or `on` keeps the stored ones, so a tab still
    * running code from before them doesn't wipe them.

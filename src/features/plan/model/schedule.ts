@@ -13,6 +13,9 @@ const dayNumber = (iso: string) => {
   return Math.round(Date.UTC(y, m - 1, d) / 86_400_000);
 };
 
+/** The local date of a stored moment: a bare yyyy-mm-dd as it is, an ISO datetime as the date it falls on here. */
+export const dayOf = (at: string): string => (/^\d{4}-\d\d-\d\d$/.test(at) ? at : localDate(new Date(at)));
+
 /** A local yyyy-mm-dd plus `n` days (negative goes back). */
 export const addDays = (iso: string, n: number): string => {
   const [y, m, d] = iso.split("-").map(Number);

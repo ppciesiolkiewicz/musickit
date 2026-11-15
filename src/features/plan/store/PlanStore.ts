@@ -13,6 +13,8 @@ export interface PlanStore {
   save(state: PlanState): Promise<void>;
   /** The day timer's records of one plan, a day each; none for a plan the timer never ran on. */
   loadTimes(planId: string): Promise<DayTime[]>;
+  /** The day timer's records of every plan, a day each, for the progress outcome; the ones saved in this visit are in it. */
+  loadAllTimes(): Promise<DayTime[]>;
   /** Keeps one day's record, replacing the one before. */
   saveTime(time: DayTime): Promise<void>;
   /** Sends a save still waiting now and waits for it: true once the latest state is on the server. A store in this browser has none. */

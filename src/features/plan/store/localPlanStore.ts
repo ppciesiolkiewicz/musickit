@@ -46,6 +46,9 @@ export const localPlanStore: PlanStore = {
   async loadTimes(planId) {
     return readLocalTimes().filter((t) => t.planId === planId);
   },
+  async loadAllTimes() {
+    return readLocalTimes();
+  },
   async saveTime(time) {
     const all = readLocalTimes();
     const next = withDayTime(all, time);

@@ -94,3 +94,30 @@ export function usePlanTimes(planId: string | null) {
 
   return { times: times.planId === planId ? times.list : [], loaded: !planId || times.planId === planId, saveTime };
 }
+
+/** Stable while not loaded, so a memo on the list isn't redone every render. */
+const NO_TIMES: DayTime[] = [];
+
+/**
+ * The day timer's records of every plan, read once per store, for the progress outcome. Not `loaded` until read; a read
+ * that is refused (logged out) stays not loaded, and the save notice says so.
+ */
+export function useAllPlanTimes(): { times: DayTime[]; loaded: boolean } {
+  const store = useContext(StoreContext);
+  const [read, setRead] = useState<{ store: PlanStore; list: DayTime[] } | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    store.loadAllTimes().then(
+      (list) => {
+        if (live) setRead({ store, list });
+      },
+      () => {},
+    );
+    return () => {
+      live = false;
+    };
+  }, [store]);
+
+  return read?.store === store ? { times: read.list, loaded: true } : { times: NO_TIMES, loaded: false };
+}

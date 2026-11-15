@@ -73,6 +73,9 @@ export function memoryUserDataRepo(): UserDataRepo & {
     async listPlanTimes(userId, planId) {
       return [...planTimes.entries()].filter(([k]) => k.startsWith(`${userId}/${planId}/`)).map(([, t]) => structuredClone(t));
     },
+    async listAllPlanTimes(userId) {
+      return [...planTimes.entries()].filter(([k]) => k.startsWith(`${userId}/`)).map(([, t]) => structuredClone(t)).slice(0, 1000);
+    },
     async putPlanTime(userId, t) {
       const k = `${userId}/${t.planId}/${t.day}`;
       const old = planTimes.get(k);

@@ -1,17 +1,18 @@
 import { NO_ACCOUNTS, json, readJson } from "@/features/account/server/http";
-import { readPlanTimes, writePlanTime } from "@/features/userData/server/data";
+import { readAllPlanTimes, readPlanTimes, writePlanTime } from "@/features/userData/server/data";
 import { signedIn, userData } from "@/features/userData/server/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** The day timer's records of one plan, a day each: ?plan=<id> → { days }. */
+/** The day timer's records, a day each: ?plan=<id> → { days } of that plan; without ?plan, those of every plan. */
 export async function GET(req: Request) {
   const me = await signedIn(req);
   if (me instanceof Response) return me;
   const store = userData();
   if (!store) return json({ error: NO_ACCOUNTS }, 503, me.cookies);
   const planId = new URL(req.url).searchParams.get("plan");
+  if (planId === null) return json({ days: await readAllPlanTimes(store.repo, me.account.id) }, 200, me.cookies);
   if (!planId || planId.length > 200) return json({ error: "Send ?plan=<id>." }, 400, me.cookies);
   return json({ days: await readPlanTimes(store.repo, me.account.id, planId) }, 200, me.cookies);
 }

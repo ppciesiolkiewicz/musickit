@@ -45,7 +45,7 @@ const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py
  * Making a plan, as one step modal. "start": the whole questionnaire, then copy the prompt (no past weeks: a fresh start), then paste.
  * "next": how the week went, minutes and anything else, then the prompt with this week's ratings by topic and the AI's
  * progress summary, then paste. The topic screens are left out of "next" (ratings say more than they do), except for an
- * area with no answer yet (answers kept from before the topics), and unless the player asks with "Change my answers". `onPlan` gets the plan, the answers and, for "next", the notes on the week.
+ * area with no answer yet (answers kept from before the topics), and unless the player asks with "Change my answers". `onPlan` gets the plan, the answers, for "next" the notes on the week, and `asked`: whether the topic screens were shown (the answers are then remembered with their date).
  * Once the week is over, "next" opens on the plan review (`PlanReviewStep`, optional), which goes to `onReview` straight away.
  */
 export default function PlanFlow({ mode, answers, current, history, entries, review, onReview, onPlan, onClose }: {
@@ -56,7 +56,7 @@ export default function PlanFlow({ mode, answers, current, history, entries, rev
   entries: CatalogueEntry[];
   review: PlanReview | null;
   onReview: (r: { stars: Stars; why?: string } | null) => void;
-  onPlan: (config: PlanConfig, answers: PlanAnswers, feedback?: string) => void;
+  onPlan: (config: PlanConfig, answers: PlanAnswers, feedback?: string, asked?: boolean) => void;
   onClose: () => void;
 }) {
   // resume a saved flow of the same kind, otherwise start from the stored answers
@@ -155,7 +155,7 @@ export default function PlanFlow({ mode, answers, current, history, entries, rev
       onFinish={() => {
         if (!parsed?.ok) return;
         clearFlow();
-        onPlan(parsed.config, draft, mode === "next" ? feedback : undefined);
+        onPlan(parsed.config, draft, mode === "next" ? feedback : undefined, mode === "start" || editing || unanswered.length > 0);
       }}
     />
   );

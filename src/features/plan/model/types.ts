@@ -93,8 +93,16 @@ export interface ReminderSettings {
 }
 
 /** Everything the plan feature keeps. One document so a store can swap localStorage for an API without touching the UI. */
+/** The questionnaire as finished once: its topic lines, with when. `at` is an ISO datetime, or a bare local yyyy-mm-dd for an entry moved over from stored answers. */
+export interface AnswersEntry {
+  at: string;
+  topics: PlanAnswers["topics"];
+}
+
 export interface PlanState {
   answers: PlanAnswers | null;
+  /** every finished questionnaire, oldest first (the first is the starting point) */
+  answersHistory: AnswersEntry[];
   current: StoredPlan | null;
   /** earlier plans, newest first */
   history: StoredPlan[];
@@ -103,4 +111,4 @@ export interface PlanState {
 
 export const PLAN_DAYS = 7;
 
-export const EMPTY_STATE: PlanState = { answers: null, current: null, history: [], reminder: { enabled: false, time: "18:00" } };
+export const EMPTY_STATE: PlanState = { answers: null, answersHistory: [], current: null, history: [], reminder: { enabled: false, time: "18:00" } };

@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { Button, Checkbox, HUE_TONES, Section } from "@/components/ui";
+import { Button, Checkbox, HUE_TONES, Modal, Section } from "@/components/ui";
 import { catalogue } from "./model/catalogue";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
+import { recordAnswers } from "./model/answersHistory";
 import { backfill, entryFor } from "./model/progressLog";
 import { addedPlan, takeAdded } from "./model/added";
 import { useProgress } from "@/features/progress/useProgress";
@@ -13,7 +14,11 @@ import { dayIndex, localDate, ratePlan, restartPlan, reviewPlan, startPlan, week
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
-import { usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
+import { useAllPlanTimes, usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
+import { outcome } from "./model/outcome";
+import { mergeTimes } from "./model/trackerView";
+import StreakButton from "./ui/tracker/StreakButton";
+import ProgressTracker from "./ui/tracker/ProgressTracker";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
@@ -79,9 +84,28 @@ export default function PlanApp() {
   const added = loaded ? addedPlan(state, addedId) : null;
   const todayIdx = plan ? Math.min(dayIndex(plan.startedOn, today), PLAN_DAYS - 1) : 0;
   const over = plan ? weekOver(plan, today) : false;
+  // the streak and the progress tracker: every plan's timer records with this plan's live ones laid over them, so
+  // today's saves count without a reload
+  const all = useAllPlanTimes();
+  const [tracking, setTracking] = useState(false);
+  const { current: running, history } = state;
+  const plans = useMemo(() => (running ? [running, ...history] : history), [running, history]);
+  const allTimes = useMemo(() => mergeTimes(all.times, times), [all.times, times]);
+  const result = useMemo(
+    () => outcome({ plans, entries: progress.entries, times: allTimes, answersHistory: state.answersHistory }, today),
+    [plans, progress.entries, allTimes, state.answersHistory, today],
+  );
+  // only once every input has loaded, so the count never shows 0 first; a refused read leaves it out
+  const streak = all.loaded && progress.loaded ? <StreakButton streak={result.streak} onOpen={() => setTracking(true)} /> : null;
+  const tracker = tracking && (
+    <Modal title="Your progress" medium onClose={() => setTracking(false)}>
+      <ProgressTracker outcome={result} answers={state.answers} />
+    </Modal>
+  );
 
-  const onPlan = (config: PlanConfig, answers?: PlanAnswers, feedback?: string) => {
-    update((s) => start({ ...s, answers: answers ?? s.answers, current: s.current && feedback !== undefined ? { ...s.current, feedback } : s.current }, config));
+  const onPlan = (config: PlanConfig, answers?: PlanAnswers, feedback?: string, asked?: boolean) => {
+    const at = new Date().toISOString();
+    update((s) => start({ ...(answers && asked ? recordAnswers(s, answers, at) : s), answers: answers ?? s.answers, current: s.current && feedback !== undefined ? { ...s.current, feedback } : s.current }, config));
     setFlow(null);
     setDay(0);
   };
@@ -120,6 +144,7 @@ export default function PlanApp() {
   if (!plan) {
     return (
       <div className="flex flex-col gap-4">
+        {state.history.length > 0 && streak && <div>{streak}</div>}
         <section className="flex flex-col items-start gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <ol data-tour="plan-steps" className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
             {["Answer a few questions about where you are and where you want to go", "Copy the prompt into your own AI (ChatGPT, Claude, Gemini…)", "Paste its reply: your exercises, a new set each day"].map((t, i) => (
@@ -133,6 +158,7 @@ export default function PlanApp() {
         </section>
         {state.history.length > 0 && <History key={added?.id ?? ""} plans={state.history} onUse={startAgain} marked={added?.id} />}
         {modal}
+        {tracker}
       </div>
     );
   }
@@ -147,7 +173,10 @@ export default function PlanApp() {
         {/* the plan's header: clear of the page intro above, the title given room, then its controls on their own row */}
         <div className="mt-4 mb-2 flex flex-col gap-5 sm:mt-6">
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
+              {streak}
+            </div>
             <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
             {plan.config.summary && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">{plan.config.summary}</p>}
           </div>
@@ -183,6 +212,7 @@ export default function PlanApp() {
           </Button>
         </div>
         {modal}
+        {tracker}
       </div>
     </FixedLabelRoot>
   );

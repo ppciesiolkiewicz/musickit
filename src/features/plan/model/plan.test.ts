@@ -15,7 +15,7 @@ import { KEY_PANELS, PROMPT_HIDDEN, canFollowPart, cellInterface, cellsOf, degre
 import { transposeTool } from "./transpose";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
-import { dayIndex, dayProgress, localDate, reviewPlan, weekOver } from "./schedule";
+import { addDays, dayIndex, dayOf, dayProgress, localDate, reviewPlan, weekOver } from "./schedule";
 import { MAX_REVIEW_WHY, cleanReview, sanitiseState } from "./state";
 import type { StoredPlan } from "./types";
 
@@ -705,5 +705,24 @@ describe("the plan review", () => {
     assert.deepEqual(four.review, { stars: 4, at: AT });
     const again = reviewPlan(four, { stars: 2, why: four.review?.why }, AT);
     assert.deepEqual(again.review, { stars: 2, at: AT });
+  });
+});
+
+describe("dates and the moved-over answers history", () => {
+  const stored = (startedOn: string): StoredPlan => ({ id: `p${startedOn}`, config: { title: "W", days: [day(1) as never] } as never, startedOn, done: {} });
+  it("dayOf: a bare date is kept, an ISO datetime becomes its local date", () => {
+    assert.equal(dayOf("2026-11-01"), "2026-11-01");
+    assert.equal(dayOf("2026-11-12T12:00:00.000Z"), "2026-11-12"); // noon UTC: the same date in every zone from -11 to +11
+  });
+  it("addDays crosses a month", () => assert.equal(addDays("2026-10-30", 3), "2026-11-02"));
+  it("sanitiseState moves stored answers over: one entry dated the earliest plan's startedOn", () => {
+    const s = sanitiseState({ answers: { areas: ["guitar"], topics: { "guitar-caged": 1 }, minutes: 20, styles: "", notes: "" }, current: stored("2026-11-08"), history: [stored("2026-10-25"), stored("2026-11-01")] });
+    assert.deepEqual(s.answersHistory, [{ at: "2026-10-25", topics: { "guitar-caged": 1 } }]);
+  });
+  it("sanitiseState makes no entry without answers or without a plan, and keeps a stored history as it is", () => {
+    assert.deepEqual(sanitiseState({ answers: null, current: stored("2026-11-08") }).answersHistory, []);
+    assert.deepEqual(sanitiseState({ answers: { areas: ["guitar"], topics: { "guitar-caged": 1 } } }).answersHistory, []);
+    const kept = [{ at: "2026-11-02T10:00:00.000Z", topics: { "guitar-caged": 3 } }];
+    assert.deepEqual(sanitiseState({ answers: { areas: ["guitar"], topics: { "guitar-caged": 1 } }, current: stored("2026-11-08"), answersHistory: kept }).answersHistory, kept);
   });
 });

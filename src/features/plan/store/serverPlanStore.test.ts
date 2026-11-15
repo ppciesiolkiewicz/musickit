@@ -158,3 +158,14 @@ test("the timer's records: read once per plan, each day saved on its own, and a 
   assert.deepEqual(sent, [day1, { ...day0, elapsed: 62 }], "one send per day, the latest");
   assert.equal(await store.flush!(), true);
 });
+
+test("loadAllTimes reads every plan's records and lays this session's saves over them", async () => {
+  const day0 = { planId: "p", day: 0, elapsed: 60, spent: {} };
+  const store = createServerPlanStore({
+    getAllTimes: async () => ({ days: [day0, { planId: "q", day: 1, elapsed: 5, spent: {} }, "junk"] }),
+    timeClient: () => createDocClient({ put: async () => new Response(null, { status: 200 }) }),
+    getTimes: async () => ({ days: [day0] }),
+  });
+  await store.saveTime({ ...day0, elapsed: 400 });
+  assert.deepEqual((await store.loadAllTimes()).map((d) => [d.planId, d.day, d.elapsed]), [["p", 0, 400], ["q", 1, 5]]);
+});
