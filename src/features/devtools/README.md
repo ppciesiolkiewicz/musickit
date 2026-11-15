@@ -101,6 +101,19 @@ progress entries, the day-timer records with the date each is counted on), then 
 topic, per concept). A date field sets `asOf` (today at first); a date before an entry drops it out. It reads through
 `usePlan`, `useProgress` and `useAllPlanTimes` and writes nothing.
 
+## Learning path (`/dev/path`)
+
+The path a player moves along, as the code has it today, drawn as a diagram (`path/PathView.tsx`, nodes from
+`model/path.ts`). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
+are columns, each cell starts with the topic's questionnaire line for that level, and every concept of `CONCEPTS` sits in
+the cell of its topic and level. An arrow runs from a concept to each one that names it in `buildsOn`. A concept's edge is
+green with a green dot when an example exercise is tagged with it and grey when none is, a violet dot says an example plan
+is, and a dashed edge says its course page is missing or only planned. Picking a concept lights its whole chain
+(`chain`: everything it rests on and everything resting on it) and lists, under the diagram, what it builds on and leads
+to, its course page and its examples. The line beside the area buttons counts the gaps (`gaps`). Nothing is written by
+hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
+example library, so the diagram changes when they do. It writes nothing.
+
 ## Plan reviews (`/dev/plan-reviews`)
 
 Every player's plan reviews from the `plan_reviews` table (`listPlanReviews(500)`), newest first, as a plain table
