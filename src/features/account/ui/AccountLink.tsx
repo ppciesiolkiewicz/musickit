@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { accountsOpen } from "../serverAccountStore";
+import { homePage } from "../model";
 import { useAccount, useAccountStore } from "../useAccount";
 
 const PILL =
@@ -12,7 +13,7 @@ const ITEM = "block w-full rounded-lg px-3 py-2 text-left text-sm text-slate-200
 
 /**
  * The account corner of the top nav: "Log in" for a visitor; for a logged-in person, their name, which opens a menu
- * (Your profile, Log out) on hover, or on a tap or Enter where there is no hover.
+ * (Your profile, Home page, Log out) on hover, or on a tap or Enter where there is no hover.
  * Nothing at all on a site without accounts, and nothing until we know who is here, so the bar never shows the wrong one.
  */
 export default function AccountLink({ className = "" }: { className?: string }) {
@@ -74,6 +75,8 @@ export default function AccountLink({ className = "" }: { className?: string }) 
         <div className="absolute right-0 top-full z-50 pt-1">
           <div role="menu" className="w-44 rounded-xl border border-slate-700 bg-slate-900/95 p-1 shadow-xl backdrop-blur">
             <Link role="menuitem" href="/account" className={ITEM} onClick={() => setOpen(false)}>Your profile</Link>
+            {/* the music-school page for a teacher or owner, the players page for a student */}
+            <Link role="menuitem" href={homePage(account)} className={ITEM} onClick={() => setOpen(false)}>Home page</Link>
             <button role="menuitem" type="button" className={ITEM} onClick={() => void store.signOut().then(() => window.location.assign("/"))}>Log out</button>
           </div>
         </div>

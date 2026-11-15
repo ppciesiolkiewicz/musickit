@@ -52,7 +52,7 @@ const COPY: Record<Audience, {
   notesPoints: string[];
 }> = {
   schools: {
-    eyebrow: "For music schools · guitar and voice",
+    eyebrow: "Guitar and voice",
     title: <>A practice plan for every student, <span className="ls-accent block italic text-sky-300">every day.</span></>,
     lead: <>Each student answers a few questions, and the AI they already use writes their week: <Mark>short exercises for their level and their time</Mark>, each with the diagram, drone or backing it needs. Every week builds on how the last one went.</>,
     planNote: <>Teachers use the same app as their students, so they see exactly what a student practises at home. It can carry <Mark tone="var(--color-violet-400)">your school&apos;s name</Mark>.</>,
@@ -61,7 +61,7 @@ const COPY: Record<Audience, {
     notesPoints: ["Necks, chord boxes, CAGED shapes, the circle of fifths", "Change the key and the whole page follows", "One link, nothing to install"],
   },
   players: {
-    eyebrow: "For guitar players and singers",
+    eyebrow: "Guitar and voice",
     title: <>Know what to practise, <span className="ls-accent block italic text-sky-300">every day.</span></>,
     lead: <>Answer a few questions, and the AI you already use writes your week: <Mark>short exercises for your level and your time</Mark>, each with the diagram, drone or backing it needs. Every week builds on how the last one went.</>,
     planNote: <>A timer runs through the day&apos;s exercises, and a daily reminder can nudge you at the time you pick.</>,
@@ -73,6 +73,33 @@ const COPY: Record<Audience, {
 
 const PRIMARY = "ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300";
 const SECONDARY = "ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40";
+
+/** The two home pages, as the switch at the top of each. The footer has the same pair under "attunr for". */
+const AUDIENCES: { audience: Audience; href: string; label: string }[] = [
+  { audience: "schools", href: "/", label: "Music schools" },
+  { audience: "players", href: "/players", label: "Players" },
+];
+
+/** "attunr for [Music schools | Players]": the way between the two home pages, above the hero's title. */
+function AudienceSwitch({ current }: { current: Audience }) {
+  return (
+    <nav aria-label="attunr for" className="mb-6 flex flex-wrap items-center gap-3">
+      <span className="text-sm text-slate-400">attunr for</span>
+      <span className="inline-flex rounded-full border border-slate-700 bg-slate-900/60 p-1 backdrop-blur">
+        {AUDIENCES.map((a) => (
+          <Link
+            key={a.href}
+            href={a.href}
+            aria-current={a.audience === current ? "page" : undefined}
+            className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${a.audience === current ? "bg-sky-400 text-slate-950" : "text-slate-300 hover:text-slate-50"}`}
+          >
+            {a.label}
+          </Link>
+        ))}
+      </span>
+    </nav>
+  );
+}
 
 function PlanButtons() {
   return (
@@ -101,6 +128,7 @@ export default function AutoplanHome({ audience, ending }: { audience: Audience;
             { tone: "teal", at: { right: "8rem", bottom: "-12rem" }, size: "26rem", strength: 0.14 },
           ]} />
           <div className="landing-rise flex flex-col items-start">
+            <AudienceSwitch current={audience} />
             <Eyebrow big>{c.eyebrow}</Eyebrow>
             <h1 className="text-5xl leading-none tracking-tight text-slate-50 sm:text-7xl" style={DISPLAY}>{c.title}</h1>
             <p className="mt-6 max-w-md text-lg leading-relaxed text-slate-300">{c.lead}</p>

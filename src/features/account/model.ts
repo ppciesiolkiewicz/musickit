@@ -38,6 +38,14 @@ export function can(account: Account | null, feature: Feature): boolean {
   return (FEATURES[feature] as readonly Role[]).includes(account.role);
 }
 
+/**
+ * The home page that speaks to this person: the music-school page (/) for a teacher or an owner, who work for a school,
+ * and the players page for a student. A student of a school gets /players too: that page talks to them as a player.
+ */
+export function homePage(account: Account): "/" | "/players" {
+  return account.role === "student" ? "/players" : "/";
+}
+
 const isRole = (r: unknown): r is Role => (ROLES as readonly unknown[]).includes(r);
 
 const isAccount = (a: unknown): a is Account => {

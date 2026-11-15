@@ -9,7 +9,8 @@ name is changed on `/account`.
 
 - `model.ts`: `Role` (student, teacher, owner; an owner runs a school and can do all a teacher can), `NEW_ACCOUNT_ROLE`
   (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role), `FEATURES` (the parts
-  of the app with the roles that may use them; today every role gets every feature) and `can(account, feature)`.
+  of the app with the roles that may use them; today every role gets every feature), `can(account, feature)` and
+  `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
 - `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout). The server half
   is `src/proxy.ts`, which only checks that the session cookie is there; both read the public paths from
   `src/lib/publicPaths.ts`. The guard catches a stale cookie and the notes creator (its shared note is in the URL hash,
