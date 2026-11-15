@@ -6,6 +6,7 @@ import type { ProgressEntry } from "@/features/progress/log";
  * loaded into memory or into Postgres. `spent` and `blocks` are the JSON the table holds, so a bad row can be stored.
  */
 export interface LibraryData {
+  /** only the id: the loader fills the other NOT NULL user columns (email, name, role, ...) */
   users: { id: string }[];
   blocks: {
     id: string; content: Block; area: string | null; topic: string | null; concepts: string[]; level: string | null; tags: string[];
@@ -25,6 +26,7 @@ export interface LibraryData {
 
 export const PLAYER_A = "a0000000-0000-4000-8000-00000000000a";
 export const PLAYER_B = "b0000000-0000-4000-8000-00000000000b";
+export const PLAYER_C = "c0000000-0000-4000-8000-00000000000c";
 
 const block = (id: string, createdAt: string, extra: Partial<LibraryData["blocks"][number]> = {}): LibraryData["blocks"][number] => ({
   id, content: { title: `Block ${id}`, cells: [] }, area: "guitar", topic: "guitar-scales", concepts: [], level: null, tags: [], parentId: null,
@@ -40,21 +42,29 @@ const entry = (userId: string, exerciseId: string, blockId: string, stars: Progr
 /**
  * Two players (A, B) and the app. S1 and S2 are seed blocks enabled for reuse; X is an example block, app-owned and not enabled; PA
  * is A's private edit; R is a block A and B both own and both rated (A 3 stars, then 5 stars later in another slot; B 2 stars), not
- * enabled. A also owns S2 and rated it 2 stars. Timer rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
+ * enabled. PB is B's, enabled for reuse; D has two owner rows (A's not enabled, B's enabled); Zed and alpha are seed blocks with the
+ * same created_at. A also owns S2 and rated it 2 stars. Timer rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
  */
 export function baseFixture(): LibraryData {
   return {
-    users: [{ id: PLAYER_A }, { id: PLAYER_B }],
+    users: [{ id: PLAYER_A }, { id: PLAYER_B }, { id: PLAYER_C }],
     blocks: [
       block("S1", "2026-01-01T00:00:00Z", { level: "beginner", concepts: ["major-scale", "pentatonic"], tags: ["warmup", "slow"], model: "m1", promptVersion: 3, docsAgents: 2, docsTeaching: 2 }),
       block("S2", "2026-01-02T00:00:00Z", { level: "intermediate", concepts: ["pentatonic"], tags: ["warmup"], model: "m2", promptVersion: 4, docsAgents: 2, docsTeaching: 3 }),
       block("X", "2026-01-03T00:00:00Z", { level: "beginner", topic: "ear", area: "ear", concepts: ["intervals"], tags: ["ear"] }),
       block("PA", "2026-01-04T00:00:00Z", { level: "beginner", parentId: "S1", model: "m1" }),
       block("R", "2026-01-05T00:00:00Z", { topic: "rhythm", area: "rhythm", level: "beginner", tags: ["slow"] }),
+      block("PB", "2026-01-06T00:00:00Z", { area: "theory", topic: "theory-basics", level: "advanced" }),
+      block("D", "2026-01-07T00:00:00Z", { area: "theory", topic: "theory-basics", level: "intermediate" }),
+      // same created_at, and ids that sort differently bytewise ("Z" < "a") than by locale
+      block("Zed", "2026-01-08T00:00:00Z", { area: "theory", topic: "naming", level: "advanced" }),
+      block("alpha", "2026-01-08T00:00:00Z", { area: "theory", topic: "naming", level: "advanced" }),
     ],
     owners: [
       owner(null, "S1", true, "seed"), owner(null, "S2", true, "seed"), owner(null, "X", false, "example"),
       owner(PLAYER_A, "PA", false, "edit"), owner(PLAYER_A, "R", false, "ai"), owner(PLAYER_B, "R", false, "ai"), owner(PLAYER_A, "S2", false, "ai"),
+      owner(PLAYER_B, "PB", true, "ai"), owner(PLAYER_A, "D", false, "ai"), owner(PLAYER_B, "D", true, "ai"),
+      owner(null, "Zed", true, "seed"), owner(null, "alpha", true, "seed"),
     ],
     progress: [
       entry(PLAYER_A, "e-r1", "R", 3, "2026-03-01T10:00:00.000Z"),
@@ -67,6 +77,14 @@ export function baseFixture(): LibraryData {
       { userId: PLAYER_B, planId: "p-2", day: 0, elapsed: 300, spent: { e1: 300 }, blocks: { e1: "S1" } },
       { userId: PLAYER_A, planId: "p-bad-1", day: 0, elapsed: 500, spent: { e1: 500 }, blocks: null },
       { userId: PLAYER_B, planId: "p-bad-2", day: 0, elapsed: 500, spent: { e1: "lots" }, blocks: { e1: "S1" } },
+      // equal seconds, different times: alpha 300s in one row, Zed 300s in two
+      { userId: PLAYER_A, planId: "p-3", day: 0, elapsed: 300, spent: { e1: 300 }, blocks: { e1: "alpha" } },
+      { userId: PLAYER_A, planId: "p-4", day: 0, elapsed: 150, spent: { e1: 150 }, blocks: { e1: "Zed" } },
+      { userId: PLAYER_B, planId: "p-5", day: 0, elapsed: 150, spent: { e1: 150 }, blocks: { e1: "Zed" } },
+      // two slots naming one block: one time, seconds summed
+      { userId: PLAYER_A, planId: "p-6", day: 0, elapsed: 300, spent: { e1: 100, e2: 200 }, blocks: { e1: "S2", e2: "S2" } },
+      // a non-number slot next to a valid one: the valid one counts
+      { userId: PLAYER_B, planId: "p-7", day: 0, elapsed: 50, spent: { e1: 50, e2: "x" }, blocks: { e1: "S2", e2: "S2" } },
     ],
     plans: [],
     planBlocks: [],
