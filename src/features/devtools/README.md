@@ -110,7 +110,26 @@ the cell of its topic and level. An arrow runs from a concept to each one that n
 green with a green dot when an example exercise is tagged with it and grey when none is, a violet dot says an example plan
 is, and a dashed edge says its course page is missing or only planned. Picking a concept lights its whole chain
 (`chain`: everything it rests on and everything resting on it) and lists, under the diagram, what it builds on and leads
-to, its course page and its examples. The line beside the area buttons counts the gaps (`gaps`). Nothing is written by
+to, its course page, its examples and its steps. The line beside the area buttons counts the gaps (`gaps`).
+
+**Steps inside a concept** (`model/steps.ts`). A concept is one box, but most are several levels of the same thing (which
+intervals, which string set, which mode), and no concept says so in the code. The numbered lines in a box are its steps,
+easiest first, as many as it has. Blue ones are read from a ladder the code already has (`LADDERS`: the tools' levels in
+`exercises/basics/levels.ts`, the ear game's levels, the tune and run stages), joined to a concept by `LINKS`, whole or by
+step. Amber ones are `PLANNED`: written down there by hand and shown as "not implemented" until a ladder holds them; move
+a step out of `PLANNED` when one does. A box grows with its steps. Under the diagram, a closed list has the ladder steps
+no concept is linked to.
+
+**A student on the diagram** (`model/stepProgress.ts`). *Student on the diagram* lays one player's progress over the path:
+the player in this browser (read through `usePlan` and `useProgress`, nothing written) or a made-up one
+(`EXAMPLE_STUDENTS`). It is the teacher's view of a student, tried here first (NEW12, NEW13 in `tasks.txt`). A concept's
+edge turns green when its newest rating is 4 stars or more and amber when it is less, as the progress outcome has it.
+Each step gets a square: green solid, amber working, empty not started, dashed for a planned step, which can't be
+tracked. The step a rating counts for is read from the rated exercise's own tools (`stepOf` in `model/steps.ts`: the
+`level` kept on a tool, or the stage of the tune or run), the hardest one when several are in it; a solid step makes the
+easier ones under it solid. The bold step is the one the student is on, with the whole weeks since its first rating
+while it is not solid: time on a step is shown as a number, and nothing is called stuck. Picking a concept lists each
+tracked step's ratings and dates. Nothing is written by
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
 example library, so the diagram changes when they do. It writes nothing.
 

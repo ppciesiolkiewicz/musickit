@@ -18,6 +18,7 @@ const src: PathSource = {
   exercises: [{ id: "ex-a", concepts: ["a", "b"] }],
   plans: [{ id: "plan-1", concepts: ["b"] }],
   written: new Set(["/course/1/a"]),
+  steps: { b: { from: "a ladder", steps: [{ name: "one", holds: "x", planned: false }, { name: "two", holds: "y", planned: true }] } },
 };
 
 test("a node carries both directions of buildsOn, its examples and whether its course page is written", () => {
@@ -25,6 +26,7 @@ test("a node carries both directions of buildsOn, its examples and whether its c
   const b = nodes.get("b")!;
   assert.deepEqual([b.level, b.buildsOn, b.leadsTo], [1, ["a"], ["c"]]);
   assert.deepEqual([b.exercises, b.plans, b.courseState], [["ex-a"], ["plan-1"], "planned"]);
+  assert.deepEqual([b.steps.map((s) => s.name), b.stepsFrom, nodes.get("a")!.steps], [["one", "two"], "a ladder", []]);
   assert.equal(nodes.get("a")!.courseState, "written");
   assert.equal(nodes.get("c")!.courseState, "none");
   assert.deepEqual(nodes.get("a")!.leadsTo, ["b", "v"]);
@@ -48,8 +50,8 @@ test("a chain is everything under and over the concept, not its siblings", () =>
   assert.deepEqual([...chain("gone", nodes)], ["gone"]);
 });
 
-test("gaps count the concepts with no example exercise, no example plan and no written course page", () => {
-  assert.deepEqual(gaps([...pathNodes(src).values()]), { concepts: 5, noExercise: 3, noPlan: 4, planned: 4 });
+test("gaps count the concepts with no example exercise, no example plan, no written course page and no steps", () => {
+  assert.deepEqual(gaps([...pathNodes(src).values()]), { concepts: 5, noExercise: 3, noPlan: 4, planned: 4, noSteps: 4, stepsPlanned: 1 });
 });
 
 test("the real catalogue: every concept lands in one lane of its area, and what it builds on is never a higher level", () => {

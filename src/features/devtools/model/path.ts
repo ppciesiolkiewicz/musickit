@@ -3,6 +3,7 @@ import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
 import { topicsFor, type Topic } from "@/features/plan/intake/topics";
 import { AREAS, CONCEPTS, type Area, type Concept } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
+import { conceptSteps, type ConceptStep, type ConceptSteps } from "./steps";
 
 /*
  * The learning path as it is in the code today, shaped for the diagram on /dev/path: an area's topics as lanes, the
@@ -18,12 +19,15 @@ export interface PathSource {
   plans: { id: string; concepts: string[] }[];
   /** hrefs of course sections that are written (a planned one has no blocks) */
   written: Set<string>;
+  /** the steps inside a concept, by concept id (model/steps.ts) */
+  steps: Record<string, ConceptSteps>;
 }
 
 export const pathSource = (): PathSource => ({
   concepts: CONCEPTS,
   exercises: EXERCISE_EXAMPLES,
   plans: PLAN_EXAMPLES,
+  steps: conceptSteps(),
   written: new Set(ALL_SECTIONS.filter((r) => r.section.blocks.length > 0).map((r) => sectionHref(r.stage.slug, r.section.slug))),
 });
 
@@ -45,6 +49,10 @@ export interface PathNode {
   exercises: string[];
   /** ids of the example plans tagged with it */
   plans: string[];
+  /** the levels inside the concept, easiest first: read from a ladder in the code, or planned ("not implemented") */
+  steps: ConceptStep[];
+  /** the ladder the implemented steps are read from */
+  stepsFrom?: string;
 }
 
 export interface PathLane {
@@ -76,6 +84,8 @@ export function pathNodes(src: PathSource = pathSource()): Map<string, PathNode>
       courseState: !c.course ? "none" : src.written.has(c.course) ? "written" : "planned",
       exercises: tagged(src.exercises, c.id),
       plans: tagged(src.plans, c.id),
+      steps: src.steps[c.id]?.steps ?? [],
+      stepsFrom: src.steps[c.id]?.from,
     });
   }
   for (const n of nodes.values()) for (const from of n.buildsOn) nodes.get(from)!.leadsTo.push(n.id);
@@ -112,8 +122,10 @@ export function chain(id: string, nodes: Map<string, PathNode>): Set<string> {
 }
 
 /** What the path lacks, counted over the nodes given. */
-export function gaps(list: PathNode[]): { concepts: number; noExercise: number; noPlan: number; planned: number } {
+export function gaps(list: PathNode[]): { concepts: number; noExercise: number; noPlan: number; planned: number; noSteps: number; stepsPlanned: number } {
   return {
+    noSteps: list.filter((n) => n.steps.length === 0).length,
+    stepsPlanned: list.reduce((sum, n) => sum + n.steps.filter((s) => s.planned).length, 0),
     concepts: list.length,
     noExercise: list.filter((n) => n.exercises.length === 0).length,
     noPlan: list.filter((n) => n.plans.length === 0).length,
