@@ -134,6 +134,13 @@
       "when": 1794754733605,
       "tag": "0018_higher_prices_half_off_yearly",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794755579743,
+      "tag": "0019_block_provenance_plan_blocks",
+      "breakpoints": true
     }
   ]
 }
