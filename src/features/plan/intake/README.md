@@ -10,7 +10,9 @@ Spec: `docs/superpowers/specs/2026-11-10-plan-topics-progress-design.md`.
 
 Which areas the student plays (guitar, voice, theory & ear), then six **topics** per area. Each topic has four lines,
 from "Not yet" to solid, and the student taps the one that sounds like them (a `Rung`, 0 to 3). A topic may be left
-unanswered. Then voice type and range (if they sing), minutes a day, and anything else.
+unanswered. The topics come one at a time in a panel whose four lines never move (`ui/TopicStep.tsx`), so a student
+who knows their level taps the same spot without moving the pointer; the area's topics are listed under it with
+their answers. Then voice type and range (if they sing), minutes a day, and anything else.
 
 The plan's 70 fine concepts (`../model/concepts.ts`) are not asked about. Each belongs to one topic (`Concept.topic`), and
 the AI tags exercises with them.
