@@ -108,6 +108,12 @@ false), `created_at`; one row per owner and block. Deleting an account deletes t
 the block stays, so nobody else's plan, ratings or `parent_id` link breaks. A block is offered for reuse when any owner
 row has it switched on.
 
+**How many rows.** A block is about 2–4 KB. A student who gets a newly written plan every week adds about 25 blocks a
+week, about 4 MB a year, and the same number of owner rows. A reused library plan adds no blocks, only owner rows, and
+most students are meant to get reused plans (`plans.new_plan_percent`). So the library grows with the AI-written plans
+that are paid for. Saving the plan document again adds nothing (`on conflict do nothing`). If it ever needs trimming,
+the rows that can go are blocks no one rated, owns or reuses; that clean-up is not part of this work.
+
 **Plans point at blocks.** `PlanExercise` gets `blockId`. The exercise's `id` stays as it is: the slot's id, fresh per
 plan run, which `done`, `rated` and the day timer keep using. A slot is a block id plus what only this week knows:
 minutes, why, links. *My call:* the plan document keeps a copy of the block's content and tags next to `blockId`
