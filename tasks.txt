@@ -1,8 +1,61 @@
 Ticket content
 
 
+We can clean up all task that were done long ago in this doc.
+
 New:
 
+
+NEW14:
+we want to rework teacher view - we are more student centric.
+we need to be able to summarize what's included in the plan.
+We also need state on file with "deleted" keepign the record (this can come way later).
+A first try of a student's progress for teachers is on /dev/path ("Student on the diagram", NEW12, NEW13): the
+learning path with one student's concepts and steps filled in, and the weeks on the step they are on.
+
+
+
+Also factor in how many reusable videos they have in the plan.
+These videos can be included in notes and plans.
+How are they included in plans? This comes later.
+
+
+
+NEW add:
+http://localhost:3000/dev/examples needs to be reworked
+Below NEW tasks need to be aware of http://localhost:3000/dev/path
+
+NEW12: [NEW 2026-11-15] Teachers assign and generate plans for their students (later; with the schools work in NEW3)
+Use brainstorming first. Decided so far:
+- A teacher can assign a plan to a student: one from the library, or one of the teacher's own.
+- A teacher can generate a plan for a student: an AI autoplan written from the student's answers and progress.
+- A teacher can add a note for the next plan, in their own words ("keep the tempo at 60, add a drill for fingers 3
+  and 4"). The note goes to the plan writer as written. A plan with a note is always written by the AI; the reuse
+  step of NEW7 (a fitting library plan used whole) is skipped for it.
+- A teacher does not set a student's step or level by hand. The note is how they steer.
+- A teacher sees a student's progress on the learning path diagram (NEW13).
+- A student invited by a school gets their plans from the school's allowance, not their own.
+Needs first: the school account, inviting students and teachers, the allowance ledger (NEW3), autoplans on the
+server (NEW7).
+To settle: whether a student can still ask for their own autoplan and whose allowance that spends; what the student
+sees when a teacher assigns a plan over one they are in the middle of; whether the student sees the teacher's note.
+
+NEW13: [NEW 2026-11-15] Steps inside a concept: track progress in steps players don't see (later)
+Proposal with mock-ups of the teacher, player and plan-writer displays: https://claude.ai/artifact/S9VYpVAt6dDqtH7PbLg8ox
+A first version is on /dev/path (src/features/devtools/model/steps.ts): 11 concepts read their steps from ladders in
+the code (tool levels, tune and run stages); 44 more steps are drafts marked "not implemented".
+Decided:
+- Each concept has its own steps, as many as it needs. The four levels stay as they are.
+- A step is solid when the newest rating on it is "Solid" or "Easy now". The five ratings don't change.
+- "Stuck" has no rule yet. Track what a rule would need (first worked on, each rating with its date, time spent) and
+  show time on a step as a number.
+- Players don't see steps. Teachers do (NEW12): first try showing a student's progress on the /dev/path diagram
+  (topics down, levels across, each concept with its steps filled in for that student).
+- Singing the modes becomes a voice concept, added with NEW9; its steps are one per mode.
+Order: 1. move steps from devtools into the plan model; 2. read a player's step for the 11 concepts into the progress
+outcome (/dev/progress first); 3. merge concepts that are one thing at several depths and write the other steps
+(with NEW9); 4. seeding agents read steps as gaps (NEW10); 5. teacher views (NEW12); 6. the plan writer gets one line
+per concept, and the shortlist can ask for "the next step" (NEW7).
 
 NEW8: [DONE 2026-11-15, two things left] Querying the library through tools
 Spec: docs/superpowers/specs/2026-11-15-library-query-design.md. Plan: docs/superpowers/plans/2026-11-15-library-query.md.
@@ -24,6 +77,12 @@ Use brainstorming first. What /dev/questionnaire showed:
 - The intake README says 70 concepts; concepts.ts has 67. Find out which is right.
 - After week 1 the level comes from the stars per block, not from these answers: settle what the questionnaire still
   has to ask, and how a player says "more of the same" or "something new".
+- Steps inside a concept (NEW13, see /dev/path): many concepts are one thing at several depths. Merge those (triads on
+  the top strings and on every string set; the three guitar melody concepts; runs and fast runs), and give each
+  concept that stays its steps. /dev/path counts the concepts with no steps and the steps "not implemented".
+- A questionnaire line can then point at a step, not only at a level: "I play one pentatonic position" is step 1 of the
+  boxes. Settle whether an answer sets a starting step.
+- Add a voice concept for singing the modes, with one step per mode.
 
 NEW10: [NEW 2026-11-15] Seed more plans and exercises, written by Fable through agents (after NEW8 and NEW9)
 Agents read library_coverage (NEW8) first and write to the gaps, each plan recording its model and versions.
@@ -39,6 +98,14 @@ Agents read library_coverage (NEW8) first and write to the gaps, each plan recor
   string-singer.
 - Plans only exist for guitar (beginner, intermediate, advanced), guitar+theory intermediate and voice (beginner,
   intermediate, advanced): none for "new", theory alone, or voice with guitar.
+- Steps inside a concept (NEW13, see /dev/path): agents write to steps, not only to concepts and levels. A concept
+  with four steps needs an exercise for each, so the next plan has somewhere to go. Read the steps from
+  src/features/devtools/model/steps.ts (LADDERS, LINKS, PLANNED) until they move into the plan model.
+- A new exercise for a concept with a ladder sets the tool's `level` (or picks the tune or run by stage), never the
+  raw settings: the step is read back from the tool (`stepOf`), so an exercise written with raw props counts for no
+  step. Check a seeded exercise on /dev/path with "Student on the diagram".
+- A step marked "not implemented" has no tool setting that stands for it. Seed it anyway when an example helps, and
+  note which tool would need a level for it (NEW11).
 
 NEW11: [NEW 2026-11-15] New exercise components to weigh (after the examples in NEW10 use what exists)
 - A rhythm tool for "Steady beat": src/features/rhythm has a clap-along game with mic onset judging, not in the plan.
@@ -46,6 +113,13 @@ NEW11: [NEW 2026-11-15] New exercise components to weigh (after the examples in 
 - Maybe a chord-change ear quiz: "hearing chord changes" runs on backing-track with no answer check.
 
 NEW7: [NEW 2026-11-15] Autoplans on the server: reuse first, then the right model
+Steps inside a concept (NEW13, see /dev/path) change what a new plan is written from:
+- The writer gets one line per concept: the step the player is on, its state and newest rating, and the next step.
+  This takes the place of part of the list of rated blocks.
+- The shortlist (step 0, no AI) can ask the library for "the next step this player hasn't made solid", once blocks
+  can be found by step. A whole plan fits when its exercises are at the player's steps or one above.
+- A plan written by the AI sets a tool's `level` or stage for every concept that has a ladder, so its step can be read.
+- A teacher's note (NEW12) skips the reuse step: that plan is always written by the AI.
 From NEW8, before the server calls the library per player: the use totals are whole-table sums on every call (narrow
 them to the candidate blocks); coverage with a player in scope also counts that player's private blocks; nothing writes
 plan_reviews.library_plan_id yet, so library plans show no reviews; a plan's rows must name only blocks the app owns.
