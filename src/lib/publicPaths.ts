@@ -4,8 +4,8 @@
  * accounts at all. Design: docs/superpowers/specs/2026-11-14-autoplan-centre-design.md.
  */
 
-/** The pages a visitor reads: the two home pages, the FAQ, the demo plans, logging in, and pages left as they were. */
-const MARKETING = ["/", "/players", "/faq", "/demo", "/login", "/kickstarter", "/landing-1", "/intro"];
+/** The pages a visitor reads: the two home pages, the FAQ, the terms, the demo plans, logging in, and pages left as they were. */
+const MARKETING = ["/", "/players", "/faq", "/terms", "/demo", "/login", "/kickstarter", "/landing-1", "/intro"];
 
 /**
  * Public but not for reading: APIs, Next's and Vercel's own paths, the folders of `public/` (the pitch model's weight files

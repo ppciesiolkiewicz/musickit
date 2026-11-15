@@ -11,6 +11,7 @@ import SiteFooter from "@/components/landing/SiteFooter";
 import { BetaBadge, DISPLAY, Eyebrow, H2, Mark } from "@/components/landing/Display";
 import { LessonNoteMock } from "@/components/landing/LessonMocks";
 import { Check, PlanDayCard } from "./PracticeSections";
+import { PRICING } from "@/features/account/pricing";
 
 /*
  * The two home pages, / (music schools) and /players, in one shape: the AI autoplan first, then how it works, then
@@ -47,6 +48,8 @@ const COPY: Record<Audience, {
   title: ReactNode;
   lead: ReactNode;
   planNote: ReactNode;
+  /** under the Open beta badge in the hero */
+  heroNote: ReactNode;
   notesTitle: ReactNode;
   notesText: ReactNode;
   notesPoints: string[];
@@ -56,6 +59,7 @@ const COPY: Record<Audience, {
     title: <>A practice plan for every student, <span className="ls-accent block italic text-sky-300">every day.</span></>,
     lead: <>Each student answers a few questions, and the AI they already use writes their week: <Mark>short exercises for their level and their time</Mark>, each with the diagram, drone or backing it needs. Every week builds on how the last one went.</>,
     planNote: <>Teachers use the same app as their students, so they see exactly what a student practises at home. It can carry <Mark tone="var(--color-violet-400)">your school&apos;s name</Mark>.</>,
+    heroNote: <>Free while in beta. Log in with your email or Google. <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">School pricing</a> is by agreement.</>,
     notesTitle: <>Lesson notes <span className="ls-accent italic text-teal-300">before the student leaves.</span></>,
     notesText: <>In the last two minutes of a lesson, a teacher lays out today&apos;s chords, scales and positions on one page, then <Mark tone="var(--color-teal-400)">sends it to the student as a link</Mark>. Every diagram on it plays.</>,
     notesPoints: ["Necks, chord boxes, CAGED shapes, the circle of fifths", "Change the key and the whole page follows", "One link, nothing to install"],
@@ -65,6 +69,7 @@ const COPY: Record<Audience, {
     title: <>Know what to practise, <span className="ls-accent block italic text-sky-300">every day.</span></>,
     lead: <>Answer a few questions, and the AI you already use writes your week: <Mark>short exercises for your level and your time</Mark>, each with the diagram, drone or backing it needs. Every week builds on how the last one went.</>,
     planNote: <>A timer runs through the day&apos;s exercises, and a daily reminder can nudge you at the time you pick.</>,
+    heroNote: <>Free while in beta. Then {PRICING.player.price} {PRICING.player.period}, with a <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">{PRICING.player.guaranteeDays}-day money-back guarantee</a>.</>,
     notesTitle: <>Keep what you learn <span className="ls-accent italic text-teal-300">on one page.</span></>,
     notesText: <>Put the chords, scales and positions you are working on into one page of notes. <Mark tone="var(--color-teal-400)">Every diagram on it plays</Mark>, and you can share it as a link.</>,
     notesPoints: ["Necks, chord boxes, CAGED shapes, the circle of fifths", "Change the key and the whole page follows", "Opens on any device"],
@@ -136,7 +141,7 @@ export default function AutoplanHome({ audience, ending }: { audience: Audience;
             <span className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-400/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
               <span className="size-1.5 rounded-full bg-sky-300" /> Open beta
             </span>
-            <p className="mt-2 max-w-md text-sm text-slate-400">Free while in beta. Log in with your email or Google.</p>
+            <p className="mt-2 max-w-md text-sm text-slate-400">{c.heroNote}</p>
           </div>
           <div className="landing-rise relative" style={{ animationDelay: "120ms" }}>
             {audience === "schools" ? (
@@ -214,11 +219,68 @@ export default function AutoplanHome({ audience, ending }: { audience: Audience;
           </ul>
         </section>
 
+        <Pricing audience={audience} />
+
         {ending}
 
         <SiteFooter />
       </div>
     </div>
+  );
+}
+
+/** What a player pays and what a school gets, with the money-back guarantee. Numbers from features/account/pricing.ts. */
+function Pricing({ audience }: { audience: Audience }) {
+  const p = PRICING.player;
+  const playerPoints = [
+    `${p.plansPerMonth} AI autoplans a month: one for every week, and spare ones to start again`,
+    `Spend them on AI-written notes instead if you like: up to ${p.notesPerMonth} a month (coming soon)`,
+    "Every tool, lesson and drill, as much as you like",
+    "After the year you keep your plans and every tool. Top up only for new autoplans.",
+  ];
+  const schoolPoints = [
+    "A larger autoplan allowance, shared by your teachers and students",
+    "Invite students and teachers, and assign a plan to a student",
+    "See what each student practises at home",
+    "Every tool and lesson for everyone, under your school's name",
+  ];
+  const schools = audience === "schools";
+  return (
+    <section id="pricing" aria-labelledby="pricing-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
+      <div className="mx-auto max-w-2xl text-center">
+        <Eyebrow tone="text-emerald-300">Pricing</Eyebrow>
+        <H2 id="pricing-h">{schools ? <>One plan for the school, <span className="ls-accent italic text-emerald-300">more autoplans.</span></> : <>One price, <span className="ls-accent italic text-emerald-300">a whole year.</span></>}</H2>
+        <p className="mt-4 text-slate-300">Free while attunr is in beta. These are the prices from launch.</p>
+      </div>
+      <div className="mx-auto mt-10 grid max-w-4xl gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <div className="ls-card flex flex-col gap-5 rounded-3xl border border-emerald-400/30 bg-slate-900/60 p-6 sm:p-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">{schools ? "Music schools" : "Players"}</p>
+            {schools ? (
+              <p className="mt-2 text-3xl text-slate-50 sm:text-4xl" style={DISPLAY}>Priced for your school</p>
+            ) : (
+              <p className="mt-2 text-slate-50" style={DISPLAY}><span className="text-5xl sm:text-6xl">{p.price}</span> <span className="text-xl text-slate-300">{p.period}</span></p>
+            )}
+            <p className="mt-2 text-sm text-slate-400">{schools ? <>A quote for your teachers and students. Players on their own pay {p.price} {p.period}.</> : "Paid once. No monthly charge, and we never renew you without asking."}</p>
+          </div>
+          <ul className="flex flex-col gap-2.5 text-sm text-slate-300">
+            {(schools ? schoolPoints : playerPoints).map((t) => <Check key={t} tone="text-emerald-300">{t}</Check>)}
+          </ul>
+          <div className="mt-auto flex flex-wrap items-center gap-4">
+            {schools
+              ? <a href="#contact" className={PRIMARY}>Talk to us <Icon name="chevron-right" size={16} /></a>
+              : <Link href="/plan" className={PRIMARY}>Start your plan <Icon name="chevron-right" size={16} /></Link>}
+            <Link href="/terms" className="text-sm text-slate-400 underline decoration-slate-700 underline-offset-2 hover:text-slate-200">Terms of use</Link>
+          </div>
+        </div>
+        <div className="ls-card flex flex-col justify-center gap-4 rounded-3xl border border-slate-800 bg-slate-900/40 p-6 sm:p-8">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-300"><Icon name="check" size={24} /></span>
+          <p className="text-2xl text-slate-50" style={DISPLAY}>{p.guaranteeDays}-day money-back guarantee</p>
+          <p className="text-sm leading-relaxed text-slate-300">Not for you? Email us within {p.guaranteeDays} days of paying and the whole payment comes back. No reason needed.</p>
+          <p className="text-sm leading-relaxed text-slate-400">attunr is a small business run by its founder on an Australian ABN. If it ever closes, you get 60 days&apos; notice, time to download your plans and notes, and the months left on your subscription back.</p>
+        </div>
+      </div>
+    </section>
   );
 }
 

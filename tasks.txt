@@ -3,6 +3,30 @@ Ticket content
 
 New:
 
+NEW3: [NEW 2026-11-15] Selling attunr: what the terms and the home pages now promise but the app can't do yet
+Written today: /terms (src/app/terms/page.tsx), a Pricing section on / and /players, prices in src/features/account/pricing.ts
+($27 a year, 8 AI autoplans a month or 24 AI notes, every tool unlimited, 30-day money-back, schools by agreement).
+Each line below is a thing the words now say that the code doesn't do. A changed term = raise UPDATED on /terms.
+- Agree to the terms at log in (or in the account setup): a line under the email form "By logging in you agree to the
+  terms of use" with the link, and the date agreed stored on the account, so a later change can ask again.
+- Payment: a payment provider (Stripe or Paddle; Paddle is merchant of record and handles tax for an ABN sole trader),
+  a yearly $27 checkout, a top-up, receipts, and no auto-renew (the terms promise we never renew without asking).
+- Credits: an allowance ledger per account, 8 autoplans a month, reset on the subscription's monthly anniversary, no
+  carry-over; one autoplan = 3 AI notes. Show what's left on /account and in the plan flow. Spent when the AI writes.
+- AI autoplan written by attunr's AI (server side, the devtools' Claude runner made real), spending a credit, beside the
+  paste-your-own-AI way (which stays free: the terms say attunr only sends data to an AI when asked to write).
+- AI notes generation, spending credits (the "24 notes" promise is marked coming soon until this lands).
+- After the year: the account keeps plans, notes and every tool; only new autoplans/AI notes need a top-up.
+- Refund flow: a 30-day money-back refund from an email, logged against the payment; refund of the months left on a
+  change of terms or a shutdown (pro rata).
+- Schools: school pricing and quote, a school account with its own allowance, invite students and teachers (the plan
+  invite in docs/superpowers/specs/2026-11-15-account-data-on-server-design.md is the start), assign a plan to a
+  student, see what each student practises, the school's name and logo.
+- Export your data: download of plans and notes from /account (the terms promise it, also for the shutdown case).
+- A standalone privacy policy page (/privacy); /terms has a short Privacy section for now. Also a cookie line.
+- Age: under-16 only through a school or a parent; nothing checks this yet.
+- A lawyer reads /terms once before paid plans open (currency USD vs AUD, GST, the liability cap, governing state).
+
 NEW1: Discalimer to share a not should show now:
 log in to share your note / plan
 

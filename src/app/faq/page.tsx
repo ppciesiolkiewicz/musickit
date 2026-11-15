@@ -3,10 +3,15 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import PageShell from "@/components/PageShell";
 import { FAQ_TOUR } from "@/features/guide/tours/faq";
+import { PRICING } from "@/features/account/pricing";
+
+const P = PRICING.player;
+const PRICE_LINE = `Free while attunr is in beta. From launch, ${P.price} ${P.period}: ${P.plansPerMonth} AI autoplans a month (or up to ${P.notesPerMonth} AI-written notes instead), and every other tool and lesson as much as you like. After the year you keep your plans and every tool, and top up only for new autoplans. Music schools are priced by agreement.`;
+const REFUND_LINE = `Yes. Email us within ${P.guaranteeDays} days of paying for a full refund, no reason needed. That is on top of your rights under Australian Consumer Law.`;
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions · attunr",
-  description: "Answers to common questions about attunr: free tools, browser storage, microphone setup, latency, the AI practice plan, and the video course guarantee.",
+  description: "Answers to common questions about attunr: the beta, browser storage, microphone setup, latency, the AI practice plan, the price and the 30-day money-back guarantee.",
   alternates: { canonical: "/faq" },
 };
 
@@ -19,7 +24,7 @@ const faqJsonLd = {
       name: "Is attunr free?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes. The tools, theory pages and exercises are free, and you don't need an account. Only the video course is paid.",
+        text: "Yes, while it is in beta. You need an account: log in with your email or Google, and a new account is made the first time.",
       },
     },
     {
@@ -64,11 +69,13 @@ const faqJsonLd = {
     },
     {
       "@type": "Question",
+      name: "What does attunr cost?",
+      acceptedAnswer: { "@type": "Answer", text: PRICE_LINE },
+    },
+    {
+      "@type": "Question",
       name: "Can I get a refund?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Yes. Every bundle has a 30-day money-back guarantee: email us within 30 days of buying for a full refund, no reason needed.",
-      },
+      acceptedAnswer: { "@type": "Answer", text: REFUND_LINE },
     },
   ],
 };
@@ -109,16 +116,18 @@ const GROUPS: { title: string; items: QA[] }[] = [
     ],
   },
   {
-    title: "The video course",
+    title: "Paying",
     items: [
-      { q: "Can I get a refund?", a: <>Yes. Every bundle has a 30-day money-back guarantee: email us within 30 days of buying for a full refund, no reason needed.</> },
+      { q: "What does attunr cost?", a: <>{PRICE_LINE} The <A href="/terms">terms of use</A> have the details.</> },
+      { q: "Can I get a refund?", a: <>{REFUND_LINE}</> },
+      { q: "What if attunr shuts down?", a: <>You get at least 60 days&apos; notice by email, time to download your plans and notes, and the months left on a paid subscription back.</> },
     ],
   },
 ];
 
 export default function FaqPage() {
   return (
-    <PageShell active="/faq" pageId="faq" tour={FAQ_TOUR} title="Frequently asked questions" intro="Short answers about the app, the microphone, the practice plan and the course.">
+    <PageShell active="/faq" pageId="faq" tour={FAQ_TOUR} title="Frequently asked questions" intro="Short answers about the app, the microphone, the practice plan and paying.">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}

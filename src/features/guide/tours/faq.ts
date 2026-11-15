@@ -5,7 +5,7 @@ export const FAQ_TOUR: TourStep[] = [
   {
     target: "faq-group",
     title: "Getting started",
-    text: "Questions come in groups: getting started, the microphone and sound, the practice plan and the video course.",
+    text: "Questions come in groups: getting started, the microphone and sound, the practice plan and paying.",
   },
   {
     target: "faq-question",
