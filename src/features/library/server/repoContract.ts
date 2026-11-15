@@ -194,8 +194,8 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
   });
 
   describe("library repo: plans", () => {
-    const planIds = async (scope: Scope, filter: PlanFilter = {}, make_: (d: LibraryData) => LibraryData = (d) => d) =>
-      (await (await make(make_(baseFixture()))).listPlans(scope, filter, 100)).map((p) => p.id);
+    const planIds = async (scope: Scope, filter: PlanFilter = {}, tweak: (d: LibraryData) => LibraryData = (d) => d) =>
+      (await (await make(tweak(baseFixture()))).listPlans(scope, filter, 100)).map((p) => p.id);
     const keys = (o: object) => Object.keys(o).sort();
 
     test("a plan is listed when enabled, and the not enabled one only with includeNotEnabled, by id", async () => {
@@ -208,8 +208,8 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.equal(await r.getPlan(all, "nope", false), null);
     });
     test("plan ids order bytewise and the limit is respected", async () => {
-      const make_ = (d: LibraryData): LibraryData => ({ ...d, plans: [...d.plans, { ...d.plans[0], id: "alpha-plan" }, { ...d.plans[0], id: "Zed-plan" }] });
-      assert.deepEqual(await planIds(all, {}, make_), ["P1", "P2", "P3", "P4", "Zed-plan", "alpha-plan"]);
+      const tweak = (d: LibraryData): LibraryData => ({ ...d, plans: [...d.plans, { ...d.plans[0], id: "alpha-plan" }, { ...d.plans[0], id: "Zed-plan" }] });
+      assert.deepEqual(await planIds(all, {}, tweak), ["P1", "P2", "P3", "P4", "Zed-plan", "alpha-plan"]);
       assert.deepEqual((await (await repo()).listPlans(all, {}, 2)).map((p) => p.id), ["P1", "P2"]);
     });
     test("scope.planIds narrows the list and getPlan, even with includeNotEnabled", async () => {
@@ -226,6 +226,8 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.deepEqual(await planIds(all, { levels: ["beginner"] }), ["P1", "P2", "P3"]);
       assert.deepEqual(await planIds(all, { levels: ["advanced"] }), []);
       assert.deepEqual(await planIds(all, { levels: ["intermediate"] }), ["P1", "P2"]);
+      assert.deepEqual(await planIds(all, { levels: ["intermediate", "advanced"] }), ["P1", "P2"]);
+      assert.deepEqual(await planIds(all, { levels: ["advanced", "beginner"] }), ["P1", "P2", "P3"]);
       assert.deepEqual(await planIds(all, { topics: ["guitar-scales", "ear"] }), ["P1"]);
       assert.deepEqual(await planIds(all, { topics: ["rhythm"] }), ["P2"]);
       assert.deepEqual(await planIds(all, { model: "m1" }), ["P1", "P3"]);
@@ -335,6 +337,27 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
         { concept: "major-scale", blocks: 1, plans: 1, times: 2, seconds: 900 },
         { concept: "pentatonic", blocks: 2, plans: 1, times: 4, seconds: 1250 },
       ]);
+    });
+    const gsBeginner = (c: Awaited<ReturnType<LibraryRepo["coverage"]>>) => c.topics.find((t) => t.topic === "guitar-scales" && t.level === "beginner");
+    const withRows = (rows: LibraryData["planBlocks"]) => (d: LibraryData): LibraryData => ({ ...d, planBlocks: [...d.planBlocks, ...rows] });
+    test("a plan that is not enabled counts only with includeNotEnabled", async () => {
+      const r = await make(withRows([{ planId: "P3", day: 1, place: 0, blockId: "S1", minutes: 5 }])(baseFixture()));
+      assert.equal(gsBeginner(await r.coverage({}))?.plans, 1);
+      assert.equal(gsBeginner(await r.coverage({ includeNotEnabled: true }))?.plans, 2);
+    });
+    test("a plan outside scope.planIds does not count", async () => {
+      const r = await make(baseFixture());
+      assert.equal(gsBeginner(await r.coverage({}))?.plans, 1);
+      assert.equal(gsBeginner(await r.coverage({ planIds: ["P2"] }))?.plans, 0);
+      assert.equal(gsBeginner(await r.coverage({ planIds: ["P1"] }))?.plans, 1);
+    });
+    test("a plan counts through its own block rows, even when its block of that pair is not visible to the caller", async () => {
+      // P4 holds PA (A's private block): the pair is listed for {} through S1, and P4 counts although {} cannot see PA
+      const r = await make(withRows([{ planId: "P4", day: 0, place: 0, blockId: "PA", minutes: 5 }])(baseFixture()));
+      const row = gsBeginner(await r.coverage({}));
+      assert.deepEqual([row?.blocks, row?.plans], [1, 2]);
+      // a pair whose only blocks are invisible has no row, whatever plans hold them
+      assert.equal((await r.coverage({})).topics.some((t) => t.topic === "ear"), false);
     });
     test("the seconds of a pair are the block totals of its visible blocks", async () => {
       const r = await repo();

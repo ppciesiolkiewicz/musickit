@@ -106,6 +106,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   };
 
   const planSummary = (scope: Scope, p: Plan): PlanSummary => {
+    const player = scope.player;
     const rows = data.planBlocks.filter((r) => r.planId === p.id);
     const blocks = planBlockRows(p.id);
     const stars = data.reviews.filter((r) => r.libraryPlanId === p.id).map((r) => r.stars);
@@ -118,7 +119,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
       topics: counts(blocks.flatMap((b) => (b.topic !== null ? [b.topic] : []))),
       concepts: counts(blocks.flatMap((b) => [...new Set(b.concepts)])),
       reviews: { count: stars.length, mean: stars.length ? sum(stars) / stars.length : null },
-      hadShare: scope.player === undefined ? null : blocks.length ? blocks.filter((b) => had(scope.player!, b.id)).length / blocks.length : 0,
+      hadShare: player === undefined ? null : blocks.length ? blocks.filter((b) => had(player, b.id)).length / blocks.length : 0,
     };
   };
 

@@ -9,7 +9,7 @@ import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, ConceptCoverag
  * (`levels`, `topics`) and its `hadShare` come from its rows in `practice_plan_blocks` whether or not each block is itself visible to
  * the caller: library plans hold app-owned blocks, and the plan's own visibility is the gate. `coverage` is the opposite for blocks:
  * its block counts, times and seconds count only blocks visible under the scope, and a pair or concept with no visible block is left
- * out. Its `plans` counts visible plans, by their rows, as above.
+ * out. Its `plans` counts visible plans that hold at least one block of the pair (or concept) in their rows, whether or not that block is visible to the caller; a pair with no visible block has no row at all.
  */
 export interface LibraryRepo {
   countBlocks(scope: Scope, filter: BlockFilter): Promise<number>;
