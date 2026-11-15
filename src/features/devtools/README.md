@@ -5,19 +5,14 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
 
 ## Rules
 
-- **Dev only, apart from four.** Pages under `src/app/dev/(local)` (the `/dev` index too) answer 404 in production
-  (`(local)/layout.tsx`); every `src/app/api/dev/*` handler starts with `devGate()` (`gate.ts`). The tools marked `live`
-  in `registry.ts` (Compare AI models for autoplan, Prompt examples, Component stories, Data) sit under
-  `src/app/dev/(live)` and are on the live site for anyone logged in: `(live)/layout.tsx` checks the session against the
-  database (`peekSession`, which doesn't renew it) and answers 404 without one. Nothing on the site links to them; there
-  the tab bar shows only those four and no *All tools*. `/dev` is not in the sitemap and robots.txt disallows it. A live
-  tool can't use `/api/dev`: compare-models reads `compare/published.json` instead, Prompt examples drops the studio's
-  answers, its links to the studio and the section notes. `gate.test.ts` checks each page sits in the folder its `live` flag says.
+- **Dev only.** `src/app/dev/layout.tsx` calls `notFound()` in production, for everyone, logged in or not; every
+  `src/app/api/dev/*` handler starts with `devGate()` (`gate.ts`). In development no login is needed: `/dev` is a public
+  path (`src/lib/publicPaths.ts`). `/dev` is not in the sitemap and robots.txt disallows it.
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
   `src/app/dev` and `src/app/api/dev` imports dev tools.
 - **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files. Pure logic in `model/`, with tests.
 - **Dev notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens the notes bar, the same on every page: all notes' count, this page's, how many are on changed example sections (on /dev/examples), HEAD, *Note a text*, *Re-pin all to HEAD*, *Clear all*, *Copy all notes*. *N on this page* opens a modal with this page's notes, each linking to its entry on `/dev/notes`; a page's notes show only there, not on the page. Opening the bar turns on note mode (*Note a text* toggles it, and so does the A key outside a text box); in note mode a click on any text opens a note, in a box six lines tall. Every note, wherever it shows (under its section, in the bar, on /dev/notes), is one `copy/NoteBar.tsx`: the note, `@commit` (the example file's for a section note, else the HEAD it was made at), edit and delete. Every note, on any page or on an example's section, is in one registry: `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`, `model/copyNotes.ts`), each with the HEAD it was made at. The old `musickit.dev.comments` is moved in once. A page's notes are kept by its route: the path, and the hash where there is one, since some pages move by it (each `/dev/stories#<group>~<n>` has its own notes; `routeOf`, followed through `history.replaceState` too). Section notes are kept by the path alone. A text note also keeps its context (`copy/context.ts`): the labelled regions and headings it sits under, the app's React components that render it (from React's dev fiber, up to the router), each with the file and line of its JSX round the text, the line of JSX that renders the noted element, and the text round it; the copied Markdown gives them as `under:`, `components:`, `source:` and `around:` lines. Files and lines come from the stack React keeps of each JSX call in dev, mapped back to the source by `/api/dev/source` (Next's own `/__nextjs_original-stack-frames`, Turbopack only), so an AI tool can find what to change. A note links to its place with `<path>?note=<id><hash>` (`noteHref`; the older `#note-<id>` still opens): the page opens the notes modal, marks the note there and scrolls to its text, and /dev/examples opens its card. `/dev/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, each with *Open →*, with copy, re-pin and clear for one page or all. The bar needs no plan code: /dev/examples hands it its section hashes and a `repin` (`useShowSections`).
-- **A new tool** is one entry in `registry.ts` and one page under `src/app/dev/(local)` (or `(live)` with `live: true`); the index and the tab bar (`DevNav.tsx`, in the layout) both read the registry.
+- **A new tool** is one entry in `registry.ts` and one page under `src/app/dev`; the index and the tab bar (`DevNav.tsx`, in the layout) both read the registry.
 
 ## History
 
@@ -65,8 +60,7 @@ Ollama models through the local Ollama (`server/ollama.ts`, one at a time, with 
 runs and their estimate. Each run is saved to the history with its `persona` and token `usage`.
 
 The page (`compare/CompareModelsPage.tsx`) runs nothing: a table of players × models (the Claude models, then any local model
-that has a plan), the newest plan in each cell (`latestByCell`, `model/compare.ts`) with its parser warnings as a tag. On the live site the page has no history: it reads `compare/published.json`, the newest run per cell and their
-assessments, which `npm run -s publish-model-plans` writes along with the plans. A plan's
+that has a plan), the newest plan in each cell (`latestByCell`, `model/compare.ts`) with its parser warnings as a tag. A plan's
 title opens its public page in a new tab, `/demo/models/<player>--<model>` (`MODEL_PLANS` in `src/features/plan/modelPlans`,
 written by `npm run -s publish-model-plans`, `scripts/publish-model-plans.ts`: the newest plan per cell that parses, copied
 out of the gitignored history so the live site has it). A cell whose newest run isn't the published one says *not published*
@@ -109,7 +103,7 @@ shows the brief as plain text with *Copy brief* (`outreachBrief`: the facts, the
 
 ## AI costs (`/dev/costs`)
 
-What autoplans cost us, apart from the founding-partner emails on /dev/kickstarter (`costs/CostsPage.tsx`, page `src/app/dev/(local)/costs/page.tsx`). Local only: it shows our margins, so it is not one of the live tools. It reads the same `compare/published.json` tokens as /dev/compare-models and the `plans` table.
+What autoplans cost us, apart from the founding-partner emails on /dev/kickstarter (`costs/CostsPage.tsx`, page `src/app/dev/costs/page.tsx`). It reads `compare/published.json` (the newest run per cell, written by `npm run -s publish-model-plans`) for its tokens, and the `plans` table.
 
 First, *Plans* (`costs/PlanCosts.tsx`, `planYear` in `model/unitEconomics.ts`): every row of the `plans` table (read by the page from the database; without one it says so), with its price, students, allowance and delivery (Batch or at once), and what a year on it costs us at a share of its allowance (the slider; 100% is every autoplan, every month) and its *Written new* chance (`plans.new_plan_percent`, internal: the rest of its autoplans are taken from the `practice_plans` library and cost no AI but Haiku's decide call, `PICK_TOKENS` in `model/unitEconomics.ts`, an estimate made for every autoplan once any are reused; with no library row enabled for reuse every autoplan is costed as written new). The page reads the chances and the library's count with its own query, not through the account repo, since they never go on a `Plan` with the payment fee per payment (twelve on a monthly plan): every plan uses the one `SUBSCRIPTION_MODEL` (Haiku 5.5, `features/account/plans.ts`), an autoplan costed on it from the same median tokens, halved with Batch, AI notes costed as autoplans. Each plan has a row paid monthly and one paid yearly. Plans are changed in the database, not here.
 
@@ -154,7 +148,7 @@ returns one.
 
 ## Code map
 
-- `gate.ts`: `devOnly`, `devGate`, `devUi`. `src/app/dev/(local)/layout.tsx` and `(live)/layout.tsx`: the two gates (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
+- `gate.ts`: `devOnly`, `devGate`, `devUi`. `src/app/dev/layout.tsx`: the page gate (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the studio's CLI aliases and the pinned `DEMO_MODELS`.
 - `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/`, `server/ollama.ts`, `scripts/compare-models.ts`: /dev/compare-models.

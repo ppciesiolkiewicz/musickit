@@ -1,8 +1,8 @@
 /**
  * Copy the newest plan per made-up player and model from tools/prompt-history (gitignored) into
  * src/features/plan/modelPlans/plans.json, so /demo/models/<slug> can show it on the live site. Only plans that parse.
- * Also writes what /dev/compare-models shows (the newest run per cell and their assessments) to
- * src/features/devtools/compare/published.json, since the live site has no tools/prompt-history.
+ * Also writes the newest run per cell and their assessments to src/features/devtools/compare/published.json, for the
+ * token figures on /dev/costs.
  *
  *   npm run -s publish-model-plans
  */

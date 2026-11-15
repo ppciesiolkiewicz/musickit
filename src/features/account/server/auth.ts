@@ -188,13 +188,6 @@ export async function sessionAccount(deps: AuthDeps, sessionToken: unknown): Pro
   return { account: toAccount(row.user), renewed };
 }
 
-/** Who the session cookie belongs to, without renewing it: for a server page, which can't send a renewed cookie back. */
-export async function peekSession(deps: AuthDeps, sessionToken: unknown): Promise<Account | null> {
-  if (typeof sessionToken !== "string" || !sessionToken) return null;
-  const row = await deps.repo.sessionUser(hashToken(sessionToken), deps.now());
-  return row ? toAccount(row.user) : null;
-}
-
 export async function signOut(deps: AuthDeps, sessionToken: unknown): Promise<void> {
   if (typeof sessionToken === "string" && sessionToken) await deps.repo.deleteSession(hashToken(sessionToken));
 }

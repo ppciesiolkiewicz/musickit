@@ -19,10 +19,6 @@ import { useCopyNotes, useLinkedNote, useShowSections } from "../copy/store";
 import { CommentCount, CommentsFor } from "./Comments";
 import Icon from "@/components/Icon";
 import { loadStudio, useMounted } from "../prompt/storage";
-import { devOnly } from "../gate";
-
-/** The prompt studio and the notes are local; on the live site this page shows the examples alone. */
-const LOCAL = devOnly();
 
 type Kind = "exercise" | "plan";
 type Showcase = "blocks" | "pick" | "progression" | "stages" | "variants";
@@ -76,7 +72,7 @@ function ExampleCard({ title, meta, note, json, entries, badge }: { /** the exam
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-sm text-sky-200">{title}</span>
             {badge}
-            {LOCAL && <CommentCount example={title} />}
+            <CommentCount example={title} />
             <CopyPlan json={json} note={note} />
           </span>
           {meta}
@@ -87,7 +83,7 @@ function ExampleCard({ title, meta, note, json, entries, badge }: { /** the exam
             </span>
           )}
         </summary>
-        {open && <div className="bg-slate-950/30 p-4">{LOCAL ? <CommentsFor example={title}><ExamplePreview json={json} entries={entries} /></CommentsFor> : <ExamplePreview json={json} entries={entries} />}</div>}
+        {open && <div className="bg-slate-950/30 p-4"><CommentsFor example={title}><ExamplePreview json={json} entries={entries} /></CommentsFor></div>}
       </details>
     </li>
   );
@@ -178,7 +174,7 @@ export default function ExampleViewer() {
     return [...new Set(all.map((e) => e.docs.teaching))].sort((a, b) => b - a).map((v) => ({ id: `v${v}`, label: `Skills v${v}${v === DOC_VERSIONS.teaching ? " (current)" : ""} (${all.filter((e) => e.docs.teaching === v).length})` }));
   }, []);
 
-  const read = useMemo(() => (mounted && LOCAL ? answersFromText(loadStudio().answersText) : null), [mounted]);
+  const read = useMemo(() => (mounted ? answersFromText(loadStudio().answersText) : null), [mounted]);
   const answers = read && !read.error ? read.answers : null;
   const inPrompt = useMemo(() => {
     if (!answers) return new Set<string>();
@@ -206,14 +202,10 @@ export default function ExampleViewer() {
   if (!mounted) return <p className="text-sm text-slate-500">Loading…</p>;
   return (
     <div className="flex flex-col gap-4">
-      {LOCAL ? (
-        <p className="text-xs text-slate-500">
-          Answers from the <Link href="/dev/prompt" className="text-sky-300 underline">prompt studio</Link>
-          {read?.error ? ` don't parse (${read.error}); showing the skipped-questionnaire prompt.` : answers ? "." : " say the questionnaire was skipped."}
-        </p>
-      ) : (
-        <p className="text-xs text-slate-500">In prompt: the examples the prompt picks for a player who skipped the questionnaire.</p>
-      )}
+      <p className="text-xs text-slate-500">
+        Answers from the <Link href="/dev/prompt" className="text-sky-300 underline">prompt studio</Link>
+        {read?.error ? ` don't parse (${read.error}); showing the skipped-questionnaire prompt.` : answers ? "." : " say the questionnaire was skipped."}
+      </p>
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
           <Filter<"in"> label="Prompt" value={onlyPrompt} onChange={setOnlyPrompt} options={[{ id: "in", label: `In prompt (${inPrompt.size})` }]} />
@@ -238,8 +230,7 @@ export default function ExampleViewer() {
                   <Pill tone={LEVEL_TONE[e.level]}>{labelOf(LEVELS, e.level)}</Pill>
                   {e.model ? <Pill tone="indigo" title={e.model}>{modelLabel(e.model)}</Pill> : <Pill tone="slate" title="Written before the model was recorded">model not recorded</Pill>}
                   <Pill tone="sky" title="Last written or rewritten">updated {e.updated}</Pill>
-                  {inPrompt.has(e.id) && !LOCAL && <Pill tone="emerald">in prompt</Pill>}
-                  {inPrompt.has(e.id) && LOCAL && (
+                  {inPrompt.has(e.id) && (
                     <Link href={`/dev/prompt#${partAnchor(`example:${e.id}`)}`} title="Open this example's part in the prompt studio" onClick={(ev) => ev.stopPropagation()}>
                       <Pill tone="emerald">in prompt →</Pill>
                     </Link>

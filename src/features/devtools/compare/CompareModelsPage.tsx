@@ -11,11 +11,6 @@ import { DEMO_MODELS, isOllamaModel, ollamaName, type DevModel } from "../model/
 import { PERSONAS } from "../model/personas";
 import { API_PRICES, THINKING_FACTOR, estimateCost, usd } from "../model/pricing";
 import { fetchAssessments, fetchRuns } from "../prompt/api";
-import { devOnly } from "../gate";
-import PUBLISHED from "./published.json";
-
-/** The live site has no run history: there the page shows what `npm run -s publish-model-plans` copied out. */
-const LOCAL = devOnly();
 import AssessmentPanel, { markTone } from "./AssessmentPanel";
 
 const labelOf = (m: DevModel) => API_PRICES[m]?.label ?? (isOllamaModel(m) ? ollamaName(m) : m);
@@ -44,13 +39,12 @@ export default function CompareModelsPage() {
   const entries = useMemo(() => catalogue(), []);
   const prompts = useMemo(() => new Map(PERSONAS.map((p) => [p.id, personaPrompt(p, entries)])), [entries]);
   const replyChars = useMemo(() => demoReplyChars(), []);
-  const [runs, setRuns] = useState<RunSummary[] | null>(LOCAL ? null : (PUBLISHED.runs as RunSummary[]));
-  const [assessments, setAssessments] = useState<Assessment[]>(LOCAL ? [] : (PUBLISHED.assessments as Assessment[]));
+  const [runs, setRuns] = useState<RunSummary[] | null>(null);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
   /** the judged run whose assessment is open under its player's row */
   const [assessed, setAssessed] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!LOCAL) return;
     fetchRuns().then(setRuns);
     fetchAssessments().then(setAssessments);
   }, []);
