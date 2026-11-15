@@ -25,8 +25,9 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   chooses again on `/account/setup`): a price for any number of students read oddly beside Pro's 50, and a teacher with
   more students gets a plan made for them, a row of its own. In its
   place `MoreStudentsLine` (`ui/PlanPicker.tsx`), under the plans on `/account/setup` and `/account`: "More than 50
-  students? Email hello@attunr.app and we'll set up a plan for you.", the number from `mostStudents` and the address
-  `CONTACT_EMAIL` (`plans.ts`). It shows nothing while a plan on offer takes any number.
+  students? We'll set up a plan for you." with a Contact us button that opens a message box (started with a line to
+  edit); Send message posts `{ email, message, source: "plan-more-students" }` to `POST /api/contact`, which emails
+  it to `CONTACT_TO_EMAIL` with the account's email as Reply-To. The number is from `mostStudents` (`plans.ts`). It shows nothing while a plan on offer takes any number.
   How a person pays is `users.billing` (accounts from before kept their plan's old period). The old single price,
   `plans.price_cents` and `plans.period`, is still in the table, unused and nullable, for the build before; drop it in a
   later migration. The free trial is shown, not kept: no trial start is stored and nothing ends it.

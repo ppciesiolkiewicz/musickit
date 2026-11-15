@@ -114,9 +114,6 @@ export const allowanceLabel = (p: Pick<Plan, "autoplansPerMonth">): string =>
 export const studentsLabel = (p: Pick<Plan, "students">): string | null =>
   p.students === null ? "Any number of students" : p.students > 0 ? `Up to ${p.students} students` : null;
 
-/** Where a teacher with more students than any plan takes writes to us. The address on /terms. */
-export const CONTACT_EMAIL = "hello@attunr.app";
-
 /**
  * The most students a plan on offer takes, for the "More than 50 students?" line under the plans. Null when there is
  * nothing to say: no Teacher plan on offer, or one that takes any number.

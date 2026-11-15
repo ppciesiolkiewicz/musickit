@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
-import { CONTACT_EMAIL, allowanceLabel, bestSavingLabel, mostStudents, priceCents, priceLabel, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
-import { ErrorLine, LINK, PRIMARY, errorOf, send } from "./parts";
+import { useAccount } from "../useAccount";
+import { allowanceLabel, bestSavingLabel, mostStudents, priceCents, priceLabel, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
+import { ErrorLine, FIELD, LABEL, LINK, SECONDARY, PRIMARY, errorOf, send } from "./parts";
 
 export type Loaded = { plans: Plan[]; current: string | null; billing: Billing };
 
@@ -23,14 +24,62 @@ export function PlanLines({ plan, trial: showTrial = true }: { plan: Plan; /** o
   );
 }
 
-/** Under the plans, here and on /account/setup: where a teacher with more students than any plan takes writes to us. Nothing when a plan on offer takes any number. */
+/**
+ * Under the plans, here and on /account/setup: where a teacher with more students than any plan takes writes to us.
+ * Contact us opens a message, sent by `POST /api/contact` (emailed to `CONTACT_TO_EMAIL`), answered at the account's
+ * email. Not a <form>: on setup it sits inside the setup form. Nothing when a plan on offer takes any number.
+ */
 export function MoreStudentsLine({ plans }: { plans: Plan[] }) {
+  const { account } = useAccount();
   const most = mostStudents(plans);
-  if (most === null) return null;
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [state, setState] = useState<"idle" | "sending" | "done">("idle");
+  const [error, setError] = useState<string | null>(null);
+  if (most === null || !account) return null;
+  const text = message ?? `I teach more than ${most} students and I'd like a plan for them. `;
+
+  const submit = async () => {
+    if (!text.trim()) return setError("Write a short message.");
+    setState("sending");
+    setError(null);
+    const r = await send("/api/contact", "POST", { email: account.email, message: text, source: "plan-more-students" });
+    setState(r.ok ? "done" : "idle");
+    if (!r.ok) setError(errorOf(r));
+  };
+
+  if (state === "done") return <p role="status" className="text-xs text-emerald-300">Message sent. We&apos;ll reply to {account.email}.</p>;
   return (
-    <p className="text-xs text-slate-400">
-      More than {most} students? Email <a className={LINK} href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a> and we&apos;ll set up a plan for you.
-    </p>
+    <div className="flex flex-col gap-2">
+      <p className="text-xs text-slate-400">
+        More than {most} students? We&apos;ll set up a plan for you.{" "}
+        {!open && <button type="button" className={LINK} onClick={() => setOpen(true)}>Contact us</button>}
+      </p>
+      {open && (
+        <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+          <div>
+            <label htmlFor="more-students-message" className={LABEL}>Message</label>
+            <textarea
+              id="more-students-message"
+              className={`${FIELD} resize-y`}
+              rows={4}
+              maxLength={4000}
+              autoFocus
+              value={text}
+              onChange={(e) => { setMessage(e.target.value); setError(null); }}
+              aria-invalid={!!error}
+              aria-describedby={error ? "more-students-error" : "more-students-note"}
+            />
+          </div>
+          <p id="more-students-note" className="text-xs text-slate-500">We&apos;ll reply to {account.email}.</p>
+          <ErrorLine id="more-students-error">{error}</ErrorLine>
+          <div className="flex flex-col gap-2 sm:flex-row-reverse sm:justify-start">
+            <button type="button" disabled={state === "sending"} className={`${PRIMARY} sm:w-auto`} onClick={() => void submit()}>{state === "sending" ? "Sending…" : "Send message"}</button>
+            <button type="button" disabled={state === "sending"} className={`${SECONDARY} sm:w-auto`} onClick={() => { setOpen(false); setError(null); }}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
