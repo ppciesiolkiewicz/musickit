@@ -106,6 +106,13 @@
       "when": 1794745588604,
       "tag": "0014_plan_prices_required",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1794748712555,
+      "tag": "0015_month_prices_99",
+      "breakpoints": true
     }
   ]
 }
