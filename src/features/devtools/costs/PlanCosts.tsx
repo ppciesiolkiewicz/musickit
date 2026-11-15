@@ -16,9 +16,16 @@ const usd = (x: number) => {
   return `${sign}$${a < 10 ? a.toFixed(2) : Math.round(a).toLocaleString("en-US")}`;
 };
 
-export default function PlanCosts({ plans, tokens }: { /** null: no database, so no plans table */ plans: Plan[] | null; tokens: PlanTokens[] }) {
+/** What /dev/costs reads beside the plans: each plan's internal chance of a new autoplan, and the library it reuses from. */
+export interface ReuseInfo {
+  /** `plans.new_plan_percent` by plan id: 0 always reuses, 100 always writes */
+  newPlanPercent: Record<string, number>;
+  /** rows in `practice_plans`, and those enabled for reuse */
+  library: { total: number; enabled: number };
+}
+
+export default function PlanCosts({ plans, tokens, reuse }: { /** null: no database, so no plans table */ plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null }) {
   const [usage, setUsage] = useState(1);
-  const [reuse, setReuse] = useState(0);
   const [provider, setProvider] = useState<keyof typeof PAYMENT_PROVIDERS>("stripe");
   const fee = PAYMENT_PROVIDERS[provider];
 
@@ -26,13 +33,13 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
     <section id="plans" className="scroll-mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
       <h2 className="text-base font-semibold text-slate-100">Plans</h2>
       <p className="mb-4 max-w-3xl text-xs text-slate-400">
-        The plans in the database, what a year on each costs us and what is left. Every plan uses one model, {modelLabel(SUBSCRIPTION_MODEL)} (<code className="text-slate-300">SUBSCRIPTION_MODEL</code>), and an autoplan is costed on it from the median tokens of the published runs; AI notes spend the same allowance and are costed as autoplans. Change a plan in the <code className="text-slate-300">plans</code> table. Only enabled plans can be chosen on /account.
+        The plans in the database, what a year on each costs us and what is left. Every plan uses one model, {modelLabel(SUBSCRIPTION_MODEL)} (<code className="text-slate-300">SUBSCRIPTION_MODEL</code>), and an autoplan is costed on it from the median tokens of the published runs; AI notes spend the same allowance and are costed as autoplans. Change a plan in the <code className="text-slate-300">plans</code> table. Only enabled plans can be chosen on /account. <span className="text-slate-300">Written new</span> is <code className="text-slate-300">new_plan_percent</code>, internal and never shown to players: the chance an autoplan is written by the AI; the rest are taken from <code className="text-slate-300">practice_plans</code> at no AI cost.
       </p>
       {!plans ? (
         <p className="text-sm text-slate-400">No database, so no plans. Set DATABASE_URL and run npm run db:migrate.</p>
       ) : (
         <>
-          <div className="mb-4 grid max-w-4xl gap-4 sm:grid-cols-3">
+          <div className="mb-4 grid max-w-2xl gap-4 sm:grid-cols-2">
             <label className="flex flex-col gap-1">
               <span className="flex items-baseline justify-between gap-2 text-sm text-slate-300">
                 Allowance used
@@ -40,14 +47,6 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
               </span>
               <input type="range" min={0} max={1} step={0.05} value={usage} onChange={(e) => setUsage(Number(e.target.value))} className="w-full accent-sky-400" />
               <span className="text-xs text-slate-500">100% is the worst case: every autoplan of the allowance, every month.</span>
-            </label>
-            <label className="flex flex-col gap-1">
-              <span className="flex items-baseline justify-between gap-2 text-sm text-slate-300">
-                Plans reused
-                <span className="font-mono text-sm font-semibold tabular-nums text-slate-50">{Math.round(reuse * 100)}%</span>
-              </span>
-              <input type="range" min={0} max={1} step={0.05} value={reuse} onChange={(e) => setReuse(Number(e.target.value))} className="w-full accent-sky-400" />
-              <span className="text-xs text-slate-500">Autoplans served from the plans already written, for a player with the same answers: no AI. Grows as the library does.</span>
             </label>
             <label className="flex flex-col gap-1 text-sm text-slate-300">
               Payment
@@ -64,6 +63,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
                   <th className="text-left font-medium">Gets</th>
                   <th className="text-left font-medium">Delivery</th>
                   <th className="font-medium">Price</th>
+                  <th className="font-medium">Written new</th>
                   <th className="font-medium">An autoplan</th>
                   <th className="font-medium">AI a year</th>
                   <th className="font-medium">Payment</th>
@@ -73,7 +73,10 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
               </thead>
               <tbody>
                 {[...plans].sort((a, b) => a.sort - b.sort).map((p) => {
-                  const y = planYear(p, SUBSCRIPTION_MODEL, tokens, usage, fee, 1, 0.4, reuse);
+                  const pct = reuse?.newPlanPercent[p.id] ?? 100;
+                  // with no plan enabled for reuse there is nothing to take, so every autoplan is written
+                  const reused = reuse && reuse.library.enabled > 0 ? 1 - pct / 100 : 0;
+                  const y = planYear(p, SUBSCRIPTION_MODEL, tokens, usage, fee, 1, 0.4, reused);
                   const students = studentsLabel(p);
                   return (
                     <tr key={p.id} className="border-b border-slate-800/60 align-top text-slate-200">
@@ -90,6 +93,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
                         {p.batch ? "Batch: half price, minutes later" : "At once"}
                       </td>
                       <td className="py-2">{priceLabel(p)}{p.period === "month" && <span className="block text-xs text-slate-500">{usd(y.revenue)} a year</span>}</td>
+                      <td className="py-2">{pct}%</td>
                       <td className="py-2">{y.perPlan === null ? <span className="text-xs text-amber-300">no runs</span> : usd(y.perPlan)}</td>
                       <td className="py-2">{usd(y.ai)}</td>
                       <td className="py-2">{usd(y.fee)}</td>
@@ -101,7 +105,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
               </tbody>
             </table>
           </div>
-          <p className="mt-2 text-xs text-slate-500">Each year also has one email a day ($0.15). Hosting and fixed costs are under What one player costs. Allowances aren&apos;t enforced yet: the app doesn&apos;t call the AI from the server.</p>
+          <p className="mt-2 text-xs text-slate-500">Library: {reuse ? `${reuse.library.enabled} of ${reuse.library.total} plans in practice_plans enabled for reuse` : "not read"}{reuse && reuse.library.enabled === 0 ? ", so every autoplan is costed as written new (npm run -s db:seed-plans)" : ""}. Each year also has one email a day ($0.15). Hosting and fixed costs are under What one player costs. Allowances aren&apos;t enforced yet: the app doesn&apos;t call the AI from the server.</p>
         </>
       )}
     </section>

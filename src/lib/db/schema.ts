@@ -31,8 +31,37 @@ export const plans = pgTable("plans", {
   /** Can be chosen in the app. People already on a turned-off plan keep it. */
   enabled: boolean("enabled").notNull().default(true),
   sort: integer("sort").notNull().default(0),
+  /**
+   * Internal, never shown or sent to a player: the chance (0 to 100) that an autoplan on this plan is written new by the
+   * AI. The rest are taken from `practice_plans` enabled for reuse, at no AI cost. 0 always reuses, 100 always writes.
+   */
+  newPlanPercent: integer("new_plan_percent").notNull().default(100),
   updatedAt: at("updated_at").notNull().defaultNow(),
 });
+
+/**
+ * The library of practice plans an autoplan can be taken from instead of asking the AI (see `plans.new_plan_percent`).
+ * Seeded from the published compare-models plans (`npm run db:seed-plans`); only rows `enabled_for_reuse` are given out.
+ */
+export const practicePlans = pgTable(
+  "practice_plans",
+  {
+    /** "voice-guitar-advanced--claude-fable-5-2" for a seeded plan. */
+    id: text("id").primaryKey(),
+    title: text("title").notNull(),
+    /** The first-questionnaire answers the plan was written for (`PlanAnswers`), to match it to a player. */
+    answers: jsonb("answers").notNull(),
+    /** The model that wrote it. */
+    model: text("model").notNull(),
+    /** The model's reply, as a pasted reply: parsed with `parsePlanConfig` when used. */
+    reply: text("reply").notNull(),
+    /** Where it came from: "compare-models" for a seeded plan. */
+    source: text("source").notNull(),
+    enabledForReuse: boolean("enabled_for_reuse").notNull().default(false),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("practice_plans_reuse").on(t.enabledForReuse)],
+);
 
 /** One person. Every email here was proven: by a link we mailed, or by Google. */
 export const users = pgTable("users", {

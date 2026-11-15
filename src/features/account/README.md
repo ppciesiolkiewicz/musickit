@@ -15,7 +15,10 @@ name is changed on `/account`.
   AI autoplans a month, Batch, `enabled`, `sort`; every plan's autoplans and notes are written by one model, `SUBSCRIPTION_MODEL`, Haiku 5.5), `choosablePlans`
   (the enabled plans, plus the one the person is on even when turned off), `canChoose`, `roleOnPlan` and the labels.
   The plans themselves are rows in the database, written by migration `0005_plans` and changed there; their prices and
-  allowances come from *Plans* on /dev/costs, which shows what each costs us.
+  allowances come from *Plans* on /dev/costs, which shows what each costs us. Each row also has `new_plan_percent`, internal
+  and kept off `Plan`: the chance (0 to 100) that an autoplan on it is written new by the AI; the rest are taken from the
+  `practice_plans` library (rows `enabled_for_reuse`). Migration `0008_practice_plans_library` starts Student at 0 (always
+  reuses), Teacher Basic at 50, Pro and Unlimited at 100. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
 - `ui/PlanPicker.tsx`: the Plan part of `/account`. `GET /api/account/plan` gives `{ plans, current }`; `POST` with
   `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
   reloads. Leaving a Teacher plan for Student asks first.

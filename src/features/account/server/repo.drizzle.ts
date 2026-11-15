@@ -38,8 +38,10 @@ export function drizzleRepo(db: Db): AuthRepo {
       return row ?? null;
     },
     async listPlans() {
-      const { updatedAt, ...cols } = getTableColumns(plans);
+      // new_plan_percent is an internal cost lever: it stays off `Plan`, which reaches the browser.
+      const { updatedAt, newPlanPercent, ...cols } = getTableColumns(plans);
       void updatedAt;
+      void newPlanPercent;
       const rows = await db.select(cols).from(plans);
       return rows.map((p): Plan => ({ ...p, role: p.role === "student" ? "student" : "teacher" }));
     },
