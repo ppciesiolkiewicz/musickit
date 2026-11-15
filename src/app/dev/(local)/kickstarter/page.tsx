@@ -1,6 +1,9 @@
 import DevShell from "@/features/devtools/DevShell";
 import KickstarterPage from "@/features/devtools/kickstarter/KickstarterPage";
+import PUBLISHED from "@/features/devtools/compare/published.json";
+import type { RunSummary } from "@/features/devtools/model/history";
 import type { DemoLink } from "@/features/devtools/model/kickstarter";
+import { planTokens } from "@/features/devtools/model/unitEconomics";
 import { DEMO_PLANS } from "@/features/plan";
 import { PRESET_INFO } from "@/features/teachers/notes";
 import { SITE_URL } from "@/lib/site";
@@ -25,5 +28,5 @@ const DEMOS: DemoLink[] = [
 ];
 
 export default function Kickstarter() {
-  return <DevShell><KickstarterPage demos={DEMOS} /></DevShell>;
+  return <DevShell><KickstarterPage demos={DEMOS} planTokens={planTokens(PUBLISHED.runs as RunSummary[])} /></DevShell>;
 }

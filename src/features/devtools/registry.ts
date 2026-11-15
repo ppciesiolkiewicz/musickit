@@ -61,7 +61,7 @@ export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/structure", label: "Code structure", tone: "index", desc: "How src is built: packages by layer and what imports what, a page's render tree, and any file's imports, renders and extends." },
   { href: "/dev/data", label: "Data", tone: "data", live: true, desc: "Answers, plans, ratings and the AI's summaries in this browser." },
   { href: "/dev/notes", label: "Copy notes", tone: "notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
-  { href: "/dev/kickstarter", label: "Kickstarter", tone: "pitch", desc: "Paste an email thread with a music school; your AI extension drafts the founding-partner reply from the voice, the facts and the demo links." },
+  { href: "/dev/kickstarter", label: "Kickstarter", tone: "pitch", desc: "Paste an email thread with a music school; your AI extension drafts the founding-partner reply from the voice, the facts and the demo links. Also what one paying player costs a year on each AI model." },
 ];
 
 /** The tools this build shows: every one in development, the `live` ones on the live site. */

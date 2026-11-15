@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 import { FACTS, LINK_GROUPS, LINKS_TO_AVOID, VOICE, outreachBrief, SAMPLE_EMAILS, type DemoLink } from "../model/kickstarter";
+import type { PlanTokens } from "../model/unitEconomics";
+import CostPerPlayer from "./CostPerPlayer";
 
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-sky-400";
 
@@ -35,14 +37,15 @@ function Block({ title, about, children }: { title: string; about: string; child
   );
 }
 
-/** /dev/kickstarter: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. */
-export default function KickstarterPage({ demos }: { demos: DemoLink[] }) {
+/** /dev/kickstarter: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. Then what one paying player costs. */
+export default function KickstarterPage({ demos, planTokens }: { demos: DemoLink[]; /** one plan's tokens per model, for "What one player costs" */ planTokens: PlanTokens[] }) {
   const brief = useMemo(() => outreachBrief(demos), [demos]);
   return (
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-semibold text-slate-100">Founding-partner emails</h2>
         <p className="text-sm text-slate-400">Copy the brief into an AI chat, with the email thread if there is one, and it writes the reply or a first email. Edit the voice and the facts in <code className="text-slate-300">src/features/devtools/model/kickstarter.ts</code>.</p>
+        <a href="#cost" className="mt-1 inline-block text-sm text-sky-300 hover:underline">What one player costs ↓</a>
       </div>
       <Block title="Brief for the AI" about="The facts, the voice, the sample emails and the links, in one text.">
         <CopyButton text={brief} label="Copy brief" />
@@ -104,6 +107,7 @@ export default function KickstarterPage({ demos }: { demos: DemoLink[] }) {
           {LINKS_TO_AVOID.map((a) => <li key={a.path}><span className="font-semibold">{a.label}</span> <span className="font-mono text-xs text-slate-500">{a.path}</span>: {a.why}</li>)}
         </ul>
       </Block>
+      <CostPerPlayer models={planTokens} />
     </div>
   );
 }
