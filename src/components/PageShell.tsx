@@ -26,7 +26,7 @@ const COLUMN = "mx-auto w-full max-w-[51rem]";
  * form (log in, create account). `column` keeps the title and content to one reading column in the middle (the plan, whose
  * cards hold a column of text and tools), while the nav and footer keep the page's width.
  */
-export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, action, header, related, pageId, tour, decor, children }: {
+export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, columnTitle = false, action, header, related, pageId, tour, decor, children }: {
   title: string;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
   eyebrow?: string;
@@ -38,6 +38,8 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
   centered?: boolean;
   /** the title and content in one reading column in the middle of the page (51rem: a card's padding around a 48rem text column) */
   column?: boolean;
+  /** only the title and intro in that reading column, over content that keeps the page's width (the notes creator) */
+  columnTitle?: boolean;
   /** a button or link in the title row's right corner ("Edit this note") */
   action?: ReactNode;
   /** replaces the plain title, for pages that open with a hero (such a page places its own PageHelp) */
@@ -65,7 +67,7 @@ export default function PageShell({ title, eyebrow, intro, active, wide = false,
         <div className="border-b border-slate-800/70 py-1.5 sm:py-2.5">
           <SiteNav active={active} devices={devices} />
         </div>
-        <header className={`pt-6 sm:pt-10 ${centered ? "text-center" : ""} ${column ? COLUMN : ""}`}>
+        <header className={`pt-6 sm:pt-10 ${centered ? "text-center" : ""} ${column || columnTitle ? COLUMN : ""}`}>
           {/* the breadcrumb belongs to the page, so it sits over the title rather than under the logo */}
           {section && theory && (
             <nav aria-label="Breadcrumb" className="mb-3 flex w-fit items-center gap-1.5 border-b border-slate-700/70 pb-2 text-xs text-slate-500">

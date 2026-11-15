@@ -17,7 +17,7 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
     return (
       // View as a note changes the header too: the provider holds both
       <NoteViewProvider>
-        <PageShell active="/teachers/studio?notes=1" full title="Interactive notes" header={<NotesCreatorHeader title="Interactive notes" intro="Put scales, chords, necks and videos on one page, then share it as a link." bar={pageBar("/teachers/studio?notes=1")} />}>
+        <PageShell active="/teachers/studio?notes=1" full columnTitle title="Interactive notes" header={<NotesCreatorHeader title="Interactive notes" intro="Put scales, chords, necks and videos on one page, then share it as a link." bar={pageBar("/teachers/studio?notes=1")} />}>
           <NotesApp />
         </PageShell>
       </NoteViewProvider>
