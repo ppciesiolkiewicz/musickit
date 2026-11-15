@@ -5,6 +5,12 @@
  */
 
 const KEY = "musickit.loginHash";
+
+/** Where an account with no plan yet chooses its name and plan; it can't open another app page before that. */
+export const SETUP_PATH = "/account/setup";
+
+/** The setup page, going on to `next` afterwards. */
+export const setupHref = (next: string): string => `${SETUP_PATH}?${new URLSearchParams({ next }).toString()}`;
 /** A login that takes longer than this is a new visit; the old hash is dropped. */
 const LIFE = 60 * 60_000;
 

@@ -236,9 +236,7 @@
 <polygon fill="#e7e2dd" stroke="transparent" points="1976.54,-2058.71 1976.54,-2118.71 2593.54,-2118.71 2593.54,-2058.71 1976.54,-2058.71"/>
 <polygon fill="none" stroke="#29235c" points="1976.54,-2058.71 1976.54,-2118.71 2593.54,-2118.71 2593.54,-2058.71 1976.54,-2058.71"/>
 <text text-anchor="start" x="1987.54" y="-2078.91" font-family="Helvetica,sans-Serif" font-size="32.00" fill="#29235c">plan_id &#160;&#160;&#160;</text>
-<text text-anchor="start" x="2491.87" y="-2079.91" font-family="Helvetica,sans-Serif" font-style="italic" font-size="32.00" fill="#29235c">text</text>
-<text text-anchor="start" x="2543.45" y="-2079.91" font-family="Helvetica,sans-Serif" font-size="32.00" fill="#29235c"> </text>
-<text text-anchor="start" x="2552.34" y="-2079.91" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="32.00" fill="#29235c">(!)</text>
+<text text-anchor="start" x="2530.96" y="-2079.91" font-family="Helvetica,sans-Serif" font-style="italic" font-size="32.00" fill="#29235c">text</text>
 <polygon fill="#e7e2dd" stroke="transparent" points="1976.54,-1998.71 1976.54,-2058.71 2593.54,-2058.71 2593.54,-1998.71 1976.54,-1998.71"/>
 <polygon fill="none" stroke="#29235c" points="1976.54,-1998.71 1976.54,-2058.71 2593.54,-2058.71 2593.54,-1998.71 1976.54,-1998.71"/>
 <text text-anchor="start" x="1987.54" y="-2018.91" font-family="Helvetica,sans-Serif" font-size="32.00" fill="#29235c">created_at &#160;&#160;&#160;</text>

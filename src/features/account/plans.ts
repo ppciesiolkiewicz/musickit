@@ -1,8 +1,8 @@
 import type { Role } from "./model";
 
 /**
- * What a person pays for and gets: one row of the `plans` table. Every account is on one plan (`users.plan_id`, Student
- * by default). The rows are written by the migration that made the table (drizzle/0005_plans.sql) and changed in the
+ * What a person pays for and gets: one row of the `plans` table. Every account is on one plan (`users.plan_id`), chosen
+ * on /account/setup; a new account has none until then. The rows are written by the migration that made the table (drizzle/0005_plans.sql) and changed in the
  * database, not here; this file only knows their shape and the rules for choosing one.
  *
  * The prices and allowances were set from "What one player costs", now on /dev/costs (2026-11-15): the median tokens of a

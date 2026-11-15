@@ -15,6 +15,8 @@ export interface Account {
   role: Role;
   /** ISO time. */
   createdAt: string;
+  /** No plan chosen yet: a new account, held on /account/setup until it chooses one. */
+  needsSetup: boolean;
 }
 
 /**
@@ -74,3 +76,6 @@ export const isEmail = (email: string): boolean => email.length <= 254 && /^[^\s
 
 /** A name as it is stored: trimmed, spaces folded, 80 characters at most. Empty when there is nothing left. */
 export const cleanName = (name: unknown): string => (typeof name === "string" ? name.replace(/\s+/g, " ").trim().slice(0, 80) : "");
+
+/** The stand-in name an account made by email starts with: the part of the email before the @. */
+export const emailName = (email: string): string => cleanName(email.split("@")[0]);

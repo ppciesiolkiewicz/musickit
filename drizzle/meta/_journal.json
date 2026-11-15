@@ -85,6 +85,13 @@
       "when": 1794741865977,
       "tag": "0011_student_stays_27",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794743761715,
+      "tag": "0012_new_accounts_choose_plan",
+      "breakpoints": true
     }
   ]
 }

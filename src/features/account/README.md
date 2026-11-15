@@ -2,8 +2,8 @@
 
 Who is using the app, and what their role lets them use: students, teachers and owners. People log in with a link or a
 6-digit code we email them, or with Google. There are no passwords and no separate register form: `/login` is the one way in, and a
-person with no account yet gets one straight away, and goes first to `/account/setup` to give their name (Google's is
-filled in) and choose a plan, with no payment. Both are changed later on `/account`.
+person with no account yet gets one straight away, with no plan, and is held on `/account/setup` until they give their
+name (Google's is filled in) and choose a plan, with no payment. Both are changed later on `/account`.
 
 ## Parts
 
@@ -22,14 +22,15 @@ filled in) and choose a plan, with no payment. Both are changed later on `/accou
   new one), held to this share. Migration `0010_lower_prices_more_reuse` lowered the prices on the strength of reuse and sets
   Student at 5 (its price stays $27 a year, `0011_student_stays_27`), Teacher Basic $9 a month at 10, Pro $29 at 15, Unlimited $59 at 25: about 85 to 90% margin, which
   needs a library of many pre-written Fable plans. /terms says an autoplan is written new or picked by the AI. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
-- `ui/SetupForm.tsx` (`/account/setup`): a new account's first page. Its name (empty when it came from the email,
-  Google's when signed in with Google) and a plan from the same list, saved together by `POST /api/account/setup`
-  (`setUpAccount` in `server/auth.ts`: the plan is checked before anything changes), then on to the page it was going to.
+- `ui/SetupForm.tsx` (`/account/setup`): where an account with no plan (`Account.needsSetup`) stays. Its name (empty
+  while it is only the email's stand-in, `emailName`; Google's filled in) and a plan from the same list, none chosen for
+  them, saved together by `POST /api/account/setup` (`setUpAccount` in `server/auth.ts`: the plan is checked before
+  anything changes), then on to the page it was going to.
 - `ui/PlanPicker.tsx`: the Plan part of `/account` (and `PlanLines`, what a plan gives, shared with the setup page). `GET /api/account/plan` gives `{ plans, current }`; `POST` with
   `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
   reloads. Leaving a Teacher plan for Student asks first.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
-- `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout). The server half
+- `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout), which also holds an account with no plan on `/account/setup`. The server half
   is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's
   public API through `src/lib/sharedNoteGone.ts`, so a stopped link is answered with 404 before the page streams: a clear 404
   only, 2 s at most, failing open); both read the public paths from
@@ -66,11 +67,12 @@ Things that are on purpose:
 - **The mailed link does nothing alone.** It opens a page whose script spends the token, with no button to press. Mail
   programs fetch links to scan them; a plain fetch runs no script, so it can't use the link up. (A scanner that runs
   the page's script would; then the person asks for a new link or types the code.)
-- **A new account is asked for its name and plan once, after it is made.** Signing in stays one step; the account is
-  made with Google's name or the email before the @, and `pathAfterSignIn` sends a sign-in that made it to
-  `/account/setup?next=…` (`&ask=name` when the name came from the email, so the field starts empty). Leaving the page
-  keeps the account on Student with that name; both change on `/account`. Nothing marks setup as done: the page is
-  shown once because only the sign-in that made the account goes there.
+- **A new account has no plan, and can't use the app until it chooses one.** Signing in stays one step; the account is
+  made with Google's name or the email before the @, and `users.plan_id` null (migration `0012_new_accounts_choose_plan`;
+  accounts from before it kept Student). While it is null, `Account.needsSetup` is true: `pathAfterSignIn` sends every
+  sign-in to `/account/setup?next=…` (`setupHref`, `loginGuard.ts`), and `ui/LoginGuard` sends every other app page
+  there, keeping the page as `next`. Public pages stay open. It is held in the browser only: the API routes don't refuse
+  an account with no plan, which is a student meanwhile.
 - **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256.
   A code is stored as the SHA-256 of the email and the code.
 - **The link and the code are one proof.** They are the same row: using one spends the other. The code works on the
@@ -80,7 +82,7 @@ Things that are on purpose:
 - **Two cookies.** `mk_session` (hidden from scripts) is the session. `mk_in` only tells the page that a session
   exists, so a visitor's page never asks the server who they are. The server never trusts `mk_in`.
 - **The answer to "email me a link" never says whether the email has an account.**
-- **A role comes with a plan.** A new account is a student on the Student plan until it chooses one on `/account/setup`. Choosing a Teacher plan there or on `/account` makes a student a teacher, and choosing Student makes a teacher a student again; an owner is set by us and stays an owner on any plan. A plan turned off (`enabled = false`) can't be chosen, but whoever is on it keeps it. Logging in again, by link or
+- **A role comes with a plan.** A new account is a student with no plan until it chooses one on `/account/setup`. Choosing a Teacher plan there or on `/account` makes a student a teacher, and choosing Student makes a teacher a student again; an owner is set by us and stays an owner on any plan. A plan turned off (`enabled = false`) can't be chosen, but whoever is on it keeps it. Logging in again, by link or
   Google, never changes the name or role of an account.
 - **The old addresses still work.** `/register` and `/register/teacher` go to `/login`, `/register/finish` to
   `/login` (`next.config.ts`).

@@ -5,7 +5,7 @@ import { can, type Account } from "../model";
 import { allowanceLabel, priceLabel, roleOnPlan, studentsLabel, type Plan } from "../plans";
 import { ErrorLine, SECONDARY, errorOf, send } from "./parts";
 
-export type Loaded = { plans: Plan[]; current: string };
+export type Loaded = { plans: Plan[]; current: string | null };
 
 /** What a plan gives, under its name and price: here and on /account/setup. */
 export function PlanLines({ plan }: { plan: Plan }) {

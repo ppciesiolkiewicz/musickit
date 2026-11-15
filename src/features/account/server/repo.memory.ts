@@ -4,7 +4,6 @@ import type { AuthRepo, TokenRow, UserRow } from "./repo";
 /** The repo in memory, for tests. Same rules as the Postgres one: one user per email, a token is taken once. */
 export function memoryRepo(plans: Plan[] = []) {
   const users: UserRow[] = [];
-  const planOf = new Map<string, string>();
   const identities: { userId: string; provider: string; providerAccountId: string }[] = [];
   const tokens: (TokenRow & { createdAt: Date; usedAt: Date | null; tries: number })[] = [];
   const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
@@ -18,7 +17,7 @@ export function memoryRepo(plans: Plan[] = []) {
     },
     async createUser(input, now) {
       if (users.some((u) => u.email === input.email)) return null;
-      const user: UserRow = { id: `user-${++n}`, ...input, createdAt: now };
+      const user: UserRow = { id: `user-${++n}`, ...input, planId: null, createdAt: now };
       users.push(user);
       return user;
     },
@@ -31,13 +30,13 @@ export function memoryRepo(plans: Plan[] = []) {
     async listPlans() {
       return plans;
     },
-    async userPlanId(id) {
-      return users.some((u) => u.id === id) ? (planOf.get(id) ?? "student") : null;
+    async userById(id) {
+      return users.find((u) => u.id === id) ?? null;
     },
     async setUserPlan(id, planId, role) {
       const user = users.find((u) => u.id === id);
       if (!user) return null;
-      planOf.set(id, planId);
+      user.planId = planId;
       user.role = role;
       return user;
     },
@@ -97,5 +96,5 @@ export function memoryRepo(plans: Plan[] = []) {
       for (let i = tokens.length - 1; i >= 0; i--) if (tokens[i].expiresAt <= now) tokens.splice(i, 1);
     },
   };
-  return { repo, users, identities, tokens, sessions, planOf };
+  return { repo, users, identities, tokens, sessions };
 }

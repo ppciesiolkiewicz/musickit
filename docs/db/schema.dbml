@@ -174,7 +174,7 @@ table users {
   email text [not null, unique]
   name text [not null]
   role user_role [not null]
-  plan_id text [not null, default: 'student']
+  plan_id text
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
 }

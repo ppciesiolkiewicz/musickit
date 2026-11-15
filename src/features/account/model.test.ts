@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { FEATURES, ROLES, can, cleanAccounts, homePage, type Account, type Feature } from "./model";
 
-const acc = (over: Partial<Account> = {}): Account => ({ id: "a1", name: "Ann", email: "ann@school.test", role: "student", createdAt: "2026-11-11T10:00:00.000Z", ...over });
+const acc = (over: Partial<Account> = {}): Account => ({ id: "a1", name: "Ann", email: "ann@school.test", role: "student", createdAt: "2026-11-11T10:00:00.000Z", needsSetup: false, ...over });
 
 test("nobody signed in can use every feature", () => {
   for (const f of Object.keys(FEATURES) as Feature[]) assert.equal(can(null, f), true);

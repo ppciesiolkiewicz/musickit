@@ -1,18 +1,19 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { emailName } from "../model";
 import { priceLabel } from "../plans";
 import { useAccount } from "../useAccount";
 import { PlanLines, type Loaded } from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
 /**
- * /account/setup, the first page of a new account: its name and its plan, saved in one step, then on to `next`.
- * `askName`: the name came from the email, so the field starts empty; Google's name is filled in to keep or change.
- * Any plan can be chosen with no payment during the beta. The page reloads into `next`, since a Teacher plan changes the
- * role every page reads.
+ * /account/setup, where a new account stays until it has chosen a plan (`LoginGuard`): its name and its plan, saved in
+ * one step, then on to `next`. A name that is only the email's stand-in (`emailName`) starts empty, to be typed; Google's
+ * is filled in to keep or change. No plan is chosen for them. Any plan can be chosen with no payment during the beta. The
+ * page reloads into `next`, since a Teacher plan changes the role every page reads.
  */
-export default function SetupForm({ next, askName }: { next: string; askName: boolean }) {
+export default function SetupForm({ next }: { next: string }) {
   const { account, loaded: accountLoaded } = useAccount();
   const [name, setName] = useState<string | null>(null);
   const [plans, setPlans] = useState<Loaded | null>(null);
@@ -33,13 +34,16 @@ export default function SetupForm({ next, askName }: { next: string; askName: bo
 
   if (!accountLoaded || !account) return <Card><p className="text-sm text-slate-500">Loading…</p></Card>;
 
+  const askName = account.name === emailName(account.email);
   const shown = name ?? (askName ? "" : account.name);
   const chosen = planId ?? plans?.current ?? null;
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
-    if (!shown.trim()) return setNameError("Type your name.");
-    if (!chosen) return;
+    const noName = !shown.trim();
+    setNameError(noName ? "Type your name." : null);
+    setError(chosen || !plans ? null : "Choose a plan.");
+    if (noName || !chosen) return;
     setBusy(true);
     setError(null);
     const r = await send("/api/account/setup", "POST", { name: shown, planId: chosen });
@@ -58,6 +62,7 @@ export default function SetupForm({ next, askName }: { next: string; askName: bo
             className={FIELD}
             value={shown}
             onChange={(e) => { setName(e.target.value); setNameError(null); }}
+            placeholder={askName ? "First name, or what students call you" : undefined}
             autoComplete="name"
             autoFocus={askName}
             maxLength={80}
@@ -77,7 +82,7 @@ export default function SetupForm({ next, askName }: { next: string; askName: bo
                 key={p.id}
                 className={`flex cursor-pointer gap-3 rounded-xl border p-3 transition ${on ? "border-sky-400/60 bg-sky-400/5" : "border-slate-800 bg-slate-950/40 hover:border-slate-600"}`}
               >
-                <input type="radio" name="plan" value={p.id} checked={on} onChange={() => setPlanId(p.id)} className="mt-1 accent-sky-400" />
+                <input type="radio" name="plan" value={p.id} checked={on} onChange={() => { setPlanId(p.id); setError(null); }} className="mt-1 accent-sky-400" />
                 <span className="flex flex-1 flex-col gap-1">
                   <span className="flex flex-wrap items-baseline justify-between gap-2">
                     <span className="text-sm font-semibold text-slate-100">{p.name}</span>

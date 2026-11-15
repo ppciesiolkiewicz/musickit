@@ -7,6 +7,8 @@ export interface UserRow {
   email: string;
   name: string;
   role: Role;
+  /** Null until the account chooses a plan on /account/setup. */
+  planId: string | null;
   createdAt: Date;
 }
 
@@ -40,11 +42,10 @@ export interface AuthRepo {
   userByEmail(email: string): Promise<UserRow | null>;
   /** Null when the email already has a user. */
   createUser(input: { email: string; name: string; role: Role }, now: Date): Promise<UserRow | null>;
+  userById(id: string): Promise<UserRow | null>;
   updateUserName(id: string, name: string, now: Date): Promise<UserRow | null>;
   /** Every plan, turned off or not. */
   listPlans(): Promise<Plan[]>;
-  /** The plan the user is on; null when there is no such user. */
-  userPlanId(userId: string): Promise<string | null>;
   /** Moves the user to the plan, with the role it gives, in one step. */
   setUserPlan(userId: string, planId: string, role: Role, now: Date): Promise<UserRow | null>;
   /** Deletes the user with their sessions and identities. */

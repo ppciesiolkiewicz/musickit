@@ -3,13 +3,14 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { isPublicPath, loginHref } from "@/lib/publicPaths";
-import { sendToLogin, stashHash, takeHash } from "../loginGuard";
+import { SETUP_PATH, sendToLogin, setupHref, stashHash, takeHash } from "../loginGuard";
 import { accountsOpen, hasSessionHint } from "../serverAccountStore";
 import { useAccount } from "../useAccount";
 
 /**
  * The client half of the login wall (the proxy is the other): sends a person with no account to log in when the proxy
- * couldn't tell (a stale session cookie). Keeps the hash across
+ * couldn't tell (a stale session cookie), and an account with no plan yet to /account/setup from every other app page
+ * (it goes on to the page afterwards). Keeps the hash across
  * logging in and puts it back after. Renders nothing. Mounted once in the root layout.
  */
 export default function LoginGuard() {
@@ -27,6 +28,10 @@ export default function LoginGuard() {
       if (!sendToLogin(false, hasSessionHint())) return;
       if (store) stashHash(store, path, hash, Date.now());
       window.location.replace(loginHref(path + search));
+      return;
+    }
+    if (account.needsSetup) {
+      if (path !== SETUP_PATH) window.location.replace(setupHref(path + search + hash));
       return;
     }
     const kept = !hash && store ? takeHash(store, path, Date.now()) : null;

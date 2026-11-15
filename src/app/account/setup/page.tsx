@@ -5,12 +5,15 @@ import SetupForm from "@/features/account/ui/SetupForm";
 
 export const metadata: Metadata = { title: "Set up your account · attunr", robots: { index: false } };
 
-/** A new account lands here after its first sign-in (`pathAfterSignIn`): name and plan, then the page it was going to. */
-export default async function SetupPage({ searchParams }: { searchParams: Promise<{ next?: string; ask?: string }> }) {
+/**
+ * An account with no plan lands here after signing in (`pathAfterSignIn`) and from every other app page (`LoginGuard`):
+ * name and plan, then the page it was going to.
+ */
+export default async function SetupPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const q = await searchParams;
   return (
     <PageShell centered title="Set up your account" intro="Tell us your name and choose a plan." active="/account">
-      <SetupForm next={safeNext(q.next) ?? AFTER_LOGIN} askName={q.ask === "name"} />
+      <SetupForm next={safeNext(q.next) ?? AFTER_LOGIN} />
     </PageShell>
   );
 }

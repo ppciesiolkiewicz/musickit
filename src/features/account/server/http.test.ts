@@ -42,11 +42,11 @@ test("links never take their address from the request in production", () => {
   assert.equal(baseUrl(req({}), { NODE_ENV: "development", AUTH_URL: "?" }), "http://localhost:3000", "a placeholder AUTH_URL is ignored");
 });
 
-test("after signing in: the page asked for, or first the setup page for a new account", () => {
-  const signedIn = { kind: "session" as const, sessionToken: "s", expiresAt: new Date(), next: "/plan/invite/x?y=1", created: false, nameFrom: "email" as const, account: { id: "1", name: "A", email: "a@b.co", role: "student" as const, createdAt: "" } };
+test("after signing in: the page asked for, or first the setup page for an account with no plan", () => {
+  const account = { id: "1", name: "A", email: "a@b.co", role: "student" as const, createdAt: "", needsSetup: false };
+  const signedIn = { kind: "session" as const, sessionToken: "s", expiresAt: new Date(), next: "/plan/invite/x?y=1", created: false, account };
   assert.equal(resultPath(signedIn), "/plan/invite/x?y=1");
-  assert.equal(resultPath({ ...signedIn, created: true }), "/account/setup?next=%2Fplan%2Finvite%2Fx%3Fy%3D1&ask=name");
-  assert.equal(resultPath({ ...signedIn, created: true, nameFrom: "google" }), "/account/setup?next=%2Fplan%2Finvite%2Fx%3Fy%3D1");
+  assert.equal(resultPath({ ...signedIn, account: { ...account, needsSetup: true } }), "/account/setup?next=%2Fplan%2Finvite%2Fx%3Fy%3D1");
 });
 
 test("the mailed link and its email", () => {

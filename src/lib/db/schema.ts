@@ -73,8 +73,11 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   role: userRole("role").notNull(),
-  /** The plan they are on; every account starts on Student. */
-  planId: text("plan_id").notNull().default("student").references(() => plans.id),
+  /**
+   * The plan they are on. Null for a new account until it chooses one on /account/setup, which it can't leave before
+   * then (a student meanwhile). Accounts made before setup asked keep the Student plan they were given.
+   */
+  planId: text("plan_id").references(() => plans.id),
   createdAt: at("created_at").notNull().defaultNow(),
   updatedAt: at("updated_at").notNull().defaultNow(),
 });

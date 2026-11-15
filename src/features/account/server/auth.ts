@@ -1,5 +1,6 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
-import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, isEmail, type Account } from "../model";
+import { setupHref } from "../loginGuard";
+import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
 import { canChoose, choosablePlans, roleOnPlan, type Plan } from "../plans";
 import type { AuthRepo, TokenRow, UserRow } from "./repo";
 
@@ -46,7 +47,7 @@ export const hashCode = (email: string, code: string): string => hashToken(`${em
 
 export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Date(), token: newToken, code: newCode });
 
-export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString() });
+export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString(), needsSetup: u.planId === null });
 
 /** Where to go after signing in when no page was asked for. */
 export const AFTER_LOGIN = "/plan";
@@ -59,40 +60,27 @@ export function safeNext(next: unknown): string | null {
 
 const later = (now: Date, ms: number) => new Date(now.getTime() + ms);
 
-/**
- * `created`: the sign-in made the account. `nameFrom`: where its name came from, Google's profile or the email (which
- * is only a stand-in until the person types their name on /account/setup).
- */
-export type SignedIn = { kind: "session"; sessionToken: string; expiresAt: Date; account: Account; next: string; created: boolean; nameFrom: NameFrom };
-export type NameFrom = "google" | "email";
+export type SignedIn = { kind: "session"; sessionToken: string; expiresAt: Date; account: Account; next: string; created: boolean };
 
-async function startSession(deps: AuthDeps, user: UserRow, next: string | null, userAgent: string | null, created: boolean, nameFrom: NameFrom): Promise<SignedIn> {
+async function startSession(deps: AuthDeps, user: UserRow, next: string | null, userAgent: string | null, created: boolean): Promise<SignedIn> {
   const now = deps.now();
   const sessionToken = deps.token();
   const expiresAt = later(now, SESSION_TTL);
   await deps.repo.createSession({ tokenHash: hashToken(sessionToken), userId: user.id, userAgent: userAgent?.slice(0, 300) ?? null, expiresAt }, now);
-  return { kind: "session", sessionToken, expiresAt, account: toAccount(user), next: next ?? AFTER_LOGIN, created, nameFrom };
-}
-
-/** The page a new account sets up its name and plan on, before going on to `next`. */
-export const SETUP_PATH = "/account/setup";
-
-/**
- * Where the browser goes after signing in: `next`, or first /account/setup for an account the sign-in just made. The
- * setup page asks for the name with an empty field when it came from the email (`ask=name`), and shows Google's to keep.
- */
-export function pathAfterSignIn(result: Pick<SignedIn, "next" | "created" | "nameFrom">): string {
-  if (!result.created) return result.next;
-  const q = new URLSearchParams({ next: result.next });
-  if (result.nameFrom === "email") q.set("ask", "name");
-  return `${SETUP_PATH}?${q.toString()}`;
+  return { kind: "session", sessionToken, expiresAt, account: toAccount(user), next: next ?? AFTER_LOGIN, created };
 }
 
 /**
- * The name a new account starts with: Google's, or the part of the email before the @. A new account is then asked for
- * its name on /account/setup (Google's filled in), and can change it on /account.
+ * Where the browser goes after signing in: `next`, or first /account/setup for an account with no plan yet (a new one,
+ * or one that left setup before finishing), which then goes on to `next`.
  */
-export const startName = (email: string, given?: unknown): string => cleanName(given) || cleanName(email.split("@")[0]) || "Me";
+export const pathAfterSignIn = (result: Pick<SignedIn, "next" | "account">): string => (result.account.needsSetup ? setupHref(result.next) : result.next);
+
+/**
+ * The name a new account starts with: Google's, or the part of the email before the @. /account/setup then asks for the
+ * name, with Google's filled in and the email's left out (`emailName`); it is changed later on /account.
+ */
+export const startName = (email: string, given?: unknown): string => cleanName(given) || emailName(email) || "Me";
 
 /** A user for the email: the one that exists, or a new one. Safe when two requests create it at once. */
 async function userFor(deps: AuthDeps, email: string, name: string): Promise<{ user: UserRow; created: boolean }> {
@@ -156,7 +144,7 @@ export async function openEmailCode(deps: AuthDeps, input: { email: unknown; cod
 
 async function emailProven(deps: AuthDeps, row: TokenRow, userAgent: string | null): Promise<SignedIn> {
   const { user, created } = await userFor(deps, row.email, startName(row.email));
-  return startSession(deps, user, row.next, userAgent, created, "email");
+  return startSession(deps, user, row.next, userAgent, created);
 }
 
 /** What Google says about the person, after its token was checked (see google.ts). */
@@ -178,11 +166,11 @@ export async function googleSignIn(deps: AuthDeps, profile: GoogleProfile, opts:
   const next = safeNext(opts.next);
 
   const linked = await deps.repo.userByIdentity("google", profile.sub);
-  if (linked) return startSession(deps, linked, next, opts.userAgent, false, "google");
+  if (linked) return startSession(deps, linked, next, opts.userAgent, false);
 
   const { user, created } = await userFor(deps, email, startName(email, profile.name));
   await deps.repo.linkIdentity(user.id, "google", profile.sub, deps.now());
-  return startSession(deps, user, next, opts.userAgent, created, "google");
+  return startSession(deps, user, next, opts.userAgent, created);
 }
 
 /** Who the session cookie belongs to. `expiresAt` is set when the session's life was renewed, so the cookie's can be too. */
@@ -220,10 +208,11 @@ export async function rename(deps: AuthDeps, userId: string, name: unknown): Pro
 }
 
 /** The plans a person can see and the one they are on (see `choosablePlans`). Null when there is no such user. */
-export async function accountPlans(deps: AuthDeps, userId: string): Promise<{ plans: Plan[]; current: string } | null> {
-  const current = await deps.repo.userPlanId(userId);
-  if (current === null) return null;
-  return { plans: choosablePlans(await deps.repo.listPlans(), current), current };
+/** `current` is null for an account that hasn't chosen one yet. */
+export async function accountPlans(deps: AuthDeps, userId: string): Promise<{ plans: Plan[]; current: string | null } | null> {
+  const user = await deps.repo.userById(userId);
+  if (!user) return null;
+  return { plans: choosablePlans(await deps.repo.listPlans(), user.planId), current: user.planId };
 }
 
 /**
@@ -232,27 +221,28 @@ export async function accountPlans(deps: AuthDeps, userId: string): Promise<{ pl
  * one they are on.
  */
 export async function choosePlan(deps: AuthDeps, account: Account, planId: unknown): Promise<Account | null> {
-  const current = await deps.repo.userPlanId(account.id);
-  const plan = canChoose(await deps.repo.listPlans(), current, planId);
+  const user = await deps.repo.userById(account.id);
+  const plan = user && canChoose(await deps.repo.listPlans(), user.planId, planId);
   if (!plan) return null;
-  const user = await deps.repo.setUserPlan(account.id, plan.id, roleOnPlan(account.role, plan), deps.now());
-  return user ? toAccount(user) : null;
+  const moved = await deps.repo.setUserPlan(account.id, plan.id, roleOnPlan(account.role, plan), deps.now());
+  return moved ? toAccount(moved) : null;
 }
 
 export type SetupError = "name" | "plan";
 
 /**
- * /account/setup: a new account's name and plan, in one step. The plan is checked before anything changes, so a bad
- * plan leaves the name as it was. Choosing the plan the account is already on (Student) keeps it. No payment (the beta).
+ * /account/setup: the account's name and plan, in one step; a new account has no plan and must choose one. The plan is
+ * checked before anything changes, so a bad plan leaves the name as it was. Choosing the plan the account is already on
+ * keeps it. No payment (the beta).
  */
 export async function setUpAccount(deps: AuthDeps, account: Account, input: { name: unknown; planId: unknown }): Promise<{ ok: true; account: Account } | { ok: false; error: SetupError }> {
   const name = cleanName(input.name);
   if (!name) return { ok: false, error: "name" };
-  const current = await deps.repo.userPlanId(account.id);
-  if (current === null) return { ok: false, error: "plan" };
-  const plans = await deps.repo.listPlans();
-  const plan = input.planId === current ? null : canChoose(plans, current, input.planId);
-  if (input.planId !== current && !plan) return { ok: false, error: "plan" };
+  const had = await deps.repo.userById(account.id);
+  if (!had) return { ok: false, error: "plan" };
+  const keeps = had.planId !== null && input.planId === had.planId;
+  const plan = keeps ? null : canChoose(await deps.repo.listPlans(), had.planId, input.planId);
+  if (!keeps && !plan) return { ok: false, error: "plan" };
   let user = await deps.repo.updateUserName(account.id, name, deps.now());
   if (user && plan) user = await deps.repo.setUserPlan(account.id, plan.id, roleOnPlan(account.role, plan), deps.now());
   return user ? { ok: true, account: toAccount(user) } : { ok: false, error: "plan" };

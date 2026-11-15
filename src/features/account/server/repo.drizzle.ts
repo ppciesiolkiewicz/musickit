@@ -4,7 +4,7 @@ import { authTokens, identities, plans, sessions, users } from "@/lib/db/schema"
 import type { Plan } from "../plans";
 import type { AuthRepo, TokenRow } from "./repo";
 
-const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, createdAt: users.createdAt };
+const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, planId: users.planId, createdAt: users.createdAt };
 
 const tokenCols = {
   kind: authTokens.kind,
@@ -45,9 +45,9 @@ export function drizzleRepo(db: Db): AuthRepo {
       const rows = await db.select(cols).from(plans);
       return rows.map((p): Plan => ({ ...p, role: p.role === "student" ? "student" : "teacher" }));
     },
-    async userPlanId(id) {
-      const [row] = await db.select({ planId: users.planId }).from(users).where(eq(users.id, id)).limit(1);
-      return row?.planId ?? null;
+    async userById(id) {
+      const [row] = await db.select(userCols).from(users).where(eq(users.id, id)).limit(1);
+      return row ?? null;
     },
     async setUserPlan(id, planId, role, now) {
       const [row] = await db.update(users).set({ planId, role, updatedAt: now }).where(eq(users.id, id)).returning(userCols);

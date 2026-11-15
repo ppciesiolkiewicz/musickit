@@ -18,6 +18,7 @@ import {
   openEmailLink,
   rename,
   requestEmailLink,
+  pathAfterSignIn,
   safeNext,
   setUpAccount,
   peekSession,
@@ -66,7 +67,7 @@ test("a link for a new email makes a student account, named from the email, and 
   assert.ok(done?.kind === "session");
   assert.equal(done.created, true);
   assert.equal(done.next, "/plan");
-  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString() });
+  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString(), needsSetup: true });
   assert.equal((await sessionAccount(deps, done.sessionToken))?.account.email, "ann@school.com");
   assert.equal(users.length, 1);
 });
@@ -269,12 +270,13 @@ const PLANS: Plan[] = [
   { ...PLAN, id: "teacher-old", name: "Old", role: "teacher", enabled: false, sort: 1 },
 ];
 
-test("a new account is on Student and sees the enabled plans in order", async () => {
+test("a new account has no plan yet and sees the enabled plans in order", async () => {
   const store = memoryRepo(PLANS);
   const deps: AuthDeps = { ...setup().deps, repo: store.repo };
   const { account } = await signUp(deps, "ann@school.com", "Ann");
+  assert.equal(account.needsSetup, true);
   const seen = await accountPlans(deps, account.id);
-  assert.equal(seen?.current, "student");
+  assert.equal(seen?.current, null);
   assert.deepEqual(seen?.plans.map((p) => p.id), ["student", "teacher-pro"]);
   assert.equal(await accountPlans(deps, "nobody"), null);
 });
@@ -285,7 +287,8 @@ test("choosing a Teacher plan makes a student a teacher, and back; an owner stay
   const { account } = await signUp(deps, "ann@school.com", "Ann");
   const teacher = await choosePlan(deps, account, "teacher-pro");
   assert.equal(teacher?.role, "teacher");
-  assert.equal(await store.repo.userPlanId(account.id), "teacher-pro");
+  assert.equal(teacher?.needsSetup, false);
+  assert.equal((await store.repo.userById(account.id))?.planId, "teacher-pro");
   assert.equal((await choosePlan(deps, teacher!, "student"))?.role, "student");
   const owner = { ...account, role: "owner" as const };
   assert.equal((await choosePlan(deps, owner, "teacher-pro"))?.role, "owner");
@@ -297,8 +300,9 @@ test("a turned-off plan, an unknown one or the current one can't be chosen, and 
   const { account } = await signUp(deps, "ann@school.com", "Ann");
   assert.equal(await choosePlan(deps, account, "teacher-old"), null);
   assert.equal(await choosePlan(deps, account, "nope"), null);
+  assert.ok(await choosePlan(deps, account, "student"));
   assert.equal(await choosePlan(deps, account, "student"), null);
-  store.planOf.set(account.id, "teacher-old");
+  store.users.find((u) => u.id === account.id)!.planId = "teacher-old";
   assert.deepEqual((await accountPlans(deps, account.id))?.plans.map((p) => p.id), ["student", "teacher-old", "teacher-pro"]);
 });
 
@@ -307,26 +311,37 @@ test("setup: a new account's name and plan in one step; a bad plan changes nothi
   const deps: AuthDeps = { ...setup().deps, repo: store.repo };
   const done = await openEmailLink(deps, await link(deps, { email: "ann@school.com" }), null);
   assert.ok(done);
-  assert.equal(done.nameFrom, "email");
+  assert.equal(done.account.needsSetup, true);
 
   assert.deepEqual(await setUpAccount(deps, done.account, { name: "  ", planId: "student" }), { ok: false, error: "name" });
   assert.deepEqual(await setUpAccount(deps, done.account, { name: "Ann", planId: "teacher-old" }), { ok: false, error: "plan" });
   assert.deepEqual(await setUpAccount(deps, done.account, { name: "Ann", planId: "nope" }), { ok: false, error: "plan" });
   assert.equal(store.users.find((u) => u.id === done.account.id)?.name, "ann", "nothing changed");
 
-  const kept = await setUpAccount(deps, done.account, { name: "Ann", planId: "student" });
-  assert.ok(kept.ok);
-  assert.deepEqual([kept.account.name, kept.account.role], ["Ann", "student"]);
+  assert.equal((await sessionAccount(deps, done.sessionToken))?.account.needsSetup, true, "still no plan");
+
+  const chose = await setUpAccount(deps, done.account, { name: "Ann", planId: "student" });
+  assert.ok(chose.ok);
+  assert.deepEqual([chose.account.name, chose.account.role, chose.account.needsSetup], ["Ann", "student", false]);
+  const kept = await setUpAccount(deps, chose.account, { name: "Ann", planId: "student" });
+  assert.ok(kept.ok, "the plan you are on can be kept");
 
   const moved = await setUpAccount(deps, kept.account, { name: "Ann Lee", planId: "teacher-pro" });
   assert.ok(moved.ok);
   assert.deepEqual([moved.account.name, moved.account.role], ["Ann Lee", "teacher"]);
-  assert.equal(await store.repo.userPlanId(done.account.id), "teacher-pro");
+  assert.equal((await store.repo.userById(done.account.id))?.planId, "teacher-pro");
 });
 
-test("Google's name comes with a Google sign-in, for the setup page to keep", async () => {
-  const { deps } = setup();
-  const done = await googleSignIn(deps, ann, { userAgent: null });
-  assert.equal(done?.nameFrom, "google");
-  assert.equal(done?.account.name, "Ann Lee");
+test("an account with no plan goes to setup after every sign-in, then straight to the page", async () => {
+  const store = memoryRepo(PLANS);
+  const deps: AuthDeps = { ...setup().deps, repo: store.repo };
+  const first = await googleSignIn(deps, ann, { next: "/notes", userAgent: null });
+  assert.ok(first);
+  assert.equal(first.account.name, "Ann Lee", "Google's name, for the setup page to keep");
+  assert.equal(pathAfterSignIn(first), "/account/setup?next=%2Fnotes");
+  const again = await googleSignIn(deps, ann, { next: "/notes", userAgent: null });
+  assert.equal(again && pathAfterSignIn(again), "/account/setup?next=%2Fnotes", "leaving setup doesn't skip it");
+  assert.ok((await setUpAccount(deps, first.account, { name: "Ann Lee", planId: "student" })).ok);
+  const done = await googleSignIn(deps, ann, { next: "/notes", userAgent: null });
+  assert.equal(done && pathAfterSignIn(done), "/notes");
 });
