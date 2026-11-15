@@ -57,26 +57,6 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
           set: { elapsed: t.elapsed, spent: t.spent, blocks: sql`coalesce(excluded.blocks, ${planDayTimes.blocks})`, onDates: sql`coalesce(excluded.on_dates, ${planDayTimes.onDates})`, updatedAt: now },
         });
     },
-    async planUserIds() {
-      const rows = await db.selectDistinct({ userId: userDocuments.userId }).from(userDocuments).where(eq(userDocuments.kind, "plan"));
-      return rows.map((r) => r.userId);
-    },
-    async setEntryBlockId(userId, exerciseId, blockId) {
-      const done = await db
-        .update(progressEntries)
-        .set({ blockId, entry: sql`jsonb_set(${progressEntries.entry}, '{blockId}', to_jsonb(${blockId}::text))` })
-        .where(and(eq(progressEntries.userId, userId), eq(progressEntries.exerciseId, exerciseId), isNull(progressEntries.blockId)))
-        .returning({ id: progressEntries.exerciseId });
-      return done.length > 0;
-    },
-    async setDayTimeBlocks(userId, planId, day, b) {
-      const done = await db
-        .update(planDayTimes)
-        .set({ blocks: b })
-        .where(and(eq(planDayTimes.userId, userId), eq(planDayTimes.planId, planId), eq(planDayTimes.day, day), isNull(planDayTimes.blocks)))
-        .returning({ day: planDayTimes.day });
-      return done.length > 0;
-    },
     async ownedBlockIds(userId, ids) {
       if (!ids.length) return new Set();
       const rows = await db.select({ id: blockOwners.blockId }).from(blockOwners).where(and(eq(blockOwners.userId, userId), inArray(blockOwners.blockId, ids)));

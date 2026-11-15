@@ -71,18 +71,6 @@ export interface UserDataRepo {
    * running code from before them doesn't wipe them.
    */
   putPlanTime(userId: string, time: DayTime, now: Date): Promise<void>;
-  /** The users with a `plan` document. */
-  planUserIds(): Promise<string[]>;
-  /**
-   * The move-over: sets the block id of the user's entry for this exercise (`progress_entries.block_id` and `blockId` in
-   * its `entry`), only when it has none. No other column is written, so stars saved meanwhile are kept. True when a row changed.
-   */
-  setEntryBlockId(userId: string, exerciseId: string, blockId: string): Promise<boolean>;
-  /**
-   * The move-over: sets `plan_day_times.blocks` of one day, only when it has none. Seconds, dates and `updated_at` are not
-   * written, so a timer saving meanwhile is kept. True when a row changed.
-   */
-  setDayTimeBlocks(userId: string, planId: string, day: number, blocks: Record<string, string>): Promise<boolean>;
   /** Which of these block ids the user owns (has a `block_owners` row for). */
   ownedBlockIds(userId: string, ids: string[]): Promise<Set<string>>;
   /**

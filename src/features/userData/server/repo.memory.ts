@@ -81,21 +81,6 @@ export function memoryUserDataRepo(): UserDataRepo & {
       const on = t.on ?? old?.on;
       planTimes.set(k, structuredClone({ ...t, ...(blocks ? { blocks } : {}), ...(on ? { on } : {}) }));
     },
-    async planUserIds() {
-      return [...docs.keys()].filter((k) => k.endsWith("/plan")).map((k) => k.slice(0, -"/plan".length));
-    },
-    async setEntryBlockId(userId, exerciseId, blockId) {
-      const e = progress.get(`${userId}/${exerciseId}`);
-      if (!e || e.blockId) return false;
-      e.blockId = blockId;
-      return true;
-    },
-    async setDayTimeBlocks(userId, planId, day, b) {
-      const t = planTimes.get(`${userId}/${planId}/${day}`);
-      if (!t || t.blocks) return false;
-      t.blocks = structuredClone(b);
-      return true;
-    },
     async ownedBlockIds(userId, ids) {
       return new Set(ids.filter((id) => owners.has(pair(userId, id))));
     },

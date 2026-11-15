@@ -263,35 +263,10 @@ test("listPlanReviews lists every player's, newest first", async () => {
   assert.equal((await repo.listPlanReviews(2)).length, 2);
 });
 
-// --- the move-over's repo methods: each writes only its block column, so a player's save meanwhile is kept
+// --- block ids kept when a tab still running the old code saves
 
 const B1 = "1".repeat(32);
 const B2 = "2".repeat(32);
-
-test("setEntryBlockId changes only the block id: stars saved after the read are kept", async () => {
-  const repo = memoryUserDataRepo();
-  await putEntry(repo, "u1", entry({ exerciseId: "s1", stars: 2 }), now);
-  await putEntry(repo, "u1", entry({ exerciseId: "s1", stars: 5 }), now); // the player re-rates meanwhile
-  assert.equal(await repo.setEntryBlockId("u1", "s1", B1), true);
-  const [e] = await readEntries(repo, "u1");
-  assert.equal(e.stars, 5);
-  assert.equal(e.blockId, B1);
-  assert.equal(await repo.setEntryBlockId("u1", "s1", B2), false, "already set: untouched");
-  assert.equal((await readEntries(repo, "u1"))[0].blockId, B1);
-  assert.equal(await repo.setEntryBlockId("u1", "nope", B1), false, "no such row");
-  assert.equal(await repo.setEntryBlockId("u2", "s1", B1), false, "another player's row is not theirs");
-});
-
-test("setDayTimeBlocks changes only blocks: seconds and dates saved after the read are kept", async () => {
-  const repo = memoryUserDataRepo();
-  await writePlanTime(repo, "u1", { planId: "p", day: 0, elapsed: 60, spent: { s1: 60 } }, now);
-  await writePlanTime(repo, "u1", { planId: "p", day: 0, elapsed: 400, spent: { s1: 400 }, on: { "2026-11-15": 340 } }, now); // timer runs meanwhile
-  assert.equal(await repo.setDayTimeBlocks("u1", "p", 0, { s1: B1 }), true);
-  const [t] = await readPlanTimes(repo, "u1", "p");
-  assert.deepEqual([t.elapsed, t.spent, t.on, t.blocks], [400, { s1: 400 }, { "2026-11-15": 340 }, { s1: B1 }]);
-  assert.equal(await repo.setDayTimeBlocks("u1", "p", 0, { s1: B2 }), false, "already set: untouched");
-  assert.equal(await repo.setDayTimeBlocks("u1", "p", 1, { s1: B1 }), false, "no such day");
-});
 
 test("a day time written without blocks or dates keeps the stored ones (a tab still running the old code)", async () => {
   const repo = memoryUserDataRepo();
