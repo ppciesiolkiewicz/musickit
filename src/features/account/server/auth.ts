@@ -14,8 +14,6 @@ const DAY = 24 * 60 * MINUTE;
 
 /** How long a mailed link, and the code in the same email, work. */
 export const LINK_TTL = 60 * MINUTE;
-/** How long somebody with a proven email has to give their name. */
-export const SIGNUP_TTL = 30 * MINUTE;
 /** A year from the last visit: somebody who comes back now and then is never logged out. (Browsers cap a cookie at 400 days.) */
 export const SESSION_TTL = 365 * DAY;
 /** A session used after this much time gets its full life again. */
@@ -59,7 +57,6 @@ export function safeNext(next: unknown): string | null {
 const later = (now: Date, ms: number) => new Date(now.getTime() + ms);
 
 export type SignedIn = { kind: "session"; sessionToken: string; expiresAt: Date; account: Account; next: string; created: boolean };
-export type NeedsProfile = { kind: "signup"; signupToken: string; expiresAt: Date; next: string };
 
 async function startSession(deps: AuthDeps, user: UserRow, next: string | null, userAgent: string | null, created: boolean): Promise<SignedIn> {
   const now = deps.now();
@@ -68,6 +65,12 @@ async function startSession(deps: AuthDeps, user: UserRow, next: string | null, 
   await deps.repo.createSession({ tokenHash: hashToken(sessionToken), userId: user.id, userAgent: userAgent?.slice(0, 300) ?? null, expiresAt }, now);
   return { kind: "session", sessionToken, expiresAt, account: toAccount(user), next: next ?? AFTER_LOGIN, created };
 }
+
+/**
+ * The name a new account starts with: Google's, or the part of the email before the @. Nobody is asked for it at
+ * sign-in; it is changed on /account.
+ */
+export const startName = (email: string, given?: unknown): string => cleanName(given) || cleanName(email.split("@")[0]) || "Me";
 
 /** A user for the email: the one that exists, or a new one. Safe when two requests create it at once. */
 async function userFor(deps: AuthDeps, email: string, name: string): Promise<{ user: UserRow; created: boolean }> {
@@ -80,20 +83,12 @@ async function userFor(deps: AuthDeps, email: string, name: string): Promise<{ u
   return { user: raced, created: false };
 }
 
-async function startSignup(deps: AuthDeps, proof: { email: string; name: string | null; provider: string | null; providerAccountId: string | null; next: string | null }): Promise<NeedsProfile> {
-  const now = deps.now();
-  const signupToken = deps.token();
-  const expiresAt = later(now, SIGNUP_TTL);
-  await deps.repo.createToken({ kind: "signup", tokenHash: hashToken(signupToken), codeHash: null, role: null, expiresAt, ...proof }, now);
-  return { kind: "signup", signupToken, expiresAt, next: proof.next ?? AFTER_LOGIN };
-}
-
 export type LinkError = "email" | "limit" | "daily";
 export type LinkRequest = { ok: true; email: string; token: string; code: string; expiresAt: Date } | { ok: false; error: LinkError };
 
 /**
  * A link and a code to mail; either one proves the email. There is one form for logging in and for a new account: the
- * proof signs in an email that has an account, and leads to the account setup for one that has none. The answer
+ * proof signs in an email that has an account, and makes one (named from the email) for an email that has none. The answer
  * never says which.
  */
 export async function requestEmailLink(deps: AuthDeps, input: { email: unknown; next?: unknown }): Promise<LinkRequest> {
@@ -111,8 +106,8 @@ export async function requestEmailLink(deps: AuthDeps, input: { email: unknown; 
   return { ok: true, email, token, code, expiresAt };
 }
 
-/** The mailed link was opened and confirmed. Signs in, or, for an email with no account, asks for the name. */
-export async function openEmailLink(deps: AuthDeps, token: unknown, userAgent: string | null): Promise<SignedIn | NeedsProfile | null> {
+/** The mailed link was opened. Signs in, making the account when the email has none. */
+export async function openEmailLink(deps: AuthDeps, token: unknown, userAgent: string | null): Promise<SignedIn | null> {
   if (typeof token !== "string" || !token) return null;
   const row = await deps.repo.takeToken(hashToken(token), "email_link", deps.now());
   return row ? emailProven(deps, row, userAgent) : null;
@@ -122,7 +117,7 @@ export async function openEmailLink(deps: AuthDeps, token: unknown, userAgent: s
  * The code from the email was typed in. Every try, right or wrong, uses one of each live code's `CODE_TRIES`, counted
  * before the code is compared, so guesses sent at once can't get past the limit. The code is then spent like the link.
  */
-export async function openEmailCode(deps: AuthDeps, input: { email: unknown; code: unknown }, userAgent: string | null): Promise<SignedIn | NeedsProfile | null> {
+export async function openEmailCode(deps: AuthDeps, input: { email: unknown; code: unknown }, userAgent: string | null): Promise<SignedIn | null> {
   const email = typeof input.email === "string" ? cleanEmail(input.email) : "";
   const code = typeof input.code === "string" ? input.code.replace(/[\s-]/g, "") : "";
   if (!isEmail(email) || !/^\d{6}$/.test(code)) return null;
@@ -133,10 +128,9 @@ export async function openEmailCode(deps: AuthDeps, input: { email: unknown; cod
   return row ? emailProven(deps, row, userAgent) : null;
 }
 
-async function emailProven(deps: AuthDeps, row: TokenRow, userAgent: string | null): Promise<SignedIn | NeedsProfile> {
-  const had = await deps.repo.userByEmail(row.email);
-  if (had) return startSession(deps, had, row.next, userAgent, false);
-  return startSignup(deps, { email: row.email, name: null, provider: null, providerAccountId: null, next: row.next });
+async function emailProven(deps: AuthDeps, row: TokenRow, userAgent: string | null): Promise<SignedIn> {
+  const { user, created } = await userFor(deps, row.email, startName(row.email));
+  return startSession(deps, user, row.next, userAgent, created);
 }
 
 /** What Google says about the person, after its token was checked (see google.ts). */
@@ -149,10 +143,10 @@ export interface GoogleProfile {
 
 /**
  * Google signed the person in. A known Google id, or a Google-verified email that already has an account, signs in
- * (and links the two). A new person is asked for their name, with Google's offered. Null when Google has not
+ * (and links the two). A new person gets an account with Google's name. Null when Google has not
  * verified the email: it then proves nothing.
  */
-export async function googleSignIn(deps: AuthDeps, profile: GoogleProfile, opts: { next?: unknown; userAgent: string | null }): Promise<SignedIn | NeedsProfile | null> {
+export async function googleSignIn(deps: AuthDeps, profile: GoogleProfile, opts: { next?: unknown; userAgent: string | null }): Promise<SignedIn | null> {
   const email = cleanEmail(profile.email);
   if (!profile.sub || !profile.emailVerified || !isEmail(email)) return null;
   const next = safeNext(opts.next);
@@ -160,33 +154,9 @@ export async function googleSignIn(deps: AuthDeps, profile: GoogleProfile, opts:
   const linked = await deps.repo.userByIdentity("google", profile.sub);
   if (linked) return startSession(deps, linked, next, opts.userAgent, false);
 
-  const had = await deps.repo.userByEmail(email);
-  if (!had) return startSignup(deps, { email, name: cleanName(profile.name) || null, provider: "google", providerAccountId: profile.sub, next });
-
-  await deps.repo.linkIdentity(had.id, "google", profile.sub, deps.now());
-  return startSession(deps, had, next, opts.userAgent, false);
-}
-
-/** The proven email waiting for a name, for the account setup. Null when the ticket is gone. */
-export async function pendingSignup(deps: AuthDeps, signupToken: unknown): Promise<{ email: string; name: string } | null> {
-  if (typeof signupToken !== "string" || !signupToken) return null;
-  const row = await deps.repo.peekToken(hashToken(signupToken), "signup", deps.now());
-  return row ? { email: row.email, name: row.name ?? "" } : null;
-}
-
-export type FinishError = "expired" | "name";
-
-/** The account setup: makes the account for the proven email and signs in. An empty name leaves the ticket usable. */
-export async function finishSignup(deps: AuthDeps, signupToken: unknown, input: { name: unknown }, userAgent: string | null): Promise<SignedIn | { kind: "error"; error: FinishError }> {
-  const name = cleanName(input.name);
-  if (typeof signupToken !== "string" || !signupToken) return { kind: "error", error: "expired" };
-  if (!(await pendingSignup(deps, signupToken))) return { kind: "error", error: "expired" };
-  if (!name) return { kind: "error", error: "name" };
-  const row = await deps.repo.takeToken(hashToken(signupToken), "signup", deps.now());
-  if (!row) return { kind: "error", error: "expired" };
-  const { user, created } = await userFor(deps, row.email, name);
-  if (row.provider && row.providerAccountId) await deps.repo.linkIdentity(user.id, row.provider, row.providerAccountId, deps.now());
-  return startSession(deps, user, row.next, userAgent, created);
+  const { user, created } = await userFor(deps, email, startName(email, profile.name));
+  await deps.repo.linkIdentity(user.id, "google", profile.sub, deps.now());
+  return startSession(deps, user, next, opts.userAgent, created);
 }
 
 /** Who the session cookie belongs to. `expiresAt` is set when the session's life was renewed, so the cookie's can be too. */

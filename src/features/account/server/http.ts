@@ -2,7 +2,7 @@ import { getDb } from "@/lib/db/client";
 import { SITE_URL } from "@/lib/site";
 import type { Account } from "../model";
 import { HINT_COOKIE } from "../serverAccountStore";
-import { authDeps, sessionAccount, type AuthDeps, type NeedsProfile, type SignedIn } from "./auth";
+import { authDeps, sessionAccount, type AuthDeps, type SignedIn } from "./auth";
 import { drizzleRepo } from "./repo.drizzle";
 
 /** What the auth routes share: cookies, the same-site check, JSON answers and the one place that builds `AuthDeps`. */
@@ -10,7 +10,6 @@ import { drizzleRepo } from "./repo.drizzle";
 type Env = Record<string, string | undefined>;
 
 export const SESSION_COOKIE = "mk_session";
-export const SIGNUP_COOKIE = "mk_signup";
 export const OAUTH_COOKIE = "mk_oauth";
 
 /** Sign-in over the database, or null when the site has none (DATABASE_URL unset): then there are no accounts. */
@@ -51,16 +50,11 @@ export const sessionCookies = (sessionToken: string, expiresAt: Date, env: Env =
 
 export const signOutCookies = (env: Env = process.env): string[] => [clearCookie(SESSION_COOKIE, env), clearCookie(HINT_COOKIE, env)];
 
-/** The cookies a finished sign-in step sets: a session, or the ticket for the finish form. Either way the one-time cookies of the step before go. */
-export function resultCookies(result: SignedIn | NeedsProfile, env: Env = process.env): string[] {
-  return result.kind === "session"
-    ? [...sessionCookies(result.sessionToken, result.expiresAt, env), clearCookie(SIGNUP_COOKIE, env)]
-    : [cookie(SIGNUP_COOKIE, result.signupToken, { expires: result.expiresAt }, env)];
-}
+/** The cookies a finished sign-in sets. */
+export const resultCookies = (result: SignedIn, env: Env = process.env): string[] => sessionCookies(result.sessionToken, result.expiresAt, env);
 
-/** Where the browser goes after the step: the page asked for, or the account setup with that page kept. */
-export const resultPath = (result: SignedIn | NeedsProfile): string =>
-  result.kind === "session" ? result.next : `/account/setup?next=${encodeURIComponent(result.next)}`;
+/** Where the browser goes after signing in: the page asked for. */
+export const resultPath = (result: SignedIn): string => result.next;
 
 function withCookies(init: ResponseInit, cookies: string[]): ResponseInit {
   const headers = new Headers(init.headers);

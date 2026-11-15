@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-/** Shared pieces of the log-in, account setup and account screens. */
+/** Shared pieces of the log-in and account screens. */
 
 export const FIELD =
   "w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none";

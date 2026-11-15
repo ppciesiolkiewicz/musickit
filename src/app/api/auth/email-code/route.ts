@@ -5,9 +5,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * The code field on /login: spends the email's newest matching code, like the link's Continue button. JSON
- * { email, code }. Answers { ok, redirect } with the session cookie set, or with the ticket cookie and the account
- * setup's address when the email has no account yet.
+ * The code field on /login: spends the email's newest matching code, like the link. JSON
+ * { email, code }. Answers { ok, redirect } with the session cookie set; an email with no
+ * account yet gets one.
  */
 export async function POST(req: Request) {
   const deps = auth();

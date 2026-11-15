@@ -5,8 +5,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * The button on /login/confirm: spends the mailed token. JSON { token }. Answers { ok, redirect } with the session
- * cookie set, or with the ticket cookie and the finish form's address when the email has no account yet.
+ * Called by /login/confirm as soon as it opens: spends the mailed token. JSON { token }. Answers { ok, redirect }
+ * with the session cookie set; an email with no account yet gets one.
  */
 export async function POST(req: Request) {
   const deps = auth();

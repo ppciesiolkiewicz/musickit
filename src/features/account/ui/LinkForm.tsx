@@ -19,7 +19,7 @@ type State =
 
 /**
  * /login: the one way in. A form that mails a link and a 6-digit code (then a field for the code), and "Continue with Google" when the site has Google's keys. There
- * is no separate register form: an email or a Google account with no account yet goes on to the account setup.
+ * is no separate register form: an email or a Google account with no account yet gets one, named from Google or the email.
  */
 export default function LinkForm({ google, next, error }: { google: boolean; next: string | null; error?: string }) {
   const [email, setEmail] = useState("");

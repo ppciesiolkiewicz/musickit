@@ -28,10 +28,12 @@ const nextConfig: NextConfig = {
       { source: "/theory/drone", destination: "/theory/metronome-drone", permanent: true },
       // the four-stage outline was folded into the course
       { source: "/theory/stage/:n", destination: "/course", permanent: true },
-      // there is no separate register form: /login is the one way in, and a new person goes on to the account setup
+      // there is no separate register form: /login is the one way in, and it makes the account for a new email
       { source: "/register", destination: "/login", permanent: false },
       { source: "/register/teacher", destination: "/login", permanent: false },
-      { source: "/register/finish", destination: "/account/setup", permanent: false },
+      { source: "/register/finish", destination: "/login", permanent: false },
+      // the name is set on /account now, not on a setup step after logging in
+      { source: "/account/setup", destination: "/account", permanent: false },
       // the old "Start here" hub was folded into the course
       { source: "/theory", destination: "/course", permanent: true },
     ];

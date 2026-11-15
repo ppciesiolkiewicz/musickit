@@ -42,10 +42,9 @@ test("links never take their address from the request in production", () => {
   assert.equal(baseUrl(req({}), { NODE_ENV: "development", AUTH_URL: "?" }), "http://localhost:3000", "a placeholder AUTH_URL is ignored");
 });
 
-test("after a step: the page asked for, or the finish form keeping it", () => {
+test("after signing in: the page asked for", () => {
   const at = new Date();
   assert.equal(resultPath({ kind: "session", sessionToken: "s", expiresAt: at, next: "/plan", created: false, account: { id: "1", name: "A", email: "a@b.co", role: "student", createdAt: "" } }), "/plan");
-  assert.equal(resultPath({ kind: "signup", signupToken: "s", expiresAt: at, next: "/plan?day=2" }), "/account/setup?next=%2Fplan%3Fday%3D2");
 });
 
 test("the mailed link and its email", () => {

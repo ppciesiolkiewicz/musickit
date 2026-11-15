@@ -17,7 +17,6 @@ export function proxy(req: NextRequest) {
   if (process.env.NEXT_PUBLIC_ACCOUNTS !== "on") return NextResponse.next();
   const { pathname, search } = req.nextUrl;
   const signedIn = req.cookies.has(SESSION);
-  if (signedIn && pathname === "/") return NextResponse.redirect(new URL("/plan", req.url));
   if (signedIn || isPublicPath(pathname) || pathname === CLIENT_GATED) return NextResponse.next();
   return NextResponse.redirect(new URL(loginHref(pathname + search), req.url));
 }

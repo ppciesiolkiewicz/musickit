@@ -8,17 +8,16 @@ import {
   LINK_WINDOW,
   LINK_TTL,
   SESSION_TTL,
-  finishSignup,
   googleSignIn,
   hashToken,
   openEmailCode,
   openEmailLink,
-  pendingSignup,
   rename,
   requestEmailLink,
   safeNext,
   sessionAccount,
   signOut,
+  startName,
   type AuthDeps,
   type GoogleProfile,
 } from "./auth";
@@ -44,34 +43,32 @@ async function link(deps: AuthDeps, input: Parameters<typeof requestEmailLink>[1
   return r.token;
 }
 
-/** A new account by a mailed link: the link, then the name on the account setup. */
+/** A new account by a mailed link, then its name set on /account. */
 async function signUp(deps: AuthDeps, email: string, name: string, next?: string) {
-  const r = await openEmailLink(deps, await link(deps, { email, next }), null);
-  assert.ok(r?.kind === "signup");
-  const done = await finishSignup(deps, r.signupToken, { name }, "Firefox");
-  assert.ok(done.kind === "session");
+  const done = await openEmailLink(deps, await link(deps, { email, next }), "Firefox");
+  assert.ok(done?.created);
+  assert.ok(await rename(deps, done.account.id, name));
   return done;
 }
 
-test("a link for a new email asks for the name, then makes a student account and signs in", async () => {
+test("a link for a new email makes a student account, named from the email, and signs in", async () => {
   const { deps, users, tokens } = setup();
   const token = await link(deps, { email: " Ann@School.com ", next: "/plan" });
   assert.equal(tokens[0].tokenHash, hashToken(token), "only the hash is stored");
 
-  const r = await openEmailLink(deps, token, "Firefox");
-  assert.ok(r?.kind === "signup");
-  assert.equal(users.length, 0, "nothing is made until the name is given");
-  assert.deepEqual(await pendingSignup(deps, r.signupToken), { email: "ann@school.com", name: "" });
-
-  assert.deepEqual(await finishSignup(deps, r.signupToken, { name: " " }, null), { kind: "error", error: "name" });
-  const done = await finishSignup(deps, r.signupToken, { name: "  Ann   Lee " }, null);
-  assert.ok(done.kind === "session", "a wrong try left the ticket usable");
+  const done = await openEmailLink(deps, token, "Firefox");
+  assert.ok(done?.kind === "session");
   assert.equal(done.created, true);
   assert.equal(done.next, "/plan");
-  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "Ann Lee", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString() });
+  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString() });
   assert.equal((await sessionAccount(deps, done.sessionToken))?.account.email, "ann@school.com");
-  assert.deepEqual(await finishSignup(deps, r.signupToken, { name: "Ann" }, null), { kind: "error", error: "expired" });
-  assert.equal(await pendingSignup(deps, r.signupToken), null);
+  assert.equal(users.length, 1);
+});
+
+test("a new account's first name: Google's, or the email before the @", () => {
+  assert.equal(startName("ann.lee@school.com"), "ann.lee");
+  assert.equal(startName("ann@school.com", "  Ann   Lee "), "Ann Lee");
+  assert.equal(startName("ann@school.com", "   "), "ann");
 });
 
 test("a link works once, and not after it expires", async () => {
@@ -128,7 +125,7 @@ test("the mailed code signs in like the link, once, for its own email, and is st
 
   assert.equal(await openEmailCode(deps, { email: "bob@school.com", code: "100001" }, null), null, "another email's code proves nothing");
   const r = await openEmailCode(deps, { email: " ann@school.com", code: "100 001" }, null);
-  assert.ok(r?.kind === "signup");
+  assert.ok(r?.kind === "session" && r.created);
   assert.equal(r.next, "/plan");
   assert.equal(await openEmailCode(deps, { email: "ann@school.com", code: "100001" }, null), null, "used once");
   assert.equal(await openEmailLink(deps, sent.token, null), null, "the code and the link are one proof");
@@ -155,16 +152,13 @@ test("a code stops working after its wrong tries, even the right one", async () 
   assert.ok(await openEmailLink(deps, again.token, null), "the link in the same email still works");
 });
 
-test("Google: a new person is asked for the name, with Google's offered, and the next time is known by the Google id", async () => {
+test("Google: a new person gets an account with Google's name, and the next time is known by the Google id", async () => {
   const { deps, users, identities } = setup();
-  const first = await googleSignIn(deps, ann, { next: "/creator", userAgent: null });
-  assert.ok(first?.kind === "signup");
-  assert.equal(users.length, 0);
-  assert.deepEqual(await pendingSignup(deps, first.signupToken), { email: "ann@school.com", name: "Ann Lee" });
-  const done = await finishSignup(deps, first.signupToken, { name: "Ann L" }, null);
-  assert.ok(done.kind === "session");
+  const done = await googleSignIn(deps, ann, { next: "/creator", userAgent: null });
+  assert.ok(done?.kind === "session");
+  assert.equal(done.created, true);
   assert.equal(done.next, "/creator");
-  assert.deepEqual([done.account.name, done.account.email, done.account.role], ["Ann L", "ann@school.com", "student"]);
+  assert.deepEqual([done.account.name, done.account.email, done.account.role], ["Ann Lee", "ann@school.com", "student"]);
   assert.deepEqual(identities, [{ userId: done.account.id, provider: "google", providerAccountId: "g-1" }]);
 
   // the email at Google changed; the id still finds the account

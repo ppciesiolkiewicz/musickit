@@ -13,7 +13,7 @@ const ERRORS: Record<LinkError, string> = {
 };
 
 /**
- * Mails a link and a 6-digit code (see ../email-code) that each log in, or leads to the account setup for an email with no account. JSON { email, next? }.
+ * Mails a link and a 6-digit code (see ../email-code) that each log in, and make the account for an email with none. JSON { email, next? }.
  * The answer is the same whether or not the email has an account. In development, when nothing could be mailed (no
  * RESEND_API_KEY, or Resend refused it), the link and code are in the answer (`devLink`, `devCode`, with Resend's
  * reason in `devError`) and in the server log. `lasts` says how long they work, for the page.

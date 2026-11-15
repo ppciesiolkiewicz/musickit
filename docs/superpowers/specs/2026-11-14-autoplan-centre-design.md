@@ -61,7 +61,7 @@ How:
   page's client check catches it: in `PageShell` (every app page uses it), once `useAccount()` has loaded with no
   account, go to `/login?next=…`.
 - **Only when accounts are on** (`NEXT_PUBLIC_ACCOUNTS === "on"`). With accounts off, nothing is gated, as today.
-- A logged-in person (cookie present) opening `/` is redirected to `/plan`. `/players` stays reachable.
+- A logged-in person can open `/` and `/players` like anyone else (they were sent from `/` to `/plan` until 2026-11-15).
 - `sitemap.ts` lists only the public marketing pages and the demos. `robots.ts` as needed.
 
 ### Roles

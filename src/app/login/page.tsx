@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Log in · attunr", robots: { index: 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
   const q = await searchParams;
   return (
-    <PageShell centered title="Log in" intro="Log in with your email or with Google to open your practice plan. If you're new, you'll set up your account next." active="/login">
+    <PageShell centered title="Log in" intro="Log in with your email or with Google to open your practice plan. If you're new, this also creates your account." active="/login">
       {databaseUrl() ? <LinkForm google={!!googleConfig()} next={safeNext(q.next)} error={q.error} /> : <p className="text-sm text-slate-400">{NO_ACCOUNTS}</p>}
     </PageShell>
   );

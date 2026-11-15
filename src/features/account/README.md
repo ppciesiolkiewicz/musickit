@@ -2,7 +2,8 @@
 
 Who is using the app, and what their role lets them use: students, teachers and owners. People log in with a link or a
 6-digit code we email them, or with Google. There are no passwords and no separate register form: `/login` is the one way in, and a
-person with no account yet goes on to the account setup, which asks only for the name.
+person with no account yet gets one straight away, named from Google or from the email (the part before the @). The
+name is changed on `/account`.
 
 ## Parts
 
@@ -17,11 +18,12 @@ person with no account yet goes on to the account setup, which asks only for the
 - `serverAccountStore.ts`: the real store, over `/api/auth`. `accountsOpen()` says whether the site has accounts at all.
 - `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session, and nothing at all when
   there is no session cookie.
-- `ui/`: the screens. `LinkForm` (`/login`), `ConfirmLink` (`/login/confirm`), `FinishSignup`
-  (`/account/setup`), `AccountPanel` (`/account`), `AccountLink` (the corner of the top nav).
+- `ui/`: the screens. `LinkForm` (`/login`), `ConfirmLink` (`/login/confirm`), `AccountPanel`
+  (`/account`: the name, Log out, Delete account), `AccountLink` (the corner of the top nav: Log in, or the name with a
+  menu of Your profile and Log out, opened on hover or a tap).
 - `server/`: sign-in itself, server only.
   - `auth.ts`: the rules, with no HTTP and no SQL in them: `requestEmailLink`, `openEmailLink`, `openEmailCode`, `googleSignIn`,
-    `pendingSignup`, `finishSignup`, `sessionAccount`, `signOut`, `rename`.
+    `startName`, `sessionAccount`, `signOut`, `rename`.
   - `repo.ts`: what those rules need from storage. `repo.drizzle.ts` is Postgres, `repo.memory.ts` is for tests.
   - `http.ts`: cookies, the same-site check, `auth()` (null when there is no database), `requestAccount(req)`.
   - `google.ts`: the Google code flow with PKCE. `mail.ts`: the email with the link and the code, sent through Resend.
@@ -32,16 +34,18 @@ The tables are in `src/lib/db/schema.ts` and the migrations in `/drizzle`.
 
 | | |
 | --- | --- |
-| Email | `/login`: email → `POST /api/auth/email-link` mails a link and a code → either `/login/confirm?token=` → Continue → `POST /api/auth/email-link/confirm`, or the code typed on `/login` → `POST /api/auth/email-code`. An email with an account is signed in; one without lands on `/account/setup`. |
-| Google | `GET /api/auth/google/start` → Google → `GET /api/auth/google/callback`. A known Google id, or a Google-verified email that has an account, logs in. A new person lands on `/account/setup`, with Google's name filled in. |
-| Account setup | `/account/setup`: the email is proven but has no account. `GET /api/auth/signup` gives the email (and Google's name), `POST` (name) makes a student account and signs in. |
+| Email | `/login`: email → `POST /api/auth/email-link` mails a link and a code → either `/login/confirm?token=`, whose script calls `POST /api/auth/email-link/confirm`, or the code typed on `/login` → `POST /api/auth/email-code`. An email with an account is signed in; one without gets an account named from the email, and is signed in. |
+| Google | `GET /api/auth/google/start` → Google → `GET /api/auth/google/callback`. A known Google id, or a Google-verified email that has an account, logs in. A new person gets an account with Google's name, and is signed in. |
 | Session | `GET /api/auth/session` → `{ account }`. `POST /api/auth/logout`. |
 | Account | `PATCH /api/account` (name), `DELETE /api/account`. |
 
 Things that are on purpose:
 
-- **The mailed link does nothing alone.** It opens a page with one button, and the button spends the token. Mail
-  programs open links to scan them, which would use a link up before the person saw it.
+- **The mailed link does nothing alone.** It opens a page whose script spends the token, with no button to press. Mail
+  programs fetch links to scan them; a plain fetch runs no script, so it can't use the link up. (A scanner that runs
+  the page's script would; then the person asks for a new link or types the code.)
+- **Nobody is asked for a name at sign-in.** A new account starts with Google's name or the email before the @, and
+  is renamed on `/account`. The old `/account/setup` goes to `/account` (`next.config.ts`).
 - **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256.
   A code is stored as the SHA-256 of the email and the code.
 - **The link and the code are one proof.** They are the same row: using one spends the other. The code works on the
@@ -54,7 +58,7 @@ Things that are on purpose:
 - **Nobody picks a role.** A new account is a student; a teacher or owner is set by us. Logging in again, by link or
   Google, never changes the name or role of an account.
 - **The old addresses still work.** `/register` and `/register/teacher` go to `/login`, `/register/finish` to
-  `/account/setup` (`next.config.ts`).
+  `/login` (`next.config.ts`).
 - **Emails are limited**: 3 to one address in 15 minutes, 10 in a day. A link and its code live 1 hour, a session a
   year from its last use, so a person who comes back now and then is never logged out.
 

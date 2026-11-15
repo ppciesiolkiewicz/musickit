@@ -12,7 +12,7 @@ export const LINK_LIFE = LINK_TTL % 3_600_000 === 0 ? (LINK_TTL === 3_600_000 ? 
 
 /**
  * The Resend request body: a plain-text part and an HTML part. The link and the code each log in or, for a new email,
- * lead to the account setup. The code is in the subject, so a phone's notice shows it.
+ * make the account. The code is in the subject, so a phone's notice shows it.
  */
 export function linkEmail(to: string, link: string, code: string, env: Env) {
   const lead = "Open this link to log in to attunr. If you don't have an account yet, you'll set one up next:";
