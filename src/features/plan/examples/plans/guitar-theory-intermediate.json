@@ -15,7 +15,12 @@
     "hearing-changes",
     "relative-major-minor",
     "chords-blues",
-    "arpeggios-position"
+    "arpeggios-position",
+    "pentatonic-box-1",
+    "open-chords",
+    "chords-in-key",
+    "hammer-pull",
+    "string-skipping"
   ],
   "docs": {
     "agents": 0,
@@ -71,6 +76,9 @@
               "ear"
             ],
             "topic": "theory-building-chords",
+            "concepts": [
+              "seventh-chords"
+            ],
             "why": "Naming a chord's quality by ear is the skill behind working out songs.",
             "learnBefore": [
               "/course/7/hearing-sevenths"
@@ -98,6 +106,9 @@
               "technique"
             ],
             "topic": "guitar-caged",
+            "concepts": [
+              "arpeggios-position"
+            ],
             "why": "An arpeggio is the chord one note at a time, so a solo built from it outlines the changes.",
             "learnBefore": [
               "/course/7/sevenths",
@@ -301,6 +312,9 @@
               "theory"
             ],
             "topic": "theory-progressions",
+            "concepts": [
+              "ii-v-i"
+            ],
             "why": "Stack 3rds on the 2nd, 5th and 1st notes of C major and you get Dm7, G7 and Cmaj7.",
             "learnBefore": [
               "/course/5/chords-from-scale",
@@ -371,6 +385,9 @@
               "technique"
             ],
             "topic": "guitar-caged",
+            "concepts": [
+              "arpeggios-position"
+            ],
             "why": "The 3rd and 7th of each chord move by a half step or not at all, so two notes are enough to make the changes heard.",
             "learnBefore": [
               "/course/11/guide-tones"
@@ -582,6 +599,9 @@
               "technique"
             ],
             "topic": "guitar-techniques",
+            "concepts": [
+              "hammer-pull"
+            ],
             "why": "Hammer-ons and pull-offs build left-hand strength without the pick.",
             "learnBefore": [
               "/course/4/legato"
@@ -623,6 +643,9 @@
               "theory"
             ],
             "topic": "theory-scales-keys",
+            "concepts": [
+              "relative-major-minor"
+            ],
             "why": "A minor uses exactly the notes of C major; only the home note changes, and with it the mood.",
             "learnBefore": [
               "/course/3/la-minor-home",
@@ -697,6 +720,9 @@
               "technique"
             ],
             "topic": "guitar-scales",
+            "concepts": [
+              "pentatonic-box-1"
+            ],
             "why": "The relative minor works on the neck too: one pentatonic position serves both keys, with a different root.",
             "learnBefore": [
               "/course/5/major-pentatonic"
@@ -775,6 +801,9 @@
               "rhythm"
             ],
             "topic": "guitar-basic-chords",
+            "concepts": [
+              "open-chords"
+            ],
             "why": "The same four chords can sound major or minor depending on which one feels like home.",
             "learnBefore": [
               "/course/3/major-or-minor"
@@ -876,6 +905,9 @@
               "ear"
             ],
             "topic": "theory-building-chords",
+            "concepts": [
+              "seventh-chords"
+            ],
             "why": "The 7th is what separates D7 from Gmaj7, and hearing it alone makes the chords easy to name.",
             "learnBefore": [
               "/course/7/hearing-sevenths"
@@ -908,6 +940,9 @@
               "technique"
             ],
             "topic": "guitar-caged",
+            "concepts": [
+              "arpeggios-position"
+            ],
             "why": "Moving the arpeggios to G shows they are shapes of degrees, not lists of frets.",
             "learnBefore": [
               "/course/7/sevenths",
@@ -1073,6 +1108,9 @@
               "technique"
             ],
             "topic": "guitar-techniques",
+            "concepts": [
+              "string-skipping"
+            ],
             "why": "Arpeggios jump strings, so the pick hand needs to jump accurately.",
             "learnBefore": [
               "/course/8/string-skipping"
@@ -1114,6 +1152,9 @@
               "ear"
             ],
             "topic": "theory-building-chords",
+            "concepts": [
+              "seventh-chords"
+            ],
             "why": "Answering quickly makes chord hearing work at song speed.",
             "learnBefore": [
               "/course/7/hearing-sevenths"
@@ -1141,6 +1182,9 @@
               "theory"
             ],
             "topic": "theory-progressions",
+            "concepts": [
+              "chords-in-key"
+            ],
             "why": "I-vi-ii-V adds the vi to the ii-V-I, and it is the loop under countless songs.",
             "learnBefore": [
               "/course/5/chords-from-scale",
@@ -1328,6 +1372,9 @@
               "technique"
             ],
             "topic": "guitar-techniques",
+            "concepts": [
+              "hammer-pull"
+            ],
             "why": "The weaker finger pair needs the most work.",
             "learnBefore": [
               "/course/4/legato"
@@ -1369,6 +1416,9 @@
               "theory"
             ],
             "topic": "theory-progressions",
+            "concepts": [
+              "chords-blues"
+            ],
             "why": "Blues breaks the rule of one dominant per key: every chord is a 7th, which gives the style its restless sound.",
             "learnBefore": [
               "/course/7/twelve-bar",
@@ -1526,6 +1576,9 @@
               "improv"
             ],
             "topic": "guitar-scales",
+            "concepts": [
+              "pentatonic-box-1"
+            ],
             "why": "Adding the chord's 3rd to the pentatonic position makes a blues solo follow the changes.",
             "learnBefore": [
               "/course/7/twelve-bar",
@@ -1652,6 +1705,9 @@
               "ear"
             ],
             "topic": "theory-building-chords",
+            "concepts": [
+              "seventh-chords"
+            ],
             "why": "The week's ear work as a score to beat next week.",
             "learnBefore": [
               "/course/7/hearing-sevenths"
@@ -1679,6 +1735,9 @@
               "technique"
             ],
             "topic": "guitar-caged",
+            "concepts": [
+              "arpeggios-position"
+            ],
             "why": "Playing them without help is the test that the shapes are yours.",
             "learnBefore": [
               "/course/7/sevenths",

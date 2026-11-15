@@ -11,7 +11,9 @@
   "concepts": [
     "chords-in-key",
     "hearing-changes",
-    "chords-pop-rock"
+    "chords-pop-rock",
+    "open-chords",
+    "strumming-patterns"
   ],
   "docs": {
     "agents": 1,
@@ -28,6 +30,10 @@
       "improv"
     ],
     "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming-patterns"
+    ],
     "why": "The four chords come round in the same order every time, so each new way of playing them (roots, shapes, strumming, 3rds) trains you to hear where the next change falls.",
     "learnBefore": [
       "/course/2/em-and-am",
