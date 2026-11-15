@@ -48,10 +48,10 @@ export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no 
             </label>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[56rem] text-right text-sm">
+            <table className="min-w-[60rem] w-full text-right text-sm tabular-nums [&_td]:px-3 [&_td]:py-2 [&_th]:px-3 [&_th]:py-2 [&_th]:align-bottom [&_th]:whitespace-nowrap [&_td:first-child]:pl-0 [&_th:first-child]:pl-0 [&_td:last-child]:pr-0 [&_th:last-child]:pr-0">
               <thead className="text-xs text-slate-400">
                 <tr className="border-b border-slate-800">
-                  <th className="py-2 text-left font-medium">Plan</th>
+                  <th className="text-left font-medium">Plan</th>
                   <th className="text-left font-medium">Gets</th>
                   <th className="text-left font-medium">Delivery</th>
                   <th className="font-medium">Price</th>
@@ -72,25 +72,25 @@ export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no 
                   const students = studentsLabel(p);
                   return (
                     <tr key={p.id} className="border-b border-slate-800/60 align-top text-slate-200">
-                      <td className="py-2 text-left">
+                      <td className="text-left">
                         <span className="font-semibold">{p.name}</span>
                         <span className={`ml-2 rounded px-1.5 py-0.5 text-[11px] ${p.enabled ? "bg-emerald-500/15 text-emerald-300" : "bg-slate-700/50 text-slate-400"}`}>{p.enabled ? "enabled" : "off"}</span>
                         <span className="block font-mono text-xs text-slate-500">{p.id} · gives {p.role}</span>
                       </td>
-                      <td className="py-2 text-left text-xs text-slate-400">
+                      <td className="text-left text-xs text-slate-400">
                         {students && <span className="block">{students}</span>}
                         <span className="block">{allowanceLabel(p)}</span>
                       </td>
-                      <td className="py-2 text-left text-xs text-slate-400">
+                      <td className="text-left text-xs text-slate-400">
                         {p.batch ? "Batch: half price, minutes later" : "At once"}
                       </td>
-                      <td className="py-2">{priceLabel(p)}{p.period === "month" && <span className="block text-xs text-slate-500">{usd(y.revenue)} a year</span>}</td>
-                      <td className="py-2">{pct}%</td>
-                      <td className="py-2">{y.perPlan === null ? <span className="text-xs text-amber-300">no runs</span> : usd(y.perPlan)}</td>
-                      <td className="py-2">{usd(y.ai)}</td>
-                      <td className="py-2">{usd(y.fee)}</td>
-                      <td className={`py-2 font-semibold ${y.left < 0 ? "text-rose-300" : "text-emerald-300"}`}>{usd(y.left)}</td>
-                      <td className={`py-2 ${y.margin < 0 ? "text-rose-300" : "text-slate-200"}`}>{Math.round(y.margin * 100)}%</td>
+                      <td className="whitespace-nowrap">{priceLabel(p)}{p.period === "month" && <span className="block text-xs text-slate-500">{usd(y.revenue)} a year</span>}</td>
+                      <td>{pct}%</td>
+                      <td>{y.perPlan === null ? <span className="text-xs text-amber-300">no runs</span> : usd(y.perPlan)}</td>
+                      <td>{usd(y.ai)}</td>
+                      <td>{usd(y.fee)}</td>
+                      <td className={`font-semibold ${y.left < 0 ? "text-rose-300" : "text-emerald-300"}`}>{usd(y.left)}</td>
+                      <td className={`${y.margin < 0 ? "text-rose-300" : "text-slate-200"}`}>{Math.round(y.margin * 100)}%</td>
                     </tr>
                   );
                 })}
