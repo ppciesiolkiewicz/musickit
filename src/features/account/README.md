@@ -15,7 +15,7 @@ name is changed on `/account`.
   AI autoplans a month, Batch, `enabled`, `sort`; every plan's autoplans and notes are written by one model, `SUBSCRIPTION_MODEL`, Haiku 5.5), `choosablePlans`
   (the enabled plans, plus the one the person is on even when turned off), `canChoose`, `roleOnPlan` and the labels.
   The plans themselves are rows in the database, written by migration `0005_plans` and changed there; their prices and
-  allowances come from /dev/kickstarter's *Plans*, which shows what each costs us.
+  allowances come from *Plans* on /dev/costs, which shows what each costs us.
 - `ui/PlanPicker.tsx`: the Plan part of `/account`. `GET /api/account/plan` gives `{ plans, current }`; `POST` with
   `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
   reloads. Leaving a Teacher plan for Student asks first.

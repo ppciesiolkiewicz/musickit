@@ -2,12 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
+import { allowanceLabel, choosablePlans, priceLabel, studentsLabel, type Plan } from "@/features/account/plans";
 import { FACTS, LINK_GROUPS, LINKS_TO_AVOID, VOICE, outreachBrief, SAMPLE_EMAILS, type DemoLink } from "../model/kickstarter";
-import type { PlanTokens } from "../model/unitEconomics";
-import type { Plan } from "@/features/account/plans";
-import CostPerPlayer from "./CostPerPlayer";
-import OpenRouterModels from "./OpenRouterModels";
-import PlanCosts from "./PlanCosts";
 
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-sky-400";
 
@@ -40,15 +36,14 @@ function Block({ title, about, children }: { title: string; about: string; child
   );
 }
 
-/** /dev/kickstarter: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. Then the plans, what one paying player costs, and other models on OpenRouter. */
-export default function KickstarterPage({ demos, planTokens, plans }: { demos: DemoLink[]; /** one plan's tokens per model, for "What one player costs" */ planTokens: PlanTokens[]; /** the plans table; null without a database */ plans: Plan[] | null }) {
-  const brief = useMemo(() => outreachBrief(demos), [demos]);
+/** /dev/kickstarter: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. What autoplans cost is on /dev/costs. */
+export default function KickstarterPage({ demos, plans }: { demos: DemoLink[]; /** the plans table; null without a database */ plans: Plan[] | null }) {
+  const brief = useMemo(() => outreachBrief(demos, plans ?? []), [demos, plans]);
   return (
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-semibold text-slate-100">Founding-partner emails</h2>
         <p className="text-sm text-slate-400">Copy the brief into an AI chat, with the email thread if there is one, and it writes the reply or a first email. Edit the voice and the facts in <code className="text-slate-300">src/features/devtools/model/kickstarter.ts</code>.</p>
-        <span className="mt-1 flex gap-4 text-sm"><a href="#plans" className="text-sky-300 hover:underline">Plans ↓</a><a href="#cost" className="text-sky-300 hover:underline">What one player costs ↓</a><a href="#openrouter" className="text-sky-300 hover:underline">Other models ↓</a></span>
       </div>
       <Block title="Brief for the AI" about="The facts, the voice, the sample emails and the links, in one text.">
         <CopyButton text={brief} label="Copy brief" />
@@ -62,6 +57,16 @@ export default function KickstarterPage({ demos, planTokens, plans }: { demos: D
           <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm text-slate-200">{FACTS.map((f) => <li key={f}>{f}</li>)}</ul>
         </Block>
       </div>
+      <Block title="Plans" about="The enabled plans in the database, as the brief gives them: what anyone pays outside the founding-partner offer. Change them in the plans table; what each costs us is on AI costs.">
+        {!plans ? (
+          <p className="text-sm text-slate-400">No database, so the brief has no plans. Set DATABASE_URL and run npm run db:migrate.</p>
+        ) : (
+          <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm text-slate-200">
+            {choosablePlans(plans, null).map((p) => <li key={p.id}><span className="font-semibold">{p.name}</span>: {priceLabel(p)}. {[studentsLabel(p), allowanceLabel(p)].filter(Boolean).join(". ")}.</li>)}
+          </ul>
+        )}
+        <Link href="/dev/costs#plans" className="mt-2 inline-block text-sm text-sky-300 hover:underline">What each costs us →</Link>
+      </Block>
       <Block title="Sample emails" about="Emails that went out and read the way these should. The brief gives them to the AI for tone and shape.">
         <div className="flex flex-col gap-3">
           {SAMPLE_EMAILS.map((e) => (
@@ -110,9 +115,6 @@ export default function KickstarterPage({ demos, planTokens, plans }: { demos: D
           {LINKS_TO_AVOID.map((a) => <li key={a.path}><span className="font-semibold">{a.label}</span> <span className="font-mono text-xs text-slate-500">{a.path}</span>: {a.why}</li>)}
         </ul>
       </Block>
-      <PlanCosts plans={plans} tokens={planTokens} />
-      <CostPerPlayer models={planTokens} />
-      <OpenRouterModels tokens={planTokens} />
     </div>
   );
 }

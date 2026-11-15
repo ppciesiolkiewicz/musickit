@@ -18,6 +18,7 @@ const usd = (x: number) => {
 
 export default function PlanCosts({ plans, tokens }: { /** null: no database, so no plans table */ plans: Plan[] | null; tokens: PlanTokens[] }) {
   const [usage, setUsage] = useState(1);
+  const [reuse, setReuse] = useState(0);
   const [provider, setProvider] = useState<keyof typeof PAYMENT_PROVIDERS>("stripe");
   const fee = PAYMENT_PROVIDERS[provider];
 
@@ -31,7 +32,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
         <p className="text-sm text-slate-400">No database, so no plans. Set DATABASE_URL and run npm run db:migrate.</p>
       ) : (
         <>
-          <div className="mb-4 grid max-w-2xl gap-4 sm:grid-cols-2">
+          <div className="mb-4 grid max-w-4xl gap-4 sm:grid-cols-3">
             <label className="flex flex-col gap-1">
               <span className="flex items-baseline justify-between gap-2 text-sm text-slate-300">
                 Allowance used
@@ -39,6 +40,14 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
               </span>
               <input type="range" min={0} max={1} step={0.05} value={usage} onChange={(e) => setUsage(Number(e.target.value))} className="w-full accent-sky-400" />
               <span className="text-xs text-slate-500">100% is the worst case: every autoplan of the allowance, every month.</span>
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="flex items-baseline justify-between gap-2 text-sm text-slate-300">
+                Plans reused
+                <span className="font-mono text-sm font-semibold tabular-nums text-slate-50">{Math.round(reuse * 100)}%</span>
+              </span>
+              <input type="range" min={0} max={1} step={0.05} value={reuse} onChange={(e) => setReuse(Number(e.target.value))} className="w-full accent-sky-400" />
+              <span className="text-xs text-slate-500">Autoplans served from the plans already written, for a player with the same answers: no AI. Grows as the library does.</span>
             </label>
             <label className="flex flex-col gap-1 text-sm text-slate-300">
               Payment
@@ -64,7 +73,7 @@ export default function PlanCosts({ plans, tokens }: { /** null: no database, so
               </thead>
               <tbody>
                 {[...plans].sort((a, b) => a.sort - b.sort).map((p) => {
-                  const y = planYear(p, SUBSCRIPTION_MODEL, tokens, usage, fee);
+                  const y = planYear(p, SUBSCRIPTION_MODEL, tokens, usage, fee, 1, 0.4, reuse);
                   const students = studentsLabel(p);
                   return (
                     <tr key={p.id} className="border-b border-slate-800/60 align-top text-slate-200">

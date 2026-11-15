@@ -158,6 +158,7 @@ export default function CostPerPlayer({ models: given }: { models: PlanTokens[] 
     plansPerMonth: PRICING.player.plansPerMonth,
     aiShare: 1,
     batch: false,
+    reuse: 0,
     emailsPerDay: 1,
     emailPer1000: 0.4,
     hosting: 0,
@@ -190,6 +191,7 @@ export default function CostPerPlayer({ models: given }: { models: PlanTokens[] 
               <Slider label="Price a year" value={a.price} shown={usd(a.price)} min={5} max={100} step={1} onChange={set("price")} hint={`Today's price: ${PRICING.player.price}.`} />
               <Slider label="Autoplans a month" value={a.plansPerMonth} shown={String(a.plansPerMonth)} min={0} max={PLANS_MAX} step={0.5} onChange={set("plansPerMonth")} hint={`A weekly plan is about 4.3. The allowance is ${PRICING.player.plansPerMonth}.`} />
               <Slider label="Players on attunr's AI" value={a.aiShare} shown={`${Math.round(a.aiShare * 100)}%`} min={0} max={1} step={0.05} onChange={set("aiShare")} hint="The rest paste the prompt into their own AI, for free." />
+              <Slider label="Plans reused" value={a.reuse} shown={`${Math.round(a.reuse * 100)}%`} min={0} max={1} step={0.05} onChange={set("reuse")} hint="Autoplans served from the plans already written, for a player with the same answers: no AI." />
               <label className="flex items-center gap-2 text-sm text-slate-300">
                 <input type="checkbox" checked={a.batch} onChange={(e) => set("batch")(e.target.checked)} className="accent-sky-400" />
                 Batch API: half price, plan arrives minutes later

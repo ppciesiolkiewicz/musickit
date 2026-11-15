@@ -1,13 +1,10 @@
 import { drizzleRepo } from "@/features/account/server/repo.drizzle";
 import DevShell from "@/features/devtools/DevShell";
-import { getDb } from "@/lib/db/client";
 import KickstarterPage from "@/features/devtools/kickstarter/KickstarterPage";
-import PUBLISHED from "@/features/devtools/compare/published.json";
-import type { RunSummary } from "@/features/devtools/model/history";
 import type { DemoLink } from "@/features/devtools/model/kickstarter";
-import { planTokens } from "@/features/devtools/model/unitEconomics";
 import { DEMO_PLANS } from "@/features/plan";
 import { PRESET_INFO } from "@/features/teachers/notes";
+import { getDb } from "@/lib/db/client";
 import { SITE_URL } from "@/lib/site";
 
 /** Every page an email may link, by group and strongest first, with its public address: an email goes to someone who can't open localhost. Pages never to link are LINKS_TO_AVOID in the model. */
@@ -34,5 +31,5 @@ export const dynamic = "force-dynamic";
 export default async function Kickstarter() {
   const db = getDb();
   const plans = db ? await drizzleRepo(db).listPlans() : null;
-  return <DevShell><KickstarterPage demos={DEMOS} planTokens={planTokens(PUBLISHED.runs as RunSummary[])} plans={plans} /></DevShell>;
+  return <DevShell><KickstarterPage demos={DEMOS} plans={plans} /></DevShell>;
 }

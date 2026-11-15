@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 /** Pages read top to bottom, where Space keeps the browser's page-down: the landing pages, the kickstarter and the demos. */
-const SCROLL_PAGES = new Set(["/", "/players", "/landing-1", "/kickstarter", "/dev/kickstarter", "/demo"]);
+const SCROLL_PAGES = new Set(["/", "/players", "/landing-1", "/kickstarter", "/dev/kickstarter", "/dev/costs", "/demo"]);
 
 // where the browser gives Space a job of its own: typing, pressing a button, ticking a box, opening a menu or details.
 // A link or an element that only has a role (a `<g role="button">`, a `<div role="tab">`) has none: Space there scrolls

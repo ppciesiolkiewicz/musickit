@@ -24,7 +24,7 @@ test("plan tokens are the median per model, counting cached input, from runs tha
   assert.deepEqual(t, [{ model: "claude-sonnet-5-5", label: "Sonnet 5.5", runs: 3, input: 70, output: 200 }]);
 });
 
-const A: Assumptions = { price: 27, plansPerMonth: 8, aiShare: 1, batch: false, emailsPerDay: 1, emailPer1000: 0.4, feePercent: 2.9, feeFixed: 0.3, hosting: 0 };
+const A: Assumptions = { price: 27, plansPerMonth: 8, aiShare: 1, batch: false, reuse: 0, emailsPerDay: 1, emailPer1000: 0.4, feePercent: 2.9, feeFixed: 0.3, hosting: 0 };
 
 test("a player's year adds the AI, the emails and the fee, and finds the break-even", () => {
   const y = playerYear({ model: "claude-sonnet-5-5", input: 100_000, output: 30_000 }, A);
@@ -75,4 +75,16 @@ test("a plan's year: twelve payments a month, Batch halves the AI, a model with 
   const none = planYear({ priceCents: 2700, period: "year", autoplansPerMonth: 8, batch: false }, "claude-x", tokens, 1, fee, 0);
   assert.equal(none.perPlan, null);
   close(none.fee, 27 * 0.029 + 0.3);
+});
+
+test("reused plans cost no AI: half reused halves the AI, all reused leaves none", () => {
+  const t = { model: "claude-sonnet-5-5" as const, input: 100_000, output: 30_000 };
+  const full = playerYear(t, A);
+  close(playerYear(t, { ...A, reuse: 0.5 }).ai, full.ai / 2);
+  assert.equal(playerYear(t, { ...A, reuse: 1 }).ai, 0);
+  assert.equal(playerYear(t, { ...A, reuse: 1 }).breakEvenPlansPerMonth, Infinity);
+  const tokens = [{ ...t, label: "Sonnet 5.5", runs: 1 }];
+  const plan = { priceCents: 2700, period: "year" as const, autoplansPerMonth: 8, batch: false };
+  const fee = { percent: 0, fixed: 0 };
+  close(planYear(plan, t.model, tokens, 1, fee, 0, 0, 0.75).ai, planYear(plan, t.model, tokens, 1, fee, 0, 0).ai / 4);
 });

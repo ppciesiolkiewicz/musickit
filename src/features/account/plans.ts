@@ -5,7 +5,7 @@ import type { Role } from "./model";
  * by default). The rows are written by the migration that made the table (drizzle/0005_plans.sql) and changed in the
  * database, not here; this file only knows their shape and the rules for choosing one.
  *
- * The prices and allowances were set from /dev/kickstarter's "What one player costs" (2026-11-15): the median tokens of a
+ * The prices and allowances were set from "What one player costs", now on /dev/costs (2026-11-15): the median tokens of a
  * plan per model at API list prices, so every plan still leaves money at its full allowance. See "Plans" on that page.
  * Every plan uses the same model, `SUBSCRIPTION_MODEL`.
  */
@@ -34,7 +34,7 @@ export const DEFAULT_PLAN_ID = "student";
 
 /**
  * The one model that writes every autoplan and AI note, on every plan (2026-11-15: Haiku, to keep it cheap). Plans
- * differ in price, allowance and students, never in model; /dev/kickstarter costs every plan on it.
+ * differ in price, allowance and students, never in model; /dev/costs costs every plan on it.
  */
 export const SUBSCRIPTION_MODEL = "claude-haiku-5-5";
 
