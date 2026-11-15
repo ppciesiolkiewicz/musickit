@@ -117,7 +117,7 @@
 
 /*
  * Practice tiles (src/features/practice/PracticeTiles.tsx): brushed metal over the tile's solid tone. A light edge on top,
- * a shade at the foot and fine vertical lines; on hover the tile lifts, its shadow drops and a sheen crosses it.
+ * a shade at the foot and fine vertical lines; on hover the tile lifts and its shadow drops.
  * The tone stays a plain `bg-*` class, so the metal layers sit on top of it.
  */
 .metal-tile {
@@ -135,15 +135,6 @@
   text-shadow: 0 1px 1px rgb(0 0 0 / 0.35);
   transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s ease, filter 0.22s ease;
 }
-.metal-tile::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: linear-gradient(110deg, transparent 35%, rgb(255 255 255 / 0.26) 50%, transparent 65%);
-  transform: translateX(-110%);
-}
 @media (hover: hover) {
   .metal-tile:hover {
     transform: translateY(-5px);
@@ -155,14 +146,9 @@
       0 14px 24px -10px rgb(0 0 0 / 0.75),
       0 4px 8px rgb(0 0 0 / 0.3);
   }
-  .metal-tile:hover::after {
-    transform: translateX(110%);
-    transition: transform 0.7s ease;
-  }
 }
 .metal-tile:focus-visible { transform: translateY(-5px); }
 .metal-tile:active { transform: translateY(-1px) scale(0.98); transition-duration: 0.08s; }
 @media (prefers-reduced-motion: reduce) {
   .metal-tile, .metal-tile:hover, .metal-tile:focus-visible, .metal-tile:active { transform: none; }
-  .metal-tile::after { display: none; }
 }
