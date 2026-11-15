@@ -6,7 +6,7 @@ import { SUBSCRIPTION_MODEL, type Billing, type Plan } from "@/features/account/
 import { startShares } from "../model/growth";
 import type { DevModel } from "../model/models";
 import { atScale, playerYear, type Assumptions, type PlanTokens } from "../model/unitEconomics";
-import type { ReuseInfo } from "./PlanCosts";
+import { reusedShare, type ReuseInfo } from "./PlanCosts";
 
 /**
  * "What one player costs": one paying account's year on every plan of the `plans` table, on one AI model, in one chart.
@@ -112,7 +112,6 @@ function offersFrom(plans: Plan[] | null, reuse: ReuseInfo | null): Offer[] {
     return [{ id: "student", name: "Student (pricing.ts)", enabled: true, month: 9, year: PRICING.player.priceNumber, allowance: PRICING.player.plansPerMonth, batch: false, reuse: 0 }];
   }
   return [...plans].sort((a, b) => a.sort - b.sort).map((p) => {
-    const pct = reuse?.newPlanPercent[p.id] ?? 100;
     return {
       id: p.id,
       name: p.name,
@@ -121,8 +120,7 @@ function offersFrom(plans: Plan[] | null, reuse: ReuseInfo | null): Offer[] {
       year: p.yearCents / 100,
       allowance: p.autoplansPerMonth,
       batch: p.batch,
-      // with no plan enabled for reuse there is nothing to take, so every autoplan is written
-      reuse: reuse && reuse.library.enabled > 0 ? 1 - pct / 100 : 0,
+      reuse: reusedShare(reuse, p.id),
     };
   });
 }

@@ -24,6 +24,12 @@ export interface ReuseInfo {
   library: { total: number; enabled: number };
 }
 
+/**
+ * The share (0 to 1) of a plan's autoplans taken from the library: the plan's own chance, whatever the local library holds,
+ * since these are costs for production, where the library is filled. Without a database, none.
+ */
+export const reusedShare = (reuse: ReuseInfo | null, planId: string): number => (reuse ? 1 - (reuse.newPlanPercent[planId] ?? 100) / 100 : 0);
+
 export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no database, so no plans table */ plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null; /** the payment provider chosen at the top of the page */ fee: { percent: number; fixed: number } }) {
   const [usage, setUsage] = useState(1);
 
@@ -65,9 +71,7 @@ export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no 
               </thead>
               <tbody>
                 {[...plans].sort((a, b) => a.sort - b.sort).map((p) => {
-                  const pct = reuse?.newPlanPercent[p.id] ?? 100;
-                  // with no plan enabled for reuse there is nothing to take, so every autoplan is written
-                  const reused = reuse && reuse.library.enabled > 0 ? 1 - pct / 100 : 0;
+                  const reused = reusedShare(reuse, p.id);
                   const students = studentsLabel(p);
                   return (["month", "year"] as const).map((billing) => {
                   const y = planYear({ ...p, priceCents: priceCents(p, billing), period: billing }, SUBSCRIPTION_MODEL, tokens, usage, fee, 1, 0.4, reused);
@@ -99,7 +103,7 @@ export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no 
                         {p.batch ? "Batch: half price, minutes later" : "At once"}
                       </td>
                       <td className="whitespace-nowrap">{priceLabel(p, "month")}<span className="block text-xs text-slate-500">{usd(y.revenue)} a year</span></td>
-                      <td>{pct}%</td>
+                      <td>{Math.round((1 - reused) * 100)}%</td>
                       <td>{y.perPlan === null ? <span className="text-xs text-amber-300">no runs</span> : usd(y.perPlan)}</td>
                       <td>{usd(y.ai)}</td>
                       <td>{usd(y.fee)}</td>
@@ -112,7 +116,7 @@ export default function PlanCosts({ plans, tokens, reuse, fee }: { /** null: no 
               </tbody>
             </table>
           </div>
-          <p className="mt-2 text-xs text-slate-500">Library: {reuse ? `${reuse.library.enabled} of ${reuse.library.total} plans in practice_plans enabled for reuse` : "not read"}{reuse && reuse.library.enabled === 0 ? ", so every autoplan is costed as written new (npm run -s db:seed-plans)" : ""}. Each plan has a row paid monthly and one paid yearly. Each year also has one email a day ($0.15). A free trial costs AI with no payment: see Over time. Hosting and fixed costs are under What one player costs. Allowances aren&apos;t enforced yet: the app doesn&apos;t call the AI from the server.</p>
+          <p className="mt-2 text-xs text-slate-500">Library: {reuse ? `${reuse.library.enabled} of ${reuse.library.total} plans in practice_plans enabled for reuse` : "not read"}{reuse && reuse.library.enabled === 0 ? ". Reuse is still costed at each plan's chance, as in production; here nothing could be reused until the library is filled (npm run -s db:seed-plans)" : ""}. Each plan has a row paid monthly and one paid yearly. Each year also has one email a day ($0.15). A free trial costs AI with no payment: see Over time. Hosting and fixed costs are under What one player costs. Allowances aren&apos;t enforced yet: the app doesn&apos;t call the AI from the server.</p>
         </>
       )}
     </section>

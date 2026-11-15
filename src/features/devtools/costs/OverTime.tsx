@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { SUBSCRIPTION_MODEL, modelLabel, type Plan } from "@/features/account/plans";
 import { lifetimeValue, project, startShares, type GrowthInputs, type GrowthMonth, type GrowthPlan } from "../model/growth";
 import { playerYear, type PlanTokens } from "../model/unitEconomics";
-import type { ReuseInfo } from "./PlanCosts";
+import { reusedShare, type ReuseInfo } from "./PlanCosts";
 
 /**
  * "Over time": what the business is worth month by month, from `model/growth.ts`. Trials start and grow, a share pays,
@@ -140,8 +140,7 @@ export default function OverTime({ plans, tokens, reuse, fee }: { plans: Plan[] 
   const set = <K extends keyof typeof g>(key: K) => (v: number) => setG((s) => ({ ...s, [key]: v }));
 
   const growthPlans: GrowthPlan[] = sorted.map((p, i) => {
-    const pctNew = reuse?.newPlanPercent[p.id] ?? 100;
-    const reused = reuse && reuse.library.enabled > 0 ? 1 - pctNew / 100 : 0;
+    const reused = reusedShare(reuse, p.id);
     const y = model
       ? playerYear(model, { price: 0, plansPerMonth: p.autoplansPerMonth * usage, batch: p.batch, reuse: reused, emailsPerDay: 1, emailPer1000: 0.4, feePercent: 0, feeFixed: 0, hosting: 0 })
       : null;
