@@ -1,4 +1,4 @@
-import { bigint, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { bigint, boolean, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
@@ -10,6 +10,32 @@ const at = (name: string) => timestamp(name, { withTimezone: true, mode: "date" 
 /** Same values as `ROLES` in features/account/model.ts. */
 export const userRole = pgEnum("user_role", ["student", "teacher", "owner"]);
 
+export const planPeriod = pgEnum("plan_period", ["month", "year"]);
+
+/**
+ * What a person pays for and gets (`Plan` in features/account/plans.ts). The rows are written by the migration that made
+ * the table (0005_plans) and changed here in the database: a price, an allowance, `enabled`.
+ */
+export const plans = pgTable("plans", {
+  /** "student", "teacher-basic" … */
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  /** The role the plan gives; "student" or "teacher". */
+  role: userRole("role").notNull(),
+  priceCents: integer("price_cents").notNull(),
+  period: planPeriod("period").notNull(),
+  /** Students a teacher can have; null is no limit, 0 a student's own plan. */
+  students: integer("students"),
+  autoplansPerMonth: integer("autoplans_per_month").notNull(),
+  planModel: text("plan_model").notNull(),
+  noteModel: text("note_model").notNull(),
+  batch: boolean("batch").notNull().default(false),
+  /** Can be chosen in the app. People already on a turned-off plan keep it. */
+  enabled: boolean("enabled").notNull().default(true),
+  sort: integer("sort").notNull().default(0),
+  updatedAt: at("updated_at").notNull().defaultNow(),
+});
+
 /** One person. Every email here was proven: by a link we mailed, or by Google. */
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -17,6 +43,8 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   role: userRole("role").notNull(),
+  /** The plan they are on; every account starts on Student. */
+  planId: text("plan_id").notNull().default("student").references(() => plans.id),
   createdAt: at("created_at").notNull().defaultNow(),
   updatedAt: at("updated_at").notNull().defaultNow(),
 });

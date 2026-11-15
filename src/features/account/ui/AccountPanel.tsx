@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ROLE_LABEL } from "../model";
 import { useAccount, useAccountStore } from "../useAccount";
+import PlanPicker from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, SECONDARY, errorOf, send } from "./parts";
 
 /** After anything that changes who is signed in, every page reads its data again. */
@@ -68,6 +69,8 @@ export default function AccountPanel() {
         <button type="submit" disabled={busy || shown.trim() === account.name} className={SECONDARY}>Save name</button>
         {saved && <p role="status" className="text-xs text-emerald-300">Name saved.</p>}
       </form>
+
+      <PlanPicker account={account} />
 
       <p className="text-xs text-slate-500">Your plans, progress, notes and videos are kept in your account.</p>
       <ErrorLine>{error}</ErrorLine>

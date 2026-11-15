@@ -1,4 +1,5 @@
 import type { Role } from "../model";
+import type { Plan } from "../plans";
 
 /** A user row, as the database holds it. */
 export interface UserRow {
@@ -40,6 +41,12 @@ export interface AuthRepo {
   /** Null when the email already has a user. */
   createUser(input: { email: string; name: string; role: Role }, now: Date): Promise<UserRow | null>;
   updateUserName(id: string, name: string, now: Date): Promise<UserRow | null>;
+  /** Every plan, turned off or not. */
+  listPlans(): Promise<Plan[]>;
+  /** The plan the user is on; null when there is no such user. */
+  userPlanId(userId: string): Promise<string | null>;
+  /** Moves the user to the plan, with the role it gives, in one step. */
+  setUserPlan(userId: string, planId: string, role: Role, now: Date): Promise<UserRow | null>;
   /** Deletes the user with their sessions and identities. */
   deleteUser(id: string): Promise<void>;
 

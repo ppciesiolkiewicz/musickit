@@ -1,7 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import type { Plan } from "../plans";
 import {
   AFTER_LOGIN,
+  accountPlans,
+  choosePlan,
   CODE_TRIES,
   LINK_DAY_LIMIT,
   LINK_LIMIT,
@@ -256,4 +259,44 @@ test("peekSession finds the account without renewing the session", async () => {
   assert.equal(sessions[0].expiresAt.getTime(), START + SESSION_TTL, "not renewed");
   assert.equal(await peekSession(deps, "nope"), null);
   assert.equal(await peekSession(deps, undefined), null);
+});
+
+const PLAN = { priceCents: 1500, period: "month", students: 10, autoplansPerMonth: 40, planModel: "claude-haiku-5-5", noteModel: "claude-haiku-5-5", batch: false } as const;
+const PLANS: Plan[] = [
+  { ...PLAN, id: "teacher-pro", name: "Teacher Pro", role: "teacher", enabled: true, sort: 2 },
+  { ...PLAN, id: "student", name: "Student", role: "student", enabled: true, sort: 0 },
+  { ...PLAN, id: "teacher-old", name: "Old", role: "teacher", enabled: false, sort: 1 },
+];
+
+test("a new account is on Student and sees the enabled plans in order", async () => {
+  const store = memoryRepo(PLANS);
+  const deps: AuthDeps = { ...setup().deps, repo: store.repo };
+  const { account } = await signUp(deps, "ann@school.com", "Ann");
+  const seen = await accountPlans(deps, account.id);
+  assert.equal(seen?.current, "student");
+  assert.deepEqual(seen?.plans.map((p) => p.id), ["student", "teacher-pro"]);
+  assert.equal(await accountPlans(deps, "nobody"), null);
+});
+
+test("choosing a Teacher plan makes a student a teacher, and back; an owner stays an owner", async () => {
+  const store = memoryRepo(PLANS);
+  const deps: AuthDeps = { ...setup().deps, repo: store.repo };
+  const { account } = await signUp(deps, "ann@school.com", "Ann");
+  const teacher = await choosePlan(deps, account, "teacher-pro");
+  assert.equal(teacher?.role, "teacher");
+  assert.equal(await store.repo.userPlanId(account.id), "teacher-pro");
+  assert.equal((await choosePlan(deps, teacher!, "student"))?.role, "student");
+  const owner = { ...account, role: "owner" as const };
+  assert.equal((await choosePlan(deps, owner, "teacher-pro"))?.role, "owner");
+});
+
+test("a turned-off plan, an unknown one or the current one can't be chosen, and the one you are on stays shown when turned off", async () => {
+  const store = memoryRepo(PLANS);
+  const deps: AuthDeps = { ...setup().deps, repo: store.repo };
+  const { account } = await signUp(deps, "ann@school.com", "Ann");
+  assert.equal(await choosePlan(deps, account, "teacher-old"), null);
+  assert.equal(await choosePlan(deps, account, "nope"), null);
+  assert.equal(await choosePlan(deps, account, "student"), null);
+  store.planOf.set(account.id, "teacher-old");
+  assert.deepEqual((await accountPlans(deps, account.id))?.plans.map((p) => p.id), ["student", "teacher-old", "teacher-pro"]);
 });

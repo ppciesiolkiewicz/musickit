@@ -1,4 +1,6 @@
+import { drizzleRepo } from "@/features/account/server/repo.drizzle";
 import DevShell from "@/features/devtools/DevShell";
+import { getDb } from "@/lib/db/client";
 import KickstarterPage from "@/features/devtools/kickstarter/KickstarterPage";
 import PUBLISHED from "@/features/devtools/compare/published.json";
 import type { RunSummary } from "@/features/devtools/model/history";
@@ -27,6 +29,10 @@ const DEMOS: DemoLink[] = [
   { group: "For any instrument", label: "Rhythm trainer", about: "tap or strum in time and see how close each hit is to the beat", url: `${SITE_URL}/theory/rhythm` },
 ];
 
-export default function Kickstarter() {
-  return <DevShell><KickstarterPage demos={DEMOS} planTokens={planTokens(PUBLISHED.runs as RunSummary[])} /></DevShell>;
+export const dynamic = "force-dynamic";
+
+export default async function Kickstarter() {
+  const db = getDb();
+  const plans = db ? await drizzleRepo(db).listPlans() : null;
+  return <DevShell><KickstarterPage demos={DEMOS} planTokens={planTokens(PUBLISHED.runs as RunSummary[])} plans={plans} /></DevShell>;
 }

@@ -1,5 +1,6 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, isEmail, type Account } from "../model";
+import { canChoose, choosablePlans, roleOnPlan, type Plan } from "../plans";
 import type { AuthRepo, TokenRow, UserRow } from "./repo";
 
 /**
@@ -196,5 +197,25 @@ export async function rename(deps: AuthDeps, userId: string, name: unknown): Pro
   const clean = cleanName(name);
   if (!clean) return null;
   const user = await deps.repo.updateUserName(userId, clean, deps.now());
+  return user ? toAccount(user) : null;
+}
+
+/** The plans a person can see and the one they are on (see `choosablePlans`). Null when there is no such user. */
+export async function accountPlans(deps: AuthDeps, userId: string): Promise<{ plans: Plan[]; current: string } | null> {
+  const current = await deps.repo.userPlanId(userId);
+  if (current === null) return null;
+  return { plans: choosablePlans(await deps.repo.listPlans(), current), current };
+}
+
+/**
+ * Moves the person to an enabled plan, with no payment (the beta). The plan's role comes with it, so a Teacher plan
+ * makes a student a teacher; an owner stays an owner. Null when the plan can't be chosen: unknown, turned off, or the
+ * one they are on.
+ */
+export async function choosePlan(deps: AuthDeps, account: Account, planId: unknown): Promise<Account | null> {
+  const current = await deps.repo.userPlanId(account.id);
+  const plan = canChoose(await deps.repo.listPlans(), current, planId);
+  if (!plan) return null;
+  const user = await deps.repo.setUserPlan(account.id, plan.id, roleOnPlan(account.role, plan), deps.now());
   return user ? toAccount(user) : null;
 }

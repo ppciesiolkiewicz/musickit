@@ -18,6 +18,8 @@
 - **A new query is a method on `AuthRepo`**, written in both `repo.drizzle.ts` and `repo.memory.ts`.
 - **Every route that changes something starts with `auth()` and `sameOrigin(req)`**, and finds the person with
   `requestAccount(deps, req)`. Never trust an id or an email from the request body for who is asking.
+- **A plan is a database row.** Prices, allowances, models and `enabled` live in the `plans` table; a screen shows
+  what `GET /api/account/plan` gives and never writes a price of its own. The plan's role comes with it (`roleOnPlan`).
 - **A token is stored as its hash, used once, and never logged** (the one exception: the development log-in link).
 - **Where to go next is checked with `safeNext`**, wherever it comes from. Never redirect to a raw `next`.
 - **`server/` is server only.** Nothing in `ui/` or any client file imports from it; pages (server components) may.

@@ -11,6 +11,14 @@ name is changed on `/account`.
   (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role), `FEATURES` (the parts
   of the app with the roles that may use them; every role gets every feature except `sharePlan`, for teachers and owners), `can(account, feature)` and
   `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
+- `plans.ts`: `Plan` (a row of the `plans` table: name, the role it gives, price in US cents a month or a year, students,
+  AI autoplans a month, the Claude models for autoplans and for notes, Batch, `enabled`, `sort`), `choosablePlans`
+  (the enabled plans, plus the one the person is on even when turned off), `canChoose`, `roleOnPlan` and the labels.
+  The plans themselves are rows in the database, written by migration `0005_plans` and changed there; their prices and
+  allowances come from /dev/kickstarter's *Plans*, which shows what each costs us.
+- `ui/PlanPicker.tsx`: the Plan part of `/account`. `GET /api/account/plan` gives `{ plans, current }`; `POST` with
+  `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
+  reloads. Leaving a Teacher plan for Student asks first.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
 - `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout). The server half
   is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's
@@ -60,7 +68,7 @@ Things that are on purpose:
 - **Two cookies.** `mk_session` (hidden from scripts) is the session. `mk_in` only tells the page that a session
   exists, so a visitor's page never asks the server who they are. The server never trusts `mk_in`.
 - **The answer to "email me a link" never says whether the email has an account.**
-- **Nobody picks a role.** A new account is a student; a teacher or owner is set by us. Logging in again, by link or
+- **A role comes with a plan.** A new account is a student on the Student plan. Choosing a Teacher plan on `/account` makes a student a teacher, and choosing Student makes a teacher a student again; an owner is set by us and stays an owner on any plan. A plan turned off (`enabled = false`) can't be chosen, but whoever is on it keeps it. Logging in again, by link or
   Google, never changes the name or role of an account.
 - **The old addresses still work.** `/register` and `/register/teacher` go to `/login`, `/register/finish` to
   `/login` (`next.config.ts`).
@@ -97,6 +105,6 @@ No `DATABASE_URL` means no accounts: the nav shows no Log in, `/login` says acco
 ## Not here yet
 
 - The plan page's Share plan asks `can("sharePlan")` (Share, or Upgrade to Teacher account), and the share rules (`userData/server/shares.ts`) ask `can(account, "sharePlan")` again on the server.
-- No way to become a teacher from the app: we set the role in the database.
+- Plans aren't paid for yet, and their allowances (autoplans a month, students) aren't counted or enforced: the app doesn't call the AI from the server.
 - Which students a teacher has, schools, and giving a plan to a student are not modelled.
 - Links are limited per email only, not per network address.

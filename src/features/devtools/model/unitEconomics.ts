@@ -100,3 +100,43 @@ export function atScale(y: PlayerYear, price: number, players: number, fixedMont
   const fixed = fixedMonthly * 12;
   return { revenue, variable, fixed, profit: revenue - variable - fixed, playersToCoverFixed: y.left > 0 ? Math.ceil(fixed / y.left) : null };
 }
+
+/** What a plan of `features/account/plans.ts` needs here; kept local so the cost model takes any plan-like row. */
+export interface PlanOffer {
+  priceCents: number;
+  period: "month" | "year";
+  autoplansPerMonth: number;
+  planModel: string;
+  batch: boolean;
+}
+
+export interface PlanYearResult {
+  /** US$ a year */
+  revenue: number;
+  /** one autoplan on the plan's model, Batch API applied; null when the model has no measured runs */
+  perPlan: number | null;
+  ai: number;
+  fee: number;
+  email: number;
+  total: number;
+  left: number;
+  /** left ÷ revenue; 0 to 1, negative is a loss */
+  margin: number;
+}
+
+/**
+ * One account's year on a plan, using `usage` (0 to 1) of its autoplan allowance. A monthly plan is twelve payments, so
+ * twelve fixed fees. AI notes spend the same allowance as autoplans and are costed as autoplans on the plan's model.
+ */
+export function planYear(plan: PlanOffer, tokens: PlanTokens[], usage: number, fee: { percent: number; fixed: number }, emailsPerDay = 1, emailPer1000 = 0.4): PlanYearResult {
+  const payments = plan.period === "month" ? 12 : 1;
+  const revenue = (plan.priceCents / 100) * payments;
+  const t = tokens.find((x) => x.model === plan.planModel);
+  const raw = t ? requestCost(t.model, t.input, t.output) : null;
+  const perPlan = raw === null ? null : raw * (plan.batch ? 0.5 : 1);
+  const ai = (perPlan ?? 0) * plan.autoplansPerMonth * usage * 12;
+  const feeYear = revenue > 0 ? (revenue * fee.percent) / 100 + fee.fixed * payments : 0;
+  const email = (emailsPerDay * 365 * emailPer1000) / 1000;
+  const total = ai + feeYear + email;
+  return { revenue, perPlan, ai, fee: feeYear, email, total, left: revenue - total, margin: revenue > 0 ? (revenue - total) / revenue : 0 };
+}

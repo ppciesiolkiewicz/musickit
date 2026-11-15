@@ -1,6 +1,7 @@
-import { and, count, eq, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
+import { and, count, eq, getTableColumns, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { authTokens, identities, sessions, users } from "@/lib/db/schema";
+import { authTokens, identities, plans, sessions, users } from "@/lib/db/schema";
+import type { Plan } from "../plans";
 import type { AuthRepo, TokenRow } from "./repo";
 
 const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, createdAt: users.createdAt };
@@ -34,6 +35,20 @@ export function drizzleRepo(db: Db): AuthRepo {
     },
     async updateUserName(id, name, now) {
       const [row] = await db.update(users).set({ name, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
+      return row ?? null;
+    },
+    async listPlans() {
+      const { updatedAt, ...cols } = getTableColumns(plans);
+      void updatedAt;
+      const rows = await db.select(cols).from(plans);
+      return rows.map((p): Plan => ({ ...p, role: p.role === "student" ? "student" : "teacher" }));
+    },
+    async userPlanId(id) {
+      const [row] = await db.select({ planId: users.planId }).from(users).where(eq(users.id, id)).limit(1);
+      return row?.planId ?? null;
+    },
+    async setUserPlan(id, planId, role, now) {
+      const [row] = await db.update(users).set({ planId, role, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
       return row ?? null;
     },
     async deleteUser(id) {
