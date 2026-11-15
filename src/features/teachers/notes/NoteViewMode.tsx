@@ -41,20 +41,20 @@ export const NOTE_EYEBROW = "A note from your teacher";
 /**
  * The notes creator page's header: its own title, line and corner `action`, or, while viewing, the note's opening title and the line
  * after it, under "A note from your teacher", as a demo note's page draws them (`PresetHeader`). A note with no title has only the
- * eyebrow. Over it while viewing, **Back to editing**.
+ * eyebrow. While viewing, **Back to editing** sits in the corner, and the header keeps the page's own margin (not `NOTE_COLUMN`),
+ * so switching views doesn't move the title sideways.
  */
 export function NotesCreatorHeader({ title, intro, bar, action }: { title: string; intro: string; /** the title rule's colour class (`pageBar`) */ bar: string; action?: ReactNode }) {
   const mode = useNoteViewMode();
   if (mode?.viewing && mode.note) {
     const note = notePageParts(mode.note);
     const back = <BackToEditing onBack={() => mode.setViewing(false)} />;
-    if (note.title === null) return <div className={NOTE_COLUMN}>{back}<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{NOTE_EYEBROW}</p></div>;
+    if (note.title === null) return <PageHeadingRow heading={<p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300">{NOTE_EYEBROW}</p>} corner={back} />;
     return (
-      <div className={NOTE_COLUMN}>
-        {back}
-        <PageHeading title={note.title} eyebrow={NOTE_EYEBROW} bar={bar} />
+      <>
+        <PageHeadingRow heading={<PageHeading title={note.title} eyebrow={NOTE_EYEBROW} bar={bar} />} corner={back} />
         {note.intro && <PageIntro>{note.intro}</PageIntro>}
-      </div>
+      </>
     );
   }
   const heading = <PageHeading title={title} bar={bar} />;
@@ -66,10 +66,10 @@ export function NotesCreatorHeader({ title, intro, bar, action }: { title: strin
   );
 }
 
-/** View as a note's way back: a quiet link-like button with a left arrow, at the top of the note. */
-export function BackToEditing({ onBack }: { onBack: () => void }) {
+/** View as a note's way back: a quiet link-like button with a left arrow, in the header's corner (`className` adds to it elsewhere). */
+export function BackToEditing({ onBack, className = "" }: { onBack: () => void; className?: string }) {
   return (
-    <button type="button" onClick={onBack} className="mb-5 inline-flex items-center gap-1 text-sm text-sky-300 hover:text-sky-200">
+    <button type="button" onClick={onBack} className={`${className} inline-flex items-center gap-1 text-sm text-sky-300 hover:text-sky-200`}>
       <Icon name="chevron-left" size={16} /> Back to editing
     </button>
   );

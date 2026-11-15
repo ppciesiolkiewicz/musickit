@@ -187,7 +187,7 @@ function Creator({ preset }: { preset?: string }) {
   if (viewing) {
     return (
       <div className={NOTE_COLUMN}>
-        {!mode && <BackToEditing onBack={() => setViewing(false)} />}
+        {!mode && <BackToEditing className="mb-5" onBack={() => setViewing(false)} />}
         {empty ? <p className="py-12 text-center text-slate-400">This note is empty.</p> : <NoteReader block={reading!} body={!!mode} footer={false} />}
       </div>
     );
