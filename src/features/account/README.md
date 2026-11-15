@@ -17,8 +17,8 @@ name is changed on `/account`.
   The plans themselves are rows in the database, written by migration `0005_plans` and changed there; their prices and
   allowances come from *Plans* on /dev/costs, which shows what each costs us. Each row also has `new_plan_percent`, internal
   and kept off `Plan`: the chance (0 to 100) that an autoplan on it is written new by the AI; the rest are taken from the
-  `practice_plans` library (rows `enabled_for_reuse`). Migration `0008_practice_plans_library` starts Student at 0 (always
-  reuses), Teacher Basic at 50, Pro and Unlimited at 100. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
+  `practice_plans` library (rows `enabled_for_reuse`). Always 1 to 99, held by a check in the database: no plan only
+  reuses and none always writes. Migration `0009_new_plan_percent_range` sets Student 10, Teacher Basic 25, Pro 50, Unlimited 75. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
 - `ui/PlanPicker.tsx`: the Plan part of `/account`. `GET /api/account/plan` gives `{ plans, current }`; `POST` with
   `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
   reloads. Leaving a Teacher plan for Student asks first.

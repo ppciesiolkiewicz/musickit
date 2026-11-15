@@ -1,4 +1,5 @@
-import { bigint, boolean, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { bigint, boolean, check, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
@@ -33,11 +34,12 @@ export const plans = pgTable("plans", {
   sort: integer("sort").notNull().default(0),
   /**
    * Internal, never shown or sent to a player: the chance (0 to 100) that an autoplan on this plan is written new by the
-   * AI. The rest are taken from `practice_plans` enabled for reuse, at no AI cost. 0 always reuses, 100 always writes.
+   * AI. The rest are taken from `practice_plans` enabled for reuse, at no AI cost. Always 1 to 99: no plan only reuses,
+   * none always writes.
    */
-  newPlanPercent: integer("new_plan_percent").notNull().default(100),
+  newPlanPercent: integer("new_plan_percent").notNull().default(50),
   updatedAt: at("updated_at").notNull().defaultNow(),
-});
+}, (t) => [check("plans_new_plan_percent_range", sql`${t.newPlanPercent} between 1 and 99`)]);
 
 /**
  * The library of practice plans an autoplan can be taken from instead of asking the AI (see `plans.new_plan_percent`).

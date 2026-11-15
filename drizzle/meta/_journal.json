@@ -64,6 +64,13 @@
       "when": 1794741190446,
       "tag": "0008_practice_plans_library",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794741461489,
+      "tag": "0009_new_plan_percent_range",
+      "breakpoints": true
     }
   ]
 }
