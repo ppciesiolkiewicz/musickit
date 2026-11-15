@@ -3,7 +3,7 @@
 Who is using the app, and what their role lets them use: students, teachers and owners. People log in with a link or a
 6-digit code we email them, or with Google. There are no passwords and no separate register form: `/login` is the one way in, and a
 person with no account yet gets one straight away, with no plan, and is held on `/account/setup` until they give their
-name (Google's is filled in) and choose a plan, with no payment. Both are changed later on `/account`.
+name (Google's is filled in) and choose a plan, with no payment; the three main sections send them there until then. Both are changed later on `/account`.
 
 ## Parts
 
@@ -30,7 +30,7 @@ name (Google's is filled in) and choose a plan, with no payment. Both are change
   `{ planId }` moves the person at once, with no payment during the beta (`choosePlan` in `server/auth.ts`), and the page
   reloads. Leaving a Teacher plan for Student asks first.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
-- `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout), which also holds an account with no plan on `/account/setup`. The server half
+- `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout), which also keeps an account with no plan out of the three main sections until `/account/setup`. The server half
   is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's
   public API through `src/lib/sharedNoteGone.ts`, so a stopped link is answered with 404 before the page streams: a clear 404
   only, 2 s at most, failing open); both read the public paths from
@@ -70,8 +70,9 @@ Things that are on purpose:
 - **A new account has no plan, and can't use the app until it chooses one.** Signing in stays one step; the account is
   made with Google's name or the email before the @, and `users.plan_id` null (migration `0012_new_accounts_choose_plan`;
   accounts from before it kept Student). While it is null, `Account.needsSetup` is true: `pathAfterSignIn` sends every
-  sign-in to `/account/setup?next=…` (`setupHref`, `loginGuard.ts`), and `ui/LoginGuard` sends every other app page
-  there, keeping the page as `next`. Public pages stay open. It is held in the browser only: the API routes don't refuse
+  sign-in to `/account/setup?next=…` (`setupHref`, `loginGuard.ts`), and `ui/LoginGuard` sends the app's three places
+  there (AI autoplan, Interactive notes, Practice: `APP_PLACES` in `src/lib/appPlaces.ts`), keeping the page as `next`.
+  Every other page stays open: the landing pages, the FAQ, `/account`. It is held in the browser only: the API routes don't refuse
   an account with no plan, which is a student meanwhile.
 - **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256.
   A code is stored as the SHA-256 of the email and the code.
@@ -103,6 +104,9 @@ development mails nothing: the link is shown on the page and printed in the serv
 (or can't be reached), development shows the link the same way with Resend's reason, and every environment logs the
 reason (`[auth] the log-in email ... was not sent`). Each try at Resend gives up after 8 s and a timeout, a lost connection, a 429 or a 5xx is tried once more with the same `Idempotency-Key` (`MAIL_TIMEOUT`, `MAIL_TRIES`), so one email is never sent twice. The page itself gives up on any account request after 30 s (`SEND_TIMEOUT` in `ui/parts.tsx`) and shows the error under the form. An `AUTH_URL` that isn't an http(s) address is ignored. `.env.example` lists the rest
 (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_URL`, `AUTH_FROM_EMAIL`).
+
+`npm run db:unplan -- <email>` takes an account off its plan (plan_id null; a teacher becomes a student, an owner stays
+one), so it is held on `/account/setup` again: for trying the setup page. Same localhost rule as `db:wipe`.
 
 `npm run db:wipe` deletes every row in a local database: accounts, sessions and saved data. The tables and the
 migration record stay. It refuses a database that isn't on localhost unless you pass `-- --yes-really`.

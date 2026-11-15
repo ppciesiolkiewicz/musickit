@@ -6,7 +6,7 @@
 
 const KEY = "musickit.loginHash";
 
-/** Where an account with no plan yet chooses its name and plan; it can't open another app page before that. */
+/** Where an account with no plan yet chooses its name and plan; it can't open the app's three places before that. */
 export const SETUP_PATH = "/account/setup";
 
 /** The setup page, going on to `next` afterwards. */

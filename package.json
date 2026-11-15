@@ -20,6 +20,7 @@
     "db:seed": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed.mjs",
     "db:seed-plans": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-plans.ts",
     "db:wipe": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-wipe.mjs",
+    "db:unplan": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-unplan.mjs",
     "db:studio": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/.bin/drizzle-kit studio",
     "db:diagram": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/db-diagram.mts && dbml-renderer -i docs/db/schema.dbml -o docs/db/schema.svg && echo wrote docs/db/schema.svg",
     "deps": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type mermaid > .deps/deps.mmd",

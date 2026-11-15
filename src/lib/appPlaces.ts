@@ -1,6 +1,7 @@
 /*
- * The app's three places, as the top nav links to them. One list for the nav (src/components/SiteNav.tsx) and the login
- * page, which says which of them a visitor was on their way to.
+ * The app's three places, as the top nav links to them. One list for the nav (src/components/SiteNav.tsx), the login
+ * page, which says which of them a visitor was on their way to, and the account guard, which keeps an account with no
+ * plan out of them until it has chosen one (features/account/ui/LoginGuard).
  */
 
 export type AppPlace = { href: string; label: string; /** the paths that count as being there */ under: string[] };
