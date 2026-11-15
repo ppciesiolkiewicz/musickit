@@ -263,3 +263,12 @@ test("the prompt teaches the choice, stages and variants, cells and hashtags, an
   assert.match(p, /"label\\?": \\?"variant\\?"/);
   assert.doesNotMatch(p, /key-choice/);
 });
+
+test("the prompt never carries block ids", () => {
+  const id = "a".repeat(32);
+  const ex = (i: number) => ({ title: `Ex ${i}`, minutes: 5, blockId: id, parentBlockId: "b".repeat(32), cells: [{ type: "text" as const, text: "x" }] });
+  const withIds: StoredPlan = { ...last, config: { ...last.config, days: last.config.days.map((d, i) => ({ ...d, exercises: [ex(i)] })) } };
+  const p = buildPrompt(DEFAULT_ANSWERS, catalogue(), [withIds, withIds]);
+  assert.equal(/blockId|parentBlockId/.test(p), false);
+  assert.equal(p.includes(id), false);
+});

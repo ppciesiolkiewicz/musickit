@@ -1,6 +1,8 @@
 import type { DocKind } from "../model";
+import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
+import type { Stars } from "@/features/progress/stars";
 
 /** A player's uploaded video: the `videos` row. `blobPath` is where its file is in the private Blob store. */
 export interface VideoRow {
@@ -30,6 +32,28 @@ export interface ShareRow {
   stoppedAt: Date | null;
 }
 
+/** Where an owner got a block (`block_owners.source`): the AI, the player's edit, the app's seed, a hand-written example. */
+export type BlockSource = "ai" | "edit" | "seed" | "example";
+
+/** A block to put in the library and the owner row to give it. `parentId` is only ever a block the saver owns. */
+export interface NewBlock {
+  id: string;
+  key: BlockKey;
+  parentId: string | null;
+  source: BlockSource;
+  enabledForReuse: boolean;
+}
+
+/** A player's review of a plan, the `plan_reviews` row. `libraryPlanId` is the library plan it was taken from, when known. */
+export interface PlanReviewRow {
+  planId: string;
+  libraryPlanId: string | null;
+  title: string;
+  stars: Stars;
+  why: string | null;
+  at: Date;
+}
+
 /** Everything a player's documents, progress and videos need from storage. `drizzleUserDataRepo` is Postgres, `memoryUserDataRepo` is for tests. */
 export interface UserDataRepo {
   /** The stored document, or null when there is none. */
@@ -42,8 +66,38 @@ export interface UserDataRepo {
   removeProgress(userId: string, exerciseId: string): Promise<void>;
   /** The day timer's records of one plan, as stored. */
   listPlanTimes(userId: string, planId: string): Promise<unknown[]>;
-  /** Replaces the record of the same plan and day. */
+  /**
+   * Replaces the record of the same plan and day. A record without `blocks` or `on` keeps the stored ones, so a tab still
+   * running code from before them doesn't wipe them.
+   */
   putPlanTime(userId: string, time: DayTime, now: Date): Promise<void>;
+  /** The users with a `plan` document. */
+  planUserIds(): Promise<string[]>;
+  /**
+   * The move-over: sets the block id of the user's entry for this exercise (`progress_entries.block_id` and `blockId` in
+   * its `entry`), only when it has none. No other column is written, so stars saved meanwhile are kept. True when a row changed.
+   */
+  setEntryBlockId(userId: string, exerciseId: string, blockId: string): Promise<boolean>;
+  /**
+   * The move-over: sets `plan_day_times.blocks` of one day, only when it has none. Seconds, dates and `updated_at` are not
+   * written, so a timer saving meanwhile is kept. True when a row changed.
+   */
+  setDayTimeBlocks(userId: string, planId: string, day: number, blocks: Record<string, string>): Promise<boolean>;
+  /** Which of these block ids the user owns (has a `block_owners` row for). */
+  ownedBlockIds(userId: string, ids: string[]): Promise<Set<string>>;
+  /**
+   * In one transaction: the blocks not stored yet (a stored block is never changed), then the owner rows the user lacks.
+   * `null` is the app. Nothing is updated or deleted.
+   */
+  addBlocks(userId: string | null, blocks: NewBlock[], now: Date): Promise<void>;
+  /**
+   * Makes the user's `plan_reviews` rows of these plans match `rows`: a row is added, or changed only when its `at` differs,
+   * and a row of the user whose plan is in `planIds` but not in `rows` is deleted. Rows of plans not in `planIds` (dropped
+   * from the history) are left. No `planIds`, nothing done.
+   */
+  syncPlanReviews(userId: string, planIds: string[], rows: PlanReviewRow[]): Promise<void>;
+  /** Every player's plan reviews, newest `at` first. */
+  listPlanReviews(limit: number): Promise<(PlanReviewRow & { userId: string })[]>;
   /** Stores a new video row; false when its id (or its path) is taken, and then nothing is changed. */
   createVideo(row: VideoRow): Promise<boolean>;
   /** The user's videos, newest first. */

@@ -3,6 +3,13 @@ enum auth_token_kind {
   signup
 }
 
+enum block_source {
+  ai
+  edit
+  seed
+  example
+}
+
 enum plan_period {
   month
   year
@@ -41,6 +48,36 @@ table auth_tokens {
   }
 }
 
+table block_owners {
+  user_id uuid
+  block_id text [not null]
+  source block_source [not null]
+  enabled_for_reuse boolean [not null, default: false]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (user_id, block_id) [name: 'block_owners_user_block', unique]
+    block_id [name: 'block_owners_block']
+  }
+}
+
+table blocks {
+  id text [pk, not null]
+  content jsonb [not null]
+  area text
+  topic text
+  concepts text[] [not null, default: `'{}'::text[]`]
+  level text
+  tags text[] [not null, default: `'{}'::text[]`]
+  parent_id text
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    area [name: 'blocks_area']
+    topic [name: 'blocks_topic']
+  }
+}
+
 table identities {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   user_id uuid [not null]
@@ -71,10 +108,28 @@ table plan_day_times {
   day integer [not null]
   elapsed integer [not null]
   spent jsonb [not null]
+  blocks jsonb
+  on_dates jsonb
   updated_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
     (user_id, plan_id, day) [pk]
+  }
+}
+
+table plan_reviews {
+  user_id uuid [not null]
+  plan_id text [not null]
+  library_plan_id text
+  title text [not null]
+  stars integer [not null]
+  why text
+  at "timestamp with time zone" [not null]
+
+  indexes {
+    (user_id, plan_id) [name: 'plan_reviews_user_plan', unique]
+    at [name: 'plan_reviews_at']
+    
   }
 }
 
@@ -115,10 +170,12 @@ table progress_entries {
   user_id uuid [not null]
   exercise_id text [not null]
   entry jsonb [not null]
+  block_id text
   updated_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
     (user_id, exercise_id) [name: 'progress_entries_user_exercise', unique]
+    block_id [name: 'progress_entries_block']
   }
 }
 
@@ -200,6 +257,10 @@ table videos {
   }
 }
 
+ref block_owners_user_id_users_id_fk: block_owners.user_id > users.id [delete: cascade, update: no action]
+
+ref block_owners_block_id_blocks_id_fk: block_owners.block_id > blocks.id [delete: no action, update: no action]
+
 ref identities_user_id_users_id_fk: identities.user_id > users.id [delete: cascade, update: no action]
 
 ref plan_claims_share_id_shares_id_fk: plan_claims.share_id > shares.id [delete: cascade, update: no action]
@@ -207,6 +268,10 @@ ref plan_claims_share_id_shares_id_fk: plan_claims.share_id > shares.id [delete:
 ref plan_claims_user_id_users_id_fk: plan_claims.user_id > users.id [delete: cascade, update: no action]
 
 ref plan_day_times_user_id_users_id_fk: plan_day_times.user_id > users.id [delete: cascade, update: no action]
+
+ref plan_reviews_user_id_users_id_fk: plan_reviews.user_id > users.id [delete: cascade, update: no action]
+
+ref plan_reviews_library_plan_id_practice_plans_id_fk: plan_reviews.library_plan_id > practice_plans.id [delete: set null, update: no action]
 
 ref progress_entries_user_id_users_id_fk: progress_entries.user_id > users.id [delete: cascade, update: no action]
 

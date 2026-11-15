@@ -1,10 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parsePlanConfig } from "./config";
-import { withExerciseIds } from "./exerciseIds";
+import { randomId, withBlockIds, withExerciseIds } from "./exerciseIds";
+import { blockIdOf, blockKeyOf } from "./blockId";
+import { draftOf, editDay, type DayDraft } from "./editPlan";
+import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "../examples";
 import { restartPlan, startPlan } from "./schedule";
 import { PLAN_KEY, localPlanStore, sanitiseState } from "../store/localPlanStore";
-import { EMPTY_STATE, type PlanConfig, type StoredPlan } from "./types";
+import { EMPTY_STATE, type PlanConfig, type PlanExercise, type StoredPlan } from "./types";
 
 const tagged = (extra: Record<string, unknown> = {}) => ({ title: "Ex", minutes: 5, cells: [{ type: "text", text: "x" }], level: "beginner", area: "guitar", tags: ["technique"], topic: "guitar-caged", ...extra });
 const reply = (ex: Record<string, unknown>, top: Record<string, unknown> = { progress: "CAGED: two shapes." }) =>
@@ -156,4 +159,121 @@ test("a claimed plan keeps the invite it came from; a broken one is dropped", ()
   const s = sanitiseState({ current: plan("a", "share-1"), history: [plan("b", 7)] });
   assert.equal(s.current!.from, "share-1");
   assert.equal("from" in s.history[0], false);
+});
+
+const bex = (title: string, extra: Record<string, unknown> = {}): PlanExercise => ({ title, minutes: 5, cells: [{ type: "text", text: title }], area: "guitar", tags: ["technique"], ...extra }) as PlanExercise;
+const configWith = (exs: PlanExercise[]): PlanConfig => ({ title: "W", days: [{ theme: "A", exercises: exs }, { theme: "B", exercises: [] }] });
+const blockIdsOf = (p: StoredPlan) => p.config.days.flatMap((d) => d.exercises.map((e) => e.blockId));
+
+test("withBlockIds puts the content's block id on every exercise, and replaces a wrong one", () => {
+  const a = bex("A"), b = bex("B");
+  const c = withBlockIds(configWith([{ ...a, blockId: "0".repeat(32) }, b]));
+  assert.equal(c.days[0].exercises[0].blockId, blockIdOf(blockKeyOf(a)));
+  assert.equal(c.days[0].exercises[1].blockId, blockIdOf(blockKeyOf(b)));
+});
+
+test("withBlockIds gives the same object when every id is right, and leaves a day without exercises alone", () => {
+  const c = withBlockIds(configWith([bex("A"), bex("B")]));
+  assert.equal(withBlockIds(c), c);
+  const damaged = { title: "W", days: [{ theme: "A" }, { theme: "B", exercises: [bex("A")] }] } as unknown as PlanConfig;
+  const out = withBlockIds(damaged);
+  assert.equal(out.days[0], damaged.days[0]);
+  assert.ok(out.days[1].exercises[0].blockId);
+});
+
+test("withBlockIds drops a parentBlockId that is not a block id or is the block itself", () => {
+  const own = blockIdOf(blockKeyOf(bex("A")));
+  const other = "a".repeat(32);
+  const c = withBlockIds(configWith([bex("A", { parentBlockId: other }), bex("A", { parentBlockId: own }), bex("A", { parentBlockId: "nope" }), bex("A", { parentBlockId: 7 })]));
+  const ps = c.days[0].exercises.map((e) => e.parentBlockId);
+  assert.deepEqual(ps, [other, undefined, undefined, undefined]);
+  assert.ok(!("parentBlockId" in c.days[0].exercises[1]));
+});
+
+test("startPlan gives every exercise a block id; the same exercise in two runs has the same block id and new slot ids", () => {
+  const one = startPlan(EMPTY_STATE, config(), counter(), "2026-11-01");
+  const two = startPlan(one, config(), () => "n" + Math.random(), "2026-11-08");
+  assert.ok(blockIdsOf(one.current!).every((id) => /^[0-9a-f]{32}$/.test(id!)));
+  assert.deepEqual(blockIdsOf(two.current!), blockIdsOf(one.current!));
+  assert.notDeepEqual(idsOf(two.current!.config), idsOf(one.current!.config));
+});
+
+test("sanitiseState fills block ids on a stored plan without them, history included", () => {
+  const plan = (id: string): StoredPlan => ({ id, startedOn: "2026-11-01", done: {}, config: config() });
+  const s = sanitiseState({ current: plan("a"), history: [plan("b")] });
+  assert.ok(blockIdsOf(s.current!).every(Boolean));
+  assert.ok(blockIdsOf(s.history[0]).every(Boolean));
+});
+
+test("a stored plan's block id is of its cleaned cells: a dropped tool changes it", () => {
+  const good = { type: "text", text: "x" };
+  const bad = { type: "finger-pattern", fingers: "1155", bpm: 60 };
+  const mk = (cells: unknown[]): StoredPlan => ({ id: "p", startedOn: "2026-11-01", done: {}, config: configWith([bex("A", { cells })]) });
+  const withBad = sanitiseState({ current: mk([good, bad]) }).current!.config.days[0].exercises[0];
+  const without = sanitiseState({ current: mk([good]) }).current!.config.days[0].exercises[0];
+  assert.deepEqual(withBad.cells, [good]);
+  assert.equal(withBad.blockId, without.blockId);
+  assert.equal(withBad.blockId, blockIdOf(blockKeyOf(withBad)));
+});
+
+test("sanitiseState survives an exercise with concepts: \"x\" and tags: [1, \"a\"]", () => {
+  const s = sanitiseState({ current: { id: "p", startedOn: "2026-11-01", done: {}, config: configWith([bex("A", { concepts: "x", tags: [1, "a"] })]) } });
+  assert.ok(s.current);
+  assert.match(s.current!.config.days[0].exercises[0].blockId!, /^[0-9a-f]{32}$/);
+});
+
+const allExampleConfigs = (): PlanConfig[] => [
+  ...EXERCISE_EXAMPLES.map((x) => {
+    const r = parsePlanConfig(JSON.stringify({ title: "E", progress: "p", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [x.exercise] })) }), []);
+    assert.ok(r.ok, x.id);
+    return r.config;
+  }),
+  ...PLAN_EXAMPLES.map((x) => {
+    const r = parsePlanConfig(JSON.stringify(x.plan), []);
+    assert.ok(r.ok, x.id);
+    return r.config;
+  }),
+];
+
+test("every example keeps its block ids through a load: sanitiseState gives what startPlan gave", () => {
+  for (const config of allExampleConfigs()) {
+    const started = startPlan(EMPTY_STATE, config, randomId, "2026-11-15");
+    const loaded = sanitiseState(JSON.parse(JSON.stringify(started)));
+    assert.deepEqual(blockIdsOf(loaded.current!), blockIdsOf(started.current!), config.title);
+  }
+});
+
+test("every example keeps its block ids through a load after editDay", () => {
+  for (const config of allExampleConfigs()) {
+    const plan = startPlan(EMPTY_STATE, config, randomId, "2026-11-15").current!;
+    const draft: DayDraft = draftOf(plan, 0);
+    draft.exercises[0] = { ...draft.exercises[0], exercise: { ...draft.exercises[0].exercise, title: "Changed" } };
+    if (draft.exercises.length < 2) draft.exercises.push({ from: null, exercise: bex("Added") });
+    const edited = editDay(plan, 0, draft, randomId) as StoredPlan;
+    const loaded = sanitiseState(JSON.parse(JSON.stringify({ current: edited })));
+    assert.deepEqual(blockIdsOf(loaded.current!), blockIdsOf(edited), config.title);
+  }
+});
+
+// what the editor or a paste can hand over that a stored plan's cleaning changes: no cells, an empty section, a cell with a stray property
+const SEAM_CELLS: unknown[][] = [[], [{ type: "section", title: "", cells: [] }], [{ type: "text", text: "x", extra: 1 }]];
+
+test("editDay stores the block id a reload keeps, also for cells the stored plan's cleaning changes", () => {
+  for (const cells of SEAM_CELLS) {
+    const plan = startPlan(EMPTY_STATE, configWith([bex("A"), bex("B")]), randomId, "2026-11-15").current!;
+    const draft: DayDraft = draftOf(plan, 0);
+    draft.exercises[0] = { ...draft.exercises[0], exercise: { ...draft.exercises[0].exercise, cells } as PlanExercise };
+    const edited = editDay(plan, 0, draft, randomId) as StoredPlan;
+    const loaded = sanitiseState(JSON.parse(JSON.stringify({ current: edited })));
+    assert.deepEqual(blockIdsOf(loaded.current!), blockIdsOf(edited), JSON.stringify(cells));
+    assert.deepEqual(loaded.current!.config.days[0].exercises[0].cells, edited.config.days[0].exercises[0].cells, JSON.stringify(cells));
+  }
+});
+
+test("startPlan stores the block id a reload keeps, also for cells the stored plan's cleaning changes", () => {
+  for (const cells of SEAM_CELLS) {
+    const started = startPlan(EMPTY_STATE, configWith([bex("A", { cells }), bex("B")]), randomId, "2026-11-15");
+    const loaded = sanitiseState(JSON.parse(JSON.stringify(started)));
+    assert.deepEqual(blockIdsOf(loaded.current!), blockIdsOf(started.current!), JSON.stringify(cells));
+  }
 });

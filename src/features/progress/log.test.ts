@@ -41,3 +41,12 @@ test("rating three times, then clearing, leaves no row", () => {
   assert.deepEqual(log, [entry({ id: "keep", exerciseId: "e0" })]);
   assert.equal(without(log, "nope"), log, "nothing to remove: the same list");
 });
+
+test("cleanEntries keeps a rated block's id, and drops a broken one without dropping the row", () => {
+  assert.equal(cleanEntries([entry({ blockId: "a".repeat(32) })])[0].blockId, "a".repeat(32));
+  for (const bad of [7, "", "x".repeat(201), null]) {
+    const [r] = cleanEntries([{ ...entry(), blockId: bad }]);
+    assert.ok(r);
+    assert.equal("blockId" in r, false);
+  }
+});

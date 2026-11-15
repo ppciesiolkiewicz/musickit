@@ -33,3 +33,10 @@ test("backfill: one row per rated exercise of every plan, with the stored stars 
   assert.equal(new Set(rows.map((r) => r.id)).size, 3);
   assert.deepEqual(backfill([{ ...plan("d"), rated: undefined }], counter()), []);
 });
+
+test("entryFor copies the exercise's block id; an exercise without one gives a row without it", () => {
+  const p = plan("p");
+  p.config.days[0].exercises[0].blockId = "b".repeat(32);
+  assert.equal(entryFor(p, 0, 0, { stars: 2, at: AT }, counter())?.blockId, "b".repeat(32));
+  assert.equal("blockId" in (entryFor(p, 0, 1, { stars: 2, at: AT }, counter()) ?? {}), false);
+});

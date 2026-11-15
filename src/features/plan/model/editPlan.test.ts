@@ -1,6 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { draftOf, draftWarnings, editDay, exerciseFromDraft, metaOf, sameExercise, type DayDraft } from "./editPlan";
+import { blockIdOf, blockKeyOf } from "./blockId";
+import { withBlockIds } from "./exerciseIds";
 import type { PlanExercise, StoredPlan } from "./types";
 
 const ex = (id: string, minutes = 5): PlanExercise => ({ id, title: `Ex ${id}`, minutes, cells: [{ type: "text", text: id, id: `c-${id}` }] });
@@ -105,5 +107,65 @@ describe("an exercise from the day editor", () => {
     assert.ok(w.some((s) => /learnBefore|Learn before/.test(s)));
     assert.ok(w.some((s) => /no .*level/.test(s)));
     assert.deepEqual(draftWarnings({ ...old, title: "Old" }), []);
+  });
+});
+
+describe("editDay block ids", () => {
+  const withIds = (): StoredPlan => { const p = plan(); return { ...p, config: withBlockIds(p.config) }; };
+  const bid = (e: PlanExercise) => blockIdOf(blockKeyOf(e));
+  it("a changed block gets a new slot id, a new block id and the old one as parentBlockId", () => {
+    const p = withIds();
+    const d = draftOf(p, 1);
+    const old = d.exercises[2].exercise;
+    d.exercises[2] = { ...d.exercises[2], exercise: { ...old, title: "Other" } };
+    const e = (editDay(p, 1, d, id) as StoredPlan).config.days[1].exercises[2];
+    assert.notEqual(e.id, old.id);
+    assert.equal(e.blockId, bid(e));
+    assert.notEqual(e.blockId, old.blockId);
+    assert.equal(e.parentBlockId, old.blockId);
+  });
+  it("changing only minutes or why keeps the block id and its parent, and still gives a new slot id", () => {
+    const p = withIds();
+    const parent = "b".repeat(32);
+    p.config.days[1].exercises[2] = { ...p.config.days[1].exercises[2], parentBlockId: parent };
+    const d = draftOf(p, 1);
+    const old = d.exercises[2].exercise;
+    d.exercises[2] = { ...d.exercises[2], exercise: { ...old, minutes: 9, why: "Because" } };
+    const e = (editDay(p, 1, d, id) as StoredPlan).config.days[1].exercises[2];
+    assert.notEqual(e.id, old.id);
+    assert.equal(e.blockId, old.blockId);
+    assert.equal(e.parentBlockId, parent);
+  });
+  it("an added exercise has a block id and no parent", () => {
+    const p = withIds();
+    const d = draftOf(p, 1);
+    d.exercises.splice(1, 0, { from: null, exercise: { title: "New", minutes: 10, cells: [], parentBlockId: "c".repeat(32), blockId: "d".repeat(32) } });
+    const e = (editDay(p, 1, d, id) as StoredPlan).config.days[1].exercises[1];
+    assert.equal(e.blockId, bid(e));
+    assert.equal("parentBlockId" in e, false);
+  });
+});
+
+describe("editDay block ids, old exercises", () => {
+  const bid = (e: PlanExercise) => blockIdOf(blockKeyOf(e));
+  it("an old exercise without a block id: the changed one's parent is the old content's block id", () => {
+    const p = plan();
+    const d = draftOf(p, 1);
+    const old = d.exercises[2].exercise;
+    assert.equal(old.blockId, undefined);
+    d.exercises[2] = { ...d.exercises[2], exercise: { ...old, title: "Other" } };
+    const e = (editDay(p, 1, d, id) as StoredPlan).config.days[1].exercises[2];
+    assert.equal(e.blockId, bid(e));
+    assert.equal(e.parentBlockId, bid(old));
+  });
+  it("a broken parentBlockId on the old exercise is not carried", () => {
+    const p = { ...plan(), config: withBlockIds(plan().config) };
+    p.config.days[1].exercises[2] = { ...p.config.days[1].exercises[2], parentBlockId: "not a block id" };
+    const d = draftOf(p, 1);
+    const old = d.exercises[2].exercise;
+    d.exercises[2] = { ...d.exercises[2], exercise: { ...old, minutes: 9 } };
+    const e = (editDay(p, 1, d, id) as StoredPlan).config.days[1].exercises[2];
+    assert.equal(e.blockId, old.blockId);
+    assert.equal("parentBlockId" in e, false);
   });
 });

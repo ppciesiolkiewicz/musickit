@@ -17,6 +17,8 @@ export interface ProgressEntry {
   /** the questionnaire topic the exercise practised */
   topic?: string;
   concepts?: string[];
+  /** the block rated, when the plan had one; a row stays one per slot (progress knows nothing of the id's shape) */
+  blockId?: string;
   stars: Stars;
   /** when it was rated, ISO datetime */
   at: string;
@@ -36,6 +38,7 @@ function cleanEntry(raw: unknown): ProgressEntry | null {
     ...(text(r.level) ? { level: r.level } : {}),
     ...(text(r.topic) ? { topic: r.topic } : {}),
     ...(concepts.length ? { concepts } : {}),
+    ...(text(r.blockId) && r.blockId.length <= 200 ? { blockId: r.blockId } : {}),
     stars: r.stars, at: r.at,
   };
 }

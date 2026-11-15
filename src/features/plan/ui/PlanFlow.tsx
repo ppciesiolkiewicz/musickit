@@ -8,7 +8,10 @@ import { parsePlanConfig } from "../model/config";
 import { buildPrompt } from "../model/prompt";
 import { useAllNotes } from "@/components/course/useCourseNotes";
 import { courseRatings } from "@/features/course/ratings";
-import type { PlanAnswers, PlanConfig, StoredPlan } from "../model/types";
+import type { PlanAnswers, PlanConfig, PlanReview, StoredPlan } from "../model/types";
+import type { Stars } from "@/features/progress/stars";
+import { localDate, weekOver } from "../model/schedule";
+import PlanReviewStep from "./PlanReviewStep";
 import { CopyPrompt, PasteBox } from "./PromptAndPaste";
 import { agentReply, checkPlanReply } from "../model/fixRequest";
 import { hasBrowserAgentApi, useBrowserAgentTools } from "./useBrowserAgentTools";
@@ -16,7 +19,7 @@ import { areasStep, questionSteps, restSteps, topicSteps } from "../intake/ui/Qu
 
 /** The flow in progress, kept for the tab's life so a reload or a hot reload reopens it where it was. */
 export const FLOW_KEY = "musickit.plan.flow";
-type Saved = { mode: "start" | "next"; draft: PlanAnswers; feedback: string; text: string; step: number; /** "next": the questionnaire screens were asked for */ editing?: boolean };
+type Saved = { mode: "start" | "next"; draft: PlanAnswers; feedback: string; text: string; step: number; /** "next": the questionnaire screens were asked for */ editing?: boolean; /** "next": the plan review screen comes first */ reviewing?: boolean };
 
 /** The saved flow, if any (sessionStorage can be blocked). */
 export function savedFlow(): Saved | null {
@@ -43,13 +46,16 @@ const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py
  * "next": how the week went, minutes and anything else, then the prompt with this week's ratings by topic and the AI's
  * progress summary, then paste. The topic screens are left out of "next" (ratings say more than they do), except for an
  * area with no answer yet (answers kept from before the topics), and unless the player asks with "Change my answers". `onPlan` gets the plan, the answers and, for "next", the notes on the week.
+ * Once the week is over, "next" opens on the plan review (`PlanReviewStep`, optional), which goes to `onReview` straight away.
  */
-export default function PlanFlow({ mode, answers, current, history, entries, onPlan, onClose }: {
+export default function PlanFlow({ mode, answers, current, history, entries, review, onReview, onPlan, onClose }: {
   mode: "start" | "next";
   answers: PlanAnswers;
   current: StoredPlan | null;
   history: StoredPlan[];
   entries: CatalogueEntry[];
+  review: PlanReview | null;
+  onReview: (r: { stars: Stars; why?: string } | null) => void;
   onPlan: (config: PlanConfig, answers: PlanAnswers, feedback?: string) => void;
   onClose: () => void;
 }) {
@@ -65,13 +71,15 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
   const [editing, setEditing] = useState(saved?.editing ?? false);
   // from the stored answers, not the draft: the screen stays while the player answers it
   const [unanswered] = useState(() => areasMissingTopics(answers));
+  // decided once (and kept with the saved flow), so the screens and the saved step number stay the same past midnight
+  const [reviewing] = useState(() => saved?.reviewing ?? (mode === "next" && !!current && weekOver(current, localDate())));
   useEffect(() => {
     try {
-      window.sessionStorage.setItem(FLOW_KEY, JSON.stringify({ mode, draft, feedback, text, step, editing } satisfies Saved));
+      window.sessionStorage.setItem(FLOW_KEY, JSON.stringify({ mode, draft, feedback, text, step, editing, reviewing } satisfies Saved));
     } catch {
       /* ignore */
     }
-  }, [mode, draft, feedback, text, step, editing]);
+  }, [mode, draft, feedback, text, step, editing, reviewing]);
   const set = <K extends keyof PlanAnswers>(k: K, v: PlanAnswers[K]) => setDraft((d) => ({ ...d, [k]: v }));
   const parsed = useMemo(() => (text.trim() ? parsePlanConfig(text, entries) : null), [text, entries]);
 
@@ -90,6 +98,11 @@ export default function PlanFlow({ mode, answers, current, history, entries, onP
   const steps: ModalStep[] = mode === "start"
     ? questionSteps(draft, set)
     : [
+        ...(reviewing ? [{
+          title: "How was this plan?",
+          hint: "Optional. The team who pick plans read these stars. Your AI doesn't get them.",
+          body: <PlanReviewStep review={review} onReview={onReview} />,
+        }] : []),
         {
           title: "How did this week go?",
           hint: "What felt easy, hard, fun. It goes into the prompt with the stars you gave each exercise.",

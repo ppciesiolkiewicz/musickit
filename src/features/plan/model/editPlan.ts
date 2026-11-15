@@ -1,7 +1,9 @@
+import { blockIdOf, blockKeyOf, isBlockId, withoutCellIds } from "./blockId";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { choiceWarnings } from "./choice";
+import { cleanExercise } from "./cleanExercise";
 import { hashtagLine, readTitle } from "./hashtags";
-import { exerciseTags, toolsOf, type Cell } from "./tools";
+import { exerciseTags, toolsOf } from "./tools";
 import type { Block, PlanExercise, StoredPlan } from "./types";
 
 /**
@@ -21,16 +23,9 @@ export function draftOf(plan: StoredPlan, day: number): DayDraft {
   return { exercises: (plan.config.days[day]?.exercises ?? []).map((exercise, from) => ({ from, exercise })) };
 }
 
-const noIds = (cells: Cell[]): unknown =>
-  cells.map((c) => {
-    const { id: _id, ...rest } = c as Cell & { id?: string };
-    void _id;
-    return rest.type === "section" ? { ...rest, cells: noIds(rest.cells) } : rest;
-  });
-
 /** The same exercise, cell ids aside (the editor gives cells ids; they say nothing about what the exercise is). */
 export function sameExercise(a: PlanExercise, b: PlanExercise): boolean {
-  const flat = (e: PlanExercise) => JSON.stringify({ ...e, cells: noIds(e.cells) });
+  const flat = (e: PlanExercise) => JSON.stringify({ ...e, cells: withoutCellIds(e.cells) });
   return flat(a) === flat(b);
 }
 
@@ -59,7 +54,14 @@ export function editDay(plan: StoredPlan, day: number, draft: DayDraft, newId: (
       to.set(from!, i);
       return old;
     }
-    return { ...exercise, id: newId() };
+    // a new slot id; the block id is of the new content as it will be stored (cleaned as a reload cleans it, so the id
+    // never changes on a save and reload), and the old block (when it differs) is its parent
+    const { parentBlockId: _p, ...rest } = cleanExercise(exercise);
+    void _p;
+    const blockId = blockIdOf(blockKeyOf(rest));
+    const parent = old ? (isBlockId(old.blockId) ? old.blockId : blockIdOf(blockKeyOf(old))) : undefined;
+    const keep = old ? (parent !== blockId ? parent : isBlockId(old.parentBlockId) ? old.parentBlockId : undefined) : undefined;
+    return { ...rest, id: newId(), blockId, ...(keep && keep !== blockId ? { parentBlockId: keep } : {}) };
   });
   const untouched = exercises.length === before.length && exercises.every((e, i) => e === before[i]);
   if (untouched) return plan;

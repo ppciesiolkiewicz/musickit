@@ -1,8 +1,8 @@
-import { and, desc, eq, exists, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, exists, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { planClaims, planDayTimes, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
+import { blockOwners, blocks, planClaims, planDayTimes, planReviews, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { PlanReviewRow, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A UUID, as the `videos.id` column takes; anything else would make Postgres throw. */
 const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
@@ -22,19 +22,113 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
       return rows.map((r) => r.entry as ProgressEntry);
     },
     async putProgress(userId, entry, now) {
-      await db.insert(progressEntries).values({ userId, exerciseId: entry.exerciseId, entry, updatedAt: now }).onConflictDoUpdate({ target: [progressEntries.userId, progressEntries.exerciseId], set: { entry, updatedAt: now } });
+      const blockId = entry.blockId ?? null;
+      await db
+        .insert(progressEntries)
+        .values({ userId, exerciseId: entry.exerciseId, entry, blockId, updatedAt: now })
+        .onConflictDoUpdate({
+          target: [progressEntries.userId, progressEntries.exerciseId],
+          // an entry without a block id (a tab running code from before blocks) keeps the stored one, in the column and in
+          // the entry; a slot's block never changes, so this is safe
+          set: {
+            entry: sql`case when excluded.block_id is null and ${progressEntries.blockId} is not null then excluded.entry || jsonb_build_object('blockId', ${progressEntries.blockId}) else excluded.entry end`,
+            blockId: sql`coalesce(excluded.block_id, ${progressEntries.blockId})`,
+            updatedAt: now,
+          },
+        });
     },
     async removeProgress(userId, exerciseId) {
       await db.delete(progressEntries).where(and(eq(progressEntries.userId, userId), eq(progressEntries.exerciseId, exerciseId)));
     },
     async listPlanTimes(userId, planId) {
-      return db.select({ planId: planDayTimes.planId, day: planDayTimes.day, elapsed: planDayTimes.elapsed, spent: planDayTimes.spent }).from(planDayTimes).where(and(eq(planDayTimes.userId, userId), eq(planDayTimes.planId, planId)));
+      // `on_dates` comes back as `on`, the `DayTime` field it holds
+      return db
+        .select({ planId: planDayTimes.planId, day: planDayTimes.day, elapsed: planDayTimes.elapsed, spent: planDayTimes.spent, blocks: planDayTimes.blocks, on: planDayTimes.onDates })
+        .from(planDayTimes)
+        .where(and(eq(planDayTimes.userId, userId), eq(planDayTimes.planId, planId)));
     },
     async putPlanTime(userId, t, now) {
       await db
         .insert(planDayTimes)
-        .values({ userId, planId: t.planId, day: t.day, elapsed: t.elapsed, spent: t.spent, updatedAt: now })
-        .onConflictDoUpdate({ target: [planDayTimes.userId, planDayTimes.planId, planDayTimes.day], set: { elapsed: t.elapsed, spent: t.spent, updatedAt: now } });
+        .values({ userId, planId: t.planId, day: t.day, elapsed: t.elapsed, spent: t.spent, blocks: t.blocks ?? null, onDates: t.on ?? null, updatedAt: now })
+        .onConflictDoUpdate({
+          target: [planDayTimes.userId, planDayTimes.planId, planDayTimes.day],
+          // a record without blocks or dates (a tab running code from before them) keeps the stored ones
+          set: { elapsed: t.elapsed, spent: t.spent, blocks: sql`coalesce(excluded.blocks, ${planDayTimes.blocks})`, onDates: sql`coalesce(excluded.on_dates, ${planDayTimes.onDates})`, updatedAt: now },
+        });
+    },
+    async planUserIds() {
+      const rows = await db.selectDistinct({ userId: userDocuments.userId }).from(userDocuments).where(eq(userDocuments.kind, "plan"));
+      return rows.map((r) => r.userId);
+    },
+    async setEntryBlockId(userId, exerciseId, blockId) {
+      const done = await db
+        .update(progressEntries)
+        .set({ blockId, entry: sql`jsonb_set(${progressEntries.entry}, '{blockId}', to_jsonb(${blockId}::text))` })
+        .where(and(eq(progressEntries.userId, userId), eq(progressEntries.exerciseId, exerciseId), isNull(progressEntries.blockId)))
+        .returning({ id: progressEntries.exerciseId });
+      return done.length > 0;
+    },
+    async setDayTimeBlocks(userId, planId, day, b) {
+      const done = await db
+        .update(planDayTimes)
+        .set({ blocks: b })
+        .where(and(eq(planDayTimes.userId, userId), eq(planDayTimes.planId, planId), eq(planDayTimes.day, day), isNull(planDayTimes.blocks)))
+        .returning({ day: planDayTimes.day });
+      return done.length > 0;
+    },
+    async ownedBlockIds(userId, ids) {
+      if (!ids.length) return new Set();
+      const rows = await db.select({ id: blockOwners.blockId }).from(blockOwners).where(and(eq(blockOwners.userId, userId), inArray(blockOwners.blockId, ids)));
+      return new Set(rows.map((r) => r.id));
+    },
+    async addBlocks(userId, list, now) {
+      if (!list.length) return;
+      await db.transaction(async (tx) => {
+        // a stored block is never changed: the same id is the same content and tags
+        await tx
+          .insert(blocks)
+          .values(
+            list.map(({ id, key, parentId }) => ({
+              id,
+              content: key.content,
+              area: key.area ?? null,
+              topic: key.topic ?? null,
+              concepts: key.concepts ?? [],
+              level: key.level ?? null,
+              tags: key.tags ?? [],
+              parentId,
+              createdAt: now,
+            })),
+          )
+          .onConflictDoNothing();
+        // the unique (user_id, block_id) is nulls not distinct, so the app (null) owns a block once
+        await tx
+          .insert(blockOwners)
+          .values(list.map((b) => ({ userId, blockId: b.id, source: b.source, enabledForReuse: b.enabledForReuse, createdAt: now })))
+          .onConflictDoNothing();
+      });
+    },
+    async syncPlanReviews(userId, planIds, rows) {
+      if (!planIds.length) return;
+      await db.transaction(async (tx) => {
+        if (rows.length) {
+          await tx
+            .insert(planReviews)
+            .values(rows.map((r) => ({ userId, planId: r.planId, libraryPlanId: r.libraryPlanId, title: r.title, stars: r.stars, why: r.why, at: r.at })))
+            .onConflictDoUpdate({
+              target: [planReviews.userId, planReviews.planId],
+              set: { libraryPlanId: sql`excluded.library_plan_id`, title: sql`excluded.title`, stars: sql`excluded.stars`, why: sql`excluded.why`, at: sql`excluded.at` },
+              setWhere: sql`${planReviews.at} is distinct from excluded.at`,
+            });
+        }
+        const kept = rows.map((r) => r.planId);
+        await tx.delete(planReviews).where(and(eq(planReviews.userId, userId), inArray(planReviews.planId, planIds), kept.length ? notInArray(planReviews.planId, kept) : undefined));
+      });
+    },
+    async listPlanReviews(limit) {
+      const out = await db.select().from(planReviews).orderBy(desc(planReviews.at)).limit(limit);
+      return out.map((r) => ({ userId: r.userId, planId: r.planId, libraryPlanId: r.libraryPlanId, title: r.title, stars: r.stars as PlanReviewRow["stars"], why: r.why, at: r.at }));
     },
     async createVideo(row) {
       const made = await db.insert(videos).values(row).onConflictDoNothing().returning({ id: videos.id });

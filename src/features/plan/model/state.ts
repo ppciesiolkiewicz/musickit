@@ -1,9 +1,8 @@
 import { migrateAnswers } from "../intake/answers";
-import { EMPTY_STATE, type PlanState, type StoredPlan } from "./types";
-import { cleanRating, type StarRating } from "@/features/progress/stars";
-import { withExerciseIds } from "./exerciseIds";
-import { parseChoiceDiag, parseCellDiag, resolveChordPlacement, type Cell } from "./tools";
-import type { PlanConfig, PlanExercise } from "./types";
+import { EMPTY_STATE, type PlanReview, type PlanState, type StoredPlan } from "./types";
+import { cleanRating, isStars, type StarRating } from "@/features/progress/stars";
+import { withBlockIds, withExerciseIds } from "./exerciseIds";
+import { cleanCells } from "./cleanExercise";
 
 /** A plan this app can show: ids, dates, days, and `cells` on every exercise (a plan stored before blocks has none, and is dropped: nothing old is read). */
 const isPlan = (p: unknown): p is StoredPlan => {
@@ -11,35 +10,21 @@ const isPlan = (p: unknown): p is StoredPlan => {
   return !!x && typeof x.id === "string" && typeof x.startedOn === "string" && Array.isArray(x.config?.days) && typeof x.done === "object" && x.config.days.every((d) => !d?.exercises || (Array.isArray(d.exercises) && d.exercises.every((e) => Array.isArray(e?.cells))));
 };
 
-/**
- * An exercise's cells and choice run through the plan's own parser again (as stored: nothing is noted), so a cell the
- * reader can't draw (a staff with no key, a tool of an unknown type) is dropped here, not met by a tool on /plan. An
- * exercise left with no cell shows its title, as on paste.
- */
-function cleanExercise(e: PlanExercise): PlanExercise {
-  const title = typeof e.title === "string" ? e.title : "";
-  const cells = resolveChordPlacement(e.cells.flatMap((c): Cell[] => {
-    // draft: an exercise being edited keeps an empty text or a section with no heading yet
-    const p = parseCellDiag(c, { stored: true, draft: true });
-    return p.cell ? [p.cell] : [];
-  }));
-  const out: PlanExercise = { ...e, title, cells: cells.length ? cells : [{ type: "text", text: title || "Exercise" }] };
-  delete out.choice;
-  if (e.choice !== undefined) {
-    const c = parseChoiceDiag(e.choice, { notes: [], stored: true });
-    if (c.choice) out.choice = c.choice;
-  }
-  return out;
-}
+/** The longest `why` of a plan review kept. */
+export const MAX_REVIEW_WHY = 1000;
 
-const cleanCells = (config: PlanConfig): PlanConfig => ({
-  ...config,
-  days: config.days.map((d) => (Array.isArray(d?.exercises) ? { ...d, exercises: d.exercises.map(cleanExercise) } : d)),
-});
+/** A stored review made safe: null unless it has valid stars and a date. The why is trimmed, cut to `MAX_REVIEW_WHY`, and kept only for 1 or 2 stars. */
+export function cleanReview(raw: unknown): PlanReview | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  if (!isStars(r.stars) || typeof r.at !== "string" || !r.at) return null;
+  const why = r.stars <= 2 && typeof r.why === "string" ? r.why.trim().slice(0, MAX_REVIEW_WHY) : "";
+  return { stars: r.stars, ...(why ? { why } : {}), at: r.at };
+}
 
 /** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, and the timer's old `elapsed` and `spent` dropped. */
 function cleanPlan(stored: StoredPlan): StoredPlan {
-  let p: StoredPlan = { ...stored, config: cleanCells(withExerciseIds(stored.config)) };
+  let p: StoredPlan = { ...stored, config: withBlockIds(cleanCells(withExerciseIds(stored.config))) };
   // the day timer's seconds were kept in the plan before they got their own store (`planTime.ts`); they are not read
   if ("elapsed" in p || "spent" in p) {
     p = { ...p };
@@ -49,6 +34,12 @@ function cleanPlan(stored: StoredPlan): StoredPlan {
   if (p.from !== undefined && typeof p.from !== "string") {
     p = { ...p };
     delete p.from;
+  }
+  if ("review" in p) {
+    const review = cleanReview(p.review);
+    p = { ...p };
+    if (review) p.review = review;
+    else delete p.review;
   }
   if (p.rated === undefined) return p;
   const rated: Record<string, StarRating> = {};

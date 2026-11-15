@@ -1,6 +1,6 @@
 import type { Cell, Choice } from "./tools";
 import type { Area } from "./concepts";
-import type { StarRating } from "@/features/progress/stars";
+import type { StarRating, Stars } from "@/features/progress/stars";
 import type { PlanAnswers } from "../intake/answers";
 
 export type { PlanAnswers } from "../intake/answers";
@@ -40,7 +40,11 @@ export interface ExerciseMeta {
 }
 
 /** One exercise of a day, as the AI wrote it. `id` is set by the app when the plan starts, never by the AI; ratings in the progress log point at it. */
-export type PlanExercise = Block & ExerciseMeta & { id?: string };
+/**
+ * `id` is the slot's id in this plan run; `blockId` is the hash of the block's content and tags (`withBlockIds`, always
+ * recomputed); `parentBlockId` is the block this one was edited from in the day editor.
+ */
+export type PlanExercise = Block & ExerciseMeta & { id?: string; blockId?: string; parentBlockId?: string };
 
 export interface PlanDay {
   theme: string;
@@ -56,6 +60,13 @@ export interface PlanConfig {
   days: PlanDay[];
 }
 
+/** How the whole plan went: the stars and when they were given (ISO datetime). `why` is the player's words, kept only for 1 or 2 stars. */
+export interface PlanReview {
+  stars: Stars;
+  why?: string;
+  at: string;
+}
+
 /** A pasted plan the player is (or was) following. Days count from `startedOn`, a local yyyy-mm-dd. */
 export interface StoredPlan {
   id: string;
@@ -69,6 +80,8 @@ export interface StoredPlan {
   feedback?: string;
   /** the id of the invite (a plan share) this copy was claimed from; absent for the player's own plans */
   from?: string;
+  /** how the plan went as a whole, asked at the end of the week; absent until the player answers */
+  review?: PlanReview;
 }
 
 export interface ReminderSettings {

@@ -4,7 +4,7 @@ How the student says something went, and the record of it.
 
 - `stars.ts`: the shared 1 to 5 scale ("Can't do it yet" … "Easy now") used on plan exercises and course sections.
 - `log.ts`: the **progress log**: one `ProgressEntry` per rated plan exercise (plan id, exercise id, day, a copy of the
-  exercise's title, focus, area, level, topic and concepts, the stars, when). `cleanEntries` makes a stored log safe,
+  exercise's title, focus, area, level, topic and concepts, `blockId` (the block rated, when the plan had one; a row stays one per slot), the stars, when). `cleanEntries` makes a stored log safe,
   `upsert` and `without` change it; an exercise has at most one row, so a new rating replaces the old one and clearing
   the rating removes the row.
 - `ProgressStore.ts`: where the log is kept: `list()`, `put(entry)`, `remove(exerciseId)`, async so an API can replace it.

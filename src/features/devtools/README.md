@@ -93,6 +93,12 @@ size and its value, JSON unfolded; `model/dataView.ts` `storageRows`) and each I
 counts only (sampler audio, NAM models). It reads through `localPlanStore` and `localProgressStore` and writes nothing, apart from what
 loading a plan always does (ids for exercises stored without one).
 
+## Plan reviews (`/dev/plan-reviews`)
+
+Every player's plan reviews from the `plan_reviews` table (`listPlanReviews(500)`), newest first, as a plain table
+(`reviews/PlanReviewsTable.tsx`): date, stars, plan title, why, plan id, library plan id, user id. No charts. Without
+`DATABASE_URL` it says so in one line.
+
 ## Kickstarter (`/dev/kickstarter`)
 
 Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`:

@@ -1,4 +1,6 @@
-import { withExerciseIds } from "./exerciseIds";
+import { cleanCells } from "./cleanExercise";
+import { withBlockIds, withExerciseIds } from "./exerciseIds";
+import { cleanReview } from "./state";
 import { PLAN_DAYS, type PlanConfig, type PlanState, type StoredPlan } from "./types";
 import type { Stars } from "@/features/progress/stars";
 
@@ -11,16 +13,23 @@ const dayNumber = (iso: string) => {
   return Math.round(Date.UTC(y, m - 1, d) / 86_400_000);
 };
 
+/** A local yyyy-mm-dd plus `n` days (negative goes back). */
+export const addDays = (iso: string, n: number): string => {
+  const [y, m, d] = iso.split("-").map(Number);
+  return localDate(new Date(y, m - 1, d + n));
+};
+
 /** Which day of the plan today is, from 0. Past the last day it keeps counting, so callers can tell the week is over. */
 export const dayIndex = (startedOn: string, today: string): number => Math.max(0, dayNumber(today) - dayNumber(startedOn));
 
 /**
  * Start `config` on `today`: a new plan id and a new id on every exercise (so a plan used again from the history never
- * shares ids with its earlier run). The running plan, if any, moves to the front of the history, which keeps 20.
+ * shares ids with its earlier run). Its cells are cleaned as a stored plan's are (`cleanExercise`) before the block ids
+ * are made, so a reload keeps them. The running plan, if any, moves to the front of the history, which keeps 20.
  */
 export const startPlan = (s: PlanState, config: PlanConfig, newId: () => string, today: string): PlanState => ({
   ...s,
-  current: { id: newId(), config: withExerciseIds(config, newId, true), startedOn: today, done: {} },
+  current: { id: newId(), config: withBlockIds(cleanCells(withExerciseIds(config, newId, true))), startedOn: today, done: {} },
   history: s.current ? [s.current, ...s.history].slice(0, 20) : s.history,
 });
 
@@ -43,6 +52,14 @@ export function ratePlan(plan: StoredPlan, day: number, exercise: number, stars:
   if (stars === null) { delete done[k]; delete rated[k]; }
   else { done[k] = true; rated[k] = { stars, at }; }
   return { ...plan, done, rated };
+}
+
+/** Review the whole plan, or take the review away with `null`. The why goes through `cleanReview`: kept only for 1 or 2 stars. */
+export function reviewPlan(plan: StoredPlan, review: { stars: Stars; why?: string } | null, at: string): StoredPlan {
+  const next = { ...plan };
+  delete next.review;
+  const clean = review ? cleanReview({ ...review, at }) : null;
+  return clean ? { ...next, review: clean } : next;
 }
 
 /** How much of one day is ticked off, 0..1. */

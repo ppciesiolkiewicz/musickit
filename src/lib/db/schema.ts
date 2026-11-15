@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, check, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { bigint, boolean, check, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
@@ -173,9 +173,11 @@ export const progressEntries = pgTable(
     userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     exerciseId: text("exercise_id").notNull(),
     entry: jsonb("entry").notNull(),
+    /** The rated exercise's block (`blocks.id`, not a foreign key); null for a row from before blocks or whose plan is gone. */
+    blockId: text("block_id"),
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
-  (t) => [uniqueIndex("progress_entries_user_exercise").on(t.userId, t.exerciseId)],
+  (t) => [uniqueIndex("progress_entries_user_exercise").on(t.userId, t.exerciseId), index("progress_entries_block").on(t.blockId)],
 );
 
 /**
@@ -190,9 +192,75 @@ export const planDayTimes = pgTable(
     day: integer("day").notNull(),
     elapsed: integer("elapsed").notNull(),
     spent: jsonb("spent").notNull(),
+    /** Exercise (slot) id -> block id, for the slots in `spent` (`DayTime.blocks`); null on a row from before blocks. */
+    blocks: jsonb("blocks"),
+    /** Local yyyy-mm-dd -> seconds the timer counted on that date (`DayTime.on`); null on a row from before dates. */
+    onDates: jsonb("on_dates"),
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.planId, t.day] })],
+);
+
+/** Where an owner got a block: written by the AI, edited by the player, seeded by the app, or from a hand-written example. */
+export const blockSource = pgEnum("block_source", ["ai", "edit", "seed", "example"]);
+
+/**
+ * The shared library of exercise blocks: one row per distinct block, whoever has it. The id is the hash of the block's
+ * content and tags (`features/plan/model/blockId.ts`), so the same block is one row. Insert-only: a row is never updated or
+ * deleted, not even when its last owner deletes their account. Who has a block, and whether it may be reused, is in
+ * `block_owners`; a block is private to its owners until one of their rows is `enabled_for_reuse`.
+ */
+export const blocks = pgTable(
+  "blocks",
+  {
+    id: text("id").primaryKey(),
+    /** The block: `{ title, choice?, cells }`, cells without the editor's ids. */
+    content: jsonb("content").notNull(),
+    area: text("area"),
+    topic: text("topic"),
+    concepts: text("concepts").array().notNull().default(sql`'{}'::text[]`),
+    level: text("level"),
+    tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
+    /** The block this one was edited from. Not a foreign key; written only when the first saver owned that block or saved it in the same document. */
+    parentId: text("parent_id"),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("blocks_area").on(t.area), index("blocks_topic").on(t.topic)],
+);
+
+/**
+ * Who has a block: one row per owner and block. `user_id` null is the app (seeded and example blocks); the unique pair
+ * treats nulls as equal, so the app owns a block once. Deleting an account drops its rows here, never the block.
+ * Insert-only from a plan save (`on conflict do nothing`); `enabled_for_reuse` is turned on by hand.
+ */
+export const blockOwners = pgTable(
+  "block_owners",
+  {
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+    blockId: text("block_id").notNull().references(() => blocks.id),
+    source: blockSource("source").notNull(),
+    enabledForReuse: boolean("enabled_for_reuse").notNull().default(false),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [unique("block_owners_user_block").on(t.userId, t.blockId).nullsNotDistinct(), index("block_owners_block").on(t.blockId)],
+);
+
+/**
+ * A player's stars for a whole plan, and why when they gave few: one row per player and plan, replaced by the next save.
+ * `library_plan_id` is the `practice_plans` row the plan was taken from, if any. `title` is the plan's, for `/dev/plan-reviews`.
+ */
+export const planReviews = pgTable(
+  "plan_reviews",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    planId: text("plan_id").notNull(),
+    libraryPlanId: text("library_plan_id").references(() => practicePlans.id, { onDelete: "set null" }),
+    title: text("title").notNull(),
+    stars: integer("stars").notNull(),
+    why: text("why"),
+    at: at("at").notNull(),
+  },
+  (t) => [uniqueIndex("plan_reviews_user_plan").on(t.userId, t.planId), index("plan_reviews_at").on(t.at), check("plan_reviews_stars_range", sql`${t.stars} between 1 and 5`)],
 );
 
 /** A video a player uploaded. The file is in the private blob store at `blobPath`. */

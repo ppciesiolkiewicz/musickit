@@ -60,6 +60,7 @@ export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/onboarding", label: "Onboarding coverage", tone: "stories", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
   { href: "/dev/structure", label: "Code structure", tone: "index", desc: "How src is built: packages by layer and what imports what, a page's render tree, and any file's imports, renders and extends." },
   { href: "/dev/data", label: "Data", tone: "data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
+  { href: "/dev/plan-reviews", label: "Plan reviews", tone: "prompt", desc: "Every player's star rating and reason for a finished plan, newest first, from the plan_reviews table." },
   { href: "/dev/notes", label: "Copy notes", tone: "notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
   { href: "/dev/kickstarter", label: "Kickstarter", tone: "pitch", desc: "Paste an email thread with a music school; your AI extension drafts the founding-partner reply from the voice, the facts and the demo links." },
 ];

@@ -15,6 +15,7 @@ export function entryFor(plan: StoredPlan, day: number, exercise: number, rating
     ...(e.level ? { level: e.level } : {}),
     ...(e.topic ? { topic: e.topic } : {}),
     ...(e.concepts?.length ? { concepts: e.concepts } : {}),
+    ...(e.blockId ? { blockId: e.blockId } : {}),
     stars: rating.stars, at: rating.at,
   };
 }

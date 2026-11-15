@@ -19,6 +19,8 @@
     "db:migrate": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-migrate.mjs",
     "db:seed": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed.mjs",
     "db:seed-plans": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-plans.ts",
+    "db:seed-blocks": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-blocks.ts",
+    "db:move-over-blocks": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-move-over-blocks.ts",
     "db:wipe": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-wipe.mjs",
     "db:unplan": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-unplan.mjs",
     "db:studio": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/.bin/drizzle-kit studio",

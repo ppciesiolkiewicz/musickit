@@ -9,7 +9,7 @@ import { randomId } from "./model/exerciseIds";
 import { backfill, entryFor } from "./model/progressLog";
 import { addedPlan, takeAdded } from "./model/added";
 import { useProgress } from "@/features/progress/useProgress";
-import { dayIndex, localDate, ratePlan, restartPlan, startPlan, weekOver } from "./model/schedule";
+import { dayIndex, localDate, ratePlan, restartPlan, reviewPlan, startPlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
@@ -111,7 +111,7 @@ export default function PlanApp() {
   if (!loaded || !timesLoaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
   const modal = flow && (
-    <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} onPlan={onPlan} onClose={() => setFlow(null)} />
+    <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} review={plan?.review ?? null} onReview={(r) => setPlan((p) => reviewPlan(p, r, new Date().toISOString()))} onPlan={onPlan} onClose={() => setFlow(null)} />
   );
   const primary = "!rounded-xl !border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 shadow-md shadow-sky-500/20 transition hover:!bg-sky-400";
   // the header's controls: one height, big enough to hit with a guitar in the other hand

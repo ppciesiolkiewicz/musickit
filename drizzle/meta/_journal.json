@@ -113,6 +113,13 @@
       "when": 1794748712555,
       "tag": "0015_month_prices_99",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1794748993303,
+      "tag": "0016_blocks_and_reviews",
+      "breakpoints": true
     }
   ]
 }

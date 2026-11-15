@@ -123,7 +123,7 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
         spent={saved}
         focused={focused}
         autoStart={autoDay === day}
-        onSave={(s, spent) => onTime(dayTime(plan.id, day, d.exercises, s, spent))}
+        onSave={(s, spent) => onTime(dayTime(plan.id, day, d.exercises, s, spent, times.find((t) => t.day === day), undefined, plan.startedOn))}
         onExercise={setNow}
         onSpent={(s) => setLive({ day, spent: s })}
         above={corner}

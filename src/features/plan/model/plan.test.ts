@@ -15,7 +15,8 @@ import { KEY_PANELS, PROMPT_HIDDEN, canFollowPart, cellInterface, cellsOf, degre
 import { transposeTool } from "./transpose";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
-import { dayIndex, dayProgress, localDate, weekOver } from "./schedule";
+import { dayIndex, dayProgress, localDate, reviewPlan, weekOver } from "./schedule";
+import { MAX_REVIEW_WHY, cleanReview, sanitiseState } from "./state";
 import type { StoredPlan } from "./types";
 
 const entries = catalogue();
@@ -671,5 +672,38 @@ describe("notes: videos, drafts and cell ids", () => {
     assert.deepEqual(r.block.choice, { open: { key: 9, scale: "dorian" } });
     assert.equal(r.block.cells.length, 1);
     assert.deepEqual(parseBlock(null).block, { title: "", cells: [] });
+  });
+});
+
+describe("the plan review", () => {
+  const AT = "2026-11-15T10:00:00.000Z";
+  const base = (): StoredPlan => ({ id: "p", startedOn: "2026-11-01", done: {}, config: { title: "W", days: [] } });
+  it("cleanReview keeps stars and date, trims why, keeps why only under 3 stars, cuts it at 1000", () => {
+    assert.deepEqual(cleanReview({ stars: 2, why: "  too fast ", at: AT }), { stars: 2, why: "too fast", at: AT });
+    assert.deepEqual(cleanReview({ stars: 4, why: "kept?", at: AT }), { stars: 4, at: AT });
+    assert.deepEqual(cleanReview({ stars: 1, why: "   ", at: AT }), { stars: 1, at: AT });
+    assert.equal(cleanReview({ stars: 2, why: "x".repeat(5000), at: AT })!.why!.length, MAX_REVIEW_WHY);
+    assert.equal(MAX_REVIEW_WHY, 1000);
+    assert.equal(cleanReview({ stars: 6, at: AT }), null);
+    assert.equal(cleanReview({ stars: 3 }), null);
+    assert.equal(cleanReview("x"), null);
+  });
+  it("reviewPlan sets and clears a review; sanitiseState drops a broken one and keeps a good one, history too", () => {
+    const p = base();
+    const a = reviewPlan(p, { stars: 2, why: " slow " }, AT);
+    assert.deepEqual(a.review, { stars: 2, why: "slow", at: AT });
+    assert.equal(p.review, undefined);
+    assert.equal("review" in reviewPlan(a, null, AT), false);
+    const s = sanitiseState({ current: { ...a }, history: [{ ...base(), id: "h1", review: { stars: 9, at: AT } }, { ...a, id: "h2" }] });
+    assert.deepEqual(s.current?.review, { stars: 2, why: "slow", at: AT });
+    assert.equal("review" in s.history[0], false);
+    assert.deepEqual(s.history[1].review, { stars: 2, why: "slow", at: AT });
+  });
+  it("raising the stars from 2 to 4 drops the why; back to 2 the why is empty", () => {
+    const two = reviewPlan(base(), { stars: 2, why: "too fast" }, AT);
+    const four = reviewPlan(two, { stars: 4, why: two.review?.why }, AT);
+    assert.deepEqual(four.review, { stars: 4, at: AT });
+    const again = reviewPlan(four, { stars: 2, why: four.review?.why }, AT);
+    assert.deepEqual(again.review, { stars: 2, at: AT });
   });
 });
