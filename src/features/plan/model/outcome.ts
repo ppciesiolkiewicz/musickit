@@ -2,6 +2,7 @@ import type { PlanAnswers } from "../intake/answers";
 import { topicById, topicsFor, type Rung } from "../intake/topics";
 import type { ProgressEntry } from "@/features/progress/log";
 import { AREAS, conceptById, conceptIds, conceptsOf, type Area } from "./concepts";
+import { stepAt } from "./path";
 import type { DayTime } from "./planTime";
 import { addDays, dayOf } from "./schedule";
 import type { AnswersEntry, Level, StoredPlan } from "./types";
@@ -47,13 +48,22 @@ export interface ConceptOutcome {
   levels: Level[];
   /** from the newest rating, whatever its level */
   state: ConceptState;
-  /** per level of `levels`: from the newest rating at that level or above (`ratingLevel`) */
+  /** per level of `levels`: the state of its last step at that level or under it (`steps`) */
   at: Partial<Record<Level, ConceptState>>;
+  /** per step of its track, in order: from the newest rating that reaches that step or a later one (`reachIndex`) */
+  steps: StepOutcome[];
   /** counted ratings tagged with this concept */
   ratings: number;
   /** the day of the newest counted rating, or null */
   lastOn: string | null;
   seconds: number;
+}
+
+export interface StepOutcome {
+  /** "trackId:n", n from 1 */
+  ref: string;
+  level: Level;
+  state: ConceptState;
 }
 
 export interface TopicOutcome extends TopicScore {
@@ -97,6 +107,8 @@ const countedOn = (at: string, asOf: string): string | null => {
 /** A counted rating with what it is about, as far as the app knows these ids. */
 interface Rated extends Tags {
   entry: ProgressEntry;
+  /** the path steps its block named that point at a step, "trackId:n" */
+  steps: string[];
 }
 
 /** What a tagged thing (an entry, an exercise) is about, as far as the app knows these ids. */
@@ -118,7 +130,7 @@ function ratedEntries(entries: ProgressEntry[], asOf: string): Rated[] {
   const out: Rated[] = [];
   for (const entry of entries) {
     if (countedOn(entry.at, asOf) === null) continue;
-    out.push({ entry, ...tagsOf(entry) });
+    out.push({ entry, ...tagsOf(entry), steps: (entry.steps ?? []).filter((r) => stepAt(r)) });
   }
   return out;
 }
@@ -142,6 +154,19 @@ export function ratingLevel(levels: readonly Level[], tag: string | undefined): 
   return LEVEL_ORDER[i];
 }
 
+/**
+ * How far along a concept's track a rating reaches (a step index, from 0): the highest of the steps its block named on
+ * that track; for a block that named none there (one rated before blocks named steps), the last step at its level
+ * (`ratingLevel`). A rating counts for that step and every step before it in the track, never after.
+ */
+export function reachIndex(conceptId: string, r: { steps: readonly string[]; entry: Pick<ProgressEntry, "level"> }): number {
+  const c = conceptById(conceptId)!;
+  const named = r.steps.flatMap((ref) => { const at = stepAt(ref); return at && at.track.id === conceptId ? [at.index] : []; });
+  if (named.length) return Math.max(...named);
+  const level = ratingLevel(c.levels, r.entry.level);
+  return c.steps.findLastIndex((st) => LEVEL_ORDER.indexOf(st.level) <= LEVEL_ORDER.indexOf(level));
+}
+
 const stateOf = (list: ProgressEntry[]): { state: ConceptState; newest: ProgressEntry | null } => {
   let newest: ProgressEntry | null = null;
   for (const entry of list) if (!newest || Date.parse(entry.at) >= Date.parse(newest.at)) newest = entry;
@@ -150,14 +175,15 @@ const stateOf = (list: ProgressEntry[]): { state: ConceptState; newest: Progress
 
 function conceptOutcome(id: string, rated: Rated[]): ConceptOutcome {
   const c = conceptById(id)!;
-  const mine = rated.filter((r) => r.concepts.includes(id)).map((r) => r.entry);
-  const { state, newest } = stateOf(mine);
+  const mine = rated.filter((r) => r.concepts.includes(id)).map((r) => ({ entry: r.entry, reach: reachIndex(id, r) }));
+  const { state, newest } = stateOf(mine.map((m) => m.entry));
+  const steps: StepOutcome[] = c.steps.map((st, i) => ({
+    ref: `${id}:${i + 1}`, level: st.level, state: stateOf(mine.filter((m) => m.reach >= i).map((m) => m.entry)).state,
+  }));
   const at: ConceptOutcome["at"] = {};
-  for (const level of c.levels) {
-    const i = LEVEL_ORDER.indexOf(level);
-    at[level] = stateOf(mine.filter((e) => LEVEL_ORDER.indexOf(ratingLevel(c.levels, e.level)) >= i)).state;
-  }
-  return { id, label: c.label, level: c.level, levels: c.levels, state, at, ratings: mine.length, lastOn: newest ? dayOf(newest.at) : null, seconds: 0 };
+  // a level is judged by its last step; one the span crosses with no step of its own, by the last step under it
+  for (const level of c.levels) at[level] = steps[c.steps.findLastIndex((st) => LEVEL_ORDER.indexOf(st.level) <= LEVEL_ORDER.indexOf(level))].state;
+  return { id, label: c.label, level: c.level, levels: c.levels, state, at, steps, ratings: mine.length, lastOn: newest ? dayOf(newest.at) : null, seconds: 0 };
 }
 
 /** The level reached and the score between levels, from the rung and the concepts' states at each level. */
@@ -273,3 +299,7 @@ export function outcome(input: OutcomeInput, asOf: string): Outcome {
   }
   return { asOf, areas, streak: streakOf(rated, byDate, asOf), seconds: { total, sorted } };
 }
+
+/** The step refs rated solid, for `reach({ solid })` (reach.ts): the composer's input for what a player knows. */
+export const solidSteps = (o: Outcome): string[] =>
+  o.areas.flatMap((a) => a.topics.flatMap((t) => t.concepts.flatMap((c) => c.steps.filter((st) => st.state === "solid").map((st) => st.ref))));

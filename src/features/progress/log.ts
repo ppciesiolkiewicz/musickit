@@ -17,6 +17,8 @@ export interface ProgressEntry {
   /** the questionnaire topic the exercise practised */
   topic?: string;
   concepts?: string[];
+  /** the path steps the exercise practised, "trackId:n" (plan/model/path.ts) */
+  steps?: string[];
   /** the block rated, when the plan had one; a row stays one per slot (progress knows nothing of the id's shape) */
   blockId?: string;
   stars: Stars;
@@ -32,12 +34,14 @@ function cleanEntry(raw: unknown): ProgressEntry | null {
   const r = raw as Record<string, unknown>;
   if (!text(r.id) || !text(r.planId) || !text(r.exerciseId) || !count(r.day) || !count(r.exercise) || !text(r.title) || !isStars(r.stars) || !text(r.at)) return null;
   const concepts = Array.isArray(r.concepts) ? r.concepts.filter(text) : [];
+  const steps = Array.isArray(r.steps) ? r.steps.filter(text) : [];
   return {
     id: r.id, planId: r.planId, exerciseId: r.exerciseId, day: r.day, exercise: r.exercise, title: r.title,
     ...(text(r.area) ? { area: r.area } : {}),
     ...(text(r.level) ? { level: r.level } : {}),
     ...(text(r.topic) ? { topic: r.topic } : {}),
     ...(concepts.length ? { concepts } : {}),
+    ...(steps.length ? { steps } : {}),
     ...(text(r.blockId) && r.blockId.length <= 200 ? { blockId: r.blockId } : {}),
     stars: r.stars, at: r.at,
   };

@@ -19,6 +19,12 @@ test("entryFor copies what the row needs to be read without the plan", () => {
   assert.deepEqual(entryFor(plan("p"), 0, 0, { stars: 1, at: AT }, counter()), { id: "row1", planId: "p", exerciseId: "p-0-0", day: 0, exercise: 0, title: "Ex p-0-0", stars: 1, at: AT });
 });
 
+test("entryFor copies the path steps the exercise names", () => {
+  const p = plan("p");
+  p.config.days[0].exercises[1].steps = ["caged:1"];
+  assert.deepEqual(entryFor(p, 0, 1, { stars: 4, at: AT }, counter())?.steps, ["caged:1"]);
+});
+
 test("entryFor: no such exercise, or one without an id, gives null", () => {
   assert.equal(entryFor(plan("p"), 9, 0, { stars: 3, at: AT }, counter()), null);
   assert.equal(entryFor(plan("p"), 0, 5, { stars: 3, at: AT }, counter()), null);

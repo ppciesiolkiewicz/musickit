@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { AREAS, CONCEPTS, OLD_CONCEPT_IDS, conceptById, conceptId, conceptIds, conceptsFor, conceptsOf } from "./concepts";
+import { AREAS, CONCEPTS, OLD_CONCEPT_IDS, conceptById, conceptId, conceptIds, conceptsOf } from "./concepts";
 import { PATH } from "./path";
 import { TOPICS, topicById } from "../intake/topics";
 import { catalogue, checkLink } from "./catalogue";
@@ -28,18 +28,6 @@ test("an old concept id maps to the track that took its place, never to another 
   assert.equal(conceptById("pentatonic-box-1")?.id, "pentatonic-positions");
   assert.equal(conceptById("top-string-triads")?.id, "triads");
   assert.deepEqual(conceptIds(["top-string-triads", "triads-every-set", "nope", "caged"]), ["triads", "caged"]);
-});
-
-test("conceptsFor: the area's concepts with a step at that level or the one below", () => {
-  const got = conceptsFor("theory", "beginner");
-  assert.ok(got.length > 0);
-  for (const c of got) assert.ok(c.levels.includes("new") || c.levels.includes("beginner"), c.id);
-  assert.ok(got.some((c) => c.id === "scales"));
-  assert.ok(!got.some((c) => c.id === "modes"));
-});
-
-test("conceptsFor(area, new) holds only concepts with a new step", () => {
-  for (const a of AREAS) assert.ok(conceptsFor(a.id, "new").every((c) => c.levels.includes("new")));
 });
 
 test("every course link is in catalogue()", () => {

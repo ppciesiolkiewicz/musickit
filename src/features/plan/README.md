@@ -108,7 +108,7 @@ model/            pure, no React; tested in model/plan.test.ts
   libraryBlocks.ts libraryBlocksOf(): a plan document's blocks for the library (one per block id, current plan first; `edit` with its parent when edited, else `ai`), ids worked out here; slotBlocks(): slot id -> block id (no prototype, so a slot id like `constructor` is an ordinary key; test with `Object.hasOwn`)
   progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
   answersHistory.ts cleanAnswersHistory(), movedOver(), recordAnswers(): every finished questionnaire kept with its date (`PlanState.answersHistory`, oldest first, at most 100)
-  outcome.ts      startOutcome(), TopicScore: each topic's starting score from the questionnaire answers; outcome(input, asOf): per concept, topic and area, from ratings and questionnaires up to a day (time and streak are added to the same function)
+  outcome.ts      startOutcome(), TopicScore: each topic's starting score from the questionnaire answers; outcome(input, asOf): per step, concept, topic and area, from ratings and questionnaires up to a day (time and streak are added to the same function)
   trackerView.ts  mergeTimes(), shownAreas(), topicLevel(), minutesOf(): what the progress tracker shows, from an outcome (the live day timer laid over every plan's records; the areas chosen plus practised ones; a topic's level by name and the next one; whole minutes)
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   choice.ts       applyChoice(), choiceWarnings(), resolvedChoice(): a choice's value set on the tools under it (one `PARTS` entry per part); transpose.ts moves a tool to another key, `setLevel` (tools.ts) to another level
@@ -335,14 +335,18 @@ predecessors are all known is within reach, a few per topic at a time (`REACH_CA
 2, then no cap), starting steps always. The ones over the cap are "ahead" but `open`. Nothing blocks a player.
 
 `model/concepts.ts` is the catalogue the questionnaire rates and exercises are tagged with: `CONCEPTS`, one per track
-(`level` is its first step's, `levels` every level its steps reach, `steps`, a `course` link), `AREAS`,
-`conceptsFor(area, level)` (a step at that level or the one below) and `conceptById`. An exercise names the path steps it practises in `steps` ("trackId:n"); `parseExercise` drops an unknown ref or a step of a track that is not one of its concepts (adding a missing track of its topic), and sets `level` to the highest of the steps' levels (`levelOfSteps` in `path.ts`). The prompt (version 4) asks for `steps` in place of `level` and lists every concept's steps, numbered, with their levels, under its topic in the answer format. The 67 concepts from before the
+(`level` is its first step's, `levels` every level its steps reach, `steps`, a `course` link), `AREAS`
+and `conceptById`. An exercise names the path steps it practises in `steps` ("trackId:n"); `parseExercise` drops an unknown ref or a step of a track that is not one of its concepts (adding a missing track of its topic), and sets `level` to the highest of the steps' levels (`levelOfSteps` in `path.ts`). The prompt (version 4) asks for `steps` in place of `level` and lists every concept's steps, numbered, with their levels, under its topic in the answer format. The 67 concepts from before the
 path (2026-11-16) map to their track (`OLD_CONCEPT_IDS`, `conceptId`, `conceptIds`): the parser, the outcome and the
 library coverage read an old id as its track, so stored plans and ratings keep counting.
 
-The outcome (`model/outcome.ts`) judges a concept at each level of its span: a rating counts at its block's level tag
-inside the span (the nearest end outside it, the first level without one) and at every level below, never above
-(`ratingLevel`). A topic's level is reached when every concept with a step there is solid there.
+The outcome (`model/outcome.ts`) judges each step of a concept's track (`steps`): a rating counts for the highest step
+its block named on that track and every step before it, never after (`reachIndex`). A rating with no step on the track
+(rated before blocks named steps) reaches the last step at its block's level tag inside the span (the nearest end
+outside it, the first level without one: `ratingLevel`). A step's state is the newest rating that reaches it. The
+progress log copies the exercise's `steps` onto each rating. A concept stands at a level as its last step at or under
+that level does (`at`), and a topic's level is reached when every concept with a step there is solid there.
+`solidSteps(outcome)` lists the solid step refs for `reach({ solid })`; nothing passes them in yet (NEW7).
 
 ### Course sections to write
 

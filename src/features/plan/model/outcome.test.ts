@@ -5,7 +5,7 @@ import type { PlanAnswers } from "../intake/answers";
 import type { ProgressEntry } from "@/features/progress/log";
 import type { AnswersEntry, PlanExercise, StoredPlan } from "./types";
 import type { DayTime } from "./planTime";
-import { outcome, ratingLevel, startOutcome, type Outcome } from "./outcome";
+import { outcome, ratingLevel, reachIndex, solidSteps, startOutcome, type Outcome } from "./outcome";
 
 test("startOutcome: every area in AREAS order, six topics each, unanswered is null", () => {
   const out = startOutcome({});
@@ -238,4 +238,48 @@ test("time and streak: a malformed date key in `on` is ignored, never throws", (
   const o = outcome({ plans: [p], entries: [], answersHistory: [], times: [time("p", 0, 600, { s1: 600 }, undefined, { "garbage": 300, "2026-11-12": 300 })] }, "2026-11-15");
   assert.equal(o.seconds.total, 600);
   assert.deepEqual(o.streak.practised, ["2026-11-12"]);
+});
+
+const barre = (o: Outcome) => concept(o, "barre");
+const states = (o: Outcome) => barre(o).steps.map((st) => st.state);
+const barreEntry = (over: Partial<ProgressEntry>) => entry({ area: "guitar", topic: "guitar-barre-chords", concepts: ["barre"], ...over });
+
+test("reachIndex: the highest step named on the track, else the last step at the rating's level", () => {
+  assert.equal(reachIndex("barre", { steps: ["barre:1", "barre:3"], entry: { level: "intermediate" } }), 2);
+  assert.equal(reachIndex("barre", { steps: ["triads:4"], entry: { level: "beginner" } }), 1); // no barre step: by level
+  assert.equal(reachIndex("barre", { steps: [], entry: { level: "intermediate" } }), 3);
+  assert.equal(reachIndex("barre", { steps: [], entry: {} }), 1); // no level: the first level, beginner
+});
+
+test("outcome: a rating counts for the steps its block names and every step before them, never after", () => {
+  const o = outcome({ ...IN, entries: [barreEntry({ steps: ["barre:3"], level: "intermediate", stars: 4 })], answersHistory: [] }, "2026-11-15");
+  assert.deepEqual(barre(o).steps.map((st) => st.ref), ["barre:1", "barre:2", "barre:3", "barre:4", "barre:5"]);
+  assert.deepEqual(states(o), ["solid", "solid", "solid", "not-yet", "not-yet"]);
+  assert.equal(barre(o).at.beginner, "solid");
+  assert.equal(barre(o).at.intermediate, "not-yet"); // a level is judged by its last step, barre:4
+});
+
+test("outcome: a step goes by the newest rating that reaches it", () => {
+  const entries = [
+    barreEntry({ steps: ["barre:2"], level: "beginner", stars: 5, at: "2026-11-10T10:00:00.000Z" }),
+    barreEntry({ steps: ["barre:1"], level: "beginner", stars: 2, at: "2026-11-12T10:00:00.000Z" }),
+  ];
+  const o = outcome({ ...IN, entries, answersHistory: [] }, "2026-11-15");
+  assert.deepEqual(states(o), ["working", "solid", "not-yet", "not-yet", "not-yet"]);
+  assert.equal(barre(o).at.beginner, "solid");
+});
+
+test("outcome: a rating with no steps counts by its level, as before", () => {
+  const o = outcome({ ...IN, entries: [barreEntry({ level: "beginner", stars: 4 })], answersHistory: [] }, "2026-11-15");
+  assert.deepEqual(states(o), ["solid", "solid", "not-yet", "not-yet", "not-yet"]);
+});
+
+test("outcome: a step ref that points at no step is ignored", () => {
+  const o = outcome({ ...IN, entries: [barreEntry({ steps: ["barre:99"], level: "beginner", stars: 4 })], answersHistory: [] }, "2026-11-15");
+  assert.deepEqual(states(o), ["solid", "solid", "not-yet", "not-yet", "not-yet"]);
+});
+
+test("solidSteps: every step rated solid, for reach()", () => {
+  const o = outcome({ ...IN, entries: [barreEntry({ steps: ["barre:2"], level: "beginner", stars: 4 })], answersHistory: [] }, "2026-11-15");
+  assert.deepEqual(solidSteps(o), ["barre:1", "barre:2"]);
 });

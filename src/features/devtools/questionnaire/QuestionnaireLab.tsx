@@ -4,7 +4,7 @@ import { useState, type ReactNode } from "react";
 import { DEFAULT_ANSWERS, levelOf, type PlanAnswers } from "@/features/plan/intake/answers";
 import { questionSteps, type SetAnswer } from "@/features/plan/intake/ui/Questionnaire";
 import { topicById, topicsFor } from "@/features/plan/intake/topics";
-import { AREAS, CONCEPTS, conceptsFor } from "@/features/plan/model/concepts";
+import { AREAS, CONCEPTS } from "@/features/plan/model/concepts";
 import { reach } from "@/features/plan/model/reach";
 import { selectExamples } from "@/features/plan/model/exampleSelection";
 import { startOutcome } from "@/features/plan/model/outcome";
@@ -104,23 +104,21 @@ export default function QuestionnaireLab() {
           <p className="mb-2 text-xs text-slate-400">
             Each skill&apos;s steps for these answers (<code>reach</code> in plan/model/reach.ts): known, within reach (a few per
             topic, by its line), open (nothing to learn first, but the topic&apos;s places are full) or ahead. &quot;start&quot; is
-            where the questionnaire puts them. &quot;In prompt&quot; is whether the plan prompt still lists the skill for the area&apos;s level.
+            where the questionnaire puts them.
           </p>
           <p className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
             {(["known", "reach", "open", "ahead"] as const).map((k) => <span key={k} className="inline-flex items-center gap-1"><Chip kind={k} text={CHIP_LABEL[k]} /></span>)}
           </p>
           {draft.areas.length === 0 ? noArea : draft.areas.map((area) => {
-            const inIds = new Set(conceptsFor(area, levelOf(draft, area)).map((c) => c.id));
             const marks = reach({ topics: draft.topics });
             return (
               <div key={area} className="mb-4 last:mb-0">
                 <h3 className="mb-1 text-xs font-semibold text-slate-400">{areaLabel(area)}</h3>
                 <Table
-                  head={["Skill", "Topic", "In prompt", "Steps"]}
+                  head={["Skill", "Topic", "Steps"]}
                   rows={CONCEPTS.filter((c) => c.area === area).map((c) => [
                     c.label,
                     topicById(c.topic)?.label ?? c.topic,
-                    inIds.has(c.id) ? "in" : "out",
                     <span key="s" className="flex flex-wrap gap-1">
                       {c.steps.map((st, i) => {
                         const r = marks.get(`${c.id}:${i + 1}`)!;

@@ -21,6 +21,11 @@ test("cleanEntries drops optional fields of the wrong type but keeps the row", (
   assert.deepEqual(cleanEntries(raw), [entry({ concepts: ["spider"] })]);
 });
 
+test("cleanEntries keeps the path steps, text only", () => {
+  assert.deepEqual(cleanEntries([{ ...entry(), steps: ["barre:2", 7, ""] }]), [entry({ steps: ["barre:2"] })]);
+  assert.deepEqual(cleanEntries([{ ...entry(), steps: "barre:2" }]), [entry()]);
+});
+
 test("cleanEntries keeps one row per exercise: the last one", () => {
   assert.deepEqual(cleanEntries([entry({ stars: 2 }), entry({ id: "r9", stars: 5 })]), [entry({ id: "r9", stars: 5 })]);
 });

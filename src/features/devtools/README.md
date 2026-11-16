@@ -32,7 +32,7 @@ Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answ
 
 ## Questionnaire (`/dev/questionnaire`)
 
-Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, each skill's steps marked known, within reach, open or ahead by `reach` (with whether the prompt still lists the skill), the examples `selectExamples` picks, and the `startOutcome` scores.
+Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, each skill's steps marked known, within reach, open or ahead by `reach`, the examples `selectExamples` picks, and the `startOutcome` scores.
 
 ## API routes (`/dev/api`)
 

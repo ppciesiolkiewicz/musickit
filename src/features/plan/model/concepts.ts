@@ -131,8 +131,3 @@ export const conceptIds = (ids: readonly string[]): string[] => [...new Set(ids.
 /** The concepts of one questionnaire topic, in catalogue order. */
 export const conceptsOf = (topicId: string): Concept[] => CONCEPTS.filter((x) => x.topic === topicId);
 
-/** The area's concepts with a step at this level or the one below, in catalogue order. */
-export function conceptsFor(area: Area, level: Level): Concept[] {
-  const top = LEVELS.indexOf(level);
-  return CONCEPTS.filter((x) => x.area === area && x.levels.some((l) => LEVELS.indexOf(l) >= top - 1 && LEVELS.indexOf(l) <= top));
-}
