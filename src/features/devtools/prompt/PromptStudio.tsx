@@ -10,8 +10,8 @@ import type { RunRecord, RunSummary } from "../model/history";
 import { fetchRun, fetchRuns } from "./api";
 import HistoryList from "./HistoryList";
 import PartList from "./PartList";
+import PastePanel from "./PastePanel";
 import PlanPreview from "./PlanPreview";
-import RunPanel from "./RunPanel";
 import { loadStudio, useMounted } from "./storage";
 import StudioInputs from "./StudioInputs";
 
@@ -67,7 +67,6 @@ export default function PromptStudio() {
   const loadInputs = (r: RunRecord) =>
     set({
       answersText: JSON.stringify(r.answers, null, 2), mode: r.mode, overrides: r.overrides, previousId: r.previousId, feedback: r.feedback ?? "",
-      ...(r.model !== "pasted" ? { model: r.model } : {}),
     });
   const copy = async () => {
     await navigator.clipboard.writeText(composed.text);
@@ -95,7 +94,7 @@ export default function PromptStudio() {
             {composed.off.length > 0 && <span className="text-slate-500">off: {composed.off.join(", ")}</span>}
           </div>
           <textarea readOnly aria-label="Composed prompt" value={composed.text} onFocus={(e) => e.currentTarget.select()} className="h-56 w-full rounded-lg border border-slate-700 bg-slate-950/60 p-3 font-mono text-[11px] text-slate-300" />
-          <RunPanel composed={composed} state={state} set={set} answers={read.answers} onRecord={onRecord} onRefresh={refreshRuns} />
+          <PastePanel composed={composed} state={state} answers={read.answers} onRecord={onRecord} />
         </div>
       </Section>
       <Section title="Result">
@@ -122,7 +121,7 @@ export default function PromptStudio() {
                 )}
               </div>
             ) : (
-              <p className="text-sm text-slate-500">Run the prompt, or open a past run.</p>
+              <p className="text-sm text-slate-500">Copy the prompt into an AI and paste its reply above, or open a past run.</p>
             )}
           </div>
           <HistoryList runs={runs} selectedId={open?.id} onOpen={openRun} />

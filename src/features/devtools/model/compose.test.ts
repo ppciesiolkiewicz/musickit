@@ -60,6 +60,6 @@ test("storedPlanFrom: a past run as last week", () => {
 test("readStudio: saved state, with garbage falling back to defaults", () => {
   assert.deepEqual(readStudio(null), DEFAULT_STUDIO);
   assert.deepEqual(readStudio({ mode: "weird", model: "gpt", overrides: [], answersText: 3 }), DEFAULT_STUDIO);
-  const s = { ...DEFAULT_STUDIO, mode: "next" as const, model: "opus" as const, overrides: { rules: { off: true } }, previousId: "x", feedback: "ok" };
+  const s = { ...DEFAULT_STUDIO, mode: "next" as const, overrides: { rules: { off: true } }, previousId: "x", feedback: "ok" };
   assert.deepEqual(readStudio(JSON.parse(JSON.stringify(s))), s);
 });

@@ -1,11 +1,9 @@
 import type { CatalogueEntry } from "@/features/plan/model/catalogue";
 import { parsePlanConfig } from "@/features/plan/model/config";
-import { isDevModel, type DevModel } from "./models";
+import type { DevModel } from "./models";
 
 /** Per prompt part: switched off, or its text replaced. */
 export type Overrides = Record<string, { text?: string; off?: boolean }>;
-export type Effort = "low" | "medium" | "high";
-const EFFORTS: Effort[] = ["low", "medium", "high"];
 
 /** The tokens one run used, as the claude CLI reports them. */
 export interface TokenUsage { input: number; output: number; cacheRead: number; cacheWrite: number }
@@ -38,9 +36,6 @@ export interface RunRecord {
 /** What a run was written to: the prompt's version, AGENTS.md's and the teaching skills'. */
 export interface RunVersions { prompt: number; agents: number; teaching: number }
 
-/** A run in progress, as the studio lists it. */
-export interface ActiveRun { id: string; at: string; model: DevModel }
-
 /** A history row: enough to list a run without its prompt and reply. */
 export interface RunSummary {
   id: string;
@@ -62,8 +57,6 @@ export interface RunSummary {
 
 /** The prompt and what it was built from. */
 export type RunInput = Pick<RunRecord, "mode" | "answers" | "overrides" | "parts" | "previousId" | "feedback" | "prompt">;
-/** A run request: the input and how to run it; `id` (optional, a RUN_ID) lets the page cancel the run before it answers. */
-export type RunRequest = RunInput & { model: DevModel; effort?: Effort; id?: string };
 
 export const RUN_ID = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-[a-z0-9]{4}$/;
 
@@ -96,23 +89,6 @@ export function describeReply(reply: string | undefined, entries: CatalogueEntry
 const obj = (x: unknown): Record<string, unknown> => (x && typeof x === "object" && !Array.isArray(x) ? (x as Record<string, unknown>) : {});
 
 type Read<T> = { ok: true; value: T } | { ok: false; error: string };
-
-/** A run request body, checked: a prompt and a known model are required, the rest falls back to defaults. */
-export function readRunRequest(body: unknown): Read<RunRequest> {
-  const input = readRunInput(body);
-  if (!input.ok) return input;
-  const b = obj(body);
-  if (!isDevModel(b.model)) return { ok: false, error: "Unknown model." };
-  return {
-    ok: true,
-    value: {
-      ...input.value,
-      model: b.model,
-      ...(EFFORTS.includes(b.effort as Effort) ? { effort: b.effort as Effort } : {}),
-      ...(typeof b.id === "string" && RUN_ID.test(b.id) ? { id: b.id } : {}),
-    },
-  };
-}
 
 /** The prompt and its inputs from a request body (a run, or a pasted reply); only the prompt is required. */
 export function readRunInput(body: unknown): Read<RunInput> {

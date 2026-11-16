@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { RUN_ID, describeReply, newRunId, readRunRequest, summaryOf, type RunRecord } from "./history";
+import { RUN_ID, describeReply, newRunId, summaryOf, type RunRecord } from "./history";
 import type { CatalogueEntry } from "@/features/plan/model/catalogue";
 
 const record = (over: Partial<RunRecord> = {}): RunRecord => ({
@@ -44,22 +44,3 @@ test("describeReply: a reply that isn't a plan gives nothing", () => {
   assert.deepEqual(describeReply(undefined, []), {});
 });
 
-test("readRunRequest takes a well-formed body", () => {
-  const r = readRunRequest({ prompt: "hi", model: "opus", effort: "high", mode: "next", answers: { minutes: 20 }, overrides: { rules: { off: true } }, parts: [], previousId: "x", feedback: "ok" });
-  assert.equal(r.ok, true);
-  assert.deepEqual(r.ok && r.value, { prompt: "hi", model: "opus", effort: "high", mode: "next", answers: { minutes: 20 }, overrides: { rules: { off: true } }, parts: [], previousId: "x", feedback: "ok" });
-});
-
-test("readRunRequest fills defaults and rejects what it can't run", () => {
-  const r = readRunRequest({ prompt: "hi", model: "haiku" });
-  assert.deepEqual(r.ok && r.value, { prompt: "hi", model: "haiku", mode: "first", answers: null, overrides: {}, parts: [] });
-  assert.deepEqual(readRunRequest({ prompt: "  ", model: "haiku" }), { ok: false, error: "No prompt." });
-  assert.deepEqual(readRunRequest({ prompt: "hi", model: "gpt-4" }), { ok: false, error: "Unknown model." });
-  assert.deepEqual(readRunRequest(null), { ok: false, error: "No prompt." });
-  const withId = readRunRequest({ prompt: "hi", model: "haiku", id: "2026-11-01T10-00-00-abcd" });
-  assert.equal(withId.ok && withId.value.id, "2026-11-01T10-00-00-abcd");
-  const badId = readRunRequest({ prompt: "hi", model: "haiku", id: "../../x" });
-  assert.ok(badId.ok && !("id" in badId.value));
-  const odd = readRunRequest({ prompt: "hi", model: "haiku", effort: "insane", mode: "weird" });
-  assert.ok(odd.ok && !("effort" in odd.value) && odd.value.mode === "first");
-});

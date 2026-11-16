@@ -24,8 +24,10 @@ list, the prompt, the reply or error, time, cost, and the plan's title and warni
 ## Prompt studio (`/dev/prompt`)
 
 Inputs (answers JSON, first or next week; next week takes a past run as last week, with the ticks made on its preview),
-every prompt part (`promptParts` in the plan model) as a row to switch off or edit in place, the composed prompt, Run, and
-the result: the reply rendered with the plan's real `WeekView`, its parse warnings and the raw text, beside the history.
+every prompt part (`promptParts` in the plan model) as a row to switch off or edit in place (an example part's *Preview*
+draws it as the app would), the composed prompt with *Copy prompt*, a box to paste the reply from whichever AI it was run
+in (*Keep in history*), and the result: the reply rendered with the plan's real `WeekView`, its parse warnings and the raw
+text, beside the history. The page doesn't run the prompt itself; `scripts/compare-models.ts` does, from the command line.
 Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answers" only reads `musickit.plan`.
 
 ## Questionnaire (`/dev/questionnaire`)
@@ -204,15 +206,13 @@ that break the layer rules in `.dependency-cruiser.cjs`. The SVG scripts (`deps:
 
 ## Running the prompt
 
-`POST /api/dev/run` runs the local `claude` CLI (`server/claude.ts`) in print mode with no tools, no MCP servers, no
+`scripts/compare-models.ts` runs the local `claude` CLI (`server/claude.ts`) in print mode with no tools, no MCP servers, no
 saved session, only project settings, from the temp folder, and with a plain system prompt in place of Claude Code's (that
 one brings auto-memory, and the model "reads its memory" instead of answering; `--bare` would avoid it but fails login).
 The child also drops the `CLAUDE_CODE_*` variables of any Claude session the dev server runs in. It also drops `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN`, so a run always uses the CLI's subscription login and never bills the API. It sets `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 64000: at the CLI's default a long plan runs over, the CLI continues in a second reply, and its `result` keeps only that last part. So the model sees only the
 prompt, like a player's own AI.
 
-A run lives on the server, not in the page (`server/running.ts`): a reload, which any edit to the plan model can cause,
-does not stop it. `GET /api/dev/run` lists runs in progress (the studio polls it and shows each with Cancel),
-`DELETE /api/dev/run?id=` cancels one, and 10 minutes kills it. Every run is saved, failed and cancelled ones too.
+10 minutes kills a run. Every run is saved, failed ones too.
 `POST /api/dev/history` keeps a reply pasted from another AI; `GET /api/dev/history` lists runs, `GET /api/dev/history/<id>`
 returns one.
 
@@ -220,20 +220,19 @@ returns one.
 
 - `gate.ts`: `devOnly`, `devGate`, `devUi`. `src/app/dev/layout.tsx`: the page gate (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
 - `registry.ts`: the tools listed on `/dev`.
-- `model/models.ts`: the Claude models a run can use: the studio's CLI aliases and the pinned `DEMO_MODELS`.
+- `model/models.ts`: the Claude models a run can use: the CLI aliases and the pinned `DEMO_MODELS`.
 - `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/`, `server/ollama.ts`, `scripts/compare-models.ts`: /dev/compare-models.
 - `src/app/api/dev/mcp`: the library tools (`features/library`) as a local MCP server, `POST /api/dev/mcp` (stateless, plain JSON; `GET` answers 405, production 404). `.mcp.json` at the repo root registers it as `musickit-library` for Claude Code, so the dev server must be running. It reads the database the dev server is configured with, which must have migration 0019 applied. Every tool also takes `player` (a user id) and `include_not_enabled` (also examples and plans not enabled for reuse); only this route and `/dev/library` read them, both through `devScope`.
 - `model/assess.ts`, `server/assessments.ts`, `compare/AssessmentPanel.tsx`, `src/app/api/dev/assessments`: plans judged against the judge model's own plan.
-- `model/history.ts`: run records, summaries, ids, request checks, `describeReply`.
+- `model/history.ts`: run records, summaries, ids, the pasted-reply check (`readRunInput`), `describeReply`.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.
-- `server/running.ts`: runs in progress (`startRun`, `cancelRun`, `endRun`, `listRunning`), kept on `globalThis`.
 - `server/history.ts`: `saveRun`, `readRun`, `listRuns` over `tools/prompt-history/`.
 - `model/preview.ts`: an example's JSON made parseable and parsed for display; `planToCopy`; `whyOf`.
 - `model/copyNotes.ts`: the notes registry: shape, Markdown, re-pin, clear, section state, links, the old comments' migration.
 - `model/comments.ts`: what section notes need from the plan model: hashes, `exampleSections`, `repinSectionNotes`.
 - `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
-- `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `RunPanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
+- `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `PastePanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `examples/ExampleViewer.tsx`: the examples page.
 - `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner email brief; its facts, voice and samples.
 - `costs/CostsPage.tsx`: /dev/costs.
@@ -244,4 +243,4 @@ returns one.
 - `structure/StructureView.tsx`, `model/structure.ts`, `server/structure.ts`, `scripts/structure.ts`: the code structure map.
 - `progress/ProgressPage.tsx`: the progress outcome's inputs and outputs.
 - `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `spentRows`, `logRows`).
-- Routes: `src/app/api/dev/run`, `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
+- Routes: `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
