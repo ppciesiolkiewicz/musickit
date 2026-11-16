@@ -132,7 +132,8 @@ area placed by its level and its depth (`depthOf`/`slope` in `plan/model/path.ts
 first runs), one column per depth inside a level, rows sorted by where a track's first step falls. *As it is* draws
 `PATH`; *Proposed* draws `model/slopeProposal.ts` (the named prerequisites and the double-stops track), with new links
 dashed orange and each step that moved marked +N. Hovering or picking a step lights its whole chain both ways; the
-detail below counts the chain under it. Once the proposal is settled it moves into `PATH` and the file goes.
+detail below counts the chain under it. The picture zooms and pans (drag or scroll to move, ctrl/⌘ + scroll or pinch
+to zoom, *Fit* shows the whole area); the track names follow the zoom and the vertical pan. Once the proposal is settled it moves into `PATH` and the file goes.
 
 **Boxes**: the diagram (`path/PathView.tsx`, nodes from
 `model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/examples links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels

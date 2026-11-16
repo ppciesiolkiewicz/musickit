@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { topicById } from "@/features/plan/intake/topics";
 import { AREAS, type Area } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { PATH, predecessorsOf, slope, stepAt, type SlopeStep, type Track } from "@/features/plan/model/path";
-import { ADDED_AFTER, isAdded, proposedPath } from "../model/slopeProposal";
+import { ADDED_AFTER, isAdded, proposedPath, whyOf } from "../model/slopeProposal";
 import type { ConceptProgress, StepState } from "../model/stepProgress";
 
 /*
@@ -29,6 +29,61 @@ const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 type Version = "now" | "proposed";
+interface View { s: number; tx: number; ty: number }
+const MIN_S = 0.15, MAX_S = 2, DRAG_PX = 4;
+const clampS = (s: number) => Math.min(MAX_S, Math.max(MIN_S, s));
+
+/**
+ * Zoom and pan for the slope: drag or scroll to pan, ctrl/⌘ + scroll or a trackpad pinch to zoom around the pointer.
+ * A drag only starts past a few pixels, so a click on a step still picks it.
+ */
+function useZoomPan() {
+  const pane = useRef<HTMLDivElement>(null);
+  const [view, setView] = useState<View>({ s: 1, tx: 0, ty: 0 });
+  const drag = useRef<{ id: number; x: number; y: number; tx: number; ty: number; on: boolean } | null>(null);
+  const dragged = useRef(false);
+
+  const zoomAt = useCallback((factor: number, px?: number, py?: number) => setView((v) => {
+    const r = pane.current?.getBoundingClientRect();
+    const x = px ?? (r ? r.width / 2 : 0), y = py ?? (r ? r.height / 2 : 0);
+    const s = clampS(v.s * factor), k = s / v.s;
+    return { s, tx: x - (x - v.tx) * k, ty: y - (y - v.ty) * k };
+  }), []);
+
+  useEffect(() => {
+    const el = pane.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const r = el.getBoundingClientRect();
+      if (e.ctrlKey || e.metaKey) zoomAt(Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top);
+      else setView((v) => ({ ...v, tx: v.tx - (e.shiftKey ? e.deltaY : e.deltaX), ty: v.ty - (e.shiftKey ? 0 : e.deltaY) }));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [zoomAt]);
+
+  const handlers = {
+    onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.button !== 0) return;
+      dragged.current = false;
+      drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, on: false };
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
+      const d = drag.current;
+      if (!d || d.id !== e.pointerId) return;
+      const dx = e.clientX - d.x, dy = e.clientY - d.y;
+      if (!d.on && Math.hypot(dx, dy) < DRAG_PX) return;
+      if (!d.on) { d.on = true; dragged.current = true; e.currentTarget.setPointerCapture(e.pointerId); }
+      setView((v) => ({ ...v, tx: d.tx + dx, ty: d.ty + dy }));
+    },
+    onPointerUp: () => { drag.current = null; },
+    onPointerCancel: () => { drag.current = null; },
+    // A drag that ends on a step is not a pick.
+    onClickCapture: (e: React.MouseEvent) => { if (dragged.current) { e.stopPropagation(); e.preventDefault(); dragged.current = false; } },
+  };
+  return { pane, view, setView, zoomAt, handlers, dragging: () => drag.current?.on ?? false };
+}
 
 interface Laid { step: SlopeStep; x: number; y: number }
 
@@ -54,6 +109,8 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
   const all = useMemo(() => slope(tracks), [tracks]);
   const nowDepth = useMemo(() => new Map(slope(PATH).map((s) => [s.ref, s.depth])), []);
   const order = useMemo(() => new Map(all.map((s, i) => [s.ref, i])), [all]);
+  const box = useRef<HTMLDivElement>(null);
+  const { pane, view, setView, zoomAt, handlers } = useZoomPan();
 
   const { laid, rows, bands, width, height } = useMemo(() => {
     const own = all.filter((s) => s.track.area === area);
@@ -71,6 +128,13 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
     const bands = LEVEL_ORDER.map((lv, i) => ({ level: lv, x: X0 + offset[i] * COL_W, w: depthsAt[i].length * COL_W, cols: depthsAt[i].length }));
     return { laid, rows, bands, width: X0 + cols * COL_W + GAP, height: HEAD_H + rows.length * ROW_H };
   }, [all, area, order]);
+
+  const contentW = width + 24, contentH = height + 24, labelsW = LABEL_W + 24;
+  const fit = () => {
+    const r = box.current?.getBoundingClientRect();
+    if (!r) return;
+    setView({ s: clampS(Math.min(1, r.width / (labelsW + contentW), r.height / contentH)), tx: 0, ty: 0 });
+  };
 
   const successors = useMemo(() => {
     const m = new Map<string, string[]>();
@@ -133,8 +197,18 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
         ))}
       </div>
 
-      <div className="flex rounded-2xl border border-slate-800 bg-slate-950/70" onMouseLeave={() => setHover(null)}>
-        <div className="relative shrink-0 border-r border-slate-800 p-3" style={{ width: LABEL_W + 24, height: height + 24 }}>
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Zoom">
+        <button type="button" onClick={() => zoomAt(1 / 1.25)} className={`${BTN} border-slate-700 text-slate-300 hover:border-slate-400`} aria-label="Zoom out">−</button>
+        <span className="w-12 text-center text-sm tabular-nums text-slate-300">{Math.round(view.s * 100)}%</span>
+        <button type="button" onClick={() => zoomAt(1.25)} className={`${BTN} border-slate-700 text-slate-300 hover:border-slate-400`} aria-label="Zoom in">+</button>
+        <button type="button" onClick={fit} className={`${BTN} border-slate-700 text-slate-300 hover:border-slate-400`}>Fit</button>
+        <button type="button" onClick={() => setView({ s: 1, tx: 0, ty: 0 })} className={`${BTN} border-slate-700 text-slate-300 hover:border-slate-400`}>100%</button>
+        <span className="text-sm text-slate-400">Drag or scroll to move around; ctrl or ⌘ + scroll, or pinch, to zoom.</span>
+      </div>
+
+      <div ref={box} className="flex overflow-clip rounded-2xl border border-slate-800 bg-slate-950/70" style={{ height: `min(75vh, ${contentH}px)` }} onMouseLeave={() => setHover(null)}>
+        <div className="relative shrink-0 overflow-clip border-r border-slate-800" style={{ width: labelsW * view.s }}>
+        <div className="relative p-3" style={{ width: labelsW, height: contentH, transform: `translateY(${view.ty}px) scale(${view.s})`, transformOrigin: "0 0" }}>
           <p className="absolute left-3 top-4 text-xs font-medium uppercase tracking-wider text-slate-500">{areaLabel}</p>
           {rows.map((t, i) => (
             <div key={t.id} className="absolute left-3 pr-3" style={{ top: 12 + HEAD_H + i * ROW_H, width: LABEL_W, height: PILL_H }}>
@@ -143,8 +217,9 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
             </div>
           ))}
         </div>
-        <div className="min-w-0 flex-1 overflow-x-auto">
-        <div className="relative p-3" style={{ width: width + 24, height: height + 24 }}>
+        </div>
+        <div ref={pane} className="relative min-w-0 flex-1 cursor-grab touch-none select-none overflow-clip active:cursor-grabbing" {...handlers}>
+        <div className="absolute left-0 top-0 p-3" style={{ width: contentW, height: contentH, transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.s})`, transformOrigin: "0 0" }}>
           <div className="relative" style={{ width, height }}>
             {bands.map((b, i) => b.cols > 0 && (
               <div key={b.level} className="absolute top-0 rounded-lg border border-slate-800/80" style={{ left: b.x - 6, width: b.w - 2, height, background: i % 2 ? "color-mix(in oklab, var(--color-slate-900) 50%, transparent)" : "transparent" }}>
@@ -235,7 +310,7 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
                   <li key={p}>
                     {label(p, tracks)}
                     {stepAt(p, tracks)!.track.area !== area && <span className="text-slate-500"> ({AREAS.find((x) => x.id === stepAt(p, tracks)!.track.area)!.label})</span>}
-                    {version === "proposed" && isAdded(focus!, p) && <span className="text-orange-300"> new</span>}
+                    {version === "proposed" && isAdded(focus!, p) && <span className="text-orange-300"> new{whyOf(focus!, p) ? `: ${whyOf(focus!, p)}` : ""}</span>}
                   </li>
                 ))}
                 {!predecessorsOf(focus!, tracks).length && <li className="text-slate-500">Nothing: a place to start.</li>}
