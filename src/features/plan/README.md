@@ -326,6 +326,11 @@ the order shows: pentatonic before the modes, pentatonic position 1 before every
 before triads, the first triads before barre chords (design: `docs/superpowers/specs/2026-11-16-path-slope-design.md`;
 /dev/path → "Slope" draws it).
 
+`model/reach.ts` marks every step for a player: known, within reach or ahead (`reach({ topics, solid })`, NEW16). The
+questionnaire's placement and the steps rated solid are known, and so is everything they need first; a step whose
+predecessors are all known is within reach, a few per topic at a time (`REACH_CAP` by the topic's line: new 1, beginner
+2, then no cap), starting steps always. The ones over the cap are "ahead" but `open`. Nothing blocks a player.
+
 `model/concepts.ts` is the catalogue the questionnaire rates and exercises are tagged with: `CONCEPTS`, one per track
 (`level` is its first step's, `levels` every level its steps reach, `steps`, a `course` link), `AREAS`,
 `conceptsFor(area, level)` (a step at that level or the one below) and `conceptById`. The 67 concepts from before the
