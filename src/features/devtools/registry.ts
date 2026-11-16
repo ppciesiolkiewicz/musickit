@@ -53,7 +53,6 @@ export const TONE_CLASSES: Record<DevTone, { tab: string; active: string; card: 
 export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/prompt", label: "Prompt studio", tone: "prompt", desc: "The autoplan prompt as labelled parts: edit them, run it with the local Claude, see the plan it writes." },
   { href: "/dev/questionnaire", label: "Questionnaire", tone: "prompt", desc: "Answer the first questionnaire and see what each answer does: topic rungs, area levels, the concepts the prompt offers, the examples picked and the starting outcome." },
-  { href: "/dev/compare-models", label: "Compare AI models for autoplan", tone: "prompt", desc: "A plan for each made-up player from Claude and local Ollama models, priced as if through the API. Written with npm run compare-models." },
   { href: "/dev/costs", label: "AI costs", tone: "prompt", desc: "What autoplans cost us: a year on each plan, one paying player's year on each AI model, and cheaper models on OpenRouter." },
   { href: "/dev/examples", label: "Prompt examples", tone: "prompt", desc: "Every example the prompt carries, rendered as the player would see it." },
   { href: "/dev/stories", label: "Component stories", tone: "stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },

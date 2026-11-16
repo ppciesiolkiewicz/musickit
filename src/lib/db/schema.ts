@@ -55,13 +55,13 @@ export const plans = pgTable("plans", {
 
 /**
  * The library of practice plans an autoplan can be taken from instead of asking the AI (see `plans.new_plan_percent`).
- * Seeded from the plan examples and the published Fable compare-models plans (`npm run db:seed-plans`); only rows
+ * Seeded from the plan examples and the seed plans in src/features/library/seed (`npm run db:seed-plans`); only rows
  * `enabled_for_reuse` are given out.
  */
 export const practicePlans = pgTable(
   "practice_plans",
   {
-    /** "voice-guitar-advanced--claude-fable-5-2" for a seeded plan. */
+    /** The example's or seed file's id: "guitar-beginner", "voice-guitar-advanced-first-week". */
     id: text("id").primaryKey(),
     title: text("title").notNull(),
     /** The first-questionnaire answers the plan was written for (`PlanAnswers`), to match it to a player. */
@@ -70,7 +70,7 @@ export const practicePlans = pgTable(
     model: text("model").notNull(),
     /** The model's reply, as a pasted reply: parsed with `parsePlanConfig` when used. */
     reply: text("reply").notNull(),
-    /** Where it came from: "example" for a plan example (its id is the example's), "compare-models" for a published Fable plan. */
+    /** Where it came from: "example" for a plan example (its id is the example's), "seed" for a plan in src/features/library/seed. */
     source: text("source").notNull(),
     /** `PROMPT_VERSION` the plan was written under; null when unknown. */
     promptVersion: integer("prompt_version"),

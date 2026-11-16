@@ -1,6 +1,6 @@
 import type { PlanAnswers } from "@/features/plan/model/types";
 
-/** A made-up player for /dev/compare-models: first-questionnaire answers the prompt is built from. */
+/** A made-up player for compare-models and the seed prompts: first-questionnaire answers the prompt is built from. */
 export interface Persona { id: string; label: string; answers: PlanAnswers }
 
 const p = (id: string, label: string, answers: Partial<PlanAnswers> & Pick<PlanAnswers, "areas">): Persona => ({

@@ -1,4 +1,3 @@
-import type { Assessment } from "../model/assess";
 import type { RunRecord, RunSummary } from "../model/history";
 
 /** The page's side of /api/dev: kept out of the components so editing them stays a hot update, not a reload. */
@@ -7,15 +6,6 @@ import type { RunRecord, RunSummary } from "../model/history";
 export async function fetchRuns(): Promise<RunSummary[]> {
   try {
     return ((await (await fetch("/api/dev/history", { cache: "no-store" })).json()) as { runs: RunSummary[] }).runs ?? [];
-  } catch {
-    return [];
-  }
-}
-
-/** Every assessment of a plan against a reference plan; [] when they can't be read. */
-export async function fetchAssessments(): Promise<Assessment[]> {
-  try {
-    return ((await (await fetch("/api/dev/assessments", { cache: "no-store" })).json()) as { assessments: Assessment[] }).assessments ?? [];
   } catch {
     return [];
   }

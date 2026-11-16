@@ -1,4 +1,4 @@
-/** The Claude models a prompt run can use: the studio's claude CLI aliases, and the pinned ids /dev/compare-models compares. */
+/** The Claude models a prompt run can use: the studio's claude CLI aliases, and the pinned ids compare-models compares. */
 export const STUDIO_MODELS = ["sonnet", "opus", "haiku"] as const;
 export const DEMO_MODELS = ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5", "claude-fable-5-2"] as const;
 /** A model served by the local Ollama, by its Ollama name. */

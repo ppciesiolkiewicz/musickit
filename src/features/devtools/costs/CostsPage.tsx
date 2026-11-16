@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import type { Plan } from "@/features/account/plans";
 import { FIXED_COSTS, FIXED_COSTS_CHECKED, fixedTotal } from "../model/fixedCosts";
@@ -21,7 +20,7 @@ export default function CostsPage({ planTokens, plans, reuse }: { /** one plan's
     <div className="flex flex-col gap-4">
       <div>
         <h2 className="text-lg font-semibold text-slate-100">AI costs</h2>
-        <p className="text-sm text-slate-400">What autoplans cost us, from the tokens of the plans on <Link href="/dev/compare-models" className="text-sky-300 hover:underline">Compare AI models</Link>.</p>
+        <p className="text-sm text-slate-400">What autoplans cost us, from the tokens of the plans written with npm run compare-models.</p>
         <span className="mt-1 flex gap-4 text-sm"><a href="#plans" className="text-sky-300 hover:underline">Plans ↓</a><a href="#cost" className="text-sky-300 hover:underline">What one player costs ↓</a><a href="#over-time" className="text-sky-300 hover:underline">Over time ↓</a><a href="#openrouter" className="text-sky-300 hover:underline">Other models ↓</a></span>
         <label className="mt-3 flex max-w-xs flex-col gap-1 text-sm text-slate-300">
           Payment, for every section

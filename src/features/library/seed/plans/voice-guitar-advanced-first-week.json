@@ -1,0 +1,4354 @@
+{
+  "id": "voice-guitar-advanced-first-week",
+  "answers": {
+    "topics": {
+      "guitar-scales": 3,
+      "guitar-basic-chords": 3,
+      "guitar-barre-chords": 3,
+      "guitar-extended-chords": 2,
+      "guitar-caged": 2,
+      "guitar-techniques": 3,
+      "voice-pitch": 3,
+      "voice-intervals": 3,
+      "voice-melodies": 2,
+      "voice-breath-range": 3,
+      "voice-runs": 2,
+      "voice-harmony": 2
+    },
+    "minutes": 45,
+    "styles": "soul, R&B, folk",
+    "notes": "I sing and play at gigs. I want cleaner fast runs and richer chords under my voice.",
+    "areas": [
+      "guitar",
+      "voice"
+    ],
+    "voice": {
+      "type": "baritone"
+    }
+  },
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "A first week for an advanced singer who plays guitar, from a compare-models Fable 5.2 run of 2026-11-15 (written before the prompt had a version).",
+  "plan": {
+    "title": "Week 1: fast runs, rich chords",
+    "summary": "Your runs go from slow and clean to sixteenths, one stage at a time: five notes, turns, the octave, pentatonic runs, then runs aimed at the chords. On guitar, 9th chords and shells on a ii–V–I in G and C give your voice a richer bed, and most days end with you singing over a band.",
+    "progress": "Runs: started from clean slow runs. This week: five-note, nine-note, octave and pentatonic runs (hard days 1-3, expert from day 4), sixteenths on the click from 54 up to 80, turns on the 3rd, falling minor pentatonic run, runs aimed at the 3rd of the next chord. Check ratings for where sixteenths blur. Next: longer runs across the break, triplet runs, runs in a real song.\nExtended chords: knew 7th, sus, add9. This week: Am9, D9, Gmaj7, Dm9, G9, Cmaj7, shells on the A-D-G strings, turnaround in C and G, sixteenth strumming with misses up to 112, comping over drums and bass. Next: 13ths, shells with the root on the low E, chord-melody fills between vocal lines.\nCAGED: plays one chord in five shapes. This week: Am, D, G triads on the top two string sets only. Next: the other two sets, inversions along one set.\nIntervals & leaps: had 4ths, 5ths, octaves. This week: 7ths, tritone, minor 6th from a neighbour note, one session; tunes with 7ths, octave, tenths. Next: the leaps down, no dot.\nHarmony & improvising: sang a harmony line already. This week: guide tones over ii–V–I in G, C, F, two harmony lines over I-V-vi-IV, Dorian vamp aiming for the 6th. Next: harmony a 3rd above a melody, minor ii–V.\nBreath & range: strong; short warm-ups only (farinelli to 10, lip rolls, hills). Keep as warm-up.\nPitch, Melodies: strong, not drilled alone.\nScales, Barre chords, Basic chords, Techniques: strong, only used inside solos and comping. Next week a little Dorian soloing with bends.\nEar (not answered): tested gently with 7th chords by ear and intervals in two stages; read the ratings before building on it.",
+    "days": [
+      {
+        "theme": "A ii–V–I in G, and where your runs stand",
+        "exercises": [
+          {
+            "title": "Warm-up: breath and a lip roll",
+            "minutes": 5,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing"
+            ],
+            "topic": "voice-breath-range",
+            "concepts": [
+              "breath-holding-note"
+            ],
+            "learnBefore": [
+              "/theory/singing/breathing",
+              "/theory/singing/warm-ups"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Breath",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the breathing below: you breathe in, hold and breathe out for the same count, and the count grows by one each round. Keep your shoulders still, and fill to about 80%, not to the top."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "breathwork",
+                      "drill": "farinelli",
+                      "from": 4,
+                      "to": 9
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Lip roll",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the lip roll below: a tone slides from head voice down to chest voice, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll, loose and quiet.\nEach round goes a little lower. Let the buzz stay even through the places where your voice wants to flip."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "lip-roll",
+                      "shape": "down",
+                      "voice": "baritone",
+                      "plays": 4
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Five notes, faster in stages",
+            "minutes": 12,
+            "level": "intermediate",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "technique"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "runs",
+              "fast-runs"
+            ],
+            "why": "A fast run is a slow run you no longer have to think about, so each tempo comes only once the one before is in tune on every note.",
+            "learnBefore": [
+              "/course/6/vocal-runs",
+              "/course/9/fast-runs"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The run",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to Sol and back down, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" when a pass feels tight.\n_Stop a pass that feels strained and rest until the next one._"
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "hard",
+                        "stage": "five"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run, two notes per beat",
+                "minutes": 3,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 80
+                    },
+                    {
+                      "bpm": 92
+                    },
+                    {
+                      "bpm": 104
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below: the metronome and the mic start together, and your pitch shows on the staff. From the low {{1}}, sing the run {{1}} {{2}} {{3}} {{4}} {{5}} {{4}} {{3}} {{2}} {{1}}, two notes per beat, then breathe for a bar. Sing it on \"ah\".\nWhen every note has its own clear pitch and none is slid through, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the middle notes blur at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                      ],
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 80
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run, four notes per beat",
+                "minutes": 3,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 54
+                    },
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 66
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the metronome and the mic. The same run in sixteenths: four notes per beat, so the way up and back takes two beats and the last {{1}} lands on the third. Sing it on \"ah\", a little quieter than feels natural.\nWhen the last {{1}} lands exactly with the click, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you arrive early or late at a new stage, go back one stage and stay there a little longer."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                      ],
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 54
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run in D, made your own",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below: the drone is on D, and there is no metronome now. Sing the run on \"oo\" at the fastest speed that stayed clean. Then change it: start from {{5}} and run down, stop on {{3}}, or go up and stay on {{5}}.\nWhen you change the key, the notes are new but the five steps are the same size."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "d",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                      ],
+                      "labels": "degree",
+                      "drone": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Am9, D9 and Gmaj7",
+            "minutes": 12,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "rhythm",
+              "technique"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "A 9th chord is a 7th chord with one more note on top, so Am9 and D9 go wherever Am7 and D7 go, and Gmaj7 is where the two of them lead.",
+            "learnBefore": [
+              "/course/11/extended",
+              "/course/11/ii-v-i"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The three shapes",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Am9 to D9 first, then from D9 to Gmaj7, until each pair moves without a stop in between."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "Am9",
+                        "D9",
+                        "Gmaj7"
+                      ],
+                      "voicing": "barre"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Sixteenths with misses",
+                "minutes": 4,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 76
+                    },
+                    {
+                      "bpm": 86
+                    },
+                    {
+                      "bpm": 96
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord: a bar of Am9, a bar of D9, two bars of Gmaj7. Your hand goes down and up four times a beat and misses the strings where the box shows a dot.\nWhen the changes no longer make your strumming hand wait, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Am9",
+                        "D9",
+                        "Gmaj7",
+                        "Gmaj7"
+                      ],
+                      "bpm": 76,
+                      "pattern": "D . . U . U D U D . . U . U D U"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "With drums and bass",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: drums and bass at 84, with the chord boxes lighting bar by bar. You are the only one playing the chords. Leave some strums out, as you would to make room for your voice, and keep your hand moving through the gaps.\nThis trains your timing: the gaps have to be as steady as the strums."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "chords": [
+                        "Am9",
+                        "D9",
+                        "Gmaj7",
+                        "Gmaj7"
+                      ],
+                      "key": "g",
+                      "style": "pop",
+                      "bpm": 84,
+                      "parts": {
+                        "drums": "always",
+                        "bass": "on"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Name the chord you hear",
+            "minutes": 4,
+            "level": "intermediate",
+            "area": "theory",
+            "tags": [
+              "ear"
+            ],
+            "topic": "theory-building-chords",
+            "concepts": [
+              "seventh-chords"
+            ],
+            "why": "Every chord you comp this week is built on a major 7, a minor 7 or a dominant 7, so naming those three by ear is naming what your hands are playing.",
+            "learnBefore": [
+              "/course/7/hearing-sevenths"
+            ],
+            "cells": [
+              {
+                "type": "text",
+                "text": "Press Start in the game below: it plays a chord on a new root each time, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7. Listen to the top of the chord first. Keep going until the name comes before you work it out."
+              },
+              {
+                "type": "tool",
+                "tool": {
+                  "type": "interval-ears",
+                  "kind": "chord"
+                }
+              }
+            ]
+          },
+          {
+            "title": "Guide tones over the ii–V–I in G",
+            "minutes": 12,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "improv"
+            ],
+            "topic": "voice-harmony",
+            "concepts": [
+              "improvise-melody"
+            ],
+            "why": "The 3rd and the 7th tell one chord from the next, and through a ii–V–I each of them moves a step or stays, so a line made of them follows the chords you just played.",
+            "learnBefore": [
+              "/course/11/guide-tones",
+              "/course/11/ii-v-i"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Two lines in G",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band: Am7, D7, then two bars of Gmaj7. On \"ah\", sing one long note per chord: {{4}} over Am7, {{4}} again over D7, then {{3}} over Gmaj7. Then the other line: {{1}} over Am7, {{7}} over D7, {{7}} again over Gmaj7.\nListen for the bar where your note stays and the chord changes under it."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "3",
+                        "4",
+                        "7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "g",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The same lines in C",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the same changes in C: Dm7, G7, Cmaj7. Sing both lines again on \"oo\": {{4}} {{4}} {{3}}, then {{1}} {{7}} {{7}}.\nWhen you change the key, the notes are new but each line still moves by one step or stays."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "3",
+                        "4",
+                        "7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "c",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Your own line",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band, back in G. Make up your own line, and sing it on any vowel you like. Start each chord on one of its ringed notes: {{4}} or {{1}} over Am7, {{4}} or {{7}} over D7, {{3}} or {{7}} over Gmaj7. Leave space between phrases."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "under": true,
+                      "highlight": [
+                        "1",
+                        "3",
+                        "4",
+                        "7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "g",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Turns and shells",
+        "exercises": [
+          {
+            "title": "Warm-up: siren and low hum",
+            "minutes": 5,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing"
+            ],
+            "topic": "voice-breath-range",
+            "concepts": [
+              "stretch-range"
+            ],
+            "learnBefore": [
+              "/theory/singing/warm-ups"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Siren",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the lip roll below: a tone slides up and back down, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll, and keep the buzz the same size at the top as at the bottom."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "lip-roll",
+                      "shape": "siren",
+                      "voice": "baritone",
+                      "plays": 4
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Low and easy",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the hill below and hold an easy hum: the ball rolls down into the hollow as your voice goes low, and the ring fills while you stay there. Each hold is a semitone lower, with the new note played in the breath between.\nKeep it quiet: a low note pushed for volume goes flat."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "voice-hill",
+                      "where": "low",
+                      "sound": "hum",
+                      "seconds": 4,
+                      "reps": 5,
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The 3rd and 7th of each chord",
+            "minutes": 12,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "theory",
+              "improv"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "A shell is a chord cut down to its root, 3rd and 7th, so once you can find the 3rd and 7th alone you can build the chord, or a line, around them.",
+            "learnBefore": [
+              "/course/11/shells",
+              "/course/11/guide-tones"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Two notes per chord",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing: it holds Am7, D7 and two bars of Gmaj7 while you play the tab, one note per beat. You play only the 3rd and the 7th of each chord.\nWatch how little your hand moves from one chord to the next, then switch to the neck view to see the whole line in place."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Am7",
+                            "steps": [
+                              "b3",
+                              "b7",
+                              "b3",
+                              "b7"
+                            ]
+                          },
+                          {
+                            "chord": "D7",
+                            "steps": [
+                              "3",
+                              "b7",
+                              "3",
+                              "b7"
+                            ]
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "steps": [
+                              "3",
+                              "7",
+                              "3",
+                              "7"
+                            ]
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "steps": [
+                              "3",
+                              "7",
+                              "3",
+                              "7"
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 66,
+                      "view": "tab"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Shells",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing. Now the root goes under the two notes: strike the shell on the A, D and G strings on beat 1, pick its 3rd and its 7th, then strike the shell again.\nKeep going until your hand finds each shell before its bar starts."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Am7",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "b7"
+                                ],
+                                "strings": "543"
+                              },
+                              "b3",
+                              "b7",
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "b7"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "D7",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "b7"
+                                ],
+                                "strings": "543"
+                              },
+                              "3",
+                              "b7",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "b7"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "7"
+                                ],
+                                "strings": "543"
+                              },
+                              "3",
+                              "7",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "7"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "7"
+                                ],
+                                "strings": "543"
+                              },
+                              "3",
+                              "7",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "7"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 66,
+                      "view": "tab"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Land on the 3rd",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing, which goes round Am7, D7 and Gmaj7. Improvise in G major and land on the ringed note as each chord arrives: {{c}} over Am7, {{f-sharp}} over D7, {{b}} over Gmaj7.\nThen aim for each chord's 7th instead, and hear how the line changes colour."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "g",
+                        "scale": "major-ionian",
+                        "chords": [
+                          {
+                            "chord": "Am7",
+                            "target": [
+                              "b3"
+                            ]
+                          },
+                          {
+                            "chord": "D7",
+                            "target": [
+                              "3"
+                            ],
+                            "approach": "land on F♯ on beat 1"
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "target": [
+                              "3"
+                            ]
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "target": [
+                              "3"
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 80,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Turns",
+            "minutes": 10,
+            "level": "intermediate",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "technique"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "runs"
+            ],
+            "why": "A turn is the smallest run there is, a note with the neighbour above and the neighbour below, and the runs of soul and R&B are mostly turns joined by steps.",
+            "learnBefore": [
+              "/course/6/vocal-runs",
+              "/theory/singing/runs"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The turn on the 3rd",
+                "minutes": 3,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 56
+                    },
+                    {
+                      "bpm": 63
+                    },
+                    {
+                      "bpm": 70
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below: the metronome and the mic start together. Sing the turn around {{3}}: {{3}} {{4}} {{3}} {{2}}, four notes in one beat, then hold {{3}} for three beats. Sing it on \"ah\".\nWhen all four notes show as separate steps in your line, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the turn smears into a wobble at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                      ],
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 56
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The turn inside a run",
+                "minutes": 3,
+                "choice": {
+                  "options": [
+                    {
+                      "key": "c"
+                    },
+                    {
+                      "key": "d"
+                    },
+                    {
+                      "key": "e-flat"
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the metronome at 60 and the mic. Climb {{1}} {{2}} {{3}}, sing the turn around {{3}} as before, then run down {{3}} {{2}} {{1}}. Sing the climb on \"oo\" and open to \"ah\" on the turn.\nOnce the turn sits inside the run without slowing it, try it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes are new but the turn is the same shape around {{3}}."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                      ],
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 60
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "A pentatonic run",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" for the high passes."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "hard",
+                        "stage": "pentatonic-run"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Am, D and G triads on two string sets",
+            "minutes": 8,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "theory",
+              "technique"
+            ],
+            "topic": "guitar-caged",
+            "concepts": [
+              "triads-every-set",
+              "top-string-triads"
+            ],
+            "why": "Three notes high on the neck leave the low register to your voice and the bass, so a small triad often sits better under a singer than a full barre chord.",
+            "learnBefore": [
+              "/course/8/triads-everywhere",
+              "/course/5/triads"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Strings G, B and E",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing and follow the tab: each triad on the top three strings, struck once per beat for a bar. The chords go Am, D and two bars of G. Keep going until the changes take no thought."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Am",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "D",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "321"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 66,
+                      "view": "tab"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Strings D, G and B",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing: the same chords one set of strings lower. The shapes are new, so let the tab lead for the first few rounds, then say each chord's name as you strike it.\nThen stop the backing and play each chord on both sets, one after the other."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Am",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "D",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "G",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              },
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "5"
+                                ],
+                                "strings": "432"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 66,
+                      "view": "tab"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "A run into the chord",
+            "minutes": 10,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "improv"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "fast-runs"
+            ],
+            "why": "A run sounds placed, not just decorative, when its last note belongs to the chord that is arriving, so aim every run at the 3rd of the next chord.",
+            "learnBefore": [
+              "/course/9/fast-runs",
+              "/course/11/guide-tones"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The run into the 3rd",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band: Am7, D7, then two bars of Gmaj7. Hold {{4}} on \"oo\" through Am7 and D7. At the end of the D7 bar, sing the run {{1}} {{2}} {{3}} on \"ah\" and land on {{3}} as Gmaj7 arrives.\nThen come from above: sing the run {{5}} {{4}} {{3}} into the same note."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "g",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run in C",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the same changes in C: Dm7, G7, Cmaj7. Sing the run both ways again, on \"ah\".\nWhen you change the key, the notes are new but the run still ends on {{3}} on the first beat of the last chord."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "c",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "A run of your own",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band, back in G. Make up a run of your own from the whole scale each time round, and sing it on any vowel. Aim it at a ringed note, {{3}} or {{7}}, as Gmaj7 arrives, and leave the next bar empty."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "under": true,
+                      "highlight": [
+                        "3",
+                        "7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "g",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "The hard leaps, and the same colours in C",
+        "exercises": [
+          {
+            "title": "Warm-up: long breath out, lip roll up",
+            "minutes": 5,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing"
+            ],
+            "topic": "voice-breath-range",
+            "concepts": [
+              "breath-holding-note"
+            ],
+            "learnBefore": [
+              "/theory/singing/breathing",
+              "/theory/singing/warm-ups"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Long breath out",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the breathing below: in for 4, then out slowly for 12. Let the air leave at one steady speed, so the last counts feel the same as the first."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "breathwork",
+                      "drill": "long-exhale",
+                      "seconds": 12,
+                      "rounds": 6
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Lip roll up",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the lip roll below: a tone slides from chest voice up to head voice, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll, and let it get lighter, not louder, as it climbs."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "lip-roll",
+                      "shape": "up",
+                      "voice": "baritone",
+                      "plays": 4
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The hard leaps: 7ths, tritone, minor 6th",
+            "minutes": 9,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "ear"
+            ],
+            "topic": "voice-intervals",
+            "concepts": [
+              "leaps",
+              "singing-intervals"
+            ],
+            "why": "A hard leap lands in tune when you first hear a note you already know right beside it, so each block finds its leaps from a neighbour: the high Do, then Sol.",
+            "learnBefore": [
+              "/course/6/every-interval",
+              "/course/6/singing-leaps"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The 7ths, from the high Do",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name above the piano roll: m7 is a minor 7th up from Do, M7 a major 7th.\nHear the high Do in your head first: the major 7th lands a half step under it, the minor 7th a whole step under it. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. When Do moves to a new key, each 7th is still the same distance under the high Do."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "interval-singer",
+                      "key": "c",
+                      "keys": [
+                        "c",
+                        "d"
+                      ],
+                      "voice": "baritone",
+                      "intervals": [
+                        10,
+                        11
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Either side of Sol",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start below to hear Do. The leaps are now TT, the tritone, and m6, the minor 6th.\nHear Sol in your head first: the tritone lands a half step under it, the minor 6th a half step above it. Then sing that note on \"oo\" and hold it until Yes shows.\nIf a note won't come, press Show me below to hear it. Then press Restart below to sing the same leap again."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "interval-singer",
+                      "key": "b-flat",
+                      "keys": [
+                        "b-flat",
+                        "c"
+                      ],
+                      "voice": "baritone",
+                      "intervals": [
+                        6,
+                        8
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Every leap, in stages",
+                "minutes": 3,
+                "choice": {
+                  "options": [
+                    {
+                      "level": "intermediate"
+                    },
+                    {
+                      "level": "advanced"
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start below to hear Do. The first stage asks the leaps you already sing, to settle your ear.\nWhen each leap lands on your first try, try the next stage: it asks the leaps from the first two blocks and the minor 3rd, down as well as up, from a new Do each time. Use the Stage selector below to change the stage, then press Start below to hear Do again.\nIf a leap down misses, press Restart below and hear the landing note in your head before you sing."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "interval-singer",
+                      "level": "intermediate",
+                      "key": "c",
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Dm9, G9 and Cmaj7",
+            "minutes": 8,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "rhythm",
+              "technique"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "A singer needs every chord in more than one key, and moving the ii–V–I from G to C puts the same three colours on new roots.",
+            "learnBefore": [
+              "/course/11/extended",
+              "/course/10/moving-keys"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The three shapes",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Dm9 to G9, then from G9 to Cmaj7, until your fingers lift and land together."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "Dm9",
+                        "G9",
+                        "Cmaj7"
+                      ],
+                      "voicing": "barre"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Sixteenths with misses",
+                "minutes": 5,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 76
+                    },
+                    {
+                      "bpm": 86
+                    },
+                    {
+                      "bpm": 96
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes: a bar of Dm9, a bar of G9, two bars of Cmaj7. Your hand keeps moving through the dots.\nWhen the changes stop interrupting your strumming hand, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Dm9",
+                        "G9",
+                        "Cmaj7",
+                        "Cmaj7"
+                      ],
+                      "bpm": 76,
+                      "pattern": "D . . U . U D U D . . U . U D U"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Nine notes and the octave",
+            "minutes": 12,
+            "level": "intermediate",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "technique"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "runs",
+              "fast-runs"
+            ],
+            "why": "A longer run is short groups joined together, so hearing it in fours keeps every note in its place when the tempo goes up.",
+            "learnBefore": [
+              "/course/9/fast-runs",
+              "/theory/singing/runs"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The nine-note run",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to Re above the high Do and back down, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" at the top."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "hard",
+                        "stage": "nine"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run up the octave, on the click",
+                "minutes": 3,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 54
+                    },
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 66
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the metronome and the mic. Sing the run up the scale from the low {{1}}, four notes per beat, and hold the high {{1}} when you reach it. Breathe, then run back down the same way and hold the low {{1}}. Sing it on \"ah\".\nWhen {{4}} and {{7}} are as clear as the notes around them, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the top of the run goes flat at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "b-flat",
+                      "voice": "baritone",
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 54
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run in groups of four",
+                "minutes": 3,
+                "choice": {
+                  "options": [
+                    {
+                      "key": "c"
+                    },
+                    {
+                      "key": "b-flat"
+                    },
+                    {
+                      "key": "d"
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the metronome at 60 and the mic. Sing the run in groups of four, one group per beat: {{1}} {{2}} {{3}} {{4}}, then {{2}} {{3}} {{4}} {{5}}, each group starting one note higher, up to the high {{1}}. Sing it on \"ah\".\nOnce each group starts on the click, try another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes are new but every group is still four steps up."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 60
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The octave run",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: the mic starts with it. The run goes from Do up to the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and hear it in the groups of four you just sang."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "hard",
+                        "stage": "octave-run"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "A turnaround with the band",
+            "minutes": 11,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "rhythm",
+              "song"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "A turnaround is the ii–V–I with one chord added so it loops, which makes it the four bars you will comp most often behind a verse.",
+            "learnBefore": [
+              "/course/11/comping",
+              "/course/2/sixteenths"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The four chords",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press a chord box below to hear it, then fret the four shapes in order. Go round until the change into Am7 is as quick as the ones you drilled earlier."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "Cmaj7",
+                        "Am7",
+                        "Dm9",
+                        "G9"
+                      ],
+                      "voicing": "barre"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "In time",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome at 84. Strum the pattern in the boxes, one bar per chord. If a change comes late, keep your strumming hand going and catch the next beat 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Cmaj7",
+                        "Am7",
+                        "Dm9",
+                        "G9"
+                      ],
+                      "bpm": 84,
+                      "pattern": "D . D U . U D U"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "With the band, in two keys",
+                "minutes": 4,
+                "choice": {
+                  "options": [
+                    {
+                      "key": "c"
+                    },
+                    {
+                      "key": "g"
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: drums and bass, with the chord boxes lighting bar by bar. The boxes show 7th chords: play your 9th shapes on the third and fourth chords, and leave strums out so there is room for a voice.\nOnce the chords go round without you checking the boxes, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the shapes move along the neck but the colours come in the same order: major 7, minor 7, minor 9, dominant 9."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "c",
+                      "numerals": [
+                        "Imaj7",
+                        "vi7",
+                        "ii7",
+                        "V7"
+                      ],
+                      "style": "pop",
+                      "bpm": 84,
+                      "parts": {
+                        "drums": "always",
+                        "bass": "on"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Pentatonic runs at speed, and a soul vamp",
+        "exercises": [
+          {
+            "title": "Warm-up: middle, then light and high",
+            "minutes": 5,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing"
+            ],
+            "topic": "voice-breath-range",
+            "concepts": [
+              "stretch-range"
+            ],
+            "learnBefore": [
+              "/theory/singing/warm-ups",
+              "/course/9/stretching-your-range"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Middle",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the hill below and hold an easy hum in the middle of your voice: the ball rests in the valley between the two marks, and the ring fills while you stay there."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "voice-hill",
+                      "where": "middle",
+                      "sound": "hum",
+                      "seconds": 4,
+                      "reps": 5,
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Light and high",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the hill below and hold a light sound on \"oo\": the ball climbs to the top as your voice goes up into head voice.\n_Keep the high holds quiet, and stop if your throat tightens._"
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "voice-hill",
+                      "where": "high",
+                      "sound": "oo",
+                      "seconds": 4,
+                      "reps": 5,
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Pentatonic runs at speed",
+            "minutes": 12,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "technique"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "fast-runs"
+            ],
+            "why": "A pentatonic run mixes steps with skips, and the skips are where fast runs go out of tune, so they get drilled slowly before the tempo goes up.",
+            "learnBefore": [
+              "/course/9/fast-runs",
+              "/theory/singing/runs"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The run on the click",
+                "minutes": 3,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 54
+                    },
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 66
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the metronome and the mic. Sing the run up the scale from the low {{1}} to the high {{1}} and back down, four notes per beat, on \"ah\". From {{3}} to {{5}} and from {{6}} to the high {{1}} are skips: give each its own clear pitch.\nWhen the skips are as steady as the steps, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf a skip slides at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-pentatonic",
+                      "key": "c",
+                      "voice": "baritone",
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 54
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run, a semitone higher each pass",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "pentatonic-run"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The falling run in A minor",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below: the drone is on A. Start on the high {{1}} and sing the run down, {{1}} {{b7}} {{5}} {{4}} {{b3}} {{1}}, on \"oo\": slowly first, then as one quick gesture. This falling shape is the run heard most in soul and R&B.\nThen make up a falling run of your own that starts on {{5}} or {{b7}}."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "voice": "baritone",
+                      "labels": "degree",
+                      "drone": true
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The five-note run, a step harder",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: the mic starts with it. It is a harder five-note run than day 1's: it goes from Do up to Sol and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\".\nNotice which passes are cleaner than they were on day 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "five"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Sus and add9 on top",
+            "minutes": 8,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "rhythm",
+              "theory"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "sus-add9-shapes"
+            ],
+            "why": "Sus and add9 chords change one note of a chord you already hold, so the colour moves while the hand barely does: the folk way to enrich a plain I, IV and V.",
+            "learnBefore": [
+              "/course/7/sus-add9",
+              "/course/7/colour-paths"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "What a chord can turn into",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Tap the chords around the circle below to hear what G can turn into while it stays in the key."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-circle",
+                      "key": "g",
+                      "scale": "major-ionian",
+                      "degree": 1
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": "Press each chord box below to hear it, then fret the four shapes in order. Look for the fingers that can stay down from one shape to the next."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "G",
+                        "Cadd9",
+                        "Dsus4",
+                        "D"
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Sixteenths with misses",
+                "minutes": 5,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 80
+                    },
+                    {
+                      "bpm": 90
+                    },
+                    {
+                      "bpm": 100
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord, and listen for Dsus4 letting go into D.\nWhen the pattern runs without you reading it, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the misses start to sound at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "G",
+                        "Cadd9",
+                        "Dsus4",
+                        "D"
+                      ],
+                      "bpm": 80,
+                      "pattern": "D . . U . U D U D . . U . U D U"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Two harmony lines, then runs between",
+            "minutes": 10,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "improv"
+            ],
+            "topic": "voice-harmony",
+            "concepts": [
+              "harmony-line"
+            ],
+            "why": "A harmony line moves as little as it can from one chord note to the next, so it is easy to hold and leaves room to decorate.",
+            "learnBefore": [
+              "/course/6/harmony-line",
+              "/course/9/improvising-a-melody"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The lower line",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band: G, D, Em and C, one bar each. On \"oo\", sing one long note per chord: {{3}} over G, {{2}} over D, then {{1}} over Em and again over C."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "5",
+                        "6"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "pop",
+                      "key": "g",
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 76
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The upper line",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band again. Now the line above it, on \"ee\": {{5}} over G and over D, then {{6}} over Em and over C.\nGo back and forth between the two lines until you can start either one without the staff."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "5",
+                        "6"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "pop",
+                      "key": "g",
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 76
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Runs between the notes",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band. Sing either line, and in the last beat of a bar join its note to the next with a short run of steps, or put a turn on a held note. Sing the long notes on \"oo\" and the runs on \"ah\".\nIf a run makes you late, hold the next note plain and try again a bar later."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "highlight": [
+                        "1",
+                        "2",
+                        "3",
+                        "5",
+                        "6"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "pop",
+                      "key": "g",
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 76
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Comp a soul vamp",
+            "minutes": 10,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "rhythm",
+              "song"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "Two chords leave nothing to hide behind, so the groove is made by which strums you leave out.",
+            "learnBefore": [
+              "/course/11/comping",
+              "/course/11/extended"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One stage at a time",
+                "minutes": 4,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 80
+                    },
+                    {
+                      "bpm": 90
+                    },
+                    {
+                      "bpm": 100
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes, two bars of Am9 and two of D9.\nWhen the change no longer makes your strumming hand wait, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late, keep the hand going and catch the next beat 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Am9",
+                        "Am9",
+                        "D9",
+                        "D9"
+                      ],
+                      "bpm": 80,
+                      "pattern": "D . . U . U D U D . . U . U D U"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "With the band",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: drums and bass at 92, with the chord boxes lighting bar by bar. You are the only one playing the chords. Leave some strums out, and keep your hand moving through the gaps."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "chords": [
+                        "Am9",
+                        "Am9",
+                        "D9",
+                        "D9"
+                      ],
+                      "key": "a",
+                      "style": "funk",
+                      "bpm": 92,
+                      "parts": {
+                        "drums": "always",
+                        "bass": "on"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The turn home",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: Am9 and D9 three times round, a bar each, then two bars of Gmaj7. Leave strums out in the vamp, then play every strum when Gmaj7 arrives.\nListen for how the two vamp chords turn into day 1's ii–V–I the moment Gmaj7 follows them."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "chords": [
+                        "Am9",
+                        "D9",
+                        "Am9",
+                        "D9",
+                        "Am9",
+                        "D9",
+                        "Gmaj7",
+                        "Gmaj7"
+                      ],
+                      "key": "a",
+                      "style": "funk",
+                      "bpm": 92,
+                      "parts": {
+                        "drums": "always",
+                        "bass": "on"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "The ii–V–I in C: comp it, then sing it",
+        "exercises": [
+          {
+            "title": "Warm-up: hiss to voice, fast siren",
+            "minutes": 5,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing"
+            ],
+            "topic": "voice-breath-range",
+            "concepts": [
+              "breath-holding-note"
+            ],
+            "learnBefore": [
+              "/theory/singing/breathing",
+              "/theory/singing/warm-ups"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Hiss, then voice",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the breathing below: a hiss, then the same breath with voice. Notice the moment the hiss turns into voice: it should start without a click or a push."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "breathwork",
+                      "drill": "sss-zzz",
+                      "seconds": 5,
+                      "rounds": 5
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Fast siren",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the lip roll below: the tone slides up and back down quickly, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll. A fast slide is a run with no steps in it, so let it be loose."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "lip-roll",
+                      "shape": "siren",
+                      "speed": "fast",
+                      "voice": "baritone",
+                      "plays": 5
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Shells and guide tones in C",
+            "minutes": 12,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "theory",
+              "improv"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "A shell is counted from its root, so in C the shapes from day 2 sit on new frets and the 3rd and 7th keep their places inside them.",
+            "learnBefore": [
+              "/course/11/shells",
+              "/course/11/guide-tones"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Two notes per chord",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing: it holds Dm7, G7 and two bars of Cmaj7 while you play the tab, one note per beat, only the 3rd and the 7th of each chord.\nTry a round with your eyes off the tab: the moves are the ones you played in G on day 2."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Dm7",
+                            "steps": [
+                              "b3",
+                              "b7",
+                              "b3",
+                              "b7"
+                            ]
+                          },
+                          {
+                            "chord": "G7",
+                            "steps": [
+                              "3",
+                              "b7",
+                              "3",
+                              "b7"
+                            ]
+                          },
+                          {
+                            "chord": "Cmaj7",
+                            "steps": [
+                              "3",
+                              "7",
+                              "3",
+                              "7"
+                            ]
+                          },
+                          {
+                            "chord": "Cmaj7",
+                            "steps": [
+                              "3",
+                              "7",
+                              "3",
+                              "7"
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 70,
+                      "view": "tab"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Shells",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing. Strike the shell on the A, D and G strings on beat 1, pick its 3rd and its 7th, then strike the shell again.\nKeep going until your hand finds each shell before its bar starts."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Dm7",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "b7"
+                                ],
+                                "strings": "543"
+                              },
+                              "b3",
+                              "b7",
+                              {
+                                "grip": [
+                                  "1",
+                                  "b3",
+                                  "b7"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "G7",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "b7"
+                                ],
+                                "strings": "543"
+                              },
+                              "3",
+                              "b7",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "b7"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "Cmaj7",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "7"
+                                ],
+                                "strings": "543"
+                              },
+                              "3",
+                              "7",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "7"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          },
+                          {
+                            "chord": "Cmaj7",
+                            "steps": [
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "7"
+                                ],
+                                "strings": "543"
+                              },
+                              "3",
+                              "7",
+                              {
+                                "grip": [
+                                  "1",
+                                  "3",
+                                  "7"
+                                ],
+                                "strings": "543"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 70,
+                      "view": "tab"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Shell, then a line",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing. When a chord comes round, strike the lit shell on beat 1, then fill the rest of the bar with a short line in C major. The ringed notes are the chord's 3rd and 7th, so end the line on one of them.\nKeep going until the shell and the line sound like one phrase: this is how you fill the gaps between sung lines."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "c",
+                        "scale": "major-ionian",
+                        "chords": [
+                          {
+                            "chord": "Dm7",
+                            "target": [
+                              "b3",
+                              "b7"
+                            ],
+                            "stab": {
+                              "grip": [
+                                "1",
+                                "b3",
+                                "b7"
+                              ],
+                              "strings": "543"
+                            }
+                          },
+                          {
+                            "chord": "G7",
+                            "target": [
+                              "3",
+                              "b7"
+                            ],
+                            "stab": {
+                              "grip": [
+                                "1",
+                                "3",
+                                "b7"
+                              ],
+                              "strings": "543"
+                            }
+                          },
+                          {
+                            "chord": "Cmaj7",
+                            "target": [
+                              "3",
+                              "7"
+                            ],
+                            "stab": {
+                              "grip": [
+                                "1",
+                                "3",
+                                "7"
+                              ],
+                              "strings": "543"
+                            }
+                          },
+                          {
+                            "chord": "Cmaj7",
+                            "target": [
+                              "3",
+                              "7"
+                            ],
+                            "stab": {
+                              "grip": [
+                                "1",
+                                "3",
+                                "7"
+                              ],
+                              "strings": "543"
+                            }
+                          }
+                        ]
+                      },
+                      "bpm": 76,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The octave run",
+            "minutes": 10,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "technique"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "fast-runs"
+            ],
+            "why": "An octave run crosses from one part of the voice into another, so it only stays even when the top notes are sung lighter than the bottom ones.",
+            "learnBefore": [
+              "/course/9/fast-runs",
+              "/theory/singing/runs"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The run",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" as it climbs."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "octave-run"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run in fours, up and down",
+                "minutes": 4,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 56
+                    },
+                    {
+                      "bpm": 63
+                    },
+                    {
+                      "bpm": 70
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the metronome and the mic. Sing the run in groups of four, one group per beat: {{1}} {{2}} {{3}} {{4}}, then {{2}} {{3}} {{4}} {{5}}, up to the high {{1}}. Then come down the same way, each group starting one note lower. Sing it on \"ah\".\nWhen the way down is as even as the way up, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the groups run into each other at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 56
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run in skips",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: the mic starts with it. This one skips: Do, Mi, Sol and the high Do, then back down, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"oo\", which keeps the top note light."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "arpeggio-run"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Name the interval you hear",
+            "minutes": 5,
+            "level": "intermediate",
+            "area": "theory",
+            "tags": [
+              "ear"
+            ],
+            "topic": "theory-ear",
+            "concepts": [
+              "intervals"
+            ],
+            "why": "A leap you can name by ear is a leap you can aim your voice at, so this is the listening half of day 3's singing.",
+            "learnBefore": [
+              "/theory/ears",
+              "/course/6/every-interval"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Two stages",
+                "minutes": 5,
+                "choice": {
+                  "options": [
+                    {
+                      "level": "intermediate"
+                    },
+                    {
+                      "level": "advanced"
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start in the game below: it plays two notes, one after the other, and you pick the interval's name. The first stage leaves out the 7ths and the tritone.\nWhen the name comes before you have to sing it in your head, try the next stage: it adds the 7ths and the tritone, so all twelve are asked. Use the Stage selector below to change the stage, then press Start in the game again.\nIf a stage turns into guessing, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "interval-ears",
+                      "level": "intermediate"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Your own line over the ii–V–I in C",
+            "minutes": 13,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "improv"
+            ],
+            "topic": "voice-harmony",
+            "concepts": [
+              "improvise-melody"
+            ],
+            "why": "Guide tones give a line its skeleton, and turns and runs are the ways to get from one to the next, so a made-up line is the week's two skills joined.",
+            "learnBefore": [
+              "/course/11/guide-tones",
+              "/course/9/improvising-a-melody"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Guide tones with a turn",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band: Dm7, G7, then two bars of Cmaj7. Sing the guide tones on \"ah\": {{4}} over Dm7, {{4}} over G7, {{3}} over Cmaj7. Then put a turn on each one as its chord arrives, up to the note above and down to the note below, before you hold it.\nTry the other line too: {{1}}, {{7}}, {{7}}."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "under": true,
+                      "highlight": [
+                        "1",
+                        "3",
+                        "4",
+                        "7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "c",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Runs between the guide tones",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band. Hold a guide tone, and at the end of its bar run by step to one of the next chord's ringed notes, up or down, so you land as the chord changes. Sing the held notes on \"oo\" and the runs on \"ah\".\nIf a run lands late, shorten it to three notes."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "under": true,
+                      "highlight": [
+                        "1",
+                        "3",
+                        "4",
+                        "7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "c",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "In F, all your own",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the same changes in F: Gm7, C7, Fmaj7. Make up whole phrases now, with long notes, turns and runs, and sing them on any vowel. Start or end each one on a ringed note.\nWhen you change the key, the notes are new but the ringed notes do the same jobs: {{4}} and {{1}} over the first chord, {{7}} and {{4}} over the second, {{3}} and {{7}} over the last."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "f",
+                      "voice": "baritone",
+                      "under": true,
+                      "highlight": [
+                        "1",
+                        "3",
+                        "4",
+                        "7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "f",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 72
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Put the run in a song",
+        "exercises": [
+          {
+            "title": "Warm-up: longer breath, light top",
+            "minutes": 5,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing"
+            ],
+            "topic": "voice-breath-range",
+            "concepts": [
+              "breath-holding-note",
+              "stretch-range"
+            ],
+            "learnBefore": [
+              "/theory/singing/breathing",
+              "/theory/singing/warm-ups"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Breath",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the breathing below: the same drill as day 1, one count longer at the end. Keep your shoulders still, and let the hold be relaxed, not clamped."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "breathwork",
+                      "drill": "farinelli",
+                      "from": 4,
+                      "to": 10
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Light and high",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the hill below and hold a light sound on \"oo\" in head voice: the ball climbs to the top and the ring fills while you stay there. Keep it as quiet as it will go."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "voice-hill",
+                      "where": "high",
+                      "sound": "oo",
+                      "seconds": 3,
+                      "reps": 5,
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Fast runs, rising and falling",
+            "minutes": 10,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "technique"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "fast-runs"
+            ],
+            "why": "Runs in songs fall more often than they rise, and a falling run tends to go flat, so the way down gets its own stages.",
+            "learnBefore": [
+              "/course/9/fast-runs",
+              "/theory/singing/runs"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The nine-note run",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run: the mic starts with it. It is a harder nine-note run than day 3's: it goes from Do up to Re above the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" at the top."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "nine"
+                      },
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The falling run on the click",
+                "minutes": 4,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 54
+                    },
+                    {
+                      "bpm": 60
+                    },
+                    {
+                      "bpm": 66
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the metronome and the mic. From the high {{1}}, sing the run {{1}} {{b7}} {{5}} {{4}} in one beat and land on {{b3}} on the next, then step down to the low {{1}} and hold it. Sing it on \"oo\".\nWhen {{b3}} lands on the click and in tune, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the low notes of the run sag at a new stage, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "minor-pentatonic",
+                      "key": "a",
+                      "voice": "baritone",
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 54
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The pentatonic run, with the metronome",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run from day 4, now with the metronome under it: the mic starts with it. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and keep every pass on the beat."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "pentatonic-run"
+                      },
+                      "voice": "baritone",
+                      "metronome": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The turnaround in G, two ways",
+            "minutes": 10,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "rhythm",
+              "song"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "Full 9th chords fill the space and shells leave it open, so choosing between them is how you set how much room your voice gets.",
+            "learnBefore": [
+              "/course/11/comping",
+              "/course/11/shells"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The four chords",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press a chord box below to hear it, then fret the four shapes in order. Go round until no change needs a look at the neck."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "chord-shapes",
+                      "chords": [
+                        "Gmaj7",
+                        "Em7",
+                        "Am9",
+                        "D9"
+                      ],
+                      "voicing": "barre"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "In time",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome at 90. Strum the pattern in the boxes, one bar per chord, with your hand moving through the dots."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Gmaj7",
+                        "Em7",
+                        "Am9",
+                        "D9"
+                      ],
+                      "bpm": 90,
+                      "pattern": "D . . U . U D U D . . U . U D U"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Full chords, then shells",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: drums and bass at 90, with the chord boxes lighting bar by bar. Play one round with the full shapes. On the next round play only a shell of each chord, its root, 3rd and 7th on the A, D and G strings, as on day 2.\nListen for how much space opens up when you change to shells."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "chords": [
+                        "Gmaj7",
+                        "Em7",
+                        "Am9",
+                        "D9"
+                      ],
+                      "key": "g",
+                      "style": "pop",
+                      "bpm": 90,
+                      "parts": {
+                        "drums": "always",
+                        "bass": "on"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Tunes with wide leaps",
+            "minutes": 9,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "song",
+              "multi-octave"
+            ],
+            "topic": "voice-melodies",
+            "concepts": [
+              "sight-singing"
+            ],
+            "why": "A run is steps and a tune like these is leaps, so singing one after the other keeps your pitch honest at both sizes.",
+            "learnBefore": [
+              "/course/6/sight-singing",
+              "/theory/singing/melodies"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "A tune with 7ths",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Look at the staff below first and guess how the tune goes. Press Play below to check your guess: the mic starts with it. Then sing along on \"la\", with no chords under you."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "melody-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "sevenths"
+                      },
+                      "key": "c",
+                      "voice": "baritone",
+                      "chords": false
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "A tune with an octave",
+                "minutes": 3,
+                "choice": {
+                  "options": [
+                    {
+                      "key": "b-flat"
+                    },
+                    {
+                      "key": "c"
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"oo\" and check where your line lands after the octave leap.\nOnce it lands without a slide, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the leap is still an octave."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "melody-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "octave"
+                      },
+                      "key": "b-flat",
+                      "voice": "baritone",
+                      "chords": false
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "A tune past the octave",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the tune: the mic starts with it. This tune leaps wider than an octave. Sing it first on \"oo\", then sing it before you press Play and use Play to check.\n_If the top note strains, sing it softer, never louder._"
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "melody-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "tenths"
+                      },
+                      "key": "a",
+                      "voice": "baritone",
+                      "chords": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Runs over a soul vamp",
+            "minutes": 11,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "improv",
+              "song"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "fast-runs"
+            ],
+            "why": "Over Am7 and D7 the 6th of the scale is the 3rd of D7, so a run that lands on it as the chord changes sounds like it belongs to the band.",
+            "learnBefore": [
+              "/course/9/improvising-a-melody",
+              "/course/9/modes"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Two long notes",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band, which switches between Am7 and D7. On \"oo\", sing {{5}} over Am7 and step up to {{6}} over D7. Then try {{b7}} over Am7 and step down to {{6}} over D7.\nTap {{6}} on the staff to hear it: it is the note to aim for in the next block."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "dorian",
+                      "key": "a",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "b3",
+                        "5",
+                        "6",
+                        "b7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "dorian",
+                      "key": "a",
+                      "bpm": 84,
+                      "parts": {
+                        "drums": "on",
+                        "bass": "on",
+                        "keys": "always"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "A run into each chord",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band. Start high and sing a run down by step, on \"ah\", so that you land on a ringed {{6}} as D7 arrives. Then run down again and land on a ringed {{1}} when Am7 comes back.\nIf you land early, start the run later, not slower."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "dorian",
+                      "key": "a",
+                      "voice": "baritone",
+                      "highlight": [
+                        "1",
+                        "6"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "dorian",
+                      "key": "a",
+                      "bpm": 84,
+                      "parts": {
+                        "drums": "on",
+                        "bass": "on",
+                        "keys": "always"
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Your own runs",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band. Sing whole phrases now, on any vowel: a long note, a turn, the falling run from earlier today, a run of your own. Leave a bar empty after each phrase, as you would between lines of a song."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "dorian",
+                      "key": "a",
+                      "voice": "baritone",
+                      "highlight": [
+                        "1",
+                        "6"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "dorian",
+                      "key": "a",
+                      "bpm": 84,
+                      "parts": {
+                        "drums": "on",
+                        "bass": "on",
+                        "keys": "always"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Day 1 again, then the set",
+        "exercises": [
+          {
+            "title": "Warm-up: siren and middle",
+            "minutes": 5,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing"
+            ],
+            "topic": "voice-breath-range",
+            "concepts": [
+              "stretch-range"
+            ],
+            "learnBefore": [
+              "/theory/singing/warm-ups"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Siren",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the lip roll below: the tone slides up and back down, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll, loose and quiet."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "lip-roll",
+                      "shape": "siren",
+                      "voice": "baritone",
+                      "plays": 4
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Middle",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Start the hill below and hold an easy sound on \"ee\" in the middle of your voice: the ball rests in the valley and the ring fills while you stay there."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "voice-hill",
+                      "where": "middle",
+                      "sound": "ee",
+                      "seconds": 4,
+                      "reps": 5,
+                      "voice": "baritone"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Five notes, day 1 again",
+            "minutes": 8,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "technique"
+            ],
+            "topic": "voice-runs",
+            "concepts": [
+              "fast-runs"
+            ],
+            "why": "The same run starting where day 1 stopped is the plainest way to hear what a week of stages has done.",
+            "learnBefore": [
+              "/course/9/fast-runs"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The run, a stage further",
+                "minutes": 4,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 66
+                    },
+                    {
+                      "bpm": 72
+                    },
+                    {
+                      "bpm": 80
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the metronome and the mic: day 1's run, starting at the tempo where day 1 ended. Sing the run {{1}} {{2}} {{3}} {{4}} {{5}} {{4}} {{3}} {{2}} {{1}}, four notes per beat, on \"ah\".\nWhen the last {{1}} lands exactly with the click, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nNotice how much less you have to think about the middle notes than you did on day 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "c",
+                      "voice": "baritone",
+                      "notes": [
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                        "5"
+                      ],
+                      "labels": "degree",
+                      "click": true,
+                      "bpm": 66
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The run through your range",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to hear the run with the metronome under it: the mic starts with it. The run goes from Do up to Sol and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" for the top passes."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "run-singer",
+                      "pick": {
+                        "difficulty": "expert",
+                        "stage": "five"
+                      },
+                      "voice": "baritone",
+                      "metronome": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Comp the ii–V–I, day 1 again",
+            "minutes": 8,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "rhythm"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "Day 1's three chords at tempos day 1 never reached show how far the changes have settled into your hand.",
+            "learnBefore": [
+              "/course/11/comping",
+              "/course/11/extended"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "A stage further",
+                "minutes": 4,
+                "choice": {
+                  "label": "stage",
+                  "options": [
+                    {
+                      "bpm": 96
+                    },
+                    {
+                      "bpm": 104
+                    },
+                    {
+                      "bpm": 112
+                    }
+                  ]
+                },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the metronome: day 1's pattern, starting at the tempo where day 1 ended. A bar of Am9, a bar of D9, two bars of Gmaj7.\nWhen the changes take no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the misses start to sound, go back one stage."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "strum-along",
+                      "chords": [
+                        "Am9",
+                        "D9",
+                        "Gmaj7",
+                        "Gmaj7"
+                      ],
+                      "bpm": 96,
+                      "pattern": "D . . U . U D U D . . U . U D U"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "With drums and bass",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: drums and bass at 96, with the chord boxes lighting bar by bar. Mix what you have: full 9th shapes, shells, a small triad up high on Gmaj7. Leave strums out, and notice how much easier the gaps are to keep steady than on day 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "chords": [
+                        "Am9",
+                        "D9",
+                        "Gmaj7",
+                        "Gmaj7"
+                      ],
+                      "key": "g",
+                      "style": "pop",
+                      "bpm": 96,
+                      "parts": {
+                        "drums": "always",
+                        "bass": "on"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The 3rd and 7th, eyes off the tab",
+            "minutes": 8,
+            "level": "advanced",
+            "area": "guitar",
+            "tags": [
+              "theory",
+              "improv"
+            ],
+            "topic": "guitar-extended-chords",
+            "concepts": [
+              "shells-comping"
+            ],
+            "why": "Looking away makes your hand find each note from the one before it, which is how a fill gets found in the middle of a song.",
+            "learnBefore": [
+              "/course/11/guide-tones",
+              "/course/11/shells"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Without looking",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing: day 2's line, the 3rd and 7th of Am7, D7 and Gmaj7, one note per beat. The neck shows the whole line with the chord playing standing out. Play with your eyes off the screen, and check it only when a note will not come."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "chord-steps",
+                        "chords": [
+                          {
+                            "chord": "Am7",
+                            "steps": [
+                              "b3",
+                              "b7",
+                              "b3",
+                              "b7"
+                            ]
+                          },
+                          {
+                            "chord": "D7",
+                            "steps": [
+                              "3",
+                              "b7",
+                              "3",
+                              "b7"
+                            ]
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "steps": [
+                              "3",
+                              "7",
+                              "3",
+                              "7"
+                            ]
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "steps": [
+                              "3",
+                              "7",
+                              "3",
+                              "7"
+                            ]
+                          }
+                        ]
+                      },
+                      "bpm": 76,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Shell, then a line",
+                "minutes": 4,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the backing. Strike the lit shell on beat 1 of each chord, then fill the rest of the bar with a short line in G major that ends on a ringed note, the chord's 3rd or 7th.\nPlay the kind of fill you would put between two sung lines: short, with room after it."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "guitar-play-along",
+                      "shape": {
+                        "shape": "solo-over",
+                        "key": "g",
+                        "scale": "major-ionian",
+                        "chords": [
+                          {
+                            "chord": "Am7",
+                            "target": [
+                              "b3",
+                              "b7"
+                            ],
+                            "stab": {
+                              "grip": [
+                                "1",
+                                "b3",
+                                "b7"
+                              ],
+                              "strings": "543"
+                            }
+                          },
+                          {
+                            "chord": "D7",
+                            "target": [
+                              "3",
+                              "b7"
+                            ],
+                            "stab": {
+                              "grip": [
+                                "1",
+                                "3",
+                                "b7"
+                              ],
+                              "strings": "543"
+                            }
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "target": [
+                              "3",
+                              "7"
+                            ],
+                            "stab": {
+                              "grip": [
+                                "1",
+                                "3",
+                                "7"
+                              ],
+                              "strings": "543"
+                            }
+                          },
+                          {
+                            "chord": "Gmaj7",
+                            "target": [
+                              "3",
+                              "7"
+                            ],
+                            "stab": {
+                              "grip": [
+                                "1",
+                                "3",
+                                "7"
+                              ],
+                              "strings": "543"
+                            }
+                          }
+                        ]
+                      },
+                      "bpm": 84,
+                      "view": "neck"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The set",
+            "minutes": 16,
+            "level": "advanced",
+            "area": "voice",
+            "tags": [
+              "sing",
+              "improv",
+              "song"
+            ],
+            "topic": "voice-harmony",
+            "concepts": [
+              "improvise-melody",
+              "harmony-line"
+            ],
+            "why": "Each day gave you one thing to do with a phrase (a guide tone, a turn, a run into the next chord), so a set is choosing which one each phrase gets.",
+            "learnBefore": [
+              "/course/9/improvising-a-melody",
+              "/course/11/guide-tones",
+              "/course/6/harmony-line"
+            ],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The ii–V–I in G",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band: day 1's Am7, D7 and Gmaj7. Sing your own line on any vowel. Start each chord on one of its ringed notes, and this time join them with turns and runs.\nNotice how much sooner you hear the next ringed note than you did on day 1."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "under": true,
+                      "highlight": [
+                        "1",
+                        "3",
+                        "4",
+                        "7"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "key": "g",
+                      "numerals": [
+                        "ii7",
+                        "V7",
+                        "Imaj7",
+                        "Imaj7"
+                      ],
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 76
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The four chords",
+                "minutes": 5,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band: G, D, Em and C. Sing day 4's two harmony lines once each on \"oo\": {{3}} {{2}} {{1}} {{1}}, then {{5}} {{5}} {{6}} {{6}}. Then leave them and make up a tune of your own around the ringed notes, with a run where a line ends."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "major-ionian",
+                      "key": "g",
+                      "voice": "baritone",
+                      "highlight": [
+                        "1",
+                        "2",
+                        "3",
+                        "5",
+                        "6"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "pop",
+                      "key": "g",
+                      "style": "ballad",
+                      "parts": {
+                        "drums": "on",
+                        "bass": "off",
+                        "keys": "always"
+                      },
+                      "bpm": 76
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The vamp",
+                "minutes": 6,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start exercise below to start the mic and the band on Am7 and D7. Sing one long solo on any vowel, with everything from the week in it: a falling run into a ringed {{6}}, a turn on a held note, a bar left empty.\nKeep the one phrase you like best and bring it to your next gig."
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "staff",
+                      "scale": "dorian",
+                      "key": "a",
+                      "voice": "baritone",
+                      "highlight": [
+                        "1",
+                        "6"
+                      ],
+                      "labels": "degree"
+                    }
+                  },
+                  {
+                    "type": "tool",
+                    "tool": {
+                      "type": "backing-track",
+                      "progression": "dorian",
+                      "key": "a",
+                      "bpm": 88,
+                      "parts": {
+                        "drums": "on",
+                        "bass": "on",
+                        "keys": "always"
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "exploreMore": [
+              "/looper"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

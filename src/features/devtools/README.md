@@ -64,7 +64,7 @@ note to its section as it is now (`repinSectionNotes`; those on gone sections st
 notes by example with file, in section order, with a warning when outdated; outdated is checked against every example
 (`exampleSections`), open or not.
 
-## Compare AI models for autoplan (`/dev/compare-models`, `npm run compare-models`)
+## Compare AI models for autoplan (`npm run compare-models`)
 
 A first-week plan for each made-up player (`model/personas.ts`) from each model, to compare models and what they would
 cost. `scripts/compare-models.ts` writes them (`npm run -s compare-models -- help`): Claude models through the local
@@ -73,12 +73,7 @@ Ollama models through the local Ollama (`server/ollama.ts`, one at a time, with 
 `ollama` names every local model). It skips a player and model that already has a plan (a reply that parses) unless `--redo`; `--dry` lists the
 runs and their estimate. Each run is saved to the history with its `persona` and token `usage`.
 
-The page (`compare/CompareModelsPage.tsx`) runs nothing: a table of players × models (the Claude models, then any local model
-that has a plan), the newest plan in each cell (`latestByCell`, `model/compare.ts`) with its parser warnings as a tag. A plan's
-title opens its public page in a new tab, `/demo/models/<player>--<model>` (`MODEL_PLANS` in `src/features/plan/modelPlans`,
-written by `npm run -s publish-model-plans`, `scripts/publish-model-plans.ts`: the newest plan per cell that parses, copied
-out of the gitignored history so the live site has it). A cell whose newest run isn't the published one says *not published*
-until that is run again. Every cost is as if through the API (`model/pricing.ts`): before a run the composed prompt as input and a reply the
+`npm run -s publish-model-plans` (`scripts/publish-model-plans.ts`) copies the newest run per player and model (`latestByCell`, `model/compare.ts`) and their assessments out of the gitignored history into `compare/published.json`, for the token figures on /dev/costs. Every cost is as if through the API (`model/pricing.ts`): before a run the composed prompt as input and a reply the
 size of the demo plans × 1.5 for thinking as output; after, the run's tokens at list prices with no caching (`runCost`;
 the CLI's `total_cost_usd` is not used, it doesn't match the list prices). A local Ollama model is priced at what OpenRouter charges for the same open model (a fine-tune as its base); one with no price in `API_PRICES` shows its token count instead.
 
@@ -89,11 +84,9 @@ The judge gets the prompt both plans were written from, the two plans as "refere
 which) and the parser's warnings for each, and answers with JSON (`assessPrompt`, `parseVerdict`): a score out of 10 where 10
 is as good as the reference or better, a summary, a mark out of 5 for each of `CRITERIA` (fits the player, shape of the week,
 music facts, use of the tools, teaching text), and lists of what is stronger, weaker and wrong. One file per judged run in
-`tools/prompt-history/assessments/<run id>.json` (`server/assessments.ts`, read by `GET /api/dev/assessments`); a reply
+`tools/prompt-history/assessments/<run id>.json` (`server/assessments.ts`); a reply
 that doesn't parse is kept with its error. An assessment is skipped when one against today's reference exists, unless
-`--redo`. On the page a judged cell shows **vs Fable 5.2 N/10**; it opens the assessment in a row under the player
-(`compare/AssessmentPanel.tsx`), with links to open that plan or the reference. A mark made against an older reference
-plan says so (`isCurrent`).
+`--redo`. An assessment made against an older reference plan says so (`isCurrent`).
 
 ## Data (`/dev/data`)
 
@@ -202,7 +195,7 @@ The payment provider is chosen once at the top of the page (`costs/CostsPage.tsx
 
 Last, *Other models on OpenRouter* (`costs/OpenRouterModels.tsx`, `model/openRouter.ts`): cheaper and comparable models to weigh against Haiku 5.5, at OpenRouter's list prices (with the date they were checked). None has been run on the plan prompt, so each is costed on Haiku 5.5's measured tokens: a plan's cost, how many times Haiku's, a year at the autoplans a month on the slider, and what is left of the Student price. A price comparison, not a quality one. Models that suit a step of the autoplan recipe carry a badge (`fit` and `ROLES` in `model/openRouter.ts`): *Assess* (a cheap call that judges the seed-library matches and picks the writer), *Write* (most new plans) and *Hard plans* (the few sent up); a switch shows one step's picks, a column costs one assess call (`PICK_TOKENS`), and the recipe itself is behind the (i) by the heading. The picks are from price and description, not runs.
 
-**The library** (`practice_plans`): plans an autoplan can be taken from instead of asking the AI, each with the answers it was written for and `enabled_for_reuse`. `npm run -s db:seed-plans` (`scripts/db-seed-plans.ts`, rows from `exampleLibraryRows` and `libraryRows` in `model/library.ts`) puts in every plan example (`source` "example") and every published Fable 5.2 plan (`compare-models`), enabled; a plan already there gets its title, source, answers, model, reply and versions refreshed and keeps its `enabled_for_reuse`. A plan example keeps its example id (`guitar-beginner`), the id `DEMO_PLANS` names, so a demo and its library plan share it (the demos still read the JSON); its answers are made up from it, since an example records none (`exampleAnswers`: its areas and minutes, each topic of those areas at the rung of its highest exercise level), and its versions are the example's `docs`, with no prompt version. A published Fable plan has its player's answers and the versions its run was written to: `saveRun` stamps every run in tools/prompt-history with `versions` (`PROMPT_VERSION` and `DOC_VERSIONS` at the time, `currentVersions`), `publish-model-plans` copies them onto the plan, and `libraryRows` onto the row. Runs from before 2026-11-16 have none, so their plans' versions stay null. Sonnet, Opus and Haiku runs on /dev/compare-models are not seeded. For more, write Fable plans with compare-models, publish them, and seed again. Check DATABASE_URL first: `.env.local` may point at Supabase.
+**The library** (`practice_plans`): plans an autoplan can be taken from instead of asking the AI, each with the answers it was written for and `enabled_for_reuse`. `npm run -s db:seed-plans` (`scripts/db-seed-plans.ts`, rows from `exampleLibraryRows` and `seedLibraryRows` in `model/library.ts`) puts in every plan example (`source` "example") and every seed plan in `src/features/library/seed/plans` (`seed`), enabled; a plan already there gets its title, source, answers, model, reply and versions refreshed and keeps its `enabled_for_reuse`. A plan example keeps its example id (`guitar-beginner`), the id `DEMO_PLANS` names, so a demo and its library plan share it (the demos still read the JSON); its answers are made up from it, since an example records none (`exampleAnswers`: its areas and minutes, each topic of those areas at the rung of its highest exercise level), and its versions are the example's `docs`, with no prompt version. A seed plan has the answers, model and versions its file records (`../library/seed/README.md`). Check DATABASE_URL first: `.env.local` may point at Supabase.
 
 ## Code structure (`/dev/structure`, `npm run structure`)
 
@@ -236,9 +229,9 @@ returns one.
 - `gate.ts`: `devOnly`, `devGate`, `devUi`. `src/app/dev/layout.tsx`: the page gate (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the CLI aliases and the pinned `DEMO_MODELS`.
-- `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/`, `server/ollama.ts`, `scripts/compare-models.ts`: /dev/compare-models.
+- `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/published.json`, `server/ollama.ts`, `scripts/compare-models.ts`, `scripts/publish-model-plans.ts`: comparing AI models from the command line.
 - `src/app/api/dev/mcp`: the library tools (`features/library`) as a local MCP server, `POST /api/dev/mcp` (stateless, plain JSON; `GET` answers 405, production 404). `.mcp.json` at the repo root registers it as `musickit-library` for Claude Code, so the dev server must be running. It reads the database the dev server is configured with, which must have migration 0019 applied. Every tool also takes `player` (a user id) and `include_not_enabled` (also examples and plans not enabled for reuse); only this route and `/dev/library` read them, both through `devScope`.
-- `model/assess.ts`, `server/assessments.ts`, `compare/AssessmentPanel.tsx`, `src/app/api/dev/assessments`: plans judged against the judge model's own plan.
+- `model/assess.ts`, `server/assessments.ts`: plans judged against the judge model's own plan.
 - `model/history.ts`: run records, summaries, ids, the pasted-reply check (`readRunInput`), `describeReply`.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.

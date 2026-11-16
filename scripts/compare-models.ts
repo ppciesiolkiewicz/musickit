@@ -1,7 +1,6 @@
 /**
- * Write a first-week plan for each made-up player with each model, for /dev/compare-models ("Compare AI models for
- * autoplan"). Claude models run through the local claude CLI (your subscription), Ollama models through the local Ollama;
- * every run is saved to tools/prompt-history, where the page reads it and prices it as if sent through the API.
+ * Write a first-week plan for each made-up player with each model, to compare models and what they cost. Claude models run through the local claude CLI (your subscription), Ollama models through the local Ollama;
+ * every run is saved to tools/prompt-history; publish-model-plans copies the newest into the token figures on /dev/costs.
  *
  * `assess` then has one model judge every other plan for a player against its own (model/assess.ts).
  *
@@ -38,7 +37,7 @@ compare-models assess [--players a,b] [--judge model] [--parallel N] [--redo] [-
   player. A player the judge has no plan for is skipped: write one first with --models ${JUDGE_MODEL} --players <id>.
   --redo      judge again where an assessment against today's reference already exists
 
-Plans land in tools/prompt-history, assessments in tools/prompt-history/assessments; open them on /dev/compare-models.`;
+Plans land in tools/prompt-history, assessments in tools/prompt-history/assessments.`;
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);

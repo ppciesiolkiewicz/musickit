@@ -2,7 +2,7 @@ import type { RunSummary, TokenUsage } from "./history";
 import type { DevModel } from "./models";
 
 /**
- * A plan judged against a reference plan for the same made-up player, on /dev/compare-models: the judge model reads the
+ * A plan judged against a reference plan for the same made-up player (npm run compare-models -- assess): the judge model reads the
  * prompt both were written from, the reference plan and the other plan, and answers with one JSON object.
  */
 

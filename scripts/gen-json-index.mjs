@@ -1,6 +1,6 @@
 /**
  * Writes `index.gen.ts` in each folder given: one static import per `*.json` file there, and `FILES`, a record of them
- * by file name (without `.json`), sorted. Folders of one-file-per-item data (the model plans, the library seed) load
+ * by file name (without `.json`), sorted. Folders of one-file-per-item data (the library seed) load
  * through it, so a script or an agent reads only the files it needs, never one big file.
  *
  *   node scripts/gen-json-index.mjs src/features/library/seed/plans src/features/library/seed/blocks
@@ -10,7 +10,6 @@ import { readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const FOLDERS = [
-  "src/features/plan/modelPlans/plans",
   "src/features/library/seed/plans",
   "src/features/library/seed/blocks",
 ];
