@@ -78,7 +78,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 - `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session (the page's one shared read), and nothing at all when
   there is no session cookie.
 - `ui/`: the screens. `LinkForm` (`/login`), `ConfirmLink` (`/login/confirm`), `AccountPanel`
-  (`/account`: the open-beta line with a Send feedback link, the name, the plan, `FeedbackForm`, Log out, Delete account), `AccountLink` (the corner of the top nav: Log in, or the name with a
+  (`/account`: the open-beta line with a Send feedback link across the top; under it, on a wide screen, a narrow column with the Profile card (email, role, name, Log out, Delete account) over the `FeedbackForm` card, beside a wide Plan card whose plans sit side by side), `AccountLink` (the corner of the top nav: Log in, or the name with a
   menu of Your profile, Home page, Send feedback and Log out, opened on hover or a tap).
 - `ui/FeedbackForm.tsx`: the Feedback part of `/account` (`#feedback`, `FEEDBACK_HREF`): a message box whose Send feedback posts
   `{ email, message, source: "beta-feedback" }` to `POST /api/contact`, emailed to `CONTACT_TO_EMAIL` with the account's email as Reply-To.

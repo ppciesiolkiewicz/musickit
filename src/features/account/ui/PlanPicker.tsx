@@ -170,14 +170,16 @@ export default function PlanPicker({ account }: { account: Account }) {
   };
 
   return (
-    <section aria-labelledby="plan-heading" className="flex flex-col gap-2">
-      <h2 id="plan-heading" className="text-sm font-semibold text-slate-200">Plan</h2>
-      <p className="text-xs text-slate-500">{BETA_PLAN_LINE}</p>
+    <section aria-labelledby="plan-heading" className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <h2 id="plan-heading" className="text-sm font-semibold text-slate-200">Plan</h2>
+        <p className="text-xs text-slate-500">{BETA_PLAN_LINE}</p>
+      </div>
       {!loaded && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
       {loaded && (
         <>
           <BillingSwitch billing={shownBilling} plans={loaded.plans} onChange={(b) => { setBilling(b); setError(null); }} />
-          <div role="radiogroup" aria-labelledby="plan-heading" className="flex flex-col gap-2">
+          <div role="radiogroup" aria-labelledby="plan-heading" className="grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]">
             {loaded.plans.map((p, i) => (
               <PlanOption
                 key={p.id}
@@ -197,7 +199,7 @@ export default function PlanPicker({ account }: { account: Account }) {
               <PaymentBox plan={chosen} hue={planHue(loaded.plans.indexOf(chosen))} billing={shownBilling} trial={loaded?.current === null} />
               {losesSharing && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">On {chosen.name} you won&apos;t be able to share plans with your students. {KEEP}</p>}
               {fewerStudents && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">{chosen.name} takes up to {chosen.students} students. {KEEP}</p>}
-              <button type="button" disabled={busy} className={PRIMARY} onClick={() => void move()}>
+              <button type="button" disabled={busy} className={`${PRIMARY} sm:w-auto sm:self-start sm:px-8`} onClick={() => void move()}>
                 {busy ? "Saving…" : samePlan ? `Pay ${shownBilling === "month" ? "monthly" : "yearly"}` : `Move to ${chosen.name}`}
               </button>
             </div>

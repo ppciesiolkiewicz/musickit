@@ -15,8 +15,16 @@ export const SECONDARY =
 export const LINK = "font-medium text-sky-300 underline-offset-2 hover:underline";
 
 /** The framed column every one of these screens sits in. */
-export function Card({ children, wide = false }: { children: ReactNode; /** room for a row of plans side by side (setup) */ wide?: boolean }) {
-  return <div className={`flex w-full flex-col gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-5 sm:p-6 ${wide ? "max-w-4xl sm:p-8" : "max-w-md"}`}>{children}</div>;
+export function Card({ children, wide = false, fill = false, className = "" }: {
+  children: ReactNode;
+  /** room for a row of plans side by side (setup) */
+  wide?: boolean;
+  /** no width of its own: the card takes its grid cell (the parts of /account) */
+  fill?: boolean;
+  className?: string;
+}) {
+  const width = fill ? "" : wide ? "max-w-4xl sm:p-8" : "max-w-md";
+  return <div className={`flex w-full flex-col gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-5 sm:p-6 ${width} ${className}`}>{children}</div>;
 }
 
 /** A failure in words, with a mark so it doesn't rest on colour alone. `id` lets a field point at it (`aria-describedby`). */
