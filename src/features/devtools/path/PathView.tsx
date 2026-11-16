@@ -11,6 +11,7 @@ import { useProgress } from "@/features/progress/useProgress";
 import { areaPath, chain, gaps, wrap, type PathNode } from "../model/path";
 import { EXAMPLE_STUDENTS, exampleRatings, stepProgress, stepRatings, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
 import type { SpareSteps, Step } from "../model/steps";
+import JourneyView from "./JourneyView";
 import ProposalView from "./ProposalView";
 
 const LABEL_W = 150, COL_W = 236, NODE_W = 208, NODE_H = 40, GAP = 8, RUNG_H = 32, STEP_H = 12, PAD = 10, HEAD_H = 30;
@@ -162,7 +163,7 @@ function Detail({ node, nodes, pick, progress, today }: { node: PathNode; nodes:
     <section className="rounded-xl border border-violet-500/30 bg-slate-900/60 p-4">
       <h3 className="text-lg font-semibold text-violet-100">{node.label}</h3>
       <p className="text-sm text-slate-400">
-        <span className="font-mono text-xs">{node.id}</span> · {LEVEL_ORDER[node.level]} · {node.topic}
+        <span className="font-mono text-xs">{node.id}</span> · {LEVEL_ORDER[node.level]}{node.to > node.level && ` to ${LEVEL_ORDER[node.to]}`} · {node.topic}
       </p>
       <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
         <div><h4 className={H}>Builds on</h4><Names ids={node.buildsOn} nodes={nodes} pick={go} /></div>
@@ -243,7 +244,7 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
   const [area, setArea] = useState<Area>(start?.area ?? "guitar");
   const [sel, setSel] = useState<string | null>(start?.id ?? null);
   const [who, setWho] = useState("none");
-  const [view, setView] = useState<"today" | "proposed">("today");
+  const [view, setView] = useState<"journey" | "today" | "proposed">("journey");
   const [today] = useState(() => localDate());
   const { state: { current, history }, loaded: planLoaded } = usePlan();
   const { entries, loaded: entriesLoaded } = useProgress();
@@ -269,8 +270,8 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Which path">
-        {([["today", "Today"], ["proposed", "Proposed: overlapping steps"]] as const).map(([id, label]) => (
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Which view">
+        {([["journey", "Path"], ["today", "Boxes"], ["proposed", "Bars"]] as const).map(([id, label]) => (
           <button
             key={id} type="button" aria-pressed={view === id} onClick={() => setView(id)}
             className={`${BTN} ${view === id ? "border-violet-400 bg-violet-500/20 text-violet-100" : "border-slate-700 text-slate-300 hover:border-slate-400"}`}
@@ -278,28 +279,7 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
             {label}
           </button>
         ))}
-      </div>
-      {view === "proposed" && (
-        <>
-          <div className="flex flex-wrap items-center gap-2">
-            {AREAS.map((a) => (
-              <button
-                key={a.id} type="button" aria-pressed={a.id === area} onClick={() => pickArea(a.id)}
-                className={`${BTN} ${a.id === area ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-300 hover:border-slate-400"}`}
-              >
-                {a.label}
-              </button>
-            ))}
-          </div>
-          <ProposalView area={area} nodes={nodes} onArea={pickArea} />
-        </>
-      )}
-      <div hidden={view !== "today"} className="space-y-4">
-      <p className="text-sm text-slate-400">
-        The path as the code has it: each topic of the first questionnaire is a row, each level a column, and a concept sits where
-        its topic and level meet. An arrow runs from a concept to the one that builds on it. Pick a concept to see its whole chain.
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
+        <span className="mx-1 h-6 w-px bg-slate-800" aria-hidden />
         {AREAS.map((a) => (
           <button
             key={a.id} type="button" aria-pressed={a.id === area} onClick={() => pickArea(a.id)}
@@ -308,51 +288,50 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
             {a.label}
           </button>
         ))}
-        <span className="ml-2 text-sm text-slate-400">
-          {g.concepts} concepts · {g.noExercise} with no example exercise · {g.noPlan} in no example plan · {g.planned} with no written course page · {g.noSteps} with no steps inside · {g.stepsPlanned} steps not implemented
-        </span>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <label htmlFor="path-student" className="text-sm text-slate-300">Student on the diagram</label>
-        <select
-          id="path-student" value={who} onChange={(e) => setWho(e.target.value)}
-          className="min-h-8 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
-        >
-          <option value="none">None: the path itself</option>
-          <option value="me">The player in this browser</option>
-          {EXAMPLE_STUDENTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
-        </select>
-        {who !== "none" && (
-          <span className="text-sm text-slate-400">
-            {!progress ? "Loading…" : (() => {
-              const own = [...boxes.values()].map((b) => ({ node: b.node, p: progress[b.node.id] }));
-              const tracked = own.flatMap(({ node, p }) => p.steps.filter((_, i) => !node.steps[i].planned));
-              return `${own.filter((x) => x.p.state === "solid").length} concepts solid · ${own.filter((x) => x.p.state === "working").length} working · ${tracked.filter((s) => s.state === "solid").length} of ${tracked.length} tracked steps solid · ${own.reduce((n, x) => n + x.p.ratings, 0)} ratings in ${path.label}`;
-            })()}
-          </span>
-        )}
-      </div>
-      {progress && (
-        <p className="text-xs text-slate-400">
-          <span className="mr-4"><Dot fill="#34d399" />green: solid (the newest rating is Solid or Easy now)</span>
-          <span className="mr-4"><Dot fill="#fbbf24" />amber: working on it</span>
-          <span className="mr-4">grey: no rating yet</span>
-          <span className="mr-4">bold step: the one the student is on, with the weeks on it</span>
-          <span>dashed square: a step not implemented, so not tracked</span>
-        </p>
+      {view !== "proposed" && (
+        <div className="flex flex-wrap items-center gap-2">
+          <label htmlFor="path-student" className="text-sm text-slate-300">Student on the path</label>
+          <select
+            id="path-student" value={who} onChange={(e) => setWho(e.target.value)}
+            className="min-h-8 rounded-lg border border-slate-700 bg-slate-900 px-2 py-1 text-sm text-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+          >
+            <option value="none">None: the path itself</option>
+            <option value="me">The player in this browser</option>
+            {EXAMPLE_STUDENTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+          </select>
+          {who !== "none" && (
+            <span className="text-sm text-slate-400">
+              {!progress ? "Loading…" : (() => {
+                const own = [...boxes.values()].map((b) => ({ node: b.node, p: progress[b.node.id] }));
+                const tracked = own.flatMap(({ node, p }) => p.steps.filter((_, i) => !node.steps[i].planned));
+                return `${own.filter((x) => x.p.state === "solid").length} skills solid · ${own.filter((x) => x.p.state === "working").length} working · ${tracked.filter((s) => s.state === "solid").length} of ${tracked.length} tracked steps solid · ${own.reduce((n, x) => n + x.p.ratings, 0)} ratings in ${path.label}`;
+              })()}
+            </span>
+          )}
+        </div>
       )}
-      <p className="text-xs text-slate-400" hidden={!!progress}>
-        <span className="mr-4"><Dot fill="#34d399" />green edge and dot: has an example exercise</span>
-        <span className="mr-4"><Dot fill="#a78bfa" />violet dot: in an example plan</span>
-        <span className="mr-4">grey edge: no example exercise</span>
-        <span>dashed edge: no written course page</span>
+      {view === "proposed" && <ProposalView area={area} nodes={nodes} onArea={pickArea} />}
+      {view === "journey" && (
+        <>
+          <JourneyView area={area} nodes={nodes} progress={progress} selected={sel} onPick={setSel} />
+          {selected
+            ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} pick={(id, a) => { setArea(a); setSel(id); }} />
+            : <p className="text-sm text-slate-500">Pick a skill to see its steps, what it builds on and its examples.</p>}
+        </>
+      )}
+      <div hidden={view !== "today"} className="space-y-4">
+      <p className="text-sm text-slate-400">
+        Each topic of the first questionnaire is a row, each level a column, and a skill sits where its topic and its first
+        step&apos;s level meet. An arrow runs from a skill to the one that builds on it. Pick one to see its whole chain.{" "}
+        {g.concepts} skills · {g.noExercise} with no example exercise · {g.noPlan} in no example plan · {g.planned} with no written course page · {g.stepsPlanned} steps not implemented
       </p>
-      <p className="text-xs text-slate-400" hidden={!!progress}>
-        The numbered lines in a concept are the steps inside it, easiest first.{" "}
-        <span className="mr-4 text-sky-300">Blue: read from a ladder in the code (a tool&apos;s levels, a book&apos;s stages).</span>
-        <span className="italic text-amber-300">Amber: not implemented, only written down in model/steps.ts.</span>
+      <p className="text-xs text-slate-400">
+        <span className="mr-4"><Dot fill="#34d399" />green: {progress ? "solid" : "has an example exercise"}</span>
+        <span className="mr-4"><Dot fill={progress ? "#fbbf24" : "#a78bfa"} />{progress ? "amber: working on it" : "violet dot: in an example plan"}</span>
+        <span className="mr-4 text-sky-300">blue step: read from a tool&apos;s levels</span>
+        <span className="italic text-amber-300">amber step: not implemented</span>
       </p>
-
       <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/60">
         <svg width={WIDTH} height={height} viewBox={`0 0 ${WIDTH} ${height}`} role="group" aria-label={`${path.label} learning path`} className="block">
           <defs>
@@ -429,7 +408,7 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
       )}
       {selected
         ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} pick={(id, a) => { setArea(a); setSel(id); }} />
-        : <p className="text-sm text-slate-500">No concept picked.</p>}
+        : <p className="text-sm text-slate-500">No skill picked.</p>}
       </div>
     </div>
   );

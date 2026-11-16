@@ -108,7 +108,17 @@ topic, per concept). A date field sets `asOf` (today at first); a date before an
 
 ## Learning path (`/dev/path`)
 
-The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), drawn as a diagram (`path/PathView.tsx`, nodes from
+The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), in three views: **Path**, **Boxes**
+and **Bars**. The area buttons and *Student on the path* are shared.
+
+**Path** (`path/JourneyView.tsx`, the first view, made to show to studios). Four figures for the area (skills, steps,
+skills that span levels, steps read from the tools), then the topics down and the levels across. Every skill is a row
+with a block in each level its steps reach, holding that level's steps (a filled dot: a tool's level stands for it; a
+dashed one: not yet), and a ribbon joins its blocks; a level its steps skip shows "keeps going". Hovering or picking a
+block lights the skill, what it builds on (blue) and what builds on it (violet), and dims the rest; picking one also
+opens its detail below. With a student on the path, a block's edge is the skill's state and each step has a square.
+
+**Boxes**: the diagram (`path/PathView.tsx`, nodes from
 `model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/examples links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
 are columns, each cell starts with the topic's questionnaire line for that level, and every concept of `CONCEPTS` sits in
 the cell of its topic and its first step's level. An arrow runs to a concept from each one a step of it names to learn first (`after`). A concept's edge is
@@ -136,12 +146,12 @@ tracked step's ratings and dates. Nothing is written by
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
 example library, so the diagram changes when they do. It writes nothing.
 
-**Overlapping steps** (`path/ProposalView.tsx`). A second view of the page: each track drawn as a bar from the level
+**Bars** (`path/ProposalView.tsx`). The third view: each track drawn as a bar from the level
 of its first step to the level of its last, its steps in the columns of their levels, so tracks in one topic overlap. A
 step's `after` is drawn as an arrow (into another area: listed under the diagram). Picking a track lists the concepts
 from before the path it took the place of, and its steps. Tests (`plan/model/path.test.ts`) keep the path whole: every
 old concept in exactly one track, levels never go down, ladder steps real and used once, `after` never pointing at a
-higher level. The student overlay is drawn only on the first view.
+higher level. It has no student overlay.
 
 ## Library (`/dev/library`)
 
