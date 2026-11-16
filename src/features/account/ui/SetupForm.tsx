@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
-import { BETA_PLAN_LINE, BillingSwitch, PaymentBox, PlanOption, planHue, type Loaded } from "./PlanPicker";
+import { BillingSwitch, PaymentBox, PlanOption, planHue, type Loaded } from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
 /**
@@ -111,7 +111,11 @@ export default function SetupForm({ next }: { next: string }) {
             <div className="flex flex-col gap-2">
               <span aria-hidden className="text-sm font-semibold text-slate-200">Plan</span>
               {/* shown before the plans load too: it is the first thing to know about choosing one */}
-              <p className="max-w-lg rounded-lg border border-sky-400/40 bg-sky-500/10 px-3 py-2 text-sm text-sky-100">{BETA_PLAN_LINE} You can change it later on your account page.</p>
+              <div className="flex max-w-xl flex-col gap-1.5 rounded-lg border border-sky-400/40 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
+                <p className="font-semibold">Open beta: free while we build it with you</p>
+                <p>Every plan is free during the open beta, and choosing one doesn&apos;t ask for payment. Pick the one you&apos;d want: it tells us what to build next.</p>
+                <p>When something breaks or doesn&apos;t make sense, tell us with Send feedback in the profile menu. You can change your plan later on your account page.</p>
+              </div>
             </div>
             {plans && <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={plans.plans} onChange={(b) => { setBilling(b); setError(null); }} /></div>}
           </div>
