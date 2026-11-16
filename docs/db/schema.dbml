@@ -121,6 +121,13 @@ table plan_day_times {
   }
 }
 
+table plan_requests {
+  user_id uuid [pk, not null]
+  plan_id text [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  contacted_at "timestamp with time zone"
+}
+
 table plan_reviews {
   user_id uuid [not null]
   plan_id text [not null]
@@ -143,7 +150,7 @@ table plans {
   role user_role [not null]
   month_cents integer [not null]
   year_cents integer [not null]
-  trial_days integer [not null, default: 14]
+  trial_days integer [not null, default: 30]
   price_cents integer
   period plan_period
   students integer
@@ -288,6 +295,10 @@ ref plan_claims_share_id_shares_id_fk: plan_claims.share_id > shares.id [delete:
 ref plan_claims_user_id_users_id_fk: plan_claims.user_id > users.id [delete: cascade, update: no action]
 
 ref plan_day_times_user_id_users_id_fk: plan_day_times.user_id > users.id [delete: cascade, update: no action]
+
+ref plan_requests_user_id_users_id_fk: plan_requests.user_id > users.id [delete: cascade, update: no action]
+
+ref plan_requests_plan_id_plans_id_fk: plan_requests.plan_id > plans.id [delete: cascade, update: no action]
 
 ref plan_reviews_user_id_users_id_fk: plan_reviews.user_id > users.id [delete: cascade, update: no action]
 
