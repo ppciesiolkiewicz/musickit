@@ -1,3 +1,4 @@
+import { SEED_PLANS, type SeedPlanFile } from "@/features/library/seed";
 import { PLAN_EXAMPLES, type PlanExample } from "@/features/plan/examples";
 import { topicById, type Rung } from "@/features/plan/intake/topics";
 import { catalogue } from "@/features/plan/model/catalogue";
@@ -20,8 +21,8 @@ export interface LibraryRow {
   promptVersion: number | null;
   docsAgents: number | null;
   docsTeaching: number | null;
-  /** "compare-models" for a published Fable plan, "example" for a plan example (its id is the example's, as the demos use) */
-  source: "compare-models" | "example";
+  /** "compare-models" for a published Fable plan, "example" for a plan example (its id is the example's, as the demos use), "seed" for an agent's plan in src/features/library/seed */
+  source: "compare-models" | "example" | "seed";
   enabledForReuse: boolean;
 }
 
@@ -74,5 +75,19 @@ export function exampleLibraryRows(examples: PlanExample[] = PLAN_EXAMPLES): Lib
     const r = parsePlanConfig(reply, entries);
     if (!r.ok || !e.model) return [];
     return [{ id: e.id, title: r.config.title, answers: exampleAnswers(e, r.config.days), model: e.model, reply, promptVersion: null, docsAgents: e.docs.agents, docsTeaching: e.docs.teaching, source: "example" as const, enabledForReuse: true }];
+  });
+}
+
+/**
+ * The agents' seed plans (src/features/library/seed/plans, one file each) as library rows, enabled for reuse, each with
+ * the answers, model and versions its file records. A plan that doesn't parse is left out.
+ */
+export function seedLibraryRows(files: SeedPlanFile[] = SEED_PLANS): LibraryRow[] {
+  const entries = catalogue();
+  return files.flatMap((f) => {
+    const reply = JSON.stringify(f.plan);
+    const r = parsePlanConfig(reply, entries);
+    if (!r.ok) return [];
+    return [{ id: f.id, title: r.config.title, answers: f.answers, model: f.model, reply, promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching, source: "seed" as const, enabledForReuse: true }];
   });
 }

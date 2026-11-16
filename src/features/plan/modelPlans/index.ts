@@ -1,12 +1,12 @@
 import { catalogue } from "../model/catalogue";
 import { parsePlanConfig } from "../model/config";
 import type { PlanConfig } from "../model/types";
-import PLANS from "./plans.json";
+import { FILES } from "./plans/index.gen";
 
 /**
  * First-week plans different AI models wrote for made-up players (/dev/compare-models), at `/demo/models/<slug>`. Public so
- * a link can be shared, but listed nowhere: not on /demo, not in the sitemap. `plans.json` is written by
- * `npm run -s publish-model-plans` from tools/prompt-history (the newest plan per player and model); don't edit it by hand.
+ * a link can be shared, but listed nowhere: not on /demo, not in the sitemap. One file per plan, `plans/<slug>.json`, written
+ * by `npm run -s publish-model-plans` from tools/prompt-history (the newest plan per player and model); don't edit them by hand.
  */
 export interface ModelPlan {
   /** the made-up player's id and label (devtools model/personas.ts) */
@@ -24,7 +24,7 @@ export interface ModelPlan {
   versions?: { prompt: number; agents: number; teaching: number };
 }
 
-export const MODEL_PLANS: Record<string, ModelPlan> = PLANS;
+export const MODEL_PLANS = FILES as Record<string, ModelPlan>;
 
 /** The slug for a player and model: "guitar-new--claude-haiku-5-5", "voice-beginner--ollama-llama3-1-8b". */
 export const modelPlanSlug = (persona: string, model: string): string => `${persona}--${model.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;

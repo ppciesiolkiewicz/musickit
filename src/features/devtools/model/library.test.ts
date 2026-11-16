@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { MODEL_PLANS } from "@/features/plan/modelPlans";
 import { DEMO_PLANS } from "@/features/plan/demos";
 import { PLAN_EXAMPLES } from "@/features/plan/examples";
-import { exampleAnswers, exampleLibraryRows, libraryRows, SEED_MODEL } from "./library";
+import { exampleAnswers, exampleLibraryRows, libraryRows, SEED_MODEL, seedLibraryRows } from "./library";
 import { PERSONAS } from "./personas";
 
 test("the library seed is every published Fable plan that parses, with its player's answers, enabled for reuse", () => {
@@ -56,7 +56,7 @@ test("every demo's plan is a library plan with the same id", () => {
 });
 
 test("no library id is used twice", () => {
-  const ids = [...exampleLibraryRows(), ...libraryRows(MODEL_PLANS, PERSONAS)].map((r) => r.id);
+  const ids = [...exampleLibraryRows(), ...libraryRows(MODEL_PLANS, PERSONAS), ...seedLibraryRows()].map((r) => r.id);
   assert.equal(new Set(ids).size, ids.length);
 });
 
@@ -67,4 +67,14 @@ test("an example's answers: its areas' topics at the rung of their highest exerc
     { exercises: [{ topic: "guitar-basic-chords", level: "new" as const }, { topic: "theory-ear", level: "advanced" as const }, { level: "advanced" as const }] },
   ];
   assert.deepEqual(exampleAnswers(e, days), { areas: ["guitar"], topics: { "guitar-scales": 2, "guitar-basic-chords": 0 }, minutes: 20, styles: "", notes: "" });
+});
+
+test("a seed plan file is a library row with its own answers, model and versions; one that doesn't parse is left out", () => {
+  const plan = JSON.parse(exampleLibraryRows()[0].reply);
+  const answers = { areas: ["guitar" as const], topics: {}, minutes: 20, styles: "", notes: "" };
+  const file = { id: "guitar-new-test", answers, model: "claude-fable-5-2", versions: { prompt: 1, agents: 2, teaching: 5 }, note: "a gap", plan };
+  const [r] = seedLibraryRows([file, { ...file, id: "broken", plan: {} }]);
+  assert.equal(seedLibraryRows([file, { ...file, id: "broken", plan: {} }]).length, 1);
+  assert.deepEqual([r.id, r.source, r.model, r.promptVersion, r.docsAgents, r.docsTeaching, r.enabledForReuse], ["guitar-new-test", "seed", "claude-fable-5-2", 1, 2, 5, true]);
+  assert.deepEqual(r.answers, answers);
 });

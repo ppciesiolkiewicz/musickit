@@ -2,6 +2,8 @@
 
 Reads the library of practice plans and exercise blocks, for agents that ask for them by tool. It only reads: nothing here inserts, updates or deletes.
 
+`seed/` holds the plans and exercises agents write for the library's gaps, one JSON file each; its `README.md` says how to add one. The seed scripts (`db:seed-plans`, `db:seed-blocks`) put them in the database.
+
 ## The scope
 
 Every query takes a `Scope`, built by the server code that calls the module and never passed through from a model.

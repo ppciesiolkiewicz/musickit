@@ -93,7 +93,7 @@ browser.
 
 `/demo` lists every demo in `DEMO_PLANS` as cards (`demoCards()`: level, minutes, the week's title and summary, day themes), grouped by area and easiest first, then a Beta card that links to the AI autoplan at `/plan`, then the teacher notes. `/demo/guitar-beginner`, `/demo/voice-beginner`, `/demo/guitar-intermediate`, `/demo/voice-intermediate`, `/demo/guitar-advanced` and `/demo/voice-advanced` each open a hand-tuned example plan (`demos.ts`, `DemoPlan.tsx`) from day 1, kept in memory only (a swapped-in `PlanStore`), so a pitch can link to a finished plan. Not indexed; canonical is `/plan`.
 
-`/demo/models/<player>--<model>` opens a first-week plan an AI model wrote for one of /dev/compare-models' made-up players (`modelPlans/`: `plans.json`, written by `npm run -s publish-model-plans`, and `modelPlan(slug)`, which parses it as a pasted reply). Public so a link can be shared, but listed nowhere: not on `/demo`, not in the sitemap, `noindex, nofollow`.
+`/demo/models/<player>--<model>` opens a first-week plan an AI model wrote for one of /dev/compare-models' made-up players (`modelPlans/`: `plans/<slug>.json`, one file per plan loaded through `plans/index.gen.ts`, written by `npm run -s publish-model-plans`, and `modelPlan(slug)`, which parses it as a pasted reply). Public so a link can be shared, but listed nowhere: not on `/demo`, not in the sitemap, `noindex, nofollow`.
 
 ## Code map
 

@@ -1,3 +1,4 @@
+import { SEED_BLOCKS, type SeedBlockFile } from "@/features/library/seed";
 import { EXERCISE_EXAMPLES, PLAN_EXAMPLES, type ExampleMeta } from "@/features/plan/examples";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise, parsePlanConfig } from "@/features/plan/model/config";
@@ -53,6 +54,18 @@ export function libraryPlanBlocks(plans: SeedPlan[]): NewBlock[] {
   return dedupe(out);
 }
 
+/** The agents' single seed exercises (src/features/library/seed/blocks) as library blocks the app owns, enabled for reuse, each with its file's model and versions. One that doesn't parse is left out. */
+export function seedFileBlocks(files: SeedBlockFile[] = SEED_BLOCKS): NewBlock[] {
+  const entries = catalogue();
+  const out: NewBlock[] = [];
+  for (const f of files) {
+    const { block } = parseExercise(f.exercise, f.id, entries);
+    const provenance: Provenance = { model: f.model, promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching };
+    if (block) out.push(...toNew({ title: f.id, days: [{ theme: f.id, exercises: [block] }] }, "seed", true, provenance));
+  }
+  return dedupe(out);
+}
+
 /** One row per exercise slot of a reply, in order, with `day` and `place` from 0; the same block id may repeat. `[]` when the reply doesn't parse. */
 export function planBlockRows(reply: string): PlanBlockRow[] {
   const r = parsePlanConfig(reply, catalogue());
@@ -73,13 +86,13 @@ function dedupe(list: NewBlock[]): NewBlock[] {
 }
 
 /**
- * Puts the library plans' blocks, then the examples', in the library as the app's, then each plan's blocks in
+ * Puts the library plans' blocks and the seed files' single blocks, then the examples', in the library as the app's, then each plan's blocks in
  * `practice_plan_blocks`. Insert-only, so a second run adds no block and a block in both stays `seed`, enabled; the plan
  * rows are replaced with the same ones, and a plan whose reply doesn't parse is left with none. A library block an
  * earlier run stored as an example's (not enabled) is promoted to `seed`, enabled; `promoted` counts those.
  */
 export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Date): Promise<{ library: number; examples: number; planBlocks: number; promoted: number }> {
-  const library = libraryPlanBlocks(plans);
+  const library = dedupe([...libraryPlanBlocks(plans), ...seedFileBlocks()]);
   const examples = exampleBlocks();
   await repo.addBlocks(null, library, now);
   const promoted = await repo.promoteExampleBlocks(library.map((b) => b.id));

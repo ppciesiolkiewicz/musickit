@@ -7,7 +7,7 @@ import { startPlan } from "@/features/plan/model/schedule";
 import { EMPTY_STATE, type PlanConfig } from "@/features/plan/model/types";
 import { libraryBlocksOf } from "@/features/plan/model/libraryBlocks";
 import { parsePlanConfig } from "@/features/plan/model/config";
-import { exampleBlocks, libraryPlanBlocks, planBlockRows, seedBlocks, type SeedPlan } from "./seedBlocks";
+import { exampleBlocks, libraryPlanBlocks, planBlockRows, seedBlocks, seedFileBlocks, type SeedPlan } from "./seedBlocks";
 import { memoryUserDataRepo } from "./repo.memory";
 
 const NOW = new Date(2026, 10, 15, 12);
@@ -126,4 +126,13 @@ test("an example's block a later run finds in a library plan becomes seed, enabl
   assert.equal(await repo.promoteExampleBlocks(ids), 0);
   assert.deepEqual(repo.peekOwners().find((o) => o.userId === "u1"), { userId: "u1", blockId: ids[0], source: "example", enabledForReuse: false });
   assert.equal((await seedBlocks(repo, [plan], NOW)).promoted, 0);
+});
+
+test("seedFileBlocks: a seed exercise file is a seed block, enabled, with its file's model and versions; a broken one is skipped", () => {
+  const ex = EXERCISE_EXAMPLES[0];
+  const file = { id: "s1", model: "claude-fable-5-2", versions: { prompt: 1, agents: 2, teaching: 5 }, note: "a gap", exercise: ex.exercise as Record<string, unknown> };
+  const list = seedFileBlocks([file, { ...file, id: "s2", exercise: {} }]);
+  assert.equal(list.length, 1);
+  assert.deepEqual([list[0].source, list[0].enabledForReuse, list[0].provenance], ["seed", true, { model: "claude-fable-5-2", promptVersion: 1, docsAgents: 2, docsTeaching: 5 }]);
+  assert.ok(exampleBlocks().some((b) => b.id === list[0].id), "the same exercise gets the same block id");
 });
