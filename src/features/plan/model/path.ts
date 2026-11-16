@@ -22,6 +22,8 @@ export interface PathStep {
   ladder?: string;
   /** steps of other tracks to learn first, as "trackId:n", n counted from 1 */
   after?: string[];
+  /** a mixing step: the steps before it in its track together, nothing new (`m`) */
+  mix?: true;
 }
 
 export interface Track {
@@ -38,6 +40,8 @@ export interface Track {
 
 type Opts = { ladder?: string; after?: string[] };
 const s = (level: Level, name: string, holds = "", o: Opts = {}): PathStep => ({ level, name, holds, ...o });
+/** A mixing step: what the track has taught so far, together, so a new step doesn't stay on its own. */
+const m = (level: Level, name: string, holds = "", o: Opts = {}): PathStep => ({ ...s(level, `Mix: ${name}`, holds, o), mix: true });
 const N = "new", B = "beginner", I = "intermediate", A = "advanced";
 const track = (area: Area, topic: string, id: string, label: string, merges: string[], steps: PathStep[]): Track => ({ id, label, area, topic, merges, steps });
 const g = (topic: string, id: string, label: string, merges: string[], steps: PathStep[]) => track("guitar", `guitar-${topic}`, id, label, merges, steps);
@@ -50,8 +54,10 @@ export const PATH: Track[] = [
   g("basic-chords", "open-chords", "Open chords", ["open-chords", "one-minute-changes"], [
     s(N, "Em, Am", "two-finger and three-finger shapes"),
     s(N, "E, A, D", ""),
+    m(N, "Em, Am, E, A, D", "any two in a row"),
     s(N, "One-minute changes", "two chords, count the changes"),
     s(B, "G, C", ""),
+    m(B, "all seven open chords", "changes between any of them"),
     s(B, "Changes in time", "on the beat at 60"),
     s(I, "Songs with four chords", "changes on the bar line, no gaps"),
   ]),
@@ -61,6 +67,7 @@ export const PATH: Track[] = [
     s(B, "Island strum", "a missed strum in the middle"),
     s(I, "Sixteenth patterns", ""),
     s(I, "Muted chucks", "the backbeat on 2 and 4"),
+    m(I, "every pattern in one song", "eighths, island, sixteenths and chucks"),
     s(A, "Fingerpicking pattern", "thumb on the root, fingers on the top strings"),
   ]),
   g("basic-chords", "power-chords", "Power chords", ["power-chords"], [
@@ -73,11 +80,12 @@ export const PATH: Track[] = [
     s(B, "Bm", "barre with the root on string 5"),
     s(I, "Full F", "barre with the root on string 6"),
     s(I, "Changes to a barre in time", ""),
-    s(A, "Barre shapes anywhere", "major, minor and 7 on both roots"),
+    s(A, "Barre shapes anywhere", "major, minor and 7 on both roots", { after: ["seventh-shapes:4"] }),
   ]),
   g("extended-chords", "seventh-shapes", "7th chord shapes", [], [
     s(B, "Open dominant 7ths", "E7, A7, D7, G7, B7"),
     s(B, "Open minor and major 7ths", "Am7, Em7, Dm7, Cmaj7, Fmaj7"),
+    m(B, "dominant, minor and major 7ths", "in one progression"),
     s(I, "Barre 7ths", "roots on strings 6 and 5", { after: ["barre:3"] }),
   ]),
   g("extended-chords", "sus-add9", "Sus & add9 shapes", ["sus-add9-shapes"], [
@@ -87,32 +95,37 @@ export const PATH: Track[] = [
     s(A, "Moving sus shapes", "on a barre, up the neck", { after: ["barre:5"] }),
   ]),
   g("extended-chords", "shells", "Shells & comping", ["shells-comping"], [
-    s(I, "Shells, root on 6", "root, 3rd, 7th", { after: ["seventh-shapes:3"] }),
+    s(I, "Shells, root on 6", "root, 3rd, 7th", { after: ["seventh-shapes:4"] }),
     s(I, "Shells, root on 5", ""),
     s(A, "9ths and 13ths on top", ""),
     s(A, "Comping a ii–V–I", "", { after: ["ii-v-i:1"] }),
   ]),
   g("caged", "double-stops", "Double stops", [], [
-    s(N, "5ths on two strings", "root and 5th, the smallest power chord"),
+    s(B, "5ths on two strings", "root and 5th, the smallest power chord"),
     s(B, "3rds on strings 3 and 2", "in one key"),
     s(B, "6ths on strings 3 and 1", "in one key, string 2 skipped"),
+    m(B, "3rds and 6ths", "low on the neck, in one key"),
     s(I, "Up the neck in one key", "3rds and 6ths"),
   ]),
   g("caged", "triads", "Triads", ["top-string-triads", "triads-every-set"], [
     s(B, "Strings 3 2 1", "major triads", { after: ["double-stops:2"] }),
     s(B, "Strings 3 2 1", "minor triads"),
+    m(B, "major and minor on strings 3 2 1", "the chords of one key"),
     s(B, "Strings 4 3 2", "major and minor"),
     s(I, "Strings 5 4 3", "major and minor"),
     s(I, "Strings 6 5 4", "major and minor"),
+    m(I, "all four string sets", "one progression in one area of the neck"),
     s(I, "One set up the neck", "the three inversions of one chord, joined"),
-    s(A, "Every set", "one chord across all four sets", { after: ["caged:6"] }),
+    s(A, "Every set", "one chord across all four sets", { after: ["caged:8"] }),
     s(A, "Diminished and augmented", ""),
   ]),
   g("caged", "caged", "CAGED shapes", ["caged"], [
     s(I, "E shape", "", { after: ["barre:3", "pentatonic-positions:1"] }),
     s(I, "A shape", "", { after: ["barre:2"] }),
+    m(I, "E and A shapes", "one chord in both, then 1 4 5 in one area"),
     s(I, "C shape", ""),
     s(I, "G shape", ""),
+    m(I, "E, A, C and G shapes", "one chord, in neck order"),
     s(A, "D shape", ""),
     s(A, "One chord in all five", "linked up the neck"),
     s(A, "Every chord of a key in one area", ""),
@@ -121,7 +134,7 @@ export const PATH: Track[] = [
     s(I, "In the E shape", "major and minor", { after: ["caged:1", "pentatonic-positions:1"] }),
     s(I, "In the A shape", "major and minor", { after: ["caged:2"] }),
     s(A, "7th arpeggios", "", { after: ["sevenths-up:4"] }),
-    s(A, "Through all five shapes", "", { after: ["caged:6"] }),
+    s(A, "Through all five shapes", "", { after: ["caged:8"] }),
   ]),
   g("scales", "notes-on-neck", "Notes on the neck", ["notes-e-a-strings", "find-every-note"], [
     s(N, "E and A, frets 0 to 5", "natural notes", { ladder: "note-finder:new" }),
@@ -135,8 +148,9 @@ export const PATH: Track[] = [
     s(B, "Position 2", "next to position 1"),
     s(I, "Joining 1 and 2", "slide between them"),
     s(I, "Positions 3, 4, 5", ""),
-    s(A, "The whole neck in one key", ""),
+    m(I, "all five positions", "in neck order, one key"),
     s(A, "Across three positions", "runs that move along the neck"),
+    s(A, "The whole neck in one key", ""),
   ]),
   g("scales", "major-on-neck", "Major scale & modes on the neck", ["modes-on-neck"], [
     s(I, "Major scale, root on 6", "one position", { after: ["pentatonic-positions:1"] }),
@@ -146,6 +160,7 @@ export const PATH: Track[] = [
     s(A, "Phrygian", ""),
     s(A, "Lydian", ""),
     s(A, "Locrian", ""),
+    m(A, "the modes from one root", "in a chain, one note lowered at a time"),
   ]),
   g("scales", "guitar-melodies", "Melodies", ["guitar-melodies-new", "guitar-melodies-beginner", "guitar-melodies-intermediate", "guitar-melodies-advanced"], [
     s(N, "One string", ""),
@@ -193,23 +208,28 @@ export const PATH: Track[] = [
     s(N, "Up to Mi", "", { ladder: "melody-stages:mi" }),
     s(N, "Up to Fa", "", { ladder: "melody-stages:fa" }),
     s(N, "Up to Sol", "", { ladder: "melody-stages:sol" }),
+    m(N, "Do to Sol", "the five notes in any order"),
     s(B, "Skips through the chord", "", { ladder: "melody-stages:skips" }),
     s(B, "Thirds", "Do Mi Re Fa Mi Sol", { ladder: "melody-stages:thirds" }),
+    m(B, "steps and skips", "in one tune"),
     s(B, "Up to La", "", { ladder: "melody-stages:la" }),
     s(B, "Up to Ti", "the note that leads home", { ladder: "melody-stages:ti" }),
     s(B, "The home chord broken", "", { ladder: "melody-stages:arpeggio" }),
+    m(B, "the whole octave", "by step and by skip"),
     s(I, "The chords next door", "", { ladder: "melody-stages:chords" }),
     s(I, "Under Do", "Ti, La, Sol", { ladder: "melody-stages:under" }),
     s(I, "4ths", "", { ladder: "melody-stages:fourths" }),
     s(I, "5ths", "", { ladder: "melody-stages:fifths" }),
+    m(I, "4ths and 5ths", "with steps and notes under Do"),
     s(A, "6ths", "", { ladder: "melody-stages:sixths" }),
     s(A, "7ths", "", { ladder: "melody-stages:sevenths" }),
     s(A, "Octave", "", { ladder: "melody-stages:octave" }),
+    m(A, "6ths, 7ths and the octave", ""),
     s(A, "10ths", "", { ladder: "melody-stages:tenths" }),
   ]),
   v("intervals", "singing-intervals", "Singing intervals from Do", ["singing-intervals"], [
     s(N, "3rd and 5th", "up", { ladder: "interval-singer:new", after: ["steps-to-leaps:4"] }),
-    s(B, "3rd, 5th, octave", "up", { ladder: "interval-singer:beginner", after: ["steps-to-leaps:5"] }),
+    s(B, "3rd, 5th, octave", "up", { ladder: "interval-singer:beginner", after: ["steps-to-leaps:6"] }),
     s(I, "4th, 5th, 6th, octave", "up", { ladder: "interval-singer:intermediate" }),
     s(A, "Every interval", "up and down, Do in a random key", { ladder: "interval-singer:advanced" }),
   ]),
@@ -217,7 +237,9 @@ export const PATH: Track[] = [
     s(N, "Easy", "from Do, by step", { ladder: "melody-difficulty:Easy" }),
     s(B, "Medium", "skips, a start off Do", { ladder: "melody-difficulty:Medium" }),
     s(I, "Hard", "leaps, notes under Do", { ladder: "melody-difficulty:Hard" }),
+    m(I, "easy to hard", "tunes of each difficulty, unannounced"),
     s(A, "Expert", "awkward leaps, dotted rhythms", { ladder: "melody-difficulty:Expert" }),
+    m(A, "every difficulty", "chords off"),
   ]),
   v("melodies", "sight-singing", "Sight-singing", ["sight-singing"], [
     s(B, "Steps from the staff", "", { after: ["tunes:1"] }),
@@ -228,9 +250,11 @@ export const PATH: Track[] = [
   v("melodies", "singing-modes", "Singing the modes", [], [
     s(I, "Dorian", "over a drone", { after: ["modes:1", "scales:1"] }),
     s(I, "Mixolydian", "", { after: ["modes:2"] }),
+    m(I, "Dorian or Mixolydian", "from one Do, over one drone"),
     s(A, "Phrygian", "", { after: ["modes:3"] }),
     s(A, "Lydian", "", { after: ["modes:4"] }),
     s(A, "Locrian", "", { after: ["modes:5"] }),
+    m(A, "all five modes", "from one Do, with major and minor between them"),
   ]),
   v("breath-range", "breath", "Breath & holding a note", ["breath-holding-note"], [
     s(N, "Counts 2 to 5", "", { ladder: "farinelli:new" }),
@@ -249,6 +273,7 @@ export const PATH: Track[] = [
     s(I, "The home chord, quick", "", { ladder: "run-stages:arpeggio-run" }),
     s(I, "Turns", "the note above, the note, the note below", { ladder: "run-stages:turns" }),
     s(I, "Pentatonic runs", "", { ladder: "run-stages:pentatonic-run" }),
+    m(I, "every run so far", "back to back"),
     s(A, "Up to the high Re", "", { ladder: "run-stages:nine" }),
     s(A, "The whole scale", "in sixteenths", { ladder: "run-stages:octave-run" }),
     s(A, "Fast", "the runs at a faster tempo"),
@@ -271,6 +296,7 @@ export const PATH: Track[] = [
     s(N, "Count 1 2 3 4", ""),
     s(B, "Eighths", ""),
     s(I, "Sixteenths and rests", ""),
+    m(I, "quarters to sixteenths", "switching inside one bar"),
     s(A, "Syncopation", ""),
     s(A, "Metronome on 2 and 4", ""),
   ]),
@@ -285,18 +311,22 @@ export const PATH: Track[] = [
     s(N, "Major or minor chord", ""),
     s(B, "Major or minor key", ""),
     s(I, "La as home", "the minor home", { after: ["scales:4"] }),
+    m(I, "Do or La as home", "major and minor keys with the same notes"),
   ]),
   t("ear", "intervals", "Intervals by ear", ["intervals"], [
     s(N, "5th, octave", "", { ladder: "interval-ears:1" }),
     s(B, "Major and minor 3rd", "", { ladder: "interval-ears:2" }),
     s(B, "4th, 2nd", "", { ladder: "interval-ears:3" }),
     s(I, "Minor 2nd, 6ths", "", { ladder: "interval-ears:4" }),
+    m(I, "up, down and together", "every interval so far"),
     s(A, "7ths, tritone", "all twelve", { ladder: "interval-ears:5" }),
+    m(A, "all twelve, down and together", ""),
   ]),
   t("ear", "hearing-changes", "Hearing chord changes", ["hearing-changes"], [
     s(B, "When the chord changes", ""),
     s(I, "1, 4 or 5", "", { after: ["chords-of-a-key:1"] }),
     s(I, "The 6 too", ""),
+    m(I, "1, 4, 5 and 6", "in any order, in a new key"),
     s(A, "A song's chords by ear", ""),
   ]),
   t("scales-keys", "scales", "Scales", ["pentatonic", "major-scale", "natural-minor", "relative-major-minor"], [
@@ -310,6 +340,7 @@ export const PATH: Track[] = [
     s(B, "One sharp, one flat", "G and F"),
     s(I, "The sharp keys", "round the circle", { after: ["scales:3"] }),
     s(I, "The flat keys", ""),
+    m(I, "sharp and flat keys", "the key from its signature, and back"),
     s(A, "Moving to a close key", ""),
     s(A, "Up a step for the last chorus", ""),
   ]),
@@ -318,7 +349,9 @@ export const PATH: Track[] = [
     s(B, "Dominant 7", "1 3 5 b7"),
     s(I, "Major 7", "1 3 5 7"),
     s(I, "Minor 7", "1 b3 5 b7"),
+    m(I, "maj7, 7 and m7", "on one root"),
     s(I, "Half-diminished", "1 b3 b5 b7"),
+    m(I, "the four 7th chords and the triads", ""),
     s(A, "9ths", "a 7th chord with the 9"),
     s(A, "13ths", "a 7th chord with the 13"),
   ]),
@@ -326,10 +359,12 @@ export const PATH: Track[] = [
     s(B, "sus4", "1 4 5"),
     s(B, "sus2", "1 2 5"),
     s(I, "add9", "1 3 5 9"),
+    m(I, "sus2, sus4, add9 or plain", ""),
   ]),
   t("building-chords", "dim-aug", "Diminished & augmented", ["diminished", "augmented"], [
     s(I, "Diminished triad", "1 b3 b5"),
     s(I, "Augmented triad", "1 3 #5"),
+    m(I, "major, minor, diminished or augmented", "on one root"),
     s(A, "Diminished 7", "1 b3 b5 bb7"),
   ]),
   t("progressions", "chords-of-a-key", "Chords of a key", ["chords-in-key"], [
@@ -347,6 +382,7 @@ export const PATH: Track[] = [
   t("progressions", "ii-v-i", "ii–V–I & guide tones", ["ii-v-i", "guide-tones"], [
     s(I, "ii–V–I in major", "", { after: ["sevenths-up:4"] }),
     s(A, "ii–V–i in minor", ""),
+    m(A, "major and minor ii–V–I", "in one tune"),
     s(A, "Guide tones", "the 3rds and 7ths through the changes"),
   ]),
   t("modes", "modes", "Modes", ["modes", "lydian-locrian"], [
@@ -360,6 +396,7 @@ export const PATH: Track[] = [
     s(I, "Harmonic minor", "natural minor with a raised 7th", { after: ["scales:4"] }),
     s(I, "The 5 chord in minor", "major, from the raised 7th"),
     s(A, "Melodic minor", "raised 6th and 7th"),
+    m(A, "natural, harmonic or melodic", "by the 6th and 7th"),
   ]),
 ];
 

@@ -1,0 +1,96 @@
+{
+  "id": "theory-advanced-mix-all-twelve-down-and-together",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "intervals:7"
+  ],
+  "note": "Track intervals (theory-ear), step 7 (ladder interval-ears:5): all twelve intervals going down and sounded together, two games at \"level\": \"advanced\", then P4, TT and P5 together, narrowed with \"set\". Missing: interval-ears has no \"dir\" that mixes directions from one question to the next.",
+  "exercise": {
+    "title": "All twelve intervals, down and together",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "Two notes sounded together give you no first note to count from, so naming all twelve that way makes you hear each interval as one sound.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "exploreMore": [
+      "/theory/ears"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Going down",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: any of the twelve intervals, with the upper note first.\nIf two answers sound alike, press Replay in the game and hum from the lower note up to the upper one.\nKeep going until the 7ths and the tritone come as quickly as the 5th."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "advanced",
+              "dir": "down"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "All twelve together",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: the same twelve, with both notes at once.\nListen for the lower note first, then for how far over it the upper one sits.\nWhen you change from down to together, the order is gone but each interval keeps its size."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "advanced",
+              "dir": "together"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Three close ones",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: only P4, TT and P5, both notes at once (P4 for a 4th, TT for the tritone, P5 for a 5th).\nThe three are a half step apart in size, so listen for the one in the middle, TT, and place the other two under and over it.\nKeep going until the three no longer sound alike."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "set": [
+                5,
+                6,
+                7
+              ],
+              "dir": "together"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "id": "theory-intermediate-mix-intervals-up-down-together",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "intervals:5"
+  ],
+  "note": "Track intervals (theory-ear), step 5 (ladder interval-ears:4): every interval up to the minor 2nd and the 6ths, going up, going down and sounded together, three games at \"level\": \"intermediate\". Missing: interval-ears has no \"dir\" that mixes up, down and together from one question to the next, so each direction is its own game.",
+  "exercise": {
+    "title": "Nine intervals: up, down and together",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "An interval is the same distance whichever note comes first, so hearing it going down and with both notes at once trains you to know it by its size, not by the order of its notes.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "exploreMore": [
+      "/theory/ears"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Going up",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: it plays two notes, the lower one first, and you pick the interval from the nine you know (m3 for a minor 3rd, M3 for a major 3rd, P5 for a 5th).\nKeep going until the names come without counting the steps."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "intermediate"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Going down",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: the same nine intervals, with the upper note first.\nIf you can't place one, press Replay in the game and hum the two notes from the lower one up.\nWhen you change the direction, the notes come in a new order but the distance between them is the same."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "intermediate",
+              "dir": "down"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Both notes together",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: the same nine again, and now the two notes sound at once.\nListen for the lower note first, then the upper one.\nKeep going until you can tell a wide interval from a narrow one the first time you hear it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "intermediate",
+              "dir": "together"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

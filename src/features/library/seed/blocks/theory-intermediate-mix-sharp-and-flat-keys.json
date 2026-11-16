@@ -1,0 +1,108 @@
+{
+  "id": "theory-intermediate-mix-sharp-and-flat-keys",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "keys:4"
+  ],
+  "note": "Track keys (theory-scales-keys), step 4: sharp and flat keys mixed, both ways round the circle from C, then from a key to its signature on the piano, then from a signature back to its key. Missing: a game that shows a key signature and asks for the key (and a key for its signature); the signatures to name are listed in the text and checked on the circle.",
+  "exercise": {
+    "title": "Sharp keys and flat keys, both ways",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "keys"
+    ],
+    "why": "Clockwise from C each key adds a sharp and anticlockwise each adds a flat, so a key's place on the circle gives its signature, and a signature gives the place.",
+    "learnBefore": [
+      "/course/10/circle-map"
+    ],
+    "exploreMore": [
+      "/theory/circle"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Both ways from C",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle below starts on C, the key with no sharps and no flats. Press G, D, A and E, clockwise from C, and say how many sharps each has before you press it.\nThen press F, B♭, E♭ and A♭, anticlockwise from C, and say the flats the same way."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "circle-of-fifths",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From the key to its signature",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "e-flat"
+            },
+            {
+              "key": "e"
+            },
+            {
+              "key": "b-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "The piano below shows a major key. Say how many sharps or flats the key has, and which ones, then tap up the scale and count the black keys to check.\nOnce the answer comes before you count, try another key. Use the Key selector below to change the key.\nWhen you change the key, the black keys are new but their count is still the number of steps from C on the circle."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "a",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From the signature to the key",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now go the other way, on the circle below. Say the key with three sharps, then press it and read its key signature to check. Do the same for two flats, four sharps, one flat, two sharps and four flats.\nKeep going until you can name a key from its signature without counting round the circle."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "circle-of-fifths",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

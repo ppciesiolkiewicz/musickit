@@ -1,0 +1,109 @@
+{
+  "id": "theory-intermediate-mix-seventh-chords-and-triads",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "sevenths-up:7"
+  ],
+  "note": "Track sevenths-up (theory-building-chords), step 7: the four 7th chords and the two triads, as six chords on G, then named by ear, then the four 7th chords on G in a band. Missing: interval-ears \"kind\": \"chord\" has no half-diminished answer, so that chord is heard in the chord boxes and the band only.",
+  "exercise": {
+    "title": "Four 7th chords and two triads",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sevenths-up"
+    ],
+    "why": "Each of the four 7th chords is a triad with a 7th on top, so hearing the three notes underneath first and the top note second tells them from the triads and from each other.",
+    "learnBefore": [
+      "/course/7/sevenths"
+    ],
+    "exploreMore": [
+      "/course/7/hearing-sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Six chords on G",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. Press G and Gm, the two triads, then Gmaj7 and G7: the major triad with a 7th on top, a half step or a whole step under the octave.\nThen press Gm7 and Gm7♭5: the minor triad with the lower 7th, and the same chord with its 5th lowered a half step.\nGo round the six until you can name each with your eyes closed."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "Gm",
+                "Gmaj7",
+                "G7",
+                "Gm7",
+                "Gm7♭5"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Name it by ear",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: it plays a chord from any root, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7 (Dominant 7 is the chord written 7, as in G7).\nListen to the three notes underneath first, major or minor, then for a 7th on top.\nThe game does not ask the half-diminished chord: the band in the next block plays it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "kind": "chord"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Four 7th chords, one band",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: the four 7th chords on G, a bar each, in two orders. Look away from the chord boxes and call out the chord on each change, then look to check.\nListen for the bar where the 5th drops: that is Gm7♭5, the half-diminished chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "chords": [
+                "Gmaj7",
+                "G7",
+                "Gm7",
+                "Gm7b5",
+                "Gm7",
+                "Gmaj7",
+                "Gm7b5",
+                "G7"
+              ],
+              "style": "ballad",
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

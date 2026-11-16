@@ -104,9 +104,20 @@ test("the prerequisites the user named (2026-11-16)", () => {
   assert.ok(at.get("pentatonic-positions:1")! < at.get("major-on-neck:1")!);
 });
 
+test("mixing steps: never first, never a ladder step, never pointed at by `after`, named Mix", () => {
+  const mixes = PATH.flatMap((t) => t.steps.map((st, i) => ({ t, st, i }))).filter((x) => x.st.mix);
+  assert.equal(mixes.length, 33);
+  for (const { t, st, i } of mixes) {
+    assert.ok(i > 0 && !t.steps[i - 1].mix, `${t.id}:${i + 1} follows a new step`);
+    assert.ok(!st.ladder && st.name.startsWith("Mix: "), `${t.id}:${i + 1}`);
+  }
+  const mixRefs = new Set(mixes.map(({ t, i }) => `${t.id}:${i + 1}`));
+  for (const t of PATH) for (const st of t.steps) for (const a of st.after ?? []) assert.ok(!mixRefs.has(a), a);
+});
+
 test("double stops: a new guitar track in the CAGED topic, right before triads", () => {
   const i = PATH.findIndex((t) => t.id === "double-stops");
   assert.equal(PATH[i + 1].id, "triads");
   const t = PATH[i];
-  assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["guitar", "guitar-caged", [], ["new", "beginner", "beginner", "intermediate"]]);
+  assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["guitar", "guitar-caged", [], ["beginner", "beginner", "beginner", "beginner", "intermediate"]]);
 });

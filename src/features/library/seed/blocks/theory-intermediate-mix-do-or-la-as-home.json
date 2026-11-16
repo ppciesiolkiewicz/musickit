@@ -1,0 +1,151 @@
+{
+  "id": "theory-intermediate-mix-do-or-la-as-home",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "home-and-colour:5"
+  ],
+  "note": "Track home-and-colour (theory-ear), step 5: Do or La as home, mixed: the major chord on Do against the minor chord on La, tunes that end on either in three keys, then a band whose four lines rest on Do or La out of turn, in a new key. Missing: backing-track plays a fixed order, so the homes can't come at random.",
+  "exercise": {
+    "title": "Do or La: which note is home",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "home-and-colour"
+    ],
+    "why": "A major key and a minor key can use the same seven notes and rest on different ones, Do or La, so the note where the music comes to rest tells you which of the two you are hearing.",
+    "learnBefore": [
+      "/course/3/la-minor-home"
+    ],
+    "exploreMore": [
+      "/course/3/major-or-minor"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The two home chords",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. C is the chord on Do and Am is the chord on La, both made of notes of C major: the one on Do is major, the one on La is minor.\nGo between the two until you can say \"Do\" or \"La\" from the sound alone."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "C",
+                "Am"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "End on Do, end on La",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "d"
+            },
+            {
+              "key": "b-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below shows a major scale with its solfège names, and the notes under the lowest Do as well. Tap a short tune of your own that ends on a ringed {{1}}, then one from the same notes that ends on a ringed {{6}}.\nOnce you can hum the last note before you tap it, try another key. Use the Key selector below to change the key.\nWhen you change the key, the notes are new but a tune that ends on Do still sounds major, and one that ends on La still sounds minor."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "tenor",
+              "under": true,
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "labels": "solfege",
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Where the band rests",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play under the staff below to start the band, in a new key: sixteen bars in four lines, and each line comes to rest on Do or on La, not in turn. Hum the note each line rests on, then tap {{1}} or {{6}} on the staff to check.\nKeep going until you can call out \"major\" or \"minor\" as each line ends."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "a",
+              "voice": "tenor",
+              "under": true,
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "labels": "solfege",
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "a",
+              "numerals": [
+                "vi",
+                "ii",
+                "iii",
+                "vi",
+                "I",
+                "IV",
+                "V",
+                "I",
+                "IV",
+                "V",
+                "I",
+                "I",
+                "ii",
+                "iii",
+                "vi",
+                "vi"
+              ],
+              "style": "ballad",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

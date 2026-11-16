@@ -314,7 +314,12 @@ pastes with zero warnings and keeps the exercise rules: blocks, sing or play, na
 ## Concepts
 
 `model/path.ts` is the learning path (NEW13): `PATH`, 45 tracks, each one skill with its steps from easiest to hardest,
-each step at its own level, so a track spans the levels its steps reach. A step may name steps of other tracks to learn
+each step at its own level, so a track spans the levels its steps reach. A mixing step (`mix: true`, made with `m`,
+named "Mix: ...") teaches nothing new: it uses what the steps before it in the track taught, together, so new material
+(an interval, a chord shape, a mode) doesn't stay on its own; 33 of them, from the Fable agents' proposals (2026-11-16).
+A mixing step has no ladder: its block uses the tool at the level of the ladder step before it. Steps are numbered by
+place, so adding one renumbers the refs after it: change them all in one commit (`after`, `devtools/model/slopeProposal.ts`,
+the seed blocks' `steps`, the tests). A step may name steps of other tracks to learn
 first (`after`, as "trackId:n") and the ladder step in the code that stands for it (`ladder`, as "ladderId:key", from
 `model/ladders.ts`: tool levels, the ear game's levels, the tune and run stages). `stepOf(trackId, tools)` reads the step
 an exercise works on from its tools. A step with no ladder is "not implemented": no tool setting stands for it yet.

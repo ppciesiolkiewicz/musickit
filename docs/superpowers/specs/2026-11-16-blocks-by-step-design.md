@@ -87,10 +87,14 @@ their own, the player sings them mixed with everything before. Those become **mi
   seed files' `steps` and the example students; a test fails on any ref that points at no step. Stored player data
   is prelaunch and can be reset, so no migration of it. Order: path changes (goals 7, 8) first, then the `steps`
   field (goals 1 to 5) with the seed files remapped.
-- **Mixing steps and ladders:** where a new step and its mixing step would share a ladder key, only the mixing step
-  carries `ladder` (it uses the whole tool level). The new-material step has no ladder; its block isolates with the
-  tool's own interval set, and the check can't read its step back. For melody and run stages, the mixing step is the
-  stage's tune or run, the new-material step a narrower exercise on the same tool.
+- **Mixing steps and ladders** (changed when built, 2026-11-16): a mixing step carries no ladder; the ladder stays on
+  the new-material step, so the blocks written before keep reading back to their step. A mixing block uses the tool at
+  the level of the ladder step before it and names its mixing step in `steps`; read back by its tools it also counts
+  for that ladder step ("read" on /dev/block), which is true of what it practises.
+- **Built 2026-11-16:** 33 mixing steps (`mix: true`, "Mix: ..."), pentatonic 6 and 7 swapped, double-stops:1 to
+  beginner, barre:5 after seventh-shapes:3; 50 refs moved by one old → new map. Not built: fingerpicking as its own
+  track (a new concept id changes the prompt, so it waits for `PROMPT_VERSION` 4 with goal 5); seventh-shapes:2 keeps
+  Dm7 (its block teaches the shape on its own); intervals:3 waits on MissingTools13.
 - **The 84 gap blocks** are written in this session by six Fable agents (one brief, a list per agent) into
   `src/features/library/seed/blocks`, checked with `seed -- check`. Their mixing-step proposals come back with them;
   the user picks before goal 7 is built (a stop in the plan).

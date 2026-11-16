@@ -7,9 +7,9 @@
     "teaching": 5
   },
   "steps": [
-    "strumming:6"
+    "strumming:7"
   ],
-  "note": "Track strumming (guitar-basic-chords), step 6: a fingerpicking pattern with the thumb on the root and three fingers on the top strings, over Am, F and Dm. missing: the tab shows no picking-hand fingers, a chord-steps note can't be put on a named string (so the thumb's root is written as a pinch with the index on beat 1, and only chords where that lands right are used), and a step is one beat, so no eighth-note pattern.",
+  "note": "Track strumming (guitar-basic-chords), step 7: a fingerpicking pattern with the thumb on the root and three fingers on the top strings, over Am, F and Dm. missing: the tab shows no picking-hand fingers, a chord-steps note can't be put on a named string (so the thumb's root is written as a pinch with the index on beat 1, and only chords where that lands right are used), and a step is one beat, so no eighth-note pattern.",
   "exercise": {
     "title": "Fingerpicking: thumb and three fingers",
     "minutes": 10,

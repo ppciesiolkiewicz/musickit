@@ -1,0 +1,126 @@
+{
+  "id": "guitar-intermediate-mix-pentatonic-five-positions",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "pentatonic-positions:6"
+  ],
+  "note": "Track pentatonic-positions (guitar-scales), step 6: all five positions together in A minor, in neck order: each one up and down in turn, the same five as C major pentatonic with the root moved, then a phrase in each position over a band. The app numbers the major pentatonic's positions from its own root (the minor position 1 is major position 5), so the major block names no position numbers and hides the picker.",
+  "exercise": {
+    "title": "Five pentatonic positions in neck order",
+    "minutes": 10,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Each position begins on the notes where the one below it ends, so the five of them in neck order are one scale, and the root shows you where you are inside any of them.",
+    "learnBefore": [
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Position after position",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Play position 1 up and back down, one note per beat, then do the same in position 2, and so on up to position 5 and back.\nBefore you move up, look at the higher note on each string: it is the lower note of the next position."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The same five, in major",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows C major pentatonic: the same notes in the same five places, with {{1}} moved to C. Play each position up and back down again, and this time start and end on a ringed {{1}}.\nWhen you change from A minor to C major, no finger moves: only the note you start and end on is new."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "major-pentatonic",
+              "key": "c",
+              "positions": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "highlight": [
+                "1"
+              ],
+              "picker": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A phrase in each position",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band, four chords in A minor. Improvise a short phrase in position 1, answer it in position 2, and carry on up the neck and back down.\nKeep going until your hand moves to the next position without you stopping to find it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "minor-pop",
+              "key": "a",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/minor-pentatonic/a"
+    ]
+  }
+}

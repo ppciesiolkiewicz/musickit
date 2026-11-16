@@ -1,0 +1,118 @@
+{
+  "id": "voice-intermediate-mix-tunes-easy-to-hard",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "tunes:4"
+  ],
+  "note": "Track tunes (voice-melodies), step 4: mix of easy to hard, three tunes by ear, one Hard, one Easy and one Medium in that order, with no word on which is which: for each the singer finds the first note against Do (the last note) and the widest move, sings the second before hearing it, and takes the third to a second key.",
+  "exercise": {
+    "title": "Three tunes, easy to hard, in no order",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "Every tune in the book ends on Do, so its last note tells you where home is and how far from home it starts, and those two things tell you what to listen for before you sing.",
+    "learnBefore": [
+      "/course/6/singing-leaps",
+      "/course/3/step-melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "First note and home",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The three tunes in this exercise are of different difficulty, and nothing says which is which. Before each one, find where it starts and where home is.\nTap the last note of the tune below to hear Do, then tap its first note. Then press Play below to hear the tune: the mic starts with it. Listen once, then sing along on \"la\".\nIf the tune goes where you did not expect, listen once more for its lowest note, then sing along again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "hard",
+                "stage": "under",
+                "index": 2
+              },
+              "key": "a",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Sing it before you hear it",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the last note of this tune below to hear Do, then tap its first note. Then sing the tune on \"la\" from the staff, slowly, before you hear it.\nPress Play below to check it against the tune: the mic starts with it, so sing along the second time.\nIf your tune and the tune you hear part ways, tap the note where they did, then sing on from there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "fourths"
+              },
+              "key": "b-flat",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The widest move",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "a"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the last note of this tune below to hear Do, then tap its first note. Then press Play below to hear the tune: the mic starts with it. Listen for its widest move, then sing along on \"la\".\nOnce you can start the tune without tapping its first note, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, Do moves and the tune still starts the same distance above it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "skips",
+                "index": 1
+              },
+              "key": "g",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

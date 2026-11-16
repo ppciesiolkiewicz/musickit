@@ -1,0 +1,153 @@
+{
+  "id": "voice-intermediate-mix-dorian-or-mixolydian",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "singing-modes:3"
+  ],
+  "note": "Track singing-modes (voice-melodies), step 3: mix of Dorian and Mixolydian from one Do over one drone, a Scale choice in every block: the first five notes of each (only the 3rd moves), the chord on Do in each (1 ♭3 5 ♭7 against 1 3 5 ♭7), then one made-up phrase sung in both, in a second key. missing: a staff that draws both 3rds at once, so a phrase could change mode halfway without the selector.",
+  "exercise": {
+    "title": "Dorian or Mixolydian, from one Do",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "singing-modes"
+    ],
+    "why": "From one Do, Dorian and Mixolydian share six of their seven notes, so the 3rd is the one note that says which mode you are singing: ♭3 in Dorian, 3 in Mixolydian.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One note moves",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "scale": "dorian"
+            },
+            {
+              "scale": "mixolydian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This is Dorian. Sing its first five notes up from the low {{1}} and back down, on \"oo\". The ringed note is {{b3}}.\nThen sing the same five notes in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the drone stays and only the ringed note moves: it is {{b3}} in Dorian and {{3}} in Mixolydian."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "3",
+                "b3"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The chord on 1, both ways",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "scale": "dorian"
+            },
+            {
+              "scale": "mixolydian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The notes that are not faded are the chord on {{1}} in Dorian: {{1}}, {{b3}}, {{5}} and {{b7}}. Sing them up from the low {{1}} and back down, on \"ah\".\nOnce each note lands without a slide, sing the chord in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, {{1}}, {{5}} and {{b7}} stay where they are, and the ringed note moves up a half step to {{3}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "enable": [
+                "1",
+                "3",
+                "b3",
+                "5",
+                "b7"
+              ],
+              "highlight": [
+                "3",
+                "b3"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One phrase, two modes",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "scale": "dorian"
+            },
+            {
+              "scale": "mixolydian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The drone is on a new {{1}} now. Make up a short phrase that passes through the ringed {{b3}} and ends on {{1}}, and sing it on \"la\".\nOnce you can sing the phrase the same way twice, sing it in Mixolydian. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the phrase keeps its shape and its ringed note is a half step higher, {{3}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "3",
+                "b3"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/dorian/d",
+      "/theory/scales/mixolydian/d"
+    ]
+  }
+}

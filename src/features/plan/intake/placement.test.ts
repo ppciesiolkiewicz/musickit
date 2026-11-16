@@ -6,10 +6,10 @@ import { placeTrack, placement } from "./placement";
 test("a rung starts each track of the topic at its first step of that level", () => {
   const got = placement({ "guitar-caged": 2 });
   assert.deepEqual(got.map((p) => p.concept), ["double-stops", "triads", "caged", "arpeggios"]);
-  // double stops: new, two beginner steps, then intermediate at the 4th
-  assert.deepEqual(got[0], { concept: "double-stops", state: "on", step: 3 });
-  // triads: three beginner steps, then intermediate from the 4th
-  assert.deepEqual(got[1], { concept: "triads", state: "on", step: 3 });
+  // double stops: four beginner steps (the 4th mixes 3rds and 6ths), then intermediate at the 5th
+  assert.deepEqual(got[0], { concept: "double-stops", state: "on", step: 4 });
+  // triads: four beginner steps (the 3rd mixes major and minor), then intermediate from the 5th
+  assert.deepEqual(got[1], { concept: "triads", state: "on", step: 4 });
   assert.deepEqual(got[2], { concept: "caged", state: "on", step: 0 });
 });
 

@@ -1,0 +1,115 @@
+{
+  "id": "guitar-new-mix-first-five-open-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "open-chords:3"
+  ],
+  "note": "Track open-chords (guitar-basic-chords), step 3: Em, Am, E, A and D together: the five shapes from memory, minor next to major, then ten bars that meet every pair of the five once, one strum a bar.",
+  "exercise": {
+    "title": "Five open chords, any two in a row",
+    "minutes": 8,
+    "level": "new",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords"
+    ],
+    "why": "Every change between two chords is its own move, so the last block plays the five chords in an order where each one meets every other once, and the changes that are still slow show up.",
+    "learnBefore": [
+      "/course/2/em-and-am",
+      "/course/2/e-a-dm",
+      "/course/2/c-d-g"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Five shapes from memory",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it. Fret each of the five chords in turn, and look at its chord box only after your fingers are down.\nKeep going until every shape lands without a look."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Em",
+                "Am",
+                "E",
+                "A",
+                "D"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Minor, then major",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down once on beat 1, then use the rest of the bar to move to the next chord.\nWhen Em changes to E and Am to A, listen for the one note that goes up."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Em",
+                "E",
+                "Am",
+                "A"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Every pair once",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The ten bars hold the five chords in an order where every chord meets each of the others once: strum down once on beat 1, then move.\nIf a change comes late, keep counting and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Em",
+                "Am",
+                "E",
+                "A",
+                "D",
+                "Em",
+                "E",
+                "D",
+                "Am",
+                "A"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

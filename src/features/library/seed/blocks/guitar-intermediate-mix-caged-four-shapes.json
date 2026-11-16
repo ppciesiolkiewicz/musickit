@@ -1,0 +1,136 @@
+{
+  "id": "guitar-intermediate-mix-caged-four-shapes",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "caged:6"
+  ],
+  "note": "Track caged (guitar-caged), step 6: the C, A, G and E shapes of one chord together, in neck order: C in the four shapes from low to high, the roots two neighbours share, then a new shape every bar in three keys.",
+  "exercise": {
+    "title": "One chord in four shapes, up the neck",
+    "minutes": 10,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "caged"
+    ],
+    "why": "Going up the neck, the shapes of one chord follow each other in the order C, A, G, E, and two shapes next to each other share a root, so you can step from one shape to the next by finding that root.",
+    "learnBefore": [
+      "/course/8/d-c-a-shapes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Four shapes, low to high",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Each row of panels below is C in one shape: the C, A, G and E shapes, in the order they come up the neck. Play the chord of each row from the lowest to the highest, and say the shape's letter as you play it.\nKeep going until you can go up and back down without stopping to look for the next shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "c",
+              "scale": "major-ionian",
+              "shapes": [
+                "C",
+                "A",
+                "G",
+                "E"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The roots they share",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows every note of the C chord. Find each {{1}} from the open C chord up to the E shape: each one belongs to two shapes next to each other.\nPlay from one {{1}} to the next up the neck, and name the two shapes that meet there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "C",
+              "show": [
+                "neck"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A new shape every bar",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            },
+            {
+              "key": "e-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, strum the chord once on beat 1, each bar in the next shape up the neck, and use the rest of the bar to move. After the E shape, come back down through the G and A shapes.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the metronome again.\nWhen you change the key, the four shapes move up the neck together and keep the order C, A, G, E."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "C",
+                "C",
+                "C",
+                "C",
+                "C",
+                "C"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "c",
+              "scale": "major-ionian",
+              "shapes": [
+                "C",
+                "A",
+                "G",
+                "E"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/caged"
+    ]
+  }
+}

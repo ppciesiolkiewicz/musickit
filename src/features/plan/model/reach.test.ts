@@ -25,8 +25,8 @@ test("a new player: one step per topic, the lowest on the path; the others with 
 
 test("starts are never capped, and the steps under a start are known", () => {
   const r = reach({ topics: { "guitar-basic-chords": 1 } });
-  for (const ref of ["open-chords:4", "strumming:3", "power-chords:1"]) assert.deepEqual([m(r, ref).mark, m(r, ref).start], ["reach", true], ref);
-  assert.equal(m(r, "open-chords:3").mark, "known");
+  for (const ref of ["open-chords:5", "strumming:3", "power-chords:1"]) assert.deepEqual([m(r, ref).mark, m(r, ref).start], ["reach", true], ref);
+  assert.equal(m(r, "open-chords:4").mark, "known");
   assert.equal(m(r, "strumming:2").mark, "known");
 });
 
@@ -37,8 +37,8 @@ test("a start carries known back across topics, even unanswered ones", () => {
 });
 
 test("solid carries known back, inside a track and across", () => {
-  const r = reach({ topics: {}, solid: ["triads:5"] });
-  assert.equal(m(r, "triads:3").mark, "known");
+  const r = reach({ topics: {}, solid: ["triads:6"] });
+  assert.equal(m(r, "triads:4").mark, "known");
   assert.equal(m(r, "double-stops:2").mark, "known");
   assert.equal(m(r, "double-stops:3").mark === "known", false);
 });
@@ -56,8 +56,8 @@ test("a practised step that isn't solid stays within reach, so it comes back; on
 test("a done track opens what follows it", () => {
   const r = reach({ topics: { "guitar-caged": 3 } });
   assert.ok(PATH.find((t) => t.id === "double-stops")!.steps.every((_, i) => m(r, `double-stops:${i + 1}`).mark === "known"));
-  assert.equal(m(r, "triads:6").mark, "known");
-  assert.deepEqual([m(r, "triads:7").mark, m(r, "triads:7").start], ["reach", true]);
+  assert.equal(m(r, "triads:8").mark, "known");
+  assert.deepEqual([m(r, "triads:9").mark, m(r, "triads:9").start], ["reach", true]);
 });
 
 test("intermediate and up: no cap, so nothing in that topic is held back", () => {

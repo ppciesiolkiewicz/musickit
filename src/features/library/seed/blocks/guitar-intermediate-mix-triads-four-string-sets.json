@@ -1,0 +1,1169 @@
+{
+  "id": "guitar-intermediate-mix-triads-four-string-sets",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "triads:7"
+  ],
+  "note": "Track triads (guitar-caged), step 7: triads on all four string sets together, inside frets 2 to 7 in G: the chord G on each set up and back, G C D G on one set after another, then a new set every bar.",
+  "exercise": {
+    "title": "One progression on four string sets",
+    "minutes": 10,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "triads"
+    ],
+    "why": "Inside a few frets, G, C and D each have a triad on every set of three strings, so the same three chords can be played low, in the middle or on top without moving your hand along the neck.",
+    "learnBefore": [
+      "/course/8/triads-everywhere"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "G on four sets",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing and follow the tab: the chord G as a triad on the three lowest strings, then one set of strings higher on each beat, up and back down.\nKeep going until your hand finds each set without leaving its place on the neck."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "G, C and D, set by set",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: G, C, D and G, a bar each, on the three lowest strings. Each time the four bars come round again, they sit one set of strings higher.\nWhen you change the set, the chords and their order stay, and the three notes of each chord come in a new order from low to high."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "654",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "654",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "654",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "654",
+                        "fret": 3
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543",
+                        "fret": 4
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "432",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "432",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "432",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "432",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "432",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "432",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "432",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "432",
+                        "fret": 3
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432",
+                        "fret": 4
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "321",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "321",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "321",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "321",
+                        "fret": 2
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A new set every bar",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Now every bar moves to the next set of strings: up through the four sets, then back down.\nIf a triad comes late, play only its lowest note on beat 1 and have the whole shape ready for beat 2."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "432",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "432",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "432",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "432",
+                        "fret": 3
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "321",
+                        "fret": 3
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "432",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "432",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "432",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "432",
+                        "fret": 5
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "543",
+                        "fret": 4
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654",
+                        "fret": 5
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/arpeggios"
+    ]
+  }
+}

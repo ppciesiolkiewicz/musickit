@@ -1,0 +1,134 @@
+{
+  "id": "guitar-intermediate-mix-strumming-one-song",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "strumming:6"
+  ],
+  "note": "Track strumming (guitar-basic-chords), step 6: eighths with chucks, the island strum and sixteenths as the verse, chorus and bridge of one song on G, Em, C and D at one tempo, then all three in a row over drums and bass. missing: a muted stroke (a chuck) in strum-along's pattern, so the chucks on 2 and 4 are in the text only; and a strum-along pattern per chord or per section, so the whole song has no strokes drawn while the pattern changes.",
+  "exercise": {
+    "title": "Three strums in one song",
+    "minutes": 10,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "rhythm",
+      "song"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "strumming"
+    ],
+    "why": "The beat stays where it is under every pattern, so going from one pattern to the next only changes how fast your hand swings and which strokes touch the strings.",
+    "learnBefore": [
+      "/course/2/island-strum",
+      "/course/2/sixteenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Verse: eighths with chucks",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, strum down and up in eighths, and make the down strum on beats 2 and 4 a chuck.\nKeep going until the chucks land on 2 and 4 without you counting."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "C",
+                "D"
+              ],
+              "bpm": 80,
+              "pattern": "D U D U D U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Chorus: island strum",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The chords and the tempo are the same, and the strum is now the island strum.\nYour hand swings at the same speed as in the verse: only which strokes touch the strings is new."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "C",
+                "D"
+              ],
+              "bpm": 80,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Bridge: sixteenths",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The beat is still the same, and your hand now swings twice as fast, in sixteenths.\nIf your hand tightens up, strum only the downs on the beat for a bar, then let the other strokes back in."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "C",
+                "D"
+              ],
+              "bpm": 80,
+              "pattern": "D . . U . U D U D . . U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The whole song",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass on G, Em, C and D, a bar each. Play the four bars twice as the verse, twice as the chorus and twice as the bridge, then start again.\nIf a new pattern starts late, keep your hand swinging and join in on the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "fifties",
+              "key": "g",
+              "style": "pop",
+              "bpm": 80,
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

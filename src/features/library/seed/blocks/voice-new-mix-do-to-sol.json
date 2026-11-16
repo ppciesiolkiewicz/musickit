@@ -1,0 +1,126 @@
+{
+  "id": "voice-new-mix-do-to-sol",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "steps-to-leaps:5"
+  ],
+  "note": "Track steps-to-leaps (voice-intervals), step 5: mix of Do to Sol, the five notes in an order the singer makes up over a drone, then two Sol-stage tunes that turn back and skip inside the five notes (one in two keys). The Sol stage's two Easy tunes are in the block for step 4, so these two are the stage's Medium ones.",
+  "exercise": {
+    "title": "Do to Sol in any order",
+    "minutes": 7,
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "The five notes from Do to Sol stay in the same places whatever order they come in, so a tune that turns back or skips over a note is still made of places your voice already knows.",
+    "learnBefore": [
+      "/course/3/step-melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Your own order",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. These are the five notes you know, from the low {{1}} up to {{5}}. Sing them in an order you make up: a few steps up, a turn back, a skip over one note, then home to {{1}}. Sing them on the note names.\nIf the note after a skip lands off, tap it on the staff to hear it, then sing the skip again.\n_Don't reach for high notes: stay on the five notes from the low {{1}}._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "highlight": [
+                "1"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Up by step, home with a skip",
+        "minutes": 2,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. It steps up from Do to Sol and starts back down, then skips from Re up to Fa before it steps home. Sing along on the note names.\nOnce the skip up to Fa lands without a slide, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the skip is still from Re up to Fa."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "sol",
+                "index": 1
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Steps up, skips down",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This tune starts on Mi, and it mixes steps up with skips down. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nListen for each skip down: the tune jumps over one note, and the next step up fills it in.\nOnce the names come without thinking, sing it again on \"la\"."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "sol",
+                "index": 3
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

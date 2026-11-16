@@ -7,9 +7,9 @@
     "teaching": 5
   },
   "steps": [
-    "pentatonic-positions:6"
+    "pentatonic-positions:8"
   ],
-  "note": "Track pentatonic-positions (guitar-scales), step 6: all five positions of one key as one neck: the roots first, position after position in three keys, along one string, then a solo that moves.",
+  "note": "Track pentatonic-positions (guitar-scales), step 8: all five positions of one key as one neck: the roots first, position after position in three keys, along one string, then a solo that moves.",
   "exercise": {
     "title": "One key, the whole neck",
     "minutes": 10,

@@ -1,0 +1,172 @@
+{
+  "id": "voice-advanced-mix-all-five-modes",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "singing-modes:7"
+  ],
+  "note": "Track singing-modes (voice-melodies), step 7: mix of all five modes from one Do over one drone, a Scale choice in every block: Lydian, major, Mixolydian, Dorian (one note lowered each time), then Dorian, natural minor, Phrygian, Locrian, then one made-up phrase in Lydian, Mixolydian, Phrygian and Locrian in a second key. The major and natural minor scales are in the chain because Lydian to Mixolydian and Dorian to Phrygian are two notes apart without them. missing: a staff highlight that follows the choice (the staff rings the three notes that move in a block, not only the one that just moved), and a tool that sounds a mode for the singer to name.",
+  "exercise": {
+    "title": "Five modes from one Do",
+    "minutes": 11,
+    "level": "advanced",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "singing-modes"
+    ],
+    "why": "From one Do the modes stand in a line where each is the one before it with one note lowered a half step, so singing down that line over one drone lets you hear each mode by the single note that moved.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/lydian-locrian",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Lydian down to Dorian",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "scale": "lydian"
+            },
+            {
+              "scale": "major-ionian"
+            },
+            {
+              "scale": "mixolydian"
+            },
+            {
+              "scale": "dorian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This is Lydian. Sing the scale up from the low {{1}} to the next {{1}} and back down, on \"oo\". The three ringed notes are the ones that move in this block: {{#4}}, {{7}} and {{3}}.\nThen go on to the next scale, and sing each one the same way. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, one ringed note drops a half step and the rest stay: {{#4}} to {{4}} for the major scale, {{7}} to {{b7}} for Mixolydian, {{3}} to {{b3}} for Dorian."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "lydian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "#4",
+                "4",
+                "7",
+                "b7",
+                "3",
+                "b3"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Dorian down to Locrian",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "scale": "dorian"
+            },
+            {
+              "scale": "natural-minor-aeolian"
+            },
+            {
+              "scale": "phrygian"
+            },
+            {
+              "scale": "locrian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This is Dorian again, where the last block ended. Sing the scale up from the low {{1}} to the next {{1}} and back down, on \"oo\". The three ringed notes are the ones that move now: {{6}}, {{2}} and {{5}}.\nThen go on to the next scale, and sing each one the same way. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, one ringed note drops a half step and the rest stay: {{6}} to {{b6}} for the natural minor scale, {{2}} to {{b2}} for Phrygian, {{5}} to {{b5}} for Locrian."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "6",
+                "b6",
+                "2",
+                "b2",
+                "5",
+                "b5"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One phrase, four modes",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "scale": "lydian"
+            },
+            {
+              "scale": "mixolydian"
+            },
+            {
+              "scale": "phrygian"
+            },
+            {
+              "scale": "locrian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The drone is on a new {{1}} now, and the scale is Lydian. Make up a short phrase that climbs from the low {{1}} towards the next {{1}} and comes back to end on {{1}}, and sing it on \"la\".\nOnce you can sing the phrase the same way twice, sing it in another mode. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, the drone and {{1}} stay, and the phrase keeps its shape while some of its notes move a half step."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "lydian",
+              "key": "e",
+              "voice": "tenor",
+              "highlight": [
+                "1"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/lydian/d",
+      "/theory/scales/locrian/d"
+    ]
+  }
+}

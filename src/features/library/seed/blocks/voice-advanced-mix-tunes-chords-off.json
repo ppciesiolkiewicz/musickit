@@ -1,0 +1,149 @@
+{
+  "id": "voice-advanced-mix-tunes-chords-off",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "tunes:6"
+  ],
+  "note": "Track tunes (voice-melodies), step 6: mix of every difficulty with the chords off, four tunes alone, Expert, Easy, Hard and Medium in that order with no word on which is which: Do found from the last note, one sung before it is heard, one in three keys, one from memory.",
+  "exercise": {
+    "title": "Tunes of every difficulty, chords off",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "With the chords off the tune is the only sound, so you find home from the tune itself: every tune in the book ends on Do, and its first note is a set distance from that ending.",
+    "learnBefore": [
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Home from the last note",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The four tunes in this exercise are of every difficulty, in no order, and the chords are off, so only the tune tells you where Do is.\nTap the last note of the tune below to hear Do. Then press Play below to hear the tune alone: the mic starts with it. Listen once, then sing along on \"la\".\nIf you lose Do in the middle, hum the last note again, then sing along from the start."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "sixths",
+                "index": 3
+              },
+              "key": "g",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Sing it before you hear it",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the last note of this tune below to hear Do, and no other note. Then sing the tune on \"la\" from the staff before you hear it.\nPress Play below to check it against the tune: the mic starts with it, so sing along the second time.\nIf your tune and the tune you hear part ways, tap the note where they did, then sing on from there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "under",
+                "index": 1
+              },
+              "key": "b-flat",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Hum Do, then start",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "f"
+            },
+            {
+              "key": "g"
+            },
+            {
+              "key": "e-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune alone: the mic starts with it. Listen once, and hum its last note, Do, when the tune stops. Then sing along on \"la\", and take the top notes on \"oo\".\nOnce your first note is right without the hum, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, Do moves and the first note is still the same distance from it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "hard",
+                "stage": "ti",
+                "index": 2
+              },
+              "key": "f",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From memory",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune alone, and only listen the first time. Then press Stop below and sing the tune on \"la\" from memory.\nPress Play again and sing along, to check what you kept.\nIf Do moved while you sang alone, tap the last note and start again from there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "skips",
+                "index": 3
+              },
+              "key": "a",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

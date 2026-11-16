@@ -1,0 +1,180 @@
+{
+  "id": "guitar-advanced-mix-modes-one-root",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "major-on-neck:8"
+  ],
+  "note": "Track major-on-neck (guitar-scales), step 8: the modes together from the root A, in one position over a drone: Lydian, major, Mixolydian and Dorian, then Dorian, natural minor, Phrygian and Locrian, one note lowered at each change, then Mixolydian into Dorian while improvising. missing: a highlight that follows the Scale selector, so the rings are set once per block as the notes that differ from the major (or natural minor) scale.",
+  "exercise": {
+    "title": "The modes from one root",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "theory",
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "From one root, each mode is the one before it with a single note lowered by a fret, so playing them in that order in the same place on the neck puts the changed note under your finger and against the drone.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/lydian-locrian"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Lydian down to Dorian",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "scale": "lydian"
+            },
+            {
+              "scale": "major-ionian"
+            },
+            {
+              "scale": "mixolydian"
+            },
+            {
+              "scale": "dorian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on A. Play the scale on the neck below up and back down, and hold each ringed note for a moment against the drone.\nThen go on to the next scale. Use the Scale selector below to change the scale, then press Play to start the drone again.\nWhen you change the scale, one note drops by a fret and the rest stay. The ringed notes are the ones that differ from the major scale: {{#4}} in Lydian, {{b7}} in Mixolydian, {{b7}} and {{b3}} in Dorian."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "drone": "always",
+                "click": "off"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "lydian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "#4",
+                "b7",
+                "b3"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Dorian down to Locrian",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "scale": "dorian"
+            },
+            {
+              "scale": "natural-minor-aeolian"
+            },
+            {
+              "scale": "phrygian"
+            },
+            {
+              "scale": "locrian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on A. Play each scale up and back down as before, and say the name of the ringed note as you hold it.\nUse the Scale selector below to change the scale, then press Play to start the drone again.\nWhen you change the scale, one note drops by a fret again. The ringed notes are now the ones that differ from the natural minor scale: {{6}} in Dorian, {{b2}} in Phrygian, {{b2}} and {{b5}} in Locrian."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "drone": "always",
+                "click": "off"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "6",
+                "b2",
+                "b5"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Mixolydian into Dorian",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Improvise in A Mixolydian for four bars, then in A Dorian for four, and play the note that changes as soon as the scale does.\nWhen the scale changes, only {{3}} moves, down to {{b3}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "a",
+                  "scale": "mixolydian"
+                },
+                "b": {
+                  "key": "a",
+                  "scale": "dorian"
+                },
+                "bars": 8
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/9/modes-over-drone"
+    ]
+  }
+}

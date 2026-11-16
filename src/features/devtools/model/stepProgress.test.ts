@@ -15,7 +15,7 @@ test("an exercise's step is read from its tools: the level kept on a tool, the s
   assert.equal(stepOf("spider", [tool({ type: "finger-pattern", level: "new" }), tool({ type: "finger-pattern", level: "beginner" })]), "1");
   assert.equal(stepOf("spider", [tool({ type: "finger-pattern", fingers: "1234" }), tool({ type: "legato-trill", level: "new" })]), null);
   assert.equal(stepOf("breath", [tool({ type: "breathwork", drill: "box", level: "new" })]), null);
-  assert.equal(stepOf("intervals", [tool({ type: "interval-ears", query: "", level: "advanced" })]), "4");
+  assert.equal(stepOf("intervals", [tool({ type: "interval-ears", query: "", level: "advanced" })]), "5");
   assert.equal(stepOf("steps-to-leaps", [tool({ type: "melody-singer", tune: 1, key: 0 })]), "0");
   assert.equal(stepOf("caged", [tool({ type: "finger-pattern", level: "new" })]), null);
 });

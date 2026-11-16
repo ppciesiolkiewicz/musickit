@@ -1,0 +1,170 @@
+{
+  "id": "guitar-beginner-mix-seven-open-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "open-chords:6"
+  ],
+  "note": "Track open-chords (guitar-basic-chords), step 6: all seven open chords together: the shapes from memory, three rounds of seven bars that between them meet every pair of the seven once, then a counted change the player picks. strum-along holds 16 chords at most, so the 21 changes are three rounds, not one.",
+  "exercise": {
+    "title": "Seven open chords, any change",
+    "minutes": 10,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords"
+    ],
+    "why": "Seven chords make twenty-one different changes and each one is its own move, so three rounds that between them meet every pair once show which changes still need work.",
+    "learnBefore": [
+      "/course/2/c-d-g",
+      "/course/2/one-minute-changes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Seven shapes from memory",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it. Fret each of the seven chords in turn, and look at its chord box only after your fingers are down.\nKeep going until every shape lands without a look."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Em",
+                "Am",
+                "E",
+                "A",
+                "D",
+                "G",
+                "C"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Seven changes",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on beats 1 and 2, then use the rest of the bar to move to the next chord.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "C",
+                "D",
+                "Em",
+                "Am",
+                "E",
+                "A"
+              ],
+              "bpm": 60,
+              "pattern": "D D . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A new order",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The seven chords come in a new order, so every change in this round is one you have not played yet.\nNotice which change makes you look at your hand."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "D",
+                "Am",
+                "A",
+                "C",
+                "Em",
+                "E"
+              ],
+              "bpm": 60,
+              "pattern": "D D . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The last seven changes",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. This third order holds the changes the first two rounds left out, so after it every chord has met each of the others once.\nKeep going until no change in the round comes later than the rest."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "A",
+                "D",
+                "E",
+                "C",
+                "Am"
+              ],
+              "bpm": 60,
+              "pattern": "D D . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Count one slow change",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Pick the change that came late most often in the three rounds. Change back and forth between its two chords with one strum each, as in one-minute changes, and count the changes for about a minute.\nPress a chord box below when you want to check a shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "C",
+                "D",
+                "Em",
+                "Am",
+                "E",
+                "A"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

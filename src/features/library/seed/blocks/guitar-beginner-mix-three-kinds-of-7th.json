@@ -1,0 +1,138 @@
+{
+  "id": "guitar-beginner-mix-three-kinds-of-7th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "seventh-shapes:3"
+  ],
+  "note": "Track seventh-shapes (guitar-extended-chords), step 3: open dominant, minor and major 7ths together: a 7th and a minor 7th on the same root, a four-bar round in C with all three kinds, the round grown to eight bars with Em7 and A7, then over drums and bass.",
+  "exercise": {
+    "title": "Three kinds of 7th in one round",
+    "minutes": 10,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "ear"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "A 7th chord and the minor 7th chord on the same root differ by one note, so playing them back to back, and then all three kinds in one round, trains your ear to tell them apart while your hands change.",
+    "learnBefore": [
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One root, two 7ths",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it. Play each pair, the 7th chord and then the minor 7th chord with the same letter, and listen for the one note that drops.\nKeep going until you can tell which of the two is ringing without looking at your hand."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "A7",
+                "Am7",
+                "D7",
+                "Dm7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Four chords in C",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nThe four bars hold a major 7th chord, two minor 7th chords and a 7th chord. Say the kind of each chord as you land on it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Cmaj7",
+                "Am7",
+                "Dm7",
+                "G7"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Eight bars, six shapes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The round is now eight bars: the second half starts on Em7 and goes through A7 instead of Cmaj7 and Am7.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Cmaj7",
+                "Am7",
+                "Dm7",
+                "G7",
+                "Em7",
+                "A7",
+                "Dm7",
+                "G7"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over the band",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass on Cmaj7, Am7, Dm7 and G7, a bar each. Strum each chord once on beat 1 and let it ring over the bass.\nKeep going until you know the kind of the next chord before you play it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "turnaround",
+              "key": "c",
+              "style": "ballad",
+              "bpm": 66,
+              "parts": {
+                "drums": "on",
+                "bass": "always"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/7/hearing-sevenths"
+    ]
+  }
+}

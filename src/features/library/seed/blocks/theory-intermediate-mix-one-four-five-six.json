@@ -1,0 +1,146 @@
+{
+  "id": "theory-intermediate-mix-one-four-five-six",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "hearing-changes:4"
+  ],
+  "note": "Track hearing-changes (theory-ear), step 4: the 1, 4, 5 and 6 mixed, in a new order, then with chords held for two bars, then in three new keys. Missing: backing-track cannot hide its chord boxes (the text asks the player to look away) and plays a fixed order, not a new one each round.",
+  "exercise": {
+    "title": "1, 4, 5 and 6 in any order",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "hearing-changes"
+    ],
+    "why": "Each chord of a key keeps its own distance from home, so the 4, the 5 and the 6 sound the same in any order and in any key once you hear them against the 1.",
+    "learnBefore": [
+      "/course/5/one-four-five"
+    ],
+    "exploreMore": [
+      "/course/5/hearing-changes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A new order",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: the 1, 4, 5 and 6 of one key, in a new order. Look away from the chord boxes and call out the number on each change, then look at the lit box to check.\nIf you lose your place, wait for the 1 and start again from there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "I",
+                "vi",
+                "IV",
+                "V",
+                "IV",
+                "I",
+                "vi",
+                "V"
+              ],
+              "style": "pop",
+              "bpm": 76
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Chords that stay longer",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: a longer round, and some chords stay for two bars, so you can't count your way to the next change. Look away and call out the number only when you hear the chord move, then look to check.\nKeep going until you can name a chord before its bar is over."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "I",
+                "I",
+                "vi",
+                "IV",
+                "V",
+                "V",
+                "I",
+                "vi",
+                "IV",
+                "IV",
+                "V",
+                "vi",
+                "IV",
+                "V",
+                "I",
+                "I"
+              ],
+              "style": "rock",
+              "bpm": 88
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A new key",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "e"
+            },
+            {
+              "key": "b-flat"
+            },
+            {
+              "key": "a"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band, in a new key. Listen to the first chord, the 1, then look away and call out the numbers.\nOnce the number comes as each chord starts, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but each number sits at the same distance from home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "e",
+              "numerals": [
+                "I",
+                "V",
+                "vi",
+                "IV",
+                "IV",
+                "vi",
+                "V",
+                "I"
+              ],
+              "style": "pop",
+              "bpm": 76
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

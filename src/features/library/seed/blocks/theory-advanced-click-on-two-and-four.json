@@ -7,9 +7,9 @@
     "teaching": 5
   },
   "steps": [
-    "beat:6"
+    "beat:7"
   ],
-  "note": "Track beat (theory-basics), step 6: the metronome heard as beats 2 and 4. Missing: a metronome that sounds only beats 2 and 4 of a set tempo and shows the bar; the block uses a plain click at half the tempo and the count is the player's own.",
+  "note": "Track beat (theory-basics), step 7: the metronome heard as beats 2 and 4. Missing: a metronome that sounds only beats 2 and 4 of a set tempo and shows the bar; the block uses a plain click at half the tempo and the count is the player's own.",
   "exercise": {
     "title": "The metronome on 2 and 4",
     "minutes": 8,

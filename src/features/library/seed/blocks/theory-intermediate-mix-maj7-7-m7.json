@@ -1,0 +1,109 @@
+{
+  "id": "theory-intermediate-mix-maj7-7-m7",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "sevenths-up:5"
+  ],
+  "note": "Track sevenths-up (theory-building-chords), step 5: maj7, 7 and m7 on one root, one note moved at a time on the staff, then as three chords on A, then named by ear among the triads. Missing: interval-ears \"kind\": \"chord\" can't be narrowed to the three 7th chords or kept on one root, so the game asks all five of its chords from any root.",
+  "exercise": {
+    "title": "maj7, 7 or m7 on one root",
+    "minutes": 7,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sevenths-up"
+    ],
+    "why": "From maj7 to 7 only the 7th drops a half step, and from 7 to m7 only the 3rd does, so two notes tell the three chords apart.",
+    "learnBefore": [
+      "/course/7/sevenths"
+    ],
+    "exploreMore": [
+      "/course/7/hearing-sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One note moves each time",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap {{1}} {{3}} {{5}} {{7}} on the staff below: Amaj7, one note at a time. Tap it again with the ringed {{b7}} in place of {{7}}: that is A7.\nThen keep {{b7}} and tap the ringed {{b3}} in place of {{3}}: that is Am7."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "a",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "b3",
+                "3",
+                "5",
+                "b7",
+                "7"
+              ],
+              "highlight": [
+                "b3",
+                "b7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Three chords on A",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. Go from Amaj7 to A7 and listen for the 7th dropping, then from A7 to Am7 and listen for the 3rd.\nKeep going until you can name each of the three with your eyes closed."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Amaj7",
+                "A7",
+                "Am7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Name it by ear",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: it plays a chord from any root, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7 (Dominant 7 is the chord written 7, as in A7).\nAsk the same two things each time: is the 3rd major or minor, and is there a 7th on top, a half step or a whole step under the octave.\nIf you can't tell, press Replay in the game and hum the top note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "kind": "chord"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
