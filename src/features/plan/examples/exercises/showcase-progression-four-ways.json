@@ -9,11 +9,11 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "chords-in-key",
+    "chords-of-a-key",
     "hearing-changes",
-    "chords-pop-rock",
+    "styles",
     "open-chords",
-    "strumming-patterns"
+    "strumming"
   ],
   "docs": {
     "agents": 1,
@@ -32,7 +32,7 @@
     "topic": "guitar-basic-chords",
     "concepts": [
       "open-chords",
-      "strumming-patterns"
+      "strumming"
     ],
     "why": "The four chords come round in the same order every time, so each new way of playing them (roots, shapes, strumming, 3rds) trains you to hear where the next change falls.",
     "learnBefore": [

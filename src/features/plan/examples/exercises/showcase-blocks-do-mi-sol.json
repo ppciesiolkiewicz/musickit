@@ -9,8 +9,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "major-scale",
-    "guitar-melodies-beginner"
+    "scales",
+    "guitar-melodies"
   ],
   "docs": {
     "agents": 1,
@@ -28,7 +28,7 @@
     ],
     "topic": "guitar-scales",
     "concepts": [
-      "guitar-melodies-beginner"
+      "guitar-melodies"
     ],
     "why": "Do, Mi and Sol are the three notes of the C chord, so adding them one at a time shows how a tune is built from a chord you can already fret.",
     "learnBefore": [

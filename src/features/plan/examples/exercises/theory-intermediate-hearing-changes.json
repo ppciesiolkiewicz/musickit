@@ -9,7 +9,7 @@
   "model": "claude-fable-5-2",
   "concepts": [
     "hearing-changes",
-    "chords-in-key"
+    "chords-of-a-key"
   ],
   "docs": {
     "agents": 1,

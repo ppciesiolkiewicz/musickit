@@ -9,13 +9,15 @@
   "model": "claude-fable-5-2",
   "minutes": 30,
   "concepts": [
-    "joining-positions",
-    "five-pentatonic-boxes",
+    "pentatonic-positions",
     "bends-slides",
-    "hammer-pull",
-    "sus-add9-shapes",
-    "arpeggios-position",
-    "guitar-melodies-intermediate"
+    "legato",
+    "sus-add9",
+    "arpeggios",
+    "guitar-melodies",
+    "picking",
+    "notes-on-neck",
+    "spider"
   ],
   "docs": {
     "agents": 1,
@@ -40,7 +42,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "hammer-pull"
+              "legato"
             ],
             "why": "A hammer-on sounds a note with the fretting finger alone, so a trill trains that finger to land hard and in time without help from the pick.",
             "learnBefore": [
@@ -94,7 +96,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "sus-add9-shapes"
+              "sus-add9"
             ],
             "why": "A sus chord swaps the 3rd of the chord for the note next to it, so one finger lifting or landing turns a plain D into a moving part.",
             "learnBefore": [
@@ -160,8 +162,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions",
-              "five-pentatonic-boxes"
+              "pentatonic-positions"
             ],
             "why": "Position 2 starts on the notes where position 1 ends, so one slide along one string carries a phrase from the first into the second.",
             "learnBefore": [
@@ -282,7 +283,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions"
+              "pentatonic-positions"
             ],
             "why": "A slide in the middle of a phrase hides the change of position, so a solo is the place to make the join part of the music.",
             "learnBefore": [
@@ -384,6 +385,9 @@
               "technique"
             ],
             "topic": "guitar-techniques",
+            "concepts": [
+              "picking"
+            ],
             "why": "Picking down then up plays two notes with one swing of the hand, so the hand can go faster without working harder.",
             "learnBefore": [
               "/course/1/spider"
@@ -435,7 +439,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "sus-add9-shapes"
+              "sus-add9"
             ],
             "why": "Cadd9 adds one note to C and Dsus4 swaps one note of D, so both sound like the plain chord with a new colour on top.",
             "learnBefore": [
@@ -597,7 +601,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions"
+              "pentatonic-positions"
             ],
             "why": "A bend held over a slow band has time to be heard, so one bend per phrase trains you to aim it and wait on it.",
             "learnBefore": [
@@ -685,7 +689,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "hammer-pull"
+              "legato"
             ],
             "why": "Fingers 2 and 4 are the pair that hammers least in everyday playing, so a trill on those two alone is the quickest way to even them out.",
             "learnBefore": [
@@ -739,7 +743,7 @@
             ],
             "topic": "guitar-caged",
             "concepts": [
-              "arpeggios-position"
+              "arpeggios"
             ],
             "why": "The 3rd is the note that makes a chord major or minor, so landing on it as the chord changes lets a single line say which chord is playing.",
             "learnBefore": [
@@ -879,8 +883,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions",
-              "five-pentatonic-boxes"
+              "pentatonic-positions"
             ],
             "why": "Every position ends on the notes the next one starts with, so the slide that joined positions 1 and 2 joins 2 and 3 as well, two notes further up the string.",
             "learnBefore": [
@@ -1000,7 +1003,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions"
+              "pentatonic-positions"
             ],
             "why": "A solo that climbs sounds like it is going somewhere, so moving up a position every few bars gives your phrases a shape.",
             "learnBefore": [
@@ -1100,6 +1103,9 @@
               "theory"
             ],
             "topic": "guitar-scales",
+            "concepts": [
+              "notes-on-neck"
+            ],
             "why": "A position is easier to move when you know the name of the note it starts on, so naming notes up the neck is what lets you put any shape in any key.",
             "learnBefore": [
               "/course/8/every-note"
@@ -1130,7 +1136,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "sus-add9-shapes"
+              "sus-add9"
             ],
             "why": "A sus chord wants to go back to the plain chord, so placing it just before a change makes the change sound like an arrival.",
             "learnBefore": [
@@ -1212,7 +1218,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "hammer-pull"
+              "legato"
             ],
             "why": "Every string in a pentatonic position has two notes, so each string can be one picked note and one hammered or pulled note.",
             "learnBefore": [
@@ -1278,7 +1284,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "guitar-melodies-intermediate"
+              "guitar-melodies"
             ],
             "why": "A tune is a pattern of steps from Do, so once your ear knows it at a slow tempo, a faster tempo or a new key changes the frets but not the tune.",
             "learnBefore": [
@@ -1374,6 +1380,9 @@
               "technique"
             ],
             "topic": "guitar-techniques",
+            "concepts": [
+              "spider"
+            ],
             "why": "Fingers 2 and 3 like to move together, so a pattern that sends them one after the other in the wrong order teaches each to move alone.",
             "learnBefore": [
               "/course/1/spider"
@@ -1426,7 +1435,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "sus-add9-shapes"
+              "sus-add9"
             ],
             "why": "In sixteenths the hand never stops, so there is no gap to change chords in: the fingers move during the last up stroke and land on beat 1.",
             "learnBefore": [
@@ -1485,8 +1494,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions",
-              "five-pentatonic-boxes"
+              "pentatonic-positions"
             ],
             "why": "A position is a shape counted from its root, so moving the root from A down to G moves all five positions two frets lower, with the joins between them unchanged.",
             "learnBefore": [
@@ -1610,7 +1618,7 @@
             ],
             "topic": "guitar-caged",
             "concepts": [
-              "arpeggios-position"
+              "arpeggios"
             ],
             "why": "The notes of Gm are three of the five notes of G minor pentatonic, so the arpeggio is already inside the position: leave two notes out.",
             "learnBefore": [
@@ -1667,7 +1675,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions"
+              "pentatonic-positions"
             ],
             "why": "Chord notes sound settled and the others sound on the way somewhere, so ending a phrase on a note of the chord makes it sound finished.",
             "learnBefore": [
@@ -1775,7 +1783,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "string-skipping"
+              "picking"
             ],
             "why": "Skipping a string makes the pick travel twice as far between notes, so it trains the aim that wide phrases across the positions need.",
             "learnBefore": [
@@ -1829,7 +1837,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "sus-add9-shapes"
+              "sus-add9"
             ],
             "why": "Dsus2 and Dm7 share their two lowest notes, so moving from one to the other changes only the top of the chord.",
             "learnBefore": [
@@ -1990,7 +1998,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "guitar-melodies-intermediate"
+              "guitar-melodies"
             ],
             "why": "A tune you can play without the tab is one your ear is leading, so the drone replaces the screen and tells you when you are home.",
             "learnBefore": [
@@ -2076,7 +2084,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "hammer-pull"
+              "legato"
             ],
             "why": "The same trill at a faster tempo than on day 1 is the plainest way to feel what a week of hammering has done.",
             "learnBefore": [
@@ -2144,7 +2152,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "sus-add9-shapes"
+              "sus-add9"
             ],
             "why": "With no keyboard in the band your guitar is the only thing playing the chords, so the drums and bass show at once whether your changes land on beat 1.",
             "learnBefore": [
@@ -2219,8 +2227,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions",
-              "five-pentatonic-boxes"
+              "pentatonic-positions"
             ],
             "why": "A minor and G minor pentatonic share three of their five notes, so in the same frets the shape changes and your hand has to know which root it is playing from.",
             "learnBefore": [
@@ -2328,7 +2335,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "joining-positions"
+              "pentatonic-positions"
             ],
             "why": "Each day gave you one thing to aim a phrase at (a root, a 3rd, a bend, a slide), so a solo is choosing which one each phrase goes for.",
             "learnBefore": [

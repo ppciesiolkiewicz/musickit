@@ -8,8 +8,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "chords-in-key",
-    "major-scale"
+    "chords-of-a-key",
+    "scales"
   ],
   "docs": {
     "agents": 1,
@@ -27,7 +27,7 @@
     ],
     "topic": "theory-progressions",
     "concepts": [
-      "chords-in-key"
+      "chords-of-a-key"
     ],
     "why": "Each chord is built on one note of the scale, so once you hear the root move from 1 to 4 to 5, you can name the chord that is playing.",
     "learnBefore": [

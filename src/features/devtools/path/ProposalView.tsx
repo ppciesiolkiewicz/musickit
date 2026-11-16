@@ -5,7 +5,7 @@ import { topicsFor } from "@/features/plan/intake/topics";
 import type { Area } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { wrap, type PathNode } from "../model/path";
-import { PROPOSAL, levelIndex, proposalStats, spanOf, stepAt, type ProposedStep, type Track } from "../model/proposal";
+import { PATH as PROPOSAL, levelIndex, pathStats as proposalStats, spanOf, stepAt, type PathStep as ProposedStep, type Track } from "@/features/plan/model/path";
 
 const LABEL_W = 150, COL_W = 236, HEAD_H = 30, PAD = 10, TITLE_H = 18, STEP_H = 14, ROW_GAP = 6;
 const WIDTH = LABEL_W + COL_W * LEVEL_ORDER.length;

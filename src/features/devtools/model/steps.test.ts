@@ -1,33 +1,27 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CONCEPTS } from "@/features/plan/model/concepts";
-import { LADDERS, LINKS, PLANNED, conceptSteps, spareSteps } from "./steps";
+import type { PlanTool } from "@/features/plan/model/tools";
+import { conceptSteps, hasLadder, spareSteps, stepOf } from "./steps";
 
-const ids = new Set(CONCEPTS.map((c) => c.id));
-
-test("every link and planned list names a real concept, a real ladder and real step keys", () => {
-  for (const id of [...Object.keys(LINKS), ...Object.keys(PLANNED)]) assert.ok(ids.has(id), id);
-  for (const [id, link] of Object.entries(LINKS)) {
-    const ladder = LADDERS.find((l) => l.id === link.ladder);
-    assert.ok(ladder, `${id}: ${link.ladder}`);
-    for (const key of link.only ?? []) assert.ok(ladder.steps.some((s) => s.key === key), `${id}: ${key}`);
-  }
-});
-
-test("a concept's steps are its ladder's in ladder order, then the planned ones marked so", () => {
+test("a concept's steps are its track's, in order; a ladder step has a key, the others are planned", () => {
   const steps = conceptSteps();
-  assert.deepEqual(steps["singing-intervals"].steps.map((s) => [s.name, s.planned]), [["new", false], ["beginner", false], ["intermediate", false], ["advanced", false]]);
-  assert.equal(steps["singing-intervals"].steps[0].holds, "major 3rd, perfect 5th; up");
-  assert.match(steps["singing-intervals"].from!, /levels\.ts/);
-  assert.deepEqual(steps["notes-e-a-strings"].steps.map((s) => s.name), ["new", "beginner"]);
-  assert.ok(steps.caged.steps.every((s) => s.planned));
+  const notes = steps["notes-on-neck"];
+  assert.deepEqual(notes.steps.map((s) => [s.key, s.planned, s.level]), [["0", false, "new"], ["1", false, "beginner"], ["2", false, "intermediate"], ["3", false, "advanced"]]);
+  assert.match(notes.from!, /levels\.ts/);
+  assert.ok(steps.caged.steps.every((s) => s.planned && s.key === undefined));
   assert.equal(steps.caged.from, undefined);
+  assert.deepEqual(steps.caged.steps[0].after, ["barre:3"]);
 });
 
-test("spare steps are the ladder steps no concept takes; a ladder shared out whole is not listed", () => {
+test("stepOf gives the step's key; hasLadder says whether any step can be read", () => {
+  assert.equal(stepOf("notes-on-neck", [{ type: "note-finder", level: "beginner" } as unknown as PlanTool]), "1");
+  assert.equal(stepOf("caged", [{ type: "note-finder", level: "beginner" } as unknown as PlanTool]), null);
+  assert.ok(hasLadder("notes-on-neck"));
+  assert.ok(!hasLadder("caged"));
+});
+
+test("spare steps are the ladder steps no step of the path stands for", () => {
   const spare = spareSteps();
-  assert.ok(!spare.some((s) => s.ladder.id === "note-finder" || s.ladder.id === "interval-singer"));
-  assert.equal(spare.find((s) => s.ladder.id === "picking-drill")!.steps.length, 4);
-  const melody = spare.find((s) => s.ladder.id === "melody-stages")!.steps.map((s) => s.name);
-  assert.ok(melody.includes("Sol La Sol") && !melody.includes("Do Mi Sol"));
+  assert.ok(!spare.some((s) => s.ladder.id === "note-finder"));
+  for (const s of spare) assert.ok(s.steps.length > 0, s.ladder.id);
 });

@@ -8,9 +8,9 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "leaps",
-    "in-tune-over-drone",
-    "improvise-melody"
+    "steps-to-leaps",
+    "pitch",
+    "improvise"
   ],
   "docs": {
     "agents": 1,
@@ -28,7 +28,7 @@
     ],
     "topic": "voice-intervals",
     "concepts": [
-      "leaps"
+      "steps-to-leaps"
     ],
     "why": "A leap lands in tune when you hear the landing note before you sing it, so every block is the same job in a new scale: hear it, then leap.",
     "learnBefore": [

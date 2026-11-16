@@ -1,5 +1,5 @@
 import { TOPICS } from "@/features/plan/intake/topics";
-import { CONCEPTS } from "@/features/plan/model/concepts";
+import { CONCEPTS, conceptId } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER, outcome, type Outcome, type OutcomeInput } from "@/features/plan/model/outcome";
 import { localDate } from "@/features/plan/model/schedule";
 import type { PlanState } from "@/features/plan/model/types";
@@ -49,7 +49,7 @@ export const findPlans = (d: Deps, scope: Scope, filter: PlanFilter, limit?: num
 
 export const getPlan = (d: Deps, scope: Scope, id: string, withReply = false): Promise<PlanDetail | null> => d.library.getPlan(scope, id, withReply);
 
-/** A row for every topic and level and every concept, zeros where the library has none; rows for ids the catalogue lacks come after. */
+/** A row for every topic and level and every concept, zeros where the library has none; rows for ids the catalogue lacks come after. An old concept id counts for its track. */
 export async function libraryCoverage(d: Deps, scope: Scope): Promise<{ topics: CoverageRow[]; concepts: ConceptCoverage[] }> {
   const got = await d.library.coverage(scope);
   const key = (t: string, l: string) => `${t}\u0000${l}`;
@@ -63,10 +63,16 @@ export async function libraryCoverage(d: Deps, scope: Scope): Promise<{ topics: 
     }
   }
   topics.push(...got.topics.filter((r) => !seen.has(key(r.topic, r.level))));
-  const byConcept = new Map(got.concepts.map((r) => [r.concept, r]));
+  // a block stored before the path names its old concepts: their counts go to the track that took their place
+  const byConcept = new Map<string, ConceptCoverage>();
+  for (const r of got.concepts) {
+    const id = conceptId(r.concept) ?? r.concept;
+    const at = byConcept.get(id);
+    byConcept.set(id, at ? { concept: id, blocks: at.blocks + r.blocks, plans: Math.max(at.plans, r.plans), times: at.times + r.times, seconds: at.seconds + r.seconds } : { ...r, concept: id });
+  }
   const known = new Set(CONCEPTS.map((c) => c.id));
   const concepts: ConceptCoverage[] = CONCEPTS.map((c) => byConcept.get(c.id) ?? { concept: c.id, blocks: 0, plans: 0, times: 0, seconds: 0 });
-  concepts.push(...got.concepts.filter((r) => !known.has(r.concept)));
+  concepts.push(...[...byConcept.values()].filter((r) => !known.has(r.concept)));
   return { topics, concepts };
 }
 

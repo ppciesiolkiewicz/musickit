@@ -8,8 +8,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "do-as-home",
-    "major-vs-minor"
+    "home-and-colour"
   ],
   "docs": {
     "agents": 0,
@@ -27,8 +26,7 @@
     ],
     "topic": "theory-ear",
     "concepts": [
-      "do-as-home",
-      "major-vs-minor"
+      "home-and-colour"
     ],
     "why": "Do is the note a tune comes to rest on, and the 3rd above it decides major or minor, so these two sounds are the ones to learn by ear first.",
     "learnBefore": [

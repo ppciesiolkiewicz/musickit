@@ -6,9 +6,10 @@ import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { conceptSteps, type ConceptStep, type ConceptSteps } from "./steps";
 
 /*
- * The learning path as it is in the code today, shaped for the diagram on /dev/path: an area's topics as lanes, the
- * four levels as columns, each concept in its cell, and an arrow for every `buildsOn`. Nothing here is written by
- * hand: it reads CONCEPTS, TOPICS, the course and the example library.
+ * The learning path (plan/model/path.ts), shaped for the diagram on /dev/path: an area's topics as lanes, the four
+ * levels as columns, each concept in the cell of its first step and spanning to its last, and an arrow for every
+ * concept a step of it names to learn first (`after`). Nothing here is written by hand: it reads CONCEPTS, TOPICS, the
+ * course and the example library.
  */
 
 /** What the path is drawn from; the real catalogue unless a test hands in its own. */
@@ -36,9 +37,11 @@ export interface PathNode {
   label: string;
   area: Area;
   topic: string;
-  /** 0 to 3: the index in LEVEL_ORDER, and the column */
+  /** 0 to 3: the index in LEVEL_ORDER of its first step, and the column */
   level: number;
-  /** concepts to know first, in any area */
+  /** the index of its last step's level: the node spans from `level` to here */
+  to: number;
+  /** concepts a step of it names to learn first (`after`), in any area */
   buildsOn: string[];
   /** concepts that name this one in their `buildsOn` */
   leadsTo: string[];
@@ -77,8 +80,8 @@ export function pathNodes(src: PathSource = pathSource()): Map<string, PathNode>
   const tagged = (list: PathSource["exercises"], id: string) => list.filter((e) => e.concepts.includes(id)).map((e) => e.id);
   for (const c of src.concepts) {
     nodes.set(c.id, {
-      id: c.id, label: c.label, area: c.area, topic: c.topic, level: LEVEL_ORDER.indexOf(c.level),
-      buildsOn: (c.buildsOn ?? []).filter((id) => src.concepts.some((x) => x.id === id)),
+      id: c.id, label: c.label, area: c.area, topic: c.topic, level: LEVEL_ORDER.indexOf(c.level), to: LEVEL_ORDER.indexOf(c.levels[c.levels.length - 1]),
+      buildsOn: [...new Set(c.steps.flatMap((s) => (s.after ?? []).map((ref) => ref.split(":")[0])))].filter((id) => id !== c.id && src.concepts.some((x) => x.id === id)),
       leadsTo: [],
       course: c.course,
       courseState: !c.course ? "none" : src.written.has(c.course) ? "written" : "planned",

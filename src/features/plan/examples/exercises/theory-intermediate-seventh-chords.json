@@ -8,7 +8,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "seventh-chords"
+    "sevenths-up"
   ],
   "docs": {
     "agents": 0,
@@ -26,7 +26,7 @@
     ],
     "topic": "theory-building-chords",
     "concepts": [
-      "seventh-chords"
+      "sevenths-up"
     ],
     "why": "The three chords share a root and each differs from the next by one note, so when you can hear which note moved, you can name the chord.",
     "learnBefore": [

@@ -8,9 +8,9 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "do-mi-sol-skips",
-    "in-tune-over-drone",
-    "voice-melodies-easy"
+    "steps-to-leaps",
+    "pitch",
+    "tunes"
   ],
   "docs": {
     "agents": 1,
@@ -27,7 +27,7 @@
     ],
     "topic": "voice-intervals",
     "concepts": [
-      "do-mi-sol-skips"
+      "steps-to-leaps"
     ],
     "why": "Do, Mi and Sol are the three notes of the home chord, so the same skips come back in tune after tune: learn how they sound once and you can sing them in any key.",
     "learnBefore": [

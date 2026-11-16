@@ -16,9 +16,9 @@ Each file is the content exactly as the AI returns it, wrapped in metadata:
 
 ```json
 { "id": "guitar-beginner-pentatonic-box1", "kind": "exercise", "areas": ["guitar"], "level": "beginner",
-  "concepts": ["pentatonic-box-1"], "note": "Why this is a good example, in one or two sentences.",
+  "concepts": ["pentatonic-positions"], "note": "Why this is a good example, in one or two sentences.",
   "exercise": { "title": "…", "minutes": 10, "level": "beginner", "area": "guitar", "tags": ["technique"],
-                "topic": "guitar-scales", "concepts": ["pentatonic-box-1"], "choice": { … }, "cells": [ … ] } }
+                "topic": "guitar-scales", "concepts": ["pentatonic-positions"], "choice": { … }, "cells": [ … ] } }
 ```
 
 - `updated` is the day the example was last written or rewritten (`YYYY-MM-DD`), and `model` the API id of the model

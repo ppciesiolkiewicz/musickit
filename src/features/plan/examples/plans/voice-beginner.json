@@ -9,11 +9,10 @@
   "model": "claude-fable-5",
   "minutes": 17,
   "concepts": [
-    "in-tune-over-drone",
-    "do-mi-sol-skips",
-    "do-re-mi-steps",
-    "voice-melodies-easy",
-    "breath-holding-note",
+    "pitch",
+    "steps-to-leaps",
+    "tunes",
+    "breath",
     "singing-intervals"
   ],
   "docs": {
@@ -39,7 +38,7 @@
             ],
             "topic": "voice-pitch",
             "concepts": [
-              "in-tune-over-drone"
+              "pitch"
             ],
             "why": "In tune with the drone sounds smooth and off sounds like a wobble, so the drone lets you check yourself with no one listening.",
             "learnBefore": [
@@ -77,8 +76,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-re-mi-steps",
-              "do-mi-sol-skips"
+              "steps-to-leaps"
             ],
             "why": "Melodies move by steps and skips, so hearing which is which tells you where the next note is before you sing it.",
             "learnBefore": [
@@ -113,7 +111,7 @@
             ],
             "topic": "voice-melodies",
             "concepts": [
-              "voice-melodies-easy"
+              "tunes"
             ],
             "why": "Step tunes use notes right next to each other, so they train your voice to move one note at a time and stay in tune.",
             "learnBefore": [
@@ -221,7 +219,7 @@
             ],
             "topic": "voice-pitch",
             "concepts": [
-              "in-tune-over-drone"
+              "pitch"
             ],
             "why": "Humming keeps the sound small and easy to tune, so opening to \"oo\" from a hum carries the in-tune note with it.",
             "learnBefore": [
@@ -259,7 +257,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-mi-sol-skips"
+              "steps-to-leaps"
             ],
             "why": "Mi and Sol are the two notes a skip from Do usually lands on, and a minor 3rd sits a half step under Mi, so telling the three apart is half of singing a skip in tune.",
             "learnBefore": [
@@ -295,7 +293,7 @@
             ],
             "topic": "voice-melodies",
             "concepts": [
-              "voice-melodies-easy"
+              "tunes"
             ],
             "why": "A skip lands on a chord note, so a tune that skips is really the chord sung one note at a time.",
             "learnBefore": [
@@ -396,7 +394,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "A note stays steady when the air under it does, so pace your breath first and then hold one note on the same slow air.",
             "learnBefore": [
@@ -453,7 +451,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-mi-sol-skips",
+              "steps-to-leaps",
               "singing-intervals"
             ],
             "why": "La sits one step above Sol, so hearing the two apart is what lets you sing the step between them.",
@@ -490,7 +488,7 @@
             ],
             "topic": "voice-melodies",
             "concepts": [
-              "voice-melodies-easy"
+              "tunes"
             ],
             "why": "La is the step above Sol that tunes lean on and fall back from, so a tune on the two is the first move away from the chord.",
             "learnBefore": [
@@ -592,7 +590,7 @@
             ],
             "topic": "voice-pitch",
             "concepts": [
-              "in-tune-over-drone"
+              "pitch"
             ],
             "why": "A slow slide passes through every pitch on the way, so it shows your voice the whole distance it needs to skip.",
             "learnBefore": [
@@ -630,7 +628,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-mi-sol-skips"
+              "steps-to-leaps"
             ],
             "why": "In a falling skip the top note comes first, so your ear has to find the lower note with no Do sounding under it.",
             "learnBefore": [
@@ -666,7 +664,7 @@
             ],
             "topic": "voice-melodies",
             "concepts": [
-              "voice-melodies-easy"
+              "tunes"
             ],
             "why": "Tunes often dip below Do and come home, so singing under it makes Do feel like home from both sides.",
             "learnBefore": [
@@ -784,7 +782,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-mi-sol-skips"
+              "steps-to-leaps"
             ],
             "why": "Do Mi Sol is two skips of a fixed size, so it sounds the same from any Do, and moving it trains your ear on the shape and not on the notes.",
             "learnBefore": [
@@ -823,8 +821,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-re-mi-steps",
-              "do-mi-sol-skips"
+              "steps-to-leaps"
             ],
             "why": "Real tunes mix steps and skips, so hearing them mixed is closer to singing a song than hearing them alone.",
             "learnBefore": [
@@ -862,7 +859,7 @@
             ],
             "topic": "voice-melodies",
             "concepts": [
-              "voice-melodies-easy"
+              "tunes"
             ],
             "why": "A longer tune asks for one skip after another, and making up your own afterwards shows which skips your voice finds by itself.",
             "learnBefore": [
@@ -960,7 +957,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-re-mi-steps"
+              "steps-to-leaps"
             ],
             "why": "A step up and back is the shape most tunes start with, and the metronome shows whether your voice gets to each note on time.",
             "learnBefore": [
@@ -1001,7 +998,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-mi-sol-skips",
+              "steps-to-leaps",
               "singing-intervals"
             ],
             "why": "Singing back what you hear links your ear to your voice, which is what learning a tune by ear is.",
@@ -1038,7 +1035,7 @@
             ],
             "topic": "voice-melodies",
             "concepts": [
-              "voice-melodies-easy"
+              "tunes"
             ],
             "why": "Steps and 3rds are the two moves most tunes use, so a tune of each is the week in two songs.",
             "learnBefore": [
@@ -1119,7 +1116,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "A long note shows every wobble in your pitch line, so holding Do again at the end of the week shows what your breath has learned.",
             "learnBefore": [
@@ -1157,8 +1154,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "do-re-mi-steps",
-              "do-mi-sol-skips"
+              "steps-to-leaps"
             ],
             "why": "Every interval from this week in one game shows which ones your ear now knows by itself.",
             "learnBefore": [
@@ -1196,7 +1192,7 @@
             ],
             "topic": "voice-melodies",
             "concepts": [
-              "voice-melodies-easy"
+              "tunes"
             ],
             "why": "You have sung Do, Mi and Sol over chords this week, so now you can choose them yourself.",
             "learnBefore": [

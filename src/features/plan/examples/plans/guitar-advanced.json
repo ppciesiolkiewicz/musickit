@@ -9,12 +9,13 @@
   "model": "claude-fable-5-2",
   "minutes": 30,
   "concepts": [
-    "modes-on-neck",
-    "triads-every-set",
-    "find-every-note",
-    "string-skipping",
-    "shells-comping",
-    "hammer-pull"
+    "major-on-neck",
+    "triads",
+    "notes-on-neck",
+    "picking",
+    "shells",
+    "legato",
+    "spider"
   ],
   "docs": {
     "agents": 1,
@@ -39,7 +40,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "string-skipping"
+              "picking"
             ],
             "why": "Skipping a string makes the pick travel twice as far between notes, so it trains the aim that wide phrases across a position need.",
             "learnBefore": [
@@ -93,7 +94,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "shells-comping"
+              "shells"
             ],
             "why": "A 9th chord is a 7th chord with one more note on top, so D9 goes wherever D7 goes and adds a colour above it.",
             "learnBefore": [
@@ -160,7 +161,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "A Dorian and A natural minor differ by one note, the 6th, so that note is the only place the mode can be heard: find it first, then aim for it.",
             "learnBefore": [
@@ -277,7 +278,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "F♯, the 6th of A Dorian, is the 3rd of D7, so landing on it as the chord changes makes one note say both the mode and the chord.",
             "learnBefore": [
@@ -378,7 +379,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "find-every-note"
+              "notes-on-neck"
             ],
             "why": "A triad or a position starts from a note you can name, so naming notes anywhere on the neck is what lets you put either one in any key.",
             "learnBefore": [
@@ -410,7 +411,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "hammer-pull"
+              "legato"
             ],
             "why": "Fingers 3 and 4 are the pair that moves apart least freely, so a trill on those two alone is the quickest way to make each one land by itself.",
             "learnBefore": [
@@ -464,7 +465,7 @@
             ],
             "topic": "guitar-caged",
             "concepts": [
-              "triads-every-set"
+              "triads"
             ],
             "why": "A triad is three notes on three neighbouring strings, so every set of three strings holds the same chord in a new shape and a new register.",
             "learnBefore": [
@@ -876,7 +877,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "The notes of Am and D are all inside A Dorian, so the triads you just played are the places a solo over those two chords can land.",
             "learnBefore": [
@@ -1019,6 +1020,9 @@
               "technique"
             ],
             "topic": "guitar-techniques",
+            "concepts": [
+              "picking"
+            ],
             "why": "Picking down then up plays two notes with one swing of the hand, so the hand gets faster by making the swing smaller, not by working harder.",
             "learnBefore": [
               "/course/1/spider"
@@ -1070,7 +1074,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "shells-comping"
+              "shells"
             ],
             "why": "A Dorian and G major are the same seven notes, so the two chords of the Dorian vamp are also the ii and the V of G: one more chord takes them home.",
             "learnBefore": [
@@ -1138,7 +1142,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "Each position starts on the notes where the one below ends, so one slide along one string carries a line from one position into the next.",
             "learnBefore": [
@@ -1249,7 +1253,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "The 6th is in every position, so a solo can move up the neck and still land on it each time D7 comes round.",
             "learnBefore": [
@@ -1350,6 +1354,9 @@
               "technique"
             ],
             "topic": "guitar-techniques",
+            "concepts": [
+              "spider"
+            ],
             "why": "A pattern that sends finger 4 straight after finger 1 makes the hand open and close on every string, which is the move wide scale positions ask for.",
             "learnBefore": [
               "/course/1/spider"
@@ -1402,7 +1409,7 @@
             ],
             "topic": "guitar-caged",
             "concepts": [
-              "triads-every-set"
+              "triads"
             ],
             "why": "A, G and D are the I, ♭VII and IV chords of A Mixolydian, and between them the three triads hold all seven notes of the mode.",
             "learnBefore": [
@@ -1766,7 +1773,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "Mixolydian is the major scale with one note lowered, the 7th, so day 1's method works again: find the one note that differs, then aim for it.",
             "learnBefore": [
@@ -1883,7 +1890,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "G, the ♭7 of A Mixolydian, is the root of the G chord, so landing on it as G comes round puts the mode's one changed note where it sounds most at home.",
             "learnBefore": [
@@ -1997,7 +2004,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "hammer-pull"
+              "legato"
             ],
             "why": "A pulled-off note is sounded by the finger leaving the string, so a trill is only even when the pull is as firm as the hammer.",
             "learnBefore": [
@@ -2051,7 +2058,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "shells-comping"
+              "shells"
             ],
             "why": "Comping is leaving room: with only drums and bass under you every strum you leave out can be heard, so the gaps become part of the rhythm.",
             "learnBefore": [
@@ -2140,7 +2147,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "A Dorian and A Mixolydian share six notes and differ only in the 3rd, so moving that one note a fret turns the minor mode into the major one.",
             "learnBefore": [
@@ -2248,7 +2255,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "A band's chords choose the mode for you: Am7 holds C and the A chord holds C♯, so the same position needs its 3rd moved when the band changes.",
             "learnBefore": [
@@ -2346,7 +2353,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "string-skipping"
+              "picking"
             ],
             "why": "With three notes on a string the pick leaves on a down stroke one time and on an up stroke the next, so both ways of crossing to a new string get trained.",
             "learnBefore": [
@@ -2400,7 +2407,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "shells-comping"
+              "shells"
             ],
             "why": "Dm9 and G9 are Dm7 and G7 with a 9th added, so they fit the same vamp and only the top of each chord changes colour.",
             "learnBefore": [
@@ -2467,7 +2474,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "A mode is a shape counted from its root, so moving the root from A to D moves every position with it, and the 6th keeps its place inside each one.",
             "learnBefore": [
@@ -2593,7 +2600,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "B, the 6th of D Dorian, is the 3rd of G7: the job F♯ did over D7, so the aim you built in A works here with new note names.",
             "learnBefore": [
@@ -2694,7 +2701,7 @@
             ],
             "topic": "guitar-techniques",
             "concepts": [
-              "string-skipping"
+              "picking"
             ],
             "why": "The same drill starting a stage above day 1 is the plainest way to feel what a week of string skipping has done.",
             "learnBefore": [
@@ -2748,7 +2755,7 @@
             ],
             "topic": "guitar-extended-chords",
             "concepts": [
-              "shells-comping"
+              "shells"
             ],
             "why": "The same two chords sound like a Dorian vamp while they loop and like a ii–V the moment Gmaj7 follows them, so the last two bars change what the first six meant.",
             "learnBefore": [
@@ -2831,7 +2838,7 @@
             ],
             "topic": "guitar-caged",
             "concepts": [
-              "triads-every-set"
+              "triads"
             ],
             "why": "Looking away makes your hand find each shape from the one before it, not from the screen, which is how a triad gets found in the middle of a song.",
             "learnBefore": [
@@ -3194,7 +3201,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "modes-on-neck"
+              "major-on-neck"
             ],
             "why": "Each day gave you one thing to aim a phrase at (the 6th, a triad note, the ♭7, a crossing), so a solo is choosing which one each phrase goes for.",
             "learnBefore": [

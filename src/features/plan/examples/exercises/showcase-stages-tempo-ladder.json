@@ -9,7 +9,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "pentatonic-box-1"
+    "pentatonic-positions"
   ],
   "docs": {
     "agents": 1,
@@ -26,7 +26,7 @@
     ],
     "topic": "guitar-scales",
     "concepts": [
-      "pentatonic-box-1"
+      "pentatonic-positions"
     ],
     "why": "Your fingers learn the moves you repeat, clean or not, so each faster tempo comes only once the slower one is easy.",
     "learnBefore": [

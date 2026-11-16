@@ -1,20 +1,27 @@
+import { PATH, spanOf, type PathStep, type Track } from "./path";
 import type { Level } from "./types";
 
 export type Area = "guitar" | "voice" | "theory";
 
-/** One thing a player can know or learn. Exercises are tagged with these; the questionnaire asks about their topics. */
+/**
+ * One thing a player can know or learn: a track of the learning path (path.ts), with its steps. Exercises are tagged
+ * with these; the questionnaire asks about their topics.
+ */
 export interface Concept {
   id: string;
   area: Area;
+  /** the level of its first step; `levels` is every level its steps reach */
   level: Level;
+  levels: Level[];
   label: string;
   /** The questionnaire topic it belongs to (intake/topics.ts), always one of its own area. */
   topic: string;
-  hint?: string;
-  /** Concepts to know first, by id. They always come earlier in CONCEPTS. */
-  buildsOn?: string[];
-  /** Course section page this concept is taught on. */
+  /** Course section page it is taught on: the first of its merged concepts' that has one. */
   course?: string;
+  /** easiest first; each with its own level */
+  steps: PathStep[];
+  /** the concept ids from before the path that it took the place of */
+  merges: string[];
 }
 
 export const AREAS: { id: Area; label: string }[] = [
@@ -27,96 +34,105 @@ const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
 
 const course = (stage: string, section: string) => `/course/${stage}/${section}`;
 
-function c(area: Area, level: Level, id: string, label: string, topic: string, extra: { hint?: string; buildsOn?: string[]; course?: string } = {}): Concept {
-  return { id, area, level, label, topic, ...extra };
+/** The course page of each concept id from before the path (2026-11-16), for the track that took its place. */
+const OLD_COURSES: Record<string, string | undefined> = {
+  "do-as-home": course("3", "home-note"),
+  "major-vs-minor": course("3", "major-or-minor"),
+  "steady-beat": course("1", "steady-beat"),
+  "note-names": course("1", "notes-on-e-and-a"),
+  "pentatonic": course("5", "pentatonic"),
+  "major-scale": course("3", "do-re-mi"),
+  "natural-minor": course("9", "modes"),
+  "intervals": course("3", "intervals"),
+  "chords-in-key": course("5", "one-four-five"),
+  "relative-major-minor": course("3", "la-minor-home"),
+  "seventh-chords": course("7", "sevenths"),
+  "sus-chords": course("7", "sus-add9"),
+  "diminished": course("7", "diminished-chords"),
+  "augmented": course("7", "augmented-chords"),
+  "circle-of-fifths": course("10", "circle-map"),
+  "hearing-changes": course("5", "hearing-changes"),
+  "harmonic-minor": course("9", "harmonic-minor"),
+  "ii-v-i": course("11", "ii-v-i"),
+  "chords-blues": course("7", "twelve-bar"),
+  "chords-pop-rock": course("7", "chords-in-pop-rock"),
+  "chords-folk": course("7", "chords-in-folk"),
+  "modes": course("9", "modes"),
+  "lydian-locrian": course("9", "lydian-locrian"),
+  "melodic-minor": course("9", "melodic-minor"),
+  "extended-chords": course("11", "extended"),
+  "guide-tones": course("11", "guide-tones"),
+  "changing-key": course("10", "moving-keys"),
+  "chords-jazz": course("11", "jazz-standards"),
+  "open-chords": course("2", "em-and-am"),
+  "one-minute-changes": course("2", "one-minute-changes"),
+  "strumming-patterns": course("2", "island-strum"),
+  "notes-e-a-strings": course("1", "notes-on-e-and-a"),
+  "spider": course("1", "spider"),
+  "guitar-melodies-new": course("4", "melodies"),
+  "power-chords": course("5", "power-chords"),
+  "pentatonic-box-1": course("5", "pentatonic"),
+  "guitar-melodies-beginner": course("4", "do-mi-sol-neck"),
+  "top-string-triads": course("5", "triads"),
+  "bm-f-barre": course("6", "bm-barre"),
+  "sus-add9-shapes": course("7", "sus-add9"),
+  "five-pentatonic-boxes": course("8", "pentatonic-boxes"),
+  "caged": course("8", "d-c-a-shapes"),
+  "arpeggios-position": course("6", "arpeggios"),
+  "bends-slides": course("5", "bends-and-slides"),
+  "hammer-pull": course("4", "legato"),
+  "joining-positions": course("6", "joining"),
+  "guitar-melodies-intermediate": course("8", "greensleeves"),
+  "modes-on-neck": course("9", "modes-over-drone"),
+  "triads-every-set": course("8", "triads-everywhere"),
+  "find-every-note": course("8", "every-note"),
+  "string-skipping": course("8", "string-skipping"),
+  "shells-comping": course("11", "comping"),
+  "guitar-melodies-advanced": course("9", "scarborough-fair"),
+  "matching-a-pitch": course("3", "matching-a-pitch"),
+  "do-re-mi-steps": course("3", "step-melodies"),
+  "breath-holding-note": course("3", "breath-and-holding-a-note"),
+  "do-mi-sol-skips": course("3", "do-mi-sol"),
+  "in-tune-over-drone": course("3", "home-note"),
+  "singing-intervals": course("6", "every-interval"),
+  "voice-melodies-easy": course("3", "step-melodies"),
+  "leaps": course("6", "singing-leaps"),
+  "sight-singing": course("6", "sight-singing"),
+  "harmony-line": course("6", "harmony-line"),
+  "runs": course("6", "vocal-runs"),
+  "fast-runs": course("9", "fast-runs"),
+  "stretch-range": course("9", "stretching-your-range"),
+  "improvise-melody": course("9", "improvising-a-melody"),
+};
+
+function conceptOf(t: Track): Concept {
+  const [from, to] = spanOf(t);
+  const first = t.merges.map((id) => OLD_COURSES[id]).find(Boolean);
+  return { id: t.id, area: t.area, level: t.steps[0].level, levels: LEVELS.slice(from, to + 1), label: t.label, topic: t.topic, ...(first ? { course: first } : {}), steps: t.steps, merges: t.merges };
 }
-const t = (level: Level, id: string, label: string, topic: string, extra?: Parameters<typeof c>[5]) => c("theory", level, id, label, topic, extra);
-const g = (level: Level, id: string, label: string, topic: string, extra?: Parameters<typeof c>[5]) => c("guitar", level, id, label, topic, extra);
-const v = (level: Level, id: string, label: string, topic: string, extra?: Parameters<typeof c>[5]) => c("voice", level, id, label, topic, extra);
 
-/** Every concept, per area from easiest to hardest. The order is the order shown in the questionnaire. */
-export const CONCEPTS: Concept[] = [
-  // Theory & ear
-  t("new", "do-as-home", "Do as home", "theory-ear", { course: course("3", "home-note") }),
-  t("new", "major-vs-minor", "Major vs minor by ear", "theory-ear", { course: course("3", "major-or-minor") }),
-  t("new", "steady-beat", "Steady beat", "theory-basics", { course: course("1", "steady-beat") }),
-  t("new", "note-names", "Note names", "theory-basics", { course: course("1", "notes-on-e-and-a") }),
-  t("beginner", "pentatonic", "Pentatonic (minor & major)", "theory-scales-keys", { course: course("5", "pentatonic") }),
-  t("beginner", "major-scale", "Major scale", "theory-scales-keys", { buildsOn: ["pentatonic"], course: course("3", "do-re-mi") }),
-  t("beginner", "natural-minor", "Natural minor scale", "theory-scales-keys", { buildsOn: ["major-scale"], course: course("9", "modes") }),
-  t("beginner", "intervals", "Intervals within an octave", "theory-ear", { course: course("3", "intervals") }),
-  t("beginner", "chords-in-key", "Chords in a key (1-4-5)", "theory-progressions", { buildsOn: ["major-scale"], course: course("5", "one-four-five") }),
-  t("intermediate", "relative-major-minor", "Relative major/minor", "theory-scales-keys", { buildsOn: ["natural-minor"], course: course("3", "la-minor-home") }),
-  t("intermediate", "seventh-chords", "7th chords", "theory-building-chords", { course: course("7", "sevenths") }),
-  t("intermediate", "sus-chords", "Sus chords (sus2, sus4, add9)", "theory-building-chords", { course: course("7", "sus-add9") }),
-  t("intermediate", "diminished", "Diminished chords", "theory-building-chords", { course: course("7", "diminished-chords") }),
-  t("intermediate", "augmented", "Augmented chords", "theory-building-chords", { buildsOn: ["diminished"], course: course("7", "augmented-chords") }),
-  t("intermediate", "circle-of-fifths", "Circle of fifths", "theory-scales-keys", { buildsOn: ["chords-in-key"], course: course("10", "circle-map") }),
-  t("intermediate", "hearing-changes", "Hearing chord changes", "theory-ear", { buildsOn: ["chords-in-key"], course: course("5", "hearing-changes") }),
-  t("intermediate", "harmonic-minor", "Harmonic minor", "theory-modes", { buildsOn: ["natural-minor"], course: course("9", "harmonic-minor") }),
-  t("intermediate", "ii-v-i", "ii–V–I", "theory-progressions", { buildsOn: ["seventh-chords"], course: course("11", "ii-v-i") }),
-  t("intermediate", "chords-blues", "Chords in blues", "theory-progressions", { buildsOn: ["seventh-chords"], course: course("7", "twelve-bar") }),
-  t("intermediate", "chords-pop-rock", "Chords in pop/rock", "theory-progressions", { buildsOn: ["chords-in-key"], course: course("7", "chords-in-pop-rock") }),
-  t("intermediate", "chords-folk", "Chords in folk", "theory-progressions", { buildsOn: ["chords-in-key"], course: course("7", "chords-in-folk") }),
-  t("advanced", "modes", "Modes (Dorian, Mixolydian, Phrygian)", "theory-modes", { buildsOn: ["major-scale"], course: course("9", "modes") }),
-  t("advanced", "lydian-locrian", "Lydian & Locrian", "theory-modes", { buildsOn: ["modes"], course: course("9", "lydian-locrian") }),
-  t("advanced", "melodic-minor", "Melodic minor", "theory-modes", { buildsOn: ["harmonic-minor"], course: course("9", "melodic-minor") }),
-  t("advanced", "extended-chords", "9ths & 13ths", "theory-building-chords", { buildsOn: ["seventh-chords"], course: course("11", "extended") }),
-  t("advanced", "guide-tones", "Guide tones", "theory-progressions", { buildsOn: ["ii-v-i"], course: course("11", "guide-tones") }),
-  t("advanced", "changing-key", "Changing key", "theory-scales-keys", { buildsOn: ["circle-of-fifths"], course: course("10", "moving-keys") }),
-  t("advanced", "chords-jazz", "Chords in jazz", "theory-progressions", { buildsOn: ["ii-v-i"], course: course("11", "jazz-standards") }),
+/** Every concept, per area, in questionnaire topic order: the tracks of the path. */
+export const CONCEPTS: Concept[] = PATH.map(conceptOf);
 
-  // Guitar
-  g("new", "open-chords", "Open chords", "guitar-basic-chords", { course: course("2", "em-and-am") }),
-  g("new", "one-minute-changes", "One-minute changes", "guitar-basic-chords", { buildsOn: ["open-chords"], course: course("2", "one-minute-changes") }),
-  g("new", "strumming-patterns", "Strumming patterns", "guitar-basic-chords", { course: course("2", "island-strum") }),
-  g("new", "notes-e-a-strings", "Notes on the E and A strings", "guitar-scales", { course: course("1", "notes-on-e-and-a") }),
-  g("new", "spider", "The spider", "guitar-techniques", { course: course("1", "spider") }),
-  g("new", "guitar-melodies-new", "Melodies (one string)", "guitar-scales", { course: course("4", "melodies") }),
-  g("beginner", "power-chords", "Power chords", "guitar-basic-chords", { course: course("5", "power-chords") }),
-  g("beginner", "pentatonic-box-1", "Pentatonic box 1", "guitar-scales", { course: course("5", "pentatonic") }),
-  g("beginner", "guitar-melodies-beginner", "Melodies (open position, a few strings)", "guitar-scales", { buildsOn: ["guitar-melodies-new"], course: course("4", "do-mi-sol-neck") }),
-  g("beginner", "top-string-triads", "Triads on the top strings", "guitar-caged", { course: course("5", "triads") }),
-  g("beginner", "bm-f-barre", "Bm/F barre", "guitar-barre-chords", { buildsOn: ["open-chords"], course: course("6", "bm-barre") }),
-  g("intermediate", "sus-add9-shapes", "Sus & add9 shapes", "guitar-extended-chords", { buildsOn: ["open-chords"], course: course("7", "sus-add9") }),
-  g("intermediate", "five-pentatonic-boxes", "All five pentatonic boxes", "guitar-scales", { buildsOn: ["pentatonic-box-1"], course: course("8", "pentatonic-boxes") }),
-  g("intermediate", "caged", "CAGED shapes", "guitar-caged", { buildsOn: ["bm-f-barre"], course: course("8", "d-c-a-shapes") }),
-  g("intermediate", "arpeggios-position", "Arpeggios in a position", "guitar-caged", { course: course("6", "arpeggios") }),
-  g("intermediate", "bends-slides", "Bends & slides", "guitar-techniques", { buildsOn: ["pentatonic-box-1"], course: course("5", "bends-and-slides") }),
-  g("intermediate", "hammer-pull", "Hammer-ons & pull-offs", "guitar-techniques", { course: course("4", "legato") }),
-  g("intermediate", "joining-positions", "Joining positions", "guitar-scales", { buildsOn: ["pentatonic-box-1"], course: course("6", "joining") }),
-  g("intermediate", "guitar-melodies-intermediate", "Melodies (up the neck, eighths and dotted notes)", "guitar-scales", { buildsOn: ["guitar-melodies-beginner"], course: course("8", "greensleeves") }),
-  g("advanced", "modes-on-neck", "Modes on the neck", "guitar-scales", { buildsOn: ["caged"], course: course("9", "modes-over-drone") }),
-  g("advanced", "triads-every-set", "Triads on every string set", "guitar-caged", { buildsOn: ["top-string-triads"], course: course("8", "triads-everywhere") }),
-  g("advanced", "find-every-note", "Finding every note", "guitar-scales", { buildsOn: ["notes-e-a-strings"], course: course("8", "every-note") }),
-  g("advanced", "string-skipping", "String skipping", "guitar-techniques", { course: course("8", "string-skipping") }),
-  g("advanced", "shells-comping", "Shells & comping", "guitar-extended-chords", { course: course("11", "comping") }),
-  g("advanced", "guitar-melodies-advanced", "Melodies (shifting positions, modal tunes)", "guitar-scales", { buildsOn: ["guitar-melodies-intermediate"], course: course("9", "scarborough-fair") }),
+/** A concept id from before the path, to the track that took its place; ids that are both map to themselves. */
+export const OLD_CONCEPT_IDS: Record<string, string> = Object.fromEntries(PATH.flatMap((t) => t.merges.map((id) => [id, t.id])));
 
-  // Voice
-  v("new", "matching-a-pitch", "Matching a pitch", "voice-pitch", { course: course("3", "matching-a-pitch") }),
-  v("new", "do-re-mi-steps", "Do Re Mi steps", "voice-intervals", { course: course("3", "step-melodies") }),
-  v("new", "breath-holding-note", "Breath & holding a note", "voice-breath-range", { course: course("3", "breath-and-holding-a-note") }),
-  v("beginner", "do-mi-sol-skips", "Do Mi Sol skips", "voice-intervals", { buildsOn: ["do-re-mi-steps"], course: course("3", "do-mi-sol") }),
-  v("beginner", "in-tune-over-drone", "In tune over a drone", "voice-pitch", { buildsOn: ["matching-a-pitch"], course: course("3", "home-note") }),
-  v("beginner", "singing-intervals", "Singing intervals", "voice-intervals", { buildsOn: ["do-mi-sol-skips"], course: course("6", "every-interval") }),
-  v("beginner", "voice-melodies-easy", "Melodies (easy)", "voice-melodies", { buildsOn: ["do-re-mi-steps"], course: course("3", "step-melodies") }),
-  v("intermediate", "leaps", "Leaps (4th, 5th, octave)", "voice-intervals", { buildsOn: ["singing-intervals"], course: course("6", "singing-leaps") }),
-  v("intermediate", "sight-singing", "Sight-singing melodies", "voice-melodies", { buildsOn: ["voice-melodies-easy"], course: course("6", "sight-singing") }),
-  v("intermediate", "harmony-line", "A harmony line over chords", "voice-harmony", { course: course("6", "harmony-line") }),
-  v("intermediate", "runs", "Runs", "voice-runs", { course: course("6", "vocal-runs") }),
-  v("advanced", "fast-runs", "Fast runs", "voice-runs", { buildsOn: ["runs"], course: course("9", "fast-runs") }),
-  v("advanced", "stretch-range", "Stretching your range", "voice-breath-range", { course: course("9", "stretching-your-range") }),
-  v("advanced", "improvise-melody", "Improvising a melody over chords", "voice-harmony", { buildsOn: ["sight-singing"], course: course("9", "improvising-a-melody") }),
-];
+/** The concept an id names: a track's id, or a concept id from before the path, which maps to its track. */
+export const conceptId = (id: string): string | undefined => (CONCEPTS.some((c) => c.id === id) ? id : OLD_CONCEPT_IDS[id]);
 
-export const conceptById = (id: string): Concept | undefined => CONCEPTS.find((x) => x.id === id);
+export const conceptById = (id: string): Concept | undefined => {
+  const at = conceptId(id);
+  return at === undefined ? undefined : CONCEPTS.find((x) => x.id === at);
+};
+
+/** Ids as known concepts: old ids mapped to their track, unknown ones dropped, each once, in the order given. */
+export const conceptIds = (ids: readonly string[]): string[] => [...new Set(ids.map(conceptId).filter((x): x is string => !!x))];
 
 /** The concepts of one questionnaire topic, in catalogue order. */
 export const conceptsOf = (topicId: string): Concept[] => CONCEPTS.filter((x) => x.topic === topicId);
 
-/** The area's concepts at this level and the one below, in catalogue order. */
+/** The area's concepts with a step at this level or the one below, in catalogue order. */
 export function conceptsFor(area: Area, level: Level): Concept[] {
   const top = LEVELS.indexOf(level);
-  return CONCEPTS.filter((x) => x.area === area && LEVELS.indexOf(x.level) >= top - 1 && LEVELS.indexOf(x.level) <= top);
+  return CONCEPTS.filter((x) => x.area === area && x.levels.some((l) => LEVELS.indexOf(l) >= top - 1 && LEVELS.indexOf(l) <= top));
 }

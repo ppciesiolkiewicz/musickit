@@ -8,8 +8,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "in-tune-over-drone",
-    "do-mi-sol-skips"
+    "pitch",
+    "steps-to-leaps"
   ],
   "docs": {
     "agents": 1,
@@ -27,7 +27,7 @@
     ],
     "topic": "voice-pitch",
     "concepts": [
-      "in-tune-over-drone"
+      "pitch"
     ],
     "why": "A note in tune with the drone sounds smooth and a note that is off wobbles against it, so the drone tells your ear when you are on the note.",
     "learnBefore": [

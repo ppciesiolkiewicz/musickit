@@ -315,8 +315,21 @@ pastes with zero warnings and keeps the exercise rules: blocks, sing or play, na
 
 ## Concepts
 
-`model/concepts.ts` is the catalogue the questionnaire rates: `CONCEPTS` (per area, easiest first, with `buildsOn` and a
-`course` link), `AREAS`, `conceptsFor(area, level)` (that level and the one below) and `conceptById`.
+`model/path.ts` is the learning path (NEW13): `PATH`, 44 tracks, each one skill with its steps from easiest to hardest,
+each step at its own level, so a track spans the levels its steps reach. A step may name steps of other tracks to learn
+first (`after`, as "trackId:n") and the ladder step in the code that stands for it (`ladder`, as "ladderId:key", from
+`model/ladders.ts`: tool levels, the ear game's levels, the tune and run stages). `stepOf(trackId, tools)` reads the step
+an exercise works on from its tools. A step with no ladder is "not implemented": no tool setting stands for it yet.
+
+`model/concepts.ts` is the catalogue the questionnaire rates and exercises are tagged with: `CONCEPTS`, one per track
+(`level` is its first step's, `levels` every level its steps reach, `steps`, a `course` link), `AREAS`,
+`conceptsFor(area, level)` (a step at that level or the one below) and `conceptById`. The 67 concepts from before the
+path (2026-11-16) map to their track (`OLD_CONCEPT_IDS`, `conceptId`, `conceptIds`): the parser, the outcome and the
+library coverage read an old id as its track, so stored plans and ratings keep counting.
+
+The outcome (`model/outcome.ts`) judges a concept at each level of its span: a rating counts at its block's level tag
+inside the span (the nearest end outside it, the first level without one) and at every level below, never above
+(`ratingLevel`). A topic's level is reached when every concept with a step there is solid there.
 
 ### Course sections to write
 

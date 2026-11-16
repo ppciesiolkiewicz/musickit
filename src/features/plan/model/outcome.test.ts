@@ -5,7 +5,7 @@ import type { PlanAnswers } from "../intake/answers";
 import type { ProgressEntry } from "@/features/progress/log";
 import type { AnswersEntry, PlanExercise, StoredPlan } from "./types";
 import type { DayTime } from "./planTime";
-import { outcome, startOutcome, type Outcome } from "./outcome";
+import { outcome, ratingLevel, startOutcome, type Outcome } from "./outcome";
 
 test("startOutcome: every area in AREAS order, six topics each, unanswered is null", () => {
   const out = startOutcome({});
@@ -50,55 +50,77 @@ test("outcome: every area, six topics each, each topic's concepts; nothing rated
   const o = outcome({ ...IN, entries: [], answersHistory: [asked("2026-11-01", { "guitar-caged": 1 })] }, "2026-11-15");
   assert.deepEqual(o.areas.map((a) => a.area), ["guitar", "voice", "theory"]);
   assert.ok(o.areas.every((a) => a.topics.length === 6));
-  assert.deepEqual(caged(o).concepts.map((c) => c.id), ["top-string-triads", "caged", "arpeggios-position", "triads-every-set"]);
+  assert.deepEqual(caged(o).concepts.map((c) => c.id), ["triads", "caged", "arpeggios"]);
+  assert.deepEqual(concept(o, "triads").levels, ["beginner", "intermediate", "advanced"]);
   assert.ok(caged(o).concepts.every((c) => c.state === "not-yet" && c.ratings === 0 && c.lastOn === null));
   assert.equal(caged(o).score, 1); assert.equal(caged(o).reached, 1);
   assert.equal(topic(o, "voice-pitch").score, null);
 });
-test("outcome: one of two concepts a level up solid adds half a level", () => {
-  const o = outcome({ ...IN, entries: [entry({ concepts: ["caged"], topic: "guitar-caged", stars: 4 })], answersHistory: [asked("2026-11-01", { "guitar-caged": 1 })] }, "2026-11-15");
-  assert.equal(concept(o, "caged").state, "solid");
-  assert.equal(caged(o).score, 1.5);
+test("ratingLevel: the block's level inside the span, else the nearest end; no level is the first", () => {
+  const span = ["beginner", "intermediate", "advanced"] as const;
+  assert.equal(ratingLevel(span, "intermediate"), "intermediate");
+  assert.equal(ratingLevel(span, "new"), "beginner");
+  assert.equal(ratingLevel(["new", "beginner"], "advanced"), "beginner");
+  assert.equal(ratingLevel(span, undefined), "beginner");
+  assert.equal(ratingLevel(span, "nope"), "beginner");
 });
-test("outcome: every concept of a level solid reaches it; then the share of the level above is added", () => {
+test("outcome: one of three concepts a level up solid there adds a third of a level", () => {
+  // intermediate in CAGED: triads (its middle steps), caged, arpeggios
+  const o = outcome({ ...IN, entries: [entry({ concepts: ["caged"], topic: "guitar-caged", level: "intermediate", stars: 4 })], answersHistory: [asked("2026-11-01", { "guitar-caged": 1 })] }, "2026-11-15");
+  assert.equal(concept(o, "caged").state, "solid");
+  assert.equal(caged(o).score, 1 + 1 / 3);
+});
+test("outcome: every concept with a step at a level, solid there, reaches it; then the share of the level above is added", () => {
   const rung1 = [asked("2026-11-01", { "guitar-caged": 1 })];
-  const e = [entry({ concepts: ["caged", "arpeggios-position"], stars: 5 })];
+  const e = ["triads", "caged", "arpeggios"].map((c) => entry({ concepts: [c], level: "intermediate", stars: 5 }));
   const o = outcome({ ...IN, entries: e, answersHistory: rung1 }, "2026-11-15");
   assert.equal(caged(o).reached, 2);
-  assert.equal(caged(o).score, 2); // the one advanced concept isn't solid
-  const all = [...e, entry({ concepts: ["triads-every-set"], stars: 4 })];
+  assert.equal(caged(o).score, 2); // none solid at advanced yet
+  const two = [...e, entry({ concepts: ["triads"], level: "advanced", stars: 4 }), entry({ concepts: ["caged"], level: "advanced", stars: 4 })];
+  assert.equal(caged(outcome({ ...IN, entries: two, answersHistory: rung1 }, "2026-11-15")).score, 2 + 2 / 3);
+  const all = [...two, entry({ concepts: ["arpeggios"], level: "advanced", stars: 4 })];
   assert.equal(caged(outcome({ ...IN, entries: all, answersHistory: rung1 }, "2026-11-15")).score, 3); // advanced: no fraction
+});
+test("outcome: a rating counts at its level and below, never above", () => {
+  const o = outcome({ ...IN, entries: [entry({ concepts: ["triads"], level: "beginner", stars: 5 })], answersHistory: [] }, "2026-11-15");
+  assert.deepEqual(concept(o, "triads").at, { beginner: "solid", intermediate: "not-yet", advanced: "not-yet" });
+  const high = outcome({ ...IN, entries: [entry({ concepts: ["triads"], level: "advanced", stars: 5 })], answersHistory: [] }, "2026-11-15");
+  assert.deepEqual(concept(high, "triads").at, { beginner: "solid", intermediate: "solid", advanced: "solid" });
 });
 test("outcome: one solid concept doesn't reach its level while another there isn't solid", () => {
   const o = outcome({ ...IN, entries: [entry({ concepts: ["caged"], stars: 5 })], answersHistory: [] }, "2026-11-15");
   assert.equal(caged(o).reached, 0); // no rung, one rating: floor 0; intermediate isn't all solid
-  assert.equal(caged(o).score, 0); // and the one beginner concept isn't solid
+  assert.equal(caged(o).score, 0); // and triads, the one beginner concept, isn't solid
 });
-test("outcome: a level is judged on its own; the levels below need not be solid", () => {
-  const o = outcome({ ...IN, entries: [entry({ concepts: ["triads-every-set"], stars: 5 })], answersHistory: [] }, "2026-11-15");
-  assert.equal(caged(o).score, 3);
+test("outcome: a level is judged on its own; the levels below need not be reached first", () => {
+  const e = ["caged", "arpeggios"].map((c) => entry({ concepts: [c], level: "advanced", stars: 5 }));
+  const o = outcome({ ...IN, entries: [...e, entry({ concepts: ["triads"], level: "advanced", stars: 2 })], answersHistory: [] }, "2026-11-15");
+  assert.equal(caged(o).reached, 0); // triads is in every level and not solid in any
+  assert.equal(caged(outcome({ ...IN, entries: [...e, entry({ concepts: ["triads"], level: "advanced", stars: 4 })], answersHistory: [] }, "2026-11-15")).score, 3);
 });
 test("outcome: no rung but a solid concept starts from that concept's level", () => {
   const o = outcome({ ...IN, entries: [entry({ concepts: ["top-string-triads"], stars: 4 })], answersHistory: [] }, "2026-11-15");
   assert.equal(caged(o).reached, 1);
-  assert.equal(caged(o).score, 1); // 0 of the 2 intermediate concepts solid
+  assert.equal(caged(o).score, 1); // 0 of the 3 intermediate concepts solid there
 });
 test("outcome: no rung and one rating starts from new (0) plus the share of beginner", () => {
+  // beginner in the scales topic: notes on the neck, pentatonic positions, melodies
   const solid = outcome({ ...IN, entries: [entry({ concepts: ["pentatonic-box-1"], stars: 4 })], answersHistory: [] }, "2026-11-15");
   assert.equal(topic(solid, "guitar-scales").reached, 0);
-  assert.equal(topic(solid, "guitar-scales").score, 0.5); // 1 of the 2 beginner concepts
+  assert.equal(topic(solid, "guitar-scales").score, 1 / 3);
   const working = outcome({ ...IN, entries: [entry({ concepts: ["pentatonic-box-1"], stars: 3 })], answersHistory: [] }, "2026-11-15");
-  assert.equal(concept(working, "pentatonic-box-1").state, "working");
+  assert.equal(concept(working, "pentatonic-positions").state, "working");
   assert.equal(topic(working, "guitar-scales").score, 0);
 });
 test("outcome: no rung and nothing rated is null", () => {
   assert.equal(topic(outcome({ ...IN, entries: [], answersHistory: [] }, "2026-11-15"), "guitar-scales").score, null);
 });
 test("outcome: a level with no concepts doesn't block, and adds no fraction", () => {
-  const rung1 = [asked("2026-11-01", { "voice-breath-range": 1 })];
-  const t = (e: ProgressEntry[]) => topic(outcome({ ...IN, entries: e, answersHistory: rung1 }, "2026-11-15"), "voice-breath-range");
-  assert.equal(t([]).score, 1); // nothing at intermediate: stays at 1
-  assert.equal(t([entry({ concepts: ["stretch-range"], stars: 5 })]).score, 3); // advanced reached past the empty level
+  // barre chords start at beginner: nothing at new
+  const rung0 = [asked("2026-11-01", { "guitar-barre-chords": 0 })];
+  const t = (e: ProgressEntry[]) => topic(outcome({ ...IN, entries: e, answersHistory: rung0 }, "2026-11-15"), "guitar-barre-chords");
+  assert.equal(t([]).score, 0);
+  assert.equal(t([entry({ concepts: ["bm-f-barre"], level: "advanced", stars: 5 })]).score, 3);
 });
 test("outcome: solid then rated lower is working on again, and the score falls back to the rung, never below", () => {
   const o = outcome({ ...IN, entries: [
@@ -117,9 +139,10 @@ test("outcome: two ratings with the same `at`: the later one in the list decides
   const flipped = outcome({ ...IN, entries: [entry({ concepts: ["caged"], stars: 2, at }), entry({ concepts: ["caged"], stars: 5, at })], answersHistory: [] }, "2026-11-15");
   assert.equal(concept(flipped, "caged").state, "solid");
 });
-test("outcome: the block's level tag is not read; the concept's own level is", () => {
-  const o = outcome({ ...IN, entries: [entry({ concepts: ["caged"], level: "advanced", stars: 5 })], answersHistory: [asked("2026-11-01", { "guitar-caged": 1 })] }, "2026-11-15");
-  assert.equal(caged(o).score, 1.5);
+test("outcome: an old concept id counts for its track", () => {
+  const o = outcome({ ...IN, entries: [entry({ concepts: ["top-string-triads", "triads-every-set"], stars: 5 })], answersHistory: [] }, "2026-11-15");
+  assert.equal(concept(o, "triads").ratings, 1);
+  assert.equal(concept(o, "triads").state, "solid");
 });
 test("outcome as of a date: later ratings and later answers are left out", () => {
   const input = { ...IN,
@@ -129,7 +152,7 @@ test("outcome as of a date: later ratings and later answers are left out", () =>
   assert.equal(concept(outcome(input, "2026-11-11"), "caged").state, "not-yet");
   assert.equal(caged(outcome(input, "2026-11-11")).score, 2);
   assert.equal(concept(outcome(input, "2026-11-15"), "caged").state, "solid");
-  assert.equal(caged(outcome(input, "2026-11-15")).score, 2); // rung 2 already covers caged; the one advanced concept isn't solid
+  assert.equal(caged(outcome(input, "2026-11-15")).score, 2); // rung 2 already covers caged; none is solid at advanced
 });
 test("outcome: an entry with no concepts counts toward ratings (floor 0), never toward a level; unknown ids are ignored", () => {
   const o = outcome({ ...IN, entries: [
@@ -151,10 +174,10 @@ test("outcome: an `at` that is not a date neither throws nor counts", () => {
 });
 
 test("time: a slot's seconds go to each of its concepts in full and once to its topic and area", () => {
-  const p = storedPlan("p", "2026-11-10", [{ id: "s1", topic: "guitar-caged", concepts: ["caged", "arpeggios-position"] }]);
+  const p = storedPlan("p", "2026-11-10", [{ id: "s1", topic: "guitar-caged", concepts: ["caged", "arpeggios"] }]);
   const o = outcome({ plans: [p], entries: [], answersHistory: [], times: [time("p", 0, 600, { s1: 600 })] }, "2026-11-15");
   assert.equal(concept(o, "caged").seconds, 600);
-  assert.equal(concept(o, "arpeggios-position").seconds, 600);
+  assert.equal(concept(o, "arpeggios").seconds, 600);
   assert.equal(topic(o, "guitar-caged").seconds, 600);
   assert.equal(o.areas[0].seconds, 600);
   assert.deepEqual(o.seconds, { total: 600, sorted: 600 });

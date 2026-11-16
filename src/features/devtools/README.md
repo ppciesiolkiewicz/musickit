@@ -108,29 +108,27 @@ topic, per concept). A date field sets `asOf` (today at first); a date before an
 
 ## Learning path (`/dev/path`)
 
-The path a player moves along, as the code has it today, drawn as a diagram (`path/PathView.tsx`, nodes from
+The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), drawn as a diagram (`path/PathView.tsx`, nodes from
 `model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/examples links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
 are columns, each cell starts with the topic's questionnaire line for that level, and every concept of `CONCEPTS` sits in
-the cell of its topic and level. An arrow runs from a concept to each one that names it in `buildsOn`. A concept's edge is
+the cell of its topic and its first step's level. An arrow runs to a concept from each one a step of it names to learn first (`after`). A concept's edge is
 green with a green dot when an example exercise is tagged with it and grey when none is, a violet dot says an example plan
 is, and a dashed edge says its course page is missing or only planned. Picking a concept lights its whole chain
 (`chain`: everything it rests on and everything resting on it) and lists, under the diagram, what it builds on and leads
 to, its course page, its examples and its steps. The line beside the area buttons counts the gaps (`gaps`).
 
-**Steps inside a concept** (`model/steps.ts`). A concept is one box, but most are several levels of the same thing (which
-intervals, which string set, which mode), and no concept says so in the code. The numbered lines in a box are its steps,
-easiest first, as many as it has. Blue ones are read from a ladder the code already has (`LADDERS`: the tools' levels in
-`exercises/basics/levels.ts`, the ear game's levels, the tune and run stages), joined to a concept by `LINKS`, whole or by
-step. Amber ones are `PLANNED`: written down there by hand and shown as "not implemented" until a ladder holds them; move
-a step out of `PLANNED` when one does. A box grows with its steps. Under the diagram, a closed list has the ladder steps
-no concept is linked to.
+**Steps inside a concept** (`model/steps.ts`, read from `plan/model/path.ts`). The numbered lines in a box are its
+track's steps, easiest first, each with its own level. Blue ones are read from a ladder the code already has
+(`plan/model/ladders.ts`: the tools' levels in `exercises/basics/levels.ts`, the ear game's levels, the tune and run
+stages), named on the step as `ladder: "ladderId:key"`. Amber ones are "not implemented" until a tool has a level for
+them. A box grows with its steps. Under the diagram, a closed list has the ladder steps no step of the path stands for.
 
 **A student on the diagram** (`model/stepProgress.ts`). *Student on the diagram* lays one player's progress over the path:
 the player in this browser (read through `usePlan` and `useProgress`, nothing written) or a made-up one
 (`EXAMPLE_STUDENTS`). It is the teacher's view of a student, tried here first (NEW12, NEW13 in `tasks.txt`). A concept's
 edge turns green when its newest rating is 4 stars or more and amber when it is less, as the progress outcome has it.
 Each step gets a square: green solid, amber working, empty not started, dashed for a planned step, which can't be
-tracked. The step a rating counts for is read from the rated exercise's own tools (`stepOf` in `model/steps.ts`: the
+tracked. The step a rating counts for is read from the rated exercise's own tools (`stepOf` in `plan/model/path.ts`: the
 `level` kept on a tool, or the stage of the tune or run), the hardest one when several are in it; a solid step makes the
 easier ones under it solid. The bold step is the one the student is on, with the whole weeks since its first rating
 while it is not solid: time on a step is shown as a number, and nothing is called stuck. Picking a concept lists each
@@ -138,15 +136,12 @@ tracked step's ratings and dates. Nothing is written by
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
 example library, so the diagram changes when they do. It writes nothing.
 
-**Proposed: overlapping steps** (`model/proposal.ts`, `path/ProposalView.tsx`). A second view of the page, a proposal
-for NEW13 that nothing in the app reads. `PROPOSAL` folds today's concepts into tracks (one skill each, often several
-concepts merged, a few new), and every step of a track has its own level. A track is drawn as a bar from the level of
-its first step to the level of its last, its steps in the columns of their levels, so tracks in one topic overlap. A
-step's `after` names steps of other tracks to learn first, as `trackId:n`, drawn as arrows (into another area: listed
-under the diagram). A step with `ladder` ("ladderId:key") is one a ladder in `steps.ts` stands for (blue); the rest are
-amber. Picking a track lists the concepts it replaces with their level today, and its steps. Tests
-(`model/proposal.test.ts`) keep it to the catalogue: every concept in exactly one track, levels never go down, ladder
-steps real and used once, `after` never pointing at a higher level. The student overlay is drawn only on "Today".
+**Overlapping steps** (`path/ProposalView.tsx`). A second view of the page: each track drawn as a bar from the level
+of its first step to the level of its last, its steps in the columns of their levels, so tracks in one topic overlap. A
+step's `after` is drawn as an arrow (into another area: listed under the diagram). Picking a track lists the concepts
+from before the path it took the place of, and its steps. Tests (`plan/model/path.test.ts`) keep the path whole: every
+old concept in exactly one track, levels never go down, ladder steps real and used once, `after` never pointing at a
+higher level. The student overlay is drawn only on the first view.
 
 ## Library (`/dev/library`)
 

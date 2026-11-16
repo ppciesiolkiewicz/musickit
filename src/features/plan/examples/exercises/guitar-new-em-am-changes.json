@@ -9,7 +9,7 @@
   "model": "claude-fable-5-2",
   "concepts": [
     "open-chords",
-    "strumming-patterns"
+    "strumming"
   ],
   "docs": {
     "agents": 0,
@@ -28,7 +28,7 @@
     "topic": "guitar-basic-chords",
     "concepts": [
       "open-chords",
-      "strumming-patterns"
+      "strumming"
     ],
     "why": "From Em to Am, fingers 2 and 3 keep their shape and move across one string together, so the change is one small move plus one finger: the easiest change to make automatic first.",
     "learnBefore": [

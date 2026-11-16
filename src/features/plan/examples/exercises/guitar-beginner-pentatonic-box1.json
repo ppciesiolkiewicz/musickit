@@ -8,8 +8,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "pentatonic-box-1",
-    "pentatonic"
+    "pentatonic-positions",
+    "scales"
   ],
   "docs": {
     "agents": 1,
@@ -27,7 +27,7 @@
     ],
     "topic": "guitar-scales",
     "concepts": [
-      "pentatonic-box-1"
+      "pentatonic-positions"
     ],
     "why": "A phrase sounds finished when it ends on the root, so learn the shape and where its roots sit together: then anything you make up has somewhere to land.",
     "learnBefore": [

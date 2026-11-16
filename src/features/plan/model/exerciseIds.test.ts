@@ -46,11 +46,11 @@ test("an exercise with no topic is named in the untagged warning", () => {
 
 test("concepts: only known ones of the topic, four at most, the rest warned about", () => {
   const { first, warnings } = parse(tagged({ concepts: ["caged", "nope", "open-chords", "top-string-triads", 7] }));
-  assert.deepEqual(first.concepts, ["caged", "top-string-triads"]);
+  assert.deepEqual(first.concepts, ["caged", "triads"]); // an old id is kept as its track
   assert.ok(warnings.some((w) => /left out concepts that are unknown or of another topic: nope, open-chords/.test(w)), warnings.join("|"));
   assert.equal(parse(tagged({ concepts: [] })).first.concepts, undefined);
   assert.equal(parse(tagged({ concepts: "caged" })).first.concepts, undefined);
-  assert.equal(parse(tagged({ concepts: ["caged", "top-string-triads", "triads-every-set", "arpeggios-position", "caged"] })).first.concepts!.length, 4);
+  assert.deepEqual(parse(tagged({ concepts: ["caged", "top-string-triads", "triads-every-set", "arpeggios", "caged"] })).first.concepts, ["caged", "triads", "arpeggios"]);
 });
 
 test("an id sent by the AI is never kept", () => {

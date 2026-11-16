@@ -9,14 +9,13 @@
   "model": "claude-fable-5-2",
   "minutes": 20,
   "concepts": [
-    "pentatonic-box-1",
+    "pentatonic-positions",
     "open-chords",
     "power-chords",
-    "top-string-triads",
-    "guitar-melodies-beginner",
-    "strumming-patterns",
-    "spider",
-    "one-minute-changes"
+    "triads",
+    "guitar-melodies",
+    "strumming",
+    "spider"
   ],
   "docs": {
     "agents": 1,
@@ -75,7 +74,7 @@
             "topic": "guitar-basic-chords",
             "concepts": [
               "open-chords",
-              "strumming-patterns"
+              "strumming"
             ],
             "why": "G, C and D are the 1, 4 and 5 chords of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
             "learnBefore": [
@@ -143,7 +142,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "Every phrase in position 1 sounds finished when it lands on A, so knowing where the three A's are lets you make music from day one.",
             "learnBefore": [
@@ -479,7 +478,10 @@
             "tags": [
               "technique"
             ],
-            "topic": "guitar-techniques",
+            "topic": "guitar-scales",
+            "concepts": [
+              "pentatonic-positions"
+            ],
             "why": "In position 1 the B and high e strings have two notes at the same fret in two places, so the scale you know already holds two double stops, each played with one finger.",
             "learnBefore": [
               "/course/5/fifths",
@@ -579,7 +581,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "A riff is a short phrase repeated, so two notes and a rhythm are all you need to make one up.",
             "learnBefore": [
@@ -638,8 +640,7 @@
             ],
             "topic": "guitar-basic-chords",
             "concepts": [
-              "open-chords",
-              "one-minute-changes"
+              "open-chords"
             ],
             "why": "The change you repeat is the one your hand learns, so short rounds on one change grow faster than long ones on many.",
             "learnBefore": [
@@ -673,7 +674,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "Picking down then up plays two notes with one swing of the hand, so the position can speed up without the hand working harder.",
             "learnBefore": [
@@ -785,7 +786,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "A phrase that asks and one that answers is how solos talk, so this turns notes into sentences.",
             "learnBefore": [
@@ -835,7 +836,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "guitar-melodies-beginner"
+              "guitar-melodies"
             ],
             "why": "A tune keeps its shape when the key changes, so playing it in two keys teaches your fingers the pattern, not a list of frets.",
             "learnBefore": [
@@ -893,7 +894,7 @@
             ],
             "topic": "guitar-caged",
             "concepts": [
-              "top-string-triads"
+              "triads"
             ],
             "why": "A triad is the three notes that make a chord, so the same chord can come from one shape slid along the neck or from a new shape right where your hand is.",
             "learnBefore": [
@@ -1069,7 +1070,7 @@
             "topic": "guitar-basic-chords",
             "concepts": [
               "open-chords",
-              "strumming-patterns"
+              "strumming"
             ],
             "why": "G Em C D is the loop behind countless songs, so a steady strum through it lets you play along with them.",
             "learnBefore": [
@@ -1137,7 +1138,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "The last note sets the mood of a phrase, so choosing it is the first step to sounding like you mean it.",
             "learnBefore": [
@@ -1188,7 +1189,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "guitar-melodies-beginner"
+              "guitar-melodies"
             ],
             "why": "This tune uses only the three notes of a triad, one at a time, so your fingers learn today's chords as a melody.",
             "learnBefore": [
@@ -1335,7 +1336,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "A position's shape doesn't change with the key, it only moves, so the shape you know in A is already E minor pentatonic at the 12th fret.",
             "learnBefore": [
@@ -1416,7 +1417,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "A phrase is a shape on the neck, so a phrase you made in A plays in E just by moving it.",
             "learnBefore": [
@@ -1471,7 +1472,7 @@
             ],
             "topic": "guitar-caged",
             "concepts": [
-              "top-string-triads"
+              "triads"
             ],
             "why": "Every three neighbouring strings hold the same triads in new shapes, so moving a drill one string set over makes a new drill from chords you know.",
             "learnBefore": [
@@ -1560,7 +1561,7 @@
             "topic": "guitar-basic-chords",
             "concepts": [
               "open-chords",
-              "strumming-patterns"
+              "strumming"
             ],
             "why": "Looking at your hand is a habit, and a change you can make without looking is one you really own.",
             "learnBefore": [
@@ -1598,7 +1599,7 @@
             ],
             "topic": "guitar-caged",
             "concepts": [
-              "top-string-triads"
+              "triads"
             ],
             "why": "A triad and its single notes are one hand shape, so a riff that mixes them sounds full and never makes your hand jump.",
             "learnBefore": [
@@ -1802,7 +1803,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "guitar-melodies-beginner"
+              "guitar-melodies"
             ],
             "why": "Reading it once from tab and once from the neck links the numbers to the places your fingers go.",
             "learnBefore": [
@@ -1875,7 +1876,7 @@
             "topic": "guitar-basic-chords",
             "concepts": [
               "open-chords",
-              "strumming-patterns"
+              "strumming"
             ],
             "why": "This pattern keeps the hand moving down and up on every half beat, so the strums it leaves out are what make the groove.",
             "learnBefore": [
@@ -1913,7 +1914,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "Every drill this week changed one thing (the key, the tempo, the notes in play), so you can make your own by changing one thing yourself.",
             "learnBefore": [
@@ -1981,7 +1982,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "pentatonic-box-1"
+              "pentatonic-positions"
             ],
             "why": "Landing on a note of the chord as it changes is the simplest way to make a solo follow the chords.",
             "learnBefore": [
@@ -2080,7 +2081,7 @@
             ],
             "topic": "guitar-scales",
             "concepts": [
-              "guitar-melodies-beginner"
+              "guitar-melodies"
             ],
             "why": "Playing the week's tune once more, then somewhere new, shows you what has changed in your hands.",
             "learnBefore": [

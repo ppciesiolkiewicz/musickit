@@ -8,9 +8,9 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "matching-a-pitch",
-    "do-re-mi-steps",
-    "breath-holding-note"
+    "pitch",
+    "steps-to-leaps",
+    "breath"
   ],
   "docs": {
     "agents": 1,
@@ -28,7 +28,7 @@
     ],
     "topic": "voice-pitch",
     "concepts": [
-      "matching-a-pitch"
+      "pitch"
     ],
     "why": "When your note matches the drone, the two blend into one sound, so the drone tells you when you are on the note.",
     "learnBefore": [

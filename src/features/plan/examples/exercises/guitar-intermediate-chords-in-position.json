@@ -8,8 +8,8 @@
   "updated": "2026-11-13",
   "model": "claude-opus-5-5",
   "concepts": [
-    "top-string-triads",
-    "arpeggios-position"
+    "triads",
+    "arpeggios"
   ],
   "docs": {
     "agents": 1,
@@ -27,8 +27,8 @@
     ],
     "topic": "guitar-caged",
     "concepts": [
-      "top-string-triads",
-      "arpeggios-position"
+      "triads",
+      "arpeggios"
     ],
     "why": "Every chord of the key is a triad on the top three strings somewhere inside one scale position, so you can strike a chord and carry on soloing without moving your hand.",
     "learnBefore": [

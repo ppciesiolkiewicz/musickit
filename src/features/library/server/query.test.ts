@@ -70,7 +70,7 @@ test("playerProgress for A: rated topic and concept are no longer not-yet, block
   assert.equal(topic.ratings, 1);
   assert.notEqual(topic.reached, null);
   assert.ok(topic.seconds > 0 || r.outcome.seconds.total === 600);
-  assert.equal(r.outcome.areas.flatMap((a) => a.topics).flatMap((t) => t.concepts).find((c) => c.id === "pentatonic")?.state, "solid");
+  assert.equal(r.outcome.areas.flatMap((a) => a.topics).flatMap((t) => t.concepts).find((c) => c.id === "scales")?.state, "solid"); // "pentatonic" from before the path is the scales track
   assert.equal(r.outcome.asOf, "2026-11-15");
   assert.deepEqual(r.blocks.map((b) => b.id).sort(), ["D", "PA", "R", "S2"]);
   assert.equal(r.blocksTotal, 4);

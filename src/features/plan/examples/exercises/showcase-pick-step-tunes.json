@@ -9,8 +9,8 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "voice-melodies-easy",
-    "do-mi-sol-skips"
+    "tunes",
+    "steps-to-leaps"
   ],
   "docs": {
     "agents": 1,
@@ -28,7 +28,7 @@
     ],
     "topic": "voice-melodies",
     "concepts": [
-      "voice-melodies-easy"
+      "tunes"
     ],
     "why": "In a tune that moves by step each note sits right next to the last one, while a skip asks you to hear the next note before you jump to it, so the step tune comes first.",
     "learnBefore": [

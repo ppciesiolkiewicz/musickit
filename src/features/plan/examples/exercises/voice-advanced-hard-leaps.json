@@ -8,7 +8,7 @@
   "updated": "2026-11-11",
   "model": "claude-fable-5-2",
   "concepts": [
-    "leaps",
+    "steps-to-leaps",
     "singing-intervals"
   ],
   "docs": {
@@ -27,7 +27,7 @@
     ],
     "topic": "voice-intervals",
     "concepts": [
-      "leaps",
+      "steps-to-leaps",
       "singing-intervals"
     ],
     "why": "A hard leap lands in tune when you first hear a note you already know right beside it, so each block finds its leaps from a neighbour: the high Do, then Sol.",

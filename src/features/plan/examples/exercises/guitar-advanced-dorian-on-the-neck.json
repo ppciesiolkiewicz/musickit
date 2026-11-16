@@ -8,7 +8,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "modes-on-neck",
+    "major-on-neck",
     "modes"
   ],
   "docs": {
@@ -27,7 +27,7 @@
     ],
     "topic": "guitar-scales",
     "concepts": [
-      "modes-on-neck"
+      "major-on-neck"
     ],
     "why": "Dorian is natural minor with one note raised, the 6th, so a line only sounds Dorian when it uses that note: learn where it sits and aim for it.",
     "learnBefore": [

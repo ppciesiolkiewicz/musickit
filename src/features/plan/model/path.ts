@@ -1,19 +1,22 @@
-import type { Area } from "@/features/plan/model/concepts";
-import type { Level } from "@/features/plan/model/types";
+import type { Area } from "./concepts";
+import { LADDERS } from "./ladders";
+import type { PlanTool } from "./tools";
+import type { Level } from "./types";
 
 /*
- * A proposed learning path with steps that overlap the levels (NEW13 in tasks.txt), drawn on /dev/path under
- * "Proposed". Today a concept sits at one level; here a track (one skill, often several of today's concepts merged)
- * runs across the levels its steps reach, and each step has its own level. So tracks in one topic interleave: the
- * first triads come before CAGED, the last after it. A step may say which steps of other tracks come first (`after`).
- * Nothing in the app reads this yet: it is a proposal to look at, and the source for moving steps into the plan model.
+ * The learning path (NEW13 in tasks.txt): every concept is a track, one skill a player gets better at, and a track has
+ * steps from easiest to hardest. Each step has its own level, so a track runs across the levels its steps reach and
+ * tracks in one topic interleave: the first triads come before CAGED, the last after it. A step may name steps of other
+ * tracks to learn first (`after`). A step a ladder in the code stands for (ladders.ts) is read back from an exercise's
+ * tools (`stepOf`); the others are "not implemented" until a tool has a level for them.
+ * `merges` lists the concept ids from before the path (2026-11-16); concepts.ts maps them to their track.
  */
 
-export interface ProposedStep {
+export interface PathStep {
   level: Level;
   name: string;
   holds: string;
-  /** the ladder step in the code that stands for it, as "ladderId:key" (model/steps.ts LADDERS); none: not implemented */
+  /** the ladder step in the code that stands for it, as "ladderId:key" (ladders.ts); none: not implemented */
   ladder?: string;
   /** steps of other tracks to learn first, as "trackId:n", n counted from 1 */
   after?: string[];
@@ -25,21 +28,22 @@ export interface Track {
   area: Area;
   /** the questionnaire topic (intake/topics.ts) */
   topic: string;
-  /** today's concepts this track takes the place of; empty for a concept that is new */
+  /** the concept ids from before the path that this track took the place of; empty for one that is new */
   merges: string[];
   /** easiest first; levels never go down */
-  steps: ProposedStep[];
+  steps: PathStep[];
 }
 
 type Opts = { ladder?: string; after?: string[] };
-const s = (level: Level, name: string, holds = "", o: Opts = {}): ProposedStep => ({ level, name, holds, ...o });
+const s = (level: Level, name: string, holds = "", o: Opts = {}): PathStep => ({ level, name, holds, ...o });
 const N = "new", B = "beginner", I = "intermediate", A = "advanced";
-const track = (area: Area, topic: string, id: string, label: string, merges: string[], steps: ProposedStep[]): Track => ({ id, label, area, topic, merges, steps });
-const g = (topic: string, id: string, label: string, merges: string[], steps: ProposedStep[]) => track("guitar", `guitar-${topic}`, id, label, merges, steps);
-const v = (topic: string, id: string, label: string, merges: string[], steps: ProposedStep[]) => track("voice", `voice-${topic}`, id, label, merges, steps);
-const t = (topic: string, id: string, label: string, merges: string[], steps: ProposedStep[]) => track("theory", `theory-${topic}`, id, label, merges, steps);
+const track = (area: Area, topic: string, id: string, label: string, merges: string[], steps: PathStep[]): Track => ({ id, label, area, topic, merges, steps });
+const g = (topic: string, id: string, label: string, merges: string[], steps: PathStep[]) => track("guitar", `guitar-${topic}`, id, label, merges, steps);
+const v = (topic: string, id: string, label: string, merges: string[], steps: PathStep[]) => track("voice", `voice-${topic}`, id, label, merges, steps);
+const t = (topic: string, id: string, label: string, merges: string[], steps: PathStep[]) => track("theory", `theory-${topic}`, id, label, merges, steps);
 
-export const PROPOSAL: Track[] = [
+/** Every track, per area, in questionnaire topic order. */
+export const PATH: Track[] = [
   // ---- Guitar
   g("basic-chords", "open-chords", "Open chords", ["open-chords", "one-minute-changes"], [
     s(N, "Em, Am", "two-finger and three-finger shapes"),
@@ -352,7 +356,7 @@ export const PROPOSAL: Track[] = [
 ];
 
 /** A step pointed at by "trackId:n". */
-export function stepAt(ref: string, tracks: Track[] = PROPOSAL): { track: Track; step: ProposedStep; index: number } | undefined {
+export function stepAt(ref: string, tracks: Track[] = PATH): { track: Track; step: PathStep; index: number } | undefined {
   const [id, n] = ref.split(":");
   const track = tracks.find((x) => x.id === id);
   const index = Number(n) - 1;
@@ -367,8 +371,8 @@ export function spanOf(track: Track): [number, number] {
   return [levelIndex(track.steps[0].level), levelIndex(track.steps[track.steps.length - 1].level)];
 }
 
-/** Counts for the line above the diagram, over the tracks given. */
-export function proposalStats(tracks: Track[]): { tracks: number; merged: number; added: number; steps: number; fromLadder: number; spanning: number } {
+/** Counts for the line above the /dev/path diagram, over the tracks given. */
+export function pathStats(tracks: Track[]): { tracks: number; merged: number; added: number; steps: number; fromLadder: number; spanning: number } {
   return {
     tracks: tracks.length,
     merged: tracks.reduce((n, x) => n + x.merges.length, 0),
@@ -378,3 +382,23 @@ export function proposalStats(tracks: Track[]): { tracks: number; merged: number
     spanning: tracks.filter((x) => { const [a, b] = spanOf(x); return b > a; }).length,
   };
 }
+
+/**
+ * The step of a track an exercise works on, as its index from 0: read from the exercise's own tools through the ladders
+ * its steps name, the hardest one when several are in it. Null when the track has no ladder step or no tool says one.
+ */
+export function stepOf(trackId: string, tools: PlanTool[], tracks: Track[] = PATH): number | null {
+  const track = tracks.find((x) => x.id === trackId);
+  if (!track) return null;
+  let at = -1;
+  track.steps.forEach((st, i) => {
+    if (!st.ladder) return;
+    const [id, key] = st.ladder.split(":");
+    const ladder = LADDERS.find((l) => l.id === id);
+    if (ladder?.read && tools.some((t) => ladder.read!(t) === key)) at = Math.max(at, i);
+  });
+  return at < 0 ? null : at;
+}
+
+/** Whether any step of the track is read from a ladder, so `stepOf` can say a step. */
+export const hasLadder = (track: Track): boolean => track.steps.some((st) => st.ladder);

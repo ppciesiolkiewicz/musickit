@@ -71,7 +71,7 @@ function extractJson(text: string): unknown {
 /**
  * An exercise's topic and concepts as the AI tagged them. A topic that is unknown, or belongs to another area than the
  * exercise's, is dropped with a warning; concepts are kept when they are known and of that topic (at most 4), the rest
- * named in a warning.
+ * named in a warning. A concept id from before the path (concepts.ts `OLD_CONCEPT_IDS`) is kept as its track's id.
  */
 function topicTags(e: Record<string, unknown>, area: PlanExercise["area"], where: string, warnings: string[]): Pick<PlanExercise, "topic" | "concepts"> {
   const out: Pick<PlanExercise, "topic" | "concepts"> = {};
@@ -83,7 +83,8 @@ function topicTags(e: Record<string, unknown>, area: PlanExercise["area"], where
   if (!Array.isArray(e.concepts)) return out;
   const ids = [...new Set(e.concepts.filter((c): c is string => typeof c === "string"))];
   const fits = (c: string) => !!conceptById(c) && (!out.topic || conceptById(c)!.topic === out.topic);
-  const kept = ids.filter(fits).slice(0, MAX_CONCEPTS);
+  // an id from before the path is kept as its track
+  const kept = [...new Set(ids.filter(fits).map((c) => conceptById(c)!.id))].slice(0, MAX_CONCEPTS);
   const dropped = ids.filter((c) => !fits(c));
   if (dropped.length) warnings.push(`${where}: left out concepts that are unknown or of another topic: ${dropped.join(", ")}.`);
   if (kept.length) out.concepts = kept;

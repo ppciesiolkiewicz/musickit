@@ -1,7 +1,7 @@
 import { conceptById } from "@/features/plan/model/concepts";
 import { toolsOf } from "@/features/plan/model/tools";
 import type { PlanExercise } from "@/features/plan/model/types";
-import { LINKS, conceptSteps, stepOf } from "./steps";
+import { conceptSteps, hasLadder, stepOf } from "./steps";
 
 /*
  * What step each concept of an example works on, for /dev/examples (NEW15): read from the exercise's own tools with
@@ -24,7 +24,7 @@ export function exerciseSteps(exercise: Pick<PlanExercise, "concepts" | "cells">
   const tools = toolsOf(exercise.cells);
   return (exercise.concepts ?? []).map((concept) => {
     const label = conceptById(concept)?.label ?? concept;
-    if (!LINKS[concept]) return { concept, label, read: "no-ladder" };
+    if (!hasLadder(conceptById(concept)?.id ?? concept)) return { concept, label, read: "no-ladder" };
     const key = stepOf(concept, tools);
     const step = key === null ? undefined : steps[concept]?.steps.find((s) => s.key === key)?.name ?? key;
     return step === undefined ? { concept, label, read: "no-step" } : { concept, label, read: "step", step };

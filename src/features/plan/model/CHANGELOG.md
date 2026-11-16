@@ -10,6 +10,10 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 2 (2026-11-16)
+
+- The concepts listed under each topic are the tracks of the learning path (`path.ts`, NEW13): 44 in place of 67, several old concepts merged into one track (`top-string-triads` and `triads-every-set` are `triads`). The parser still reads an old id, as its track.
+
 ### 1 (2026-11-15)
 
 - The page's tools check before they change anything: `check_practice_plan` beside `submit_practice_plan`, and `check_block` beside `write_block` and `insert_block` on the notes creator and the running plan. Each reads the AI's JSON with the same parser as the write and answers with what it would change or leave out, saving nothing.

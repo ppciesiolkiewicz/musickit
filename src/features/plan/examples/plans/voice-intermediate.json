@@ -9,10 +9,11 @@
   "model": "claude-fable-5-2",
   "minutes": 22,
   "concepts": [
-    "leaps",
+    "steps-to-leaps",
     "runs",
     "harmony-line",
-    "sight-singing"
+    "sight-singing",
+    "improvise"
   ],
   "docs": {
     "agents": 1,
@@ -37,7 +38,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "The count grows by one each round, so your breath gets longer in steps too small to strain.",
             "learnBefore": [
@@ -69,7 +70,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps"
+              "steps-to-leaps"
             ],
             "why": "Fa and Sol are one step apart, so hearing which one a leap went to is what stops your own leap landing on the wrong one.",
             "learnBefore": [
@@ -107,7 +108,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps"
+              "steps-to-leaps"
             ],
             "why": "A leap lands in tune when you hear the landing note before you sing it, so the game gives you only Do and the name of the leap.",
             "learnBefore": [
@@ -235,7 +236,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "A hiss is air alone and a buzz is the same air with your voice added, so going from one to the other shows how little extra push a note needs.",
             "learnBefore": [
@@ -265,7 +266,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps"
+              "steps-to-leaps"
             ],
             "why": "In a falling leap the top note comes first and there is no Do under it yet, so the ear has to measure downwards.",
             "learnBefore": [
@@ -438,7 +439,7 @@
             ],
             "topic": "voice-pitch",
             "concepts": [
-              "in-tune-over-drone"
+              "pitch"
             ],
             "why": "A slow slide passes through every pitch between two notes, so it shows your voice the whole distance before you leap it.",
             "learnBefore": [
@@ -477,7 +478,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps"
+              "steps-to-leaps"
             ],
             "why": "The high Do is the same note as Do, so the two blend into one sound where every other leap stands apart: listen for the blend first.",
             "learnBefore": [
@@ -515,7 +516,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps"
+              "steps-to-leaps"
             ],
             "why": "The octave is the widest leap in most tunes, and Sol sits a little over halfway up it, so the 5th you know is the marker for the octave you are learning.",
             "learnBefore": [
@@ -644,7 +645,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "Each round adds one count, so going two rounds further than on day 1 makes the breath longer without a jump.",
             "learnBefore": [
@@ -904,7 +905,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "A long phrase is one slow breath out, so a breath out that lasts longer than the breath in is the phrase without its notes.",
             "learnBefore": [
@@ -934,7 +935,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps"
+              "steps-to-leaps"
             ],
             "why": "With six leaps to choose from a guess stops working, so the ear has to know each one by its own sound.",
             "learnBefore": [
@@ -1007,6 +1008,9 @@
               "improv"
             ],
             "topic": "voice-harmony",
+            "concepts": [
+              "improvise"
+            ],
             "why": "Do, Mi and Sol each belong to more than one of these four chords, so a line made from the three fits wherever it leaps.",
             "learnBefore": [
               "/course/6/singing-leaps",
@@ -1104,7 +1108,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps"
+              "steps-to-leaps"
             ],
             "why": "Without the picture of your voice only your ear can aim the leap, which is how it is in a song.",
             "learnBefore": [
@@ -1386,7 +1390,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "The same counts three days later let you feel the change where it was hardest: in the last rounds.",
             "learnBefore": [
@@ -1418,7 +1422,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps"
+              "steps-to-leaps"
             ],
             "why": "Every leap of the week in one game, the hard way round, shows which ones your ear now knows by itself.",
             "learnBefore": [
@@ -1492,6 +1496,9 @@
               "improv"
             ],
             "topic": "voice-harmony",
+            "concepts": [
+              "improvise"
+            ],
             "why": "From Do up to Sol is a 5th, from Sol up to the next Do is a 4th, and Do to Do is an octave, so three notes hold every leap of the week.",
             "learnBefore": [
               "/course/6/singing-leaps",

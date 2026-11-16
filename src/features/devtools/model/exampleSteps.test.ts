@@ -8,7 +8,7 @@ const ex = (concepts: string[] | undefined, ...cells: Cell[]) => ({ concepts, ce
 
 test("each concept of an exercise says the step its tools are on, none when the tools say none, or that it has no ladder", () => {
   assert.deepEqual(exerciseSteps(ex(["spider", "hammer-pull", "caged"], tool({ type: "finger-pattern", level: "beginner" }))), [
-    { concept: "spider", label: "The spider", read: "step", step: "beginner" },
+    { concept: "spider", label: "The spider", read: "step", step: "Fingers 1 2 3 4 from fret 1" },
     { concept: "hammer-pull", label: "Hammer-ons & pull-offs", read: "no-step" },
     { concept: "caged", label: "CAGED shapes", read: "no-ladder" },
   ]);
@@ -29,7 +29,7 @@ test("a plan gathers its concepts over the exercises: the steps read, the exerci
   assert.equal(p.exercises, 6);
   assert.equal(p.untagged, 2);
   assert.deepEqual(p.concepts, [
-    { concept: "spider", label: "The spider", exercises: 4, steps: ["new", "beginner"], noStep: 1, ladder: true },
+    { concept: "spider", label: "The spider", exercises: 4, steps: ["Fingers 1 2 3 4 from fret 5", "Fingers 1 2 3 4 from fret 1"], noStep: 1, ladder: true },
     { concept: "caged", label: "CAGED shapes", exercises: 1, steps: [], noStep: 0, ladder: false },
   ]);
 });

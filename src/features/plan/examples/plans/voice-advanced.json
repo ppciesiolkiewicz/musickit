@@ -9,11 +9,11 @@
   "model": "claude-fable-5-2",
   "minutes": 27,
   "concepts": [
-    "leaps",
+    "steps-to-leaps",
     "singing-intervals",
-    "fast-runs",
-    "stretch-range",
-    "improvise-melody",
+    "runs",
+    "range",
+    "improvise",
     "sight-singing"
   ],
   "docs": {
@@ -39,7 +39,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "Each round is one count longer than the last, so your breath reaches eleven counts without one hard jump.",
             "learnBefore": [
@@ -108,7 +108,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps",
+              "steps-to-leaps",
               "singing-intervals"
             ],
             "why": "Sol is a leap you already land, so hearing it first puts the tritone and the minor 6th a half step away instead of a long way from Do.",
@@ -154,7 +154,7 @@
             ],
             "topic": "voice-runs",
             "concepts": [
-              "fast-runs"
+              "runs"
             ],
             "why": "The run leaves out Fa and Ti, the two notes that sit a half step from a neighbour, so every note has room and the run stays clear when it gets fast.",
             "learnBefore": [
@@ -189,7 +189,7 @@
             ],
             "topic": "voice-harmony",
             "concepts": [
-              "improvise-melody"
+              "improvise"
             ],
             "why": "The 3rd and the 7th tell one chord from the next, and through a ii-V-I each of them moves a step or stays where it is, so a line made of them lets you hear every change.",
             "learnBefore": [
@@ -332,7 +332,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "stretch-range"
+              "range"
             ],
             "why": "A slide passes through every pitch on the way up, so your voice arrives at the top note already moving instead of jumping at it, and each key puts that top note one step higher.",
             "learnBefore": [
@@ -407,7 +407,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps",
+              "steps-to-leaps",
               "singing-intervals"
             ],
             "why": "The high Do is the same note as Do, so you can always hear it, and each 7th is one small step down from there.",
@@ -453,7 +453,7 @@
             ],
             "topic": "voice-runs",
             "concepts": [
-              "fast-runs"
+              "runs"
             ],
             "why": "A run of skips has no steps to lean on, so every note has to be aimed, and going round Do, Mi and Sol twice before the top puts the chord in your ear first.",
             "learnBefore": [
@@ -572,7 +572,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "A hiss is air alone and a buzz is the same air with your voice on it, so holding each for longer shows whether the air stays steady when the voice comes in.",
             "learnBefore": [
@@ -642,7 +642,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps",
+              "steps-to-leaps",
               "singing-intervals"
             ],
             "why": "A minor 3rd down from Do lands on La and a minor 6th down lands on Mi, two notes of the scale you already sing, so only the tritone is a new sound.",
@@ -689,7 +689,7 @@
             ],
             "topic": "voice-runs",
             "concepts": [
-              "fast-runs"
+              "runs"
             ],
             "why": "The top note is held for three beats, so you hear whether the run arrived in tune before you come back down.",
             "learnBefore": [
@@ -725,7 +725,7 @@
             ],
             "topic": "voice-harmony",
             "concepts": [
-              "improvise-melody"
+              "improvise"
             ],
             "why": "Round these four chords the 7th of one chord sits a half step from the 3rd of the next, or on it, so one line covers every change by moving a half step or not at all.",
             "learnBefore": [
@@ -848,7 +848,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "Starting at eight counts skips the easy rounds, so the whole three minutes is spent at the length where your breath is still growing.",
             "learnBefore": [
@@ -918,7 +918,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps",
+              "steps-to-leaps",
               "singing-intervals"
             ],
             "why": "With Do in a new key each time you can't lean on the last note you sang, so each leap has to be found from its neighbour: Sol, or the next Do.",
@@ -951,7 +951,7 @@
             ],
             "topic": "voice-runs",
             "concepts": [
-              "fast-runs"
+              "runs"
             ],
             "why": "The scale has two half steps, Mi to Fa and Ti to Do, and a fast run goes out of tune when they come out too wide, so aim those two pairs and the other steps are all whole ones.",
             "learnBefore": [
@@ -1070,7 +1070,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "A long phrase is one slow breath out, so a breath out four times as long as the breath in is the phrase without its notes.",
             "learnBefore": [
@@ -1139,7 +1139,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps",
+              "steps-to-leaps",
               "singing-intervals"
             ],
             "why": "With your voice not drawn, nothing shows you drifting towards the note, so the leap has to be heard whole before you start it.",
@@ -1180,7 +1180,7 @@
             ],
             "topic": "voice-runs",
             "concepts": [
-              "fast-runs"
+              "runs"
             ],
             "why": "The run opens on a held Sol, so you tune one note before the fast ones start, and they leave from it and come back through it.",
             "learnBefore": [
@@ -1215,7 +1215,7 @@
             ],
             "topic": "voice-harmony",
             "concepts": [
-              "improvise-melody"
+              "improvise"
             ],
             "why": "A faster band leaves less time to find each note, so a line holds together when you know where it lands: on the 3rd or the 7th as the last chord arrives.",
             "learnBefore": [
@@ -1343,7 +1343,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "stretch-range"
+              "range"
             ],
             "why": "A slide over two octaves passes the spot where your voice wants to break, and going through it slowly and quietly is what smooths it out.",
             "learnBefore": [
@@ -1498,7 +1498,7 @@
             ],
             "topic": "voice-runs",
             "concepts": [
-              "fast-runs"
+              "runs"
             ],
             "why": "The run goes two notes past the high Do, to the high Mi of the tunes you just read, so the note you leapt to is now reached by step.",
             "learnBefore": [
@@ -1533,7 +1533,7 @@
             ],
             "topic": "voice-harmony",
             "concepts": [
-              "improvise-melody"
+              "improvise"
             ],
             "why": "Each guide tone is on the staff in more than one octave, so a line can leap an octave or more and still land on a note that fits the chord.",
             "learnBefore": [
@@ -1646,7 +1646,7 @@
             ],
             "topic": "voice-breath-range",
             "concepts": [
-              "breath-holding-note"
+              "breath"
             ],
             "why": "The rounds start one count later than on day 4 and end one count further, so you feel the change at the long end, where it was hardest.",
             "learnBefore": [
@@ -1709,7 +1709,7 @@
             ],
             "topic": "voice-intervals",
             "concepts": [
-              "leaps",
+              "steps-to-leaps",
               "singing-intervals"
             ],
             "why": "Day 1 gave you one neighbour, two leaps and the picture of your voice, and today has every leap, both ways, in any key with no picture, so what lands now is what your ear has learnt.",
@@ -1743,7 +1743,7 @@
             ],
             "topic": "voice-runs",
             "concepts": [
-              "fast-runs"
+              "runs"
             ],
             "why": "The notes are the ones from day 1, so what you hear changing is your voice: how many passes stay clear before the top.",
             "learnBefore": [
@@ -1778,7 +1778,7 @@
             ],
             "topic": "voice-harmony",
             "concepts": [
-              "improvise-melody"
+              "improvise"
             ],
             "why": "Guide tones are the notes your ear checks a chord by, so once you can sing them without the staff, any line you make up has somewhere to start and somewhere to land.",
             "learnBefore": [

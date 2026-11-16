@@ -4,8 +4,9 @@ import { TOPICS } from "@/features/plan/intake/topics";
 import { AREAS, CONCEPTS, type Concept } from "@/features/plan/model/concepts";
 import { areaPath, chain, gaps, pathNodes, wrap, type PathSource } from "./path";
 
+/** A concept with one step at its level, which names the first step of each concept in `buildsOn` to learn first. */
 const concept = (id: string, level: Concept["level"], topic: string, buildsOn?: string[], course?: string): Concept =>
-  ({ id, area: "guitar", level, label: id, topic, buildsOn, course });
+  ({ id, area: "guitar", level, levels: [level], label: id, topic, course, merges: [], steps: [{ level, name: id, holds: "", ...(buildsOn ? { after: buildsOn.map((b) => `${b}:1`) } : {}) }] });
 
 const src: PathSource = {
   concepts: [
@@ -18,7 +19,7 @@ const src: PathSource = {
   exercises: [{ id: "ex-a", concepts: ["a", "b"] }],
   plans: [{ id: "plan-1", concepts: ["b"] }],
   written: new Set(["/course/1/a"]),
-  steps: { b: { from: "a ladder", steps: [{ name: "one", holds: "x", planned: false }, { name: "two", holds: "y", planned: true }] } },
+  steps: { b: { from: "a ladder", steps: [{ name: "one", holds: "x", level: "beginner", planned: false }, { name: "two", holds: "y", level: "beginner", planned: true }] } },
 };
 
 test("a node carries both directions of buildsOn, its examples and whether its course page is written", () => {
@@ -54,7 +55,7 @@ test("gaps count the concepts with no example exercise, no example plan, no writ
   assert.deepEqual(gaps([...pathNodes(src).values()]), { concepts: 5, noExercise: 3, noPlan: 4, planned: 4, noSteps: 4, stepsPlanned: 1 });
 });
 
-test("the real catalogue: every concept lands in one lane of its area, and what it builds on is never a higher level", () => {
+test("the real catalogue: every concept lands in one lane of its area, and what it builds on starts no higher than it ends", () => {
   const nodes = pathNodes();
   assert.equal(nodes.size, CONCEPTS.length);
   let placed = 0;
@@ -64,7 +65,10 @@ test("the real catalogue: every concept lands in one lane of its area, and what 
     placed += path.lanes.reduce((n, l) => n + l.cells.reduce((m, cell) => m + cell.length, 0), 0);
   }
   assert.equal(placed, CONCEPTS.length);
-  for (const n of nodes.values()) for (const from of n.buildsOn) assert.ok(nodes.get(from)!.level <= n.level, `${from} → ${n.id}`);
+  for (const n of nodes.values()) {
+    assert.ok(n.to >= n.level, n.id);
+    for (const from of n.buildsOn) assert.ok(nodes.get(from)!.level <= n.to, `${from} → ${n.id}`);
+  }
 });
 
 test("wrap keeps a short label whole and breaks a long one into two lines", () => {

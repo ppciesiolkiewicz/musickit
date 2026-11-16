@@ -9,7 +9,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "five-pentatonic-boxes"
+    "pentatonic-positions"
   ],
   "docs": {
     "agents": 1,
@@ -27,7 +27,7 @@
     ],
     "topic": "guitar-scales",
     "concepts": [
-      "five-pentatonic-boxes"
+      "pentatonic-positions"
     ],
     "why": "A minor and E minor pentatonic share four of their five notes, so in the same part of the neck only one note moves and the root is a new note to end on.",
     "learnBefore": [

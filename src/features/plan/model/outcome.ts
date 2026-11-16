@@ -1,7 +1,7 @@
 import type { PlanAnswers } from "../intake/answers";
 import { topicById, topicsFor, type Rung } from "../intake/topics";
 import type { ProgressEntry } from "@/features/progress/log";
-import { AREAS, conceptById, conceptsOf, type Area } from "./concepts";
+import { AREAS, conceptById, conceptIds, conceptsOf, type Area } from "./concepts";
 import type { DayTime } from "./planTime";
 import { addDays, dayOf } from "./schedule";
 import type { AnswersEntry, Level, StoredPlan } from "./types";
@@ -41,8 +41,14 @@ export type ConceptState = "solid" | "working" | "not-yet";
 export interface ConceptOutcome {
   id: string;
   label: string;
+  /** the level of its first step */
   level: Level;
+  /** every level its steps reach, lowest first */
+  levels: Level[];
+  /** from the newest rating, whatever its level */
   state: ConceptState;
+  /** per level of `levels`: from the newest rating at that level or above (`ratingLevel`) */
+  at: Partial<Record<Level, ConceptState>>;
   /** counted ratings tagged with this concept */
   ratings: number;
   /** the day of the newest counted rating, or null */
@@ -100,9 +106,9 @@ interface Tags {
   area: Area | null;
 }
 
-/** Known concepts only; the topic as named, else the first concept's; the area from the topic, else as named. */
+/** Known concepts only, an id from before the path as its track; the topic as named, else the first concept's; the area from the topic, else as named. */
 function tagsOf(t: { concepts?: string[]; topic?: string; area?: string }): Tags {
-  const concepts = (t.concepts ?? []).filter((id) => conceptById(id));
+  const concepts = conceptIds(t.concepts ?? []);
   const topic = t.topic && topicById(t.topic) ? t.topic : concepts.length ? conceptById(concepts[0])!.topic : null;
   const area = topic ? topicById(topic)?.area ?? null : AREAS.some((a) => a.id === t.area) ? (t.area as Area) : null;
   return { concepts, topic, area };
@@ -123,29 +129,52 @@ function rungOf(history: AnswersEntry[], topic: string, asOf: string): Rung | nu
   return last && Object.hasOwn(last.topics, topic) ? last.topics[topic] : null;
 }
 
-function conceptOutcome(id: string, rated: Rated[]): ConceptOutcome {
-  const c = conceptById(id)!;
-  const mine = rated.filter((r) => r.concepts.includes(id));
-  let newest: ProgressEntry | null = null;
-  for (const { entry } of mine) if (!newest || Date.parse(entry.at) >= Date.parse(newest.at)) newest = entry;
-  const state: ConceptState = !newest ? "not-yet" : newest.stars >= SOLID_STARS ? "solid" : "working";
-  return { id, label: c.label, level: c.level, state, ratings: mine.length, lastOn: newest ? dayOf(newest.at) : null, seconds: 0 };
+/**
+ * The level a rating counts at for a concept: the block's own level tag inside the concept's span, the nearest end when
+ * it is outside, the concept's first level when there is none. A rating counts for that level and every level of the
+ * span below it, never above.
+ */
+export function ratingLevel(levels: readonly Level[], tag: string | undefined): Level {
+  const i = LEVEL_ORDER.indexOf(tag as Level);
+  if (i < 0) return levels[0];
+  if (i < LEVEL_ORDER.indexOf(levels[0])) return levels[0];
+  if (i > LEVEL_ORDER.indexOf(levels[levels.length - 1])) return levels[levels.length - 1];
+  return LEVEL_ORDER[i];
 }
 
-/** The level reached and the score between levels, from the rung and the concepts' states. */
+const stateOf = (list: ProgressEntry[]): { state: ConceptState; newest: ProgressEntry | null } => {
+  let newest: ProgressEntry | null = null;
+  for (const entry of list) if (!newest || Date.parse(entry.at) >= Date.parse(newest.at)) newest = entry;
+  return { newest, state: !newest ? "not-yet" : newest.stars >= SOLID_STARS ? "solid" : "working" };
+};
+
+function conceptOutcome(id: string, rated: Rated[]): ConceptOutcome {
+  const c = conceptById(id)!;
+  const mine = rated.filter((r) => r.concepts.includes(id)).map((r) => r.entry);
+  const { state, newest } = stateOf(mine);
+  const at: ConceptOutcome["at"] = {};
+  for (const level of c.levels) {
+    const i = LEVEL_ORDER.indexOf(level);
+    at[level] = stateOf(mine.filter((e) => LEVEL_ORDER.indexOf(ratingLevel(c.levels, e.level)) >= i)).state;
+  }
+  return { id, label: c.label, level: c.level, levels: c.levels, state, at, ratings: mine.length, lastOn: newest ? dayOf(newest.at) : null, seconds: 0 };
+}
+
+/** The level reached and the score between levels, from the rung and the concepts' states at each level. */
 function scoreOf(concepts: ConceptOutcome[], rung: Rung | null, rated: boolean): { reached: number | null; score: number | null } {
-  const at = (i: number) => concepts.filter((c) => LEVEL_ORDER.indexOf(c.level) === i);
-  const solid = (c: ConceptOutcome) => c.state === "solid";
-  // A level is reached from practice when it has concepts in this topic and every one is solid. Levels are judged
+  // a concept stands at every level its steps reach, and is judged at each by the ratings there or above
+  const at = (i: number) => concepts.filter((c) => c.levels.includes(LEVEL_ORDER[i]));
+  const solidAt = (i: number) => (c: ConceptOutcome) => c.at[LEVEL_ORDER[i]] === "solid";
+  // A level is reached from practice when it has concepts in this topic and every one is solid there. Levels are judged
   // one by one: an empty level is never the one checked, so it doesn't block, and a level below need not be solid.
-  const practised = [0, 1, 2, 3].filter((i) => at(i).length > 0 && at(i).every(solid));
+  const practised = [0, 1, 2, 3].filter((i) => at(i).length > 0 && at(i).every(solidAt(i)));
   const fromPractice = practised.length ? Math.max(...practised) : null;
   const floor = rung ?? (rated ? 0 : null); // no answer: "new" once the topic has any rating
   if (floor === null && fromPractice === null) return { reached: null, score: null };
   const reached = Math.max(floor ?? 0, fromPractice ?? 0);
   if (reached >= 3) return { reached, score: 3 }; // advanced: no fraction
   const up = at(reached + 1);
-  return { reached, score: reached + (up.length ? up.filter(solid).length / up.length : 0) }; // no concepts one level up: stays at reached
+  return { reached, score: reached + (up.length ? up.filter(solidAt(reached + 1)).length / up.length : 0) }; // no concepts one level up: stays at reached
 }
 
 function topicOutcome(id: string, area: Area, label: string, rated: Rated[], history: AnswersEntry[], asOf: string): TopicOutcome {

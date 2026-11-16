@@ -8,7 +8,7 @@
   "updated": "2026-11-10",
   "model": "claude-fable-5-2",
   "concepts": [
-    "notes-e-a-strings",
+    "notes-on-neck",
     "note-names"
   ],
   "docs": {
@@ -27,7 +27,7 @@
     ],
     "topic": "guitar-scales",
     "concepts": [
-      "notes-e-a-strings"
+      "notes-on-neck"
     ],
     "why": "A chord shape moved up the neck is named by the note under it on the low E or the A string, so knowing these notes lets you find any chord you move.",
     "learnBefore": [

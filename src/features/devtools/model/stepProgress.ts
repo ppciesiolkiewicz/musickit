@@ -1,4 +1,4 @@
-import { CONCEPTS } from "@/features/plan/model/concepts";
+import { CONCEPTS, conceptIds } from "@/features/plan/model/concepts";
 import { SOLID_STARS } from "@/features/plan/model/outcome";
 import { addDays, dayOf } from "@/features/plan/model/schedule";
 import { toolsOf } from "@/features/plan/model/tools";
@@ -55,7 +55,8 @@ export function stepRatings(entries: ProgressEntry[], plans: StoredPlan[]): Step
     const exercise = exercises.find((x) => x.id === e.exerciseId)
       ?? (e.blockId ? plans.flatMap((p) => p.config.days.flatMap((d) => d.exercises)).find((x) => x.blockId === e.blockId) : undefined);
     const tools = exercise ? toolsOf(exercise.cells) : [];
-    return (e.concepts ?? []).map((concept) => ({ concept, step: stepOf(concept, tools), stars: e.stars, on: dayOf(e.at) }));
+    // an id from before the path counts for its track
+    return conceptIds(e.concepts ?? []).map((concept) => ({ concept, step: stepOf(concept, tools), stars: e.stars, on: dayOf(e.at) }));
   });
 }
 
@@ -96,41 +97,48 @@ export function weeksBetween(from: string, to: string): number {
   return Math.max(0, Math.floor((Date.parse(to) - Date.parse(from)) / (7 * 86400000)));
 }
 
-/** A made-up student, to see the view with something on it. `days` is how long before today a rating was given. */
+/** A made-up student, to see the view with something on it. A step is named by the ladder step it is (`ladders.ts`), null for no step; `days` is how long before today a rating was given. */
 export interface ExampleStudent { id: string; label: string; ratings: [concept: string, step: string | null, stars: Stars, days: number][] }
 
 export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   {
     id: "guitar-slow", label: "Example: guitar, slow and steady",
     ratings: [
-      ["notes-e-a-strings", "new", 5, 40], ["notes-e-a-strings", "beginner", 4, 26],
-      ["spider", "new", 5, 38], ["spider", "beginner", 2, 30], ["spider", "beginner", 3, 16], ["spider", "beginner", 3, 2],
-      ["hammer-pull", "new", 2, 9], ["hammer-pull", "new", 3, 3],
-      ["pentatonic-box-1", null, 3, 28], ["pentatonic-box-1", null, 3, 5],
-      ["open-chords", null, 4, 33], ["one-minute-changes", null, 3, 12],
+      ["notes-on-neck", "note-finder:new", 5, 40], ["notes-on-neck", "note-finder:beginner", 4, 26],
+      ["spider", "finger-pattern:new", 5, 38], ["spider", "finger-pattern:beginner", 2, 30], ["spider", "finger-pattern:beginner", 3, 16], ["spider", "finger-pattern:beginner", 3, 2],
+      ["legato", "legato-trill:new", 2, 9], ["legato", "legato-trill:new", 3, 3],
+      ["pentatonic-positions", null, 3, 28], ["pentatonic-positions", null, 3, 5],
+      ["open-chords", null, 4, 33], ["open-chords", null, 3, 12],
     ],
   },
   {
     id: "guitar-fast", label: "Example: guitar, moving fast",
     ratings: [
-      ["notes-e-a-strings", "beginner", 5, 60], ["find-every-note", "intermediate", 4, 20], ["find-every-note", "advanced", 3, 4],
-      ["spider", "advanced", 5, 45], ["hammer-pull", "new", 5, 50], ["hammer-pull", "beginner", 5, 36], ["hammer-pull", "intermediate", 4, 22], ["hammer-pull", "advanced", 3, 6],
-      ["pentatonic-box-1", null, 5, 55], ["five-pentatonic-boxes", null, 4, 18], ["top-string-triads", null, 4, 25], ["caged", null, 3, 8],
-      ["open-chords", null, 5, 70], ["bm-f-barre", null, 4, 48], ["power-chords", null, 5, 52],
+      ["notes-on-neck", "note-finder:beginner", 5, 60], ["notes-on-neck", "note-finder:intermediate", 4, 20], ["notes-on-neck", "note-finder:advanced", 3, 4],
+      ["spider", "finger-pattern:advanced", 5, 45], ["legato", "legato-trill:new", 5, 50], ["legato", "legato-trill:beginner", 5, 36], ["legato", "legato-trill:intermediate", 4, 22], ["legato", "legato-trill:advanced", 3, 6],
+      ["pentatonic-positions", null, 5, 55], ["pentatonic-positions", null, 4, 18], ["triads", null, 4, 25], ["caged", null, 3, 8],
+      ["open-chords", null, 5, 70], ["barre", null, 4, 48], ["power-chords", null, 5, 52],
     ],
   },
   {
     id: "voice", label: "Example: voice with some ear training",
     ratings: [
-      ["matching-a-pitch", null, 4, 44], ["breath-holding-note", "new", 4, 41], ["breath-holding-note", "beginner", 3, 10],
-      ["do-re-mi-steps", "do-re", 5, 43], ["do-re-mi-steps", "mi", 5, 36], ["do-re-mi-steps", "fa", 4, 30], ["do-re-mi-steps", "sol", 4, 24],
-      ["do-mi-sol-skips", "skips", 4, 20], ["do-mi-sol-skips", "arpeggio", 3, 11],
-      ["singing-intervals", "new", 5, 22], ["singing-intervals", "beginner", 4, 15], ["singing-intervals", "intermediate", 3, 13], ["singing-intervals", "intermediate", 3, 1],
-      ["runs", "five", 3, 6],
-      ["intervals", "1", 5, 19], ["intervals", "2", 4, 12], ["intervals", "3", 2, 4], ["major-vs-minor", null, 4, 27],
+      ["pitch", null, 4, 44], ["breath", "farinelli:new", 4, 41], ["breath", "farinelli:beginner", 3, 10],
+      ["steps-to-leaps", "melody-stages:do-re", 5, 43], ["steps-to-leaps", "melody-stages:mi", 5, 36], ["steps-to-leaps", "melody-stages:fa", 4, 30], ["steps-to-leaps", "melody-stages:sol", 4, 24],
+      ["steps-to-leaps", "melody-stages:skips", 4, 20], ["steps-to-leaps", "melody-stages:arpeggio", 3, 11],
+      ["singing-intervals", "interval-singer:new", 5, 22], ["singing-intervals", "interval-singer:beginner", 4, 15], ["singing-intervals", "interval-singer:intermediate", 3, 13], ["singing-intervals", "interval-singer:intermediate", 3, 1],
+      ["runs", "run-stages:five", 3, 6],
+      ["intervals", "interval-ears:1", 5, 19], ["intervals", "interval-ears:2", 4, 12], ["intervals", "interval-ears:3", 2, 4], ["home-and-colour", null, 4, 27],
     ],
   },
 ];
 
+/** A ladder ref as the key of the concept's step it stands for; null when no step of the concept is that ladder step. */
+const keyOf = (concept: string, ref: string | null): string | null => {
+  if (ref === null) return null;
+  const at = CONCEPTS.find((c) => c.id === concept)?.steps.findIndex((s) => s.ladder === ref) ?? -1;
+  return at < 0 ? null : String(at);
+};
+
 export const exampleRatings = (s: ExampleStudent, today: string): StepRating[] =>
-  s.ratings.map(([concept, step, stars, days]) => ({ concept, step, stars, on: addDays(today, -days) }));
+  s.ratings.map(([concept, step, stars, days]) => ({ concept, step: keyOf(concept, step), stars, on: addDays(today, -days) }));
