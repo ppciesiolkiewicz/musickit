@@ -16,13 +16,13 @@ import type { ConceptProgress, StepState } from "../model/stepProgress";
  */
 
 const ACCENT: Record<Area, { hue: string; soft: string; text: string }> = {
-  guitar: { hue: "#f59e0b", soft: "rgba(245,158,11,0.14)", text: "#fde68a" },
-  voice: { hue: "#f472b6", soft: "rgba(244,114,182,0.14)", text: "#fbcfe8" },
-  theory: { hue: "#38bdf8", soft: "rgba(56,189,248,0.14)", text: "#bae6fd" },
+  guitar: { hue: "var(--color-amber-500)", soft: "color-mix(in oklab, var(--color-amber-500) 14%, transparent)", text: "var(--color-amber-200)" },
+  voice: { hue: "var(--color-pink-400)", soft: "color-mix(in oklab, var(--color-pink-400) 14%, transparent)", text: "var(--color-pink-200)" },
+  theory: { hue: "var(--color-sky-400)", soft: "color-mix(in oklab, var(--color-sky-400) 14%, transparent)", text: "var(--color-sky-200)" },
 };
-const LEVEL_TINT = ["#34d399", "#38bdf8", "#a78bfa", "#f472b6"];
-const ADDED = "#fb923c";
-const STATE_RING: Record<StepState, string | null> = { solid: "#34d399", working: "#fbbf24", none: null };
+const LEVEL_TINT = ["var(--color-emerald-400)", "var(--color-sky-400)", "var(--color-violet-400)", "var(--color-pink-400)"];
+const ADDED = "var(--color-orange-400)";
+const STATE_RING: Record<StepState, string | null> = { solid: "var(--color-emerald-400)", working: "var(--color-amber-400)", none: null };
 const LABEL_W = 170, X0 = 8, COL_W = 136, PILL_W = 124, PILL_H = 50, ROW_H = 62, HEAD_H = 46, GAP = 14;
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border px-3 py-1 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
@@ -110,7 +110,7 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
         {([["now", "As it is"], ["proposed", "Proposed"]] as const).map(([id, text]) => (
           <button
             key={id} type="button" aria-pressed={version === id} onClick={() => setVersion(id)}
-            className={`${BTN} ${version === id ? "border-orange-400 bg-orange-500/20 text-orange-100" : "border-slate-700 text-slate-300 hover:border-slate-400"}`}
+            className={`${BTN} ${version === id ? "border-amber-400 bg-amber-500/20 text-amber-100" : "border-slate-700 text-slate-300 hover:border-slate-400"}`}
           >
             {text}
           </button>
@@ -147,7 +147,7 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
         <div className="relative p-3" style={{ width: width + 24, height: height + 24 }}>
           <div className="relative" style={{ width, height }}>
             {bands.map((b, i) => b.cols > 0 && (
-              <div key={b.level} className="absolute top-0 rounded-lg border border-slate-800/80" style={{ left: b.x - 6, width: b.w - 2, height, background: i % 2 ? "rgba(15,23,42,0.5)" : "transparent" }}>
+              <div key={b.level} className="absolute top-0 rounded-lg border border-slate-800/80" style={{ left: b.x - 6, width: b.w - 2, height, background: i % 2 ? "color-mix(in oklab, var(--color-slate-900) 50%, transparent)" : "transparent" }}>
                 <div className="h-0.5 rounded-t-lg" style={{ background: LEVEL_TINT[i] }} />
                 <p className="px-2 pt-1 text-sm font-semibold text-slate-100">{cap(b.level)} <span className="text-[11px] font-normal text-slate-500">{b.cols} column{b.cols === 1 ? "" : "s"}</span></p>
               </div>
@@ -156,8 +156,8 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
               {edges.map((e) => (
                 <path
                   key={e.key} d={e.d} fill="none"
-                  stroke={e.added ? ADDED : e.sameTrack ? a.hue : "#7dd3fc"}
-                  strokeOpacity={lit ? (e.on ? 0.95 : 0.06) : e.sameTrack ? 0.35 : 0.55}
+                  stroke={e.added ? ADDED : e.sameTrack ? a.hue : "var(--color-sky-300)"}
+                  strokeOpacity={lit ? (e.on ? 0.95 : 0.2) : e.sameTrack ? 0.35 : 0.55}
                   strokeWidth={e.on ? 2.5 : e.sameTrack ? 3 : 1.5}
                   strokeDasharray={e.added ? "5 4" : undefined}
                 />
@@ -172,7 +172,7 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
               const mine = progress?.[step.track.id];
               const state = mine?.steps[step.index]?.state;
               const here = mine?.at === step.index;
-              const ring = mark === "sel" ? "#e9d5ff" : mark === "before" ? "#7dd3fc" : mark === "after" ? "#c4b5fd" : (state && STATE_RING[state]) || (progress ? "#334155" : isNew || shift ? ADDED : "#334155");
+              const ring = mark === "sel" ? "var(--color-violet-200)" : mark === "before" ? "var(--color-sky-300)" : mark === "after" ? "var(--color-violet-300)" : (state && STATE_RING[state]) || (progress ? "var(--color-slate-700)" : isNew || shift ? ADDED : "var(--color-slate-700)");
               return (
                 <button
                   key={step.ref} type="button"
@@ -183,8 +183,8 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
                   className="absolute cursor-pointer rounded-lg border px-2 py-1 text-left transition-opacity duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
                   style={{
                     left: x, top: y, width: PILL_W, height: PILL_H, borderColor: ring,
-                    opacity: mark === "dim" ? 0.25 : 1,
-                    background: `linear-gradient(160deg, ${a.soft}, transparent 70%), #020617`,
+                    opacity: mark === "dim" ? 0.55 : 1,
+                    background: `linear-gradient(160deg, ${a.soft}, transparent 70%), var(--color-slate-950)`,
                     boxShadow: mark === "sel" ? `0 0 0 1px ${ring}, 0 6px 20px -6px ${a.hue}` : undefined,
                   }}
                 >

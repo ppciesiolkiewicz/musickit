@@ -62,20 +62,20 @@ function TrackRow({ row, state, onPick }: { row: Row; state: "sel" | "lit" | "di
     <g
       role="button" tabIndex={0} aria-pressed={state === "sel"} onClick={onPick} onKeyDown={key}
       aria-label={`${track.label}: ${track.steps.length} steps, ${LEVEL_ORDER[from]} to ${LEVEL_ORDER[to]}`}
-      opacity={state === "dim" ? 0.3 : 1} className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-sky-300"
+      opacity={state === "dim" ? 0.55 : 1} className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-sky-300"
     >
       <rect
-        x={x} y={top} width={w} height={height} rx={8} fill={state === "sel" ? "#2e1065" : "#0f172a"}
-        stroke={state === "sel" ? "#a78bfa" : state === "lit" ? "#38bdf8" : track.merges.length ? "#334155" : "#a78bfa"}
+        x={x} y={top} width={w} height={height} rx={8} fill={state === "sel" ? "var(--color-violet-950)" : "var(--color-slate-900)"}
+        stroke={state === "sel" ? "var(--color-violet-400)" : state === "lit" ? "var(--color-sky-400)" : track.merges.length ? "var(--color-slate-700)" : "var(--color-violet-400)"}
         strokeWidth={state === "plain" || state === "dim" ? 1 : 2} strokeDasharray={track.merges.length ? undefined : "4 3"}
       />
-      <text x={x + 8} y={top + 13} fontSize={11.5} fontWeight={600} fill="#e2e8f0">
+      <text x={x + 8} y={top + 13} fontSize={11.5} fontWeight={600} fill="var(--color-slate-200)">
         {track.label}
-        {track.merges.length > 1 && <tspan fill="#64748b" fontWeight={400} fontSize={9.5}>{`  ${track.merges.length} concepts today`}</tspan>}
-        {track.merges.length === 0 && <tspan fill="#a78bfa" fontWeight={400} fontSize={9.5}>  new</tspan>}
+        {track.merges.length > 1 && <tspan fill="var(--color-slate-500)" fontWeight={400} fontSize={9.5}>{`  ${track.merges.length} concepts today`}</tspan>}
+        {track.merges.length === 0 && <tspan fill="var(--color-violet-400)" fontWeight={400} fontSize={9.5}>  new</tspan>}
       </text>
       {track.steps.map((st, i) => (
-        <text key={i} x={at[i].x} y={at[i].y} fontSize={9.5} fill={st.ladder ? "#7dd3fc" : "#fbbf24"} fontStyle={st.ladder ? undefined : "italic"}>
+        <text key={i} x={at[i].x} y={at[i].y} fontSize={9.5} fill={st.ladder ? "var(--color-sky-300)" : "var(--color-amber-400)"} fontStyle={st.ladder ? undefined : "italic"}>
           <title>{`${i + 1}. ${stepText(st)} (${st.level})${st.ladder ? `, read from ${st.ladder}` : ", not implemented"}`}</title>
           {`${i + 1} ${clip(stepText(st), 36)}`}
         </text>
@@ -183,24 +183,24 @@ export default function ProposalView({ area, nodes, onArea }: { area: Area; node
         <svg width={WIDTH} height={height} viewBox={`0 0 ${WIDTH} ${height}`} role="group" aria-label={`Proposed ${area} path`} className="block">
           <defs>
             <marker id="prop-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-slate-500)" />
             </marker>
             <marker id="prop-arrow-lit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-sky-400)" />
             </marker>
           </defs>
           {LEVEL_ORDER.map((level, i) => (
             <g key={level}>
-              <line x1={colX(i)} y1={0} x2={colX(i)} y2={height} stroke="#1e293b" />
-              <text x={colX(i) + COL_W / 2} y={20} textAnchor="middle" fontSize={12} fontWeight={600} fill="#cbd5e1">{cap(level)}</text>
+              <line x1={colX(i)} y1={0} x2={colX(i)} y2={height} stroke="var(--color-slate-800)" />
+              <text x={colX(i) + COL_W / 2} y={20} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--color-slate-300)">{cap(level)}</text>
             </g>
           ))}
           {lanes.map(({ topic, top }) => (
             <g key={topic.id}>
-              <line x1={0} y1={top} x2={WIDTH} y2={top} stroke="#1e293b" />
-              <text x={12} y={top + PAD + 14} fontSize={13} fontWeight={600} fill="#f1f5f9">{topic.label}</text>
+              <line x1={0} y1={top} x2={WIDTH} y2={top} stroke="var(--color-slate-800)" />
+              <text x={12} y={top + PAD + 14} fontSize={13} fontWeight={600} fill="var(--color-slate-100)">{topic.label}</text>
               {wrap(topic.desc, 24).map((line, i) => (
-                <text key={i} x={12} y={top + PAD + 30 + i * 12} fontSize={10} fill="#64748b">{line}</text>
+                <text key={i} x={12} y={top + PAD + 30 + i * 12} fontSize={10} fill="var(--color-slate-500)">{line}</text>
               ))}
             </g>
           ))}
@@ -216,7 +216,7 @@ export default function ProposalView({ area, nodes, onArea }: { area: Area; node
             return (
               <path
                 key={`${l.ref}>${l.to}:${l.i}`} d={arrow(a, b)} fill="none" pointerEvents="none"
-                stroke={on ? "#38bdf8" : "#64748b"} strokeWidth={on ? 2 : 1.25} opacity={here && !on ? 0.12 : 0.9}
+                stroke={on ? "var(--color-sky-400)" : "var(--color-slate-500)"} strokeWidth={on ? 2 : 1.25} opacity={here && !on ? 0.3 : 0.9}
                 markerEnd={`url(#${on ? "prop-arrow-lit" : "prop-arrow"})`}
               />
             );

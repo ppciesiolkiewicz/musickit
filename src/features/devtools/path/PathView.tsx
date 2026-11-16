@@ -26,7 +26,7 @@ interface Box { node: PathNode; x: number; y: number; h: number }
 /** A concept's box grows by a line for each step inside it. */
 const heightOf = (node: PathNode) => NODE_H + (node.steps.length ? node.steps.length * STEP_H + 6 : 0);
 const clip = (s: string, n: number) => (s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s);
-const STATE_COLOR: Record<StepState | "not-yet", string> = { solid: "#34d399", working: "#fbbf24", none: "#475569", "not-yet": "#475569" };
+const STATE_COLOR: Record<StepState | "not-yet", string> = { solid: "var(--color-emerald-400)", working: "var(--color-amber-400)", none: "var(--color-slate-600)", "not-yet": "var(--color-slate-600)" };
 const STATE_WORD: Record<StepState, string> = { solid: "solid", working: "working on it", none: "not started" };
 /** How long the player has been on the step they are on, in whole weeks; null when they are on none or it is solid. */
 const weeksOn = (p: ConceptProgress | undefined, today: string): number | null => {
@@ -76,7 +76,7 @@ function Node({ box, state, onPick, progress, today }: { box: Box; state: "sel" 
   const lines = wrap(node.label, 27);
   const has = node.exercises.length > 0;
   // with a student on the diagram the edge says how they stand on the concept, not whether it has an example
-  const stroke = state === "sel" ? "#a78bfa" : state === "chain" ? "#38bdf8" : progress ? STATE_COLOR[progress.state] : has ? "#34d399" : "#475569";
+  const stroke = state === "sel" ? "var(--color-violet-400)" : state === "chain" ? "var(--color-sky-400)" : progress ? STATE_COLOR[progress.state] : has ? "var(--color-emerald-400)" : "var(--color-slate-600)";
   const weeks = weeksOn(progress, today);
   const key = (e: KeyboardEvent) => {
     if (e.key !== "Enter" && e.key !== " ") return;
@@ -89,21 +89,21 @@ function Node({ box, state, onPick, progress, today }: { box: Box; state: "sel" 
       aria-label={progress
         ? `${node.label}: ${progress.state}, ${progress.ratings} ratings${progress.at !== null ? `, on step ${progress.at + 1} of ${node.steps.length}` : ""}`
         : `${node.label}: ${node.steps.length} steps, ${node.exercises.length} example exercises, ${node.plans.length} example plans`}
-      opacity={state === "dim" ? 0.25 : 1} className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-sky-300"
+      opacity={state === "dim" ? 0.55 : 1} className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-sky-300"
     >
       <rect
         x={x} y={y} width={NODE_W} height={h} rx={8}
-        fill={state === "sel" ? "#2e1065" : "#0f172a"} stroke={stroke} strokeWidth={state === "plain" || state === "dim" ? 1 : 2}
+        fill={state === "sel" ? "var(--color-violet-950)" : "var(--color-slate-900)"} stroke={stroke} strokeWidth={state === "plain" || state === "dim" ? 1 : 2}
         strokeDasharray={progress || node.courseState === "written" ? undefined : "4 3"}
       />
       {lines.map((line, i) => (
-        <text key={i} x={x + 10} y={y + (lines.length === 1 ? 24 : 17 + i * 14)} fontSize={11.5} fill="#e2e8f0">{line}</text>
+        <text key={i} x={x + 10} y={y + (lines.length === 1 ? 24 : 17 + i * 14)} fontSize={11.5} fill="var(--color-slate-200)">{line}</text>
       ))}
       {node.steps.map((s, i) => {
         const sy = y + NODE_H + 6 + i * STEP_H;
         if (!progress) {
           return (
-            <text key={i} x={x + 10} y={sy} fontSize={9.5} fill={s.planned ? "#fbbf24" : "#7dd3fc"} fontStyle={s.planned ? "italic" : undefined}>
+            <text key={i} x={x + 10} y={sy} fontSize={9.5} fill={s.planned ? "var(--color-amber-400)" : "var(--color-sky-300)"} fontStyle={s.planned ? "italic" : undefined}>
               <title>{`${stepLine(s)}${s.planned ? " (not implemented)" : ""}`}</title>
               {`${i + 1} ${clip(stepLine(s), 36)}`}
             </text>
@@ -115,23 +115,23 @@ function Node({ box, state, onPick, progress, today }: { box: Box; state: "sel" 
           <g key={i}>
             <title>{`${stepLine(s)}: ${s.planned ? "not implemented, so not tracked" : STATE_WORD[st.state]}${st.ratings ? `, ${st.ratings} ratings, latest ${st.stars} stars` : ""}`}</title>
             <rect
-              x={x + 10} y={sy - 7.5} width={8} height={8} rx={2} strokeWidth={1.2} stroke={s.planned ? "#475569" : STATE_COLOR[st.state]}
-              fill={st.state === "solid" ? "#34d399" : st.state === "working" ? "#78350f" : "none"} strokeDasharray={s.planned ? "2 2" : undefined}
+              x={x + 10} y={sy - 7.5} width={8} height={8} rx={2} strokeWidth={1.2} stroke={s.planned ? "var(--color-slate-600)" : STATE_COLOR[st.state]}
+              fill={st.state === "solid" ? "var(--color-emerald-400)" : st.state === "working" ? "var(--color-amber-900)" : "none"} strokeDasharray={s.planned ? "2 2" : undefined}
             />
-            <text x={x + 23} y={sy} fontSize={9.5} fontWeight={here ? 700 : 400} fill={s.planned ? "#64748b" : st.state === "none" ? "#94a3b8" : "#e2e8f0"} fontStyle={s.planned ? "italic" : undefined}>
+            <text x={x + 23} y={sy} fontSize={9.5} fontWeight={here ? 700 : 400} fill={s.planned ? "var(--color-slate-500)" : st.state === "none" ? "var(--color-slate-400)" : "var(--color-slate-200)"} fontStyle={s.planned ? "italic" : undefined}>
               {`${clip(stepLine(s), 33 - tail.length)}${tail}`}
             </text>
           </g>
         );
       })}
       {progress && progress.ratings > 0 && (
-        <text x={x + NODE_W - 8} y={y + 13} textAnchor="end" fontSize={9} fill="#94a3b8">
+        <text x={x + NODE_W - 8} y={y + 13} textAnchor="end" fontSize={9} fill="var(--color-slate-400)">
           <title>{`${progress.ratings} ratings of this concept`}</title>
           {`${progress.ratings}×`}
         </text>
       )}
-      {!progress && has && <circle cx={x + NODE_W - 22} cy={y + 9} r={3.5} fill="#34d399" />}
-      {!progress && node.plans.length > 0 && <circle cx={x + NODE_W - 11} cy={y + 9} r={3.5} fill="#a78bfa" />}
+      {!progress && has && <circle cx={x + NODE_W - 22} cy={y + 9} r={3.5} fill="var(--color-emerald-400)" />}
+      {!progress && node.plans.length > 0 && <circle cx={x + NODE_W - 11} cy={y + 9} r={3.5} fill="var(--color-violet-400)" />}
     </g>
   );
 }
@@ -329,8 +329,8 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
         {g.concepts} skills · {g.noExercise} with no example exercise · {g.noPlan} in no example plan · {g.planned} with no written course page · {g.stepsPlanned} steps not implemented
       </p>
       <p className="text-xs text-slate-400">
-        <span className="mr-4"><Dot fill="#34d399" />green: {progress ? "solid" : "has an example exercise"}</span>
-        <span className="mr-4"><Dot fill={progress ? "#fbbf24" : "#a78bfa"} />{progress ? "amber: working on it" : "violet dot: in an example plan"}</span>
+        <span className="mr-4"><Dot fill="var(--color-emerald-400)" />green: {progress ? "solid" : "has an example exercise"}</span>
+        <span className="mr-4"><Dot fill={progress ? "var(--color-amber-400)" : "var(--color-violet-400)"} />{progress ? "amber: working on it" : "violet dot: in an example plan"}</span>
         <span className="mr-4 text-sky-300">blue step: read from a tool&apos;s levels</span>
         <span className="italic text-amber-300">amber step: not implemented</span>
       </p>
@@ -338,37 +338,37 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
         <svg width={WIDTH} height={height} viewBox={`0 0 ${WIDTH} ${height}`} role="group" aria-label={`${path.label} learning path`} className="block">
           <defs>
             <marker id="path-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-slate-500)" />
             </marker>
             <marker id="path-arrow-lit" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--color-sky-400)" />
             </marker>
           </defs>
           {LEVEL_ORDER.map((level, i) => (
             <g key={level}>
-              <line x1={LABEL_W + i * COL_W} y1={0} x2={LABEL_W + i * COL_W} y2={height} stroke="#1e293b" />
-              <text x={LABEL_W + i * COL_W + COL_W / 2} y={20} textAnchor="middle" fontSize={12} fontWeight={600} fill="#cbd5e1">
+              <line x1={LABEL_W + i * COL_W} y1={0} x2={LABEL_W + i * COL_W} y2={height} stroke="var(--color-slate-800)" />
+              <text x={LABEL_W + i * COL_W + COL_W / 2} y={20} textAnchor="middle" fontSize={12} fontWeight={600} fill="var(--color-slate-300)">
                 {level[0].toUpperCase() + level.slice(1)}
               </text>
             </g>
           ))}
           {lanes.map(({ lane, top, height: h }) => (
             <g key={lane.topic.id}>
-              <line x1={0} y1={top} x2={WIDTH} y2={top} stroke="#1e293b" />
-              <text x={12} y={top + PAD + 14} fontSize={13} fontWeight={600} fill="#f1f5f9">{lane.topic.label}</text>
+              <line x1={0} y1={top} x2={WIDTH} y2={top} stroke="var(--color-slate-800)" />
+              <text x={12} y={top + PAD + 14} fontSize={13} fontWeight={600} fill="var(--color-slate-100)">{lane.topic.label}</text>
               {wrap(lane.topic.desc, 24).map((line, i) => (
-                <text key={i} x={12} y={top + PAD + 30 + i * 12} fontSize={10} fill="#64748b">{line}</text>
+                <text key={i} x={12} y={top + PAD + 30 + i * 12} fontSize={10} fill="var(--color-slate-500)">{line}</text>
               ))}
               {lane.topic.lines.map((rung, level) => (
                 <g key={level}>
                   <title>{`Questionnaire line ${level}: ${rung}`}</title>
                   {wrap(rung, 40).map((line, i) => (
-                    <text key={i} x={LABEL_W + level * COL_W + (COL_W - NODE_W) / 2} y={top + PAD + 9 + i * 11} fontSize={9.5} fontStyle="italic" fill="#94a3b8">{line}</text>
+                    <text key={i} x={LABEL_W + level * COL_W + (COL_W - NODE_W) / 2} y={top + PAD + 9 + i * 11} fontSize={9.5} fontStyle="italic" fill="var(--color-slate-400)">{line}</text>
                   ))}
                 </g>
               ))}
               {lane.cells.every((cell) => cell.length === 0) && (
-                <text x={LABEL_W + 14} y={top + h - PAD - 14} fontSize={11} fill="#fbbf24">No concepts</text>
+                <text x={LABEL_W + 14} y={top + h - PAD - 14} fontSize={11} fill="var(--color-amber-400)">No concepts</text>
               )}
             </g>
           ))}
@@ -377,7 +377,7 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
             return (
               <path
                 key={`${from}>${to}`} d={edgePath(boxes.get(from)!, boxes.get(to)!)} fill="none"
-                stroke={on ? "#38bdf8" : "#64748b"} strokeWidth={on ? 2 : 1.25} opacity={lit && !on ? 0.15 : 1}
+                stroke={on ? "var(--color-sky-400)" : "var(--color-slate-500)"} strokeWidth={on ? 2 : 1.25} opacity={lit && !on ? 0.35 : 1}
                 markerEnd={`url(#${on ? "path-arrow-lit" : "path-arrow"})`}
               />
             );

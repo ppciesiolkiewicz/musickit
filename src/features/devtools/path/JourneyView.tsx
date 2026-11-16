@@ -15,12 +15,12 @@ import type { ConceptProgress, StepState } from "../model/stepProgress";
  */
 
 const ACCENT: Record<Area, { hue: string; soft: string; ring: string; text: string }> = {
-  guitar: { hue: "#f59e0b", soft: "rgba(245,158,11,0.14)", ring: "rgba(245,158,11,0.55)", text: "#fde68a" },
-  voice: { hue: "#f472b6", soft: "rgba(244,114,182,0.14)", ring: "rgba(244,114,182,0.55)", text: "#fbcfe8" },
-  theory: { hue: "#38bdf8", soft: "rgba(56,189,248,0.14)", ring: "rgba(56,189,248,0.55)", text: "#bae6fd" },
+  guitar: { hue: "var(--color-amber-500)", soft: "color-mix(in oklab, var(--color-amber-500) 14%, transparent)", ring: "color-mix(in oklab, var(--color-amber-500) 55%, transparent)", text: "var(--color-amber-200)" },
+  voice: { hue: "var(--color-pink-400)", soft: "color-mix(in oklab, var(--color-pink-400) 14%, transparent)", ring: "color-mix(in oklab, var(--color-pink-400) 55%, transparent)", text: "var(--color-pink-200)" },
+  theory: { hue: "var(--color-sky-400)", soft: "color-mix(in oklab, var(--color-sky-400) 14%, transparent)", ring: "color-mix(in oklab, var(--color-sky-400) 55%, transparent)", text: "var(--color-sky-200)" },
 };
-const LEVEL_TINT = ["#34d399", "#38bdf8", "#a78bfa", "#f472b6"];
-const STATE_FILL: Record<StepState, string> = { solid: "#34d399", working: "#fbbf24", none: "transparent" };
+const LEVEL_TINT = ["var(--color-emerald-400)", "var(--color-sky-400)", "var(--color-violet-400)", "var(--color-pink-400)"];
+const STATE_FILL: Record<StepState, string> = { solid: "var(--color-emerald-400)", working: "var(--color-amber-400)", none: "transparent" };
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 type Mark = "sel" | "before" | "after" | "dim" | "plain";
@@ -30,14 +30,14 @@ function StepDot({ planned, state }: { planned: boolean; state?: StepState }) {
     return (
       <span
         aria-hidden className="mt-[3px] inline-block size-2.5 shrink-0 rounded-[3px] border"
-        style={{ background: planned ? "transparent" : STATE_FILL[state], borderColor: planned ? "#475569" : state === "none" ? "#64748b" : STATE_FILL[state], borderStyle: planned ? "dashed" : "solid" }}
+        style={{ background: planned ? "transparent" : STATE_FILL[state], borderColor: planned ? "var(--color-slate-600)" : state === "none" ? "var(--color-slate-500)" : STATE_FILL[state], borderStyle: planned ? "dashed" : "solid" }}
       />
     );
   }
   return (
     <span
       aria-hidden className="mt-[3px] inline-block size-2.5 shrink-0 rounded-full border"
-      style={planned ? { borderColor: "#64748b", borderStyle: "dashed" } : { background: "currentColor", borderColor: "currentColor" }}
+      style={planned ? { borderColor: "var(--color-slate-500)", borderStyle: "dashed" } : { background: "currentColor", borderColor: "currentColor" }}
     />
   );
 }
@@ -48,12 +48,12 @@ function TrackRow({ node, mark, progress, onPick, onHover }: {
   const a = ACCENT[node.area];
   const byLevel = LEVEL_ORDER.map((level) => node.steps.map((s, i) => ({ s, i })).filter(({ s }) => s.level === level));
   const lit = mark === "sel" || mark === "before" || mark === "after";
-  const ring = mark === "sel" ? "#e9d5ff" : mark === "before" ? "#7dd3fc" : mark === "after" ? "#c4b5fd" : a.ring;
+  const ring = mark === "sel" ? "var(--color-violet-200)" : mark === "before" ? "var(--color-sky-300)" : mark === "after" ? "var(--color-violet-300)" : a.ring;
   const solid = progress?.state === "solid", working = progress?.state === "working";
   return (
     <div
       className="relative grid grid-cols-4 gap-3 py-1.5 transition-opacity duration-200"
-      style={{ opacity: mark === "dim" ? 0.22 : 1 }}
+      style={{ opacity: mark === "dim" ? 0.55 : 1 }}
     >
       {/* the ribbon from the first level to the last */}
       <div
@@ -80,9 +80,9 @@ function TrackRow({ node, mark, progress, onPick, onHover }: {
             aria-label={`${node.label}, ${LEVEL_ORDER[col]}: steps ${steps.map(({ i }) => i + 1).join(", ")} of ${node.steps.length}`}
             className="relative cursor-pointer rounded-xl border p-2.5 text-left transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
             style={{
-              borderColor: progress ? (solid ? "#34d399" : working ? "#fbbf24" : "#334155") : ring,
+              borderColor: progress ? (solid ? "var(--color-emerald-400)" : working ? "var(--color-amber-400)" : "var(--color-slate-700)") : ring,
               boxShadow: lit ? `0 0 0 1px ${ring}, 0 8px 28px -8px ${a.hue}` : `0 6px 18px -12px ${a.hue}`,
-              background: `linear-gradient(160deg, ${a.soft}, transparent 60%), #020617`,
+              background: `linear-gradient(160deg, ${a.soft}, transparent 60%), var(--color-slate-950)`,
             } as CSSProperties}
           >
             <div className="flex items-baseline justify-between gap-2">
@@ -96,7 +96,7 @@ function TrackRow({ node, mark, progress, onPick, onHover }: {
                 const st = progress?.steps[i];
                 const here = progress?.at === i;
                 return (
-                  <li key={i} className="flex gap-1.5 text-[11.5px] leading-snug" style={{ color: s.planned ? "#94a3b8" : a.text }}>
+                  <li key={i} className="flex gap-1.5 text-[11.5px] leading-snug" style={{ color: s.planned ? "var(--color-slate-400)" : a.text }}>
                     <StepDot planned={s.planned} state={st?.state} />
                     <span className={here ? "font-bold text-white" : ""}>
                       {s.name}{s.holds && <span className="text-slate-500">: {s.holds}</span>}
