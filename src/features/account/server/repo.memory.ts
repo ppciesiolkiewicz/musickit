@@ -18,7 +18,7 @@ export function memoryRepo(plans: Plan[] = []) {
     },
     async createUser(input, now) {
       if (users.some((u) => u.email === input.email)) return null;
-      const user: UserRow = { id: `user-${++n}`, ...input, planId: null, billing: "year", createdAt: now };
+      const user: UserRow = { id: `user-${++n}`, ...input, planId: null, billing: "year", emailUpdatesAt: null, createdAt: now };
       users.push(user);
       return user;
     },
@@ -26,6 +26,12 @@ export function memoryRepo(plans: Plan[] = []) {
       const user = users.find((u) => u.id === id);
       if (!user) return null;
       user.name = name;
+      return user;
+    },
+    async setEmailUpdates(id, on, now) {
+      const user = users.find((u) => u.id === id);
+      if (!user) return null;
+      user.emailUpdatesAt = on ? (user.emailUpdatesAt ?? now) : null;
       return user;
     },
     async listPlans() {

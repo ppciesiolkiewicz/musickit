@@ -11,6 +11,8 @@ export interface UserRow {
   planId: string | null;
   /** How they pay for the plan: monthly or yearly. */
   billing: Billing;
+  /** When they agreed to emails about what we fix and add; null when they haven't. */
+  emailUpdatesAt: Date | null;
   createdAt: Date;
 }
 
@@ -52,6 +54,8 @@ export interface AuthRepo {
   createUser(input: { email: string; name: string; role: Role }, now: Date): Promise<UserRow | null>;
   userById(id: string): Promise<UserRow | null>;
   updateUserName(id: string, name: string, now: Date): Promise<UserRow | null>;
+  /** Turns the emails about what we fix and add on (from `now`) or off. Turning them on again keeps the first time. */
+  setEmailUpdates(id: string, on: boolean, now: Date): Promise<UserRow | null>;
   /** Every plan, turned off or not. */
   listPlans(): Promise<Plan[]>;
   /** Moves the user to the plan, paid by `billing`, with the role it gives, in one step. */

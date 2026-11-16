@@ -97,6 +97,11 @@ export const users = pgTable("users", {
   planId: text("plan_id").references(() => plans.id),
   /** Whether they pay for the plan monthly or yearly. */
   billing: planPeriod("billing").notNull().default("year"),
+  /**
+   * When they agreed to emails about what we fix and add (on /account/setup or /account); null when they haven't, or
+   * turned it off. Kept as a time, as the record of when they said yes.
+   */
+  emailUpdatesAt: at("email_updates_at"),
   createdAt: at("created_at").notNull().defaultNow(),
   updatedAt: at("updated_at").notNull().defaultNow(),
 });

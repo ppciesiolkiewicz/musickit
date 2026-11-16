@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ROLE_LABEL } from "../model";
 import { useAccount, useAccountStore } from "../useAccount";
+import EmailUpdates from "./EmailUpdates";
 import FeedbackForm from "./FeedbackForm";
 import PlanPicker from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, LINK, PRIMARY, SECONDARY, errorOf, send } from "./parts";
@@ -12,7 +13,7 @@ import { Card, ErrorLine, FIELD, LABEL, LINK, PRIMARY, SECONDARY, errorOf, send 
 const go = (path: string) => window.location.assign(path);
 
 /**
- * /account: the open-beta line, who is logged in, their name, their plan, feedback, Log out and Delete account. Logged
+ * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, their plan, feedback, Log out and Delete account. Logged
  * out, it points to Log in.
  */
 export default function AccountPanel() {
@@ -78,6 +79,8 @@ export default function AccountPanel() {
         <button type="submit" disabled={busy || shown.trim() === account.name} className={SECONDARY}>Save name</button>
         {saved && <p role="status" className="text-xs text-emerald-300">Name saved.</p>}
       </form>
+
+      <EmailUpdates account={account} />
 
       <PlanPicker account={account} />
 

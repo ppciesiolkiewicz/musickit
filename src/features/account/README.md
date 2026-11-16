@@ -52,6 +52,10 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   `{ name, planId, billing }` (`setUpAccount` in `server/auth.ts`: the plan and billing are checked before anything
   changes), then on to the page it was going to. Under the plans, `PaymentBox`: the chosen plan, its price, its free
   trial, and a dashed box where the card details will go. A placeholder: there is no payment provider yet, and the open beta charges nothing.
+- `ui/EmailUpdates.tsx`: the marketing consent, "Email me about what we fix and add". Unticked until the person ticks
+  it: on setup (sent as `emailUpdates` with the rest) and in the Profile card on /account (saved as it changes, `PATCH
+  /api/account` with `{ emailUpdates }`). Kept as `users.email_updates_at` (migration `0022_email_updates`), the time of
+  the first yes, null when off; `Account.emailUpdates` is whether it is set. Nothing sends these emails yet.
   A Continue that can't go on marks what is missing (a red name field, a red ring round the plans, each with its
   line) and scrolls the first of them into view and focuses it.
   The card is wide (`Card wide`): the plans sit side by side and wrap to one column on a phone. Each plan card has its

@@ -47,7 +47,7 @@ export const hashCode = (email: string, code: string): string => hashToken(`${em
 
 export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Date(), token: newToken, code: newCode });
 
-export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString(), needsSetup: u.planId === null });
+export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString(), needsSetup: u.planId === null, emailUpdates: u.emailUpdatesAt !== null });
 
 /** Where to go after signing in when no page was asked for. */
 export const AFTER_LOGIN = "/plan";
@@ -200,6 +200,13 @@ export async function rename(deps: AuthDeps, userId: string, name: unknown): Pro
   return user ? toAccount(user) : null;
 }
 
+/** Turns the emails about what we fix and add on or off. Null when `on` isn't true or false, or the account is gone. */
+export async function setEmailUpdates(deps: AuthDeps, userId: string, on: unknown): Promise<Account | null> {
+  if (typeof on !== "boolean") return null;
+  const user = await deps.repo.setEmailUpdates(userId, on, deps.now());
+  return user ? toAccount(user) : null;
+}
+
 /** The plans a person can see and the one they are on (see `choosablePlans`). Null when there is no such user. */
 /** `current` is null for an account that hasn't chosen one yet; `billing` is how they pay for it. */
 export async function accountPlans(deps: AuthDeps, userId: string): Promise<AccountPlans | null> {
@@ -252,7 +259,7 @@ export type SetupError = "name" | "plan";
  * checked before anything changes, so a bad plan leaves the name as it was. Choosing the plan the account is already on,
  * paid the same way, keeps it. No payment (the beta).
  */
-export async function setUpAccount(deps: AuthDeps, account: Account, input: { name: unknown; planId: unknown; billing: unknown }): Promise<{ ok: true; account: Account } | { ok: false; error: SetupError }> {
+export async function setUpAccount(deps: AuthDeps, account: Account, input: { name: unknown; planId: unknown; billing: unknown; emailUpdates?: unknown }): Promise<{ ok: true; account: Account } | { ok: false; error: SetupError }> {
   const name = cleanName(input.name);
   if (!name) return { ok: false, error: "name" };
   const had = await deps.repo.userById(account.id);
@@ -262,5 +269,7 @@ export async function setUpAccount(deps: AuthDeps, account: Account, input: { na
   if (!keeps && !plan) return { ok: false, error: "plan" };
   let user = await deps.repo.updateUserName(account.id, name, deps.now());
   if (user && plan) user = await movePlan(deps, account.id, plan, input.billing as Billing, roleAfter(had, plan));
+  // the box on setup, ticked or not; left out, the choice stays as it was
+  if (user && typeof input.emailUpdates === "boolean") user = await deps.repo.setEmailUpdates(account.id, input.emailUpdates, deps.now());
   return user ? { ok: true, account: toAccount(user) } : { ok: false, error: "plan" };
 }

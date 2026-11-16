@@ -17,6 +17,8 @@ export interface Account {
   createdAt: string;
   /** No plan chosen yet: a new account, held on /account/setup until it chooses one. */
   needsSetup: boolean;
+  /** Agreed to emails about what we fix and add (`email_updates_at`). */
+  emailUpdates: boolean;
 }
 
 /**

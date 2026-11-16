@@ -20,6 +20,7 @@ import {
   requestEmailLink,
   pathAfterSignIn,
   safeNext,
+  setEmailUpdates,
   setUpAccount,
   sessionAccount,
   signOut,
@@ -66,7 +67,7 @@ test("a link for a new email makes a student account, named from the email, and 
   assert.ok(done?.kind === "session");
   assert.equal(done.created, true);
   assert.equal(done.next, "/plan");
-  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString(), needsSetup: true });
+  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString(), needsSetup: true, emailUpdates: false });
   assert.equal((await sessionAccount(deps, done.sessionToken))?.account.email, "ann@school.com");
   assert.equal(users.length, 1);
 });
@@ -241,6 +242,36 @@ test("renaming and deleting an account", async () => {
   assert.equal(users.length, 0);
   assert.equal(sessions.length, 0);
   assert.equal(await sessionAccount(deps, r.sessionToken), null);
+});
+
+test("emails about what we fix and add: off for a new account, on from the first yes, and off again", async () => {
+  const { deps, users, wait } = setup();
+  const r = await signUp(deps, "ann@school.com", "Ann");
+  assert.equal(r.account.emailUpdates, false);
+  assert.equal((await setEmailUpdates(deps, r.account.id, true))?.emailUpdates, true);
+  const first = users[0].emailUpdatesAt;
+  assert.equal(first?.getTime(), START);
+  wait(60_000);
+  await setEmailUpdates(deps, r.account.id, true);
+  assert.equal(users[0].emailUpdatesAt, first, "a second yes keeps the time of the first");
+  assert.equal((await setEmailUpdates(deps, r.account.id, false))?.emailUpdates, false);
+  assert.equal(users[0].emailUpdatesAt, null);
+  assert.equal(await setEmailUpdates(deps, r.account.id, "yes"), null);
+  assert.equal(await setEmailUpdates(deps, "nobody", true), null);
+});
+
+test("setup: the box turns the emails on or off; left out, they stay as they were", async () => {
+  const store = memoryRepo(PLANS);
+  const deps: AuthDeps = { ...setup().deps, repo: store.repo };
+  const { account } = await signUp(deps, "ann@school.com", "Ann");
+  const off = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", emailUpdates: false });
+  assert.ok(off.ok && !off.account.emailUpdates);
+  const on = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", emailUpdates: true });
+  assert.ok(on.ok && on.account.emailUpdates);
+  const kept = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year" });
+  assert.ok(kept.ok && kept.account.emailUpdates);
+  const offAgain = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", emailUpdates: false });
+  assert.ok(offAgain.ok && !offAgain.account.emailUpdates);
 });
 
 test("the page to open next is always on this site", () => {

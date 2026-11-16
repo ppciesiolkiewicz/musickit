@@ -1,5 +1,5 @@
 import { del } from "@vercel/blob";
-import { rename } from "@/features/account/server/auth";
+import { rename, setEmailUpdates } from "@/features/account/server/auth";
 import { NO_ACCOUNTS, auth, json, readJson, signOutCookies } from "@/features/account/server/http";
 import { signedIn, userData } from "@/features/userData/server/http";
 import { blobToken } from "@/lib/blob";
@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Change the signed-in account's name: JSON { name }. Like every changing route it goes through `signedIn`: 503 without
+ * Change the signed-in account's name, JSON { name }, or the emails about what we fix and add, JSON { emailUpdates }. Like every changing route it goes through `signedIn`: 503 without
  * accounts, 403 from another site, 401 logged out, 409 `account-changed` when `X-Account-Id` names another account.
  */
 export async function PATCH(req: Request) {
@@ -18,6 +18,11 @@ export async function PATCH(req: Request) {
   if (me instanceof Response) return me;
   const { account, cookies } = me;
   const body = await readJson(req);
+  if (body && "emailUpdates" in body) {
+    const changed = await setEmailUpdates(deps, account.id, body.emailUpdates);
+    if (!changed) return json({ error: "That change couldn't be saved. Reload the page and try again." }, 400, cookies);
+    return json({ ok: true, account: changed }, 200, cookies);
+  }
   const renamed = await rename(deps, account.id, body?.name);
   if (!renamed) return json({ error: "Type your name.", field: "name" }, 400, cookies);
   return json({ ok: true, account: renamed }, 200, cookies);

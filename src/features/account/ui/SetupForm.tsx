@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
+import { EmailUpdatesBox } from "./EmailUpdates";
 import { BillingSwitch, PaymentBox, PlanOption, planHue, type Loaded } from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
@@ -24,6 +25,7 @@ export default function SetupForm({ next }: { next: string }) {
   const [error, setError] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
   const [planError, setPlanError] = useState<string | null>(null);
+  const [emails, setEmails] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const plansRef = useRef<HTMLFieldSetElement>(null);
@@ -44,6 +46,8 @@ export default function SetupForm({ next }: { next: string }) {
   const shown = name ?? (askName ? "" : account.name);
   const chosen = planId ?? plans?.current ?? null;
   const shownBilling = billing ?? plans?.billing ?? "year";
+  // unticked for a new account; their own earlier yes when they come back
+  const shownEmails = emails ?? account.emailUpdates;
   const chosenPlan = plans?.plans.find((p) => p.id === chosen) ?? null;
 
   const save = async (e: FormEvent) => {
@@ -57,7 +61,7 @@ export default function SetupForm({ next }: { next: string }) {
     if (noPlan) return showPlans();
     if (!chosen) return;
     setBusy(true);
-    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosen, billing: shownBilling });
+    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosen, billing: shownBilling, emailUpdates: shownEmails });
     if (r.ok) return window.location.assign(next);
     setBusy(false);
     if (r.body.field === "name") {
@@ -131,6 +135,10 @@ export default function SetupForm({ next }: { next: string }) {
         </fieldset>
 
         {chosenPlan && plans && <PaymentBox plan={chosenPlan} hue={planHue(plans.plans.indexOf(chosenPlan))} billing={shownBilling} trial={plans.current === null} />}
+
+        <div className="border-t border-slate-800 pt-5 metal-rule">
+          <EmailUpdatesBox checked={shownEmails} onChange={setEmails} where="account" />
+        </div>
 
         <ErrorLine>{error}</ErrorLine>
         <button type="submit" disabled={busy || !plans} className={`${PRIMARY} sm:w-auto sm:self-end sm:px-12`}>{busy ? "Saving…" : "Continue"}</button>
