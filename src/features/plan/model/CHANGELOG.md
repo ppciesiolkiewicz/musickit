@@ -10,6 +10,10 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 3 (2026-11-16)
+
+- A new track, `double-stops` (guitar, CAGED topic, before `triads`), so the concepts listed under each topic are 45. The first triads, barre chords, the modes and the first positions on the neck now name steps to learn first; the prompt lists ids only, so only the new id shows in it.
+
 ### 2 (2026-11-16)
 
 - The concepts listed under each topic are the tracks of the learning path (`path.ts`, NEW13): 44 in place of 67, several old concepts merged into one track (`top-string-triads` and `triads-every-set` are `triads`). The parser still reads an old id, as its track.

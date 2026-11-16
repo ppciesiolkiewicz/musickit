@@ -106,6 +106,11 @@ level of its span: a rating counts at its block's level (inside the span) and be
 (PROMPT_VERSION 2). Examples retagged; the 18 untagged exercises now name a track. /dev/path opens on a new "Path"
 view (one block per level a skill reaches, joined by a ribbon, made to show studios); "Boxes" and "Bars" stay.
 Next: step 2 (a player's step into the progress outcome) and step 6 (NEW7).
+[2026-11-16 path as a slope] Design docs/superpowers/specs/2026-11-16-path-slope-design.md, plan
+docs/superpowers/plans/2026-11-16-path-slope.md. Done: the order (predecessorsOf, depthOf, slope in path.ts), /dev/path
+→ "Slope" (as it is vs proposed), and the named prerequisites plus a double-stops track in PATH (45 tracks, prompt v3).
+Side effect: a CAGED beginner level now needs double stops solid as well as triads (outcome.ts). Next: Fable agents
+propose more links into devtools/model/slopeProposal.ts to judge on Slope; then known / within reach / ahead (NEW16).
 
 NEW9: [NEW 2026-11-15] Rework the first questionnaire (after NEW8)
 Use brainstorming first. What /dev/questionnaire showed:

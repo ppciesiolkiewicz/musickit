@@ -7,7 +7,9 @@ import type { Level } from "./types";
  * The learning path (NEW13 in tasks.txt): every concept is a track, one skill a player gets better at, and a track has
  * steps from easiest to hardest. Each step has its own level, so a track runs across the levels its steps reach and
  * tracks in one topic interleave: the first triads come before CAGED, the last after it. A step may name steps of other
- * tracks to learn first (`after`). A step a ladder in the code stands for (ladders.ts) is read back from an exercise's
+ * tracks to learn first (`after`); with the step before it in its own track, those are its predecessors (`predecessorsOf`),
+ * and how deep that chain runs places it inside its level (`slope`). Pentatonic comes before the modes, pentatonic
+ * position 1 before every other first position, double stops before triads, and the first triads before barre chords. A step a ladder in the code stands for (ladders.ts) is read back from an exercise's
  * tools (`stepOf`); the others are "not implemented" until a tool has a level for them.
  * `merges` lists the concept ids from before the path (2026-11-16); concepts.ts maps them to their track.
  */
@@ -67,7 +69,7 @@ export const PATH: Track[] = [
     s(I, "Palm-muted riffs", "between both roots, in eighths"),
   ]),
   g("barre-chords", "barre", "Barre chords", ["bm-f-barre"], [
-    s(B, "Small F", "four strings, a short barre"),
+    s(B, "Small F", "four strings, a short barre", { after: ["triads:1"] }),
     s(B, "Bm", "barre with the root on string 5"),
     s(I, "Full F", "barre with the root on string 6"),
     s(I, "Changes to a barre in time", ""),
@@ -90,8 +92,14 @@ export const PATH: Track[] = [
     s(A, "9ths and 13ths on top", ""),
     s(A, "Comping a ii–V–I", "", { after: ["ii-v-i:1"] }),
   ]),
+  g("caged", "double-stops", "Double stops", [], [
+    s(N, "5ths on two strings", "root and 5th, the smallest power chord"),
+    s(B, "3rds on strings 3 and 2", "in one key"),
+    s(B, "6ths on strings 3 and 1", "in one key, string 2 skipped"),
+    s(I, "Up the neck in one key", "3rds and 6ths"),
+  ]),
   g("caged", "triads", "Triads", ["top-string-triads", "triads-every-set"], [
-    s(B, "Strings 3 2 1", "major triads"),
+    s(B, "Strings 3 2 1", "major triads", { after: ["double-stops:2"] }),
     s(B, "Strings 3 2 1", "minor triads"),
     s(B, "Strings 4 3 2", "major and minor"),
     s(I, "Strings 5 4 3", "major and minor"),
@@ -101,7 +109,7 @@ export const PATH: Track[] = [
     s(A, "Diminished and augmented", ""),
   ]),
   g("caged", "caged", "CAGED shapes", ["caged"], [
-    s(I, "E shape", "", { after: ["barre:3"] }),
+    s(I, "E shape", "", { after: ["barre:3", "pentatonic-positions:1"] }),
     s(I, "A shape", "", { after: ["barre:2"] }),
     s(I, "C shape", ""),
     s(I, "G shape", ""),
@@ -110,7 +118,7 @@ export const PATH: Track[] = [
     s(A, "Every chord of a key in one area", ""),
   ]),
   g("caged", "arpeggios", "Arpeggios", ["arpeggios-position"], [
-    s(I, "In the E shape", "major and minor", { after: ["caged:1"] }),
+    s(I, "In the E shape", "major and minor", { after: ["caged:1", "pentatonic-positions:1"] }),
     s(I, "In the A shape", "major and minor", { after: ["caged:2"] }),
     s(A, "7th arpeggios", ""),
     s(A, "Through all five shapes", "", { after: ["caged:6"] }),
@@ -131,7 +139,7 @@ export const PATH: Track[] = [
     s(A, "Across three positions", "runs that move along the neck"),
   ]),
   g("scales", "major-on-neck", "Major scale & modes on the neck", ["modes-on-neck"], [
-    s(I, "Major scale, root on 6", "one position"),
+    s(I, "Major scale, root on 6", "one position", { after: ["pentatonic-positions:1"] }),
     s(I, "Major scale, root on 5", ""),
     s(A, "Dorian", "", { after: ["modes:1"] }),
     s(A, "Mixolydian", ""),
@@ -218,7 +226,7 @@ export const PATH: Track[] = [
     s(A, "A new tune from the staff", ""),
   ]),
   v("melodies", "singing-modes", "Singing the modes", [], [
-    s(I, "Dorian", "over a drone", { after: ["modes:1"] }),
+    s(I, "Dorian", "over a drone", { after: ["modes:1", "scales:1"] }),
     s(I, "Mixolydian", ""),
     s(A, "Phrygian", ""),
     s(A, "Lydian", ""),
@@ -342,7 +350,7 @@ export const PATH: Track[] = [
     s(A, "Guide tones", "the 3rds and 7ths through the changes"),
   ]),
   t("modes", "modes", "Modes", ["modes", "lydian-locrian"], [
-    s(I, "Dorian", "minor with a major 6th", { after: ["scales:3"] }),
+    s(I, "Dorian", "minor with a major 6th", { after: ["scales:3", "scales:1"] }),
     s(I, "Mixolydian", "major with a b7"),
     s(A, "Phrygian", "minor with a b2"),
     s(A, "Lydian", "major with a #4"),

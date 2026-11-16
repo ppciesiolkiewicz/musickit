@@ -229,7 +229,7 @@ test("the prompt asks for the progress summary and the topic tags, and lists eve
     assert.match(format, /topic: string;/);
     assert.match(format, /concepts\?: string\[\];/);
     for (const t of TOPICS) assert.ok(format.includes(`- ${t.id} (${t.label})`), t.id);
-    assert.match(format, /- guitar-caged \(CAGED\): triads, caged, arpeggios/);
+    assert.match(format, /- guitar-caged \(CAGED\): double-stops, triads, caged, arpeggios/);
   }
 });
 

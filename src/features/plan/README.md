@@ -315,11 +315,16 @@ pastes with zero warnings and keeps the exercise rules: blocks, sing or play, na
 
 ## Concepts
 
-`model/path.ts` is the learning path (NEW13): `PATH`, 44 tracks, each one skill with its steps from easiest to hardest,
+`model/path.ts` is the learning path (NEW13): `PATH`, 45 tracks, each one skill with its steps from easiest to hardest,
 each step at its own level, so a track spans the levels its steps reach. A step may name steps of other tracks to learn
 first (`after`, as "trackId:n") and the ladder step in the code that stands for it (`ladder`, as "ladderId:key", from
 `model/ladders.ts`: tool levels, the ear game's levels, the tune and run stages). `stepOf(trackId, tools)` reads the step
 an exercise works on from its tools. A step with no ladder is "not implemented": no tool setting stands for it yet.
+A step's predecessors are the step before it in its track and its `after` steps (`predecessorsOf`). `depthOf` is how deep
+that chain runs, and `slope()` puts every step in path order: by level, then depth, then track order. So inside a level
+the order shows: pentatonic before the modes, pentatonic position 1 before every other first position, double stops
+before triads, the first triads before barre chords (design: `docs/superpowers/specs/2026-11-16-path-slope-design.md`;
+/dev/path → "Slope" draws it).
 
 `model/concepts.ts` is the catalogue the questionnaire rates and exercises are tagged with: `CONCEPTS`, one per track
 (`level` is its first step's, `levels` every level its steps reach, `steps`, a `course` link), `AREAS`,

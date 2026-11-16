@@ -71,8 +71,9 @@ test("stepOf reads the hardest ladder step the tools say; none without a ladder 
 test("predecessorsOf: the step before it, then its `after` steps", () => {
   assert.deepEqual(predecessorsOf("open-chords:1"), []);
   assert.deepEqual(predecessorsOf("open-chords:2"), ["open-chords:1"]);
-  assert.deepEqual(predecessorsOf("caged:1"), ["barre:3"]);
+  assert.deepEqual(predecessorsOf("caged:1"), ["barre:3", "pentatonic-positions:1"]);
   assert.deepEqual(predecessorsOf("caged:2"), ["caged:1", "barre:2"]);
+  assert.deepEqual(predecessorsOf("triads:1"), ["double-stops:2"]);
 });
 
 test("depth: each step is deeper than every step it needs, so the path has no cycle", () => {
@@ -89,4 +90,23 @@ test("slope: every step once, each after everything it needs, levels never going
   for (const [ref, i] of at) for (const p of predecessorsOf(ref)) assert.ok(at.get(p)! < i, `${p} → ${ref}`);
   const s = slope();
   s.forEach((x, i) => i && assert.ok(levelIndex(x.level) >= levelIndex(s[i - 1].level)));
+});
+
+test("the prerequisites the user named (2026-11-16)", () => {
+  const after = (ref: string) => stepAt(ref)!.step.after ?? [];
+  assert.ok(after("modes:1").includes("scales:1") && after("modes:1").includes("scales:3"));
+  assert.ok(after("singing-modes:1").includes("scales:1"));
+  for (const ref of ["major-on-neck:1", "arpeggios:1", "caged:1"]) assert.ok(after(ref).includes("pentatonic-positions:1"), ref);
+  assert.ok(after("triads:1").includes("double-stops:2"));
+  assert.ok(after("barre:1").includes("triads:1"));
+  const at = slopeIndex();
+  assert.ok(at.get("double-stops:2")! < at.get("triads:1")! && at.get("triads:1")! < at.get("barre:1")!);
+  assert.ok(at.get("pentatonic-positions:1")! < at.get("major-on-neck:1")!);
+});
+
+test("double stops: a new guitar track in the CAGED topic, right before triads", () => {
+  const i = PATH.findIndex((t) => t.id === "double-stops");
+  assert.equal(PATH[i + 1].id, "triads");
+  const t = PATH[i];
+  assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["guitar", "guitar-caged", [], ["new", "beginner", "beginner", "intermediate"]]);
 });

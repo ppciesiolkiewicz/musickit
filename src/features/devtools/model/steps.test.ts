@@ -10,7 +10,7 @@ test("a concept's steps are its track's, in order; a ladder step has a key, the 
   assert.match(notes.from!, /levels\.ts/);
   assert.ok(steps.caged.steps.every((s) => s.planned && s.key === undefined));
   assert.equal(steps.caged.from, undefined);
-  assert.deepEqual(steps.caged.steps[0].after, ["barre:3"]);
+  assert.deepEqual(steps.caged.steps[0].after, ["barre:3", "pentatonic-positions:1"]);
 });
 
 test("stepOf gives the step's key; hasLadder says whether any step can be read", () => {

@@ -1,41 +1,21 @@
-import { PATH, type PathStep, type Track } from "@/features/plan/model/path";
+import { PATH, type Track } from "@/features/plan/model/path";
 
 /*
- * A proposed path to judge on /dev/path → "Slope" beside the path as it is (docs/superpowers/specs/2026-11-16-path-slope-design.md):
- * the prerequisites the user named, and a double-stops track before triads. Nothing outside /dev/path reads it; once
- * the user settles it, these changes move into PATH (plan/model/path.ts) and this file goes.
+ * A proposed change to the path, to judge on /dev/path → "Slope" beside the path as it is
+ * (docs/superpowers/specs/2026-11-16-path-slope-design.md). Nothing outside /dev/path reads it. Once the user settles a
+ * proposal its links and tracks move into PATH (plan/model/path.ts) and this file is emptied for the next one.
+ * Settled so far: the named prerequisites and the double-stops track (2026-11-16).
  */
 
 /** The steps each step gains to learn first, as "trackId:n" → refs. */
-export const ADDED_AFTER: Record<string, string[]> = {
-  // Pentatonic before the modes: theory, the neck and the voice
-  "modes:1": ["scales:1"],
-  "singing-modes:1": ["scales:1"],
-  // Pentatonic position 1 before every other first position
-  "major-on-neck:1": ["pentatonic-positions:1"],
-  "arpeggios:1": ["pentatonic-positions:1"],
-  "caged:1": ["pentatonic-positions:1"],
-  // Double stops, then the first triads, then barre chords
-  "triads:1": ["double-stops:2"],
-  "barre:1": ["triads:1"],
-};
+export const ADDED_AFTER: Record<string, string[]> = {};
 
-const N = "new", B = "beginner", I = "intermediate";
-const step = (level: PathStep["level"], name: string, holds: string): PathStep => ({ level, name, holds });
-
-export const DOUBLE_STOPS: Track = {
-  id: "double-stops", label: "Double stops", area: "guitar", topic: "guitar-caged", merges: [],
-  steps: [
-    step(N, "5ths on two strings", "root and 5th, the smallest power chord"),
-    step(B, "3rds on strings 3 and 2", "in one key"),
-    step(B, "6ths on strings 3 and 1", "in one key, string 2 skipped"),
-    step(I, "Up the neck in one key", "3rds and 6ths"),
-  ],
-};
+/** New tracks, each placed right before the track named in `before`. */
+export const ADDED_TRACKS: { before: string; track: Track }[] = [];
 
 /** The path with the proposal applied. */
 export function proposedPath(tracks: Track[] = PATH): Track[] {
-  const out = tracks.flatMap((t) => (t.id === "triads" ? [DOUBLE_STOPS, t] : [t]));
+  const out = tracks.flatMap((t) => [...ADDED_TRACKS.filter((x) => x.before === t.id).map((x) => x.track), t]);
   return out.map((t) => ({
     ...t,
     steps: t.steps.map((st, i) => {

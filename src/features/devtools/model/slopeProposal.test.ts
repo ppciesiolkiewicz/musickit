@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { depthOf, levelIndex, predecessorsOf, slopeIndex, stepAt } from "@/features/plan/model/path";
-import { ADDED_AFTER, proposedPath } from "./slopeProposal";
+import { levelIndex, predecessorsOf, slopeIndex, stepAt } from "@/features/plan/model/path";
+import { ADDED_AFTER, ADDED_TRACKS, proposedPath } from "./slopeProposal";
 
 const P = proposedPath();
 
@@ -18,22 +18,14 @@ test("every added link points at a real step in another track, no higher than it
   }
 });
 
+test("added tracks have new ids and sit before a real track", () => {
+  for (const { before, track } of ADDED_TRACKS) {
+    assert.ok(P.some((t) => t.id === before), before);
+    assert.equal(P.filter((t) => t.id === track.id).length, 1, track.id);
+  }
+});
+
 test("the proposal has no cycle and keeps every step after what it needs", () => {
   const at = slopeIndex(P);
   for (const [ref, i] of at) for (const p of predecessorsOf(ref, P)) assert.ok(at.get(p)! < i, `${p} → ${ref}`);
-});
-
-test("the orders the user asked for", () => {
-  const at = slopeIndex(P);
-  assert.ok(at.get("double-stops:2")! < at.get("triads:1")!);
-  assert.ok(at.get("triads:1")! < at.get("barre:1")!);
-  assert.ok(at.get("pentatonic-positions:1")! < at.get("major-on-neck:1")!);
-  assert.ok(depthOf("modes:4", P) > depthOf("scales:1", P));
-  assert.ok(depthOf("major-on-neck:6", P) > depthOf("pentatonic-positions:1", P));
-});
-
-test("double stops sit in the CAGED topic, right before triads", () => {
-  const i = P.findIndex((t) => t.id === "double-stops");
-  assert.equal(P[i + 1].id, "triads");
-  assert.equal(P[i].topic, "guitar-caged");
 });

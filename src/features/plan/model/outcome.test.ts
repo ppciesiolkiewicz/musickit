@@ -50,7 +50,7 @@ test("outcome: every area, six topics each, each topic's concepts; nothing rated
   const o = outcome({ ...IN, entries: [], answersHistory: [asked("2026-11-01", { "guitar-caged": 1 })] }, "2026-11-15");
   assert.deepEqual(o.areas.map((a) => a.area), ["guitar", "voice", "theory"]);
   assert.ok(o.areas.every((a) => a.topics.length === 6));
-  assert.deepEqual(caged(o).concepts.map((c) => c.id), ["triads", "caged", "arpeggios"]);
+  assert.deepEqual(caged(o).concepts.map((c) => c.id), ["double-stops", "triads", "caged", "arpeggios"]);
   assert.deepEqual(concept(o, "triads").levels, ["beginner", "intermediate", "advanced"]);
   assert.ok(caged(o).concepts.every((c) => c.state === "not-yet" && c.ratings === 0 && c.lastOn === null));
   assert.equal(caged(o).score, 1); assert.equal(caged(o).reached, 1);
@@ -64,15 +64,15 @@ test("ratingLevel: the block's level inside the span, else the nearest end; no l
   assert.equal(ratingLevel(span, undefined), "beginner");
   assert.equal(ratingLevel(span, "nope"), "beginner");
 });
-test("outcome: one of three concepts a level up solid there adds a third of a level", () => {
-  // intermediate in CAGED: triads (its middle steps), caged, arpeggios
+test("outcome: one of four concepts a level up solid there adds a quarter of a level", () => {
+  // intermediate in CAGED: double stops (its last step), triads (its middle steps), caged, arpeggios
   const o = outcome({ ...IN, entries: [entry({ concepts: ["caged"], topic: "guitar-caged", level: "intermediate", stars: 4 })], answersHistory: [asked("2026-11-01", { "guitar-caged": 1 })] }, "2026-11-15");
   assert.equal(concept(o, "caged").state, "solid");
-  assert.equal(caged(o).score, 1 + 1 / 3);
+  assert.equal(caged(o).score, 1 + 1 / 4);
 });
 test("outcome: every concept with a step at a level, solid there, reaches it; then the share of the level above is added", () => {
   const rung1 = [asked("2026-11-01", { "guitar-caged": 1 })];
-  const e = ["triads", "caged", "arpeggios"].map((c) => entry({ concepts: [c], level: "intermediate", stars: 5 }));
+  const e = ["double-stops", "triads", "caged", "arpeggios"].map((c) => entry({ concepts: [c], level: "intermediate", stars: 5 }));
   const o = outcome({ ...IN, entries: e, answersHistory: rung1 }, "2026-11-15");
   assert.equal(caged(o).reached, 2);
   assert.equal(caged(o).score, 2); // none solid at advanced yet
@@ -90,7 +90,7 @@ test("outcome: a rating counts at its level and below, never above", () => {
 test("outcome: one solid concept doesn't reach its level while another there isn't solid", () => {
   const o = outcome({ ...IN, entries: [entry({ concepts: ["caged"], stars: 5 })], answersHistory: [] }, "2026-11-15");
   assert.equal(caged(o).reached, 0); // no rung, one rating: floor 0; intermediate isn't all solid
-  assert.equal(caged(o).score, 0); // and triads, the one beginner concept, isn't solid
+  assert.equal(caged(o).score, 0); // and double stops, the one new concept, isn't solid
 });
 test("outcome: a level is judged on its own; the levels below need not be reached first", () => {
   const e = ["caged", "arpeggios"].map((c) => entry({ concepts: [c], level: "advanced", stars: 5 }));
@@ -99,9 +99,13 @@ test("outcome: a level is judged on its own; the levels below need not be reache
   assert.equal(caged(outcome({ ...IN, entries: [...e, entry({ concepts: ["triads"], level: "advanced", stars: 4 })], answersHistory: [] }, "2026-11-15")).score, 3);
 });
 test("outcome: no rung but a solid concept starts from that concept's level", () => {
-  const o = outcome({ ...IN, entries: [entry({ concepts: ["top-string-triads"], stars: 4 })], answersHistory: [] }, "2026-11-15");
+  // beginner in CAGED is double stops and triads; both solid there reach it
+  const e = [entry({ concepts: ["top-string-triads"], stars: 4 }), entry({ concepts: ["double-stops"], level: "beginner", stars: 4 })];
+  const o = outcome({ ...IN, entries: e, answersHistory: [] }, "2026-11-15");
   assert.equal(caged(o).reached, 1);
-  assert.equal(caged(o).score, 1); // 0 of the 3 intermediate concepts solid there
+  assert.equal(caged(o).score, 1); // 0 of the 4 intermediate concepts solid there
+  // triads alone don't: double stops sit at beginner too and aren't rated
+  assert.equal(caged(outcome({ ...IN, entries: e.slice(0, 1), answersHistory: [] }, "2026-11-15")).reached, 0);
 });
 test("outcome: no rung and one rating starts from new (0) plus the share of beginner", () => {
   // beginner in the scales topic: notes on the neck, pentatonic positions, melodies
