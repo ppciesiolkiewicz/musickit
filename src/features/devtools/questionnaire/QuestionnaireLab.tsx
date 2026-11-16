@@ -4,7 +4,8 @@ import { useState, type ReactNode } from "react";
 import { DEFAULT_ANSWERS, levelOf, type PlanAnswers } from "@/features/plan/intake/answers";
 import { questionSteps, type SetAnswer } from "@/features/plan/intake/ui/Questionnaire";
 import { topicById, topicsFor } from "@/features/plan/intake/topics";
-import { AREAS, CONCEPTS, conceptsFor } from "@/features/plan/model/concepts";
+import { AREAS, CONCEPTS, conceptById, conceptsFor } from "@/features/plan/model/concepts";
+import { placement } from "@/features/plan/intake/placement";
 import { selectExamples } from "@/features/plan/model/exampleSelection";
 import { startOutcome } from "@/features/plan/model/outcome";
 
@@ -102,6 +103,23 @@ export default function QuestionnaireLab() {
               </div>
             );
           })}
+        </Section>
+
+        <Section title="Starting steps">
+          {(() => {
+            const placed = placement(draft.topics);
+            if (!placed.length) return <p className="text-xs text-slate-400">No topic answered yet.</p>;
+            return (
+              <Table
+                head={["Skill", "Topic", "Starts on"]}
+                rows={placed.map((p) => {
+                  const c = conceptById(p.concept)!;
+                  const where = p.step === null ? "done: every step is under their level" : `${p.step + 1} of ${c.steps.length}: ${c.steps[p.step].name}${p.state === "ahead" ? " (ahead of their level)" : ""}`;
+                  return [c.label, topicById(c.topic)?.label ?? c.topic, where];
+                })}
+              />
+            );
+          })()}
         </Section>
 
         <Section title="Examples picked">
