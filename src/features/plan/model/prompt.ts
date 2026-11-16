@@ -1,13 +1,14 @@
 import { GLOSSARY } from "@/features/course/glossary";
 import type { CatalogueEntry } from "./catalogue";
 import { keyName } from "@/features/theory/keySlug";
-import { EXERCISE_AREAS, EXERCISE_LEVELS, EXERCISE_TAGS, cellInterface, linkResources, toolInterface, toolsOf } from "./tools";
+import { EXERCISE_AREAS, EXERCISE_TAGS, cellInterface, linkResources, toolInterface, toolsOf } from "./tools";
 import { LEVELS, labelOf } from "./questions";
 import { DEFAULT_ANSWERS, levelOf } from "../intake/answers";
 import { TOPICS, topicById, topicsFor } from "../intake/topics";
 import { VOICES } from "@/features/theory/singing";
 import { noteName } from "@/features/theory/voiceRange";
 import { AREAS, conceptsOf } from "./concepts";
+import { PATH } from "./path";
 import { isCurrentTeaching, type ExerciseExample, type PlanExample } from "../examples";
 import { selectExamples } from "./exampleSelection";
 import { doneKey } from "./schedule";
@@ -16,7 +17,7 @@ import type { CourseRating } from "@/features/course/ratings";
 import { PLAN_DAYS, type PlanAnswers, type PlanExercise, type StoredPlan } from "./types";
 
 /** The version of the prompt, its authoring guide and the page's tools for the browser's AI: raised with an entry in `CHANGELOG.md` beside this file (see "Version" in AGENTS.md). */
-export const PROMPT_VERSION = 3;
+export const PROMPT_VERSION = 4;
 
 /** The student section's lines: per area a rough level and the line they picked for each topic, then voice, time, notes, styles. */
 function studentLines(a: PlanAnswers): string[] {
@@ -198,7 +199,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("exercise-format", "Exercise format", "format", [
       "## Exercise format",
-      "An exercise is a block: a title, an optional choice, and a list of \"cells\" shown top to bottom in the order you write them. A section is a cell with a heading, minutes and its own cells: write one section per step. A choice at the top of the block or in a section's header sets the key, scale, tempo, position or level of the tools under it; a tool that must keep its own value lists the part in \"pinned\". A tool shows what the text before it talks about, so put each tool right after that text. A backing-band keeping time goes first. A guitar-play-along or backing-track has no length of its own: it loops until the student stops it, and the exercise's \"minutes\" set the timer. A section with \"minutes\" is a timed block; the timer shows the block, and the tools do not switch by themselves, so put each block's tools inside its section. Every exercise is tagged, and the app shows the tags as hashtags after the title: \"level\" (one of " + EXERCISE_LEVELS.join(", ") + ": the student's level in that area), \"area\" (one of " + EXERCISE_AREAS.join(", ") + ": the one area it practises; theory covers ear training) and \"tags\" (1 to 3 of " + Object.keys(EXERCISE_TAGS).join(", ") + ": what kind of practice it is); write them as fields, or as hashtags at the end of the title. Notes in text: write each note you name as {{3}} or {{b7}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear, so invite that.",
+      "An exercise is a block: a title, an optional choice, and a list of \"cells\" shown top to bottom in the order you write them. A section is a cell with a heading, minutes and its own cells: write one section per step. A choice at the top of the block or in a section's header sets the key, scale, tempo, position or level of the tools under it; a tool that must keep its own value lists the part in \"pinned\". A tool shows what the text before it talks about, so put each tool right after that text. A backing-band keeping time goes first. A guitar-play-along or backing-track has no length of its own: it loops until the student stops it, and the exercise's \"minutes\" set the timer. A section with \"minutes\" is a timed block; the timer shows the block, and the tools do not switch by themselves, so put each block's tools inside its section. Every exercise names its \"steps\": the 1 to 3 steps of the learning path it practises, as \"trackId:n\" from the list under Answer format, each in one of its \"concepts\". Pick the steps the student is working on now, from the line they picked for its topic and their ratings. The app sets the exercise's level from them (the highest level of its steps). Every exercise is also tagged, and the app shows the tags as hashtags after the title: \"area\" (one of " + EXERCISE_AREAS.join(", ") + ": the one area it practises; theory covers ear training) and \"tags\" (1 to 3 of " + Object.keys(EXERCISE_TAGS).join(", ") + ": what kind of practice it is); write them as fields, or as hashtags at the end of the title. Notes in text: write each note you name as {{3}} or {{b7}} (a degree, counted from the root of the tool after the text) or {{c-sharp}} (a note name); the app draws it as a dot the student can tap to hear, so invite that.",
       "",
     ]),
     part("cells", "Cell interface", "interface", [
@@ -222,7 +223,7 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
     ]),
     part("levels", "Levels", "rules", [
       "### Levels: what each one means, and what the next one is",
-      "- An exercise's \"level\" is the student's level in its area, and every tool in the exercise is set to match it. A tool left at its easy default under an advanced tag is a mistake: an advanced singer does not get the 4th and the 5th as an interval set, and an advanced guitarist does not get fingers 1-2-3-4 at 60 bpm.",
+      "- An exercise's level is the highest level of its steps, and every tool in the exercise is set to match it. A tool left at its easy default under an advanced tag is a mistake: an advanced singer does not get the 4th and the 5th as an interval set, and an advanced guitarist does not get fingers 1-2-3-4 at 60 bpm.",
       "- The next stage is more of the same: faster, longer, one more key, a help taken away (the dot of the voice, the note labels, the finger numbers). The next level is a new kind of difficulty: what the student has to hear, find or control changes. Move a student up a stage first, and up a level when the top stage is easy.",
       "- Singing. New: steps from Do in one key, with the voice shown. Beginner: skips inside the home chord (Do Mi Sol, the octave), a second key. Intermediate: the leaps of the major scale (4th, 5th, 6th, octave), tunes that start off Do, down as well as up, the voice hidden as the last stage. Advanced: the leaps that are hard to hear (minor 3rd, tritone, minor 6th, both 7ths), up and down, Do in a random key, no picture of the voice, runs in sixteenths, and lines that follow the chords (guide tones) instead of the scale.",
       "- Guitar. New: open chords and single notes on one or two strings. Beginner: one position, open-chord changes in time. Intermediate: two positions joined, barre chords, the chord's notes aimed for on the changes. Advanced: one scale all over the neck in any key, the note that sets a mode apart, triads on every string set, 9th chords, string skipping, sixteenth-note strumming with misses.",
@@ -323,25 +324,28 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       `interface PlanConfig { title: string; summary?: string; progress: string; days: PlanDay[] } // exactly ${PLAN_DAYS} days; progress: your notes on the student, see How to plan`,
       "interface PlanDay { theme: string; exercises: Exercise[] } // 2 to 5 exercises",
       "interface Exercise {",
-      "  title: string; // may end with hashtags that stand for the fields below: \"Barre drill #guitar #beginner #technique\"",
+      "  title: string; // may end with hashtags that stand for the fields below: \"Barre drill #guitar #technique\"",
       "  minutes: number;",
       "  why?: string;",
-      "  level: " + EXERCISE_LEVELS.map((l) => `"${l}"`).join(" | ") + ";",
       "  area: " + EXERCISE_AREAS.map((a) => `"${a}"`).join(" | ") + ";",
       "  tags: string[]; // 1 to 3, from the tags listed under Exercise format",
       "  topic: string; // the one topic it practises, from the list below: a topic of its area",
-      "  concepts?: string[]; // up to 4 of that topic's concepts, from the list below",
+      "  concepts: string[]; // up to 4 of that topic's concepts, from the list below",
+      "  steps: string[]; // 1 to 3 steps it practises, \"trackId:n\" from the list below, each of one of its concepts; the app sets the level from them",
       "  learnBefore: string[]; // at least one, see Links",
       "  choice?: Choice; // see Cells: a key, scale, tempo, position or level the whole exercise follows\n  cells: Cell[]; // see Cells",
       "  exploreMore?: string[]; // see Links",
       "}",
       "```",
-      "Topics, each with its concepts (topic id (name): concept ids):",
-      ...TOPICS.map((t) => `- ${t.id} (${t.label}): ${conceptsOf(t.id).map((c) => c.id).join(", ")}`),
+      "Topics, each with its concepts (topic id (name): concept ids), then each concept's steps, easiest first (n name (level); a \"Mix\" step practises the steps before it together):",
+      ...TOPICS.flatMap((t) => [
+        `- ${t.id} (${t.label}): ${conceptsOf(t.id).map((c) => c.id).join(", ")}`,
+        ...conceptsOf(t.id).map((c) => `  - ${c.id}: ${(PATH.find((x) => x.id === c.id)?.steps ?? []).map((st, i) => `${i + 1} ${st.name} (${st.level})`).join("; ")}`),
+      ]),
       "",
       "Before you reply, check your plan against this list:",
       `- Exactly ${PLAN_DAYS} days, each with 2 to 5 exercises, and the "progress" summary is there.`,
-      "- Every exercise has a level, an area, 1 to 3 tags and a topic of its area.",
+      "- Every exercise has 1 to 3 steps, an area, 1 to 3 tags and a topic of its area, and each step is of one of its concepts.",
       "- Every link comes from the Links list, and every exercise has at least one \"learnBefore\".",
       "- Section minutes add up to the exercise's minutes, and an exercise over 5 minutes has 2 or more sections with minutes.",
       "- No exercise both sings and plays.",

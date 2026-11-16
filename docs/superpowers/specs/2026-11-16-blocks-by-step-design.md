@@ -99,6 +99,11 @@ their own, the player sings them mixed with everything before. Those become **mi
   `src/features/library/seed/blocks`, checked with `seed -- check`. Their mixing-step proposals come back with them;
   the user picks before goal 7 is built (a stop in the plan).
 
+- **Built 2026-11-16 (goal 5):** `PROMPT_VERSION` 4: the exercise format asks for `steps` (1 to 3) and no `level`, and
+  the answer format lists each concept's steps (`n name (level)`) under its topic. Fingerpicking is its own track
+  (`fingerpicking:1`, was `strumming:7`; no renumbering, it was the last step). The 117 seed blocks were raised to
+  prompt 4 by hand (user: they already name their steps); the prompt's examples still write `level` until rewritten.
+
 ## Left to the builder
 
 Query and SQL shape, the Slope list's layout, the order of the prompt change against the migration.

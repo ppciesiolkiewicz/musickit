@@ -68,6 +68,8 @@ export const PATH: Track[] = [
     s(I, "Sixteenth patterns", ""),
     s(I, "Muted chucks", "the backbeat on 2 and 4"),
     m(I, "every pattern in one song", "eighths, island, sixteenths and chucks"),
+  ]),
+  g("basic-chords", "fingerpicking", "Fingerpicking", [], [
     s(A, "Fingerpicking pattern", "thumb on the root, fingers on the top strings"),
   ]),
   g("basic-chords", "power-chords", "Power chords", ["power-chords"], [

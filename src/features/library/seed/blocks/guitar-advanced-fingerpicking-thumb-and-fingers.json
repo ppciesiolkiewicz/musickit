@@ -2,11 +2,11 @@
   "id": "guitar-advanced-fingerpicking-thumb-and-fingers",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 3,
+    "prompt": 4,
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track strumming (guitar-basic-chords), step 7: a fingerpicking pattern with the thumb on the root and three fingers on the top strings, over Am, F and Dm. missing: the tab shows no picking-hand fingers, a chord-steps note can't be put on a named string (so the thumb's root is written as a pinch with the index on beat 1, and only chords where that lands right are used), and a step is one beat, so no eighth-note pattern.",
+  "note": "Track fingerpicking (guitar-basic-chords), step 1: a fingerpicking pattern with the thumb on the root and three fingers on the top strings, over Am, F and Dm. missing: the tab shows no picking-hand fingers, a chord-steps note can't be put on a named string (so the thumb's root is written as a pinch with the index on beat 1, and only chords where that lands right are used), and a step is one beat, so no eighth-note pattern.",
   "exercise": {
     "title": "Fingerpicking: thumb and three fingers",
     "minutes": 10,
@@ -18,10 +18,10 @@
     ],
     "topic": "guitar-basic-chords",
     "concepts": [
-      "strumming"
+      "fingerpicking"
     ],
     "steps": [
-      "strumming:7"
+      "fingerpicking:1"
     ],
     "why": "The thumb plays the root on beat 1 and three fingers each keep one of the top strings, so the picking hand repeats one pattern and only the fretting hand changes with the chord.",
     "learnBefore": [

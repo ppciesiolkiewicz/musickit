@@ -2,7 +2,7 @@
   "id": "voice-new-up-to-fa",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 3,
+    "prompt": 4,
     "agents": 2,
     "teaching": 5
   },

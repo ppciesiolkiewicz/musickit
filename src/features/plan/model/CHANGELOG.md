@@ -10,6 +10,12 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 4 (2026-11-16)
+
+- An exercise names its `steps`: 1 to 3 steps of the learning path (`trackId:n`), each in one of its concepts' tracks. It no longer writes a `level`; the app sets it from the steps (the highest of their levels). The answer format lists every concept's steps under its topic, numbered, with their levels.
+- A new track, `fingerpicking` (guitar, basic chords), takes the fingerpicking step out of `strumming`, so the concepts listed are 46.
+- The 117 seed blocks were raised to 4 without a rewrite: they already named their steps.
+
 ### 3 (2026-11-16)
 
 - A new track, `double-stops` (guitar, CAGED topic, before `triads`), so the concepts listed under each topic are 45. The first triads, barre chords, the modes and the first positions on the neck now name steps to learn first; the prompt lists ids only, so only the new id shows in it.

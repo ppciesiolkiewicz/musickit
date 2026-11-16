@@ -2,7 +2,7 @@
   "id": "guitar-advanced-caged-five-shapes-one-chord",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 3,
+    "prompt": 4,
     "agents": 2,
     "teaching": 5
   },

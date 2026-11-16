@@ -227,9 +227,14 @@ test("the prompt asks for the progress summary and the topic tags, and lists eve
     const format = partOf(prev, "answer-format");
     assert.match(format, /progress: string;/);
     assert.match(format, /topic: string;/);
-    assert.match(format, /concepts\?: string\[\];/);
+    assert.match(format, /concepts: string\[\];/);
+    assert.match(format, /steps: string\[\]; \/\/ 1 to 3 steps/);
+    assert.doesNotMatch(format, /^  level:/m);
     for (const t of TOPICS) assert.ok(format.includes(`- ${t.id} (${t.label})`), t.id);
     assert.match(format, /- guitar-caged \(CAGED\): double-stops, triads, caged, arpeggios/);
+    assert.match(format, /- guitar-basic-chords \(Basic chords\): open-chords, strumming, fingerpicking, power-chords/);
+    assert.match(format, /\n  - fingerpicking: 1 Fingerpicking pattern \(advanced\)\n/);
+    assert.match(format, /\n  - open-chords: 1 Em, Am \(new\); 2 E, A, D \(new\); 3 Mix: /);
   }
 });
 
@@ -256,7 +261,7 @@ test("the prompt teaches the choice, stages and variants, cells and hashtags, an
   assert.doesNotMatch(rules, /\bstep-choice\b/);
   assert.match(p, /### Cells/);
   assert.match(p, /- section : /);
-  assert.match(p, /#guitar #beginner #technique/);
+  assert.match(p, /#guitar #technique/);
   assert.doesNotMatch(rules, /"focus"/);
   assert.doesNotMatch(rules, /list of "sections"/);
   assert.match(p, /"label\\?": \\?"stage\\?"/);

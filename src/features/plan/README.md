@@ -313,7 +313,7 @@ pastes with zero warnings and keeps the exercise rules: blocks, sing or play, na
 
 ## Concepts
 
-`model/path.ts` is the learning path (NEW13): `PATH`, 45 tracks, each one skill with its steps from easiest to hardest,
+`model/path.ts` is the learning path (NEW13): `PATH`, 46 tracks, each one skill with its steps from easiest to hardest,
 each step at its own level, so a track spans the levels its steps reach. A mixing step (`mix: true`, made with `m`,
 named "Mix: ...") teaches nothing new: it uses what the steps before it in the track taught, together, so new material
 (an interval, a chord shape, a mode) doesn't stay on its own; 33 of them, from the Fable agents' proposals (2026-11-16).
@@ -336,7 +336,7 @@ predecessors are all known is within reach, a few per topic at a time (`REACH_CA
 
 `model/concepts.ts` is the catalogue the questionnaire rates and exercises are tagged with: `CONCEPTS`, one per track
 (`level` is its first step's, `levels` every level its steps reach, `steps`, a `course` link), `AREAS`,
-`conceptsFor(area, level)` (a step at that level or the one below) and `conceptById`. An exercise names the path steps it practises in `steps` ("trackId:n"); `parseExercise` drops an unknown ref or a step of a track that is not one of its concepts (adding a missing track of its topic), and sets `level` to the highest of the steps' levels (`levelOfSteps` in `path.ts`). The 67 concepts from before the
+`conceptsFor(area, level)` (a step at that level or the one below) and `conceptById`. An exercise names the path steps it practises in `steps` ("trackId:n"); `parseExercise` drops an unknown ref or a step of a track that is not one of its concepts (adding a missing track of its topic), and sets `level` to the highest of the steps' levels (`levelOfSteps` in `path.ts`). The prompt (version 4) asks for `steps` in place of `level` and lists every concept's steps, numbered, with their levels, under its topic in the answer format. The 67 concepts from before the
 path (2026-11-16) map to their track (`OLD_CONCEPT_IDS`, `conceptId`, `conceptIds`): the parser, the outcome and the
 library coverage read an old id as its track, so stored plans and ratings keep counting.
 

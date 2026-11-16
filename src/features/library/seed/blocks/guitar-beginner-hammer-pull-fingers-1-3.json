@@ -2,7 +2,7 @@
   "id": "guitar-beginner-hammer-pull-fingers-1-3",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 3,
+    "prompt": 4,
     "agents": 2,
     "teaching": 5
   },
