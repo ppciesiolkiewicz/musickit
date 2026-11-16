@@ -366,6 +366,55 @@ export function stepAt(ref: string, tracks: Track[] = PATH): { track: Track; ste
 const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
 export const levelIndex = (level: Level) => LEVELS.indexOf(level);
 
+/** What a step needs first: the step before it in its own track, then its `after` steps. */
+export function predecessorsOf(ref: string, tracks: Track[] = PATH): string[] {
+  const at = stepAt(ref, tracks);
+  if (!at) return [];
+  return [...(at.index > 0 ? [`${at.track.id}:${at.index}`] : []), ...(at.step.after ?? [])];
+}
+
+/** A step on the path, with how deep its chain of steps to learn first runs. */
+export interface SlopeStep {
+  ref: string;
+  track: Track;
+  /** in its track, from 0 */
+  index: number;
+  level: Level;
+  /** 0 when it needs nothing first, else 1 + the deepest step it needs */
+  depth: number;
+}
+
+function depths(tracks: Track[]): Map<string, number> {
+  const memo = new Map<string, number>();
+  const open = new Set<string>();
+  const visit = (ref: string): number => {
+    const known = memo.get(ref);
+    if (known !== undefined) return known;
+    if (open.has(ref)) throw new Error(`cycle at ${ref}`);
+    open.add(ref);
+    const d = predecessorsOf(ref, tracks).reduce((m, p) => Math.max(m, visit(p) + 1), 0);
+    open.delete(ref);
+    memo.set(ref, d);
+    return d;
+  };
+  for (const t of tracks) t.steps.forEach((_, i) => visit(`${t.id}:${i + 1}`));
+  return memo;
+}
+
+/** How deep a step's chain of steps to learn first runs. */
+export const depthOf = (ref: string, tracks: Track[] = PATH): number => depths(tracks).get(ref) ?? 0;
+
+/** Every step in path order: by level, then depth, then the track's place in `tracks`, then its place in the track. */
+export function slope(tracks: Track[] = PATH): SlopeStep[] {
+  const d = depths(tracks);
+  const place = new Map(tracks.map((t, i) => [t.id, i]));
+  const steps: SlopeStep[] = tracks.flatMap((track) => track.steps.map((st, index) => ({ ref: `${track.id}:${index + 1}`, track, index, level: st.level, depth: d.get(`${track.id}:${index + 1}`)! })));
+  return steps.sort((a, b) => levelIndex(a.level) - levelIndex(b.level) || a.depth - b.depth || place.get(a.track.id)! - place.get(b.track.id)! || a.index - b.index);
+}
+
+/** Each step's place in `slope()`, by ref. */
+export const slopeIndex = (tracks: Track[] = PATH): Map<string, number> => new Map(slope(tracks).map((s, i) => [s.ref, i]));
+
 /** The first and last level a track's steps reach, as indexes 0 to 3. */
 export function spanOf(track: Track): [number, number] {
   return [levelIndex(track.steps[0].level), levelIndex(track.steps[track.steps.length - 1].level)];

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { TOPICS } from "@/features/plan/intake/topics";
-import { PATH, levelIndex, pathStats, spanOf, stepAt, stepOf } from "./path";
+import { PATH, depthOf, levelIndex, pathStats, predecessorsOf, slope, slopeIndex, spanOf, stepAt, stepOf } from "./path";
 import { LADDERS } from "./ladders";
 import type { PlanTool } from "./tools";
 
@@ -66,4 +66,27 @@ test("stepOf reads the hardest ladder step the tools say; none without a ladder 
   assert.equal(stepOf("notes-on-neck", [{ type: "note-finder" } as unknown as PlanTool]), null);
   assert.equal(stepOf("triads", [nf("new")]), null);
   assert.equal(stepOf("nope", [nf("new")]), null);
+});
+
+test("predecessorsOf: the step before it, then its `after` steps", () => {
+  assert.deepEqual(predecessorsOf("open-chords:1"), []);
+  assert.deepEqual(predecessorsOf("open-chords:2"), ["open-chords:1"]);
+  assert.deepEqual(predecessorsOf("caged:1"), ["barre:3"]);
+  assert.deepEqual(predecessorsOf("caged:2"), ["caged:1", "barre:2"]);
+});
+
+test("depth: each step is deeper than every step it needs, so the path has no cycle", () => {
+  assert.equal(depthOf("open-chords:1"), 0);
+  for (const t of PATH) t.steps.forEach((_, i) => {
+    const ref = `${t.id}:${i + 1}`;
+    for (const p of predecessorsOf(ref)) assert.ok(depthOf(p) < depthOf(ref), `${p} → ${ref}`);
+  });
+});
+
+test("slope: every step once, each after everything it needs, levels never going down", () => {
+  const at = slopeIndex();
+  assert.equal(at.size, PATH.reduce((n, t) => n + t.steps.length, 0));
+  for (const [ref, i] of at) for (const p of predecessorsOf(ref)) assert.ok(at.get(p)! < i, `${p} → ${ref}`);
+  const s = slope();
+  s.forEach((x, i) => i && assert.ok(levelIndex(x.level) >= levelIndex(s[i - 1].level)));
 });

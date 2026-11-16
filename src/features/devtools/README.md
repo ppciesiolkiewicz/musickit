@@ -110,8 +110,8 @@ topic, per concept). A date field sets `asOf` (today at first); a date before an
 
 ## Learning path (`/dev/path`)
 
-The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), in three views: **Path**, **Boxes**
-and **Bars**. The area buttons and *Student on the path* are shared.
+The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), in four views: **Path**, **Slope**,
+**Boxes** and **Bars**. The area buttons are shared; *Student on the path* is on all but Slope and Bars.
 
 **Path** (`path/JourneyView.tsx`, the first view, made to show to studios). Four figures for the area (skills, steps,
 skills that span levels, steps read from the tools), then the topics down and the levels across. Every skill is a row
@@ -119,6 +119,13 @@ with a block in each level its steps reach, holding that level's steps (a filled
 dashed one: not yet), and a ribbon joins its blocks; a level its steps skip shows "keeps going". Hovering or picking a
 block lights the skill, what it builds on (blue) and what builds on it (violet), and dims the rest; picking one also
 opens its detail below. With a student on the path, a block's edge is the skill's state and each step has a square.
+
+**Slope** (`path/SlopeView.tsx`; design in `docs/superpowers/specs/2026-11-16-path-slope-design.md`). Every step of the
+area placed by its level and its depth (`depthOf`/`slope` in `plan/model/path.ts`: how deep its chain of steps to learn
+first runs), one column per depth inside a level, rows sorted by where a track's first step falls. *As it is* draws
+`PATH`; *Proposed* draws `model/slopeProposal.ts` (the named prerequisites and the double-stops track), with new links
+dashed orange and each step that moved marked +N. Hovering or picking a step lights its whole chain both ways; the
+detail below counts the chain under it. Once the proposal is settled it moves into `PATH` and the file goes.
 
 **Boxes**: the diagram (`path/PathView.tsx`, nodes from
 `model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/examples links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
