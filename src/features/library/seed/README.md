@@ -26,8 +26,9 @@ blocks/<id>.json   one exercise each, for a step no plan reaches yet (SeedBlockF
    - `versions` are `PROMPT_VERSION` (`plan/model/prompt.ts`) and `DOC_VERSIONS` (`plan/examples/index.ts`) as they
      are when the file is written. `model` is the API id of the model that wrote it. `note` says which gap, in one line.
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the
-   current ones (`npm run -s seed -- versions`), every exercise names a concept, and a tool of a concept with steps
-   sets its level or stage.
+   current ones (`npm run -s seed -- versions`), every exercise names a concept and at least one step (each in a track of
+   its concepts), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
+   level or stage.
    Then `npm run -s gen:json-index`, so the folder's `index.gen.ts` imports the new file.
 4. `npm run -s db:seed-plans`, then `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first).
 

@@ -16,7 +16,7 @@ import { catalogue } from "../src/features/plan/model/catalogue";
 import { conceptById } from "../src/features/plan/model/concepts";
 import { parseExercise, parsePlanConfig } from "../src/features/plan/model/config";
 import { LADDERS } from "../src/features/plan/model/ladders";
-import { stepOf } from "../src/features/plan/model/path";
+import { stepAt, stepOf } from "../src/features/plan/model/path";
 import { PROMPT_VERSION, promptParts } from "../src/features/plan/model/prompt";
 import { toolsOf } from "../src/features/plan/model/tools";
 import type { PlanAnswers, PlanExercise } from "../src/features/plan/model/types";
@@ -29,11 +29,23 @@ function answersOf(arg: string): PlanAnswers {
   return JSON.parse(readFileSync(arg, "utf8")) as PlanAnswers;
 }
 
-/** What is wrong with one exercise beyond the parser: no concept, or a laddered concept whose tools say no step. */
+/**
+ * What is wrong with one exercise beyond the parser: no concept, no steps, a named step with a ladder that none of its
+ * tools sits on, or a laddered concept whose tools say no step. (A step of a track that is not one of its concepts, or no
+ * step at all, is already a parser warning.)
+ */
 function exerciseProblems(e: PlanExercise, where: string): string[] {
   const out: string[] = [];
   if (!e.concepts?.length) out.push(`${where}: tags no concept, so it counts for no skill or step.`);
+  if (!e.steps?.length) out.push(`${where}: names no step ("steps": ["trackId:n"]), so the library finds it by level only.`);
   const tools = toolsOf(e.cells);
+  for (const ref of e.steps ?? []) {
+    const ladder = stepAt(ref)?.step.ladder;
+    if (!ladder) continue;
+    const [id, key] = ladder.split(":");
+    const read = LADDERS.find((x) => x.id === id)?.read;
+    if (read && !tools.some((t) => read(t) === key)) out.push(`${where}: names ${ref}, but none of its tools sits on that step (${ladder}).`);
+  }
   for (const id of e.concepts ?? []) {
     const c = conceptById(id)!;
     const ladders = new Set(c.steps.flatMap((s) => (s.ladder ? [s.ladder.split(":")[0]] : [])));

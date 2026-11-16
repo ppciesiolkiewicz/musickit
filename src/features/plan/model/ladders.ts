@@ -49,8 +49,13 @@ export const LADDERS: Ladder[] = [
   {
     id: "interval-ears", label: "interval-ears levels", file: "src/lib/practice/earGame.ts",
     steps: EAR_LEVELS.map((l) => ({ key: String(l.n), name: `Level ${l.n}`, holds: l.label })),
-    // the word a plan writes stands for one of the game's own levels; one over the top is the top
-    read: (tool) => (tool.type === "interval-ears" && tool.level ? String(Math.min(TOP_EAR_LEVEL, INTERVAL_EARS_LEVELS[tool.level])) : null),
+    // the word a plan writes stands for one of the game's own levels; one over the top is the top. A level written as the
+    // game's own number has no word: it is read from the tool's query (`level=3`)
+    read: (tool) => {
+      if (tool.type !== "interval-ears") return null;
+      const n = tool.level ? INTERVAL_EARS_LEVELS[tool.level] : Number(/(?:^|&)level=(\d+)(?:&|$)/.exec(tool.query)?.[1]);
+      return Number.isInteger(n) && n >= 1 ? String(Math.min(TOP_EAR_LEVEL, n)) : null;
+    },
   },
   byLevel("note-finder", "note-finder", "note-finder levels", (l) => {
     const { strings, from, to, naturals } = NOTE_FINDER_LEVELS[l];

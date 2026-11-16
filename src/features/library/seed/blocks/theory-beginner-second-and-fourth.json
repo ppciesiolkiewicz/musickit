@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track intervals (theory-ear), step 3: the major 2nd and the perfect 4th by ear, added to the 3rds, the 5th and the octave. The last game is set to the game's own level 3, a number, which is exactly this step; no level word stands for it (\"beginner\" is 2, \"intermediate\" is 4), and the ladder reads only words, so the block is read back as step 2 from the round on the earlier intervals. Missing: a level word for interval-ears level 3, or a ladder that reads the number.",
+  "note": "Track intervals (theory-ear), step 3: the major 2nd and the perfect 4th by ear, added to the 3rds, the 5th and the octave. The last game is set to the game's own level 3, a number, which is exactly this step (the ladder reads the number from the tool). Missing: a level word for interval-ears level 3 (\"beginner\" is 2, \"intermediate\" is 4).",
   "exercise": {
     "title": "The 2nd and the 4th by ear",
     "minutes": 8,
