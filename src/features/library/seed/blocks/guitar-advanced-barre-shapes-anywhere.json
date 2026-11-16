@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "barre:5"
-  ],
   "note": "Track barre (guitar-barre-chords), step 5: major, minor and 7 from one root on string 6 and on string 5, one chord in both places, then a four-chord song with no open chords in three keys. missing: chord-shapes with \"voicing\": \"barre\" draws the 7 as a four-string shape and not the full barre 7, and takes no root string, so one chord can't be shown on both roots (caged-neck does it, for a major chord only).",
   "exercise": {
     "title": "Any chord, two places",
@@ -22,6 +19,9 @@
     "topic": "guitar-barre-chords",
     "concepts": [
       "barre"
+    ],
+    "steps": [
+      "barre:5"
     ],
     "why": "A movable shape has its root under finger 1, on the low E string or on the A string, so the note under that finger names the chord and every chord can be played in two places.",
     "learnBefore": [

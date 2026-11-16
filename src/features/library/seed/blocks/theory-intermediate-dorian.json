@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "modes:1"
-  ],
   "note": "Track modes (theory-modes), step 1: Dorian, built from the minor pentatonic the player knows by adding the 2nd and the major 6th, with the 6th heard over a drone and then over a Dorian band in three keys.",
   "exercise": {
     "title": "Dorian: the minor pentatonic plus two notes",
@@ -23,6 +20,9 @@
     "topic": "theory-modes",
     "concepts": [
       "modes"
+    ],
+    "steps": [
+      "modes:1"
     ],
     "why": "Dorian is the minor pentatonic with the 2nd and the major 6th added, and the 6th is the note that sets it apart from plain minor, so learn to hear that note against the root.",
     "learnBefore": [

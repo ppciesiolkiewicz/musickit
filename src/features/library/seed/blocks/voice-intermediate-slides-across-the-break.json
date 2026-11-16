@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "range:2"
-  ],
   "note": "Track range (voice-breath-range), step 2: slides across the break, on a lip roll down and as a siren, then the same slide on \"oo\" from a staff. Missing: a tool that draws a sung slide between two notes on an open vowel (lip-roll only asks for a lip roll), so the last block uses a staff with two notes, and its keys put a tenor's first break inside the slide.",
   "exercise": {
     "title": "Slides across the break",
@@ -22,6 +19,9 @@
     "topic": "voice-breath-range",
     "concepts": [
       "range"
+    ],
+    "steps": [
+      "range:2"
     ],
     "why": "A slide passes through every pitch between two notes, so it carries your voice across the break with no step to jump over: first on a lip roll, which keeps the sound light, then on an open sound.",
     "learnBefore": [

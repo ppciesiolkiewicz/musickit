@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "singing-modes:3"
-  ],
   "note": "Track singing-modes (voice-melodies), step 3: mix of Dorian and Mixolydian from one Do over one drone, a Scale choice in every block: the first five notes of each (only the 3rd moves), the chord on Do in each (1 ♭3 5 ♭7 against 1 3 5 ♭7), then one made-up phrase sung in both, in a second key. missing: a staff that draws both 3rds at once, so a phrase could change mode halfway without the selector.",
   "exercise": {
     "title": "Dorian or Mixolydian, from one Do",
@@ -22,6 +19,9 @@
     "topic": "voice-melodies",
     "concepts": [
       "singing-modes"
+    ],
+    "steps": [
+      "singing-modes:3"
     ],
     "why": "From one Do, Dorian and Mixolydian share six of their seven notes, so the 3rd is the one note that says which mode you are singing: ♭3 in Dorian, 3 in Mixolydian.",
     "learnBefore": [

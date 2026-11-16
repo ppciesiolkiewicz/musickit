@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "seventh-shapes:3"
-  ],
   "note": "Track seventh-shapes (guitar-extended-chords), step 3: open dominant, minor and major 7ths together: a 7th and a minor 7th on the same root, a four-bar round in C with all three kinds, the round grown to eight bars with Em7 and A7, then over drums and bass.",
   "exercise": {
     "title": "Three kinds of 7th in one round",
@@ -22,6 +19,9 @@
     "topic": "guitar-extended-chords",
     "concepts": [
       "seventh-shapes"
+    ],
+    "steps": [
+      "seventh-shapes:3"
     ],
     "why": "A 7th chord and the minor 7th chord on the same root differ by one note, so playing them back to back, and then all three kinds in one round, trains your ear to tell them apart while your hands change.",
     "learnBefore": [

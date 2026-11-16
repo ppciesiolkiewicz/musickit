@@ -8,7 +8,7 @@ import { blockHref } from "./stepHref";
 const by = blocksByStep();
 
 test("every step a seed block names is a real step, and the block is listed under it", () => {
-  for (const f of SEED_BLOCKS) for (const ref of f.steps ?? []) {
+  for (const f of SEED_BLOCKS) for (const ref of (f.exercise.steps as string[] | undefined) ?? []) {
     assert.ok(stepAt(ref), `${f.id} names ${ref}, which is no step`);
     assert.ok(by.get(ref)?.some((b) => b.id === f.id), `${f.id} is not listed under ${ref}`);
   }

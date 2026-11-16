@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "beat:5"
-  ],
   "note": "Track beat (theory-basics), step 5: quarters, eighths and sixteenths mixed, a bar of each, then a change on every beat of one bar, then a new order over drums. Missing: a rhythm tool that shows a written bar and listens to the claps; backing-band's click sounds only the beat, so each bar is given as a count in the text.",
   "exercise": {
     "title": "Quarters, eighths and sixteenths in one bar",
@@ -21,6 +18,9 @@
     "topic": "theory-basics",
     "concepts": [
       "beat"
+    ],
+    "steps": [
+      "beat:5"
     ],
     "why": "Quarters, eighths and sixteenths split the same beat into one, two and four, so as long as the numbers of your count stay on the click you can change from one to another on any beat.",
     "learnBefore": [

@@ -104,7 +104,7 @@ model/            pure, no React; tested in model/plan.test.ts
   hashtags.ts     readTitle(): the hashtags at the end of a title as area, level and kind tags; hashtagLine(): them written back
   concepts.ts     the fine concepts exercises are tagged with, per area and level; each belongs to one questionnaire topic
   exerciseIds.ts  randomId(), withExerciseIds(): an id on every exercise of a plan; withBlockIds(): every exercise's `blockId` (the hash of its content and tags), always recomputed, a stray `parentBlockId` dropped
-  blockId.ts      blockKeyOf(): what a block is for its id (content and tags, never minutes, why, links or slot ids); blockIdOf(): 128 bits of the SHA-256 of its canonical JSON (`lib/sha256.ts`, the same in browser and server); withoutCellIds(), canonicalJson(), isBlockId()
+  blockId.ts      blockKeyOf(): what a block is for its id (content and tags, `steps` in place of `level` when it names steps; never minutes, why, links or slot ids); blockIdOf(): 128 bits of the SHA-256 of its canonical JSON (`lib/sha256.ts`, the same in browser and server); withoutCellIds(), canonicalJson(), isBlockId()
   libraryBlocks.ts libraryBlocksOf(): a plan document's blocks for the library (one per block id, current plan first; `edit` with its parent when edited, else `ai`), ids worked out here; slotBlocks(): slot id -> block id (no prototype, so a slot id like `constructor` is an ordinary key; test with `Object.hasOwn`)
   progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
   answersHistory.ts cleanAnswersHistory(), movedOver(), recordAnswers(): every finished questionnaire kept with its date (`PlanState.answersHistory`, oldest first, at most 100)
@@ -336,7 +336,7 @@ predecessors are all known is within reach, a few per topic at a time (`REACH_CA
 
 `model/concepts.ts` is the catalogue the questionnaire rates and exercises are tagged with: `CONCEPTS`, one per track
 (`level` is its first step's, `levels` every level its steps reach, `steps`, a `course` link), `AREAS`,
-`conceptsFor(area, level)` (a step at that level or the one below) and `conceptById`. The 67 concepts from before the
+`conceptsFor(area, level)` (a step at that level or the one below) and `conceptById`. An exercise names the path steps it practises in `steps` ("trackId:n"); `parseExercise` drops an unknown ref or a step of a track that is not one of its concepts (adding a missing track of its topic), and sets `level` to the highest of the steps' levels (`levelOfSteps` in `path.ts`). The 67 concepts from before the
 path (2026-11-16) map to their track (`OLD_CONCEPT_IDS`, `conceptId`, `conceptIds`): the parser, the outcome and the
 library coverage read an old id as its track, so stored plans and ratings keep counting.
 

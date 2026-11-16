@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "dim-aug:4"
-  ],
   "note": "Track dim-aug (theory-building-chords), step 4: the diminished 7 chord, built, told from half-diminished and heard leading home. Missing: interval-ears \"kind\": \"chord\" has no diminished 7 (or half-diminished) answer, so naming it by ear is done with the band; the staff cannot spell a ♭♭7, so the top note is drawn as the 6.",
   "exercise": {
     "title": "The diminished 7 chord",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "dim-aug"
+    ],
+    "steps": [
+      "dim-aug:4"
     ],
     "why": "A diminished 7 chord is minor 3rds stacked all the way round, so every note of it sits the same distance from the next and each one is a half step under a chord it can lead to.",
     "learnBefore": [

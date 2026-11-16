@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "dim-aug:2"
-  ],
   "note": "Track dim-aug (theory-building-chords), step 2: the augmented triad, 1 3 #5, heard against the major triad and the diminished one, then leading on to the next chord in two keys. Missing: interval-ears with kind \"chord\" has no augmented answer, and backing-track cannot play an augmented chord (its numerals read triads, diminished and 7ths only), so the chords are pressed one at a time on chord-shapes.",
   "exercise": {
     "title": "The augmented triad",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "dim-aug"
+    ],
+    "steps": [
+      "dim-aug:2"
     ],
     "why": "An augmented triad is a major triad with the 5th raised a half step, so listening for that one note tells the two chords apart.",
     "learnBefore": [

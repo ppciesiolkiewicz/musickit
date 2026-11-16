@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "ii-v-i:2"
-  ],
   "note": "Track ii-v-i (theory-progressions), step 2: the ii–V–i in minor, heard beside the major one, with the note that makes its V chord a dominant 7, then in three minor keys.",
   "exercise": {
     "title": "The ii–V–i in minor",
@@ -22,6 +19,9 @@
     "topic": "theory-progressions",
     "concepts": [
       "ii-v-i"
+    ],
+    "steps": [
+      "ii-v-i:2"
     ],
     "why": "The minor ii–V–i moves its roots the same way as the major one and changes two colours, a half-diminished ii and a minor home chord, while the V stays a dominant 7 because minor borrows a raised 7th for it.",
     "learnBefore": [

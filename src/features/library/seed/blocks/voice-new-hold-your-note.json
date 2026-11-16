@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "harmony-line:1"
-  ],
   "note": "Track harmony-line (voice-harmony), step 1: hold Sol, then Mi, while the drone sounds Do, then hold Sol while the band changes chord. missing: a tool that sounds a second note or a moving line against the singer's held note (the staff's drone can only sound Do).",
   "exercise": {
     "title": "Hold your note against another one",
@@ -22,6 +19,9 @@
     "topic": "voice-harmony",
     "concepts": [
       "harmony-line"
+    ],
+    "steps": [
+      "harmony-line:1"
     ],
     "why": "Singing harmony starts with keeping your own note while a different one sounds, so you hold Sol or Mi against the drone's Do and listen to the two notes together.",
     "learnBefore": [

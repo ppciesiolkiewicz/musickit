@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "singing-modes:5"
-  ],
   "note": "Track singing-modes (voice-melodies), step 5: Lydian over a drone, heard against the major scale (a Scale choice: only the 4th moves), the ♯4 reached by step and by leap from home in three keys, then a made-up tune over Imaj7 II that lands on the ♯4.",
   "exercise": {
     "title": "Lydian over a drone",
@@ -22,6 +19,9 @@
     "topic": "voice-melodies",
     "concepts": [
       "singing-modes"
+    ],
+    "steps": [
+      "singing-modes:5"
     ],
     "why": "Lydian is the major scale with one note raised, the ♯4, so singing the same five notes in both scales over one drone lets you hear the one note that moves.",
     "learnBefore": [

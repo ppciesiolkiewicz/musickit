@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "open-chords:3"
-  ],
   "note": "Track open-chords (guitar-basic-chords), step 3: Em, Am, E, A and D together: the five shapes from memory, minor next to major, then ten bars that meet every pair of the five once, one strum a bar.",
   "exercise": {
     "title": "Five open chords, any two in a row",
@@ -22,6 +19,9 @@
     "topic": "guitar-basic-chords",
     "concepts": [
       "open-chords"
+    ],
+    "steps": [
+      "open-chords:3"
     ],
     "why": "Every change between two chords is its own move, so the last block plays the five chords in an order where each one meets every other once, and the changes that are still slow show up.",
     "learnBefore": [

@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "strumming:6"
-  ],
   "note": "Track strumming (guitar-basic-chords), step 6: eighths with chucks, the island strum and sixteenths as the verse, chorus and bridge of one song on G, Em, C and D at one tempo, then all three in a row over drums and bass. missing: a muted stroke (a chuck) in strum-along's pattern, so the chucks on 2 and 4 are in the text only; and a strum-along pattern per chord or per section, so the whole song has no strokes drawn while the pattern changes.",
   "exercise": {
     "title": "Three strums in one song",
@@ -22,6 +19,9 @@
     "topic": "guitar-basic-chords",
     "concepts": [
       "strumming"
+    ],
+    "steps": [
+      "strumming:6"
     ],
     "why": "The beat stays where it is under every pattern, so going from one pattern to the next only changes how fast your hand swings and which strokes touch the strings.",
     "learnBefore": [

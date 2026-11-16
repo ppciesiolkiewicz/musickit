@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "arpeggios:3"
-  ],
   "note": "Track arpeggios (guitar-caged), step 3: the A minor arpeggio with its 7th added, then A7 and Amaj7 from the same root, then Am7, D7 and Gmaj7 played through in one area of the neck. missing: an arpeggio's boxes are numbered per chord, so a chord-steps or arpeggio-neck set by box can't follow a key choice; the block stays in one key.",
   "exercise": {
     "title": "7th arpeggios: one more note",
@@ -22,6 +19,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "arpeggios"
+    ],
+    "steps": [
+      "arpeggios:3"
     ],
     "why": "A 7th arpeggio is the triad arpeggio you know with one more note, between the 5th and the next root, so learning where that one note sits finishes the shape.",
     "learnBefore": [

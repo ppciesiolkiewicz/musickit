@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "singing-modes:7"
-  ],
   "note": "Track singing-modes (voice-melodies), step 7: mix of all five modes from one Do over one drone, a Scale choice in every block: Lydian, major, Mixolydian, Dorian (one note lowered each time), then Dorian, natural minor, Phrygian, Locrian, then one made-up phrase in Lydian, Mixolydian, Phrygian and Locrian in a second key. The major and natural minor scales are in the chain because Lydian to Mixolydian and Dorian to Phrygian are two notes apart without them. missing: a staff highlight that follows the choice (the staff rings the three notes that move in a block, not only the one that just moved), and a tool that sounds a mode for the singer to name.",
   "exercise": {
     "title": "Five modes from one Do",
@@ -22,6 +19,9 @@
     "topic": "voice-melodies",
     "concepts": [
       "singing-modes"
+    ],
+    "steps": [
+      "singing-modes:7"
     ],
     "why": "From one Do the modes stand in a line where each is the one before it with one note lowered a half step, so singing down that line over one drone lets you hear each mode by the single note that moved.",
     "learnBefore": [

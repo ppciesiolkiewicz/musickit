@@ -411,6 +411,12 @@ export function stepAt(ref: string, tracks: Track[] = PATH): { track: Track; ste
 const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
 export const levelIndex = (level: Level) => LEVELS.indexOf(level);
 
+/** The level of a block that practises these steps: the highest of their levels. Refs that point at no step are skipped; undefined when none is left. */
+export function levelOfSteps(refs: readonly string[], tracks: Track[] = PATH): Level | undefined {
+  const levels = refs.flatMap((r) => { const at = stepAt(r, tracks); return at ? [at.step.level] : []; });
+  return levels.length ? levels.reduce((a, b) => (levelIndex(b) > levelIndex(a) ? b : a)) : undefined;
+}
+
 /** What a step needs first: the step before it in its own track, then its `after` steps. */
 export function predecessorsOf(ref: string, tracks: Track[] = PATH): string[] {
   const at = stepAt(ref, tracks);

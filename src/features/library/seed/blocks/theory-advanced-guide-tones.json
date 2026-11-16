@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "ii-v-i:4"
-  ],
   "note": "Track ii-v-i (theory-progressions), step 4: guide tones, the two lines of 3rds and 7ths through a ii–V–I, tapped on the staff over the band, then in other keys.",
   "exercise": {
     "title": "Guide tones through a ii–V–I",
@@ -22,6 +19,9 @@
     "topic": "theory-progressions",
     "concepts": [
       "ii-v-i"
+    ],
+    "steps": [
+      "ii-v-i:4"
     ],
     "why": "The 3rd and the 7th are the notes that tell one chord from the next, and through a ii–V–I each of them stays or falls by one step, so two short lines carry all three chords.",
     "learnBefore": [

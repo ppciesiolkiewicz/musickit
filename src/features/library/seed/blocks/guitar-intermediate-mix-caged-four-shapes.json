@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "caged:6"
-  ],
   "note": "Track caged (guitar-caged), step 6: the C, A, G and E shapes of one chord together, in neck order: C in the four shapes from low to high, the roots two neighbours share, then a new shape every bar in three keys.",
   "exercise": {
     "title": "One chord in four shapes, up the neck",
@@ -22,6 +19,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
+    ],
+    "steps": [
+      "caged:6"
     ],
     "why": "Going up the neck, the shapes of one chord follow each other in the order C, A, G, E, and two shapes next to each other share a root, so you can step from one shape to the next by finding that root.",
     "learnBefore": [

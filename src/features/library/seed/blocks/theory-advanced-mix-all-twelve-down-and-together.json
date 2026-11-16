@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "intervals:7"
-  ],
   "note": "Track intervals (theory-ear), step 7 (ladder interval-ears:5): all twelve intervals going down and sounded together, two games at \"level\": \"advanced\", then P4, TT and P5 together, narrowed with \"set\". Missing: interval-ears has no \"dir\" that mixes directions from one question to the next.",
   "exercise": {
     "title": "All twelve intervals, down and together",
@@ -21,6 +18,9 @@
     "topic": "theory-ear",
     "concepts": [
       "intervals"
+    ],
+    "steps": [
+      "intervals:7"
     ],
     "why": "Two notes sounded together give you no first note to count from, so naming all twelve that way makes you hear each interval as one sound.",
     "learnBefore": [

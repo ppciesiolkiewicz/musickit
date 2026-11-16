@@ -9,6 +9,8 @@ export interface BlockKey {
   area?: Area;
   topic?: string;
   concepts?: string[];
+  /** in place of `level` when the exercise names steps (its level then follows from them) */
+  steps?: string[];
   level?: Level;
   tags?: string[];
 }
@@ -51,13 +53,14 @@ export function blockKeyOf(e: PlanExercise): BlockKey {
   const topic = text(e.topic);
   const level = text(e.level) as Level | undefined;
   const concepts = words(e.concepts);
+  const steps = words(e.steps);
   const tags = words(e.tags);
   return {
     content,
     ...(area !== undefined ? { area } : {}),
     ...(topic !== undefined ? { topic } : {}),
     ...(concepts ? { concepts } : {}),
-    ...(level !== undefined ? { level } : {}),
+    ...(steps ? { steps } : level !== undefined ? { level } : {}),
     ...(tags ? { tags } : {}),
   };
 }

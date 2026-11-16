@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "modes:2"
-  ],
   "note": "Track modes (theory-modes), step 2: Mixolydian, the major scale with a b7, heard against major, over a drone and then over a Mixolydian band in three keys.",
   "exercise": {
     "title": "Mixolydian: major with a lowered 7th",
@@ -23,6 +20,9 @@
     "topic": "theory-modes",
     "concepts": [
       "modes"
+    ],
+    "steps": [
+      "modes:2"
     ],
     "why": "Mixolydian is the major scale with the 7th lowered a half step, so learn to hear that one note against the root.",
     "learnBefore": [

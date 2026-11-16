@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "sevenths-up:7"
-  ],
   "note": "Track sevenths-up (theory-building-chords), step 7: the four 7th chords and the two triads, as six chords on G, then named by ear, then the four 7th chords on G in a band. Missing: interval-ears \"kind\": \"chord\" has no half-diminished answer, so that chord is heard in the chord boxes and the band only.",
   "exercise": {
     "title": "Four 7th chords and two triads",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "sevenths-up"
+    ],
+    "steps": [
+      "sevenths-up:7"
     ],
     "why": "Each of the four 7th chords is a triad with a 7th on top, so hearing the three notes underneath first and the top note second tells them from the triads and from each other.",
     "learnBefore": [

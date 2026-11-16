@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "caged:9"
-  ],
   "note": "Track caged (guitar-caged), step 9: the chords of G major inside one area of the neck: 1, 4 and 5 as the E, A and C shapes, the three minor chords as triads there, then all six in time. missing: no tool draws the six chords of a key as CAGED shapes in one area (the Shape neighbours view of /theory/caged as a tool); three caged-necks and scale-neck's chord chips stand in, so the minor chords show as triads only and there is no second key.",
   "exercise": {
     "title": "A whole key in one place",
@@ -22,6 +19,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
+    ],
+    "steps": [
+      "caged:9"
     ],
     "why": "Every chord of a key has a shape inside any five frets of the neck, so you can change chord by changing shape and leave your hand where it is.",
     "learnBefore": [

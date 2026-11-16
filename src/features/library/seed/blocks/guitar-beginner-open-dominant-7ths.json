@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "seventh-shapes:1"
-  ],
   "note": "Track seventh-shapes (guitar-extended-chords), step 1: the five open dominant 7th shapes, two as a change to E and A, three new, then strummed in time and into the chords they lead to.",
   "exercise": {
     "title": "Open 7th chords: E7, A7, D7, G7, B7",
@@ -22,6 +19,9 @@
     "topic": "guitar-extended-chords",
     "concepts": [
       "seventh-shapes"
+    ],
+    "steps": [
+      "seventh-shapes:1"
     ],
     "why": "E7 and A7 are E and A with one fretted string let go, so each 7th chord starts from a shape your hand already knows.",
     "learnBefore": [

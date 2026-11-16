@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "keys:6"
-  ],
   "note": "Track keys (theory-scales-keys), step 6: a chorus moved up a whole step, from C to D, heard, worked out as the same numbers in the new key, then prepared with the new key's 5 chord.",
   "exercise": {
     "title": "Up a step for the last chorus",
@@ -23,6 +20,9 @@
     "topic": "theory-scales-keys",
     "concepts": [
       "keys"
+    ],
+    "steps": [
+      "keys:6"
     ],
     "why": "Every chord of the chorus moves up by the same whole step, so its numbers stay the same in the new key, and the new key's 5 chord played just before it makes the lift sound prepared.",
     "learnBefore": [

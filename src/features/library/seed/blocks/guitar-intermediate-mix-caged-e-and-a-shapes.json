@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "caged:3"
-  ],
   "note": "Track caged (guitar-caged), step 3: the E and A shapes together: one chord in both shapes in three keys, then the 1, 4 and 5 chords in one area of the neck, once with the 1 chord in the E shape and once with it in the A shape.",
   "exercise": {
     "title": "E and A shapes: one chord twice, then 1 4 5",
@@ -22,6 +19,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
+    ],
+    "steps": [
+      "caged:3"
     ],
     "why": "The E shape has its root on the low E string and the A shape has it on the A string, so in one area of the neck the two shapes give you three different chords: the 1, 4 and 5 of a key.",
     "learnBefore": [

@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "double-stops:5"
-  ],
   "note": "Track double-stops (guitar-caged), step 5: 3rds on strings 3 and 2 and 6ths on strings 3 and 1 for one octave of G major, then a 3rd and a 6th of each chord over G, C and D. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
   "exercise": {
     "title": "3rds and 6ths up the neck in G",
@@ -21,6 +18,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "double-stops"
+    ],
+    "steps": [
+      "double-stops:5"
     ],
     "why": "Along two strings the 3rds of a key come in a fixed order of two shapes that starts again an octave up, and so do its 6ths, so one octave of each holds every pair the key has.",
     "learnBefore": [

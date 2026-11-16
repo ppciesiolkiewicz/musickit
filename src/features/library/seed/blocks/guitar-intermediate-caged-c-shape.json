@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "caged:4"
-  ],
   "note": "Track caged (guitar-caged), step 4: the C shape: open C moved up two frets to D with its arpeggio, pentatonic and scale, then joined to the A shape on the A string root, in three keys.",
   "exercise": {
     "title": "CAGED: the C shape",
@@ -22,6 +19,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
+    ],
+    "steps": [
+      "caged:4"
     ],
     "why": "The open C chord moves up the neck like E and A do, with finger 1 across the top three strings in place of the nut, and it ends on the A string where the A shape of the same chord begins.",
     "learnBefore": [

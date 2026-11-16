@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "note-names:1"
-  ],
   "note": "Track note-names (theory-basics), step 1: the seven letters A to G, said up and down from any letter. Missing: staff and piano-keys cannot be told to label notes by name (\"labels\" takes only degree or solfege), so the letters show only while the player's label setting is note names, the default.",
   "exercise": {
     "title": "The seven letters, A to G",
@@ -21,6 +18,9 @@
     "topic": "theory-basics",
     "concepts": [
       "note-names"
+    ],
+    "steps": [
+      "note-names:1"
     ],
     "why": "Music names its notes with seven letters, A to G, and then starts again at A, so once you can say them up and down from any letter you can name every white key.",
     "learnBefore": [

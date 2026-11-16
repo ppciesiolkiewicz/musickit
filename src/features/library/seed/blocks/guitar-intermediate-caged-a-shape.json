@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "caged:2"
-  ],
   "note": "Track caged (guitar-caged), step 2: the A shape: open A moved up as a barre, the chord, arpeggio, pentatonic and scale in the same frets, in three keys, then C in the A shape and the E shape.",
   "exercise": {
     "title": "CAGED: the A shape",
@@ -22,6 +19,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
+    ],
+    "steps": [
+      "caged:2"
     ],
     "why": "A barre chord with its root on the A string is the open A chord moved up the neck, so a chord you know in the E shape has a second place, with its own arpeggio, pentatonic and scale around it.",
     "learnBefore": [

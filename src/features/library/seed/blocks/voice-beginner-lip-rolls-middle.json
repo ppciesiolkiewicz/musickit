@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "range:1"
-  ],
   "note": "Track range (voice-breath-range), step 1: a hum in the middle of the voice, a lip roll held on one note, then one slow slide down through the middle. missing: a lip-roll shape that stays in the middle of the voice (every slide of the tool crosses both breaks, and \"hold\" sits in chest voice).",
   "exercise": {
     "title": "Lip rolls through the middle of your voice",
@@ -22,6 +19,9 @@
     "topic": "voice-breath-range",
     "concepts": [
       "range"
+    ],
+    "steps": [
+      "range:1"
     ],
     "why": "A lip roll only keeps buzzing while your air is steady and your throat is loose, so the buzz tells you when you start to push, and the middle of your voice is where it is easiest to keep.",
     "learnBefore": [

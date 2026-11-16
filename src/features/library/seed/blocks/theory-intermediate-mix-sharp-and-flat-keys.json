@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "keys:4"
-  ],
   "note": "Track keys (theory-scales-keys), step 4: sharp and flat keys mixed, both ways round the circle from C, then from a key to its signature on the piano, then from a signature back to its key. Missing: a game that shows a key signature and asks for the key (and a key for its signature); the signatures to name are listed in the text and checked on the circle.",
   "exercise": {
     "title": "Sharp keys and flat keys, both ways",
@@ -21,6 +18,9 @@
     "topic": "theory-scales-keys",
     "concepts": [
       "keys"
+    ],
+    "steps": [
+      "keys:4"
     ],
     "why": "Clockwise from C each key adds a sharp and anticlockwise each adds a flat, so a key's place on the circle gives its signature, and a signature gives the place.",
     "learnBefore": [

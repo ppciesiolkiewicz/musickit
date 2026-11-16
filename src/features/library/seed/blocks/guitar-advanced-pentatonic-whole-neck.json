@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "pentatonic-positions:8"
-  ],
   "note": "Track pentatonic-positions (guitar-scales), step 8: all five positions of one key as one neck: the roots first, position after position in three keys, along one string, then a solo that moves.",
   "exercise": {
     "title": "One key, the whole neck",
@@ -22,6 +19,9 @@
     "topic": "guitar-scales",
     "concepts": [
       "pentatonic-positions"
+    ],
+    "steps": [
+      "pentatonic-positions:8"
     ],
     "why": "The five positions are one scale cut into five pieces, and each piece holds its roots in the same places, so finding a root tells you which position your hand is in anywhere on the neck.",
     "learnBefore": [

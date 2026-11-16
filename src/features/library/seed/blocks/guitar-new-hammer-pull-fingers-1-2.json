@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "legato:1"
-  ],
   "note": "Track legato (guitar-techniques), step 1: the trill with fingers 1 and 2 (legato-trill at level new) on three strings, the last one faster in stages.",
   "exercise": {
     "title": "Hammer-ons and pull-offs, fingers 1 and 2",
@@ -21,6 +18,9 @@
     "topic": "guitar-techniques",
     "concepts": [
       "legato"
+    ],
+    "steps": [
+      "legato:1"
     ],
     "why": "A hammered note is only as loud as the finger lands, so a trill with no picking lets you hear at once when a finger lands too softly.",
     "learnBefore": [

@@ -244,7 +244,10 @@ export const blocks = pgTable(
     area: text("area"),
     topic: text("topic"),
     concepts: text("concepts").array().notNull().default(sql`'{}'::text[]`),
+    /** The level: the highest level of `steps` when it has any, else the level the writer typed. */
     level: text("level"),
+    /** The path steps it practises, "trackId:n" (`features/plan/model/path.ts`); empty for a block written before steps. */
+    steps: text("steps").array().notNull().default(sql`'{}'::text[]`),
     tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
     /** The block this one was edited from. Not a foreign key; written only when the first saver owned that block or saved it in the same document. */
     parentId: text("parent_id"),

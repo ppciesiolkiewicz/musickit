@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "double-stops:3"
-  ],
   "note": "Track double-stops (guitar-caged), step 3: 6ths in G major on strings 3 and 1 with string 2 silent: the two shapes, five of them up the key and back, then a 6th over G, C and D. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
   "exercise": {
     "title": "6ths on the G and high E strings",
@@ -21,6 +18,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "double-stops"
+    ],
+    "steps": [
+      "double-stops:3"
     ],
     "why": "A 6th on the G and high E strings has two shapes, both notes in one fret or the high E string one fret lower, and the B string between them stays silent, so the work is two shapes and one quiet string.",
     "learnBefore": [

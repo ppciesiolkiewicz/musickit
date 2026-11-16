@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "steps-to-leaps:8"
-  ],
   "note": "Track steps-to-leaps (voice-intervals), step 8: mix of steps and skips, the five notes up by step and down by skip over a drone (then turned round), a Thirds-stage tune that goes up a skip and back a step (in two keys), and a short one that takes a skip and a step in turn.",
   "exercise": {
     "title": "Steps and skips in one tune",
@@ -22,6 +19,9 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
+    ],
+    "steps": [
+      "steps-to-leaps:8"
     ],
     "why": "A skip jumps over one note of the scale and a step takes the next one, so when you hear which of the two comes next you can sing a tune that uses both without stopping between them.",
     "learnBefore": [

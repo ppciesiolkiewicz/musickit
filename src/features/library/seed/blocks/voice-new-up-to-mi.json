@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "steps-to-leaps:2"
-  ],
   "note": "Track steps-to-leaps (voice-intervals), step 2: up to Mi, by step over a drone, then two tunes of the Do Re Mi stage.",
   "exercise": {
     "title": "Do Re Mi: two steps up and home",
@@ -22,6 +19,9 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
+    ],
+    "steps": [
+      "steps-to-leaps:2"
     ],
     "why": "Mi is one more step above Re, the same size as the step from Do to Re, so you reach it by taking the step you know twice.",
     "learnBefore": [

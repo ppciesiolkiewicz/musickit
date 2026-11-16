@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "caged:7"
-  ],
   "note": "Track caged (guitar-caged), step 7: the D shape, from the open D chord moved up the neck, to where it sits between the E and C shapes, to its top three strings over D, G and A.",
   "exercise": {
     "title": "The D shape",
@@ -22,6 +19,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
+    ],
+    "steps": [
+      "caged:7"
     ],
     "why": "The D shape is the open D chord moved up the neck with its root on the D string, and it shares one root with the E shape below it and one with the C shape above, so it fills the gap between them.",
     "learnBefore": [

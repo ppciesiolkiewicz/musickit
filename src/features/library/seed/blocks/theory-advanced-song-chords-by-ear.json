@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "hearing-changes:5"
-  ],
   "note": "Track hearing-changes (theory-ear), step 5: a whole song's chords by ear, a verse and a chorus of 1, 4, 5 and 6, called out, written down as a chart, then with the bass taken out. Missing: backing-track cannot hide its chord boxes (the text asks the player to look away), and there is no tool that plays a real song to work out.",
   "exercise": {
     "title": "A song's chords by ear",
@@ -22,6 +19,9 @@
     "topic": "theory-ear",
     "concepts": [
       "hearing-changes"
+    ],
+    "steps": [
+      "hearing-changes:5"
     ],
     "why": "The bass plays the root of each chord, so following the bass line through a verse and a chorus gives you the song's chords one bar at a time.",
     "learnBefore": [

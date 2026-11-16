@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "power-chords:3"
-  ],
   "note": "Track power-chords (guitar-basic-chords), step 3: power chords on both roots in palm-muted eighth-note downstrokes, with the mute lifted on the last bar. missing: a palm-mute mark on a tool, and eighth-note steps in guitar-play-along (its steps are one per beat), so the riff is strummed bars in a strum-along, not a tabbed riff.",
   "exercise": {
     "title": "Palm-muted power chords in eighths",
@@ -22,6 +19,9 @@
     "topic": "guitar-basic-chords",
     "concepts": [
       "power-chords"
+    ],
+    "steps": [
+      "power-chords:3"
     ],
     "why": "The side of your picking hand on the strings at the bridge cuts each strum short, so eighth notes on a power chord turn into a tight chug, and lifting the hand lets a chord ring out against it.",
     "learnBefore": [

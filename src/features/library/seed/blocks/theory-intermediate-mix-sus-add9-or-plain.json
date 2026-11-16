@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "sus:4"
-  ],
   "note": "Track sus (theory-building-chords), step 4: sus2, sus4, add9 and the plain chord mixed, the middle note moving on D, all four built on C on the staff, then the four C chords named with eyes closed. Missing: interval-ears has no sus or add9 answer and backing-track cannot play them, so the player presses chord boxes without looking; chord-shapes has an add9 shape for C only and draws Csus2 higher up the neck than the other three, so it also sounds higher; staff \"notes\" does not read \"9\", so the 9 is the 2 an octave up.",
   "exercise": {
     "title": "Sus2, sus4, add9 or plain",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "sus"
+    ],
+    "steps": [
+      "sus:4"
     ],
     "why": "A sus chord gives up its 3rd for the 2nd or the 4th and an add9 keeps the 3rd and adds the 2nd on top, so asking whether the 3rd is there and where the new note sits names all four chords.",
     "learnBefore": [

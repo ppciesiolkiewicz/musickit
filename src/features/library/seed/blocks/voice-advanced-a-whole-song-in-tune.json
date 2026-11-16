@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "pitch:6"
-  ],
   "note": "Track pitch (voice-pitch), step 6: staying in tune through a whole tune with chords, then with nothing under it, then through a verse of a song the singer knows, over a drone. Missing: a song tool (a whole song's melody and words to sing through with the mic; the longest tunes in the melody book are 4 bars), and a key picker with all twelve keys that the student can use, so the song's key comes from four options.",
   "exercise": {
     "title": "A whole song in tune",
@@ -22,6 +19,9 @@
     "topic": "voice-pitch",
     "concepts": [
       "pitch"
+    ],
+    "steps": [
+      "pitch:6"
     ],
     "why": "Pitch drifts a little on every long note and every breath, and over a whole song the drift adds up, so check the long notes against something that holds the key: the chords, then your own ear, then a drone.",
     "learnBefore": [

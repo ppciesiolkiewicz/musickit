@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "tunes:3"
-  ],
   "note": "Track tunes (voice-melodies), step 3: three Hard tunes by ear, one that dips under Do (in two keys), one with leaps of a 4th, one from the high Do down to the Sol under Do.",
   "exercise": {
     "title": "Tunes that leap and dip under Do",
@@ -22,6 +19,9 @@
     "topic": "voice-melodies",
     "concepts": [
       "tunes"
+    ],
+    "steps": [
+      "tunes:3"
     ],
     "why": "A tune stays in your ear as a shape around Do, so once you know where it leaps and where it goes under Do you can sing it from any starting note.",
     "learnBefore": [

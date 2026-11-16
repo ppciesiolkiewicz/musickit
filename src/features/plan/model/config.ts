@@ -6,6 +6,7 @@ import { readTitle } from "./hashtags";
 import { MAX_CELLS, MAX_TAGS, askedTags, cellsOf, exerciseLevelArea, exerciseTags, parseCellDiag, parseChoiceDiag, pickWasInexact, resolveChordPlacement, toolsOf, type Cell } from "./tools";
 import { PLAN_DAYS, type Block, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
+import { levelOfSteps, stepAt } from "./path";
 import { topicById } from "../intake/topics";
 
 /** The longest progress summary kept from a reply. */
@@ -92,6 +93,30 @@ function topicTags(e: Record<string, unknown>, area: PlanExercise["area"], where
 }
 
 /**
+ * An exercise's path steps as the AI named them ("trackId:n", model/path.ts), and the level they set: the highest of their
+ * levels, in place of a typed one. A ref that points at no step is dropped with a warning. A step's track is one of the
+ * exercise's concepts: a track of its topic that is missing is added (at most 4 concepts), any other step is dropped with
+ * a warning.
+ */
+function stepTags(e: Record<string, unknown>, ex: PlanExercise, where: string, warnings: string[]): Pick<PlanExercise, "steps" | "level" | "concepts"> {
+  if (!Array.isArray(e.steps)) return {};
+  const refs = [...new Set(e.steps.filter((r): r is string => typeof r === "string").map((r) => r.trim()))];
+  const unknown = refs.filter((r) => !stepAt(r));
+  if (unknown.length) warnings.push(`${where}: left out unknown steps: ${unknown.join(", ")}.`);
+  const concepts = [...(ex.concepts ?? [])];
+  const kept: string[] = [], away: string[] = [];
+  for (const r of refs.filter((x) => stepAt(x))) {
+    const track = stepAt(r)!.track;
+    if (!concepts.includes(track.id) && (!ex.topic || track.topic !== ex.topic || concepts.length >= MAX_CONCEPTS)) { away.push(r); continue; }
+    if (!concepts.includes(track.id)) concepts.push(track.id);
+    kept.push(r);
+  }
+  if (away.length) warnings.push(`${where}: left out steps of a track that is not one of its concepts: ${away.join(", ")}.`);
+  if (!kept.length) return {};
+  return { steps: kept, level: levelOfSteps(kept), ...(concepts.length ? { concepts } : {}) };
+}
+
+/**
  * A note: a block alone, with no exercise meta. `draft` keeps what an editor holds while it is being written (an empty text, a
  * section with no heading or no cells yet); cells keep their `id`. Missing or unreadable input is the empty note.
  */
@@ -160,6 +185,7 @@ export function parseExercise(raw: unknown, where: string, entries: CatalogueEnt
   const unknown = [...new Set([...read.unknown, ...asked.unknown])];
   if (unknown.length) warnings.push(`${where}: dropped unknown kind tags: ${unknown.join(", ")}.`);
   Object.assign(ex, topicTags(e, ex.area, where, warnings));
+  Object.assign(ex, stepTags(e, ex, where, warnings));
   const untagged = [!ex.level && "level", !ex.area && "area", !tags.length && "kind", !ex.topic && "topic"].filter(Boolean);
   if (untagged.length) warnings.push(`${where}: no ${untagged.join(", ")} tag.`);
   const why = str(e.why, 300);

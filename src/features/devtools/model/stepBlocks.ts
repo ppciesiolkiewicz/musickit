@@ -22,7 +22,7 @@ export interface StepBlock {
   id: string;
   title: string;
   source: StepBlockSource;
-  /** "named": the seed file lists the step; "read": the exercise's tools say it; "level": it tags the track and its
+  /** "named": the exercise lists the step in `steps`; "read": the exercise's tools say it; "level": it tags the track and its
    *  level is the step's, nothing more (the way the library matches today) */
   how: "named" | "read" | "level";
   /** the exercise exactly as it is written, for ExamplePreview */
@@ -62,12 +62,12 @@ function planExercises(plan: unknown, entries: CatalogueEntry[]): { e: PlanExerc
 export function blocksByStep(entries: CatalogueEntry[] = catalogue()): Map<string, StepBlock[]> {
   const by = new Map<string, StepBlock[]>();
   const each = (e: PlanExercise, level: string | undefined, b: Omit<StepBlock, "how">) => {
+    for (const ref of e.steps ?? []) add(by, ref, { ...b, how: "named" });
     for (const { ref, how } of stepsOf(e, level)) add(by, ref, { ...b, how });
   };
   for (const f of SEED_BLOCKS) {
     const { block } = parseExercise(f.exercise, f.id, entries);
     const b = { id: f.id, title: block?.title ?? f.id, source: "seed block" as const, json: JSON.stringify(f.exercise) };
-    for (const ref of f.steps ?? []) add(by, ref, { ...b, how: "named" });
     if (block) each(block, block.level, b);
   }
   for (const f of SEED_PLANS) {

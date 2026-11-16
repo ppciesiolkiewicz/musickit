@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "sus:3"
-  ],
   "note": "Track sus (theory-building-chords), step 3: add9, 1 3 5 9, built on the staff, heard against the plain chord and against sus2 in C, then built from three more roots. Missing: staff \"notes\" does not read \"9\", so the 9 is shown as the 2 an octave up; chord-shapes has an add9 shape for C only (Gadd9, Dadd9, Aadd9 and Eadd9 draw nothing), so the other keys are tapped on the staff; backing-track cannot play add9 or sus chords and interval-ears has no answer for them.",
   "exercise": {
     "title": "Add9: the 2nd on top of the chord",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "sus"
+    ],
+    "steps": [
+      "sus:3"
     ],
     "why": "An add9 chord keeps its 3rd and adds the 2nd on top, so it still sounds major, where a sus2 chord gives the 3rd up.",
     "learnBefore": [

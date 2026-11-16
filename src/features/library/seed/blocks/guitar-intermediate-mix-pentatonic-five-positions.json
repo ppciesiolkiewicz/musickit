@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "pentatonic-positions:6"
-  ],
   "note": "Track pentatonic-positions (guitar-scales), step 6: all five positions together in A minor, in neck order: each one up and down in turn, the same five as C major pentatonic with the root moved, then a phrase in each position over a band. The app numbers the major pentatonic's positions from its own root (the minor position 1 is major position 5), so the major block names no position numbers and hides the picker.",
   "exercise": {
     "title": "Five pentatonic positions in neck order",
@@ -22,6 +19,9 @@
     "topic": "guitar-scales",
     "concepts": [
       "pentatonic-positions"
+    ],
+    "steps": [
+      "pentatonic-positions:6"
     ],
     "why": "Each position begins on the notes where the one below it ends, so the five of them in neck order are one scale, and the root shows you where you are inside any of them.",
     "learnBefore": [

@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "triads:3"
-  ],
   "note": "Track triads (guitar-caged), step 3: major and minor triads on strings 3 2 1 together as the chords of G major: the six triads inside one position, each major next to the minor that shares two of its notes, a round in G, then the same round in C.",
   "exercise": {
     "title": "Major and minor triads in one key",
@@ -22,6 +19,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "triads"
+    ],
+    "steps": [
+      "triads:3"
     ],
     "why": "On the top three strings G and Em share two notes, and so do C and Am, and D and Bm, so each major triad turns into a minor triad of the key by moving one note.",
     "learnBefore": [

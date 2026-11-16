@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "picking:2"
-  ],
   "note": "Track picking (guitar-techniques), step 2: down and up strokes, four notes a string (picking-drill at level beginner), on one string, across all six, then faster in stages.",
   "exercise": {
     "title": "Down and up with the pick",
@@ -22,6 +19,9 @@
     "topic": "guitar-techniques",
     "concepts": [
       "picking"
+    ],
+    "steps": [
+      "picking:2"
     ],
     "why": "The pick passes the string again on its way back up, so playing on the upstroke too gives you two notes for one movement of the hand.",
     "learnBefore": [

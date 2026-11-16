@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "sevenths-up:8"
-  ],
   "note": "Track sevenths-up (theory-building-chords), step 8: 9th chords, the 9 stacked on a 7th chord, seen, compared with the 7 and heard in three chords of a key. Missing: interval-ears \"kind\": \"chord\" has no 9th chord answer, so telling a 9 from a 7 by ear is done with the band.",
   "exercise": {
     "title": "9th chords: a 7th chord with the 9",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "sevenths-up"
+    ],
+    "steps": [
+      "sevenths-up:8"
     ],
     "why": "A 9th chord is a 7th chord with the 2nd above its root added an octave up, so hearing that one high note come and go tells a 9 from a 7.",
     "learnBefore": [

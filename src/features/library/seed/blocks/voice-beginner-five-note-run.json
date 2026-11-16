@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "runs:1"
-  ],
   "note": "Track runs (voice-runs), step 1: Do to Sol and back, one note per beat on a staff, then the book's run in eighths and in sixteenths. missing: a run-singer prop that caps the top note or the number of keys (its last pass always reaches the top of the voice's range, too high for a beginner, so the text says where to stop).",
   "exercise": {
     "title": "Do to Sol and back, as a run",
@@ -22,6 +19,9 @@
     "topic": "voice-runs",
     "concepts": [
       "runs"
+    ],
+    "steps": [
+      "runs:1"
     ],
     "why": "A run is steps you already sing, sung faster, so you set the five notes in place slowly first and then keep the same notes while the beat packs in two and then four of them.",
     "learnBefore": [

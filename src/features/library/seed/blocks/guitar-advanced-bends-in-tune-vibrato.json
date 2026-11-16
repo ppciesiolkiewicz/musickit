@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "bends-slides:4"
-  ],
   "note": "Track bends-slides (guitar-techniques), step 4: whole-step bends checked against the fretted note and a drone, vibrato on the held bend, then both in a solo. missing: no tool listens to a bend or marks one in tab, so the drone and the player's ear do the checking.",
   "exercise": {
     "title": "Bends in tune, then vibrato",
@@ -22,6 +19,9 @@
     "topic": "guitar-techniques",
     "concepts": [
       "bends-slides"
+    ],
+    "steps": [
+      "bends-slides:4"
     ],
     "why": "A whole-step bend is in tune when it sounds the same as the note two frets higher, so playing that fretted note first gives your ear the pitch to bend up to.",
     "learnBefore": [

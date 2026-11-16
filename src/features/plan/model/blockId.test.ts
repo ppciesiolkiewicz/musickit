@@ -71,6 +71,14 @@ test("minutes, why, links and slot ids do not change the id; title, a cell, leve
   ])
     assert.notEqual(blockIdOf(blockKeyOf(other as PlanExercise)), id);
 });
+test("steps take the place of level in the key, in any order", () => {
+  const a = blockKeyOf({ ...ex, steps: ["barre:2", "barre:1"] });
+  assert.deepEqual(a.steps, ["barre:1", "barre:2"]);
+  assert.equal(a.level, undefined);
+  assert.equal(blockIdOf(a), blockIdOf(blockKeyOf({ ...ex, level: "advanced", steps: ["barre:1", "barre:2"] })));
+  assert.notEqual(blockIdOf(a), blockIdOf(blockKeyOf(ex)));
+});
+
 test("empty concepts and tags are the same as none", () => {
   assert.equal(
     blockIdOf(blockKeyOf({ ...ex, concepts: [], tags: [] })),

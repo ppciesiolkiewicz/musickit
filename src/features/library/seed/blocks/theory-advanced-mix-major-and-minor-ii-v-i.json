@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "ii-v-i:3"
-  ],
   "note": "Track ii-v-i (theory-progressions), step 3: a major ii–V–I and a minor ii–V–i in one tune, C major and its minor home A, heard as two homes, followed by their roots, then in three keys. Missing: no curated backing-track progression joins the two, so the tune is given as \"chords\".",
   "exercise": {
     "title": "Major and minor ii–V–I in one tune",
@@ -22,6 +19,9 @@
     "topic": "theory-progressions",
     "concepts": [
       "ii-v-i"
+    ],
+    "steps": [
+      "ii-v-i:3"
     ],
     "why": "A tune can reach its major home with one ii–V–I and its minor home, on La, with another, and the ii chord says early which is coming: minor 7 before the major home, half-diminished before the minor one.",
     "learnBefore": [

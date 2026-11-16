@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "sus:2"
-  ],
   "note": "Track sus (theory-building-chords), step 2: sus2, 1 2 5, heard against the major chord and against sus4 from the step before, in D and then in A. Missing: backing-track cannot play sus chords (its numerals read triads, diminished and 7ths only) and interval-ears has no sus answer, so the chords are pressed one at a time on chord-shapes.",
   "exercise": {
     "title": "Sus2: the 2nd in place of the 3rd",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "sus"
+    ],
+    "steps": [
+      "sus:2"
     ],
     "why": "A sus2 chord swaps the 3rd for the 2nd, so it is neither major nor minor until the 3rd comes back.",
     "learnBefore": [

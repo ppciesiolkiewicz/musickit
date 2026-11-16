@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "sight-singing:1"
-  ],
   "note": "Track sight-singing (voice-melodies), step 1: three tunes that move by step, each read and sung from the staff before the app plays it. missing: a melody-singer prop that starts the mic without playing the tune, so the first reading is drawn and checked too.",
   "exercise": {
     "title": "Read a tune that moves by step",
@@ -22,6 +19,9 @@
     "topic": "voice-melodies",
     "concepts": [
       "sight-singing"
+    ],
+    "steps": [
+      "sight-singing:1"
     ],
     "why": "On the staff a step is the move from a line to the space next to it, so a tune that moves only by step can be read one small move at a time from its first note.",
     "learnBefore": [

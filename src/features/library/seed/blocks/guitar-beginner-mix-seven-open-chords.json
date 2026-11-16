@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "open-chords:6"
-  ],
   "note": "Track open-chords (guitar-basic-chords), step 6: all seven open chords together: the shapes from memory, three rounds of seven bars that between them meet every pair of the seven once, then a counted change the player picks. strum-along holds 16 chords at most, so the 21 changes are three rounds, not one.",
   "exercise": {
     "title": "Seven open chords, any change",
@@ -22,6 +19,9 @@
     "topic": "guitar-basic-chords",
     "concepts": [
       "open-chords"
+    ],
+    "steps": [
+      "open-chords:6"
     ],
     "why": "Seven chords make twenty-one different changes and each one is its own move, so three rounds that between them meet every pair once show which changes still need work.",
     "learnBefore": [

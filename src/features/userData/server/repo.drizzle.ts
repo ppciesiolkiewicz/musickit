@@ -3,6 +3,7 @@ import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "@/lib/db/client";
 import { blockOwners, blocks, planClaims, planDayTimes, practicePlanBlocks, planReviews, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
 import type { ProgressEntry } from "@/features/progress/log";
+import { levelOfSteps } from "@/features/plan/model/path";
 import type { PlanReviewRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A UUID, as the `videos.id` column takes; anything else would make Postgres throw. */
@@ -84,7 +85,8 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
               area: key.area ?? null,
               topic: key.topic ?? null,
               concepts: key.concepts ?? [],
-              level: key.level ?? null,
+              level: key.level ?? (key.steps ? levelOfSteps(key.steps) : undefined) ?? null,
+              steps: key.steps ?? [],
               tags: key.tags ?? [],
               parentId,
               createdAt: now,

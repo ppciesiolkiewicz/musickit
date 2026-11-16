@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "sevenths-up:5"
-  ],
   "note": "Track sevenths-up (theory-building-chords), step 5: maj7, 7 and m7 on one root, one note moved at a time on the staff, then as three chords on A, then named by ear among the triads. Missing: interval-ears \"kind\": \"chord\" can't be narrowed to the three 7th chords or kept on one root, so the game asks all five of its chords from any root.",
   "exercise": {
     "title": "maj7, 7 or m7 on one root",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "sevenths-up"
+    ],
+    "steps": [
+      "sevenths-up:5"
     ],
     "why": "From maj7 to 7 only the 7th drops a half step, and from 7 to m7 only the 3rd does, so two notes tell the three chords apart.",
     "learnBefore": [

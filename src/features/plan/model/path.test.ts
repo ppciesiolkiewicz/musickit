@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { TOPICS } from "@/features/plan/intake/topics";
-import { PATH, depthOf, levelIndex, pathStats, predecessorsOf, slope, slopeIndex, spanOf, stepAt, stepOf } from "./path";
+import { PATH, depthOf, levelIndex, levelOfSteps, pathStats, predecessorsOf, slope, slopeIndex, spanOf, stepAt, stepOf } from "./path";
 import { LADDERS } from "./ladders";
 import type { PlanTool } from "./tools";
 
@@ -120,4 +120,12 @@ test("double stops: a new guitar track in the CAGED topic, right before triads",
   assert.equal(PATH[i + 1].id, "triads");
   const t = PATH[i];
   assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["guitar", "guitar-caged", [], ["beginner", "beginner", "beginner", "beginner", "intermediate"]]);
+});
+
+test("levelOfSteps: the highest level of the steps, unknown refs skipped", () => {
+  const top = PATH.find((t) => t.steps.length > 1 && t.steps[0].level !== t.steps[t.steps.length - 1].level)!;
+  const last = `${top.id}:${top.steps.length}`;
+  assert.equal(levelOfSteps([last, `${top.id}:1`, "nope:1"]), top.steps[top.steps.length - 1].level);
+  assert.equal(levelOfSteps([`${top.id}:1`]), top.steps[0].level);
+  assert.equal(levelOfSteps(["nope:1"]), undefined);
 });

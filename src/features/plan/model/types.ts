@@ -23,8 +23,10 @@ export interface ExerciseMeta {
   minutes: number;
   /** why: what it improves */
   why?: string;
-  /** who it is pitched at: the student's level in its area; shown as a hashtag after the title */
+  /** who it is pitched at: the student's level in its area; shown as a hashtag after the title. With `steps`, the highest of their levels (set by the parser). */
   level?: Level;
+  /** the path steps it practises, "trackId:n" (model/path.ts), each in one of its `concepts`' tracks */
+  steps?: string[];
   /** the one area it practises; shown as a hashtag */
   area?: Area;
   /** what kind of practice it is, from EXERCISE_TAGS ("multi-octave", "ear", …); shown as hashtags */

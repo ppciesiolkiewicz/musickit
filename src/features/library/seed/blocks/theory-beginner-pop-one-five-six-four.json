@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "styles:1"
-  ],
   "note": "Track styles (theory-progressions), step 1: the pop loop 1 5 6 4, its chords found in the key, then followed by ear and in other keys.",
   "exercise": {
     "title": "The pop loop: 1 5 6 4",
@@ -22,6 +19,9 @@
     "topic": "theory-progressions",
     "concepts": [
       "styles"
+    ],
+    "steps": [
+      "styles:1"
     ],
     "why": "A great many pop songs loop the 1, 5, 6 and 4 chords in that order, and the 6 is the only minor chord of the four, so the minor chord tells you where you are in the loop.",
     "learnBefore": [

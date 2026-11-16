@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "steps-to-leaps:21"
-  ],
   "note": "Track steps-to-leaps (voice-intervals), step 21: mix of 6ths, 7ths and the octave, the three leaps from one Do over a drone in three keys, an octave-stage tune with an octave and a 6th, then a 7ths-stage tune with no chords under it. missing: an octave-stage tune that holds a 6th, a 7th and an octave together (no tune in the book has all three), so the last tune comes from the 7ths stage.",
   "exercise": {
     "title": "6ths, 7ths and the octave, side by side",
@@ -22,6 +19,9 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
+    ],
+    "steps": [
+      "steps-to-leaps:21"
     ],
     "why": "From Do, a 6th, a 7th and an octave land on three notes next to each other, La, Ti and the high Do, so a wide leap is in tune when you hear which of the three it lands on before you leave Do.",
     "learnBefore": [

@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue, checkLink } from "./catalogue";
 import { parseBlock, parseExercise, parsePlanConfig } from "./config";
+import { levelOfSteps } from "./path";
 import { GLOSSARY } from "@/features/course/glossary";
 import { EXERCISE_EXAMPLES } from "../examples";
 import { buildPrompt, weekReport } from "./prompt";
@@ -553,6 +554,17 @@ describe("parseExercise", () => {
     const bad = ex({ title: "T", choice: { scale: "nope" } });
     assert.equal(bad.block?.choice, undefined);
     assert.ok(bad.warnings.some((w) => w.includes('left out a choice with no part it could read')), bad.warnings.join("\n"));
+  });
+  it("reads steps: unknown refs and steps of another topic dropped with a warning, the level from the steps, a missing track of its topic added", () => {
+    const r = ex({ title: "T", area: "guitar", level: "new", topic: "guitar-barre-chords", steps: ["barre:2", "barre:1", "nope:9", "triads:1", "barre:2"] });
+    assert.deepEqual(r.block?.steps, ["barre:2", "barre:1"]);
+    assert.deepEqual(r.block?.concepts, ["barre"]);
+    assert.equal(r.block?.level, levelOfSteps(["barre:1", "barre:2"]));
+    assert.ok(r.warnings.includes("Ex: left out unknown steps: nope:9."), r.warnings.join("\n"));
+    assert.ok(r.warnings.includes("Ex: left out steps of a track that is not one of its concepts: triads:1."), r.warnings.join("\n"));
+    const none = ex({ title: "T", area: "guitar", level: "beginner", steps: "barre:1" });
+    assert.equal(none.block?.steps, undefined);
+    assert.equal(none.block?.level, "beginner");
   });
   it("no title: no block", () => {
     assert.equal(parseExercise({ minutes: 4 }, "Ex", entries).block, null);

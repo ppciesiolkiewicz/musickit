@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "minor-colours:1"
-  ],
   "note": "Track minor-colours (theory-modes), step 1: harmonic minor, natural minor with a raised 7th, heard against natural minor, over a drone, and at the end of the player's own tunes in three keys.",
   "exercise": {
     "title": "Harmonic minor: the raised 7th",
@@ -22,6 +19,9 @@
     "topic": "theory-modes",
     "concepts": [
       "minor-colours"
+    ],
+    "steps": [
+      "minor-colours:1"
     ],
     "why": "Harmonic minor is natural minor with the 7th raised a half step, so the 7th sits right under the root and leads up to it.",
     "learnBefore": [

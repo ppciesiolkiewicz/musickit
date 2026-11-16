@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "singing-modes:6"
-  ],
   "note": "Track singing-modes (voice-melodies), step 6: Locrian over a drone, heard against Phrygian (a Scale choice: only the 5th moves), its home chord 1 ♭3 ♭5 in three keys, then a made-up tune that ends every phrase on 1. Missing: a Locrian progression on backing-track (it has a vamp for every other mode), so the tune is made up over the drone, not over a band.",
   "exercise": {
     "title": "Locrian over a drone",
@@ -22,6 +19,9 @@
     "topic": "voice-melodies",
     "concepts": [
       "singing-modes"
+    ],
+    "steps": [
+      "singing-modes:6"
     ],
     "why": "Locrian is Phrygian with one more note lowered, the ♭5, so singing the same five notes in both scales over one drone lets you hear the one note that moves.",
     "learnBefore": [

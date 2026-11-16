@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "legato:2"
-  ],
   "note": "Track legato (guitar-techniques), step 2: the trill with fingers 1 and 3 (legato-trill at level beginner), high on the neck, lower where the reach is wider, then faster in stages.",
   "exercise": {
     "title": "Hammer-ons and pull-offs, fingers 1 and 3",
@@ -21,6 +18,9 @@
     "topic": "guitar-techniques",
     "concepts": [
       "legato"
+    ],
+    "steps": [
+      "legato:2"
     ],
     "why": "Fingers 1 and 3 have a fret between them, so finger 3 has further to fall than finger 2 did, and the trill trains it to land on its fret while finger 1 stays down.",
     "learnBefore": [

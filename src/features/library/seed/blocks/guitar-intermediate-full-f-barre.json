@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "barre:3"
-  ],
   "note": "Track barre (guitar-barre-chords), step 3: the full F with the root on string 6, built from the open E shape, held and released in time, then reached from C with a whole bar to move.",
   "exercise": {
     "title": "The full F barre",
@@ -22,6 +19,9 @@
     "topic": "guitar-barre-chords",
     "concepts": [
       "barre"
+    ],
+    "steps": [
+      "barre:3"
     ],
     "why": "The full F is the open E shape moved up one fret with finger 1 lying across all six strings in place of the nut, so fingers 2, 3 and 4 make an E and finger 1 does the new work.",
     "learnBefore": [

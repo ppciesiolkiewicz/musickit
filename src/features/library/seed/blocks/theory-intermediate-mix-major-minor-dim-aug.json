@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "dim-aug:3"
-  ],
   "note": "Track dim-aug (theory-building-chords), step 3: major, minor, diminished and augmented triads on one root, built on D on the staff, heard as four chords on D, then named with eyes closed on A and on E. Missing: interval-ears \"kind\": \"chord\" has no diminished or augmented answer and backing-track cannot play an augmented chord, so the player presses chord boxes without looking.",
   "exercise": {
     "title": "Major, minor, diminished or augmented",
@@ -22,6 +19,9 @@
     "topic": "theory-building-chords",
     "concepts": [
       "dim-aug"
+    ],
+    "steps": [
+      "dim-aug:3"
     ],
     "why": "The 3rd makes a triad major or minor, and the 5th stays, drops a half step or rises a half step, so two notes over one root name the four triads.",
     "learnBefore": [

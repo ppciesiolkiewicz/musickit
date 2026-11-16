@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "keys:2"
-  ],
   "note": "Track keys (theory-scales-keys), step 2: the sharp keys round the circle, D, A and E after G, each adding one sharp on its 7th note.",
   "exercise": {
     "title": "The sharp keys, round the circle",
@@ -21,6 +18,9 @@
     "topic": "theory-scales-keys",
     "concepts": [
       "keys"
+    ],
+    "steps": [
+      "keys:2"
     ],
     "why": "Each key a 5th up keeps the sharps of the key before it and adds one more, on its 7th note, so the circle gives the sharp keys in order.",
     "learnBefore": [

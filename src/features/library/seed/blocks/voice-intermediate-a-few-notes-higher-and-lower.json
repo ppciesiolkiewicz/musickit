@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "range:3"
-  ],
   "note": "Track range (voice-breath-range), step 3: a few notes lower (voice-hill low, a semitone lower each hold), a few notes higher (voice-hill high, light), then a five-note run that climbs a semitone each pass up to the edge of the range. The five-note runs in the book are all Medium, so the run is picked as medium, not hard.",
   "exercise": {
     "title": "A few notes lower, a few notes higher",
@@ -22,6 +19,9 @@
     "topic": "voice-breath-range",
     "concepts": [
       "range"
+    ],
+    "steps": [
+      "range:3"
     ],
     "why": "Your range grows from its edges, a semitone at a time and only while the sound stays easy, so each block starts inside your range and moves one small step past it.",
     "learnBefore": [

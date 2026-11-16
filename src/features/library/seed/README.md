@@ -19,9 +19,10 @@ blocks/<id>.json   one exercise each, for a step no plan reaches yet (SeedBlockF
    - A plan: `{ "id", "answers", "model", "versions": { "prompt", "agents", "teaching" }, "note", "plan" }`. `answers`
      is the player the plan is for, as the questionnaire records them (`PlanAnswers`); `plan` is exactly what the AI
      returns (`title`, `summary`, `progress`, `days`).
-   - An exercise: `{ "id", "model", "versions", "steps", "note", "exercise" }`, the exercise as it would sit in a
-     plan's day. `steps` names the path steps it practises (`["barre:2"]`, `PATH` in `plan/model/path.ts`); nothing
-     reads it yet (design: `docs/superpowers/specs/2026-11-16-blocks-by-step-design.md`).
+   - An exercise: `{ "id", "model", "versions", "note", "exercise" }`, the exercise as it would sit in a plan's day.
+     Its `steps` names the path steps it practises (`["barre:2"]`, `PATH` in `plan/model/path.ts`), each in a track
+     of its `concepts`; its level is the highest of their levels (the parser sets it), and the library finds it by
+     step.
    - `versions` are `PROMPT_VERSION` (`plan/model/prompt.ts`) and `DOC_VERSIONS` (`plan/examples/index.ts`) as they
      are when the file is written. `model` is the API id of the model that wrote it. `note` says which gap, in one line.
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the

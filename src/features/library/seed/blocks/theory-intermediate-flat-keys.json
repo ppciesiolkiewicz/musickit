@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "keys:3"
-  ],
   "note": "Track keys (theory-scales-keys), step 3: the flat keys, B♭, E♭ and A♭ after F, each adding one flat on its 4th note.",
   "exercise": {
     "title": "The flat keys, the other way round",
@@ -21,6 +18,9 @@
     "topic": "theory-scales-keys",
     "concepts": [
       "keys"
+    ],
+    "steps": [
+      "keys:3"
     ],
     "why": "Each key a 5th down keeps the flats of the key before it and adds one more, on its 4th note, so the circle gives the flat keys in order the other way round.",
     "learnBefore": [

@@ -6,9 +6,6 @@
     "agents": 2,
     "teaching": 5
   },
-  "steps": [
-    "double-stops:4"
-  ],
   "note": "Track double-stops (guitar-caged), step 4: 3rds on strings 3 and 2 and 6ths on strings 3 and 1 together in G, low on the neck: a 3rd then a 6th from the same G-string note, 3rds up and 6ths down, then both over G, C and D. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
   "exercise": {
     "title": "3rds and 6ths in G, side by side",
@@ -21,6 +18,9 @@
     "topic": "guitar-caged",
     "concepts": [
       "double-stops"
+    ],
+    "steps": [
+      "double-stops:4"
     ],
     "why": "A 3rd and a 6th can share their lower note on the G string, with the upper note on the B string for the 3rd and on the high E string for the 6th, so changing between them is the upper note crossing one string.",
     "learnBefore": [

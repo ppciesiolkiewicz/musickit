@@ -68,6 +68,7 @@ table blocks {
   topic text
   concepts text[] [not null, default: `'{}'::text[]`]
   level text
+  steps text[] [not null, default: `'{}'::text[]`]
   tags text[] [not null, default: `'{}'::text[]`]
   parent_id text
   model text
@@ -263,6 +264,7 @@ table users {
   role user_role [not null]
   plan_id text
   billing plan_period [not null, default: 'year']
+  email_updates_at "timestamp with time zone"
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
 }
