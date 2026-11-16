@@ -1,0 +1,144 @@
+{
+  "id": "theory-intermediate-dorian",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "modes:1"
+  ],
+  "note": "Track modes (theory-modes), step 1: Dorian, built from the minor pentatonic the player knows by adding the 2nd and the major 6th, with the 6th heard over a drone and then over a Dorian band in three keys.",
+  "exercise": {
+    "title": "Dorian: the minor pentatonic plus two notes",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory",
+      "improv"
+    ],
+    "topic": "theory-modes",
+    "concepts": [
+      "modes"
+    ],
+    "why": "Dorian is the minor pentatonic with the 2nd and the major 6th added, and the 6th is the note that sets it apart from plain minor, so learn to hear that note against the root.",
+    "learnBefore": [
+      "/course/9/modes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two added notes",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below shows D Dorian. The plain notes are the D minor pentatonic, and the ringed {{2}} and {{6}} are the two notes Dorian adds.\nTap up the scale from {{1}}, then tap {{5}}, {{6}} and {{5}} to hear the major 6th beside its neighbour."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "2",
+                "6"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The 6th over a drone",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on D. Tap {{1}}, {{6}} and {{1}} on the staff against it, then tap short lines of your own that keep coming back to {{6}}.\nKeep going until you can hum {{6}} over the drone before you tap it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "d",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over a Dorian band",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "a"
+            },
+            {
+              "key": "e"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: two chords, the 1 and the 4, round and round. Tap lines of your own on the staff over it, and land on the ringed {{6}} when the second chord comes: it is that chord's 3rd.\nOnce the {{6}} lands with the chord, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the notes are new but the ringed note is still the {{6}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "d"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "6"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/9/modes-over-drone",
+      "/theory/scales/dorian/d"
+    ]
+  }
+}

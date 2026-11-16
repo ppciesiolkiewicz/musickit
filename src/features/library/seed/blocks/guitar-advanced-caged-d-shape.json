@@ -1,0 +1,187 @@
+{
+  "id": "guitar-advanced-caged-d-shape",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "caged:5"
+  ],
+  "note": "Track caged (guitar-caged), step 5: the D shape, from the open D chord moved up the neck, to where it sits between the E and C shapes, to its top three strings over D, G and A.",
+  "exercise": {
+    "title": "The D shape",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "caged"
+    ],
+    "why": "The D shape is the open D chord moved up the neck with its root on the D string, and it shares one root with the E shape below it and one with the C shape above, so it fills the gap between them.",
+    "learnBefore": [
+      "/course/8/d-c-a-shapes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Open D, moved up",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "e"
+            },
+            {
+              "key": "g"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "The panels below show the D shape: in the key of D it is the open D chord you know. Play the chord, then its arpeggio from the lowest {{1}} to the highest.\nThen move it up the neck. Use the Key selector below to change the key.\nWhen you change the key, the shape keeps its outline, and finger 1 frets the note the open D string gave you."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "d",
+              "scale": "major-ionian",
+              "shapes": [
+                "D"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Between E and C",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The panels below show G in three shapes, in the order they sit up the neck: E, D, then C. Play the E shape, then the D shape, and find the {{1}} on the D string that both hold.\nThen go on to the C shape: it shares the {{1}} on the B string with the D shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "g",
+              "scale": "major-ionian",
+              "shapes": [
+                "E",
+                "D",
+                "C"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The top three strings",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: D, G, A and G again, each one the top three strings of the D shape. Strike the three strings together on beat 1, then pick the chord's notes one per beat.\nKeep going until your hand lands on each new chord as one shape, not finger by finger."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "321",
+                        "fret": 2
+                      },
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "321",
+                        "fret": 7
+                      },
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "A",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "321",
+                        "fret": 9
+                      },
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "1",
+                          "3"
+                        ],
+                        "strings": "321",
+                        "fret": 7
+                      },
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 66,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/caged"
+    ]
+  }
+}

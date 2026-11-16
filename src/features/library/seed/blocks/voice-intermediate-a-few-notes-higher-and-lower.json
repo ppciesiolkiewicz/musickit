@@ -1,0 +1,103 @@
+{
+  "id": "voice-intermediate-a-few-notes-higher-and-lower",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "range:3"
+  ],
+  "note": "Track range (voice-breath-range), step 3: a few notes lower (voice-hill low, a semitone lower each hold), a few notes higher (voice-hill high, light), then a five-note run that climbs a semitone each pass up to the edge of the range. The five-note runs in the book are all Medium, so the run is picked as medium, not hard.",
+  "exercise": {
+    "title": "A few notes lower, a few notes higher",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "range"
+    ],
+    "why": "Your range grows from its edges, a semitone at a time and only while the sound stays easy, so each block starts inside your range and moves one small step past it.",
+    "learnBefore": [
+      "/course/9/stretching-your-range"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Lower, a semitone at a time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below: a note plays first, then the mic starts. Hold that note on \"oo\": the ball rolls down into the hollow as your voice goes low, and the ring fills while you stay there. Each hold is a semitone lower, and the new note plays in the breath between.\nKeep it quiet: a low note pushed for volume goes flat."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "voice-hill",
+              "where": "low",
+              "sound": "oo",
+              "seconds": 4,
+              "reps": 6,
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Light and high",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below: a note plays first, then the mic starts. Hold a light sound on \"oo\" in head voice: the ball climbs to the top as your voice goes up, and the ring fills while you stay there.\n_Don't reach for high notes: keep the high holds quiet, and stop if your throat tightens._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "voice-hill",
+              "where": "high",
+              "sound": "oo",
+              "seconds": 3,
+              "reps": 6,
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A run that climbs",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the run: the mic starts with it. The run goes from Do up to Sol and back, and each pass starts a semitone higher. Sing it lightly on \"ah\", and move to \"oo\" when a pass feels tight.\nStop at the pass that no longer feels easy. That pass is the edge of your range today, and the edge moves up a little at a time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "five"
+              },
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/warm-ups",
+      "/theory/singing/runs"
+    ]
+  }
+}

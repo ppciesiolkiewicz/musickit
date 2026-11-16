@@ -1,0 +1,146 @@
+{
+  "id": "voice-intermediate-singing-mixolydian",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "singing-modes:2"
+  ],
+  "note": "Track singing-modes (voice-melodies), step 2: Mixolydian over a drone as the major scale with a ♭7, the ♭7 under Do in three keys, then a made-up tune over I ♭VII IV I that lands on the ♭7.",
+  "exercise": {
+    "title": "Mixolydian over a drone",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "singing-modes"
+    ],
+    "why": "Mixolydian is the major scale with one note changed, the ♭7, so the mode is in tune when that one note is: sing it against the drone from above and from below, then land on it over the chord built on it.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Major with a ♭7",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. This is the major scale with its 7th note a half step lower: {{b7}}, ringed on the staff. Sing the scale up from the low {{1}} to the next {{1}} and back down, on \"oo\".\nGo slowly past {{b7}}, and listen for it settling against the drone."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "b7"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The ♭7 under home",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "a"
+            },
+            {
+              "key": "b-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing {{1}}, step down to the {{b7}} under it, and come back to {{1}}, on \"ah\". Then sing {{5}}, up to {{b7}}, and on up to {{1}}.\nOnce {{b7}} lands without a slide from both sides, sing it in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and {{b7}} is still a whole step under {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "g",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "5",
+                "b7"
+              ],
+              "under": true,
+              "highlight": [
+                "b7"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Land on the ♭7",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, which plays G, F, C and G again. Make up a short tune from the scale, and sing it on \"la\". Land on {{b7}} when F comes round: it is the root of that chord.\nIf you lose your place, hold {{1}} until G comes back."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "b7"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "mixolydian",
+              "key": "g",
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/mixolydian/g"
+    ]
+  }
+}

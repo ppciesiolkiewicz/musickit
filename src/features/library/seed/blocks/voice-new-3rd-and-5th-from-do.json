@@ -1,0 +1,87 @@
+{
+  "id": "voice-new-3rd-and-5th-from-do",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "singing-intervals:1"
+  ],
+  "note": "Track singing-intervals (voice-intervals), step 1: the major 3rd and the 5th up from Do, first copied after the piano, then found from Do alone.",
+  "exercise": {
+    "title": "A 3rd and a 5th up from Do",
+    "minutes": 6,
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "singing-intervals"
+    ],
+    "why": "Do, Mi and Sol are the three notes of the home chord, so the leaps from Do to Mi and from Do to Sol are the two you will meet most, and copying them first gives your ear the sound to aim for.",
+    "learnBefore": [
+      "/course/3/do-mi-sol"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear it, sing it back",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below: the piano plays Do and then the note to sing, and the mic starts. The leap shows by name: M3 for a major 3rd, Do up to Mi, and P5 for a 5th, Do up to Sol.\nSing the second note back on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If your note lands off, press Restart below to hear both notes again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-singer",
+              "level": "new",
+              "key": "c",
+              "voice": "tenor",
+              "play": "both"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Only Do plays",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear Do and start the mic. Now the piano plays only Do. Hear the landing note in your head first, then sing it on \"oo\" and hold it until Yes shows.\nOnce Mi and Sol come without a slide, try the leaps from another Do. Use the Key selector below to change the key, then press Start to hear the new Do.\nWhen you change the key, Do is a new note but Mi and Sol are still the same leaps above it.\nIf a note won't come, press Show me below to hear it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-singer",
+              "level": "new",
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/intervals"
+    ]
+  }
+}

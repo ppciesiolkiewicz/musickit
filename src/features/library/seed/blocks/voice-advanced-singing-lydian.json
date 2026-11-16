@@ -1,0 +1,157 @@
+{
+  "id": "voice-advanced-singing-lydian",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "singing-modes:4"
+  ],
+  "note": "Track singing-modes (voice-melodies), step 4: Lydian over a drone, heard against the major scale (a Scale choice: only the 4th moves), the ♯4 reached by step and by leap from home in three keys, then a made-up tune over Imaj7 II that lands on the ♯4.",
+  "exercise": {
+    "title": "Lydian over a drone",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "singing-modes"
+    ],
+    "why": "Lydian is the major scale with one note raised, the ♯4, so singing the same five notes in both scales over one drone lets you hear the one note that moves.",
+    "learnBefore": [
+      "/course/9/lydian-locrian",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Lydian, then major",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "scale": "lydian"
+            },
+            {
+              "scale": "major-ionian"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing the first five notes of the scale up from the low {{1}} and back down, on \"oo\". The ringed note is {{#4}}, a half step under {{5}}.\nThen sing the same five notes in the major scale. Use the Scale selector below to change the scale, then press Start exercise to start the drone again.\nWhen you change the scale, only the ringed note moves: it is {{4}} in major and {{#4}} in Lydian."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "lydian",
+              "key": "f",
+              "voice": "tenor",
+              "highlight": [
+                "4",
+                "#4"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Up to the ♯4",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "f"
+            },
+            {
+              "key": "g"
+            },
+            {
+              "key": "e-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing {{3}}, {{#4}} and {{5}}, on \"oo\". Then leap from the low {{1}} straight up to {{#4}}, and step up to {{5}}.\nOnce the leap lands without a slide, sing it in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and {{#4}} is still a half step under {{5}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "lydian",
+              "key": "f",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "3",
+                "#4",
+                "5"
+              ],
+              "highlight": [
+                "#4"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Land on the ♯4",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, which plays Fmaj7 and G in turn. Make up a short tune from the scale, and sing it on \"la\". Land on {{#4}} when G comes round: it is the 3rd of that chord.\nIf you lose your place, hold {{1}} until Fmaj7 comes back."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "lydian",
+              "key": "f",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "#4"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "lydian",
+              "key": "f",
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/lydian/f"
+    ]
+  }
+}

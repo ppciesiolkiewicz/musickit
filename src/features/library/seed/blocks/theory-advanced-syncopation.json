@@ -1,0 +1,116 @@
+{
+  "id": "theory-advanced-syncopation",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "beat:5"
+  ],
+  "note": "Track beat (theory-basics), step 5: syncopation, claps between the clicks and then a rhythm that mixes on and off the beat. Missing: a rhythm tool for clapping (a written rhythm with no chord, that hears the claps); strum-along stands in, so the page shows a chord name and strum arrows for a clapped rhythm.",
+  "exercise": {
+    "title": "Syncopation: claps between the beats",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "beat"
+    ],
+    "why": "A syncopated note lands between two beats, so you can only place it when something else, your foot, keeps marking the beats it avoids.",
+    "learnBefore": [
+      "/course/1/steady-beat"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Only between the clicks",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The tool below is made for strumming, so it shows a chord and arrows: clap on every arrow, or strum Em there if you play guitar.\nPress Play below to start the metronome. After a bar of count-in, tap your foot on every click and clap on every arrow, halfway between two clicks.\nIf your claps slide onto the click, stop clapping, keep your foot going, and come back in on the next bar."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Em"
+              ],
+              "bpm": 66,
+              "pattern": ". U . U . U . U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "On and off the beat",
+        "minutes": 3,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 66
+            },
+            {
+              "bpm": 80
+            },
+            {
+              "bpm": 96
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Now the first and last claps of the bar land on a click, and the two in the middle fall between clicks. Keep your foot on every click.\nWhen the two middle claps feel as sure as the first one, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a stage is too fast, go back one and clap only the two middle claps for a few bars."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Em"
+              ],
+              "bpm": 66,
+              "pattern": "D . . U . U D ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Without the arrows",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drums. Clap the same rhythm from memory, with your foot on the beat.\nThen press Click below to switch the metronome on, and check that your first and last claps of the bar land on it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "c",
+              "parts": {
+                "drums": "always",
+                "click": "off"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/rhythm"
+    ]
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "id": "theory-intermediate-harmonic-minor",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "minor-colours:1"
+  ],
+  "note": "Track minor-colours (theory-modes), step 1: harmonic minor, natural minor with a raised 7th, heard against natural minor, over a drone, and at the end of the player's own tunes in three keys.",
+  "exercise": {
+    "title": "Harmonic minor: the raised 7th",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory"
+    ],
+    "topic": "theory-modes",
+    "concepts": [
+      "minor-colours"
+    ],
+    "why": "Harmonic minor is natural minor with the 7th raised a half step, so the 7th sits right under the root and leads up to it.",
+    "learnBefore": [
+      "/course/9/harmonic-minor"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Raise the 7th",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap {{5}}, {{b7}} and the {{1}} above them on the staff below: A natural minor, with a whole step from the ringed {{b7}} up to {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "natural-minor-aeolian",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "b7"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "text",
+            "text": "Now tap {{5}}, {{7}} and {{1}} on this staff: A harmonic minor. The ringed {{7}} is a half step under {{1}}.\nGo between the two staffs until you can hum the raised note before you tap it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "harmonic-minor",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over a drone",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on A. Tap {{1}}, {{7}} and {{1}} on the staff against it, then tap the whole scale up and down.\nListen for the wide step between {{b6}} and {{7}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "harmonic-minor",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "End on 7, then 1",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "e"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone. Tap short tunes of your own on the staff, and end each one on the ringed {{7}} and then {{1}}.\nOnce that ending sounds like home, try another key. Use the Key selector below to change the key, then press Play to start the drone again.\nWhen you change the key, the notes are new but the {{7}} is still a half step under the root."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "harmonic-minor",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/harmonic-minor/a"
+    ]
+  }
+}

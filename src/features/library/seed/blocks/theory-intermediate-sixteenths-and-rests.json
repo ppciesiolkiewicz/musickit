@@ -1,0 +1,139 @@
+{
+  "id": "theory-intermediate-sixteenths-and-rests",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "beat:4"
+  ],
+  "note": "Track beat (theory-basics), step 4: sixteenths counted \"1 e and a\", then a rest on the number and a rest on the \"and\", against the click and over drums. Missing: a rhythm tool that shows a written rhythm with its rests and listens to the claps; backing-band's click sounds only the beat.",
+  "exercise": {
+    "title": "Sixteenths and rests",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "beat"
+    ],
+    "why": "A sixteenth is a quarter of a beat, so counting \"1 e and a\" gives every clap a word, and a rest is a word you say without clapping.",
+    "learnBefore": [
+      "/course/1/steady-beat"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Count 1 e and a",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Count \"1 e and a, 2 e and a\" aloud, each number on a click, and clap on every word.\nKeep going until the four claps are even and the next number lands on the click."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 50,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Rest on the number",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Keep saying the whole count, and clap only on \"e and a\": the click sounds where your clap is missing.\nIf the claps drift, clap every word again for a bar."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 50,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Rest on the and",
+        "minutes": 2,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 50
+            },
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 70
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Clap on each number, on \"e\" and on \"a\", and say \"and\" without a clap.\nWhen the silent \"and\" takes as long as a clap, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a stage is too fast, go back one and count aloud again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 50,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over the drums",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drums. Clap a bar of sixteenths, then a bar with a rest on every number, and keep swapping.\nThen press Click below to switch the metronome on, and check that the numbers of your count land on it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "c",
+              "parts": {
+                "drums": "always",
+                "click": "off"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/2/sixteenths",
+      "/theory/rhythm"
+    ]
+  }
+}

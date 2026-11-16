@@ -1,0 +1,119 @@
+{
+  "id": "guitar-intermediate-barre-changes-in-time",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "barre:4"
+  ],
+  "note": "Track barre (guitar-barre-chords), step 4: F and Bm reached on beat 1: from Am with a strum on every beat, faster in stages, from G, then F inside a four-chord round with the island strum.",
+  "exercise": {
+    "title": "Changes to a barre in time",
+    "minutes": 10,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "rhythm",
+      "technique"
+    ],
+    "topic": "guitar-barre-chords",
+    "concepts": [
+      "barre"
+    ],
+    "why": "A change to a barre comes late when your hand stays on the old chord until its last strum, so each block here asks for the barre on beat 1 with less time to get there.",
+    "learnBefore": [
+      "/course/6/barre-songs",
+      "/course/6/barres-every-key"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Am to the full F",
+        "minutes": 3,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 84
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, a bar of Am and a bar of F.\nWhen F lands on beat 1 with no gap, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf F comes late at a new stage, leave out the last strum of the Am bar and use that beat to move."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am",
+                "F"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "G to Bm",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and strum down on every beat, a bar of G and a bar of Bm.\nLet go of G on the last beat of its bar, so your hand is already moving when Bm is due."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Bm"
+              ],
+              "bpm": 66,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A barre inside four chords",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The strokes in each box are the strum for the bar: play them through Am, F, C and G, a bar each.\nKeep going until the F bar sounds as full as the other three."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am",
+                "F",
+                "C",
+                "G"
+              ],
+              "bpm": 70,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

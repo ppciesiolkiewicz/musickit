@@ -1,0 +1,150 @@
+{
+  "id": "theory-intermediate-five-chord-in-minor",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "minor-colours:2"
+  ],
+  "note": "Track minor-colours (theory-modes), step 2: the 5 chord in minor, minor in natural minor and major with the raised 7th, heard as two chords, then in a band that plays one and then the other, then with its 7th in two more keys.",
+  "exercise": {
+    "title": "The 5 chord in minor",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory"
+    ],
+    "topic": "theory-modes",
+    "concepts": [
+      "minor-colours"
+    ],
+    "why": "The raised 7th of harmonic minor is the 3rd of the 5 chord, so it turns that chord from minor to major and makes it lead back to the 1.",
+    "learnBefore": [
+      "/course/9/harmonic-minor"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One note changes the chord",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. In A minor the 5 chord is Em in natural minor and E in harmonic minor: press Em, then E, and listen for the one note that rises.\nThen press each of them with Am after it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Em",
+                "E",
+                "Am"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "The note that rose is the ringed {{7}} of the key. Tap {{5}}, {{7}} and {{2}} on the staff below: the E chord, one note at a time. Then tap {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "harmonic-minor",
+              "key": "a",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "2",
+                "5",
+                "7"
+              ],
+              "highlight": [
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Minor 5, then major 5",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: four bars with the minor 5 chord, then four with the major one, round and round. Listen to the bar before home in each half.\nKeep going until you can say which 5 chord is playing without the chord boxes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "a",
+              "numerals": [
+                "i",
+                "iv",
+                "v",
+                "i",
+                "i",
+                "iv",
+                "V",
+                "i"
+              ],
+              "style": "ballad",
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The 5 with its 7th",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "e"
+            },
+            {
+              "key": "d"
+            },
+            {
+              "key": "a"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: the 1, the 4, the major 5 with its 7th, and home. Call out \"five\" when the 5 chord arrives and \"one\" when the band comes home.\nOnce you hear the 5 chord coming before its box lights, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the major 5 still leads to the 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "e",
+              "numerals": [
+                "i",
+                "iv",
+                "V7",
+                "i"
+              ],
+              "style": "ballad",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/harmonic-minor/a"
+    ]
+  }
+}

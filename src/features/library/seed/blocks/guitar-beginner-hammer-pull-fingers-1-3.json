@@ -1,0 +1,109 @@
+{
+  "id": "guitar-beginner-hammer-pull-fingers-1-3",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "legato:2"
+  ],
+  "note": "Track legato (guitar-techniques), step 2: the trill with fingers 1 and 3 (legato-trill at level beginner), high on the neck, lower where the reach is wider, then faster in stages.",
+  "exercise": {
+    "title": "Hammer-ons and pull-offs, fingers 1 and 3",
+    "minutes": 6,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "legato"
+    ],
+    "why": "Fingers 1 and 3 have a fret between them, so finger 3 has further to fall than finger 2 did, and the trill trains it to land on its fret while finger 1 stays down.",
+    "learnBefore": [
+      "/course/4/legato"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A fret between the fingers",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and follow the tab. Pick the first note once, then hammer finger 3 on and pull it off, one note per beat, with no more picking. Finger 1 stays down the whole time.\nKeep going until both notes are equally loud."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "beginner",
+              "string": 3,
+              "fret": 7,
+              "bpm": 60
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A wider reach",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The trill is now lower on the neck, where the frets are further apart, so finger 3 has to reach.\nIf finger 3 lands short of its fret, move your thumb along the back of the neck until it reaches.\n_Stop and shake out your hand when it aches._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "beginner",
+              "string": 3,
+              "fret": 3,
+              "bpm": 60
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Faster on the B string",
+        "minutes": 2,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 76
+            },
+            {
+              "bpm": 92
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and play the trill on the B string.\nWhen both notes are equally loud, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a note goes missing at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "beginner",
+              "string": 2,
+              "fret": 5,
+              "bpm": 60
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "id": "theory-advanced-song-chords-by-ear",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "hearing-changes:4"
+  ],
+  "note": "Track hearing-changes (theory-ear), step 4: a whole song's chords by ear, a verse and a chorus of 1, 4, 5 and 6, called out, written down as a chart, then with the bass taken out. Missing: backing-track cannot hide its chord boxes (the text asks the player to look away), and there is no tool that plays a real song to work out.",
+  "exercise": {
+    "title": "A song's chords by ear",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "song"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "hearing-changes"
+    ],
+    "why": "The bass plays the root of each chord, so following the bass line through a verse and a chorus gives you the song's chords one bar at a time.",
+    "learnBefore": [
+      "/course/5/hearing-changes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Follow the bass",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: a song of sixteen bars, a verse and then a chorus. Look away from the chord boxes and listen to the bass, which plays the root of every chord.\nCall out 1, 4, 5 or 6 on each change, then look at the lit box to check.\nIf you lose your place, wait for the home chord and start again from there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "I",
+                "V",
+                "vi",
+                "IV",
+                "I",
+                "V",
+                "vi",
+                "IV",
+                "IV",
+                "I",
+                "V",
+                "vi",
+                "IV",
+                "I",
+                "V",
+                "V"
+              ],
+              "style": "pop",
+              "bpm": 84,
+              "parts": {
+                "drums": "on",
+                "bass": "always",
+                "keys": "on"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Write the chart",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: a new song, and some chords stay for two bars. Without looking at the chord boxes, write its sixteen bars down on paper as numbers, one per bar.\nLet the song come round a few times. Write the bars you are sure of first, then fill the gaps, then look at the chord boxes to check your chart."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "numerals": [
+                "I",
+                "I",
+                "IV",
+                "IV",
+                "vi",
+                "V",
+                "I",
+                "I",
+                "vi",
+                "IV",
+                "I",
+                "V",
+                "vi",
+                "IV",
+                "V",
+                "V"
+              ],
+              "style": "rock",
+              "bpm": 96,
+              "parts": {
+                "drums": "on",
+                "bass": "always",
+                "keys": "on"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Without the bass",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: a third song, with no bass. The root is inside the chord now, so listen for the chord itself: the 6 is the only minor chord of the four.\nCall out the numbers without looking, then look to check.\nThen put on a song you know and write the chart of its chorus the same way."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "a",
+              "numerals": [
+                "vi",
+                "IV",
+                "I",
+                "V",
+                "vi",
+                "IV",
+                "I",
+                "V",
+                "I",
+                "IV",
+                "vi",
+                "V",
+                "I",
+                "IV",
+                "V",
+                "I"
+              ],
+              "style": "ballad",
+              "bpm": 76,
+              "parts": {
+                "drums": "on",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

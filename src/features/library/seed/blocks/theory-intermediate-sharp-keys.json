@@ -1,0 +1,110 @@
+{
+  "id": "theory-intermediate-sharp-keys",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "keys:2"
+  ],
+  "note": "Track keys (theory-scales-keys), step 2: the sharp keys round the circle, D, A and E after G, each adding one sharp on its 7th note.",
+  "exercise": {
+    "title": "The sharp keys, round the circle",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "keys"
+    ],
+    "why": "Each key a 5th up keeps the sharps of the key before it and adds one more, on its 7th note, so the circle gives the sharp keys in order.",
+    "learnBefore": [
+      "/course/10/circle-map"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Clockwise from G",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle below starts on G, the key with one sharp. Press D, the next key clockwise, then A and E after it.\nEach step clockwise is a 5th up, and adds one sharp."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "circle-of-fifths",
+              "key": "g",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The sharp each key adds",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "a"
+            },
+            {
+              "key": "e"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below shows a sharp key. Tap up the scale from {{1}} and say each letter: the ringed {{7}} is the sharp this key adds.\nOnce you can name the new sharp before you tap it, try the next key. Use the Key selector below to change the key.\nWhen you change the key, the new sharp is still the {{7}}, a half step under {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Count the sharps",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The piano below shows E major, four steps clockwise from C. Tap up the scale from E and count the black keys: one for each sharp.\nThen say the four sharps in the order the keys added them."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "e",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/circle"
+    ]
+  }
+}

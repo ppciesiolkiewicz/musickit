@@ -1,0 +1,115 @@
+{
+  "id": "theory-advanced-click-on-two-and-four",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "beat:6"
+  ],
+  "note": "Track beat (theory-basics), step 6: the metronome heard as beats 2 and 4. Missing: a metronome that sounds only beats 2 and 4 of a set tempo and shows the bar; the block uses a plain click at half the tempo and the count is the player's own.",
+  "exercise": {
+    "title": "The metronome on 2 and 4",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "beat"
+    ],
+    "why": "When the click sounds only on beats 2 and 4, nothing gives you beats 1 and 3, so your own count has to carry the bar from one click to the next.",
+    "learnBefore": [
+      "/course/1/steady-beat"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the click as 2 and 4",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome: a slow click. Count four beats to every two clicks, so that you say \"two\" and \"four\" on the clicks and \"one\" and \"three\" in the gaps.\nOnce the count sits steadily, clap on all four beats, and listen for every second clap hiding a click."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 50,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Clap in the gaps",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome again. Keep counting, and clap only on \"one\" and \"three\", in the gaps between the clicks.\nIf the click starts to sound like beat 1, stop clapping, count \"two\" and \"four\" on the clicks again, and come back in."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 50,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Eighths over the click",
+        "minutes": 3,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 50
+            },
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 72
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Clap eighths, two claps to a beat, so that four claps fit from one click to the next.\nWhen the click still lands on your \"two\" and \"four\" after many bars, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a stage is too fast, go back one and clap one clap per beat there first."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 50,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/metronome-drone"
+    ]
+  }
+}

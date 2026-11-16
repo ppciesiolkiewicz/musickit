@@ -1,0 +1,94 @@
+{
+  "id": "theory-advanced-all-twelve-intervals",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "intervals:5"
+  ],
+  "note": "Track intervals (theory-ear), step 5 (ladder interval-ears:5): the 7ths and the tritone, then all twelve intervals up and down. The first game narrows to the three new intervals with \"set\"; the step is read from the two games set to \"level\": \"advanced\".",
+  "exercise": {
+    "title": "The 7ths, the tritone, then all twelve",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "The two 7ths and the tritone are told apart by how far the upper note sits under the octave, so listening for that gap names the three intervals the earlier levels left out.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The three new ones",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: it plays two notes, one after the other, and you pick m7, M7 or TT (m7 for a minor 7th, M7 for a major 7th, TT for the tritone).\nListen for how close the upper note comes to the octave: a half step under it is M7, a whole step under it is m7, and TT stops halfway up.\nKeep going until the three no longer sound alike."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "set": [
+                6,
+                10,
+                11
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "All twelve",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: now any of the twelve intervals can come.\nIf two answers sound alike, press Replay in the game and listen to the upper note against the octave again.\nKeep going until the name comes before you count the steps."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "advanced"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Going down",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: the same twelve intervals, with the upper note first and the lower one after it.\nWhen you change the direction, the notes come in a new order but the distance between them is the same."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "advanced",
+              "dir": "down"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/ears"
+    ]
+  }
+}

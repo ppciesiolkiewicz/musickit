@@ -1,0 +1,178 @@
+{
+  "id": "guitar-advanced-pentatonic-three-positions",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "pentatonic-positions:7"
+  ],
+  "note": "Track pentatonic-positions (guitar-scales), step 7: a run through positions 1, 2 and 3 with two slides, each crossing on its own first, then the run against a metronome and in a solo in a second key. missing: position-neck's cross shows one crossing between two positions, so the three-position run is told in the text over a plain three-position neck.",
+  "exercise": {
+    "title": "A run across three positions",
+    "minutes": 11,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Each position starts on the notes where the one below it ends, so two slides, each along one string, carry a run through three positions without a break.",
+    "learnBefore": [
+      "/course/6/joining",
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The first crossing",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows only the crossing from position 1 to position 2 of A minor pentatonic. Climb position 1 from the low {{1}}, slide from {{4}} up to {{5}} on the G string, and finish the climb in position 2.\nCome back down the same way."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The second crossing",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now the crossing from position 2 to position 3. Climb position 2, slide from {{5}} up to {{b7}} on the G string, and finish the climb in position 3.\nThis slide is one fret longer than the first, so listen for {{b7}} and stop the slide there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "cross": {
+                "from": 2,
+                "to": 3
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One run, three positions",
+        "minutes": 3,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 76
+            },
+            {
+              "bpm": 92
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Climb position 1 from the low {{1}}, slide from {{4}} to {{5}} on the G string, then from {{1}} to {{b3}} on the B string, and finish at the top of position 3. Come back down the same way, one note per beat.\nOnce every note lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the slides smear at a stage, go back one and play only the two slides there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The run in a solo",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing, which switches between Gm7 and Cm7. This is G minor pentatonic, two frets lower: improvise, and take the run across all three positions in the middle of a phrase.\nWhen you change the key, the frets are new, but the slides are still {{4}} to {{5}} and {{1}} to {{b3}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "g",
+                "scale": "minor-pentatonic",
+                "chords": [
+                  {
+                    "chord": "Gm7",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "Cm7",
+                    "target": [
+                      "1"
+                    ],
+                    "approach": "land on C on beat 1"
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

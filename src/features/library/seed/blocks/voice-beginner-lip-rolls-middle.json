@@ -1,0 +1,101 @@
+{
+  "id": "voice-beginner-lip-rolls-middle",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "range:1"
+  ],
+  "note": "Track range (voice-breath-range), step 1: a hum in the middle of the voice, a lip roll held on one note, then one slow slide down through the middle. missing: a lip-roll shape that stays in the middle of the voice (every slide of the tool crosses both breaks, and \"hold\" sits in chest voice).",
+  "exercise": {
+    "title": "Lip rolls through the middle of your voice",
+    "minutes": 8,
+    "level": "beginner",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "range"
+    ],
+    "why": "A lip roll only keeps buzzing while your air is steady and your throat is loose, so the buzz tells you when you start to push, and the middle of your voice is where it is easiest to keep.",
+    "learnBefore": [
+      "/course/9/stretching-your-range"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hum in the middle",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below: a note plays first, then the mic starts. Hum an easy note near it and keep the ball in the valley between the two marks until the ring fills. Then take a breath before the next hold.\nKeep the hum as quiet at the end of a hold as at the start."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "voice-hill",
+              "where": "middle",
+              "sound": "hum",
+              "seconds": 4,
+              "reps": 5,
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A lip roll on one note",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin the rounds: the mic starts with it. A tone plays one note first. Then you lip roll the same note on your own, with your lips loose and buzzing, while your line draws over the tone's path. Each round is a little lower.\nIf the buzz stops, breathe in and start the note again with less air.\nWhen the rounds are done, press Restart below to go again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "lip-roll",
+              "shape": "hold",
+              "seconds": 5,
+              "plays": 4,
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Slide down through the middle",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin the rounds: the mic starts with it. The tone slides slowly from high to low and plays the whole time. Lip roll along with it, and keep the buzz even as the slide passes through the middle of your voice.\nYour line may wander around the path: an even buzz matters more here than an exact note.\n_Don't reach for high notes: join the slide where the buzz comes easily._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "lip-roll",
+              "shape": "down",
+              "speed": "slow",
+              "play": "always",
+              "plays": 4,
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/warm-ups"
+    ]
+  }
+}

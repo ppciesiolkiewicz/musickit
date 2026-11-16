@@ -1,0 +1,160 @@
+{
+  "id": "theory-intermediate-mixolydian",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "modes:2"
+  ],
+  "note": "Track modes (theory-modes), step 2: Mixolydian, the major scale with a b7, heard against major, over a drone and then over a Mixolydian band in three keys.",
+  "exercise": {
+    "title": "Mixolydian: major with a lowered 7th",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory",
+      "improv"
+    ],
+    "topic": "theory-modes",
+    "concepts": [
+      "modes"
+    ],
+    "why": "Mixolydian is the major scale with the 7th lowered a half step, so learn to hear that one note against the root.",
+    "learnBefore": [
+      "/course/9/modes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Major, then Mixolydian",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap {{6}}, {{7}} and the {{1}} above them on the staff below: G major, with a half step from the ringed {{7}} up to {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "7"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "text",
+            "text": "Now tap {{6}}, {{b7}} and {{1}} on this staff: G Mixolydian. The ringed {{b7}} is a whole step under {{1}}.\nGo between the two staffs until you can hum the lowered note before you tap it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "b7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The ♭7 over a drone",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on G. Tap {{1}}, {{b7}} and {{1}} on the staff against it, then tap short lines of your own that keep coming back to {{b7}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "g",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "b7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over a Mixolydian band",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "d"
+            },
+            {
+              "key": "a"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: four bars, with the 1 chord first and last. Tap lines of your own on the staff over it, and land on the ringed {{b7}} when the second chord comes: it is that chord's root.\nOnce the {{b7}} lands with the chord, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the notes are new but the ringed note is still the {{b7}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "mixolydian",
+              "key": "g"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "b7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/9/modes-over-drone",
+      "/theory/scales/mixolydian/g"
+    ]
+  }
+}

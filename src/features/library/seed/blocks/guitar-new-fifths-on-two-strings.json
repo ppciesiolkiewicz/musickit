@@ -1,0 +1,380 @@
+{
+  "id": "guitar-new-fifths-on-two-strings",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "double-stops:1"
+  ],
+  "note": "Track double-stops (guitar-caged), step 1: the 5th as a double stop, on the low E and A strings, one string over, then moved along the low E string. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
+  "exercise": {
+    "title": "5ths on two strings",
+    "minutes": 6,
+    "level": "new",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "double-stops"
+    ],
+    "why": "A root and its 5th make the same shape on any two neighbouring low strings, so once your hand knows the shape, moving it gives you a new 5th each time.",
+    "learnBefore": [
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two strings at once",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing and follow the tab: two strings struck together, once per beat. The lower note is the root and the higher one is its 5th.\nStrum only those two strings, and keep going until both notes sound at once and nothing else rings."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "E5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One string over",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. The 5th now takes turns between two pairs of strings, a bar each.\nWhen you move over one string, the shape stays the same and the root is a new note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "E5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "A5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "54",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "54",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "54",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "54",
+                        "fret": 1
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Along the low E string",
+        "minutes": 2,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 84
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. The 5th now moves along the neck: keep your two fingers in their shape and slide the whole hand to each new place.\nWhen every change lands on beat 1, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the backing again.\nIf a change comes late at a new stage, go back one stage and stay there a little longer."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "E5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 1
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 4
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "A5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 6
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 6
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 6
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 6
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "5"
+                        ],
+                        "strings": "65",
+                        "fret": 4
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/double-stops"
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "id": "theory-beginner-sharps-and-flats",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "note-names:2"
+  ],
+  "note": "Track note-names (theory-basics), step 2: sharps and flats, as the black key beside a white one, then one sharp (F♯ in G) and one flat (B♭ in F) on the staff. Missing: piano-keys labels only the notes of its scale, so the black keys carry no names, and no tool shows one black key under both of its names.",
+  "exercise": {
+    "title": "Sharps and flats",
+    "minutes": 6,
+    "level": "beginner",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "note-names"
+    ],
+    "why": "A sharp is the next key to the right on the piano and a flat is the next key to the left, so every black key gets its name from the white key beside it.",
+    "learnBefore": [
+      "/course/3/piano-and-guitar"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The black keys",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "On the piano below, tap {{c}}, then the black key just to its right: that is {{c-sharp}}, a half step higher. Now tap {{d}}, then the same black key: from this side it is {{d-flat}}, a half step lower.\nGo along the other black keys the same way, and say both names of each."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One sharp",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below shows G major, a scale that needs one sharp. Tap up from {{1}} and say each letter: the ringed note is {{f-sharp}}, not F.\nThen tap {{f-sharp}} and the {{1}} above it: they are a half step apart."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One flat",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This staff shows F major, a scale that needs one flat. Tap up from {{1}} and say each letter: the ringed note is {{b-flat}}, not B.\nThen tap {{3}} and {{b-flat}}: they are a half step apart too."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "f",
+              "voice": "tenor",
+              "highlight": [
+                "4"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/piano"
+    ]
+  }
+}

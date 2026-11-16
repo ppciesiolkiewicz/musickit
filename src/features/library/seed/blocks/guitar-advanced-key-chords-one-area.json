@@ -1,0 +1,141 @@
+{
+  "id": "guitar-advanced-key-chords-one-area",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "caged:7"
+  ],
+  "note": "Track caged (guitar-caged), step 7: the chords of G major inside one area of the neck: 1, 4 and 5 as the E, A and C shapes, the three minor chords as triads there, then all six in time. missing: no tool draws the six chords of a key as CAGED shapes in one area (the Shape neighbours view of /theory/caged as a tool); three caged-necks and scale-neck's chord chips stand in, so the minor chords show as triads only and there is no second key.",
+  "exercise": {
+    "title": "A whole key in one place",
+    "minutes": 12,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "caged"
+    ],
+    "why": "Every chord of a key has a shape inside any five frets of the neck, so you can change chord by changing shape and leave your hand where it is.",
+    "learnBefore": [
+      "/course/8/chords-in-position",
+      "/course/8/d-c-a-shapes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "1, 4 and 5 side by side",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The panels below show the 1, 4 and 5 chords of G major where they meet on the neck: G in the E shape, C in the A shape and D in the C shape. Play each chord, and check that your hand stays over the same frets.\nGo round G, C, D and back to G until each change is a new shape and not a move along the neck."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "g",
+              "scale": "major-ionian",
+              "shapes": [
+                "E"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "c",
+              "scale": "major-ionian",
+              "shapes": [
+                "A"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "d",
+              "scale": "major-ionian",
+              "shapes": [
+                "C"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The three minor chords",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord in the Chords row below to ring its notes in the position and hear it. These are the three minor chords of G major, as three-note shapes on the G, B and high e strings in the same area.\nPlay each one straight after the G chord, until you can find all three without pressing the row."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "major-ionian",
+              "key": "g",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "1"
+              ],
+              "chords": [
+                "ii",
+                "iii",
+                "vi"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Six chords in time",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome, and strum the chord in the lit box, every one inside the same area of the neck.\nIf a chord sends your hand up the neck, stop and find its shape in the area before you go on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "Am",
+                "D",
+                "G",
+                "Bm",
+                "C",
+                "D"
+              ],
+              "bpm": 70,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/caged#neighbours"
+    ]
+  }
+}

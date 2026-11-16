@@ -1,0 +1,107 @@
+{
+  "id": "guitar-intermediate-caged-c-shape",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "caged:3"
+  ],
+  "note": "Track caged (guitar-caged), step 3: the C shape: open C moved up two frets to D with its arpeggio, pentatonic and scale, then joined to the A shape on the A string root, in three keys.",
+  "exercise": {
+    "title": "CAGED: the C shape",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "theory",
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "caged"
+    ],
+    "why": "The open C chord moves up the neck like E and A do, with finger 1 across the top three strings in place of the nut, and it ends on the A string where the A shape of the same chord begins.",
+    "learnBefore": [
+      "/course/8/d-c-a-shapes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "C, moved up",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press the chord box below to hear C. Fret it, but with fingers 2, 3 and 4, so finger 1 is free."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "C"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play on the chord panel below to hear D in the C shape: the same shape two frets up, with finger 1 lying across the top three strings. Then press Play on the other three panels: the arpeggio, the pentatonic and the scale sit in the same frets.\nPlay each one on your guitar, starting and ending on a root, until you can see the chord inside the scale."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "d",
+              "scale": "major-ionian",
+              "shapes": [
+                "C"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Where C meets A",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "e"
+            },
+            {
+              "key": "f"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play on the two chord panels below to hear D in the C shape, then in the A shape just above it. Play one, then the other, on your guitar: the root on the A string is the same note in both, and that is where the two shapes join.\nOnce your hand finds the root from either side, try another key. Use the Key selector below to change the key.\nWhen you change the key, both shapes move along the neck and still join on the A string."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "d",
+              "scale": "major-ionian",
+              "shapes": [
+                "C",
+                "A"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/caged"
+    ]
+  }
+}

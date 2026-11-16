@@ -1,0 +1,111 @@
+{
+  "id": "theory-beginner-pop-one-five-six-four",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "styles:1"
+  ],
+  "note": "Track styles (theory-progressions), step 1: the pop loop 1 5 6 4, its chords found in the key, then followed by ear and in other keys.",
+  "exercise": {
+    "title": "The pop loop: 1 5 6 4",
+    "minutes": 8,
+    "level": "beginner",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-progressions",
+    "concepts": [
+      "styles"
+    ],
+    "why": "A great many pop songs loop the 1, 5, 6 and 4 chords in that order, and the 6 is the only minor chord of the four, so the minor chord tells you where you are in the loop.",
+    "learnBefore": [
+      "/course/7/chords-in-pop-rock"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Four chords of the key",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The panel below shows the chord on every note of C major. Press C, G, Am and F in that order: they are the 1, 5, 6 and 4 of the key.\nPress them round a few times, and listen for the one minor chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "key-chords",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Follow the loop",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: the same four chords, one bar each, round and round. Call out 1, 5, 6 or 4 as each chord arrives, with the chord boxes to help.\nKeep going until you hear the minor chord coming before its box lights."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "pop",
+              "key": "c",
+              "style": "pop",
+              "bpm": 84
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The loop in another key",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "d"
+            },
+            {
+              "key": "a"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band, then look away from the screen and call out the numbers.\nOnce the numbers come without looking, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the 6 is still the one minor chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "pop",
+              "key": "g",
+              "style": "ballad",
+              "bpm": 76
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/5/one-four-five",
+      "/theory/backing"
+    ]
+  }
+}

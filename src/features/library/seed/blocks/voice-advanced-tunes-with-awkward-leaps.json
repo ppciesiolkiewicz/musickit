@@ -1,0 +1,122 @@
+{
+  "id": "voice-advanced-tunes-with-awkward-leaps",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "tunes:4"
+  ],
+  "note": "Track tunes (voice-melodies), step 4: three Expert tunes by ear, one with two leaps of a 6th (in three keys), one that starts on Fa and has a dotted note, with the metronome, and one with two leaps of a 7th and no chords under it.",
+  "exercise": {
+    "title": "Tunes with awkward leaps and dotted notes",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "A wide leap lands in tune when you hear its landing note before you sing it, and a dotted note lands in time when you feel the beat it holds through, so each tune is heard first and sung second.",
+    "learnBefore": [
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two leaps of a 6th",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "a"
+            },
+            {
+              "key": "f"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. It opens with a leap of a 6th from Do up to La, and its second bar leaps a 6th again, from Mi up to the high Do. Listen once, then sing along on \"la\".\nOnce both leaps land without a slide, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but both leaps are still a 6th."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "sixths"
+              },
+              "key": "g",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A dotted note",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This tune starts on Fa, not on Do, and its second bar has a dotted note: Sol lasts a beat and a half, and a quick Fa follows it. Press Play below to hear the tune with the metronome: the mic starts with it. Sing along on \"la\".\nIf the quick Fa comes late, clap that bar with the metronome, then sing it again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "fourths",
+                "index": 1
+              },
+              "key": "d",
+              "voice": "tenor",
+              "metronome": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Two leaps of a 7th",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This tune has two leaps of a 7th: from the Sol under Do up to Fa at the start, and from Re up to the high Do in the second bar. Press Play below to hear the tune alone, with no chords under it: the mic starts with it. Listen once, then sing along on \"la\".\nIf a leap of a 7th misses, think of the octave and land one note under it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "sevenths",
+                "index": 2
+              },
+              "key": "f",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

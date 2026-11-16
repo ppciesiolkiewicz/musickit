@@ -1,0 +1,117 @@
+{
+  "id": "voice-intermediate-tunes-with-leaps",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "tunes:3"
+  ],
+  "note": "Track tunes (voice-melodies), step 3: three Hard tunes by ear, one that dips under Do (in two keys), one with leaps of a 4th, one from the high Do down to the Sol under Do.",
+  "exercise": {
+    "title": "Tunes that leap and dip under Do",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "A tune stays in your ear as a shape around Do, so once you know where it leaps and where it goes under Do you can sing it from any starting note.",
+    "learnBefore": [
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Under Do and back",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "f"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. It starts on the Sol under Do, climbs by step past Do, and goes under Do again before it ends. Listen once, then sing along on \"la\".\nOnce the notes under Do land without a slide, try the tune in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, Do moves and the tune still starts on the Sol under it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "hard",
+                "stage": "under"
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Leaps of a 4th",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "A tune in D with three leaps of a 4th: Do up to Fa, Sol down to Re, and Re up to Sol. Look at the staff first and guess how it goes. Press Play below to check your guess, then sing along on \"la\".\nIf a leap lands off the note, sing only its two notes slowly, then put them back in the tune."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "hard",
+                "stage": "fourths",
+                "index": 1
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From the high Do",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. It starts on the high Do, comes down by skips to Do, and dips to the Sol under Do before it ends. Sing along on \"oo\", which keeps the high start light.\nOnce you can hear the next note before you sing it, sing the tune first and press Play to check."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "hard",
+                "stage": "chords",
+                "index": 1
+              },
+              "key": "f",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

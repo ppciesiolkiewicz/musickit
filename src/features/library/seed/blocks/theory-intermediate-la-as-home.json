@@ -1,0 +1,145 @@
+{
+  "id": "theory-intermediate-la-as-home",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "home-and-colour:4"
+  ],
+  "note": "Track home-and-colour (theory-ear), step 4: La as the minor home, heard on one major scale's notes: a tune that rests on Do and one that rests on La, La over its own drone, then a band whose chords come home to Do and then to La.",
+  "exercise": {
+    "title": "La as home: the minor home",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "home-and-colour"
+    ],
+    "why": "A minor key uses the notes of a major key and comes to rest on La instead of Do, so the same notes sound minor once La is home.",
+    "learnBefore": [
+      "/course/3/la-minor-home"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Rest on Do, rest on La",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below shows F major with its solfège names, and the notes under the lowest Do as well. Tap {{3}}, {{2}} and {{1}}, and stop: the tune rests on Do.\nNow tap {{1}}, {{7}} and {{6}} downward from that Do, and stop: the tune rests on the ringed La."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "f",
+              "voice": "tenor",
+              "under": true,
+              "highlight": [
+                "6"
+              ],
+              "labels": "solfege",
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A drone on La",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap from the low {{6}} up to {{3}} on the staff below, and come back down to {{6}}. Then press Play under the staff to start the drone on La, and tap the same line against it.\nKeep going until La sounds like the note the line has to end on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "f",
+              "voice": "tenor",
+              "under": true,
+              "highlight": [
+                "6"
+              ],
+              "labels": "solfege",
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "d",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Do or La",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play under the staff below to start the band: four bars that come home to Do, then four that come home to La, round and round. Hum the home note of each half, then tap {{1}} or {{6}} on the staff to check.\nKeep going until you can say \"Do\" or \"La\" as each half begins."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "f",
+              "voice": "tenor",
+              "under": true,
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "labels": "solfege",
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "f",
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I",
+                "vi",
+                "ii",
+                "iii",
+                "vi"
+              ],
+              "style": "ballad",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/3/major-or-minor"
+    ]
+  }
+}

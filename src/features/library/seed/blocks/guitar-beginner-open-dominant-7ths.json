@@ -1,0 +1,131 @@
+{
+  "id": "guitar-beginner-open-dominant-7ths",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "seventh-shapes:1"
+  ],
+  "note": "Track seventh-shapes (guitar-extended-chords), step 1: the five open dominant 7th shapes, two as a change to E and A, three new, then strummed in time and into the chords they lead to.",
+  "exercise": {
+    "title": "Open 7th chords: E7, A7, D7, G7, B7",
+    "minutes": 10,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "E7 and A7 are E and A with one fretted string let go, so each 7th chord starts from a shape your hand already knows.",
+    "learnBefore": [
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "E to E7, A to A7",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from E to E7 and back, then from A to A7 and back.\nIn each 7th chord, one string that was fretted now rings open: pick the strings one at a time to check that it rings."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "E",
+                "E7",
+                "A",
+                "A7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "D7, G7 and B7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret D7, G7 and B7 as shown. B7 takes four fingers, so build it slowly, one finger at a time.\nKeep going round the three until each shape lands with all its fingers at once."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "D7",
+                "G7",
+                "B7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A7, D7 and E7 in time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "A7",
+                "D7",
+                "A7",
+                "E7"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Where a 7th chord leads",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and strum down on every beat: G7 to C, then B7 to Em.\nListen for the pull from each 7th chord into the chord after it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G7",
+                "C",
+                "B7",
+                "Em"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/7/twelve-bar"
+    ]
+  }
+}

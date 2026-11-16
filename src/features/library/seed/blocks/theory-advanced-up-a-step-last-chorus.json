@@ -1,0 +1,138 @@
+{
+  "id": "theory-advanced-up-a-step-last-chorus",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "keys:5"
+  ],
+  "note": "Track keys (theory-scales-keys), step 5: a chorus moved up a whole step, from C to D, heard, worked out as the same numbers in the new key, then prepared with the new key's 5 chord.",
+  "exercise": {
+    "title": "Up a step for the last chorus",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear",
+      "song"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "keys"
+    ],
+    "why": "Every chord of the chorus moves up by the same whole step, so its numbers stay the same in the new key, and the new key's 5 chord played just before it makes the lift sound prepared.",
+    "learnBefore": [
+      "/course/10/circle-map"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the lift",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: a chorus in C, played twice, then the same chorus a whole step up, in D.\nListen for the bar where everything lifts, and call out \"up\" there.\nWhen the key goes up, every chord is new but the chorus keeps its shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "C",
+                "G",
+                "Am",
+                "F",
+                "C",
+                "G",
+                "Am",
+                "F",
+                "D",
+                "A",
+                "Bm",
+                "G",
+                "D",
+                "A",
+                "Bm",
+                "G"
+              ],
+              "style": "pop",
+              "bpm": 96
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Same numbers, new key",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The chorus is 1, 5, 6, 4. Press those four chords in the first row below, the chords of C major, then the same four numbers in the second row, the chords of D major.\nGo between the rows until you can say the chorus in D without reading it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "key-chords",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "key-chords",
+              "key": "d",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The chord before the lift",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band. This time the last bar in C is A7, the 5 chord of D, so the new key is announced one bar early.\nLook away from the chord boxes and call out \"up\" on the first bar in D.\nThen pick a chorus you know and name the 5 chord that would lift it a whole step."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "C",
+                "G",
+                "Am",
+                "F",
+                "C",
+                "G",
+                "F",
+                "A7",
+                "D",
+                "A",
+                "Bm",
+                "G",
+                "D",
+                "A",
+                "Bm",
+                "G"
+              ],
+              "style": "pop",
+              "bpm": 96
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/circle"
+    ]
+  }
+}

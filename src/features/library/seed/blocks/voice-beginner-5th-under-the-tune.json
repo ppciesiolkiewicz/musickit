@@ -1,0 +1,119 @@
+{
+  "id": "voice-beginner-5th-under-the-tune",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "harmony-line:2"
+  ],
+  "note": "Track harmony-line (voice-harmony), step 2: hold Do under a tune that starts on Sol, a 5th above, and steps down to meet it. missing: a tool that plays a tune and listens for a held harmony note (melody-singer marks the tune's own notes, so a held Do reads as off the tune and the text sends the singer to their ears).",
+  "exercise": {
+    "title": "Hold Do, a 5th under the tune",
+    "minutes": 7,
+    "level": "beginner",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "harmony-line"
+    ],
+    "why": "The tune starts on Sol, a 5th above Do, and steps down until it lands on Do, so while you hold Do you hear the gap between the two parts close one step at a time.",
+    "learnBefore": [
+      "/course/6/harmony-line"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The 5th: Sol and Do",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. The drone holds Do. Sing the low {{5}} on \"oo\", then drop to the low {{1}} and hold it. From Sol down to Do is a 5th.\nKeep going until you can find {{1}} from {{5}} without sliding.\n_Don't reach for high notes: both notes are the low ones, near the drone._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "5"
+              ],
+              "highlight": [
+                "1"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Learn the tune",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. The tune starts on Sol and steps down to Do. Sing along on the note names, until you could hum it with the sound off."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "sol"
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Hold Do under the tune",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the last note of the tune below to hear Do. Then press Play below to start the tune, and hold that Do on \"oo\" from the first note to the last.\nThe staff marks the tune's notes and not yours, so listen: the tune starts a 5th above you and ends on your note.\nOnce your Do stays put while the tune moves, hold it under the tune in another key. Use the Key selector below to change the key, then tap the last note again.\nWhen you change the key, the notes change but the tune still starts a 5th above your Do."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "sol"
+              },
+              "key": "d",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "id": "voice-new-up-to-mi",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "steps-to-leaps:2"
+  ],
+  "note": "Track steps-to-leaps (voice-intervals), step 2: up to Mi, by step over a drone, then two tunes of the Do Re Mi stage.",
+  "exercise": {
+    "title": "Do Re Mi: two steps up and home",
+    "minutes": 6,
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "Mi is one more step above Re, the same size as the step from Do to Re, so you reach it by taking the step you know twice.",
+    "learnBefore": [
+      "/course/3/do-re-mi"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Add Mi",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Mi is the ringed note. Sing {{1}}, {{2}}, {{3}} from the low {{1}}, then step back down to {{1}}. Sing them on the note names.\nIf {{3}} comes out too low, tap it on the staff to hear it, then sing the three notes again.\n_Don't reach for high notes: the staff shows more than this drill needs._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "2",
+                "3"
+              ],
+              "highlight": [
+                "3"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Up to Mi and home",
+        "minutes": 2,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. The tune steps up from Do to Mi and back. Sing along on the note names.\nOnce you can sing it without the tune leading you, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still climbs two steps and comes home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "mi"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Start on Mi",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This tune starts on Mi and steps down to Do. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"la\"."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "mi",
+                "index": 1
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

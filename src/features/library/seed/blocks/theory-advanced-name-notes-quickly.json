@@ -1,0 +1,135 @@
+{
+  "id": "theory-advanced-name-notes-quickly",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "note-names:4"
+  ],
+  "note": "Track note-names (theory-basics), step 4: naming notes fast, on the neck game and aloud from the staff in time. Missing: a note-naming game that is not the guitar neck (a note shown on the staff or a piano key to name against the clock); the staff has no way to check a name the player says, and note-finder \"mode\": \"name\" needs the guitar neck.",
+  "exercise": {
+    "title": "Note names without stopping to think",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "rhythm"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "note-names"
+    ],
+    "why": "A metronome gives each name one beat to arrive, so you stop counting up from a note you know and start seeing each note as its own name.",
+    "learnBefore": [
+      "/course/3/staff",
+      "/course/8/every-note"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Name the lit note",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: it lights one spot on the guitar neck, and you pick its note name from the buttons under it.\nAnswer as fast as you can read the spot, and keep going until most names come before you count frets."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "note-finder",
+              "level": "advanced",
+              "mode": "name"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One name per click",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Look at any note on the staff under it and say its letter name aloud on the next click, then jump to a note that is not next to it.\nIf a name comes late, let that click go and say it on the next one."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "degree",
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Sharps and flats in time",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "e-flat"
+            },
+            {
+              "key": "e"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome, a little faster now. Say one name per click again, and say the whole name: the sharp or the flat is part of it.\nOnce the names keep up with the click, try another key. Use the Key selector below to change the key, then press Play to start the metronome again.\nWhen you change the key, the same lines and spaces get new sharps or flats, and the letters stay where they were."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 72,
+              "key": "a",
+              "parts": {
+                "click": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "a",
+              "voice": "tenor",
+              "labels": "degree",
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/notes"
+    ]
+  }
+}

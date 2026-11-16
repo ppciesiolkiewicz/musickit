@@ -1,0 +1,126 @@
+{
+  "id": "voice-advanced-a-whole-song-in-tune",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "pitch:6"
+  ],
+  "note": "Track pitch (voice-pitch), step 6: staying in tune through a whole tune with chords, then with nothing under it, then through a verse of a song the singer knows, over a drone. Missing: a song tool (a whole song's melody and words to sing through with the mic; the longest tunes in the melody book are 4 bars), and a key picker with all twelve keys that the student can use, so the song's key comes from four options.",
+  "exercise": {
+    "title": "A whole song in tune",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "song"
+    ],
+    "topic": "voice-pitch",
+    "concepts": [
+      "pitch"
+    ],
+    "why": "Pitch drifts a little on every long note and every breath, and over a whole song the drift adds up, so check the long notes against something that holds the key: the chords, then your own ear, then a drone.",
+    "learnBefore": [
+      "/course/3/matching-a-pitch"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "With the chords",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune over its chords: the mic starts with it. Sing along on \"ah\", and watch your line on the two long notes in the second bar: Sol, then the Sol an octave under it.\nIf your line sags on a long note, sing that note again more quietly."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "octave",
+                "index": 1
+              },
+              "key": "f",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Without the chords",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same tune with nothing under it, so you hold the key yourself. Press Play below to hear the tune alone: the mic starts with it. Sing along on \"ah\", and check that your last Do is the Do the tune started on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "octave",
+                "index": 1
+              },
+              "key": "f",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A song you know",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            },
+            {
+              "key": "f"
+            },
+            {
+              "key": "a"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Pick a song in a major key that you know by heart. Use the Key selector below to find the key where the song sits easily in your voice, then press Start exercise to start the drone and the mic.\nSing a whole verse with its words, with the drone as the song's {{1}}, and watch where your line sits on the long notes.\nWhen a phrase has drifted, its last note no longer blends with the drone: sing that phrase again before you go on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "highlight": [
+                "1"
+              ],
+              "labels": "solfege",
+              "drone": true
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing"
+    ]
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "id": "theory-advanced-minor-ii-v-i",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "ii-v-i:2"
+  ],
+  "note": "Track ii-v-i (theory-progressions), step 2: the ii–V–i in minor, heard beside the major one, with the note that makes its V chord a dominant 7, then in three minor keys.",
+  "exercise": {
+    "title": "The ii–V–i in minor",
+    "minutes": 9,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-progressions",
+    "concepts": [
+      "ii-v-i"
+    ],
+    "why": "The minor ii–V–i moves its roots the same way as the major one and changes two colours, a half-diminished ii and a minor home chord, while the V stays a dominant 7 because minor borrows a raised 7th for it.",
+    "learnBefore": [
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Major, then minor",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play on the first band below to hear the ii–V–I in C major. Then stop it and press Play on the second band below to hear the ii–V–i in A minor, the relative minor.\nListen for the two chords that changed colour: the ii is half-diminished now and the home chord is minor. The V is a dominant 7 in both."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "ii-v-i",
+              "key": "c",
+              "style": "swing",
+              "bpm": 96
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "minor-ii-v",
+              "key": "a",
+              "style": "swing",
+              "bpm": 96
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The note inside E7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band again. Tap the root of each chord on the staff under it as its box lights: {{2}}, then {{5}}, then {{1}}.\nThen tap {{7}} in the E7 bar and {{1}} in the Am7 bar. {{7}} is the raised 7th of harmonic minor and the 3rd of E7, a half step under home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "minor-ii-v",
+              "key": "a",
+              "style": "ballad",
+              "bpm": 66
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "harmonic-minor",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "2",
+                "5",
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Other minor keys",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "d"
+            },
+            {
+              "key": "e"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band. Look away from the chord boxes and call out 2, 5 or 1 on each change, then look to check.\nOnce the home chord arrives where you expect it, listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the order of colours is the same: half-diminished, dominant 7, minor."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "minor-ii-v",
+              "key": "a",
+              "style": "swing",
+              "bpm": 96
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/backing"
+    ]
+  }
+}

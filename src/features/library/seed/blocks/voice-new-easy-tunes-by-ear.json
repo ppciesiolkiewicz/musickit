@@ -1,0 +1,117 @@
+{
+  "id": "voice-new-easy-tunes-by-ear",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "tunes:1"
+  ],
+  "note": "Track tunes (voice-melodies), step 1: three Easy tunes from the book, all inside Do Re Mi: sung along, sung on \"la\", then sung from memory with the tune stopped.",
+  "exercise": {
+    "title": "Short tunes on Do, Re and Mi",
+    "minutes": 7,
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "A tune you can sing after it stops is one your ear has kept, so each tune here is heard, sung along with, then sung alone.",
+    "learnBefore": [
+      "/course/3/step-melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Up to Mi and home",
+        "minutes": 2,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. The tune steps up from Do to Mi and back. Sing along on the note names.\nOnce you can sing it without the tune leading you, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "mi"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A four-bar tune",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. This tune is four bars long, and its second half answers the first. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"la\"."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "mi",
+                "index": 4
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Sing it from memory",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune, and only listen the first time. Then press Stop below and sing the tune on \"la\" from memory.\nPress Play again and sing along, to check what you kept.\nIf the middle is gone, listen once more and hum along quietly before you sing it alone."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "mi",
+                "index": 3
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

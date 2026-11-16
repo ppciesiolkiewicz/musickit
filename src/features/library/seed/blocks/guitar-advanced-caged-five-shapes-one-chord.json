@@ -1,0 +1,124 @@
+{
+  "id": "guitar-advanced-caged-five-shapes-one-chord",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "caged:6"
+  ],
+  "note": "Track caged (guitar-caged), step 6: one chord in all five shapes up the neck, the roots that join each shape to the next, then a new shape every bar in three keys.",
+  "exercise": {
+    "title": "One chord, five shapes",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "caged"
+    ],
+    "why": "Each shape shares a root with the shape above it, so the five shapes of one chord join into a chain up the neck, always in the order C, A, G, E, D.",
+    "learnBefore": [
+      "/course/8/d-c-a-shapes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "C in five places",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows the chord C in all five shapes, from the open C chord up to the D shape. Play each shape as a chord, from the lowest to the highest, and say its letter as you play it.\nKeep going until you can go up and back down without stopping to look for the next shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The roots that join",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows every note of the C chord along the neck. Find each {{1}}: it belongs to two shapes, the one below it and the one above.\nPlay from one {{1}} to the next up the neck, and name the shape you pass through each time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "C",
+              "show": [
+                "neck"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A new shape every bar",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "g"
+            },
+            {
+              "key": "a"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, strum the chord in the lit box once on beat 1, each bar in the next shape up the neck, and use the rest of the bar to move.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the metronome again.\nWhen you change the key, the lowest shape is a new one, but the shapes still follow each other in the order C, A, G, E, D."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "C",
+                "C",
+                "C",
+                "C",
+                "C"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/caged",
+      "/course/8/one-arpeggio"
+    ]
+  }
+}

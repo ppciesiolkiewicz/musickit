@@ -1,0 +1,154 @@
+{
+  "id": "theory-advanced-melodic-minor",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "minor-colours:3"
+  ],
+  "note": "Track minor-colours (theory-modes), step 3: melodic minor, the raised 6th that closes harmonic minor's gap, heard against natural minor and tapped over a drone in two keys.",
+  "exercise": {
+    "title": "Melodic minor: the raised 6th and 7th",
+    "minutes": 9,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-modes",
+    "concepts": [
+      "minor-colours"
+    ],
+    "why": "Harmonic minor leaves a wide gap under its raised 7th, and melodic minor raises the 6th as well to close it, so the scale climbs to the home note by steps.",
+    "learnBefore": [
+      "/course/9/melodic-minor"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Closing the gap",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The first staff below is A harmonic minor. Tap {{b6}}, then {{7}}, then {{1}} on it: the first step is wider than any step of a major scale.\nThe second staff is A melodic minor, with {{b6}} raised to {{6}}. Tap {{5}}, {{6}}, {{7}} and {{1}} on it, and go between the two staffs until you can hear the gap close."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "harmonic-minor",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "b6",
+                "7"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "melodic-minor",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "6",
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Natural minor, then melodic",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: an Am chord for eight bars, four in A natural minor, then four in A melodic minor. Follow the notes view and listen for the bar where two notes change.\nThe faded notes are the ones left out: the raised 6th and 7th in the first half, the natural ones in the second."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "a",
+                  "scale": "natural-minor-aeolian"
+                },
+                "b": {
+                  "key": "a",
+                  "scale": "melodic-minor"
+                },
+                "bars": 8,
+                "backingChord": "Am"
+              },
+              "bpm": 72,
+              "view": "notes"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A line over the drone",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone. On the staff under it, tap up the scale from the low {{1}}: it is minor up to {{b3}}, and from {{6}} it is the same as the major scale.\nThen tap a line of your own that climbs through {{6}} and {{7}} to {{1}}.\nOnce the climb sounds familiar, try it in another key. Use the Key selector below to change the key, then press Play to start the drone again.\nWhen you change the key, the notes are new but the top of the scale is still the major scale's."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "melodic-minor",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "b3",
+                "6",
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/melodic-minor/a"
+    ]
+  }
+}

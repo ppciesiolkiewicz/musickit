@@ -1,0 +1,115 @@
+{
+  "id": "theory-beginner-eighths",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "beat:3"
+  ],
+  "note": "Track beat (theory-basics), step 3: eighths, counted \"1 and 2 and\" and clapped against the click, then over drums. Missing: a rhythm tool that shows the eighths and listens to the claps; backing-band's click sounds only the beat, so nothing sounds or checks the \"and\".",
+  "exercise": {
+    "title": "Eighths: 1 and 2 and",
+    "minutes": 6,
+    "level": "beginner",
+    "area": "theory",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "beat"
+    ],
+    "why": "An eighth is half a beat, so when you count \"1 and 2 and\" the numbers land on the click and each \"and\" lands halfway to the next one.",
+    "learnBefore": [
+      "/course/1/steady-beat"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Count 1 and 2 and",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Count \"1 and 2 and 3 and 4 and\" aloud, each number on a click, and clap on every word.\nKeep going until the claps on \"and\" sit halfway between two clicks, not rushed towards the next one."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Beats, then eighths",
+        "minutes": 2,
+        "choice": {
+          "options": [
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 84
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Clap one bar on the clicks only, then one bar of eighths, and keep swapping.\nOnce the swap comes without a stumble, try another tempo. Use the Tempo selector below to change the tempo, then press Play to start the metronome again.\nWhen you change the tempo, the eighths are still two even claps to a click."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Eighths over drums",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drums. Clap eighths over them, and keep the count in your head.\nThen press Click below to switch the metronome on, and check that every second clap lands on it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 72,
+              "key": "c",
+              "parts": {
+                "drums": "always",
+                "click": "off"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/rhythm"
+    ]
+  }
+}

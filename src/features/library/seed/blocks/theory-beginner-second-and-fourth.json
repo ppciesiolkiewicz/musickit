@@ -1,0 +1,97 @@
+{
+  "id": "theory-beginner-second-and-fourth",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "intervals:3"
+  ],
+  "note": "Track intervals (theory-ear), step 3: the major 2nd and the perfect 4th by ear, added to the 3rds, the 5th and the octave. The last game is set to the game's own level 3, a number, which is exactly this step; no level word stands for it (\"beginner\" is 2, \"intermediate\" is 4), and the ladder reads only words, so the block is read back as step 2 from the round on the earlier intervals. Missing: a level word for interval-ears level 3, or a ladder that reads the number.",
+  "exercise": {
+    "title": "The 2nd and the 4th by ear",
+    "minutes": 8,
+    "level": "beginner",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "A major 2nd is one step of the major scale and a perfect 4th is three, so humming up the scale from the low note to the high one tells you which of them you heard.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A 2nd and a 4th",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap {{1}} then {{2}} on the staff below: a major 2nd, one step of the scale. Then tap {{1}} then {{4}}: a perfect 4th.\nGo between the two until you can hum the top note before you tap it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "2",
+                "4"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The ones from before",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: it plays two notes, one after the other, and you pick the interval. This round asks only the ones from before: m3 and M3 for the 3rds, P5 for the 5th and P8 for the octave.\nPress Replay to hear the two notes again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "beginner"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "With the 2nd and 4th",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below. This round also asks M2 for the major 2nd and P4 for the perfect 4th.\nWhen two answers sound alike, hum up the scale from the low note and count the steps.\nKeep going until the 4th and the 5th no longer get mixed up."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": 3
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/ears"
+    ]
+  }
+}

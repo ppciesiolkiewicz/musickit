@@ -1,0 +1,100 @@
+{
+  "id": "guitar-intermediate-full-f-barre",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "barre:3"
+  ],
+  "note": "Track barre (guitar-barre-chords), step 3: the full F with the root on string 6, built from the open E shape, held and released in time, then reached from C with a whole bar to move.",
+  "exercise": {
+    "title": "The full F barre",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-barre-chords",
+    "concepts": [
+      "barre"
+    ],
+    "why": "The full F is the open E shape moved up one fret with finger 1 lying across all six strings in place of the nut, so fingers 2, 3 and 4 make an E and finger 1 does the new work.",
+    "learnBefore": [
+      "/course/6/barres-every-key",
+      "/course/6/bm-barre"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "E, one fret up",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it. Fret E, but with fingers 2, 3 and 4, then slide the shape up one fret and lay finger 1 flat behind it, as the F box shows.\nPick the six strings of F one at a time, and fix only the one that buzzes.\n_Stop and shake out your hand when it aches._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "E",
+                "F"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Squeeze, then let go",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum F once on beat 1, then loosen your grip for the rest of the bar without taking your fingers off the strings.\nKeep going until every string rings on beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "F"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "C to the full F",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play. Strum down once on beat 1, then use the rest of the bar to move to the next chord.\nIf the full F comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "C",
+                "F"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "id": "guitar-beginner-down-up-picking",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "picking:2"
+  ],
+  "note": "Track picking (guitar-techniques), step 2: down and up strokes, four notes a string (picking-drill at level beginner), on one string, across all six, then faster in stages.",
+  "exercise": {
+    "title": "Down and up with the pick",
+    "minutes": 6,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "picking"
+    ],
+    "why": "The pick passes the string again on its way back up, so playing on the upstroke too gives you two notes for one movement of the hand.",
+    "learnBefore": [
+      "/course/1/spider"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One string",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and follow the tab: the open G string, one note per beat. The arrows under the tab show each stroke, down then up.\nKeep going until the upstroke is as loud as the downstroke."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "beginner",
+              "bpm": 60,
+              "strings": [
+                3
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Across the strings",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Now the drill moves to the next string after every four notes, across all six strings and back.\nIf you lose the order of the strokes, say \"down, up\" out loud as you play."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "beginner",
+              "bpm": 60
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Faster in stages",
+        "minutes": 2,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 88
+            },
+            {
+              "bpm": 104
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and play the drill across the strings again.\nWhen every stroke lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the strokes get uneven at a new stage, go back one stage and stay there a little longer."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "beginner",
+              "bpm": 72
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/8/string-skipping"
+    ]
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "id": "guitar-new-hammer-pull-fingers-1-2",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "legato:1"
+  ],
+  "note": "Track legato (guitar-techniques), step 1: the trill with fingers 1 and 2 (legato-trill at level new) on three strings, the last one faster in stages.",
+  "exercise": {
+    "title": "Hammer-ons and pull-offs, fingers 1 and 2",
+    "minutes": 6,
+    "level": "new",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "legato"
+    ],
+    "why": "A hammered note is only as loud as the finger lands, so a trill with no picking lets you hear at once when a finger lands too softly.",
+    "learnBefore": [
+      "/course/4/legato"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Trill on the G string",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and follow the tab. Pick the first note once, then hammer finger 2 on and pull it off again, one note per beat, with no more picking.\nKeep going until the hammered note is as loud as the picked one.\n_Rest your hand as soon as it gets tired._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "new",
+              "string": 3,
+              "fret": 5,
+              "bpm": 60
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A thicker string",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The same trill is now on the A string, which is thicker, so finger 2 has to land harder.\nIf the pulled-off note is quiet, flick finger 2 a little sideways as it leaves the string."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "new",
+              "string": 5,
+              "fret": 5,
+              "bpm": 60
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Faster on the high E",
+        "minutes": 2,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 76
+            },
+            {
+              "bpm": 92
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and play the trill on the high E string.\nWhen both notes are equally loud, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a note goes missing at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "new",
+              "string": 1,
+              "fret": 5,
+              "bpm": 60
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

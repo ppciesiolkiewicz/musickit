@@ -1,0 +1,145 @@
+{
+  "id": "guitar-advanced-dorian-tune",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "guitar-melodies:5"
+  ],
+  "note": "Track guitar-melodies (guitar-scales), step 5: a tune in D Dorian made from a four-note motive, ended on the root over a drone, then played over a Dm7 to G7 band. missing: the tune book behind the melody shape is major only, so there is no written modal tune to play from tab; the player makes one up.",
+  "exercise": {
+    "title": "Make up a Dorian tune",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "improv",
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "A tune sounds Dorian when it rests on the root and passes through the raised 6th, so a short motive that ends on one and touches the other keeps the mode however you turn it round.",
+    "learnBefore": [
+      "/course/9/scarborough-fair",
+      "/course/9/modes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A four-note motive",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The panel below spells a short motive in D Dorian, then the same four notes reversed, mirrored and rotated. Play the Motive row on the neck under the panel, in the position with {{1}} on the A string.\nThen play the Reversed row and the Mirrored row, until you can play each one straight after reading it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "improvisation",
+              "key": "d",
+              "scale": "dorian"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "d",
+              "placement": {
+                "by": "root",
+                "string": 5
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "End on the root",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone. On the neck below, make up a two-bar tune that passes through the ringed {{6}} and ends on {{1}}.\nPlay it until it comes out the same twice, then change one note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "d",
+              "parts": {
+                "drone": "always",
+                "click": "off"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "d",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The tune over the band",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band, which moves between Dm7 and G7. Play your tune over it, then answer it with a second tune that starts on another note.\nWhen G7 comes round, try holding the ringed {{6}}: it is the 3rd of G7, so the Dorian note is the chord's own note there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "d",
+              "bpm": 90
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "d",
+              "placement": {
+                "by": "root",
+                "string": 5
+              },
+              "highlight": [
+                "6"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/dorian/d"
+    ]
+  }
+}

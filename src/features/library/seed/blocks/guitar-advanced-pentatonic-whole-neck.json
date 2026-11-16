@@ -1,0 +1,167 @@
+{
+  "id": "guitar-advanced-pentatonic-whole-neck",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "pentatonic-positions:6"
+  ],
+  "note": "Track pentatonic-positions (guitar-scales), step 6: all five positions of one key as one neck: the roots first, position after position in three keys, along one string, then a solo that moves.",
+  "exercise": {
+    "title": "One key, the whole neck",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "The five positions are one scale cut into five pieces, and each piece holds its roots in the same places, so finding a root tells you which position your hand is in anywhere on the neck.",
+    "learnBefore": [
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Every root",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows A minor pentatonic in all five positions, with every note but {{1}} faded. Play each {{1}} from the lowest to the highest, and say which string it is on.\nKeep going until you can jump to any of them without counting frets."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "enable": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Position after position",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "g"
+            },
+            {
+              "key": "f-sharp"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Climb position 1 and come down position 2, climb position 3 and come down position 4, then climb position 5, one note per beat.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the metronome again.\nWhen you change the key, the five positions slide along the neck together and stay in the same order."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Along one string",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Play the scale along the G string alone, from its lowest note on the neck below to its highest and back.\nSay the number of the position you are in each time your hand moves."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A solo that moves",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band, a 12-bar blues in A minor. Improvise, and start each new phrase in a position you have not just used.\nKeep going until moving along the neck feels no harder than staying where you are."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "minor-blues",
+              "key": "a",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/minor-pentatonic/a"
+    ]
+  }
+}

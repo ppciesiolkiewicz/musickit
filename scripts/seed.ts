@@ -38,7 +38,11 @@ function exerciseProblems(e: PlanExercise, where: string): string[] {
     const c = conceptById(id)!;
     const ladders = new Set(c.steps.flatMap((s) => (s.ladder ? [s.ladder.split(":")[0]] : [])));
     // a tool of the skill's own ladder that says no step: written with raw settings instead of `level` or a stage
-    const own = tools.filter((t) => [...ladders].some((l) => LADDERS.find((x) => x.id === l)?.read?.({ ...t, level: "new" } as never) !== null));
+    // a ladder with no `read` can't say whose tool it is: it counts no tool as its own
+    const own = tools.filter((t) => [...ladders].some((l) => {
+      const read = LADDERS.find((x) => x.id === l)?.read;
+      return read !== undefined && read({ ...t, level: "new" } as never) !== null;
+    }));
     if (own.length && stepOf(c.id, own) === null) out.push(`${where}: ${c.id} has steps a tool knows, but its ${own[0].type} sets no level or stage: it counts for no step.`);
   }
   return out;

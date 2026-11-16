@@ -1,0 +1,147 @@
+{
+  "id": "voice-advanced-singing-phrygian",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "singing-modes:3"
+  ],
+  "note": "Track singing-modes (voice-melodies), step 3: Phrygian over a drone, the ♭2 a half step above home, the walk down from the 5th in three keys, then a made-up tune over i ♭II that lands on the ♭2 and steps home.",
+  "exercise": {
+    "title": "Phrygian over a drone",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "singing-modes"
+    ],
+    "why": "Phrygian is set apart by the ♭2, a half step above home, and a half step that close to the drone shows at once when it is too wide, so the drone tells you how small to make it.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A half step above home",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The ringed note is {{b2}}, a half step above {{1}}. Sing {{1}}, {{b2}} and back to {{1}}, slowly, on \"oo\". Then sing the whole scale up from the low {{1}} and back down.\nIf {{b2}} comes out too high, sing {{1}} again and make the step smaller."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "phrygian",
+              "key": "e",
+              "voice": "tenor",
+              "highlight": [
+                "b2"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Down from the 5th",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "e"
+            },
+            {
+              "key": "f-sharp"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. Sing down by step from {{5}} to {{1}}, on \"ah\", and hold {{b2}} for a moment before you step home.\nOnce the last step lands without a slide, sing it in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and the last step home is still a half step."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "phrygian",
+              "key": "e",
+              "voice": "tenor",
+              "enable": [
+                "1",
+                "b2",
+                "b3",
+                "4",
+                "5"
+              ],
+              "highlight": [
+                "b2"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Land on the ♭2",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, which plays Em and F in turn. Make up a short tune from the scale, and sing it on \"la\". Land on {{b2}} when F comes round, which is the root of that chord, and step down to {{1}} when Em comes back.\nIf you lose your place, hold {{1}} through both chords and start again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "phrygian",
+              "key": "e",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "b2"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "phrygian",
+              "key": "e",
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/phrygian/e"
+    ]
+  }
+}

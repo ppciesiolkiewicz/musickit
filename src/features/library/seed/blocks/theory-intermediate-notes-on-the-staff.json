@@ -1,0 +1,125 @@
+{
+  "id": "theory-intermediate-notes-on-the-staff",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "note-names:3"
+  ],
+  "note": "Track note-names (theory-basics), step 3: reading the treble clef, lines, spaces and the notes under the lines. The staffs use the mezzo voice because the tenor staff is drawn in the treble clef with an 8. Missing: a note-reading game (a note shown on the staff, the player names it); staff cannot hide its labels, fix its clef, or light only the notes on the lines, so the player has to check against labels that are always in view, and they are letters only while the player's label setting is note names.",
+  "exercise": {
+    "title": "Reading notes in the treble clef",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "note-names"
+    ],
+    "why": "Notes go up the staff line, space, line, space in the order of the letters, so once you know one line by heart you can count to any note from it.",
+    "learnBefore": [
+      "/course/3/staff"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Line, space, line",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below is in the treble clef, which curls around the second line from the bottom: that line is {{g}}, ringed here. Tap up from the ringed {{g}} and say each letter: the notes go line, space, line, space."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "mezzo",
+              "highlight": [
+                "5"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The five lines",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap only the notes that sit on the five lines, from the bottom line up, and say each letter. Then tap them in any order.\nKeep going until you can name a line without counting up from {{g}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "mezzo",
+              "highlight": [
+                "5"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The four spaces",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now tap only the notes in the four spaces between the lines, from the bottom up, and say each letter.\nThen point at any note, line or space, say its letter, and tap it to check against its label."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "mezzo",
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Under the lines",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This staff starts lower, on {{a}}, so its first notes sit under the five lines, on short lines of their own. Tap up from the lowest note and say each letter.\nIf you get lost, count down from the bottom line, one letter for each line or space."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "natural-minor-aeolian",
+              "key": "a",
+              "voice": "mezzo",
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/piano"
+    ]
+  }
+}

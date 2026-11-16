@@ -34,6 +34,9 @@ export interface SeedBlockFile {
   id: string;
   model: string;
   versions: SeedVersions;
+  /** the path steps it practises, "trackId:n" (n from 1); absent on the files written before steps. Not read yet:
+   *  it moves into the exercise once exercises name their steps (docs/superpowers/specs/2026-11-16-blocks-by-step-design.md) */
+  steps?: string[];
   note: string;
   /** the exercise exactly as the AI returns it in a plan's day */
   exercise: Record<string, unknown>;

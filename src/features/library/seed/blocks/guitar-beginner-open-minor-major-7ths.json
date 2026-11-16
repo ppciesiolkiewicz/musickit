@@ -1,0 +1,129 @@
+{
+  "id": "guitar-beginner-open-minor-major-7ths",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "seventh-shapes:2"
+  ],
+  "note": "Track seventh-shapes (guitar-extended-chords), step 2: the five open minor 7th and major 7th shapes, two as one finger off Am and C, three new, then strummed in time.",
+  "exercise": {
+    "title": "Open m7 and maj7 chords",
+    "minutes": 10,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "Am7 and Cmaj7 are Am and C with one finger lifted, so each one is a shape you know with one more string ringing open.",
+    "learnBefore": [
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One finger off",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Am to Am7 and back, then from C to Cmaj7 and back, until only the one finger moves."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Am",
+                "Am7",
+                "C",
+                "Cmaj7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Em7, Dm7 and Fmaj7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret Em7, Dm7 and Fmaj7 as shown. In Dm7, finger 1 lies flat across the two thinnest strings.\nPick the strings of each chord one at a time, and fix only the one that buzzes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Em7",
+                "Dm7",
+                "Fmaj7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Cmaj7 to Fmaj7",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nFingers 2 and 3 keep their shape from Cmaj7 to Fmaj7 and move over one string each."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Cmaj7",
+                "Fmaj7"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Four chords in a row",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Cmaj7",
+                "Am7",
+                "Dm7",
+                "Em7"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/7/hearing-sevenths"
+    ]
+  }
+}

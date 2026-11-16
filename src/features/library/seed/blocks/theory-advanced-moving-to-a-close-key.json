@@ -1,0 +1,121 @@
+{
+  "id": "theory-advanced-moving-to-a-close-key",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "keys:4"
+  ],
+  "note": "Track keys (theory-scales-keys), step 4: moving from C to the keys next to it on the circle, G and F, through a shared chord and the new key's 5 chord.",
+  "exercise": {
+    "title": "Moving to the key next door",
+    "minutes": 9,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "keys"
+    ],
+    "why": "Two keys next to each other on the circle share four chords and differ by one note, so a shared chord followed by the new key's 5 chord carries the music from one home to the other.",
+    "learnBefore": [
+      "/course/10/circle-map"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Four shared chords",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The two rows below are the chords of C major and the chords of G major, the next key round the circle. C, Em, G and Am are in both rows.\nPress each of those four chords in the first row, then in the second: the chord is the same, and its numeral is new."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "key-chords",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "key-chords",
+              "key": "g",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From C to G",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band. It starts in C, reaches Am, a chord of both keys, and then plays D7, the 5 chord of G, which has the one note C major lacks.\nListen for the bar where G sounds like home, and call out \"home\" there.\nOnce you hear it, look away from the chord boxes and call it again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "C",
+                "F",
+                "C",
+                "Am",
+                "D7",
+                "G",
+                "C",
+                "G"
+              ],
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From C to F",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: the other neighbour now. C turns into C7, the 5 chord of F, and the band lands on F and stays in that key for four bars.\nLook away from the chord boxes and call out \"home\" when the new home arrives, then look to check.\nWhen you change the direction round the circle, the new key is another one but the chord before it is still its 5 chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "C",
+                "G",
+                "C",
+                "C7",
+                "F",
+                "Bb",
+                "C7",
+                "F"
+              ],
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/circle"
+    ]
+  }
+}

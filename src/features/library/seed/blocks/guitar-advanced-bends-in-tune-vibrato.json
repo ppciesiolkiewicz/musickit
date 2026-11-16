@@ -1,0 +1,141 @@
+{
+  "id": "guitar-advanced-bends-in-tune-vibrato",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "bends-slides:4"
+  ],
+  "note": "Track bends-slides (guitar-techniques), step 4: whole-step bends checked against the fretted note and a drone, vibrato on the held bend, then both in a solo. missing: no tool listens to a bend or marks one in tab, so the drone and the player's ear do the checking.",
+  "exercise": {
+    "title": "Bends in tune, then vibrato",
+    "minutes": 11,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "ear"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "bends-slides"
+    ],
+    "why": "A whole-step bend is in tune when it sounds the same as the note two frets higher, so playing that fretted note first gives your ear the pitch to bend up to.",
+    "learnBefore": [
+      "/course/5/bends-and-slides"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Bend up to the 5th",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone. On the G string, play the ringed {{5}}, then bend the ringed {{4}} under it until it sounds the same.\nPush with three fingers on the string, and stop the bend where the two notes match.\n_Stop and shake out your hand when your fingertips hurt._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always",
+                "click": "off"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2
+              ],
+              "highlight": [
+                "4",
+                "5"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Bend up to the root",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same check on the B string, with no drone this time. Play the ringed {{1}}, then bend the ringed {{b7}} under it until it sounds the same.\nKeep going until the bend stops on the note without you playing the fretted one first."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2
+              ],
+              "highlight": [
+                "b7",
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Vibrato on the bend",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Bend up to the root again and hold it, then let the string down a little and push it back up, once on every click.\nThe top of each push is the note itself: vibrato on a bend dips under the note and comes back to it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Bends in a solo",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band, a 12-bar blues in A minor. Improvise in the two positions, and end each phrase on one of the two bends, held with vibrato.\nIf a bend sounds sour against the band, play the fretted note and bend up to it again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "minor-blues",
+              "key": "a",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

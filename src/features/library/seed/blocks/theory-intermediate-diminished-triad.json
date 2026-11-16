@@ -1,0 +1,124 @@
+{
+  "id": "theory-intermediate-diminished-triad",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "dim-aug:1"
+  ],
+  "note": "Track dim-aug (theory-building-chords), step 1: the diminished triad, 1 b3 b5, heard against the minor triad and found on the 7th note of a major key. Missing: interval-ears with kind \"chord\" has no diminished answer, so there is no game to name it by ear.",
+  "exercise": {
+    "title": "The diminished triad",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "dim-aug"
+    ],
+    "why": "A diminished triad is a minor triad with the 5th lowered a half step, so listening for that one note tells the two chords apart.",
+    "learnBefore": [
+      "/course/7/diminished-chords"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Minor, then diminished",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap {{1}} {{b3}} {{5}} on the staff below: C minor, one note at a time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "natural-minor-aeolian",
+              "key": "c",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "b3",
+                "5"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "text",
+            "text": "Now tap {{1}} {{b3}} {{b5}} on this staff: C diminished. Only the top note moved, down a half step to the ringed {{b5}}.\nGo between the two staffs until you can hum the lowered note before you tap it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "locrian",
+              "key": "c",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "b3",
+                "b5"
+              ],
+              "highlight": [
+                "b5"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The two chords, whole",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. Go from Cm to Cdim and back, and listen for the one note that drops.\nKeep going until you can tell them apart with your eyes closed."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Cm",
+                "Cdim"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Its place in a key",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The panel below shows the chord on every note of C major. Press each chord in turn: the diminished one is built on the 7th note, and it is the only one of its kind in the key.\nThen press it and the 1 chord after it, and listen for the diminished chord leading home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "key-chords",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/chords"
+    ]
+  }
+}

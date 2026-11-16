@@ -1,0 +1,127 @@
+{
+  "id": "theory-advanced-ninth-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "sevenths-up:6"
+  ],
+  "note": "Track sevenths-up (theory-building-chords), step 6: 9th chords, the 9 stacked on a 7th chord, seen, compared with the 7 and heard in three chords of a key. Missing: interval-ears \"kind\": \"chord\" has no 9th chord answer, so telling a 9 from a 7 by ear is done with the band.",
+  "exercise": {
+    "title": "9th chords: a 7th chord with the 9",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sevenths-up"
+    ],
+    "why": "A 9th chord is a 7th chord with the 2nd above its root added an octave up, so hearing that one high note come and go tells a 9 from a 7.",
+    "learnBefore": [
+      "/course/11/extended"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The 2nd, an octave up",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "G9 is G7 with one more note stacked on top. Tap {{1}}, {{3}}, {{5}} and {{b7}} from the low {{1}} on the staff below, then the {{2}} above the high {{1}}: that note is the 9th.\nThen tap the low {{1}} and the {{2}} right next to it. It is the same note as the 9th, and up on top of the chord it has room to ring."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "g",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "5",
+                "b7"
+              ],
+              "highlight": [
+                "2"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "7 or 9",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle below has the G chord of C major in the middle and the chords it can turn into around it. Press G7 on the circle, then G9.\nGo between the two until you can hear the note that G9 adds on top."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-circle",
+              "key": "c",
+              "scale": "major-ionian",
+              "degree": 5
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Three chords as 9ths",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "f"
+            },
+            {
+              "key": "g"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: three 7th chords of the key for four bars, then the same three as 9th chords for four bars.\nOnce you hear the extra note come in, look away from the chord boxes and call out \"9\" when it does.\nThen listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the 9th is still the 2nd of each chord, an octave up."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7",
+                "ii9",
+                "V9",
+                "Imaj9",
+                "Imaj9"
+              ],
+              "style": "ballad",
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

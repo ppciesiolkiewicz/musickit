@@ -1,0 +1,173 @@
+{
+  "id": "guitar-advanced-seventh-arpeggios",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "arpeggios:3"
+  ],
+  "note": "Track arpeggios (guitar-caged), step 3: the A minor arpeggio with its 7th added, then A7 and Amaj7 from the same root, then Am7, D7 and Gmaj7 played through in one area of the neck. missing: an arpeggio's boxes are numbered per chord, so a chord-steps or arpeggio-neck set by box can't follow a key choice; the block stays in one key.",
+  "exercise": {
+    "title": "7th arpeggios: one more note",
+    "minutes": 10,
+    "level": "advanced",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "A 7th arpeggio is the triad arpeggio you know with one more note, between the 5th and the next root, so learning where that one note sits finishes the shape.",
+    "learnBefore": [
+      "/course/7/sevenths",
+      "/course/5/arpeggios"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Am to Am7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows the A minor arpeggio with one note added, the ringed {{b7}}. Press Play below to hear the arpeggio run up and back down, then play it yourself.\nKeep going until your fingers pass through {{b7}} on the way to each {{1}} without stopping."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "Am7",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "b7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A7 and Amaj7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Two more 7th arpeggios from the same root. In A7, on the first neck below, the ringed {{3}} takes the place of the minor 3rd. In Amaj7, on the second, the ringed {{7}} sits one fret under each {{1}}.\nPlay each arpeggio up and back down, and say the name of the ringed note as you pass it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "A7",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "3"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "Amaj7",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Through three chords",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: Am7, D7, then two bars of Gmaj7. Play each arpeggio from the tab, one note per beat: up through the first three bars and down in the last.\nListen for the last note of the first two bars: it is the chord's 7th, and it sits one fret from a note of the chord that follows."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "steps": [
+                      "1",
+                      "b3",
+                      "5",
+                      "b7"
+                    ],
+                    "place": {
+                      "box": 1
+                    }
+                  },
+                  {
+                    "chord": "D7",
+                    "steps": [
+                      "1",
+                      "3",
+                      "5",
+                      "b7"
+                    ],
+                    "place": {
+                      "box": 2
+                    }
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "steps": [
+                      "1",
+                      "3",
+                      "5",
+                      "7"
+                    ],
+                    "place": {
+                      "box": 1
+                    }
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "steps": [
+                      "7",
+                      "5",
+                      "3",
+                      "1"
+                    ],
+                    "place": {
+                      "box": 1
+                    }
+                  }
+                ]
+              },
+              "bpm": 66,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/arpeggios"
+    ]
+  }
+}

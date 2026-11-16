@@ -1,0 +1,125 @@
+{
+  "id": "voice-new-up-to-sol",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "steps-to-leaps:4"
+  ],
+  "note": "Track steps-to-leaps (voice-intervals), step 4: up to Sol, five notes by step over a drone, then two tunes of the Sol stage.",
+  "exercise": {
+    "title": "Five notes: Do up to Sol",
+    "minutes": 7,
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "Sol blends with the drone almost as well as Do, so it is a second place to check your pitch, and the steps down from it lead straight home.",
+    "learnBefore": [
+      "/course/3/step-melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Add Sol",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Sol is the ringed note. Sing from the low {{1}} up to {{5}} one step at a time, then step back down. Sing them on the note names.\nHold {{5}} for a moment at the top, and listen for it settling against the drone.\n_Don't reach for high notes: start from the low {{1}}, so {{5}} stays easy._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "highlight": [
+                "5"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Down from Sol",
+        "minutes": 2,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "This tune starts on Sol and steps down to Do. Tap its first note below to hear it. Then press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce you can start on Sol without tapping it first, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still steps down from Sol to Do."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "sol"
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Up to Sol and home",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi, steps up to Sol and comes home by step, a little lower in each bar. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"la\"."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "sol",
+                "index": 1
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "id": "guitar-intermediate-caged-g-shape",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "caged:4"
+  ],
+  "note": "Track caged (guitar-caged), step 4: the G shape: open G moved up two frets to A with its arpeggio, pentatonic and scale, then joined to the E shape on the low E string root, in three keys.",
+  "exercise": {
+    "title": "CAGED: the G shape",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "theory",
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "caged"
+    ],
+    "why": "The open G chord moved up the neck fills the gap between the A shape below it and the E shape above it, and it ends on the low E string root where the E shape begins.",
+    "learnBefore": [
+      "/course/8/d-c-a-shapes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "G, moved up",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press the chord box below to hear G. Fret it, but with fingers 2, 3 and 4, so finger 1 is free."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play on the chord panel below to hear A in the G shape: the same shape two frets up, with finger 1 lying across the three middle strings. The whole shape is a wide reach, so play the part of it your hand can hold.\nThen press Play on the other three panels: the arpeggio, the pentatonic and the scale sit in the same frets. Play each one on your guitar, starting and ending on a root."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "a",
+              "scale": "major-ionian",
+              "shapes": [
+                "G"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Where G meets E",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play on the two chord panels below to hear A in the G shape, then in the E shape just above it. Play one, then the other, on your guitar: the root on the low E string is the same note in both, and that is where the two shapes join.\nOnce your hand finds the root from either side, try another key. Use the Key selector below to change the key.\nWhen you change the key, both shapes move along the neck and still join on the low E string."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "a",
+              "scale": "major-ionian",
+              "shapes": [
+                "G",
+                "E"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/caged"
+    ]
+  }
+}

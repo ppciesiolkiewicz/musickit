@@ -1,0 +1,145 @@
+{
+  "id": "voice-intermediate-singing-dorian",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "singing-modes:1"
+  ],
+  "note": "Track singing-modes (voice-melodies), step 1: Dorian over a drone, built up from the minor pentatonic the singer knows (the 2nd and the 6th added), in three keys, then a made-up tune over the Dorian vamp that lands on the 6th.",
+  "exercise": {
+    "title": "Dorian over a drone",
+    "minutes": 9,
+    "level": "intermediate",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "singing-modes"
+    ],
+    "why": "Over a drone you hear every note of a mode against its home note, and Dorian is the minor pentatonic with two notes added, so sing the five notes you know first and then add the two new ones.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The pentatonic first",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. These are the five notes of the minor pentatonic. Sing them up from the low {{1}} to the next {{1}} and back down, on \"oo\"."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "b3",
+                "4",
+                "5",
+                "b7"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Add the 2nd and the 6th",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "e"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows on the staff. The two ringed notes, {{2}} and {{6}}, turn the pentatonic into Dorian. Sing the whole scale up from the low {{1}} and back down, on \"oo\".\nThen sing {{5}}, {{6}}, {{b7}} and up to {{1}}, slowly, until {{6}} lands without a slide.\nThen sing it in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the drone moves and {{6}} is still a whole step above {{5}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "2",
+                "6"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Land on the 6th",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, which plays Dm7 and G7 in turn. Make up a short tune from the scale, and sing it on \"la\". Land on {{6}} when G7 comes round: it is the 3rd of that chord.\nIf you lose your place, hold {{1}} until Dm7 comes back."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "d",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "d",
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/dorian/d"
+    ]
+  }
+}

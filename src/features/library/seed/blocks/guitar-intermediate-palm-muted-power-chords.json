@@ -1,0 +1,119 @@
+{
+  "id": "guitar-intermediate-palm-muted-power-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "power-chords:3"
+  ],
+  "note": "Track power-chords (guitar-basic-chords), step 3: power chords on both roots in palm-muted eighth-note downstrokes, with the mute lifted on the last bar. missing: a palm-mute mark on a tool, and eighth-note steps in guitar-play-along (its steps are one per beat), so the riff is strummed bars in a strum-along, not a tabbed riff.",
+  "exercise": {
+    "title": "Palm-muted power chords in eighths",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "power-chords"
+    ],
+    "why": "The side of your picking hand on the strings at the bridge cuts each strum short, so eighth notes on a power chord turn into a tight chug, and lifting the hand lets a chord ring out against it.",
+    "learnBefore": [
+      "/course/5/power-chords"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The palm mute",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and fret the power chord in the lit box. Rest the side of your picking hand on the strings right where they leave the bridge, and strum down twice per beat.\nIf the notes sound dead, move your hand back towards the bridge until you hear the chord again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G5"
+              ],
+              "bpm": 70,
+              "pattern": "D D D D D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From one root to the other",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The chords now move between the root on the low E string and the root on the A string, a bar each: keep the mute on through every change.\nIf a change comes late, keep your picking hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G5",
+                "C5",
+                "G5",
+                "D5"
+              ],
+              "bpm": 70,
+              "pattern": "D D D D D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Let the last bar ring",
+        "minutes": 3,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 80
+            },
+            {
+              "bpm": 96
+            },
+            {
+              "bpm": 112
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Play the first three bars muted, then lift your picking hand on the last bar so that chord rings open.\nWhen the mute is back on beat 1 of the next round, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the chords blur at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "A5",
+                "A5",
+                "C5",
+                "D5"
+              ],
+              "bpm": 80,
+              "pattern": "D D D D D D D D"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

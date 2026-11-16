@@ -1,0 +1,110 @@
+{
+  "id": "theory-intermediate-flat-keys",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "keys:3"
+  ],
+  "note": "Track keys (theory-scales-keys), step 3: the flat keys, B♭, E♭ and A♭ after F, each adding one flat on its 4th note.",
+  "exercise": {
+    "title": "The flat keys, the other way round",
+    "minutes": 8,
+    "level": "intermediate",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "keys"
+    ],
+    "why": "Each key a 5th down keeps the flats of the key before it and adds one more, on its 4th note, so the circle gives the flat keys in order the other way round.",
+    "learnBefore": [
+      "/course/10/circle-map"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Anticlockwise from F",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle below starts on F, the key with one flat. Press B♭, the next key anticlockwise, then E♭ and A♭ after it.\nEach step anticlockwise is a 5th down, and adds one flat."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "circle-of-fifths",
+              "key": "f",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The flat each key adds",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "b-flat"
+            },
+            {
+              "key": "e-flat"
+            },
+            {
+              "key": "a-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below shows a flat key. Tap up the scale from {{1}} and say each letter: the ringed {{4}} is the flat this key adds.\nOnce you can name the new flat before you tap it, try the next key. Use the Key selector below to change the key.\nWhen you change the key, the new flat is still the {{4}}, and it is the note the next flat key starts on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "b-flat",
+              "voice": "tenor",
+              "highlight": [
+                "4"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Count the flats",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The piano below shows A♭ major, four steps anticlockwise from C. Tap up the scale from A♭ and count the black keys: one for each flat.\nThen say the four flats in the order the keys added them."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "a-flat",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/circle"
+    ]
+  }
+}

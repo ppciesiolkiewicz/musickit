@@ -1,0 +1,94 @@
+{
+  "id": "voice-new-do-and-re",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "steps-to-leaps:1"
+  ],
+  "note": "Track steps-to-leaps (voice-intervals), step 1: Do and Re, over a drone and then as the book's one Do Re tune, in two keys.",
+  "exercise": {
+    "title": "Do and Re: one step up and home",
+    "minutes": 5,
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "Do blends with the drone and Re does not, so the drone tells you when you have left home and when you are back.",
+    "learnBefore": [
+      "/course/3/do-re-mi"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Step up over the drone",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Sing the low {{1}}, step up to {{2}}, then come back to {{1}}. Sing them on the note names.\nKeep going until the step up feels the same size every time.\n_Don't reach for high notes: the two lowest notes on the staff are the whole drill._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "2"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The Do Re tune",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. The tune rocks between Do and Re and ends on a long Do. Sing along on the note names.\nOnce you can sing it without the tune leading you, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but Re is still one step above Do."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "stage": "do-re"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  }
+}

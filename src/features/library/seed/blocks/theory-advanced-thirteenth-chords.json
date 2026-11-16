@@ -1,0 +1,127 @@
+{
+  "id": "theory-advanced-thirteenth-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "sevenths-up:7"
+  ],
+  "note": "Track sevenths-up (theory-building-chords), step 7: 13th chords, the 13 stacked on a 7th chord, seen, compared with the 7 and the 9, and heard on the 5 chord. Missing: interval-ears \"kind\": \"chord\" has no 13th chord answer, so telling a 13 from a 7 by ear is done with the band.",
+  "exercise": {
+    "title": "13th chords: a 7th chord with the 13",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sevenths-up"
+    ],
+    "why": "A 13th chord is a 7th chord with the 6th above its root added an octave up, so the 13 is heard as one high note a 7th above the chord's ♭7.",
+    "learnBefore": [
+      "/course/11/extended"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The 6th, an octave up",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "C13 is C7 with one more note stacked on top. Tap {{1}}, {{3}}, {{5}} and {{b7}} from the lowest {{1}} on the staff below, then the {{6}} that comes after the next {{1}}: that note is the 13th.\nThen tap the first {{b7}} and that upper {{6}}, one after the other. Those two notes are the sound of a 13th chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "c",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "3",
+                "5",
+                "6",
+                "b7"
+              ],
+              "highlight": [
+                "6"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "7, 9 or 13",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle below has the C chord of F major in the middle and the chords it can turn into around it. Press C7 on the circle, then C9, then C13.\nGo between the three until you can say which note each one adds on top."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-circle",
+              "key": "f",
+              "scale": "major-ionian",
+              "degree": 5
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A 13 on the 5 chord",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "f"
+            },
+            {
+              "key": "c"
+            },
+            {
+              "key": "b-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: three chords, played twice. The second time, the 5 chord in the middle is a 13th chord and the other two stay as they were.\nOnce you hear the high note come in, look away from the chord boxes and call out \"13\" when it does.\nThen listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the 13th is still the 6th of the 5 chord, an octave up."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "f",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7",
+                "ii7",
+                "V13",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "id": "theory-advanced-diminished-seventh",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "dim-aug:3"
+  ],
+  "note": "Track dim-aug (theory-building-chords), step 3: the diminished 7 chord, built, told from half-diminished and heard leading home. Missing: interval-ears \"kind\": \"chord\" has no diminished 7 (or half-diminished) answer, so naming it by ear is done with the band; the staff cannot spell a ♭♭7, so the top note is drawn as the 6.",
+  "exercise": {
+    "title": "The diminished 7 chord",
+    "minutes": 8,
+    "level": "advanced",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "dim-aug"
+    ],
+    "why": "A diminished 7 chord is minor 3rds stacked all the way round, so every note of it sits the same distance from the next and each one is a half step under a chord it can lead to.",
+    "learnBefore": [
+      "/course/7/diminished-chords"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One more minor 3rd",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Bdim7 is the diminished triad, {{1}} {{b3}} {{b5}}, with one more minor 3rd on top. That top note is a diminished 7th above the root, and the staff below draws it as {{6}}, which is the same pitch.\nTap the four notes up from the low {{1}}, then tap on to the high {{1}}: that last step is a minor 3rd too.\nGo up and down until the four even steps sound like one chord to you."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "locrian",
+              "key": "b",
+              "voice": "tenor",
+              "notes": [
+                "1",
+                "b3",
+                "b5",
+                "6"
+              ],
+              "highlight": [
+                "6"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Half-diminished or diminished 7",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: two bars of Bm7♭5, the half-diminished chord, then two bars of Bdim7. Only the top note differs, a half step lower in Bdim7.\nOnce you hear the note drop, look away from the chord boxes and call out the bar where the chord changes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "Bm7b5",
+                "Bm7b5",
+                "Bdim7",
+                "Bdim7"
+              ],
+              "style": "ballad",
+              "bpm": 66,
+              "parts": {
+                "drums": "on",
+                "bass": "on",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Leading home",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "g"
+            },
+            {
+              "key": "f"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: a diminished 7 chord, then the major home chord, then the same diminished 7 chord and the minor home chord. The root of the diminished 7 chord sits a half step under home both times.\nOnce you can hear home coming a bar early, listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the diminished 7 chord still sits a half step under home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "vii°7",
+                "I",
+                "vii°7",
+                "i"
+              ],
+              "style": "ballad",
+              "bpm": 66
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

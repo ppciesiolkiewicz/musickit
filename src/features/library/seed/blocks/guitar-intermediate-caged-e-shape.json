@@ -1,0 +1,170 @@
+{
+  "id": "guitar-intermediate-caged-e-shape",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "caged:1"
+  ],
+  "note": "Track caged (guitar-caged), step 1: the E shape: open E moved up as a barre, then the chord, arpeggio, pentatonic and scale that sit in the same frets, in three keys.",
+  "exercise": {
+    "title": "CAGED: the E shape",
+    "minutes": 10,
+    "level": "intermediate",
+    "area": "guitar",
+    "tags": [
+      "theory",
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "caged"
+    ],
+    "why": "A barre chord with its root on the low E string is the open E chord moved up the neck, so everything that sits around open E, its arpeggio, its pentatonic and its scale, moves up with it.",
+    "learnBefore": [
+      "/course/6/barres-every-key"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "E, moved up",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press the chord box below to hear E. Then press the three chord boxes under it: each is the same shape moved up the neck, with finger 1 in place of the nut.\nPlay all four, and say each chord's name as you land on it: the name is the note under finger 1 on the low E string."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "E"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "F",
+                "G",
+                "A"
+              ],
+              "voicing": "barre"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "What sits around it",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "a"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play on each of the four panels below to hear it: the chord, its arpeggio, the pentatonic and the scale, all in the same frets.\nPlay each one on your guitar, starting and ending on a root, until you can see the chord inside the scale.\nThen try another key. Use the Key selector below to change the key.\nWhen you change the key, the shape moves along the neck and every note keeps its place inside it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "caged-neck",
+              "key": "g",
+              "scale": "major-ionian",
+              "shapes": [
+                "E"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The arpeggio alone",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the arpeggio run up and back down. Then play it yourself, from the lowest {{1}} to the highest note and back.\nKeep going until your fingers find the next note without you looking."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "G",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Strum, then pick",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. On each chord, strum the shape on beat 1, then pick three of its notes, one per beat.\nWhen you change the chord, the whole shape moves and the notes keep their places inside it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "voicing": "barre",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      "strum",
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "A",
+                    "steps": [
+                      "strum",
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/caged"
+    ]
+  }
+}

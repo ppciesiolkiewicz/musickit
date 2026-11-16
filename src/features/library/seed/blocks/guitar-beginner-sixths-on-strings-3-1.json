@@ -1,0 +1,367 @@
+{
+  "id": "guitar-beginner-sixths-on-strings-3-1",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "double-stops:3"
+  ],
+  "note": "Track double-stops (guitar-caged), step 3: 6ths in G major on strings 3 and 1 with string 2 silent: the two shapes, five of them up the key and back, then a 6th over G, C and D. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
+  "exercise": {
+    "title": "6ths on the G and high E strings",
+    "minutes": 8,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "double-stops"
+    ],
+    "why": "A 6th on the G and high E strings has two shapes, both notes in one fret or the high E string one fret lower, and the B string between them stays silent, so the work is two shapes and one quiet string.",
+    "learnBefore": [
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two strings, one silent",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing and follow the tab: two 6ths in G major, taking turns. Play the G string with the pick and the high E string with your middle finger, both at once, so the B string stays silent.\nKeep going until the two notes sound together every time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "key": "g",
+                "degreesFrom": "key",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "2",
+                          "7"
+                        ],
+                        "strings": "31",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "2",
+                          "7"
+                        ],
+                        "strings": "31",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 4
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab",
+              "under": "drone"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Up the key and back",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. The 6ths now climb the first notes of G major and come back down, one per beat.\nKeep going until you know which of the two shapes comes next before you move."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "key": "g",
+                "degreesFrom": "key",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "6"
+                        ],
+                        "strings": "31",
+                        "fret": 0
+                      },
+                      {
+                        "grip": [
+                          "2",
+                          "7"
+                        ],
+                        "strings": "31",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "4",
+                          "2"
+                        ],
+                        "strings": "31",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      },
+                      {
+                        "grip": [
+                          "4",
+                          "2"
+                        ],
+                        "strings": "31",
+                        "fret": 5
+                      },
+                      {
+                        "grip": [
+                          "3",
+                          "1"
+                        ],
+                        "strings": "31",
+                        "fret": 4
+                      },
+                      {
+                        "grip": [
+                          "2",
+                          "7"
+                        ],
+                        "strings": "31",
+                        "fret": 2
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab",
+              "under": "drone"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A 6th for each chord",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: G, C and D, a bar each. On each chord, play the 6th on every beat: the chord's 5th below and its 3rd above.\nWhen you change the chord, the shape stays the same and only the fret is new."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 0
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 0
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 0
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 0
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 7
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 2
+                      },
+                      {
+                        "grip": [
+                          "5",
+                          "3"
+                        ],
+                        "strings": "31",
+                        "fret": 2
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/double-stops"
+    ]
+  }
+}

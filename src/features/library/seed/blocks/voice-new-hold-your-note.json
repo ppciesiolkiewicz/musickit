@@ -1,0 +1,147 @@
+{
+  "id": "voice-new-hold-your-note",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 3,
+    "agents": 2,
+    "teaching": 5
+  },
+  "steps": [
+    "harmony-line:1"
+  ],
+  "note": "Track harmony-line (voice-harmony), step 1: hold Sol, then Mi, while the drone sounds Do, then hold Sol while the band changes chord. missing: a tool that sounds a second note or a moving line against the singer's held note (the staff's drone can only sound Do).",
+  "exercise": {
+    "title": "Hold your note against another one",
+    "minutes": 6,
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "ear"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "harmony-line"
+    ],
+    "why": "Singing harmony starts with keeping your own note while a different one sounds, so you hold Sol or Mi against the drone's Do and listen to the two notes together.",
+    "learnBefore": [
+      "/course/6/harmony-line"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Sol over the drone",
+        "minutes": 2,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. The drone holds Do. Tap the low {{5}}, the ringed note, to hear it, then sing it on \"oo\" and hold it for one easy breath.\nOnce your line stays level while the drone sounds, try it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, both notes are new but yours is still Sol and the drone's is still Do.\n_Don't reach for high notes: take the low {{5}}, the one nearest the drone._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "5"
+              ],
+              "highlight": [
+                "5"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Mi over the drone",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the drone and the mic. Now your note is the low {{3}}, the ringed note, which sits closer to the drone's Do. Tap it to hear it, then sing it on \"oo\" and hold it.\nIf your line slides down towards Do, tap {{3}} again and start the note fresh."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "3"
+              ],
+              "highlight": [
+                "3"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Sol while the chords change",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. The band moves between two chords, and {{5}} belongs to both. Sing the low {{5}} on \"oo\" and hold it through each change.\nListen for the moment the chord box changes while your line stays level."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "5"
+              ],
+              "highlight": [
+                "5"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "I",
+                "V"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
