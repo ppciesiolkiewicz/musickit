@@ -4,13 +4,25 @@ import { useState, type ReactNode } from "react";
 import { DEFAULT_ANSWERS, levelOf, type PlanAnswers } from "@/features/plan/intake/answers";
 import { questionSteps, type SetAnswer } from "@/features/plan/intake/ui/Questionnaire";
 import { topicById, topicsFor } from "@/features/plan/intake/topics";
-import { AREAS, CONCEPTS, conceptById, conceptsFor } from "@/features/plan/model/concepts";
-import { placement } from "@/features/plan/intake/placement";
+import { AREAS, CONCEPTS, conceptsFor } from "@/features/plan/model/concepts";
+import { reach } from "@/features/plan/model/reach";
 import { selectExamples } from "@/features/plan/model/exampleSelection";
 import { startOutcome } from "@/features/plan/model/outcome";
 
 const LEVELS = ["new", "beginner", "intermediate", "advanced"];
 const fresh = (): PlanAnswers => ({ ...DEFAULT_ANSWERS, areas: [...DEFAULT_ANSWERS.areas], topics: {} });
+
+const CHIP_LABEL = { known: "known", reach: "within reach", open: "open", ahead: "ahead" } as const;
+const CHIP_STYLE: Record<keyof typeof CHIP_LABEL, string> = {
+  known: "border-emerald-500/60 bg-emerald-500/15 text-emerald-200",
+  reach: "border-sky-400 bg-sky-500/20 text-sky-100 font-semibold",
+  open: "border-dashed border-slate-500 text-slate-300",
+  ahead: "border-slate-800 text-slate-500",
+};
+
+function Chip({ kind, text }: { kind: keyof typeof CHIP_LABEL; text: string }) {
+  return <span className={`rounded border px-1.5 py-0.5 text-[11px] ${CHIP_STYLE[kind]}`}>{text}</span>;
+}
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -89,37 +101,38 @@ export default function QuestionnaireLab() {
         </Section>
 
         <Section title="Concepts">
+          <p className="mb-2 text-xs text-slate-400">
+            Each skill&apos;s steps for these answers (<code>reach</code> in plan/model/reach.ts): known, within reach (a few per
+            topic, by its line), open (nothing to learn first, but the topic&apos;s places are full) or ahead. &quot;start&quot; is
+            where the questionnaire puts them. &quot;In prompt&quot; is whether the plan prompt still lists the skill for the area&apos;s level.
+          </p>
+          <p className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+            {(["known", "reach", "open", "ahead"] as const).map((k) => <span key={k} className="inline-flex items-center gap-1"><Chip kind={k} text={CHIP_LABEL[k]} /></span>)}
+          </p>
           {draft.areas.length === 0 ? noArea : draft.areas.map((area) => {
             const inIds = new Set(conceptsFor(area, levelOf(draft, area)).map((c) => c.id));
-            const all = CONCEPTS.filter((c) => c.area === area);
-            const sorted = [...all.filter((c) => inIds.has(c.id)), ...all.filter((c) => !inIds.has(c.id))];
+            const marks = reach({ topics: draft.topics });
             return (
-              <div key={area} className="mb-3 last:mb-0">
+              <div key={area} className="mb-4 last:mb-0">
                 <h3 className="mb-1 text-xs font-semibold text-slate-400">{areaLabel(area)}</h3>
                 <Table
-                  head={["", "Concept", "Level", "Topic"]}
-                  rows={sorted.map((c) => [inIds.has(c.id) ? "in" : "out", c.label, c.level, topicById(c.topic)?.label ?? c.topic])}
+                  head={["Skill", "Topic", "In prompt", "Steps"]}
+                  rows={CONCEPTS.filter((c) => c.area === area).map((c) => [
+                    c.label,
+                    topicById(c.topic)?.label ?? c.topic,
+                    inIds.has(c.id) ? "in" : "out",
+                    <span key="s" className="flex flex-wrap gap-1">
+                      {c.steps.map((st, i) => {
+                        const r = marks.get(`${c.id}:${i + 1}`)!;
+                        const kind = r.mark === "ahead" && r.open ? "open" : r.mark;
+                        return <Chip key={i} kind={kind} text={`${i + 1}. ${st.name}${r.start ? " · start" : ""}`} />;
+                      })}
+                    </span>,
+                  ])}
                 />
               </div>
             );
           })}
-        </Section>
-
-        <Section title="Starting steps">
-          {(() => {
-            const placed = placement(draft.topics);
-            if (!placed.length) return <p className="text-xs text-slate-400">No topic answered yet.</p>;
-            return (
-              <Table
-                head={["Skill", "Topic", "Starts on"]}
-                rows={placed.map((p) => {
-                  const c = conceptById(p.concept)!;
-                  const where = p.step === null ? "done: every step is under their level" : `${p.step + 1} of ${c.steps.length}: ${c.steps[p.step].name}${p.state === "ahead" ? " (ahead of their level)" : ""}`;
-                  return [c.label, topicById(c.topic)?.label ?? c.topic, where];
-                })}
-              />
-            );
-          })()}
         </Section>
 
         <Section title="Examples picked">

@@ -38,4 +38,4 @@ and `../model/types`. The rest of the plan feature imports from here.
 `placement.ts` (NEW9): the line picked for a topic is a level (0 "Not yet" is new, 3 advanced), and every track of the
 topic (`model/path.ts`) starts at its first step of that level; the steps under it are taken as known. A track whose
 steps all sit lower is "done", and one whose first step is higher is "ahead", starting at that step. `/dev/questionnaire`
-shows it under "Starting steps". Nothing else reads it yet: the plan writer gets it with NEW7.
+shows it under "Concepts", as each step known, within reach, open or ahead (`model/reach.ts`), with "start" on the starting step. Nothing else reads it yet: the plan writer gets it with NEW7.
