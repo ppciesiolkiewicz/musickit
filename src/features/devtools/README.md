@@ -163,6 +163,13 @@ from before the path it took the place of, and its steps. Tests (`plan/model/pat
 old concept in exactly one track, levels never go down, ladder steps real and used once, `after` never pointing at a
 higher level. It has no student overlay.
 
+**Blocks for a step.** Every Slope step carries a badge with how many blocks practise it (amber `!`: none), and each
+step in the Path and Boxes detail a link; both open `/dev/block?step=<trackId:n>` in a new tab, which renders each block
+as the player sees it in a plan (`block/BlockPage.tsx`, `src/app/dev/block`; `?id=<block id>` renders one). The blocks
+come from the code, not the database (`model/stepBlocks.ts`): seed blocks by the steps their file names, then any seed
+plan exercise or example whose tools say the step (`stepOf`), then those that only tag the track at the step's level,
+marked "level match only". A test holds that every step has a block.
+
 ## Library (`/dev/library`)
 
 A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days, reviews), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows what is not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. Code: `library/load.ts` (the loader), `library/params.ts` (address parameters, minutes), `library/LibraryPage.tsx` (tables), `src/app/dev/library`.

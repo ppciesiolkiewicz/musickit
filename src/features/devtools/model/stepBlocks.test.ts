@@ -1,0 +1,31 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { SEED_BLOCKS } from "@/features/library/seed";
+import { PATH, stepAt } from "@/features/plan/model/path";
+import { blockCounts, blocksByStep } from "./stepBlocks";
+import { blockHref } from "./stepHref";
+
+const by = blocksByStep();
+
+test("every step a seed block names is a real step, and the block is listed under it", () => {
+  for (const f of SEED_BLOCKS) for (const ref of f.steps ?? []) {
+    assert.ok(stepAt(ref), `${f.id} names ${ref}, which is no step`);
+    assert.ok(by.get(ref)?.some((b) => b.id === f.id), `${f.id} is not listed under ${ref}`);
+  }
+});
+
+test("every step on the path has at least one block", () => {
+  const empty = PATH.flatMap((t) => t.steps.map((_, i) => `${t.id}:${i + 1}`)).filter((ref) => !by.get(ref)?.length);
+  assert.deepEqual(empty, []);
+});
+
+test("a block is listed once per step, and the counts match the lists", () => {
+  for (const [ref, list] of by) assert.equal(new Set(list.map((b) => b.id)).size, list.length, ref);
+  const counts = blockCounts(by);
+  for (const [ref, list] of by) assert.equal(counts[ref], list.length);
+});
+
+test("blockHref escapes the ref", () => {
+  assert.equal(blockHref({ step: "barre:2" }), "/dev/block?step=barre%3A2");
+  assert.equal(blockHref({ id: "a b" }), "/dev/block?id=a%20b");
+});

@@ -7,6 +7,7 @@ import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { PATH, predecessorsOf, slope, stepAt, type SlopeStep, type Track } from "@/features/plan/model/path";
 import { ADDED_AFTER, isAdded, proposedPath, whyOf } from "../model/slopeProposal";
 import type { ConceptProgress, StepState } from "../model/stepProgress";
+import { blockHref } from "../model/stepHref";
 
 /*
  * The learning path as a slope (docs/superpowers/specs/2026-11-16-path-slope-design.md): every step of an area placed
@@ -100,7 +101,7 @@ const label = (ref: string, tracks: Track[]) => {
 };
 
 /** `progress`: a student laid over the path, keyed by track id; a step's ring is its state, the step they are on is bold. */
-export default function SlopeView({ area, progress }: { area: Area; progress: Record<string, ConceptProgress> | null }) {
+export default function SlopeView({ area, progress, blocks = {} }: { area: Area; progress: Record<string, ConceptProgress> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /dev/block */ blocks?: Record<string, number> }) {
   const [version, setVersion] = useState<Version>("proposed");
   const [pick, setPick] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
@@ -275,6 +276,21 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
                 </button>
               );
             })}
+            {own.map(({ step, x, y }) => {
+              const n = blocks[step.ref] ?? 0;
+              return (
+                <a
+                  key={`b:${step.ref}`} href={blockHref({ step: step.ref })} target="_blank" rel="noreferrer"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  title={n ? `Open the ${n === 1 ? "block" : `${n} blocks`} for this step in a new tab` : "No block practises this step yet"}
+                  aria-label={`${step.track.label} step ${step.index + 1}: ${n ? `open ${n === 1 ? "its block" : `its ${n} blocks`}` : "no block yet"}, in a new tab`}
+                  className={`absolute rounded-full border px-1.5 text-[10px] font-semibold leading-4 tabular-nums hover:brightness-125 focus-visible:outline-2 focus-visible:outline-sky-400 ${n ? "border-sky-500/60 bg-slate-950 text-sky-200" : "border-amber-400/70 bg-amber-950 text-amber-200"}`}
+                  style={{ left: x + PILL_W - 22, top: y + PILL_H - 9 }}
+                >
+                  {n || "!"}
+                </a>
+              );
+            })}
           </div>
         </div>
         </div>
@@ -287,11 +303,17 @@ export default function SlopeView({ area, progress }: { area: Area; progress: Re
         {version === "proposed" && <span className="text-orange-300">orange: a new link, a new step, or a step that moved (+N deeper than now)</span>}
         {progress && <span><span className="text-emerald-300">green ring: solid</span> · <span className="text-amber-300">amber ring: working on it</span> · <b className="text-white">bold: the step the student is on</b> · a rating with no step shows on no step</span>}
         <span>Hover or pick a step: blue ring learn first, violet ring comes after</span>
+        <span><span className="text-sky-300">badge: its blocks, opened in a new tab</span> · <span className="text-amber-300">! no block yet</span> ({own.filter(({ step }) => !blocks[step.ref]).length} in {areaLabel})</span>
       </p>
 
       {focused ? (
         <div className="rounded-2xl border border-slate-800 p-4 text-sm">
-          <p className="font-semibold text-slate-100">{focused.track.label}, step {focused.index + 1}: {focused.step.name}</p>
+          <p className="font-semibold text-slate-100">
+            {focused.track.label}, step {focused.index + 1}: {focused.step.name}
+            <a href={blockHref({ step: focus! })} target="_blank" rel="noreferrer" className={`ml-3 text-sm font-normal hover:underline ${blocks[focus!] ? "text-sky-300" : "text-amber-300"}`}>
+              {blocks[focus!] ? `Open its ${blocks[focus!] === 1 ? "block" : `${blocks[focus!]} blocks`} ↗` : "No block yet: a gap to seed ↗"}
+            </a>
+          </p>
           {focused.step.holds && <p className="text-slate-400">{focused.step.holds}</p>}
           <p className="mt-1 text-slate-400">
             {cap(focused.step.level)} · depth {all[order.get(focus!)!].depth} · number {order.get(focus!)! + 1} of {all.length} on the whole path

@@ -9,6 +9,7 @@ import { usePlan } from "@/features/plan/store/usePlan";
 import { STAR_LABELS } from "@/features/progress/stars";
 import { useProgress } from "@/features/progress/useProgress";
 import { areaPath, chain, gaps, wrap, type PathNode } from "../model/path";
+import { blockHref } from "../model/stepHref";
 import { EXAMPLE_STUDENTS, exampleRatings, stepProgress, stepRatings, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
 import type { SpareSteps, Step } from "../model/steps";
 import JourneyView from "./JourneyView";
@@ -155,7 +156,20 @@ function Names({ ids, nodes, pick }: { ids: string[]; nodes: Map<string, PathNod
   );
 }
 
-function Detail({ node, nodes, pick, progress, today }: { node: PathNode; nodes: Map<string, PathNode>; pick: (id: string, area: Area) => void; progress?: ConceptProgress; today: string }) {
+/** A step's blocks, opened on /dev/block in a new tab; amber "no block" when none practises it. */
+export function BlocksLink({ ref_, n }: { ref_: string; n: number }) {
+  return (
+    <a
+      href={blockHref({ step: ref_ })} target="_blank" rel="noreferrer"
+      title={n ? `Open the ${n === 1 ? "block" : `${n} blocks`} for this step in a new tab` : "No block practises this step yet: open the step in a new tab"}
+      className={`ml-2 rounded border px-1.5 py-0.5 text-xs hover:underline ${n ? "border-sky-500/40 text-sky-300" : "border-amber-400/40 text-amber-300"}`}
+    >
+      {n ? `${n} block${n === 1 ? "" : "s"} ↗` : "no block ↗"}
+    </a>
+  );
+}
+
+function Detail({ node, nodes, pick, progress, today, blocks }: { node: PathNode; nodes: Map<string, PathNode>; pick: (id: string, area: Area) => void; progress?: ConceptProgress; today: string; blocks: Record<string, number> }) {
   const go = (id: string) => pick(id, nodes.get(id)!.area);
   const list = (ids: string[]) => ids.length
     ? <ul className="space-y-0.5 font-mono text-xs text-slate-300">{ids.map((id) => <li key={id}>{id}</li>)}</ul>
@@ -189,6 +203,7 @@ function Detail({ node, nodes, pick, progress, today }: { node: PathNode; nodes:
                 <span className="mr-2 font-mono text-xs text-slate-500">{i + 1}</span>
                 <span className="font-medium">{s.name}</span>{s.holds && `: ${s.holds}`}
                 {s.planned && <span className="ml-2 rounded border border-amber-400/40 px-1.5 py-0.5 text-xs text-amber-300">not implemented</span>}
+                <BlocksLink ref_={`${node.id}:${i + 1}`} n={blocks[`${node.id}:${i + 1}`] ?? 0} />
               </li>
             ))}
           </ol>
@@ -239,7 +254,7 @@ function Detail({ node, nodes, pick, progress, today }: { node: PathNode; nodes:
 }
 
 /** The learning path of one area as a diagram: topics down, levels across, an arrow for every "builds on". */
-export default function PathView({ nodes: list, spare, initial }: { nodes: PathNode[]; spare: SpareSteps[]; /** a concept to open on */ initial?: string }) {
+export default function PathView({ nodes: list, spare, blocks = {}, initial }: { nodes: PathNode[]; spare: SpareSteps[]; /** blocks per step ref, from model/stepBlocks.ts */ blocks?: Record<string, number>; /** a concept to open on */ initial?: string }) {
   const nodes = useMemo(() => new Map(list.map((n) => [n.id, n])), [list]);
   const start = initial ? list.find((n) => n.id === initial) : undefined;
   const [area, setArea] = useState<Area>(start?.area ?? "guitar");
@@ -312,13 +327,13 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
           )}
         </div>
       )}
-      {view === "slope" && <SlopeView area={area} progress={progress} />}
+      {view === "slope" && <SlopeView area={area} progress={progress} blocks={blocks} />}
       {view === "proposed" && <ProposalView area={area} nodes={nodes} onArea={pickArea} />}
       {view === "journey" && (
         <>
           <JourneyView area={area} nodes={nodes} progress={progress} selected={sel} onPick={setSel} />
           {selected
-            ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} pick={(id, a) => { setArea(a); setSel(id); }} />
+            ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} blocks={blocks} pick={(id, a) => { setArea(a); setSel(id); }} />
             : <p className="text-sm text-slate-500">Pick a skill to see its steps, what it builds on and its examples.</p>}
         </>
       )}
@@ -409,7 +424,7 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
         </details>
       )}
       {selected
-        ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} pick={(id, a) => { setArea(a); setSel(id); }} />
+        ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} blocks={blocks} pick={(id, a) => { setArea(a); setSel(id); }} />
         : <p className="text-sm text-slate-500">No skill picked.</p>}
       </div>
     </div>

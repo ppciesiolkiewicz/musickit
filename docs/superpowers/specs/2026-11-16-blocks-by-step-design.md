@@ -37,6 +37,9 @@ their own, the player sings them mixed with everything before. Those become **mi
 6. **Slope shows blocks.** On `/dev/path` → Slope, each step shows how many blocks practise it; a step with none is
    marked as a gap. Picking a step lists its blocks (title, provenance, use), each opening the block as
    `/dev/library` already shows it. Read from the library through the same query module, not from the seed files.
+   Until then (2026-11-16): a badge per Slope step opens `/dev/block?step=` in a new tab, read from the code
+   (`devtools/model/stepBlocks.ts`: seed files' `steps`, else `stepOf`, else track and level); it moves to the library
+   once blocks store steps.
 7. **Mixing steps.** Tracks whose material adds up get explicit mixing steps ("Mix: 5th, octave, 3rds") between new
    steps. They are ordinary steps (level, `after`, reach, coverage). Which tracks and where: from the agents'
    proposals (below), the user picks. A ladder step and its mixing step may point at the same tool level; the
