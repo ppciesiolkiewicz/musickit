@@ -290,7 +290,7 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
           </button>
         ))}
       </div>
-      {view !== "proposed" && view !== "slope" && (
+      {view !== "proposed" && (
         <div className="flex flex-wrap items-center gap-2">
           <label htmlFor="path-student" className="text-sm text-slate-300">Student on the path</label>
           <select
@@ -312,7 +312,7 @@ export default function PathView({ nodes: list, spare, initial }: { nodes: PathN
           )}
         </div>
       )}
-      {view === "slope" && <SlopeView area={area} />}
+      {view === "slope" && <SlopeView area={area} progress={progress} />}
       {view === "proposed" && <ProposalView area={area} nodes={nodes} onArea={pickArea} />}
       {view === "journey" && (
         <>

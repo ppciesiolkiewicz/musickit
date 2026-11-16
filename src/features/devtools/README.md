@@ -118,7 +118,7 @@ topic, per concept). A date field sets `asOf` (today at first); a date before an
 ## Learning path (`/dev/path`)
 
 The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), in four views: **Path**, **Slope**,
-**Boxes** and **Bars**. The area buttons are shared; *Student on the path* is on all but Slope and Bars.
+**Boxes** and **Bars**. The area buttons and *Student on the path* are shared (not on Bars); on Slope a step's ring is its state, the step the student is on bold.
 
 **Path** (`path/JourneyView.tsx`, the first view, made to show to studios). Four figures for the area (skills, steps,
 skills that span levels, steps read from the tools), then the topics down and the levels across. Every skill is a row

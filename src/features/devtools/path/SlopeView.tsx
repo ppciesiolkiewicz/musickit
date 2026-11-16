@@ -6,6 +6,7 @@ import { AREAS, type Area } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { PATH, predecessorsOf, slope, stepAt, type SlopeStep, type Track } from "@/features/plan/model/path";
 import { ADDED_AFTER, isAdded, proposedPath } from "../model/slopeProposal";
+import type { ConceptProgress, StepState } from "../model/stepProgress";
 
 /*
  * The learning path as a slope (docs/superpowers/specs/2026-11-16-path-slope-design.md): every step of an area placed
@@ -21,6 +22,7 @@ const ACCENT: Record<Area, { hue: string; soft: string; text: string }> = {
 };
 const LEVEL_TINT = ["#34d399", "#38bdf8", "#a78bfa", "#f472b6"];
 const ADDED = "#fb923c";
+const STATE_RING: Record<StepState, string | null> = { solid: "#34d399", working: "#fbbf24", none: null };
 const LABEL_W = 170, X0 = 8, COL_W = 136, PILL_W = 124, PILL_H = 50, ROW_H = 62, HEAD_H = 46, GAP = 14;
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border px-3 py-1 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const cap = (s: string) => s[0].toUpperCase() + s.slice(1);
@@ -42,7 +44,8 @@ const label = (ref: string, tracks: Track[]) => {
   return at ? `${at.track.label} ${at.index + 1}: ${at.step.name}` : ref;
 };
 
-export default function SlopeView({ area }: { area: Area }) {
+/** `progress`: a student laid over the path, keyed by track id; a step's ring is its state, the step they are on is bold. */
+export default function SlopeView({ area, progress }: { area: Area; progress: Record<string, ConceptProgress> | null }) {
   const [version, setVersion] = useState<Version>("proposed");
   const [pick, setPick] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
@@ -166,7 +169,10 @@ export default function SlopeView({ area }: { area: Area }) {
               const was = nowDepth.get(step.ref);
               const isNew = version === "proposed" && was === undefined;
               const shift = version === "proposed" && was !== undefined && was !== step.depth ? step.depth - was : 0;
-              const ring = mark === "sel" ? "#e9d5ff" : mark === "before" ? "#7dd3fc" : mark === "after" ? "#c4b5fd" : isNew || shift ? ADDED : "#334155";
+              const mine = progress?.[step.track.id];
+              const state = mine?.steps[step.index]?.state;
+              const here = mine?.at === step.index;
+              const ring = mark === "sel" ? "#e9d5ff" : mark === "before" ? "#7dd3fc" : mark === "after" ? "#c4b5fd" : (state && STATE_RING[state]) || (progress ? "#334155" : isNew || shift ? ADDED : "#334155");
               return (
                 <button
                   key={step.ref} type="button"
@@ -190,7 +196,7 @@ export default function SlopeView({ area }: { area: Area }) {
                       {isNew && <span className="ml-1 text-orange-300">new</span>}
                     </span>
                   </span>
-                  <span className="line-clamp-2 block text-[11.5px] font-medium leading-tight" style={{ color: a.text }}>{st.name}</span>
+                  <span className={`line-clamp-2 block text-[11.5px] leading-tight ${here ? "font-bold text-white" : "font-medium"}`} style={here ? undefined : { color: a.text }}>{st.name}</span>
                 </button>
               );
             })}
@@ -204,6 +210,7 @@ export default function SlopeView({ area }: { area: Area }) {
         <span style={{ color: a.text }}>solid line: the step before, in its own track</span>
         <span className="text-sky-300">blue curve: a step in another track to learn first</span>
         {version === "proposed" && <span className="text-orange-300">orange: a new link, a new step, or a step that moved (+N deeper than now)</span>}
+        {progress && <span><span className="text-emerald-300">green ring: solid</span> · <span className="text-amber-300">amber ring: working on it</span> · <b className="text-white">bold: the step the student is on</b> · a rating with no step shows on no step</span>}
         <span>Hover or pick a step: blue ring learn first, violet ring comes after</span>
       </p>
 
