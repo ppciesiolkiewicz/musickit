@@ -60,14 +60,14 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       const r = await repo();
       const keys = (o: object) => Object.keys(o).sort();
       const [s] = await r.listBlocks({ player: A }, {}, "newest", 1);
-      assert.deepEqual(keys(s), ["area", "concepts", "id", "level", "mine", "provenance", "tags", "title", "topic", "use"]);
+      assert.deepEqual(keys(s), ["area", "concepts", "id", "level", "mine", "provenance", "steps", "tags", "title", "topic", "use"]);
       assert.deepEqual(keys(s.mine!), ["ratedAt", "seconds", "stars", "times"]);
       assert.deepEqual(keys(s.use), ["rated", "seconds", "stars", "times"]);
       assert.deepEqual(keys(s.provenance), ["docsAgents", "docsTeaching", "model", "promptVersion"]);
       const [n] = await r.listBlocks({}, {}, "newest", 1);
       assert.equal("mine" in n, false);
       const d = await r.getBlock({ player: A }, "S1");
-      assert.deepEqual(keys(d!), ["area", "concepts", "content", "id", "level", "mine", "parentId", "provenance", "tags", "title", "topic", "use"]);
+      assert.deepEqual(keys(d!), ["area", "concepts", "content", "id", "level", "mine", "parentId", "provenance", "steps", "tags", "title", "topic", "use"]);
     });
     test("userExists", async () => {
       const r = await repo();
@@ -90,6 +90,10 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.deepEqual(await ids(all, { concepts: ["major-scale", "intervals"] }), ["S1", "X"]);
       assert.deepEqual(await ids(all, { concepts: ["pentatonic"] }), ["S1", "S2"]);
     });
+    test("steps match a block with any of them", async () => {
+      assert.deepEqual(await ids(all, { steps: ["pentatonic:1", "nope:1"] }), ["S1"]);
+      assert.deepEqual(await ids(all, { steps: ["pentatonic:2"] }), ["S1", "S2"]);
+    });
     test("tags match a block with all of them", async () => {
       assert.deepEqual(await ids(all, { tags: ["warmup", "slow"] }), ["S1"]);
       assert.deepEqual(await ids(all, { tags: ["slow"] }), ["R", "S1"]);
@@ -103,6 +107,7 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.equal(s1.title, "Block S1");
       assert.deepEqual([s1.area, s1.topic, s1.level], ["guitar", "guitar-scales", "beginner"]);
       assert.deepEqual(s1.concepts, ["major-scale", "pentatonic"]);
+      assert.deepEqual(s1.steps, ["pentatonic:1", "pentatonic:2"]);
       assert.deepEqual(s1.tags, ["warmup", "slow"]);
       assert.deepEqual(s1.provenance, { model: "m1", promptVersion: 3, docsAgents: 2, docsTeaching: 2 });
     });
@@ -375,6 +380,10 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
         { concept: "major-scale", blocks: 1, plans: 1, times: 2, seconds: 900 },
         { concept: "pentatonic", blocks: 2, plans: 1, times: 4, seconds: 1250 },
       ]);
+      assert.deepEqual(c.steps, [
+        { step: "pentatonic:1", blocks: 1, plans: 1, times: 2, seconds: 900 },
+        { step: "pentatonic:2", blocks: 2, plans: 1, times: 4, seconds: 1250 },
+      ]);
     });
     test("includeNotEnabled and the player's own blocks add blocks and plans", async () => {
       const c = await (await repo()).coverage(all);
@@ -435,7 +444,7 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       const r = await make({ users: [], blocks: [], owners: [], progress: [], dayTimes: [], plans: [], planBlocks: [], reviews: [] });
       assert.deepEqual(await r.listPlans(all, {}, 10), []);
       assert.equal(await r.getPlan(all, "P1", true), null);
-      assert.deepEqual(await r.coverage(all), { topics: [], concepts: [] });
+      assert.deepEqual(await r.coverage(all), { topics: [], concepts: [], steps: [] });
       assert.deepEqual(await r.listBlocks(all, {}, "newest", 10), []);
       assert.equal(await r.countBlocks(all, {}), 0);
     });

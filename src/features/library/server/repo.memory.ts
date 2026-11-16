@@ -2,7 +2,7 @@ import type { Stars } from "@/features/progress/stars";
 import type { LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
 import type {
-  BlockDetail, BlockFilter, BlockOrder, BlockSummary, BlockUse, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope,
+  BlockDetail, BlockFilter, BlockOrder, BlockSummary, BlockUse, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope, StepCoverage,
 } from "./types";
 
 type Row = LibraryData["blocks"][number];
@@ -73,7 +73,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   };
 
   const summary = (scope: Scope, b: Row): BlockSummary => ({
-    id: b.id, title: titleOf(b), area: b.area, topic: b.topic, concepts: [...b.concepts], level: b.level, tags: [...b.tags],
+    id: b.id, title: titleOf(b), area: b.area, topic: b.topic, concepts: [...b.concepts], level: b.level, steps: [...b.steps], tags: [...b.tags],
     provenance: { model: b.model, promptVersion: b.promptVersion, docsAgents: b.docsAgents, docsTeaching: b.docsTeaching },
     use: totals(b.id),
     ...(scope.player !== undefined ? { mine: mine(b.id, scope.player) } : {}),
@@ -88,6 +88,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
     if (f.docsAgents !== undefined && b.docsAgents !== f.docsAgents) return false;
     if (f.docsTeaching !== undefined && b.docsTeaching !== f.docsTeaching) return false;
     if (f.concepts?.length && !f.concepts.some((c) => b.concepts.includes(c))) return false;
+    if (f.steps?.length && !f.steps.some((s) => b.steps.includes(s))) return false;
     if (f.tags?.length && !f.tags.every((t) => b.tags.includes(t))) return false;
     if (f.player !== undefined) {
       if (scope.player === undefined) return false;
@@ -201,7 +202,9 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
         .map(({ topic, level }) => ({ topic, level, ...rows((b) => b.topic === topic && b.level === level) }));
       const concepts: ConceptCoverage[] = [...new Set(blocks.flatMap((b) => b.concepts))].sort()
         .map((concept) => ({ concept, ...rows((b) => b.concepts.includes(concept)) }));
-      return { topics, concepts };
+      const steps: StepCoverage[] = [...new Set(blocks.flatMap((b) => b.steps))].sort()
+        .map((step) => ({ step, ...rows((b) => b.steps.includes(step)) }));
+      return { topics, concepts, steps };
     },
     async userExists(id) {
       return data.users.some((u) => u.id === id);

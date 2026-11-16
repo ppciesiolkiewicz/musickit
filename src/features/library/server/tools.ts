@@ -37,7 +37,8 @@ const SPECS: Record<string, Spec> = {
       area: str("An area id: guitar, voice or theory."),
       topic: str("A topic id."),
       concepts: list("Concept ids; a block with any of them matches."),
-      level: str("A level: new, beginner, intermediate or advanced."),
+      level: str("A level: new, beginner, intermediate or advanced. Blocks written before steps have only a level."),
+      steps: list("Path step refs, \"trackId:n\" (n from 1, as in library_coverage); a block that names any of them matches."),
       tags: list("Tags; a block with all of them matches."),
       ...VERSIONS,
       mine: oneOf(["unused", "had", "repeat"], "Only blocks by the player's history with them. Needs a player."),
@@ -73,8 +74,9 @@ const SPECS: Record<string, Spec> = {
   },
   library_coverage: {
     description:
-      "How much the library holds for every topic at every level, and for every concept: blocks, plans, times practised and seconds. " +
-      "Read this first to see which topics and levels are thin. A zero row means nothing there yet. " +
+      "How much the library holds for every topic at every level, for every concept and for every path step: blocks, plans, times practised and seconds. " +
+      "Steps are \"trackId:n\", in path order (easiest first); a block counts for a step only when it names it. " +
+      "Read this first to see which steps are thin. A zero row means nothing there yet. " +
       "Without a player in scope the counts are the reusable library; with one they also include that player's own private blocks.",
     args: {},
   },
@@ -150,7 +152,7 @@ export async function callTool(d: Deps, scope: Scope, name: string, args: unknow
       if (v.mine !== undefined && noPlayer) return { ok: false, error: `"mine": ${noPlayer}` };
       const filter: BlockFilter = {
         area: v.area as string | undefined, topic: v.topic as string | undefined, concepts: v.concepts as string[] | undefined,
-        level: v.level as string | undefined, tags: v.tags as string[] | undefined, ...versions(v), player: v.mine as PlayerMode | undefined,
+        level: v.level as string | undefined, steps: v.steps as string[] | undefined, tags: v.tags as string[] | undefined, ...versions(v), player: v.mine as PlayerMode | undefined,
       };
       return { ok: true, data: await findBlocks(d, scope, filter, v.order as FindOrder | undefined, v.limit as number | undefined) };
     }

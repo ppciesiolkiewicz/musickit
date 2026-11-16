@@ -3,7 +3,7 @@ import type { Db } from "@/lib/db/client";
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryRepo } from "./repo";
-import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope } from "./types";
+import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
 
 /*
  * Every value from a caller is a bound parameter (`${...}` in `sql`); nothing is spliced into the text. Player ids are compared
@@ -71,7 +71,7 @@ const latestRating = (player: string): SQL => sql`(
 )`;
 
 interface BlockRow {
-  id: string; title: string; area: string | null; topic: string | null; concepts: string[]; level: string | null; tags: string[];
+  id: string; title: string; area: string | null; topic: string | null; concepts: string[]; level: string | null; steps: string[]; tags: string[];
   model: string | null; prompt_version: number | null; docs_agents: number | null; docs_teaching: number | null;
   content: Block; parent_id: string | null;
   times: number; seconds: number; rated: number; s1: number; s2: number; s3: number; s4: number; s5: number;
@@ -89,6 +89,7 @@ function blockWhere(scope: Scope, f: BlockFilter): SQL {
   if (f.docsAgents !== undefined) parts.push(sql`b.docs_agents = ${f.docsAgents}`);
   if (f.docsTeaching !== undefined) parts.push(sql`b.docs_teaching = ${f.docsTeaching}`);
   if (f.concepts?.length) parts.push(sql`b.concepts && ${textArray(f.concepts)}`);
+  if (f.steps?.length) parts.push(sql`b.steps && ${textArray(f.steps)}`);
   if (f.tags?.length) parts.push(sql`b.tags @> ${textArray(f.tags)}`);
   if (f.player !== undefined) {
     if (scope.player === undefined) parts.push(sql`false`);
@@ -111,7 +112,7 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
     ? sql`left join ${latestRating(p)} l on l.block_id = b.id left join ${timeTotals(p)} m on m.block_id = b.id`
     : sql``;
   return sql`
-    select b.id, (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, b.area, b.topic, b.concepts, b.level, b.tags,
+    select b.id, (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, b.area, b.topic, b.concepts, b.level, b.steps, b.tags,
       b.model, b.prompt_version, b.docs_agents, b.docs_teaching, b.content, b.parent_id,
       coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds,
       coalesce(r.rated, 0) as rated, coalesce(r.s1, 0) as s1, coalesce(r.s2, 0) as s2, coalesce(r.s3, 0) as s3, coalesce(r.s4, 0) as s4, coalesce(r.s5, 0) as s5
@@ -126,7 +127,7 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
 
 function summaryOf(scope: Scope, r: BlockRow): BlockSummary {
   return {
-    id: r.id, title: r.title, area: r.area, topic: r.topic, concepts: r.concepts, level: r.level, tags: r.tags,
+    id: r.id, title: r.title, area: r.area, topic: r.topic, concepts: r.concepts, level: r.level, steps: r.steps, tags: r.tags,
     provenance: { model: r.model, promptVersion: r.prompt_version, docsAgents: r.docs_agents, docsTeaching: r.docs_teaching },
     use: { times: r.times, seconds: r.seconds, rated: r.rated, stars: [r.s1, r.s2, r.s3, r.s4, r.s5] },
     ...(scope.player !== undefined ? { mine: { stars: r.my_stars as Stars | null, ratedAt: r.my_at, times: r.my_times, seconds: r.my_seconds } } : {}),
@@ -231,7 +232,7 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
     },
     async coverage(scope) {
       // visible blocks with their totals, and the visible plans (with `scope.planIds`) whose rows are matched against them
-      const vb = sql`(select b.id, b.topic, b.level, b.concepts, coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds
+      const vb = sql`(select b.id, b.topic, b.level, b.concepts, b.steps, coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds
         from blocks b left join ${timeTotals()} u on u.block_id = b.id where ${blockVisible(scope, sql`b.id`)})`;
       const plansWith = (match: SQL) => sql`(select count(*)::int from practice_plans p where ${planVisible(scope)} and exists (
         select 1 from practice_plan_blocks ppb join blocks pb on pb.id = ppb.block_id where ppb.plan_id = p.id and ${match}))`;
@@ -248,7 +249,13 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
         from (select distinct v.id, c.concept, v.times, v.seconds from ${vb} v cross join lateral unnest(v.concepts) c(concept)) vc
         group by vc.concept
         order by vc.concept collate "C"`);
-      return { topics: topics.map((t) => ({ ...t })), concepts: concepts.map((c) => ({ ...c })) };
+      const steps = await rows<StepCoverage>(sql`
+        select vs.step, count(*)::int as blocks, ${plansWith(sql`vs.step = any(pb.steps)`)} as plans,
+          sum(vs.times)::int as times, sum(vs.seconds)::float8 as seconds
+        from (select distinct v.id, s.step, v.times, v.seconds from ${vb} v cross join lateral unnest(v.steps) s(step)) vs
+        group by vs.step
+        order by vs.step collate "C"`);
+      return { topics: topics.map((t) => ({ ...t })), concepts: concepts.map((c) => ({ ...c })), steps: steps.map((s) => ({ ...s })) };
     },
     async userExists(id) {
       const found = await rows<{ one: number }>(sql`select 1 as one from users where id::text = ${id} limit 1`);

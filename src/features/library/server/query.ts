@@ -1,12 +1,13 @@
 import { TOPICS } from "@/features/plan/intake/topics";
 import { CONCEPTS, conceptId } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER, outcome, type Outcome, type OutcomeInput } from "@/features/plan/model/outcome";
+import { PATH, slope } from "@/features/plan/model/path";
 import { localDate } from "@/features/plan/model/schedule";
 import type { PlanState } from "@/features/plan/model/types";
 import { readAllPlanTimes, readDoc, readEntries } from "@/features/userData/server/data";
 import type { UserDataRepo } from "@/features/userData/server/repo";
 import type { LibraryRepo } from "./repo";
-import type { BlockDetail, BlockFilter, BlockSummary, ConceptCoverage, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope } from "./types";
+import type { BlockDetail, BlockFilter, BlockSummary, ConceptCoverage, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
 
 /** What the query functions run on. `rand` and `today` are for tests. */
 export interface Deps {
@@ -49,8 +50,12 @@ export const findPlans = (d: Deps, scope: Scope, filter: PlanFilter, limit?: num
 
 export const getPlan = (d: Deps, scope: Scope, id: string, withReply = false): Promise<PlanDetail | null> => d.library.getPlan(scope, id, withReply);
 
-/** A row for every topic and level and every concept, zeros where the library has none; rows for ids the catalogue lacks come after. An old concept id counts for its track. */
-export async function libraryCoverage(d: Deps, scope: Scope): Promise<{ topics: CoverageRow[]; concepts: ConceptCoverage[] }> {
+/**
+ * A row for every topic and level, every concept and every path step (in path order, `slope`), zeros where the library has
+ * none; rows for ids the catalogue lacks come after. An old concept id counts for its track. A block counts for a step only
+ * when it names it (`steps`), never by its level.
+ */
+export async function libraryCoverage(d: Deps, scope: Scope): Promise<{ topics: CoverageRow[]; concepts: ConceptCoverage[]; steps: StepCoverage[] }> {
   const got = await d.library.coverage(scope);
   const key = (t: string, l: string) => `${t}\u0000${l}`;
   const byPair = new Map(got.topics.map((r) => [key(r.topic, r.level), r]));
@@ -73,7 +78,12 @@ export async function libraryCoverage(d: Deps, scope: Scope): Promise<{ topics: 
   const known = new Set(CONCEPTS.map((c) => c.id));
   const concepts: ConceptCoverage[] = CONCEPTS.map((c) => byConcept.get(c.id) ?? { concept: c.id, blocks: 0, plans: 0, times: 0, seconds: 0 });
   concepts.push(...[...byConcept.values()].filter((r) => !known.has(r.concept)));
-  return { topics, concepts };
+  const byStep = new Map(got.steps.map((r) => [r.step, r]));
+  const refs = slope(PATH).map((s) => s.ref);
+  const onPath = new Set(refs);
+  const steps: StepCoverage[] = refs.map((step) => byStep.get(step) ?? { step, blocks: 0, plans: 0, times: 0, seconds: 0 });
+  steps.push(...got.steps.filter((r) => !onPath.has(r.step)));
+  return { topics, concepts, steps };
 }
 
 /**

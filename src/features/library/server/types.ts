@@ -31,6 +31,8 @@ export interface BlockSummary {
   topic: string | null;
   concepts: string[];
   level: string | null;
+  /** the path steps it practises ("trackId:n"); empty for a block written before steps */
+  steps: string[];
   tags: string[];
   provenance: Provenance;
   use: BlockUse;
@@ -44,12 +46,13 @@ export interface BlockDetail extends BlockSummary { content: Block; parentId: st
 export type PlayerMode = "unused" | "had" | "repeat";
 export type BlockOrder = "least-used" | "newest";
 
-/** `concepts` matches a block with any of them, `tags` a block with all of them, the rest are equal. */
+/** `concepts` and `steps` match a block with any of them, `tags` a block with all of them, the rest are equal. */
 export interface BlockFilter {
   area?: string;
   topic?: string;
   concepts?: string[];
   level?: string;
+  steps?: string[];
   tags?: string[];
   model?: string;
   promptVersion?: number;
@@ -103,3 +106,5 @@ export interface PlanFilter {
 export interface CoverageRow { topic: string; level: string; blocks: number; plans: number; times: number; seconds: number }
 /** Only concepts with at least one visible block. `plans`: visible plans with a block of that concept. */
 export interface ConceptCoverage { concept: string; blocks: number; plans: number; times: number; seconds: number }
+/** Only steps with at least one visible block. `plans`: visible plans with a block of that step. */
+export interface StepCoverage { step: string; blocks: number; plans: number; times: number; seconds: number }

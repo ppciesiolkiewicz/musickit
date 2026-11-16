@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { TOPICS } from "@/features/plan/intake/topics";
 import { CONCEPTS } from "@/features/plan/model/concepts";
+import { PATH, slope } from "@/features/plan/model/path";
 import type { ProgressEntry } from "@/features/progress/log";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
 import { PLAYER_A, PLAYER_B, baseFixture } from "./fixture";
@@ -53,6 +54,15 @@ test("coverage has a row for every topic and level and every concept, zeros incl
   const last = c.topics.slice(TOPICS.length * 4);
   assert.ok(last.length > 0 && last.every((r) => !TOPICS.some((t) => t.id === r.topic)));
   assert.equal(c.topics.find((r) => r.topic === "guitar-scales" && r.level === "beginner")?.blocks, 1);
+});
+
+test("coverage has a row for every path step in path order, zeros included; a ref off the path comes after", async () => {
+  const c = await libraryCoverage(deps(), {});
+  const refs = slope(PATH).map((s) => s.ref);
+  assert.deepEqual(c.steps.slice(0, refs.length).map((r) => r.step), refs);
+  assert.deepEqual(c.steps.find((r) => r.step === refs[0]), { step: refs[0], blocks: 0, plans: 0, times: 0, seconds: 0 });
+  // the fixture's refs are not on the path
+  assert.deepEqual(c.steps.slice(refs.length).map((r) => [r.step, r.blocks]), [["pentatonic:1", 1], ["pentatonic:2", 2]]);
 });
 
 test("playerProgress is null without a player", async () => {

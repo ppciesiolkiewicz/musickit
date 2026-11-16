@@ -1,4 +1,4 @@
-import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, ConceptCoverage, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope } from "./types";
+import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, ConceptCoverage, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
 
 /**
  * Reads the library. Nothing here writes. A block with several owner rows is listed once. Ties in an order break by id, compared
@@ -27,7 +27,7 @@ export interface LibraryRepo {
    * not visible under the scope (the rule `getBlock` uses) has the title ""; its block id and minutes, and the plan's counts, stay.
    */
   getPlan(scope: Scope, id: string, withReply: boolean): Promise<PlanDetail | null>;
-  /** by topic then level, and by concept, both bytewise; no zero rows */
-  coverage(scope: Scope): Promise<{ topics: CoverageRow[]; concepts: ConceptCoverage[] }>;
+  /** by topic then level, by concept and by step, all bytewise; no zero rows */
+  coverage(scope: Scope): Promise<{ topics: CoverageRow[]; concepts: ConceptCoverage[]; steps: StepCoverage[] }>;
   userExists(id: string): Promise<boolean>;
 }
