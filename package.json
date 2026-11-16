@@ -19,6 +19,7 @@
     "db:migrate": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-migrate.mjs",
     "db:seed": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed.mjs",
     "gen:json-index": "node scripts/gen-json-index.mjs",
+    "seed": "npx tsx scripts/seed.ts",
     "db:seed-plans": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-plans.ts",
     "db:seed-blocks": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-blocks.ts",
     "db:wipe": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-wipe.mjs",
