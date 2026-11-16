@@ -46,9 +46,11 @@ test("seedBlocks: library blocks are owned by the app as seed, enabled; examples
   const owners = repo.peekOwners();
   assert.ok(owners.every((o) => o.userId === null));
   for (const b of libraryPlanBlocks([plan])) assert.deepEqual(owners.find((o) => o.blockId === b.id), { userId: null, blockId: b.id, source: "seed", enabledForReuse: true });
-  const onlyEx = exampleBlocks().find((b) => !libraryPlanBlocks([plan]).some((l) => l.id === b.id))!;
+  const onlyEx = exampleBlocks().find((b) => ![...libraryPlanBlocks([plan]), ...seedFileBlocks()].some((l) => l.id === b.id))!;
   assert.deepEqual(owners.find((o) => o.blockId === onlyEx.id), { userId: null, blockId: onlyEx.id, source: "example", enabledForReuse: false });
-  assert.equal(r.library, libraryPlanBlocks([plan]).length);
+  const lib = new Set([...libraryPlanBlocks([plan]), ...seedFileBlocks()].map((b) => b.id));
+  assert.equal(r.library, lib.size); // the plan's blocks and the seed files' single exercises
+  for (const b of seedFileBlocks()) assert.deepEqual(owners.find((o) => o.blockId === b.id), { userId: null, blockId: b.id, source: "seed", enabledForReuse: true });
   assert.equal(r.examples, exampleBlocks().length);
   assert.equal(repo.peekBlocks().size, owners.length);
 });

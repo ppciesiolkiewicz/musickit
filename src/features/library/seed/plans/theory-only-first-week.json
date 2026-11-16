@@ -1,0 +1,573 @@
+{
+  "id": "theory-only-first-week",
+  "answers": {
+    "topics": { "theory-basics": 2, "theory-ear": 1, "theory-scales-keys": 1, "theory-building-chords": 1 },
+    "minutes": 10,
+    "styles": "",
+    "notes": "",
+    "areas": ["theory"]
+  },
+  "model": "claude-fable-5-2",
+  "versions": { "prompt": 2, "agents": 2, "teaching": 5 },
+  "note": "A first week of theory and ear alone: the library had no theory-only plan.",
+  "plan": {
+    "title": "Week 1: the major scale, its 3rds and its chords",
+    "summary": "Hear 5ths, octaves and 3rds, see the major scale as whole steps and half steps, meet the keys next to C on the circle of fifths, and build the chords of a key up to the dominant 7.",
+    "progress": "Basics: knows the note names. This week met the first sharp and flat (F♯ in G major, B♭ in F major) on the piano. Next: name the sharps of D and A.\nEar: said they tell major from minor. Started intervals with the 5th and octave (day 1), then the two 3rds (days 2 and 7), and 3rds sounded together (day 4). Heard a major key against its relative minor (G and E minor) and tapped along to chord changes with eyes away. No ratings yet. Next: if the 3rds are easy, add the 4th and the major 2nd; if not, stay on 3rds going down.\nScales & keys: knew the major scale or the pentatonic. This week: major as whole steps and half steps in C and G, one sharp and one flat on the circle of fifths, major pentatonic as major without the 4th and 7th. Next: D and B♭, then natural minor from the relative major.\nBuilding chords: knew what major and minor chords are made of; checked by ear in C, G and F. New: the dominant 7 on the 5th note of the key (G7 in C), and sus4 on C and G. Next: major 7 against dominant 7, sus2.\nProgressions & styles: not answered, so tested gently: 1, 4 and 5 read off the circle and called out over the band in C, G and F. If the ratings are good, add the 6 chord and the 1 5 6 4 loop.\nModes & minor colours: not answered and not started. Wait until natural minor is in place.",
+    "days": [
+      {
+        "theme": "The major scale, step by step",
+        "exercises": [
+          {
+            "title": "5th or octave, by ear",
+            "minutes": 3,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["ear"],
+            "topic": "theory-ear",
+            "concepts": ["intervals"],
+            "why": "The octave is the same note again, higher, and the 5th is the outside of a chord, so these two wide gaps are the easiest to tell apart and the ones to measure every other interval against.",
+            "learnBefore": ["/course/3/intervals"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Two wide gaps",
+                "minutes": 3,
+                "choice": { "options": [{ "level": "new" }, { "level": "beginner" }] },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Start in the game below. The game plays two notes, one after the other: pick P5 for a 5th or P8 for an octave. Press Replay to hear them again before you answer.\nWhen the name comes before you think about it, try the next stage: it adds the two 3rds, M3 for a major 3rd and m3 for a minor 3rd. Use the Stage selector below to change the stage, then press Start to hear the first pair.\nIf the 3rds get mixed up, go back a stage for now: day 2 is all about them."
+                  },
+                  { "type": "tool", "tool": { "type": "interval-ears", "level": "new" } }
+                ]
+              }
+            ],
+            "exploreMore": ["/theory/ears"]
+          },
+          {
+            "title": "C major: whole steps and half steps",
+            "minutes": 7,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["theory", "ear"],
+            "topic": "theory-scales-keys",
+            "concepts": ["scales"],
+            "why": "A major scale is the same row of whole steps and half steps from any note, so once you see and hear where its two half steps fall, you can build the scale in any key.",
+            "learnBefore": ["/course/3/piano-and-guitar"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The steps in C",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The panel below spells C major, and under each note it shows the step to the next one: W for a whole step, H for a half step. Press Play on the panel to hear the scale.\nThen tap up the piano under it, from {{1}} to the next {{1}}. Between {{3}} and {{4}}, and between {{7}} and {{1}}, there is no black key: those are the two half steps."
+                  },
+                  { "type": "tool", "tool": { "type": "mode-intervals", "key": "c", "scale": "major-ionian" } },
+                  { "type": "tool", "tool": { "type": "piano-keys", "key": "c", "scale": "major-ionian" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "The same steps from G",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The piano below shows G major. Tap from {{1}} up to the next {{1}} and listen for the same two half steps.\nTo keep the steps in the same places, one white key gives way to a black one: {{f-sharp}}, the 7th note. Tap {{7}}, then {{1}}, until you hear how close the two are."
+                  },
+                  { "type": "tool", "tool": { "type": "piano-keys", "key": "g", "scale": "major-ionian" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Tap a tune home",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The staff below, the five lines of music, shows C major: tap a note to hear it. Make up short tunes by tapping, moving mostly by step, and end each one on a ringed {{1}}.\nThen end a tune on {{7}} and stop. Listen for how it leans up the half step to {{1}}, then tap {{1}} to finish it."
+                  },
+                  { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "highlight": ["1", "7"], "mic": false } }
+                ]
+              }
+            ],
+            "exploreMore": ["/theory/scales/major-ionian/c", "/theory/piano"]
+          }
+        ]
+      },
+      {
+        "theme": "The 3rd makes the chord",
+        "exercises": [
+          {
+            "title": "Major 3rd or minor 3rd",
+            "minutes": 4,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["ear"],
+            "topic": "theory-ear",
+            "concepts": ["intervals"],
+            "why": "A major chord starts with a major 3rd and a minor chord with a minor 3rd, so the sound you already know from chords tells the two 3rds apart.",
+            "learnBefore": ["/course/3/intervals", "/course/3/major-or-minor"],
+            "cells": [
+              {
+                "type": "text",
+                "text": "Press Start in the game below. The game plays two notes, one after the other: pick M3 for a major 3rd, m3 for a minor 3rd, P5 for a 5th or P8 for an octave.\nSort wide from narrow first: the two 3rds are the narrow ones. Then hear the pair as the first two notes of a chord, and ask whether that chord is major or minor.\nKeep going until you name a 3rd without pressing Replay."
+              },
+              { "type": "tool", "tool": { "type": "interval-ears", "level": "beginner" } }
+            ]
+          },
+          {
+            "title": "Major and minor chords: one note apart",
+            "minutes": 6,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["theory", "ear"],
+            "topic": "theory-building-chords",
+            "concepts": ["sevenths-up"],
+            "why": "A major and a minor chord on the same root share the root and the 5th, so the 3rd is the only note you have to listen for.",
+            "learnBefore": ["/course/2/what-is-a-chord", "/course/3/major-or-minor"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Move the 3rd",
+                "minutes": 3,
+                "choice": { "options": [{ "key": "c" }, { "key": "g" }, { "key": "f" }] },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Tap {{1}} {{3}} {{5}} on the first staff below: a major chord, one note at a time. The second staff holds the minor chord on the same root.\nOnce you can tell the two apart without looking, build both on another root. Use the Key selector below to change the key.\nWhen you change the key, the notes are new but the two chords still differ by one note."
+                  },
+                  { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "notes": ["1", "3", "5"], "mic": false } },
+                  {
+                    "type": "text",
+                    "text": "Now tap {{1}} {{b3}} {{5}} on this staff: the minor chord. Only the 3rd moved, down a half step. Go back and forth between the two staffs and listen for that one note."
+                  },
+                  { "type": "tool", "tool": { "type": "staff", "scale": "natural-minor-aeolian", "key": "c", "voice": "tenor", "notes": ["1", "b3", "5"], "mic": false } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Major or minor, eyes away",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band. It plays C and Cm, the two chords you just built, and each stays for one, two or three bars. Look away from the chord boxes and call out major or minor each time the chord changes, then look back to check.\nIf you lose your place, wait for the next change and start again from there."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "key": "c", "chords": ["C", "C", "Cm", "Cm", "C", "Cm", "Cm", "C"], "style": "ballad", "bpm": 70 } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "The keys next to C",
+        "exercises": [
+          {
+            "title": "One sharp, one flat",
+            "minutes": 6,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["theory"],
+            "topic": "theory-scales-keys",
+            "concepts": ["keys"],
+            "why": "Each place you move round the circle of fifths changes one note of the scale, so the keys next to C are the ones that differ from it by a single sharp or flat.",
+            "learnBefore": ["/course/10/circle-map"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "C's two neighbours",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The circle of fifths below starts on C major, which has no sharps or flats: the middle of the circle says so. Tap G on the outer ring, one place to the right of C. The circle moves to G, and the middle now shows 1♯.\nTap C to come back, then tap F on its other side to see 1♭.\nThen go a few places further each way, and watch the number in the middle as you move away from C."
+                  },
+                  { "type": "tool", "tool": { "type": "circle-of-fifths", "key": "c", "scale": "major-ionian" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Find the changed note",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The piano below shows G major. Tap from {{1}} up to the next {{1}}: every key is white but one, {{f-sharp}}. That is the one sharp."
+                  },
+                  { "type": "tool", "tool": { "type": "piano-keys", "key": "g", "scale": "major-ionian" } },
+                  {
+                    "type": "text",
+                    "text": "This piano shows F major, with its one flat, {{b-flat}}. Tap up the scale from {{1}}. Then tap {{b-flat}} and the white key just to its right, the B that C major has in its place, to hear what the flat changed."
+                  },
+                  { "type": "tool", "tool": { "type": "piano-keys", "key": "f", "scale": "major-ionian" } }
+                ]
+              }
+            ],
+            "exploreMore": ["/theory/circle"]
+          },
+          {
+            "title": "Major key or minor key, by ear",
+            "minutes": 4,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["ear"],
+            "topic": "theory-ear",
+            "concepts": ["home-and-colour"],
+            "why": "G major and E minor use the same seven notes, so what tells the two keys apart is the chord the music comes to rest on.",
+            "learnBefore": ["/course/3/major-or-minor", "/course/3/la-minor-home"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Home is G",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band in G major: two bars of G, then C and D. Listen for the chord where the music comes to rest, and call out \"home\" each time it comes round.\nThe chord boxes show it: home is G, a major chord, so the key is major."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "progression": "three-chord", "key": "g", "style": "pop", "bpm": 80 } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Home is E minor",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band again. The notes are the ones of G major, with the same one sharp, but now the band rests on Em, a minor chord: the key is E minor. Call out \"home\" on each Em.\nThen put on a song you like and listen for the chord it comes to rest on: major or minor?"
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "progression": "aeolian", "key": "e", "style": "pop", "bpm": 80 } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "The chords of a key",
+        "exercises": [
+          {
+            "title": "3rds, both notes at once",
+            "minutes": 3,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["ear"],
+            "topic": "theory-ear",
+            "concepts": ["intervals"],
+            "why": "A chord is notes sounding together, so naming an interval with both notes at once is the step from hearing intervals to hearing chords.",
+            "learnBefore": ["/course/3/intervals"],
+            "cells": [
+              {
+                "type": "text",
+                "text": "Press Start in the game below. Now the game plays both notes at once: pick M3, m3, P5 or P8.\nTwo notes together sound like part of a chord, so ask whether it is major or minor: that names the 3rd.\nIf the two notes blur into one sound, press Replay and listen for the lower note, then for the higher one."
+              },
+              { "type": "tool", "tool": { "type": "interval-ears", "level": "beginner", "dir": "together" } }
+            ]
+          },
+          {
+            "title": "The 1, 4 and 5 chords, found on the circle",
+            "minutes": 7,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["theory", "ear"],
+            "topic": "theory-progressions",
+            "concepts": ["chords-of-a-key"],
+            "why": "The three major chords of a key are built on its 1st, 4th and 5th notes, and on the circle of fifths they sit side by side, so the circle finds them in any key.",
+            "learnBefore": ["/course/5/one-four-five", "/course/10/circle-map"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Three neighbours",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The circle below is on C major, and the keys marked on its outer ring are F, C and G: the 4, the 1 and the 5 of the key. Tap F to hear its chord: the circle moves there, so tap C to come back. Do the same with G."
+                  },
+                  { "type": "tool", "tool": { "type": "circle-of-fifths", "key": "c", "scale": "major-ionian" } },
+                  {
+                    "type": "text",
+                    "text": "On the staff below, tap the three ringed notes, {{1}}, {{4}} and {{5}}: each one is the root of one of those chords."
+                  },
+                  { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "highlight": ["1", "4", "5"], "mic": false } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Follow the band",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: C, F, G and back to C, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help.\nKeep going until you hear a change coming before the box lights."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "key": "c", "numerals": ["I", "IV", "V", "I"], "style": "pop", "bpm": 80 } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Guess from the circle",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The circle below is on G major. Read its 1, 4 and 5 off the marked keys on the outer ring before you listen."
+                  },
+                  { "type": "tool", "tool": { "type": "circle-of-fifths", "key": "g", "scale": "major-ionian" } },
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band in G: the same three numbers in a new order. Look away and call them out, then look back at the chord boxes to check.\nThe key is new, so the chords are G, C and D, but each number keeps its sound."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "key": "g", "numerals": ["I", "V", "IV", "V"], "style": "ballad", "bpm": 80 } }
+                ]
+              }
+            ],
+            "exploreMore": ["/course/5/hearing-changes"]
+          }
+        ]
+      },
+      {
+        "theme": "One more note: the 7th",
+        "exercises": [
+          {
+            "title": "Hear the moment the chord changes",
+            "minutes": 4,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["ear"],
+            "topic": "theory-ear",
+            "concepts": ["hearing-changes"],
+            "why": "When a chord changes, the bass jumps to the new chord's root, so listening to the lowest note tells you the moment the chord moves.",
+            "learnBefore": ["/course/5/hearing-changes"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Watch and listen",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band in D. Each chord stays for one, two or three bars, so counting won't find the changes. Watch the chord boxes and tap the table each time the lit box has a new chord name.\nListen for the bass jumping to a new note at that moment."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "key": "d", "numerals": ["I", "I", "IV", "IV", "IV", "I", "V", "V"], "style": "pop", "bpm": 80 } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Eyes away",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band in A, with the changes in new places. Look away and tap the table when you hear the chord move, then look back to see whether the lit box has a new name.\nIf you miss a change, keep your ear on the bass and catch the next one."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "key": "a", "numerals": ["I", "IV", "IV", "IV", "I", "V", "I", "I"], "style": "pop", "bpm": 80 } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The dominant 7: the 5 chord with one more note",
+            "minutes": 6,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["theory", "ear"],
+            "topic": "theory-building-chords",
+            "concepts": ["sevenths-up"],
+            "why": "A chord is every other note of the scale stacked up, and a fourth note on the stack makes a 7th chord: on the 5th note of a major key that gives a major chord with a ♭7, the dominant 7.",
+            "learnBefore": ["/course/7/sevenths"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Stack a fourth note",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The panel below shows the chord on every note of C major, each with four notes: root, 3rd, 5th and 7th. Tap a row to hear its chord.\nFind the V row, G7. It is the only row with a major 3rd and a ♭7: that pair makes a dominant 7. Tap G7, then the I row, Cmaj7, and go between the two until you hear G7 leaning towards the I chord."
+                  },
+                  { "type": "tool", "tool": { "type": "key-chords", "key": "c", "scale": "major-ionian" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Hear the 7th arrive",
+                "minutes": 3,
+                "choice": { "options": [{ "key": "c" }, { "key": "f" }, { "key": "g" }] },
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band: the 5 chord for a bar, the same chord with its 7th for a bar, then two bars of the 1 chord. Listen for the bar where one note joins the 5 chord, and call out \"seven\" when you hear it.\nOnce you hear the 7th before the box lights, try it in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the 7th still arrives in the second bar and leans to the 1 chord."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "key": "c", "numerals": ["V", "V7", "I", "I"], "style": "ballad", "bpm": 70 } }
+                ]
+              }
+            ],
+            "exploreMore": ["/course/7/hearing-sevenths"]
+          }
+        ]
+      },
+      {
+        "theme": "A held-back 3rd and five easy notes",
+        "exercises": [
+          {
+            "title": "Sus4: the 4th in place of the 3rd",
+            "minutes": 4,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["theory", "ear"],
+            "topic": "theory-building-chords",
+            "concepts": ["sus"],
+            "why": "A sus4 chord swaps the 3rd for the 4th, the next note up the scale, so it is neither major nor minor until the 4th falls back to the 3rd.",
+            "learnBefore": ["/course/7/sus-add9"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "C and Csus4",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The diagram below has the C chord in the middle and, around it, the chords it can turn into. Tap the middle to hear C. Then tap Csus4, out to the right: the panel next to the diagram shows its notes, with F in place of E.\nGo from Csus4 back to C until you hear {{4}} falling to {{3}}."
+                  },
+                  { "type": "tool", "tool": { "type": "chord-circle", "key": "c", "scale": "major-ionian", "degree": 1 } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "G and Gsus4",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The same diagram for the G chord of G major. Tap the middle, then Gsus4, then the middle again.\nThe notes are new, but it is again {{4}} standing in for {{3}} and falling back to it. Then tap Gsus4 and wait. Hear in your head the note it will fall to, then tap the middle to check."
+                  },
+                  { "type": "tool", "tool": { "type": "chord-circle", "key": "g", "scale": "major-ionian", "degree": 1 } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Major pentatonic: five notes of the major scale",
+            "minutes": 6,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["theory", "improv"],
+            "topic": "theory-scales-keys",
+            "concepts": ["scales"],
+            "why": "The major pentatonic is the major scale without its 4th and 7th, the two notes that sit a half step from a neighbour, so no two of its five notes are a half step apart and any order of them makes a tune.",
+            "learnBefore": ["/course/5/major-pentatonic"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Leave two notes out",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The staff below shows C major with two notes faded, the 4th and the 7th. Tap up the five notes that are left, from {{1}} to the next {{1}}: that is C major pentatonic.\nThe dots in this text play the notes left out. Tap {{3}} then {{4}}, and {{7}} then {{1}}, to hear the two half steps the pentatonic does without."
+                  },
+                  { "type": "tool", "tool": { "type": "staff", "scale": "major-ionian", "key": "c", "voice": "tenor", "enable": ["1", "2", "3", "5", "6"], "highlight": ["1"], "mic": false } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Tunes over a drone",
+                "minutes": 3,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the drone on G. The staff under it holds G major pentatonic: the same five steps of the scale from a new home note. Make up short tunes by tapping, and end each one on a ringed {{1}}.\nTry leaps as well as steps: with no half steps in the scale, any order of these notes fits over the drone."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "g", "parts": { "drone": "always" } } },
+                  { "type": "tool", "tool": { "type": "staff", "scale": "major-pentatonic", "key": "g", "voice": "tenor", "highlight": ["1"], "mic": false } }
+                ]
+              }
+            ],
+            "exploreMore": ["/theory/scales/major-pentatonic/c"]
+          }
+        ]
+      },
+      {
+        "theme": "Review: the whole week in F",
+        "exercises": [
+          {
+            "title": "5ths, octaves and 3rds again",
+            "minutes": 4,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["ear"],
+            "topic": "theory-ear",
+            "concepts": ["intervals"],
+            "why": "The 3rds are the first two notes of a major or a minor chord and the 5th is its outside, so every interval in this game can be checked against a chord you already hear.",
+            "learnBefore": ["/course/3/intervals"],
+            "cells": [
+              {
+                "type": "text",
+                "text": "Press Start in the game below: the game from day 2, with its four answers, P5, P8, M3 and m3.\nNotice which ones you now name without pressing Replay. For the others, hear the start of a major or a minor chord in your head and compare.\nThen say each answer out loud before you pick it."
+              },
+              { "type": "tool", "tool": { "type": "interval-ears", "level": "beginner" } }
+            ],
+            "exploreMore": ["/theory/ears"]
+          },
+          {
+            "title": "F major: its scale, its chords, its 7th",
+            "minutes": 6,
+            "level": "beginner",
+            "area": "theory",
+            "tags": ["theory", "ear"],
+            "topic": "theory-scales-keys",
+            "concepts": ["keys", "scales"],
+            "why": "A key is one scale and the chords built on it, so the same three moves open any new key: find the scale, find its 1, 4 and 5, then hear them.",
+            "learnBefore": ["/course/10/moving-keys", "/course/5/one-four-five"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "The scale and its flat",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The piano below shows F major. Before you tap, say where its two half steps fall. Then tap from {{1}} up to the next {{1}} to check: they sit between {{3}} and {{4}}, and between {{7}} and {{1}}, as in every major scale.\nThe one black key is {{b-flat}}, the 4th note."
+                  },
+                  { "type": "tool", "tool": { "type": "piano-keys", "key": "f", "scale": "major-ionian" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Its three major chords",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "The circle below is on F major. Read the 1, 4 and 5 off the marked keys on its outer ring: F, B♭ and C. Tap B♭ to hear the 4, then C to hear the 5, and tap F to come home."
+                  },
+                  { "type": "tool", "tool": { "type": "circle-of-fifths", "key": "f", "scale": "major-ionian" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Call the numbers",
+                "minutes": 2,
+                "cells": [
+                  {
+                    "type": "text",
+                    "text": "Press Play below to start the band in F: the 1, the 4, the 5 with its 7th, and the 1 again. Look away and call out the numbers, then look back at the chord boxes to check.\nOn day 4 the chord boxes led the way. Notice how often your ear now gets there first."
+                  },
+                  { "type": "tool", "tool": { "type": "backing-track", "key": "f", "numerals": ["I", "IV", "V7", "I"], "style": "pop", "bpm": 80 } }
+                ]
+              }
+            ],
+            "exploreMore": ["/theory/circle", "/theory/scales/major-ionian/f"]
+          }
+        ]
+      }
+    ]
+  }
+}

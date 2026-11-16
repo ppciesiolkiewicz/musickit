@@ -24,8 +24,13 @@ How are they included in plans? This comes later.
 
 
 NEW15: [NEW 2026-11-16] Rework /dev/examples
+We just want the examples to come from DB on /dev page. 
+The below is AI written content
+
 - The plan examples guitar-beginner and guitar-theory-intermediate tag no concepts on their exercises, so they count for
   no concept or step in library coverage (from NEW8).
+  -- What this means?
+
 - Show each example's concepts and the step it works on (`stepOf`), so an example written with raw tool settings, which
   counts for no step, shows up; link each concept to it on /dev/path.
 - Once the proposed path (NEW13) is taken up, tag examples with its tracks and steps instead of today's concepts.
@@ -38,6 +43,15 @@ these. The tags change those exercises' block ids: run db:seed-plans and db:seed
 What the page shows now: most ladder concepts in the examples read "no step", because the tools are written with raw
 settings, not `level` (voice-advanced: Singing intervals 11 of 13, Leaps 6 of 6; voice-beginner: Do Re Mi 4, Do Mi Sol
 8; the spider 3 of 3 in guitar-beginner). Rewriting them to levels is example work for NEW10.
+[2026-11-16] "Tag no concepts" meant: those exercises had an empty `concepts` list, so library coverage counted them
+for nothing. All 18 such exercises across the plan examples now name a track (NEW13). Not done: the examples on
+/dev/examples from the database (waiting on one answer, see the session report).
+
+NEW16: [NEW 2026-11-16] Questionnaire "Concepts" in/out by step, not by whole concept (after NEW9 placement)
+/dev/questionnaire → "Concepts" marks each concept "in" or "out" for the area's level (conceptsFor in
+QuestionnaireLab.tsx). A concept is a track now (NEW13) and spans several levels, so in/out could be per step: which
+steps of each track a player's answers put in reach, which are taken as known, which are ahead. Settle whether this
+just reads off placement() ("Starting steps") or replaces conceptsFor. Separate from NEW9; another session owns NEW9.
 
 NEW12: [NEW 2026-11-15] Teachers assign and generate plans for their students (later; with the schools work in NEW3)
 Use brainstorming first. Decided so far:
@@ -48,7 +62,7 @@ Use brainstorming first. Decided so far:
   step of NEW7 (a fitting library plan used whole) is skipped for it.
 - A teacher does not set a student's step or level by hand. The note is how they steer.
 - A teacher sees a student's progress on the learning path diagram (NEW13). Build the teacher view on the path that
-  NEW13 settles (today's concepts, or the proposed tracks on /dev/path → "Proposed: overlapping steps" (src/features/devtools/model/proposal.ts)).
+  NEW13 settled: the tracks of src/features/plan/model/path.ts, on /dev/path → "Path".
 - A student invited by a school gets their plans from the school's allowance, not their own.
 Needs first: the school account, inviting students and teachers, the allowance ledger (NEW3), autoplans on the
 server (NEW7).
@@ -85,6 +99,13 @@ Order: 1. move steps from devtools into the plan model; 2. read a player's step 
 outcome (/dev/progress first); 3. merge concepts that are one thing at several depths and write the other steps
 (with NEW9; the merges are drafted in proposal.ts); 4. seeding agents read steps as gaps (NEW10); 5. teacher views (NEW12); 6. the plan writer gets one line
 per concept, and the shortlist can ask for "the next step" (NEW7).
+[2026-11-16 done, step 1 and part of 3] The proposed path is the concept catalogue: plan/model/path.ts (PATH, stepOf) and
+ladders.ts; CONCEPTS is one concept per track (44), with `levels` and `steps`. The 67 old ids map to their track
+(OLD_CONCEPT_IDS), so stored plans, ratings and library blocks keep counting. The outcome judges a concept at each
+level of its span: a rating counts at its block's level (inside the span) and below. The prompt lists track ids
+(PROMPT_VERSION 2). Examples retagged; the 18 untagged exercises now name a track. /dev/path opens on a new "Path"
+view (one block per level a skill reaches, joined by a ribbon, made to show studios); "Boxes" and "Bars" stay.
+Next: step 2 (a player's step into the progress outcome) and step 6 (NEW7).
 
 NEW9: [NEW 2026-11-15] Rework the first questionnaire (after NEW8)
 Use brainstorming first. What /dev/questionnaire showed:
@@ -104,6 +125,12 @@ Use brainstorming first. What /dev/questionnaire showed:
 - A questionnaire line can then point at a step, not only at a level: "I play one pentatonic position" is step 1 of the
   boxes. Settle whether an answer sets a starting step.
 - Add a voice concept for singing the modes, with one step per mode.
+[2026-11-16 done, placement] An answer sets a starting step on every track of its topic (src/features/plan/intake/placement.ts):
+the line picked is a level; each track starts at its first step of that level, steps under it taken as known; a track
+all below is done, one starting above is "ahead". /dev/questionnaire shows "Starting steps". Nothing reads it yet: the
+plan writer gets it with NEW7. Open: "I play one pentatonic position" starts on step 1 (Position 1, minor), which they
+already play; starting one step on would skip the rest of the level. Still to do here: the questions themselves
+(rhythm, fingerpicking, songs, reading), and singing the modes is already a track (singing-modes).
 
 NEW10: [NEW 2026-11-15] Seed more plans and exercises, written by Fable through agents (after NEW8 and NEW9)
 Agents read library_coverage (NEW8) first and write to the gaps, each plan recording its model and versions.
@@ -134,6 +161,19 @@ Agents read library_coverage (NEW8) first and write to the gaps, each plan recor
   step. Check a seeded exercise on /dev/path with "Student on the diagram".
 - A step marked "not implemented" has no tool setting that stands for it. Seed it anyway when an example helps, and
   note which tool would need a level for it (NEW11).
+[2026-11-16] Seed files: one JSON per plan or exercise in src/features/library/seed/{plans,blocks} (README there),
+loaded through generated index.gen.ts (npm run gen:json-index); the model plans are one file each too. `npm run seed --
+prompt <persona> out.txt` prints the live writer's prompt for a player; `seed -- check <file>` fails on any parser
+warning, old versions, an untagged exercise or a laddered skill whose tool sets no level. db:seed-plans and
+db:seed-blocks read the folder. First seed, written by Fable agents in Claude Code (no API calls), all ✔ on the check:
+plans guitar-new-first-week (open chords, strumming, notes, spider, one-string tunes, picking) and
+theory-only-first-week (intervals, scales, keys, triads to 7ths, sus4, 1-4-5; first use of circle-of-fifths, piano-keys,
+mode-intervals, key-chords, chord-circle); blocks small F to Bm (barre 1-2), slides (bends-slides 1), clap on the beat
+(beat 1), holding a note (breath 1). Not in the database yet (.env.local points at Supabase): run db:seed-plans, then
+db:seed-blocks. Not read on screen. What the agents found missing (NEW11): no chord box for the small F (chord-shapes
+"F" draws the full barre, and the Opus model plan guitar-beginner--claude-opus-5-5 shows that for its small F); nothing
+draws or sounds a slide; nothing listens to a clap; key-chords sounds 7th chords where a triad is asked for; inline
+note dots ({{f-sharp}}) on piano-keys and chord-circle not seen drawn.
 
 NEW11: [NEW 2026-11-15] New exercise components to weigh (after the examples in NEW10 use what exists)
 - A rhythm tool for "Steady beat": src/features/rhythm has a clap-along game with mic onset judging, not in the plan.

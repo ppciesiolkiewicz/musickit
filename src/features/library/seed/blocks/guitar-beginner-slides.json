@@ -1,0 +1,178 @@
+{
+  "id": "guitar-beginner-slides",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Track bends-slides (guitar-techniques), step 1: slides, inside pentatonic position 1.",
+  "exercise": {
+    "title": "Slides inside position 1",
+    "minutes": 8,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "improv"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "bends-slides"
+    ],
+    "why": "A slide is one finger moving along one string, and position 1 has two notes on every string, so every string of the position holds a slide you can use.",
+    "learnBefore": [
+      "/course/5/bends-and-slides",
+      "/course/5/pentatonic"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Slide into the root",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "On the neck below only {{b7}} and {{1}} are in play. On the D string, pick {{b7}}, then slide the same finger up to the ringed {{1}} without picking again.\nKeep going until the note you slide to rings as clearly as the note you picked."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "enable": [
+                "b7",
+                "1"
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The slide on the beat",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Pick {{b7}} on one beat and land the slide on {{1}} on the next beat.\nThen slide back down from {{1}} to {{b7}} the same way.\nIf the slide lands early, wait longer on the first note and move just before the beat."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "enable": [
+                "b7",
+                "1"
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A slide on every string",
+        "minutes": 2,
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "g"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now the whole of position 1 is in play. On each string, pick the lower note and slide up to the higher one, then move to the next string.\nOnce the slide rings on every string, try it in another key. Use the Key selector below to change the key.\nWhen you change the key, the position moves along the neck, and the slide on the D string still ends on {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Slides in your own phrases",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass in A. Make up short phrases from position 1, with one slide in each.\nThen end a phrase with a slide into a ringed {{1}}, where it sounds finished."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/6/joining"
+    ]
+  }
+}

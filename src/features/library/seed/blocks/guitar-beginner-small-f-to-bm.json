@@ -1,0 +1,165 @@
+{
+  "id": "guitar-beginner-small-f-to-bm",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Track barre (guitar-barre-chords), steps 1 and 2: the small F on four strings, then the Bm barre with the root on string 5.",
+  "exercise": {
+    "title": "Small F, then Bm: your first barres",
+    "minutes": 10,
+    "level": "beginner",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-barre-chords",
+    "concepts": [
+      "barre"
+    ],
+    "why": "In the small F finger 1 holds down two strings and in Bm it holds five, so the small F trains the press of a barre on a shape your hand can hold today.",
+    "learnBefore": [
+      "/course/6/bm-barre"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The small F",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The tab below shows the small F: four strings, with finger 1 lying flat across the two thinnest ones. Fret it, then pick the four strings one at a time to check that each one rings.\nPress Play below to start the backing, and strum the small F with it on every beat.\nIf a string buzzes, roll finger 1 a little onto its side and press closer to the fret."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "F",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "4321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "4321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "4321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "4321"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "C to the small F",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: your small F when the F box is lit. Strum down once on beat 1, then use the rest of the bar to move to the next chord.\nIf the small F comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "C",
+                "F"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Bm with a barre",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. Fret Am, then Bm as shown: Bm is the Am shape two frets up, with finger 1 lying across the strings.\nPick the strings of Bm one at a time, and fix only the one that buzzes.\n_Stop and shake out your hand when it aches._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Am",
+                "Bm"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Em to Bm",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum down once on beat 1 of each bar, Em then Bm, and use the rest of the bar to move.\nKeep going until finger 1 is down by beat 1, even when a string still buzzes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Em",
+                "Bm"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/6/barres-every-key"
+    ]
+  }
+}

@@ -1,0 +1,625 @@
+{
+  "id": "guitar-new-first-week",
+  "answers": { "topics": {}, "minutes": 15, "styles": "pop, singer-songwriter", "notes": "Just bought my first acoustic.", "areas": ["guitar"] },
+  "model": "claude-fable-5-2",
+  "versions": { "prompt": 2, "agents": 2, "teaching": 5 },
+  "note": "A first week for a brand-new guitarist: the library had no plan at the new level.",
+  "plan": {
+    "title": "Week 1: your first chords, a steady strum and a tune on one string",
+    "summary": "Em and Am first, then E, A and D, strummed in time with a metronome and with a band. Around them: picking the open strings, the spider, the note names on the two lowest strings, and short tunes on one string. One idea a day, and on day 7 you play days 1 to 3 again and hear what has changed.",
+    "progress": "Basic chords: started from nothing. Em and Am met on day 1, changed with one strum a bar from day 2 and with down and up strums on days 5 and 7. E, A and D met on day 3, changed without a metronome on day 4 and played as A A D E on day 6, also over drums and bass. Not tested yet: whether every string rings in A and D, and A to D in time. Next: keep the changes at a slow tempo with down and up strums, then G and C.\nScales: notes on the low E and A strings up to fret 5, natural notes only, by tapping, by name and with the mic. One-string tunes in two keys each, from tab. Next: the same two strings up to fret 12, and a tune that crosses to a second string.\nTechniques: open strings with down strokes, then down and up as a second stage on day 5; the spider from fret 5 at slow tempos, with faster stages on day 6. Next: down and up picking as the starting stage, and the spider from fret 1.\nUnknown still: all six topics were unanswered, so trust this week's ratings over these notes. Likes pop and singer-songwriter: strummed songs are the reward, keep one every day.",
+    "days": [
+      {
+        "theme": "Six strings and your first chord",
+        "exercises": [
+          {
+            "title": "Pick each open string",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["technique"],
+            "topic": "guitar-techniques",
+            "concepts": ["picking"],
+            "why": "Every chord and tune starts with the pick finding one string, so picking the six open strings in order teaches your hand how far apart they are.",
+            "learnBefore": ["/course/1/strings-and-tuning", "/tuner"],
+            "cells": [
+              { "type": "text", "text": "Press Play below to start the metronome and follow the tab: each open string four times, picking down, one note per beat. The tab goes from the low E string to the high e string and back.\nKeep going until your pick lands on the next string without you looking at it." },
+              { "type": "tool", "tool": { "type": "picking-drill", "level": "new", "bpm": 60 } }
+            ]
+          },
+          {
+            "title": "Em and Am: every string ringing",
+            "minutes": 8,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["rhythm"],
+            "topic": "guitar-basic-chords",
+            "concepts": ["open-chords", "strumming"],
+            "why": "A chord sounds clean when every string in it rings, so picking the strings one at a time shows you which finger to move.",
+            "learnBefore": ["/course/2/em-and-am", "/course/1/tab-and-chord-boxes"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Em, string by string",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press the chord box below to hear how Em should sound. Fret Em as shown, then pick the six strings one at a time.\nIf a string buzzes or stays quiet, move that finger closer to its fret and pick the string again.\n_If your fingertips hurt, take your hand off the neck and rest._" },
+                  { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em"] } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Am, the same way",
+                "minutes": 2,
+                "cells": [
+                  { "type": "text", "text": "Press the chord box below to hear Am. Fret Am as shown and pick its strings one at a time, from the A string to the high e string.\nAm leaves the low E string out: the chord box marks it with ×." },
+                  { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Am"] } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Em, one strum a bar",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome. After a bar of count-in, strum Em down once on beat 1 and let it ring for the rest of the bar.\nThis trains your timing: count 1, 2, 3, 4 with the metronome and strum each time you say 1. Keep going until the strum lands on the beat without you waiting for it." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em"], "bpm": 60, "pattern": "D . . ." } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "A first tune on one string",
+            "minutes": 4,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["song"],
+            "topic": "guitar-scales",
+            "concepts": ["guitar-melodies"],
+            "why": "The whole tune sits on one string, three notes that step down to the open string, so your picking hand stays put while the other hand learns to find frets.",
+            "learnBefore": ["/course/4/melodies", "/course/1/tab-and-chord-boxes"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Three long notes",
+                "minutes": 4,
+                "choice": { "options": [{ "key": "g" }, { "key": "e" }] },
+                "cells": [
+                  { "type": "text", "text": "Press Play below to hear the tune and see it in the tab: three long notes on one string. Play along from the tab, and let each note ring until the next one.\nOnce you can hum the tune before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the tune moves to another string and the frets stay the same." },
+                  { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 3, "key": "g" }, "bpm": 60, "view": "tab" } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Em to Am, and the names of the notes",
+        "exercises": [
+          {
+            "title": "The spider at the 5th fret",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["technique"],
+            "topic": "guitar-techniques",
+            "concepts": ["spider"],
+            "why": "One finger per fret is the hand shape that chords and tunes are made from, and at the 5th fret the frets are close enough for a new hand to reach all four.",
+            "learnBefore": ["/course/1/spider"],
+            "cells": [
+              { "type": "text", "text": "Press Play below to start the metronome and follow the tab: frets 5 to 8 with fingers 1, 2, 3 and 4, one note per beat, on every string and back. The row under the tab shows the finger for each note.\nKeep going until your hand stays still and only the fingers move.\n_If your hand aches, stop and shake it out._" },
+              { "type": "tool", "tool": { "type": "finger-pattern", "level": "new", "show": "finger", "bpm": 50 } }
+            ]
+          },
+          {
+            "title": "Notes on the low E and A strings",
+            "minutes": 6,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["theory"],
+            "topic": "guitar-scales",
+            "concepts": ["notes-on-neck"],
+            "why": "Em is named after the note of the open low E string and Am after the open A string, so the names on these two strings are where chord names come from.",
+            "learnBefore": ["/course/1/notes-on-e-and-a"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Tap it, then play it",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Start in the game below. The game names a note and a string: tap that note on the neck, then play it on your guitar and say its name out loud.\nThe game stays on the low E and A strings, up to the 5th fret. Keep going until a few of the names come without counting up from the open string." },
+                  { "type": "tool", "tool": { "type": "note-finder", "level": "new", "mode": "find" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Name the lit note",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Start in the game below. Now the game lights a note on the neck: press its name under the neck.\nPlay the note on your guitar as you answer, so your hand learns the place while your eyes learn the name." },
+                  { "type": "tool", "tool": { "type": "note-finder", "level": "new", "mode": "name" } }
+                ]
+              }
+            ],
+            "exploreMore": ["/theory/notes"]
+          },
+          {
+            "title": "Em to Am, one strum a bar",
+            "minutes": 6,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["rhythm"],
+            "topic": "guitar-basic-chords",
+            "concepts": ["open-chords", "strumming"],
+            "why": "From Em to Am, fingers 2 and 3 keep their shape and move across one string together, so the change is one small move and one more finger.",
+            "learnBefore": ["/course/2/em-and-am", "/course/2/all-downstrums"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Back and forth, no metronome",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press a chord box below to hear the chord. Fret Em and strum it once, then move to Am and strum it once.\nGo back and forth slowly, and watch fingers 2 and 3 in the chord boxes: they move together.\nKeep going until your hand starts to find each shape before you look." },
+                  { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "Am"] } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "With the metronome",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play. Strum down once on beat 1, then use the rest of the bar to move to the next chord.\nIf a change comes late, leave that strum out and be ready for the next beat 1." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Am"], "bpm": 60, "pattern": "D . . ." } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Three new chords: E, A and D",
+        "exercises": [
+          {
+            "title": "Open strings, a little faster",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["technique"],
+            "topic": "guitar-techniques",
+            "concepts": ["picking"],
+            "why": "The strings are the same distance apart under every chord, so a pick that finds the open strings without a look will find them inside a chord too.",
+            "learnBefore": ["/course/1/strings-and-tuning"],
+            "cells": [
+              { "type": "text", "text": "Press Play below to start the metronome: it is a little faster than on day 1. Pick each open string four times, down, one note per beat, and follow the tab up and back.\nThis time watch the tab and not your picking hand. If the pick lands on the wrong string, keep going and catch the next one." },
+              { "type": "tool", "tool": { "type": "picking-drill", "level": "new", "bpm": 72 } }
+            ]
+          },
+          {
+            "title": "E, A and D",
+            "minutes": 8,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["rhythm"],
+            "topic": "guitar-basic-chords",
+            "concepts": ["open-chords", "strumming"],
+            "why": "E is Em with one finger added, so a new chord is often an old one with a small change: look for what stays before you look for what moves.",
+            "learnBefore": ["/course/2/e-a-dm", "/course/2/c-d-g"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Em, then E",
+                "minutes": 2,
+                "cells": [
+                  { "type": "text", "text": "Press a chord box below to hear the chord. Fret Em, then add the one finger that turns it into E.\nTake that finger off and put it back, with a strum each time, until you hear the chord change with it." },
+                  { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "E"] } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "A and D",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press a chord box below to hear the chord. Fret A as shown and pick its strings one at a time, from the A string to the high e string. Then do the same with D, from the D string.\nBoth chords leave their lowest strings out, so start each strum on the string the chord is named after." },
+                  { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["A", "D"] } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Strum every beat",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, two bars on each chord.\nUse the second bar to look ahead at the next shape. If a change comes late, keep your strumming hand going and catch the next beat 1." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["E", "E", "A", "A", "D", "D"], "bpm": 60, "pattern": "D D D D" } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "A tune that repeats its notes",
+            "minutes": 4,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["song"],
+            "topic": "guitar-scales",
+            "concepts": ["guitar-melodies"],
+            "why": "This tune uses the three notes of day 1's tune and plays two of them twice, so the frets are known and the new job is giving each note its beat.",
+            "learnBefore": ["/course/4/melodies"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One note per beat",
+                "minutes": 4,
+                "choice": { "options": [{ "key": "g" }, { "key": "d" }] },
+                "cells": [
+                  { "type": "text", "text": "Press Play below to hear the tune, then play along from the tab, one note per beat until the long last note.\nOnce you can hum the tune before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the tune moves to a new place on another string, and each step down is still two frets." },
+                  { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 5, "key": "g" }, "bpm": 60, "view": "tab" } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Quicker changes",
+        "exercises": [
+          {
+            "title": "Spider: every note ringing",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["technique"],
+            "topic": "guitar-techniques",
+            "concepts": ["spider"],
+            "why": "A note rings when the finger presses close to its fret, the same press every string of a chord needs, so the spider is chord practice with one finger at a time.",
+            "learnBefore": ["/course/1/spider"],
+            "cells": [
+              { "type": "text", "text": "Press Play below to start the metronome: it is a little faster than on day 2. Follow the tab, frets 5 to 8 with fingers 1, 2, 3 and 4, one note per beat.\nListen to each note. If one buzzes, press that finger closer to its fret when it comes round on the next string." },
+              { "type": "tool", "tool": { "type": "finger-pattern", "level": "new", "show": "finger", "bpm": 60 } }
+            ]
+          },
+          {
+            "title": "Find the note and play it",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["theory"],
+            "topic": "guitar-scales",
+            "concepts": ["notes-on-neck"],
+            "why": "When the answer is a note you play, your hand has to find the place by itself, so the name gets tied to a feel and not only to a picture.",
+            "learnBefore": ["/course/1/notes-on-e-and-a"],
+            "cells": [
+              { "type": "text", "text": "Press Playing it (mic) under the neck below. Then press Start above the neck. The game names a note and a string: find it on your guitar and play it, and the game hears your answer.\nKeep going until your finger goes to some of the notes without counting frets." },
+              { "type": "tool", "tool": { "type": "note-finder", "level": "new", "mode": "find" } }
+            ]
+          },
+          {
+            "title": "Changes, one pair at a time",
+            "minutes": 6,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["technique"],
+            "topic": "guitar-basic-chords",
+            "concepts": ["open-chords"],
+            "why": "A change gets quick when the fingers leave together and land together, and that comes from making one change many times in a row, so each block is one pair of chords and nothing else.",
+            "learnBefore": ["/course/2/one-minute-changes"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Em and Am",
+                "minutes": 2,
+                "cells": [
+                  { "type": "text", "text": "Press a chord box below to hear the chord. Change between Em and Am for about a minute, one strum on each, then rest your hand and go again.\nEach round, lift all your fingers at once and put them down at once." },
+                  { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["Em", "Am"] } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "E and Am",
+                "minutes": 2,
+                "cells": [
+                  { "type": "text", "text": "The same drill with E and Am. The chord boxes below show one shape in two places: all three fingers move across one string together.\nKeep going until the shape holds while it moves." },
+                  { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["E", "Am"] } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "A and D",
+                "minutes": 2,
+                "cells": [
+                  { "type": "text", "text": "The same drill with A and D. Finger 3 stays on its string and slides up one fret, so let it lead and put the other two fingers down around it.\nGo slowly enough that D is ready before you strum it." },
+                  { "type": "tool", "tool": { "type": "chord-shapes", "chords": ["A", "D"] } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Em and Am with a band",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["song"],
+            "topic": "guitar-basic-chords",
+            "concepts": ["open-chords", "strumming"],
+            "why": "A band keeps going whether your change is ready or not, so playing with one teaches you to keep the strumming hand moving and let the chord catch up.",
+            "learnBefore": ["/course/2/first-songs", "/course/2/all-downstrums"],
+            "cells": [
+              { "type": "text", "text": "Press Play below to start the band: drums and bass, two bars of Em and then two bars of Am. The lit chord box shows the chord to play. Strum down on every beat.\nIf a change comes late, keep your strumming hand going and join in on the next beat 1." },
+              { "type": "tool", "tool": { "type": "backing-track", "key": "e", "chords": ["Em", "Em", "Am", "Am"], "style": "ballad", "bpm": 60, "parts": { "drums": "on", "bass": "on" } } }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "Down and up",
+        "exercises": [
+          {
+            "title": "Open strings: down, then down and up",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["technique"],
+            "topic": "guitar-techniques",
+            "concepts": ["picking"],
+            "why": "An up stroke is the pick's trip back after a down stroke, so picking down and up on one open string is the smallest form of the strum you learn today.",
+            "learnBefore": ["/course/1/strings-and-tuning"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Add the up stroke",
+                "minutes": 3,
+                "choice": { "options": [{ "level": "new" }, { "level": "beginner" }] },
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome. Pick each open string four times, down, one note per beat, as on day 1.\nWhen the pick finds every string without a look, try the next stage: it picks down, then up, in turn. Use the Stage selector below to change the stage, then press Play to start the metronome again.\nIf the up strokes miss the string, go back one stage for a round." },
+                  { "type": "tool", "tool": { "type": "picking-drill", "level": "new", "bpm": 60 } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Down and up strums",
+            "minutes": 8,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["rhythm"],
+            "topic": "guitar-basic-chords",
+            "concepts": ["strumming", "open-chords"],
+            "why": "Between two down strums your hand already travels back up, so an up strum is no new move: the pick brushes the strings on a trip the hand was making anyway.",
+            "learnBefore": ["/course/2/all-downstrums", "/course/1/steady-beat"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Down on every beat",
+                "minutes": 2,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome. Hold Em and strum down on every beat.\nWatch your hand between the strums: it comes back up past the strings each time without touching them." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em"], "bpm": 60, "pattern": "D D D D" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Up between the beats",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome, at the same tempo. Still on Em, strum down on each beat and up halfway to the next one: the arrows in the chord box show each strum.\nCount 1 and 2 and 3 and 4 and, with a down strum on each number and an up strum on each \"and\". Keep going until the up strum feels like part of the same swing." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em"], "bpm": 60, "pattern": "D U D U D U D U" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Now with a change",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome. Now it is two bars of Em, then two bars of Am, with the same down and up strum.\nIf a change comes late, keep your hand swinging and let the first strum of the new chord go by." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Em", "Am", "Am"], "bpm": 60, "pattern": "D U D U D U D U" } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Up three notes and back",
+            "minutes": 4,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["song"],
+            "topic": "guitar-scales",
+            "concepts": ["guitar-melodies"],
+            "why": "This tune climbs three notes and comes back down the same way, all on one string, so your hand learns to move up a string as well as down it.",
+            "learnBefore": ["/course/4/melodies"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Up, then back down",
+                "minutes": 4,
+                "choice": { "options": [{ "key": "d" }, { "key": "g" }] },
+                "cells": [
+                  { "type": "text", "text": "Press Play below to hear the tune, then play along from the tab, one note per beat. The tune is all on one string.\nOnce you can hum the tune before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the tune starts on another string, and it still climbs two frets at a time and comes back the same way." },
+                  { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 2, "key": "d" }, "bpm": 60, "view": "tab" } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "A, D and E: a three-chord song",
+        "exercises": [
+          {
+            "title": "Spider, faster in stages",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["technique"],
+            "topic": "guitar-techniques",
+            "concepts": ["spider"],
+            "why": "Your fingers learn whatever you repeat, buzzes included, so a faster tempo comes only when every note at this one rings.",
+            "learnBefore": ["/course/1/spider"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One stage at a time",
+                "minutes": 3,
+                "choice": { "label": "stage", "options": [{ "bpm": 50 }, { "bpm": 60 }, { "bpm": 72 }] },
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome and follow the tab: frets 5 to 8 with fingers 1, 2, 3 and 4, one note per beat.\nWhen every note rings and lands on the beat, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf notes start to buzz at a new stage, go back one stage and stay there a little longer." },
+                  { "type": "tool", "tool": { "type": "finger-pattern", "level": "new", "show": "finger", "bpm": 50 } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Say the name, then check",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["theory"],
+            "topic": "guitar-scales",
+            "concepts": ["notes-on-neck"],
+            "why": "Saying the name before you see the answers makes you pull it from memory, and a name you have pulled from memory a few times stops needing to be counted.",
+            "learnBefore": ["/course/1/notes-on-e-and-a"],
+            "cells": [
+              { "type": "text", "text": "Press Start in the game below. The game lights a note on the neck: say its name out loud first, then press that name under the neck to check.\nKeep going until some names come before you can count up to them." },
+              { "type": "tool", "tool": { "type": "note-finder", "level": "new", "mode": "name" } }
+            ]
+          },
+          {
+            "title": "A, D and E: a song in four bars",
+            "minutes": 9,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["rhythm", "song"],
+            "topic": "guitar-basic-chords",
+            "concepts": ["open-chords", "strumming"],
+            "why": "The song stays on A for two bars and goes to D and E for one bar each, so the long A is where your hand rests and gets ready for the two quick changes.",
+            "learnBefore": ["/course/2/first-songs", "/course/2/e-a-dm"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "One strum a bar",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: two bars of A, one of D, one of E. Strum down once on beat 1 and use the rest of the bar to move.\nKeep going until D and E are ready before their beat 1." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["A", "A", "D", "E"], "bpm": 60, "pattern": "D . . ." } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "A strum on every beat",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome. The same four bars, with a down strum on every beat.\nIf a change comes late, keep your strumming hand going and catch the next beat 1." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["A", "A", "D", "E"], "bpm": 60, "pattern": "D D D D" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "With the band",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the band: drums and bass play the same four bars, and the lit chord box shows the chord. Strum down on every beat, and try day 5's down and up strum on the A bars.\nKeep going until you can look away from your fretting hand on the A bars." },
+                  { "type": "tool", "tool": { "type": "backing-track", "progression": "three-chord", "key": "a", "style": "pop", "bpm": 60, "parts": { "drums": "on", "bass": "on" } } }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "theme": "The first days again, and a tune of your own",
+        "exercises": [
+          {
+            "title": "Open strings without looking",
+            "minutes": 2,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["technique"],
+            "topic": "guitar-techniques",
+            "concepts": ["picking"],
+            "why": "On day 1 your eyes found each string, and since then the pick has made the same trip many times, so today your hand can find the strings while you look away.",
+            "learnBefore": ["/course/1/strings-and-tuning"],
+            "cells": [
+              { "type": "text", "text": "Press Play below to start the metronome: it is faster than on day 1. Pick each open string four times, down, one note per beat.\nFollow the tab for one round, then look away and listen. A wrong string sounds too high or too low: let your hand fix it by feel." },
+              { "type": "tool", "tool": { "type": "picking-drill", "level": "new", "bpm": 80 } }
+            ]
+          },
+          {
+            "title": "Em to Am: day 2 again, then down and up",
+            "minutes": 5,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["rhythm"],
+            "topic": "guitar-basic-chords",
+            "concepts": ["open-chords", "strumming"],
+            "why": "On day 2 the change from Em to Am took most of a bar, and now it takes less, so the time you gained is where the extra strums fit.",
+            "learnBefore": ["/course/2/em-and-am", "/course/2/all-downstrums"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Day 2 again",
+                "minutes": 2,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome: one strum a bar, as on day 2.\nNotice how early your hand is ready for the next chord now." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Am"], "bpm": 60, "pattern": "D . . ." } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Down and up, faster",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the metronome: it is a little faster than on day 5. Strum down and up, two bars on each chord.\nIf a change comes late, keep your hand swinging and catch the next beat 1." },
+                  { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Em", "Am", "Am"], "bpm": 70, "pattern": "D U D U D U D U" } }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "The notes game, day 2 again",
+            "minutes": 3,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["theory"],
+            "topic": "guitar-scales",
+            "concepts": ["notes-on-neck"],
+            "why": "The game asks the same notes as on day 2, so the ones you now find at once show what a week of short rounds has done, and the ones you still count are next week's work.",
+            "learnBefore": ["/course/1/notes-on-e-and-a"],
+            "cells": [
+              { "type": "text", "text": "Press Start in the game below. As on day 2, the game names a note and a string: tap that note on the neck, then play it on your guitar.\nNotice which notes your finger goes to at once, and which ones you still count up to." },
+              { "type": "tool", "tool": { "type": "note-finder", "level": "new", "mode": "find" } }
+            ],
+            "exploreMore": ["/theory/notes"]
+          },
+          {
+            "title": "Day 3's tune, then your own",
+            "minutes": 5,
+            "level": "new",
+            "area": "guitar",
+            "tags": ["song", "improv"],
+            "topic": "guitar-scales",
+            "concepts": ["guitar-melodies"],
+            "why": "A tune sounds finished when it ends on its home note, which in this key is the open G string, so three notes and that one ending are enough to make up tunes of your own.",
+            "learnBefore": ["/course/4/melodies", "/course/3/home-note"],
+            "cells": [
+              {
+                "type": "section",
+                "heading": "Day 3's tune, faster",
+                "minutes": 2,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to hear day 3's tune, a little faster this time, and play along from the tab.\nNotice which of its notes your fingers now find without the tab." },
+                  { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 5, "key": "g" }, "bpm": 76, "view": "tab" } }
+                ]
+              },
+              {
+                "type": "section",
+                "heading": "Make up a tune",
+                "minutes": 3,
+                "cells": [
+                  { "type": "text", "text": "Press Play below to start the drone, one long G. Make up short tunes from the three notes of the tune above, on the G string, in any order and any rhythm.\nEnd some of them on the open string and some on another note, and listen for which ending sounds finished." },
+                  { "type": "tool", "tool": { "type": "backing-band", "bpm": 60, "key": "g", "parts": { "drone": "always" } } }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "id": "voice-new-holding-a-note",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Track breath (voice-breath-range), step 1: farinelli breathing on counts 2 to 5, then one held note.",
+  "exercise": {
+    "title": "A steady breath, then one long note",
+    "minutes": 6,
+    "level": "new",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath"
+    ],
+    "why": "A held note stays level only while your air flows out evenly, so practise the even breath on its own first, then put one note on top of it.",
+    "learnBefore": [
+      "/course/3/breath-and-holding-a-note"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Breathe with the circle",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin the breathing: the circle grows as you breathe in, stays while you hold and shrinks as you breathe out.\nKeep your shoulders still, and let the air out as slowly at the end as at the start.\nWhen the circle is done, press Again inside it for one more round."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "breathwork",
+              "drill": "farinelli",
+              "level": "new"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Hold a hum",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below: a note plays first, then the mic starts. Hum an easy note near it and keep the ball on the green part of the hill until the ring fills, then take a breath before the next hold.\nLet the air out as evenly as you did with the circle, so the hum is as strong at the end of a hold as at the start."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "voice-hill",
+              "where": "middle",
+              "sound": "hum",
+              "seconds": 4,
+              "reps": 4,
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One long note",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Sing the low {{1}} on \"oo\" for one easy breath, and see how level you can keep your line to the end.\nThen breathe in the way you did with the circle, and sing it again.\n_Don't reach for high notes: hold the note where your voice feels easy._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "enable": [
+                "1"
+              ],
+              "others": "hidden",
+              "labels": "solfege",
+              "drone": true
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/breathing"
+    ]
+  }
+}

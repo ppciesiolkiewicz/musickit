@@ -1,0 +1,112 @@
+{
+  "id": "theory-new-steady-beat",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Track beat (theory-basics), step 1: clap on the beat.",
+  "exercise": {
+    "title": "Clap on the beat",
+    "minutes": 6,
+    "level": "new",
+    "area": "theory",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "beat"
+    ],
+    "why": "When your clap lands exactly on the click, the click hides under it, so the metronome tells you when you are on the beat.",
+    "learnBefore": [
+      "/course/1/steady-beat"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Clap with the metronome",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Clap once on every click, and listen for the click hiding under your clap.\nKeep going until your hands move with the click and no longer after it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A new tempo",
+        "minutes": 2,
+        "choice": {
+          "options": [
+            {
+              "bpm": 80
+            },
+            {
+              "bpm": 100
+            },
+            {
+              "bpm": 50
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome, and clap on every click again.\nOnce the click hides under your clap, try another tempo. Use the Tempo selector below to change the tempo, then press Play to start the metronome again.\nWhen you change the tempo, the gap between the clicks changes, and your clap still lands on the click."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "c",
+              "parts": {
+                "click": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Clap with the drums",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drums. The metronome is off now, so clap where you feel the beat.\nThen press Click below to switch the metronome on, and check that your claps land on it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "c",
+              "parts": {
+                "drums": "always",
+                "click": "off"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/metronome-drone"
+    ]
+  }
+}
