@@ -59,6 +59,7 @@ export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/stories", label: "Component stories", tone: "stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
   { href: "/dev/onboarding", label: "Onboarding coverage", tone: "stories", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
   { href: "/dev/structure", label: "Code structure", tone: "index", desc: "How src is built: packages by layer and what imports what, a page's render tree, and any file's imports, renders and extends." },
+  { href: "/dev/api", label: "API routes", tone: "index", desc: "Every route under /api: its methods, the doc comment above each, whether it needs a login, and its file." },
   { href: "/dev/path", label: "Learning path", tone: "index", desc: "The path as a diagram: an area's topics down, levels across, every concept with an arrow to what builds on it, and which have no example or course page." },
   { href: "/dev/data", label: "Data", tone: "data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
   { href: "/dev/progress", label: "Progress", tone: "data", desc: "The player's progress outcome: its inputs, then per concept, topic and area, the streak days and time, as of any date." },

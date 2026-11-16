@@ -34,6 +34,13 @@ Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answ
 
 Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, the concepts the prompt offers (in or out), the examples `selectExamples` picks, and the `startOutcome` scores.
 
+## API routes (`/dev/api`)
+
+Every `route.ts` under `src/app/api`, read from disk on each load (`server/apiRoutes.ts`, parsed by `model/apiRoutes.ts`):
+the URL, each exported method with the `/** */` comment just above it (a method without one is marked), *signed in* when
+the file calls `signedIn(` and *dev only* when it calls `devGate(`, and the file as a `vscode://` link. A route's docs are
+its handler comments, so keep them saying what it takes and returns. There is no OpenAPI spec.
+
 ## Prompt examples (`/dev/examples`)
 
 "In the prompt": the example parts `promptParts` builds for the studio's saved answers, each with its "Why it's good" note.
