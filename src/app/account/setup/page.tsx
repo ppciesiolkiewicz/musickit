@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Set up your account · attunr", robo
 export default async function SetupPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const q = await searchParams;
   return (
-    <PageShell centered title="Set up your account" intro="Tell us your name and choose a plan." active="/account">
+    <PageShell centered title="Set up your account" active="/account">
       <SetupForm next={safeNext(q.next) ?? AFTER_LOGIN} />
     </PageShell>
   );

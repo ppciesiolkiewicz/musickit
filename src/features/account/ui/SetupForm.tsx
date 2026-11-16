@@ -108,9 +108,10 @@ export default function SetupForm({ next }: { next: string }) {
           <legend className="sr-only">Plan</legend>
           {/* the legend's visible twin: a <legend> can't sit in a flex row beside the switch */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               <span aria-hidden className="text-sm font-semibold text-slate-200">Plan</span>
-              <p className="max-w-md text-xs text-slate-500">{BETA_PLAN_LINE} You can change it later on your account page.</p>
+              {/* shown before the plans load too: it is the first thing to know about choosing one */}
+              <p className="max-w-lg rounded-lg border border-sky-400/40 bg-sky-500/10 px-3 py-2 text-sm text-sky-100">{BETA_PLAN_LINE} You can change it later on your account page.</p>
             </div>
             {plans && <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={plans.plans} onChange={(b) => { setBilling(b); setError(null); }} /></div>}
           </div>
