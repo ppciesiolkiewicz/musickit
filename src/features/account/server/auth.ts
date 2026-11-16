@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { setupHref } from "../loginGuard";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
-import { canChoose, choosablePlans, roleOnPlan, type Billing, type Plan } from "../plans";
+import { canChoose, choosablePlans, pricedWithYou, roleOnPlan, type Billing, type Plan } from "../plans";
 import type { AuthRepo, TokenRow, UserRow } from "./repo";
 
 /**
@@ -202,10 +202,31 @@ export async function rename(deps: AuthDeps, userId: string, name: unknown): Pro
 
 /** The plans a person can see and the one they are on (see `choosablePlans`). Null when there is no such user. */
 /** `current` is null for an account that hasn't chosen one yet; `billing` is how they pay for it. */
-export async function accountPlans(deps: AuthDeps, userId: string): Promise<{ plans: Plan[]; current: string | null; billing: Billing } | null> {
+export async function accountPlans(deps: AuthDeps, userId: string): Promise<AccountPlans | null> {
   const user = await deps.repo.userById(userId);
   if (!user) return null;
-  return { plans: choosablePlans(await deps.repo.listPlans(), user.planId), current: user.planId, billing: user.billing };
+  const request = await deps.repo.planRequest(userId);
+  return {
+    plans: choosablePlans(await deps.repo.listPlans(), user.planId),
+    current: user.planId,
+    billing: user.billing,
+    request: request ? { planId: request.planId, at: request.createdAt.toISOString() } : null,
+  };
+}
+
+/** `GET /api/account/plan`: the plans to choose from, the one they are on, how they'd pay, and their request for a plan priced with them. */
+export interface AccountPlans {
+  plans: Plan[];
+  current: string | null;
+  billing: Billing;
+  request: { planId: string; at: string } | null;
+}
+
+/** On the plan now, and when it is one priced with the person, the request we write to them about. */
+async function movePlan(deps: AuthDeps, userId: string, plan: Plan, billing: Billing, role: Account["role"]) {
+  const moved = await deps.repo.setUserPlan(userId, plan.id, billing, role, deps.now());
+  if (moved && pricedWithYou(plan)) await deps.repo.requestPlan(userId, plan.id, deps.now());
+  return moved;
 }
 
 /**
@@ -217,7 +238,7 @@ export async function choosePlan(deps: AuthDeps, account: Account, planId: unkno
   const user = await deps.repo.userById(account.id);
   const plan = user && canChoose(await deps.repo.listPlans(), user, planId, billing);
   if (!plan) return null;
-  const moved = await deps.repo.setUserPlan(account.id, plan.id, billing as Billing, roleAfter(user, plan), deps.now());
+  const moved = await movePlan(deps, account.id, plan, billing as Billing, roleAfter(user, plan));
   return moved ? toAccount(moved) : null;
 }
 
@@ -240,6 +261,6 @@ export async function setUpAccount(deps: AuthDeps, account: Account, input: { na
   const plan = keeps ? null : canChoose(await deps.repo.listPlans(), had, input.planId, input.billing);
   if (!keeps && !plan) return { ok: false, error: "plan" };
   let user = await deps.repo.updateUserName(account.id, name, deps.now());
-  if (user && plan) user = await deps.repo.setUserPlan(account.id, plan.id, input.billing as Billing, roleAfter(had, plan), deps.now());
+  if (user && plan) user = await movePlan(deps, account.id, plan, input.billing as Billing, roleAfter(had, plan));
   return user ? { ok: true, account: toAccount(user) } : { ok: false, error: "plan" };
 }

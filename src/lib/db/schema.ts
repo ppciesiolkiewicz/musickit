@@ -101,6 +101,19 @@ export const users = pgTable("users", {
   updatedAt: at("updated_at").notNull().defaultNow(),
 });
 
+/**
+ * A person who chose a plan priced with them (Teacher Unlimited: any number of students, `pricedWithYou` in
+ * features/account/plans.ts). One row a person, made the first time they choose it on /account/setup or /account, and
+ * kept if they move off it: it is who we write to, to set the price. `contacted_at` is set by hand once we have.
+ * /account shows it while they are on that plan.
+ */
+export const planRequests = pgTable("plan_requests", {
+  userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  planId: text("plan_id").notNull().references(() => plans.id, { onDelete: "cascade" }),
+  createdAt: at("created_at").notNull().defaultNow(),
+  contactedAt: at("contacted_at"),
+});
+
 /** A sign-in with another service (Google) tied to a user. */
 export const identities = pgTable(
   "identities",

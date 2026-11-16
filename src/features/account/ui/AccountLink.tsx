@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { accountsOpen } from "../serverAccountStore";
 import { homePage } from "../model";
+import { FEEDBACK_HREF } from "./FeedbackForm";
 import { useAccount, useAccountStore } from "../useAccount";
 
 const PILL =
@@ -77,6 +78,7 @@ export default function AccountLink({ className = "" }: { className?: string }) 
             <Link role="menuitem" href="/account" className={ITEM} onClick={() => setOpen(false)}>Your profile</Link>
             {/* the music-school page for a teacher or owner, the players page for a student */}
             <Link role="menuitem" href={homePage(account)} className={ITEM} onClick={() => setOpen(false)}>Home page</Link>
+            <Link role="menuitem" href={FEEDBACK_HREF} className={ITEM} onClick={() => setOpen(false)}>Send feedback</Link>
             <button role="menuitem" type="button" className={ITEM} onClick={() => void store.signOut().then(() => window.location.assign("/"))}>Log out</button>
           </div>
         </div>

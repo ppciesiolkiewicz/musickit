@@ -257,6 +257,7 @@ const PLANS: Plan[] = [
   { ...PLAN, id: "teacher-pro", name: "Teacher Pro", role: "teacher", enabled: true, sort: 2 },
   { ...PLAN, id: "student", name: "Student", role: "student", enabled: true, sort: 0 },
   { ...PLAN, id: "teacher-old", name: "Old", role: "teacher", enabled: false, sort: 1 },
+  { ...PLAN, id: "teacher-unlimited", name: "Teacher Unlimited", role: "teacher", monthCents: 0, yearCents: 0, students: null, enabled: true, sort: 3 },
 ];
 
 test("a new account has no plan yet and sees the enabled plans in order", async () => {
@@ -266,7 +267,7 @@ test("a new account has no plan yet and sees the enabled plans in order", async 
   assert.equal(account.needsSetup, true);
   const seen = await accountPlans(deps, account.id);
   assert.equal(seen?.current, null);
-  assert.deepEqual(seen?.plans.map((p) => p.id), ["student", "teacher-pro"]);
+  assert.deepEqual(seen?.plans.map((p) => p.id), ["student", "teacher-pro", "teacher-unlimited"]);
   assert.equal(await accountPlans(deps, "nobody"), null);
 });
 
@@ -296,7 +297,7 @@ test("a turned-off plan, an unknown one or the current one can't be chosen, and 
   assert.ok(await choosePlan(deps, account, "student", "month"), "the same plan paid the other way");
   assert.equal((await accountPlans(deps, account.id))?.billing, "month");
   store.users.find((u) => u.id === account.id)!.planId = "teacher-old";
-  assert.deepEqual((await accountPlans(deps, account.id))?.plans.map((p) => p.id), ["student", "teacher-old", "teacher-pro"]);
+  assert.deepEqual((await accountPlans(deps, account.id))?.plans.map((p) => p.id), ["student", "teacher-old", "teacher-pro", "teacher-unlimited"]);
 });
 
 test("setup: a new account's name and plan in one step; a bad plan changes nothing", async () => {
@@ -323,6 +324,33 @@ test("setup: a new account's name and plan in one step; a bad plan changes nothi
   assert.ok(moved.ok);
   assert.deepEqual([moved.account.name, moved.account.role], ["Ann Lee", "teacher"]);
   assert.equal((await store.repo.userById(done.account.id))?.planId, "teacher-pro");
+});
+
+test("choosing a plan priced with you, at setup or later, records one request we write to them about", async () => {
+  const store = memoryRepo(PLANS);
+  const t = setup();
+  const deps: AuthDeps = { ...t.deps, repo: store.repo };
+  const done = await openEmailLink(deps, await link(deps, { email: "ann@school.com" }), null);
+  assert.ok(done);
+  const chose = await setUpAccount(deps, done.account, { name: "Ann", planId: "teacher-pro", billing: "year" });
+  assert.ok(chose.ok);
+  assert.equal((await accountPlans(deps, done.account.id))?.request, null, "a priced plan asks nothing");
+
+  const unlimited = await choosePlan(deps, chose.account, "teacher-unlimited", "month");
+  assert.equal(unlimited?.role, "teacher");
+  const at = new Date(START).toISOString();
+  assert.deepEqual((await accountPlans(deps, done.account.id))?.request, { planId: "teacher-unlimited", at });
+
+  t.wait(60_000);
+  await choosePlan(deps, unlimited!, "teacher-pro", "year");
+  await choosePlan(deps, unlimited!, "teacher-unlimited", "year");
+  assert.deepEqual((await accountPlans(deps, done.account.id))?.request, { planId: "teacher-unlimited", at }, "the first request stays");
+  assert.equal(store.planRequests.length, 1);
+
+  const other = await openEmailLink(deps, await link(deps, { email: "bo@school.com" }), null);
+  assert.ok(other);
+  assert.ok((await setUpAccount(deps, other.account, { name: "Bo", planId: "teacher-unlimited", billing: "year" })).ok);
+  assert.equal((await accountPlans(deps, other.account.id))?.request?.planId, "teacher-unlimited", "setup records it too");
 });
 
 test("paying for the same plan the other way changes the billing and never the role", async () => {

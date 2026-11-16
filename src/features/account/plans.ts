@@ -115,14 +115,10 @@ export const studentsLabel = (p: Pick<Plan, "students">): string | null =>
   p.students === null ? "Any number of students" : p.students > 0 ? `Up to ${p.students} students` : null;
 
 /**
- * The most students a plan on offer takes, for the "More than 50 students?" line under the plans. Null when there is
- * nothing to say: no Teacher plan on offer, or one that takes any number.
+ * A plan with no price of its own, set with each person: Teacher Unlimited, any number of students. Its row says $0;
+ * the screen says "Price set with you", and choosing it makes a `plan_requests` row, who we write to.
  */
-export const mostStudents = (plans: Pick<Plan, "students" | "enabled" | "role">[]): number | null => {
-  const offered = plans.filter((p) => p.enabled && p.role === "teacher");
-  if (!offered.length || offered.some((p) => p.students === null)) return null;
-  return Math.max(...offered.map((p) => p.students ?? 0));
-};
+export const pricedWithYou = (p: Pick<Plan, "students">): boolean => p.students === null;
 
 /** The model's name as people know it: "claude-sonnet-5-5" → "Sonnet 5.5". */
 export const modelLabel = (id: string): string => {

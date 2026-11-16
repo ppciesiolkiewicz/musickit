@@ -1,5 +1,5 @@
 import type { Plan } from "../plans";
-import type { AuthRepo, TokenRow, UserRow } from "./repo";
+import type { AuthRepo, PlanRequest, TokenRow, UserRow } from "./repo";
 
 /** The repo in memory, for tests. Same rules as the Postgres one: one user per email, a token is taken once. */
 export function memoryRepo(plans: Plan[] = []) {
@@ -7,6 +7,7 @@ export function memoryRepo(plans: Plan[] = []) {
   const identities: { userId: string; provider: string; providerAccountId: string }[] = [];
   const tokens: (TokenRow & { createdAt: Date; usedAt: Date | null; tries: number })[] = [];
   const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
+  const planRequests: (PlanRequest & { userId: string })[] = [];
   let n = 0;
 
   const live = (hash: string, kind: string, now: Date) => tokens.find((t) => t.tokenHash === hash && t.kind === kind && !t.usedAt && t.expiresAt > now) ?? null;
@@ -41,8 +42,15 @@ export function memoryRepo(plans: Plan[] = []) {
       user.role = role;
       return user;
     },
+    async requestPlan(userId, planId, now) {
+      if (!planRequests.some((r) => r.userId === userId)) planRequests.push({ userId, planId, createdAt: now });
+    },
+    async planRequest(userId) {
+      const r = planRequests.find((x) => x.userId === userId);
+      return r ? { planId: r.planId, createdAt: r.createdAt } : null;
+    },
     async deleteUser(id) {
-      for (const list of [identities, sessions]) for (let i = list.length - 1; i >= 0; i--) if (list[i].userId === id) list.splice(i, 1);
+      for (const list of [identities, sessions, planRequests]) for (let i = list.length - 1; i >= 0; i--) if (list[i].userId === id) list.splice(i, 1);
       const i = users.findIndex((u) => u.id === id);
       if (i >= 0) users.splice(i, 1);
     },
@@ -97,5 +105,5 @@ export function memoryRepo(plans: Plan[] = []) {
       for (let i = tokens.length - 1; i >= 0; i--) if (tokens[i].expiresAt <= now) tokens.splice(i, 1);
     },
   };
-  return { repo, users, identities, tokens, sessions };
+  return { repo, users, identities, tokens, sessions, planRequests };
 }

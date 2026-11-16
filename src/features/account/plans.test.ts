@@ -1,13 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { allowanceLabel, bestSavingLabel, bothPricesLabel, canChoose, modelLabel, mostStudents, priceLabel, savingLabel, studentsLabel, trialLabel, yearlyCents, type Plan } from "./plans";
+import { allowanceLabel, bestSavingLabel, bothPricesLabel, canChoose, modelLabel, priceLabel, pricedWithYou, savingLabel, studentsLabel, trialLabel, yearlyCents, type Plan } from "./plans";
 
-test("the most students a plan on offer takes", () => {
-  const t = (students: number | null, enabled = true) => ({ students, enabled, role: "teacher" as const });
-  const student = { students: 0, enabled: true, role: "student" as const };
-  assert.equal(mostStudents([student, t(15), t(50), t(null, false)]), 50);
-  assert.equal(mostStudents([student, t(15), t(null)]), null);
-  assert.equal(mostStudents([student]), null);
+test("a plan with any number of students is priced with the person", () => {
+  assert.equal(pricedWithYou({ students: null }), true);
+  assert.equal(pricedWithYou({ students: 50 }), false);
+  assert.equal(pricedWithYou({ students: 0 }), false);
 });
 
 test("plan labels", () => {

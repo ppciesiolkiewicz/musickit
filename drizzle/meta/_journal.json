@@ -148,6 +148,13 @@
       "when": 1794757200285,
       "tag": "0020_trial_30_days",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794812036733,
+      "tag": "0021_open_beta_unlimited",
+      "breakpoints": true
     }
   ]
 }

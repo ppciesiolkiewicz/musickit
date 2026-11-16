@@ -1,6 +1,6 @@
 import { and, count, eq, getTableColumns, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { authTokens, identities, plans, sessions, users } from "@/lib/db/schema";
+import { authTokens, identities, planRequests, plans, sessions, users } from "@/lib/db/schema";
 import type { Plan } from "../plans";
 import type { AuthRepo, TokenRow } from "./repo";
 
@@ -54,6 +54,13 @@ export function drizzleRepo(db: Db): AuthRepo {
     },
     async setUserPlan(id, planId, billing, role, now) {
       const [row] = await db.update(users).set({ planId, billing, role, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
+      return row ?? null;
+    },
+    async requestPlan(userId, planId, now) {
+      await db.insert(planRequests).values({ userId, planId, createdAt: now }).onConflictDoNothing({ target: planRequests.userId });
+    },
+    async planRequest(userId) {
+      const [row] = await db.select({ planId: planRequests.planId, createdAt: planRequests.createdAt }).from(planRequests).where(eq(planRequests.userId, userId)).limit(1);
       return row ?? null;
     },
     async deleteUser(id) {

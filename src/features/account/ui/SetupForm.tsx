@@ -4,14 +4,14 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
-import { BillingSwitch, MoreStudentsLine, PaymentBox, PlanOption, planHue, type Loaded } from "./PlanPicker";
+import { BETA_PLAN_LINE, BillingSwitch, PlanOption, planHue, type Loaded } from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
 /**
  * /account/setup, where a new account stays until it has chosen a plan (`LoginGuard`): its name and its plan, saved in
  * one step, then on to `next`. A name that is only the email's stand-in (`emailName`) starts empty, to be typed; Google's
- * is filled in to keep or change. No plan is chosen for them; they pick it paid monthly or yearly, and the payment box
- * under it shows what it costs. Nothing is charged during the beta. The page reloads into `next`, since a Teacher plan
+ * is filled in to keep or change. No plan is chosen for them; they pick the one they'd want once we charge, monthly or
+ * yearly. Nothing is charged during the open beta, and there is no payment step. The page reloads into `next`, since a Teacher plan
  * changes the role every page reads. A Continue that can't go on brings the first thing to fix into view and focus,
  * since on a phone the name sits a screen above the button.
  */
@@ -44,7 +44,6 @@ export default function SetupForm({ next }: { next: string }) {
   const shown = name ?? (askName ? "" : account.name);
   const chosen = planId ?? plans?.current ?? null;
   const shownBilling = billing ?? plans?.billing ?? "year";
-  const chosenPlan = plans?.plans.find((p) => p.id === chosen) ?? null;
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
@@ -110,7 +109,7 @@ export default function SetupForm({ next }: { next: string }) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-1">
               <span aria-hidden className="text-sm font-semibold text-slate-200">Plan</span>
-              <p className="max-w-md text-xs text-slate-500">Free while in beta: choosing a plan doesn&apos;t ask for payment. You can change it later on your account page.</p>
+              <p className="max-w-md text-xs text-slate-500">{BETA_PLAN_LINE} You can change it later on your profile.</p>
             </div>
             {plans && <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={plans.plans} onChange={(b) => { setBilling(b); setError(null); }} /></div>}
           </div>
@@ -119,14 +118,11 @@ export default function SetupForm({ next }: { next: string }) {
           {plans && (
             <div className={`grid gap-3 rounded-2xl transition sm:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] ${planError ? "ring-1 ring-rose-400/60 ring-offset-4 ring-offset-slate-900" : ""}`}>
               {plans.plans.map((p, i) => (
-                <PlanOption key={p.id} plan={p} hue={planHue(i)} billing={shownBilling} checked={p.id === chosen} trial={plans.current === null} onPick={() => pick(p.id)} />
+                <PlanOption key={p.id} plan={p} hue={planHue(i)} billing={shownBilling} checked={p.id === chosen} onPick={() => pick(p.id)} />
               ))}
             </div>
           )}
-          {plans && <MoreStudentsLine plans={plans.plans} />}
         </fieldset>
-
-        {chosenPlan && plans && <PaymentBox plan={chosenPlan} hue={planHue(plans.plans.indexOf(chosenPlan))} billing={shownBilling} trial={plans.current === null} />}
 
         <ErrorLine>{error}</ErrorLine>
         <button type="submit" disabled={busy || !plans} className={`${PRIMARY} sm:w-auto sm:self-end sm:px-12`}>{busy ? "Saving…" : "Continue"}</button>

@@ -14,6 +14,12 @@ export interface UserRow {
   createdAt: Date;
 }
 
+/** A plan priced with the person, asked for (`plan_requests`). */
+export interface PlanRequest {
+  planId: string;
+  createdAt: Date;
+}
+
 export type TokenKind = "email_link" | "signup";
 
 /** A short-lived single-use proof (see `authTokens` in lib/db/schema.ts). */
@@ -50,6 +56,13 @@ export interface AuthRepo {
   listPlans(): Promise<Plan[]>;
   /** Moves the user to the plan, paid by `billing`, with the role it gives, in one step. */
   setUserPlan(userId: string, planId: string, billing: Billing, role: Role, now: Date): Promise<UserRow | null>;
+  /**
+   * Records that the user chose a plan priced with them (`pricedWithYou`), so we write to them. The first request stays:
+   * choosing it again keeps its date.
+   */
+  requestPlan(userId: string, planId: string, now: Date): Promise<void>;
+  /** The user's plan request, or null when they never chose a plan priced with them. */
+  planRequest(userId: string): Promise<PlanRequest | null>;
   /** Deletes the user with their sessions and identities. */
   deleteUser(id: string): Promise<void>;
 

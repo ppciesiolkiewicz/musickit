@@ -4,13 +4,17 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ROLE_LABEL } from "../model";
 import { useAccount, useAccountStore } from "../useAccount";
+import FeedbackForm from "./FeedbackForm";
 import PlanPicker from "./PlanPicker";
-import { Card, ErrorLine, FIELD, LABEL, PRIMARY, SECONDARY, errorOf, send } from "./parts";
+import { Card, ErrorLine, FIELD, LABEL, LINK, PRIMARY, SECONDARY, errorOf, send } from "./parts";
 
 /** After anything that changes who is signed in, every page reads its data again. */
 const go = (path: string) => window.location.assign(path);
 
-/** /account: who is logged in, their name, Log out and Delete account. Logged out, it points to Log in. */
+/**
+ * /account: the open-beta line, who is logged in, their name, their plan, feedback, Log out and Delete account. Logged
+ * out, it points to Log in.
+ */
 export default function AccountPanel() {
   const { account, loaded } = useAccount();
   const store = useAccountStore();
@@ -54,6 +58,11 @@ export default function AccountPanel() {
 
   return (
     <Card>
+      <p className="rounded-xl border border-sky-500/30 bg-sky-500/10 p-3 text-sm text-sky-100">
+        <span className="font-semibold">Open beta.</span> attunr is free while we fix bugs. If something breaks or doesn&apos;t make sense, please tell us.{" "}
+        <a href="#feedback" className={LINK}>Send feedback</a>
+      </p>
+
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
         <dt className="text-slate-500">Email</dt>
         <dd className="truncate text-slate-100">{account.email}</dd>
@@ -71,6 +80,8 @@ export default function AccountPanel() {
       </form>
 
       <PlanPicker account={account} />
+
+      <FeedbackForm account={account} />
 
       <p className="text-xs text-slate-500">Your plans, progress, notes and videos are kept in your account.</p>
       <ErrorLine>{error}</ErrorLine>
