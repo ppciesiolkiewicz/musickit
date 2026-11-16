@@ -152,7 +152,10 @@ tracked. The step a rating counts for is read from the rated exercise's own tool
 `level` kept on a tool, or the stage of the tune or run), the hardest one when several are in it; a solid step makes the
 easier ones under it solid. The bold step is the one the student is on, with the whole weeks since its first rating
 while it is not solid: time on a step is shown as a number, and nothing is called stuck. Picking a concept lists each
-tracked step's ratings and dates. Nothing is written by
+tracked step's ratings and dates. On Slope the student's steps also carry their reach marks (`studentReach`, from
+`reach()` in `plan/model/reach.ts`): their questionnaire answers (each example has its own `topics`; the player in this
+browser their last ones) and their solid steps. A step within reach is dashed blue and says "next" (or "start" where the
+questionnaire puts them), a known step not rated solid says "known", and a step ahead is faded. Nothing is written by
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
 example library, so the diagram changes when they do. It writes nothing.
 

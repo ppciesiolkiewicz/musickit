@@ -65,3 +65,11 @@ test("intermediate and up: no cap, so nothing in that topic is held back", () =>
   const held = [...r.values()].filter((x) => x.open && stepAt(x.ref)!.track.topic === "guitar-techniques");
   assert.deepEqual(held, []);
 });
+
+test("a starting step rated solid is known, and stops being a start", () => {
+  const topics = { "guitar-scales": 1 } as const;
+  const start = [...reach({ topics }).values()].find((x) => x.start && x.ref.startsWith("notes-on-neck:"))!;
+  const after = reach({ topics, solid: [start.ref] });
+  assert.equal(m(after, start.ref).mark, "known");
+  assert.equal(m(after, start.ref).start, false);
+});

@@ -330,7 +330,8 @@ before triads, the first triads before barre chords (design: `docs/superpowers/s
 /dev/path → "Slope" draws it).
 
 `model/reach.ts` marks every step for a player: known, within reach or ahead (`reach({ topics, solid })`, NEW16). The
-questionnaire's placement and the steps rated solid are known, and so is everything they need first; a step whose
+questionnaire's placement and the steps rated solid are known (a starting step rated solid too: the rating is newer),
+and so is everything they need first; a step whose
 predecessors are all known is within reach, a few per topic at a time (`REACH_CAP` by the topic's line: new 1, beginner
 2, then no cap), starting steps always. The ones over the cap are "ahead" but `open`. Nothing blocks a player.
 

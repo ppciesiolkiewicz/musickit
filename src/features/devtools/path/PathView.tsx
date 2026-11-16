@@ -10,7 +10,7 @@ import { STAR_LABELS } from "@/features/progress/stars";
 import { useProgress } from "@/features/progress/useProgress";
 import { areaPath, chain, gaps, wrap, type PathNode } from "../model/path";
 import { blockHref } from "../model/stepHref";
-import { EXAMPLE_STUDENTS, exampleRatings, stepProgress, stepRatings, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
+import { EXAMPLE_STUDENTS, exampleRatings, stepProgress, stepRatings, studentReach, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
 import type { SpareSteps, Step } from "../model/steps";
 import JourneyView from "./JourneyView";
 import ProposalView from "./ProposalView";
@@ -262,7 +262,7 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
   const [who, setWho] = useState("none");
   const [view, setView] = useState<"journey" | "slope" | "today" | "proposed">("journey");
   const [today] = useState(() => localDate());
-  const { state: { current, history }, loaded: planLoaded } = usePlan();
+  const { state: { current, history, answers }, loaded: planLoaded } = usePlan();
   const { entries, loaded: entriesLoaded } = useProgress();
   const progress = useMemo(() => {
     if (who === "none") return null;
@@ -273,6 +273,12 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
     const student = EXAMPLE_STUDENTS.find((s) => s.id === who);
     return student ? stepProgress(exampleRatings(student, today), today) : null;
   }, [who, today, current, history, planLoaded, entries, entriesLoaded]);
+  // the student's questionnaire answers: an example's own, or the player's last ones
+  const reachMarks = useMemo(() => {
+    if (!progress) return null;
+    const topics = who === "me" ? answers?.topics ?? {} : EXAMPLE_STUDENTS.find((s) => s.id === who)?.topics ?? {};
+    return studentReach(topics, progress);
+  }, [progress, who, answers]);
   const path = useMemo(() => areaPath(area, nodes), [area, nodes]);
   const { lanes, boxes, height } = useMemo(() => layout(path), [path]);
   const lit = useMemo(() => (sel ? chain(sel, nodes) : null), [sel, nodes]);
@@ -327,7 +333,7 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
           )}
         </div>
       )}
-      {view === "slope" && <SlopeView area={area} progress={progress} blocks={blocks} />}
+      {view === "slope" && <SlopeView area={area} progress={progress} reach={reachMarks} blocks={blocks} />}
       {view === "proposed" && <ProposalView area={area} nodes={nodes} onArea={pickArea} />}
       {view === "journey" && (
         <>

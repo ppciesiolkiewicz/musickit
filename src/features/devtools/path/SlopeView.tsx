@@ -6,6 +6,7 @@ import { AREAS, type Area } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { PATH, predecessorsOf, slope, stepAt, type SlopeStep, type Track } from "@/features/plan/model/path";
 import { ADDED_AFTER, isAdded, proposedPath, whyOf } from "../model/slopeProposal";
+import type { StepReach } from "@/features/plan/model/reach";
 import type { ConceptProgress, StepState } from "../model/stepProgress";
 import { blockHref } from "../model/stepHref";
 
@@ -100,8 +101,11 @@ const label = (ref: string, tracks: Track[]) => {
   return at ? `${at.track.label} ${at.index + 1}: ${at.step.name}` : ref;
 };
 
-/** `progress`: a student laid over the path, keyed by track id; a step's ring is its state, the step they are on is bold. */
-export default function SlopeView({ area, progress, blocks = {} }: { area: Area; progress: Record<string, ConceptProgress> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /dev/block */ blocks?: Record<string, number> }) {
+/**
+ * `progress`: a student laid over the path, keyed by track id; a step's ring is its state, the step they are on is bold.
+ * `reach`: the same student's steps marked known, within reach or ahead (plan/model/reach.ts).
+ */
+export default function SlopeView({ area, progress, reach = null, blocks = {} }: { area: Area; progress: Record<string, ConceptProgress> | null; reach?: Map<string, StepReach> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /dev/block */ blocks?: Record<string, number> }) {
   const [version, setVersion] = useState<Version>("proposed");
   const [pick, setPick] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
@@ -248,7 +252,10 @@ export default function SlopeView({ area, progress, blocks = {} }: { area: Area;
               const mine = progress?.[step.track.id];
               const state = mine?.steps[step.index]?.state;
               const here = mine?.at === step.index;
-              const ring = mark === "sel" ? "var(--color-violet-200)" : mark === "before" ? "var(--color-sky-300)" : mark === "after" ? "var(--color-violet-300)" : (state && STATE_RING[state]) || (progress ? "var(--color-slate-700)" : isNew || shift ? ADDED : "var(--color-slate-700)");
+              const r = reach?.get(step.ref);
+              const next = r?.mark === "reach";
+              const ahead = r?.mark === "ahead" && !r.open;
+              const ring = mark === "sel" ? "var(--color-violet-200)" : mark === "before" ? "var(--color-sky-300)" : mark === "after" ? "var(--color-violet-300)" : (state && STATE_RING[state]) || (next ? "var(--color-sky-400)" : progress ? "var(--color-slate-700)" : isNew || shift ? ADDED : "var(--color-slate-700)");
               return (
                 <button
                   key={step.ref} type="button"
@@ -259,13 +266,18 @@ export default function SlopeView({ area, progress, blocks = {} }: { area: Area;
                   className="absolute cursor-pointer rounded-lg border px-2 py-1 text-left transition-opacity duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
                   style={{
                     left: x, top: y, width: PILL_W, height: PILL_H, borderColor: ring,
-                    opacity: mark === "dim" ? 0.55 : 1,
+                    borderStyle: next && !state ? "dashed" : undefined,
+                    opacity: mark === "dim" ? 0.55 : ahead && mark === "plain" ? 0.4 : 1,
                     background: `linear-gradient(160deg, ${a.soft}, transparent 70%), var(--color-slate-950)`,
                     boxShadow: mark === "sel" ? `0 0 0 1px ${ring}, 0 6px 20px -6px ${a.hue}` : undefined,
                   }}
                 >
                   <span className="flex items-baseline justify-between gap-1 text-[10px] text-slate-500">
-                    <span>{step.index + 1}/{step.track.steps.length}</span>
+                    <span>
+                      {step.index + 1}/{step.track.steps.length}
+                      {next && <span className="ml-1 font-semibold text-sky-300">{r!.start ? "start" : "next"}</span>}
+                      {r?.mark === "known" && state !== "solid" && <span className="ml-1 text-emerald-300/80">known</span>}
+                    </span>
                     <span className="font-mono">
                       d{step.depth}
                       {shift !== 0 && <span className="ml-1 text-orange-300">{shift > 0 ? `+${shift}` : shift}</span>}
@@ -302,6 +314,7 @@ export default function SlopeView({ area, progress, blocks = {} }: { area: Area;
         <span className="text-sky-300">blue curve: a step in another track to learn first</span>
         {version === "proposed" && <span className="text-orange-300">orange: a new link, a new step, or a step that moved (+N deeper than now)</span>}
         {progress && <span><span className="text-emerald-300">green ring: solid</span> · <span className="text-amber-300">amber ring: working on it</span> · <b className="text-white">bold: the step the student is on</b> · a rating with no step shows on no step</span>}
+        {reach && <span><span className="text-sky-300">dashed blue, &quot;next&quot;: within reach</span> · &quot;start&quot;: where the questionnaire puts them · &quot;known&quot;: placed below their start, or needed by a solid step · faded: ahead</span>}
         <span>Hover or pick a step: blue ring learn first, violet ring comes after</span>
         <span><span className="text-sky-300">badge: its blocks, opened in a new tab</span> · <span className="text-amber-300">! no block yet</span> ({own.filter(({ step }) => !blocks[step.ref]).length} in {areaLabel})</span>
       </p>

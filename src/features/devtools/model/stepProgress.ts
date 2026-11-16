@@ -1,5 +1,7 @@
 import { CONCEPTS, conceptIds } from "@/features/plan/model/concepts";
+import type { Rung } from "@/features/plan/intake/topics";
 import { SOLID_STARS } from "@/features/plan/model/outcome";
+import { reach, type StepReach } from "@/features/plan/model/reach";
 import { addDays, dayOf } from "@/features/plan/model/schedule";
 import { toolsOf } from "@/features/plan/model/tools";
 import type { StoredPlan } from "@/features/plan/model/types";
@@ -98,11 +100,17 @@ export function weeksBetween(from: string, to: string): number {
 }
 
 /** A made-up student, to see the view with something on it. A step is named by the ladder step it is (`ladders.ts`), null for no step; `days` is how long before today a rating was given. */
-export interface ExampleStudent { id: string; label: string; ratings: [concept: string, step: string | null, stars: Stars, days: number][] }
+export interface ExampleStudent {
+  id: string; label: string;
+  /** their questionnaire answers: the line picked per topic (0 to 3), for `reach` */
+  topics: Record<string, Rung>;
+  ratings: [concept: string, step: string | null, stars: Stars, days: number][];
+}
 
 export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   {
     id: "guitar-slow", label: "Example: guitar, slow and steady",
+    topics: { "guitar-scales": 1, "guitar-basic-chords": 1, "guitar-techniques": 1 },
     ratings: [
       ["notes-on-neck", "note-finder:new", 5, 40], ["notes-on-neck", "note-finder:beginner", 4, 26],
       ["spider", "finger-pattern:new", 5, 38], ["spider", "finger-pattern:beginner", 2, 30], ["spider", "finger-pattern:beginner", 3, 16], ["spider", "finger-pattern:beginner", 3, 2],
@@ -113,6 +121,7 @@ export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   },
   {
     id: "guitar-fast", label: "Example: guitar, moving fast",
+    topics: { "guitar-scales": 2, "guitar-basic-chords": 2, "guitar-barre-chords": 1, "guitar-caged": 1, "guitar-techniques": 2 },
     ratings: [
       ["notes-on-neck", "note-finder:beginner", 5, 60], ["notes-on-neck", "note-finder:intermediate", 4, 20], ["notes-on-neck", "note-finder:advanced", 3, 4],
       ["spider", "finger-pattern:advanced", 5, 45], ["legato", "legato-trill:new", 5, 50], ["legato", "legato-trill:beginner", 5, 36], ["legato", "legato-trill:intermediate", 4, 22], ["legato", "legato-trill:advanced", 3, 6],
@@ -122,6 +131,7 @@ export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   },
   {
     id: "voice", label: "Example: voice with some ear training",
+    topics: { "voice-pitch": 1, "voice-intervals": 1, "voice-melodies": 1, "voice-breath-range": 1, "theory-ear": 1 },
     ratings: [
       ["pitch", null, 4, 44], ["breath", "farinelli:new", 4, 41], ["breath", "farinelli:beginner", 3, 10],
       ["steps-to-leaps", "melody-stages:do-re", 5, 43], ["steps-to-leaps", "melody-stages:mi", 5, 36], ["steps-to-leaps", "melody-stages:fa", 4, 30], ["steps-to-leaps", "melody-stages:sol", 4, 24],
@@ -133,6 +143,7 @@ export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   },
   {
     id: "guitar-lead", label: "Example: guitar, advanced lead player",
+    topics: { "guitar-scales": 3, "guitar-basic-chords": 3, "guitar-barre-chords": 3, "guitar-extended-chords": 1, "guitar-caged": 2, "guitar-techniques": 3, "theory-ear": 2, "theory-scales-keys": 2, "theory-modes": 1 },
     ratings: [
       ["notes-on-neck", "note-finder:intermediate", 5, 120], ["notes-on-neck", "note-finder:advanced", 4, 60], ["notes-on-neck", "note-finder:advanced", 5, 14],
       ["spider", "finger-pattern:advanced", 5, 130], ["legato", "legato-trill:intermediate", 5, 110], ["legato", "legato-trill:advanced", 4, 40], ["legato", "legato-trill:advanced", 5, 9],
@@ -146,6 +157,7 @@ export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   },
   {
     id: "guitar-chords", label: "Example: guitar, advanced chord player",
+    topics: { "guitar-scales": 1, "guitar-basic-chords": 3, "guitar-barre-chords": 3, "guitar-extended-chords": 2, "guitar-caged": 2, "guitar-techniques": 1, "theory-ear": 2, "theory-scales-keys": 2, "theory-building-chords": 2, "theory-progressions": 2 },
     ratings: [
       ["open-chords", null, 5, 300], ["strumming", null, 5, 260], ["barre", null, 5, 210], ["power-chords", null, 5, 220],
       ["seventh-shapes", null, 5, 150], ["sus-add9", null, 4, 110], ["sus-add9", null, 5, 40], ["shells", null, 4, 70], ["shells", null, 3, 10],
@@ -158,6 +170,7 @@ export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   },
   {
     id: "voice-advanced", label: "Example: voice, advanced singer",
+    topics: { "voice-pitch": 3, "voice-intervals": 3, "voice-melodies": 3, "voice-breath-range": 3, "voice-runs": 3, "voice-harmony": 2, "theory-ear": 2, "theory-scales-keys": 2 },
     ratings: [
       ["pitch", null, 5, 200], ["breath", "farinelli:intermediate", 5, 120], ["breath", "farinelli:advanced", 4, 30],
       ["steps-to-leaps", "melody-stages:arpeggio", 5, 150], ["steps-to-leaps", "melody-stages:fifths", 5, 90], ["steps-to-leaps", "melody-stages:sixths", 4, 60],
@@ -172,6 +185,7 @@ export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   },
   {
     id: "theory-advanced", label: "Example: theory and ear, far along",
+    topics: { "theory-basics": 3, "theory-ear": 3, "theory-scales-keys": 3, "theory-building-chords": 3, "theory-progressions": 3, "theory-modes": 2 },
     ratings: [
       ["beat", null, 5, 250], ["note-names", null, 5, 240], ["home-and-colour", null, 5, 220],
       ["intervals", "interval-ears:1", 5, 230], ["intervals", "interval-ears:2", 5, 200], ["intervals", "interval-ears:3", 5, 170], ["intervals", "interval-ears:4", 4, 110], ["intervals", "interval-ears:5", 3, 30], ["intervals", "interval-ears:5", 3, 4],
@@ -182,6 +196,7 @@ export const EXAMPLE_STUDENTS: ExampleStudent[] = [
   },
   {
     id: "guitar-returning", label: "Example: guitar, advanced but back after a break",
+    topics: { "guitar-scales": 3, "guitar-basic-chords": 3, "guitar-barre-chords": 3, "guitar-caged": 3, "guitar-techniques": 3 },
     ratings: [
       ["notes-on-neck", "note-finder:advanced", 5, 400], ["spider", "finger-pattern:advanced", 5, 420], ["legato", "legato-trill:advanced", 4, 380],
       ["picking", "picking-drill:advanced", 4, 390], ["pentatonic-positions", null, 5, 410], ["caged", null, 5, 370], ["triads", null, 4, 375],
@@ -200,3 +215,11 @@ const keyOf = (concept: string, ref: string | null): string | null => {
 
 export const exampleRatings = (s: ExampleStudent, today: string): StepRating[] =>
   s.ratings.map(([concept, step, stars, days]) => ({ concept, step: keyOf(concept, step), stars, on: addDays(today, -days) }));
+
+/** The steps a student has solid, as path refs ("trackId:n"), from their progress. */
+export const solidRefs = (progress: Record<string, ConceptProgress>): string[] =>
+  Object.entries(progress).flatMap(([id, p]) => p.steps.flatMap((st, i) => (st.state === "solid" ? [`${id}:${i + 1}`] : [])));
+
+/** Each step marked known, within reach or ahead for a student (plan/model/reach.ts): their answers and their solid steps. */
+export const studentReach = (topics: Record<string, Rung>, progress: Record<string, ConceptProgress>): Map<string, StepReach> =>
+  reach({ topics, solid: solidRefs(progress) });

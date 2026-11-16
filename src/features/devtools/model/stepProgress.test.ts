@@ -5,7 +5,8 @@ import type { PlanTool } from "@/features/plan/model/tools";
 import type { StoredPlan } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 import { conceptSteps, stepOf } from "./steps";
-import { EXAMPLE_STUDENTS, exampleRatings, stepProgress, stepRatings, weeksBetween, type StepRating } from "./stepProgress";
+import { topicById } from "@/features/plan/intake/topics";
+import { EXAMPLE_STUDENTS, exampleRatings, solidRefs, stepProgress, stepRatings, studentReach, weeksBetween, type StepRating } from "./stepProgress";
 
 const tool = (t: Record<string, unknown>) => t as unknown as PlanTool;
 const r = (concept: string, step: string | null, stars: 1 | 2 | 3 | 4 | 5, on: string): StepRating => ({ concept, step, stars, on });
@@ -54,5 +55,21 @@ test("the example students name real concepts and real steps of them", () => {
       assert.ok(ids.has(x.concept), `${s.id}: ${x.concept}`);
       if (x.step) assert.ok(steps[x.concept]?.steps.some((st) => st.key === x.step), `${s.id}: ${x.concept} ${x.step}`);
     }
+  }
+});
+
+test("example students answer only topics that exist, each with a line 0 to 3", () => {
+  for (const st of EXAMPLE_STUDENTS) {
+    for (const [t, r] of Object.entries(st.topics)) assert.ok(topicById(t) && r >= 0 && r <= 3, `${st.id}: ${t}`);
+  }
+});
+
+test("studentReach: a solid step is known, and every example student has something within reach", () => {
+  const today = "2026-11-16";
+  for (const st of EXAMPLE_STUDENTS) {
+    const progress = stepProgress(exampleRatings(st, today), today);
+    const marks = studentReach(st.topics, progress);
+    for (const ref of solidRefs(progress)) assert.equal(marks.get(ref)?.mark, "known", `${st.id}: ${ref}`);
+    assert.ok([...marks.values()].some((m) => m.mark === "reach"), st.id);
   }
 });

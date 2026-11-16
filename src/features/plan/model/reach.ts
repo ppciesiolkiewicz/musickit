@@ -9,7 +9,7 @@ import type { Level } from "./types";
  *
  * 1. The questionnaire places each track (intake/placement.ts): the steps under a starting step are known, a track
  *    placed "done" is known whole.
- * 2. A step rated solid is known.
+ * 2. A step rated solid is known, a starting step too (it stops being a start).
  * 3. Known carries back: everything a known step or a starting step needs first is known too, across tracks and topics.
  * 4. A step not known whose predecessors are all known is a candidate. A starting step always is, whatever it needs.
  * 5. Each topic offers a few candidates at a time, set by that topic's line (REACH_CAP): starting steps first, then the
@@ -35,7 +35,8 @@ const LEVELS: Level[] = ["new", "beginner", "intermediate", "advanced"];
 const refOf = (t: Track, i: number) => `${t.id}:${i + 1}`;
 
 export function reach(input: { topics: Record<string, Rung>; solid?: Iterable<string> }, tracks: Track[] = PATH): Map<string, StepReach> {
-  const known = new Set<string>(input.solid ?? []);
+  const solid = new Set<string>(input.solid ?? []);
+  const known = new Set<string>(solid);
   const starts = new Set<string>();
   for (const p of placement(input.topics)) {
     const t = tracks.find((x) => x.id === p.concept);
@@ -43,7 +44,8 @@ export function reach(input: { topics: Record<string, Rung>; solid?: Iterable<st
     if (p.state === "done") t.steps.forEach((_, i) => known.add(refOf(t, i)));
     else if (p.state === "on" && p.step !== null) {
       for (let i = 0; i < p.step; i++) known.add(refOf(t, i));
-      starts.add(refOf(t, p.step));
+      // a start rated solid since is known: the rating is newer than the questionnaire
+      if (!solid.has(refOf(t, p.step))) starts.add(refOf(t, p.step));
     }
   }
   for (const s of starts) known.delete(s);
