@@ -3,27 +3,26 @@
 import { useEffect, useState } from "react";
 import { HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
-import { allowanceLabel, bestSavingLabel, priceCents, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, dollars, type Billing, type Plan } from "../plans";
+import { allowanceLabel, bestSavingLabel, priceCents, priceLabel, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
 import { ErrorLine, PRIMARY, errorOf, send } from "./parts";
 
 /** `GET /api/account/plan` (`AccountPlans` in server/auth.ts, which a client file can't import). */
 export type Loaded = { plans: Plan[]; current: string | null; billing: Billing; request: { planId: string; at: string } | null };
 
-/**
- * The open beta, said over the plans here and on /account/setup: the app is free while we fix bugs, so a plan is the one
- * a person would want once we charge. Nothing is charged, and there is no payment step.
- */
-export const BETA_PLAN_LINE = "Free during the open beta, while we fix bugs. Choose the plan you'd want once we start charging. Nothing is charged now.";
+/** Over the plans here and on /account/setup: the open beta charges nothing, while what people choose shows us who would pay for what. */
+export const BETA_PLAN_LINE = "Free during the open beta, while we fix bugs: choosing a plan doesn't ask for payment.";
 
 /** What a plan gives, under its name and price: here and on /account/setup. */
-export function PlanLines({ plan }: { plan: Plan }) {
+export function PlanLines({ plan, trial: showTrial = true }: { plan: Plan; /** off for someone already on a plan: the trial is for a new account */ trial?: boolean }) {
   const students = studentsLabel(plan);
+  const trial = showTrial ? trialLabel(plan) : null;
   return (
     <ul className="flex flex-col gap-0.5 text-xs leading-relaxed text-slate-400">
       {students && <li>{students}</li>}
       <li>{allowanceLabel(plan)}</li>
       {plan.role === "teacher" && <li>Share plans with your students</li>}
       {pricedWithYou(plan) && <li>We&apos;ll email you to set the price</li>}
+      {trial && <li>{trial}</li>}
       {!plan.enabled && <li>No longer offered. You keep it until you choose another plan.</li>}
     </ul>
   );
@@ -69,7 +68,7 @@ export const planHue = (i: number): Hue => PLAN_HUES[i % PLAN_HUES.length];
  * One plan to pick, as a radio card in its own colour: its name, its price paid this way under it, what it gives. The same
  * card in setup's row of plans and in /account's column.
  */
-export function PlanOption({ plan, billing, checked, mine, hue = "sky", onPick }: { plan: Plan; billing: Billing; checked: boolean; /** "Your plan" note */ mine?: string | null; hue?: Hue; onPick: () => void }) {
+export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "sky", onPick }: { plan: Plan; billing: Billing; checked: boolean; /** "Your plan" note */ mine?: string | null; trial?: boolean; hue?: Hue; onPick: () => void }) {
   const custom = pricedWithYou(plan);
   const saving = billing === "year" && !custom ? savingLabel(plan) : null;
   const tone = HUE_TONES[hue];
@@ -90,7 +89,7 @@ export function PlanOption({ plan, billing, checked, mine, hue = "sky", onPick }
           )}
         </span>
         {saving && <span className="self-start rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-300">{saving}</span>}
-        <PlanLines plan={plan} />
+        <PlanLines plan={plan} trial={trial} />
         {mine && <span className={`text-xs font-medium ${tone.ink}`}>{mine}</span>}
       </span>
     </label>
@@ -98,12 +97,34 @@ export function PlanOption({ plan, billing, checked, mine, hue = "sky", onPick }
 }
 
 /**
- * The Plan part of /account: the plan the person would want once we charge (the open beta charges nothing), and how
- * they'd pay. Picking a plan or the other billing shows Choose …, which moves them at once and reloads the page, since a
- * Teacher plan changes the role every page reads. Leaving a Teacher plan for Student says first that it takes away
- * sharing plans; a Teacher plan with fewer students says its limit. Both say the students keep the plans already shared:
- * an invite claimed is a copy in the student's own plans (`claimInvite`). On a plan priced with them (Teacher Unlimited)
- * it says when they asked and that we'll email them.
+ * What the chosen plan costs and when, above where the card details will go. A placeholder: nothing is charged during
+ * the beta, and there is no payment provider yet.
+ */
+export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; billing: Billing; /** the chosen plan's colour, for its dot */ hue?: Hue; /** a new account's first plan starts with the free trial; a change doesn't */ trial: boolean }) {
+  const price = priceLabel(plan, billing);
+  const days = plan.trialDays === 1 ? "1 day" : `${plan.trialDays} days`;
+  return (
+    <section aria-labelledby="payment-heading" className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+      <h3 id="payment-heading" className="text-sm font-semibold text-slate-200">Payment</h3>
+      <p className="text-sm text-slate-300">
+        <span aria-hidden className={`mr-2 inline-block size-2 rounded-full align-middle ${HUE_TONES[hue].fill}`} />
+        {pricedWithYou(plan)
+          ? `${plan.name}, price set with you. We'll email you to set the price.`
+          : <>{plan.name}, {price}.{" "}{trial && plan.trialDays > 0 ? `${days} free, then ${dollars(priceCents(plan, billing))} every ${billing}.` : `${dollars(priceCents(plan, billing))} every ${billing}.`}</>}
+      </p>
+      <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500">
+        Card details will go here. Free during the open beta: nothing is charged.
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The Plan part of /account: the plans the person can choose, the one they are on and how they pay. Picking a plan or the
+ * other billing shows what it costs and the payment box; Move to … moves them at once, with no payment during the beta,
+ * and reloads the page, since a Teacher plan changes the role every page reads. Leaving a Teacher plan for Student says
+ * first that it takes away sharing plans; a Teacher plan with fewer students says its limit. Both say the students keep
+ * the plans already shared: an invite claimed is a copy in the student's own plans (`claimInvite`).
  */
 export default function PlanPicker({ account }: { account: Account }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
@@ -164,7 +185,8 @@ export default function PlanPicker({ account }: { account: Account }) {
                 hue={planHue(i)}
                 billing={shownBilling}
                 checked={p.id === chosenId}
-                mine={p.id === loaded.current ? `Your plan, ${loaded.billing === "month" ? "monthly" : "yearly"}` : null}
+                mine={p.id === loaded.current ? `Your plan, paid ${loaded.billing === "month" ? "monthly" : "yearly"}` : null}
+                trial={loaded.current === null}
                 onPick={() => { setPicked(p.id); setError(null); }}
               />
             ))}
@@ -172,10 +194,11 @@ export default function PlanPicker({ account }: { account: Account }) {
           {request && <p role="status" className="text-xs text-slate-400">You chose {request.name} on {request.on}. We&apos;ll email you at {account.email} to set the price.</p>}
           {changes && chosen && (
             <div className="flex flex-col gap-2">
+              <PaymentBox plan={chosen} hue={planHue(loaded.plans.indexOf(chosen))} billing={shownBilling} trial={loaded?.current === null} />
               {losesSharing && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">On {chosen.name} you won&apos;t be able to share plans with your students. {KEEP}</p>}
               {fewerStudents && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">{chosen.name} takes up to {chosen.students} students. {KEEP}</p>}
               <button type="button" disabled={busy} className={PRIMARY} onClick={() => void move()}>
-                {busy ? "Saving…" : samePlan ? `Choose ${shownBilling === "month" ? "monthly" : "yearly"}` : `Choose ${chosen.name}`}
+                {busy ? "Saving…" : samePlan ? `Pay ${shownBilling === "month" ? "monthly" : "yearly"}` : `Move to ${chosen.name}`}
               </button>
             </div>
           )}
