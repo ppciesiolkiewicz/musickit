@@ -131,6 +131,64 @@ export const EXAMPLE_STUDENTS: ExampleStudent[] = [
       ["intervals", "interval-ears:1", 5, 19], ["intervals", "interval-ears:2", 4, 12], ["intervals", "interval-ears:3", 2, 4], ["home-and-colour", null, 4, 27],
     ],
   },
+  {
+    id: "guitar-lead", label: "Example: guitar, advanced lead player",
+    ratings: [
+      ["notes-on-neck", "note-finder:intermediate", 5, 120], ["notes-on-neck", "note-finder:advanced", 4, 60], ["notes-on-neck", "note-finder:advanced", 5, 14],
+      ["spider", "finger-pattern:advanced", 5, 130], ["legato", "legato-trill:intermediate", 5, 110], ["legato", "legato-trill:advanced", 4, 40], ["legato", "legato-trill:advanced", 5, 9],
+      ["picking", "picking-drill:intermediate", 5, 100], ["picking", "picking-drill:advanced", 2, 35], ["picking", "picking-drill:advanced", 3, 18], ["picking", "picking-drill:advanced", 3, 3],
+      ["pentatonic-positions", null, 5, 140], ["pentatonic-positions", null, 5, 30], ["major-on-neck", null, 4, 70], ["major-on-neck", null, 4, 12],
+      ["arpeggios", null, 3, 25], ["arpeggios", null, 4, 6], ["bends-slides", null, 5, 90], ["bends-slides", null, 5, 20],
+      ["caged", null, 4, 80], ["triads", null, 4, 85], ["guitar-melodies", null, 4, 45],
+      ["open-chords", null, 5, 200], ["barre", null, 5, 160], ["power-chords", null, 5, 180], ["strumming", null, 4, 150],
+      ["scales", null, 4, 95], ["modes", null, 3, 22], ["modes", null, 3, 5], ["intervals", "interval-ears:3", 4, 50],
+    ],
+  },
+  {
+    id: "guitar-chords", label: "Example: guitar, advanced chord player",
+    ratings: [
+      ["open-chords", null, 5, 300], ["strumming", null, 5, 260], ["barre", null, 5, 210], ["power-chords", null, 5, 220],
+      ["seventh-shapes", null, 5, 150], ["sus-add9", null, 4, 110], ["sus-add9", null, 5, 40], ["shells", null, 4, 70], ["shells", null, 3, 10],
+      ["triads", null, 5, 120], ["caged", null, 4, 90], ["caged", null, 4, 15], ["arpeggios", null, 3, 20], ["arpeggios", null, 3, 4],
+      ["notes-on-neck", "note-finder:beginner", 5, 140], ["notes-on-neck", "note-finder:intermediate", 3, 30],
+      ["picking", "picking-drill:new", 4, 100], ["picking", "picking-drill:beginner", 3, 25], ["pentatonic-positions", null, 3, 60],
+      ["chords-of-a-key", null, 5, 130], ["keys", null, 4, 100], ["sevenths-up", null, 4, 80], ["ii-v-i", null, 4, 45], ["ii-v-i", null, 3, 7],
+      ["hearing-changes", null, 4, 50], ["dim-aug", null, 3, 12], ["styles", null, 4, 65],
+    ],
+  },
+  {
+    id: "voice-advanced", label: "Example: voice, advanced singer",
+    ratings: [
+      ["pitch", null, 5, 200], ["breath", "farinelli:intermediate", 5, 120], ["breath", "farinelli:advanced", 4, 30],
+      ["steps-to-leaps", "melody-stages:arpeggio", 5, 150], ["steps-to-leaps", "melody-stages:fifths", 5, 90], ["steps-to-leaps", "melody-stages:sixths", 4, 60],
+      ["steps-to-leaps", "melody-stages:sevenths", 4, 35], ["steps-to-leaps", "melody-stages:octave", 3, 14], ["steps-to-leaps", "melody-stages:octave", 4, 2],
+      ["singing-intervals", "interval-singer:intermediate", 5, 100], ["singing-intervals", "interval-singer:advanced", 4, 25],
+      ["tunes", "melody-difficulty:Hard", 5, 80], ["tunes", "melody-difficulty:Expert", 3, 16], ["tunes", "melody-difficulty:Expert", 3, 3],
+      ["runs", "run-stages:pentatonic-run", 5, 70], ["runs", "run-stages:nine", 4, 28], ["runs", "run-stages:octave-run", 2, 6],
+      ["range", null, 4, 110], ["range", null, 4, 20], ["sight-singing", null, 4, 75], ["sight-singing", null, 3, 9],
+      ["harmony-line", null, 5, 95], ["singing-modes", null, 4, 40], ["improvise", null, 3, 18],
+      ["intervals", "interval-ears:4", 4, 55], ["home-and-colour", null, 5, 130], ["keys", null, 4, 85],
+    ],
+  },
+  {
+    id: "theory-advanced", label: "Example: theory and ear, far along",
+    ratings: [
+      ["beat", null, 5, 250], ["note-names", null, 5, 240], ["home-and-colour", null, 5, 220],
+      ["intervals", "interval-ears:1", 5, 230], ["intervals", "interval-ears:2", 5, 200], ["intervals", "interval-ears:3", 5, 170], ["intervals", "interval-ears:4", 4, 110], ["intervals", "interval-ears:5", 3, 30], ["intervals", "interval-ears:5", 3, 4],
+      ["scales", null, 5, 180], ["keys", null, 5, 150], ["chords-of-a-key", null, 5, 140], ["sus", null, 4, 120], ["sevenths-up", null, 4, 100],
+      ["hearing-changes", null, 4, 90], ["hearing-changes", null, 3, 15], ["dim-aug", null, 4, 70], ["ii-v-i", null, 4, 60], ["ii-v-i", null, 5, 20],
+      ["modes", null, 4, 50], ["modes", null, 4, 8], ["minor-colours", null, 3, 26], ["minor-colours", null, 3, 2], ["styles", null, 4, 45],
+    ],
+  },
+  {
+    id: "guitar-returning", label: "Example: guitar, advanced but back after a break",
+    ratings: [
+      ["notes-on-neck", "note-finder:advanced", 5, 400], ["spider", "finger-pattern:advanced", 5, 420], ["legato", "legato-trill:advanced", 4, 380],
+      ["picking", "picking-drill:advanced", 4, 390], ["pentatonic-positions", null, 5, 410], ["caged", null, 5, 370], ["triads", null, 4, 375],
+      ["barre", null, 5, 450], ["open-chords", null, 5, 460], ["major-on-neck", null, 4, 360],
+      ["spider", "finger-pattern:intermediate", 3, 6], ["picking", "picking-drill:intermediate", 3, 4], ["barre", null, 4, 2], ["pentatonic-positions", null, 3, 1],
+    ],
+  },
 ];
 
 /** A ladder ref as the key of the concept's step it stands for; null when no step of the concept is that ladder step. */

@@ -150,7 +150,7 @@ stages), named on the step as `ladder: "ladderId:key"`. Amber ones are "not impl
 them. A box grows with its steps. Under the diagram, a closed list has the ladder steps no step of the path stands for.
 
 **A student on the diagram** (`model/stepProgress.ts`). *Student on the diagram* lays one player's progress over the path:
-the player in this browser (read through `usePlan` and `useProgress`, nothing written) or a made-up one
+the player in this browser (read through `usePlan` and `useProgress`, nothing written) or a made-up one, from new players to advanced ones (a lead and a chord guitarist, a singer, theory and ear, a guitarist back after a break)
 (`EXAMPLE_STUDENTS`). It is the teacher's view of a student, tried here first (NEW12, NEW13 in `tasks.txt`). A concept's
 edge turns green when its newest rating is 4 stars or more and amber when it is less, as the progress outcome has it.
 Each step gets a square: green solid, amber working, empty not started, dashed for a planned step, which can't be
