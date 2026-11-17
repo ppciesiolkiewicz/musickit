@@ -24,13 +24,14 @@ and a student, and nobody can make an account for someone else.
 
 ## Goals
 
-1. **Add a student.** On a new "Students" page a teacher adds a student by name (email optional, builder's call
-   whether it is required). The teacher fills in the questionnaire for the student: the same screens as a player's
-   start (`questionSteps`, `src/features/plan/intake/ui/Questionnaire.tsx`), worded for "your student" where needed.
-   This creates the student's account, records the answers on it, and puts a first plan on it. The teacher gets a
-   claim link to send.
-2. **Claim.** The student opens the link, signs in (email link, code or Google, as today) and takes over the account.
-   The first plan is already waiting on `/plan`. They do not see the questionnaire.
+1. **Add a student.** On a new "Students" page a teacher adds a student by name and email (required). The teacher
+   fills in the questionnaire for the student: the same screens as a player's start (`questionSteps`,
+   `src/features/plan/intake/ui/Questionnaire.tsx`), worded for "your student" where needed. This creates the
+   student's account, records the answers on it, and puts a first plan on it.
+2. **Claim (user).** We email the claim link to the student's address. Opening it signs them in (the email proves the
+   address, like today's email link) and lands them on their welcome page, with the first plan already waiting. They
+   do not see the questionnaire. No welcome page exists yet: build it as a stub (user) that greets them and links to
+   the waiting plan; what it shows besides that comes later.
 3. **Student limit.** Adding a student is refused when the teacher has as many students as `plans.students` allows
    (null: no limit). Students are counted whether claimed or not.
 4. **See the plan.** From the Students page the teacher opens each student's current plan, read-only, as the student
@@ -108,13 +109,13 @@ answers and scores, for these dates, 7 days", and does not design it. Until it e
 
 - **NEW7 first (user).** This is built after NEW7's composer can make a 7-day plan on the server; nothing of it ships
   before. Its implementation plan is written then, against the composer as it turned out.
-- **A claim link meets an existing account (Claude's call; the user didn't pick).** If the email the student signs in
-  with already has a musickit account, the claim is refused with a line asking them to sign in with another email or
-  to ask their teacher. No merging and no relinking for now; easy to change later.
+- **An email that already has an account (Claude's call; the user didn't pick).** Checked when the teacher adds the
+  student: the teacher is told the address already has a musickit account and the student is not added. No merging
+  or relinking for now; easy to change later.
 
 ## Left to the builder
 
 The link table's shape, the claim link (a one-time token like `authTokens`, or a share-like id with a claim route
 like `planClaims`), how an account is made without a sign-in (the `userFor` path in
 `src/features/account/server/auth.ts` makes accounts only on first sign-in), the Students page layout, and the
-student's email field.
+claim email's wording (with `design:ux-copy`).
