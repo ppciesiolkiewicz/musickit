@@ -115,10 +115,9 @@ describe("final: review fixes", () => {
     const back = writeNote(read.slice(read.indexOf("{")));
     assert.deepEqual((back.block?.cells[0] as { tool: unknown }).tool, block.cells[0].tool);
   });
-  it("the guide leaves out the whole example week", () => {
-    // the week example was ~30k characters of a ~171k guide; what is left is the tools, rules and exercise examples the AI copies
+  it("the guide holds no example and no library part: the browser's AI has no library tools", () => {
     assert.ok(authoringGuide(entries).length < 150_000, String(authoringGuide(entries).length));
-    assert.doesNotMatch(authoringGuide(entries), /## Example plan/);
+    assert.doesNotMatch(authoringGuide(entries), /### Example:|## Find models in the library|find_blocks/);
   });
   it("a refusal says what the page left out", () => {
     const { learnBefore: _l, ...noLink } = { ...raw, learnBefore: ["/not-a-page"] };

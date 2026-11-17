@@ -1,11 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue } from "./catalogue";
-import { buildPrompt, promptParts, settingsOf, weekByTopic, weekReport } from "./prompt";
+import { buildPrompt, promptParts, settingsOf, showcaseBlocks, weekByTopic, weekReport } from "./prompt";
 import { TOPICS } from "../intake/topics";
 import { DEFAULT_ANSWERS } from "../intake/answers";
-import { selectExamples } from "./exampleSelection";
-import { EXERCISE_EXAMPLES } from "../examples";
+import { SEED_BLOCKS } from "@/features/library/seed";
+import { blockIdOf, blockKeyOf } from "./blockId";
+import { parseExercise } from "./config";
 import { PROMPT_HIDDEN, TOOLS } from "./tools";
 import type { PlanAnswers, StoredPlan } from "./types";
 
@@ -13,9 +14,7 @@ const last: StoredPlan = {
   id: "p", startedOn: "2026-10-24", done: { "0:0": true },
   config: { title: "Week 1", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [{ title: `Ex ${i}`, minutes: 5, cells: [{ type: "text" as const, text: "x" }] }] })) },
 };
-const EX = selectExamples(DEFAULT_ANSWERS);
-const EXAMPLE_IDS = [...EX.exercises.map((e) => `example:${e.id}`), `example:${EX.plan.id}`];
-const ORDER = ["intro", "student", "how-to-plan", "exercise-format", "cells", "which-tool", "levels", "tools", "links", "rules", "mistakes", "writing", ...EXAMPLE_IDS, "answer-format"];
+const ORDER = ["intro", "student", "how-to-plan", "library", "exercise-format", "cells", "which-tool", "levels", "tools", "links", "rules", "mistakes", "writing", "answer-format"];
 
 test("prompt parts have unique ids in the documented order", () => {
   assert.deepEqual(promptParts(DEFAULT_ANSWERS, []).map((p) => p.id), ORDER);
@@ -53,18 +52,26 @@ test("every part has a label and text", () => {
   for (const p of promptParts(DEFAULT_ANSWERS, catalogue(), [last])) assert.ok(p.label && p.text.trim(), p.id);
 });
 
-test("example parts carry parseable JSON, every library exercise first and the plan last", () => {
-  const ex = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.example);
-  assert.deepEqual(ex.map((p) => p.example?.id), [...EXERCISE_EXAMPLES.map((e) => e.id), EX.plan.id]);
-  for (const p of ex) {
-    assert.ok(JSON.parse(p.example!.json));
-    assert.ok(p.text.includes(p.example!.json));
-    const forLine = p === ex.at(-1) ? "" : "For: [^\\n]+, level [^\\n]+\\n";
-    assert.match(p.text, new RegExp(`### Example: ${p.example!.id}\\n${forLine}Why it's good: `));
+test("the prompt carries no example", () => {
+  for (const a of [DEFAULT_ANSWERS, null]) {
+    const kinds = promptParts(a, catalogue()).map((p) => p.kind as string);
+    assert.ok(!kinds.includes("plan-example") && !kinds.includes("exercise-example"));
+    assert.doesNotMatch(buildPrompt(a, catalogue()), /### Example:/);
   }
-  assert.deepEqual(ex.map((p) => p.kind), [...EXERCISE_EXAMPLES.map(() => "exercise-example"), "plan-example"]);
-  assert.match(ex[0].text, /pitch the student's exercises at their own levels/);
-  assert.ok(JSON.parse(ex.at(-1)!.example!.json).days.length === 7);
+});
+
+test("the library part names the tools", () => {
+  const library = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.id === "library");
+  assert.equal(library.length, 1);
+  for (const tool of ["find_blocks", "get_block", "find_plans", "get_plan", "library_coverage", "player_progress"]) assert.match(library[0].text, new RegExp(`\\b${tool}\\b`), tool);
+});
+
+test("each showcase is named by its current block id", () => {
+  const showcases = SEED_BLOCKS.filter((f) => f.showcase);
+  assert.equal(showcases.length, 5);
+  assert.equal(showcaseBlocks().length, 5);
+  const p = buildPrompt(DEFAULT_ANSWERS, catalogue());
+  for (const f of showcases) assert.ok(p.includes(blockIdOf(blockKeyOf(parseExercise(f.exercise, f.id, catalogue()).block!))), f.id);
 });
 
 const rated: PlanAnswers = {
@@ -96,26 +103,23 @@ test("student part: a rough level per area, the line picked per topic, voice, mi
 
 test("the prompt drops repeats arithmetic and the old singing rule, and teaches blocks", () => {
   const all = buildPrompt(rated, catalogue());
-  const rules = promptParts(rated, catalogue()).filter((p) => !p.example).map((p) => p.text).join("\n");
+  const rules = promptParts(rated, catalogue()).map((p) => p.text).join("\n");
   assert.doesNotMatch(rules, /repeats/);
   assert.doesNotMatch(all, /"repeats"/);
   assert.match(all, /split into two exercises rather than exceed 6/);
   assert.doesNotMatch(all, /Always pair singing with playing/);
   assert.match(all, /at most one block of 3 minutes or less/);
   assert.match(all, /blocks of 2 to 5 minutes each/);
-  assert.match(all, /Why it's good:/);
 });
 
-test("skipped questionnaire: the student part asks for the answers, and the answer format agrees", () => {
+test("skipped questionnaire: the student part plans from the default answers and asks nothing first", () => {
   const parts = promptParts(null, []);
   const student = parts.find((p) => p.id === "student")!.text;
-  const format = parts.find((p) => p.id === "answer-format")!.text;
   assert.match(student, /skipped the questionnaire/);
-  assert.match(student, /your first reply is not the plan/);
-  assert.match(student, /The plan follows as one JSON code block after they answer/);
-  assert.match(format, /skipped questionnaire/);
-  assert.match(format, /first reply is then the questions, and the plan follows as one JSON code block after the student answers/);
-  assert.doesNotMatch(promptParts(DEFAULT_ANSWERS, []).find((p) => p.id === "answer-format")!.text, /skipped questionnaire/);
+  assert.match(student, /default answers/);
+  assert.match(student, /- Guitar \(about /);
+  assert.doesNotMatch(buildPrompt(null, []), /ask them, in one|first reply is not the plan|after they answer|skipped questionnaire/);
+  assert.equal(parts.find((p) => p.id === "answer-format")!.text, promptParts(DEFAULT_ANSWERS, []).find((p) => p.id === "answer-format")!.text);
 });
 
 test("definitions come before the rules that use them, the answer format is last and ends with the final check", () => {
@@ -123,7 +127,7 @@ test("definitions come before the rules that use them, the answer format is last
   const at = (id: string) => ids.indexOf(id);
   for (const def of ["exercise-format", "cells", "which-tool", "tools", "links"]) for (const rule of ["rules", "mistakes", "writing"]) assert.ok(at(def) < at(rule), `${def} before ${rule}`);
   assert.ok(at("how-to-plan") < at("exercise-format"));
-  assert.ok(at("writing") < at(EXAMPLE_IDS[0]));
+  assert.ok(at("how-to-plan") < at("library") && at("library") < at("exercise-format"));
   assert.equal(ids.at(-1), "answer-format");
   const last = promptParts(DEFAULT_ANSWERS, catalogue()).at(-1)!.text;
   assert.ok(last.trimEnd().split("\n").at(-1)!.startsWith("- "));
@@ -146,7 +150,6 @@ test("each rule is stated once: the repeats are gone, the mic tools include inte
 test("the rules ask for the student's voice type on staff and singer tools", () => {
   const rules = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.kind === "rules").map((p) => p.text).join("\n");
   assert.match(rules, /set "voice" on every staff, melody-singer and run-singer tool/);
-  assert.match(promptParts(null, []).find((p) => p.id === "student")!.text, /their level in each area/);
 });
 
 const topicWeek = (progress?: string): StoredPlan => ({
@@ -256,7 +259,7 @@ test("settingsOf: tools once each in order, keys, tempo range, voice; nothing fo
 
 test("the prompt teaches the choice, stages and variants, cells and hashtags, and never names step-choice, sections or focus", () => {
   const p = buildPrompt(rated, catalogue());
-  const rules = promptParts(rated, catalogue()).filter((x) => !x.example).map((x) => x.text).join("\n");
+  const rules = promptParts(rated, catalogue()).map((x) => x.text).join("\n");
   assert.match(rules, /a section with a "choice" of options/);
   assert.doesNotMatch(rules, /\bstep-choice\b/);
   assert.match(p, /### Cells/);

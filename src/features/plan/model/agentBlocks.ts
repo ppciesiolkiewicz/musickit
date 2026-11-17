@@ -16,8 +16,8 @@ import type { Block, PlanExercise, StoredPlan } from "./types";
 /** A place on the running plan, 1-based as the week shows it. */
 export type Where = { day: number; exercise: number };
 
-/** The prompt parts that are about the student or the plan's own answer: not in the guide. */
-const NOT_IN_GUIDE = new Set(["intro", "student", "week", "progress", "history", "course", "how-to-plan", "answer-format"]);
+/** The prompt parts that are about the student or the plan's own answer, or need the library tools the browser's AI lacks: not in the guide. */
+const NOT_IN_GUIDE = new Set(["intro", "student", "week", "progress", "history", "course", "how-to-plan", "library", "answer-format"]);
 
 const NOTE_PART = [
   "### Notes",
@@ -26,10 +26,9 @@ const NOTE_PART = [
   "Check every block with check_block before you send it with write_block or insert_block. check_block reads it as the page will and changes nothing. Fix what it reports and check again, until it says nothing to fix; then send it.",
 ].join("\n");
 
-/** The definitions, rules and examples of the plan prompt without the student, plus what a note is. */
+/** The definitions and rules of the plan prompt without the student, plus what a note is. */
 export function authoringGuide(entries: CatalogueEntry[]): string {
-  // the whole example week is left out too: it is about a week's answer, and it is most of the prompt's length
-  const parts = promptParts(DEFAULT_ANSWERS, entries).filter((p) => !NOT_IN_GUIDE.has(p.id) && p.kind !== "plan-example");
+  const parts = promptParts(DEFAULT_ANSWERS, entries).filter((p) => !NOT_IN_GUIDE.has(p.id));
   return [...parts.map((p) => p.text), NOTE_PART].join("\n\n");
 }
 

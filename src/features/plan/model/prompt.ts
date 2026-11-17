@@ -1,5 +1,5 @@
 import { GLOSSARY } from "@/features/course/glossary";
-import type { CatalogueEntry } from "./catalogue";
+import { catalogue, type CatalogueEntry } from "./catalogue";
 import { keyName } from "@/features/theory/keySlug";
 import { EXERCISE_AREAS, EXERCISE_TAGS, cellInterface, linkResources, toolInterface, toolsOf } from "./tools";
 import { LEVELS, labelOf } from "./questions";
@@ -9,15 +9,16 @@ import { VOICES } from "@/features/theory/singing";
 import { noteName } from "@/features/theory/voiceRange";
 import { AREAS, conceptsOf } from "./concepts";
 import { PATH } from "./path";
-import { isCurrentTeaching, type ExerciseExample, type PlanExample } from "../examples";
-import { selectExamples } from "./exampleSelection";
+import { SEED_BLOCKS, type SeedBlockFile } from "@/features/library/seed";
+import { blockIdOf, blockKeyOf } from "./blockId";
+import { parseExercise } from "./config";
 import { doneKey } from "./schedule";
 import { starText } from "@/features/progress/stars";
 import type { CourseRating } from "@/features/course/ratings";
 import { PLAN_DAYS, type PlanAnswers, type PlanExercise, type StoredPlan } from "./types";
 
 /** The version of the prompt, its authoring guide and the page's tools for the browser's AI: raised with an entry in `CHANGELOG.md` beside this file (see "Version" in AGENTS.md). */
-export const PROMPT_VERSION = 4;
+export const PROMPT_VERSION = 5;
 
 /** The student section's lines: per area a rough level and the line they picked for each topic, then voice, time, notes, styles. */
 function studentLines(a: PlanAnswers): string[] {
@@ -107,31 +108,40 @@ export function weekByTopic(plan: StoredPlan): string {
 /** How to read the ratings of a finished week. */
 const BUILD_ON = "Build on this: ratings are how the exercise went, and the tools, keys, bpm and voice after the semicolon are what they practised with: the baseline to step from. 1-2 stars: make it easier (slower bpm, a lower level, fewer notes, or split it into parts). 3: keep the level and change one thing (the key, the position, the tempo). 4-5: move on: first the next stage of the same level (faster, another key, a help taken away), and when that was already there, the next level, which is a new kind of difficulty (\"Levels\" below says what). Repeat what was skipped in a new form, and keep the thread of their goals.";
 
-const EXERCISES_HEADING = [
-  "## Examples of good exercises",
-  "Examples from every area and level, to show the format and the rules at work. Each says who it is for; pitch the student's exercises at their own levels above, not at these.",
-  "",
-].join("\n");
+export type PromptPartKind = "intro" | "student" | "week" | "progress" | "history" | "course" | "rules" | "interface" | "links" | "format" | "library";
 
-export type PromptPartKind = "intro" | "student" | "week" | "progress" | "history" | "course" | "rules" | "interface" | "links" | "format" | "exercise-example" | "plan-example";
-
-/** One labelled piece of the prompt; an example part also carries its JSON so tools can render it. */
+/** One labelled piece of the prompt. */
 export interface PromptPart {
   id: string;
   label: string;
   kind: PromptPartKind;
   text: string;
-  example?: { id: string; json: string };
 }
 
-/** An example from the library: its id, who it is for (exercises), why it is good, and its JSON; `heading` (if any) goes above it. */
-function examplePart(e: ExerciseExample | PlanExample, heading: string): PromptPart {
-  const json = JSON.stringify(e.kind === "plan" ? e.plan : e.exercise);
-  const areas = e.areas.map((id) => AREAS.find((x) => x.id === id)!.label).join(" + ");
-  const forWhom = e.kind === "exercise" ? [`For: ${areas}, level ${labelOf(LEVELS, e.level)}`] : [];
-  const style = isCurrentTeaching(e) ? ["Written to the current teaching rules: write like this one (practice first, a why the student can build their own drill from, each block the same drill turned a new way)."] : [];
-  const lines = [...(heading ? [heading] : []), `### Example: ${e.id}`, ...forWhom, `Why it's good: ${e.note}`, ...style, "```json", json, "```", ""];
-  return { id: `example:${e.id}`, label: `Example: ${e.id} · teaching v${e.docs.teaching}`, kind: e.kind === "plan" ? "plan-example" : "exercise-example", text: lines.join("\n"), example: { id: e.id, json } };
+type Showcase = NonNullable<SeedBlockFile["showcase"]>;
+
+/** What each showcase block shows, in the prompt's words: the one tool feature an agent learns from it. */
+const SHOWCASE_FEATURE: Record<Showcase, string> = {
+  blocks: "a section per step, each with its own chart",
+  pick: "a voice melody chosen by \"pick\"",
+  progression: "one progression worked several ways",
+  stages: "a choice that takes a drill up in stages (\"label\": \"stage\")",
+  variants: "a choice of equal variants, each a key and a position (\"label\": \"variant\")",
+};
+
+let showcases: { feature: string; id: string; title: string }[] | null = null;
+
+/** The seed blocks that each show one tool feature, with their block ids computed from the seed files, so the ids never go stale. */
+export function showcaseBlocks(): { feature: string; id: string; title: string }[] {
+  if (!showcases) {
+    const entries = catalogue();
+    showcases = SEED_BLOCKS.flatMap((f) => {
+      if (!f.showcase) return [];
+      const block = parseExercise(f.exercise, f.id, entries).block;
+      return block ? [{ feature: SHOWCASE_FEATURE[f.showcase], id: blockIdOf(blockKeyOf(block)), title: block.title }] : [];
+    });
+  }
+  return showcases;
 }
 
 const part = (id: string, label: string, kind: PromptPartKind, lines: string[]): PromptPart => ({ id, label, kind, text: lines.join("\n") });
@@ -148,9 +158,7 @@ export function buildPrompt(answers: PlanAnswers | null, entries: CatalogueEntry
 export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry[], previous: StoredPlan[] = [], course: CourseRating[] = []): PromptPart[] {
   const profile = answers
     ? studentLines(answers).join("\n")
-    : "The player skipped the questionnaire. In this one case your first reply is not the plan: ask them, in one short message, what they play, their level in each area, what they already know, their voice type (if they sing) and minutes a day. The plan follows as one JSON code block after they answer.";
-  const { exercises, plan } = selectExamples(answers ?? DEFAULT_ANSWERS);
-  const exerciseParts = exercises.map((e, i) => examplePart(e, i === 0 ? EXERCISES_HEADING : ""));
+    : ["The player skipped the questionnaire. Plan from these default answers and from any ratings below:", ...studentLines(DEFAULT_ANSWERS)].join("\n");
   // the week just finished goes in by topic. The AI's memory is the newest summary any stored plan carries (a reply may
   // come without one, and a plan used again carries an old one); the weeks practised since that summary was written go
   // in full, and with no summary at all the two weeks before this one do.
@@ -195,6 +203,18 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- Each day has a theme and 2 to 5 exercises whose minutes add up to about their daily time. Warm-up first, something musical (a song, a groove, improvising) last.",
       "- Vary the days; return to the week's key skill at least three times so it sticks, each time in a new form. Day 7 is a fun review that shows progress the student can feel: going back to something that was hard on day 1 and noticing it is easier now.",
       "- Concrete settings: keys, tempos, chords and strings, set in the tools and named in the text where the student needs them. Write the text as \"How to write an exercise\" below says.",
+      "",
+    ]),
+    part("library", "Find models in the library", "library", [
+      "## Find models in the library",
+      "The musickit library holds exercises (blocks) and whole plans written to the rules below, each naming the path steps it practises. Read some before you write, with the library tools:",
+      "- When a player is in scope, call player_progress first: where they stand in each topic and concept, and the blocks they have had.",
+      "- For each concept the week works on, call find_blocks with \"steps\" set to the student's current step and the next one (\"trackId:n\", from the list under Answer format). Add \"area\" or \"level\" when the list is long. Then call get_block on the two or three closest and write like them: the same kind of text, the tools used the same way.",
+      "- A block that fits the student as it is can go in the plan as it is: copy its exercise whole, unchanged. The same content is the same block, so the library counts its use.",
+      "- Call find_plans with \"areas\" and \"levels\" set to the student's, then get_plan on one of them, for the shape of a whole week: the day themes, the exercise lengths, where the key skill comes back. Copy its shape, not its exercises.",
+      "- library_coverage shows which steps no block practises yet. For those, write a new block from the rules below.",
+      "Each of these blocks shows one tool feature. Before you use the feature, call get_block with its id and write it the same way:",
+      ...showcaseBlocks().map((b) => `- ${b.feature}: ${b.id} ("${b.title}")`),
       "",
     ]),
     part("exercise-format", "Exercise format", "format", [
@@ -315,11 +335,9 @@ export function promptParts(answers: PlanAnswers | null, entries: CatalogueEntry
       "- A choice also takes a drill up in stages or across variants. \"label\": \"stage\" when each option is harder than the last, most often a faster tempo, or the next level of a tool that has a \"level\" (then say what the next stage adds, \"the next stage asks the leaps down as well\", not its level's name): the student gets one stage comfortable before the next, so say what comfortable is and where to go then (\"When every note lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\"), and what to do when a stage is too fast. \"label\": \"variant\" when the options are equals to compare, such as one pattern in two keys or two positions: send the student to each and say what to listen or look for between them (\"Then try the other variant. Use the Variant selector below to change it.\", and on a new line \"When you change the variant, your hand stays in the same frets and the ringed notes are in new places.\"). In a section with a choice the text names no tempo, key or position as the only one. When the change comes with a new task or new words, write a later section instead. A choice may also be open, with no options: \"choice\": { \"key\": \"a\", \"scale\": \"minor-pentatonic\" } on the block sets every tool's key and scale; use it only for a block whose tools all share one key, and write the tools in that key.",
       "",
     ]),
-    ...exerciseParts,
-    examplePart(plan, "## Example plan"),
     part("answer-format", "Answer format", "format", [
       "## Answer format",
-      `Reply with ONE JSON code block and nothing else: a PlanConfig with exactly ${PLAN_DAYS} days, shaped like the example plan above.${answers ? "" : " The one exception is the skipped questionnaire (see The student): your first reply is then the questions, and the plan follows as one JSON code block after the student answers."}`,
+      `Reply with ONE JSON code block and nothing else: a PlanConfig with exactly ${PLAN_DAYS} days.`,
       "```ts",
       `interface PlanConfig { title: string; summary?: string; progress: string; days: PlanDay[] } // exactly ${PLAN_DAYS} days; progress: your notes on the student, see How to plan`,
       "interface PlanDay { theme: string; exercises: Exercise[] } // 2 to 5 exercises",

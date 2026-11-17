@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 import { Chip } from "@/components/ui";
-import { DOC_VERSIONS, EXERCISE_EXAMPLES, PLAN_EXAMPLES, type DocVersions } from "@/features/plan/examples";
+import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { DOC_VERSIONS, type DocVersions } from "@/features/library/seed/versions";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
 import { AREAS, type Area } from "@/features/plan/model/concepts";
-import { selectExamples } from "@/features/plan/model/exampleSelection";
 import { LEVELS, labelOf } from "@/features/plan/model/questions";
 import type { Level } from "@/features/plan/model/types";
-import { answersFromText } from "../model/compose";
-import { partAnchor } from "../prompt/PartList";
+import { levelOf } from "@/features/plan/intake/answers";
 import ExamplePreview from "../prompt/ExamplePreview";
 import { parsePreview, planToCopy } from "../model/preview";
 import { exerciseSteps, planSteps, type ConceptAt } from "../model/exampleSteps";
@@ -19,10 +18,38 @@ import type { CopyNote } from "../model/copyNotes";
 import { useCopyNotes, useLinkedNote, useShowSections } from "../copy/store";
 import { CommentCount, CommentsFor } from "./Comments";
 import Icon from "@/components/Icon";
-import { loadStudio, useMounted } from "../prompt/storage";
+import { useMounted } from "../prompt/storage";
 
 type Kind = "exercise" | "plan";
 type Showcase = "blocks" | "pick" | "progression" | "stages" | "variants";
+
+/** A seed plan or block as this page shows it (Task 5 folds the page into /dev/library). */
+interface Item {
+  id: string;
+  kind: Kind;
+  areas: Area[];
+  level: Level;
+  model?: string;
+  docs: DocVersions;
+  note: string;
+  minutes?: number;
+  showcase?: Showcase;
+  json: string;
+}
+
+const LEVEL_ORDER: Level[] = ["new", "beginner", "intermediate", "advanced"];
+
+/** The seed files as items: a block's area and level as its exercise writes them, a plan's from its answers. */
+const ITEMS: Item[] = [
+  ...SEED_BLOCKS.map((f): Item => ({
+    id: f.id, kind: "exercise", areas: [f.exercise.area as Area], level: (f.exercise.level as Level | undefined) ?? "new",
+    model: f.model, docs: f.versions, note: f.note, showcase: f.showcase, json: JSON.stringify(f.exercise),
+  })),
+  ...SEED_PLANS.map((f): Item => ({
+    id: f.id, kind: "plan", areas: f.answers.areas, level: f.answers.areas.map((a) => levelOf(f.answers, a)).sort((a, b) => LEVEL_ORDER.indexOf(b) - LEVEL_ORDER.indexOf(a))[0] ?? "new",
+    model: f.model, docs: f.versions, note: f.note, minutes: f.answers.minutes, json: JSON.stringify(f.plan),
+  })),
+];
 
 /** Copies the example as a complete plan (an exercise as a week of itself), ready for /plan's paste step. */
 function CopyPlan({ json, note }: { json: string; note?: string }) {
@@ -207,14 +234,10 @@ function modelLabel(id: string): string {
 /** The Model filter's id for examples written before the model was recorded. */
 const NO_MODEL = "none";
 
-/**
- * Every example in the library, rendered as the player would see it, with filters. The ones the studio's current answers
- * put in the prompt are tagged "in prompt", a link to that part in the studio.
- */
+/** Every seed plan and block, rendered as the player would see it, with filters. */
 export default function ExampleViewer() {
   const mounted = useMounted();
   const entries = useMemo(() => catalogue(), []);
-  const [onlyPrompt, setOnlyPrompt] = useState<"in" | null>(null);
   const [kind, setKind] = useState<Kind | null>(null);
   const [area, setArea] = useState<Area | null>(null);
   const [level, setLevel] = useState<Level | null>(null);
@@ -223,7 +246,7 @@ export default function ExampleViewer() {
   const [model, setModel] = useState<string | null>(null);
   // every model that wrote an example, newest-looking first, then the ones written before the model was recorded
   const models = useMemo(() => {
-    const all = [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES];
+    const all = ITEMS;
     const ids = [...new Set(all.map((e) => e.model).filter((m): m is string => !!m))].sort().reverse();
     const counted = (m: string | undefined) => all.filter((e) => e.model === m).length;
     return [
@@ -234,31 +257,24 @@ export default function ExampleViewer() {
 
   // every teaching-skills version an example was written to, newest first
   const teachingVersions = useMemo(() => {
-    const all = [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES];
+    const all = ITEMS;
     return [...new Set(all.map((e) => e.docs.teaching))].sort((a, b) => b - a).map((v) => ({ id: `v${v}`, label: `Skills v${v}${v === DOC_VERSIONS.teaching ? " (current)" : ""} (${all.filter((e) => e.docs.teaching === v).length})` }));
   }, []);
 
-  const read = useMemo(() => (mounted ? answersFromText(loadStudio().answersText) : null), [mounted]);
-  const answers = read && !read.error ? read.answers : null;
-  const inPrompt = useMemo(() => {
-    if (!answers) return new Set<string>();
-    const s = selectExamples(answers);
-    return new Set([...s.exercises.map((e) => e.id), s.plan.id]);
-  }, [answers]);
   const library = useMemo(
     () =>
-      [...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].filter(
+      ITEMS.filter(
         (e) =>
           (!kind || e.kind === kind) && (!area || e.areas.includes(area)) && (!level || e.level === level) &&
-          (!showcase || (e.kind === "exercise" && e.showcase === showcase)) && (!onlyPrompt || inPrompt.has(e.id)) &&
+          (!showcase || e.showcase === showcase) &&
           (!teaching || teachingOf(e) === teaching) && (!model || (e.model ?? NO_MODEL) === model),
       ),
-    [kind, area, level, showcase, teaching, model, onlyPrompt, inPrompt],
+    [kind, area, level, showcase, teaching, model],
   );
 
   // every section of every example as it is now, filtered out or not: what the Notes bar checks section notes against and re-pins them to
   const shown = useMemo(() => {
-    const sections = exampleSections([...EXERCISE_EXAMPLES, ...PLAN_EXAMPLES].map((e) => ({ id: e.id, json: JSON.stringify(e.kind === "plan" ? e.plan : e.exercise) })), entries);
+    const sections = exampleSections(ITEMS.map((e) => ({ id: e.id, json: e.json })), entries);
     return { hashes: hashesOf(sections), repin: (notes: CopyNote[], files?: Record<string, { commit: string; dirty?: boolean }>) => repinSectionNotes(notes, sections, files) };
   }, [entries]);
   useShowSections(shown);
@@ -266,13 +282,8 @@ export default function ExampleViewer() {
   if (!mounted) return <p className="text-sm text-slate-500">Loading…</p>;
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-xs text-slate-500">
-        Answers from the <Link href="/dev/prompt" className="text-sky-300 underline">prompt studio</Link>
-        {read?.error ? ` don't parse (${read.error}); showing the skipped-questionnaire prompt.` : answers ? "." : " say the questionnaire was skipped."}
-      </p>
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
-          <Filter<"in"> label="Prompt" value={onlyPrompt} onChange={setOnlyPrompt} options={[{ id: "in", label: `In prompt (${inPrompt.size})` }]} />
           <Filter<Kind> label="Kind" value={kind} onChange={setKind} options={[{ id: "exercise", label: "Exercise" }, { id: "plan", label: "Plan" }]} />
           <Filter<Area> label="Area" value={area} onChange={setArea} options={AREAS} />
           <Filter<Level> label="Level" value={level} onChange={setLevel} options={LEVELS} />
@@ -287,23 +298,17 @@ export default function ExampleViewer() {
               title={e.id}
               badge={
                 <>
-                  <Pill tone={KIND_TONE[e.kind]}>{e.kind === "plan" ? "plan example" : "exercise example"}</Pill>
+                  <Pill tone={KIND_TONE[e.kind]}>{e.kind === "plan" ? "seed plan" : "seed block"}</Pill>
                   <Pill tone={versionTone(e.docs.teaching, DOC_VERSIONS.teaching)} title="The version of the teaching skills it was written to">teaching skills v{e.docs.teaching}</Pill>
                   <Pill tone={versionTone(e.docs.agents, DOC_VERSIONS.agents)} title="The version of AGENTS.md it was written to">AGENTS.md v{e.docs.agents}</Pill>
                   {e.areas.map((a) => <Pill key={a} tone={AREA_TONE[a]}>{labelOf(AREAS, a)}</Pill>)}
                   <Pill tone={LEVEL_TONE[e.level]}>{labelOf(LEVELS, e.level)}</Pill>
                   {e.model ? <Pill tone="indigo" title={e.model}>{modelLabel(e.model)}</Pill> : <Pill tone="slate" title="Written before the model was recorded">model not recorded</Pill>}
-                  <Pill tone="sky" title="Last written or rewritten">updated {e.updated}</Pill>
-                  {inPrompt.has(e.id) && (
-                    <Link href={`/dev/prompt#${partAnchor(`example:${e.id}`)}`} title="Open this example's part in the prompt studio" onClick={(ev) => ev.stopPropagation()}>
-                      <Pill tone="emerald">in prompt →</Pill>
-                    </Link>
-                  )}
                 </>
               }
               meta={e.kind === "plan" || e.showcase ? <span className="text-xs text-slate-500">{e.kind === "plan" ? `${e.minutes} min/day` : `showcase: ${e.showcase}`}</span> : undefined}
               note={e.note}
-              json={JSON.stringify(e.kind === "plan" ? e.plan : e.exercise)}
+              json={e.json}
               entries={entries}
             />
           ))}

@@ -10,6 +10,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 5 (2026-11-17)
+
+- Examples out: the prompt pastes no example exercise or plan, and `selectExamples` is gone. The examples are seed plans and blocks in `library/seed`, which agents read from the library database.
+- The library part, "Find models in the library": before writing, call `player_progress` when a player is in scope, `find_blocks` by the student's current and next step per concept, `get_block` on the closest two or three and write like them, `find_plans` and `get_plan` for one plan's shape; a block that fits may be used as it is; `library_coverage` shows the steps no block practises yet.
+- Showcases by block id: one line per showcase feature names the seed block that shows it, its id computed from the seed file when the prompt is built.
+- No ask-first branch: a player who skipped the questionnaire is planned from the default answers and their ratings, and the answer format has no exception for it.
+
 ### 4 (2026-11-16)
 
 - An exercise names its `steps`: 1 to 3 steps of the learning path (`trackId:n`), each in one of its concepts' tracks. It no longer writes a `level`; the app sets it from the steps (the highest of their levels). The answer format lists every concept's steps under its topic, numbered, with their levels.
