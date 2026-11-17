@@ -135,8 +135,10 @@ Every past day is kept. The page shows the last 14, newest first.
 
 - **Own plan and assigned plans apart.** `PlanState.current` is one plan today, and a claimed invite lands on
   `/plan?added=<planId>` as the current plan. A claimed or assigned plan needs its own place in the stored state and
-  its own page, so the composer never overwrites it and it never stands in for today's plan. Claude's call: a player's
-  own seven-day plan from before this build (there should be none, players had no route to one) goes to past plans.
+  its own page, so the composer never overwrites it and it never stands in for today's plan.
+- **No old plans to carry.** The user: all database data can be removed, so no seven-day plan from before overlaps
+  with the new ones. The build reads no old plan shape and writes no move-over code; the stored data is wiped when
+  this ships (said out loud at that step, before running it).
 
 ## Goals
 
@@ -170,8 +172,7 @@ Every past day is kept. The page shows the last 14, newest first.
   the use totals to the candidate blocks, name only blocks the app owns, count nothing from another player's private
   blocks.
 - How a day is stored: one stored plan per day, or days added to one running plan. Ratings key on the slot
-  (`${dayIndex}:${exerciseIndex}`) and on the slot `id`; keep both working for old plans or reset them (ask before a
-  reset).
+  (`${dayIndex}:${exerciseIndex}`) and on the slot `id`; nothing stored before has to keep working.
 - What the day's title and theme say, the "another plan" control and its wording, the empty and error states: written
   with `design:ux-copy` and "Words about the app".
 - The address of an assigned plan (`/plan/<planId>` is one way), how a player gets from `/plan` to the plans they
