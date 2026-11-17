@@ -5,6 +5,7 @@ import { buildPrompt, promptParts, settingsOf, showcaseBlocks, weekByTopic, week
 import { TOPICS } from "../intake/topics";
 import { DEFAULT_ANSWERS } from "../intake/answers";
 import { SEED_BLOCKS } from "@/features/library/seed";
+import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import { parseExercise } from "./config";
 import { PROMPT_HIDDEN, TOOLS } from "./tools";
@@ -64,6 +65,14 @@ test("the library part names the tools", () => {
   const library = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.id === "library");
   assert.equal(library.length, 1);
   for (const tool of ["find_blocks", "get_block", "find_plans", "get_plan", "library_coverage", "player_progress"]) assert.match(library[0].text, new RegExp(`\\b${tool}\\b`), tool);
+});
+
+test("the library part asks for blocks and plans written to the current teaching rules", () => {
+  const text = promptParts(DEFAULT_ANSWERS, []).find((p) => p.id === "library")!.text;
+  assert.ok(text.includes(`"docs_teaching": ${DOC_VERSIONS.teaching}`), text);
+  assert.match(text, /use the feature the same way/);
+  assert.doesNotMatch(text, /write it the same way/);
+  assert.match(text, /with its area, topic, concepts, steps and tags/);
 });
 
 test("each showcase is named by its current block id", () => {

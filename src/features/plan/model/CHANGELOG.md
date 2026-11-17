@@ -13,7 +13,7 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 ### 5 (2026-11-17)
 
 - Examples out: the prompt pastes no example exercise or plan, and `selectExamples` is gone. The examples are seed plans and blocks in `library/seed`, which agents read from the library database.
-- The library part, "Find models in the library": before writing, call `player_progress` when a player is in scope, `find_blocks` by the student's current and next step per concept, `get_block` on the closest two or three and write like them, `find_plans` and `get_plan` for one plan's shape; a block that fits may be used as it is; `library_coverage` shows the steps no block practises yet.
+- The library part, "Find models in the library": before writing, call `player_progress` when a player is in scope, `find_blocks` by the student's current and next step per concept, `get_block` on the closest two or three and write like them, `find_plans` and `get_plan` for one plan's shape; a block that fits may be used as it is; `library_coverage` shows the steps no block practises yet. It searches with `docs_teaching` set to the current teaching version first; from an older block, plan or showcase the agent takes only the tool use and the shape, and writes the text to the prompt's rules. A block reused as it is keeps its area, topic, concepts, steps and tags.
 - Showcases by block id: one line per showcase feature names the seed block that shows it, its id computed from the seed file when the prompt is built.
 - No ask-first branch: a player who skipped the questionnaire is planned from the default answers and their ratings, and the answer format has no exception for it.
 
