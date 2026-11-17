@@ -1,5 +1,9 @@
 import type { BlockSummary, ConceptCoverage, CoverageRow, PlanSummary } from "@/features/library/server/types";
 import type { ItemResult, LibraryResult } from "./load";
+import { DOC_VERSIONS } from "@/features/library/seed/versions";
+import { SEED_PLANS } from "@/features/library/seed";
+import { PROMPT_VERSION } from "@/features/plan/model/prompt";
+import { seedBlocksById } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
 import { libraryHref, minutes, orDash, type LibraryParams } from "./params";
 
@@ -13,8 +17,30 @@ const Head = ({ cols }: { cols: string[] }) => (
     <tr>{cols.map((c) => <th key={c} className={TH}>{c}</th>)}</tr>
   </thead>
 );
-const versions = (p: { promptVersion: number | null; docsAgents: number | null; docsTeaching: number | null }) =>
-  `prompt ${orDash(p.promptVersion)}, agents ${orDash(p.docsAgents)}, teaching ${orDash(p.docsTeaching)}`;
+/** Each version the row was written to; one older than the current one is amber, one not recorded is grey. */
+function Versions({ p }: { p: { promptVersion: number | null; docsAgents: number | null; docsTeaching: number | null } }) {
+  const parts: [string, number | null, number][] = [
+    ["prompt", p.promptVersion, PROMPT_VERSION],
+    ["agents", p.docsAgents, DOC_VERSIONS.agents],
+    ["teaching", p.docsTeaching, DOC_VERSIONS.teaching],
+  ];
+  return (
+    <span className="whitespace-nowrap">
+      {parts.map(([name, v, now], i) => (
+        <span key={name}>
+          {i > 0 && ", "}
+          <span className={v === null ? "text-slate-500" : v < now ? "text-amber-300" : undefined} title={v !== null && v < now ? `behind: now ${now}` : undefined}>
+            {name} {orDash(v)}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** A small "Seed" tag after a title whose row comes from a seed file in src/features/library/seed. */
+const SeedTag = ({ seed }: { seed: boolean }) =>
+  seed ? <span className="ml-2 rounded-full border border-sky-500/40 bg-sky-500/10 px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider text-sky-200">Seed</span> : null;
 
 export function CoverageTable({ rows, params }: { rows: CoverageRow[]; params: LibraryParams }) {
   return (
@@ -67,6 +93,7 @@ function ItemLink({ id, title, params }: { id: string; title: string; params: Li
 
 export function PlansTable({ plans, params }: { plans: PlanSummary[]; params: LibraryParams }) {
   if (plans.length === 0) return <Muted>No plans.</Muted>;
+  const seed = new Set(SEED_PLANS.map((f) => f.id));
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm text-slate-200">
@@ -74,9 +101,9 @@ export function PlansTable({ plans, params }: { plans: PlanSummary[]; params: Li
         <tbody>
           {plans.map((p) => (
             <tr key={p.id} className={ROW}>
-              <td className="p-2"><ItemLink id={p.id} title={p.title} params={params} /></td>
+              <td className="p-2"><ItemLink id={p.id} title={p.title} params={params} /><SeedTag seed={seed.has(p.id)} /></td>
               <td className="p-2">{orDash(p.provenance.model)}</td>
-              <td className="p-2">{versions(p.provenance)}</td>
+              <td className="p-2"><Versions p={p.provenance} /></td>
               <td className="p-2">{p.days}</td>
               <td className="p-2">{p.reviews.count === 0 ? "–" : `${p.reviews.count}, mean ${p.reviews.mean === null ? "–" : p.reviews.mean.toFixed(1)}`}</td>
             </tr>
@@ -89,6 +116,7 @@ export function PlansTable({ plans, params }: { plans: PlanSummary[]; params: Li
 
 export function BlocksTable({ blocks, params }: { blocks: BlockSummary[]; params: LibraryParams }) {
   if (blocks.length === 0) return <Muted>No blocks for this topic.</Muted>;
+  const seed = seedBlocksById();
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm text-slate-200">
@@ -96,11 +124,11 @@ export function BlocksTable({ blocks, params }: { blocks: BlockSummary[]; params
         <tbody>
           {blocks.map((b) => (
             <tr key={b.id} className={ROW}>
-              <td className="p-2"><ItemLink id={b.id} title={b.title} params={params} /></td>
+              <td className="p-2"><ItemLink id={b.id} title={b.title} params={params} /><SeedTag seed={seed.has(b.id)} /></td>
               <td className="p-2">{orDash(b.level)}</td>
               <td className="p-2">{b.concepts.join(", ") || "–"}</td>
               <td className="p-2">{orDash(b.provenance.model)}</td>
-              <td className="p-2">{versions(b.provenance)}</td>
+              <td className="p-2"><Versions p={b.provenance} /></td>
               <td className="p-2">{b.use.times}</td>
               <td className="p-2">{minutes(b.use.seconds)}</td>
               {b.use.stars.map((n, i) => <td key={i} className="p-2">{n}</td>)}
