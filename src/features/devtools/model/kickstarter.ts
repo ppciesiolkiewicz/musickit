@@ -168,7 +168,7 @@ Piotr`,
   },
   {
     label: "Taking over a thread: Bernardinų Giedojimo Mokykla",
-    about: "A reply to a singing school that answered an outreach email from Jesse. The founder takes over, leads with the singing plans and a note, points to the demo for trying it with their own AI, and offers the call.",
+    about: "A reply to a singing school that answered an outreach email from Jesse. The founder takes over, leads with the singing plans and a note, points to the demo page, and offers the call.",
     text: `Hi Rita,
 
 Thanks for the reply. I’m Piotr, the founder of attunr, and I’m taking over from Jesse. I love music, and I’m building attunr to make teaching easier for teachers and practice better for students.
@@ -184,8 +184,8 @@ Apart from AI generating the plans, teachers can also create interactive notes l
 
 An example note, guitar first, then singing: https://www.attunr.app/note/minor-pentatonic
 
-You can try creating both notes and plans yourself. For now this needs your own AI browser extension or any AI chat (Claude, ChatGPT, Gemini etc), so that I can keep the app open for the demo.
-Create a note or a plan here:
+You can try making notes yourself. attunr puts plans together from its own library of exercises, so you don’t need an AI of your own.
+See the demo plans and notes here:
 https://www.attunr.app/demo
 
 Be aware that at this stage everything is in demo mode, so you will not necessarily be able to share the plans you create with others.

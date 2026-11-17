@@ -49,7 +49,7 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
  * "N on this page" opens a modal with this page's notes. On the page, each text note marks its text (`TextNoteMarks`). Opening the bar turns on
  * note mode ("Note a text" toggles it): hover outlines the block under the pointer (`blockOf`: a text block, list or box that holds text itself),
  * a click (which does nothing else then) opens a box for a note on it, keeping its text and its place in the page. The A key
- * (outside a text box) toggles note mode too. The pencils on /dev/library' sections add to the same notes. All pages' notes are on /dev/notes.
+ * (outside a text box) toggles note mode too. The pencils on /dev/library sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
   const pathname = usePathname();
