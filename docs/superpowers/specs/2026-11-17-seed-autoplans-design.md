@@ -27,6 +27,12 @@ So the examples folder stops being a second source: the database is the one plac
 5. **New blocks are written by agents in Claude Code**, by hand, one at a time, as NEW10 does now. No template generator.
 6. **The choice (stages, variants, pick-a-step) stays inside the block** for now. Splitting it out is its own series,
    ChoiceSplit in `tasks.txt`, after release.
+7. **One source: the seed files** (2026-11-17). The plans and blocks live as files in `src/features/library/seed/`.
+   The seed scripts copy them into the database, where agents read them through the library tools. Pages that show them
+   (/demo, the dev pages) import the same files through the seed index, not the database.
+8. **Both player routes go now**, in NEW15, not with NEW7 (2026-11-17).
+9. **The dev database may be reset and reseeded** (2026-11-17). The database in `.env.local` has never had a deployed
+   schema change and holds no real player data.
 
 ## Goals
 
@@ -36,7 +42,7 @@ So the examples folder stops being a second source: the database is the one plac
   `get_plan`, `library_coverage` and `player_progress`, with the prompt saying when to call which.
 - `src/features/plan/examples` is gone. Its 7 plans and 22 exercises sit in `src/features/library/seed/` and seed the
   database with the existing `db:seed-plans` and `db:seed-blocks`.
-- `/demo/<slug>` reads its six plans from the library (by id), not from files.
+- `/demo/<slug>` imports its six plans from the seed index (`library/seed/index.ts`), by id.
 - `/dev/examples` is folded into `/dev/library`: a seed plan or block can be read drawn there, with its version tags.
 - Players have no copy-and-paste or browser-AI route on `/plan`.
 
@@ -107,41 +113,37 @@ Each moves to the database or the seed index:
 
 | Reader | After |
 | --- | --- |
-| `plan/demos.ts` (/demo) | reads the six plans from the library by id (`getPlan`, app scope with not-enabled included). A plan missing from the DB shows the /demo "not found" state, not a crash. |
+| `plan/demos.ts` (/demo) | imports the six plans from the seed index by id; a test fails when a `DEMO_PLANS` id has no seed plan |
 | `userData/server/seedBlocks.ts`, `scripts/db-seed-blocks.ts`, `db-seed-plans.ts`, `seed.ts` | read only `library/seed` |
 | `devtools/examples/ExampleViewer.tsx`, `/dev/examples` | folded into `/dev/library` |
-| `devtools/stories/stories.ts`, `model/library.ts`, `model/path.ts`, `model/stepBlocks.ts` (block counts on path pages) | read the database through the library query, as `/dev/library` does |
+| `devtools/stories/stories.ts`, `model/library.ts`, `model/path.ts`, `model/stepBlocks.ts` (block counts on path pages) | import from the seed index |
 | `devtools/server/history.ts`, `server/git.ts` (prompt history) | stop listing example files; history of seed files if still useful |
 | `devtools/questionnaire/QuestionnaireLab.tsx` | drop the examples it shows per answer set, or show `find_blocks` results for that player's steps |
 | tests: `examples.test.ts`, `staffLabels.test.ts`, `exampleSelection.test.ts`, `prompt.test.ts`, `plan.test.ts`, `exerciseIds.test.ts`, `comments.test.ts`, `library.test.ts`, `preview.test.ts`, `seedBlocks.test.ts` | the checks still worth having (every file parses, staff labels, ids unique) run over `library/seed` |
 
 ### `/plan` for players
 
-- Remove `CopyPrompt`, `PasteBox` and `useBrowserAgentTools` from `PlanFlow`.
+- Remove `CopyPrompt`, `PasteBox` and `useBrowserAgentTools` from `PlanFlow`, now. No server route writes a plan
+  until NEW7, so after the questionnaire `/plan` says plainly that new plans aren't ready yet and points to /demo. The
+  answers are still saved, so NEW7 can use them. A plan the player already has keeps working.
+- `PromptAndPaste.tsx` stays only for what devtools import from it (`DebugList`, `PasteBox` in the prompt studio).
 - `/terms` and the pricing copy promise the paste-your-own-AI way stays free (Selling1). That line changes; per
   `/terms`'s own rule a changed term raises its UPDATED date. Copy goes through `design:ux-copy` and "Words about the
   app".
 
 ## Open (the user's to answer)
 
-From the builder check, 2026-11-17. The user said "continue" without answering, so each has a default below, marked as
-the designer's call; the user can overturn any of them.
+Answered by the user, 2026-11-17:
 
-1. **`/plan` until NEW7.** No server route writes a plan yet. Call: NEW15 does the prompt, library and devtools work;
-   removing `CopyPrompt`, `PasteBox` and `useBrowserAgentTools` from `PlanFlow`, and the `/terms` and pricing change,
-   wait and ship with NEW7. Until then a pasted prompt has no examples and writes weaker plans; prelaunch, accepted.
-2. **The moved files don't pass `seed check`** (no steps on any exercise, 26 stepped tools without a level, old
-   versions). Call: the seed file formats get an `imported: true` marker. For an imported file `seed check` accepts the
-   versions it was written to (prompt version may be absent) and reports a missing step or level as a warning, not a
-   failure. Steps are added only where a tool's level or stage already says it (read with `stepOf`, no text changed);
-   the rest stay stepless and are found by `level`, as blocks stored before steps are. A later rewrite to current rules
-   drops `imported`. The seed scripts record the file's own versions on the block rows.
-3. **Old example rows in the dev database.** Call: no reset (that needs the user's OK each time). Seeding adds the new
-   rows; the old `source = 'example'` rows stay not enabled. Pages that read the seed (/demo, /dev/library, path block
-   counts) read by `source = 'seed'`, so old example rows don't show there. A clean reseed waits for the user's OK.
-4. **Production `/demo`.** Call: seeding production is a step in the plan's ship list, and a test or script fails when
-   a `DEMO_PLANS` id is missing from the database it points at. Which database production reads: the user to confirm
-   before the ship step.
+1. **`/plan` until NEW7:** both routes go now (decision 8, and the `/plan` section above).
+2. **The moved files fail `seed check`** (no steps on any exercise, 26 stepped tools without a level, old versions):
+   "fail and fix later". They move as they are; `seed check` keeps failing on them, and the seed scripts seed them
+   anyway. Fixing them is its own task (NEW17 in `tasks.txt`). The seed scripts record each file's own versions on its
+   block rows (prompt version absent where the file has none). Until fixed, they are found by `level`, as blocks stored
+   before steps are.
+3. **Old example rows:** reset the library tables on the dev database and reseed (decision 9). The `example` value of
+   `block_source` may then go, or stay unused: builder's call.
+4. **/demo:** reads the seed files, not the database (decision 7), so it needs no production seeding.
 
 ## Left to the builder
 
