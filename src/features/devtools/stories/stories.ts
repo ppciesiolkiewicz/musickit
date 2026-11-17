@@ -1,10 +1,10 @@
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
+import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { TOOLS, type ToolName } from "@/features/plan/model/tools";
 import { docOf, type ComponentDoc } from "@/features/exercises/docs";
 
 /*
- * The stories on /dev/stories: every learning component, each in the set-ups the examples use plus a few hand-written
- * ones for the corners the examples miss. A story is the tool as the AI writes it, without `type`.
+ * The stories on /dev/stories: every learning component, each in the set-ups the library's seed files use plus a few
+ * hand-written ones for the corners the seed misses. A story is the tool as the AI writes it, without `type`.
  */
 
 export type Props = Record<string, unknown>;
@@ -13,7 +13,7 @@ export type Props = Record<string, unknown>;
 export interface Story {
   name: string;
   props: Props;
-  /** where it came from: an example's id, or "hand" */
+  /** where it came from: a seed file's id, or "hand" */
   from: string;
 }
 
@@ -80,7 +80,7 @@ export const matchesQuery = (text: string, query: string): boolean => {
   return query.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.includes(w));
 };
 
-/** Set-ups no example has yet; position-neck's are the corners it was built for. */
+/** Set-ups no seed file has yet; position-neck's are the corners it was built for. */
 const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "scale-neck", name: "Position 1 and the neck, roots in play", props: { scale: "minor-pentatonic", key: "a", boxes: [1], parts: { positions: "always", neck: "on" }, enable: ["1"] } },
   { tool: "scale-neck", name: "Two positions, the neck behind a chip", props: { scale: "minor-pentatonic", key: "a", boxes: [1, 2], parts: { positions: "on", neck: "off" }, highlight: ["1"] } },
@@ -151,8 +151,8 @@ const groupId = (tool: string, props: Props): string => {
 interface RawCell { type?: string; heading?: string; tool?: Props; cells?: RawCell[] }
 interface RawExercise { title?: string; cells?: RawCell[] }
 
-/** Every tool cell of the examples, named by its exercise and the section it sits in. */
-function fromExamples(): { group: string; story: Story }[] {
+/** Every tool cell of the seed blocks and plans, named by its exercise and the section it sits in. */
+function fromSeed(): { group: string; story: Story }[] {
   const out: { group: string; story: Story }[] = [];
   const take = (id: string, ex: RawExercise, prefix = "") => {
     const walk = (cells: RawCell[], heading: string) => {
@@ -166,15 +166,15 @@ function fromExamples(): { group: string; story: Story }[] {
     };
     walk(ex.cells ?? [], "");
   };
-  for (const e of EXERCISE_EXAMPLES) take(e.id, e.exercise as RawExercise);
-  for (const p of PLAN_EXAMPLES) {
+  for (const f of SEED_BLOCKS) take(f.id, f.exercise as RawExercise);
+  for (const p of SEED_PLANS) {
     const days = ((p.plan as { days?: { exercises?: RawExercise[] }[] }).days ?? []);
     days.forEach((d, i) => (d.exercises ?? []).forEach((ex) => take(p.id, ex, `Day ${i + 1}: `)));
   }
   return out;
 }
 
-/** The sidebar: one group per tool (the play-along split by shape), hand stories first, then the examples', the same set-up once. */
+/** The sidebar: one group per tool (the play-along split by shape), hand stories first, then the seed's, the same set-up once. */
 export function storyGroups(): StoryGroup[] {
   const groups = new Map<string, StoryGroup>();
   const groupOf = (id: string): StoryGroup => {
@@ -194,7 +194,7 @@ export function storyGroups(): StoryGroup[] {
     groupOf(group).stories.push(story);
   };
   for (const h of HAND) add(groupId(h.tool, h.props), { name: h.name, props: h.props, from: "hand" });
-  for (const { group, story } of fromExamples()) add(group, story);
+  for (const { group, story } of fromSeed()) add(group, story);
   // a tool nothing shows yet still gets its entry, with empty props to start from
   for (const t of Object.keys(TOOLS) as ToolName[]) if (t !== "guitar-play-along" && !groups.has(t)) groupOf(t).stories.push({ name: "Empty", props: {}, from: "hand" });
   return [...groups.values()].sort((a, b) => a.id.localeCompare(b.id));

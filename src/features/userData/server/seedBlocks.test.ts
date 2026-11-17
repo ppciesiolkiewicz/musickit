@@ -2,35 +2,36 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise } from "@/features/plan/model/config";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
+import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { startPlan } from "@/features/plan/model/schedule";
 import { EMPTY_STATE, type PlanConfig } from "@/features/plan/model/types";
 import { libraryBlocksOf } from "@/features/plan/model/libraryBlocks";
 import { parsePlanConfig } from "@/features/plan/model/config";
-import { exampleBlocks, libraryPlanBlocks, planBlockRows, seedBlocks, seedFileBlocks, type SeedPlan } from "./seedBlocks";
+import { libraryPlanBlocks, planBlockRows, seedBlocks, seedFileBlocks, type SeedPlan } from "./seedBlocks";
 import { memoryUserDataRepo } from "./repo.memory";
 
 const NOW = new Date(2026, 10, 15, 12);
-const reply = JSON.stringify(PLAN_EXAMPLES[0].plan);
+const reply = JSON.stringify(SEED_PLANS[0].plan);
 const prov = { model: "claude-fable-5-2", promptVersion: 7, docsAgents: 2, docsTeaching: 5 };
 const plan: SeedPlan = { id: "p1", reply, provenance: prov };
 
-test("an example's block id is the id a started plan of the same exercise gets", () => {
-  const ex = EXERCISE_EXAMPLES[0];
+test("a seed file's block id is the id a started plan of the same exercise gets", () => {
+  const ex = SEED_BLOCKS[0];
   const block = parseExercise(ex.exercise, "x", catalogue()).block!;
   const config = { title: "t", days: [{ theme: "d", exercises: [block] }] } as unknown as PlanConfig;
   let n = 0;
   const s = startPlan(EMPTY_STATE, config, () => `n${++n}`, "2026-11-15");
   const id = s.current!.config.days[0].exercises[0].blockId;
   assert.ok(id);
-  assert.ok(exampleBlocks().some((b) => b.id === id));
+  assert.ok(seedFileBlocks().some((b) => b.id === id));
 });
 
-test("exampleBlocks: every one is an example, not enabled, with no parent", () => {
-  const list = exampleBlocks();
-  assert.ok(list.length >= EXERCISE_EXAMPLES.length);
-  for (const b of list) assert.deepEqual([b.source, b.enabledForReuse, b.parentId], ["example", false, null]);
-  assert.equal(new Set(list.map((b) => b.id)).size, list.length);
+test("a moved example block is seeded enabled", () => {
+  const f = SEED_BLOCKS.find((x) => x.id === "showcase-stages-tempo-ladder")!;
+  const [own] = seedFileBlocks([f]);
+  const b = seedFileBlocks().find((x) => x.id === own?.id);
+  assert.ok(b, "the showcase is among the seeded blocks");
+  assert.deepEqual([b.source, b.enabledForReuse, b.parentId], ["seed", true, null]);
 });
 
 test("libraryPlanBlocks: a reply gives seed blocks, enabled; a broken one is skipped", () => {
@@ -40,18 +41,15 @@ test("libraryPlanBlocks: a reply gives seed blocks, enabled; a broken one is ski
   assert.deepEqual(libraryPlanBlocks([{ ...plan, reply: "not json" }]), []);
 });
 
-test("seedBlocks: library blocks are owned by the app as seed, enabled; examples as example, not enabled", async () => {
+test("seedBlocks: library blocks are owned by the app as seed, enabled", async () => {
   const repo = memoryUserDataRepo();
   const r = await seedBlocks(repo, [plan], NOW);
   const owners = repo.peekOwners();
   assert.ok(owners.every((o) => o.userId === null));
   for (const b of libraryPlanBlocks([plan])) assert.deepEqual(owners.find((o) => o.blockId === b.id), { userId: null, blockId: b.id, source: "seed", enabledForReuse: true });
-  const onlyEx = exampleBlocks().find((b) => ![...libraryPlanBlocks([plan]), ...seedFileBlocks()].some((l) => l.id === b.id))!;
-  assert.deepEqual(owners.find((o) => o.blockId === onlyEx.id), { userId: null, blockId: onlyEx.id, source: "example", enabledForReuse: false });
   const lib = new Set([...libraryPlanBlocks([plan]), ...seedFileBlocks()].map((b) => b.id));
   assert.equal(r.library, lib.size); // the plan's blocks and the seed files' single exercises
   for (const b of seedFileBlocks()) assert.deepEqual(owners.find((o) => o.blockId === b.id), { userId: null, blockId: b.id, source: "seed", enabledForReuse: true });
-  assert.equal(r.examples, exampleBlocks().length);
   assert.equal(repo.peekBlocks().size, owners.length);
 });
 
@@ -67,13 +65,13 @@ test("a seeded plan's blocks carry the plan's provenance", () => {
   for (const b of libraryPlanBlocks([plan])) assert.deepEqual(b.provenance, prov);
 });
 
-test("an example's block carries its model and the versions it was written to, no prompt version", () => {
-  // the first exercise example is the first block seen, so no earlier example's provenance wins
-  const ex = EXERCISE_EXAMPLES[0];
-  const block = parseExercise(ex.exercise, ex.id, catalogue()).block!;
-  const config = { title: ex.id, days: [{ theme: ex.id, exercises: [block] }] } as unknown as PlanConfig;
+test("a seed file's block carries its file's model and versions", () => {
+  // the first seed file is the first block seen, so no other file's provenance wins
+  const f = SEED_BLOCKS[0];
+  const block = parseExercise(f.exercise, f.id, catalogue()).block!;
+  const config = { title: f.id, days: [{ theme: f.id, exercises: [block] }] } as unknown as PlanConfig;
   const id = libraryBlocksOf([{ id: "s", startedOn: "2026-01-01", done: {}, config } as never])[0].id;
-  assert.deepEqual(exampleBlocks().find((b) => b.id === id)!.provenance, { model: ex.model ?? null, promptVersion: null, docsAgents: ex.docs.agents, docsTeaching: ex.docs.teaching });
+  assert.deepEqual(seedFileBlocks().find((b) => b.id === id)!.provenance, { model: f.model, promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching });
 });
 
 test("a block in two plans keeps the first plan's provenance", () => {
@@ -113,10 +111,10 @@ test("seedBlocks: a plan whose reply no longer parses ends with no block rows", 
   assert.equal(r.planBlocks, 0);
 });
 
-test("an example's block a later run finds in a library plan becomes seed, enabled; a seed block turned off stays off", async () => {
+test("a block an earlier run stored as an example's becomes seed, enabled; a seed block turned off stays off", async () => {
   const repo = memoryUserDataRepo();
-  // an earlier run that had only the examples
-  await seedBlocks(repo, [], NOW);
+  // an earlier run, from before the examples were seed files, stored the plan's blocks as an example's
+  await repo.addBlocks(null, libraryPlanBlocks([plan]).map((b) => ({ ...b, source: "example" as const, enabledForReuse: false })), NOW);
   const ids = libraryPlanBlocks([plan]).map((b) => b.id);
   const before = repo.peekOwners().filter((o) => ids.includes(o.blockId));
   assert.ok(before.length > 0 && before.every((o) => o.source === "example" && !o.enabledForReuse));
@@ -131,10 +129,10 @@ test("an example's block a later run finds in a library plan becomes seed, enabl
 });
 
 test("seedFileBlocks: a seed exercise file is a seed block, enabled, with its file's model and versions; a broken one is skipped", () => {
-  const ex = EXERCISE_EXAMPLES[0];
-  const file = { id: "s1", model: "claude-fable-5-2", versions: { prompt: 1, agents: 2, teaching: 5 }, note: "a gap", exercise: ex.exercise as Record<string, unknown> };
+  const ex = SEED_BLOCKS[0];
+  const file = { id: "s1", model: "claude-fable-5-2", versions: { prompt: 1, agents: 2, teaching: 5 }, note: "a gap", exercise: ex.exercise };
   const list = seedFileBlocks([file, { ...file, id: "s2", exercise: {} }]);
   assert.equal(list.length, 1);
   assert.deepEqual([list[0].source, list[0].enabledForReuse, list[0].provenance], ["seed", true, { model: "claude-fable-5-2", promptVersion: 1, docsAgents: 2, docsTeaching: 5 }]);
-  assert.ok(exampleBlocks().some((b) => b.id === list[0].id), "the same exercise gets the same block id");
+  assert.ok(seedFileBlocks().some((b) => b.id === list[0].id), "the same exercise gets the same block id");
 });

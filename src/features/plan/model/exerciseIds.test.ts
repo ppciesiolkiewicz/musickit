@@ -4,7 +4,7 @@ import { parsePlanConfig } from "./config";
 import { randomId, withBlockIds, withExerciseIds } from "./exerciseIds";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import { draftOf, editDay, type DayDraft } from "./editPlan";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "../examples";
+import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { restartPlan, startPlan } from "./schedule";
 import { PLAN_KEY, localPlanStore, sanitiseState } from "../store/localPlanStore";
 import { EMPTY_STATE, type PlanConfig, type PlanExercise, type StoredPlan } from "./types";
@@ -222,29 +222,29 @@ test("sanitiseState survives an exercise with concepts: \"x\" and tags: [1, \"a\
   assert.match(s.current!.config.days[0].exercises[0].blockId!, /^[0-9a-f]{32}$/);
 });
 
-const allExampleConfigs = (): PlanConfig[] => [
-  ...EXERCISE_EXAMPLES.map((x) => {
+const allSeedConfigs = (): PlanConfig[] => [
+  ...SEED_BLOCKS.map((x) => {
     const r = parsePlanConfig(JSON.stringify({ title: "E", progress: "p", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [x.exercise] })) }), []);
     assert.ok(r.ok, x.id);
     return r.config;
   }),
-  ...PLAN_EXAMPLES.map((x) => {
+  ...SEED_PLANS.map((x) => {
     const r = parsePlanConfig(JSON.stringify(x.plan), []);
     assert.ok(r.ok, x.id);
     return r.config;
   }),
 ];
 
-test("every example keeps its block ids through a load: sanitiseState gives what startPlan gave", () => {
-  for (const config of allExampleConfigs()) {
+test("every seed block and plan keeps its block ids through a load: sanitiseState gives what startPlan gave", () => {
+  for (const config of allSeedConfigs()) {
     const started = startPlan(EMPTY_STATE, config, randomId, "2026-11-15");
     const loaded = sanitiseState(JSON.parse(JSON.stringify(started)));
     assert.deepEqual(blockIdsOf(loaded.current!), blockIdsOf(started.current!), config.title);
   }
 });
 
-test("every example keeps its block ids through a load after editDay", () => {
-  for (const config of allExampleConfigs()) {
+test("every seed block and plan keeps its block ids through a load after editDay", () => {
+  for (const config of allSeedConfigs()) {
     const plan = startPlan(EMPTY_STATE, config, randomId, "2026-11-15").current!;
     const draft: DayDraft = draftOf(plan, 0);
     draft.exercises[0] = { ...draft.exercises[0], exercise: { ...draft.exercises[0].exercise, title: "Changed" } };

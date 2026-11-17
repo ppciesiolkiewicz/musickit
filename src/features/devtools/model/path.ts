@@ -1,7 +1,7 @@
 import { ALL_SECTIONS, sectionHref } from "@/features/course/course";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
+import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { topicsFor, type Topic } from "@/features/plan/intake/topics";
-import { AREAS, CONCEPTS, type Area, type Concept } from "@/features/plan/model/concepts";
+import { AREAS, CONCEPTS, conceptIds, type Area, type Concept } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { conceptSteps, type ConceptStep, type ConceptSteps } from "./steps";
 
@@ -9,13 +9,13 @@ import { conceptSteps, type ConceptStep, type ConceptSteps } from "./steps";
  * The learning path (plan/model/path.ts), shaped for the diagram on /dev/path: an area's topics as lanes, the four
  * levels as columns, each concept in the cell of its first step and spanning to its last, and an arrow for every
  * concept a step of it names to learn first (`after`). Nothing here is written by hand: it reads CONCEPTS, TOPICS, the
- * course and the example library.
+ * course and the library's seed files.
  */
 
 /** What the path is drawn from; the real catalogue unless a test hands in its own. */
 export interface PathSource {
   concepts: Concept[];
-  /** example id and the concept ids it works on */
+  /** seed file id and the concept ids it works on */
   exercises: { id: string; concepts: string[] }[];
   plans: { id: string; concepts: string[] }[];
   /** hrefs of course sections that are written (a planned one has no blocks) */
@@ -24,10 +24,15 @@ export interface PathSource {
   steps: Record<string, ConceptSteps>;
 }
 
+interface RawPlan { days?: { exercises?: unknown[] }[] }
+
+/** The known concept ids the exercises as written name (old ids mapped to their track), each once. */
+const conceptsOf = (exercises: unknown[]): string[] => conceptIds(exercises.flatMap((e) => (e as { concepts?: string[] }).concepts ?? []));
+
 export const pathSource = (): PathSource => ({
   concepts: CONCEPTS,
-  exercises: EXERCISE_EXAMPLES,
-  plans: PLAN_EXAMPLES,
+  exercises: SEED_BLOCKS.map((f) => ({ id: f.id, concepts: conceptsOf([f.exercise]) })),
+  plans: SEED_PLANS.map((f) => ({ id: f.id, concepts: conceptsOf(((f.plan as RawPlan).days ?? []).flatMap((d) => d.exercises ?? [])) })),
   steps: conceptSteps(),
   written: new Set(ALL_SECTIONS.filter((r) => r.section.blocks.length > 0).map((r) => sectionHref(r.stage.slug, r.section.slug))),
 });
@@ -48,9 +53,9 @@ export interface PathNode {
   course?: string;
   /** "none": no course page named; "planned": the section is only an outline */
   courseState: "written" | "planned" | "none";
-  /** ids of the example exercises tagged with it */
+  /** ids of the seed blocks tagged with it */
   exercises: string[];
-  /** ids of the example plans tagged with it */
+  /** ids of the seed plans whose exercises are tagged with it */
   plans: string[];
   /** the levels inside the concept, easiest first: read from a ladder in the code, or planned ("not implemented") */
   steps: ConceptStep[];

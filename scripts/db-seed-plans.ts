@@ -1,20 +1,19 @@
 /**
- * Puts the plan examples (src/features/plan/examples/plans, the prompt's and the demos', each under its example id) and
- * the seed plans (src/features/library/seed/plans, one file each) into the practice_plans library at DATABASE_URL,
- * enabled for reuse. A plan already there gets its title, source, answers, model, reply and versions refreshed; its
+ * Puts the seed plans (src/features/library/seed/plans, one file each; the demos' plans among them, under the ids
+ * DEMO_PLANS names) into the practice_plans library at DATABASE_URL, source "seed", enabled for reuse. A plan already there gets its title, source, answers, model, reply and versions refreshed; its
  * enabled_for_reuse is left as it is, so a plan turned off in the database stays off.
  *
  *   npm run -s db:seed-plans
  */
 import { sql } from "drizzle-orm";
-import { exampleLibraryRows, seedLibraryRows } from "../src/features/devtools/model/library";
+import { seedLibraryRows } from "../src/features/devtools/model/library";
 import { getDb } from "../src/lib/db/client";
 import { practicePlans } from "../src/lib/db/schema";
 
 async function main() {
   const db = getDb();
   if (!db) throw new Error("DATABASE_URL is not set.");
-  const rows = [...exampleLibraryRows(), ...seedLibraryRows()];
+  const rows = seedLibraryRows();
   if (!rows.length) {
     console.log("No plans to seed.");
     return;

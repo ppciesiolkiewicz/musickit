@@ -32,7 +32,7 @@ Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answ
 
 ## Questionnaire (`/dev/questionnaire`)
 
-Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, each skill's steps marked known, within reach, open or ahead by `reach`, the examples `selectExamples` picks, and the `startOutcome` scores.
+Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, each skill's steps marked known, within reach, open or ahead by `reach`, and the `startOutcome` scores.
 
 ## API routes (`/dev/api`)
 
@@ -132,10 +132,10 @@ to zoom, *Fit* shows the whole area); the track names follow the zoom and the ve
 `model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/examples links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
 are columns, each cell starts with the topic's questionnaire line for that level, and every concept of `CONCEPTS` sits in
 the cell of its topic and its first step's level. An arrow runs to a concept from each one a step of it names to learn first (`after`). A concept's edge is
-green with a green dot when an example exercise is tagged with it and grey when none is, a violet dot says an example plan
-is, and a dashed edge says its course page is missing or only planned. Picking a concept lights its whole chain
+green with a green dot when a seed block (`src/features/library/seed/blocks`) is tagged with it and grey when none is, a
+violet dot says a seed plan's exercise is, and a dashed edge says its course page is missing or only planned. Picking a concept lights its whole chain
 (`chain`: everything it rests on and everything resting on it) and lists, under the diagram, what it builds on and leads
-to, its course page, its examples and its steps. The line beside the area buttons counts the gaps (`gaps`).
+to, its course page, its seed blocks and plans and its steps. The line beside the area buttons counts the gaps (`gaps`).
 
 **Steps inside a concept** (`model/steps.ts`, read from `plan/model/path.ts`). The numbered lines in a box are its
 track's steps, easiest first, each with its own level. Blue ones are read from a ladder the code already has
@@ -157,7 +157,7 @@ tracked step's ratings and dates. On Slope the student's steps also carry their 
 browser their last ones) and their solid steps. A step within reach is dashed blue and says "next" (or "start" where the
 questionnaire puts them), a known step not rated solid says "known", and a step ahead is faded. Nothing is written by
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
-example library, so the diagram changes when they do. It writes nothing.
+library's seed files, so the diagram changes when they do. It writes nothing.
 
 **Bars** (`path/ProposalView.tsx`). The third view: each track drawn as a bar from the level
 of its first step to the level of its last, its steps in the columns of their levels, so tracks in one topic overlap. A
@@ -170,7 +170,7 @@ higher level. It has no student overlay.
 step in the Path and Boxes detail a link; both open `/dev/block?step=<trackId:n>` in a new tab, which renders each block
 as the player sees it in a plan (`block/BlockPage.tsx`, `src/app/dev/block`; `?id=<block id>` renders one). The blocks
 come from the code, not the database (`model/stepBlocks.ts`): seed blocks by the steps their file names, then any seed
-plan exercise or example whose tools say the step (`stepOf`), then those that only tag the track at the step's level,
+plan exercise or seed block whose tools say the step (`stepOf`), then those that only tag the track at the step's level,
 marked "level match only". A test holds that every step has a block.
 
 ## Library (`/dev/library`)
@@ -205,7 +205,7 @@ The payment provider is chosen once at the top of the page (`costs/CostsPage.tsx
 
 Last, *Other models on OpenRouter* (`costs/OpenRouterModels.tsx`, `model/openRouter.ts`): cheaper and comparable models to weigh against Haiku 5.5, at OpenRouter's list prices (with the date they were checked). None has been run on the plan prompt, so each is costed on Haiku 5.5's measured tokens: a plan's cost, how many times Haiku's, a year at the autoplans a month on the slider, and what is left of the Student price. A price comparison, not a quality one. Models that suit a step of the autoplan recipe carry a badge (`fit` and `ROLES` in `model/openRouter.ts`): *Assess* (a cheap call that judges the seed-library matches and picks the writer), *Write* (most new plans) and *Hard plans* (the few sent up); a switch shows one step's picks, a column costs one assess call (`PICK_TOKENS`), and the recipe itself is behind the (i) by the heading. The picks are from price and description, not runs.
 
-**The library** (`practice_plans`): plans an autoplan can be taken from instead of asking the AI, each with the answers it was written for and `enabled_for_reuse`. `npm run -s db:seed-plans` (`scripts/db-seed-plans.ts`, rows from `exampleLibraryRows` and `seedLibraryRows` in `model/library.ts`) puts in every plan example (`source` "example") and every seed plan in `src/features/library/seed/plans` (`seed`), enabled; a plan already there gets its title, source, answers, model, reply and versions refreshed and keeps its `enabled_for_reuse`. A plan example keeps its example id (`guitar-beginner`), the id `DEMO_PLANS` names, so a demo and its library plan share it (the demos still read the JSON); its answers are made up from it, since an example records none (`exampleAnswers`: its areas and minutes, each topic of those areas at the rung of its highest exercise level), and its versions are the example's `docs`, with no prompt version. A seed plan has the answers, model and versions its file records (`../library/seed/README.md`). Check DATABASE_URL first: `.env.local` may point at Supabase.
+**The library** (`practice_plans`): plans an autoplan can be taken from instead of asking the AI, each with the answers it was written for and `enabled_for_reuse`. `npm run -s db:seed-plans` (`scripts/db-seed-plans.ts`, rows from `seedLibraryRows` in `model/library.ts`) puts in every seed plan in `src/features/library/seed/plans` (`source` "seed"), enabled; a plan already there gets its title, source, answers, model, reply and versions refreshed and keeps its `enabled_for_reuse`. A former plan example keeps its id (`guitar-beginner`), the id `DEMO_PLANS` names, so a demo and its library plan share it (both read the seed file). A seed plan has the answers, model and versions its file records (`../library/seed/README.md`). Check DATABASE_URL first: `.env.local` may point at Supabase.
 
 ## Code structure (`/dev/structure`, `npm run structure`)
 

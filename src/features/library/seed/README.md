@@ -9,6 +9,9 @@ plans/<id>.json    one 7-day plan each (SeedPlanFile)
 blocks/<id>.json   one exercise each, for a step no plan reaches yet (SeedBlockFile)
 ```
 
+Besides the database, the code reads them directly: the demos at `/demo` (`plan/demos.ts`, six of the plans),
+`/dev/stories`, `/dev/path` and `/dev/block`.
+
 ## Adding one
 
 1. Read the gap first: `library_coverage` (the `musickit-library` MCP tools, README in `../README.md`) and the steps on

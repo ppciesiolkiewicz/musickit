@@ -21,8 +21,6 @@ const PILL = "inline-block rounded-full border px-1.5 text-[10px] font-medium up
 const SOURCE_TONE: Record<StepBlock["source"], string> = {
   "seed block": "border-lime-500/40 bg-lime-500/10 text-lime-200",
   "seed plan": "border-teal-500/40 bg-teal-500/10 text-teal-200",
-  "exercise example": "border-rose-500/40 bg-rose-500/10 text-rose-200",
-  "plan example": "border-fuchsia-500/40 bg-fuchsia-500/10 text-fuchsia-200",
 };
 
 const HOW: Record<StepBlock["how"], { label: string; title: string }> = {

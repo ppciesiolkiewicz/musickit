@@ -6,7 +6,6 @@ import { questionSteps, type SetAnswer } from "@/features/plan/intake/ui/Questio
 import { topicById, topicsFor } from "@/features/plan/intake/topics";
 import { AREAS, CONCEPTS } from "@/features/plan/model/concepts";
 import { reach } from "@/features/plan/model/reach";
-import { selectExamples } from "@/features/plan/model/exampleSelection";
 import { startOutcome } from "@/features/plan/model/outcome";
 
 const LEVELS = ["new", "beginner", "intermediate", "advanced"];
@@ -58,7 +57,6 @@ export default function QuestionnaireLab() {
   const [draft, setDraft] = useState<PlanAnswers>(fresh);
   const set: SetAnswer = (k, v) => setDraft((d) => ({ ...d, [k]: v }));
   const steps = questionSteps(draft, set);
-  const { plan, exercises } = selectExamples(draft);
   const noArea = <p className="text-xs text-slate-500">No area chosen</p>;
 
   return (
@@ -131,11 +129,6 @@ export default function QuestionnaireLab() {
               </div>
             );
           })}
-        </Section>
-
-        <Section title="Examples picked">
-          <p className="mb-2 text-xs text-slate-300">Plan: {plan.id}, {plan.level}, {plan.areas.join(", ")}</p>
-          <Table head={["Exercise", "Areas", "Level"]} rows={exercises.map((e) => [e.id, e.areas.join(", "), e.level])} />
         </Section>
 
         <Section title="Starting outcome">

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parsePlanConfig } from "@/features/plan/model/config";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
+import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { parsePreview, planToCopy, previewPlanText, whyOf } from "./preview";
 
 const ex = { title: "Play", minutes: 5, cells: [{ type: "text", text: "Play it" }] };
@@ -27,16 +27,16 @@ test("a full plan and anything else pass through", () => {
 });
 
 test("parsePreview: an exercise gives that one exercise, a plan its week", () => {
-  const one = parsePreview(JSON.stringify(EXERCISE_EXAMPLES[0].exercise), []);
+  const one = parsePreview(JSON.stringify(SEED_BLOCKS[0].exercise), []);
   assert.ok(one.ok && one.exercise && !one.config);
-  const week = parsePreview(JSON.stringify(PLAN_EXAMPLES[0].plan), []);
+  const week = parsePreview(JSON.stringify(SEED_PLANS[0].plan), []);
   assert.ok(week.ok && week.config?.days.length === 7 && !week.exercise);
   assert.equal(parsePreview("nope", []).ok, false);
 });
 
-test("every library example previews", () => {
-  for (const e of EXERCISE_EXAMPLES) assert.ok(parsePlanConfig(previewPlanText(JSON.stringify(e.exercise)), []).ok, e.id);
-  for (const p of PLAN_EXAMPLES) assert.ok(parsePlanConfig(previewPlanText(JSON.stringify(p.plan)), []).ok, p.id);
+test("every seed block and plan previews", () => {
+  for (const e of SEED_BLOCKS) assert.ok(parsePlanConfig(previewPlanText(JSON.stringify(e.exercise)), []).ok, e.id);
+  for (const p of SEED_PLANS) assert.ok(parsePlanConfig(previewPlanText(JSON.stringify(p.plan)), []).ok, p.id);
 });
 
 test("whyOf reads an example part's note", () => {
@@ -44,13 +44,13 @@ test("whyOf reads an example part's note", () => {
   assert.equal(whyOf("```json\n{}\n```"), undefined);
 });
 
-test("planToCopy: any example becomes a plan /plan accepts", () => {
-  const ex = EXERCISE_EXAMPLES[0];
-  const text = planToCopy(JSON.stringify(ex.exercise), ex.note);
+test("planToCopy: any exercise or plan becomes a plan /plan accepts", () => {
+  const ex = SEED_BLOCKS[0];
+  const text = planToCopy(JSON.stringify(ex.exercise), "A short note.");
   const r = parsePlanConfig(text, []);
   assert.ok(r.ok);
   assert.equal(r.config.days.length, 7);
   assert.equal(r.config.days[3].theme, (ex.exercise as { title: string }).title);
-  assert.equal(r.config.summary, ex.note);
-  assert.ok(parsePlanConfig(planToCopy(JSON.stringify(PLAN_EXAMPLES[0].plan)), []).ok);
+  assert.equal(r.config.summary, "A short note.");
+  assert.ok(parsePlanConfig(planToCopy(JSON.stringify(SEED_PLANS[0].plan)), []).ok);
 });

@@ -1,7 +1,9 @@
 /**
- * Puts the blocks of the exercise and plan examples (src/features/plan/examples) and of every practice_plans reply into
- * the block library at DATABASE_URL, owned by the app (no user). Library plans' blocks are `seed`, enabled for reuse;
- * the examples' are `example`, not enabled; an example's block that a library plan now uses is promoted to `seed`, enabled. Each block takes its plan's model and versions (an example's, for an example), and each plan's blocks go in practice_plan_blocks. Blocks are only inserted and provenance filled once, so running it again adds nothing.
+ * Puts the blocks of every practice_plans reply and of the seed block files (src/features/library/seed/blocks) into the
+ * block library at DATABASE_URL, owned by the app (no user), `seed`, enabled for reuse. A block an earlier run stored as
+ * an example's (`example`, not enabled) is promoted to `seed`, enabled. Each block takes its plan's or its file's model
+ * and versions, and each plan's blocks go in practice_plan_blocks. Blocks are only inserted and provenance filled once,
+ * so running it again adds nothing.
  *
  *   npm run -s db:seed-blocks
  *
@@ -24,8 +26,8 @@ async function main() {
   const plans: SeedPlan[] = rows.map((r) => ({ id: r.id, reply: r.reply, provenance: { model: r.model, promptVersion: r.promptVersion, docsAgents: r.docsAgents, docsTeaching: r.docsTeaching } }));
   const replies = plans.map((p) => p.reply);
   for (const i of unparsedReplies(replies)) console.log(`skipped  ${rows[i].id}  (reply does not parse)`);
-  const { library, examples, planBlocks, promoted } = await seedBlocks(drizzleUserDataRepo(db), plans, new Date());
-  console.log(`${library} library block${library === 1 ? "" : "s"} from ${rows.length} plan${rows.length === 1 ? "" : "s"}, ${examples} example block${examples === 1 ? "" : "s"}, ${planBlocks} plan block row${planBlocks === 1 ? "" : "s"}, ${promoted} example block${promoted === 1 ? "" : "s"} promoted to seed.`);
+  const { library, planBlocks, promoted } = await seedBlocks(drizzleUserDataRepo(db), plans, new Date());
+  console.log(`${library} library block${library === 1 ? "" : "s"} from ${rows.length} plan${rows.length === 1 ? "" : "s"} and the seed block files, ${planBlocks} plan block row${planBlocks === 1 ? "" : "s"}, ${promoted} example block${promoted === 1 ? "" : "s"} promoted to seed.`);
 }
 
 main()

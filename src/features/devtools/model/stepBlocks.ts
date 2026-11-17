@@ -1,5 +1,4 @@
 import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
 import { conceptId } from "@/features/plan/model/concepts";
 import { parseExercise, parsePlanConfig } from "@/features/plan/model/config";
@@ -9,13 +8,13 @@ import type { PlanExercise } from "@/features/plan/model/types";
 
 /*
  * Every block in the code, by the path step it practises, for /dev/path and /dev/block: the seed blocks (the library's
- * gap blocks, not in the database until db:seed-blocks runs), the seed plans' exercises, and the plan and exercise
- * examples. A seed block names its steps (`steps` in the file); any other exercise counts where its tools say a step
- * (`stepOf`), or else, as the library matches today, for every step of its track at its level. Database blocks carry no steps yet
+ * single blocks, not in the database until db:seed-blocks runs) and the seed plans' exercises. A seed block names its
+ * steps (`steps` in the file); any other exercise counts where its tools say a step (`stepOf`), or else, as the library
+ * matches today, for every step of its track at its level. Database blocks carry no steps yet
  * (docs/superpowers/specs/2026-11-16-blocks-by-step-design.md), so they are not here.
  */
 
-export type StepBlockSource = "seed block" | "seed plan" | "exercise example" | "plan example";
+export type StepBlockSource = "seed block" | "seed plan";
 
 export interface StepBlock {
   /** unique on the page: the file id, and for a plan's exercise its day and place */
@@ -72,13 +71,6 @@ export function blocksByStep(entries: CatalogueEntry[] = catalogue()): Map<strin
   }
   for (const f of SEED_PLANS) {
     for (const { e, raw, at } of planExercises(f.plan, entries)) each(e, e.level, { id: `${f.id} (${at})`, title: e.title, source: "seed plan", json: JSON.stringify(raw) });
-  }
-  for (const x of EXERCISE_EXAMPLES) {
-    const { block } = parseExercise(x.exercise, x.id, entries);
-    if (block) each(block, block.level ?? x.level, { id: x.id, title: block.title, source: "exercise example", json: JSON.stringify(x.exercise) });
-  }
-  for (const p of PLAN_EXAMPLES) {
-    for (const { e, raw, at } of planExercises(p.plan, entries)) each(e, e.level ?? p.level, { id: `${p.id} (${at})`, title: e.title, source: "plan example", json: JSON.stringify(raw) });
   }
   return by;
 }

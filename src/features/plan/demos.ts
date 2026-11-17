@@ -1,28 +1,31 @@
-import { PLAN_EXAMPLES } from "./examples";
+import { SEED_PLANS } from "@/features/library/seed";
 import { catalogue } from "./model/catalogue";
 import { parsePlanConfig } from "./model/config";
 import type { Level, PlanConfig } from "./model/types";
 import type { Area } from "./model/concepts";
 
 /**
- * The plans anyone can open without writing a prompt, at `/demo/<slug>`: six of the hand-tuned example plans, so a link in a pitch
- * shows what the AI plan looks like when it is done. The slug is the link; the plan is the example's `id`.
+ * The plans anyone can open without writing a prompt, at `/demo/<slug>`: six of the library's seed plans, so a link in a
+ * pitch shows what the AI plan looks like when it is done. The slug is the link; `plan` is the seed plan's `id`. A seed
+ * file records no level, so each demo names the one its card sorts and shows by.
  */
-export const DEMO_PLANS: Record<string, { example: string; label: string }> = {
-  "guitar-beginner": { example: "guitar-beginner", label: "Guitar for a beginner" },
-  "voice-beginner": { example: "voice-beginner", label: "Voice for a beginner" },
-  "guitar-intermediate": { example: "guitar-intermediate", label: "Guitar for an intermediate player" },
-  "voice-intermediate": { example: "voice-intermediate", label: "Voice for an intermediate singer" },
-  "guitar-advanced": { example: "guitar-advanced", label: "Guitar for an advanced player" },
-  "voice-advanced": { example: "voice-advanced", label: "Voice for an advanced singer" },
+export const DEMO_PLANS: Record<string, { plan: string; label: string; level: Level }> = {
+  "guitar-beginner": { plan: "guitar-beginner", label: "Guitar for a beginner", level: "beginner" },
+  "voice-beginner": { plan: "voice-beginner", label: "Voice for a beginner", level: "beginner" },
+  "guitar-intermediate": { plan: "guitar-intermediate", label: "Guitar for an intermediate player", level: "intermediate" },
+  "voice-intermediate": { plan: "voice-intermediate", label: "Voice for an intermediate singer", level: "intermediate" },
+  "guitar-advanced": { plan: "guitar-advanced", label: "Guitar for an advanced player", level: "advanced" },
+  "voice-advanced": { plan: "voice-advanced", label: "Voice for an advanced singer", level: "advanced" },
 };
+
+const seedPlan = (id: string) => SEED_PLANS.find((p) => p.id === id);
 
 /** The demo plan behind a slug, parsed as a pasted reply is (keys as pitch classes, tools checked), or null when there is none. */
 export function demoPlan(slug: string): { label: string; config: PlanConfig } | null {
   const demo = Object.hasOwn(DEMO_PLANS, slug) ? DEMO_PLANS[slug] : null;
-  const ex = demo && PLAN_EXAMPLES.find((p) => p.id === demo.example);
-  if (!demo || !ex) return null;
-  const r = parsePlanConfig(JSON.stringify(ex.plan), catalogue());
+  const file = demo && seedPlan(demo.plan);
+  if (!demo || !file) return null;
+  const r = parsePlanConfig(JSON.stringify(file.plan), catalogue());
   return r.ok ? { label: demo.label, config: r.config } : null;
 }
 
@@ -41,19 +44,19 @@ export interface DemoCard {
 
 const LEVEL_ORDER: Level[] = ["new", "beginner", "intermediate", "advanced"];
 
-/** Every demo plan as a card, easiest first. */
+/** Every demo plan as a card, easiest first; its area and minutes are the ones the seed plan's answers record. */
 export function demoCards(): DemoCard[] {
   return Object.entries(DEMO_PLANS)
     .flatMap(([slug, demo]) => {
-      const ex = PLAN_EXAMPLES.find((p) => p.id === demo.example);
-      if (!ex) return [];
-      const plan = ex.plan as PlanConfig;
+      const file = seedPlan(demo.plan);
+      if (!file) return [];
+      const plan = file.plan as unknown as PlanConfig;
       return [{
         slug,
         label: demo.label,
-        area: ex.areas[0],
-        level: ex.level,
-        minutes: ex.minutes,
+        area: file.answers.areas[0],
+        level: demo.level,
+        minutes: file.answers.minutes,
         // "Week 1: one note makes the mode" → "One note makes the mode": every demo is a first week
         title: plan.title.replace(/^Week \d+:\s*/, "").replace(/^./, (c) => c.toUpperCase()),
         summary: plan.summary ?? "",

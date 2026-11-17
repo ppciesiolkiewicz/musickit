@@ -76,7 +76,7 @@ function Node({ box, state, onPick, progress, today }: { box: Box; state: "sel" 
   const { node, x, y, h } = box;
   const lines = wrap(node.label, 27);
   const has = node.exercises.length > 0;
-  // with a student on the diagram the edge says how they stand on the concept, not whether it has an example
+  // with a student on the diagram the edge says how they stand on the concept, not whether it has a seed block
   const stroke = state === "sel" ? "var(--color-violet-400)" : state === "chain" ? "var(--color-sky-400)" : progress ? STATE_COLOR[progress.state] : has ? "var(--color-emerald-400)" : "var(--color-slate-600)";
   const weeks = weeksOn(progress, today);
   const key = (e: KeyboardEvent) => {
@@ -89,7 +89,7 @@ function Node({ box, state, onPick, progress, today }: { box: Box; state: "sel" 
       role="button" tabIndex={0} aria-pressed={state === "sel"} onClick={onPick} onKeyDown={key}
       aria-label={progress
         ? `${node.label}: ${progress.state}, ${progress.ratings} ratings${progress.at !== null ? `, on step ${progress.at + 1} of ${node.steps.length}` : ""}`
-        : `${node.label}: ${node.steps.length} steps, ${node.exercises.length} example exercises, ${node.plans.length} example plans`}
+        : `${node.label}: ${node.steps.length} steps, ${node.exercises.length} seed blocks, ${node.plans.length} seed plans`}
       opacity={state === "dim" ? 0.55 : 1} className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-sky-300"
     >
       <rect
@@ -190,8 +190,8 @@ function Detail({ node, nodes, pick, progress, today, blocks }: { node: PathNode
             : <p className="text-sm text-amber-300">None</p>}
           {node.courseState === "planned" && <p className="text-sm text-amber-300">Planned, not written yet</p>}
         </div>
-        <div><h4 className={H}>Example exercises</h4>{list(node.exercises)}</div>
-        <div><h4 className={H}>Example plans</h4>{list(node.plans)}</div>
+        <div><h4 className={H}>Seed blocks</h4>{list(node.exercises)}</div>
+        <div><h4 className={H}>Seed plans</h4>{list(node.plans)}</div>
       </div>
       <h4 className={`${H} mt-5`}>Steps inside it</h4>
       {node.steps.length === 0
@@ -340,18 +340,18 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
           <JourneyView area={area} nodes={nodes} progress={progress} selected={sel} onPick={setSel} />
           {selected
             ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} blocks={blocks} pick={(id, a) => { setArea(a); setSel(id); }} />
-            : <p className="text-sm text-slate-500">Pick a skill to see its steps, what it builds on and its examples.</p>}
+            : <p className="text-sm text-slate-500">Pick a skill to see its steps, what it builds on and its seed blocks and plans.</p>}
         </>
       )}
       <div hidden={view !== "today"} className="space-y-4">
       <p className="text-sm text-slate-400">
         Each topic of the first questionnaire is a row, each level a column, and a skill sits where its topic and its first
         step&apos;s level meet. An arrow runs from a skill to the one that builds on it. Pick one to see its whole chain.{" "}
-        {g.concepts} skills · {g.noExercise} with no example exercise · {g.noPlan} in no example plan · {g.planned} with no written course page · {g.stepsPlanned} steps not implemented
+        {g.concepts} skills · {g.noExercise} with no seed block · {g.noPlan} in no seed plan · {g.planned} with no written course page · {g.stepsPlanned} steps not implemented
       </p>
       <p className="text-xs text-slate-400">
-        <span className="mr-4"><Dot fill="var(--color-emerald-400)" />green: {progress ? "solid" : "has an example exercise"}</span>
-        <span className="mr-4"><Dot fill={progress ? "var(--color-amber-400)" : "var(--color-violet-400)"} />{progress ? "amber: working on it" : "violet dot: in an example plan"}</span>
+        <span className="mr-4"><Dot fill="var(--color-emerald-400)" />green: {progress ? "solid" : "has a seed block"}</span>
+        <span className="mr-4"><Dot fill={progress ? "var(--color-amber-400)" : "var(--color-violet-400)"} />{progress ? "amber: working on it" : "violet dot: in a seed plan"}</span>
         <span className="mr-4 text-sky-300">blue step: read from a tool&apos;s levels</span>
         <span className="italic text-amber-300">amber step: not implemented</span>
       </p>

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { EXERCISE_EXAMPLES, PLAN_EXAMPLES } from "@/features/plan/examples";
+import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { exampleHashes, hashKey, quoteOf, repinSectionNotes, sectionHash, sectionText } from "./comments";
 import { stateOf, type CopyNote, type NoteSection } from "./copyNotes";
 
@@ -21,8 +21,8 @@ test("sectionText and quoteOf", () => {
   assert.equal(quoteOf("x".repeat(200), 10).length, 10);
 });
 
-test("exampleHashes: every section of exercise and plan examples", () => {
-  const ex = EXERCISE_EXAMPLES[0], plan = PLAN_EXAMPLES[0];
+test("exampleHashes: every section of a single exercise and of a plan", () => {
+  const ex = SEED_BLOCKS[0], plan = SEED_PLANS[0];
   const h = exampleHashes([{ id: ex.id, json: JSON.stringify(ex.exercise) }, { id: plan.id, json: JSON.stringify(plan.plan) }], []);
   assert.ok(h[hashKey(ex.id, "ex", 0)]);
   assert.ok(h[hashKey(plan.id, "d6.e0", 0)]);
