@@ -5,6 +5,7 @@ import { HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
 import { allowanceLabel, bestSavingLabel, priceCents, priceLabel, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
 import { ErrorLine, PRIMARY, errorOf, send } from "./parts";
+import { AUDIENCES, AUDIENCE_LEAD, audienceOf, pitchOf, type Audience } from "./planPitch";
 
 /** `GET /api/account/plan` (`AccountPlans` in server/auth.ts, which a client file can't import). */
 export type Loaded = { plans: Plan[]; current: string | null; billing: Billing; request: { planId: string; at: string } | null };
@@ -16,24 +17,75 @@ export const BETA_PLAN_LINE = "Free during the open beta, while we fix bugs: cho
 export function PlanLines({ plan, trial: showTrial = true }: { plan: Plan; /** off for someone already on a plan: the trial is for a new account */ trial?: boolean }) {
   const students = studentsLabel(plan);
   const trial = showTrial ? trialLabel(plan) : null;
+  const pitch = pitchOf(plan);
   return (
-    <ul className="flex flex-col gap-0.5 text-xs leading-relaxed text-slate-400">
-      {students && <li>{students}</li>}
-      <li>{allowanceLabel(plan)}</li>
-      {plan.role === "teacher" && <li>Share plans with your students</li>}
-      {pricedWithYou(plan) && <li>We&apos;ll email you to set the price</li>}
-      {trial && <li>{trial}</li>}
-      {!plan.enabled && <li>No longer offered. You keep it until you choose another plan.</li>}
-    </ul>
+    <div className="flex flex-col gap-2">
+      {pitch && (
+        <ul className="flex flex-col gap-1 text-sm leading-snug text-slate-200">
+          {pitch.points.map((x) => (
+            <li key={x} className="flex gap-2"><span aria-hidden className="mt-px text-emerald-300">✓</span><span>{x}</span></li>
+          ))}
+        </ul>
+      )}
+      <ul className="flex flex-col gap-0.5 text-xs leading-relaxed text-slate-400">
+        {students && <li>{students}</li>}
+        <li>{allowanceLabel(plan)}</li>
+        {plan.role === "teacher" && !pitch && <li>Share plans with your students</li>}
+        {pricedWithYou(plan) && <li>We&apos;ll email you to set the price</li>}
+        {trial && <li>{trial}</li>}
+        {!plan.enabled && <li>No longer offered. You keep it until you choose another plan.</li>}
+      </ul>
+    </div>
   );
 }
+
+/**
+ * Individual or Teachers, over the plans: which side's plans show. Each side's line says who it is for, so a person
+ * picks themself before they pick a plan.
+ */
+export function AudienceSwitch({ audience, onChange }: { audience: Audience; onChange: (a: Audience) => void }) {
+  return (
+    <div role="group" aria-label="Who the plan is for" className="grid grid-cols-2 gap-2 rounded-2xl border border-slate-700 bg-slate-950/60 p-1.5 sm:max-w-xl">
+      {AUDIENCES.map((a) => {
+        const on = audience === a.id;
+        return (
+          <button
+            key={a.id}
+            type="button"
+            aria-pressed={on}
+            onClick={() => onChange(a.id)}
+            className={`no-chrome flex flex-col items-start gap-0.5 rounded-xl px-4 py-2.5 text-left transition ${on ? "bg-slate-100 text-slate-950 shadow-sm" : "text-slate-300 hover:bg-slate-800/70 hover:text-slate-100"}`}
+          >
+            <span className="text-base font-semibold">{a.label}</span>
+            <span className={`text-xs ${on ? "text-slate-700" : "text-slate-500"}`}>{a.line}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** What every plan on the shown side gives, said once over its cards. */
+export const AudienceLead = ({ audience }: { audience: Audience }) => <p className="max-w-2xl text-sm text-slate-300">{AUDIENCE_LEAD[audience]}</p>;
+
+/** The plan grid for one side: Individual's one plan sits in a narrower column so its card doesn't stretch across the page. */
+export const planGrid = (count: number) =>
+  count === 1 ? "grid gap-3 sm:max-w-md" : "grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]";
+
+/** The side to open on: the person's own plan's side, else Teachers for a teacher or owner, else Individual. */
+export const startAudience = (plans: Plan[], current: string | null, account: Pick<Account, "role">): Audience => {
+  const mine = plans.find((p) => p.id === current);
+  if (mine) return audienceOf(mine);
+  return account.role === "student" ? "individual" : "teachers";
+};
 
 /**
  * Monthly or Yearly: how every price below is shown and paid. Yearly carries what it saves (`bestSavingLabel`) as a badge
  * that stays on while Monthly is chosen, so the cheaper way is seen before it is picked.
  */
 export function BillingSwitch({ billing, plans, onChange }: { billing: Billing; plans: Plan[]; onChange: (b: Billing) => void }) {
-  const saving = bestSavingLabel(plans);
+  // a plan priced with the person has no price to save on
+  const saving = bestSavingLabel(plans.filter((p) => !pricedWithYou(p)));
   return (
     <div role="group" aria-label="Billing" className="inline-flex self-start rounded-xl border border-slate-700 bg-slate-950/60 p-1">
       {(["month", "year"] as const).map((b) => {
@@ -79,6 +131,7 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "
       <span className="flex flex-1 flex-col gap-2">
         <span className="flex flex-col gap-0.5">
           <span className={`text-base font-semibold ${checked ? "text-slate-50" : tone.ink}`}>{plan.name}</span>
+          {pitchOf(plan) && <span className="text-xs text-slate-400">{pitchOf(plan)!.forWho}</span>}
           {custom ? (
             <span className="py-1 text-sm font-semibold text-slate-50">Price set with you</span>
           ) : (
@@ -132,6 +185,7 @@ export default function PlanPicker({ account }: { account: Account }) {
   const [busy, setBusy] = useState(false);
   const [picked, setPicked] = useState<string | null>(null);
   const [billing, setBilling] = useState<Billing | null>(null);
+  const [audience, setAudience] = useState<Audience | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -144,8 +198,11 @@ export default function PlanPicker({ account }: { account: Account }) {
   }, []);
 
   const shownBilling = billing ?? loaded?.billing ?? "year";
+  const shownAudience = audience ?? (loaded ? startAudience(loaded.plans, loaded.current, account) : "individual");
+  const shownPlans = loaded?.plans.filter((p) => audienceOf(p) === shownAudience) ?? [];
   const chosenId = picked ?? loaded?.current ?? null;
-  const chosen = loaded?.plans.find((p) => p.id === chosenId) ?? null;
+  // only a plan on the side shown: the other side's pick (or their own plan) is out of sight, so nothing to pay for
+  const chosen = shownPlans.find((p) => p.id === chosenId) ?? null;
   const changes = !!chosen && (chosen.id !== loaded?.current || shownBilling !== loaded?.billing);
   const losesSharing = !!chosen && can(account, "sharePlan") && !can({ ...account, role: roleOnPlan(account.role, chosen) }, "sharePlan");
   const samePlan = chosen?.id === loaded?.current;
@@ -178,13 +235,17 @@ export default function PlanPicker({ account }: { account: Account }) {
       {!loaded && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
       {loaded && (
         <>
-          <BillingSwitch billing={shownBilling} plans={loaded.plans} onChange={(b) => { setBilling(b); setError(null); }} />
-          <div role="radiogroup" aria-labelledby="plan-heading" className="grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]">
-            {loaded.plans.map((p, i) => (
+          <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setError(null); }} />
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <AudienceLead audience={shownAudience} />
+            <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} onChange={(b) => { setBilling(b); setError(null); }} /></div>
+          </div>
+          <div role="radiogroup" aria-labelledby="plan-heading" className={planGrid(shownPlans.length)}>
+            {shownPlans.map((p) => (
               <PlanOption
                 key={p.id}
                 plan={p}
-                hue={planHue(i)}
+                hue={planHue(loaded.plans.indexOf(p))}
                 billing={shownBilling}
                 checked={p.id === chosenId}
                 mine={p.id === loaded.current ? `Your plan, paid ${loaded.billing === "month" ? "monthly" : "yearly"}` : null}

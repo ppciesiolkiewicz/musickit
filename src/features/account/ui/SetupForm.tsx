@@ -5,7 +5,8 @@ import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
 import { EmailUpdatesBox } from "./EmailUpdates";
-import { BillingSwitch, PaymentBox, PlanOption, planHue, type Loaded } from "./PlanPicker";
+import { AudienceLead, AudienceSwitch, BillingSwitch, PaymentBox, PlanOption, planGrid, planHue, startAudience, type Loaded } from "./PlanPicker";
+import { audienceOf, type Audience } from "./planPitch";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
 /**
@@ -22,6 +23,7 @@ export default function SetupForm({ next }: { next: string }) {
   const [plans, setPlans] = useState<Loaded | null>(null);
   const [planId, setPlanId] = useState<string | null>(null);
   const [billing, setBilling] = useState<Billing | null>(null);
+  const [audience, setAudience] = useState<Audience | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [nameError, setNameError] = useState<string | null>(null);
   const [planError, setPlanError] = useState<string | null>(null);
@@ -48,20 +50,23 @@ export default function SetupForm({ next }: { next: string }) {
   const shownBilling = billing ?? plans?.billing ?? "year";
   // unticked for a new account; their own earlier yes when they come back
   const shownEmails = emails ?? account.emailUpdates;
-  const chosenPlan = plans?.plans.find((p) => p.id === chosen) ?? null;
+  const shownAudience = audience ?? (plans ? startAudience(plans.plans, plans.current, account) : "individual");
+  const shownPlans = plans?.plans.filter((p) => audienceOf(p) === shownAudience) ?? [];
+  // a pick on the other side is out of sight, so it doesn't count: Continue asks for a plan on this side
+  const chosenPlan = shownPlans.find((p) => p.id === chosen) ?? null;
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
     const noName = !shown.trim();
-    const noPlan = !chosen && !!plans;
+    const noPlan = !chosenPlan && !!plans;
     setNameError(noName ? "Type your name." : null);
     setPlanError(noPlan ? "Choose a plan." : null);
     setError(null);
     if (noName) return showName();
     if (noPlan) return showPlans();
-    if (!chosen) return;
+    if (!chosenPlan) return;
     setBusy(true);
-    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosen, billing: shownBilling, emailUpdates: shownEmails });
+    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosenPlan.id, billing: shownBilling, emailUpdates: shownEmails });
     if (r.ok) return window.location.assign(next);
     setBusy(false);
     if (r.body.field === "name") {
@@ -110,25 +115,29 @@ export default function SetupForm({ next }: { next: string }) {
           className="flex scroll-mt-24 flex-col gap-3 border-t border-slate-800 pt-5 metal-rule"
         >
           <legend className="sr-only">Plan</legend>
-          {/* the legend's visible twin: a <legend> can't sit in a flex row beside the switch */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-col gap-2">
-              <span aria-hidden className="text-sm font-semibold text-slate-200">Plan</span>
-              {/* shown before the plans load too: it is the first thing to know about choosing one */}
-              <div className="flex max-w-xl flex-col gap-1.5 rounded-lg border border-sky-400/40 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
-                <p className="font-semibold">Open beta: free while we build it with you</p>
-                <p>Every plan is free during the open beta, and choosing one doesn&apos;t ask for payment. Pick the one you&apos;d want: it tells us what to build next.</p>
-                <p>When something breaks or doesn&apos;t make sense, tell us with Send feedback in the profile menu. You can change your plan later on your account page.</p>
-              </div>
-            </div>
-            {plans && <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={plans.plans} onChange={(b) => { setBilling(b); setError(null); }} /></div>}
+          {/* the legend's visible twin */}
+          <span aria-hidden className="text-sm font-semibold text-slate-200">Plan</span>
+          {/* shown before the plans load too: it is the first thing to know about choosing one */}
+          <div className="flex max-w-xl flex-col gap-1.5 rounded-lg border border-sky-400/40 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
+            <p className="font-semibold">Open beta: free while we build it with you</p>
+            <p>Every plan is free during the open beta, and choosing one doesn&apos;t ask for payment. Pick the one you&apos;d want: it tells us what to build next.</p>
+            <p>When something breaks or doesn&apos;t make sense, tell us with Send feedback in the profile menu. You can change your plan later on your account page.</p>
           </div>
           {!plans && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
+          {plans && (
+            <>
+              <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setPlanError(null); setError(null); }} />
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <AudienceLead audience={shownAudience} />
+                <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} onChange={(b) => { setBilling(b); setError(null); }} /></div>
+              </div>
+            </>
+          )}
           <ErrorLine id="setup-plan-error">{planError}</ErrorLine>
           {plans && (
-            <div className={`grid gap-3 rounded-2xl transition sm:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))] ${planError ? "ring-1 ring-rose-400/60 ring-offset-4 ring-offset-slate-900" : ""}`}>
-              {plans.plans.map((p, i) => (
-                <PlanOption key={p.id} plan={p} hue={planHue(i)} billing={shownBilling} checked={p.id === chosen} trial={plans.current === null} onPick={() => pick(p.id)} />
+            <div className={`${planGrid(shownPlans.length)} rounded-2xl transition ${planError ? "ring-1 ring-rose-400/60 ring-offset-4 ring-offset-slate-900" : ""}`}>
+              {shownPlans.map((p) => (
+                <PlanOption key={p.id} plan={p} hue={planHue(plans.plans.indexOf(p))} billing={shownBilling} checked={p.id === chosenPlan?.id} trial={plans.current === null} onPick={() => pick(p.id)} />
               ))}
             </div>
           )}

@@ -60,6 +60,11 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   line) and scrolls the first of them into view and focuses it.
   The card is wide (`Card wide`): the plans sit side by side and wrap to one column on a phone. Each plan card has its
   own colour (`planHue`, by its place in the list, the same on `/account`; no rose or red, which mean an error).
+- The plans are split by who they are for (`AudienceSwitch`, over the plans on setup and `/account`): Individual (the
+  Student plan) and Teachers (every Teacher plan), opening on the side of the person's own plan, else Teachers for a
+  teacher or owner. Only the shown side's plans can be picked. The Teacher plans are named Solo, Music school and
+  Unlimited (`0024_plan_names`, 2026-11-17). The selling words on each card (who it is for, what it gives) and each
+  side's line are in `ui/planPitch.ts`, by plan id; prices and allowances still come from the row.
 - `ui/PlanPicker.tsx`: the Plan part of `/account` (and `PlanLines`, what a plan gives, shared with the setup page). `GET /api/account/plan` gives `{ plans, current, billing, request }`. The same Monthly/Yearly switch
   and plan cards as setup; picking another plan, or the other billing, shows `PaymentBox` (no trial line: the trial is for a
   new account) and a Move to … (or Pay monthly / Pay yearly) button, which `POST`s `{ planId, billing }` and moves the person

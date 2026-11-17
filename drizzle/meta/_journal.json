@@ -169,6 +169,13 @@
       "when": 1794818620662,
       "tag": "0023_block_steps",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794908048851,
+      "tag": "0024_plan_names",
+      "breakpoints": true
     }
   ]
 }
