@@ -11,7 +11,7 @@ import { AUDIENCES, AUDIENCE_LEAD, audienceOf, pitchOf, type Audience } from "./
 export type Loaded = { plans: Plan[]; current: string | null; billing: Billing; request: { planId: string; at: string } | null };
 
 /** Over the plans here and on /account/setup: the open beta charges nothing, while what people choose shows us who would pay for what. */
-export const BETA_PLAN_LINE = "Free during the open beta, while we fix bugs: choosing a plan doesn't ask for payment.";
+export const BETA_PLAN_LINE = "It's free while we're in open beta, so picking a plan won't ask you to pay.";
 
 /** What a plan gives, under its name and price: here and on /account/setup. */
 export function PlanLines({ plan, trial: showTrial = true }: { plan: Plan; /** off for someone already on a plan: the trial is for a new account */ trial?: boolean }) {
@@ -31,9 +31,9 @@ export function PlanLines({ plan, trial: showTrial = true }: { plan: Plan; /** o
         {students && <li>{students}</li>}
         <li>{allowanceLabel(plan)}</li>
         {plan.role === "teacher" && !pitch && <li>Share plans with your students</li>}
-        {pricedWithYou(plan) && <li>We&apos;ll email you to set the price</li>}
+        {pricedWithYou(plan) && <li>We&apos;ll email you to agree on a price</li>}
         {trial && <li>{trial}</li>}
-        {!plan.enabled && <li>No longer offered. You keep it until you choose another plan.</li>}
+        {!plan.enabled && <li>We don&apos;t offer this plan any more, but it&apos;s yours until you pick another.</li>}
       </ul>
     </div>
   );
@@ -162,11 +162,11 @@ export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; 
       <p className="text-sm text-slate-300">
         <span aria-hidden className={`mr-2 inline-block size-2 rounded-full align-middle ${HUE_TONES[hue].fill}`} />
         {pricedWithYou(plan)
-          ? `${plan.name}, price set with you. We'll email you to set the price.`
+          ? `${plan.name}, price set with you. We'll email you to agree on a price.`
           : <>{plan.name}, {price}.{" "}{trial && plan.trialDays > 0 ? `${days} free, then ${dollars(priceCents(plan, billing))} every ${billing}.` : `${dollars(priceCents(plan, billing))} every ${billing}.`}</>}
       </p>
       <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500">
-        Card details will go here. Free during the open beta: nothing is charged.
+        Your card details will go here. During the open beta we won&apos;t charge you anything.
       </div>
     </section>
   );
@@ -254,7 +254,7 @@ export default function PlanPicker({ account }: { account: Account }) {
               />
             ))}
           </div>
-          {request && <p role="status" className="text-xs text-slate-400">You chose {request.name} on {request.on}. We&apos;ll email you at {account.email} to set the price.</p>}
+          {request && <p role="status" className="text-xs text-slate-400">You chose {request.name} on {request.on}. We&apos;ll email you at {account.email} to agree on a price.</p>}
           {changes && chosen && (
             <div className="flex flex-col gap-2">
               <PaymentBox plan={chosen} hue={planHue(loaded.plans.indexOf(chosen))} billing={shownBilling} trial={loaded?.current === null} />

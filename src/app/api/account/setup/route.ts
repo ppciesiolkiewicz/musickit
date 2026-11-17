@@ -17,6 +17,6 @@ export async function POST(req: Request) {
   const body = await readJson(req);
   const result = await setUpAccount(deps, me.account, { name: body?.name, planId: body?.planId, billing: body?.billing, emailUpdates: body?.emailUpdates });
   if (result.ok) return json({ ok: true, account: result.account }, 200, me.cookies);
-  if (result.error === "name") return json({ error: "Type your name.", field: "name" }, 400, me.cookies);
+  if (result.error === "name") return json({ error: "Please type your name.", field: "name" }, 400, me.cookies);
   return json({ error: "That plan can't be chosen. Reload the page to see the plans you can choose.", field: "plan" }, 400, me.cookies);
 }

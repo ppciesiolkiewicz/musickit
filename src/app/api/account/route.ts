@@ -24,7 +24,7 @@ export async function PATCH(req: Request) {
     return json({ ok: true, account: changed }, 200, cookies);
   }
   const renamed = await rename(deps, account.id, body?.name);
-  if (!renamed) return json({ error: "Type your name.", field: "name" }, 400, cookies);
+  if (!renamed) return json({ error: "Please type your name.", field: "name" }, 400, cookies);
   return json({ ok: true, account: renamed }, 200, cookies);
 }
 

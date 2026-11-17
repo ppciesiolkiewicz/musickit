@@ -59,8 +59,8 @@ export default function SetupForm({ next }: { next: string }) {
     e.preventDefault();
     const noName = !shown.trim();
     const noPlan = !chosenPlan && !!plans;
-    setNameError(noName ? "Type your name." : null);
-    setPlanError(noPlan ? "Choose a plan." : null);
+    setNameError(noName ? "Please type your name." : null);
+    setPlanError(noPlan ? "Please pick a plan." : null);
     setError(null);
     if (noName) return showName();
     if (noPlan) return showPlans();
@@ -119,9 +119,12 @@ export default function SetupForm({ next }: { next: string }) {
           <span aria-hidden className="text-sm font-semibold text-slate-200">Plan</span>
           {/* shown before the plans load too: it is the first thing to know about choosing one */}
           <div className="flex max-w-xl flex-col gap-1.5 rounded-lg border border-sky-400/40 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
-            <p className="font-semibold">Open beta: free while we build it with you</p>
-            <p>Every plan is free during the open beta, and choosing one doesn&apos;t ask for payment. Pick the one you&apos;d want: it tells us what to build next.</p>
-            <p>When something breaks or doesn&apos;t make sense, tell us with Send feedback in the profile menu. You can change your plan later on your account page.</p>
+            <p className="flex flex-wrap items-center gap-2 font-semibold">
+              Open beta: free while we build it with you
+              <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-xs font-semibold text-slate-950">It&apos;s free now</span>
+            </p>
+            <p>Every plan is free while we&apos;re in open beta, and picking one won&apos;t ask you to pay. Choose the one you&apos;d really want: it helps us decide what to build next.</p>
+            <p>Something broken or confusing? Tell us with Send feedback in the profile menu. You can change your plan any time on your account page.</p>
           </div>
           {!plans && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
           {plans && (
