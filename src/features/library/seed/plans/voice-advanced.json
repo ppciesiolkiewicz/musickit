@@ -112,6 +112,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
+            "steps": ["steps-to-leaps:21"],
             "why": "Sol is a leap you already land, so hearing it first puts the tritone and the minor 6th a half step away instead of a long way from Do.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -193,6 +194,7 @@
             "concepts": [
               "improvise"
             ],
+            "steps": ["improvise:2"],
             "why": "The 3rd and the 7th tell one chord from the next, and through a ii-V-I each of them moves a step or stays where it is, so a line made of them lets you hear every change.",
             "learnBefore": [
               "/course/11/ii-v-i",
@@ -336,6 +338,7 @@
             "concepts": [
               "range"
             ],
+            "steps": ["range:3"],
             "why": "A slide passes through every pitch on the way up, so your voice arrives at the top note already moving instead of jumping at it, and each key puts that top note one step higher.",
             "learnBefore": [
               "/course/9/stretching-your-range"
@@ -412,6 +415,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
+            "steps": ["steps-to-leaps:21"],
             "why": "The high Do is the same note as Do, so you can always hear it, and each 7th is one small step down from there.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -492,6 +496,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:4"],
             "why": "In a tune no one names the leap or sounds Do first, so reading one shows whether you can find a 7th from whatever note you are on.",
             "learnBefore": [
               "/course/6/sight-singing",
@@ -648,6 +653,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
+            "steps": ["steps-to-leaps:21"],
             "why": "A minor 3rd down from Do lands on La and a minor 6th down lands on Mi, two notes of the scale you already sing, so only the tritone is a new sound.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -731,6 +737,7 @@
             "concepts": [
               "improvise"
             ],
+            "steps": ["improvise:2"],
             "why": "Round these four chords the 7th of one chord sits a half step from the 3rd of the next, or on it, so one line covers every change by moving a half step or not at all.",
             "learnBefore": [
               "/course/11/guide-tones",
@@ -993,6 +1000,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:4"],
             "why": "After an octave leap you are on the note you just left, higher or lower, so keep its sound in your ear through the leap and the landing is already known.",
             "learnBefore": [
               "/course/6/sight-singing",
@@ -1148,6 +1156,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
+            "steps": ["steps-to-leaps:21"],
             "why": "With your voice not drawn, nothing shows you drifting towards the note, so the leap has to be heard whole before you start it.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -1224,6 +1233,7 @@
             "concepts": [
               "improvise"
             ],
+            "steps": ["improvise:2"],
             "why": "A faster band leaves less time to find each note, so a line holds together when you know where it lands: on the 3rd or the 7th as the last chord arrives.",
             "learnBefore": [
               "/course/11/ii-v-i",
@@ -1352,6 +1362,7 @@
             "concepts": [
               "range"
             ],
+            "steps": ["range:2"],
             "why": "A slide over two octaves passes the spot where your voice wants to break, and going through it slowly and quietly is what smooths it out.",
             "learnBefore": [
               "/course/9/stretching-your-range"
@@ -1427,6 +1438,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:4"],
             "why": "The high Re and the high Mi are the Re and Mi you know, an octave up, so hear the low one first and the leap past the octave has a place to land.",
             "learnBefore": [
               "/course/6/sight-singing",
@@ -1543,6 +1555,7 @@
             "concepts": [
               "improvise"
             ],
+            "steps": ["improvise:2"],
             "why": "Each guide tone is on the staff in more than one octave, so a line can leap an octave or more and still land on a note that fits the chord.",
             "learnBefore": [
               "/course/11/guide-tones",
@@ -1790,6 +1803,7 @@
             "concepts": [
               "improvise"
             ],
+            "steps": ["improvise:2"],
             "why": "Guide tones are the notes your ear checks a chord by, so once you can sing them without the staff, any line you make up has somewhere to start and somewhere to land.",
             "learnBefore": [
               "/course/11/ii-v-i",

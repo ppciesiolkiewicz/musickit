@@ -20,6 +20,9 @@
     "concepts": [
       "chords-of-a-key"
     ],
+    "steps": [
+      "chords-of-a-key:1"
+    ],
     "why": "Each chord is built on one note of the scale, so once you hear the root move from 1 to 4 to 5, you can name the chord that is playing.",
     "learnBefore": [
       "/course/5/one-four-five"

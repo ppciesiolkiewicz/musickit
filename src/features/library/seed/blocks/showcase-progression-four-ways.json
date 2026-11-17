@@ -21,6 +21,10 @@
       "open-chords",
       "strumming"
     ],
+    "steps": [
+      "open-chords:8",
+      "strumming:3"
+    ],
     "why": "The four chords come round in the same order every time, so each new way of playing them (roots, shapes, strumming, 3rds) trains you to hear where the next change falls.",
     "learnBefore": [
       "/course/2/em-and-am",

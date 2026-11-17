@@ -20,6 +20,7 @@
     "concepts": [
       "pentatonic-positions"
     ],
+    "steps": ["pentatonic-positions:1"],
     "why": "A phrase sounds finished when it ends on the root, so learn the shape and where its roots sit together: then anything you make up has somewhere to land.",
     "learnBefore": [
       "/course/5/pentatonic",

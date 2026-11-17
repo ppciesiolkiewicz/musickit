@@ -41,6 +41,7 @@
             "concepts": [
               "picking"
             ],
+            "steps": ["picking:4"],
             "why": "Skipping a string makes the pick travel twice as far between notes, so it trains the aim that wide phrases across a position need.",
             "learnBefore": [
               "/course/8/string-skipping"
@@ -59,9 +60,7 @@
                     "type": "tool",
                     "tool": {
                       "type": "picking-drill",
-                      "strokes": "DU",
-                      "notesPerString": 2,
-                      "skip": true,
+                      "level": "advanced",
                       "bpm": 90
                     }
                   }
@@ -95,6 +94,7 @@
             "concepts": [
               "shells"
             ],
+            "steps": ["shells:3"],
             "why": "A 9th chord is a 7th chord with one more note on top, so D9 goes wherever D7 goes and adds a colour above it.",
             "learnBefore": [
               "/course/11/extended",
@@ -162,6 +162,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:3"],
             "why": "A Dorian and A natural minor differ by one note, the 6th, so that note is the only place the mode can be heard: find it first, then aim for it.",
             "learnBefore": [
               "/course/9/modes",
@@ -279,6 +280,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:3"],
             "why": "F♯, the 6th of A Dorian, is the 3rd of D7, so landing on it as the chord changes makes one note say both the mode and the chord.",
             "learnBefore": [
               "/course/9/modes",
@@ -380,6 +382,7 @@
             "concepts": [
               "notes-on-neck"
             ],
+            "steps": ["notes-on-neck:2"],
             "why": "A triad or a position starts from a note you can name, so naming notes anywhere on the neck is what lets you put either one in any key.",
             "learnBefore": [
               "/course/8/every-note"
@@ -393,6 +396,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "note-finder",
+                  "level": "beginner",
                   "mode": "find",
                   "from": 1,
                   "to": 15
@@ -412,6 +416,7 @@
             "concepts": [
               "legato"
             ],
+            "steps": ["legato:4"],
             "why": "Fingers 3 and 4 are the pair that moves apart least freely, so a trill on those two alone is the quickest way to make each one land by itself.",
             "learnBefore": [
               "/course/4/legato"
@@ -430,7 +435,7 @@
                     "type": "tool",
                     "tool": {
                       "type": "legato-trill",
-                      "fingers": "34",
+                      "level": "advanced",
                       "string": 2,
                       "fret": 7,
                       "bpm": 72
@@ -466,6 +471,7 @@
             "concepts": [
               "triads"
             ],
+            "steps": ["triads:9"],
             "why": "A triad is three notes on three neighbouring strings, so every set of three strings holds the same chord in a new shape and a new register.",
             "learnBefore": [
               "/course/8/triads-everywhere",
@@ -878,6 +884,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:3"],
             "why": "The notes of Am and D are all inside A Dorian, so the triads you just played are the places a solo over those two chords can land.",
             "learnBefore": [
               "/course/9/modes",
@@ -1022,6 +1029,7 @@
             "concepts": [
               "picking"
             ],
+            "steps": ["picking:2"],
             "why": "Picking down then up plays two notes with one swing of the hand, so the hand gets faster by making the swing smaller, not by working harder.",
             "learnBefore": [
               "/course/1/spider"
@@ -1040,8 +1048,7 @@
                     "type": "tool",
                     "tool": {
                       "type": "picking-drill",
-                      "strokes": "DU",
-                      "notesPerString": 4,
+                      "level": "beginner",
                       "bpm": 100
                     }
                   }
@@ -1075,6 +1082,7 @@
             "concepts": [
               "shells"
             ],
+            "steps": ["shells:3", "shells:4"],
             "why": "A Dorian and G major are the same seven notes, so the two chords of the Dorian vamp are also the ii and the V of G: one more chord takes them home.",
             "learnBefore": [
               "/course/11/extended",
@@ -1143,6 +1151,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:3"],
             "why": "Each position starts on the notes where the one below ends, so one slide along one string carries a line from one position into the next.",
             "learnBefore": [
               "/course/6/joining",
@@ -1254,6 +1263,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:3"],
             "why": "The 6th is in every position, so a solo can move up the neck and still land on it each time D7 comes round.",
             "learnBefore": [
               "/course/6/joining",
@@ -1356,6 +1366,7 @@
             "concepts": [
               "spider"
             ],
+            "steps": ["spider:4"],
             "why": "A pattern that sends finger 4 straight after finger 1 makes the hand open and close on every string, which is the move wide scale positions ask for.",
             "learnBefore": [
               "/course/1/spider"
@@ -1374,7 +1385,7 @@
                     "type": "tool",
                     "tool": {
                       "type": "finger-pattern",
-                      "fingers": "1423",
+                      "level": "advanced",
                       "fret": 5,
                       "show": "pick",
                       "bpm": 80
@@ -1410,6 +1421,7 @@
             "concepts": [
               "triads"
             ],
+            "steps": ["triads:7"],
             "why": "A, G and D are the I, ♭VII and IV chords of A Mixolydian, and between them the three triads hold all seven notes of the mode.",
             "learnBefore": [
               "/course/8/triads-everywhere",
@@ -1774,6 +1786,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:4"],
             "why": "Mixolydian is the major scale with one note lowered, the 7th, so day 1's method works again: find the one note that differs, then aim for it.",
             "learnBefore": [
               "/course/9/modes",
@@ -1891,6 +1904,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:4"],
             "why": "G, the ♭7 of A Mixolydian, is the root of the G chord, so landing on it as G comes round puts the mode's one changed note where it sounds most at home.",
             "learnBefore": [
               "/course/9/modes",
@@ -2005,6 +2019,7 @@
             "concepts": [
               "legato"
             ],
+            "steps": ["legato:3"],
             "why": "A pulled-off note is sounded by the finger leaving the string, so a trill is only even when the pull is as firm as the hammer.",
             "learnBefore": [
               "/course/4/legato"
@@ -2023,7 +2038,7 @@
                     "type": "tool",
                     "tool": {
                       "type": "legato-trill",
-                      "fingers": "23",
+                      "level": "intermediate",
                       "string": 3,
                       "fret": 6,
                       "bpm": 80
@@ -2059,6 +2074,7 @@
             "concepts": [
               "shells"
             ],
+            "steps": ["shells:3"],
             "why": "Comping is leaving room: with only drums and bass under you every strum you leave out can be heard, so the gaps become part of the rhythm.",
             "learnBefore": [
               "/course/11/comping",
@@ -2148,6 +2164,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:8"],
             "why": "A Dorian and A Mixolydian share six notes and differ only in the 3rd, so moving that one note a fret turns the minor mode into the major one.",
             "learnBefore": [
               "/course/9/modes",
@@ -2256,6 +2273,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:8"],
             "why": "A band's chords choose the mode for you: Am7 holds C and the A chord holds C♯, so the same position needs its 3rd moved when the band changes.",
             "learnBefore": [
               "/course/9/modes",
@@ -2354,6 +2372,7 @@
             "concepts": [
               "picking"
             ],
+            "steps": ["picking:4"],
             "why": "With three notes on a string the pick leaves on a down stroke one time and on an up stroke the next, so both ways of crossing to a new string get trained.",
             "learnBefore": [
               "/course/8/string-skipping"
@@ -2372,9 +2391,8 @@
                     "type": "tool",
                     "tool": {
                       "type": "picking-drill",
-                      "strokes": "DU",
+                      "level": "advanced",
                       "notesPerString": 3,
-                      "skip": true,
                       "bpm": 80
                     }
                   }
@@ -2408,6 +2426,7 @@
             "concepts": [
               "shells"
             ],
+            "steps": ["shells:3"],
             "why": "Dm9 and G9 are Dm7 and G7 with a 9th added, so they fit the same vamp and only the top of each chord changes colour.",
             "learnBefore": [
               "/course/11/extended",
@@ -2475,6 +2494,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:3"],
             "why": "A mode is a shape counted from its root, so moving the root from A to D moves every position with it, and the 6th keeps its place inside each one.",
             "learnBefore": [
               "/course/10/moving-keys",
@@ -2601,6 +2621,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:3"],
             "why": "B, the 6th of D Dorian, is the 3rd of G7: the job F♯ did over D7, so the aim you built in A works here with new note names.",
             "learnBefore": [
               "/course/9/modes",
@@ -2702,6 +2723,7 @@
             "concepts": [
               "picking"
             ],
+            "steps": ["picking:4"],
             "why": "The same drill starting a stage above day 1 is the plainest way to feel what a week of string skipping has done.",
             "learnBefore": [
               "/course/8/string-skipping"
@@ -2720,9 +2742,7 @@
                     "type": "tool",
                     "tool": {
                       "type": "picking-drill",
-                      "strokes": "DU",
-                      "notesPerString": 2,
-                      "skip": true,
+                      "level": "advanced",
                       "bpm": 100
                     }
                   }
@@ -2756,6 +2776,7 @@
             "concepts": [
               "shells"
             ],
+            "steps": ["shells:4"],
             "why": "The same two chords sound like a Dorian vamp while they loop and like a ii–V the moment Gmaj7 follows them, so the last two bars change what the first six meant.",
             "learnBefore": [
               "/course/11/comping",
@@ -2839,6 +2860,7 @@
             "concepts": [
               "triads"
             ],
+            "steps": ["triads:7"],
             "why": "Looking away makes your hand find each shape from the one before it, not from the screen, which is how a triad gets found in the middle of a song.",
             "learnBefore": [
               "/course/8/triads-everywhere"
@@ -3202,6 +3224,7 @@
             "concepts": [
               "major-on-neck"
             ],
+            "steps": ["major-on-neck:3", "major-on-neck:4"],
             "why": "Each day gave you one thing to aim a phrase at (the 6th, a triad note, the ♭7, a crossing), so a solo is choosing which one each phrase goes for.",
             "learnBefore": [
               "/course/9/modes",

@@ -20,6 +20,7 @@
     "concepts": [
       "notes-on-neck"
     ],
+    "steps": ["notes-on-neck:1"],
     "why": "A chord shape moved up the neck is named by the note under it on the low E or the A string, so knowing these notes lets you find any chord you move.",
     "learnBefore": [
       "/course/1/notes-on-e-and-a"
@@ -38,9 +39,8 @@
             "type": "tool",
             "tool": {
               "type": "note-finder",
-              "mode": "find",
-              "from": 0,
-              "to": 12
+              "level": "new",
+              "mode": "find"
             }
           }
         ]
@@ -58,9 +58,8 @@
             "type": "tool",
             "tool": {
               "type": "note-finder",
-              "mode": "name",
-              "from": 0,
-              "to": 12
+              "level": "new",
+              "mode": "name"
             }
           }
         ]
@@ -78,9 +77,8 @@
             "type": "tool",
             "tool": {
               "type": "note-finder",
-              "mode": "every",
-              "from": 0,
-              "to": 12
+              "level": "new",
+              "mode": "every"
             }
           }
         ]

@@ -20,6 +20,7 @@
     "concepts": [
       "pentatonic-positions"
     ],
+    "steps": ["pentatonic-positions:4"],
     "why": "Position 2 starts on the notes where position 1 ends, so one slide along one string carries a phrase from the first into the second.",
     "learnBefore": [
       "/course/6/joining"

@@ -20,6 +20,9 @@
     "concepts": [
       "guitar-melodies"
     ],
+    "steps": [
+      "guitar-melodies:2"
+    ],
     "why": "Do, Mi and Sol are the three notes of the C chord, so adding them one at a time shows how a tune is built from a chord you can already fret.",
     "learnBefore": [
       "/course/3/solfege",

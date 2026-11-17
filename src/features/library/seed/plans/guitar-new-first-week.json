@@ -36,6 +36,7 @@
             "tags": ["rhythm"],
             "topic": "guitar-basic-chords",
             "concepts": ["open-chords", "strumming"],
+            "steps": ["open-chords:1", "strumming:1"],
             "why": "A chord sounds clean when every string in it rings, so picking the strings one at a time shows you which finger to move.",
             "learnBefore": ["/course/2/em-and-am", "/course/1/tab-and-chord-boxes"],
             "cells": [
@@ -76,6 +77,7 @@
             "tags": ["song"],
             "topic": "guitar-scales",
             "concepts": ["guitar-melodies"],
+            "steps": ["guitar-melodies:1"],
             "why": "The whole tune sits on one string, three notes that step down to the open string, so your picking hand stays put while the other hand learns to find frets.",
             "learnBefore": ["/course/4/melodies", "/course/1/tab-and-chord-boxes"],
             "cells": [
@@ -153,6 +155,7 @@
             "tags": ["rhythm"],
             "topic": "guitar-basic-chords",
             "concepts": ["open-chords", "strumming"],
+            "steps": ["open-chords:1", "strumming:1"],
             "why": "From Em to Am, fingers 2 and 3 keep their shape and move across one string together, so the change is one small move and one more finger.",
             "learnBefore": ["/course/2/em-and-am", "/course/2/all-downstrums"],
             "cells": [
@@ -205,6 +208,7 @@
             "tags": ["rhythm"],
             "topic": "guitar-basic-chords",
             "concepts": ["open-chords", "strumming"],
+            "steps": ["open-chords:2", "strumming:1"],
             "why": "E is Em with one finger added, so a new chord is often an old one with a small change: look for what stays before you look for what moves.",
             "learnBefore": ["/course/2/e-a-dm", "/course/2/c-d-g"],
             "cells": [
@@ -245,6 +249,7 @@
             "tags": ["song"],
             "topic": "guitar-scales",
             "concepts": ["guitar-melodies"],
+            "steps": ["guitar-melodies:1"],
             "why": "This tune uses the three notes of day 1's tune and plays two of them twice, so the frets are known and the new job is giving each note its beat.",
             "learnBefore": ["/course/4/melodies"],
             "cells": [
@@ -305,6 +310,7 @@
             "tags": ["technique"],
             "topic": "guitar-basic-chords",
             "concepts": ["open-chords"],
+            "steps": ["open-chords:3"],
             "why": "A change gets quick when the fingers leave together and land together, and that comes from making one change many times in a row, so each block is one pair of chords and nothing else.",
             "learnBefore": ["/course/2/one-minute-changes"],
             "cells": [
@@ -345,6 +351,7 @@
             "tags": ["song"],
             "topic": "guitar-basic-chords",
             "concepts": ["open-chords", "strumming"],
+            "steps": ["open-chords:1", "strumming:1"],
             "why": "A band keeps going whether your change is ready or not, so playing with one teaches you to keep the strumming hand moving and let the chord catch up.",
             "learnBefore": ["/course/2/first-songs", "/course/2/all-downstrums"],
             "cells": [
@@ -389,6 +396,7 @@
             "tags": ["rhythm"],
             "topic": "guitar-basic-chords",
             "concepts": ["strumming", "open-chords"],
+            "steps": ["strumming:2", "open-chords:1"],
             "why": "Between two down strums your hand already travels back up, so an up strum is no new move: the pick brushes the strings on a trip the hand was making anyway.",
             "learnBefore": ["/course/2/all-downstrums", "/course/1/steady-beat"],
             "cells": [
@@ -429,6 +437,7 @@
             "tags": ["song"],
             "topic": "guitar-scales",
             "concepts": ["guitar-melodies"],
+            "steps": ["guitar-melodies:1"],
             "why": "This tune climbs three notes and comes back down the same way, all on one string, so your hand learns to move up a string as well as down it.",
             "learnBefore": ["/course/4/melodies"],
             "cells": [
@@ -497,6 +506,7 @@
             "tags": ["rhythm", "song"],
             "topic": "guitar-basic-chords",
             "concepts": ["open-chords", "strumming"],
+            "steps": ["open-chords:2", "strumming:1"],
             "why": "The song stays on A for two bars and goes to D and E for one bar each, so the long A is where your hand rests and gets ready for the two quick changes.",
             "learnBefore": ["/course/2/first-songs", "/course/2/e-a-dm"],
             "cells": [
@@ -558,6 +568,7 @@
             "tags": ["rhythm"],
             "topic": "guitar-basic-chords",
             "concepts": ["open-chords", "strumming"],
+            "steps": ["open-chords:1", "strumming:2"],
             "why": "On day 2 the change from Em to Am took most of a bar, and now it takes less, so the time you gained is where the extra strums fit.",
             "learnBefore": ["/course/2/em-and-am", "/course/2/all-downstrums"],
             "cells": [
@@ -606,6 +617,7 @@
             "tags": ["song", "improv"],
             "topic": "guitar-scales",
             "concepts": ["guitar-melodies"],
+            "steps": ["guitar-melodies:1"],
             "why": "A tune sounds finished when it ends on its home note, which in this key is the open G string, so three notes and that one ending are enough to make up tunes of your own.",
             "learnBefore": ["/course/4/melodies", "/course/3/home-note"],
             "cells": [

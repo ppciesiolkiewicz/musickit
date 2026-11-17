@@ -19,6 +19,9 @@
     "concepts": [
       "beat"
     ],
+    "steps": [
+      "beat:1"
+    ],
     "why": "When your clap lands exactly on the click, the click hides under it, so the metronome tells you when you are on the beat.",
     "learnBefore": [
       "/course/1/steady-beat"

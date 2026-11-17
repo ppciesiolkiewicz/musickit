@@ -20,6 +20,9 @@
     "concepts": [
       "sevenths-up"
     ],
+    "steps": [
+      "sevenths-up:5"
+    ],
     "why": "The three chords share a root and each differs from the next by one note, so when you can hear which note moved, you can name the chord.",
     "learnBefore": [
       "/course/7/sevenths"

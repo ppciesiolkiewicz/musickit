@@ -75,6 +75,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:17"],
             "why": "Fa and Sol are one step apart, so hearing which one a leap went to is what stops your own leap landing on the wrong one.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -113,6 +114,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:17"],
             "why": "A leap lands in tune when you hear the landing note before you sing it, so the game gives you only Do and the name of the leap.",
             "learnBefore": [
               "/course/6/singing-leaps"
@@ -156,6 +158,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:2"],
             "why": "In a tune the leap sits between other notes, so singing one shows whether you can find the 4th without Do sounding first.",
             "learnBefore": [
               "/course/6/singing-leaps",
@@ -271,6 +274,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:17"],
             "why": "In a falling leap the top note comes first and there is no Do under it yet, so the ear has to measure downwards.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -344,6 +348,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:2"],
             "why": "A run sounds like music when it lands somewhere, so aim its last note at the bar where the home chord comes back.",
             "learnBefore": [
               "/course/6/vocal-runs",
@@ -445,6 +450,7 @@
             "concepts": [
               "pitch"
             ],
+            "steps": ["pitch:5"],
             "why": "A slow slide passes through every pitch between two notes, so it shows your voice the whole distance before you leap it.",
             "learnBefore": [
               "/course/3/home-note",
@@ -484,6 +490,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:17"],
             "why": "The high Do is the same note as Do, so the two blend into one sound where every other leap stands apart: listen for the blend first.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -522,6 +529,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:17"],
             "why": "The octave is the widest leap in most tunes, and Sol sits a little over halfway up it, so the 5th you know is the marker for the octave you are learning.",
             "learnBefore": [
               "/course/6/singing-leaps"
@@ -566,6 +574,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:2"],
             "why": "After a drop of an octave the low note is the one you just sang, lower down, so keep its sound in your ear as you let go of the high one.",
             "learnBefore": [
               "/course/6/singing-leaps",
@@ -651,6 +660,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:3"],
             "why": "Each round adds one count, so going two rounds further than on day 1 makes the breath longer without a jump.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
@@ -665,8 +675,7 @@
                 "tool": {
                   "type": "breathwork",
                   "drill": "farinelli",
-                  "from": 4,
-                  "to": 10
+                  "level": "intermediate"
                 }
               }
             ]
@@ -683,6 +692,7 @@
             "concepts": [
               "harmony-line"
             ],
+            "steps": ["harmony-line:1"],
             "why": "A harmony is two notes heard together, so your ear has to pull them apart before your voice can hold one of them.",
             "learnBefore": [
               "/course/6/harmony-line"
@@ -719,6 +729,7 @@
             "concepts": [
               "harmony-line"
             ],
+            "steps": ["harmony-line:4"],
             "why": "A harmony line stays on notes of each chord and moves as little as it can, so it is easy to hold and fits every bar.",
             "learnBefore": [
               "/course/6/harmony-line"
@@ -840,6 +851,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:2"],
             "why": "Singing a tune before you hear it makes your ear work out every step, so the check afterwards tells you which leaps you already know.",
             "learnBefore": [
               "/course/6/sight-singing"
@@ -941,6 +953,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:17"],
             "why": "With six leaps to choose from a guess stops working, so the ear has to know each one by its own sound.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -1016,6 +1029,7 @@
             "concepts": [
               "improvise"
             ],
+            "steps": ["improvise:1"],
             "why": "Do, Mi and Sol each belong to more than one of these four chords, so a line made from the three fits wherever it leaps.",
             "learnBefore": [
               "/course/6/singing-leaps",
@@ -1115,6 +1129,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:17"],
             "why": "Without the picture of your voice only your ear can aim the leap, which is how it is in a song.",
             "learnBefore": [
               "/course/6/singing-leaps"
@@ -1197,6 +1212,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:2"],
             "why": "A leap you can read is one you know by its look as well as its sound, so reading two tunes built on one leap ties the two together.",
             "learnBefore": [
               "/course/6/sight-singing",
@@ -1266,6 +1282,7 @@
             "concepts": [
               "harmony-line"
             ],
+            "steps": ["harmony-line:4"],
             "why": "A faster band gives you less time to find each note, so the line has to be in your ear before the chord arrives.",
             "learnBefore": [
               "/course/6/harmony-line"
@@ -1398,6 +1415,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:3"],
             "why": "The same counts three days later let you feel the change where it was hardest: in the last rounds.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
@@ -1412,8 +1430,7 @@
                 "tool": {
                   "type": "breathwork",
                   "drill": "farinelli",
-                  "from": 4,
-                  "to": 10
+                  "level": "intermediate"
                 }
               }
             ]
@@ -1430,6 +1447,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:17"],
             "why": "Every leap of the week in one game, the hard way round, shows which ones your ear now knows by itself.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -1506,6 +1524,7 @@
             "concepts": [
               "improvise"
             ],
+            "steps": ["improvise:1"],
             "why": "From Do up to Sol is a 5th, from Sol up to the next Do is a 4th, and Do to Do is an octave, so three notes hold every leap of the week.",
             "learnBefore": [
               "/course/6/singing-leaps",

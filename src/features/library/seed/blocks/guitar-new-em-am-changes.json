@@ -21,6 +21,7 @@
       "open-chords",
       "strumming"
     ],
+    "steps": ["open-chords:1", "strumming:1"],
     "why": "From Em to Am, fingers 2 and 3 keep their shape and move across one string together, so the change is one small move plus one finger: the easiest change to make automatic first.",
     "learnBefore": [
       "/course/2/one-minute-changes"

@@ -21,6 +21,7 @@
       "triads",
       "arpeggios"
     ],
+    "steps": ["triads:3", "arpeggios:1"],
     "why": "Every chord of the key is a triad on the top three strings somewhere inside one scale position, so you can strike a chord and carry on soloing without moving your hand.",
     "learnBefore": [
       "/course/8/chords-in-position",

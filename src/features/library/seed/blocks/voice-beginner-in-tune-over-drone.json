@@ -20,6 +20,9 @@
     "concepts": [
       "pitch"
     ],
+    "steps": [
+      "pitch:3"
+    ],
     "why": "A note in tune with the drone sounds smooth and a note that is off wobbles against it, so the drone tells your ear when you are on the note.",
     "learnBefore": [
       "/course/3/home-note"

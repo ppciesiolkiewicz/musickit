@@ -53,6 +53,7 @@
             "concepts": [
               "breath-holding-note"
             ],
+            "steps": ["breath:3"],
             "learnBefore": [
               "/theory/singing/breathing",
               "/theory/singing/warm-ups"
@@ -72,7 +73,7 @@
                     "tool": {
                       "type": "breathwork",
                       "drill": "farinelli",
-                      "from": 4,
+                      "level": "intermediate",
                       "to": 9
                     }
                   }
@@ -275,6 +276,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:3"],
             "why": "A 9th chord is a 7th chord with one more note on top, so Am9 and D9 go wherever Am7 and D7 go, and Gmaj7 is where the two of them lead.",
             "learnBefore": [
               "/course/11/extended",
@@ -387,6 +389,7 @@
             "concepts": [
               "seventh-chords"
             ],
+            "steps": ["sevenths-up:5"],
             "why": "Every chord you comp this week is built on a major 7, a minor 7 or a dominant 7, so naming those three by ear is naming what your hands are playing.",
             "learnBefore": [
               "/course/7/hearing-sevenths"
@@ -418,6 +421,7 @@
             "concepts": [
               "improvise-melody"
             ],
+            "steps": ["improvise:2"],
             "why": "The 3rd and the 7th tell one chord from the next, and through a ii–V–I each of them moves a step or stays, so a line made of them follows the chords you just played.",
             "learnBefore": [
               "/course/11/guide-tones",
@@ -585,6 +589,7 @@
             "concepts": [
               "stretch-range"
             ],
+            "steps": ["range:3"],
             "learnBefore": [
               "/theory/singing/warm-ups"
             ],
@@ -646,6 +651,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:2"],
             "why": "A shell is a chord cut down to its root, 3rd and 7th, so once you can find the 3rd and 7th alone you can build the chord, or a line, around them.",
             "learnBefore": [
               "/course/11/shells",
@@ -1026,6 +1032,7 @@
               "triads-every-set",
               "top-string-triads"
             ],
+            "steps": ["triads:3", "triads:4"],
             "why": "Three notes high on the neck leave the low register to your voice and the bass, so a small triad often sits better under a singer than a full barre chord.",
             "learnBefore": [
               "/course/8/triads-everywhere",
@@ -1391,6 +1398,7 @@
             "concepts": [
               "fast-runs"
             ],
+            "steps": ["runs:5"],
             "why": "A run sounds placed, not just decorative, when its last note belongs to the chord that is arriving, so aim every run at the 3rd of the next chord.",
             "learnBefore": [
               "/course/9/fast-runs",
@@ -1725,6 +1733,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:3"],
             "why": "A singer needs every chord in more than one key, and moving the ii–V–I from G to C puts the same three colours on new roots.",
             "learnBefore": [
               "/course/11/extended",
@@ -1948,6 +1957,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:4"],
             "why": "A turnaround is the ii–V–I with one chord added so it loops, which makes it the four bars you will comp most often behind a verse.",
             "learnBefore": [
               "/course/11/comping",
@@ -2062,6 +2072,7 @@
             "concepts": [
               "stretch-range"
             ],
+            "steps": ["range:3"],
             "learnBefore": [
               "/theory/singing/warm-ups",
               "/course/9/stretching-your-range"
@@ -2251,6 +2262,7 @@
             "concepts": [
               "sus-add9-shapes"
             ],
+            "steps": ["sus-add9:3"],
             "why": "Sus and add9 chords change one note of a chord you already hold, so the colour moves while the hand barely does: the folk way to enrich a plain I, IV and V.",
             "learnBefore": [
               "/course/7/sus-add9",
@@ -2347,6 +2359,7 @@
             "concepts": [
               "harmony-line"
             ],
+            "steps": ["harmony-line:4"],
             "why": "A harmony line moves as little as it can from one chord note to the next, so it is easy to hold and leaves room to decorate.",
             "learnBefore": [
               "/course/6/harmony-line",
@@ -2497,6 +2510,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:4"],
             "why": "Two chords leave nothing to hide behind, so the groove is made by which strums you leave out.",
             "learnBefore": [
               "/course/11/comping",
@@ -2686,6 +2700,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:2"],
             "why": "A shell is counted from its root, so in C the shapes from day 2 sit on new frets and the 3rd and 7th keep their places inside them.",
             "learnBefore": [
               "/course/11/shells",
@@ -3121,6 +3136,7 @@
             "concepts": [
               "improvise-melody"
             ],
+            "steps": ["improvise:2"],
             "why": "Guide tones give a line its skeleton, and turns and runs are the ways to get from one to the next, so a made-up line is the week's two skills joined.",
             "learnBefore": [
               "/course/11/guide-tones",
@@ -3291,6 +3307,7 @@
               "breath-holding-note",
               "stretch-range"
             ],
+            "steps": ["breath:3", "range:3"],
             "learnBefore": [
               "/theory/singing/breathing",
               "/theory/singing/warm-ups"
@@ -3310,8 +3327,7 @@
                     "tool": {
                       "type": "breathwork",
                       "drill": "farinelli",
-                      "from": 4,
-                      "to": 10
+                      "level": "intermediate"
                     }
                   }
                 ]
@@ -3457,6 +3473,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:4"],
             "why": "Full 9th chords fill the space and shells leave it open, so choosing between them is how you set how much room your voice gets.",
             "learnBefore": [
               "/course/11/comping",
@@ -3558,6 +3575,7 @@
             "concepts": [
               "sight-singing"
             ],
+            "steps": ["sight-singing:4"],
             "why": "A run is steps and a tune like these is leaps, so singing one after the other keeps your pitch honest at both sizes.",
             "learnBefore": [
               "/course/6/sight-singing",
@@ -3662,6 +3680,7 @@
             "concepts": [
               "fast-runs"
             ],
+            "steps": ["runs:5"],
             "why": "Over Am7 and D7 the 6th of the scale is the 3rd of D7, so a run that lands on it as the chord changes sounds like it belongs to the band.",
             "learnBefore": [
               "/course/9/improvising-a-melody",
@@ -3807,6 +3826,7 @@
             "concepts": [
               "stretch-range"
             ],
+            "steps": ["range:2"],
             "learnBefore": [
               "/theory/singing/warm-ups"
             ],
@@ -3955,6 +3975,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:4"],
             "why": "Day 1's three chords at tempos day 1 never reached show how far the changes have settled into your hand.",
             "learnBefore": [
               "/course/11/comping",
@@ -4045,6 +4066,7 @@
             "concepts": [
               "shells-comping"
             ],
+            "steps": ["shells:2"],
             "why": "Looking away makes your hand find each note from the one before it, which is how a fill gets found in the middle of a song.",
             "learnBefore": [
               "/course/11/guide-tones",
@@ -4214,6 +4236,7 @@
               "improvise-melody",
               "harmony-line"
             ],
+            "steps": ["improvise:2", "harmony-line:4"],
             "why": "Each day gave you one thing to do with a phrase (a guide tone, a turn, a run into the next chord), so a set is choosing which one each phrase gets.",
             "learnBefore": [
               "/course/9/improvising-a-melody",

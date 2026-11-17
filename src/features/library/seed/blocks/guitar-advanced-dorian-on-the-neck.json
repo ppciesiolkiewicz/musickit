@@ -20,6 +20,7 @@
     "concepts": [
       "major-on-neck"
     ],
+    "steps": ["major-on-neck:3"],
     "why": "Dorian is natural minor with one note raised, the 6th, so a line only sounds Dorian when it uses that note: learn where it sits and aim for it.",
     "learnBefore": [
       "/course/9/modes"

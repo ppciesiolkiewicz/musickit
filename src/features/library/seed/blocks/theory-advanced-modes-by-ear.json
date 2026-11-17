@@ -20,6 +20,11 @@
     "concepts": [
       "modes"
     ],
+    "steps": [
+      "modes:1",
+      "modes:2",
+      "modes:3"
+    ],
     "why": "Each mode is plain major or minor with one note changed, so learning to hear that one note is learning to hear the mode.",
     "learnBefore": [
       "/course/9/modes-over-drone"

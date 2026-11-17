@@ -20,6 +20,10 @@
     "concepts": [
       "pentatonic-positions"
     ],
+    "steps": [
+      "pentatonic-positions:1",
+      "pentatonic-positions:5"
+    ],
     "why": "A minor and E minor pentatonic share four of their five notes, so in the same part of the neck only one note moves and the root is a new note to end on.",
     "learnBefore": [
       "/course/8/pentatonic-boxes",

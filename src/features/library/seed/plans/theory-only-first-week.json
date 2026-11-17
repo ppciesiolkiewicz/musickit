@@ -54,6 +54,7 @@
             "tags": ["theory", "ear"],
             "topic": "theory-scales-keys",
             "concepts": ["scales"],
+            "steps": ["scales:3"],
             "why": "A major scale is the same row of whole steps and half steps from any note, so once you see and hear where its two half steps fall, you can build the scale in any key.",
             "learnBefore": ["/course/3/piano-and-guitar"],
             "cells": [
@@ -129,6 +130,7 @@
             "tags": ["theory", "ear"],
             "topic": "theory-building-chords",
             "concepts": ["sevenths-up"],
+            "steps": ["sevenths-up:1"],
             "why": "A major and a minor chord on the same root share the root and the 5th, so the 3rd is the only note you have to listen for.",
             "learnBefore": ["/course/2/what-is-a-chord", "/course/3/major-or-minor"],
             "cells": [
@@ -177,6 +179,7 @@
             "tags": ["theory"],
             "topic": "theory-scales-keys",
             "concepts": ["keys"],
+            "steps": ["keys:1"],
             "why": "Each place you move round the circle of fifths changes one note of the scale, so the keys next to C are the ones that differ from it by a single sharp or flat.",
             "learnBefore": ["/course/10/circle-map"],
             "cells": [
@@ -220,6 +223,7 @@
             "tags": ["ear"],
             "topic": "theory-ear",
             "concepts": ["home-and-colour"],
+            "steps": ["home-and-colour:3"],
             "why": "G major and E minor use the same seven notes, so what tells the two keys apart is the chord the music comes to rest on.",
             "learnBefore": ["/course/3/major-or-minor", "/course/3/la-minor-home"],
             "cells": [
@@ -281,6 +285,7 @@
             "tags": ["theory", "ear"],
             "topic": "theory-progressions",
             "concepts": ["chords-of-a-key"],
+            "steps": ["chords-of-a-key:1"],
             "why": "The three major chords of a key are built on its 1st, 4th and 5th notes, and on the circle of fifths they sit side by side, so the circle finds them in any key.",
             "learnBefore": ["/course/5/one-four-five", "/course/10/circle-map"],
             "cells": [
@@ -346,6 +351,7 @@
             "tags": ["ear"],
             "topic": "theory-ear",
             "concepts": ["hearing-changes"],
+            "steps": ["hearing-changes:1"],
             "why": "When a chord changes, the bass jumps to the new chord's root, so listening to the lowest note tells you the moment the chord moves.",
             "learnBefore": ["/course/5/hearing-changes"],
             "cells": [
@@ -383,6 +389,7 @@
             "tags": ["theory", "ear"],
             "topic": "theory-building-chords",
             "concepts": ["sevenths-up"],
+            "steps": ["sevenths-up:2"],
             "why": "A chord is every other note of the scale stacked up, and a fourth note on the stack makes a 7th chord: on the 5th note of a major key that gives a major chord with a ♭7, the dominant 7.",
             "learnBefore": ["/course/7/sevenths"],
             "cells": [
@@ -427,6 +434,7 @@
             "tags": ["theory", "ear"],
             "topic": "theory-building-chords",
             "concepts": ["sus"],
+            "steps": ["sus:1"],
             "why": "A sus4 chord swaps the 3rd for the 4th, the next note up the scale, so it is neither major nor minor until the 4th falls back to the 3rd.",
             "learnBefore": ["/course/7/sus-add9"],
             "cells": [
@@ -464,6 +472,7 @@
             "tags": ["theory", "improv"],
             "topic": "theory-scales-keys",
             "concepts": ["scales"],
+            "steps": ["scales:2"],
             "why": "The major pentatonic is the major scale without its 4th and 7th, the two notes that sit a half step from a neighbour, so no two of its five notes are a half step apart and any order of them makes a tune.",
             "learnBefore": ["/course/5/major-pentatonic"],
             "cells": [
@@ -528,6 +537,7 @@
             "tags": ["theory", "ear"],
             "topic": "theory-scales-keys",
             "concepts": ["keys", "scales"],
+            "steps": ["keys:1", "scales:3"],
             "why": "A key is one scale and the chords built on it, so the same three moves open any new key: find the scale, find its 1, 4 and 5, then hear them.",
             "learnBefore": ["/course/10/moving-keys", "/course/5/one-four-five"],
             "cells": [

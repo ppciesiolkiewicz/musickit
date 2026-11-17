@@ -41,6 +41,7 @@
             "concepts": [
               "pitch"
             ],
+            "steps": ["pitch:3"],
             "why": "In tune with the drone sounds smooth and off sounds like a wobble, so the drone lets you check yourself with no one listening.",
             "learnBefore": [
               "/course/3/home-note"
@@ -79,6 +80,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:8"],
             "why": "Melodies move by steps and skips, so hearing which is which tells you where the next note is before you sing it.",
             "learnBefore": [
               "/course/3/intervals"
@@ -114,6 +116,7 @@
             "concepts": [
               "tunes"
             ],
+            "steps": ["tunes:1"],
             "why": "Step tunes use notes right next to each other, so they train your voice to move one note at a time and stay in tune.",
             "learnBefore": [
               "/course/3/step-melodies"
@@ -222,6 +225,7 @@
             "concepts": [
               "pitch"
             ],
+            "steps": ["pitch:3"],
             "why": "Humming keeps the sound small and easy to tune, so opening to \"oo\" from a hum carries the in-tune note with it.",
             "learnBefore": [
               "/course/3/matching-a-pitch"
@@ -260,6 +264,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:8"],
             "why": "Mi and Sol are the two notes a skip from Do usually lands on, and a minor 3rd sits a half step under Mi, so telling the three apart is half of singing a skip in tune.",
             "learnBefore": [
               "/course/3/intervals"
@@ -296,6 +301,7 @@
             "concepts": [
               "tunes"
             ],
+            "steps": ["tunes:1"],
             "why": "A skip lands on a chord note, so a tune that skips is really the chord sung one note at a time.",
             "learnBefore": [
               "/course/3/do-mi-sol"
@@ -455,6 +461,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
+            "steps": ["steps-to-leaps:8"],
             "why": "La sits one step above Sol, so hearing the two apart is what lets you sing the step between them.",
             "learnBefore": [
               "/course/3/intervals"
@@ -491,6 +498,7 @@
             "concepts": [
               "tunes"
             ],
+            "steps": ["tunes:1"],
             "why": "La is the step above Sol that tunes lean on and fall back from, so a tune on the two is the first move away from the chord.",
             "learnBefore": [
               "/course/3/step-melodies",
@@ -593,6 +601,7 @@
             "concepts": [
               "pitch"
             ],
+            "steps": ["pitch:4"],
             "why": "A slow slide passes through every pitch on the way, so it shows your voice the whole distance it needs to skip.",
             "learnBefore": [
               "/course/3/matching-a-pitch"
@@ -631,6 +640,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:8"],
             "why": "In a falling skip the top note comes first, so your ear has to find the lower note with no Do sounding under it.",
             "learnBefore": [
               "/course/3/do-mi-sol"
@@ -667,6 +677,7 @@
             "concepts": [
               "tunes"
             ],
+            "steps": ["tunes:1"],
             "why": "Tunes often dip below Do and come home, so singing under it makes Do feel like home from both sides.",
             "learnBefore": [
               "/course/3/home-note",
@@ -785,6 +796,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:8"],
             "why": "Do Mi Sol is two skips of a fixed size, so it sounds the same from any Do, and moving it trains your ear on the shape and not on the notes.",
             "learnBefore": [
               "/course/3/do-mi-sol"
@@ -824,6 +836,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:8"],
             "why": "Real tunes mix steps and skips, so hearing them mixed is closer to singing a song than hearing them alone.",
             "learnBefore": [
               "/course/3/intervals",
@@ -862,6 +875,7 @@
             "concepts": [
               "tunes"
             ],
+            "steps": ["tunes:2"],
             "why": "A longer tune asks for one skip after another, and making up your own afterwards shows which skips your voice finds by itself.",
             "learnBefore": [
               "/course/3/do-mi-sol"
@@ -960,6 +974,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:5"],
             "why": "A step up and back is the shape most tunes start with, and the metronome shows whether your voice gets to each note on time.",
             "learnBefore": [
               "/course/3/step-melodies"
@@ -1002,6 +1017,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
+            "steps": ["steps-to-leaps:8"],
             "why": "Singing back what you hear links your ear to your voice, which is what learning a tune by ear is.",
             "learnBefore": [
               "/course/3/intervals"
@@ -1038,6 +1054,7 @@
             "concepts": [
               "tunes"
             ],
+            "steps": ["tunes:2"],
             "why": "Steps and 3rds are the two moves most tunes use, so a tune of each is the week in two songs.",
             "learnBefore": [
               "/course/3/step-melodies",
@@ -1157,6 +1174,7 @@
             "concepts": [
               "steps-to-leaps"
             ],
+            "steps": ["steps-to-leaps:8"],
             "why": "Every interval from this week in one game shows which ones your ear now knows by itself.",
             "learnBefore": [
               "/course/3/intervals"
@@ -1195,6 +1213,7 @@
             "concepts": [
               "tunes"
             ],
+            "steps": ["tunes:1"],
             "why": "You have sung Do, Mi and Sol over chords this week, so now you can choose them yourself.",
             "learnBefore": [
               "/course/3/step-melodies",

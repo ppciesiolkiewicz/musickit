@@ -19,6 +19,9 @@
     "concepts": [
       "pentatonic-positions"
     ],
+    "steps": [
+      "pentatonic-positions:1"
+    ],
     "why": "Your fingers learn the moves you repeat, clean or not, so each faster tempo comes only once the slower one is easy.",
     "learnBefore": [
       "/course/5/pentatonic"

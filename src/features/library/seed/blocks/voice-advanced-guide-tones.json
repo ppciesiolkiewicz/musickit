@@ -20,6 +20,9 @@
     "concepts": [
       "improvise"
     ],
+    "steps": [
+      "improvise:2"
+    ],
     "why": "The 3rd and the 7th are the notes that tell one chord from the next, and through a ii-V-I each of them moves by a step or stays where it is, so a line made of them lets you hear every change.",
     "learnBefore": [
       "/course/11/ii-v-i",
