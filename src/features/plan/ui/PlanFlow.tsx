@@ -36,6 +36,8 @@ const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py
 
 /** The finish button, named in the closing step's words. */
 const FINISH = "Save my answers";
+/** The "next" flow's button on the plan page and its title here: one name for one thing. */
+export const REVIEW = "Review this week";
 
 /**
  * The questions for a plan, as one step modal. "start": the whole questionnaire. "next": how the plan went (once the week is
@@ -80,7 +82,7 @@ export default function PlanFlow({ mode, answers, current, review, onReview, onA
         }] : []),
         {
           title: "How did this week go?",
-          hint: "What felt easy, hard, fun. Your notes are saved with this plan, with the stars you gave each exercise, for the next plan.",
+          hint: "What felt easy, hard, fun. attunr saves your notes with this plan.",
           body: (
             <div className="flex h-full flex-col gap-2">
               <textarea autoFocus className={`${field} min-h-0 flex-1`} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Day 3 was too fast, loved the improv, want more songs…" />
@@ -121,7 +123,7 @@ export default function PlanFlow({ mode, answers, current, review, onReview, onA
 
   return (
     <StepModal
-      title={mode === "start" ? "Your practice plan" : "Next week"}
+      title={mode === "start" ? "Your practice plan" : REVIEW}
       steps={steps}
       finishLabel={FINISH}
       step={at}

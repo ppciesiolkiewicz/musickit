@@ -121,6 +121,7 @@ const SECTIONS: Section[] = [
         <p>Some plans, and AI notes, are written by an AI that attunr runs for you. A plan can be wrong, whoever made it: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. attunr checks every plan before it reaches you, but it can&apos;t catch everything.</p>
         <p>Practise within what feels easy. Stop at any pain in your hands, arms or voice. attunr is not medical advice, and a plan is not a reason to push through pain. If you have an injury or a voice condition, ask a doctor, a physiotherapist or a voice teacher first.</p>
         <p>attunr sends your data to an AI only when that AI writes a plan or a note for you, and then only what the plan or note needs: your answers, your ratings and the steps you are on.</p>
+        <p>If you use an AI of your own on attunr&apos;s pages, such as an AI extension in your browser, it can read your plans and notes and change them. That AI&apos;s own terms apply to what it reads and what it does.</p>
       </>
     ),
   },

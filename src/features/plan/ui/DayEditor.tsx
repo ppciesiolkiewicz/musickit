@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import Icon from "@/components/Icon";
 import { draftWarnings, editDay, exerciseFromDraft, MAX_EXERCISES, metaOf, MIN_EXERCISES, sameExercise, type ExerciseMeta } from "../model/editPlan";
 import { insertAt, withIds } from "../model/editBlock";
-import { fixRequest } from "../model/fixRequest";
 import { randomId } from "../model/exerciseIds";
 import type { Cell } from "../model/tools";
 import type { Block, PlanExercise, StoredPlan } from "../model/types";
@@ -27,19 +26,9 @@ function exerciseOf(it: Item): PlanExercise {
   return exerciseFromDraft(it.old, it.meta, it.block);
 }
 
-/** One warning list's Copy fix request: the paste step's message for the player's AI. */
-function CopyFix({ warnings }: { warnings: string[] }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <button type="button" className={button} onClick={() => void navigator.clipboard?.writeText(fixRequest(warnings)).then(() => setCopied(true))}>
-      {copied ? "Copied" : "Copy fix request"}
-    </button>
-  );
-}
-
 /**
  * A day of the running plan edited in place: its exercises in order, each the block editor under a small form for what the plan
- * knows about it (title with hashtags, minutes, why, links), the paste step's warnings under it. Nothing is saved until Done; an
+ * knows about it (title with hashtags, minutes, why, links), the parse warnings under it. Nothing is saved until Done; an
  * exercise that changed becomes a new one (`editDay`). Cancel leaves the plan as it was.
  */
 export default function DayEditor({ plan, day, onDone, onCancel }: { plan: StoredPlan; day: number; onDone: (next: StoredPlan) => void; onCancel: () => void }) {
@@ -99,7 +88,6 @@ export default function DayEditor({ plan, day, onDone, onCancel }: { plan: Store
             <BlockEditor block={it.block} onChange={(block) => set(i, { block: withIds(block, cellId) })} selected={selected} onSelect={setSelected} onAdd={(at) => setPicking({ i, at })} header={false} />
             <div className="flex flex-wrap items-center gap-2">
               <button type="button" className={button} onClick={() => setPicking({ i, at: selected })}>Add a widget</button>
-              {warnings.length > 0 && <CopyFix warnings={warnings} />}
             </div>
             {warnings.length > 0 && (
               <ul className="list-disc pl-5 text-xs text-amber-300">

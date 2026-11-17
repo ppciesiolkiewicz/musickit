@@ -18,7 +18,7 @@ import { outcome } from "./model/outcome";
 import { mergeTimes } from "./model/trackerView";
 import StreakButton from "./ui/tracker/StreakButton";
 import ProgressTracker from "./ui/tracker/ProgressTracker";
-import PlanFlow, { savedFlow } from "./ui/PlanFlow";
+import PlanFlow, { REVIEW, savedFlow } from "./ui/PlanFlow";
 import WeekView from "./ui/WeekView";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
 import Link from "next/link";
@@ -31,7 +31,7 @@ const NOT_SAVED = "Your latest change isn't saved yet, so the plan wasn't shared
 
 /**
  * The AI practice plan, a continuous daily plan; a new day opens each day. Start runs the questions in one step modal, and
- * "Plan next week" the shorter follow-up on how the week went; "Start anew" runs the first flow again. Until the server
+ * "Review this week" the shorter follow-up on how the week went; "Start anew" runs the first flow again. Until the server
  * writes plans (NEW7) a flow only saves: the answers, and the notes on the week with the current plan.
  */
 export default function PlanApp() {
@@ -102,8 +102,15 @@ export default function PlanApp() {
   const onAnswers = (answers: PlanAnswers, feedback: string | undefined, asked: boolean) => {
     const at = new Date().toISOString();
     update((s) => ({ ...(asked ? recordAnswers(s, answers, at) : s), answers, current: s.current && feedback !== undefined ? { ...s.current, feedback } : s.current }));
+    setSaved(flow);
+    setReviewed(feedback !== undefined);
     setFlow(null);
   };
+  // what the last finished flow saved, said under the header until closed
+  const [saved, setSaved] = useState<"start" | "next" | null>(null);
+  // the week was reviewed in this visit (notes may be empty), so the week-done banner stops asking
+  const [reviewed, setReviewed] = useState(false);
+  const savedNotice = saved && <SavedNotice kind={saved} onClose={() => setSaved(null)} />;
   // an earlier plan, started again: it keeps the running plan's progress summary (restartPlan)
   const startAgain = (config: PlanConfig) => {
     update((s) => restartPlan(s, config, randomId, localDate()));
@@ -140,6 +147,7 @@ export default function PlanApp() {
     return (
       <div className="flex flex-col gap-4">
         {state.history.length > 0 && streak && <div>{streak}</div>}
+        {savedNotice}
         <section className="flex flex-col items-start gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <ol data-tour="plan-steps" className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
             {[
@@ -182,7 +190,7 @@ export default function PlanApp() {
           <div className="flex flex-wrap items-center gap-2">
             <Reminder state={state} update={update} />
             <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
-            <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Say how this week went, for the next plan" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
+            <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Rate this plan and say how the week went" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />{REVIEW}</Button>
             <Button onClick={() => setFlow("start")} title="Answer the questions again" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
             <SharePopover kind="plan" itemId={plan.id} open={shareOpen} onClose={closeShare} prepare={prepareShare} instead={can("sharePlan") ? undefined : <UpgradeToTeacher />}>
               <Button onClick={() => setShareOpen((s) => !s)} aria-expanded={shareOpen} className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
@@ -192,13 +200,15 @@ export default function PlanApp() {
 
         {added && <AddedNotice plan={added} onUse={() => { startAgain(added.config); setAddedId(null); }} onClose={() => setAddedId(null)} />}
 
-        {over && (
+        {savedNotice}
+
+        {over && !reviewed && !plan.feedback?.trim() && !plan.review && (
           <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
             <div className="min-w-0 flex-1">
-              <h2 className="text-base text-slate-100">Ready for next week</h2>
-              <p className="text-sm text-slate-400">Tell us how it went. Your notes are saved with this plan, for the next one.</p>
+              <h2 className="text-base text-slate-100">Week done</h2>
+              <p className="text-sm text-slate-400">Tell us how it went. attunr saves your notes with this plan.</p>
             </div>
-            <Button onClick={() => setFlow("next")} className={primary}><Icon name="sparkles" size={14} />Plan next week</Button>
+            <Button onClick={() => setFlow("next")} className={primary}><Icon name="sparkles" size={14} />{REVIEW}</Button>
           </section>
         )}
 
@@ -227,6 +237,24 @@ function UpgradeToTeacher() {
         Upgrade to Teacher account
       </Link>
     </div>
+  );
+}
+
+/** After a flow is finished: what attunr saved, that new plans aren't ready yet, and where the demo plans are. */
+function SavedNotice({ kind, onClose }: { kind: "start" | "next"; onClose: () => void }) {
+  const demo = <Link href="/demo" className="text-sky-300 underline underline-offset-2 hover:text-sky-200">demo plans</Link>;
+  return (
+    <section role="status" className="flex flex-wrap items-start gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-emerald-400 bg-slate-900/80 p-4">
+      <div className="min-w-0 flex-1">
+        <h2 className="text-base text-slate-100">{kind === "start" ? "Your answers are saved" : "Your notes on this week are saved"}</h2>
+        <p className="text-sm text-slate-400">
+          {kind === "start"
+            ? <>New plans aren&apos;t ready yet. Your first plan starts from these answers once they are. Until then, the {demo} show what a week of practice looks like.</>
+            : <>Next week&apos;s plan isn&apos;t ready yet, so this plan keeps going. Until then, the {demo} show other weeks of practice.</>}
+        </p>
+      </div>
+      <button type="button" aria-label="Close" onClick={onClose} className="rounded-md p-1 text-slate-400 hover:text-slate-100"><Icon name="x" size={14} /></button>
+    </section>
   );
 }
 

@@ -16,6 +16,7 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 - The library part, "Find models in the library": before writing, call `player_progress` when a player is in scope, `find_blocks` by the student's current and next step per concept, `get_block` on the closest two or three and write like them, `find_plans` and `get_plan` for one plan's shape; a block that fits may be used as it is; `library_coverage` shows the steps no block practises yet. It searches with `docs_teaching` set to the current teaching version first; from an older block, plan or showcase the agent takes only the tool use and the shape, and writes the text to the prompt's rules. A block reused as it is keeps its area, topic, concepts, steps and tags.
 - Showcases by block id: one line per showcase feature names the seed block that shows it, its id computed from the seed file when the prompt is built.
 - No ask-first branch: a player who skipped the questionnaire is planned from the default answers and their ratings, and the answer format has no exception for it.
+- The browser AI's plan-writing tools are gone (`get_practice_plan_prompt`, `check_practice_plan`, `submit_practice_plan`), and with them their rule, `PROMPT_VIA_TOOLS` (check the plan, fix it, check again, then send it with the tool). Players have no outside-AI route to a plan; the block tools for editing a running plan or a note stay.
 
 ### 4 (2026-11-16)
 

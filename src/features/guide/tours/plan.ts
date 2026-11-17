@@ -32,7 +32,7 @@ export const PLAN_TOUR: TourStep[] = [
   },
   {
     target: "plan-next",
-    title: "Next week",
-    text: "When the week is done, press Plan next week to say how it went. attunr saves your notes with the plan, for the next one.",
+    title: "Review the week",
+    text: "When the week is done, press Review this week to say how it went. attunr saves your notes with the plan.",
   },
 ];

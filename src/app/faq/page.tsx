@@ -112,7 +112,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
     title: "The AI practice plan",
     items: [
       { q: "Do I need my own AI?", a: <>No. attunr puts your plan together from its library of exercises, for the steps you are on. In the beta, attunr can&apos;t make new plans yet: it saves your answers for your first plan, and the demo plans show what a week looks like.</> },
-      { q: "What happens after the first week?", a: <>Choose <b className="text-slate-200">Plan next week</b> and say how the week went. attunr saves your notes with the plan, so the next plan picks up where this one stopped.</> },
+      { q: "What happens after the first week?", a: <>Choose <b className="text-slate-200">Review this week</b> and say how the week went. attunr saves your notes with the plan, so the next plan picks up where this one stopped.</> },
     ],
   },
   {

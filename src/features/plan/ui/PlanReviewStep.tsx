@@ -15,7 +15,7 @@ const ASK_WHY_BELOW = 3;
 const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
 
 /**
- * Plan next week's first screen once the week is over: stars for the whole plan and, under 1 or 2 stars, a box asking why.
+ * Review this week's first screen once the week is over: stars for the whole plan and, under 1 or 2 stars, a box asking why.
  * The box keeps its own text, so spaces typed at the end stay while typing; the trimmed text goes up. Picking 3 stars or
  * more empties it (the why is kept only for a low review, `cleanReview`).
  */
