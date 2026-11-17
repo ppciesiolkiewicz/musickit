@@ -26,6 +26,7 @@
             "tags": ["ear"],
             "topic": "theory-ear",
             "concepts": ["intervals"],
+            "steps": ["intervals:1"],
             "why": "The octave is the same note again, higher, and the 5th is the outside of a chord, so these two wide gaps are the easiest to tell apart and the ones to measure every other interval against.",
             "learnBefore": ["/course/3/intervals"],
             "cells": [
@@ -109,6 +110,7 @@
             "tags": ["ear"],
             "topic": "theory-ear",
             "concepts": ["intervals"],
+            "steps": ["intervals:2"],
             "why": "A major chord starts with a major 3rd and a minor chord with a minor 3rd, so the sound you already know from chords tells the two 3rds apart.",
             "learnBefore": ["/course/3/intervals", "/course/3/major-or-minor"],
             "cells": [
@@ -260,6 +262,7 @@
             "tags": ["ear"],
             "topic": "theory-ear",
             "concepts": ["intervals"],
+            "steps": ["intervals:2"],
             "why": "A chord is notes sounding together, so naming an interval with both notes at once is the step from hearing intervals to hearing chords.",
             "learnBefore": ["/course/3/intervals"],
             "cells": [
@@ -505,6 +508,7 @@
             "tags": ["ear"],
             "topic": "theory-ear",
             "concepts": ["intervals"],
+            "steps": ["intervals:2"],
             "why": "The 3rds are the first two notes of a major or a minor chord and the 5th is its outside, so every interval in this game can be checked against a chord you already hear.",
             "learnBefore": ["/course/3/intervals"],
             "cells": [

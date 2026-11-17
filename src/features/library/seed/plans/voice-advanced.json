@@ -157,6 +157,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:4"],
             "why": "The run leaves out Fa and Ti, the two notes that sit a half step from a neighbour, so every note has room and the run stays clear when it gets fast.",
             "learnBefore": [
               "/course/9/fast-runs"
@@ -456,6 +457,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:2"],
             "why": "A run of skips has no steps to lean on, so every note has to be aimed, and going round Do, Mi and Sol twice before the top puts the chord in your ear first.",
             "learnBefore": [
               "/course/9/fast-runs"
@@ -692,6 +694,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:2"],
             "why": "The top note is held for three beats, so you hear whether the run arrived in tune before you come back down.",
             "learnBefore": [
               "/course/9/fast-runs"
@@ -922,6 +925,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
+            "steps": ["singing-intervals:4"],
             "why": "With Do in a new key each time you can't lean on the last note you sang, so each leap has to be found from its neighbour: Sol, or the next Do.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -954,6 +958,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:7"],
             "why": "The scale has two half steps, Mi to Fa and Ti to Do, and a fast run goes out of tune when they come out too wide, so aim those two pairs and the other steps are all whole ones.",
             "learnBefore": [
               "/course/9/fast-runs"
@@ -1183,6 +1188,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:4"],
             "why": "The run opens on a held Sol, so you tune one note before the fast ones start, and they leave from it and come back through it.",
             "learnBefore": [
               "/course/9/fast-runs"
@@ -1501,6 +1507,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:7"],
             "why": "The run goes two notes past the high Do, to the high Mi of the tunes you just read, so the note you leapt to is now reached by step.",
             "learnBefore": [
               "/course/9/fast-runs"
@@ -1713,6 +1720,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
+            "steps": ["singing-intervals:4"],
             "why": "Day 1 gave you one neighbour, two leaps and the picture of your voice, and today has every leap, both ways, in any key with no picture, so what lands now is what your ear has learnt.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -1746,6 +1754,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:4"],
             "why": "The notes are the ones from day 1, so what you hear changing is your voice: how many passes stay clear before the top.",
             "learnBefore": [
               "/course/9/fast-runs"

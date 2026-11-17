@@ -308,6 +308,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:1"],
             "why": "A run is in tune when every note in it is, so it starts slow enough to hear each one, and only then gets quicker.",
             "learnBefore": [
               "/course/6/vocal-runs"
@@ -979,6 +980,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:3"],
             "why": "A turn goes one note past where it is heading and comes back, so it trains your voice to change direction without losing the pitch.",
             "learnBefore": [
               "/course/6/vocal-runs"
@@ -1160,6 +1162,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:6"],
             "why": "A nine-note run is day 2's five-note run carried on up the scale, so what kept five notes even keeps nine even: slow first, then quicker.",
             "learnBefore": [
               "/course/6/vocal-runs"
@@ -1466,6 +1469,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:1"],
             "why": "The notes are the ones you learnt slowly on day 2, so the speed is new and the tuning is not.",
             "learnBefore": [
               "/course/6/vocal-runs"

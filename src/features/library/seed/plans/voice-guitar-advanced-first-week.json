@@ -114,6 +114,7 @@
               "runs",
               "fast-runs"
             ],
+            "steps": ["runs:2"],
             "why": "A fast run is a slow run you no longer have to think about, so each tempo comes only once the one before is in tune on every note.",
             "learnBefore": [
               "/course/6/vocal-runs",
@@ -893,6 +894,7 @@
             "concepts": [
               "runs"
             ],
+            "steps": ["runs:4"],
             "why": "A turn is the smallest run there is, a note with the neighbour above and the neighbour below, and the runs of soul and R&B are mostly turns joined by steps.",
             "learnBefore": [
               "/course/6/vocal-runs",
@@ -1617,6 +1619,7 @@
               "leaps",
               "singing-intervals"
             ],
+            "steps": ["singing-intervals:3"],
             "why": "A hard leap lands in tune when you first hear a note you already know right beside it, so each block finds its leaps from a neighbour: the high Do, then Sol.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -1806,6 +1809,7 @@
               "runs",
               "fast-runs"
             ],
+            "steps": ["runs:7"],
             "why": "A longer run is short groups joined together, so hearing it in fours keeps every note in its place when the tempo goes up.",
             "learnBefore": [
               "/course/9/fast-runs",
@@ -2122,6 +2126,7 @@
             "concepts": [
               "fast-runs"
             ],
+            "steps": ["runs:4"],
             "why": "A pentatonic run mixes steps with skips, and the skips are where fast runs go out of tune, so they get drilled slowly before the tempo goes up.",
             "learnBefore": [
               "/course/9/fast-runs",
@@ -2964,6 +2969,7 @@
             "concepts": [
               "fast-runs"
             ],
+            "steps": ["runs:2"],
             "why": "An octave run crosses from one part of the voice into another, so it only stays even when the top notes are sung lighter than the bottom ones.",
             "learnBefore": [
               "/course/9/fast-runs",
@@ -3065,6 +3071,7 @@
             "concepts": [
               "intervals"
             ],
+            "steps": ["intervals:4"],
             "why": "A leap you can name by ear is a leap you can aim your voice at, so this is the listening half of day 3's singing.",
             "learnBefore": [
               "/theory/ears",
@@ -3346,6 +3353,7 @@
             "concepts": [
               "fast-runs"
             ],
+            "steps": ["runs:4"],
             "why": "Runs in songs fall more often than they rise, and a falling run tends to go flat, so the way down gets its own stages.",
             "learnBefore": [
               "/course/9/fast-runs",
@@ -3860,6 +3868,7 @@
             "concepts": [
               "fast-runs"
             ],
+            "steps": ["runs:2"],
             "why": "The same run starting where day 1 stopped is the plainest way to hear what a week of stages has done.",
             "learnBefore": [
               "/course/9/fast-runs"

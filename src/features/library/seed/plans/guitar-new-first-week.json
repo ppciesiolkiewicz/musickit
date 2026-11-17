@@ -20,6 +20,7 @@
             "tags": ["technique"],
             "topic": "guitar-techniques",
             "concepts": ["picking"],
+            "steps": ["picking:1"],
             "why": "Every chord and tune starts with the pick finding one string, so picking the six open strings in order teaches your hand how far apart they are.",
             "learnBefore": ["/course/1/strings-and-tuning", "/tuner"],
             "cells": [
@@ -103,6 +104,7 @@
             "tags": ["technique"],
             "topic": "guitar-techniques",
             "concepts": ["spider"],
+            "steps": ["spider:1"],
             "why": "One finger per fret is the hand shape that chords and tunes are made from, and at the 5th fret the frets are close enough for a new hand to reach all four.",
             "learnBefore": ["/course/1/spider"],
             "cells": [
@@ -118,6 +120,7 @@
             "tags": ["theory"],
             "topic": "guitar-scales",
             "concepts": ["notes-on-neck"],
+            "steps": ["notes-on-neck:1"],
             "why": "Em is named after the note of the open low E string and Am after the open A string, so the names on these two strings are where chord names come from.",
             "learnBefore": ["/course/1/notes-on-e-and-a"],
             "cells": [
@@ -186,6 +189,7 @@
             "tags": ["technique"],
             "topic": "guitar-techniques",
             "concepts": ["picking"],
+            "steps": ["picking:1"],
             "why": "The strings are the same distance apart under every chord, so a pick that finds the open strings without a look will find them inside a chord too.",
             "learnBefore": ["/course/1/strings-and-tuning"],
             "cells": [
@@ -269,6 +273,7 @@
             "tags": ["technique"],
             "topic": "guitar-techniques",
             "concepts": ["spider"],
+            "steps": ["spider:1"],
             "why": "A note rings when the finger presses close to its fret, the same press every string of a chord needs, so the spider is chord practice with one finger at a time.",
             "learnBefore": ["/course/1/spider"],
             "cells": [
@@ -284,6 +289,7 @@
             "tags": ["theory"],
             "topic": "guitar-scales",
             "concepts": ["notes-on-neck"],
+            "steps": ["notes-on-neck:1"],
             "why": "When the answer is a note you play, your hand has to find the place by itself, so the name gets tied to a feel and not only to a picture.",
             "learnBefore": ["/course/1/notes-on-e-and-a"],
             "cells": [
@@ -359,6 +365,7 @@
             "tags": ["technique"],
             "topic": "guitar-techniques",
             "concepts": ["picking"],
+            "steps": ["picking:1"],
             "why": "An up stroke is the pick's trip back after a down stroke, so picking down and up on one open string is the smallest form of the strum you learn today.",
             "learnBefore": ["/course/1/strings-and-tuning"],
             "cells": [
@@ -450,6 +457,7 @@
             "tags": ["technique"],
             "topic": "guitar-techniques",
             "concepts": ["spider"],
+            "steps": ["spider:1"],
             "why": "Your fingers learn whatever you repeat, buzzes included, so a faster tempo comes only when every note at this one rings.",
             "learnBefore": ["/course/1/spider"],
             "cells": [
@@ -473,6 +481,7 @@
             "tags": ["theory"],
             "topic": "guitar-scales",
             "concepts": ["notes-on-neck"],
+            "steps": ["notes-on-neck:1"],
             "why": "Saying the name before you see the answers makes you pull it from memory, and a name you have pulled from memory a few times stops needing to be counted.",
             "learnBefore": ["/course/1/notes-on-e-and-a"],
             "cells": [
@@ -533,6 +542,7 @@
             "tags": ["technique"],
             "topic": "guitar-techniques",
             "concepts": ["picking"],
+            "steps": ["picking:1"],
             "why": "On day 1 your eyes found each string, and since then the pick has made the same trip many times, so today your hand can find the strings while you look away.",
             "learnBefore": ["/course/1/strings-and-tuning"],
             "cells": [
@@ -579,6 +589,7 @@
             "tags": ["theory"],
             "topic": "guitar-scales",
             "concepts": ["notes-on-neck"],
+            "steps": ["notes-on-neck:1"],
             "why": "The game asks the same notes as on day 2, so the ones you now find at once show what a week of short rounds has done, and the ones you still count are next week's work.",
             "learnBefore": ["/course/1/notes-on-e-and-a"],
             "cells": [

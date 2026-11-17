@@ -21,6 +21,7 @@
       "steps-to-leaps",
       "singing-intervals"
     ],
+    "steps": ["singing-intervals:3"],
     "why": "A hard leap lands in tune when you first hear a note you already know right beside it, so each block finds its leaps from a neighbour: the high Do, then Sol.",
     "learnBefore": [
       "/course/6/every-interval",

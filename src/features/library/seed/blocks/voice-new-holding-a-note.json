@@ -19,6 +19,7 @@
     "concepts": [
       "breath"
     ],
+    "steps": ["breath:1"],
     "why": "A held note stays level only while your air flows out evenly, so practise the even breath on its own first, then put one note on top of it.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
