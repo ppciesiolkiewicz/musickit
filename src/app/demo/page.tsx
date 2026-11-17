@@ -93,7 +93,7 @@ function PlanCard({ demo, accent }: { demo: DemoCard; accent: string }) {
 /** The three steps of the autoplan, drawn beside its pitch. */
 const AUTOPLAN_STEPS: { icon: IconName; text: string }[] = [
   { icon: "list", text: "Answer a few questions: what you play, your level and the minutes you have." },
-  { icon: "puzzle", text: "Your AI extension reads the prompt on the page and sends your plan back." },
+  { icon: "puzzle", text: "attunr picks exercises from its library for the steps you are on." },
   { icon: "play", text: "A new day of exercises opens each day, and each week builds on the last." },
 ];
 
@@ -308,7 +308,7 @@ export default function DemoIndex() {
           </div>
           <p className="mt-4 flex gap-2 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3 text-sm text-slate-400 backdrop-blur-xl">
             <Icon name="info" size={16} className="mt-0.5 shrink-0 text-sky-300" />
-            <span><b className="font-semibold text-slate-200">In the beta, the AI part runs on your own AI.</b> Use an AI extension in your browser, such as Claude in Chrome, or paste the prompt into any AI chat. That&apos;s how attunr stays free and open.</span>
+            <span><b className="font-semibold text-slate-200">In the beta, attunr can&apos;t make new plans yet.</b> The demo plans on this page show what a week looks like. Answer the questions on the plan page, and attunr saves your answers for your first plan.</span>
           </p>
         </div>
 

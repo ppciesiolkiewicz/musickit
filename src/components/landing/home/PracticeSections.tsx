@@ -148,7 +148,7 @@ export function PlanSection() {
           <Eyebrow>AI practice plan<BetaBadge /></Eyebrow>
           <H2 id="plan-h">Never wonder <span className="ls-accent italic text-sky-300">what to practise.</span></H2>
           <p className="mt-4 max-w-lg text-slate-300">
-            Tell attunr what you play, how much time you have and where you want to go. Your AI builds a plan from attunr&apos;s drills, and <Mark>every day a new set of exercises</Mark> is waiting for you.
+            Tell attunr what you play, how much time you have and where you want to go. attunr builds a plan from its drills, and <Mark>every day a new set of exercises</Mark> is waiting for you.
           </p>
           <ul className="mt-6 flex flex-col gap-4">
             {[
@@ -163,9 +163,8 @@ export function PlanSection() {
             ))}
           </ul>
           <Link href="/plan" className="ls-btn ls-btn-primary ls-glint mt-8 inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">
-            Build my plan <Icon name="chevron-right" size={16} />
+            Start your plan <Icon name="chevron-right" size={16} />
           </Link>
-          <p className="mt-3 text-xs text-slate-500">Works with the AI you already use: attunr gives you the prompt, you paste back the reply.</p>
         </div>
         <PlanDayCard />
       </div>

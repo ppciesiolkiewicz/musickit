@@ -8,12 +8,12 @@ export const PLAN_TOUR: TourStep[] = [
   {
     target: "plan-steps",
     title: "How the plan is made",
-    text: "You answer a few questions. attunr writes a prompt for your own AI. You paste its reply here, and it becomes a week of exercises.",
+    text: "You answer a few questions, and attunr saves your answers for your first plan. Until new plans are ready, the demo plans show what a week looks like.",
   },
   {
     target: "plan-start",
     title: "Start",
-    text: "Press Start to answer the questions and get your prompt. Your plan shows on this page when you paste the reply.",
+    text: "Press Start to answer the questions. When you press Save my answers at the end, attunr keeps them.",
   },
   {
     target: "plan-week",
@@ -33,6 +33,6 @@ export const PLAN_TOUR: TourStep[] = [
   {
     target: "plan-next",
     title: "Next week",
-    text: "When the week is done, plan the next one. Your AI builds on what you did and skipped.",
+    text: "When the week is done, press Plan next week to say how it went. attunr saves your notes with the plan, for the next one.",
   },
 ];

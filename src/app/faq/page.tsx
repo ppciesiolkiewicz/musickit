@@ -61,10 +61,10 @@ const faqJsonLd = {
     },
     {
       "@type": "Question",
-      name: "Which AI do I need?",
+      name: "Do I need my own AI?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Any chat AI you already use, such as ChatGPT, Claude or Gemini. attunr writes the prompt, you paste it into your AI, then paste its reply back. attunr never talks to the AI itself.",
+        text: "No. attunr puts your plan together from its library of exercises, for the steps you are on. In the beta, attunr can't make new plans yet: it saves your answers for your first plan, and the demo plans show what a week looks like.",
       },
     },
     {
@@ -111,8 +111,8 @@ const GROUPS: { title: string; items: QA[] }[] = [
   {
     title: "The AI practice plan",
     items: [
-      { q: "Which AI do I need?", a: <>Any chat AI you already use, such as ChatGPT, Claude or Gemini. attunr writes the prompt, you paste it into your AI, then paste its reply back. attunr never talks to the AI itself.</> },
-      { q: "What happens after the first week?", a: <>Choose <b className="text-slate-200">Plan next week</b>. The new prompt carries what you practised, so next week picks up where this one stopped.</> },
+      { q: "Do I need my own AI?", a: <>No. attunr puts your plan together from its library of exercises, for the steps you are on. In the beta, attunr can&apos;t make new plans yet: it saves your answers for your first plan, and the demo plans show what a week looks like.</> },
+      { q: "What happens after the first week?", a: <>Choose <b className="text-slate-200">Plan next week</b> and say how the week went. attunr saves your notes with the plan, so the next plan picks up where this one stopped.</> },
     ],
   },
   {

@@ -24,8 +24,8 @@ export type Audience = "schools" | "players";
 /** The three steps of the plan, the same for both pages. */
 const STEPS: { icon: IconName; title: string; text: string }[] = [
   { icon: "list", title: "Answer a few questions", text: "What you play, where you are with it, and how many minutes a day you have." },
-  { icon: "sparkles", title: "Your AI writes the week", text: "attunr writes the prompt. Your AI (ChatGPT, Claude, Gemini) writes seven days of exercises from it." },
-  { icon: "check", title: "Practise, then rate it", text: "Each exercise opens with the tools it needs. Rate how it went, and next week's plan starts from there." },
+  { icon: "sparkles", title: "attunr builds your plan", text: "attunr picks exercises from its library for the steps you are on in each topic." },
+  { icon: "check", title: "Practise, then rate it", text: "Each exercise opens with the tools it needs. Rate how it went, and the next plan starts from there." },
 ];
 
 /** The other teaching resources: one tile each, all of them in Practice after logging in. */
@@ -57,7 +57,7 @@ const COPY: Record<Audience, {
   schools: {
     eyebrow: "Guitar and voice",
     title: <>A practice plan for every student, <span className="ls-accent block italic text-sky-300">every day.</span></>,
-    lead: <>Each student answers a few questions, and the AI they already use writes their week: <Mark>short exercises for their level and their time</Mark>, each with the diagram, drone or backing it needs. Every week builds on how the last one went.</>,
+    lead: <>Each student answers a few questions, and attunr puts their practice together: <Mark>short exercises for their level and their time</Mark>, each with the diagram, drone or backing it needs. Every plan builds on how the last one went.</>,
     planNote: <>Teachers use the same app as their students, so they see exactly what a student practises at home. It can carry <Mark tone="var(--color-violet-400)">your school&apos;s name</Mark>.</>,
     heroNote: <>Free while in beta. Log in with your email or Google. <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">School pricing</a> is by agreement.</>,
     notesTitle: <>Lesson notes <span className="ls-accent italic text-teal-300">before the student leaves.</span></>,
@@ -67,7 +67,7 @@ const COPY: Record<Audience, {
   players: {
     eyebrow: "Guitar and voice",
     title: <>Know what to practise, <span className="ls-accent block italic text-sky-300">every day.</span></>,
-    lead: <>Answer a few questions, and the AI you already use writes your week: <Mark>short exercises for your level and your time</Mark>, each with the diagram, drone or backing it needs. Every week builds on how the last one went.</>,
+    lead: <>Answer a few questions, and attunr puts your practice together: <Mark>short exercises for your level and your time</Mark>, each with the diagram, drone or backing it needs. Every plan builds on how the last one went.</>,
     planNote: <>A timer runs through the day&apos;s exercises, and a daily reminder can nudge you at the time you pick.</>,
     heroNote: <>Free while in beta. Then {PRICING.player.price} {PRICING.player.period}, with a <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">{PRICING.player.guaranteeDays}-day money-back guarantee</a>.</>,
     notesTitle: <>Keep what you learn <span className="ls-accent italic text-teal-300">on one page.</span></>,

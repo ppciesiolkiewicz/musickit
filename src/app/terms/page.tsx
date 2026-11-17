@@ -13,12 +13,12 @@ import { PRICING } from "@/features/account/pricing";
 
 export const metadata: Metadata = {
   title: "Terms of use · attunr",
-  description: "The terms for using attunr: your account, the yearly subscription and its AI autoplan allowance, the 30-day money-back guarantee, your notes and plans, and what happens if attunr closes.",
+  description: "The terms for using attunr: your account, the yearly subscription and its AI autoplan allowance, how plans are made, the 30-day money-back guarantee, your notes and plans, and what happens if attunr closes.",
   alternates: { canonical: "/terms" },
 };
 
 /** Last change to the words on this page; raise it when a term changes, not for a typo. */
-const UPDATED = "15 November 2026";
+const UPDATED = "17 November 2026";
 const EMAIL = "hello@attunr.app";
 
 const A = ({ href, children }: { href: string; children: ReactNode }) => (
@@ -65,7 +65,7 @@ const SECTIONS: Section[] = [
   {
     title: "The beta",
     body: (
-      <p>While attunr is in open beta, everything is free and there is no subscription. The beta can change or stop, and work made during it may be lost, so keep a copy of anything you need. The subscription terms below start when we open paid plans, and we will tell you by email before then.</p>
+      <p>While attunr is in open beta, everything is free and there is no subscription. Some parts are not ready yet: during the beta, attunr can&apos;t make new plans, and it saves your answers to the questions for your first plan. The beta can change or stop, and work made during it may be lost, so keep a copy of anything you need. The subscription terms below start when we open paid plans, and we will tell you by email before then.</p>
     ),
   },
   {
@@ -74,11 +74,11 @@ const SECTIONS: Section[] = [
       <>
         <p>A player subscription costs {player.price} a year, paid once up front. It gives you:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>{player.plansPerMonth} AI autoplans a month. Each autoplan is one week of exercises chosen by the AI to fit you.</li>
+          <li>{player.plansPerMonth} AI autoplans a month. Each autoplan is a plan of exercises that attunr puts together for you, as the section on how plans are made says.</li>
           <li>The same allowance can be spent on AI-written notes instead: one autoplan counts as {player.notesPerPlan} notes, so up to {player.notesPerMonth} notes a month. AI notes are coming; until they open, the whole allowance is autoplans.</li>
           <li>Unlimited use of every other tool and lesson: Notes you write yourself, Practice, the course, the tuner, the metronome and drone, backing tracks, the looper, the singing and ear drills.</li>
         </ul>
-        <p>The allowance resets at the start of each month of your subscription. Unused autoplans and notes do not carry over. An autoplan or note is spent when the AI gives it to you, whether or not you keep it.</p>
+        <p>The allowance resets at the start of each month of your subscription. Unused autoplans and notes do not carry over. An autoplan or note is spent when attunr gives it to you, whether or not you keep it.</p>
         <p>When your year ends, your account stays open. You keep every plan and note you made, and you keep unlimited use of every tool. Only new AI autoplans and AI notes need a top-up: a new year, or a smaller top-up of autoplans if we offer one. We do not renew you without asking.</p>
         <p>The price for a new year may change. A year you have paid for is never repriced. We tell you the current price before you pay.</p>
       </>
@@ -114,12 +114,13 @@ const SECTIONS: Section[] = [
     ),
   },
   {
-    title: "What the AI writes",
+    title: "How plans are made",
     body: (
       <>
-        <p>Autoplans and AI notes are made by an AI from what you tell it and how you rated past exercises. For an autoplan, the AI writes a new week or picks one it wrote earlier for a player like you. An AI can be wrong: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. attunr checks every plan before it reaches you, but it can&apos;t catch everything.</p>
+        <p>attunr puts your plan together on its own servers, from its library of exercises. It reads what you told it in the questions and how you rated past exercises, and picks exercises for the steps you are on in each topic: the next steps you haven&apos;t made solid yet, with a few you have mixed back in. You don&apos;t need an AI of your own, and you don&apos;t copy anything into one.</p>
+        <p>Some plans, and AI notes, are written by an AI that attunr runs for you. A plan can be wrong, whoever made it: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. attunr checks every plan before it reaches you, but it can&apos;t catch everything.</p>
         <p>Practise within what feels easy. Stop at any pain in your hands, arms or voice. attunr is not medical advice, and a plan is not a reason to push through pain. If you have an injury or a voice condition, ask a doctor, a physiotherapist or a voice teacher first.</p>
-        <p>Where you paste a prompt into your own AI (ChatGPT, Claude, Gemini or another), that AI&apos;s terms apply to what you send it. attunr never sends your data to an AI unless you ask it to write a plan or a note for you.</p>
+        <p>attunr sends your data to an AI only when that AI writes a plan or a note for you, and then only what the plan or note needs: your answers, your ratings and the steps you are on.</p>
       </>
     ),
   },

@@ -3,14 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, HUE_TONES, Modal, Section } from "@/components/ui";
-import { catalogue } from "./model/catalogue";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { recordAnswers } from "./model/answersHistory";
 import { backfill, entryFor } from "./model/progressLog";
 import { addedPlan, takeAdded } from "./model/added";
 import { useProgress } from "@/features/progress/useProgress";
-import { dayIndex, localDate, ratePlan, restartPlan, reviewPlan, startPlan, weekOver } from "./model/schedule";
+import { dayIndex, localDate, ratePlan, restartPlan, reviewPlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
 import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
@@ -30,13 +29,10 @@ import { FixedLabelRoot, LabelSelect } from "@/features/theory/useLabelSystem";
 
 const NOT_SAVED = "Your latest change isn't saved yet, so the plan wasn't shared. Wait a moment, then press Share again.";
 
-/** Start `config` today; the running plan, if any, moves to the history. */
-const start = (s: PlanState, config: PlanConfig): PlanState => startPlan(s, config, randomId, localDate());
-
 /**
- * The AI practice plan, a continuous daily plan: Start runs the questions, the prompt for your own AI and the paste in one
- * step modal; a new day opens each day. When the week is done "Plan next week" runs the shorter follow-up, whose prompt
- * carries this week's exercises; "Start anew" runs the first flow again with no past in the prompt.
+ * The AI practice plan, a continuous daily plan; a new day opens each day. Start runs the questions in one step modal, and
+ * "Plan next week" the shorter follow-up on how the week went; "Start anew" runs the first flow again. Until the server
+ * writes plans (NEW7) a flow only saves: the answers, and the notes on the week with the current plan.
  */
 export default function PlanApp() {
   const { state, loaded, update } = usePlan();
@@ -49,7 +45,6 @@ export default function PlanApp() {
     if (progress.entries.length) return;
     for (const row of backfill([...(state.current ? [state.current] : []), ...state.history], randomId)) progress.put(row);
   }, [loaded, progress, state]);
-  const entries = useMemo(() => catalogue(), []);
   // a flow left open (reload, hot reload) comes back; the modal only renders after the store loads, so no hydration mismatch
   const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode ?? null));
   const [today, setToday] = useState(() => localDate());
@@ -103,11 +98,11 @@ export default function PlanApp() {
     </Modal>
   );
 
-  const onPlan = (config: PlanConfig, answers?: PlanAnswers, feedback?: string, asked?: boolean) => {
+  // a finished flow keeps the answers (with their date when the topic screens were asked) and the notes on the week; no plan starts
+  const onAnswers = (answers: PlanAnswers, feedback: string | undefined, asked: boolean) => {
     const at = new Date().toISOString();
-    update((s) => start({ ...(answers && asked ? recordAnswers(s, answers, at) : s), answers: answers ?? s.answers, current: s.current && feedback !== undefined ? { ...s.current, feedback } : s.current }, config));
+    update((s) => ({ ...(asked ? recordAnswers(s, answers, at) : s), answers, current: s.current && feedback !== undefined ? { ...s.current, feedback } : s.current }));
     setFlow(null);
-    setDay(0);
   };
   // an earlier plan, started again: it keeps the running plan's progress summary (restartPlan)
   const startAgain = (config: PlanConfig) => {
@@ -135,7 +130,7 @@ export default function PlanApp() {
   if (!loaded || !timesLoaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
   const modal = flow && (
-    <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} history={state.history} entries={entries} review={plan?.review ?? null} onReview={(r) => setPlan((p) => reviewPlan(p, r, new Date().toISOString()))} onPlan={onPlan} onClose={() => setFlow(null)} />
+    <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} review={plan?.review ?? null} onReview={(r) => setPlan((p) => reviewPlan(p, r, new Date().toISOString()))} onAnswers={onAnswers} onClose={() => setFlow(null)} />
   );
   const primary = "!rounded-xl !border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 shadow-md shadow-sky-500/20 transition hover:!bg-sky-400";
   // the header's controls: one height, big enough to hit with a guitar in the other hand
@@ -147,10 +142,14 @@ export default function PlanApp() {
         {state.history.length > 0 && streak && <div>{streak}</div>}
         <section className="flex flex-col items-start gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <ol data-tour="plan-steps" className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
-            {["Answer a few questions about where you are and where you want to go", "Copy the prompt into your own AI (ChatGPT, Claude, Gemini…)", "Paste its reply: your exercises, a new set each day"].map((t, i) => (
+            {[
+              "Answer a few questions about where you are and where you want to go",
+              "attunr saves your answers for your first plan",
+              <>Until new plans are ready, open a <Link href="/demo" className="text-sky-300 underline underline-offset-2 hover:text-sky-200">demo plan</Link> to see a week of practice</>,
+            ].map((t, i) => (
               <li key={i} className="flex gap-2">
                 <span className="grid size-6 shrink-0 place-items-center rounded-full bg-sky-500/20 text-xs text-sky-200">{i + 1}</span>
-                {t}
+                <span>{t}</span>
               </li>
             ))}
           </ol>
@@ -183,8 +182,8 @@ export default function PlanApp() {
           <div className="flex flex-wrap items-center gap-2">
             <Reminder state={state} update={update} />
             <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
-            <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Plan the next days from this week's exercises" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
-            <Button onClick={() => setFlow("start")} title="Answer the questions again; the prompt leaves out past weeks" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
+            <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Say how this week went, for the next plan" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />Plan next week</Button>
+            <Button onClick={() => setFlow("start")} title="Answer the questions again" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
             <SharePopover kind="plan" itemId={plan.id} open={shareOpen} onClose={closeShare} prepare={prepareShare} instead={can("sharePlan") ? undefined : <UpgradeToTeacher />}>
               <Button onClick={() => setShareOpen((s) => !s)} aria-expanded={shareOpen} className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
             </SharePopover>
@@ -197,7 +196,7 @@ export default function PlanApp() {
           <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
             <div className="min-w-0 flex-1">
               <h2 className="text-base text-slate-100">Ready for next week</h2>
-              <p className="text-sm text-slate-400">Tell us how it went; the next prompt builds on what you did and skipped.</p>
+              <p className="text-sm text-slate-400">Tell us how it went. Your notes are saved with this plan, for the next one.</p>
             </div>
             <Button onClick={() => setFlow("next")} className={primary}><Icon name="sparkles" size={14} />Plan next week</Button>
           </section>

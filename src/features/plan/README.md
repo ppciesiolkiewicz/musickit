@@ -1,29 +1,23 @@
 # AI practice plan
 
-`/plan`: a continuous daily practice plan, written by the player's own AI (ChatGPT, Claude, Gemini…). attunr never calls
-an AI: it writes the prompt, the player pastes it into theirs, and pastes the reply back. Everything is stored in the
-browser.
+`/plan`: a continuous daily practice plan. Players have no outside-AI route to a plan any more (NEW15: no prompt to
+copy into an AI chat, no AI extension writing it). Until the server puts plans together (NEW7), the flow only asks the
+questions and saves the answers; the six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used by agents
+and the devtools only.
 
 ## The player's path
 
 1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the first questionnaire (`intake/`, see its
    README): what you play (Guitar, Voice, Theory & ear), one screen per chosen area with its six topics, each answered by
    picking the one line of four that sounds like you (or left unanswered), your voice (with *Find my range*) if Voice is
-   chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. Then *Send your prompt to an AI*,
-   then *Paste your AI's reply*. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move.
-   **Build my plan** is enabled once the reply parses. Finishing remembers the answers with the date (`answersHistory`, `recordAnswers`).
-   The prompt step is a choice of two cards of the same shape, one open at a time (`CopyPrompt`, `ui/PromptAndPaste.tsx`):
-   **Let your AI extension do it** (Recommended, in colour; open first with WebMCP) for an AI extension or AI browser
-   (Claude in Chrome, Gemini in Chrome, ChatGPT Atlas, Comet…): four numbered steps, the words to paste into it (with a
-   copy button) and the prompt as plain page text, which the AI extension reads before it fills the labelled reply box.
-   **Use any AI chat**: four numbered steps, Copy prompt and Show prompt in the first. The flow's dialog is StepModal
-   `medium`. The prompt's debug lists live on /dev/prompt only. Where the browser has WebMCP (`document.modelContext`, Chrome behind a flag, or a
-   polyfill), `ui/useBrowserAgentTools.ts` offers three tools while the flow is open: `get_practice_plan_prompt`,
-   `check_practice_plan` (the plan read as a paste would be, nothing on the page changed; the AI reads back
-   `checkPlanReply()`) and `submit_practice_plan`; a submitted plan lands in the paste box on the paste step, and the AI reads back
-   `agentReply()` (`model/fixRequest.ts`): refused and why, or the warnings to fix and send again. The player still
-   presses Build my plan. The prompt it reads starts with `PROMPT_VIA_TOOLS` (`model/agentTools.ts`): check the JSON
-   with `check_practice_plan` until nothing is left to fix, then send it with the tool instead of replying with a code block. The register and feature check live in `@/lib/webmcp`.
+   chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. The last screen, *New plans aren't
+   ready yet*, says attunr can't put a plan together yet and links to the demo plans (`/demo`). Every screen has the same
+   fixed height (the body scrolls inside), so Back and Next never move. **Save my answers** finishes: `onAnswers` stores
+   the answers and remembers them with the date (`answersHistory`, `recordAnswers`); no plan starts. A saved flow whose
+   step is past the last screen (one saved with the two prompt steps it had before) opens on the last screen. The flow's
+   dialog is StepModal `large`. The prompt's debug lists and the paste box (`DebugList`, `PasteBox` in
+   `ui/PromptAndPaste.tsx`) live on /dev/prompt only. The register and feature check for the browser's AI (WebMCP) live
+   in `@/lib/webmcp`.
    **Exercise tools on every page** (`ui/AgentExerciseTools.tsx`, mounted in `PageShell`): with WebMCP the browser's AI
    also gets `list_exercise_tools` (the prompt's own `toolInterface()`), `show_exercise_tool({ tool })` (checked with
    `parseToolDiag`, opened in a dialog, `ui/AgentToolModal.tsx`; the AI reads back what was changed or why not) and
@@ -59,7 +53,9 @@ browser.
    "Learn <the page's name>" and opening in a new tab. On a phone a link shows only the page's short name (`linkLabel(…,
    true)`: a course section's `short` title).
 4. **Plan next week** (mode `"next"`, any time; a banner shows it once the week is over): how did it go, minutes, notes
-   and styles, then copy the prompt, paste. Once the week is over (`weekOver`, decided when the flow opens and kept with
+   and styles, then *Next week's plan isn't ready yet* with the demo link. **Save my answers** saves the notes on the week
+   on the current plan (`StoredPlan.feedback`) and keeps the plan running; nothing below about the prompt happens on
+   `/plan` until NEW7. Once the week is over (`weekOver`, decided when the flow opens and kept with
    the saved flow), the first screen is *How was this plan?* (`ui/PlanReviewStep.tsx`): optional stars for the whole
    plan, with their own labels (`PLAN_REVIEW_LABELS`, how much the player liked it, not the exercise scale), and under 1
    or 2 stars a box, "Can you tell us why?" (it keeps its own text while typing; 3 stars or more empties it). Each pick
@@ -113,7 +109,7 @@ model/            pure, no React; tested in model/plan.test.ts
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   choice.ts       applyChoice(), choiceWarnings(), resolvedChoice(): a choice's value set on the tools under it (one `PARTS` entry per part); transpose.ts moves a tool to another key, `setLevel` (tools.ts) to another level
   checks.ts       mixesSingAndPlay(), tempoWithoutMetronome(): paste-time exercise checks
-  fixRequest.ts   fixRequest(warnings): the message the "Copy fix request" button copies, to paste back to the AI; agentReply(): what a browser AI reads back after submit_practice_plan
+  fixRequest.ts   fixRequest(warnings): the message the "Copy fix request" button copies, to paste back to the AI
   exampleSelection.ts  selectExamples(): all exercise examples + the plan example for the player's level
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
   prompt.ts       PROMPT_VERSION (raised with an entry in CHANGELOG.md), buildPrompt(answers, entries, previous, course), weekByTopic(), weekReport()
@@ -146,7 +142,7 @@ page by the data source: a new `createServerPlanStore()` for each signed-in sess
 `localPlanStore` when the site has no database. Until the source is known the store is a waiting one, so the page stays
 in its loading state. `DemoPlan` wraps its plan in its own memory stores, plan and progress. `PracticeReminder` reads the
 same store through `usePlanStore()`: when the page opens or the tab comes back, then again only when the plan it holds
-says a reminder is due. The open flow (step, answers, pasted text) is kept in `sessionStorage` (`musickit.plan.flow`) so a
+says a reminder is due. The open flow (step, answers, notes on the week) is kept in `sessionStorage` (`musickit.plan.flow`) so a
 reload doesn't lose it; that one stays local.
 
 The progress log has its own store with the same idea (`src/features/progress`: `ProgressStore`, `serverProgressStore`,

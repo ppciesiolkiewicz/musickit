@@ -5,7 +5,7 @@ import AutoplanHome, { PlayersEnding } from "@/components/landing/home/AutoplanH
 
 export const metadata: Metadata = {
   title: "Daily AI Guitar & Voice Practice Plan · attunr",
-  description: "Answer a few questions and your own AI writes a week of short guitar or voice exercises, each with the diagram, drone or backing it needs. Every week builds on the last.",
+  description: "Answer a few questions and attunr puts together short guitar or voice exercises for your level, each with the diagram, drone or backing it needs. Every plan builds on the last.",
   alternates: { canonical: "/players" },
 };
 
