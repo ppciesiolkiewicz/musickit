@@ -23,7 +23,7 @@ blocks/<id>.json   one exercise each, for a step no plan reaches yet (SeedBlockF
      Its `steps` names the path steps it practises (`["barre:2"]`, `PATH` in `plan/model/path.ts`), each in a track
      of its `concepts`; its level is the highest of their levels (the parser sets it), and the library finds it by
      step.
-   - `versions` are `PROMPT_VERSION` (`plan/model/prompt.ts`) and `DOC_VERSIONS` (`plan/examples/index.ts`) as they
+   - `versions` are `PROMPT_VERSION` (`plan/model/prompt.ts`) and `DOC_VERSIONS` (`versions.ts`) as they
      are when the file is written. `model` is the API id of the model that wrote it. `note` says which gap, in one line.
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the
    current ones (`npm run -s seed -- versions`), every exercise names a concept and at least one step (each in a track of

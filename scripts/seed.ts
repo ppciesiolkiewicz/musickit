@@ -11,7 +11,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { composePrompt } from "../src/features/devtools/model/compose";
 import { PERSONAS } from "../src/features/devtools/model/personas";
-import { DOC_VERSIONS } from "../src/features/plan/examples";
+import { DOC_VERSIONS } from "../src/features/library/seed/versions";
 import { catalogue } from "../src/features/plan/model/catalogue";
 import { conceptById } from "../src/features/plan/model/concepts";
 import { parseExercise, parsePlanConfig } from "../src/features/plan/model/config";

@@ -10,7 +10,7 @@ import { FILES as PLAN_FILES } from "./plans/index.gen";
 
 /** The prompt's and the writing rules' versions a seed file was written to (`PROMPT_VERSION`, `DOC_VERSIONS`). */
 export interface SeedVersions {
-  prompt: number;
+  prompt: number | null;
   agents: number;
   teaching: number;
 }

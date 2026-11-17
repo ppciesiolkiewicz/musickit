@@ -3,7 +3,7 @@
 Three documents carry a version, each raised by one when a rule changes what an AI writes (see "Version" in `AGENTS.md`):
 
 - **Prompt**: the AI plan prompt (`prompt.ts`), the authoring guide built from it (`agentBlocks.ts`) and the page's tools for the browser's AI (`agentTools.ts`, `ui/useBlockAgentTools.ts`, `ui/useBrowserAgentTools.ts`). `PROMPT_VERSION` in `prompt.ts`. Examples don't carry it.
-- **Teaching**: the four teaching skills (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`), one shared `version:`. `DOC_VERSIONS.teaching` in `examples/index.ts`.
+- **Teaching**: the four teaching skills (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`), one shared `version:`. `DOC_VERSIONS.teaching` in `library/seed/versions.ts`.
 - **AGENTS.md**: `Version:` in `AGENTS.md`. `DOC_VERSIONS.agents`.
 
 Add an entry here in the same commit that raises a version, newest first: the version, the date, what changed. A test holds the newest entry of each section to its number in code.

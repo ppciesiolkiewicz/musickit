@@ -1,6 +1,6 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { DOC_VERSIONS } from "@/features/plan/examples";
+import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
 import { RUN_ID, summaryOf, type RunRecord, type RunSummary, type RunVersions } from "../model/history";
 

@@ -4,6 +4,7 @@
  */
 import type { Area } from "../model/concepts";
 import type { Level } from "../model/types";
+import { DOC_VERSIONS, type DocVersions } from "@/features/library/seed/versions";
 
 import guitarNewEmAmChanges from "./exercises/guitar-new-em-am-changes.json";
 import guitarBeginnerPentatonicBox1 from "./exercises/guitar-beginner-pentatonic-box1.json";
@@ -35,16 +36,7 @@ import guitarTheoryIntermediatePlan from "./plans/guitar-theory-intermediate.jso
 import voiceIntermediatePlan from "./plans/voice-intermediate.json";
 import voiceAdvancedPlan from "./plans/voice-advanced.json";
 
-/** The versions of the documents an example is written to. */
-export interface DocVersions {
-  /** `Version:` in AGENTS.md at the repo root; 0: before it was versioned */
-  agents: number;
-  /** `version:` of the teaching skills (.claude/skills: teaching-voice, course-article, exercise-example, review-teaching-text); 0: the older style, before them */
-  teaching: number;
-}
-
-/** The versions those documents are at now. Bump one here in the same commit as the document; examples.test.ts holds the two together. */
-export const DOC_VERSIONS: DocVersions = { agents: 2, teaching: 5 };
+export { DOC_VERSIONS, type DocVersions };
 
 /** Written to the teaching skills as they are now: the examples the prompt tells the AI to write like. */
 export const isCurrentTeaching = (e: { docs: DocVersions }): boolean => e.docs.teaching === DOC_VERSIONS.teaching;
