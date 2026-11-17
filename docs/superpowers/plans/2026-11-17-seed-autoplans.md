@@ -162,32 +162,46 @@ agents (MCP tools); pages (/demo, dev pages) import the same files through `libr
 - [ ] Step 5: Run all plan, devtools, library and userData tests; expect PASS. tsc, eslint.
 - [ ] Step 6: Commit `feat(plan): prompt v5 reads the library; the examples folder is gone (NEW15)`.
 
-### Task 5: /dev/examples folds into /dev/library
+### Task 5: One page: /dev/library (the examples page goes)
+
+User, 2026-11-17: "if the content is the same, just keep one and use the proper name". After Task 3, `/dev/library`
+(coverage and the plans and blocks tables, from the database) and `/dev/examples` (the same plans and blocks, drawn)
+show the same content. Keep one page, `/dev/library`, named "Library".
 
 **Files:**
-- Move: `src/features/devtools/examples/ExampleViewer.tsx` → `src/features/devtools/library/SeedViewer.tsx`
-- Create: `src/app/dev/library/seed/page.tsx`
-- Delete: `src/app/dev/examples/page.tsx`
-- Modify: `src/features/devtools/registry.ts:57` (href `/dev/library/seed`, label "Seed files", desc "Every seed plan
-  and block, drawn as the player would see it, with the versions it was written to."), the link from
-  `LibraryPage` to it, `src/features/devtools/model/comments.ts` doc comment, `src/features/devtools/README.md`
+- Move: `src/features/devtools/examples/ExampleViewer.tsx` → `src/features/devtools/library/LibraryItem.tsx`
+  (the drawn view of one plan or block), `examples/Comments.tsx` → `library/Comments.tsx`
+- Modify: `src/features/devtools/library/LibraryPage.tsx` (a row in the plans or blocks table opens that item drawn,
+  below or beside the tables, chosen by a search param such as `?item=<id>`; `params.ts` reads it),
+  `src/features/devtools/registry.ts` (one entry: `/dev/library`, label "Library", desc "The plans and blocks agents
+  read: coverage by step, each one drawn as the player sees it, with the versions it was written to." Drop the
+  `/dev/examples` entry), `src/features/devtools/model/comments.ts` doc comment, `src/features/devtools/README.md`
+- Delete: `src/app/dev/examples/page.tsx`, the rest of `src/features/devtools/examples/`
 
 **Interfaces:**
-- Consumes: `SEED_PLANS`, `SEED_BLOCKS`, `DOC_VERSIONS`, `PROMPT_VERSION`.
+- Consumes: `SEED_PLANS`, `SEED_BLOCKS`, `DOC_VERSIONS`, `PROMPT_VERSION`; the library tables' `PlanSummary.id`,
+  `BlockSummary.id`.
+- Drawing: a plan row's id is the seed plan id, so it draws from `SEED_PLANS` (the files are the source). A block row
+  draws from the seed block whose computed id (`blockIdOf(blockKeyOf(parseExercise(...).block))`) matches; a block with
+  no seed file (a player's, or written by the app) draws from `getBlock`'s content.
 
-- [ ] Step 1: Re-point the viewer at the seed files: items are `{ id, kind, json, versions }`; version pills read
-  `versions.teaching`, `versions.agents`, and a prompt pill (`v—` when null) against the current values; showcase files
-  show their feature. Comments keep working on the same ids (`exampleSections` over the seed items).
-- [ ] Step 2: Run `tsx --test src/features/devtools/model/*.test.ts`, tsc, eslint.
-- [ ] Step 3: Open `/dev/library/seed` on the dev server (memory `worktree-dev-and-screenshots`); check one plan and one
-  showcase draw, pills show, a comment can be added. `/dev/examples` is a 404.
-- [ ] Step 4: Commit `feat(devtools): seed files viewer under /dev/library`.
+- [ ] Step 1: Add the `item` param (test in `params.test.ts`: `readParams({ item: "guitar-beginner" }).item ===
+  "guitar-beginner"`; absent → undefined).
+- [ ] Step 2: Turn the viewer into `LibraryItem` for one item: version pills (`teaching`, `agents`, and `prompt`, `v—`
+  when null) against the current values, a showcase's feature, the drawn plan or block, comments on the same ids
+  (`exampleSections` over seed items). Its old list, filters and version-picker go: the tables do that now.
+- [ ] Step 3: Run `tsx --test src/features/devtools/**/*.test.ts`, tsc, eslint.
+- [ ] Step 4: On the dev server (memory `worktree-dev-and-screenshots`): `/dev/library` lists, a plan row and a showcase
+  block row each open drawn with pills, a comment can be added; `/dev/examples` is a 404; the dev nav shows one
+  "Library".
+- [ ] Step 5: Commit `feat(devtools): one Library page; the examples page goes`.
 
 ### Task 6: The devtools runner gets the library tools
 
 **Files:**
 - Modify: `src/features/devtools/server/claude.ts`, the dev route that calls `runClaude` for prompt runs,
-  `scripts/compare-models.ts`
+  `scripts/compare-models.ts` (`npm run compare-models`: the /dev/compare-models page was removed in 7df795c2, the script
+  stays for the token figures on /dev/costs)
 - Test: `src/features/devtools/server/claude.test.ts`
 
 **Interfaces:**
@@ -224,7 +238,11 @@ agents (MCP tools); pages (/demo, dev pages) import the same files through `libr
 
 - [ ] Step 1: Load `design:ux-copy` and `teaching-voice`. Write the last step's copy: title, one or two sentences that
   new plans are not ready yet, the answers are saved, and the six demo plans are at /demo (a link). Finish button label
-  replaces "Build my plan". `/terms`: remove the paste-your-own-AI promise; raise UPDATED.
+  replaces "Build my plan". `/terms` and the pricing copy (user, 2026-11-17: "adjust terms according to the final
+  plan"): describe how plans work once NEW7 lands, not only drop the paste line. Read NEW7 and Selling1 in `tasks.txt`
+  first. A player's plan is put together on attunr's server from the library, by the steps they are on; no outside AI
+  route exists. Where AI writing by attunr and its allowance are described, keep them as Selling1 has them. Raise
+  UPDATED. List each changed sentence old → new in the report, so the user can check the legal wording.
 - [ ] Step 2: Remove the two prompt steps, `buildPrompt`, `useBrowserAgentTools`, `text` state; add the closing step;
   `onFinish` calls `onAnswers`. A saved flow whose `step` is past the last step opens on the last step (Review Focus 2).
 - [ ] Step 3: tsc, eslint, plan tests.
