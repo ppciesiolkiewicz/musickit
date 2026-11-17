@@ -403,6 +403,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:2", "breath:3"],
             "why": "A note stays steady when the air under it does, so pace your breath first and then hold one note on the same slow air.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
@@ -417,8 +418,7 @@
                 "tool": {
                   "type": "breathwork",
                   "drill": "farinelli",
-                  "from": 3,
-                  "to": 6
+                  "level": "beginner"
                 }
               },
               {
@@ -1136,6 +1136,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:3"],
             "why": "A long note shows every wobble in your pitch line, so holding Do again at the end of the week shows what your breath has learned.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"

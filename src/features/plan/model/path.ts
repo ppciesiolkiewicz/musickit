@@ -261,8 +261,12 @@ export const PATH: Track[] = [
   v("breath-range", "breath", "Breath & holding a note", ["breath-holding-note"], [
     s(N, "Counts 2 to 5", "", { ladder: "farinelli:new" }),
     s(B, "Counts 3 to 8", "", { ladder: "farinelli:beginner" }),
+    s(B, "A long held note", "one note on one slow breath"),
     s(I, "Counts 4 to 10", "", { ladder: "farinelli:intermediate" }),
+    s(I, "Hiss, then buzz", "the same air with and without the voice"),
+    s(I, "A long breath out", "out for longer than in"),
     s(A, "Counts 4 to 20", "", { ladder: "farinelli:advanced" }),
+    s(A, "Longer breaths out", "the hiss, the buzz and the breath out, each held for longer"),
   ]),
   v("breath-range", "range", "Stretching your range", ["stretch-range"], [
     s(B, "Lip rolls through the middle", ""),
@@ -323,6 +327,7 @@ export const PATH: Track[] = [
     m(I, "up, down and together", "every interval so far"),
     s(A, "7ths, tritone", "all twelve", { ladder: "interval-ears:5" }),
     m(A, "all twelve, down and together", ""),
+    s(A, "Wider than an octave", "9ths and 10ths"),
   ]),
   t("ear", "hearing-changes", "Hearing chord changes", ["hearing-changes"], [
     s(B, "When the chord changes", ""),

@@ -53,7 +53,7 @@
             "concepts": [
               "breath-holding-note"
             ],
-            "steps": ["breath:3"],
+            "steps": ["breath:4"],
             "learnBefore": [
               "/theory/singing/breathing",
               "/theory/singing/warm-ups"
@@ -1566,6 +1566,7 @@
             "concepts": [
               "breath-holding-note"
             ],
+            "steps": ["breath:8"],
             "learnBefore": [
               "/theory/singing/breathing",
               "/theory/singing/warm-ups"
@@ -2639,6 +2640,7 @@
             "concepts": [
               "breath-holding-note"
             ],
+            "steps": ["breath:8"],
             "learnBefore": [
               "/theory/singing/breathing",
               "/theory/singing/warm-ups"
@@ -3307,7 +3309,7 @@
               "breath-holding-note",
               "stretch-range"
             ],
-            "steps": ["breath:3", "range:3"],
+            "steps": ["breath:4", "range:3"],
             "learnBefore": [
               "/theory/singing/breathing",
               "/theory/singing/warm-ups"

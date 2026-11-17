@@ -42,6 +42,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:7"],
             "why": "Each round is one count longer than the last, so your breath reaches eleven counts without one hard jump.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
@@ -56,6 +57,7 @@
                 "tool": {
                   "type": "breathwork",
                   "drill": "farinelli",
+                  "level": "advanced",
                   "from": 6,
                   "to": 11
                 }
@@ -66,14 +68,15 @@
             "title": "Around the 5th",
             "minutes": 5,
             "level": "advanced",
-            "area": "voice",
+            "area": "theory",
             "tags": [
               "ear"
             ],
-            "topic": "voice-intervals",
+            "topic": "theory-ear",
             "concepts": [
-              "singing-intervals"
+              "intervals"
             ],
+            "steps": ["intervals:6"],
             "why": "The tritone is a half step under Sol and the minor 6th a half step over it, so you can hear each of them as a 5th that is a little too small or a little too wide.",
             "learnBefore": [
               "/course/6/every-interval"
@@ -87,6 +90,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
+                  "level": "advanced",
                   "set": [
                     5,
                     6,
@@ -112,7 +116,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
-            "steps": ["steps-to-leaps:21"],
+            "steps": ["steps-to-leaps:21", "singing-intervals:4"],
             "why": "Sol is a leap you already land, so hearing it first puts the tritone and the minor 6th a half step away instead of a long way from Do.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -127,6 +131,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-singer",
+                  "level": "advanced",
                   "voice": "tenor",
                   "key": "c",
                   "keys": [
@@ -369,14 +374,15 @@
             "title": "6ths, 7ths or octave?",
             "minutes": 5,
             "level": "advanced",
-            "area": "voice",
+            "area": "theory",
             "tags": [
               "ear"
             ],
-            "topic": "voice-intervals",
+            "topic": "theory-ear",
             "concepts": [
-              "singing-intervals"
+              "intervals"
             ],
+            "steps": ["intervals:6"],
             "why": "The major 7th stops a half step short of the high Do and the minor 7th a whole step short, so you can tell them apart by how far each is from the octave.",
             "learnBefore": [
               "/course/6/every-interval"
@@ -390,6 +396,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
+                  "level": "advanced",
                   "set": [
                     8,
                     9,
@@ -415,7 +422,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
-            "steps": ["steps-to-leaps:21"],
+            "steps": ["steps-to-leaps:21", "singing-intervals:4"],
             "why": "The high Do is the same note as Do, so you can always hear it, and each 7th is one small step down from there.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -430,6 +437,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-singer",
+                  "level": "advanced",
                   "voice": "tenor",
                   "key": "c",
                   "keys": [
@@ -582,6 +590,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:8"],
             "why": "A hiss is air alone and a buzz is the same air with your voice on it, so holding each for longer shows whether the air stays steady when the voice comes in.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
@@ -606,14 +615,15 @@
             "title": "3rds to 6ths, falling",
             "minutes": 5,
             "level": "advanced",
-            "area": "voice",
+            "area": "theory",
             "tags": [
               "ear"
             ],
-            "topic": "voice-intervals",
+            "topic": "theory-ear",
             "concepts": [
-              "singing-intervals"
+              "intervals"
             ],
+            "steps": ["intervals:5"],
             "why": "In a falling leap the top note comes first with no Do under it, so your ear has to measure down, and minor is one half step away from major each time.",
             "learnBefore": [
               "/course/6/every-interval"
@@ -627,6 +637,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
+                  "level": "intermediate",
                   "set": [
                     3,
                     4,
@@ -653,7 +664,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
-            "steps": ["steps-to-leaps:21"],
+            "steps": ["steps-to-leaps:21", "singing-intervals:4"],
             "why": "A minor 3rd down from Do lands on La and a minor 6th down lands on Mi, two notes of the scale you already sing, so only the tritone is a new sound.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -668,6 +679,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-singer",
+                  "level": "advanced",
                   "voice": "tenor",
                   "key": "c",
                   "keys": [
@@ -861,6 +873,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:7"],
             "why": "Starting at eight counts skips the easy rounds, so the whole three minutes is spent at the length where your breath is still growing.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
@@ -875,6 +888,7 @@
                 "tool": {
                   "type": "breathwork",
                   "drill": "farinelli",
+                  "level": "advanced",
                   "from": 8,
                   "to": 12
                 }
@@ -885,14 +899,15 @@
             "title": "Two notes at once",
             "minutes": 5,
             "level": "advanced",
-            "area": "voice",
+            "area": "theory",
             "tags": [
               "ear"
             ],
-            "topic": "voice-intervals",
+            "topic": "theory-ear",
             "concepts": [
-              "singing-intervals"
+              "intervals"
             ],
+            "steps": ["intervals:7"],
             "why": "When both notes sound at once there is no first note to measure from, so your ear has to pull the pair apart: hum the lower note, then the upper one, and the leap is back.",
             "learnBefore": [
               "/course/6/every-interval"
@@ -906,6 +921,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
+                  "level": "advanced",
                   "set": [
                     4,
                     6,
@@ -1086,6 +1102,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:8"],
             "why": "A long phrase is one slow breath out, so a breath out four times as long as the breath in is the phrase without its notes.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
@@ -1110,14 +1127,15 @@
             "title": "Every hard leap, falling",
             "minutes": 5,
             "level": "advanced",
-            "area": "voice",
+            "area": "theory",
             "tags": [
               "ear"
             ],
-            "topic": "voice-intervals",
+            "topic": "theory-ear",
             "concepts": [
-              "singing-intervals"
+              "intervals"
             ],
+            "steps": ["intervals:7"],
             "why": "Going down, the note you would measure from comes second, so hum the lower note and measure back up to the first one: the leap is the same one you sang up from Do.",
             "learnBefore": [
               "/course/6/every-interval"
@@ -1131,6 +1149,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
+                  "level": "advanced",
                   "set": [
                     3,
                     6,
@@ -1156,7 +1175,7 @@
               "steps-to-leaps",
               "singing-intervals"
             ],
-            "steps": ["steps-to-leaps:21"],
+            "steps": ["steps-to-leaps:21", "singing-intervals:4"],
             "why": "With your voice not drawn, nothing shows you drifting towards the note, so the leap has to be heard whole before you start it.",
             "learnBefore": [
               "/course/6/every-interval",
@@ -1171,6 +1190,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-singer",
+                  "level": "advanced",
                   "voice": "tenor",
                   "key": "c",
                   "keys": "random",
@@ -1393,15 +1413,16 @@
             "title": "Leaps wider than an octave",
             "minutes": 5,
             "level": "advanced",
-            "area": "voice",
+            "area": "theory",
             "tags": [
               "ear",
               "multi-octave"
             ],
-            "topic": "voice-intervals",
+            "topic": "theory-ear",
             "concepts": [
-              "singing-intervals"
+              "intervals"
             ],
+            "steps": ["intervals:8"],
             "why": "A 9th is a 2nd with an octave added and a 10th is a 3rd with an octave added, so bring the top note down an octave in your head and the leap you know is there.",
             "learnBefore": [
               "/course/6/every-interval"
@@ -1415,6 +1436,7 @@
                 "type": "tool",
                 "tool": {
                   "type": "interval-ears",
+                  "level": "advanced",
                   "set": [
                     2,
                     3,
@@ -1669,6 +1691,7 @@
             "concepts": [
               "breath"
             ],
+            "steps": ["breath:7"],
             "why": "The rounds start one count later than on day 4 and end one count further, so you feel the change at the long end, where it was hardest.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
@@ -1683,6 +1706,7 @@
                 "tool": {
                   "type": "breathwork",
                   "drill": "farinelli",
+                  "level": "advanced",
                   "from": 9,
                   "to": 13
                 }
@@ -1693,14 +1717,15 @@
             "title": "All twelve, falling",
             "minutes": 5,
             "level": "advanced",
-            "area": "voice",
+            "area": "theory",
             "tags": [
               "ear"
             ],
-            "topic": "voice-intervals",
+            "topic": "theory-ear",
             "concepts": [
-              "singing-intervals"
+              "intervals"
             ],
+            "steps": ["intervals:7"],
             "why": "With all twelve to choose from, the hard leaps sit among the easy ones as they do in a song, so each one has to be known by its own sound.",
             "learnBefore": [
               "/course/6/every-interval"

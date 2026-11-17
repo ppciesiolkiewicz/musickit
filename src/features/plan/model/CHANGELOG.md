@@ -10,6 +10,11 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 6 (2026-11-18)
+
+- Five new steps in the list of each concept's steps. `breath` has eight in place of four: "A long held note" (beginner), "Hiss, then buzz" and "A long breath out" (intermediate) and "Longer breaths out" (advanced) join the four count steps, so the count steps for 4 to 10 and 4 to 20 are now `breath:4` and `breath:7` (they were 3 and 4). `intervals` ends with "Wider than an octave" (`intervals:8`).
+- The seed plans' refs moved with them (`breath:3` to `breath:4`); no seed block named a renumbered step.
+
 ### 5 (2026-11-17)
 
 - Examples out: the prompt pastes no example exercise or plan, and `selectExamples` is gone. The examples are seed plans and blocks in `library/seed`, which agents read from the library database.
