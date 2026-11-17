@@ -22,6 +22,20 @@ test("claudeArgs: print mode, JSON, no tools, no MCP, no session, no user settin
   assert.deepEqual(claudeArgs({ model: "opus", effort: "high" }).slice(-2), ["--effort", "high"]);
 });
 
+test("claudeArgs adds the library server when given a url", () => {
+  const a = claudeArgs({ model: "haiku", mcpUrl: "http://localhost:3000/api/dev/mcp" });
+  const i = a.indexOf("--mcp-config");
+  assert.ok(i >= 0);
+  assert.deepEqual(JSON.parse(a[i + 1]), { mcpServers: { "musickit-library": { type: "http", url: "http://localhost:3000/api/dev/mcp" } } });
+  assert.equal(a[a.indexOf("--allowedTools") + 1], "mcp__musickit-library");
+  assert.ok(a.includes("--strict-mcp-config") && a[a.indexOf("--tools") + 1] === "");
+});
+
+test("without a url it has no MCP server", () => {
+  const a = claudeArgs({ model: "haiku" });
+  assert.ok(!a.includes("--mcp-config") && !a.includes("--allowedTools"));
+});
+
 test("parseClaudeResult reads the reply and its cost", () => {
   const out = JSON.stringify({ type: "result", is_error: false, result: "pong", total_cost_usd: 0.0141 });
   assert.deepEqual(parseClaudeResult(out, "", 0), { ok: true, text: "pong", costUsd: 0.0141 });

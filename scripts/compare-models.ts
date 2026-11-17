@@ -21,6 +21,7 @@ import { listOllamaModels, runOllama } from "../src/features/devtools/server/oll
 
 const DEFAULT_CLAUDE: DevModel[] = DEMO_MODELS.filter((m) => m !== "claude-fable-5-2");
 
+const MCP_URL = "http://localhost:3000/api/dev/mcp";
 const HELP = `compare-models [--models a,b] [--players a,b] [--parallel N] [--redo] [--dry]
 
   --models    which models (default: ${DEFAULT_CLAUDE.join(",")}).
@@ -28,6 +29,7 @@ const HELP = `compare-models [--models a,b] [--players a,b] [--parallel N] [--re
               Ollama: ollama (every local model) or ollama:<name>, e.g. ollama:llama3.1:8b
   --players   which made-up players (default: all): ${PERSONAS.map((p) => p.id).join(", ")}
   --parallel  Claude runs at once (default 3); Ollama runs one at a time
+  --mcp       the library MCP server Claude runs read from (default ${MCP_URL}); the dev server must be running
   --redo      run again where a plan already exists
   --dry       list the runs and their estimated API cost, run nothing
 
@@ -115,7 +117,7 @@ async function main() {
   let spent = 0;
   const one = async (j: (typeof jobs)[number]) => {
     const at = new Date();
-    const out = isOllamaModel(j.model) ? await runOllama(j.prompt.text, j.model) : await runClaude(j.prompt.text, { model: j.model as ClaudeModel, timeoutMs: 30 * 60_000 });
+    const out = isOllamaModel(j.model) ? await runOllama(j.prompt.text, j.model) : await runClaude(j.prompt.text, { model: j.model as ClaudeModel, timeoutMs: 30 * 60_000, mcpUrl: arg("mcp") ?? MCP_URL });
     const record: RunRecord = {
       id: newRunId(at), at: at.toISOString(), mode: "first", model: j.model, persona: j.p.id, answers: j.p.answers, overrides: {}, parts: j.prompt.parts, prompt: j.prompt.text,
       ...(out.ok ? { reply: out.text, ...describeReply(out.text, entries), ...(out.usage ? { usage: out.usage } : {}) } : { error: out.error }),

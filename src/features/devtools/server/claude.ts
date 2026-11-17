@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import type { TokenUsage } from "../model/history";
 import type { DevModel } from "../model/models";
 
-export interface RunOptions { model: Exclude<DevModel, `ollama:${string}`>; effort?: "low" | "medium" | "high"; /** default 10 minutes */ timeoutMs?: number }
+export interface RunOptions { model: Exclude<DevModel, `ollama:${string}`>; effort?: "low" | "medium" | "high"; /** the library MCP server (`/api/dev/mcp`): the run then gets its tools, and only those */ mcpUrl?: string; /** default 10 minutes */ timeoutMs?: number }
 export type RunOutput = { ok: true; text: string; durationMs: number; costUsd?: number; usage?: TokenUsage } | { ok: false; error: string; durationMs: number };
 type Parsed = { ok: true; text: string; costUsd?: number; usage?: TokenUsage } | { ok: false; error: string };
 
@@ -25,7 +25,7 @@ export const MAX_OUTPUT_TOKENS = "64000";
 const minutes = (ms: number) => `${Math.round(ms / 60_000)} minutes`;
 
 /**
- * One print-mode call that sees only the prompt, like a player's own AI: no tools, no MCP servers, no saved session, only
+ * One print-mode call that sees the prompt and the library tools (`mcpUrl`; none without it): no built-in tools, no other MCP servers, no saved session, only
  * project settings, which are empty because it runs outside the repo (so no user hooks or CLAUDE.md reach it), and a plain
  * system prompt in place of Claude Code's (which brings auto-memory: the model then "reads its memory" instead of answering).
  * `--bare` would do this too but skips the keychain, so a logged-in CLI fails with "Not logged in".
@@ -35,6 +35,7 @@ export function claudeArgs(o: RunOptions): string[] {
     "-p", "--output-format", "json", "--model", o.model, "--tools", "", "--strict-mcp-config", "--no-session-persistence", "--setting-sources", "project",
     "--system-prompt", "You are a helpful assistant.",
     ...(o.effort ? ["--effort", o.effort] : []),
+    ...(o.mcpUrl ? ["--mcp-config", JSON.stringify({ mcpServers: { "musickit-library": { type: "http", url: o.mcpUrl } } }), "--allowedTools", "mcp__musickit-library"] : []),
   ];
 }
 
