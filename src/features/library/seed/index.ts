@@ -35,6 +35,8 @@ export interface SeedBlockFile {
   model: string;
   versions: SeedVersions;
   note: string;
+  /** set on the exercises that show one rule: blocks with a chart per step, a melody by `pick`, a progression worked several ways */
+  showcase?: "blocks" | "pick" | "progression" | "stages" | "variants";
   /** the exercise exactly as the AI returns it in a plan's day, with the path steps it practises in `steps` */
   exercise: Record<string, unknown>;
 }
