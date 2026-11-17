@@ -1,5 +1,6 @@
 import type { BlockSummary, ConceptCoverage, CoverageRow, PlanSummary } from "@/features/library/server/types";
-import type { LibraryResult } from "./load";
+import type { ItemResult, LibraryResult } from "./load";
+import LibraryItem, { SeedSections } from "./LibraryItem";
 import { libraryHref, minutes, orDash, type LibraryParams } from "./params";
 
 const TH = "p-2";
@@ -58,7 +59,13 @@ export function ConceptTable({ rows }: { rows: ConceptCoverage[] }) {
   );
 }
 
-export function PlansTable({ plans }: { plans: PlanSummary[] }) {
+/** A row's title as a link that draws it below the tables; the open one is marked. */
+function ItemLink({ id, title, params }: { id: string; title: string; params: LibraryParams }) {
+  if (params.item === id) return <span className="font-semibold text-slate-100">{title || id}</span>;
+  return <a className={LINK} href={`${libraryHref(params, { item: id })}#item`}>{title || id}</a>;
+}
+
+export function PlansTable({ plans, params }: { plans: PlanSummary[]; params: LibraryParams }) {
   if (plans.length === 0) return <Muted>No plans.</Muted>;
   return (
     <div className="overflow-x-auto">
@@ -67,7 +74,7 @@ export function PlansTable({ plans }: { plans: PlanSummary[] }) {
         <tbody>
           {plans.map((p) => (
             <tr key={p.id} className={ROW}>
-              <td className="p-2">{p.title}</td>
+              <td className="p-2"><ItemLink id={p.id} title={p.title} params={params} /></td>
               <td className="p-2">{orDash(p.provenance.model)}</td>
               <td className="p-2">{versions(p.provenance)}</td>
               <td className="p-2">{p.days}</td>
@@ -80,7 +87,7 @@ export function PlansTable({ plans }: { plans: PlanSummary[] }) {
   );
 }
 
-export function BlocksTable({ blocks }: { blocks: BlockSummary[] }) {
+export function BlocksTable({ blocks, params }: { blocks: BlockSummary[]; params: LibraryParams }) {
   if (blocks.length === 0) return <Muted>No blocks for this topic.</Muted>;
   return (
     <div className="overflow-x-auto">
@@ -89,7 +96,7 @@ export function BlocksTable({ blocks }: { blocks: BlockSummary[] }) {
         <tbody>
           {blocks.map((b) => (
             <tr key={b.id} className={ROW}>
-              <td className="p-2">{b.title}</td>
+              <td className="p-2"><ItemLink id={b.id} title={b.title} params={params} /></td>
               <td className="p-2">{orDash(b.level)}</td>
               <td className="p-2">{b.concepts.join(", ") || "–"}</td>
               <td className="p-2">{orDash(b.provenance.model)}</td>
@@ -105,8 +112,42 @@ export function BlocksTable({ blocks }: { blocks: BlockSummary[] }) {
   );
 }
 
-/** The library as bare tables. Takes what `loadLibrary` returned, so every failure shows here and nothing throws. */
-export default function LibraryPage({ result, params }: { result: LibraryResult; params: LibraryParams }) {
+/** The plan or block in `?item=`, drawn, or a line saying it was not found. */
+function Item({ result, params }: { result: ItemResult; params: LibraryParams }) {
+  if (result.state === "none") return null;
+  return (
+    <section id="item" className="scroll-mt-4">
+      <H>
+        Drawn{" "}
+        <a className="ml-2 text-xs font-normal text-sky-300 underline hover:text-sky-200" href={libraryHref(params, { item: undefined })}>close</a>
+      </H>
+      {result.state === "found" ? (
+        <LibraryItem item={result.item} />
+      ) : (
+        <div>
+          <Muted>Not found: no seed file and no block in the database with id {result.id}.</Muted>
+          {result.message !== undefined && <pre className="mt-2 whitespace-pre-wrap text-xs text-slate-500">{result.message}</pre>}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * The library as bare tables, then the row picked in `?item=` drawn. Takes what `loadLibrary` and `loadItem` returned,
+ * so every failure shows here and nothing throws.
+ */
+export default function LibraryPage({ result, item, params }: { result: LibraryResult; item: ItemResult; params: LibraryParams }) {
+  return (
+    <div>
+      <SeedSections />
+      <Tables result={result} params={params} />
+      <Item result={item} params={params} />
+    </div>
+  );
+}
+
+function Tables({ result, params }: { result: LibraryResult; params: LibraryParams }) {
   if (result.state === "no-database") return <Muted>No database: set DATABASE_URL to read the library.</Muted>;
   if (result.state === "failed") {
     return (
@@ -130,9 +171,9 @@ export default function LibraryPage({ result, params }: { result: LibraryResult;
       <H>Coverage by concept</H>
       <ConceptTable rows={data.concepts} />
       <H>Plans</H>
-      <PlansTable plans={data.plans} />
+      <PlansTable plans={data.plans} params={params} />
       <H>{params.topic === undefined ? "Blocks" : `Blocks for ${params.topic}`}</H>
-      {data.blocks === null ? <Muted>Choose a topic in the coverage table.</Muted> : <BlocksTable blocks={data.blocks} />}
+      {data.blocks === null ? <Muted>Choose a topic in the coverage table.</Muted> : <BlocksTable blocks={data.blocks} params={params} />}
     </div>
   );
 }

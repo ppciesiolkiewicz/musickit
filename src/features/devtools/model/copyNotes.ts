@@ -1,13 +1,13 @@
 /**
  * Dev notes: one registry for every note on the app, kept by route. A note is on a text the maker clicked on any page
- * (found again by the text itself, no wiring in the components), or, through the pencils on /dev/examples, on one
+ * (found again by the text itself, no wiring in the components), or, through the pencils on /dev/library, on one
  * section of one example (`section`: pinned by address, index and a hash of the section). Pure: the overlay keeps them
  * in localStorage (`COPY_NOTES_KEY`). No plan imports here: the overlay that uses it is mounted on every page.
  */
 
 export const COPY_NOTES_KEY = "musickit.dev.copyNotes";
 
-/** Where a note on /dev/examples sits: one section of one example, as it was when noted. */
+/** Where a section note sits: one section of one seed plan or block (by the seed file's id), as it was when noted. */
 export interface NoteSection {
   /** the example's id (its file name) */
   example: string;
@@ -108,8 +108,13 @@ export const routeOf = (pathname: string, hash: string): string => `${pathname}$
 /** A route's path, without its hash. */
 export const pathOfRoute = (route: string): string => route.replace(/#.*$/, "");
 
-/** A link to a note where it is: its page (and hash), which scrolls to it and marks it (`noteIdOf`). */
-export const noteHref = (n: Pick<CopyNote, "id" | "route">, route = n.route) => {
+/**
+ * A link to a note where it is: its page (and hash), which scrolls to it and marks it (`noteIdOf`). A section note's
+ * place is its seed item drawn on /dev/library, whatever route it was made on (older ones were made on the examples page).
+ */
+export const noteHref = (n: Pick<CopyNote, "id" | "route" | "section">, route?: string) => {
+  if (route === undefined && n.section) return `/dev/library?item=${encodeURIComponent(n.section.example)}&note=${encodeURIComponent(n.id)}#item`;
+  route ??= n.route;
   const path = pathOfRoute(route);
   return `${path}?note=${encodeURIComponent(n.id)}${route.slice(path.length)}`;
 };
@@ -174,10 +179,10 @@ export function copyNotesMarkdown(notes: CopyNote[], opts: MarkdownOpts = {}): s
   return [...byRoute].map(([route, list]) => `## ${route}\n\n${opts.origin ? `${opts.origin}${route}\n\n` : ""}${[...list].sort(order).map(line).join("\n")}`).join("\n\n");
 }
 
-/** Where /dev/examples kept its section comments before they joined these notes; moved over once (`notesOfOldComments`). */
+/** Where the old examples page kept its section comments before they joined these notes; moved over once (`notesOfOldComments`). */
 export const OLD_COMMENTS_KEY = "musickit.dev.comments";
 
-/** The old store's comments as notes on /dev/examples; anything not shaped like a comment is dropped. */
+/** The old store's comments as section notes on /dev/library; anything not shaped like a comment is dropped. */
 export function notesOfOldComments(raw: unknown): CopyNote[] {
   if (!Array.isArray(raw)) return [];
   return raw.flatMap((c) => {
@@ -185,7 +190,7 @@ export function notesOfOldComments(raw: unknown): CopyNote[] {
     if (!x || typeof x.id !== "string" || typeof x.text !== "string" || !isSection(x)) return [];
     const s = x as unknown as NoteSection;
     return [{
-      id: x.id, route: "/dev/examples", text: typeof x.quote === "string" ? x.quote : "", where: `${s.example} · ${placeOf(s)}`, note: x.text,
+      id: x.id, route: "/dev/library", text: typeof x.quote === "string" ? x.quote : "", where: `${s.example} · ${placeOf(s)}`, note: x.text,
       at: typeof x.at === "string" ? x.at : new Date(0).toISOString(),
       section: { example: s.example, address: s.address, index: s.index, kind: typeof s.kind === "string" ? s.kind : "?", hash: s.hash, commit: s.commit, ...(s.dirty ? { dirty: true } : {}) },
     }];

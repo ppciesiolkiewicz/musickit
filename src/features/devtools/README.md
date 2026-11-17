@@ -1,6 +1,6 @@
 # Dev tools
 
-Local-only pages under `/dev` for working on the app: today the autoplan prompt (studio, examples), later other views of
+Local-only pages under `/dev` for working on the app: today the autoplan prompt (studio), the library, later other views of
 the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.md`.
 
 ## Rules
@@ -11,7 +11,7 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
   `src/app/dev` and `src/app/api/dev` imports dev tools.
 - **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files. Pure logic in `model/`, with tests.
-- **Dev notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens the notes bar, the same on every page: all notes' count, this page's, how many are on changed example sections (on /dev/examples), HEAD, *Note a text*, *Re-pin all to HEAD*, *Clear all*, *Copy all notes*. *N on this page* opens a modal with this page's notes, each linking to its entry on `/dev/notes`; a page's notes show only there, not on the page. Opening the bar turns on note mode (*Note a text* toggles it, and so does the A key outside a text box); in note mode a click on any text opens a note, in a box six lines tall. Every note, wherever it shows (under its section, in the bar, on /dev/notes), is one `copy/NoteBar.tsx`: the note, `@commit` (the example file's for a section note, else the HEAD it was made at), edit and delete. Every note, on any page or on an example's section, is in one registry: `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`, `model/copyNotes.ts`), each with the HEAD it was made at. The old `musickit.dev.comments` is moved in once. A page's notes are kept by its route: the path, and the hash where there is one, since some pages move by it (each `/dev/stories#<group>~<n>` has its own notes; `routeOf`, followed through `history.replaceState` too). Section notes are kept by the path alone. A text note also keeps its context (`copy/context.ts`): the labelled regions and headings it sits under, the app's React components that render it (from React's dev fiber, up to the router), each with the file and line of its JSX round the text, the line of JSX that renders the noted element, and the text round it; the copied Markdown gives them as `under:`, `components:`, `source:` and `around:` lines. Files and lines come from the stack React keeps of each JSX call in dev, mapped back to the source by `/api/dev/source` (Next's own `/__nextjs_original-stack-frames`, Turbopack only), so an AI tool can find what to change. A note links to its place with `<path>?note=<id><hash>` (`noteHref`; the older `#note-<id>` still opens): the page opens the notes modal, marks the note there and scrolls to its text, and /dev/examples opens its card. `/dev/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, each with *Open →*, with copy, re-pin and clear for one page or all. The bar needs no plan code: /dev/examples hands it its section hashes and a `repin` (`useShowSections`).
+- **Dev notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens the notes bar, the same on every page: all notes' count, this page's, how many are on changed seed sections (on /dev/library), HEAD, *Note a text*, *Re-pin all to HEAD*, *Clear all*, *Copy all notes*. *N on this page* opens a modal with this page's notes, each linking to its entry on `/dev/notes`; a page's notes show only there, not on the page. Opening the bar turns on note mode (*Note a text* toggles it, and so does the A key outside a text box); in note mode a click on any text opens a note, in a box six lines tall. Every note, wherever it shows (under its section, in the bar, on /dev/notes), is one `copy/NoteBar.tsx`: the note, `@commit` (the example file's for a section note, else the HEAD it was made at), edit and delete. Every note, on any page or on an example's section, is in one registry: `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`, `model/copyNotes.ts`), each with the HEAD it was made at. The old `musickit.dev.comments` is moved in once. A page's notes are kept by its route: the path, and the hash where there is one, since some pages move by it (each `/dev/stories#<group>~<n>` has its own notes; `routeOf`, followed through `history.replaceState` too). Section notes are kept by the path alone. A text note also keeps its context (`copy/context.ts`): the labelled regions and headings it sits under, the app's React components that render it (from React's dev fiber, up to the router), each with the file and line of its JSX round the text, the line of JSX that renders the noted element, and the text round it; the copied Markdown gives them as `under:`, `components:`, `source:` and `around:` lines. Files and lines come from the stack React keeps of each JSX call in dev, mapped back to the source by `/api/dev/source` (Next's own `/__nextjs_original-stack-frames`, Turbopack only), so an AI tool can find what to change. A note links to its place with `<path>?note=<id><hash>` (`noteHref`; the older `#note-<id>` still opens): the page opens the notes modal, marks the note there and scrolls to its text, and a section note opens its seed item on /dev/library. `/dev/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, each with *Open →*, with copy, re-pin and clear for one page or all. The bar needs no plan code: /dev/library hands it its section hashes and a `repin` (`useShowSections`).
 - **A new tool** is one entry in `registry.ts` and one page under `src/app/dev`; the index and the tab bar (`DevNav.tsx`, in the layout) both read the registry.
 
 ## History
@@ -40,29 +40,6 @@ Every `route.ts` under `src/app/api`, read from disk on each load (`server/apiRo
 the URL, each exported method with the `/** */` comment just above it (a method without one is marked), *signed in* when
 the file calls `signedIn(` and *dev only* when it calls `devGate(`, and the file as a `vscode://` link. A route's docs are
 its handler comments, so keep them saying what it takes and returns. There is no OpenAPI spec.
-
-## Prompt examples (`/dev/examples`)
-
-"In the prompt": the example parts `promptParts` builds for the studio's saved answers, each with its "Why it's good" note.
-"Library": every example in `src/features/plan/examples` with filters (kind, area, level, showcase), marked "in prompt"
-when `selectExamples` picks it for those answers. Opening a card renders it (`model/preview.ts`): an exercise as the
-plan's `ExerciseCard`, a plan in the real week view, with the parser's warnings. **Copy as plan** copies any example as a
-complete 7-day plan for `/plan`'s paste step (`planToCopy`: an exercise becomes a week of itself).
-Under each card's tags, the concepts its exercises are tagged with (`model/exampleSteps.ts`), each a link to
-`/dev/path?concept=<id>` and each with the step its tools are on, read with `stepOf` as a player's rating is: the step's
-name, "no step" (the concept has a ladder but no tool sets a level or stage, so it counts for no step) or "no ladder".
-A plan gathers them over its exercises (how many tag each concept, the steps read, how many said none) and says how
-many of its exercises tag no concept at all.
-
-**Section notes.** Every section of a rendered example has a pencil at its end (`examples/Comments.tsx`, through the plan's
-`CellAsideContext`, `ui/reader/aside.ts`): a shortcut to a dev note (see *Dev notes*) with a `section` anchor: the example, the exercise's
-address (`ex`, or `d2.e1` in a plan) and the section's index, a hash of the section (`model/comments.ts` `sectionHash`)
-and the example file's last commit from `GET /api/dev/commit` (`server/git.ts`: HEAD, and each example file's last commit
-and uncommitted state). When the section's hash no longer matches, the note turns orange ("section changed", with *keep*
-to re-pin it); a section that is gone shows rose. The Notes bar's *Re-pin all to HEAD* here also re-pins every section
-note to its section as it is now (`repinSectionNotes`; those on gone sections stay), and *Copy all notes* lists section
-notes by example with file, in section order, with a warning when outdated; outdated is checked against every example
-(`exampleSections`), open or not.
 
 ## Compare AI models for autoplan (`npm run compare-models`)
 
@@ -129,7 +106,7 @@ detail below counts the chain under it. The picture zooms and pans (drag or scro
 to zoom, *Fit* shows the whole area); the track names follow the zoom and the vertical pan. Once the proposal is settled it moves into `PATH` and the file goes.
 
 **Boxes**: the diagram (`path/PathView.tsx`, nodes from
-`model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/examples links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
+`model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/library links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
 are columns, each cell starts with the topic's questionnaire line for that level, and every concept of `CONCEPTS` sits in
 the cell of its topic and its first step's level. An arrow runs to a concept from each one a step of it names to learn first (`after`). A concept's edge is
 green with a green dot when a seed block (`src/features/library/seed/blocks`) is tagged with it and grey when none is, a
@@ -175,7 +152,33 @@ marked "level match only". A test holds that every step has a block.
 
 ## Library (`/dev/library`)
 
-A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days, reviews), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows what is not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. Code: `library/load.ts` (the loader), `library/params.ts` (address parameters, minutes), `library/LibraryPage.tsx` (tables), `src/app/dev/library`.
+A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days, reviews), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows what is not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. The one page for the library's plans and blocks; it replaced the examples page.
+
+**One item drawn.** A plan's or block's title in the tables links to `?item=<id>#item`, which draws it below the tables
+(`library/LibraryItem.tsx`; `loadItem` in `library/load.ts`, `library/item.ts`). A plan row draws from the seed plan with
+that id; a block row from the seed block whose computed id (`blockIdOf(blockKeyOf(parseExercise(...).block))`) matches,
+else from the database block's content (`getBlock`, under the page's scope). A seed block's file id works too. With
+neither, a line says it was not found. Seed items draw without the database. The head shows the versions it was written
+to as pills against the current ones (`teaching`, `agents` against `DOC_VERSIONS`, `prompt` against `PROMPT_VERSION`;
+`v—` when not recorded, amber when older), the model, a showcase's feature, the note, and the tools it uses. Under it,
+the concepts its exercises are tagged with (`model/exampleSteps.ts`), each a link to `/dev/path?concept=<id>` and each
+with the step its tools are on, read with `stepOf` as a player's rating is: the step's name, "no step" (the concept has a
+ladder but no tool sets a level or stage) or "no ladder". A plan gathers them over its exercises and says how many tag
+no concept. The body renders it (`model/preview.ts`): an exercise as the plan's `ExerciseCard`, a plan in the real week
+view, with the parser's warnings.
+
+**Section notes.** Every section of a drawn seed item has a pencil at its end (`library/Comments.tsx`, through the plan's
+`CellAsideContext`, `ui/reader/aside.ts`): a shortcut to a dev note (see *Dev notes*) with a `section` anchor: the seed
+file's id, the exercise's address (`ex`, or `d2.e1` in a plan) and the section's index, a hash of the section
+(`model/comments.ts` `sectionHash`) and the file's last commit from `GET /api/dev/commit` (`server/git.ts`: HEAD, and each
+seed file's last commit and uncommitted state). When the section's hash no longer matches, the note turns orange
+("section changed", with *keep* to re-pin it); a section that is gone shows rose. The page hands the Notes bar every seed
+item's sections (`SeedSections`, `exampleSections`), open or not, so *Re-pin all to HEAD* here also re-pins every section
+note and *Copy all notes* warns on outdated ones. A section note links to `/dev/library?item=<seed id>&note=<id>#item`
+(`noteHref`), whatever route it was made on. A block with no seed file is drawn without pencils.
+
+Code: `library/load.ts` (the loaders), `library/params.ts` (address parameters, minutes), `library/item.ts` (the item to
+draw), `library/LibraryPage.tsx` (tables), `library/LibraryItem.tsx`, `src/app/dev/library`.
 
 ## Plan reviews (`/dev/plan-reviews`)
 
@@ -246,12 +249,12 @@ returns one.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.
 - `server/history.ts`: `saveRun`, `readRun`, `listRuns` over `tools/prompt-history/`.
-- `model/preview.ts`: an example's JSON made parseable and parsed for display; `planToCopy`; `whyOf`.
+- `model/preview.ts`: an example's JSON made parseable and parsed for display; `whyOf`.
 - `model/copyNotes.ts`: the notes registry: shape, Markdown, re-pin, clear, section state, links, the old comments' migration.
 - `model/comments.ts`: what section notes need from the plan model: hashes, `exampleSections`, `repinSectionNotes`.
 - `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `PastePanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
-- `examples/ExampleViewer.tsx`: the examples page.
+- `library/`: /dev/library: the tables, one item drawn, its section notes.
 - `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner email brief; its facts, voice and samples.
 - `costs/CostsPage.tsx`: /dev/costs.
 - `model/library.ts`, `scripts/db-seed-plans.ts`: the practice-plan library's seed.

@@ -1,7 +1,7 @@
 /**
- * Notes on the examples page's sections: each pinned to one section of one example by its address and index, with a
- * hash of the section as it was and the example file's commit, so a later change to the section shows the note as
- * outdated. They live with every other dev note (`copyNotes.ts`, `section`); this file has what needs the plan model.
+ * Notes on the sections of a seed plan or block drawn on /dev/library: each pinned to one section of one seed file by
+ * its address and index, with a hash of the section as it was and the file's commit, so a later change to the section
+ * shows the note as outdated. They live with every other dev note (`copyNotes.ts`, `section`); this file has what needs the plan model.
  */
 
 import type { CatalogueEntry } from "@/features/plan/model/catalogue";

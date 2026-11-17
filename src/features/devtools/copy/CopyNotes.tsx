@@ -39,7 +39,7 @@ function blockOf(target: EventTarget | null): HTMLElement | null {
   return null;
 }
 
-/** The buttons of the bar on /dev/examples, so the notes read as the same tool. */
+/** The buttons of the bar on /dev/library, so the notes read as the same tool. */
 const BTN = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 disabled:cursor-default disabled:opacity-50";
 const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-amber-400/70 bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-50 hover:bg-amber-500/30";
 
@@ -49,7 +49,7 @@ const PRIMARY = "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bord
  * "N on this page" opens a modal with this page's notes. On the page, each text note marks its text (`TextNoteMarks`). Opening the bar turns on
  * note mode ("Note a text" toggles it): hover outlines the block under the pointer (`blockOf`: a text block, list or box that holds text itself),
  * a click (which does nothing else then) opens a box for a note on it, keeping its text and its place in the page. The A key
- * (outside a text box) toggles note mode too. The pencils on /dev/examples' sections add to the same notes. All pages' notes are on /dev/notes.
+ * (outside a text box) toggles note mode too. The pencils on /dev/library' sections add to the same notes. All pages' notes are on /dev/notes.
  */
 export default function CopyNotes() {
   const pathname = usePathname();
@@ -140,7 +140,7 @@ export default function CopyNotes() {
   }, [list]);
 
   // a link to one of this page's notes: open the notes modal, where it is marked, and bring its text into view, once (the
-  // text may render late, so look again until it is there); section notes are scrolled to by /dev/examples
+  // text may render late, so look again until it is there); section notes are scrolled to by /dev/library
   useEffect(() => {
     if (!devUi() || !linked || scrolled.current === linked) return;
     const note = notes.find((n) => n.id === linked && onHere(n));
@@ -231,7 +231,7 @@ export default function CopyNotes() {
               {head && <span className="font-mono text-xs text-slate-500" title="The checkout's HEAD; a section note also keeps its example file's commit">HEAD {head}</span>}
               <span className="ml-auto flex flex-wrap gap-2">
                 <button type="button" aria-pressed={on} onClick={() => setOn((v) => !v)} title={on ? "On: click any text on the page to note it (A turns it off)" : "Turn on, then click any text on the page to note it (or press A)"} className={on ? PRIMARY : BTN}><Icon name="pencil" size={12} />Note a text<kbd className="rounded border border-current px-1 font-mono text-[10px] opacity-70">A</kbd></button>
-                <button type="button" disabled={!head || !notes.length} onClick={repin} title={`Pin every note to the checkout's HEAD: they still hold${shown ? "; section notes also to their sections as they are now (those on gone sections stay)" : ". Section notes are pinned to their sections as they are now only from /dev/examples"}`} className={BTN}>Re-pin all to HEAD</button>
+                <button type="button" disabled={!head || !notes.length} onClick={repin} title={`Pin every note to the checkout's HEAD: they still hold${shown ? "; section notes also to their sections as they are now (those on gone sections stay)" : ". Section notes are pinned to their sections as they are now only from /dev/library"}`} className={BTN}>Re-pin all to HEAD</button>
                 <button type="button" disabled={!notes.length} onClick={() => (clearing ? (write(() => []), setClearing(false)) : setClearing(true))} className={`${BTN} ${clearing ? "!border-rose-400 !bg-rose-500/20 !text-rose-100" : ""}`}>{clearing ? "Click again to delete all" : "Clear all"}</button>
                 <button type="button" disabled={!notes.length} onClick={copy} className={copied ? `${PRIMARY} !border-emerald-400/70 !bg-emerald-500/20 !text-emerald-100` : PRIMARY}><Icon name={copied ? "check" : "copy"} size={12} />{copied ? "Copied" : "Copy all notes"}</button>
               </span>

@@ -122,7 +122,7 @@ export interface PromptPart {
 type Showcase = NonNullable<SeedBlockFile["showcase"]>;
 
 /** What each showcase block shows, in the prompt's words: the one tool feature an agent learns from it. */
-const SHOWCASE_FEATURE: Record<Showcase, string> = {
+export const SHOWCASE_FEATURE: Record<Showcase, string> = {
   blocks: "a section per step, each with its own chart",
   pick: "a voice melody chosen by \"pick\"",
   progression: "one progression worked several ways",

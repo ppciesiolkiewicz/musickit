@@ -15,7 +15,7 @@ const parse = (raw: string | null): unknown => {
   }
 };
 
-/** Moves /dev/examples' old section comments into the notes, once (their ids keep a second run from doubling them). */
+/** Moves the old examples page's section comments into the notes, once (their ids keep a second run from doubling them). */
 function migrate() {
   const old = localStorage.getItem(OLD_COMMENTS_KEY);
   if (old === null) return;
@@ -111,9 +111,9 @@ export function useCommits(): Commits | null {
   return c;
 }
 
-/* ---- the sections a page notes on (/dev/examples), so the Notes bar can re-pin them and count the outdated ---- */
+/* ---- the sections a page notes on (/dev/library), so the Notes bar can re-pin them and count the outdated ---- */
 
-/** Plain data and a function, so the bar (on every page) needs none of the plan model that /dev/examples uses. */
+/** Plain data and a function, so the bar (on every page) needs none of the plan model that /dev/library uses. */
 export interface NoteSections {
   /** every section's hash now, by `hashKey` */
   hashes: Record<string, string>;

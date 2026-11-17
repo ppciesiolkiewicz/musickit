@@ -1,8 +1,12 @@
-/** What /dev/library reads from the address: a topic to list blocks for, a player, and whether to show what is not enabled for reuse. */
+/**
+ * What /dev/library reads from the address: a topic to list blocks for, a player, whether to show what is not enabled
+ * for reuse, and the plan or block id to draw.
+ */
 export interface LibraryParams {
   topic?: string;
   player?: string;
   includeNotEnabled: boolean;
+  item?: string;
 }
 
 type Raw = Record<string, string | string[] | undefined>;
@@ -12,7 +16,7 @@ const first = (v: string | string[] | undefined): string | undefined => {
 };
 
 export function readParams(raw: Raw): LibraryParams {
-  return { topic: first(raw.topic), player: first(raw.player), includeNotEnabled: first(raw.include_not_enabled) === "1" };
+  return { topic: first(raw.topic), player: first(raw.player), includeNotEnabled: first(raw.include_not_enabled) === "1", item: first(raw.item) };
 }
 
 /** The arguments `devScope` takes: the same two dev arguments the MCP route reads. */
@@ -30,6 +34,7 @@ export function libraryHref(p: LibraryParams, patch: Partial<LibraryParams> = {}
   if (m.topic !== undefined) q.set("topic", m.topic);
   if (m.player !== undefined) q.set("player", m.player);
   if (m.includeNotEnabled) q.set("include_not_enabled", "1");
+  if (m.item !== undefined) q.set("item", m.item);
   const s = q.toString();
   return s ? `/dev/library?${s}` : "/dev/library";
 }

@@ -11,7 +11,7 @@ import { NoteBar, NoteEditor } from "../copy/NoteBar";
 import { useCommits, useCopyNotes, useLinkedNote, useScrollTo, writeCopyNotes as write } from "../copy/store";
 
 /*
- * The pencils on /dev/examples: a shortcut to a dev note (the Notes button's "Note a text") pinned to one section, so it
+ * The pencils on a drawn /dev/library item: a shortcut to a dev note (the Notes button's "Note a text") pinned to one section, so it
  * lands with every other note and the Notes bar re-pins, copies and clears it with them.
  */
 
@@ -79,7 +79,7 @@ export function CommentsFor({ example, children }: { example: string; children: 
   return <CellAsideContext.Provider value={aside}>{children}</CellAsideContext.Provider>;
 }
 
-/** How many notes an example has, for its closed card. */
+/** How many notes a seed item has. */
 export function CommentCount({ example }: { example: string }) {
   const n = useCopyNotes().filter((c) => c.section?.example === example).length;
   return n ? <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/15 px-1.5 text-[10px] font-semibold text-amber-200"><Icon name="pencil" size={10} />{n}</span> : null;
