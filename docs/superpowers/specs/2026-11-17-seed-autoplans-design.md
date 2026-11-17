@@ -75,9 +75,10 @@ So the examples folder stops being a second source: the database is the one plac
   like them; `find_plans` and `get_plan` for one whole plan at the player's level to copy its shape. A block that fits
   as it is may be used as it is (its id) rather than rewritten. The exact wording follows `teaching-voice` "Words about
   the app" only where it is player-facing; this part is not.
-- Keep one line per showcase feature in the rules ("Exercise format" or "Which tool for what"), each telling the agent
-  to call `find_blocks` with `tags: ["showcase:<feature>"]` to see it. Not the block id: a block's id is a hash of its
-  content (`plan/model/blockId.ts`) and changes with any edit. (Builder's call, 2026-11-17.)
+- Keep one line per showcase feature in the rules, each naming the block id that shows it, so the agent can
+  `get_block` it. The id is computed from the seed file when the prompt is built (`plan/model/blockId.ts`), never
+  written by hand, so an edit can't leave it stale. (A `showcase:<feature>` tag can't work: block tags are a closed set
+  of kind tags.) (Builder's call, 2026-11-17.)
 - The "player skipped the questionnaire, ask them first" branch goes: no agent run has a player to ask.
 - This is a rule change: raise `PROMPT_VERSION` by one, with a changelog entry.
 - `npm run -s seed -- prompt` (used by NEW10 to write a seed plan) keeps working and gives the new prompt.
@@ -87,8 +88,9 @@ So the examples folder stops being a second source: the database is the one plac
 Today it runs the prompt with no tools and no MCP ("like a player's own AI"). With examples gone it must run with the
 `musickit-library` MCP server, or its plans lose their models. `scripts/compare-models.ts` likewise. Ollama runs (no MCP)
 get the prompt as it is and are expected to do worse; that is acceptable for a dev comparison.
-Runs pass no `player` (the personas are not database users) and set `include_not_enabled`, so the agent sees the seed
-library; results depend on what the dev database holds, which is fine for a dev comparison. (Builder's call.)
+Runs pass no `player` (the personas are not database users) and no `include_not_enabled`: after the reseed every
+seed row is enabled for reuse. Results depend on what the dev database holds, which is fine for a dev comparison.
+(Builder's call.)
 
 ### The examples folder and its tooling
 
@@ -96,8 +98,7 @@ library; results depend on what the dev database holds, which is fine for a dev 
   `seed/blocks/` as `SeedBlockFile`s, mapping fields (`docs` → `versions`, `exercise` stays, `note` stays). Each must pass
   `npm run -s seed -- check`; an exercise with no step gets its steps (the two plans noted in NEW15 that tag no concepts
   get them too). Plan ids stay the same, so /demo links hold. Block ids are content hashes and change.
-- The `showcase` field has no place in `SeedBlockFile`; it becomes a tag on the block (`showcase:<feature>`) so
-  `find_blocks` can find it.
+- `SeedBlockFile` gains an optional `showcase` field, which the prompt reads to name each showcase's block id.
 - `DOC_VERSIONS` and `isCurrentTeaching` move out of `plan/examples/index.ts` to the library seed (or `plan/model`); the
   AGENTS.md "Version" section is updated to point there. Blocks already store `docs_agents` and `docs_teaching`.
 - The `exercise-example` skill becomes a skill for writing a library seed block or plan (aimed at `library/seed/`, with
