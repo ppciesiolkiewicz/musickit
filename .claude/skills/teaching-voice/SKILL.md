@@ -103,11 +103,11 @@ Then read it once more, one question per pass:
 
 ## When you change a rule here
 
-The four teaching skills share one `version:` (in each one's frontmatter), and every example records the version it was written to. A changed rule is a new version: raise `version:` by one in all four skills and `teaching` in `DOC_VERSIONS` (`src/features/plan/examples/index.ts`) in the same commit. A typo, a path or a clearer sentence for the same rule is not a new version. "Version" in `AGENTS.md` has the whole rule.
+The four teaching skills share one `version:` (in each one's frontmatter), and every seed file records the versions it was written to. A changed rule is a new version: raise `version:` by one in all four skills and `teaching` in `DOC_VERSIONS` (`src/features/library/seed/versions.ts`) in the same commit. A typo, a path or a clearer sentence for the same rule is not a new version. "Version" in `AGENTS.md` has the whole rule.
 
 The same voice is written down in four more places, each for a different reader. A rule changed in one is changed in all of them, in the same commit:
 
 - `src/features/plan/model/prompt.ts`, the `writing` part: what the AI that writes plans is told. Run `src/features/plan/model/*.test.ts` after.
-- `src/features/plan/examples/README.md` and its `CLAUDE.md`: the rules every example meets.
+- `src/features/library/seed/README.md` ("Writing rules") and its `CLAUDE.md`: the rules every seed file meets.
 - `src/features/plan/CLAUDE.md`: the plan flow's copy.
 - The `course-article`, `exercise-example` and `review-teaching-text` skills, where they repeat it.

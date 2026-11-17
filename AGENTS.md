@@ -12,11 +12,11 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Version: 2
 
-This file and the teaching skills (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`, one shared `version:` in their frontmatter) each carry a version. Every example in `src/features/plan/examples` records the two versions it was written to (`"docs": { "agents": 1, "teaching": 1 }`), so an example written to older rules can be found and rewritten. The AI plan prompt, its authoring guide and the page's tools for the browser's AI carry a third, `PROMPT_VERSION` in `src/features/plan/model/prompt.ts`; examples don't record it.
+This file and the teaching skills (`teaching-voice`, `course-article`, `exercise-example`, `review-teaching-text`, one shared `version:` in their frontmatter) each carry a version. Every seed file in `src/features/library/seed` (plans and blocks) records the versions it was written to (`"versions": { "prompt": 5, "agents": 2, "teaching": 5 }`), so a file written to older rules can be found and rewritten. The AI plan prompt and its authoring guide carry a third, `PROMPT_VERSION` in `src/features/plan/model/prompt.ts`, which a seed file records as `prompt`.
 
 - Raise a version by one when a rule changes what gets written: a new rule, a dropped one, a changed word. A typo, a path or a clearer sentence for the same rule is not a new version.
-- Raise it in the same commit in the document and in its constant (`DOC_VERSIONS` in `src/features/plan/examples/index.ts`, or `PROMPT_VERSION`), with an entry in the changelog, `src/features/plan/model/CHANGELOG.md`: the version, the date, what changed. Tests hold the three together. The four teaching skills move as one.
-- Don't raise an example's tags by hand. They change only when the example is rewritten to the current documents.
+- Raise it in the same commit in the document and in its constant (`DOC_VERSIONS` in `src/features/library/seed/versions.ts`, or `PROMPT_VERSION`), with an entry in the changelog, `src/features/plan/model/CHANGELOG.md`: the version, the date, what changed. Tests hold the three together. The four teaching skills move as one.
+- Don't raise a seed file's `versions` by hand. They change only when the file is rewritten to the current documents.
 
 What each version of each document changed is in that changelog.
 
@@ -31,7 +31,7 @@ Every word a player reads is written with a skill, loaded before the first word 
 | What you are writing | Skill |
 | --- | --- |
 | A course section (`src/features/course/stages`) | `course-article` |
-| An example exercise or plan (`src/features/plan/examples`) | `exercise-example` |
+| A seed exercise or plan (`src/features/library/seed`) | `exercise-example` |
 | Any other text that teaches music: a glossary meaning, an about line, a caption, the lesson text on a tool page, the writing rules in the AI plan prompt | `teaching-voice` |
 | Interface copy: buttons, labels, tour steps, notices, errors, empty states, modal and flow text | `design:ux-copy`, with "Words about the app" in `teaching-voice` |
 | Checking any music text, and before finishing the first two | `review-teaching-text` |
@@ -62,5 +62,5 @@ The calculator and some props say "box". Text a player reads says "position" (se
 ## Before you call it done
 
 - Run the tests of the feature you touched, `npx tsc --noEmit 2>&1 | grep -v '^.next/'`, and eslint on the files you changed.
-- Read a change to the screen on the screen: the page on the dev server, or `/dev/stories` and `/dev/examples` for tools and examples.
+- Read a change to the screen on the screen: the page on the dev server, or `/dev/stories` for tools and `/dev/library?item=<id>` for a seed plan or exercise.
 - Report what you checked and what you didn't ("Types clean; not checked in the browser"). A passing test is not a page that reads well.

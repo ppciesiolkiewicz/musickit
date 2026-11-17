@@ -24,8 +24,7 @@ list, the prompt, the reply or error, time, cost, and the plan's title and warni
 ## Prompt studio (`/dev/prompt`)
 
 Inputs (answers JSON, first or next week; next week takes a past run as last week, with the ticks made on its preview),
-every prompt part (`promptParts` in the plan model) as a row to switch off or edit in place (an example part's *Preview*
-draws it as the app would), the composed prompt with *Copy prompt*, a box to paste the reply from whichever AI it was run
+every prompt part (`promptParts` in the plan model) as a row to switch off or edit in place, the composed prompt with *Copy prompt*, a box to paste the reply from whichever AI it was run
 in (*Keep in history*), and the result: the reply rendered with the plan's real `WeekView`, its parse warnings and the raw
 text, beside the history. The page doesn't run the prompt itself; `scripts/compare-models.ts` does, from the command line.
 Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answers" only reads `musickit.plan`.
@@ -130,7 +129,7 @@ tracked. The step a rating counts for is read from the rated exercise's own tool
 easier ones under it solid. The bold step is the one the student is on, with the whole weeks since its first rating
 while it is not solid: time on a step is shown as a number, and nothing is called stuck. Picking a concept lists each
 tracked step's ratings and dates. On Slope the student's steps also carry their reach marks (`studentReach`, from
-`reach()` in `plan/model/reach.ts`): their questionnaire answers (each example has its own `topics`; the player in this
+`reach()` in `plan/model/reach.ts`): their questionnaire answers (each persona has its own `topics`; the player in this
 browser their last ones) and their solid steps. A step within reach is dashed blue and says "next" (or "start" where the
 questionnaire puts them), a known step not rated solid says "known", and a step ahead is faded. Nothing is written by
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
@@ -249,10 +248,10 @@ returns one.
 - `model/compose.ts`: `composePrompt` (overrides on parts), answers from text, a past run as last week, the studio's saved state.
 - `server/claude.ts`: `claudeArgs`, `childEnv`, `parseClaudeResult`, `runClaude`.
 - `server/history.ts`: `saveRun`, `readRun`, `listRuns` over `tools/prompt-history/`.
-- `model/preview.ts`: an example's JSON made parseable and parsed for display; `whyOf`.
+- `model/preview.ts`: a seed item's JSON made parseable and parsed for display; `whyOf`.
 - `model/copyNotes.ts`: the notes registry: shape, Markdown, re-pin, clear, section state, links, the old comments' migration.
 - `model/comments.ts`: what section notes need from the plan model: hashes, `exampleSections`, `repinSectionNotes`.
-- `server/git.ts`: `exampleCommits` (HEAD and the example files' commits), for `GET /api/dev/commit`.
+- `server/git.ts`: `exampleCommits` (HEAD and the seed files' commits), for `GET /api/dev/commit`.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `PastePanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `library/`: /dev/library: the tables, one item drawn, its section notes.
 - `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner email brief; its facts, voice and samples.

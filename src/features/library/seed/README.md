@@ -14,6 +14,8 @@ Besides the database, the code reads them directly: the demos at `/demo` (`plan/
 
 ## Adding one
 
+Write with the `exercise-example` skill (it reads `teaching-voice` first) and check with `review-teaching-text`.
+
 1. Read the gap first: `library_coverage` (the `musickit-library` MCP tools, README in `../README.md`) and the steps on
    `/dev/path`.
 2. For a plan, get the live writer's prompt for the player: `npm run -s seed -- prompt <persona id | answers.json> out.txt`
