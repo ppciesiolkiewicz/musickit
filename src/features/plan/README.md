@@ -112,7 +112,8 @@ model/            pure, no React; tested in model/plan.test.ts
   checks.ts       mixesSingAndPlay(), tempoWithoutMetronome(): paste-time exercise checks
   fixRequest.ts   fixRequest(warnings): the message /dev/prompt's "Copy fix request" button copies, to paste back to the AI
   config.ts       parsePlanConfig(): the pasted reply to a checked PlanConfig, with warnings
-  prompt.ts       PROMPT_VERSION (raised with an entry in CHANGELOG.md), buildPrompt(answers, entries, previous, course), weekByTopic(), weekReport()
+  prompt.ts       buildPrompt(answers, entries, previous, course), promptParts(): the whole prompt, with "Find models in the library" and its showcase blocks (`showcaseBlocks()`, read from the seed files); for agents, devtools and scripts only
+  promptCore.ts   PROMPT_VERSION (raised with an entry in CHANGELOG.md), every other part (`promptPartsWith(…, library)`), weekByTopic(), weekReport(); never imports the seed files, so the authoring guide (`agentBlocks.ts`) the browser loads stays without them (agentBlocks.test.ts follows its imports to check)
   CHANGELOG.md    what each version of the prompt, the teaching skills and AGENTS.md changed, newest first; versions.test.ts (in library/seed) holds the newest to the code
   cleanExercise.ts cleanExercise(), cleanCells(): an exercise's cells and choice run through the plan's parser again (`parseCellDiag` with `stored`, as a draft), so a tool the reader can't draw is dropped, and an exercise left with no cell shows its title; used by sanitiseState, startPlan and editDay before the block id is made
   state.ts        sanitiseState(): a stored PlanState made safe, for client and server (localPlanStore re-exports it): every exercise cleaned (`cleanExercise.ts`). fitPlanState(s, maxBytes): the oldest earlier plans dropped until the JSON fits (the server's 2 MB cap, `MAX_PLAN_BYTES`)
@@ -222,7 +223,7 @@ read: a stored plan whose exercises have no `cells` is dropped on load (`sanitis
 
 ## The prompt
 
-`prompt.ts` writes the student section from the answers (per area: a rough level worked out from the answers, then each
+`prompt.ts` (its parts in `promptCore.ts`) writes the student section from the answers (per area: a rough level worked out from the answers, then each
 topic with the line the student picked, or `(not answered)`; voice type and range in note names; minutes; notes; styles
 marked "flavour only"), on a next week the week by topic (`weekByTopic`) and the AI's last progress summary, then how to
 plan (from the lines picked; how to keep the progress summary: one line per topic, rewritten each week, ratings over

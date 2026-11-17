@@ -45,7 +45,7 @@ be read back. Every file meets the writing rules below.
 A block may have `"showcase"`: `blocks` (a chart per step), `pick` (a voice melody chosen by `pick`), `progression`
 (one progression worked several ways), `stages` (a choice as a tempo ladder) or `variants` (a choice whose chips each
 set a key and a position). The prompt names each of the five by its block id (`showcaseBlocks()` in
-`plan/model/prompt.ts`, computed from the file), so an agent can `get_block` it before using that feature.
+`plan/model/prompt.ts`, computed from the file; `promptCore.ts`, which the browser's authoring guide builds on, never imports the seed), so an agent can `get_block` it before using that feature.
 
 ## Writing rules
 

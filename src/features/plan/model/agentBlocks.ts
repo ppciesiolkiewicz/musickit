@@ -2,7 +2,7 @@ import type { CatalogueEntry } from "./catalogue";
 import { parseBlock, parseExercise } from "./config";
 import { draftOf, editDay } from "./editPlan";
 import { DEFAULT_ANSWERS } from "../intake/answers";
-import { promptParts } from "./prompt";
+import { promptPartsWith } from "./promptCore";
 import { doneKey } from "./schedule";
 import type { Cell } from "./tools";
 import type { Block, PlanExercise, StoredPlan } from "./types";
@@ -16,8 +16,12 @@ import type { Block, PlanExercise, StoredPlan } from "./types";
 /** A place on the running plan, 1-based as the week shows it. */
 export type Where = { day: number; exercise: number };
 
-/** The prompt parts that are about the student or the plan's own answer, or need the library tools the browser's AI lacks: not in the guide. */
-const NOT_IN_GUIDE = new Set(["intro", "student", "week", "progress", "history", "course", "how-to-plan", "library", "answer-format"]);
+/**
+ * The prompt parts that are about the student or the plan's own answer: not in the guide. Nor is "Find models in the library",
+ * which needs the library tools the browser's AI lacks: the guide builds on `promptCore.ts`, which leaves that part out, so the
+ * seed files it names never reach the browser.
+ */
+const NOT_IN_GUIDE = new Set(["intro", "student", "week", "progress", "history", "course", "how-to-plan", "answer-format"]);
 
 const NOTE_PART = [
   "### Notes",
@@ -28,7 +32,7 @@ const NOTE_PART = [
 
 /** The definitions and rules of the plan prompt without the student, plus what a note is. */
 export function authoringGuide(entries: CatalogueEntry[]): string {
-  const parts = promptParts(DEFAULT_ANSWERS, entries).filter((p) => !NOT_IN_GUIDE.has(p.id));
+  const parts = promptPartsWith(DEFAULT_ANSWERS, entries, [], [], null).filter((p) => !NOT_IN_GUIDE.has(p.id));
   return [...parts.map((p) => p.text), NOTE_PART].join("\n\n");
 }
 

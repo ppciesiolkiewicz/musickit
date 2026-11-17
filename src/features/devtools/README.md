@@ -230,7 +230,7 @@ that break the layer rules in `.dependency-cruiser.cjs`. The SVG scripts (`deps:
 saved session, only project settings, from the temp folder, and with a plain system prompt in place of Claude Code's (that
 one brings auto-memory, and the model "reads its memory" instead of answering; `--bare` would avoid it but fails login).
 The child also drops the `CLAUDE_CODE_*` variables of any Claude session the dev server runs in. It also drops `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN`, so a run always uses the CLI's subscription login and never bills the API. It sets `CLAUDE_CODE_MAX_OUTPUT_TOKENS` to 64000: at the CLI's default a long plan runs over, the CLI continues in a second reply, and its `result` keeps only that last part. So the model sees the
-prompt and the library tools, like a player's own AI.
+prompt and the library tools, as an agent planning in Claude Code does.
 
 10 minutes kills a run. Every run is saved, failed ones too.
 `POST /api/dev/history` keeps a reply pasted from another AI; `GET /api/dev/history` lists runs, `GET /api/dev/history/<id>`

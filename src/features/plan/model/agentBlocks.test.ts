@@ -1,5 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { catalogue } from "./catalogue";
 import { authoringGuide, checkExercise, checkNote, insertExercise, readExerciseReply, readNoteReply, readPlanReply, removeExercise, writeExercise, writeNote } from "./agentBlocks";
 import type { PlanExercise, StoredPlan } from "./types";
@@ -118,6 +120,27 @@ describe("final: review fixes", () => {
   it("the guide holds no example and no library part: the browser's AI has no library tools", () => {
     assert.ok(authoringGuide(entries).length < 150_000, String(authoringGuide(entries).length));
     assert.doesNotMatch(authoringGuide(entries), /### Example:|## Find models in the library|find_blocks/);
+  });
+  it("the guide's code never imports the seed files: the browser would download the whole library", () => {
+    // follows every import that ships (not `import type`) from agentBlocks.ts through the repo's own files
+    const src = resolve(__dirname, "../../..");
+    const fileOf = (from: string, spec: string): string | null => {
+      const base = spec.startsWith("@/") ? join(src, spec.slice(2)) : spec.startsWith(".") ? resolve(dirname(from), spec) : null;
+      if (!base) return null;
+      return [base, `${base}.ts`, `${base}.tsx`, join(base, "index.ts"), join(base, "index.tsx")].find((f) => /\.tsx?$/.test(f) && existsSync(f)) ?? null;
+    };
+    const seen = new Set<string>();
+    const walk = (file: string) => {
+      if (seen.has(file)) return;
+      seen.add(file);
+      for (const m of readFileSync(file, "utf8").matchAll(/^(?:import|export)\s+(type\s+)?(?:[^;"']*?\s+from\s+)?["']([^"']+)["']/gm)) {
+        const next = !m[1] && fileOf(file, m[2]);
+        if (next) walk(next);
+      }
+    };
+    walk(join(__dirname, "agentBlocks.ts"));
+    assert.ok(seen.has(join(__dirname, "promptCore.ts")), "the walk reaches promptCore.ts");
+    assert.deepEqual([...seen].filter((f) => f.includes("/library/seed/")), []);
   });
   it("a refusal says what the page left out", () => {
     const { learnBefore: _l, ...noLink } = { ...raw, learnBefore: ["/not-a-page"] };
