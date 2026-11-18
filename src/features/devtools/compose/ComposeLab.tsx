@@ -11,10 +11,12 @@ import { stepAt } from "@/features/plan/model/path";
 import { keyName } from "@/features/theory/keySlug";
 import { seedCandidates, simulate, type LabRating } from "../model/composeLab";
 import { PERSONAS } from "../model/personas";
+import Architecture from "./Architecture";
 
 /*
  * /dev/compose: how a day's plan is built, stage by stage, for a made-up player over the seed blocks in the code. The
- * composer is the real one (`explainDay`); see ../model/composeLab.ts for what is stood in.
+ * composer is the real one (`explainDay`); see ../model/composeLab.ts for what is stood in. The second view,
+ * "Architecture" (./Architecture.tsx), is how the algorithm is put together: callers, inputs, the calls inside.
  */
 
 const LINES = ["Not yet", "Beginner", "Intermediate", "Advanced"];
@@ -99,6 +101,7 @@ export default function ComposeLab() {
   const [date, setDate] = useState("2026-11-18");
   const [seed, setSeed] = useState("player-1");
   const [at, setAt] = useState(0);
+  const [view, setView] = useState<"day" | "architecture">("day");
 
   const persona = PERSONAS.find((p) => p.id === personaId) ?? PERSONAS[0];
   const answers = useMemo(() => {
@@ -120,10 +123,18 @@ export default function ComposeLab() {
       <div>
         <h1 className="text-lg font-semibold text-slate-100">Plan algorithm</h1>
         <p className="max-w-3xl text-sm text-slate-400">
-          How one day&apos;s practice plan is built, stage by stage. The composer is the real one (plan/model/compose.ts); the library is the seed blocks in the code, not the database, and the player is made up. Seven days are made in a row, so a day sees the days before it.
+          How one day&apos;s practice plan is built. One day: stage by stage, for a made-up player. Architecture: who asks for a plan, what goes in, what the composer calls inside. The composer is the real one (plan/model/compose.ts); the library is the seed blocks in the code, not the database, and the player is made up. Seven days are made in a row, so a day sees the days before it.
         </p>
       </div>
 
+      <div className="flex gap-2">
+        {([["day", "One day"], ["architecture", "Architecture"]] as const).map(([v, label]) => (
+          <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}
+            className={`rounded-lg border px-3 py-1.5 text-sm ${view === v ? "border-sky-500 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-200 hover:bg-slate-800"}`}>{label}</button>
+        ))}
+      </div>
+
+      {view === "architecture" ? <Architecture /> : <>
       <div className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-800 bg-slate-900/40 p-3">
         <Control label="Player"><Select size="sm" value={personaId} onChange={setPersonaId} options={PERSONAS.map((p) => ({ value: p.id, label: p.label }))} aria-label="Player" /></Control>
         <Control label="Minutes a day"><Select size="sm" value={minutes} onChange={setMinutes} options={[{ value: "own" as number | "own", label: `Their own (${persona.answers.minutes})` }, ...MINUTES.map((m) => ({ value: m as number | "own", label: String(m) }))]} aria-label="Minutes a day" /></Control>
@@ -262,6 +273,7 @@ export default function ComposeLab() {
           <p className={`mt-2 text-xs ${day.short ? "text-amber-300" : "text-slate-500"}`}>{trace.minutes.filled} of {trace.minutes.budget} minutes{day.short ? ": short, the library has no more for these steps" : ""}</p>
         </Stage>
       </ol>
+      </>}
     </div>
   );
 }

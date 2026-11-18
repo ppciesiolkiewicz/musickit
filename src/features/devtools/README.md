@@ -38,6 +38,8 @@ Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answ
 
 How one day's plan is built, stage by stage (`compose/ComposeLab.tsx`): the player, the steps of the day, the library, every pick with its stage and reason, the keys, the day. The composer is the real one (`explainDay` in the plan model); `model/composeLab.ts` stands in the rest: `seedCandidates` (the seed block files as candidates, not the database) and `simulate` (seven days in a row for a persona, each seeing the days before, with every exercise rated Solid, Hard or not at all). Controls: the player, minutes, the keys question, the rating, the first day, the seed.
 
+**Architecture** (the second view, `compose/Architecture.tsx`): how the algorithm is put together, written by hand from the code it names. Who asks for a plan (a player's day through `useTodayPlan`, `requestDay`, `composeRoute` and `composeToday`; a teacher's week through `composeStudentWeek` and `composeWeek`; this page through `simulate`), all ending in `composeDay`, and who stores what comes back; the eight fields of `ComposeInput` with where the server gets each; the calls inside `composeDay` (`daySteps`, `withinReach`, `fill`, `keysFor`, and what each calls), numbered by the stage of the first view that shows them; the rules that hold; the files. Keep it true in the same commit as a change to any file it lists.
+
 ## Questionnaire (`/dev/questionnaire`)
 
 Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, each skill's steps marked known, within reach, open or ahead by `reach`, and the `startOutcome` scores.

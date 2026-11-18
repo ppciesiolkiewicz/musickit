@@ -56,7 +56,7 @@ export const DEV_GROUPS: DevGroup[] = [
     tone: "prompt",
     tools: [
       { href: "/dev/prompt", label: "Prompt studio", desc: "The autoplan prompt as labelled parts: edit them, run it with the local Claude, see the plan it writes." },
-      { href: "/dev/compose", label: "Plan algorithm", desc: "How a day's plan is built, stage by stage, for a made-up player over the seed blocks: the steps of the day, the library, every pick with its reason, the keys." },
+      { href: "/dev/compose", label: "Plan algorithm", desc: "How a day's plan is built, stage by stage, for a made-up player over the seed blocks: the steps of the day, the library, every pick with its reason, the keys. And its architecture: callers, inputs, the calls inside." },
       { href: "/dev/questionnaire", label: "Questionnaire", desc: "Answer the first questionnaire and see what each answer does: topic rungs, area levels, the concepts the prompt offers and the starting outcome." },
       { href: "/dev/costs", label: "AI costs", desc: "What autoplans cost us: a year on each plan, one paying player's year on each AI model, and cheaper models on OpenRouter." },
     ],
