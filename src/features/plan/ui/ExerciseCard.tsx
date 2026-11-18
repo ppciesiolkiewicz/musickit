@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { HUE_TONES, Popover, StarRating, hueAt, type Hue } from "@/components/ui";
 import { BlockBody, BlockTitle } from "./reader/BlockArticle";
@@ -46,8 +46,9 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
  * `now` (the card in view while the day timer runs) only lifts the card a little: the timer is a guide, not a rule. With
  * `spent`, the planned minutes become `SpentTime`: time on it so far of the time planned, with a bar that fills to green.
  */
-export default function ExerciseCard({ exercise: e, index, done = false, now = false, spent, rating = null, onRate, address, tour = true }: {
+export default function ExerciseCard({ exercise: e, index, done = false, now = false, ticking = false, spent, rating = null, onRate, address, tour = true }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
+  /** the day timer is counting this exercise's time: its timer shows it ticking */ ticking?: boolean;
   /** seconds spent on it so far; without it only the planned minutes show */ spent?: number;
   /** how the player rated it; null when not rated */ rating?: Stars | null;
   /** rate it (or clear the rating with null); without it the card has no stars */ onRate?: (stars: Stars | null) => void;
@@ -58,12 +59,29 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   const tags = hashtagLine(e);
   // the reader gets the block alone, never what the plan knows about it
   const block: Block = { title: e.title, ...(e.choice ? { choice: e.choice } : {}), cells: e.cells };
+  // the planned time reached: the whole card turns green with a soft glow, and flashes brighter at the moment it happens
+  const reached = spent !== undefined && e.minutes > 0 && spent >= e.minutes * 60;
+  const [was, setWas] = useState(reached);
+  const [flash, setFlash] = useState(false);
+  if (reached !== was) {
+    setWas(reached);
+    if (reached && ticking) setFlash(true);
+  }
+  useEffect(() => {
+    if (!flash) return;
+    const t = setTimeout(() => setFlash(false), 1600);
+    return () => clearTimeout(t);
+  }, [flash]);
+  // while the timer counts it, a blue glow fades in slowly and grows with the time spent, until the card turns green
+  const part = spent !== undefined && e.minutes > 0 ? Math.min(1, spent / (e.minutes * 60)) : 0;
+  const glow = ticking && !reached && !flash ? { boxShadow: `0 0 ${12 + 28 * part}px rgb(56 189 248 / ${0.15 + 0.35 * part})` } : undefined;
   return (
     <section
       data-tour={tour ? "plan-exercise" : undefined}
       aria-label={e.title}
       aria-current={now ? "step" : undefined}
-      className={`flex flex-col gap-3 rounded-2xl border border-l-4 p-3 transition sm:p-5 ${EDGE[hue]} ${done ? "border-emerald-500/40 bg-emerald-500/5" : now ? "border-slate-600 bg-slate-900/80 shadow-lg shadow-black/30" : "border-slate-800 bg-slate-900/50"}`}
+      style={glow}
+      className={`flex flex-col gap-3 rounded-2xl border border-l-4 p-3 transition-all ${ticking && !reached ? "duration-[1500ms]" : "duration-700"} sm:p-5 ${EDGE[hue]} ${flash ? "border-emerald-300 bg-emerald-500/20 shadow-[0_0_40px] shadow-emerald-400/50 ring-2 ring-emerald-300/70" : reached ? "border-emerald-400/60 bg-emerald-500/10 shadow-[0_0_24px] shadow-emerald-400/25" : ticking ? "border-sky-400/50 bg-sky-500/5" : done ? "border-emerald-500/40 bg-emerald-500/5" : now ? "border-slate-600 bg-slate-900/80 shadow-lg shadow-black/30" : "border-slate-800 bg-slate-900/50"}`}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-semibold tabular-nums ${HUE_TONES[hue].disc[1]}`}>{index + 1}</span>
@@ -71,17 +89,18 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
         {tags && <span className="text-xs text-slate-500">{tags}</span>}
         {spent === undefined
           ? <span className="ml-auto flex items-center gap-1 text-xs text-slate-400"><Icon name="timer" size={12} />{e.minutes} min</span>
-          : <SpentTime seconds={spent} minutes={e.minutes} />}
+          : <SpentTime seconds={spent} minutes={e.minutes} ticking={ticking} />}
       </div>
       <LinkSlot title="Learn before" hrefs={e.learnBefore ?? []} />
       <ExerciseSettings><BlockBody block={block} size="card" address={address} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       <LinkSlot title="Explore more" hrefs={e.exploreMore ?? []} />
+      {spent !== undefined && <span className="self-end"><SpentBar seconds={spent} minutes={e.minutes} ticking={ticking} small /></span>}
       {onRate && (
-        <div className="flex flex-col gap-0.5 border-t border-slate-800 pt-3">
-          <p className="text-sm text-slate-400">How did it go?</p>
+        <div className={`flex flex-col gap-1 rounded-xl border p-3 sm:p-4 ${rating === null ? "border-amber-400/50 bg-amber-500/10" : "border-slate-700 bg-slate-800/40"}`}>
+          <p className={`text-base font-semibold ${rating === null ? "text-amber-100" : "text-slate-200"}`}>How did it go?</p>
           <StarRating value={rating} labels={STARS.map((s) => STAR_LABELS[s])} label="How did it go?" onChange={(v) => onRate(isStars(v) ? v : null)} />
-          <p className="text-xs text-slate-500">Your stars shape the next plan: 1 or 2 makes it easier, 3 keeps it the same, 4 or 5 moves you on.</p>
+          <p className="text-xs text-slate-400">Your stars shape the next plan: 1 or 2 makes it easier, 3 keeps it the same, 4 or 5 moves you on.</p>
         </div>
       )}
     </section>
@@ -93,10 +112,9 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
  * is reached, a brighter green with a glow past half again, and a star at twice the planned time. Hover (or tap) for what
  * the numbers mean.
  */
-function SpentTime({ seconds, minutes }: { seconds: number; minutes: number }) {
+function SpentTime({ seconds, minutes, ticking }: { seconds: number; minutes: number; ticking: boolean }) {
   const [open, setOpen] = useState(false);
   const p = minutes > 0 ? seconds / (minutes * 60) : 0;
-  const bar = p >= 2 ? "bg-emerald-300 shadow-[0_0_8px] shadow-emerald-300/80" : p >= 1.5 ? "bg-emerald-400 shadow-[0_0_6px] shadow-emerald-400/60" : p >= 1 ? "bg-emerald-500" : "bg-sky-400";
   const note = p >= 2 ? `Time on this exercise so far: twice the ${minutes} min planned.` : `Time on this exercise so far, of ${minutes} min planned.`;
   return (
     <span className="ml-auto">
@@ -110,15 +128,56 @@ function SpentTime({ seconds, minutes }: { seconds: number; minutes: number }) {
           aria-label={note}
           className="flex cursor-default flex-col items-end gap-1"
         >
-          <span className={`flex items-center gap-1 text-xs tabular-nums ${p >= 1 ? "text-emerald-300" : "text-slate-400"}`}>
-            {p >= 2 ? <Icon name="star" size={12} fill className="text-amber-300" /> : <Icon name="timer" size={12} />}
-            {Math.floor(seconds / 60)} min / {minutes} min
-          </span>
-          <span aria-hidden className="h-1 w-full overflow-hidden rounded-full bg-slate-800">
-            <span className={`block h-full rounded-full transition-[width] duration-500 ${bar}`} style={{ width: `${Math.min(1, p) * 100}%` }} />
-          </span>
+          <SpentBar seconds={seconds} minutes={minutes} ticking={ticking} />
         </button>
       </Popover>
+    </span>
+  );
+}
+
+/**
+ * The numbers and bar of `SpentTime` alone, no hover note. `small` is the muted copy in the card's bottom-right corner.
+ * `ticking` (the day timer is counting this exercise): a glow behind the numbers and icon fades in over 1.5 s, breathes
+ * slowly, and settles to half after 10 s (blue, green once the planned time is reached). The bar stays still.
+ */
+function SpentBar({ seconds, minutes, small = false, ticking = false }: { seconds: number; minutes: number; small?: boolean; ticking?: boolean }) {
+  const p = minutes > 0 ? seconds / (minutes * 60) : 0;
+  const bar = p >= 2 ? "bg-emerald-300 shadow-[0_0_8px] shadow-emerald-300/80" : p >= 1.5 ? "bg-emerald-400 shadow-[0_0_6px] shadow-emerald-400/60" : p >= 1 ? "bg-emerald-500" : "bg-sky-400";
+  const icon = small ? 10 : 12;
+  const green = p >= 1;
+  // the glow breathes slowly while the timer counts
+  const pulse = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!ticking) return;
+    const a = pulse.current?.animate?.([{ opacity: 0.6, transform: "scale(1)" }, { opacity: 1, transform: "scale(1.03)" }], { duration: 2400, iterations: Infinity, direction: "alternate", easing: "ease-in-out" });
+    return () => a?.cancel();
+  }, [ticking]);
+  // after 10 s on the same exercise the glow settles down a little (back to full when it starts counting again)
+  const [settled, setSettled] = useState(false);
+  const [wasTicking, setWasTicking] = useState(ticking);
+  if (ticking !== wasTicking) {
+    setWasTicking(ticking);
+    setSettled(false);
+  }
+  useEffect(() => {
+    if (!ticking) return;
+    const t = setTimeout(() => setSettled(true), 10_000);
+    return () => clearTimeout(t);
+  }, [ticking]);
+  return (
+    <span className={`flex flex-col items-end ${small ? "gap-0.5 opacity-40" : "gap-1"}`}>
+      <span className={`relative flex items-center gap-1 rounded-full px-2 py-0.5 tabular-nums transition-[color,background-color,box-shadow] duration-[1500ms] ${small ? "text-[10px]" : "text-xs"} ${green ? "text-emerald-200" : ticking ? "text-sky-100" : "text-slate-400"} ${ticking ? (green ? "bg-emerald-500/15 ring-1 ring-emerald-400/60" : "bg-sky-500/15 ring-1 ring-sky-400/60") : "ring-0 ring-transparent"}`}>
+        <span aria-hidden className={`pointer-events-none absolute -inset-1.5 transition-opacity ${settled ? "duration-[3000ms]" : "duration-[1500ms]"} ${ticking ? (settled ? "opacity-50" : "opacity-100") : "opacity-0"}`}>
+          <span ref={pulse} className={`block size-full rounded-full blur-md ${green ? "bg-emerald-400/35" : "bg-sky-400/35"}`} />
+        </span>
+        <span className="relative flex items-center gap-1">
+          {p >= 2 ? <Icon name="star" size={icon} fill className="text-amber-300" /> : <Icon name="timer" size={icon} />}
+          {Math.floor(seconds / 60)} min / {minutes} min
+        </span>
+      </span>
+      <span aria-hidden className={`w-full overflow-hidden rounded-full bg-slate-800 ${small ? "h-0.5" : "h-1"}`}>
+        <span className={`block h-full rounded-full transition-[width] duration-500 ${bar}`} style={{ width: `${Math.min(1, p) * 100}%` }} />
+      </span>
     </span>
   );
 }

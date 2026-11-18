@@ -11,6 +11,9 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "
 // whole plan document, so this stays slow (every 5 s was ~720 uploads an hour)
 const SAVE_EVERY_MS = 60_000;
 
+/** The player isn't on the page: the tab is hidden or the window is out of focus. */
+const isAway = () => document.visibilityState === "hidden" || !document.hasFocus();
+
 /** A soft two-note chime when time is up, made on the spot (no sample to load). */
 function chime() {
   try {
@@ -39,18 +42,21 @@ function chime() {
  * The day's countdown, floating at the side of the page: the whole day's minutes, the exercise the time is in now, pause /
  * resume and reset. It starts by itself when `autoStart` (the day shown on page load), saves the used seconds through `onSave`
  * once a minute, on pause, when the tab hides and when the day is left, so a reload or a later visit picks up where it stopped. The running
- * exercise goes to `onExercise`; a chime at zero. The exercise it names is `focused`, the card in view (not where the day's
- * minutes would put it): while it runs, each second goes to that exercise's spent time, saved with the elapsed seconds. Time is kept from the clock, so a background tab stays right. On a phone it
+ * exercise goes to `onExercise`; a chime at zero, and it goes on counting after (Play starts it again once it is done), so the
+ * exercise in view still gets its time. The exercise it names is `focused`, the card in view (not where the day's
+ * minutes would put it): while it runs, each second goes to that exercise's spent time, saved with the elapsed seconds. It counts only while the tab is shown and its window has focus: hiding the tab or leaving the window pauses it, and it starts again when the player is back. On a phone it
  * is one short row (ring, time left, the exercise's own time and number, the buttons side by side), so it covers little of
  * the exercise under it.
  */
-export default function DayTimer({ minutes, titles, label, elapsed: saved, spent: savedSpent, focused, autoStart, onSave, onExercise, onSpent, above }: {
+export default function DayTimer({ minutes, titles, label, elapsed: saved, spent: savedSpent, focused, autoStart, onSave, onExercise, onRunning, onSpent, above }: {
   minutes: number[]; titles: string[]; label: string; elapsed: number; autoStart: boolean;
   /** seconds already spent on each exercise of the day */
   spent: number[];
   /** the exercise card in view, null when none is */
   focused: number | null;
   onSave: (elapsed: number, spent: number[]) => void; onExercise: (index: number | null) => void;
+  /** told when it starts and stops counting */
+  onRunning?: (running: boolean) => void;
   /** the seconds per exercise each time they grow */
   onSpent?: (spent: number[]) => void;
   /** small controls floating over the timer in the same corner */
@@ -66,10 +72,12 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, spent
   const save = useRef(onSave);
   const report = useRef(onExercise);
   const grow = useRef(onSpent);
+  const tellRunning = useRef(onRunning);
   useEffect(() => {
     save.current = onSave;
     report.current = onExercise;
     grow.current = onSpent;
+    tellRunning.current = onRunning;
   });
   const now = useRef(elapsed);
   const spentNow = useRef(spent);
@@ -94,15 +102,36 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, spent
     store();
   };
 
+  // set when the tab hid or the window lost focus while it ran, so it starts again when both are back
+  const pausedByHiding = useRef(false);
   useEffect(() => {
-    if (autoStart && clock.left > 0) start();
+    const back = () => {
+      if (isAway() || !pausedByHiding.current) return;
+      pausedByHiding.current = false;
+      start();
+    };
+    document.addEventListener("visibilitychange", back);
+    window.addEventListener("focus", back);
+    return () => {
+      document.removeEventListener("visibilitychange", back);
+      window.removeEventListener("focus", back);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!autoStart || clock.left === 0) return;
+    // a page opened in the background waits until the player is on it
+    if (isAway()) pausedByHiding.current = true;
+    else start();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps -- page load only
 
   const total = clock.total;
   useEffect(() => {
     if (since === null) return;
     const tick = () => {
-      const s = Math.min(Math.floor((Date.now() - since) / 1000), total);
+      // it keeps counting past the day's time (the player is still practising); a chime and a save as it passes
+      const s = Math.floor((Date.now() - since) / 1000);
+      const passed = counted.current < total && s >= total;
       const step = s - counted.current;
       counted.current = s;
       const f = focus.current;
@@ -115,8 +144,7 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, spent
       }
       now.current = s;
       setElapsed(s);
-      if (s >= total) {
-        setSince(null);
+      if (passed) {
         save.current(s, spentNow.current);
         chime();
       }
@@ -124,23 +152,31 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, spent
     const t = setInterval(tick, 250);
     const keep = setInterval(() => save.current(now.current, spentNow.current), SAVE_EVERY_MS);
     const away = () => save.current(now.current, spentNow.current);
-    // only on hiding: coming back needs no save, the next checkpoint or pause has it
+    // a hidden tab or a window out of focus doesn't count: it stops here and starts again when both are back
     const hidden = () => {
-      if (document.visibilityState === "hidden") away();
+      if (!isAway()) return;
+      tick();
+      away();
+      pausedByHiding.current = true;
+      setSince(null);
     };
     window.addEventListener("pagehide", away);
     document.addEventListener("visibilitychange", hidden);
+    window.addEventListener("blur", hidden);
     return () => {
       clearInterval(t);
       clearInterval(keep);
       window.removeEventListener("pagehide", away);
       document.removeEventListener("visibilitychange", hidden);
+      window.removeEventListener("blur", hidden);
     };
   }, [since, total]);
 
-  const exercise = clock.left > 0 && (running || elapsed > 0) ? focused : null;
+  const exercise = running || (elapsed > 0 && clock.left > 0) ? focused : null;
   const leftInExercise = exercise === null ? 0 : Math.max(0, (minutes[exercise] ?? 0) * 60 - (spent[exercise] ?? 0));
   useEffect(() => report.current(exercise), [exercise]);
+  useEffect(() => tellRunning.current?.(running), [running]);
+  useEffect(() => () => tellRunning.current?.(false), []);
 
   const p = clock.total ? 1 - clock.left / clock.total : 0;
   const finished = clock.left === 0;
@@ -164,15 +200,13 @@ export default function DayTimer({ minutes, titles, label, elapsed: saved, spent
         </p>
         <p className={`text-lg font-semibold sm:text-2xl leading-tight tabular-nums ${finished ? "text-emerald-300" : "text-slate-50"}`} aria-live="off">{fmt(clock.left)}</p>
         <p className="truncate text-xs text-slate-400" title={exercise !== null ? titles[exercise] : undefined}>
-          {finished ? "Day's practice time done" : exercise !== null ? <><span className="tabular-nums text-slate-200">{fmt(leftInExercise)}</span> · <span className="text-sky-300">{exercise + 1}.<span className="max-sm:hidden"> {titles[exercise]}</span></span></> : `${minutes.length} exercises · ${Math.round(clock.total / 60)} min`}
+          {finished && !(running && exercise !== null) ? "Day's practice time done" : exercise !== null ? <><span className="tabular-nums text-slate-200">{fmt(leftInExercise)}</span> · <span className="text-sky-300">{exercise + 1}.<span className="max-sm:hidden"> {titles[exercise]}</span></span></> : `${minutes.length} exercises · ${Math.round(clock.total / 60)} min`}
         </p>
       </div>
       <div className="flex items-center gap-1 sm:flex-col">
-        {!finished && (
-          <Button size="icon-lg" onClick={running ? pause : start} aria-label={running ? "Pause" : elapsed > 0 ? "Resume" : "Start"} title={running ? "Pause" : elapsed > 0 ? "Resume" : "Start"} className="border-sky-400/70! bg-sky-500/25! text-sky-50! hover:bg-sky-500/40!">
-            <Icon name={running ? "pause" : "play"} size={16} />
-          </Button>
-        )}
+        <Button size="icon-lg" onClick={running ? pause : start} aria-label={running ? "Pause" : elapsed > 0 ? "Resume" : "Start"} title={running ? "Pause" : elapsed > 0 ? "Resume" : "Start"} className="border-sky-400/70! bg-sky-500/25! text-sky-50! hover:bg-sky-500/40!">
+          <Icon name={running ? "pause" : "play"} size={16} />
+        </Button>
         <Button size="icon-md" onClick={() => { setSince(null); setElapsed(0); now.current = 0; counted.current = 0; save.current(0, spentNow.current); }} aria-label="Reset the day's timer" title="Reset" disabled={elapsed === 0 && !running}>
           <Icon name="rotate-ccw" size={13} />
         </Button>

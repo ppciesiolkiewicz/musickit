@@ -123,6 +123,9 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ti
   const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
   const cards = useRef<(HTMLLIElement | null)[]>([]);
   const focused = useInView(cards, day);
+  // the day timer is counting (not paused, day not over): the card it counts for shows its time ticking, rated or not,
+  // past its planned time or not (the timer counts every second to the card in view)
+  const [running, setRunning] = useState(false);
   // the timer's seconds per exercise as they count, so the cards show them live; until it reports, the saved ones
   // (kept with the exercises they count for: another plan or an edit drops them)
   const ids = d.exercises.map((e) => e.id).join(",");
@@ -157,7 +160,7 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ti
             const isNow = now === i && !done;
             return (
               <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
-                <ExerciseCard exercise={e} index={i} done={done} now={isNow} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} />
+                <ExerciseCard exercise={e} index={i} done={done} now={isNow} ticking={running && focused === i} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} />
               </li>
             );
           })}
@@ -176,6 +179,7 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ti
         autoStart={auto}
         onSave={(s, spent) => onTime(dayTime(plan.id, day, d.exercises, s, spent, times.find((t) => t.day === day), undefined, plan.startedOn))}
         onExercise={setNow}
+        onRunning={setRunning}
         onSpent={(s) => setLive({ ids, spent: s })}
         above={corner}
       /> : <Corner above={corner} />}
