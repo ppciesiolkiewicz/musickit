@@ -81,6 +81,14 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   new account) and a Move to … (or Pay monthly / Pay yearly) button, which `POST`s `{ planId, billing }` and moves the person
   at once, with no payment during the beta (`choosePlan` in `server/auth.ts`); the page reloads. Leaving a Teacher plan
   for Student says above the button that sharing plans goes. Paying for the same plan the other way never changes the role.
+- Teacher invites (`server/invites.ts`, table `teacher_invites`, migration `0032_teacher_invites`): a link we make on
+  `/admin/invites` and send a teacher, `/join/<token>` (`JOIN_PATH`, `joinHref` in `loginGuard.ts`). It puts the
+  account that opens it on the Teacher Demo plan (`TEACHER_DEMO_PLAN_ID`: teacher, 2 students, 8 autoplans a month,
+  free, `enabled` false), with the plan's role (an owner stays an owner). One invite, one account; the token is stored
+  as its hash, so the link is shown once. The page is not public: a visitor logs in first (the login page says "Create
+  your teacher account"), and `pathAfterSignIn` sends a new account straight back to the invite, not to setup:
+  `ui/JoinForm.tsx` asks its name and the terms (and the email box) there, as setup would. A student of a teacher (the
+  `taught` plan) can't join. Routes: `GET/POST /api/join/<token>`; the admin's are `/api/admin/invites`.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
 - `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout), which also keeps an account with no plan out of the three main sections until `/account/setup`. The server half
   is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's

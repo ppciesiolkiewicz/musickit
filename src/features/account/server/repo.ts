@@ -42,6 +42,18 @@ export interface TokenRow {
   expiresAt: Date;
 }
 
+/** A teacher invite (`teacher_invites`): a link we send a teacher to try the app on a plan no one can choose. */
+export interface InviteRow {
+  id: string;
+  planId: string;
+  /** Who it was for, as we typed it on /admin/invites. */
+  note: string;
+  createdAt: Date;
+  /** The account that joined with it, and when; null while no one has. */
+  claimedBy: { id: string; email: string; name: string } | null;
+  claimedAt: Date | null;
+}
+
 export interface SessionRow {
   user: UserRow;
   expiresAt: Date;
@@ -84,6 +96,15 @@ export interface AuthRepo {
   markPlanned(teacherId: string, studentId: string, day: string): Promise<void>;
   /** The student's teacher, or null. */
   teacherOf(studentId: string): Promise<UserRow | null>;
+  /** Stores a new teacher invite by its token's hash. */
+  createInvite(input: { tokenHash: string; planId: string; note: string }, now: Date): Promise<InviteRow>;
+  /** Every teacher invite, newest first. */
+  listInvites(): Promise<InviteRow[]>;
+  /** The invite with this token hash, used or not. */
+  inviteByHash(tokenHash: string): Promise<InviteRow | null>;
+  /** Marks the invite used by the user, in one step: null when it is gone or someone else used it first. Using it again by the same user gives it back. */
+  claimInvite(tokenHash: string, userId: string, now: Date): Promise<InviteRow | null>;
+  deleteInvite(id: string): Promise<void>;
   /** Deletes the user with their sessions and identities. */
   deleteUser(id: string): Promise<void>;
 

@@ -26,6 +26,9 @@
   chooses it; `Account.taught`), linked by a `teacher_students` row (`addStudent`, `studentsOf`, `studentLink`,
   `teacherOf`, `markClaimed` on `AuthRepo`). A student has one teacher. `startSession` marks a taught account's link claimed on any sign-in (a failure there is logged, never stops the sign-in). Anything that reaches a student's data checks the
   link on the server first; never trust a student id from a request. `students` in `FEATURES` is for teachers and owners.
+- **The Teacher Demo plan comes only from an invite.** `teacher-demo` is `enabled` false; `joinWithInvite`
+  (`server/invites.ts`) is the one way onto it, never `canChoose`. A teacher invite's page (`/join/<token>`) does the
+  setup itself (name, terms), so `pathAfterSignIn` doesn't send it to `/account/setup`.
 - **A token is stored as its hash, used once, and never logged** (the one exception: the development log-in link).
 - **Where to go next is checked with `safeNext`**, wherever it comes from. Never redirect to a raw `next`.
 - **`server/` is server only.** Nothing in `ui/` or any client file imports from it; pages (server components) may.

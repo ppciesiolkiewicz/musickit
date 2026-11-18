@@ -1,0 +1,97 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
+import { TERMS_UPDATED } from "../terms";
+import { hashToken, pathAfterSignIn, toAccount, type AuthDeps } from "./auth";
+import { joinWithInvite, listInvites, makeInvite, viewInvite } from "./invites";
+import { memoryRepo } from "./repo.memory";
+
+const BASE = { monthCents: 0, yearCents: 0, trialDays: 0, extraStudents: 0, autoplansPerMonth: 8, batch: false, sort: 0 } as const;
+const PLANS: Plan[] = [
+  { ...BASE, id: "student", name: "Student", role: "student", students: 0, enabled: true },
+  { ...BASE, id: TEACHER_DEMO_PLAN_ID, name: "Teacher Demo", role: "teacher", students: 2, enabled: false },
+  { ...BASE, id: TAUGHT_PLAN_ID, name: "Student of a teacher", role: "student", students: 0, enabled: false },
+];
+
+function setup() {
+  const store = memoryRepo(PLANS);
+  let n = 0;
+  const deps: AuthDeps = { repo: store.repo, now: () => new Date(Date.UTC(2026, 10, 18)), token: () => `t${++n}`, code: () => "100000" };
+  const person = async (email: string, planId: string | null = null, role: "student" | "teacher" | "owner" = "student") => {
+    const u = await store.repo.createUser({ email, name: email.split("@")[0], role }, deps.now());
+    assert.ok(u);
+    if (planId) await store.repo.setUserPlan(u.id, planId, "year", role, deps.now());
+    return toAccount((await store.repo.userById(u.id))!);
+  };
+  return { ...store, deps, person };
+}
+
+test("an invite stores only its token's hash and lists who it is for", async () => {
+  const { deps, invites } = setup();
+  const { token, invite } = await makeInvite(deps, "  Ann   at Ridge school ");
+  assert.equal(token, "t1");
+  assert.equal(invites[0].tokenHash, hashToken("t1"));
+  assert.equal(invite.note, "Ann at Ridge school");
+  assert.equal(invite.planId, TEACHER_DEMO_PLAN_ID);
+  assert.deepEqual((await listInvites(deps)).map((i) => i.id), [invite.id]);
+});
+
+test("a student joins: becomes a teacher on Teacher Demo, and the invite is theirs", async () => {
+  const { deps, person } = setup();
+  const { token } = await makeInvite(deps, "Ann");
+  const ann = await person("ann@school.com", "student");
+  assert.equal((await viewInvite(deps, ann, token)).state, "open");
+  const r = await joinWithInvite(deps, ann, token, {});
+  assert.ok(r.ok);
+  assert.equal(r.account.role, "teacher");
+  assert.equal((await deps.repo.userById(ann.id))?.planId, TEACHER_DEMO_PLAN_ID);
+  assert.deepEqual(await viewInvite(deps, ann, token), { state: "yours", plan: { name: "Teacher Demo", students: 2 } });
+  assert.ok((await joinWithInvite(deps, ann, token, {})).ok, "joining again changes nothing");
+  const [listed] = await listInvites(deps);
+  assert.equal(listed.claimedBy?.email, "ann@school.com");
+});
+
+test("one invite, one account", async () => {
+  const { deps, person } = setup();
+  const { token } = await makeInvite(deps, "");
+  await joinWithInvite(deps, await person("ann@school.com", "student"), token, {});
+  const bob = await person("bob@school.com", "student");
+  assert.equal((await viewInvite(deps, bob, token)).state, "used");
+  assert.deepEqual(await joinWithInvite(deps, bob, token, {}), { ok: false, error: "used" });
+  assert.equal((await deps.repo.userById(bob.id))?.planId, "student");
+});
+
+test("a new account gives its name and agrees to the terms when it joins, before the invite is taken", async () => {
+  const { deps, person, invites } = setup();
+  const { token } = await makeInvite(deps, "");
+  const ann = await person("ann@school.com");
+  assert.equal(ann.needsSetup, true);
+  assert.deepEqual(await joinWithInvite(deps, ann, token, { name: " " , acceptTerms: true }), { ok: false, error: "name" });
+  assert.deepEqual(await joinWithInvite(deps, ann, token, { name: "Ann Lee" }), { ok: false, error: "terms" });
+  assert.equal(invites[0].claimedBy, null, "nothing taken yet");
+  const r = await joinWithInvite(deps, ann, token, { name: "Ann Lee", acceptTerms: true, emailUpdates: true });
+  assert.ok(r.ok);
+  assert.equal(r.account.needsSetup, false);
+  assert.equal(r.account.name, "Ann Lee");
+  assert.equal(r.account.emailUpdates, true);
+  assert.equal((await deps.repo.userById(ann.id))?.termsVersion, TERMS_UPDATED);
+});
+
+test("an owner stays an owner; a teacher's student can't join; a wrong token is not found", async () => {
+  const { deps, person } = setup();
+  const owner = await person("o@school.com", "student", "owner");
+  const r = await joinWithInvite(deps, owner, (await makeInvite(deps, "")).token, {});
+  assert.ok(r.ok);
+  assert.equal(r.account.role, "owner");
+  const taught = await person("kid@school.com", TAUGHT_PLAN_ID);
+  assert.deepEqual(await joinWithInvite(deps, taught, (await makeInvite(deps, "")).token, {}), { ok: false, error: "taught" });
+  assert.deepEqual(await joinWithInvite(deps, owner, "nope", {}), { ok: false, error: "not-found" });
+  assert.deepEqual(await joinWithInvite(deps, owner, 42, {}), { ok: false, error: "not-found" });
+  assert.equal((await viewInvite(deps, owner, "nope")).state, "not-found");
+});
+
+test("sign-in goes straight to an invite, not to setup", () => {
+  const account = { needsSetup: true } as Parameters<typeof pathAfterSignIn>[0]["account"];
+  assert.equal(pathAfterSignIn({ account, next: "/join/abc" }), "/join/abc");
+  assert.equal(pathAfterSignIn({ account, next: "/plan" }), "/account/setup?next=%2Fplan");
+});

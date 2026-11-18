@@ -202,6 +202,25 @@ export const teacherStudents = pgTable(
   (t) => [primaryKey({ columns: [t.teacherId, t.studentId] })],
 );
 
+/**
+ * A link we send a teacher to try the app on a plan no one can choose (`plan_id`, the Teacher Demo: 2 students, free).
+ * Made on /admin/invites; `token_hash` is the SHA-256 of the token in the link, which is shown once. `note` says who it
+ * was for. Used once: `claimed_by` and `claimed_at` are set when a signed-in person opens it and joins.
+ */
+export const teacherInvites = pgTable(
+  "teacher_invites",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tokenHash: text("token_hash").notNull().unique(),
+    planId: text("plan_id").notNull().references(() => plans.id),
+    note: text("note").notNull().default(""),
+    createdAt: at("created_at").notNull().defaultNow(),
+    claimedBy: uuid("claimed_by").references(() => users.id, { onDelete: "set null" }),
+    claimedAt: at("claimed_at"),
+  },
+  (t) => [index("teacher_invites_created").on(t.createdAt)],
+);
+
 /** One JSON document of a player's data per kind (their notes, their plans, and so on). */
 export const userDocuments = pgTable(
   "user_documents",

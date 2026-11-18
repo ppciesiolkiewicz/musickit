@@ -1,8 +1,8 @@
 import { and, count, desc, eq, getTableColumns, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { authTokens, identities, planRequests, plans, sessions, teacherStudents, users } from "@/lib/db/schema";
+import { authTokens, identities, planRequests, plans, sessions, teacherInvites, teacherStudents, users } from "@/lib/db/schema";
 import type { Plan } from "../plans";
-import type { AuthRepo, TokenRow } from "./repo";
+import type { AuthRepo, InviteRow, TokenRow } from "./repo";
 
 const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, planId: users.planId, billing: users.billing, emailUpdatesAt: users.emailUpdatesAt, termsAcceptedAt: users.termsAcceptedAt, termsVersion: users.termsVersion, createdAt: users.createdAt };
 
@@ -19,8 +19,32 @@ const tokenCols = {
   expiresAt: authTokens.expiresAt,
 };
 
+/** The invite columns, with who joined with it. */
+const inviteCols = {
+  id: teacherInvites.id,
+  planId: teacherInvites.planId,
+  note: teacherInvites.note,
+  createdAt: teacherInvites.createdAt,
+  claimedAt: teacherInvites.claimedAt,
+  userId: users.id,
+  userEmail: users.email,
+  userName: users.name,
+};
+type InviteSelect = { id: string; planId: string; note: string; createdAt: Date; claimedAt: Date | null; userId: string | null; userEmail: string | null; userName: string | null };
+const toInvite = (r: InviteSelect): InviteRow => ({
+  id: r.id,
+  planId: r.planId,
+  note: r.note,
+  createdAt: r.createdAt,
+  claimedAt: r.claimedAt,
+  claimedBy: r.userId && r.userEmail !== null && r.userName !== null ? { id: r.userId, email: r.userEmail, name: r.userName } : null,
+});
+
 /** The repo over Postgres. */
 export function drizzleRepo(db: Db): AuthRepo {
+  const invitesWhere = (where: ReturnType<typeof eq>) =>
+    db.select(inviteCols).from(teacherInvites).leftJoin(users, eq(users.id, teacherInvites.claimedBy)).where(where);
+
   const liveToken = (hash: string, kind: TokenRow["kind"], now: Date) =>
     and(eq(authTokens.tokenHash, hash), eq(authTokens.kind, kind), isNull(authTokens.usedAt), gt(authTokens.expiresAt, now));
 
@@ -108,6 +132,32 @@ export function drizzleRepo(db: Db): AuthRepo {
         .where(eq(teacherStudents.studentId, studentId))
         .limit(1);
       return row ?? null;
+    },
+    async createInvite(input, now) {
+      const [row] = await db.insert(teacherInvites).values({ ...input, createdAt: now }).returning({ id: teacherInvites.id });
+      return { id: row.id, planId: input.planId, note: input.note, createdAt: now, claimedBy: null, claimedAt: null };
+    },
+    async listInvites() {
+      const rows = await db.select(inviteCols).from(teacherInvites).leftJoin(users, eq(users.id, teacherInvites.claimedBy)).orderBy(desc(teacherInvites.createdAt));
+      return rows.map(toInvite);
+    },
+    async inviteByHash(tokenHash) {
+      const [row] = await invitesWhere(eq(teacherInvites.tokenHash, tokenHash)).limit(1);
+      return row ? toInvite(row) : null;
+    },
+    async claimInvite(tokenHash, userId, now) {
+      // one step: only an unused invite, or one this user used already, so two people can't both take it
+      const [taken] = await db
+        .update(teacherInvites)
+        .set({ claimedBy: userId, claimedAt: sql`coalesce(${teacherInvites.claimedAt}, ${now.toISOString()}::timestamptz)` })
+        .where(and(eq(teacherInvites.tokenHash, tokenHash), sql`(${teacherInvites.claimedBy} is null or ${teacherInvites.claimedBy} = ${userId})`))
+        .returning({ id: teacherInvites.id });
+      if (!taken) return null;
+      const [row] = await invitesWhere(eq(teacherInvites.id, taken.id)).limit(1);
+      return row ? toInvite(row) : null;
+    },
+    async deleteInvite(id) {
+      await db.delete(teacherInvites).where(eq(teacherInvites.id, id));
     },
     async deleteUser(id) {
       await db.delete(users).where(eq(users.id, id));

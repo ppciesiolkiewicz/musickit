@@ -43,6 +43,12 @@ export const DEFAULT_PLAN_ID = "student";
  */
 export const TAUGHT_PLAN_ID = "taught";
 
+/**
+ * Teacher Demo: a teacher plan with 2 students, free and never offered (`enabled` false). A teacher gets it only through
+ * an invite link we make on /admin/invites (`server/invites.ts`). The row is written by migration 0032.
+ */
+export const TEACHER_DEMO_PLAN_ID = "teacher-demo";
+
 /** How a person pays for their plan: every month, or once a year. */
 export type Billing = "month" | "year";
 export const isBilling = (x: unknown): x is Billing => x === "month" || x === "year";

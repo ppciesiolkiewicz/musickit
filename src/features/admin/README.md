@@ -8,7 +8,8 @@ In development only for now. Rules: `CLAUDE.md`.
 - `registry.ts`: the pages, read by the index (`src/app/admin/page.tsx`) and the tabs.
 - `AdminShell.tsx`, `AdminNav.tsx`: the page frame and its tabs, with a link over to `/dev`.
 - `messages/MessagesInbox.tsx`: the inbox.
-- Routes: `src/app/api/admin/messages`.
+- `invites/InvitesAdmin.tsx`: teacher invites.
+- Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`.
 
 ## Messages (`/admin/messages`)
 
@@ -20,3 +21,13 @@ they had selected) and marks it read on our side; reply, or Close / Reopen. A co
 Dev only like every /admin page, so to answer production messages run the dev server against the production database.
 
 `/dev/messages`, where the inbox used to be, redirects here and keeps `?thread=`.
+
+## Teacher invites (`/admin/invites`)
+
+Links we send a teacher so they can try the app on the Teacher Demo plan (`teacher-demo`: a teacher plan with 2
+students, free, `enabled` false, so no one can choose it). Type who it is for and press Make invite link; the link,
+`/join/<token>`, is shown once (only its hash is stored), with Copy link. The list shows each invite and who joined with
+it; Delete removes an invite (a teacher who joined keeps the plan). One link, one account. The rules are
+`features/account/server/invites.ts`; the teacher's side is `/join/<token>` (`features/account/ui/JoinForm.tsx`).
+The link points at this server when the database is local, else at the public site (`SITE_URL`), so a link made in
+development against the release database works for the teacher.

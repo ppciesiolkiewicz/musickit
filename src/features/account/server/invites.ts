@@ -1,0 +1,92 @@
+import { cleanName, type Account } from "../model";
+import { roleOnPlan, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
+import { TERMS_UPDATED } from "../terms";
+import { hashToken, toAccount, type AuthDeps } from "./auth";
+import type { InviteRow } from "./repo";
+
+/**
+ * Teacher invites: a link we make on /admin/invites and send a teacher, so they can try the app as a teacher on a plan no
+ * one can choose (the Teacher Demo: 2 students, free). The link is `/join/<token>`; only the token's hash is stored, so
+ * the link is shown once, when it is made. One invite, one account: the first signed-in person to join with it keeps it.
+ *
+ * Rules only, like auth.ts: no Request and no SQL.
+ */
+
+/** What /admin/invites lists: an invite, never its token. */
+export type InviteListing = Omit<InviteRow, "createdAt" | "claimedAt"> & { createdAt: string; claimedAt: string | null };
+
+const listing = (i: InviteRow): InviteListing => ({ ...i, createdAt: i.createdAt.toISOString(), claimedAt: i.claimedAt?.toISOString() ?? null });
+
+/** A new invite onto the Teacher Demo plan. `note` says who it is for. The token goes in the link and is never stored. */
+export async function makeInvite(deps: AuthDeps, note: unknown): Promise<{ token: string; invite: InviteListing }> {
+  const token = deps.token();
+  const invite = await deps.repo.createInvite({ tokenHash: hashToken(token), planId: TEACHER_DEMO_PLAN_ID, note: cleanName(note) }, deps.now());
+  return { token, invite: listing(invite) };
+}
+
+export const listInvites = async (deps: AuthDeps): Promise<InviteListing[]> => (await deps.repo.listInvites()).map(listing);
+
+/** How an invite looks to the person who opened it. */
+export type InviteState = "open" | "yours" | "used" | "not-found";
+
+/** What `/join/<token>` shows: the invite's state and its plan (name and students). */
+export interface InviteView {
+  state: InviteState;
+  plan: Pick<Plan, "name" | "students"> | null;
+}
+
+/** The token's hash, or null for anything that can't be a token. */
+const hashOf = (token: unknown): string | null => (typeof token === "string" && token.length > 0 && token.length <= 200 ? hashToken(token) : null);
+
+const find = async (deps: AuthDeps, hash: string | null) => (hash ? deps.repo.inviteByHash(hash) : null);
+
+const stateFor = (invite: InviteRow | null, userId: string): InviteState =>
+  !invite ? "not-found" : invite.claimedBy === null ? "open" : invite.claimedBy.id === userId ? "yours" : "used";
+
+/** The invite as `/join/<token>` shows it to this person. */
+export async function viewInvite(deps: AuthDeps, account: Account, token: unknown): Promise<InviteView> {
+  const invite = await find(deps, hashOf(token));
+  const plan = invite && (await deps.repo.listPlans()).find((p) => p.id === invite.planId);
+  if (!invite || !plan) return { state: "not-found", plan: null };
+  return { state: stateFor(invite, account.id), plan: { name: plan.name, students: plan.students } };
+}
+
+export type JoinError = "not-found" | "used" | "taught" | "name" | "terms";
+
+/**
+ * Joins with the invite: the person moves to its plan, with the role it gives (an owner stays an owner), paid the way they
+ * were (nothing is charged). A new account, with no plan yet, also gives its name and agrees to the terms here, as on
+ * /account/setup, so it never has to choose a plan there. A student of a teacher (the `taught` plan) can't join: their
+ * account belongs to their teacher's class. Everything is checked before the invite is taken; joining again with the
+ * same invite changes nothing.
+ */
+export async function joinWithInvite(
+  deps: AuthDeps,
+  account: Account,
+  token: unknown,
+  input: { name?: unknown; acceptTerms?: unknown; emailUpdates?: unknown },
+): Promise<{ ok: true; account: Account } | { ok: false; error: JoinError }> {
+  const hash = hashOf(token);
+  const invite = await find(deps, hash);
+  const plan = invite && (await deps.repo.listPlans()).find((p) => p.id === invite.planId);
+  const user = await deps.repo.userById(account.id);
+  if (!hash || !invite || !plan || !user) return { ok: false, error: "not-found" };
+  const state = stateFor(invite, user.id);
+  if (state === "used") return { ok: false, error: "used" };
+  if (state === "yours" && user.planId === plan.id) return { ok: true, account: toAccount(user) };
+  if (user.planId === TAUGHT_PLAN_ID) return { ok: false, error: "taught" };
+  const setup = user.planId === null;
+  const name = cleanName(input.name);
+  if (setup && !name) return { ok: false, error: "name" };
+  if (setup && input.acceptTerms !== true) return { ok: false, error: "terms" };
+
+  const now = deps.now();
+  if (!(await deps.repo.claimInvite(hash, user.id, now))) return { ok: false, error: "used" };
+  if (setup) {
+    await deps.repo.updateUserName(user.id, name, now);
+    await deps.repo.acceptTerms(user.id, TERMS_UPDATED, now);
+    if (typeof input.emailUpdates === "boolean") await deps.repo.setEmailUpdates(user.id, input.emailUpdates, now);
+  }
+  const moved = await deps.repo.setUserPlan(user.id, plan.id, user.billing, roleOnPlan(user.role, plan), now);
+  return moved ? { ok: true, account: toAccount(moved) } : { ok: false, error: "not-found" };
+}

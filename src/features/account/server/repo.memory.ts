@@ -1,5 +1,5 @@
 import type { Plan } from "../plans";
-import type { AuthRepo, PlanRequest, TokenRow, UserRow } from "./repo";
+import type { AuthRepo, InviteRow, PlanRequest, TokenRow, UserRow } from "./repo";
 
 /** The repo in memory, for tests. Same rules as the Postgres one: one user per email, a token is taken once. */
 export function memoryRepo(plans: Plan[] = []) {
@@ -9,7 +9,14 @@ export function memoryRepo(plans: Plan[] = []) {
   const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
   const links: { teacherId: string; studentId: string; createdAt: Date; claimedAt: Date | null; plannedOn: string | null }[] = [];
   const planRequests: (PlanRequest & { userId: string })[] = [];
+  const invites: { id: string; tokenHash: string; planId: string; note: string; createdAt: Date; claimedBy: string | null; claimedAt: Date | null }[] = [];
   let n = 0;
+
+  const toInvite = ({ tokenHash, claimedBy, ...row }: (typeof invites)[number]): InviteRow => {
+    void tokenHash;
+    const user = claimedBy ? users.find((u) => u.id === claimedBy) : null;
+    return { ...row, claimedBy: user ? { id: user.id, email: user.email, name: user.name } : null };
+  };
 
   const live = (hash: string, kind: string, now: Date) => tokens.find((t) => t.tokenHash === hash && t.kind === kind && !t.usedAt && t.expiresAt > now) ?? null;
 
@@ -92,6 +99,29 @@ export function memoryRepo(plans: Plan[] = []) {
       const l = links.find((x) => x.studentId === studentId);
       return (l && users.find((u) => u.id === l.teacherId)) ?? null;
     },
+    async createInvite(input, now) {
+      const row = { id: `invite-${++n}`, ...input, createdAt: now, claimedBy: null, claimedAt: null };
+      invites.push(row);
+      return toInvite(row);
+    },
+    async listInvites() {
+      return [...invites].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).map(toInvite);
+    },
+    async inviteByHash(tokenHash) {
+      const row = invites.find((i) => i.tokenHash === tokenHash);
+      return row ? toInvite(row) : null;
+    },
+    async claimInvite(tokenHash, userId, now) {
+      const row = invites.find((i) => i.tokenHash === tokenHash);
+      if (!row || (row.claimedBy !== null && row.claimedBy !== userId)) return null;
+      row.claimedBy = userId;
+      row.claimedAt ??= now;
+      return toInvite(row);
+    },
+    async deleteInvite(id) {
+      const i = invites.findIndex((x) => x.id === id);
+      if (i >= 0) invites.splice(i, 1);
+    },
     async deleteUser(id) {
       for (let i = links.length - 1; i >= 0; i--) if (links[i].teacherId === id || links[i].studentId === id) links.splice(i, 1);
       for (const list of [identities, sessions, planRequests]) for (let i = list.length - 1; i >= 0; i--) if (list[i].userId === id) list.splice(i, 1);
@@ -149,5 +179,5 @@ export function memoryRepo(plans: Plan[] = []) {
       for (let i = tokens.length - 1; i >= 0; i--) if (tokens[i].expiresAt <= now) tokens.splice(i, 1);
     },
   };
-  return { repo, users, identities, tokens, sessions, planRequests, links };
+  return { repo, users, identities, tokens, sessions, planRequests, links, invites };
 }

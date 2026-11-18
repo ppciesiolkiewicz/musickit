@@ -44,6 +44,12 @@ export function takeHash(store: Storage, path: string, now: number): string | nu
  */
 export const sendToLogin = (signedIn: boolean, hintLeft: boolean): boolean => !signedIn && !hintLeft;
 
+/** Where a teacher invite opens (`/join/<token>`, made on /admin/invites); the login page words itself for it. */
+export const JOIN_PATH = "/join/";
+export const joinHref = (token: string): string => `${JOIN_PATH}${encodeURIComponent(token)}`;
+/** A teacher invite's page: a new account gives its name there, so sign-in goes straight to it and not to setup. */
+export const isJoinPath = (next: string | null): boolean => !!next?.startsWith(JOIN_PATH);
+
 /** Where a plan invite opens (`/plan/invite/<id>`); the login page words itself for it. */
 const INVITE = "/plan/invite/";
 
@@ -51,6 +57,9 @@ const INVITE = "/plan/invite/";
 export function loginWords(next: string | null, goingTo = "your practice plan"): { title: string; intro: string } {
   if (next?.startsWith(INVITE)) {
     return { title: "Create your account or log in to view", intro: "A teacher shared a practice plan with you. Log in with your email or with Google, and the plan is added to your plans. If you're new, this also creates your account." };
+  }
+  if (isJoinPath(next)) {
+    return { title: "Create your teacher account", intro: "You were invited to try attunr as a teacher. Log in with your email or with Google. If you're new, this also creates your account." };
   }
   return { title: "Log in", intro: `Log in with your email or with Google to open ${goingTo}. If you're new, this also creates your account.` };
 }

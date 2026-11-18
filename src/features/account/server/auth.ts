@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
-import { setupHref } from "../loginGuard";
+import { isJoinPath, setupHref } from "../loginGuard";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
 import { canChoose, choosablePlans, pricedWithYou, roleOnPlan, TAUGHT_PLAN_ID, type Billing, type Plan } from "../plans";
 import { TERMS_UPDATED } from "../terms";
@@ -85,9 +85,11 @@ export async function startSession(deps: AuthDeps, user: UserRow, next: string |
 
 /**
  * Where the browser goes after signing in: `next`, or first /account/setup for an account with no plan yet (a new one,
- * or one that left setup before finishing), which then goes on to `next`.
+ * or one that left setup before finishing), which then goes on to `next`. A teacher invite (`/join/<token>`) skips setup:
+ * a new account gives its name and agrees to the terms on that page.
  */
-export const pathAfterSignIn = (result: Pick<SignedIn, "next" | "account">): string => (result.account.needsSetup ? setupHref(result.next) : result.next);
+export const pathAfterSignIn = (result: Pick<SignedIn, "next" | "account">): string =>
+  result.account.needsSetup && !isJoinPath(result.next) ? setupHref(result.next) : result.next;
 
 /**
  * The name a new account starts with: Google's, or the part of the email before the @. /account/setup then asks for the

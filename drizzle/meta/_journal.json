@@ -225,6 +225,13 @@
       "when": 1795002040452,
       "tag": "0031_drop_plan_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1795002917930,
+      "tag": "0032_teacher_invites",
+      "breakpoints": true
     }
   ]
 }
