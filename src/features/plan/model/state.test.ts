@@ -71,3 +71,25 @@ test("fitPlanState drops all of the history before any given plan", () => {
   assert.deepEqual(fit2.history.map((p) => p.id), ["h0"]);
   assert.equal(fit2.given.length, 5);
 });
+
+test("the empty state has no teacher scores; a document without the field reads as []", () => {
+  assert.deepEqual(EMPTY_STATE.teacherScores, []);
+  assert.deepEqual(sanitiseState({}).teacherScores, []);
+  assert.deepEqual(sanitiseState({ teacherScores: "x" }).teacherScores, []);
+});
+
+test("sanitiseState round-trips teacherScores and cleans them", () => {
+  const list = [{ topic: "guitar-basic-chords", score: 2.4, at: "2026-11-10T10:00:00.000Z" }];
+  assert.deepEqual(sanitiseState({ teacherScores: list }).teacherScores, list);
+  assert.deepEqual(sanitiseState({ teacherScores: [...list, { topic: "nope", score: 1, at: "2026-11-10T10:00:00.000Z" }] }).teacherScores, list);
+});
+
+test("sanitiseState keeps a plan's teacher record, caps the comment at 2000, and drops a broken one", () => {
+  const ok = { madeAt: "2026-11-10T10:00:00.000Z", comment: "hi" };
+  assert.deepEqual(sanitiseState({ current: plan("c", { teacher: ok }) }).current?.teacher, ok);
+  assert.equal(sanitiseState({ current: plan("c", { teacher: { madeAt: "2026-11-10T10:00:00.000Z", comment: "x".repeat(2500) } }) }).current?.teacher?.comment?.length, 2000);
+  assert.deepEqual(sanitiseState({ current: plan("c", { teacher: { madeAt: "2026-11-10T10:00:00.000Z" } }) }).current?.teacher, { madeAt: "2026-11-10T10:00:00.000Z" });
+  for (const bad of [null, "x", {}, { madeAt: 5 }, { madeAt: "" }]) {
+    assert.equal("teacher" in sanitiseState({ current: plan("c", { teacher: bad as unknown as StoredPlan["teacher"] }) }).current!, false, JSON.stringify(bad));
+  }
+});

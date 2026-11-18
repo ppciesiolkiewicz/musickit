@@ -89,6 +89,8 @@ export interface StoredPlan {
    * turned down today (never picked again that day) and whether the library had too little to fill the minutes.
    */
   composed?: { attempt: number; declined: string[]; short: boolean };
+  /** Set on a week a teacher made for the student: when (ISO datetime) and the teacher's comment, for our team only (at most 2000 characters). */
+  teacher?: { madeAt: string; comment?: string };
 }
 
 export interface ReminderSettings {
@@ -106,6 +108,13 @@ export interface AnswersEntry {
   topics: PlanAnswers["topics"];
 }
 
+/** A score (0 to 3, a tenth at a time) a teacher set for a topic, and when (ISO datetime). From then on it is the topic's score; see `topicOutcome`. */
+export interface TeacherScore {
+  topic: string;
+  score: number;
+  at: string;
+}
+
 export interface PlanState {
   answers: PlanAnswers | null;
   /** every finished questionnaire, oldest first (the first is the starting point) */
@@ -115,6 +124,8 @@ export interface PlanState {
   history: StoredPlan[];
   /** plans the player was given (claimed from an invite, `from` set), newest first; never `current` */
   given: StoredPlan[];
+  /** the scores a teacher set, oldest first (`teacherScores.ts`); `[]` when none */
+  teacherScores: TeacherScore[];
   reminder: ReminderSettings;
 }
 
@@ -124,4 +135,4 @@ export const PLAN_DAYS = 7;
 /** How many days this plan has: one for a composed day, seven for a parsed or given plan. */
 export const planDays = (p: StoredPlan): number => p.config.days.length;
 
-export const EMPTY_STATE: PlanState = { answers: null, answersHistory: [], current: null, history: [], given: [], reminder: { enabled: false, time: "18:00" } };
+export const EMPTY_STATE: PlanState = { answers: null, answersHistory: [], current: null, history: [], given: [], teacherScores: [], reminder: { enabled: false, time: "18:00" } };

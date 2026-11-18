@@ -4,6 +4,19 @@ import { cleanRating, isStars, type StarRating } from "@/features/progress/stars
 import { withBlockIds, withExerciseIds } from "./exerciseIds";
 import { cleanAnswersHistory, movedOver } from "./answersHistory";
 import { cleanCells } from "./cleanExercise";
+import { cleanTeacherScores } from "./teacherScores";
+
+/** The longest teacher comment kept. */
+export const MAX_TEACHER_COMMENT = 2000;
+
+/** A stored `teacher` record made safe: null unless it has a `madeAt`; the comment is cut to `MAX_TEACHER_COMMENT`. */
+function cleanTeacher(raw: unknown): StoredPlan["teacher"] | null {
+  if (!raw || typeof raw !== "object") return null;
+  const t = raw as Record<string, unknown>;
+  if (typeof t.madeAt !== "string" || !t.madeAt) return null;
+  const comment = typeof t.comment === "string" ? t.comment.slice(0, MAX_TEACHER_COMMENT) : "";
+  return { madeAt: t.madeAt, ...(comment ? { comment } : {}) };
+}
 
 /** A plan this app can show: ids, dates, days, and `cells` on every exercise (a plan stored before blocks has none, and is dropped: nothing old is read). */
 const isPlan = (p: unknown): p is StoredPlan => {
@@ -59,6 +72,12 @@ function cleanPlan(stored: StoredPlan): StoredPlan {
     if (review) p.review = review;
     else delete p.review;
   }
+  if ("teacher" in p) {
+    const teacher = cleanTeacher(p.teacher);
+    p = { ...p };
+    if (teacher) p.teacher = teacher;
+    else delete p.teacher;
+  }
   if (p.rated === undefined) return p;
   const rated: Record<string, StarRating> = {};
   if (p.rated && typeof p.rated === "object") for (const [k, v] of Object.entries(p.rated)) { const r = cleanRating(v); if (r) rated[k] = r; }
@@ -81,6 +100,7 @@ export function sanitiseState(raw: unknown): PlanState {
     current,
     history,
     given,
+    teacherScores: cleanTeacherScores(s.teacherScores),
     reminder: {
       enabled: !!r?.enabled,
       time: typeof r?.time === "string" && /^\d\d:\d\d$/.test(r.time) ? r.time : EMPTY_STATE.reminder.time,

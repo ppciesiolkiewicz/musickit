@@ -87,3 +87,20 @@ test("raisedAnswers: answered intermediate, beginner not reached: stays intermed
   const entries = ratingsAt(T, "beginner", 2, "2026-11-18T10:00:00Z");
   assert.equal(raisedAnswers(answers({ [T]: 2 }), entries, "2026-11-19").topics[T], 2);
 });
+
+test("raisedAnswers: a teacher's 2.4 puts the topic at rung 2 whatever the answer, with no entries", () => {
+  const a = answers({ [T]: 0, [OTHER]: 0 });
+  const raised = raisedAnswers(a, [], "2026-11-19", [{ topic: T, score: 2.4, at: "2026-11-18T10:00:00.000Z" }]);
+  assert.equal(raised.topics[T], 2);
+  assert.equal(raised.topics[OTHER], 0);
+});
+
+test("raisedAnswers: a teacher's value below the answer lowers the start, and only ratings after it raise", () => {
+  const a = answers({ [T]: 2 });
+  const old = ratingsAt(T, "intermediate", 5, "2026-11-10T10:00:00Z");
+  const teacher = [{ topic: T, score: 0.5, at: "2026-11-15T10:00:00.000Z" }];
+  assert.equal(raisedAnswers(a, old, "2026-11-19", teacher).topics[T], 0);
+  const fresh = ratingsAt(T, "beginner", 5, "2026-11-17T10:00:00Z");
+  assert.equal(raisedAnswers(a, [...old, ...fresh], "2026-11-19", teacher).topics[T], 1);
+  assert.equal(raisedAnswers(a, old, "2026-11-12", teacher).topics[T], 2, "before the entry it does not count");
+});

@@ -283,3 +283,78 @@ test("solidSteps: every step rated solid, for reach()", () => {
   const o = outcome({ ...IN, entries: [barreEntry({ steps: ["barre:2"], level: "beginner", stars: 4 })], answersHistory: [] }, "2026-11-15");
   assert.deepEqual(solidSteps(o), ["barre:1", "barre:2"]);
 });
+
+// a teacher's score for a topic
+import { conceptsOf } from "./concepts";
+import type { TeacherScore } from "./types";
+
+const TT = "guitar-basic-chords";
+const teach = (score: number, at: string, topic = TT): TeacherScore => ({ topic, score, at });
+/** One rating per concept of the topic at its last step at or under `level`. */
+function solidAt(topicId: string, level: string, at: string, stars: 1 | 2 | 3 | 4 | 5 = 5): ProgressEntry[] {
+  const max = ["new", "beginner", "intermediate", "advanced"].indexOf(level);
+  return conceptsOf(topicId).flatMap((c) => {
+    const i = c.steps.findLastIndex((s) => ["new", "beginner", "intermediate", "advanced"].indexOf(s.level) <= max);
+    return i < 0 ? [] : [entry({ topic: topicId, concepts: [c.id], steps: [`${c.id}:${i + 1}`], stars, at })];
+  });
+}
+const withT = (entries: ProgressEntry[], teacherScores: TeacherScore[], asOf = "2026-11-20") =>
+  outcome({ ...IN, entries, answersHistory: [asked("2026-11-01", { [TT]: 1 })], teacherScores }, asOf);
+
+test("teacher score: set below practice, earlier ratings stop counting; the score is the teacher's", () => {
+  const before = solidAt(TT, "intermediate", "2026-11-05T10:00:00.000Z");
+  assert.equal(topic(withT(before, []), TT).reached, 2);
+  const o = topic(withT(before, [teach(0.5, "2026-11-10T10:00:00.000Z")]), TT);
+  assert.equal(o.score, 0.5);
+  assert.equal(o.reached, 0);
+  assert.equal(o.ratings, before.length, "ratings stay all-time");
+  assert.ok(o.concepts.some((c) => c.state === "solid"), "concepts stay all-time");
+  assert.equal(o.rung, 1, "rung is still the questionnaire's");
+});
+
+test("teacher score: a solid rating after it that completes level 1 lifts reached to 1", () => {
+  const before = solidAt(TT, "intermediate", "2026-11-05T10:00:00.000Z");
+  const after = solidAt(TT, "beginner", "2026-11-12T10:00:00.000Z");
+  const o = topic(withT([...before, ...after], [teach(0.5, "2026-11-10T10:00:00.000Z")]), TT);
+  assert.equal(o.reached, 1);
+  assert.ok(o.score! >= 1);
+});
+
+test("teacher score: a value on a topic with no ratings is the score", () => {
+  const o = topic(withT([], [teach(2.4, "2026-11-10T10:00:00.000Z")]), TT);
+  assert.equal(o.score, 2.4);
+  assert.equal(o.reached, 2);
+});
+
+test("teacher score: later low ratings never lower it below itself", () => {
+  const o = topic(withT([entry({ topic: TT, concepts: [conceptsOf(TT)[0].id], stars: 1, at: "2026-11-12T10:00:00.000Z" })], [teach(2.4, "2026-11-10T10:00:00.000Z")]), TT);
+  assert.equal(o.score, 2.4);
+});
+
+test("teacher score: capped at 3", () => {
+  assert.equal(topic(withT([], [teach(3, "2026-11-10T10:00:00.000Z")]), TT).score, 3);
+  assert.equal(topic(withT([], [teach(3, "2026-11-10T10:00:00.000Z")]), TT).reached, 3);
+});
+
+test("teacher score: other topics equal the outcome without teacherScores", () => {
+  const entries = [...solidAt(TT, "beginner", "2026-11-05T10:00:00.000Z"), ...solidAt("guitar-scales", "beginner", "2026-11-05T10:00:00.000Z")];
+  const a = withT(entries, [teach(0.5, "2026-11-10T10:00:00.000Z")]);
+  const b = withT(entries, []);
+  assert.deepEqual(topic(a, "guitar-scales"), topic(b, "guitar-scales"));
+  assert.deepEqual(a.streak, b.streak);
+});
+
+test("teacher score: asOf before it ignores it; the newest entry on or before asOf wins", () => {
+  const list = [teach(1, "2026-11-10T10:00:00.000Z"), teach(2.4, "2026-11-14T10:00:00.000Z")];
+  assert.equal(topic(withT([], list, "2026-11-08"), TT).score, 1, "answered 1, no entry yet");
+  assert.equal(topic(withT([], list, "2026-11-12"), TT).score, 1);
+  assert.equal(topic(withT([], list, "2026-11-20"), TT).score, 2.4);
+});
+
+test("teacher score: a rating with only a date counts after it only when its date is later than the teacher's day", () => {
+  const sameDay = solidAt(TT, "beginner", "2026-11-10");
+  const nextDay = solidAt(TT, "beginner", "2026-11-11");
+  const t = teach(0.5, "2026-11-10T10:00:00");
+  assert.equal(topic(withT(sameDay, [t]), TT).reached, 0);
+  assert.equal(topic(withT(nextDay, [t]), TT).reached, 1);
+});
