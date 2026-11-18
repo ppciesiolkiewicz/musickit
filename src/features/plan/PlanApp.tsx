@@ -256,14 +256,15 @@ function Reminder({ state, update }: { state: PlanState; update: (c: (s: PlanSta
   return (
     // the blocked note floats below the switch, so the header row keeps one height
     <div className="relative">
-      <div className={`flex h-10 items-center gap-2.5 rounded-lg border px-3 transition-colors [&_[role=checkbox]]:text-sm ${tone}`}>
-        <Icon name={r.enabled ? "bell" : "bell-off"} size={16} className={r.enabled ? "text-amber-300" : "text-slate-500"} />
+      {/* one line down to a 320 px phone: the label never wraps, and under 340 px the bell gives its room to it */}
+      <div className={`flex h-10 items-center gap-2 whitespace-nowrap rounded-lg border px-2.5 transition-colors sm:gap-2.5 sm:px-3 [&_[role=checkbox]]:text-sm ${tone}`}>
+        <Icon name={r.enabled ? "bell" : "bell-off"} size={16} className={`max-[339px]:hidden ${r.enabled ? "text-amber-300" : "text-slate-500"}`} />
         <Checkbox checked={r.enabled} onChange={flip} title="A browser notification once a day. It shows only while attunr is open in a tab.">Remind me at</Checkbox>
         <input
           type="time"
           value={r.time}
           onChange={(e) => e.target.value && update((s) => ({ ...s, reminder: { ...s.reminder, time: e.target.value, lastShownOn: undefined } }))}
-          className="rounded-md border border-slate-700 bg-slate-950/60 px-1.5 py-1 text-sm text-slate-100 [color-scheme:dark]"
+          className="rounded-md border border-slate-700 bg-slate-950/60 px-1.5 py-1 text-sm text-slate-100"
           aria-label="Reminder time"
         />
       </div>

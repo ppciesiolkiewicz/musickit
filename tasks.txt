@@ -375,6 +375,9 @@ scrolls from 320 px up. 4: on a phone the tour tip sits above the compass button
 the rings pulse to 1.75x so the page keeps its width (Popover side "corner"). Walked at 320 and 390 px, dark and Surf
 Rock. Not seen: reduced motion, /theory/notes (the other page with the tip). Seen on the way: on the student's /plan
 at 320 px in Surf Rock "Remind me at" wraps onto two lines.
+[2026-11-18 done] "Remind me at" stays on one line down to 320 px (the bell hides under 340 px), and the time box
+follows the style, so its clock icon shows in Surf Rock. Also seen now: the tip on /theory/notes and with reduced
+motion (no pulse), and the plan cards on /account, Monthly and Yearly, at 390 and 1280 px.
 
 TaskSeries LibraryGrowth: keys, more seed plans and exercises, new exercise tools (moved out of NEW, 2026-11-18)
 LibraryGrowth1: (was NEW19) [NEW 2026-11-18] Keys in the questionnaire and in every plan
