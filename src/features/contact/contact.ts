@@ -11,7 +11,7 @@ export interface ContactMessage {
   at: number;
 }
 
-const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,24}$/;
+export const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,24}$/;
 
 /** A message from the raw request body, or the reason it is refused. A filled `website` (a hidden honeypot field) is a bot: quiet ok, nothing stored. */
 export function parseContact(body: unknown, now: number): { ok: true; contact: ContactMessage } | { ok: true; bot: true } | { ok: false; error: string } {
