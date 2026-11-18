@@ -1,13 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
-import { Button } from "@/components/ui";
+import { Button, btn } from "@/components/ui";
 import { DISPLAY } from "@/components/landing/Display";
 import type { Stars } from "@/features/progress/stars";
 import type { DayTime } from "../model/planTime";
 import type { StoredPlan } from "../model/types";
 import type { TodayFailure, TodayView } from "../model/today";
+import { loginHref } from "@/lib/publicPaths";
 import { DayPanel } from "./WeekView";
 
 /** The control that asks for another plan: one name in every line that names it. */
@@ -25,7 +27,9 @@ const ANOTHER_FAILED: Record<TodayFailure, string> = {
   offline: `attunr couldn't reach the server, so your plan stays as it is. Check your connection, then press ${ANOTHER} again.`,
   failed: `attunr couldn't put another plan together, so your plan stays as it is. Press ${ANOTHER} to try again.`,
   "bad-date": "The date on your device isn't today's date on attunr, so your plan stays as it is. Check your device's date and time, then reload the page.",
-  later: "A plan for a later day is already running in another tab or on another device, so this plan stays as it is. Reload the page to see the newer one.",
+  later: "A plan for a later day is already running on another device or tab, so this plan stays as it is. The date on this device is behind that day.",
+  "logged-out": `You're logged out, so your plan stays as it is. Log in, then press ${ANOTHER} again.`,
+  "account-changed": `Another account is logged in now, so your plan stays as it is. Reload the page, then press ${ANOTHER} again.`,
   "no-blocks": "There are no other exercises for today's steps, so your plan stays as it is.",
 };
 
@@ -114,29 +118,32 @@ export function TodayStatus({ view, onRetry, answers }: { view: Extract<TodayVie
       <section role="status" className={`${panel} border-l-amber-400`}>
         <div className="min-w-0 flex-1">
           <h2 className="text-base text-slate-100">No plan today</h2>
-          <p className="text-sm text-slate-400">The library has no exercises yet that fit your answers, so attunr couldn&apos;t make today&apos;s plan. Come back tomorrow, or press Change my answers to pick other areas.</p>
+          <p className="text-sm text-slate-400">The library has no exercises yet that fit your answers, so attunr couldn&apos;t make today&apos;s plan. Press Change my answers to pick other areas.</p>
         </div>
         {answers}
       </section>
     );
   }
-  const reload = failed === "bad-date" || failed === "later";
-  const body = failed === "offline"
-    ? "attunr couldn't reach the server. Check your connection, then press Try again."
-    : failed === "bad-date"
-      ? "The date on your device isn't today's date on attunr. Check your device's date and time, then press Reload page."
-      : failed === "later"
-        ? "A plan for a later day is already running in another tab or on another device. Press Reload page to see it."
-        : "attunr couldn't put today's plan together. Press Try again. If it still doesn't come, come back later.";
+  const body: Record<Exclude<TodayFailure, "no-blocks">, string> = {
+    offline: "attunr couldn't reach the server. Check your connection, then press Try again.",
+    "bad-date": "The date on your device isn't today's date on attunr. Check your device's date and time, then press Reload page.",
+    // a reload asks for this device's date again: the page moves by itself once the device's date reaches the plan's
+    later: "A plan for a later day is already running on another device or tab. The date on this device is behind that day, so attunr can't show that plan here. The plan shows here once this device's date is right.",
+    "logged-out": "You're logged out, so attunr couldn't make today's plan. Log in, then come back to this page.",
+    "account-changed": "Another account is logged in now, so attunr couldn't make today's plan. Press Reload page to open the plan of the account that's logged in.",
+    failed: "attunr couldn't put today's plan together. Press Try again. If the plan still doesn't come, try again in a few minutes.",
+  };
+  const action = failed === "later" ? null
+    : failed === "logged-out" ? <Link href={loginHref("/plan")} className={btn}>Log in</Link>
+      : failed === "bad-date" || failed === "account-changed" ? <Button onClick={() => window.location.reload()}><Icon name="rotate-ccw" size={14} />Reload page</Button>
+        : <Button onClick={onRetry}><Icon name="rotate-ccw" size={14} />Try again</Button>;
   return (
     <section role="alert" className={`${panel} border-l-rose-400`}>
       <div className="min-w-0 flex-1">
         <h2 className="text-base text-slate-100">Today&apos;s plan isn&apos;t ready</h2>
-        <p className="text-sm text-slate-400">{body}</p>
+        <p className="text-sm text-slate-400">{body[failed]}</p>
       </div>
-      {reload
-        ? <Button onClick={() => window.location.reload()}><Icon name="rotate-ccw" size={14} />Reload page</Button>
-        : <Button onClick={onRetry}><Icon name="rotate-ccw" size={14} />Try again</Button>}
+      {action}
     </section>
   );
 }

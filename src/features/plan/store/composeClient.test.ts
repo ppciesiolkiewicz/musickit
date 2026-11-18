@@ -45,7 +45,6 @@ test("requestDay: a 500, a non-JSON answer or a 200 of another shape gives faile
   const notJson = (async () => new Response("not json", { status: 200 })) as typeof fetch;
   assert.deepEqual(await requestDay({ date: "2026-11-18", another: false }, notJson), { ok: false, code: "failed" });
   assert.deepEqual(await requestDay({ date: "2026-11-18", another: false }, json(200, { ok: true, day: { steps: [] } }) as unknown as typeof fetch), { ok: false, code: "failed" });
-  assert.deepEqual(await requestDay({ date: "2026-11-18", another: false }, json(401, { error: "Log in" }) as unknown as typeof fetch), { ok: false, code: "failed" });
 });
 
 test("requestDay: an abort after the timeout gives failed", async () => {
@@ -53,4 +52,17 @@ test("requestDay: an abort after the timeout gives failed", async () => {
   assert.deepEqual(await requestDay({ date: "2026-11-18", another: false }, fetcher), { ok: false, code: "failed" });
   const aborted = (async () => { throw new DOMException("aborted", "AbortError"); }) as typeof fetch;
   assert.deepEqual(await requestDay({ date: "2026-11-18", another: false }, aborted), { ok: false, code: "failed" });
+});
+
+test("requestDay: sends the page's account id, and none when the page knows no account", async () => {
+  const seen: (Record<string, string> | undefined)[] = [];
+  const fetcher = (async (_u: string, init?: RequestInit) => { seen.push(init?.headers as Record<string, string>); return json(200, { ok: true, day, date: "2026-11-18", attempt: 0 })(); }) as typeof fetch;
+  await requestDay({ date: "2026-11-18", another: false }, fetcher, "acc-1");
+  await requestDay({ date: "2026-11-18", another: false }, fetcher, null);
+  assert.deepEqual(seen, [{ "content-type": "application/json", "x-account-id": "acc-1" }, { "content-type": "application/json" }]);
+});
+
+test("requestDay: a 401 gives logged-out, a 409 account-changed gives account-changed", async () => {
+  assert.deepEqual(await requestDay({ date: "2026-11-18", another: false }, json(401, { error: "You are logged out." }) as unknown as typeof fetch, null), { ok: false, code: "logged-out" });
+  assert.deepEqual(await requestDay({ date: "2026-11-18", another: true }, json(409, { error: "account-changed" }) as unknown as typeof fetch, "acc-1"), { ok: false, code: "account-changed" });
 });

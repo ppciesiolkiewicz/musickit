@@ -74,10 +74,11 @@ export function pastDays(history: StoredPlan[], current: StoredPlan | null, date
 }
 
 /**
- * Why today's plan, or another one, isn't there: a route code, the request itself, or `later`, a plan for a later date
- * already running (another tab or device, past midnight).
+ * Why today's plan, or another one, isn't there: a route code, the request itself (`offline`, `logged-out`,
+ * `account-changed`, `failed`), or `later`, a plan for a later date already running (another tab or device): this
+ * device's date is behind the plan's.
  */
-export type TodayFailure = "no-blocks" | "bad-date" | "later" | "offline" | "failed";
+export type TodayFailure = "no-blocks" | "bad-date" | "later" | "offline" | "logged-out" | "account-changed" | "failed";
 
 type Failed = Extract<ComposeResult, { ok: false }>["code"];
 /** `no-answers` can't happen after the flush (the page has answers): it is said as a failed request, with the retry. */

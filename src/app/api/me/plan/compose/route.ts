@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const MESSAGES = {
   "no-answers": "There are no answers to make a plan from. Answer the questions on the plan page first.",
   "bad-date": "The page sent a date that isn't today's. Check the device's date and time, then reload the page.",
-  "no-blocks": "The library has no exercises yet that fit your answers, so no plan was made. Come back tomorrow.",
+  "no-blocks": "The library has no exercises yet that fit your answers, so no plan was made. Change your answers to pick other areas.",
 };
 
 /** Today's plan, composed from the player's answers, ratings and the library: JSON { date, another }. Writes nothing; the page stores the day. */
