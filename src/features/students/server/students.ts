@@ -21,6 +21,8 @@ const DAY = 24 * 60 * MINUTE;
 export const CLAIM_TTL = 30 * DAY;
 /** A new claim link for the same student waits this long after the last one. */
 const CLAIM_WAIT = MINUTE;
+/** At most this many claim links for one student in a day (the one made when the student was added counts). */
+export const CLAIM_DAY_LIMIT = 5;
 /** Where a student lands after the first sign in. */
 const CLAIM_NEXT = "/welcome";
 
@@ -89,7 +91,12 @@ export async function addStudent(
     if (!wrote.ok) throw new Error(`the student's plan document was not written: ${wrote.error}`);
     return { ok: true, studentId: made.id, claimToken: await makeClaim(auth, email) };
   } catch (error) {
-    await auth.repo.deleteUser(made.id);
+    // the delete failing must not hide why the add failed: it is logged, and the first error is the one thrown
+    try {
+      await auth.repo.deleteUser(made.id);
+    } catch (deleteError) {
+      console.error(`[students] the half-made student ${made.id} could not be deleted`, deleteError);
+    }
     throw error;
   }
 }
@@ -103,9 +110,12 @@ export async function listStudents(deps: StudentsDeps, teacher: Account): Promis
   };
 }
 
-export type NewClaimError = "not-found" | "claimed" | "wait";
+export type NewClaimError = "not-found" | "claimed" | "wait" | "daily";
 
-/** A new claim link for the teacher's own student who has not signed in yet; at most one a minute for each student. */
+/**
+ * A new claim link for the teacher's own student who has not signed in yet; at most one a minute for each student, and
+ * `CLAIM_DAY_LIMIT` in a day (`daily`), so a teacher can't have attunr mail an address over and over.
+ */
 export async function newClaimLink(
   deps: StudentsDeps,
   teacher: Account,
@@ -119,6 +129,7 @@ export async function newClaimLink(
   const last = await repo.lastTokenAt(student.email, "claim");
   const left = last ? last.getTime() + CLAIM_WAIT - now().getTime() : 0;
   if (left > 0) return { ok: false, error: "wait", waitMs: left };
+  if ((await repo.countTokens(student.email, "claim", new Date(now().getTime() - DAY))) >= CLAIM_DAY_LIMIT) return { ok: false, error: "daily" };
   return { ok: true, email: student.email, name: student.name, claimToken: await makeClaim(deps.auth, student.email) };
 }
 

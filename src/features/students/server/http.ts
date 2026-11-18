@@ -46,6 +46,7 @@ const MESSAGES = {
   "not-found": "That student isn't on your list.",
   claimed: "Your student has already logged in, so they don't need the link.",
   wait: "A link went out a moment ago. Wait a minute, then press Send the link again.",
+  daily: "attunr has sent this student 5 links today, the most it sends in a day. Press Send the link again tomorrow.",
   "mail-failed": "The email didn't go out. Wait a minute, then press Send the link again.",
   "no-answers": "Your student has no answers on file, so no plan can be made. Tell us about it on the Send feedback page.",
   "no-blocks": "The library has no exercises yet that fit your student's answers, so no plan was made.",
@@ -177,7 +178,7 @@ export async function claimLinkRoute(h: StudentsHttpDeps, req: Request, id: stri
   try {
     const link = await newClaimLink(h, me.account, id);
     if (!link.ok && link.error === "wait") return json({ error: MESSAGES.wait, code: "wait", waitSeconds: Math.max(1, Math.ceil(link.waitMs / 1000)) }, 429, me.cookies);
-    if (!link.ok) return fail(link.error, link.error === "not-found" ? 404 : 409, me.cookies);
+    if (!link.ok) return fail(link.error, link.error === "not-found" ? 404 : link.error === "daily" ? 429 : 409, me.cookies);
     const mail = await mailClaim(h, req, link, me.account.name, link.claimToken);
     return mail === "failed" ? fail("mail-failed", 502, me.cookies) : json({ mail }, 200, me.cookies);
   } catch (error) {

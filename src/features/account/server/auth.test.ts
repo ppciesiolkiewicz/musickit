@@ -483,3 +483,25 @@ test("deleting a user removes their links", async () => {
   await repo.deleteUser(kid.id);
   assert.deepEqual(await repo.studentsOf(t.id), []);
 });
+
+test("a teacher's student who logs in the normal way, by the email link or Google, counts as having opened their link", async () => {
+  const { repo, deps } = setup();
+  const now = deps.now();
+  const teacher = (await repo.createUser({ email: "t@school.com", name: "T", role: "teacher" }, now))!;
+  const kid = async (email: string) => {
+    const u = (await repo.createUser({ email, name: "K", role: "student" }, now))!;
+    await repo.setUserPlan(u.id, "taught", "year", "student", now);
+    await repo.addStudent(teacher.id, u.id, now);
+    return u;
+  };
+  const byLink = await kid("ann@school.com");
+  const byGoogle = await kid("ben@school.com");
+
+  const signedIn = await openEmailLink(deps, await link(deps, { email: "ann@school.com" }), null);
+  assert.equal(signedIn?.account.id, byLink.id);
+  assert.deepEqual(await repo.studentLink(teacher.id, byLink.id), { createdAt: now, claimedAt: deps.now() });
+
+  const google = await googleSignIn(deps, { sub: "g-ben", email: "ben@school.com", emailVerified: true, name: "Ben" }, { userAgent: null });
+  assert.equal(google?.account.id, byGoogle.id);
+  assert.equal((await repo.studentLink(teacher.id, byGoogle.id))?.claimedAt?.getTime(), deps.now().getTime());
+});

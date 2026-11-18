@@ -212,3 +212,33 @@ test("listStudents: newest first, with the dates and the limit", async () => {
     { id: a.studentId, name: "A", email: "a@x.com", addedAt: new Date(START).toISOString(), claimedAt: new Date(START + 2 * MINUTE).toISOString() },
   ]);
 });
+
+// --- final fix wave
+
+test("newClaimLink: at most 5 claim links a student a day, the first one counted; the next day it works again", async () => {
+  const s = await setup();
+  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS }));
+  for (let i = 0; i < 4; i++) {
+    s.wait(MINUTE);
+    ok(await newClaimLink(s.both, s.teacher, r.studentId));
+  }
+  s.wait(MINUTE);
+  assert.deepEqual(await newClaimLink(s.both, s.teacher, r.studentId), { ok: false, error: "daily" });
+  s.wait(24 * 60 * MINUTE);
+  ok(await newClaimLink(s.both, s.teacher, r.studentId));
+});
+
+test("a rollback whose delete fails logs it and throws the first error", async () => {
+  const s = await setup();
+  const broken: AuthRepo = { ...s.repo, addStudent: async () => { throw new Error("db down"); }, deleteUser: async () => { throw new Error("delete failed too"); } };
+  const logged: unknown[][] = [];
+  const keep = console.error;
+  console.error = (...a: unknown[]) => void logged.push(a);
+  try {
+    await assert.rejects(addStudent({ auth: { ...s.deps, repo: broken }, userData: s.userData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }), /db down/);
+  } finally {
+    console.error = keep;
+  }
+  assert.equal(logged.length, 1);
+  assert.match(String(logged[0][0]), /could not be deleted/);
+});

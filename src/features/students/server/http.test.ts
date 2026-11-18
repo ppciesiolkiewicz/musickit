@@ -386,3 +386,14 @@ test("GET /api/students/<id> answers the upcoming week's start", async () => {
   const v1 = await (await viewRoute(s.h, call(`/api/students/${id}?today=${TODAY}`, "GET", s.teacher.cookie), id)).json();
   assert.deepEqual(v1.upcoming, { start: "2026-11-25" });
 });
+
+test("POST claim-link: the sixth link in a day is 429 daily, with a line that says to try tomorrow", async () => {
+  const s = await setup();
+  const id = (await add(s)).body.student.id as string;
+  const at = (min: number): StudentsHttpDeps => ({ ...s.h, auth: { ...s.h.auth, now: () => new Date(T0.getTime() + min * 61_000) } });
+  for (let i = 1; i <= 4; i++) assert.equal((await claimLinkRoute(at(i), call(`/api/students/${id}/claim-link`, "POST", s.teacher.cookie, {}), id)).status, 200);
+  const r = await claimLinkRoute(at(5), call(`/api/students/${id}/claim-link`, "POST", s.teacher.cookie, {}), id);
+  assert.equal(r.status, 429);
+  assert.deepEqual(await r.json(), { code: "daily", error: "attunr has sent this student 5 links today, the most it sends in a day. Press Send the link again tomorrow." });
+  assert.equal(s.sent.length, 5, "no sixth email");
+});

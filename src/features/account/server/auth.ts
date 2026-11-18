@@ -62,11 +62,23 @@ const later = (now: Date, ms: number) => new Date(now.getTime() + ms);
 
 export type SignedIn = { kind: "session"; sessionToken: string; expiresAt: Date; account: Account; next: string; created: boolean };
 
+/**
+ * A new session for the user. A teacher's student (on the taught plan) signing in by any route counts as having opened
+ * their claim link: `markClaimed` writes only the first time, so the teacher sees them as in and can't resend. A failure
+ * there is logged and never stops the sign-in.
+ */
 export async function startSession(deps: AuthDeps, user: UserRow, next: string | null, userAgent: string | null, created: boolean): Promise<SignedIn> {
   const now = deps.now();
   const sessionToken = deps.token();
   const expiresAt = later(now, SESSION_TTL);
   await deps.repo.createSession({ tokenHash: hashToken(sessionToken), userId: user.id, userAgent: userAgent?.slice(0, 300) ?? null, expiresAt }, now);
+  if (user.planId === TAUGHT_PLAN_ID) {
+    try {
+      await deps.repo.markClaimed(user.id, now);
+    } catch (error) {
+      console.error(`[auth] the claim of student ${user.id} was not recorded`, error);
+    }
+  }
   return { kind: "session", sessionToken, expiresAt, account: toAccount(user), next: next ?? AFTER_LOGIN, created };
 }
 

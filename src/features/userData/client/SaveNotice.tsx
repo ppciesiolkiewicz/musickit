@@ -4,7 +4,9 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { Notice } from "@/components/ui";
 import Icon from "@/components/Icon";
+import { useAccount } from "@/features/account/useAccount";
 import { loginHref } from "@/lib/publicPaths";
+import { staleWords } from "./saveWords";
 import { useSaveAccountChanged, useSaveStatus, useSaveTooBig, useUnsaved } from "./useDataSource";
 
 /**
@@ -17,6 +19,8 @@ export default function SaveNotice() {
   const tooBig = useSaveTooBig();
   const accountChanged = useSaveAccountChanged();
   const unsaved = useUnsaved();
+  // a teacher's student is also told their teacher may have changed it (`staleWords`); read as not taught until known
+  const taught = !!useAccount().account?.taught;
 
   useEffect(() => {
     if (!unsaved) return;
@@ -48,7 +52,7 @@ export default function SaveNotice() {
             </>
           ) : status === "stale" ? (
             <>
-              <strong className="font-semibold text-slate-100">Not saved: your data was changed somewhere else.</strong> Another device or your teacher changed it. This page is loading the newer version.
+              <strong className="font-semibold text-slate-100">{staleWords(taught).title}</strong> {staleWords(taught).body}
             </>
           ) : status === "rejected" ? (
             <>
