@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import { cleanExercise } from "./cleanExercise";
 import { parseExercise } from "./config";
-import { cleanGiven, parseMoves, type Moves } from "./moves";
+import { applyGiven, cleanGiven, paramWarnings, parseMoves, selectorsOf, written, type Moves } from "./moves";
 import type { Cell, PlanTool } from "./tools";
 import type { PlanExercise } from "./types";
 
@@ -104,4 +104,95 @@ test("cleanExercise: moves are read again and given is cleaned against them; an 
   assert.deepEqual(out.given, { bpm: { now: 70, back: [60] } });
   assert.equal("keys" in out, false);
   assert.equal(cleanExercise(ex({ given: { bpm: { now: 70, back: [] } } })).given, undefined);
+});
+
+// --- Task 2: a block drawn in a version
+
+const toolsIn = (b: { cells: Cell[] }): PlanTool[] => b.cells.flatMap((c) => (c.type === "section" ? c.cells : [c])).flatMap((c) => (c.type === "tool" ? [c.tool] : []));
+const text = (t: string): Cell => ({ type: "text", text: t });
+const keysOfTools = (b: { cells: Cell[] }) => toolsIn(b).map((t) => (t as { key?: number }).key);
+const bpmsOf = (b: { cells: Cell[] }) => toolsIn(b).map((t) => (t as { bpm?: number }).bpm);
+
+test("applyGiven: the tools move to the key the selector is at; a pinned tool stays", () => {
+  const b = { title: "{{=key}} minor pentatonic", moves: { key: "any" } as Moves, cells: [text("In {{=key}}, from {{1}} to {{c-sharp}}."), tool(band(60)), tool(neck()), tool(neck(A, { pinned: ["key"] }))] };
+  const given = { keys: { now: [G, A], back: [] } };
+  const g = applyGiven(b, given);
+  assert.deepEqual(keysOfTools(g), [G, G, A]);
+  assert.equal(g.title, "G minor pentatonic");
+  assert.deepEqual(g.cells[0], text("In G, from {{1}} to {{c-sharp}}."), "the note dots are untouched");
+  const a = applyGiven(b, given, { key: 1 });
+  assert.deepEqual(keysOfTools(a), [A, A, A]);
+  assert.equal(a.title, "A minor pentatonic");
+  assert.deepEqual(keysOfTools(b), [A, A, A], "the block as written is untouched");
+});
+
+test("applyGiven: a tool in another key than the block's keeps its distance", () => {
+  const b = { title: "t", moves: { key: "any" } as Moves, cells: [tool(band(60, A)), tool(neck(2))] };
+  assert.deepEqual(keysOfTools(applyGiven(b, { keys: { now: [G], back: [] } })), [G, 0], "A to G is two down, so D becomes C");
+});
+
+test("applyGiven: the tempo moves every tool by the distance from the start, in headings and lists too", () => {
+  const b = {
+    title: "Run", moves: { bpm: BPM } as Moves,
+    cells: [
+      { type: "section", heading: "Slowly, at {{=bpm}}", cells: [{ type: "list", items: ["Press Play: the click is at {{=bpm}}."] }, tool(band(60))] } as Cell,
+      { type: "section", heading: "With the band", cells: [tool(band(80)), tool(band(100, A, { pinned: ["bpm"] }))] } as Cell,
+    ],
+  };
+  const out = applyGiven(b, { bpm: { now: 70, back: [60] } });
+  assert.deepEqual(bpmsOf(out), [70, 90, 100]);
+  const first = out.cells[0];
+  assert.ok(first.type === "section");
+  assert.equal(first.heading, "Slowly, at 70");
+  assert.deepEqual(first.cells[0], { type: "list", items: ["Press Play: the click is at 70."] });
+  assert.deepEqual(bpmsOf(applyGiven(b, { bpm: { now: 70, back: [60] } }, { bpm: 1 })), [60, 80, 100], "the earlier tempo is the block as written");
+});
+
+test("applyGiven: a tool at the top of its tempo range stays there (Review Focus 5)", () => {
+  const track = { type: "backing-track", progression: "x", key: A, bpm: 240 } as PlanTool;
+  const b = { title: "t", moves: { bpm: { from: 60, to: 90, step: 10 } } as Moves, cells: [text("at {{=bpm}}"), tool(band(60, A, { pinned: ["bpm"] })), tool(band(60)), tool(track), tool({ type: "strum-along", chords: ["G"], bpm: 235 } as PlanTool)] };
+  const out = applyGiven(b, { bpm: { now: 80, back: [] } });
+  const bpms = bpmsOf(out);
+  assert.equal(bpms[0], 60, "pinned");
+  assert.equal(bpms[1], 80);
+  assert.ok((bpms[2] as number) <= 240 && (bpms[3] as number) <= 240);
+  assert.deepEqual(out.cells[0], text("at 80"), "the param reads the first tool that follows the tempo");
+});
+
+test("applyGiven: with nothing given the block is as written, its params filled from its tools (Review Focus 1)", () => {
+  const b = { title: "{{=key}} run", moves: { key: "any", bpm: BPM } as Moves, cells: [text("at {{=bpm}}"), tool(band(60)), tool(neck())] };
+  for (const given of [undefined, null, {}]) {
+    const out = applyGiven(b, given);
+    assert.deepEqual(toolsIn(out), toolsIn(b));
+    assert.equal(out.title, "A run");
+    assert.deepEqual(out.cells[0], text("at 60"));
+  }
+  assert.deepEqual(applyGiven(b, { bpm: { now: 70, back: [] } }, { bpm: 9 }).cells[0], text("at 70"), "an index past the values is the first");
+});
+
+test("applyGiven: a param with no value is left out, never shown raw; a block with no moves is returned as it is", () => {
+  const b = { title: "t", moves: { key: "any" } as Moves, cells: [text("Play at {{=bpm}} now."), tool(neck())] };
+  assert.deepEqual(applyGiven(b, null).cells[0], text("Play at now."));
+  const plain = { title: "{{=key}}", cells: [tool(neck())] };
+  assert.equal(applyGiven(plain, { keys: { now: [G], back: [] } }), plain);
+});
+
+test("selectorsOf: chips only for a part with more than one value, now first", () => {
+  const b = { moves: { key: "any", bpm: BPM } as Moves };
+  assert.deepEqual(selectorsOf(b, { bpm: { now: 70, back: [60] }, keys: { now: [A], back: [] } }), [{ part: "bpm", values: [70, 60], back: 1 }]);
+  assert.deepEqual(selectorsOf(b, { keys: { now: [G, A], back: [4] }, bpm: { now: 60, back: [] } }), [{ part: "key", values: [G, A, 4], back: 2 }]);
+  assert.deepEqual(selectorsOf(b, { keys: { now: [G, A], back: [] } }), [{ part: "key", values: [G, A], back: 2 }]);
+  assert.deepEqual(selectorsOf(b, null), []);
+  assert.deepEqual(selectorsOf({}, { bpm: { now: 70, back: [60] } }), []);
+});
+
+test("written: the key and tempo of the first tools that follow them", () => {
+  assert.deepEqual(written({ cells: [tool({ type: "note-finder" } as PlanTool), tool(neck(G)), tool(band(80, A))] }), { key: G, bpm: 80 });
+  assert.deepEqual(written({ cells: [text("x")] }), { key: null, bpm: null });
+});
+
+test("paramWarnings: a param needs its move", () => {
+  assert.deepEqual(paramWarnings({ title: "{{=key}} run", moves: { bpm: BPM }, cells: [text("at {{=bpm}}"), tool(band(60))] }), ["text names {{=key}} but the block has no key move."]);
+  assert.deepEqual(paramWarnings({ title: "Run", cells: [{ type: "section", heading: "At {{=bpm}}", cells: [tool(band(60))] } as Cell] }), ["text names {{=bpm}} but the block has no tempo move."]);
+  assert.deepEqual(paramWarnings({ title: "Run", moves: { bpm: BPM }, cells: [text("at {{=bpm}}"), tool(band(60))] }), []);
 });

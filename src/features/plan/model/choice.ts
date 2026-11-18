@@ -69,6 +69,9 @@ const PARTS: Record<PartName, Part> = {
   },
 };
 
+/** One tool set to a part's value, as a choice sets it (`first`: the value the tools are written at). Does not look at `pinned`: ask `follows` first. */
+export const applyPart = (tool: PlanTool, part: PartName, value: number | string, first: number | string): PlanTool => PARTS[part].apply(tool, value, first);
+
 const PART_WORD: Record<PartName, string> = { key: "key", scale: "scale", bpm: "tempo", position: "position", level: "level" };
 
 export const isOpen = (c: Choice): c is { open: ChoiceOption } => "open" in c;

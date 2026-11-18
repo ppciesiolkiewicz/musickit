@@ -3,7 +3,7 @@ import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { choiceWarnings } from "./choice";
 import { readTitle } from "./hashtags";
-import { clashes, parseMoves } from "./moves";
+import { clashes, paramWarnings, parseMoves } from "./moves";
 import { MAX_CELLS, MAX_TAGS, askedTags, cellsOf, exerciseLevelArea, exerciseTags, parseCellDiag, parseChoiceDiag, pickWasInexact, resolveChordPlacement, toolsOf, type Cell } from "./tools";
 import { PLAN_DAYS, type Block, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
@@ -161,6 +161,7 @@ export function parseBlock(raw: unknown, opts: { draft?: boolean } = {}): { bloc
     block.moves = moved.moves;
     warnings.push(...dropClashes(block));
   }
+  warnings.push(...paramWarnings(block));
   warnings.push(...choiceWarnings(block));
   return { block, warnings };
 }
@@ -205,6 +206,7 @@ export function parseExercise(raw: unknown, where: string, entries: CatalogueEnt
     ex.moves = moved.moves;
     for (const w of dropClashes(ex)) warnings.push(`${where}: ${w}`);
   }
+  for (const w of paramWarnings(ex)) warnings.push(`${where}: ${w}`);
   for (const w of choiceWarnings(ex)) warnings.push(`${where}: ${w}`);
   // the title's hashtags, then the fields: a field written as a field wins
   Object.assign(ex, { ...(read.area ? { area: read.area } : {}), ...(read.level ? { level: read.level } : {}) }, exerciseLevelArea(e));

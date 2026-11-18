@@ -1,6 +1,7 @@
-import { follows, isOpen, partsOf } from "./choice";
+import { keyName } from "@/features/theory/keySlug";
+import { applyPart, follows, isOpen, partsOf } from "./choice";
 import { cleanKeys, hasKeySelector, type PlayerKeys } from "./keys";
-import { canFollowPart, type Choice, type PlanTool } from "./tools";
+import { toolsOf, type Cell, type Choice, type PlainCell, type PlanTool } from "./tools";
 import type { Block } from "./types";
 
 /*
@@ -108,5 +109,79 @@ export function cleanGiven(raw: unknown, block: Pick<Block, "moves" | "choice" |
   return out;
 }
 
-/** Whether a tool can be moved by a part at all (not looking at `pinned`): for a host that lists a block's movable tools. */
-export const canMove = (tool: PlanTool, part: MovePart): boolean => canFollowPart(tool, part);
+/** The key and tempo a block is written in: those of its first tools that follow each. */
+export function written(block: Pick<Block, "cells">): { key: number | null; bpm: number | null } {
+  const tools = toolsOf(block.cells);
+  const keyed = tools.find((t) => follows(t, "key") && "key" in t && typeof t.key === "number") as { key: number } | undefined;
+  return { key: keyed ? keyed.key : null, bpm: writtenBpm(tools) };
+}
+
+/** The chips of one part: its values, `now` first; `back` is where the earlier ones start (`values.length` when there are none). */
+export interface Selector { part: MovePart; values: number[]; back: number }
+/** Where each selector stands, as an index into its values; absent: the first. */
+export type At = Partial<Record<MovePart, number>>;
+
+/** The selectors a version draws, in `MOVE_PARTS` order: only a part the block moves and that has more than one value. */
+export function selectorsOf(block: Pick<Block, "moves">, given: Given | null | undefined): Selector[] {
+  const { moves } = block;
+  if (!moves || !given) return [];
+  const out: Selector[] = [];
+  if (moves.key && given.keys) out.push({ part: "key", values: [...given.keys.now, ...given.keys.back], back: given.keys.now.length });
+  if (moves.bpm && given.bpm) out.push({ part: "bpm", values: [given.bpm.now, ...given.bpm.back], back: 1 });
+  return out.filter((s) => s.values.length > 1);
+}
+
+/** The tempos a moved tool may land on (the widest range a tool's parser takes). */
+const MIN_TOOL_BPM = 30, MAX_TOOL_BPM = 240;
+
+const PARAM = /\{\{=(key|bpm)\}\}/g;
+/** Text with its params filled; a param with no value is left out with the space before it. */
+const fill = (text: string, values: Record<MovePart, string | null>): string =>
+  text.includes("{{=") ? text.replace(/ ?\{\{=(key|bpm)\}\}/g, (m, p: MovePart) => (values[p] === null ? "" : `${m.startsWith(" ") ? " " : ""}${values[p]}`)) : text;
+
+/**
+ * A block drawn in a version: every tool that follows a part moved to the value its selector is at (`at`; no selector:
+ * the given `now`, or the block as written), by the distance from the block's written key or its starting tempo, and
+ * the params in the title, headings, text and lists (`{{=key}}`, `{{=bpm}}`) filled with those values. A tool keeps its
+ * own value for a part in `pinned`. A block with no `moves` is returned as it is. Never stored: drawn each time.
+ */
+export function applyGiven<B extends Pick<Block, "title" | "moves" | "cells">>(block: B, given: Given | null | undefined, at: At = {}): B {
+  const { moves } = block;
+  if (!moves) return block;
+  const from = written(block);
+  const pick = (values: number[] | undefined, part: MovePart): number | null => (values?.length ? (values[at[part] ?? 0] ?? values[0]) : null);
+  const key = (moves.key && given?.keys ? pick([...given.keys.now, ...given.keys.back], "key") : null) ?? from.key;
+  const bpm = (moves.bpm && given?.bpm ? pick([given.bpm.now, ...given.bpm.back], "bpm") : null) ?? from.bpm;
+  const byKey = key !== null && from.key !== null ? key - from.key : 0;
+  const byBpm = bpm !== null && moves.bpm ? bpm - moves.bpm.from : 0;
+  const values: Record<MovePart, string | null> = { key: key === null ? null : keyName(key), bpm: bpm === null ? null : String(bpm) };
+  const move = (tool: PlanTool): PlanTool => {
+    let out = tool;
+    if (byKey && follows(out, "key")) {
+      const own = "key" in out && typeof out.key === "number" ? out.key : from.key!;
+      out = applyPart(out, "key", own + byKey, own);
+    }
+    if (byBpm && follows(out, "bpm") && "bpm" in out && typeof out.bpm === "number") out = applyPart(out, "bpm", Math.min(MAX_TOOL_BPM, Math.max(MIN_TOOL_BPM, out.bpm + byBpm)), out.bpm);
+    return out;
+  };
+  const plain = <T extends PlainCell>(c: T): T => {
+    if (c.type === "tool") {
+      const tool = move(c.tool);
+      return tool === c.tool ? c : { ...c, tool };
+    }
+    if (c.type === "text") return { ...c, text: fill(c.text, values) };
+    if (c.type === "list") return { ...c, items: c.items.map((i) => fill(i, values)) };
+    return c;
+  };
+  const cells = block.cells.map((c): Cell => (c.type === "section" ? { ...c, heading: fill(c.heading, values), cells: c.cells.map(plain) } : plain(c)));
+  return { ...block, title: fill(block.title, values), cells };
+}
+
+const PARAM_WORD: Record<MovePart, string> = { key: "key", bpm: "tempo" };
+
+/** What's wrong with a block's params: one that names a part the block has no move for. Worded to be pasted back. */
+export function paramWarnings(block: Pick<Block, "title" | "moves" | "cells">): string[] {
+  const texts = [block.title, ...block.cells.flatMap((c) => (c.type === "section" ? [c.heading, ...c.cells] : [c])).flatMap((c) => (typeof c === "string" ? [c] : c.type === "text" ? [c.text] : c.type === "list" ? c.items : []))];
+  const named = new Set(texts.flatMap((t) => [...t.matchAll(PARAM)].map((m) => m[1] as MovePart)));
+  return MOVE_PARTS.filter((p) => named.has(p) && !(p === "key" ? block.moves?.key : block.moves?.bpm)).map((p) => `text names {{=${p}}} but the block has no ${PARAM_WORD[p]} move.`);
+}
