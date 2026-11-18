@@ -42,9 +42,9 @@ it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used b
    `logged-out` (a 401) with **Log in**, a link to the login page that comes back to `/plan`; `account-changed` (another
    account logged in since the page loaded: `requestDay` sends `X-Account-Id`, `accountHeaders`) with **Reload page**;
    `later` (a plan of a later date already running, from another tab or device: this device's date is behind the plan's)
-   with its own line and no control, since a reload asks for the same date again: the plan shows once the device's date
+   with its own line, saying to check the device's date and time, and no control, since a reload asks for the same date again: the plan shows once the device's date
    reaches that day (the page follows the clock); `no-answers` (impossible after the flush) as `failed`. Get another plan
-   says each of these in its own line under the header, the plan staying as it is. **Change my answers** (in the header, and on "No plan today") opens the first questionnaire again with
+   says each of these in its own line under the header, the plan staying as it is (`logged-out` with the same **Log in**). **Change my answers** (in the header, and on "No plan today") opens the first questionnaire again with
    the stored answers; its last screen, with today's plan there, says the plan stays and Get another plan makes one from
    the new answers, and so does a notice once saved (`AnswersSaved`). Saved with no plan for today (it failed), the page
    asks again. The plan: "Today's plan" with the streak, the date as the title, the topics under it, the
@@ -73,7 +73,7 @@ it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used b
    under it, its cells (a section shows its heading, its minutes and the chips of its choice), why, and five stars, "How did it go?" (1 Can't do it yet, 3 Same again next time, 5 Easy now: the
    scale in `src/features/progress/stars.ts`) and a line under them saying what each rating does to the next plan. Rating an exercise marks it done; tapping the same star again clears both
    (`ratePlan`; ratings in `StoredPlan.rated`, done ticks still in `StoredPlan.done`, which older plans only have).
-   The plan as a whole can be reviewed: `StoredPlan.review` (`PlanReview`: stars, `why` only for 1 or 2 stars and at most `MAX_REVIEW_WHY` = 1000 characters, and `at`), set or cleared by `reviewPlan` and made safe by `cleanReview` (`state.ts`; `sanitiseState` keeps a review only when it is valid). A save copies it to the `plan_reviews` table.
+   A stored plan can carry a review of the whole plan, though no screen asks for one now (the week's review is gone): `StoredPlan.review` (`PlanReview`: stars, `why` only for 1 or 2 stars and at most `MAX_REVIEW_WHY` = 1000 characters, and `at`), set or cleared by `reviewPlan` (no caller) and made safe by `cleanReview` (`state.ts`; `sanitiseState` keeps a review only when it is valid). A save copies a stored one to the `plan_reviews` table.
    Every rating also goes to the **progress log** (`src/features/progress`, one row per rated exercise, by exercise id),
    which outlives the plan history.
    **One floating day timer** (`ui/DayTimer.tsx`, bottom right) counts down the whole day's minutes: it starts by itself

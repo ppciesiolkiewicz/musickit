@@ -22,12 +22,15 @@ const big = "h-10 !rounded-xl px-4 text-sm";
 /** Why Get another plan can't be pressed while the day editor is open: a line under the controls, read with the button. */
 const EDITING_LINE = `Press Done or Cancel in the editor first. Then press ${ANOTHER}.`;
 
+/** Log in, coming back to /plan: offered wherever a line says the player is logged out. */
+const LogIn = () => <Link href={loginHref("/plan")} className={btn}>Log in</Link>;
+
 /** Why another plan didn't come: the plan stays as it is in every case. */
 const ANOTHER_FAILED: Record<TodayFailure, string> = {
   offline: `attunr couldn't reach the server, so your plan stays as it is. Check your connection, then press ${ANOTHER} again.`,
   failed: `attunr couldn't put another plan together, so your plan stays as it is. Press ${ANOTHER} to try again.`,
   "bad-date": "The date on your device isn't today's date on attunr, so your plan stays as it is. Check your device's date and time, then reload the page.",
-  later: "A plan for a later day is already running on another device or tab, so this plan stays as it is. The date on this device is behind that day.",
+  later: "A plan for a later day is already running on another device or tab, so this plan stays as it is. The date on this device is behind that day. Check this device's date and time.",
   "logged-out": `You're logged out, so your plan stays as it is. Log in, then press ${ANOTHER} again.`,
   "account-changed": `Another account is logged in now, so your plan stays as it is. Reload the page, then press ${ANOTHER} again.`,
   "no-blocks": "There are no other exercises for today's steps, so your plan stays as it is.",
@@ -91,7 +94,13 @@ export default function DayPlan({ plan, streak, controls, notice, onAnother, ask
       {notice}
 
       <div role="status" aria-live="polite">
-        {line && <p className={`${panel} ${none ? "border-l-sky-400" : "border-l-rose-400"} text-sm text-slate-300`}>{line}</p>}
+        {line && (
+          <div className={`${panel} ${none ? "border-l-sky-400" : "border-l-rose-400"}`}>
+            <p className="min-w-0 flex-1 text-sm text-slate-300">{line}</p>
+            {/* the one failure a press here can mend: the same Log in as today's plan's line */}
+            {!none && anotherFailed === "logged-out" && <LogIn />}
+          </div>
+        )}
       </div>
 
       <DayPanel key={attempt} plan={plan} day={0} heading={null} timerLabel="Today" autoStart={attempt === first} onRate={onRate} times={times} onTime={onTime} onEdit={onEdit} editLocked={asking} onEditing={onEditing} corner={corner} />
@@ -128,13 +137,13 @@ export function TodayStatus({ view, onRetry, answers }: { view: Extract<TodayVie
     offline: "attunr couldn't reach the server. Check your connection, then press Try again.",
     "bad-date": "The date on your device isn't today's date on attunr. Check your device's date and time, then press Reload page.",
     // a reload asks for this device's date again: the page moves by itself once the device's date reaches the plan's
-    later: "A plan for a later day is already running on another device or tab. The date on this device is behind that day, so attunr can't show that plan here. The plan shows here once this device's date is right.",
+    later: "A plan for a later day is already running on another device or tab. The date on this device is behind that day, so attunr can't show that plan here. Check this device's date and time: the plan shows here once the date is right.",
     "logged-out": "You're logged out, so attunr couldn't make today's plan. Log in, then come back to this page.",
     "account-changed": "Another account is logged in now, so attunr couldn't make today's plan. Press Reload page to open the plan of the account that's logged in.",
     failed: "attunr couldn't put today's plan together. Press Try again. If the plan still doesn't come, try again in a few minutes.",
   };
   const action = failed === "later" ? null
-    : failed === "logged-out" ? <Link href={loginHref("/plan")} className={btn}>Log in</Link>
+    : failed === "logged-out" ? <LogIn />
       : failed === "bad-date" || failed === "account-changed" ? <Button onClick={() => window.location.reload()}><Icon name="rotate-ccw" size={14} />Reload page</Button>
         : <Button onClick={onRetry}><Icon name="rotate-ccw" size={14} />Try again</Button>;
   return (

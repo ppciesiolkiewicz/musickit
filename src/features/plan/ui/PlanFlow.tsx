@@ -58,7 +58,7 @@ export default function PlanFlow({ answers, current, onAnswers, onClose }: {
         body: (
           <div className="flex flex-col gap-3 text-sm leading-relaxed text-slate-300">
             <p>When you press {FINISH}, attunr saves your new answers. Today&apos;s plan stays as it is.</p>
-            <p>For a plan from your new answers, press Get another plan on the Practice plan page. From tomorrow, each new plan starts from them.</p>
+            <p>For a plan from your new answers, press Get another plan. From tomorrow, each new plan starts from them.</p>
           </div>
         ),
       }
