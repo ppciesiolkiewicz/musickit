@@ -36,6 +36,12 @@ export interface Track {
   merges: string[];
   /** easiest first; levels never go down */
   steps: PathStep[];
+  /**
+   * The order its keys are learned in, as pitch classes (C = 0) in groups, the first key first: a step is first played
+   * in the first group, and each later group is a key stage inside the step (model/keyStages.ts). None: the area's
+   * key ladder (model/keys.ts).
+   */
+  keys?: number[][];
 }
 
 type Opts = { ladder?: string; after?: string[] };
@@ -43,8 +49,8 @@ const s = (level: Level, name: string, holds = "", o: Opts = {}): PathStep => ({
 /** A mixing step: what the track has taught so far, together, so a new step doesn't stay on its own. */
 const m = (level: Level, name: string, holds = "", o: Opts = {}): PathStep => ({ ...s(level, `Mix: ${name}`, holds, o), mix: true });
 const N = "new", B = "beginner", I = "intermediate", A = "advanced";
-const track = (area: Area, topic: string, id: string, label: string, merges: string[], steps: PathStep[]): Track => ({ id, label, area, topic, merges, steps });
-const g = (topic: string, id: string, label: string, merges: string[], steps: PathStep[]) => track("guitar", `guitar-${topic}`, id, label, merges, steps);
+const track = (area: Area, topic: string, id: string, label: string, merges: string[], steps: PathStep[], keys?: number[][]): Track => ({ id, label, area, topic, merges, steps, ...(keys ? { keys } : {}) });
+const g = (topic: string, id: string, label: string, merges: string[], steps: PathStep[], keys?: number[][]) => track("guitar", `guitar-${topic}`, id, label, merges, steps, keys);
 const v = (topic: string, id: string, label: string, merges: string[], steps: PathStep[]) => track("voice", `voice-${topic}`, id, label, merges, steps);
 const t = (topic: string, id: string, label: string, merges: string[], steps: PathStep[]) => track("theory", `theory-${topic}`, id, label, merges, steps);
 
@@ -153,7 +159,9 @@ export const PATH: Track[] = [
     m(I, "all five positions", "in neck order, one key"),
     s(A, "Across three positions", "runs that move along the neck"),
     s(A, "The whole neck in one key", ""),
-  ]),
+    // position 1 by where it sits on the neck (`npm run theory -- positions <key> minor pentatonic`): A at frets 5 to 8
+    // first, then G (3 to 6) and E (the open strings), B and C (7 to 10, 8 to 11), D and F♯ (10 to 13, 2 to 5), the rest
+  ], [[9], [7, 4], [11, 0], [2, 6], [5, 10, 8, 1, 3]]),
   g("scales", "major-on-neck", "Major scale & modes on the neck", ["modes-on-neck"], [
     s(I, "Major scale, root on 6", "one position", { after: ["pentatonic-positions:1"] }),
     s(I, "Major scale, root on 5", ""),
