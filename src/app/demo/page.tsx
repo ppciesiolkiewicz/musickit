@@ -308,7 +308,7 @@ export default function DemoIndex() {
           </div>
           <p className="mt-4 flex gap-2 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3 text-sm text-slate-400 backdrop-blur-xl">
             <Icon name="info" size={16} className="mt-0.5 shrink-0 text-sky-300" />
-            <span><b className="font-semibold text-slate-200">In the beta, attunr can&apos;t make new plans yet.</b> The demo plans on this page show what a week looks like. Answer the questions on the Practice plan page, and attunr saves your answers for your first plan.</span>
+            <span><b className="font-semibold text-slate-200">Each day you open the Practice plan page, attunr makes that day&apos;s plan.</b> The demo plans on this page show what a week of practice looks like. Answer the questions on the Practice plan page, and attunr puts your first plan together from your answers.</span>
           </p>
         </div>
 

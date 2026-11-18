@@ -11,7 +11,7 @@ const REFUND_LINE = `Yes. Email us within ${P.guaranteeDays} days of paying for 
 
 export const metadata: Metadata = {
   title: "Frequently Asked Questions · attunr",
-  description: "Answers to common questions about attunr: the beta, browser storage, microphone setup, latency, the AI practice plan, the price and the 30-day money-back guarantee.",
+  description: "Answers to common questions about attunr: the beta, browser storage, microphone setup, latency, the Practice plan, the price and the 30-day money-back guarantee.",
   alternates: { canonical: "/faq" },
 };
 
@@ -40,7 +40,7 @@ const faqJsonLd = {
       name: "Where do I start?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Make an AI practice plan for a new set of exercises each day, start the course, or pick a tool from the menu at the top. Tune up first with the tuner.",
+        text: "Open the Practice plan for a new set of exercises each day, start the course, or pick a tool from the menu at the top. Tune up first with the tuner.",
       },
     },
     {
@@ -64,7 +64,7 @@ const faqJsonLd = {
       name: "Do I need my own AI?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No. attunr puts your plan together from its library of exercises, for the steps you are on. In the beta, attunr can't make new plans yet: it saves your answers for your first plan, and the demo plans show what a week looks like.",
+        text: "No. attunr puts your plan together from its library of exercises, for the steps you are on. Each day you open the Practice plan page, attunr makes that day's plan, and the stars you give each exercise shape the next one.",
       },
     },
     {
@@ -94,7 +94,7 @@ const GROUPS: { title: string; items: QA[] }[] = [
     items: [
       { q: "Is attunr free?", a: <>Yes, while it is in beta. You need an account: <A href="/login">log in</A> with your email or Google, and a new account is made the first time.</> },
       { q: "Where is my practice saved?", a: <>In this browser, on this device. Your plan, settings and progress stay here between visits. If you clear your browser&apos;s site data, or open attunr on another device or browser, you start fresh.</> },
-      { q: "Where do I start?", a: <>Make an <A href="/plan">AI practice plan</A>: it opens a new set of exercises each day. Every other tool and lesson is in <A href="/practice">Practice</A>. Tune up first with the <A href="/tuner">tuner</A>.</> },
+      { q: "Where do I start?", a: <>Open the <A href="/plan">Practice plan</A>: it makes a new set of exercises each day. Every other tool and lesson is in <A href="/practice">Practice</A>. Tune up first with the <A href="/tuner">tuner</A>.</> },
       { q: "I teach guitar or voice. Can I use attunr?", a: <>Yes. A teacher gets the same app as a student: the plan, Notes and Practice. Notes is made for lessons: lay out what you taught on one page and send it to the student as a link.</> },
     ],
   },
@@ -109,10 +109,10 @@ const GROUPS: { title: string; items: QA[] }[] = [
     ],
   },
   {
-    title: "The AI practice plan",
+    title: "The Practice plan",
     items: [
-      { q: "Do I need my own AI?", a: <>No. attunr puts your plan together from its library of exercises, for the steps you are on. In the beta, attunr can&apos;t make new plans yet: it saves your answers for your first plan, and the demo plans show what a week looks like.</> },
-      { q: "What happens after the first week?", a: <>Choose <b className="text-slate-200">Review this week</b> and say how the week went. attunr saves your notes with the plan, so the next plan picks up where this one stopped.</> },
+      { q: "Do I need my own AI?", a: <>No. attunr puts your plan together from its library of exercises, for the steps you are on. Each day you open the Practice plan page, attunr makes that day&apos;s plan, and the stars you give each exercise shape the next one.</> },
+      { q: "What happens the next day?", a: <>When you open the Practice plan page on a new day, attunr makes a new plan. An exercise you rated 1 to 3 stars comes back; 4 or 5 stars move you on to the next step. For other exercises today, press <b className="text-slate-200">Get another plan</b>: the ones you rated stay. To change what you play or how long you practise, press <b className="text-slate-200">Change my answers</b>.</> },
     ],
   },
   {
