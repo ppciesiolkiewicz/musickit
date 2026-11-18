@@ -4,9 +4,9 @@ import { BetaBadge, DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
 
 /*
  * The first section of the founding-partner page (/kickstarter), right under the hero: the two things a teacher does in
- * each lesson, short. The AI practice plan works today; AI drafting of lesson notes is not built yet, so that card says
- * "AI drafting soon". New plans can't be made in the beta yet (NEW7 puts them together on the server), which the line
- * under the cards says. The facts are FACTS in src/features/devtools/model/kickstarter.ts.
+ * each lesson, short. The Practice plan works today: attunr puts it together from its library, with no AI. AI drafting
+ * of lesson notes is not built yet, so that card says "AI drafting soon". The facts are FACTS in
+ * src/features/devtools/model/kickstarter.ts.
  */
 
 const CARD = "ls-card flex flex-col items-start gap-3 rounded-3xl border border-slate-800 bg-slate-900/50 p-5 text-left sm:p-6";
@@ -25,9 +25,9 @@ const TOOLS: { icon: IconName; tone: string; title: string; badges: { text: stri
   {
     icon: "sparkles",
     tone: "bg-violet-500/15 text-violet-300",
-    title: "AI practice plan",
-    badges: [{ text: "Demo plans today" }, { text: "New plans soon", soon: true }],
-    text: "A week of short daily exercises for guitar or voice. Each new week builds on how the last one went.",
+    title: "Practice plan",
+    badges: [{ text: "Works today" }],
+    text: "A week of short daily exercises for guitar or voice, made for one student. Each new week builds on how the last one went.",
     links: [
       { href: "/demo/guitar-beginner", icon: "play", label: "See a week" },
       { href: "/plan", icon: "sparkles", label: "Build a plan" },
@@ -71,13 +71,6 @@ export default function AiPrep() {
           </li>
         ))}
       </ul>
-
-      <p className="mx-auto mt-6 inline-flex max-w-2xl items-start gap-2.5 rounded-2xl border border-violet-400/30 bg-violet-400/[0.07] px-4 py-3 text-left text-sm text-slate-300">
-        <Icon name="info" size={18} className="mt-0.5 shrink-0 text-violet-300" />
-        <span>
-          <b className="font-semibold text-slate-100">In the beta, attunr can&apos;t make new plans yet.</b> The demo weeks show what a plan looks like. The questions are open now, so your first plan can start from your answers.
-        </span>
-      </p>
     </section>
   );
 }

@@ -145,7 +145,7 @@ export function PlanSection() {
     <section id="plan" aria-labelledby="plan-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
       <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
         <div>
-          <Eyebrow>AI practice plan<BetaBadge /></Eyebrow>
+          <Eyebrow>Practice plan<BetaBadge /></Eyebrow>
           <H2 id="plan-h">Never wonder <span className="ls-accent italic text-sky-300">what to practise.</span></H2>
           <p className="mt-4 max-w-lg text-slate-300">
             Tell attunr what you play, how much time you have and where you want to go. attunr builds a plan from its drills, and <Mark>every day a new set of exercises</Mark> is waiting for you.

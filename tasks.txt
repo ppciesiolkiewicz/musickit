@@ -102,6 +102,19 @@ already; /terms still says "A player subscription costs $36 a year" with no earl
 is counted (sign-up order, or the first to pay), what "locked in" means when someone cancels and comes back, and what a
 founding partner's 50% is off for Teacher Unlimited, whose price is set with them. Read from `EARLY_OFFER`, not a
 written number. A change to the terms: raise TERMS_UPDATED (src/features/account/terms.ts). With PricingFaq1 and 2.
+[2026-11-18 done, PricingFaq1-3] Decided (user): the early price is for paying monthly only (half the monthly price;
+a year stays at its full price, which is twelve early months); a subscription renews until cancelled, with an email
+before a yearly renewal; when it ends the player keeps what they made and every tool, only new practice plans need a
+subscription; AI notes are promised nowhere until they exist; a founding partner on Unlimited pays half the monthly
+price agreed. "First" is by sign-up and "locked in" is while they stay subscribed (as the home page already said).
+Built: no allowance on the plan cards, FAQ, terms or the email brief (`autoplansPerMonth` stays on the row, unused, for
+/dev/costs: Rebrand3 decides the column); "Up to 15 active students a month" (`studentsLabel`) with one line saying
+what active means, an FAQ answer and a terms paragraph; /terms sections "The player subscription", "Teachers and
+schools", "The early price" rewritten, no AI paragraphs, TERMS_UPDATED 18 November 2026; `earlyApplies` in pricing.ts,
+so plan cards, PaymentBox, the home Pricing section, /kickstarter and the tour's last scene show the early price on
+the monthly price only, and Yearly shows no "Save 50%" while the early price is open; FAQ "Where is my practice
+saved?" says the account. Left: a lawyer's read of /terms before paid plans open (Selling1); cancelling a subscription
+on Your profile is promised by /terms and not built (no payment yet).
 
 TaskSeries ToolsImprovement: tools that leave the player stuck when a block leaves something out (2026-11-18)
 ToolsImprovement1: [NEW 2026-11-18] strum-along should always give a way to see the chord shapes it asks for, even
@@ -123,6 +136,8 @@ Rebrand1: [NEW 2026-11-18] Settle the new name, and the name of one plan. The pl
 (user, NEW7). Open: is that the name of the product feature too (home pages, pricing, terms), and what the old
 "an autoplan" is called as a countable thing ("a daily plan"? "a plan"?). One thing has one name on every page
 (AGENTS, "Words about the app"). Rebrand2-4 wait for this.
+[2026-11-18 settled] The feature is "Practice plan" on every page. One of them is "a daily plan" (a player's) or "a
+weekly plan" / "a week of practice" (a teacher's student's). No "AI" and no "autoplan" on a page a player reads.
 Rebrand2: [NEW 2026-11-18] Words on the screen (design:ux-copy + "Words about the app"; report old → new). Where:
 - Home and marketing: src/app/page.tsx, src/app/players/page.tsx, src/components/landing/home/AutoplanHome.tsx,
   FoundingHome.tsx, PracticeSections.tsx, src/components/landing/AiPrep.tsx, GlassShapes.tsx, SiteFooter.tsx (tagline).
@@ -132,6 +147,10 @@ Rebrand2: [NEW 2026-11-18] Words on the screen (design:ux-copy + "Words about th
   src/features/theory/sections.ts, src/features/stage/model/subject.ts and families.ts, src/features/plan/model/tools.ts.
 - /faq and /terms: the allowance lines ("8 AI autoplans a month") go with PricingFaq1, not here; this task only renames
   what stays. A changed term raises UPDATED on /terms. Do PricingFaq1 first or together, so each line is written once.
+[2026-11-18 done] Renamed on the screen: the footer tagline, /plan's meta title, /demo and /demo/<slug> (titles,
+descriptions, "as the AI wrote it"), the "AI practice plan" eyebrow and the /kickstarter card (now "Practice plan",
+"Works today"; its "attunr can't make new plans yet" notice is gone, since it can). The teaching-text files listed
+above only say "AI plan" in code comments, so they wait for Rebrand3. "AI drafting soon" for lesson notes stays.
 Rebrand3: [NEW 2026-11-18] Names in the code and the docs, after Rebrand2. AutoplanHome.tsx, DevName.tsx,
 publicPaths.ts / proxy.ts (a path?), `autoplansPerMonth` (src/features/account/plans.ts, pricing.ts and the `plans`
 table in src/lib/db/schema.ts: a column rename is a migration; PricingFaq1 decides whether the column stays at all),
@@ -148,6 +167,7 @@ routes went with NEW15), so it is wrong today, not only off-brand.
 scene plays silent with captions until recorded: `node scripts/intro/voice.mjs --voice <name>` for charlie, george,
 laura and sarah (14 scenes each, ElevenLabs credits). The old takes in public/intro/<voice>/ (hello.mp3 … end.mp3) are
 unused and can be deleted once the new ones are in.
+[2026-11-18, user] The audio is done. On disk: public/intro/george/, 14 scenes (solo-* and teach-*).
 
 TaskSeries TeacherStudentFlow: teachers add students, give them plans and make the next one (moved out of NEW, 2026-11-18)
 [2026-11-18, user] The main direction now. Design: docs/superpowers/specs/2026-11-17-teacher-students-design.md. NEW7 (the

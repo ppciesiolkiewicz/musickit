@@ -45,7 +45,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   Student at 5 (its price stays $27 a year, `0011_student_stays_27`), Teacher Basic $9 a month at 10, Pro $29 at 15, Unlimited $59 at 25 (`0015_month_prices_99` makes the monthly prices $3.99 Student, $8.99, $28.99 and $58.99; yearly prices stay): about 85 to 90% margin, which
   needs a library of many pre-written Fable plans. `0017_lower_prices_reuse_first` about halves every price but Unlimited's and sets every
   plan to 1 (nearly all reuse, the lowest the check allows): the AI then costs a few cents to about $5 a player a year,
-  and the payment fee is most of the cost (`0018_higher_prices_half_off_yearly` raises the prices and leaves reuse at 1). /terms says an autoplan is written new or picked by the AI. Nothing takes a plan from the library yet: the app doesn't call the AI from the server.
+  and the payment fee is most of the cost (`0018_higher_prices_half_off_yearly` raises the prices and leaves reuse at 1). All of this is history: plans are now put together from the library by our own code, the app doesn't call an AI from the server, and /terms says so.
 - `ui/SetupForm.tsx` (`/account/setup`): where an account with no plan (`Account.needsSetup`) stays. Its name (empty
   while it is only the email's stand-in, `emailName`; Google's filled in) and a plan from the same list, none chosen for
   them, paid Monthly or Yearly (the switch beside the Plan heading), saved together by `POST /api/account/setup` with
@@ -56,8 +56,11 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   them, and Continue needs it. Sent as `acceptTerms: true`; `setUpAccount` refuses anything else (`error: "terms"`) before
   it saves anything, and keeps `users.terms_accepted_at` and `users.terms_version` (migration `0029_terms_accepted`),
   the date on `/terms` then (`TERMS_UPDATED` in `terms.ts`, which the terms page shows too).
-- The early price (`EARLY_OFFER` in `pricing.ts`): every plan at 50% off, locked in, for the first 20 schools and the
-  first 500 students. The 20 are the founding partners (`src/lib/foundingOffer.ts` reads it): one picks any teacher
+- The early price (`EARLY_OFFER` in `pricing.ts`): 50% off the monthly price of every plan, locked in while the person
+  stays subscribed, for the first 20 schools and the first 500 students to sign up. It is for paying monthly only (user,
+  2026-11-18, `earlyApplies`): a yearly price is shown and paid as it is, which is what twelve early months come to, so
+  while a side's early price is open its cards show no "Save …" on Yearly. A plan priced with the school is half the
+  monthly price agreed. /terms has it as its own section ("The early price"). The 20 are the founding partners (`src/lib/foundingOffer.ts` reads it): one picks any teacher
   plan, of any size, at 50% off (`FOUNDING_OFFER`; the old $360 AUD a year is gone). `src/lib/studentOffer.ts` reads the 500. Every page that quotes a
   price shows the early price beside the full one struck through, with the red `DiscountBadge` (`@/components/ui`): the
   plan cards on setup and `/account`, the line over them (`EarlyOffer`, by the side shown), `PaymentBox`, the home
@@ -192,6 +195,6 @@ No `DATABASE_URL` means no accounts: the nav shows no Log in, `/login` says acco
 ## Not here yet
 
 - The plan page's Share plan asks `can("sharePlan")` (Share, or Upgrade to Teacher account), and the share rules (`userData/server/shares.ts`) ask `can(account, "sharePlan")` again on the server.
-- Plans aren't paid for yet (the open beta): the payment box is a placeholder, and the free trial isn't started, counted or ended. Their allowances (autoplans a month, students) aren't counted or enforced: the app doesn't call the AI from the server.
+- Plans aren't paid for yet (the open beta): the payment box is a placeholder, and the free trial isn't started, counted or ended. Practice plans are unlimited on every plan: they are put together by our own code with no AI, so no screen, FAQ line or term shows an allowance (2026-11-18). `autoplansPerMonth` stays on the row, unused, for /dev/costs (`allowanceLabel`); the column goes with the code rename (Rebrand3). A teacher plan's students are counted as active students a month (`studentsLabel`, `ACTIVE_STUDENTS_LINE`; enforced in features/students).
 - Schools are not modelled. A teacher's students are: a `teacher_students` row links a teacher to a student account (`addStudent`, `studentsOf`, `studentLink`, `teacherOf`, `markClaimed` on `AuthRepo`; one teacher a student); the student's account is on the `taught` plan (`TAUGHT_PLAN_ID`, free, not `enabled`, so no one chooses it; `Account.taught`) and signs in the first time with a `claim` token (`TokenKind`, stored as a hash, used once). Any sign-in of an account on the `taught` plan (`startSession`: the email link or code, Google, the claim) records the link as claimed the first time (`markClaimed`), so a student who logs in the normal way no longer shows as "Not opened yet". The rules and routes are in `features/students`.
 - Links are limited per email only, not per network address.

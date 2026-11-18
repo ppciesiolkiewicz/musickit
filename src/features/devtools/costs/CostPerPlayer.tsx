@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { PRICING } from "@/features/account/pricing";
+import { OLD_AI_PLANS_PER_MONTH, PRICING } from "@/features/account/pricing";
 import { SUBSCRIPTION_MODEL, type Billing, type Plan } from "@/features/account/plans";
 import { startMix } from "../model/growth";
 import type { DevModel } from "../model/models";
@@ -109,7 +109,7 @@ const yearOf = (o: Pick<Offer, "month" | "year">, b: Billing) => (b === "month" 
 /** The plans as offers, in `sort` order; without a database, the one Student offer of `pricing.ts`. Reuse starts at the plan's internal chance, as on Plans. */
 function offersFrom(plans: Plan[] | null, reuse: ReuseInfo | null): Offer[] {
   if (!plans || plans.length === 0) {
-    return [{ id: "student", name: "Student (pricing.ts)", enabled: true, month: 5.99, year: PRICING.player.priceNumber, allowance: PRICING.player.plansPerMonth, batch: false, reuse: 0 }];
+    return [{ id: "student", name: "Student (pricing.ts)", enabled: true, month: 5.99, year: PRICING.player.priceNumber, allowance: OLD_AI_PLANS_PER_MONTH, batch: false, reuse: 0 }];
   }
   return [...plans].sort((a, b) => a.sort - b.sort).map((p) => {
     return {

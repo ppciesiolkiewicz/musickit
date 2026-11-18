@@ -13,7 +13,7 @@ import Wordmark from "@/components/Wordmark";
 import { DiscountBadge } from "@/components/ui";
 import { EARLY_OFFER } from "@/features/account/pricing";
 import { FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
-import { FIRST_STUDENTS, FIRST_STUDENTS_PRICE, STUDENT_PRICE } from "@/lib/studentOffer";
+import { FIRST_STUDENTS, FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
 
 export type SceneProps = { local: number; at: Record<string, number> };
 
@@ -259,7 +259,7 @@ export function SoloEnd(p: SceneProps) {
       <Wordmark className="text-[5.5rem]" />
       <p className={fade(past(p, "free"), "text-3xl text-slate-100")}>Free while in beta</p>
       <div className={fade(past(p, "early"), "rounded-2xl border border-emerald-400/50 bg-emerald-500/10 px-8 py-5 text-center")}>
-        <p className="text-2xl text-slate-100">The first {FIRST_STUDENTS} to sign up: {FIRST_STUDENTS_PRICE} a year instead of {STUDENT_PRICE}</p>
+        <p className="text-2xl text-slate-100">The first {FIRST_STUDENTS} to sign up: {FIRST_STUDENTS_LINE}</p>
         <p className="mt-1 text-lg text-slate-400">When paid plans open{past(p, "locked") ? ". The price is locked in." : ""}</p>
       </div>
     </div>

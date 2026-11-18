@@ -24,7 +24,7 @@ export const AUDIENCE_LEAD: Record<Audience, string> = {
 export type Pitch = {
   /** One line under the name: who it is for. */
   forWho: string;
-  /** What it gives, in the player's words, before the allowance lines. */
+  /** What it gives, in the player's words, before the lines from its database row (students, trial). */
   points: string[];
 };
 
@@ -50,7 +50,7 @@ export const PLAN_PITCH: Record<string, Pitch> = {
     points: [
       "Share a practice plan with each student as a link",
       "Send lesson notes when a lesson ends",
-      "More AI autoplans, for more students",
+      "Room for more students each month",
     ],
   },
   "teacher-unlimited": {

@@ -23,7 +23,7 @@ test("plan labels", () => {
   assert.equal(trialLabel({ trialDays: 14 }), "14-day free trial, cancel any time");
   assert.equal(trialLabel({ trialDays: 0 }), null);
   assert.equal(allowanceLabel({ autoplansPerMonth: 8 }), "8 AI autoplans a month, or 24 AI notes");
-  assert.equal(studentsLabel({ students: 10 }), "Up to 10 students");
+  assert.equal(studentsLabel({ students: 10 }), "Up to 10 active students a month");
   assert.equal(studentsLabel({ students: null }), "Any number of students");
   assert.equal(studentsLabel({ students: 0 }), null);
   assert.equal(modelLabel("claude-sonnet-5-5"), "Sonnet 5.5");

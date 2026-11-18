@@ -13,20 +13,20 @@ export const generateStaticParams = (): Params[] => Object.keys(DEMO_PLANS).map(
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const demo = demoPlan((await params).slug);
   return {
-    title: `${demo?.label ?? "Demo"}: a ready-made AI practice plan · attunr`,
-    description: "A week of daily guitar and voice exercises, written by an AI and played in attunr: open any day and try its tools.",
+    title: `${demo?.label ?? "Demo"}: a ready-made practice plan · attunr`,
+    description: "A week of daily guitar and voice exercises from attunr's library: open any day and try its tools.",
     // the same page as /plan, so search sends people there
     alternates: { canonical: "/plan" },
     robots: { index: false },
   };
 }
 
-/** A ready-made AI plan to look at, at /demo/<slug> (the slugs of DEMO_PLANS). */
+/** A ready-made plan to look at, at /demo/<slug> (the slugs of DEMO_PLANS). */
 export default async function DemoPage({ params }: { params: Promise<Params> }) {
   const demo = demoPlan((await params).slug);
   if (!demo) notFound();
   return (
-    <PageShell active="/plan" column devices pageId="plan" tour={PLAN_TOUR} title={`Demo: ${demo.label}`} intro="A week of daily exercises, as the AI wrote them for attunr. Open any day and play with its tools. Nothing here is saved.">
+    <PageShell active="/plan" column devices pageId="plan" tour={PLAN_TOUR} title={`Demo: ${demo.label}`} intro="A week of daily exercises from attunr's library. Open any day and play with its tools. Nothing here is saved.">
       {/* HintProvider under the shell, so the title row shows no "?" */}
       <HintProvider>
         <DemoPlan config={demo.config} />

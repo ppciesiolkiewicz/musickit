@@ -16,12 +16,13 @@ test("the offer stands on three pillars: the daily plan, the change, the exercis
   for (const p of PILLARS) assert.ok(p.promise && p.facts.length, p.title);
 });
 
-test("the early price is half the yearly price, for the first 500, with no count and no date", () => {
+test("the early price is half the monthly price, for the first 500, with no count and no date", () => {
   assert.equal(FIRST_STUDENTS, 500);
-  assert.equal(STUDENT_PRICE, PRICING.player.price);
-  assert.equal(FIRST_STUDENTS_PRICE, `$${PRICING.player.priceNumber / 2}`);
+  assert.equal(STUDENT_PRICE, PRICING.player.monthPrice);
+  assert.equal(PRICING.player.monthPrice, `$${PRICING.player.monthCents / 100}`);
+  assert.equal(FIRST_STUDENTS_PRICE, "$3");
   const terms = STUDENT_TERMS.join("\n");
-  for (const word of ["free now", `first 500 people`, `${FIRST_STUDENTS_PRICE} a year instead of ${STUDENT_PRICE}`, "locked in", "when paid plans open", "nobody is counted"]) assert.ok(terms.includes(word), word);
+  for (const word of ["free now", `first 500 people`, `${FIRST_STUDENTS_PRICE} a month instead of ${STUDENT_PRICE}`, "locked in", "when paid plans open", "nobody is counted"]) assert.ok(terms.includes(word), word);
 });
 
 test("the offer text carries the line, every pillar fact, the terms, what never to say and the pages", () => {

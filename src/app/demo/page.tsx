@@ -12,8 +12,8 @@ import { PageHeading, PageIntro, pageBar } from "@/components/PageHeading";
 import TourCard from "@/features/intro/TourCard";
 
 export const metadata: Metadata = {
-  title: "Demos: ready-made AI practice plans and teacher notes · attunr",
-  description: "Try a week of daily practice written by AI, and a lesson note a student can play. No account needed.",
+  title: "Demos: ready-made practice plans and teacher notes · attunr",
+  description: "Try a week of daily practice from attunr's library, and a lesson note a student can play. No account needed.",
   alternates: { canonical: "/plan" },
   robots: { index: false },
 };
@@ -112,7 +112,7 @@ function Autoplan() {
       <p className="flex items-center text-xs font-medium uppercase tracking-[0.2em] text-sky-300">
         <Icon name="sparkles" size={14} className="mr-2" /> Practice plan<BetaBadge />
       </p>
-      <h2 id="autoplan-h" className="mt-3 text-3xl leading-tight text-slate-50 text-balance" style={DISPLAY}>A week of practice, written for one student</h2>
+      <h2 id="autoplan-h" className="mt-3 text-3xl leading-tight text-slate-50 text-balance" style={DISPLAY}>A week of practice, made for one student</h2>
       <ol className="mb-7 mt-6 flex flex-col gap-3">
         {AUTOPLAN_STEPS.map((s) => (
           <li key={s.text} className="flex items-start gap-3 text-sm leading-relaxed text-slate-300">
@@ -255,7 +255,7 @@ export default function DemoIndex() {
         {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]">
           <section aria-labelledby="plans-h" className={`${PANEL} border-sky-400/30 bg-linear-to-br from-sky-500/30 via-indigo-500/15 to-violet-600/30 shadow-2xl shadow-sky-950/40`}>
-            <PanelHead id="plans-h" badge="Practice plan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="A week of practice, one day at a time" text="Each card is one student's week, as the AI wrote it: a few minutes of exercises a day, with the tools to play them on the page. Open a week and try any day." />
+            <PanelHead id="plans-h" badge="Practice plan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="A week of practice, one day at a time" text="Each card is one student's week: a few minutes of exercises a day, with the tools to play them on the page. Open a week and try any day." />
             <div className="grid gap-8 sm:grid-cols-2 sm:gap-4">
               {AREAS.map(({ area, name, icon, tile, card }) => {
                 const group = cards.filter((c) => c.area === area);

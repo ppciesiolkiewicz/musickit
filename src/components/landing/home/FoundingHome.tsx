@@ -58,7 +58,7 @@ const OFFER: {
   },
   {
     big: FOUNDING_OFFER,
-    text: "Any teacher plan, of any size, at half the price.",
+    text: "Any teacher plan, of any size, at half the monthly price.",
     tone: "",
     discount: true,
   },
@@ -189,7 +189,7 @@ export default function FoundingHome({ joined }: { joined: number }) {
           </p>
           <p className="mt-4 inline-flex flex-wrap items-center justify-center gap-2 text-sm text-slate-400">
             {early && <DiscountBadge percent={EARLY_OFFER.percentOff} />}
-            <span>{early ? "any teacher plan, locked in · " : ""}An Australian company</span>
+            <span>{early ? "any teacher plan, paid monthly, locked in · " : ""}An Australian company</span>
           </p>
         </div>
       </section>

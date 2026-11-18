@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { DiscountBadge, HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
-import { allowanceLabel, bestSavingLabel, priceCents, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
-import { EARLY_OFFER, earlyCents, type EarlyOpen } from "../pricing";
+import { ACTIVE_STUDENTS_LINE, bestSavingLabel, priceCents, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
+import { EARLY_OFFER, earlyApplies, earlyCents, type EarlyOpen } from "../pricing";
 import { ErrorLine, PRIMARY, errorOf, send } from "./parts";
 import { AUDIENCES, AUDIENCE_LEAD, audienceOf, pitchOf, type Audience } from "./planPitch";
 
@@ -30,7 +30,8 @@ export function PlanLines({ plan, trial: showTrial = true }: { plan: Plan; /** o
       )}
       <ul className="flex flex-col gap-0.5 text-xs leading-relaxed text-slate-400">
         {students && <li>{students}</li>}
-        <li>{allowanceLabel(plan)}</li>
+        {plan.role === "teacher" && plan.students !== null && plan.students > 0 && <li>{ACTIVE_STUDENTS_LINE}</li>}
+        <li>{plan.role === "teacher" ? "Weekly practice plans, as many as you make" : "Daily practice plans, as many as you like"}</li>
         {plan.role === "teacher" && !pitch && <li>Share plans with your students</li>}
         {pricedWithYou(plan) && <li>We&apos;ll email you to agree on a price</li>}
         {trial && <li>{trial}</li>}
@@ -69,8 +70,8 @@ export function AudienceSwitch({ audience, onChange }: { audience: Audience; onC
 /** The early offer for the shown side, over its plans: who gets half off (`EARLY_OFFER` in pricing.ts). */
 export const earlyOfferLine = (audience: Audience): string =>
   audience === "individual"
-    ? `Early price for the first ${EARLY_OFFER.students} students. It's locked in, so it won't go up later.`
-    : `Early price on any teacher plan, of any size, for the first ${EARLY_OFFER.schools} schools. It's locked in, so it won't go up later.`;
+    ? `Early price for the first ${EARLY_OFFER.students} students, when you pay monthly. It's locked in, so it won't go up while you stay subscribed.`
+    : `Early price on any teacher plan, of any size, for the first ${EARLY_OFFER.schools} schools, when you pay monthly. It's locked in, so it won't go up while you stay subscribed.`;
 
 export const EarlyOffer = ({ audience, open }: { audience: Audience; /** this side's places aren't all taken (`Loaded.early`) */ open: boolean }) => open && (
   <p className="flex max-w-2xl items-center gap-2.5 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-200">
@@ -101,9 +102,9 @@ export const startAudience = (plans: Plan[], current: string | null, account: Pi
  * Monthly or Yearly: how every price below is shown and paid. Yearly carries what it saves (`bestSavingLabel`) as a badge
  * that stays on while Monthly is chosen, so the cheaper way is seen before it is picked.
  */
-export function BillingSwitch({ billing, plans, onChange }: { billing: Billing; plans: Plan[]; onChange: (b: Billing) => void }) {
+export function BillingSwitch({ billing, plans, early = false, onChange }: { billing: Billing; plans: Plan[]; /** the early price is open on this side: monthly is half price, so a year saves nothing more */ early?: boolean; onChange: (b: Billing) => void }) {
   // a plan priced with the person has no price to save on
-  const saving = bestSavingLabel(plans.filter((p) => !pricedWithYou(p)));
+  const saving = early ? null : bestSavingLabel(plans.filter((p) => !pricedWithYou(p)));
   return (
     <div role="group" aria-label="Billing" className="inline-flex self-start rounded-xl border border-slate-700 bg-slate-950/60 p-1">
       {(["month", "year"] as const).map((b) => {
@@ -140,7 +141,10 @@ export const planHue = (i: number): Hue => PLAN_HUES[i % PLAN_HUES.length];
  */
 export function PlanOption({ plan, billing, checked, mine, trial = true, early = true, hue = "sky", onPick }: { plan: Plan; billing: Billing; checked: boolean; /** "Your plan" note */ mine?: string | null; trial?: boolean; /** the early price is open on this plan's side */ early?: boolean; hue?: Hue; onPick: () => void }) {
   const custom = pricedWithYou(plan);
-  const saving = billing === "year" && !custom ? savingLabel(plan) : null;
+  // the early price is for paying monthly: a yearly price shows as it is, and while the early price is open a year
+  // costs what twelve early months do, so "Save 50%" on Yearly would not be true
+  const cut = earlyApplies(billing, early);
+  const saving = billing === "year" && !custom && !early ? savingLabel(plan) : null;
   const tone = HUE_TONES[hue];
   return (
     <label className={`relative flex h-full cursor-pointer gap-3 overflow-hidden rounded-xl border p-4 pt-5 transition ${checked ? tone.on : tone.off}`}>
@@ -153,9 +157,9 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, early =
           {custom ? (
             <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 py-1">
               <span className="text-sm font-semibold text-slate-50">Price set with you</span>
-              {early && <DiscountBadge percent={EARLY_OFFER.percentOff} />}
+              {cut && <DiscountBadge percent={EARLY_OFFER.percentOff} />}
             </span>
-          ) : !early ? (
+          ) : !cut ? (
             <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
               <span className="text-lg font-semibold text-slate-50">{dollars(priceCents(plan, billing))}</span>
               <span className="text-xs text-slate-400">a {billing}</span>
@@ -183,8 +187,10 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, early =
  */
 export function PaymentBox({ plan, billing, trial, early: open = true, hue = "sky" }: { plan: Plan; billing: Billing; /** the chosen plan's colour, for its dot */ hue?: Hue; /** a new account's first plan starts with the free trial; a change doesn't */ trial: boolean; /** the early price is open on this plan's side */ early?: boolean }) {
   const full = priceCents(plan, billing);
-  const early = dollars(open ? earlyCents(full) : full);
-  const price = open ? `${early} a ${billing} (early price, ${EARLY_OFFER.percentOff}% off ${dollars(full)})` : `${early} a ${billing}`;
+  // the early price is for paying monthly only
+  const cut = earlyApplies(billing, open);
+  const early = dollars(cut ? earlyCents(full) : full);
+  const price = cut ? `${early} a ${billing} (early price, ${EARLY_OFFER.percentOff}% off ${dollars(full)})` : `${early} a ${billing}`;
   const days = plan.trialDays === 1 ? "1 day" : `${plan.trialDays} days`;
   return (
     <section aria-labelledby="payment-heading" className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
@@ -192,7 +198,7 @@ export function PaymentBox({ plan, billing, trial, early: open = true, hue = "sk
       <p className="text-sm text-slate-300">
         <span aria-hidden className={`mr-2 inline-block size-2 rounded-full align-middle ${HUE_TONES[hue].fill}`} />
         {pricedWithYou(plan)
-          ? `${plan.name}, price set with you${open ? `, then ${EARLY_OFFER.percentOff}% off it` : ""}. We'll email you to agree on a price.`
+          ? `${plan.name}, price set with you${cut ? `, then ${EARLY_OFFER.percentOff}% off it` : ""}. We'll email you to agree on a price.`
           : <>{plan.name}, {price}.{" "}{trial && plan.trialDays > 0 ? `${days} free, then ${early} every ${billing}.` : `${early} every ${billing}.`}</>}
       </p>
       <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500">
@@ -270,7 +276,7 @@ export default function PlanPicker({ account, start }: { account: Account; /** t
           <EarlyOffer audience={shownAudience} open={early} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <AudienceLead audience={shownAudience} />
-            <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} onChange={(b) => { setBilling(b); setError(null); }} /></div>
+            <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} early={early} onChange={(b) => { setBilling(b); setError(null); }} /></div>
           </div>
           <div role="radiogroup" aria-labelledby="plan-heading" className={planGrid(shownPlans.length)}>
             {shownPlans.map((p) => (

@@ -5,7 +5,7 @@ import { PlanApp, PlanIntro } from "@/features/plan";
 import { NotesEditorHost } from "@/features/teachers/notes";
 
 export const metadata: Metadata = {
-  title: "AI Guitar Practice Plan: Custom Daily Routines · attunr",
+  title: "Guitar Practice Plan: Custom Daily Routines · attunr",
   description: "A custom daily guitar practice plan. Answer a few questions, and attunr puts together daily drills for hands, ears and timing from its library of exercises.",
   alternates: { canonical: "/plan" },
 };

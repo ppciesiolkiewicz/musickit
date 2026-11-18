@@ -148,7 +148,7 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
               <EarlyOffer audience={shownAudience} open={early} />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <AudienceLead audience={shownAudience} />
-                <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} onChange={(b) => { setBilling(b); setError(null); }} /></div>
+                <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} early={early} onChange={(b) => { setBilling(b); setError(null); }} /></div>
               </div>
             </>
           )}

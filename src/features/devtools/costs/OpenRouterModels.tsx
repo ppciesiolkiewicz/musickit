@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PRICING } from "@/features/account/pricing";
+import { OLD_AI_PLANS_PER_MONTH, PRICING } from "@/features/account/pricing";
 import { InfoTip } from "@/components/ui";
 import { BASELINE_ID, OPENROUTER_CHECKED, ROLES, estimateOpenRouter, openRouterCost, type Role } from "../model/openRouter";
 import { PICK_TOKENS, type PlanTokens } from "../model/unitEconomics";
@@ -43,7 +43,7 @@ const k = (n: number) => `${Math.round(n / 1000)}k`;
 
 export default function OpenRouterModels({ tokens, fee: provider }: { tokens: PlanTokens[]; /** the payment provider chosen at the top of the page */ fee: { percent: number; fixed: number } }) {
   const ref = tokens.find((t) => t.model === "claude-haiku-5-5") ?? tokens.find((t) => t.model === "haiku");
-  const [plansPerMonth, setPlansPerMonth] = useState<number>(PRICING.player.plansPerMonth);
+  const [plansPerMonth, setPlansPerMonth] = useState<number>(OLD_AI_PLANS_PER_MONTH);
   const price = PRICING.player.priceNumber;
   const fee = (price * provider.percent) / 100 + provider.fixed;
   const email = (365 * 0.4) / 1000;
@@ -68,7 +68,7 @@ export default function OpenRouterModels({ tokens, fee: provider }: { tokens: Pl
               <span className="font-mono text-sm font-semibold tabular-nums text-slate-50">{plansPerMonth}</span>
             </span>
             <input type="range" min={0} max={120} step={1} value={plansPerMonth} onChange={(e) => setPlansPerMonth(Number(e.target.value))} className="w-full accent-sky-400" />
-            <span className="text-xs text-slate-500">The Student allowance is {PRICING.player.plansPerMonth}; Teacher plans go to 120.</span>
+            <span className="text-xs text-slate-500">The Student allowance is {OLD_AI_PLANS_PER_MONTH}; Teacher plans go to 120.</span>
           </label>
           <div role="group" aria-label="Show" className="mb-2 inline-flex rounded-md border border-slate-700 p-0.5">
             {([["all", "All models"], ...Object.entries(ROLES).map(([id, v]) => [id, v.label])] as [Role | "all", string][]).map(([v, text]) => (

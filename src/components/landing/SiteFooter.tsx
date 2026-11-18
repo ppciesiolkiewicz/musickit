@@ -34,7 +34,7 @@ export default function SiteFooter() {
             <Wordmark className="text-2xl" dots="side" />
           </Link>
           <p className="mt-4 max-w-xs leading-relaxed text-slate-400">
-            See what you hear. A daily AI practice plan for guitar and voice, lesson notes you can share, and the tools to practise with.
+            See what you hear. A daily practice plan for guitar and voice, lesson notes you can share, and the tools to practise with.
           </p>
         </div>
 

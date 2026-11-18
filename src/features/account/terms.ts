@@ -3,4 +3,4 @@
  * /account/setup (`users.terms_version`), so we know which words each person agreed to. Raise it when a term changes,
  * not for a typo.
  */
-export const TERMS_UPDATED = "17 November 2026";
+export const TERMS_UPDATED = "18 November 2026";

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import PageShell from "@/components/PageShell";
-import { PRICING } from "@/features/account/pricing";
+import { EARLY_OFFER, PRICING } from "@/features/account/pricing";
+import { FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
 import { TERMS_UPDATED } from "@/features/account/terms";
 
 /*
@@ -14,7 +15,7 @@ import { TERMS_UPDATED } from "@/features/account/terms";
 
 export const metadata: Metadata = {
   title: "Terms of use · attunr",
-  description: "The terms for using attunr: your account, the yearly subscription and its AI autoplan allowance, how plans are made, the 30-day money-back guarantee, your notes and plans, and what happens if attunr closes.",
+  description: "The terms for using attunr: your account, the subscriptions and the early price, how plans are made, the 30-day money-back guarantee, your notes and plans, and what happens if attunr closes.",
   alternates: { canonical: "/terms" },
 };
 
@@ -57,8 +58,8 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>You log in with your email or a Google account. There is no password: we email you a link and a code. Anyone with access to your email can log in as you, so keep that email safe. Tell us at once if you think someone else is using your account.</p>
-        <p>One account is for one person. A school account can invite its students and teachers; each of them gets their own account.</p>
-        <p>You must be 16 or older to make your own account. A younger student uses attunr through a school, or with a parent or guardian who accepts these terms for them.</p>
+        <p>One account is for one person. A teacher can add students; each of them gets their own account.</p>
+        <p>You must be 16 or older to make your own account. A younger student uses attunr through a teacher or a school, or with a parent or guardian who accepts these terms for them.</p>
         <p>You can delete your account at any time on <A href="/account">Your profile</A>. That removes your account, your plans and your notes. It does not refund a subscription, except as the money-back guarantee below says.</p>
       </>
     ),
@@ -66,32 +67,48 @@ const SECTIONS: Section[] = [
   {
     title: "The beta",
     body: (
-      <p>While attunr is in open beta, everything is free and there is no subscription. Some parts are not ready yet: during the beta, attunr can&apos;t make new plans, and it saves your answers to the questions for your first plan. The beta can change or stop, and work made during it may be lost, so keep a copy of anything you need. The subscription terms below start when we open paid plans, and we will tell you by email before then.</p>
+      <p>While attunr is in open beta, everything is free and nothing is charged. You can choose a plan during the beta, and choosing one does not ask you to pay. Some parts are not ready yet. The beta can change or stop, and work made during it may be lost, so keep a copy of anything you need. The subscription terms below start when we open paid plans, and we will tell you by email before then.</p>
     ),
   },
   {
     title: "The player subscription",
     body: (
       <>
-        <p>A player subscription costs {player.price} a year, paid once up front. It gives you:</p>
+        <p>A player subscription is for your own practice. It costs {player.monthPrice} a month, or {player.price} a year paid once up front. It gives you:</p>
         <ul className="list-disc space-y-1 pl-5">
-          <li>{player.plansPerMonth} AI autoplans a month. Each autoplan is a plan of exercises that attunr puts together for you, as the section on how plans are made says.</li>
-          <li>The same allowance can be spent on AI-written notes instead: one autoplan counts as {player.notesPerPlan} notes, so up to {player.notesPerMonth} notes a month. AI notes are coming; until they open, the whole allowance is autoplans.</li>
-          <li>Unlimited use of every other tool and lesson: Notes you write yourself, Practice, the course, the tuner, the metronome and drone, backing tracks, the looper, the singing and ear drills.</li>
+          <li>Practice plans with no limit: a new one each day you open the Practice plan page, and another the same day when you ask. Each is a plan of exercises that attunr puts together for you, as the section on how plans are made says.</li>
+          <li>Unlimited use of every tool and lesson: Notes, Practice, the course, the tuner, the metronome and drone, backing tracks, the looper, the singing and ear drills.</li>
         </ul>
-        <p>The allowance resets at the start of each month of your subscription. Unused autoplans and notes do not carry over. An autoplan or note is spent when attunr gives it to you, whether or not you keep it.</p>
-        <p>When your year ends, your account stays open. You keep every plan and note you made, and you keep unlimited use of every tool. Only new AI autoplans and AI notes need a top-up: a new year, or a smaller top-up of autoplans if we offer one. We do not renew you without asking.</p>
-        <p>The price for a new year may change. A year you have paid for is never repriced. We tell you the current price before you pay.</p>
+        <p>A new subscription can start with a free trial. Its length is shown when you choose your plan. Cancel during the trial and you pay nothing.</p>
+        <p>A subscription renews by itself, each month or each year, at the price you are paying, until you cancel. You can cancel at any time on <A href="/account">Your profile</A>, and the subscription then runs to the end of the month or year you paid for. We email you before a yearly subscription renews.</p>
+        <p>When your subscription ends, your account stays open. You keep every plan and note you made, and you keep unlimited use of every tool and lesson. Only new practice plans need a subscription.</p>
+        <p>Our prices may change. A month or a year you have paid for is never repriced, and we email you at least 30 days before a new price applies to your next renewal.</p>
       </>
     ),
   },
   {
-    title: "Schools",
+    title: "Teachers and schools",
     body: (
       <>
-        <p>A school subscription is priced for the school, by agreement with us, and comes with a larger autoplan allowance. A school can invite its students and teachers, assign a plan to a student, and see what each student practises at home. A school&apos;s teachers and students each accept these terms when they log in.</p>
-        <p>The school is responsible for having the consent it needs from a student or their parent or guardian before inviting them, and for what its teachers share with students. A school&apos;s own name and logo on attunr stay the school&apos;s.</p>
-        <p>The {school.guaranteeDays}-day money-back guarantee and the rest of these terms apply to a school as they do to a player, unless the school&apos;s agreement with us says otherwise.</p>
+        <p>A teacher subscription is for a teacher or a school. The teacher plans and their prices are shown on the pricing page and when you choose a plan. The largest plan, for any number of students, is priced by agreement with us. A teacher subscription gives the teacher everything a player subscription does, and it renews and ends in the same way.</p>
+        <p>A teacher can add students, make each one a week of practice, and see what each student practises at home. Each student gets their own account, which costs the student nothing, and accepts these terms when they log in.</p>
+        <p>A teacher plan covers a number of active students a month. An active student is one you gave a plan in that calendar month: you added them, made their next week or rotated their week. A student you didn&apos;t give a plan that month stays on your list and costs nothing. Each plan also allows a few extra active students a month for free; your Students page tells you when you reach them. Past that, a student who is not yet active that month can&apos;t be given a plan until the next month, unless you change your plan. A student who is already active can always get their next week. The count starts again on the 1st of each month.</p>
+        <p>Practice plans are not limited: you pay by active students, not by how many plans you make.</p>
+        <p>The teacher or school is responsible for having the consent it needs from a student or their parent or guardian before adding them, and for what it shares with students. A school&apos;s own name and logo on attunr stay the school&apos;s.</p>
+        <p>The {school.guaranteeDays}-day money-back guarantee and the rest of these terms apply to a teacher or a school as they do to a player, unless your agreement with us says otherwise.</p>
+      </>
+    ),
+  },
+  {
+    title: "The early price",
+    body: (
+      <>
+        <p>The first {EARLY_OFFER.students} people who sign up for a player subscription, and the first {EARLY_OFFER.schools} teachers or schools who join as founding partners, get the early price: {EARLY_OFFER.percentOff}% off the monthly price of their plan. For a player that is {FIRST_STUDENTS_LINE}. A founding partner can choose any teacher plan, of any size.</p>
+        <p>The early price is for paying monthly. A year paid once up front stays at its full price, which is the same as twelve months at the early price.</p>
+        <p>&ldquo;First&rdquo; goes by the order people sign up: by when you made your account, or for a founding partner by when we agreed that you join. While places are left, the pricing page shows the early price. Nothing is charged during the beta, so the early price starts with your first payment after paid plans open.</p>
+        <p>The early price is locked in: it does not go up for as long as you stay subscribed. If you cancel and subscribe again later, you pay the price shown at that time.</p>
+        <p>For the plan priced by agreement, a founding partner pays {EARLY_OFFER.percentOff}% off the monthly price we agree with them.</p>
+        <p>A founding partner&apos;s agreement with us can give more than these terms do, such as a longer trial or a longer time to ask for all their money back. Where it does, the agreement applies.</p>
       </>
     ),
   },
@@ -100,7 +117,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>If attunr isn&apos;t for you, email <Mail /> within {player.guaranteeDays} days of paying and we refund the whole payment. No reason needed. We refund to the card or account you paid with, within 14 days of your email.</p>
-        <p>The guarantee covers each first payment for a subscription and each top-up, once. It does not cover a second refund of the same kind, or a payment made more than {player.guaranteeDays} days ago.</p>
+        <p>The guarantee covers your first payment for a subscription, once. It does not cover a renewal, a second refund of the same kind, or a payment made more than {player.guaranteeDays} days ago.</p>
         <p>This guarantee is on top of your rights under the Australian Consumer Law, which it does not take away. If attunr is faulty or not as described, you have the remedies that law gives you, however long ago you paid.</p>
       </>
     ),
@@ -110,7 +127,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>Prices are shown in US dollars unless the page says otherwise. Your bank may add a conversion fee. Payment is taken by a payment provider; we never see your full card number. Taxes are included in the price where we must collect them, and the receipt says so.</p>
-        <p>If a payment fails or is reversed, the subscription it paid for stops, and any AI autoplans and notes already written in that period count as used.</p>
+        <p>If a payment fails or is reversed, the subscription it paid for stops. You keep the plans and notes you already made.</p>
       </>
     ),
   },
@@ -118,10 +135,10 @@ const SECTIONS: Section[] = [
     title: "How plans are made",
     body: (
       <>
-        <p>attunr puts your plan together on its own servers, from its library of exercises. It reads what you told it in the questions and how you rated past exercises, and picks exercises for the steps you are on in each topic: the next steps you haven&apos;t made solid yet, with a few you have mixed back in. You don&apos;t need an AI of your own, and you don&apos;t copy anything into one.</p>
-        <p>Some plans, and AI notes, are written by an AI that attunr runs for you. A plan can be wrong, whoever made it: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. attunr checks every plan before it reaches you, but it can&apos;t catch everything.</p>
+        <p>attunr puts your plan together on its own servers, from its library of exercises. It reads what you told it in the questions and how you rated past exercises, and picks exercises for the steps you are on in each topic: the next steps you haven&apos;t made solid yet, with a few you have mixed back in. A teacher&apos;s student gets a week made the same way, from where the teacher says the student is. No AI writes your plan, and you don&apos;t need an AI of your own.</p>
+        <p>A plan can be wrong: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. We check the exercises before they go into the library, but we can&apos;t catch everything.</p>
         <p>Practise within what feels easy. Stop at any pain in your hands, arms or voice. attunr is not medical advice, and a plan is not a reason to push through pain. If you have an injury or a voice condition, ask a doctor, a physiotherapist or a voice teacher first.</p>
-        <p>attunr sends your data to an AI only when that AI writes a plan or a note for you, and then only what the plan or note needs: your answers, your ratings and the steps you are on.</p>
+        <p>attunr does not send your data to an AI. If that ever changes, for example to draft a lesson note when you ask for it, these terms will say so first.</p>
         <p>If you use an AI of your own on attunr&apos;s pages, such as an AI extension in your browser, it can read your plans and notes and change them. That AI&apos;s own terms apply to what it reads and what it does.</p>
       </>
     ),
@@ -178,7 +195,7 @@ const SECTIONS: Section[] = [
   {
     title: "Changes to these terms",
     body: (
-      <p>We can change these terms. For a change that matters to you (a price, the allowance, the guarantee, what we do with your data) we email you at least 30 days before it applies, and you can cancel before then with a refund of the months left. A change for the clearer, or to meet the law, can apply straight away. The date at the top says when the terms last changed.</p>
+      <p>We can change these terms. For a change that matters to you (a price, what a plan includes, the guarantee, what we do with your data) we email you at least 30 days before it applies, and you can cancel before then with a refund of the months left. A change for the clearer, or to meet the law, can apply straight away. The date at the top says when the terms last changed.</p>
     ),
   },
   {

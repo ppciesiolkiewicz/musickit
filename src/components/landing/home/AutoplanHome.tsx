@@ -13,11 +13,11 @@ import { LessonNoteMock } from "@/components/landing/LessonMocks";
 import { Check, PlanDayCard } from "./PracticeSections";
 import { DiscountBadge } from "@/components/ui";
 import { EARLY_OFFER, PRICING, earlyCents } from "@/features/account/pricing";
-import { DEFAULT_PLAN_ID, bothPricesLabel, dollars, priceLabel, pricedWithYou, studentsLabel, trialLabel, type Plan } from "@/features/account/plans";
+import { DEFAULT_PLAN_ID, dollars, priceLabel, pricedWithYou, studentsLabel, trialLabel, type Plan } from "@/features/account/plans";
 import TourCard from "@/features/intro/TourCard";
 import type { VideoId } from "@/features/intro/data";
 import { FOUNDING_OFFER, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
-import { FIRST_STUDENTS, FIRST_STUDENTS_PRICE, STUDENT_PRICE } from "@/lib/studentOffer";
+import { FIRST_STUDENTS, FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
 
 /*
  * The two home pages, / (music schools) and /players (solo musicians), in one shape: the Practice plan first, then
@@ -112,7 +112,7 @@ const COPY: Record<Audience, {
     title: <>Know what to practise, <span className="ls-accent block italic text-sky-300">every day.</span></>,
     lead: <>Answer a few questions, and attunr puts your practice together: <Mark>short exercises for your level and your time</Mark>, each with the diagram, drone or backing it needs. Every plan builds on how the last one went.</>,
     planNote: <>A timer runs through the day&apos;s exercises, and a daily reminder can nudge you at the time you pick.</>,
-    heroNote: <>Free while in beta. When paid plans open, the first {FIRST_STUDENTS} people who sign up pay <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">{FIRST_STUDENTS_PRICE} a year instead of {STUDENT_PRICE}</a>.</>,
+    heroNote: <>Free while in beta. When paid plans open, the first {FIRST_STUDENTS} people who sign up pay <a href="#pricing" className="underline decoration-slate-600 underline-offset-2 hover:text-slate-200">{FIRST_STUDENTS_LINE}</a>.</>,
     notesTitle: <>Keep what you learn <span className="ls-accent italic text-teal-300">on one page.</span></>,
     notesText: <>Put the chords, scales and positions you are working on into one page of notes. <Mark tone="var(--color-teal-400)">Every diagram on it plays</Mark>, and you can share it as a link.</>,
     notesPoints: ["Necks, chord boxes, CAGED shapes, the circle of fifths", "Change the key and the whole page follows", "Opens on any device"],
@@ -312,8 +312,8 @@ export default function AutoplanHome({ audience, plans, ending }: { audience: Au
  * then the card says so and shows no number). The early price is from lib/studentOffer.ts, the founding partner's from
  * lib/foundingOffer.ts, the guarantee from features/account/pricing.ts.
  */
-/** "$3 a month or $18 a year": both prices at the early price (`EARLY_OFFER`). */
-const earlyBoth = (p: Plan) => `${dollars(earlyCents(p.monthCents))} a month or ${dollars(earlyCents(p.yearCents))} a year`;
+/** "$3 a month or $36 a year": the monthly price at the early price (`EARLY_OFFER`, for paying monthly only), the yearly one as it is. */
+const earlyBoth = (p: Plan) => `${dollars(earlyCents(p.monthCents))} a month or ${priceLabel(p, "year")}`;
 
 function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null }) {
   const p = PRICING.player;
@@ -325,11 +325,12 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
   const playerPoints = [
     "Daily plans are unlimited: a new one every day, and another the same day when you ask",
     "Every tool, lesson and drill, as much as you like",
-    `The first ${FIRST_STUDENTS} people who sign up get the early price when paid plans open: ${FIRST_STUDENTS_PRICE} a year instead of ${STUDENT_PRICE}`,
+    `The first ${FIRST_STUDENTS} people who sign up get the early price when paid plans open: ${FIRST_STUDENTS_LINE}`,
     "The early price is locked in: it doesn't go up while you stay subscribed",
   ];
   const schoolPoints = [
-    "You pay by how many students you teach, not by how many plans you make",
+    "You pay by how many students you give a plan each month, not by how many plans you make",
+    "Students you didn't give a plan this month stay on your list for free",
     "Weekly practice plans and lesson notes for your students",
     "Every tool and lesson, for you and your students",
     `Founding partners get a ${FOUNDING_TRIAL_DAYS}-day trial, then ${FOUNDING_OFFER}, locked in`,
@@ -339,11 +340,11 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
     <section id="pricing" aria-labelledby="pricing-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
       <div className="mx-auto max-w-2xl text-center">
         <Eyebrow tone="text-emerald-300">Pricing</Eyebrow>
-        <H2 id="pricing-h">{schools ? <>Pay by student, <span className="ls-accent italic text-emerald-300">not by plan.</span></> : <>Pay by the year, <span className="ls-accent italic text-emerald-300">or by the month.</span></>}</H2>
+        <H2 id="pricing-h">{schools ? <>Pay by student, <span className="ls-accent italic text-emerald-300">not by plan.</span></> : <>Pay by the month, <span className="ls-accent italic text-emerald-300">or by the year.</span></>}</H2>
         <p className="mt-4 text-slate-300">Free while attunr is in beta. These are the prices from launch.</p>
         <p className="mt-3 inline-flex flex-wrap items-center justify-center gap-2 text-sm text-slate-300">
           <DiscountBadge percent={EARLY_OFFER.percentOff} />
-          <span>Early price for the first {EARLY_OFFER.students} students and the first {EARLY_OFFER.schools} schools, locked in.</span>
+          <span>Early price for the first {EARLY_OFFER.students} students and the first {EARLY_OFFER.schools} schools: half the monthly price, locked in.</span>
         </p>
       </div>
       <div className="mx-auto mt-10 grid max-w-4xl gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
@@ -358,8 +359,9 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
                       <span className="text-2xl text-slate-50" style={DISPLAY}>{t.name}</span>
                       <span className="text-sm text-slate-400">{studentsLabel(t)}</span>
                       <span className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-slate-200">
-                        {pricedWithYou(t) ? "Price set with you" : <>{earlyBoth(t)} <s className="text-sm text-slate-500"><span className="sr-only">instead of </span>{bothPricesLabel(t)}</s></>}
+                        {pricedWithYou(t) ? "Price set with you" : <>{dollars(earlyCents(t.monthCents))} a month <s className="text-sm text-slate-500"><span className="sr-only">instead of </span>{dollars(t.monthCents)}</s></>}
                         <DiscountBadge percent={EARLY_OFFER.percentOff} />
+                        {!pricedWithYou(t) && <span className="text-sm text-slate-400">or {priceLabel(t, "year")}</span>}
                       </span>
                     </li>
                   ))}
@@ -368,9 +370,9 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
             ) : (
               solo && (
                 <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-slate-50" style={DISPLAY}>
-                  <span className="text-5xl sm:text-6xl">{dollars(earlyCents(solo.yearCents))}</span>
-                  <s className="text-2xl text-slate-500"><span className="sr-only">instead of </span>{dollars(solo.yearCents)}</s>
-                  <span className="text-xl text-slate-300">a year</span>
+                  <span className="text-5xl sm:text-6xl">{dollars(earlyCents(solo.monthCents))}</span>
+                  <s className="text-2xl text-slate-500"><span className="sr-only">instead of </span>{dollars(solo.monthCents)}</s>
+                  <span className="text-xl text-slate-300">a month</span>
                   <DiscountBadge percent={EARLY_OFFER.percentOff} size="lg" />
                 </p>
               )
@@ -378,7 +380,7 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
             <p className="mt-2 text-sm text-slate-400">
               {schools
                 ? (teaching.length > 0 ? <>{trial && `${trial}. `}{solo && `Solo musicians pay ${earlyBoth(solo)}.`}</> : MISSING)
-                : (solo ? <>Or {dollars(earlyCents(solo.monthCents))} a month, instead of {priceLabel(solo, "month")}.{trial && ` ${trial}.`}</> : MISSING)}
+                : (solo ? <>Or {priceLabel(solo, "year")}, paid once.{trial && ` ${trial}.`}</> : MISSING)}
             </p>
           </div>
           <ul className="flex flex-col gap-2.5 text-sm text-slate-300">

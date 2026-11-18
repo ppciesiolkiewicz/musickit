@@ -4,19 +4,15 @@
  * terms (/terms says when they last changed).
  */
 
-/** One autoplan is one week of exercises; the same allowance can be spent on AI notes, three to an autoplan. */
-const PLANS_PER_MONTH = 8;
-const NOTES_PER_PLAN = 3;
-
 export const PRICING = {
   player: {
     /** shown as written */
     price: "$36",
     priceNumber: 36,
     period: "a year",
-    plansPerMonth: PLANS_PER_MONTH,
-    notesPerPlan: NOTES_PER_PLAN,
-    notesPerMonth: PLANS_PER_MONTH * NOTES_PER_PLAN,
+    /** paid monthly, shown as written; the early price is half of this one */
+    monthPrice: "$5.99",
+    monthCents: 599,
     guaranteeDays: 30,
   },
   school: {
@@ -26,10 +22,19 @@ export const PRICING = {
 } as const;
 
 /**
- * The early price: every plan at half its price, locked in (it doesn't go up later), for the first 20 schools (the
- * founding partners on /kickstarter, who pick any teacher plan, of any size) and the first 500 students. Every page that
- * quotes a price shows it beside the full one, with `DiscountBadge`, while that side's places are not all taken
- * (`earlyOpen`). Nothing is charged yet: there is no payment, so this is the price for when paid plans open.
+ * Only for /dev/costs: the allowance of AI-written plans a month that its cost model still prices. Plans are put
+ * together with no AI and are unlimited, so no page a player reads shows this number.
+ */
+export const OLD_AI_PLANS_PER_MONTH = 8;
+
+/**
+ * The early price: half the monthly price of every plan, locked in (it doesn't go up while the person stays subscribed),
+ * for the first 20 schools (the founding partners on /kickstarter, who pick any teacher plan, of any size) and the first
+ * 500 students to sign up. It is for paying monthly only (user, 2026-11-18): the yearly price stays as it is, which is
+ * what twelve months at the early price come to. Every page that quotes a monthly price shows it beside the full one,
+ * with `DiscountBadge`, while that side's places are not all taken (`earlyOpen`). A plan priced with the school
+ * (Unlimited) is half the monthly price agreed. Nothing is charged yet: there is no payment, so this is the price for
+ * when paid plans open.
  */
 export const EARLY_OFFER = {
   percentOff: 50,
@@ -37,8 +42,8 @@ export const EARLY_OFFER = {
   students: 500,
 } as const;
 
-/** The founding partners' offer, as it is written: "50% off any teacher plan". */
-export const FOUNDING_OFFER = `${EARLY_OFFER.percentOff}% off any teacher plan`;
+/** The founding partners' offer, as it is written: "50% off any teacher plan, paid monthly". */
+export const FOUNDING_OFFER = `${EARLY_OFFER.percentOff}% off any teacher plan, paid monthly`;
 
 /** How many early places are taken: schools (the founding partners) and students. `earlyTaken()` in server/earlyTaken.ts counts them. */
 export type EarlyTaken = { schools: number; students: number };
@@ -51,5 +56,8 @@ export const earlyOpen = (taken: EarlyTaken): EarlyOpen => ({
   teachers: taken.schools < EARLY_OFFER.schools,
 });
 
-/** US cents at the early price, rounded to the cent. */
+/** US cents at the early price, rounded to the cent. Give it a monthly price: a yearly one has no early price. */
 export const earlyCents = (cents: number): number => Math.round((cents * (100 - EARLY_OFFER.percentOff)) / 100);
+
+/** Whether the early price changes what is paid this way: only monthly, and only while the side's places are open. */
+export const earlyApplies = (billing: "month" | "year", open: boolean): boolean => open && billing === "month";

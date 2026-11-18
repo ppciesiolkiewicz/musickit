@@ -25,7 +25,10 @@ export interface Plan {
   students: number | null;
   /** Extra students a month on top of `students`, free; the active-students count (features/students/model/places.ts). */
   extraStudents: number;
-  /** AI autoplans a month. AI notes spend the same allowance, `NOTES_PER_AUTOPLAN` to an autoplan. */
+  /**
+   * Not used: an allowance of AI-written plans a month, from before plans were put together by our own code with no
+   * AI. Practice plans are unlimited on every plan and no screen shows this number. The column goes with Rebrand3.
+   */
   autoplansPerMonth: number;
   /** Autoplans go through the Batch API: half the price, the plan arrives minutes later. */
   batch: boolean;
@@ -120,13 +123,19 @@ export const bestSavingLabel = (plans: Pick<Plan, "monthCents" | "yearCents">[])
 /** "14-day free trial, cancel any time"; null with no trial. */
 export const trialLabel = (p: Pick<Plan, "trialDays">): string | null => (p.trialDays > 0 ? `${p.trialDays}-day free trial, cancel any time` : null);
 
-/** "8 AI autoplans a month, or 24 AI notes". */
+/**
+ * "Up to 15 active students a month", "Any number of students"; null for a student's own plan. A teacher's plan counts
+ * the students given a training plan in the month, not the list (features/students/model/places.ts).
+ */
+export const studentsLabel = (p: Pick<Plan, "students">): string | null =>
+  p.students === null ? "Any number of students" : p.students > 0 ? `Up to ${p.students} active students a month` : null;
+
+/** Under a teacher plan's student count: what "active" means, in one line (the long form is `COUNT_HELP` on /students). */
+export const ACTIVE_STUDENTS_LINE = "An active student is one you gave a plan this month. Everyone else stays on your list for free.";
+
+/** Only for /dev/costs, which still prices the unused allowance (`autoplansPerMonth`): no player screen shows it. */
 export const allowanceLabel = (p: Pick<Plan, "autoplansPerMonth">): string =>
   `${p.autoplansPerMonth} AI autoplans a month, or ${p.autoplansPerMonth * NOTES_PER_AUTOPLAN} AI notes`;
-
-/** "Up to 10 students", "Any number of students"; null for a student's own plan. */
-export const studentsLabel = (p: Pick<Plan, "students">): string | null =>
-  p.students === null ? "Any number of students" : p.students > 0 ? `Up to ${p.students} students` : null;
 
 /**
  * A plan with no price of its own, set with each person: Teacher Unlimited, any number of students. Its row says $0;

@@ -4,7 +4,7 @@
  * said to a student here, nowhere else. The offer to teachers and schools is in ./kickstarter.
  */
 
-import { FIRST_STUDENTS, FIRST_STUDENTS_PRICE, STUDENT_PRICE } from "@/lib/studentOffer";
+import { FIRST_STUDENTS, FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
 import { LINK_GROUPS, type DemoLink } from "./kickstarter";
 
 /** The whole offer in one line. */
@@ -61,7 +61,7 @@ export const PILLARS: Pillar[] = [
 export const STUDENT_TERMS: string[] = [
   "attunr is in beta, and it is free now.",
   "Signing up today means leaving a few details. Promise nothing more than that step.",
-  `The first ${FIRST_STUDENTS} people who sign up get the early price when paid plans open: ${FIRST_STUDENTS_PRICE} a year instead of ${STUDENT_PRICE} (US dollars).`,
+  `The first ${FIRST_STUDENTS} people who sign up get the early price when paid plans open: ${FIRST_STUDENTS_LINE} (US dollars). The early price is for paying monthly; a year paid at once costs the same as twelve early months.`,
   "The early price is locked in: it doesn't go up while they stay subscribed.",
   "There is no payment yet, so nothing is charged and nobody is counted. Say \"when paid plans open\", and give no date and no number of places left.",
 ];

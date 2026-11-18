@@ -51,8 +51,9 @@ test("the brief lists the enabled plans after the facts, and none without a data
   const b = outreachBrief(demos, plans);
   assert.ok(b.includes("## The plans"));
   assert.ok(b.indexOf("## Facts") < b.indexOf("## The plans") && b.indexOf("## The plans") < b.indexOf("## Voice"));
-  assert.ok(b.includes("- Student: $9 a month or $27 a year (US dollars). 14-day free trial, cancel any time. 8 AI autoplans a month, or 24 AI notes."), b);
-  assert.ok(b.includes("- Teacher Pro: $49 a month or $392 a year (US dollars). 14-day free trial, cancel any time. Up to 30 students."));
+  assert.ok(b.includes("- Student: $9 a month or $27 a year (US dollars). 14-day free trial, cancel any time. Practice plans are unlimited."), b);
+  assert.ok(b.includes("- Teacher Pro: $49 a month or $392 a year (US dollars). 14-day free trial, cancel any time. Up to 30 active students a month. Practice plans are unlimited."));
+  assert.ok(!b.includes("autoplan"), "no allowance in the brief");
   assert.ok(!b.includes("Old:"), "a plan that is off is left out");
   assert.ok(!brief().includes("## The plans"));
 });
