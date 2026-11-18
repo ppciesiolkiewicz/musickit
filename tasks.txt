@@ -79,6 +79,13 @@ choice ("use the Stage selector below") only makes sense when a choice is there.
 maybe blocks should be more basic and content should be using props in content." So: the same slot could carry a
 tempo, a position or a level, and a block's text and tools would read those props instead of holding values. Weigh
 here, with the keys as the first case that works.
+[2026-11-18, brainstormed] Part of the NEW release now (user), no longer waiting for it. Design:
+docs/superpowers/specs/2026-11-18-choice-split-design.md (waiting for approval). A block states its `moves` (key any or
+fixed, a tempo range, positions); the composer rolls a version per exercise by probability from the last rating (keeps
+a bit of the version before; keys cross between blocks a bit; tempo and position are per block); the values sit on the
+slot (`given`); text takes params; every roll shown on /dev/compose. Teachers get the same roll. No ML, no level or
+scale moves. First a batch of six example blocks, then agents rewrite the rest. ChoiceSplit2's table is not needed for
+this (nobody hand-picks a version for a plan).
 ChoiceSplit2: [NEW 2026-11-17] A choice table (a connector) between blocks and plans: one row joins a block to a plan
 (library or player) and carries the choice for that use (stages, variants, a key, a tempo ladder), so one block is
 reused many ways without a new block for each. After ChoiceSplit1 settles the shape. Touches `practice_plan_blocks`
@@ -412,10 +419,9 @@ browser notification from `PracticeReminder` (mounted in PageShell) only while a
 Mail goes through Resend (`sendMail`, src/features/account/server/mail.ts). Copy: design:ux-copy + "Words about the app".
 Reminders1: [NEW 2026-11-18] Server reminders every 15 minutes: one scheduled run sends what is due
 - A route (e.g. GET /api/cron/reminders) that finds every reminder due in the last 15 minutes and sends it; checks
-  `Authorization: Bearer $CRON_SECRET`, as Vercel Cron sends it. Scheduled from vercel.json `crons`, `*/15 * * * *`.
-- Vercel: Hobby runs a cron at most once a day (and only to the hour), so every 15 minutes needs Pro. Check the
-  project's plan first. Without Pro: an outside scheduler (GitHub Actions `schedule`, cron-job.org) calls the same route
-  with the secret. Either way the route is the same.
+  `Authorization: Bearer $CRON_SECRET`.
+- [2026-11-18, user] An outside scheduler, set up by the user, calls the route every 15 minutes with the secret; no
+  Vercel Cron (Hobby runs a cron at most once a day). Nothing in vercel.json. The route must be safe to call twice.
 - Time picker in 15-minute steps (`step=900`), so a chosen time always falls on a run.
 - The player's time zone: stored with the reminder (the browser's `Intl.DateTimeFormat().resolvedOptions().timeZone`,
   updated when it changes), since `time` is local. Due = the zone's local time is past `time`, not sent today.
@@ -432,12 +438,12 @@ Reminders3: [NEW 2026-11-18] Browser notifications with no tab open: Web Push (a
   sent by the same run (`web-push` package). A subscription the push service answers 404/410 for is deleted.
 - iPhone: push works only for a site added to the Home Screen (iOS 16.4+), which needs a web app manifest (none yet).
   Say so next to the switch on an iPhone.
-- The open-tab `PracticeReminder` goes once push works, or stays for a browser without push: decide, so a player never
-  gets the same reminder twice.
+- [2026-11-18, user] The open-tab `PracticeReminder` goes away once push works (and `lastShownOn` with it), so a
+  player never gets the same reminder twice.
 Reminders4: [NEW 2026-11-18] Ask for the reminder in account setup and when claiming (after Reminders2)
 - /account/setup and /claim (a teacher's student) each get a step: the time, and which ways (email, browser).
 - Always changeable on /plan: "Remind me at" grows the same choices (email, browser), one control on every page.
-- Open: on or off by default at setup; the default time (today 18:00).
+- [2026-11-18, user] On by default at setup. Open: the default time (today 18:00).
 Deferred1 (WhatsApp and text message reminders) would be one more channel on the same run.
 
 TaskSeries Leftover: small things left after the launch copy and phone fixes (2026-11-18)
