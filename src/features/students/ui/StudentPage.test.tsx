@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { SEED_PLANS } from "@/features/library/seed";
 import { sanitiseState } from "@/features/plan/model/state";
 import type { StudentRow, StudentView, TopicSlider } from "../model/types";
-import { afterMake, madeLine, planInput, upcomingLine, viewOf, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
+import { afterMake, madeLine, planInput, upcomingLine, viewOf, waitingLine, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
 import { ROTATE_TITLE, RotateQuestion, StudentPageView } from "./StudentPage";
 import type { Access } from "./StudentsApp";
 
@@ -192,6 +192,14 @@ test("a next plan already made: one line with its start, and that Make next week
   const html = draw({ state: { kind: "view", view: { ...withWeek, upcoming: { start: "2026-11-23" } } } });
   assert.match(html, /Ann&#x27;s next plan is made\. It starts on Monday 23 November\./);
   assert.doesNotMatch(draw(), /next plan is made/, "no upcoming week: no line");
+  // the week between is long on a phone: the waiting plan is said at the top too, above the week, with the way down
+  assert.equal(waitingLine("Ann", "2026-11-23"), "Ann's next plan is made. It starts on Monday 23 November.");
+  assert.equal(html.split("next plan is made").length - 1, 2, "at the top and under Next plan");
+  assert.ok(html.indexOf("next plan is made") < html.indexOf('id="this-week"'), "the first one is above the week");
+  for (const page of [html, draw()]) {
+    assert.match(page, /<a href="#next-plan"[^>]*>.*?Next plan<\/a>/, "the link down to Next plan, with or without a waiting plan");
+    assert.ok(page.indexOf('href="#next-plan"') < page.indexOf('id="this-week"'), "above the week");
+  }
   const waiting = { kind: "view", view: { ...withWeek, upcoming: { start: "2026-11-23" } } } as const;
   assert.doesNotMatch(draw({ state: waiting, sent: { kind: "made", line: "attunr made Ann's next plan.", next: true } }), /next plan is made/, "just made: the notice says it, not both");
   assert.match(draw({ state: waiting, sent: { kind: "made", line: "attunr rotated Ann's plan for this week.", next: false } }), /next plan is made/, "after a rotation the waiting week is still named");

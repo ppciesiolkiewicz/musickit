@@ -186,6 +186,25 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
   to { opacity: 0; transform: scale(2.4); }
 }
 .tour-wobble { animation: tour-wobble 2.4s ease-in-out infinite; }
+/* on a phone the button sits 12 px from the screen's edge: the rings stop inside that gutter, so the page never grows wider */
+@media (max-width: 639px) {
+  @keyframes tour-ring {
+    from { opacity: 0.9; transform: scale(1); }
+    to { opacity: 0; transform: scale(1.75); }
+  }
+}
+/* the top bar's Interactive notes link (SiteNav, `foldIcon`): its label, or only its icon where the labels don't fit
+   the phone: under 380 px when the row also holds a teacher's Students link, under 340 px for anyone. So the row
+   never scrolls sideways from 320 px up */
+.nav-fold-icon { display: none; }
+@media (max-width: 379px) {
+  .nav-fold:has(a[href="/students"]) .nav-fold-icon { display: inline; }
+  .nav-fold:has(a[href="/students"]) .nav-fold-label { display: none; }
+}
+@media (max-width: 339px) {
+  .nav-fold .nav-fold-icon { display: inline; }
+  .nav-fold .nav-fold-label { display: none; }
+}
 .tour-ring { opacity: 0; animation: tour-ring 2.4s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) {
   .landing-rise, .landing-fade, .dot-pop, .wheel-halo, .wheel-ripple, .wheel-spin, .style-pulse, .rec-pulse[data-sound="true"], .tour-wobble, .tour-ring { animation: none; }

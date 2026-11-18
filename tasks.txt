@@ -368,6 +368,13 @@ TeacherStudentFlow9: [NEW 2026-11-18] Fix what the phone walk in TeacherStudentF
    of the intro, and its pulsing ring makes the page 2-4 px wider. Move the tip off the intro and keep the ring inside
    the page width (clip it or pulse inward).
 Check each at 320 and 390 px, dark and Surf Rock, on the 127.0.0.1 signed-in setup.
+[2026-11-18 done] 1: /students/<id> shows the waiting line ("Ben's next plan is made. It starts on …") and a Next plan
+button under the name, above the week; the button jumps to Next plan. 3: Interactive notes is its icon under 380 px
+for a teacher and under 340 px for anyone (a student's three labels also overflowed at 320 px), so the bar never
+scrolls from 320 px up. 4: on a phone the tour tip sits above the compass button, clear of the title and the intro, and
+the rings pulse to 1.75x so the page keeps its width (Popover side "corner"). Walked at 320 and 390 px, dark and Surf
+Rock. Not seen: reduced motion, /theory/notes (the other page with the tip). Seen on the way: on the student's /plan
+at 320 px in Surf Rock "Remind me at" wraps onto two lines.
 
 TaskSeries LibraryGrowth: keys, more seed plans and exercises, new exercise tools (moved out of NEW, 2026-11-18)
 LibraryGrowth1: (was NEW19) [NEW 2026-11-18] Keys in the questionnaire and in every plan

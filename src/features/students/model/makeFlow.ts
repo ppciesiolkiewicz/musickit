@@ -41,9 +41,14 @@ export function madeLine(name: string, made: Pick<MadePlan, "start" | "short" | 
   return `${plan}${short}${comment}`;
 }
 
-/** The line under "Next plan" while a next week is made and hasn't started: when it starts, and what pressing Make next week's plan does to it. */
+/** The line at the top of a student's page while a next week is made and hasn't started: that it is made, and when it starts. */
+export function waitingLine(name: string, start: string): string {
+  return `${name}'s next plan is made. It starts on ${dayName(start)}.`;
+}
+
+/** The same line under "Next plan", with what pressing Make next week's plan does to the waiting week. */
 export function upcomingLine(name: string, start: string): string {
-  return `${name}'s next plan is made. It starts on ${dayName(start)}. Press Make next week's plan below to make a new one in its place.`;
+  return `${waitingLine(name, start)} Press Make next week's plan below to make a new one in its place.`;
 }
 
 /**

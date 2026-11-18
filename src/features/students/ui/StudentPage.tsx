@@ -11,7 +11,7 @@ import { givenToday, localDate } from "@/features/plan/model/schedule";
 import { MAX_TEACHER_COMMENT } from "@/features/plan/model/state";
 import { loginHref } from "@/lib/publicPaths";
 import { fetchStudent, postStudentPlan, type Failure } from "../client";
-import { afterMake, planInput, upcomingLine, viewOf, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
+import { afterMake, planInput, upcomingLine, viewOf, waitingLine, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
 import { tenth } from "../model/sliders";
 import type { StudentView } from "../model/types";
 import type { Access } from "./StudentsApp";
@@ -67,7 +67,8 @@ const backLink = (
 
 /**
  * A student's page drawn from its state, so tests draw every state without a server: who may see it, the student
- * loading / not found / failed with Try again, then their name, the current week read-only as they see it ("No plan yet"
+ * loading / not found / failed with Try again, then their name, the line that a next plan is waiting (when one is) and a
+ * link down to Next plan (the week between is long on a phone), the current week read-only as they see it ("No plan yet"
  * without one), and "Next plan": the sliders, "Anything else about this week?" (only with a week), Make next week's plan,
  * and Rotate this week's plan while a week runs, which asks once before replacing it.
  */
@@ -117,12 +118,19 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
   const { student, plan, topics, upcoming } = state.view;
   const running = !!plan && !givenToday(plan, today).over;
   const busy = sent.kind === "busy";
+  // right after a next week is made, the notice under Next plan already says it is made and when it starts
+  const waiting = upcoming && !(sent.kind === "made" && sent.next) ? upcoming : null;
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
         {backLink}
         <h2 className="text-2xl font-semibold text-slate-50">{student.name}</h2>
         <p className="text-sm text-slate-400">{student.email}</p>
+        {/* the week below is long on a phone, so a waiting next plan is said here, with the way down to Next plan */}
+        <div className="mt-1 flex flex-col items-start gap-2">
+          {waiting && <p className="text-sm leading-relaxed text-slate-300">{waitingLine(student.name, waiting.start)}</p>}
+          <a href="#next-plan" className={btn}><Icon name="chevron-down" size={14} />Next plan</a>
+        </div>
       </div>
 
       <section aria-labelledby="this-week" className="flex flex-col gap-2">
@@ -136,7 +144,7 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
 
       <section aria-labelledby="next-plan" className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <h3 id="next-plan" className="text-lg font-semibold text-slate-100">Next plan</h3>
+          <h3 id="next-plan" className="scroll-mt-4 text-lg font-semibold text-slate-100">Next plan</h3>
           <p className="text-sm leading-relaxed text-slate-400">
             Each slider shows {student.name}&apos;s level in a topic today.{plan && <> The mark on a slider shows where {student.name} was when this plan started.</>}
           </p>
@@ -164,8 +172,7 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
         )}
         {sent.kind === "made" && <Notice icon={<Icon name="check" size={14} />}><span role="status">{sent.line}</span></Notice>}
         {busy && <p role="status" className="text-sm text-slate-400">Making the plan…</p>}
-        {/* right after a next week is made, the notice above already says it is made and when it starts */}
-        {upcoming && !(sent.kind === "made" && sent.next) && <p className="text-sm leading-relaxed text-slate-300">{upcomingLine(student.name, upcoming.start)}</p>}
+        {waiting && <p className="text-sm leading-relaxed text-slate-300">{upcomingLine(student.name, waiting.start)}</p>}
 
         <div className="flex flex-wrap items-center gap-3">
           <Button className={primary} disabled={busy} onClick={() => onMake(false)}><Icon name="plus" size={14} />Make next week&apos;s plan</Button>

@@ -49,7 +49,7 @@ export default function PageHelp({ pageId, tour = [], nudge = false }: { pageId:
   return (
     <div className="flex flex-wrap items-center gap-2">
       {tour.length > 0 && (
-        <Popover open={nudge && settled && !seen} side="below-left" content="Press here for a tour of this page">
+        <Popover open={nudge && settled && !seen} side="corner" content="Press here for a tour of this page">
           <AttentionRing active={!seen}>
             <Button size="icon-sm" className="rounded-full!" onClick={startTour} title="Show me around this page" aria-label="Show me around this page">
               <TourIcon />
