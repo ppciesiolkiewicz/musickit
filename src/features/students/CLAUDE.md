@@ -6,3 +6,5 @@
 - **A claim token is stored as its hash, used once, never logged.** It is returned raw only so the route can mail it.
 - **No half-made student.** Anything after `createUser` that throws deletes the user again.
 - `features/account` imports nothing from here; this feature imports account, userData, plan and the library's repo type.
+- **No client file imports `server/`.** A shape both sides need goes in `model/types.ts`.
+- The page words a failure by the route's own `error` line, or `CLIENT_WORDS` for the page's codes; every call has a timeout.

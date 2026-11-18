@@ -3,20 +3,23 @@ import AudioDevicesButton from "./AudioDevicesButton";
 import AccountLink from "@/features/account/ui/AccountLink";
 import { TunerButton } from "@/features/tuner";
 import ThemeSwitcher from "./ThemeSwitcher";
-import Icon from "./Icon";
+import Icon, { type IconName } from "./Icon";
 import Wordmark from "./Wordmark";
 import { SpotlightButton } from "@/features/search/Spotlight";
 import { APP_PLACES, isUnder } from "@/lib/appPlaces";
 import { isMarketingPath } from "@/lib/publicPaths";
+import TeacherOnly from "@/features/students/ui/TeacherOnly";
 
-function NavLink({ href, label, current }: { href: string; label: string; current: boolean }) {
+/** `icon`: on a phone the link shows only that icon (named by `label`), so a fourth link fits the row. */
+function NavLink({ href, label, current, icon }: { href: string; label: string; current: boolean; icon?: IconName }) {
   return (
     <Link
       href={href}
       aria-current={current ? "page" : undefined}
-      className={`rounded-lg px-2.5 py-2 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:px-3.5 ${current ? "metal-btn bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
+      aria-label={icon ? label : undefined}
+      className={`rounded-lg px-2 py-2 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:px-3.5 ${current ? "metal-btn bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
     >
-      {label}
+      {icon ? <><Icon name={icon} size={16} className="sm:hidden" /><span className="hidden sm:inline">{label}</span></> : label}
     </Link>
   );
 }
@@ -46,7 +49,8 @@ function DemoLink({ current }: { current: boolean }) {
  * (`isMarketingPath`: the home pages, FAQ, demos, logging in) adds Demos and has the wordmark go home (the switch
  * between the two home pages is at the top of each, and in the footer); on the app's pages the wordmark goes to the
  * plan, and search and the tuner join the bar. The tuner button sits left of the style, except on the tuner page;
- * `devices` adds the audio devices button after the style.
+ * `devices` adds the audio devices button after the style. A teacher's account (`can("students")`) gets a fourth link,
+ * Students, after the three (on a phone its icon only).
  */
 export default function SiteNav({ active, devices = false }: { active: string; devices?: boolean }) {
   const visitor = isMarketingPath(active);
@@ -56,10 +60,16 @@ export default function SiteNav({ active, devices = false }: { active: string; d
         <Wordmark className="text-[1.7rem]" />
       </Link>
       {/* the app's three links share a second row on a phone, under the wordmark and the buttons */}
-      <div className="order-last -ml-2.5 flex w-[calc(100%+0.625rem)] justify-between sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1">
+      <div className="order-last -ml-2 flex w-[calc(100%+0.5rem)] justify-between sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1">
         {APP_PLACES.map((l) => (
           <NavLink key={l.href} href={l.href} label={l.label} current={isUnder(active, l.under)} />
         ))}
+        {/* a teacher's fourth place, once the account is known to have students */}
+        {!visitor && (
+          <TeacherOnly>
+            <NavLink href="/students" label="Students" icon="graduation-cap" current={isUnder(active, ["/students"])} />
+          </TeacherOnly>
+        )}
       </div>
       {visitor && <DemoLink current={isUnder(active, ["/demo"])} />}
       <span className="ml-auto" />

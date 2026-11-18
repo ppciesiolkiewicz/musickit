@@ -14,6 +14,11 @@ unanswered. The topics come one at a time in a panel whose four lines never move
 who knows their level taps the same spot without moving the pointer; the area's topics are listed under it with
 their answers. Then voice type and range (if they sing), minutes a day, and anything else.
 
+A teacher answers the same screens for a student on the Students page (`questionSteps(draft, set, { forStudent: true })`,
+`src/features/students`): every line that says "you" says "your student", the answer options keep their own words, the
+voice screen has no range finder (it listens to whoever is at the microphone), and each topic screen needs one answer,
+since an area with none can't make the student's first week.
+
 The plan's fine concepts (`../model/concepts.ts`, 67 today) are not asked about. Each belongs to one topic (`Concept.topic`), and
 the AI tags exercises with them.
 
