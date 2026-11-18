@@ -116,7 +116,7 @@ export function LiveGivenPlan({ id, date, controls }: { id: string; date: string
  * `onTime` and `onEdit` (a teacher looking at a student's week) it is read-only: no stars, no day timer, no Edit; the days
  * and the tools in the exercises still open.
  */
-export function GivenPlanView({ plan, date, day, onDay, onRate, times = [], onTime, onEdit, controls, corner }: {
+export function GivenPlanView({ plan, date, day, onDay, onRate, ratedBy, times = [], onTime, onEdit, controls, corner }: {
   /** the given plan, or undefined when the id is not in `given` */
   plan: StoredPlan | undefined;
   /** today's local date */
@@ -126,6 +126,8 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, times = [], onTi
   onDay: (d: number) => void;
   /** rates an exercise; without it the cards have no stars */
   onRate?: (day: number, ex: number, stars: Stars | null) => void;
+  /** read-only (no `onRate`): whose stars the cards show, under their name (a teacher's view of a student's week) */
+  ratedBy?: string;
   times?: DayTime[];
   /** saves the day timer's time; without it there is no timer */
   onTime?: (time: DayTime) => void;
@@ -157,8 +159,8 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, times = [], onTi
         </div>
         {one
           // the timer starts by itself only while the day runs
-          ? <DayPanel plan={plan} day={0} heading={null} timerLabel={over ? "Shared plan" : "Today"} autoStart={!over} onRate={onRate} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />
-          : <WeekView plan={plan} today={today} ended={over} day={day ?? today} onDay={onDay} onRate={onRate as WeekRate} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />}
+          ? <DayPanel plan={plan} day={0} heading={null} timerLabel={over ? "Shared plan" : "Today"} autoStart={!over} onRate={onRate} ratedBy={ratedBy} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />
+          : <WeekView plan={plan} today={today} ended={over} day={day ?? today} onDay={onDay} onRate={onRate as WeekRate} ratedBy={ratedBy} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />}
       </div>
     </FixedLabelRoot>
   );

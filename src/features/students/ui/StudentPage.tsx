@@ -128,7 +128,7 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
       <section aria-labelledby="this-week" className="flex flex-col gap-2">
         <h3 id="this-week" className="text-lg font-semibold text-slate-100">{!plan || running ? "This week" : "Last plan"}</h3>
         {plan ? (
-          <GivenPlanView plan={plan} date={today} day={day} onDay={onDay} controls={null} corner={null} />
+          <GivenPlanView plan={plan} date={today} day={day} onDay={onDay} ratedBy={student.name} controls={null} corner={null} />
         ) : (
           <p className="text-sm text-slate-300">No plan yet. Press Make next week&apos;s plan below, and the new plan starts today.</p>
         )}

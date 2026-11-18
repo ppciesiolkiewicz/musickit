@@ -6,11 +6,12 @@ const STAR = "M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9
 
 /**
  * A row of stars with the label of the hovered or chosen one beside it. `labels[0]` is 1 star. Tapping the chosen star
- * again clears it (`onChange(null)`).
+ * again clears it (`onChange(null)`). Without `onChange` the row only shows `value`: still stars, nothing to press.
  */
 export function StarRating({ value, onChange, labels, label, size = "md" }: {
   value: number | null;
-  onChange: (v: number | null) => void;
+  /** without it the row is read-only */
+  onChange?: (v: number | null) => void;
   /** one label per star, from 1 star up */
   labels: readonly string[];
   /** what the row asks, for screen readers */
@@ -20,6 +21,20 @@ export function StarRating({ value, onChange, labels, label, size = "md" }: {
   const [hover, setHover] = useState<number | null>(null);
   const shown = hover ?? value;
   const icon = size === "sm" ? 22 : 28;
+  const star = (lit: boolean) => (
+    <svg width={icon} height={icon} viewBox="0 0 24 24" aria-hidden="true" className={lit ? "fill-amber-400 text-amber-400" : "fill-transparent text-slate-500"}>
+      <path d={STAR} stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" />
+    </svg>
+  );
+  if (!onChange) {
+    const said = value !== null ? `${label} ${value} ${value === 1 ? "star" : "stars"}: ${labels[value - 1]}` : label;
+    return (
+      <div role="img" aria-label={said} className="flex flex-wrap items-center gap-x-2">
+        <div className="flex gap-1">{labels.map((_, i) => <span key={i}>{star(value !== null && i + 1 <= value)}</span>)}</div>
+        <span className={`text-sm ${value !== null ? "text-slate-200" : "text-slate-500"}`}>{value !== null ? labels[value - 1] : ""}</span>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-wrap items-center gap-x-2">
       <div role="radiogroup" aria-label={label} className="-ml-2.5 flex" onMouseLeave={() => setHover(null)}>
@@ -40,9 +55,7 @@ export function StarRating({ value, onChange, labels, label, size = "md" }: {
               onClick={() => { setHover(null); onChange(value === n ? null : n); }}
               className="grid size-11 cursor-pointer place-items-center transition active:scale-90"
             >
-              <svg width={icon} height={icon} viewBox="0 0 24 24" aria-hidden="true" className={lit ? "fill-amber-400 text-amber-400" : "fill-transparent text-slate-500"}>
-                <path d={STAR} stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" />
-              </svg>
+              {star(lit)}
             </button>
           );
         })}

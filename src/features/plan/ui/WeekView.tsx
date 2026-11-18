@@ -16,8 +16,10 @@ import type { Stars } from "@/features/progress/stars";
  * drawn by `DayPanel`. Only the day shown when the page opened starts its timer by itself. With `ended` (the plan's days are
  * over; `today` is then its last day, so every day is open) no day is marked "Today" and no timer starts by itself.
  */
-export default function WeekView({ plan, today, ended = false, day, onDay, onRate, times = [], onTime, onEdit, onEditing, corner }: {
+export default function WeekView({ plan, today, ended = false, day, onDay, onRate, ratedBy, times = [], onTime, onEdit, onEditing, corner }: {
   plan: StoredPlan; today: number; ended?: boolean; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;
+  /** read-only: whose stars the cards show (`ExerciseCard`) */
+  ratedBy?: string;
   /** the day timer's records of this plan (`planTime.ts`), kept apart from the plan */
   times?: DayTime[];
   /** saves the day timer's used seconds and the seconds spent on each exercise; without it (a preview) there is no timer */
@@ -80,6 +82,7 @@ export default function WeekView({ plan, today, ended = false, day, onDay, onRat
         timerLabel={`Day ${day + 1}`}
         autoStart={autoDay === day}
         onRate={onRate}
+        ratedBy={ratedBy}
         times={times}
         onTime={onTime}
         onEdit={onEdit}
@@ -97,13 +100,15 @@ export default function WeekView({ plan, today, ended = false, day, onDay, onRat
  * the timer names and counts time for, and it is lifted a little. With `onEdit` the day has Edit (`DayEditor`). Without `onRate`
  * the cards have no stars (a past day, read-only). The week's strip and today's plan (`DayPlan`) both draw a day with it.
  */
-export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, times = [], onTime, onEdit, editLocked = false, onEditing, corner, readOnly = false }: {
+export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ratedBy, times = [], onTime, onEdit, editLocked = false, onEditing, corner, readOnly = false }: {
   plan: StoredPlan; day: number; heading: ReactNode;
   /** the day timer's name for the day ("Day 3", "Today") */
   timerLabel: string;
   /** the timer starts by itself (the day shown when the page opened) */
   autoStart: boolean;
   onRate?: (day: number, ex: number, stars: Stars | null) => void;
+  /** without `onRate`: whose stars the cards show, read-only */
+  ratedBy?: string;
   times?: DayTime[];
   onTime?: (time: DayTime) => void;
   onEdit?: (next: StoredPlan) => void;
@@ -160,7 +165,7 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ti
             const isNow = now === i && !done;
             return (
               <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
-                <ExerciseCard exercise={e} index={i} done={done} now={isNow} ticking={running && focused === i} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} />
+                <ExerciseCard exercise={e} index={i} done={done} now={isNow} ticking={running && focused === i} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} ratedBy={ratedBy} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} />
               </li>
             );
           })}

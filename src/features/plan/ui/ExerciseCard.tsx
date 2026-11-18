@@ -46,12 +46,13 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
  * `now` (the card in view while the day timer runs) only lifts the card a little: the timer is a guide, not a rule. With
  * `spent`, the planned minutes become `SpentTime`: time on it so far of the time planned, with a bar that fills to green.
  */
-export default function ExerciseCard({ exercise: e, index, done = false, now = false, ticking = false, spent, rating = null, onRate, address, tour = true }: {
+export default function ExerciseCard({ exercise: e, index, done = false, now = false, ticking = false, spent, rating = null, onRate, ratedBy, address, tour = true }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
   /** the day timer is counting this exercise's time: its timer shows it ticking */ ticking?: boolean;
   /** seconds spent on it so far; without it only the planned minutes show */ spent?: number;
   /** how the player rated it; null when not rated */ rating?: Stars | null;
   /** rate it (or clear the rating with null); without it the card has no stars */ onRate?: (stars: Stars | null) => void;
+  /** read-only, someone else's plan (a teacher's view of a student's week): their stars, under their name, once rated */ ratedBy?: string;
   /** which exercise, for a `CellAside` */ address?: string;
   /** carries the page tour's hook (`plan-exercise`); off for a past day shown under today's */ tour?: boolean;
 }) {
@@ -101,6 +102,12 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
           <p className={`text-base font-semibold ${rating === null ? "text-amber-100" : "text-slate-200"}`}>How did it go?</p>
           <StarRating value={rating} labels={STARS.map((s) => STAR_LABELS[s])} label="How did it go?" onChange={(v) => onRate(isStars(v) ? v : null)} />
           <p className="text-xs text-slate-400">Your stars shape the next plan: 1 or 2 makes it easier, 3 keeps it the same, 4 or 5 moves you on.</p>
+        </div>
+      )}
+      {!onRate && ratedBy && rating !== null && (
+        <div className="flex flex-col gap-1 rounded-xl border border-slate-700 bg-slate-800/40 p-3 sm:p-4">
+          <p className="text-sm font-semibold text-slate-200">How it went for {ratedBy}</p>
+          <StarRating value={rating} labels={STARS.map((s) => STAR_LABELS[s])} label={`How it went for ${ratedBy}:`} size="sm" />
         </div>
       )}
     </section>

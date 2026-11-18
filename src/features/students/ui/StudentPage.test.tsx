@@ -90,6 +90,16 @@ test("no week: No plan yet, no Rotate, no comment box, no start-of-week mark", (
   assert.doesNotMatch(html, /At the start of this week/);
 });
 
+test("the student's stars show on their read-only week, under their name, with nothing to press", () => {
+  const rated = { ...week, done: { "2:0": true as const }, rated: { "2:0": { stars: 4 as const, at: "2026-11-18T09:00:00.000Z" } } };
+  const html = draw({ state: { kind: "view", view: { ...withWeek, plan: rated } } });
+  assert.match(html, /How it went for Ann/);
+  assert.match(html, /role="img" aria-label="How it went for Ann: 4 stars: Solid"/);
+  assert.doesNotMatch(html, /How did it go\?/, "no stars to press");
+  assert.equal(html.match(/How it went for Ann/g)?.length, 2, "one card rated: its heading and its label");
+  assert.doesNotMatch(draw(), /How it went for/, "an unrated week shows no stars");
+});
+
 test("a week that has ended: no Rotate (Make next week's plan starts today)", () => {
   const html = renderToStaticMarkup(
     <StudentPageView access="teacher" id="a1" state={{ kind: "view", view: withWeek }} today="2026-12-01" values={opening} onValue={() => {}} comment="" onComment={() => {}} sent={{ kind: "idle" }} onMake={() => {}} confirming={false} onConfirm={() => {}} onRetry={() => {}} day={null} onDay={() => {}} />,
