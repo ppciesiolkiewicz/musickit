@@ -17,7 +17,7 @@ export interface AddError {
 /** Which screen a route's error belongs on: a name or email error under its field, anything else on the last screen. */
 export function placeError(code: string, text: string): AddError {
   if (code === "name") return { field: "name", text };
-  if (code === "email" || code === "exists") return { field: "email", text };
+  if (code === "email" || code === "exists" || code === "taught" || code === "listed") return { field: "email", text };
   return { text };
 }
 

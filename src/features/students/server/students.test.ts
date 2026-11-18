@@ -132,8 +132,19 @@ test("an email that has an account is refused and leaves no link, no document, n
   assert.deepEqual(own, { ok: false, error: "exists" });
   ok(await addStudent(s.both, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }));
   const before = { users: s.users.length, links: s.links.length, tokens: s.tokens.length };
-  assert.deepEqual(await addStudent(s.both, s.teacher, { name: "A2", email: "a@x.com", answers: ANSWERS, today: TODAY }), { ok: false, error: "exists" });
+  assert.deepEqual(await addStudent(s.both, s.teacher, { name: "A2", email: "a@x.com", answers: ANSWERS, today: TODAY }), { ok: false, error: "listed" });
   assert.deepEqual({ users: s.users.length, links: s.links.length, tokens: s.tokens.length }, before);
+});
+
+test("another teacher's student is refused as taught, and stays with their first teacher", async () => {
+  const s = await setup();
+  const a = ok(await addStudent(s.both, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }));
+  const other = await s.repo.createUser({ email: "olga@school.com", name: "Olga", role: "student" }, new Date(START));
+  const row = await s.repo.setUserPlan(other!.id, "teacher-x", "year", "teacher", new Date(START));
+  const olga = toAccount(row!);
+  assert.deepEqual(await addStudent(s.both, olga, { name: "A", email: "A@x.com", answers: ANSWERS, today: TODAY }), { ok: false, error: "taught" });
+  assert.equal((await s.repo.teacherOf(a.studentId))?.id, s.teacher.id);
+  assert.equal((await s.repo.studentsOf(olga.id)).length, 0);
 });
 
 test("a lost race on the email is exists", async () => {

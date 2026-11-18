@@ -151,7 +151,7 @@ test("POST /api/students: no library blocks keeps the student, plan none; mail o
   }
 });
 
-test("POST /api/students: 400 for name, email, answers and a bad today; 409 for exists and limit; nothing is made", async () => {
+test("POST /api/students: 400 for name, email, answers and a bad today; 409 for listed and limit; nothing is made", async () => {
   const s = await setup({ students: 1 });
   const bad: [Record<string, unknown>, number, string][] = [
     [{ ...NEW, name: " " }, 400, "name"],
@@ -180,7 +180,8 @@ test("POST /api/students: 400 for name, email, answers and a bad today; 409 for 
   await add(roomy);
   const dup = await add(roomy);
   assert.equal(dup.r.status, 409);
-  assert.equal(dup.body.code, "exists");
+  assert.equal(dup.body.code, "listed");
+  assert.equal(dup.body.error, "That student is already on your list.");
 });
 
 test("[id] routes: another teacher's student, a random uuid and a non-uuid are all 404, and nothing changes", async () => {

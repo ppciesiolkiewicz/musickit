@@ -39,7 +39,11 @@ export const studentRow = (user: { id: string; name: string; email: string }, cr
   id: user.id, name: user.name, email: user.email, addedAt: createdAt.toISOString(), claimedAt: claimedAt?.toISOString() ?? null,
 });
 
-export type AddStudentError = "name" | "email" | "exists" | "limit" | "answers" | "not-teacher";
+/**
+ * Why a student wasn't added. `exists`: the address has an account that no teacher has (a player, or the teacher). A
+ * student has one teacher for now, so `taught` (another teacher's student) and `listed` (already this teacher's) refuse too.
+ */
+export type AddStudentError = "name" | "email" | "exists" | "taught" | "listed" | "limit" | "answers" | "not-teacher";
 
 /** The teacher's plan's limit (null: no limit; no plan row, or none with students: 0) and its extra students a month. */
 async function planPlaces(deps: AuthDeps, teacher: Account): Promise<{ limit: number | null; extra: number }> {
@@ -90,7 +94,11 @@ export async function addStudent(
   // a new student is active once their first week is made, so adding one needs a place this month
   const places = await placesOf(auth, teacher, input.today);
   if (!canGive(places, false)) return { ok: false, error: "limit", limit: places.limit ?? 0, extra: places.extra };
-  if (await auth.repo.userByEmail(email)) return { ok: false, error: "exists" };
+  const existing = await auth.repo.userByEmail(email);
+  if (existing) {
+    const theirs = await auth.repo.teacherOf(existing.id);
+    return { ok: false, error: !theirs ? "exists" : theirs.id === teacher.id ? "listed" : "taught" };
+  }
 
   const now = auth.now();
   const made = await auth.repo.createUser({ email, name, role: "student" }, now);

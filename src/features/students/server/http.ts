@@ -43,6 +43,8 @@ const MESSAGES = {
   email: "Type your student's email address, like ann@school.com.",
   answers: "Pick at least one area, and at least one topic in each area you pick.",
   exists: "Someone already has an account with that email address. Use another address for your student.",
+  taught: "This person has already been invited by a teacher. Send us a message on the Send feedback page and we'll help you out.",
+  listed: "That student is already on your list.",
   "not-found": "That student isn't on your list.",
   claimed: "Your student has already logged in, so they don't need the link.",
   wait: "A link went out a moment ago. Wait a minute, then press Send the link again.",
@@ -144,7 +146,7 @@ export async function addRoute(h: StudentsHttpDeps, req: Request): Promise<Respo
   }
   if (!added.ok) {
     if (added.error === "limit") return full(added, me.cookies);
-    const status = added.error === "exists" ? 409 : added.error === "not-teacher" ? 403 : 400;
+    const status = added.error === "exists" || added.error === "taught" || added.error === "listed" ? 409 : added.error === "not-teacher" ? 403 : 400;
     return fail(added.error, status, me.cookies);
   }
   const now = h.auth.now();
