@@ -99,42 +99,36 @@ topic, per concept). A date field sets `asOf` (today at first); a date before an
 
 ## Learning path (`/dev/path`)
 
-The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), in four views: **Path**, **Slope**,
-**Boxes** and **Bars**. The area buttons and *Student on the path* are shared (not on Bars); on Slope a step's ring is its state, the step the student is on bold.
+The learning path (`plan/model/path.ts`, NEW13: every concept is a track with steps), in three views: **Path**, **Slope**
+and **Keys**. The area buttons are shared, and *Student on the path* is on Path and Slope; on Slope a step's ring is its state, the step the student is on bold.
+`?concept=<id>` opens Path on that skill's area with the skill picked (/dev/library links here).
 
 **Path** (`path/JourneyView.tsx`, the first view, made to show to studios). Four figures for the area (skills, steps,
 skills that span levels, steps read from the tools), then the topics down and the levels across. Every skill is a row
 with a block in each level its steps reach, holding that level's steps (a filled dot: a tool's level stands for it; a
 dashed one: not yet), and a ribbon joins its blocks; a level its steps skip shows "keeps going". Hovering or picking a
 block lights the skill, what it builds on (blue) and what builds on it (violet), and dims the rest; picking one also
-opens its detail below. With a student on the path, a block's edge is the skill's state and each step has a square.
+opens its detail below: what it builds on and leads to, its course page, its seed blocks and plans, and its steps,
+each with its blocks. With a student on the path, a block's edge is the skill's state and each step has a square. Under
+it, a closed list has the ladder steps in the code that no step of the path stands for.
 
 **Slope** (`path/SlopeView.tsx`; design in `docs/superpowers/specs/2026-11-16-path-slope-design.md`). Every step of the
 area placed by its level and its depth (`depthOf`/`slope` in `plan/model/path.ts`: how deep its chain of steps to learn
 first runs), one column per depth inside a level, rows sorted by where a track's first step falls. *As it is* draws
-`PATH`; *Proposed* draws `model/slopeProposal.ts` (the named prerequisites and the double-stops track), with new links
+`PATH`; *Proposed* draws `model/slopeProposal.ts` (today the links three agents proposed, not yet in `PATH`), with new links
 dashed orange and each step that moved marked +N. Hovering or picking a step lights its whole chain both ways; the
 detail below counts the chain under it. The picture zooms and pans (drag or scroll to move, ctrl/⌘ + scroll or pinch
 to zoom, *Fit* shows the whole area); the track names follow the zoom and the vertical pan. Once the proposal is settled it moves into `PATH` and the file goes.
 
-**Boxes**: the diagram (`path/PathView.tsx`, nodes from
-`model/path.ts`). `?concept=<id>` opens it on that concept's area with the concept picked (/dev/library links here). One area at a time (Guitar, Voice, Theory & ear): its six questionnaire topics are rows, the four levels
-are columns, each cell starts with the topic's questionnaire line for that level, and every concept of `CONCEPTS` sits in
-the cell of its topic and its first step's level. An arrow runs to a concept from each one a step of it names to learn first (`after`). A concept's edge is
-green with a green dot when a seed block (`src/features/library/seed/blocks`) is tagged with it and grey when none is, a
-violet dot says a seed plan's exercise is, and a dashed edge says its course page is missing or only planned. Picking a concept lights its whole chain
-(`chain`: everything it rests on and everything resting on it) and lists, under the diagram, what it builds on and leads
-to, its course page, its seed blocks and plans and its steps. The line beside the area buttons counts the gaps (`gaps`).
-
-**Steps inside a concept** (`model/steps.ts`, read from `plan/model/path.ts`). The numbered lines in a box are its
+**Steps inside a skill** (`model/steps.ts`, read from `plan/model/path.ts`). The lines in a skill are its
 track's steps, easiest first, each with its own level. Blue ones are read from a ladder the code already has
 (`plan/model/ladders.ts`: the tools' levels in `exercises/basics/levels.ts`, the ear game's levels, the tune and run
 stages), named on the step as `ladder: "ladderId:key"`. Amber ones are "not implemented" until a tool has a level for
-them. A box grows with its steps. Under the diagram, a closed list has the ladder steps no step of the path stands for.
+them.
 
-**A student on the diagram** (`model/stepProgress.ts`). *Student on the diagram* lays one player's progress over the path:
+**A student on the path** (`model/stepProgress.ts`). *Student on the path* lays one player's progress over the path:
 the player in this browser (read through `usePlan` and `useProgress`, nothing written) or a made-up one, from new players to advanced ones (a lead and a chord guitarist, a singer, theory and ear, a guitarist back after a break)
-(`EXAMPLE_STUDENTS`). It is the teacher's view of a student, tried here first (NEW12, NEW13 in `tasks.txt`). A concept's
+(`EXAMPLE_STUDENTS`). It is the teacher's view of a student, tried here first (NEW12, NEW13 in `tasks.txt`). A skill's
 edge turns green when its newest rating is 4 stars or more and amber when it is less, as the progress outcome has it.
 Each step gets a square: green solid, amber working, empty not started, dashed for a planned step, which can't be
 tracked. For a made-up student the step a rating counts for is read from the rated exercise's own tools (`stepOf` in
@@ -143,24 +137,20 @@ it; a solid step makes the easier ones under it solid. The player in this browse
 page that checks the composer shows what it works on (`entryProgress`): a rating counts for the steps its exercise names
 and every step before them, and a step is solid exactly when `solidRatedAt` (`plan/model/daySteps.ts`) has it, so a
 newer low rating on an easier step stays amber. The bold step is the one the student is on, with the whole weeks since its first rating
-while it is not solid: time on a step is shown as a number, and nothing is called stuck. Picking a concept lists each
+while it is not solid: time on a step is shown as a number, and nothing is called stuck. Picking a skill lists each
 tracked step's ratings and dates. On Slope the student's steps also carry their reach marks (from `reach()` in
 `plan/model/reach.ts`): their questionnaire answers (each persona has its own `topics`; the player in this browser their
 last ones) and their solid steps (`studentReach` for a made-up student; `playerReach` for the player in this browser, as the
 composer gets them: their answers raised by their ratings, `raisedAnswers`, and `solidRatedAt(entries)`). A step within reach is dashed blue and says "next" (or "start" where the
 questionnaire puts them), a known step not rated solid says "known", and a step ahead is faded. Nothing is written by
-hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
+hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, the course and the
 library's seed files, so the diagram changes when they do. It writes nothing.
 
-**Bars** (`path/ProposalView.tsx`). The third view: each track drawn as a bar from the level
-of its first step to the level of its last, its steps in the columns of their levels, so tracks in one topic overlap. A
-step's `after` is drawn as an arrow (into another area: listed under the diagram). Picking a track lists the concepts
-from before the path it took the place of, and its steps. Tests (`plan/model/path.test.ts`) keep the path whole: every
-old concept in exactly one track, levels never go down, ladder steps real and used once, `after` never pointing at a
-higher level. It has no student overlay.
+Tests (`plan/model/path.test.ts`) keep the path whole: every old concept in exactly one track, levels never go down,
+ladder steps real and used once, `after` never pointing at a higher level.
 
 **Blocks for a step.** Every Slope step carries a badge with how many blocks practise it (amber `!`: none), and each
-step in the Path and Boxes detail a link; both open `/dev/block?step=<trackId:n>` in a new tab, which renders each block
+step in the Path detail a link; both open `/dev/block?step=<trackId:n>` in a new tab, which renders each block
 as the player sees it in a plan (`block/BlockPage.tsx`, `src/app/dev/block`; `?id=<block id>` renders one). The blocks
 come from the code, not the database (`model/stepBlocks.ts`): seed blocks by the steps their file names, then any seed
 plan exercise or seed block whose tools say the step (`stepOf`), then those that only tag the track at the step's level,

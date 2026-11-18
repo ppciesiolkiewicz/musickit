@@ -66,7 +66,7 @@ export const DEV_GROUPS: DevGroup[] = [
     tone: "stories",
     tools: [
       { href: "/dev/library", label: "Library", desc: "The plans and blocks agents read: coverage by step, each one drawn as the player sees it, with the versions it was written to." },
-      { href: "/dev/path", label: "Learning path", desc: "The path as a diagram: an area's topics down, levels across, every concept with an arrow to what builds on it, and which have no example or course page." },
+      { href: "/dev/path", label: "Learning path", desc: "The path the plan maker reads: each skill's steps across the levels, the steps in the order they need each other, the keys each level adds, with a student laid over it." },
       { href: "/dev/stories", label: "Component stories", desc: "Every exercise component in the set-ups the examples use, Storybook-style: controls from its documented props, or edit the JSON." },
       { href: "/dev/onboarding", label: "Onboarding coverage", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
       { href: "/dev/notes", label: "Copy notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },

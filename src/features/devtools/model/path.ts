@@ -1,15 +1,13 @@
 import { ALL_SECTIONS, sectionHref } from "@/features/course/course";
 import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
-import { topicsFor, type Topic } from "@/features/plan/intake/topics";
-import { AREAS, CONCEPTS, conceptIds, type Area, type Concept } from "@/features/plan/model/concepts";
+import { CONCEPTS, conceptIds, type Area, type Concept } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { conceptSteps, type ConceptStep, type ConceptSteps } from "./steps";
 
 /*
- * The learning path (plan/model/path.ts), shaped for the diagram on /dev/path: an area's topics as lanes, the four
- * levels as columns, each concept in the cell of its first step and spanning to its last, and an arrow for every
- * concept a step of it names to learn first (`after`). Nothing here is written by hand: it reads CONCEPTS, TOPICS, the
- * course and the library's seed files.
+ * The learning path (plan/model/path.ts), one node per skill for the Path view of /dev/path: its levels, its steps,
+ * what it builds on and leads to (from each step's `after`), its course page and the seed files tagged with it. Nothing
+ * here is written by hand: it reads CONCEPTS, the course and the library's seed files.
  */
 
 /** What the path is drawn from; the real catalogue unless a test hands in its own. */
@@ -63,22 +61,6 @@ export interface PathNode {
   stepsFrom?: string;
 }
 
-export interface PathLane {
-  topic: Topic;
-  /** one cell per level, lowest first; a cell's concepts in catalogue order */
-  cells: PathNode[][];
-}
-
-export interface AreaPath {
-  area: Area;
-  label: string;
-  lanes: PathLane[];
-  /** every `buildsOn` with both ends in this area, as [from, to]: from is learned first */
-  edges: [string, string][];
-  /** `buildsOn` that reach into another area, as [from, to] */
-  outside: [string, string][];
-}
-
 /** Every concept as a node, by id. */
 export function pathNodes(src: PathSource = pathSource()): Map<string, PathNode> {
   const nodes = new Map<string, PathNode>();
@@ -98,57 +80,4 @@ export function pathNodes(src: PathSource = pathSource()): Map<string, PathNode>
   }
   for (const n of nodes.values()) for (const from of n.buildsOn) nodes.get(from)!.leadsTo.push(n.id);
   return nodes;
-}
-
-/** One area's path: its questionnaire topics as lanes, in questionnaire order. */
-export function areaPath(area: Area, nodes: Map<string, PathNode> = pathNodes()): AreaPath {
-  const own = [...nodes.values()].filter((n) => n.area === area);
-  const lanes = topicsFor(area).map((topic) => ({
-    topic,
-    cells: LEVEL_ORDER.map((_, level) => own.filter((n) => n.topic === topic.id && n.level === level)),
-  }));
-  const edges: [string, string][] = [], outside: [string, string][] = [];
-  for (const n of own) for (const from of n.buildsOn) (nodes.get(from)!.area === area ? edges : outside).push([from, n.id]);
-  return { area, label: AREAS.find((a) => a.id === area)!.label, lanes, edges, outside };
-}
-
-/** The concept with everything it rests on and everything that rests on it, however far. */
-export function chain(id: string, nodes: Map<string, PathNode>): Set<string> {
-  const out = new Set<string>([id]);
-  const walk = (from: string, next: (n: PathNode) => string[]) => {
-    for (const to of next(nodes.get(from)!)) {
-      if (out.has(to)) continue;
-      out.add(to);
-      walk(to, next);
-    }
-  };
-  if (nodes.has(id)) {
-    walk(id, (n) => n.buildsOn);
-    walk(id, (n) => n.leadsTo);
-  }
-  return out;
-}
-
-/** What the path lacks, counted over the nodes given. */
-export function gaps(list: PathNode[]): { concepts: number; noExercise: number; noPlan: number; planned: number; noSteps: number; stepsPlanned: number } {
-  return {
-    noSteps: list.filter((n) => n.steps.length === 0).length,
-    stepsPlanned: list.reduce((sum, n) => sum + n.steps.filter((s) => s.planned).length, 0),
-    concepts: list.length,
-    noExercise: list.filter((n) => n.exercises.length === 0).length,
-    noPlan: list.filter((n) => n.plans.length === 0).length,
-    planned: list.filter((n) => n.courseState !== "written").length,
-  };
-}
-
-/** A label broken into at most two lines of about `width` characters; the second is cut with "…" when it is longer. */
-export function wrap(text: string, width: number): string[] {
-  if (text.length <= width) return [text];
-  const words = text.split(" ");
-  let first = "";
-  while (words.length && (first ? first.length + 1 : 0) + words[0].length <= width) first += (first ? " " : "") + words.shift();
-  if (!first) first = words.shift()!;
-  const rest = words.join(" ");
-  if (!rest) return [first];
-  return [first, rest.length > width ? `${rest.slice(0, width - 1).trimEnd()}…` : rest];
 }
