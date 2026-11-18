@@ -7,6 +7,7 @@ import NoSpaceScroll from "@/components/NoSpaceScroll";
 import SoundPreload from "@/components/SoundPreload";
 import CopyNotes from "@/features/devtools/copy/CopyNotes";
 import { devUi } from "@/features/devtools/gate";
+import Bubble from "@/features/messages/ui/Bubble";
 import QuickRecord from "@/features/recorder/QuickRecord";
 import Spotlight from "@/features/search/Spotlight";
 import LoginGuard from "@/features/account/ui/LoginGuard";
@@ -157,6 +158,7 @@ export default function RootLayout({
         <UserDataProvider>
           {children}
           <QuickRecord />
+          <Bubble />
           <Spotlight />
         </UserDataProvider>
         {/* once for every page, PageShell or not (the video studio has none) */}
