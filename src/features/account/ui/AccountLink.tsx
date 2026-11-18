@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { accountsOpen } from "../serverAccountStore";
 import { homePage } from "../model";
-import { FEEDBACK_HREF } from "./FeedbackForm";
+import { FEEDBACK_HREF } from "@/features/messages/ui/FeedbackPage";
 import { useAccount, useAccountStore } from "../useAccount";
 
 const PILL =

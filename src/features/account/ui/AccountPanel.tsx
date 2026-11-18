@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ROLE_LABEL } from "../model";
 import { useAccount, useAccountStore } from "../useAccount";
 import EmailUpdates from "./EmailUpdates";
-import FeedbackForm from "./FeedbackForm";
+import { FEEDBACK_HREF } from "@/features/messages/ui/FeedbackPage";
 import PlanPicker from "./PlanPicker";
 import { Card, ErrorLine, FIELD, LABEL, LINK, PRIMARY, SECONDARY, errorOf, send } from "./parts";
 
@@ -24,6 +24,11 @@ export default function AccountPanel() {
   const [error, setError] = useState<string | null>(null);
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  // the feedback form moved to its own page; old links to /account#feedback land there
+  useEffect(() => {
+    if (window.location.hash === "#feedback") window.location.replace(FEEDBACK_HREF);
+  }, []);
 
   if (!loaded) return <Card><p className="text-sm text-slate-500">Loading…</p></Card>;
 
@@ -61,7 +66,7 @@ export default function AccountPanel() {
     <div className="flex w-full flex-col gap-5">
       <p className="rounded-xl border border-sky-500/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
         <span className="font-semibold">Open beta.</span> attunr is free while we fix bugs. If something breaks or doesn&apos;t make sense, please tell us.{" "}
-        <a href="#feedback" className={LINK}>Send feedback</a>
+        <a href={FEEDBACK_HREF} className={LINK}>Send feedback</a>
       </p>
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
@@ -108,9 +113,6 @@ export default function AccountPanel() {
             </section>
           </Card>
 
-          <Card fill>
-            <FeedbackForm account={account} />
-          </Card>
         </div>
 
         <Card fill>
