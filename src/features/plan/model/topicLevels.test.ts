@@ -2,7 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { ProgressEntry } from "@/features/progress/log";
 import { conceptsOf } from "./concepts";
-import { daySteps } from "./daySteps";
+import { PERSONAS } from "@/features/devtools/model/personas";
+import { daySteps, solidRatedAt } from "./daySteps";
 import { LEVEL_ORDER } from "./outcome";
 import { stepAt } from "./path";
 import { raisedAnswers } from "./topicLevels";
@@ -60,4 +61,29 @@ test("raisedAnswers: a topic never answered and never rated stays unanswered; on
 
 test("raisedAnswers: a rating after the day doesn't count", () => {
   assert.equal(raisedAnswers(answers({ [T]: 0 }), ratingsAt(T, "beginner", 5, "2026-11-20T10:00:00Z"), "2026-11-19").topics[T], 0);
+});
+
+// --- a level goes up one at a time
+
+const one = (step: string, stars: 1 | 2 | 3 | 4 | 5, at: string): ProgressEntry =>
+  ({ id: `${step}-${at}`, planId: "p", exerciseId: `${step}-${at}`, day: 0, exercise: 0, title: step, topic: T, concepts: [step.split(":")[0]], steps: [step], stars, at }) as ProgressEntry;
+
+test("raisedAnswers: one 5-star rating on an advanced-only track raises nothing, and the topic's first steps are still offered", () => {
+  const a = PERSONAS.find((p) => p.id === "guitar-new")!.answers;
+  const entries = [one("fingerpicking:1", 5, "2026-11-18T10:00:00Z")];
+  const raised = raisedAnswers(a, entries, "2026-11-19");
+  assert.equal(raised, a);
+  const steps = daySteps({ answers: raised, solid: solidRatedAt(entries), date: "2026-11-19" });
+  assert.ok([...steps.fresh, ...steps.open].includes("open-chords:1"), steps.fresh.join());
+});
+
+test("raisedAnswers: beginner and advanced reached but intermediate not: raised to beginner only", () => {
+  const entries = [...ratingsAt(T, "beginner", 5, "2026-11-17T10:00:00Z"), one("fingerpicking:1", 5, "2026-11-18T10:00:00Z")];
+  assert.equal(raisedAnswers(answers({ [T]: 0 }), entries, "2026-11-19").topics[T], 1);
+  assert.equal(raisedAnswers(answers({}), entries, "2026-11-19").topics[T], 1);
+});
+
+test("raisedAnswers: answered intermediate, beginner not reached: stays intermediate", () => {
+  const entries = ratingsAt(T, "beginner", 2, "2026-11-18T10:00:00Z");
+  assert.equal(raisedAnswers(answers({ [T]: 2 }), entries, "2026-11-19").topics[T], 2);
 });

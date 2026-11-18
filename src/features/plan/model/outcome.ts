@@ -186,14 +186,24 @@ function conceptOutcome(id: string, rated: Rated[]): ConceptOutcome {
   return { id, label: c.label, level: c.level, levels: c.levels, state, at, steps, ratings: mine.length, lastOn: newest ? dayOf(newest.at) : null, seconds: 0 };
 }
 
+// a concept stands at every level its steps reach, and is judged at each by the ratings there or above
+const conceptsAt = (concepts: ConceptOutcome[], i: number) => concepts.filter((c) => c.levels.includes(LEVEL_ORDER[i]));
+const solidAt = (i: number) => (c: ConceptOutcome) => c.at[LEVEL_ORDER[i]] === "solid";
+
+/**
+ * Whether a topic's level `i` (an index of `LEVEL_ORDER`) is reached from practice: it has concepts in the topic and every
+ * one is solid there. Each level is judged on its own: a level below need not be solid.
+ */
+export const levelReached = (concepts: ConceptOutcome[], i: number): boolean => {
+  const at = conceptsAt(concepts, i);
+  return at.length > 0 && at.every(solidAt(i));
+};
+
 /** The level reached and the score between levels, from the rung and the concepts' states at each level. */
 function scoreOf(concepts: ConceptOutcome[], rung: Rung | null, rated: boolean): { reached: number | null; score: number | null } {
-  // a concept stands at every level its steps reach, and is judged at each by the ratings there or above
-  const at = (i: number) => concepts.filter((c) => c.levels.includes(LEVEL_ORDER[i]));
-  const solidAt = (i: number) => (c: ConceptOutcome) => c.at[LEVEL_ORDER[i]] === "solid";
-  // A level is reached from practice when it has concepts in this topic and every one is solid there. Levels are judged
-  // one by one: an empty level is never the one checked, so it doesn't block, and a level below need not be solid.
-  const practised = [0, 1, 2, 3].filter((i) => at(i).length > 0 && at(i).every(solidAt(i)));
+  const at = (i: number) => conceptsAt(concepts, i);
+  // levels are judged one by one: an empty level is never the one checked, so it doesn't block
+  const practised = [0, 1, 2, 3].filter((i) => levelReached(concepts, i));
   const fromPractice = practised.length ? Math.max(...practised) : null;
   const floor = rung ?? (rated ? 0 : null); // no answer: "new" once the topic has any rating
   if (floor === null && fromPractice === null) return { reached: null, score: null };

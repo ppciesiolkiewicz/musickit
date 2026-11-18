@@ -149,7 +149,7 @@ model/            pure, no React; tested in model/plan.test.ts
   progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
   answersHistory.ts cleanAnswersHistory(), movedOver(), recordAnswers(): every finished questionnaire kept with its date (`PlanState.answersHistory`, oldest first, at most 100)
   outcome.ts      startOutcome(), TopicScore: each topic's starting score from the questionnaire answers; outcome(input, asOf): per step, concept, topic and area, from ratings and questionnaires up to a day (time and streak are added to the same function)
-  topicLevels.ts  raisedAnswers(answers, entries, asOf): the answers with each topic raised to the level its ratings reach (`outcome()`'s `reached`, the tracker's rule), never lowered; what `composeToday` hands the composer and `/dev/path` hands `reach()` (NEW7)
+  topicLevels.ts  raisedAnswers(answers, entries, asOf): the answers with each topic raised one level at a time while the next level is reached by the tracker's rule (`levelReached`), never lowered; what `composeToday` hands the composer and `/dev/path` hands `reach()` (NEW7)
   daySteps.ts     solidRatedAt(), daySteps(): which path steps a day's plan works on (fresh, open, review) from the answers, the solid steps with their rating dates and the date (a rating with no time counts as the oldest, here and in compose.ts); pure (NEW7)
   compose.ts      composeDay(): one day's plan of library blocks (`Candidate`) for those steps, filled to the minutes (planned review blocks counted first and placed last, each one at most a third of the day, 5 minutes at least: a review step with no block that short is passed over for the next, and with none no review is planned; then fresh steps, open steps, more blocks on the day's steps, more review; `short` when more than 5 minutes under); a block naming any step beyond the player's reach (`reach()`: ahead and not open) or off the path is never picked; a block fits the highest step it names on a track, a step with none walks down its track, also onto a step already solid, and that block counts as new, not as the day's review; more review goes round the review steps until the minutes are filled; never yesterday's, declined or kept blocks; random only from `seed`. composeWeek(): seven days in a row, each the day before as `yesterday` (NEW7)
   today.ts        daysLabel(n) ("1 day", "7 days"), dateLabel(date) ("16 November"), dayWords(date, exercises): a composed day's title (its date) and theme (its topics, from `topic` or the steps' tracks); hasNewPicks(today, day): whether another try brought anything besides today's rated exercises; pastDays(history, current, date): the composed days (and a composed current from before `date`), newest first, the last PAST_DAYS (14); todayView(), shouldAsk(): what the page shows for today and when it asks; applyFirst(), applyAnother(): what an answer does to the state, or the failure to say (`TodayFailure`)
@@ -376,10 +376,11 @@ questionnaire's placement and the steps rated solid are known (a starting step r
 and so is everything they need first; a step whose
 predecessors are all known is within reach, a few per topic at a time (`REACH_CAP` by the topic's line: new 1, beginner
 2, then no cap), starting steps always. The ones over the cap are "ahead" but `open`. Nothing blocks a player.
-For the composer and `/dev/path`'s player in the browser, a topic's line is the higher of the answer and the level the
-player's ratings reach there (`raisedAnswers`, `model/topicLevels.ts`: the progress tracker's `reached` from `outcome()`,
-ratings only), so a player who answered new and rated their way up is paced as the tracker shows them. Ratings never take
-a topic below its answer, and a topic never answered nor rated stays unanswered. `reach.ts` itself is unchanged.
+For the composer and `/dev/path`'s player in the browser, a topic's line goes up from the answer (unanswered: new) one
+level at a time, to the next level only when the tracker's rule counts that level itself as reached (`raisedAnswers`,
+`model/topicLevels.ts`, with `levelReached` from `outcome.ts`: every concept with a step there is solid there), so a
+level reached higher up with a gap below raises nothing (one rating on an advanced track can't make a topic's unrated
+steps known). Ratings never take a topic below its answer, and a topic never answered nor rated stays unanswered. `reach.ts` itself is unchanged.
 
 `model/concepts.ts` is the catalogue the questionnaire rates and exercises are tagged with: `CONCEPTS`, one per track
 (`level` is its first step's, `levels` every level its steps reach, `steps`, a `course` link), `AREAS`
