@@ -43,9 +43,10 @@ export const REVIEW = "Review this week";
  * The questions for a plan, as one step modal. "start": the whole questionnaire. "next": how the plan went (once the week is
  * over), how the week went, minutes and anything else. The topic screens are left out of "next" (ratings say more than
  * they do), except for an area with no answer yet (answers kept from before the topics), and unless the player asks with
- * "Change my answers". No plan is made here until the server writes plans (NEW7): the last screen says so and points to
- * the demo plans, and finishing hands `onAnswers` the answers, for "next" the notes on the week, and `asked`: whether the
- * topic screens were shown (the answers are then remembered with their date).
+ * "Change my answers". No plan is made here: "start"'s last screen says attunr puts today's plan together from the answers
+ * (the page does, `useTodayPlan`, once `onAnswers` has stored them); "next" (a seven-day plan's week, not opened on `/plan`)
+ * says next week's plan isn't ready and points to the demo plans. Finishing hands `onAnswers` the answers, for "next" the
+ * notes on the week, and `asked`: whether the topic screens were shown (the answers are then remembered with their date).
  * Once the week is over, "next" opens on the plan review (`PlanReviewStep`, optional), which goes to `onReview` straight away.
  */
 export default function PlanFlow({ mode, answers, current, review, onReview, onAnswers, onClose }: {
@@ -102,9 +103,14 @@ export default function PlanFlow({ mode, answers, current, review, onReview, onA
       ];
   steps.push(mode === "start"
     ? {
-        title: "New plans aren't ready yet",
-        hint: "attunr can't put a new plan together for you yet.",
-        body: <NotReady>When you press {FINISH}, attunr saves your answers, and your first plan starts from them once plans are ready.</NotReady>,
+        title: "Your first plan",
+        hint: "attunr makes today's plan from your answers.",
+        body: (
+          <div className="flex flex-col gap-3 text-sm leading-relaxed text-slate-300">
+            <p>When you press {FINISH}, attunr saves your answers and puts today&apos;s plan together.</p>
+            <p>Each day you open the plan page, attunr makes a new plan. The stars you give each exercise shape the next one.</p>
+          </div>
+        ),
       }
     : {
         title: "Next week's plan isn't ready yet",
@@ -142,7 +148,7 @@ export default function PlanFlow({ mode, answers, current, review, onReview, onA
   );
 }
 
-/** The closing screen: why no plan comes yet, and the demo plans to open meanwhile. */
+/** "next"'s closing screen: why no plan comes yet, and the demo plans to open meanwhile. */
 function NotReady({ children }: { children: ReactNode }) {
   return (
     <div className="flex flex-col gap-3 text-sm leading-relaxed text-slate-300">

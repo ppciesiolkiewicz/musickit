@@ -2,37 +2,39 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { Button, Checkbox, HUE_TONES, Modal, Section } from "@/components/ui";
+import { Button, Checkbox, HUE_TONES, Modal } from "@/components/ui";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { recordAnswers } from "./model/answersHistory";
 import { backfill, entryFor } from "./model/progressLog";
 import { addedPlan, takeAdded } from "./model/added";
 import { useProgress } from "@/features/progress/useProgress";
-import { dayIndex, localDate, ratePlan, restartPlan, reviewPlan, weekOver } from "./model/schedule";
+import { localDate, ratePlan, restartPlan, reviewPlan } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
-import { planDays, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
+import type { PlanAnswers, PlanConfig, PlanState, StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
 import { useAllPlanTimes, usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
 import { outcome } from "./model/outcome";
 import { mergeTimes } from "./model/trackerView";
 import StreakButton from "./ui/tracker/StreakButton";
 import ProgressTracker from "./ui/tracker/ProgressTracker";
-import PlanFlow, { REVIEW, savedFlow } from "./ui/PlanFlow";
-import WeekView from "./ui/WeekView";
+import PlanFlow, { savedFlow } from "./ui/PlanFlow";
+import DayPlan, { TodayStatus } from "./ui/DayPlan";
+import PastDays from "./ui/PastDays";
+import { useTodayPlan } from "./ui/useTodayPlan";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
 import Link from "next/link";
 import SharePopover, { ShareRefused } from "@/features/teachers/studio/SharePopover";
 import { useAccount } from "@/features/account/useAccount";
-import { DISPLAY } from "@/components/landing/Display";
 import { FixedLabelRoot, LabelSelect } from "@/features/theory/useLabelSystem";
 
 const NOT_SAVED = "Your latest change isn't saved yet, so the plan wasn't shared. Wait a moment, then press Share again.";
 
 /**
- * The AI practice plan, a continuous daily plan; a new day opens each day. Start runs the questions in one step modal, and
- * "Review this week" the shorter follow-up on how the week went; "Start anew" runs the first flow again. Until the server
- * writes plans (NEW7) a flow only saves: the answers, and the notes on the week with the current plan.
+ * The player's own daily plan. Without answers: the intro and Start, which runs the questions in one step modal. With
+ * answers: today's plan, composed on the server the first time the page opens that day (`useTodayPlan`), drawn by
+ * `DayPlan`, with Get another plan; while it is made or when it can't be, `TodayStatus` says so where the plan would be.
+ * Past days are listed under it, read-only.
  */
 export default function PlanApp() {
   const { state, loaded, update } = usePlan();
@@ -46,9 +48,10 @@ export default function PlanApp() {
     for (const row of backfill([...(state.current ? [state.current] : []), ...state.history], randomId)) progress.put(row);
   }, [loaded, progress, state]);
   // a flow left open (reload, hot reload) comes back; the modal only renders after the store loads, so no hydration mismatch
-  const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode ?? null));
+  // only the first questionnaire: a daily plan has no week to review (a "next" flow saved before is not reopened here)
+  const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode === "start" ? "start" : null));
+  // the streak's day, moving at midnight; today's plan keeps the date the page opened with (`useTodayPlan`)
   const [today, setToday] = useState(() => localDate());
-  const [day, setDay] = useState<number | null>(null);
   // Share plan: a teacher makes an invite; anyone else is shown what a teacher account does
   const [shareOpen, setShareOpen] = useState(false);
   const closeShare = useCallback(() => setShareOpen(false), []);
@@ -73,12 +76,12 @@ export default function PlanApp() {
     return () => clearInterval(t);
   }, []);
 
-  const plan = state.current;
+  // today's own plan, composed on the server when the page has answers and none for today
+  const day = useTodayPlan(state, loaded, update, store);
+  const plan = day.today;
   // the day timer's seconds, kept apart from the plan
   const { times, loaded: timesLoaded, saveTime } = usePlanTimes(plan?.id ?? null);
   const added = loaded ? addedPlan(state, addedId) : null;
-  const todayIdx = plan ? Math.min(dayIndex(plan.startedOn, today), planDays(plan) - 1) : 0;
-  const over = plan ? weekOver(plan, today) : false;
   // the streak and the progress tracker: every plan's timer records with this plan's live ones laid over them, so
   // today's saves count without a reload
   const all = useAllPlanTimes();
@@ -98,26 +101,19 @@ export default function PlanApp() {
     </Modal>
   );
 
-  // a finished flow keeps the answers (with their date when the topic screens were asked) and the notes on the week; no plan starts
+  // a finished flow keeps the answers (with their date when the topic screens were asked); with answers and no plan for
+  // today, `useTodayPlan` puts one together, so the player lands on the plan being made
   const onAnswers = (answers: PlanAnswers, feedback: string | undefined, asked: boolean) => {
     const at = new Date().toISOString();
     update((s) => ({ ...(asked ? recordAnswers(s, answers, at) : s), answers, current: s.current && feedback !== undefined ? { ...s.current, feedback } : s.current }));
-    setSaved(flow);
-    setReviewed(feedback !== undefined);
     setFlow(null);
   };
-  // what the last finished flow saved, said under the header until closed
-  const [saved, setSaved] = useState<"start" | "next" | null>(null);
-  // the week was reviewed in this visit (notes may be empty), so the week-done banner stops asking
-  const [reviewed, setReviewed] = useState(false);
-  const savedNotice = saved && <SavedNotice kind={saved} onClose={() => setSaved(null)} />;
   // an earlier plan, started again: it keeps the running plan's progress summary (restartPlan)
   const startAgain = (config: PlanConfig) => {
     update((s) => restartPlan(s, config, randomId, localDate()));
     setFlow(null);
-    setDay(0);
   };
-  const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current ? { ...s, current: change(s.current) } : s));
+  const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current && s.current.id === plan?.id ? { ...s, current: change(s.current) } : s));
   // the browser AI's block tools, while a plan runs
   // the day the player has open in the day editor: the AI leaves it alone until Done
   const [editingDay, setEditingDay] = useState<number | null>(null);
@@ -126,7 +122,7 @@ export default function PlanApp() {
   const rate = (d: number, e: number, stars: Stars | null) => {
     const at = new Date().toISOString();
     setPlan((p) => ratePlan(p, d, e, stars, at));
-    const current = state.current;
+    const current = plan;
     const id = current?.config.days[d]?.exercises[e]?.id;
     if (!current || !id) return;
     const row = stars === null ? null : entryFor(current, d, e, { stars, at }, randomId);
@@ -143,17 +139,20 @@ export default function PlanApp() {
   // the header's controls: one height, big enough to hit with a guitar in the other hand
   const big = "h-10 !rounded-xl px-4 text-sm";
 
-  if (!plan) {
+  const addedNotice = added && <AddedNotice plan={added} onUse={() => { startAgain(added.config); setAddedId(null); }} onClose={() => setAddedId(null)} />;
+  const past = <PastDays history={state.history} />;
+
+  if (!state.answers) {
     return (
       <div className="flex flex-col gap-4">
         {state.history.length > 0 && streak && <div>{streak}</div>}
-        {savedNotice}
+        {addedNotice}
         <section className="flex flex-col items-start gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <ol data-tour="plan-steps" className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
             {[
               "Answer a few questions about where you are and where you want to go",
-              "attunr saves your answers for your first plan",
-              <>Until new plans are ready, open a <Link href="/demo" className="text-sky-300 underline underline-offset-2 hover:text-sky-200">demo plan</Link> to see a week of practice</>,
+              "attunr puts today's plan together from library exercises that fit your answers",
+              "Each day you open this page, attunr makes a new plan, shaped by the stars you give each exercise",
             ].map((t, i) => (
               <li key={i} className="flex gap-2">
                 <span className="grid size-6 shrink-0 place-items-center rounded-full bg-sky-500/20 text-xs text-sky-200">{i + 1}</span>
@@ -163,7 +162,21 @@ export default function PlanApp() {
           </ol>
           <Button data-tour="plan-start" onClick={() => setFlow("start")} className={`${primary} px-5 py-2 text-sm`}><Icon name="sparkles" size={16} />Start</Button>
         </section>
-        {state.history.length > 0 && <History key={added?.id ?? ""} plans={state.history} onUse={startAgain} marked={added?.id} />}
+        {past}
+        {modal}
+        {tracker}
+      </div>
+    );
+  }
+
+  if (!plan) {
+    // never yesterday's plan in today's place: the line while it is made, or why it isn't there
+    return (
+      <div className="flex flex-col gap-4">
+        {streak && <div>{streak}</div>}
+        {addedNotice}
+        <TodayStatus making={day.making} failed={day.failed} onRetry={day.retry} />
+        {past}
         {modal}
         {tracker}
       </div>
@@ -173,48 +186,34 @@ export default function PlanApp() {
   // the exercises set their own keys and always count from the scale's root, so the only setting is how notes are labelled:
   // a small pill floating over the day timer, or on a phone a control in the header row, so the corner stays small
   const labels = <LabelSelect className="rounded-xl border border-slate-700 bg-slate-950/90 px-2.5 py-1.5 shadow-xl shadow-black/40 backdrop-blur max-sm:hidden" />;
+  const controls = (<>
+    <Reminder state={state} update={update} />
+    <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
+    <SharePopover kind="plan" itemId={plan.id} open={shareOpen} onClose={closeShare} prepare={prepareShare} instead={can("sharePlan") ? undefined : <UpgradeToTeacher />}>
+      <Button onClick={() => setShareOpen((s) => !s)} aria-expanded={shareOpen} className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
+    </SharePopover>
+  </>);
   return (
     <FixedLabelRoot value="scale">
       {/* necks keep the page's margins rather than bleeding to the window's edge */}
       <div className="flex flex-col gap-4 pb-28 [&_.bleed]:mx-0">
-        {/* the plan's header: clear of the page intro above, the title given room, then its controls on their own row */}
-        <div className="mt-4 mb-2 flex flex-col gap-5 sm:mt-6">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${planDays(plan)}`} · started {plan.startedOn}</p>
-              {streak}
-            </div>
-            <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
-            {plan.config.summary && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">{plan.config.summary}</p>}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Reminder state={state} update={update} />
-            <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
-            <Button data-tour="plan-next" onClick={() => setFlow("next")} title="Rate this plan and say how the week went" className={`${primary} ${big}`}><Icon name="sparkles" size={16} />{REVIEW}</Button>
-            <Button onClick={() => setFlow("start")} title="Answer the questions again" className={`${big} hover:!border-violet-500/60 hover:!bg-violet-500/10`}><Icon name="rotate-ccw" size={16} className={HUE_TONES.violet.ink} />Start anew</Button>
-            <SharePopover kind="plan" itemId={plan.id} open={shareOpen} onClose={closeShare} prepare={prepareShare} instead={can("sharePlan") ? undefined : <UpgradeToTeacher />}>
-              <Button onClick={() => setShareOpen((s) => !s)} aria-expanded={shareOpen} className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
-            </SharePopover>
-          </div>
-        </div>
-
-        {added && <AddedNotice plan={added} onUse={() => { startAgain(added.config); setAddedId(null); }} onClose={() => setAddedId(null)} />}
-
-        {savedNotice}
-
-        {over && !reviewed && !plan.feedback?.trim() && !plan.review && (
-          <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-sky-400 bg-slate-900/80 p-4">
-            <div className="min-w-0 flex-1">
-              <h2 className="text-base text-slate-100">Week done</h2>
-              <p className="text-sm text-slate-400">Tell us how it went. attunr saves your notes with this plan.</p>
-            </div>
-            <Button onClick={() => setFlow("next")} className={primary}><Icon name="sparkles" size={14} />{REVIEW}</Button>
-          </section>
-        )}
-
-        <WeekView plan={plan} today={over ? planDays(plan) - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} times={times} onTime={saveTime} onEdit={(next) => setPlan(() => next)} onEditing={setEditingDay} corner={labels} />
-
-        {state.history.length > 0 && <History key={added?.id ?? ""} plans={state.history} onUse={startAgain} marked={added?.id} />}
+        <DayPlan
+          plan={plan}
+          streak={streak}
+          controls={controls}
+          onAnother={day.another}
+          asking={day.asking}
+          none={day.none}
+          anotherFailed={day.anotherFailed}
+          onRate={rate}
+          times={times}
+          onTime={saveTime}
+          onEdit={(next) => setPlan(() => next)}
+          onEditing={setEditingDay}
+          corner={labels}
+        />
+        {addedNotice}
+        {past}
         <div className="flex justify-center">
           <Button size="sm" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} title="Scroll back to the top of the page">
             <Icon name="arrow-up" size={12} />Back to top
@@ -227,7 +226,6 @@ export default function PlanApp() {
   );
 }
 
-/** Earlier weeks: what each was and how much got done; any can be started again. */
 /** Share plan for a player without a teacher account: what one does, and the teacher offer. */
 function UpgradeToTeacher() {
   return (
@@ -237,24 +235,6 @@ function UpgradeToTeacher() {
         Upgrade to Teacher account
       </Link>
     </div>
-  );
-}
-
-/** After a flow is finished: what attunr saved, that new plans aren't ready yet, and where the demo plans are. */
-function SavedNotice({ kind, onClose }: { kind: "start" | "next"; onClose: () => void }) {
-  const demo = <Link href="/demo" className="text-sky-300 underline underline-offset-2 hover:text-sky-200">demo plans</Link>;
-  return (
-    <section role="status" className="flex flex-wrap items-start gap-3 rounded-2xl border border-l-4 border-slate-700 border-l-emerald-400 bg-slate-900/80 p-4">
-      <div className="min-w-0 flex-1">
-        <h2 className="text-base text-slate-100">{kind === "start" ? "Your answers are saved" : "Your notes on this week are saved"}</h2>
-        <p className="text-sm text-slate-400">
-          {kind === "start"
-            ? <>New plans aren&apos;t ready yet. Your first plan starts from these answers once they are. Until then, the {demo} show what a week of practice looks like.</>
-            : <>Next week&apos;s plan isn&apos;t ready yet, so this plan keeps going. Until then, the {demo} show other weeks of practice.</>}
-        </p>
-      </div>
-      <button type="button" aria-label="Close" onClick={onClose} className="rounded-md p-1 text-slate-400 hover:text-slate-100"><Icon name="x" size={14} /></button>
-    </section>
   );
 }
 
@@ -271,30 +251,6 @@ function AddedNotice({ plan, onUse, onClose }: { plan: StoredPlan; onUse: () => 
         <button type="button" aria-label="Close" onClick={onClose} className="rounded-md p-1 text-slate-400 hover:text-slate-100"><Icon name="x" size={14} /></button>
       </div>
     </section>
-  );
-}
-
-/** The earlier plans, folded; open with a plan marked when it was just added from an invite (`marked`). */
-function History({ plans, onUse, marked }: { plans: StoredPlan[]; onUse: (c: PlanConfig) => void; marked?: string }) {
-  return (
-    <Section title="Earlier plans" meta={`${plans.length}`} defaultOpen={!!marked}>
-      <ul className="flex flex-col gap-2">
-        {plans.map((p) => {
-          const total = p.config.days.reduce((n, d) => n + d.exercises.length, 0);
-          const done = Object.keys(p.done).length;
-          return (
-            <li key={p.id} className={`flex flex-wrap items-center gap-3 rounded-xl border px-3 py-2 ${p.id === marked ? "border-sky-400/70 bg-sky-500/10" : "border-slate-800"}`}>
-              <span className="min-w-0 flex-1 text-sm text-slate-200">
-                {p.id === marked && <span className="mr-2 rounded-full bg-sky-500/20 px-2 py-0.5 text-xs text-sky-200">Just added</span>}
-                {p.config.title}
-              </span>
-              <span className="text-xs text-slate-500">started {p.startedOn} · {done}/{total} done</span>
-              <Button size="sm" onClick={() => onUse(p.config)}><Icon name="rotate-ccw" size={12} />Start again</Button>
-            </li>
-          );
-        })}
-      </ul>
-    </Section>
   );
 }
 

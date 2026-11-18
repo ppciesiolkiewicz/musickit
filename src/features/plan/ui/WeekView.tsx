@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { DISPLAY } from "@/components/landing/Display";
 import DayTimer, { Corner } from "./DayTimer";
@@ -12,10 +12,8 @@ import { planDays, type StoredPlan } from "../model/types";
 import type { Stars } from "@/features/progress/stars";
 
 /**
- * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day's
- * exercises, each an `ExerciseCard`. One floating timer counts down the whole day (`DayTimer`): it starts by itself for the day shown on page
- * load, its used time is saved apart from the plan (`times`, `onTime`). The card in view (the one across the middle of the screen, or the last one
- * once the page is scrolled to the end) is the exercise the timer names and counts time for, and it is lifted a little.
+ * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day,
+ * drawn by `DayPanel`. Only the day shown when the page opened starts its timer by itself.
  */
 export default function WeekView({ plan, today, day, onDay, onRate, times = [], onTime, onEdit, onEditing, corner }: {
   plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;
@@ -30,24 +28,17 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
   /** small controls floating in the bottom-right corner, over the timer */
   corner?: ReactNode;
 }) {
-  // the day being edited: its cards give way to the day editor and the timer is put away until Done or Cancel
+  // the day being edited: the other days can't be opened until Done or Cancel (another day would throw the draft away)
   const [editing, setEditing] = useState<number | null>(null);
-  useEffect(() => onEditing?.(editing), [editing, onEditing]);
-  const d = plan.config.days[day];
-  const [now, setNow] = useState<number | null>(null);
+  const tellEditing = useCallback((d: number | null) => {
+    setEditing(d);
+    onEditing?.(d);
+  }, [onEditing]);
   // only the day shown when the page opened starts its timer by itself
   const [autoDay, setAutoDay] = useState<number | null>(day <= today ? day : null);
-  const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
-  const cards = useRef<(HTMLLIElement | null)[]>([]);
-  const focused = useInView(cards, day);
-  // the timer's seconds per exercise as they count, so the cards show them live; until it reports, the saved ones
-  const [live, setLive] = useState<{ day: number; spent: number[] } | null>(null);
-  const saved = spentOn(times, day, d.exercises);
-  const spent = live?.day === day ? live.spent : saved;
+  const d = plan.config.days[day];
   const openDay = (i: number) => {
     setAutoDay(null);
-    setNow(null);
-    setEditing(null);
     onDay(i);
   };
   return (
@@ -64,7 +55,6 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
               role="tab"
               aria-selected={on}
               onClick={() => openDay(i)}
-              // the day being edited stays until Done or Cancel: another day would throw the draft away
               disabled={editing !== null && i !== editing}
               title={ahead ? `Coming up: ${plan.config.days[i].theme}` : plan.config.days[i].theme}
               className={`relative flex cursor-pointer flex-col items-center gap-0.5 overflow-hidden rounded-xl border px-1 py-2 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-400 bg-sky-500/25 text-sky-50 shadow-md shadow-sky-500/20" : ahead ? "border-dashed border-slate-700 bg-transparent text-slate-500 hover:border-slate-500 hover:text-slate-300" : p === 1 ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-100 hover:border-emerald-400" : "border-slate-600 bg-slate-800/60 text-slate-200 hover:border-sky-500/60 hover:bg-slate-800"}`}
@@ -78,17 +68,74 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
         })}
       </div>
 
+      <DayPanel
+        key={day}
+        plan={plan}
+        day={day}
+        heading={<>
+          <h2 className="text-2xl text-slate-50" style={DISPLAY}>Day {day + 1}: {d.theme}</h2>
+          {day > today && <span className="rounded-full border border-dashed border-slate-600 px-2 py-0.5 text-[11px] text-slate-400">Coming up in {day - today} day{day - today > 1 ? "s" : ""}</span>}
+        </>}
+        timerLabel={`Day ${day + 1}`}
+        autoStart={autoDay === day}
+        onRate={onRate}
+        times={times}
+        onTime={onTime}
+        onEdit={onEdit}
+        onEditing={tellEditing}
+        corner={corner}
+      />
+    </div>
+  );
+}
+
+/**
+ * One day of a plan: its heading (the host's words), how many exercises and minutes, each exercise an `ExerciseCard`, and one
+ * floating timer that counts down the whole day (`DayTimer`), its used time saved apart from the plan (`times`, `onTime`). The
+ * card in view (the one across the middle of the screen, or the last one once the page is scrolled to the end) is the exercise
+ * the timer names and counts time for, and it is lifted a little. With `onEdit` the day has Edit (`DayEditor`). Without `onRate`
+ * the cards have no stars (a past day, read-only). The week's strip and today's plan (`DayPlan`) both draw a day with it.
+ */
+export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, times = [], onTime, onEdit, onEditing, corner }: {
+  plan: StoredPlan; day: number; heading: ReactNode;
+  /** the day timer's name for the day ("Day 3", "Today") */
+  timerLabel: string;
+  /** the timer starts by itself (the day shown when the page opened) */
+  autoStart: boolean;
+  onRate?: (day: number, ex: number, stars: Stars | null) => void;
+  times?: DayTime[];
+  onTime?: (time: DayTime) => void;
+  onEdit?: (next: StoredPlan) => void;
+  onEditing?: (day: number | null) => void;
+  corner?: ReactNode;
+}) {
+  // the day editor is open: the cards give way to it and the timer is put away until Done or Cancel
+  const [editing, setEditing] = useState(false);
+  useEffect(() => onEditing?.(editing ? day : null), [editing, day, onEditing]);
+  const d = plan.config.days[day];
+  const [now, setNow] = useState<number | null>(null);
+  const [auto, setAuto] = useState(autoStart);
+  const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
+  const cards = useRef<(HTMLLIElement | null)[]>([]);
+  const focused = useInView(cards, day);
+  // the timer's seconds per exercise as they count, so the cards show them live; until it reports, the saved ones
+  // (kept with the exercises they count for: another plan or an edit drops them)
+  const ids = d.exercises.map((e) => e.id).join(",");
+  const [live, setLive] = useState<{ ids: string; spent: number[] } | null>(null);
+  const saved = spentOn(times, day, d.exercises);
+  const spent = live?.ids === ids ? live.spent : saved;
+  return (
+    <>
       <div data-tour="plan-day" className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 className="text-2xl text-slate-50" style={DISPLAY}>Day {day + 1}: {d.theme}</h2>
-        {day > today && <span className="rounded-full border border-dashed border-slate-600 px-2 py-0.5 text-[11px] text-slate-400">Coming up in {day - today} day{day - today > 1 ? "s" : ""}</span>}
+        {heading}
         <span className="text-xs text-slate-400">{d.exercises.length} exercises · {total} min</span>
-        {onEdit && editing !== day && (
+        {onEdit && !editing && (
           <button type="button" onClick={() => {
             // the timer is put away: it neither starts again by itself nor keeps the seconds of the old order when it comes back
-            setAutoDay(null);
+            setAuto(false);
             setNow(null);
             setLive(null);
-            setEditing(day);
+            setEditing(true);
           }} className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-200 hover:border-slate-500">
             <Icon name="pencil" size={12} />
             Edit
@@ -96,39 +143,38 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
         )}
       </div>
 
-      {editing === day && onEdit ? (
-        <DayEditor plan={plan} day={day} onCancel={() => { setLive(null); setEditing(null); }} onDone={(next) => { onEdit(next); setLive(null); setEditing(null); }} />
-      ) : (<>
+      {editing && onEdit ? (
+        <DayEditor plan={plan} day={day} onCancel={() => { setLive(null); setEditing(false); }} onDone={(next) => { onEdit(next); setLive(null); setEditing(false); }} />
+      ) : (
+        <ol className="flex flex-col gap-5">
+          {d.exercises.map((e, i) => {
+            const done = !!plan.done[doneKey(day, i)];
+            const isNow = now === i && !done;
+            return (
+              <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
+                <ExerciseCard exercise={e} index={i} done={done} now={isNow} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} address={`d${day}.e${i}`} />
+              </li>
+            );
+          })}
+        </ol>
+      )}
 
-      <ol className="flex flex-col gap-5">
-        {d.exercises.map((e, i) => {
-          const done = !!plan.done[doneKey(day, i)];
-          const isNow = now === i && !done;
-          return (
-            <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
-              <ExerciseCard exercise={e} index={i} done={done} now={isNow} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={(s) => onRate(day, i, s)} address={`d${day}.e${i}`} />
-            </li>
-          );
-        })}
-      </ol>
-      </>)}
-
-      {onTime && editing !== day ? <DayTimer
-        // a day whose exercises change (an AI's insert or removal) gets a fresh timer, so it never saves the old order's seconds
-        key={`${plan.id}:${day}:${d.exercises.map((e) => e.id).join(",")}`}
+      {onTime && !editing ? <DayTimer
+        // a day whose exercises change (an AI's insert or removal, another plan) gets a fresh timer, so it never saves the old order's seconds
+        key={`${plan.id}:${day}:${ids}`}
         minutes={d.exercises.map((e) => e.minutes)}
         titles={d.exercises.map((e) => e.title)}
-        label={`Day ${day + 1}`}
+        label={timerLabel}
         elapsed={elapsedOn(times, day)}
         spent={saved}
         focused={focused}
-        autoStart={autoDay === day}
+        autoStart={auto}
         onSave={(s, spent) => onTime(dayTime(plan.id, day, d.exercises, s, spent, times.find((t) => t.day === day), undefined, plan.startedOn))}
         onExercise={setNow}
-        onSpent={(s) => setLive({ day, spent: s })}
+        onSpent={(s) => setLive({ ids, spent: s })}
         above={corner}
       /> : <Corner above={corner} />}
-    </div>
+    </>
   );
 }
 

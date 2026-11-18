@@ -37,7 +37,9 @@ export function showReminder(state: PlanState, now: Date): void {
   if (!notificationsSupported() || Notification.permission !== "granted" || !state.current) return;
   const day = dayIndex(state.current.startedOn, localDate(now));
   const theme = state.current.config.days[day]?.theme;
-  const n = new Notification("Time to practise", { body: `Day ${day + 1}${theme ? `: ${theme}` : ""}`, tag: "attunr-plan", icon: "/icon.png" });
+  // a composed plan is one day: "Day 1" would say nothing, so it names today's plan
+  const body = state.current.composed ? `Today's plan${theme ? `: ${theme}` : ""}` : `Day ${day + 1}${theme ? `: ${theme}` : ""}`;
+  const n = new Notification("Time to practise", { body, tag: "attunr-plan", icon: "/icon.png" });
   n.onclick = () => {
     window.focus();
     // a notification click is outside React, so there is no router to push with

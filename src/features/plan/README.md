@@ -1,21 +1,22 @@
 # AI practice plan
 
-`/plan`: a continuous daily practice plan. Players have no outside-AI route to a plan any more (NEW15: no prompt to
-copy into an AI chat, no AI extension writing it). Until the server puts plans together (NEW7), the flow only asks the
-questions and saves the answers; the six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used by agents
-and the devtools only.
+`/plan`: the player's own daily practice plan. Each day the page is opened, the server composes that day's plan from
+library blocks (NEW7, no AI: `model/compose.ts`, `server/composeToday.ts`, the route `api/me/plan/compose`) and the page
+stores it. Players have no outside-AI route to a plan (NEW15: no prompt to copy into an AI chat, no AI extension writing
+it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used by agents and the devtools only.
 
 ## The player's path
 
 1. **Start** opens one step modal (`ui/PlanFlow.tsx`, mode `"start"`): the first questionnaire (`intake/`, see its
    README): what you play (Guitar, Voice, Theory & ear), one screen per chosen area with its six topics, each answered by
    picking the one line of four that sounds like you (or left unanswered), your voice (with *Find my range*) if Voice is
-   chosen, minutes a day, notes and styles. It only has to get week 1 roughly right. The last screen, *New plans aren't
-   ready yet*, says attunr can't put a plan together yet and links to the demo plans (`/demo`). Every screen has the same
-   fixed height (the body scrolls inside), so Back and Next never move. **Save my answers** finishes: `onAnswers` stores
-   the answers and remembers them with the date (`answersHistory`, `recordAnswers`); no plan starts. A notice under the header
-   (`SavedNotice`) then says what was saved, that new plans aren't ready yet, and links to the demo plans. A saved flow whose
-   step is past the last screen (one saved with the two prompt steps it had before) opens on the last screen. The flow's
+   chosen, minutes a day, notes and styles. The last screen, *Your first plan*, says that
+   Save my answers saves them and attunr puts today's plan together, and that a new plan comes each day the plan page is
+   opened. Every screen has the same fixed height (the body scrolls inside), so Back and Next never move. **Save my
+   answers** finishes: `onAnswers` stores the answers and remembers them with the date (`answersHistory`,
+   `recordAnswers`); the page then shows the plan being made (the next step), with no notice in between. A saved flow
+   whose step is past the last screen (one saved with the two prompt steps it had before) opens on the last screen. Only
+   a saved "start" flow reopens on `/plan`. The flow's
    dialog is StepModal `large`. The prompt's debug lists and the paste box (`DebugList`, `PasteBox` in
    `ui/PromptAndPaste.tsx`) live on /dev/prompt only. The register and feature check for the browser's AI (WebMCP) live
    in `@/lib/webmcp`.
@@ -23,7 +24,27 @@ and the devtools only.
    also gets `list_exercise_tools` (the prompt's own `toolInterface()`), `show_exercise_tool({ tool })` (checked with
    `parseToolDiag`, opened in a dialog, `ui/AgentToolModal.tsx`; the AI reads back what was changed or why not) and
    `close_exercise_tool`. Without WebMCP nothing is loaded; the parser and views load on first call.
-2. **The week** (`ui/WeekView.tsx`): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
+2. **Today's plan** (`ui/DayPlan.tsx`, the request in `ui/useTodayPlan.ts` and `store/composeClient.ts`). With answers
+   and no own plan for today (`ownDay`), the page flushes the store (`PlanStore.flush`), asks the route once
+   (`requestDay({ date, another: false })`, 15 s timeout, never throws) and stores the answer (`startDay`, with the title
+   and theme from `model/today.ts` `dayWords`: the date, "Wednesday 18 November", and the topics the exercises practise).
+   It runs once per page view and date: the date is read when the page opens, so a page left open past midnight makes
+   nothing until it is opened again (no timer). While it is made the page says "attunr is putting today's plan
+   together…", never an empty plan and never yesterday's in its place. When it can't be made, `TodayStatus` says so where
+   the plan would be, by the route's `code` (never its `error` text): `no-blocks` "No plan today" (not retried, come back
+   tomorrow); `offline` and `failed` with **Try again**; `bad-date` with **Reload page**; `no-answers` (impossible after
+   the flush) as `failed`. The plan: "Today's plan" with the streak, the date as the title, the topics under it, the
+   reminder, Labels on a phone, **Share plan** and **Get another plan**, then the day (`DayPanel` from `WeekView.tsx`, no
+   day strip, no "Day N of M": the exercise cards with stars and the day timer, named "Today"; Edit as on a week's day).
+   **Get another plan** flushes, asks with `another: true` and stores the answer with `anotherDay` (rated exercises stay,
+   with their ratings and timer seconds; the rest are replaced and turned down for the day). When the answer has no new
+   pick (`hasNewPicks`: only today's rated exercises came back, or a 409 `no-blocks`) the plan stays and a line says there
+   are no other exercises for today's steps; a failed request says the plan stays and what to do. A short day
+   (`composed.short`) has a line under the exercises: shorter than the time set for a day, the library has no more for
+   today's steps yet. **Past days** (`ui/PastDays.tsx`, `pastDays`): the composed days of `history`, newest first, the last
+   14, each with its date, topics and how many exercises were rated; **Show exercises** opens it read-only (no stars, no
+   timer). "Week done", "Review this week", "Start anew" and the earlier-plans list are not on `/plan`.
+   **A seven-day plan** (`ui/WeekView.tsx`; the dev prompt studio's preview, a given plan's page next): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position): title in the display face, its hashtags (area, level, kind) small
    under it, its cells (a section shows its heading, its minutes and the chips of its choice), why, and five stars, "How did it go?" (1 Can't do it yet, 3 Same again next time, 5 Easy now: the
    scale in `src/features/progress/stars.ts`) and a line under them saying what each rating does to the next plan. Rating an exercise marks it done; tapping the same star again clears both
@@ -53,7 +74,7 @@ and the devtools only.
    "Learn before" at the top (prerequisite lessons) and "Explore more" at the bottom (going deeper), each shown as
    "Learn <the page's name>" and opening in a new tab. On a phone a link shows only the page's short name (`linkLabel(…,
    true)`: a course section's `short` title).
-4. **Review this week** (mode `"next"`, any time; the "Week done" banner shows it once the week is over, until the week has notes or a review): how did it go, minutes, notes
+4. **Review this week** (mode `"next"`; no longer opened on `/plan`, a daily plan has no week to review; the "Week done" banner shows it once the week is over, until the week has notes or a review): how did it go, minutes, notes
    and styles, then *Next week's plan isn't ready yet* with the demo link. **Save my answers** saves the notes on the week
    on the current plan (`StoredPlan.feedback`) and keeps the plan running; nothing below about the prompt happens on
    `/plan` until NEW7. Once the week is over (`weekOver`, decided when the flow opens and kept with
@@ -71,10 +92,10 @@ and the devtools only.
    prompt sends it back in place of the earlier weeks. The prompt uses the newest summary any stored plan has (a reply
    may come without one), with the weeks practised since it in full; with no summary at all, the two weeks before this
    one go in full. An earlier plan started again keeps the running plan's summary (`restartPlan`).
-5. **Start anew**: the first flow again; a prompt built for it leaves out past weeks. Earlier plans stay listed and can be restarted. **Share plan**, beside it, opens the share popover (`SharePopover`, `teachers/studio`, `kind="plan"`, `itemId` the plan's id). A teacher or owner (`can("sharePlan")`) gets **Share**: it first flushes the plan store (`PlanStore.flush`) and refuses when the latest change hasn't landed, then `POST /api/shares { kind: "plan" }` makes an invite of the stored current plan (`{ config }` only). The live invites are listed by date with **Stop** (not as links: opening one would add a copy to the sharer's own plans). Anyone else sees **Upgrade to Teacher account**, a link to `/kickstarter`, under one line on what a teacher account does.
+5. **Start anew** (not on `/plan` now): the first flow again; a prompt built for it leaves out past weeks. Earlier plans stay listed and can be restarted. **Share plan**, in today's plan's header, opens the share popover (`SharePopover`, `teachers/studio`, `kind="plan"`, `itemId` the plan's id). A teacher or owner (`can("sharePlan")`) gets **Share**: it first flushes the plan store (`PlanStore.flush`) and refuses when the latest change hasn't landed, then `POST /api/shares { kind: "plan" }` makes an invite of the stored current plan (`{ config }` only). The live invites are listed by date with **Stop** (not as links: opening one would add a copy to the sharer's own plans). Anyone else sees **Upgrade to Teacher account**, a link to `/kickstarter`, under one line on what a teacher account does.
 6. **An invite** (`/plan/invite/<id>`, `src/app/plan/invite/[id]/page.tsx` + `ui/InviteClaim.tsx`): not public; a signed-out visitor goes to `/login?next=/plan/invite/<id>`, which then reads "Create your account or log in to view" (`loginWords`, `account/loginGuard.ts`). Signed in, the page `POST`s `/api/shares/<id>/claim` (`claimInvite`: a copy, `from` the invite, first in the given plans, `PlanState.given`, whatever the current plan is; a second claim adds nothing) and does a full page load of `/plan?added=<planId>`, so the per-session plan store reads the new document. `/plan` shows a notice under the header naming the copy, with **Start again** (`model/added.ts`: `addedPlan` finds it in `given`, `takeAdded`); once the plan has loaded, `added` is taken out of the address so a reload doesn't show it again. Until the given plans get their own page (NEW7 Task 8), the copy is not drawn in Earlier plans and its "Just added" mark finds no row. A stopped invite (410) or an unknown one (404) shows a notice; a lost session (401) goes to log in and comes back.
-7. **The day streak and the progress tracker** (`ui/tracker/`): beside "Day N of M · started …" in the plan header (M is `planDays`: 7 for a parsed or given plan, 1 for a composed day) (and on
-   the no-plan screen when there are earlier plans) a small button says the streak plainly, "3 days in a row"
+7. **The day streak and the progress tracker** (`ui/tracker/`): beside "Today's plan" in the plan's header (and above the intro when there are earlier plans, and above the line while
+   today's plan is made or why it isn't there) a small button says the streak plainly, "3 days in a row"
    (`StreakButton`; its title says what counts: a rating, or 5 minutes on the day timer). PlanApp feeds `outcome()`
    (`model/outcome.ts`) every plan, the progress log, `answersHistory` and every plan's timer records
    (`useAllPlanTimes`) with the running plan's live records laid over them (`mergeTimes`), so a rating or a timer save
@@ -84,7 +105,8 @@ and the devtools only.
    starting on Intermediate" once something at the next level is solid, `topicLevel`), and each concept as "Solid",
    "Working on" or "Not yet", with an (i) (`InfoTip`, hover or tap) for how often it was rated, when last and the minutes
    practised. No score, number out of 3 or percentage is shown; `/dev/progress` has the raw numbers.
-8. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open. Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
+8. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open; clicking it opens `/plan`.
+   For a composed plan it reads "Today's plan: <topics>" (a seven-day plan's "Day N: <theme>"). Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
 
 ## Demos
 
@@ -108,6 +130,7 @@ model/            pure, no React; tested in model/plan.test.ts
   outcome.ts      startOutcome(), TopicScore: each topic's starting score from the questionnaire answers; outcome(input, asOf): per step, concept, topic and area, from ratings and questionnaires up to a day (time and streak are added to the same function)
   daySteps.ts     solidRatedAt(), daySteps(): which path steps a day's plan works on (fresh, open, review) from the answers, the solid steps with their rating dates and the date; pure (NEW7)
   compose.ts      composeDay(): one day's plan of library blocks (`Candidate`) for those steps, filled to the minutes (planned review blocks counted first and placed last; then fresh steps, open steps, more blocks on the day's steps, more review; `short` when more than 5 minutes under); a block naming any step beyond the player's reach (`reach()`: ahead and not open) or off the path is never picked; a block fits the highest step it names on a track, a step with none walks down its track, also onto a step already solid, and that block counts as new, not as the day's review; more review goes round the review steps until the minutes are filled; never yesterday's, declined or kept blocks; random only from `seed`. composeWeek(): seven days in a row, each the day before as `yesterday` (NEW7)
+  today.ts        dayWords(date, exercises): a composed day's title (its date) and theme (its topics, from `topic` or the steps' tracks); hasNewPicks(today, day): whether another try brought anything besides today's rated exercises; pastDays(history): the composed days, newest first, the last PAST_DAYS (14)
   trackerView.ts  mergeTimes(), shownAreas(), topicLevel(), minutesOf(): what the progress tracker shows, from an outcome (the live day timer laid over every plan's records; the areas chosen plus practised ones; a topic's level by name and the next one; whole minutes)
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   choice.ts       applyChoice(), choiceWarnings(), resolvedChoice(): a choice's value set on the tools under it (one `PARTS` entry per part); transpose.ts moves a tool to another key, `setLevel` (tools.ts) to another level
@@ -130,11 +153,12 @@ store/
   serverPlanStore.ts  createServerPlanStore(): the plan as one document on the server (/api/me/documents/plan), read once per session (loads share the request, then the store keeps the plan) and saved through a DocClient, cut to the server's cap first (`fitPlanState`), so a save is never refused for its size; the day timer's records are read once per plan (`GET /api/me/plan/time?plan=`) and each day saved through its own DocClient (`PUT /api/me/plan/time`): a signed-in player's store
   memoryPlanStore.ts  memoryPlanStore(initial): kept for the visit, saving nothing (a visitor, the demo plan)
   localPlanStore.ts  the localStorage store ("musickit.plan", the timer's records under "musickit.planTimes", the newest 100), only for the site without a database
+  composeClient.ts requestDay({ date, another }): POST /api/me/plan/compose, 15 s timeout, never throws: the day, a 409's code, `offline` (the fetch threw) or `failed` (timeout, 5xx, a refused session, another shape)
   usePlan.tsx     the hook the UI uses, usePlanTimes(planId) for the day timer's records, useAllPlanTimes() for every plan's (`{ times, loaded }`, read once per store; a refused read stays not loaded), PlanStoreProvider to swap the store, usePlanStore for a reader outside the hook
-ui/               PlanFlow, PlanReviewStep (the plan review screen), PromptAndPaste, InviteClaim (the invite page's claim and its notices), useBlockAgentTools (the browser AI's block tools, WebMCP: `get_authoring_guide`, and on the notes creator `read_block` / `check_block` / `write_block` of the note, on `/plan` while a plan runs `read_plan`, `read_block`, `check_block`, `write_block`, `insert_block`, `remove_block`; replies in `model/agentBlocks.ts`, `check_block` reads a block as the write would and changes nothing (`checkNote`, `checkExercise`), the guide tells the AI to check, fix and check again before it sends, every plan change through `editDay`), WeekView (with **Edit** on a day: `DayEditor`, each exercise the block editor under `ExerciseMetaForm` (title with hashtags, minutes, why, links), the parse checks under it, Add an exercise / Remove exercise within 2–5, Done applies `model/editPlan.ts` `editDay`: an exercise that changed is a new one (new id, its stars, tick and time cleared), the rest keep theirs and move with their place; Cancel drops the draft; the day timer is put away meanwhile; the page wraps the plan in the notes' `NotesEditorHost` for the widget controls and palette), editor/ (`BlockEditor`: a block written as a notebook, the title and key bar in its frame, one column of cells, sections as frames, a gutter on every cell (drag handle, Move up / Move down named with the cell, Add above / Add below / Delete); a tool cell has Settings (the host's controls, `toolControls`) and JSON; changes go through `model/editBlock.ts`), reader/ (the block reader: `BlockArticle` for a note's page, `BlockTitle` and `BlockBody` for a plan card; a block's cells in order, each section a headed step under a thin rule, like an article, ending in a small "Top of section" button that scrolls back to its heading; an open block choice drawn as the key bar only when the host says `keyBar`; under a `CellAsideContext` (`reader/aside.ts`), the /dev/library item view, each tool is framed with its type; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles; each tool sits in a `ToolBoundary`, so a tool that throws shows "This tool couldn't load." in its place and the rest of the page works), DayTimer (the floating day countdown), ExerciseTool
+ui/               DayPlan (today's plan: its header with Get another plan, the day, the short-day line; `TodayStatus`: the line while it is made, or why it isn't there), useTodayPlan (composes today's plan once per page view and date, and another on request; flushes first), PastDays (the last 14 composed days, read-only), PlanFlow, PlanReviewStep (the plan review screen), PromptAndPaste, InviteClaim (the invite page's claim and its notices), useBlockAgentTools (the browser AI's block tools, WebMCP: `get_authoring_guide`, and on the notes creator `read_block` / `check_block` / `write_block` of the note, on `/plan` while a plan runs `read_plan`, `read_block`, `check_block`, `write_block`, `insert_block`, `remove_block`; replies in `model/agentBlocks.ts`, `check_block` reads a block as the write would and changes nothing (`checkNote`, `checkExercise`), the guide tells the AI to check, fix and check again before it sends, every plan change through `editDay`), WeekView (the seven-day strip; each day is a `DayPanel`, which `DayPlan` and `PastDays` use too, with **Edit** on a day: `DayEditor`, each exercise the block editor under `ExerciseMetaForm` (title with hashtags, minutes, why, links), the parse checks under it, Add an exercise / Remove exercise within 2–5, Done applies `model/editPlan.ts` `editDay`: an exercise that changed is a new one (new id, its stars, tick and time cleared), the rest keep theirs and move with their place; Cancel drops the draft; the day timer is put away meanwhile; the page wraps the plan in the notes' `NotesEditorHost` for the widget controls and palette), editor/ (`BlockEditor`: a block written as a notebook, the title and key bar in its frame, one column of cells, sections as frames, a gutter on every cell (drag handle, Move up / Move down named with the cell, Add above / Add below / Delete); a tool cell has Settings (the host's controls, `toolControls`) and JSON; changes go through `model/editBlock.ts`), reader/ (the block reader: `BlockArticle` for a note's page, `BlockTitle` and `BlockBody` for a plan card; a block's cells in order, each section a headed step under a thin rule, like an article, ending in a small "Top of section" button that scrolls back to its heading; an open block choice drawn as the key bar only when the host says `keyBar`; under a `CellAsideContext` (`reader/aside.ts`), the /dev/library item view, each tool is framed with its type; every tool has its own tour button, `ToolTour` from `features/guide`, walking `TOOL_TOURS` inside that tool only, and only the first unseen one on the page wobbles; each tool sits in a `ToolBoundary`, so a tool that throws shows "This tool couldn't load." in its place and the rest of the page works), DayTimer (the floating day countdown), ExerciseTool
   tracker/        StreakButton (the day streak, opens the tracker), ProgressTracker (the tracker modal's body: areas, topics by level name, concepts with details)
 api/me/plan/compose (src/app/api/me/plan/compose/route.ts)   POST { date, another }: 200 with composeToday's `ok: true` answer; 409 { error, code } for its three codes; 400 for a body of another shape; 500 { error } when the library or the database fails; the usual 401/403/503. Writes nothing; the page stores the day
-PlanApp.tsx       the page body: no plan → Start; a plan → header (with the streak), week, history, a Back to top button; the flow modal and the progress tracker
+PlanApp.tsx       the page body: no answers → the intro and Start; answers and no plan for today → `TodayStatus`; today's plan → `DayPlan`, Past days, a Back to top button; the flow modal and the progress tracker
 reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page)
 ```
 

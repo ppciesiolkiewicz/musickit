@@ -8,9 +8,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MESSAGES = {
-  "no-answers": "Answer the questions first, then ask for today's plan.",
-  "bad-date": "That date is not today's. Reload the page and try again.",
-  "no-blocks": "The library has no exercises for you yet. Try again later.",
+  "no-answers": "There are no answers to make a plan from. Answer the questions on the plan page first.",
+  "bad-date": "The date sent isn't today's date. Check the device's date and time, then reload the page.",
+  "no-blocks": "The library has no exercises yet that fit your answers, so no plan was made. Come back tomorrow.",
 };
 
 /** Today's plan, composed from the player's answers, ratings and the library: JSON { date, another }. Writes nothing; the page stores the day. */
@@ -29,6 +29,6 @@ export async function POST(req: Request) {
     return json(answer, 200, me.cookies);
   } catch (e) {
     console.error("compose failed", e);
-    return json({ error: "Today's plan could not be put together. Try again." }, 500, me.cookies);
+    return json({ error: "attunr couldn't put today's plan together. Try again in a moment." }, 500, me.cookies);
   }
 }
