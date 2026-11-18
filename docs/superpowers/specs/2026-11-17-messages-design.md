@@ -13,7 +13,7 @@ This is one of three feedback channels, each kept separate:
 | Channel | Who | Shape | Read at |
 | --- | --- | --- | --- |
 | **Messages** (new) | signed-in users | a two-way thread with us, each message carrying where it was sent from | `/dev/messages` |
-| ~~Send feedback form~~ (exists, `/account#feedback`) | signed-in users | replaced by Messages | — |
+| **Send feedback page** (exists on `/account#feedback`, moves to its own page) | signed-in users | each submission starts a new Messages thread | `/dev/messages` |
 | **Contact form** (exists, `src/features/contact`) | anyone, signed in or not | one message with an email; we answer by email | email + blob, and now also `/dev/messages` |
 | **Plan reviews** (exists) | players finishing a plan | stars + "why" | `/dev/plan-reviews`, unchanged; may feed the AI later (TBD, not this work) |
 
@@ -84,25 +84,34 @@ the user knows we'll see where they were. The context is stored per message (a t
 
 ### Threads
 
-- One **thread per user** for support/feedback. A user's first message creates it; later messages go into it.
-- A thread is **open** or **closed**. We close it in `/dev/messages`. When the user writes again, it reopens. *My call:*
-  the user doesn't see "closed"; it's our inbox state only.
+- A user can have **several threads**. A Send feedback page submission always starts a new one. A message from the
+  bubble goes into the thread open in the panel; with no thread yet, it starts one.
+- *My call:* the panel opens on the user's most recent thread. With more than one, a short list (first line, date,
+  unread dot) lets them switch, plus "New message" to start a fresh thread from the bubble.
+- A thread is **open** or **closed**. We close each one in `/dev/messages`. When the user writes in it again, it
+  reopens. *My call:* the user doesn't see "closed"; it's our inbox state only.
 - Unread, both ways: a thread has `userReadAt` and `adminReadAt`. The bubble's dot shows when there's a message from us
   newer than `userReadAt`; opening the panel sets it. `/dev/messages` marks threads with a user message newer than
   `adminReadAt`; opening a thread sets it.
 
-### The Send feedback form goes
+### Send feedback: its own page, a new thread each time
 
-The bubble **replaces** the signed-in Send feedback form (`src/features/account/ui/FeedbackForm.tsx` on
-`/account#feedback`, decided by the user). Remove the form; "Send feedback" in the profile menu (`FEEDBACK_HREF` in
-`AccountLink.tsx`) and the beta line on `/account` open the bubble's panel instead (*my call:* a small client event or
-context the bubble listens to; `#feedback` links in old emails should still open the panel). Its copy promised email
-replies; the panel is now where replies arrive. Update the account feature's README and CLAUDE.md in the same commit.
+Decided by the user: the signed-in Send feedback form stays, moves out of `/account` onto **its own page**, and each
+submission **starts a new thread**, whose replies arrive in the bubble.
+
+- *My call:* the page is `/feedback`, for signed-in users (others are sent to log in, or shown the contact form). The
+  form moves from `src/features/account/ui/FeedbackForm.tsx` into the messages feature. "Send feedback" in the profile
+  menu (`FEEDBACK_HREF` in `AccountLink.tsx`) and the beta line on `/account` link to it; `/account#feedback`
+  redirects or links there.
+- It posts to `/api/me/messages` with `{ body, context: { source: "feedback-page" }, newThread: true }`, not to
+  `/api/contact`.
+- Its copy promised email replies; it now says replies show in the chat bubble. (Copy via `design:ux-copy`.)
+- Update the account feature's README and CLAUDE.md in the same commit.
 
 ### Contact form messages
 
 - `POST /api/contact` keeps doing what it does (email + blob) and **also inserts a row** in the DB.
-- If the sender is signed in (session cookie present and valid), the message goes into their thread like any message,
+- If the sender is signed in (session cookie present and valid), the message starts a new thread of theirs (as the feedback page does),
   with `source` and the typed email as context (`/dev/messages` shows the email when it differs from the account's).
   *My call:* the contact route already sends its own email, so this insert sends no second one and doesn't touch
   `emailed_at`.
@@ -158,7 +167,7 @@ message_threads
   admin_read_at timestamptz null
   emailed_at    timestamptz null                    -- for the 10-minute email limit
   created_at    timestamptz not null
-  unique (user_id) where kind = 'support' and user_id is not null
+  index (user_id, last_at)          -- several threads per user
 
 messages
   id         uuid pk
@@ -180,10 +189,11 @@ Supabase). After the schema changes, offer to update the DB schema ER diagram ar
 
 Signed-in user (pattern: `src/app/api/me/progress/route.ts`, `signedIn(req)`):
 
-- `GET /api/me/messages` → `{ thread: { status, messages[] } | null, unread: number }`. `?count=1` returns only
-  `{ unread }` for the bubble's dot.
-- `POST /api/me/messages` `{ body, context }` → creates the thread if needed, appends, reopens if closed, emails us.
-- `POST /api/me/messages/read` → sets `user_read_at`.
+- `GET /api/me/messages` → `{ threads: [{ id, lastAt, preview, unread }], unread: number }`. `?count=1` returns
+  only `{ unread }` for the bubble's dot. `?thread=<id>` → that thread's messages (the user's own threads only).
+- `POST /api/me/messages` `{ body, context, threadId? , newThread? }` → appends to `threadId` (reopens it if closed),
+  or starts a new thread when `newThread` or the user has none; emails us. Returns the thread id.
+- `POST /api/me/messages/read` `{ threadId }` → sets that thread's `user_read_at`.
 
 Dev only (gated by `devOnly()`, under `/api/dev/messages`):
 
