@@ -266,7 +266,7 @@ export default function ComposeLab() {
                 <span className="text-slate-100">{e.title}</span>
                 <span className="text-slate-500">{e.minutes} min</span>
                 {(e.steps ?? []).map((r) => <StepChip key={r} refId={r} />)}
-                {e.keys && <span className="text-sky-200">Key {keys(e.keys.now)}{e.keys.back.length ? ` · Earlier ${keys(e.keys.back)}` : ""}</span>}
+                {e.given?.keys && <span className="text-sky-200">Key {keys(e.given.keys.now)}{e.given.keys.back.length ? ` · Earlier ${keys(e.given.keys.back)}` : ""}</span>}
               </li>
             ))}
           </ol>

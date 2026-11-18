@@ -402,26 +402,26 @@ test("keys: an exercise with a Key selector gets the player's keys; one without 
   const blocks = [keyed("k", "a:1", "guitar"), cand("plain", ["b:1"])];
   const d = composeDay(base({ answers: { ...guitar, minutes: 10, keys: 1 }, blocks }), AB);
   const k = d.exercises.find((e) => e.blockId === "k")!;
-  assert.deepEqual(k.keys, { now: [9, 7], back: [4] }, "guitar on rung 1: A and G, with E to go back to");
-  assert.equal(d.exercises.find((e) => e.blockId === "plain")!.keys, undefined);
+  assert.deepEqual(k.given?.keys, { now: [9, 7], back: [4] }, "guitar on rung 1: A and G, with E to go back to");
+  assert.equal(d.exercises.find((e) => e.blockId === "plain")!.given?.keys, undefined);
   assert.deepEqual((k.choice as { options: unknown[] }).options, [{ key: 9 }, { key: 7 }], "the block itself is as written");
 });
 
 test("keys: with no answer the area's level decides, and the answer changes no pick", () => {
   const blocks = [keyed("k", "a:1", "guitar"), cand("plain", ["b:1"])];
   const unasked = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks }), AB);
-  assert.deepEqual(unasked.exercises.find((e) => e.blockId === "k")!.keys, { now: [4], back: [] }, "a beginner has E only");
+  assert.deepEqual(unasked.exercises.find((e) => e.blockId === "k")!.given?.keys, { now: [4], back: [] }, "a beginner has E only");
   const top = composeDay(base({ answers: { ...guitar, minutes: 10, keys: 4 }, blocks }), AB);
   assert.deepEqual(ids(top), ids(unasked));
-  assert.equal(top.exercises.find((e) => e.blockId === "k")!.keys!.now.length, 3);
+  assert.equal(top.exercises.find((e) => e.blockId === "k")!.given?.keys!.now.length, 3);
 });
 
 test("keys: the same answer is a different key in each area", () => {
   const voiceTrack: Track = { ...mk("v", "voice-pitch", 2), area: "voice" };
   const answers = { ...guitar, areas: ["guitar", "voice"] as ("guitar" | "voice")[], minutes: 10, keys: 0 as const };
   const d = composeDay(base({ answers, blocks: [keyed("g", "a:1", "guitar"), keyed("s", "v:1", "voice")] }), [...AB, voiceTrack]);
-  assert.deepEqual(d.exercises.find((e) => e.blockId === "g")!.keys, { now: [4], back: [] }, "E on guitar");
-  assert.deepEqual(d.exercises.find((e) => e.blockId === "s")!.keys, { now: [0], back: [] }, "C for the voice");
+  assert.deepEqual(d.exercises.find((e) => e.blockId === "g")!.given?.keys, { now: [4], back: [] }, "E on guitar");
+  assert.deepEqual(d.exercises.find((e) => e.blockId === "s")!.given?.keys, { now: [0], back: [] }, "C for the voice");
 });
 
 // --- the trace

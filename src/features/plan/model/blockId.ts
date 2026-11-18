@@ -48,7 +48,7 @@ const words = (v: unknown): string[] | undefined => {
 
 /** The key an exercise's block id is made of. Never throws on damaged meta: only what is text counts. */
 export function blockKeyOf(e: PlanExercise): BlockKey {
-  const content: Block = { title: e.title, ...(e.choice ? { choice: e.choice } : {}), cells: withoutCellIds(e.cells) };
+  const content: Block = { title: e.title, ...(e.choice ? { choice: e.choice } : {}), ...(e.moves ? { moves: e.moves } : {}), cells: withoutCellIds(e.cells) };
   const area = text(e.area) as Area | undefined;
   const topic = text(e.topic);
   const level = text(e.level) as Level | undefined;

@@ -3,6 +3,7 @@ import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { checkLink, type CatalogueEntry } from "./catalogue";
 import { choiceWarnings } from "./choice";
 import { readTitle } from "./hashtags";
+import { clashes, parseMoves } from "./moves";
 import { MAX_CELLS, MAX_TAGS, askedTags, cellsOf, exerciseLevelArea, exerciseTags, parseCellDiag, parseChoiceDiag, pickWasInexact, resolveChordPlacement, toolsOf, type Cell } from "./tools";
 import { PLAN_DAYS, type Block, type PlanConfig, type PlanDay, type PlanExercise } from "./types";
 import { conceptById } from "./concepts";
@@ -116,6 +117,24 @@ function stepTags(e: Record<string, unknown>, ex: PlanExercise, where: string, w
   return { steps: kept, level: levelOfSteps(kept), ...(concepts.length ? { concepts } : {}) };
 }
 
+/** A block with moves loses every choice with chips that sets a part its moves set (the block's own, a section's); each is named. */
+function dropClashes(block: Block): string[] {
+  const out: string[] = [];
+  const said = "has moves and a choice that sets the same part; the choice is left out.";
+  if (clashes(block.choice, block.moves)) {
+    delete block.choice;
+    out.push(`the block ${said}`);
+  }
+  block.cells = block.cells.map((c) => {
+    if (c.type !== "section" || !clashes(c.choice, block.moves)) return c;
+    const { choice: _choice, ...rest } = c;
+    void _choice;
+    out.push(`"${c.heading}" ${said}`);
+    return rest;
+  });
+  return out;
+}
+
 /**
  * A note: a block alone, with no exercise meta. `draft` keeps what an editor holds while it is being written (an empty text, a
  * section with no heading or no cells yet); cells keep their `id`. Missing or unreadable input is the empty note.
@@ -136,6 +155,12 @@ export function parseBlock(raw: unknown, opts: { draft?: boolean } = {}): { bloc
     if (p.dropped) warnings.push(`left out ${p.dropped}.`);
   }
   block.cells = resolveChordPlacement(out.flatMap((p) => (p.cell ? [p.cell] : [])));
+  const moved = parseMoves(e.moves, toolsOf(block.cells));
+  warnings.push(...moved.warnings);
+  if (moved.moves) {
+    block.moves = moved.moves;
+    warnings.push(...dropClashes(block));
+  }
   warnings.push(...choiceWarnings(block));
   return { block, warnings };
 }
@@ -174,6 +199,12 @@ export function parseExercise(raw: unknown, where: string, entries: CatalogueEnt
   if (mixesSingAndPlay(fit.cells)) warnings.push(`${where}: asks to both sing and play; keep it to one.`);
   if (tempoWithoutMetronome(fit.cells)) warnings.push(`${where}: asks for a tempo but shows no metronome; add one.`);
   ex.cells = fit.cells;
+  const moved = parseMoves(e.moves, toolsOf(fit.cells));
+  for (const w of moved.warnings) warnings.push(`${where}: ${w}`);
+  if (moved.moves) {
+    ex.moves = moved.moves;
+    for (const w of dropClashes(ex)) warnings.push(`${where}: ${w}`);
+  }
   for (const w of choiceWarnings(ex)) warnings.push(`${where}: ${w}`);
   // the title's hashtags, then the fields: a field written as a field wins
   Object.assign(ex, { ...(read.area ? { area: read.area } : {}), ...(read.level ? { level: read.level } : {}) }, exerciseLevelArea(e));

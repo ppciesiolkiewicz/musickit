@@ -1,5 +1,5 @@
-import { parseChoiceDiag, parseCellDiag, resolveChordPlacement, type Cell } from "./tools";
-import { cleanKeys } from "./keys";
+import { parseChoiceDiag, parseCellDiag, resolveChordPlacement, toolsOf, type Cell } from "./tools";
+import { cleanGiven, parseMoves } from "./moves";
 import type { PlanConfig, PlanExercise } from "./types";
 
 /**
@@ -17,14 +17,19 @@ export function cleanExercise(e: PlanExercise): PlanExercise {
   }));
   const out: PlanExercise = { ...e, title, cells: cells.length ? cells : [{ type: "text", text: title || "Exercise" }] };
   delete out.choice;
-  // the player's keys ride with the slot: kept when they read as keys, else dropped
-  delete out.keys;
-  const keys = cleanKeys(e.keys);
-  if (keys) out.keys = keys;
+  delete out.moves;
+  delete out.given;
+  // a `keys` field from before `given` is not read
+  delete (out as { keys?: unknown }).keys;
   if (e.choice !== undefined) {
     const c = parseChoiceDiag(e.choice, { notes: [], stored: true });
     if (c.choice) out.choice = c.choice;
   }
+  const moves = parseMoves(e.moves, toolsOf(out.cells)).moves;
+  if (moves) out.moves = moves;
+  // the version rides with the slot: kept where it fits the block as it is now, else dropped
+  const given = cleanGiven(e.given, out);
+  if (given) out.given = given;
   return out;
 }
 

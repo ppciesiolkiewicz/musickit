@@ -1,4 +1,5 @@
 import type { Cell, Choice } from "./tools";
+import type { Given, Moves } from "./moves";
 import type { Area } from "./concepts";
 import type { StarRating } from "@/features/progress/stars";
 import type { PlanAnswers } from "../intake/answers";
@@ -15,6 +16,8 @@ export type Level = "new" | "beginner" | "intermediate" | "advanced";
 export interface Block {
   title: string;
   choice?: Choice;
+  /** what may change about it from one play to the next (model/moves.ts): any key, a range of tempos. Part of the block and its id. */
+  moves?: Moves;
   cells: Cell[];
 }
 
@@ -40,11 +43,11 @@ export interface ExerciseMeta {
   /** attunr pages for going deeper, shown at the bottom */
   exploreMore?: string[];
   /**
-   * The player's keys for this exercise (`PlayerKeys`, model/keys.ts), set by the composer on an exercise with a Key
-   * selector: the keys it starts in and the earlier keys to go back to. The slot's, like the minutes: never part of the
-   * block's id. The reader puts them in the selector when it draws the block (`withKeys`).
+   * The version this exercise is played in (`Given`, model/moves.ts), set by the composer: the keys it opens in and
+   * the earlier ones to go back to, its tempo and the earlier tempos. The slot's, like the minutes: never part of the
+   * block's id. The reader draws the block with it (`applyGiven`; `withKeys` for a block with its own Key selector).
    */
-  keys?: { now: number[]; back: number[] };
+  given?: Given;
 }
 
 /** One exercise of a day, as the AI wrote it. `id` is set by the app when the plan starts, never by the AI; ratings in the progress log point at it. */

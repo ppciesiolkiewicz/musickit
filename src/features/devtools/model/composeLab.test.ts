@@ -35,7 +35,7 @@ test("simulate: no day repeats a block of the day before, and Solid ratings make
 
 test("simulate: an exercise with a Key selector carries the player's keys", () => {
   const days = simulate({ answers: { ...persona("voice-beginner"), keys: 2 }, date: "2026-11-18", days: 7, seed: "lab", rating: "none" });
-  const keyed = days.flatMap((d) => d.day.exercises).filter((e) => e.keys);
+  const keyed = days.flatMap((d) => d.day.exercises).filter((e) => e.given?.keys);
   assert.ok(keyed.length > 0, "the seed has voice blocks with a Key selector");
-  assert.ok(keyed.every((e) => JSON.stringify(e.keys) === JSON.stringify({ now: [9, 7], back: [4, 0] })));
+  assert.ok(keyed.every((e) => JSON.stringify(e.given?.keys) === JSON.stringify({ now: [9, 7], back: [4, 0] })));
 });

@@ -255,7 +255,7 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
   }
   for (const t of trace.picks) if (keyed.has(t.blockId)) t.keys = keyed.get(t.blockId);
   const day: ComposedDay = {
-    exercises: [...keep, ...picks.map((p) => (keyed.has(p.cand.blockId) ? { ...p.cand.exercise, keys: keyed.get(p.cand.blockId)! } : p.cand.exercise))],
+    exercises: [...keep, ...picks.map((p) => (keyed.has(p.cand.blockId) ? { ...p.cand.exercise, given: { keys: keyed.get(p.cand.blockId)! } } : p.cand.exercise))],
     steps: [...new Set(picks.map((p) => p.step))],
     short: budget - total > SLACK,
   };

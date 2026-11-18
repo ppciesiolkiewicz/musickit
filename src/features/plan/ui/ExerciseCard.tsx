@@ -61,7 +61,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   const tags = hashtagLine(e);
   // the reader gets the block alone, never what the plan knows about it
   // with the player's keys in its Key selector, when the composer gave the exercise some
-  const block: Block = withKeys({ title: e.title, ...(e.choice ? { choice: e.choice } : {}), cells: e.cells }, e.keys);
+  const block: Block = withKeys({ title: e.title, ...(e.choice ? { choice: e.choice } : {}), cells: e.cells }, e.given?.keys);
   // the planned time reached: the whole card turns green with a soft glow, and flashes brighter at the moment it happens
   const reached = spent !== undefined && e.minutes > 0 && spent >= e.minutes * 60;
   const [was, setWas] = useState(reached);
