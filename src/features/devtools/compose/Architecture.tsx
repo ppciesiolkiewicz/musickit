@@ -9,7 +9,7 @@ import type { ReactNode } from "react";
 type Layer = "browser" | "server" | "pure" | "data";
 const LAYER: Record<Layer, { label: string; box: string; dot: string }> = {
   browser: { label: "Browser", box: "border-violet-400/50 bg-violet-500/10", dot: "bg-violet-400" },
-  server: { label: "Server (reads, writes nothing)", box: "border-amber-400/50 bg-amber-500/10", dot: "bg-amber-400" },
+  server: { label: "Server", box: "border-amber-400/50 bg-amber-500/10", dot: "bg-amber-400" },
   pure: { label: "Pure model (no React, no I/O)", box: "border-sky-400/60 bg-sky-500/10", dot: "bg-sky-400" },
   data: { label: "Stored data", box: "border-emerald-500/50 bg-emerald-500/10", dot: "bg-emerald-400" },
 };
@@ -106,7 +106,7 @@ const INSIDE: { n: string; name: string; file: string; text: ReactNode; calls?: 
 
 const HOLDS: ReactNode[] = [
   <>The composer is pure. <C>composeDay</C> reads no clock, no database and no network; everything arrives in its input, so tests and this page run the real one.</>,
-  <>The server writes nothing. The route answers with the day and the page stores it (<C>startDay</C>, <C>anotherDay</C>), both safe to call twice.</>,
+  <>A player&apos;s day is never written by the server. The route answers with the day and the page stores it (<C>startDay</C>, <C>anotherDay</C>), both safe to call twice. A teacher&apos;s week is the one the server writes.</>,
   <>Nothing blocks a player. A step ahead is only ranked later; a step with no block falls back down its track.</>,
   <>A block is stored as written. Minutes, why and links are the slot&apos;s; the keys ride on the exercise in the plan.</>,
   <>A block never comes two days running, and never twice in a day.</>,
@@ -121,6 +121,9 @@ const FILES: [string, ReactNode][] = [
   ["app/api/me/plan/compose/route.ts", <>The route file: builds the real repos and calls <C>composeRoute</C>.</>],
   ["plan/server/composeRoute.ts", <>Signed in, not a teacher&apos;s student, body checked; codes to <C>409</C>s.</>],
   ["plan/server/composeToday.ts", <>Reads the plan document, the ratings and the library, and builds the composer&apos;s input.</>],
+  ["students/client.ts", <><C>postStudentPlan</C>: the teacher&apos;s <C>POST</C>.</>],
+  ["app/api/students/[id]/plan/route.ts", <>The route file: calls <C>planRoute</C> (<C>students/server/http.ts</C>).</>],
+  ["students/server/plans.ts", <><C>makeWeek</C>: the teacher&apos;s scores, the week&apos;s start, the write into the student&apos;s document.</>],
   ["plan/server/composeStudentWeek.ts", <>The same inputs for a teacher&apos;s student, seven days through <C>composeWeek</C>.</>],
   ["plan/model/topicLevels.ts", <><C>raisedAnswers</C>: the topic levels the day is paced by.</>],
   ["plan/model/compose.ts", <><C>composeDay</C>, <C>explainDay</C> (the same day with its trace), <C>composeWeek</C>.</>],
@@ -152,9 +155,13 @@ export default function Architecture() {
             <Node layer="server" name="composeToday" file="plan/server/composeToday.ts">Reads the stored data and builds the input (below).</Node>
           </Column>
           <Column title="A teacher's week">
-            <Node layer="browser" name="A teacher's student page">The teacher makes the next week for a student.</Node>
+            <Node layer="browser" name="StudentPage" file="students/ui/StudentPage.tsx">The teacher makes a student&apos;s next week, or a new one in place of this week&apos;s.</Node>
             <Arrow />
-            <Node layer="server" name="students/server/plans.ts">Works out the week&apos;s first day and the day before it.</Node>
+            <Node layer="browser" name="postStudentPlan" file="students/client.ts"><C>{"POST /api/students/<id>/plan { today, rotate, scores, comment }"}</C></Node>
+            <Arrow />
+            <Node layer="server" name="planRoute" file="students/server/http.ts">Signed in as the student&apos;s teacher; <C>today</C> within one day of the server&apos;s.</Node>
+            <Arrow><C>teacher, studentId, {"{ today, rotate, scores, comment }"}</C></Arrow>
+            <Node layer="server" name="makeWeek" file="students/server/plans.ts">Records the sliders the teacher moved, then works out the week&apos;s first day and the day before it.</Node>
             <Arrow><C>studentId, {"{ start, seed, today, yesterday }"}</C></Arrow>
             <Node layer="server" name="composeStudentWeek" file="plan/server/composeStudentWeek.ts">The same reads as <C>composeToday</C>, for the student.</Node>
             <Arrow />
@@ -173,7 +180,7 @@ export default function Architecture() {
         <Arrow><C>{"ComposedDay { exercises, steps, short }"}</C></Arrow>
         <div className="grid gap-4 desk:grid-cols-3">
           <Node layer="data" name="startDay / anotherDay" file="plan/model/schedule.ts">The page stores the day as the player&apos;s current plan, through <C>PlanStore</C>. A rated exercise is never lost to another try.</Node>
-          <Node layer="data" name="giveWeek" file="plan/model/schedule.ts">The server writes the week into the student&apos;s plan document, with a version check.</Node>
+          <Node layer="data" name="giveWeek" file="plan/model/schedule.ts"><C>makeWeek</C> writes the week into the student&apos;s plan document, with a version check, and the route answers <C>{"{ planId, start, short, comment }"}</C>.</Node>
           <Node layer="browser" name="One day view">Drawn, never stored.</Node>
         </div>
       </Panel>
@@ -225,7 +232,7 @@ export default function Architecture() {
         </ul>
       </Panel>
 
-      <Panel title="Files" note={<>Under <C>src/features</C>, except the route file. The design: <C>docs/superpowers/specs/2026-11-18-plan-composer-design.md</C>.</>}>
+      <Panel title="Files" note={<>Under <C>src/features</C>, except the two route files. The design: <C>docs/superpowers/specs/2026-11-18-plan-composer-design.md</C>.</>}>
         <dl className="grid gap-x-6 gap-y-1.5 text-xs desk:grid-cols-[max-content_1fr]">
           {FILES.map(([file, what]) => (
             <div key={file} className="contents">
