@@ -8,8 +8,8 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 ## Parts
 
 - `model.ts`: `Role` (student, teacher, owner; an owner runs a school and can do all a teacher can), `NEW_ACCOUNT_ROLE`
-  (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role), `FEATURES` (the parts
-  of the app with the roles that may use them; every role gets every feature except `sharePlan`, for teachers and owners), `can(account, feature)` and
+  (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role, `taught`: on the `taught` plan, a student a teacher made), `FEATURES` (the parts
+  of the app with the roles that may use them; every role gets every feature except `sharePlan` and `students` (having students, see `features/students`), for teachers and owners), `can(account, feature)` and
   `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
 - `plans.ts`: `Plan` (a row of the `plans` table: name, the role it gives, a price in US cents a month (`monthCents`, paid monthly) and one a year (`yearCents`, paid yearly), a free trial (`trialDays`), students,
   AI autoplans a month, Batch, `enabled`, `sort`; every plan's autoplans and notes are written by one model, `SUBSCRIPTION_MODEL`, Haiku 5.5), `choosablePlans`
@@ -83,7 +83,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 - `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session (the page's one shared read), and nothing at all when
   there is no session cookie.
 - `ui/`: the screens. `LinkForm` (`/login`), `ConfirmLink` (`/login/confirm`), `AccountPanel`
-  (`/account`: the open-beta line with a Send feedback link (to `/feedback`) across the top; under it, on a wide screen, a narrow column with the Profile card (email, role, name, Log out, Delete account), beside a wide Plan card whose plans sit side by side), `AccountLink` (the corner of the top nav: Log in, or the name with a
+  (`/account`: the open-beta line with a Send feedback link (to `/feedback`) across the top; under it, on a wide screen, a narrow column with the Profile card (email, role, name), beside a wide Plan card whose plans sit side by side; under everything Log out and, in development only (`DevOnly`; `DELETE /api/account` answers 404 in production), Delete account), `AccountLink` (the corner of the top nav: Log in, or the name with a
   menu of Your profile, Home page, Send feedback and Log out, opened on hover or a tap).
 - The Send feedback page is `/feedback` in `src/features/messages` (`FEEDBACK_HREF`): each send starts a new thread with us, answered in the chat bubble. `/account#feedback` sends people there.
 - `server/`: sign-in itself, server only.
@@ -166,5 +166,5 @@ No `DATABASE_URL` means no accounts: the nav shows no Log in, `/login` says acco
 
 - The plan page's Share plan asks `can("sharePlan")` (Share, or Upgrade to Teacher account), and the share rules (`userData/server/shares.ts`) ask `can(account, "sharePlan")` again on the server.
 - Plans aren't paid for yet (the open beta): the payment box is a placeholder, and the free trial isn't started, counted or ended. Their allowances (autoplans a month, students) aren't counted or enforced: the app doesn't call the AI from the server.
-- Which students a teacher has, schools, and giving a plan to a student are not modelled.
+- Schools are not modelled. A teacher's students are: a `teacher_students` row links a teacher to a student account (`addStudent`, `studentsOf`, `studentLink`, `teacherOf`, `markClaimed` on `AuthRepo`; one teacher a student); the student's account is on the `taught` plan (`TAUGHT_PLAN_ID`, free, not `enabled`, so no one chooses it; `Account.taught`) and signs in the first time with a `claim` token (`TokenKind`, stored as a hash, used once). Any sign-in of an account on the `taught` plan (`startSession`: the email link or code, Google, the claim) records the link as claimed the first time (`markClaimed`), so a student who logs in the normal way no longer shows as "Not opened yet". The rules and routes are in `features/students`.
 - Links are limited per email only, not per network address.

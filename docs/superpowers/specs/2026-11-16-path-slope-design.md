@@ -78,7 +78,7 @@ The questionnaire still sets where each track starts (NEW9's placement).
   2. beginner: 3rds on two strings, in one key
   3. beginner: 6ths on strings 3 and 1 (or 2 and 4), in one key
   4. intermediate: double stops up the neck in one key
-  Then `triads:1` gets `after: ["double-stops:2"]`, and `barre:1` gets `after: ["triads:1"]`.
+     Then `triads:1` gets `after: ["double-stops:2"]`, and `barre:1` gets `after: ["triads:1"]`.
 - `merges` for `double-stops` is empty (a new track). The old-concept count stays 67; the track count becomes 45.
 - **Agent pass.** Three Fable agents, one per area (guitar, voice, theory and ear). Each reads `path.ts`, this
   document, and two reference orders (musictheory.net's lesson list and the Open Music Theory contents). The builder
