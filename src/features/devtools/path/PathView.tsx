@@ -12,6 +12,7 @@ import { blockHref } from "../model/stepHref";
 import { EXAMPLE_STUDENTS, entryProgress, exampleRatings, playerReach, stepProgress, studentReach, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
 import type { SpareSteps, Step } from "../model/steps";
 import JourneyView from "./JourneyView";
+import KeysView from "./KeysView";
 import ProposalView from "./ProposalView";
 import SlopeView from "./SlopeView";
 
@@ -259,7 +260,7 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
   const [area, setArea] = useState<Area>(start?.area ?? "guitar");
   const [sel, setSel] = useState<string | null>(start?.id ?? null);
   const [who, setWho] = useState("none");
-  const [view, setView] = useState<"journey" | "slope" | "today" | "proposed">("journey");
+  const [view, setView] = useState<"journey" | "slope" | "today" | "proposed" | "keys">("journey");
   const [today] = useState(() => localDate());
   const { state: planState, loaded: planLoaded } = usePlan();
   const { answers } = planState;
@@ -296,7 +297,7 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Which view">
-        {([["journey", "Path"], ["slope", "Slope"], ["today", "Boxes"], ["proposed", "Bars"]] as const).map(([id, label]) => (
+        {([["journey", "Path"], ["slope", "Slope"], ["today", "Boxes"], ["proposed", "Bars"], ["keys", "Keys"]] as const).map(([id, label]) => (
           <button
             key={id} type="button" aria-pressed={view === id} onClick={() => setView(id)}
             className={`${BTN} ${view === id ? "border-violet-400 bg-violet-500/20 text-violet-100" : "border-slate-700 text-slate-300 hover:border-slate-400"}`}
@@ -314,7 +315,7 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
           </button>
         ))}
       </div>
-      {view !== "proposed" && (
+      {view !== "proposed" && view !== "keys" && (
         <div className="flex flex-wrap items-center gap-2">
           <label htmlFor="path-student" className="text-sm text-slate-300">Student on the path</label>
           <select
@@ -336,6 +337,7 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
           )}
         </div>
       )}
+      {view === "keys" && <KeysView area={area} />}
       {view === "slope" && <SlopeView area={area} progress={progress} reach={reachMarks} blocks={blocks} />}
       {view === "proposed" && <ProposalView area={area} nodes={nodes} onArea={pickArea} />}
       {view === "journey" && (

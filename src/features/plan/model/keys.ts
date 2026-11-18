@@ -28,8 +28,12 @@ export const KEY_LADDERS: Record<Area, number[][]> = {
   theory: [[0], [7, 5], [2, 10], [9, 3], [4, 8, 11, 1, 6]],
 };
 
-/** The rung a player with no answer about keys stands on, from their level in the area. */
-const RUNG_OF_LEVEL: Record<Level, KeyRung> = { new: 0, beginner: 1, intermediate: 2, advanced: 3 };
+/**
+ * The rung a player with no answer about keys stands on, from their level in the area. A level does not go through
+ * every key: a new player and a beginner have the first key only, and each level after adds one rung. The last two
+ * rungs are reached only by the answer to the keys question ("Most keys", "Any key").
+ */
+export const RUNG_OF_LEVEL: Record<Level, KeyRung> = { new: 0, beginner: 0, intermediate: 1, advanced: 2 };
 
 /** The rung in an area: the answer to the keys question when there is one, else from the area's level. */
 export const keyRung = (answered: KeyRung | undefined, level: Level): KeyRung => answered ?? RUNG_OF_LEVEL[level];

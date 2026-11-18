@@ -410,7 +410,7 @@ test("keys: an exercise with a Key selector gets the player's keys; one without 
 test("keys: with no answer the area's level decides, and the answer changes no pick", () => {
   const blocks = [keyed("k", "a:1", "guitar"), cand("plain", ["b:1"])];
   const unasked = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks }), AB);
-  assert.deepEqual(unasked.exercises.find((e) => e.blockId === "k")!.keys, { now: [9, 7], back: [4] }, "a beginner by default");
+  assert.deepEqual(unasked.exercises.find((e) => e.blockId === "k")!.keys, { now: [4], back: [] }, "a beginner has E only");
   const top = composeDay(base({ answers: { ...guitar, minutes: 10, keys: 4 }, blocks }), AB);
   assert.deepEqual(ids(top), ids(unasked));
   assert.equal(top.exercises.find((e) => e.blockId === "k")!.keys!.now.length, 3);

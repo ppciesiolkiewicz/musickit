@@ -30,6 +30,10 @@ in (*Keep in history*), and the result: the reply rendered with the plan's real 
 text, beside the history. The page doesn't run the prompt itself; `scripts/compare-models.ts` does, from the command line.
 Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answers" only reads `musickit.plan`.
 
+## Keys on the path (`/dev/path` → "Keys")
+
+`path/KeysView.tsx`: the key ladders of the plan model (`KEY_LADDERS`, `RUNG_OF_LEVEL` in `plan/model/keys.ts`) against the levels: areas down, levels across, each cell the keys that level adds (bright) and the earlier ones it keeps (faint), then the two rungs only the keys question reaches, and under it what each answer opens in.
+
 ## Plan algorithm (`/dev/compose`)
 
 How one day's plan is built, stage by stage (`compose/ComposeLab.tsx`): the player, the steps of the day, the library, every pick with its stage and reason, the keys, the day. The composer is the real one (`explainDay` in the plan model); `model/composeLab.ts` stands in the rest: `seedCandidates` (the seed block files as candidates, not the database) and `simulate` (seven days in a row for a persona, each seeing the days before, with every exercise rated Solid, Hard or not at all). Controls: the player, minutes, the keys question, the rating, the first day, the seed.

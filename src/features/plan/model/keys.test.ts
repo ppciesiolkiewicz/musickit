@@ -29,8 +29,9 @@ test("keysAt: the rung's keys now, the rungs below to go back to, nearest first"
 
 test("keyRung: the answer when there is one, else from the area's level", () => {
   assert.equal(keyRung(undefined, "new"), 0);
-  assert.equal(keyRung(undefined, "beginner"), 1);
-  assert.equal(keyRung(undefined, "advanced"), 3);
+  assert.equal(keyRung(undefined, "beginner"), 0, "a beginner has the first key only");
+  assert.equal(keyRung(undefined, "intermediate"), 1, "then a rung is added a level");
+  assert.equal(keyRung(undefined, "advanced"), 2);
   assert.equal(keyRung(0, "advanced"), 0);
   assert.equal(keyRung(4, "new"), 4);
 });
