@@ -86,6 +86,19 @@ a bit of the version before; keys cross between blocks a bit; tempo and position
 slot (`given`); text takes params; every roll shown on /dev/compose. Teachers get the same roll. No ML, no level or
 scale moves. First a batch of six example blocks, then agents rewrite the rest. ChoiceSplit2's table is not needed for
 this (nobody hand-picks a version for a plan).
+[2026-11-19 built, first slice] Plan: docs/superpowers/plans/2026-11-19-choice-split-slice1.md (10 tasks, on main, not
+pushed). A block states `moves` (key any, a tempo range; model/moves.ts); the composer rolls each exercise's version
+once per rating (model/roll.ts, numbers in `ROLL`) and stores it on the slot as `given`; the card draws it (tools
+moved, `{{=key}}` and `{{=bpm}}` filled, Key and Tempo chips with the app's line under them); a rating keeps its
+version; a low rating on a moved version doesn't lower the step. Key order on the path: pentatonic positions A | G E |
+B C | D F♯ | the rest (model/keyStages.ts; user to read the later groups). /dev/compose stage 6 shows every roll and
+the next roll for 1, 3 and 5 stars; /dev/path shows key stages under the Path view. Rules: teaching 7, prompt 8
+(every older seed file now fails `seed check` on its versions, as after any raise). Three blocks rewritten:
+guitar-beginner-pentatonic-box1, guitar-beginner-down-up-picking, guitar-new-em-am-changes.
+Left: reseed (npm run -s db:seed-blocks, the user's go: three block ids changed); the user reads the three blocks on
+/dev/library; position moves; key orders for the other tracks; a voice block; a version switcher on /dev/library; the
+`stages` / `variants` showcases replaced by a moves showcase; agents rewrite the other blocks (51 of 53 guitar blocks
+still have no moves); not walked on a signed-in /plan.
 ChoiceSplit2: [NEW 2026-11-17] A choice table (a connector) between blocks and plans: one row joins a block to a plan
 (library or player) and carries the choice for that use (stages, variants, a key, a tempo ladder), so one block is
 reused many ways without a new block for each. After ChoiceSplit1 settles the shape. Touches `practice_plan_blocks`

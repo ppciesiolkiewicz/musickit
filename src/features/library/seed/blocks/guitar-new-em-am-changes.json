@@ -2,11 +2,11 @@
   "id": "guitar-new-em-am-changes",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 0,
-    "teaching": 1
+    "prompt": 8,
+    "agents": 2,
+    "teaching": 7
   },
-  "note": "The why names what makes this change easy (two fingers move as one shape), so the learner knows what to look for in the next pair of chords. The three blocks are the same change turned a new way: untimed, one strum a bar, a strum on every beat. Each step says what Play starts, what the lit box means and what to do when a change comes late; the chord boxes show the fingers, so the text never does.",
+  "note": "The why names what makes this change easy (two fingers move as one shape), so the learner knows what to look for in the next pair of chords. The three blocks are the same change turned a new way: untimed, one strum a bar, a strum on every beat. Its key is the lesson, so its moves are a tempo only (60 to 90): the step names the tempo as a param and the chords stay Em and Am. The chord boxes show the fingers, so the text never does.",
   "exercise": {
     "title": "Em to Am, clean and in time",
     "minutes": 8,
@@ -21,11 +21,21 @@
       "open-chords",
       "strumming"
     ],
-    "steps": ["open-chords:1", "strumming:1"],
+    "steps": [
+      "open-chords:1",
+      "strumming:1"
+    ],
     "why": "From Em to Am, fingers 2 and 3 keep their shape and move across one string together, so the change is one small move plus one finger: the easiest change to make automatic first.",
     "learnBefore": [
       "/course/2/one-minute-changes"
     ],
+    "moves": {
+      "bpm": {
+        "from": 60,
+        "to": 90,
+        "step": 10
+      }
+    },
     "cells": [
       {
         "type": "section",
@@ -60,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play. Strum down once on beat 1, then use the rest of the bar to move to the next chord. This trains your timing: the change has to be ready by beat 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play.\nStrum down once on beat 1, then use the rest of the bar to move to the next chord.\nThis trains your timing: the change has to be ready by beat 1."
           },
           {
             "type": "tool",
@@ -83,7 +93,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Now strum down on every beat, two bars on each chord. There is no gap to move in, so if a change comes late, keep your strumming hand going and catch the next beat 1. Soon the change happens without looking."
+            "text": "Press Play below to start the metronome. Now strum down on every beat, two bars on each chord.\nThere is no gap to move in, so if a change comes late, keep your strumming hand going and catch the next beat 1.\nStay with it until the change happens without looking."
           },
           {
             "type": "tool",

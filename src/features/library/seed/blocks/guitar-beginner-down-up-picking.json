@@ -2,11 +2,11 @@
   "id": "guitar-beginner-down-up-picking",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 4,
+    "prompt": 8,
     "agents": 2,
-    "teaching": 5
+    "teaching": 7
   },
-  "note": "Track picking (guitar-techniques), step 2: down and up strokes, four notes a string (picking-drill at level beginner), on one string, across all six, then faster in stages.",
+  "note": "Track picking (guitar-techniques), step 2: down and up strokes, four notes a string (picking-drill at level beginner), on one string, across all six, then a little faster. It states its moves (tempo 60 to 100): the first step names the tempo as a param, the last section's drill stays 12 above the first, and no step mentions a selector, since the app brings the faster tempo.",
   "exercise": {
     "title": "Down and up with the pick",
     "minutes": 6,
@@ -27,6 +27,13 @@
     "learnBefore": [
       "/course/1/spider"
     ],
+    "moves": {
+      "bpm": {
+        "from": 60,
+        "to": 100,
+        "step": 10
+      }
+    },
     "cells": [
       {
         "type": "section",
@@ -35,7 +42,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome and follow the tab: the open G string, one note per beat. The arrows under the tab show each stroke, down then up.\nKeep going until the upstroke is as loud as the downstroke."
+            "text": "Press Play below to start the metronome at {{=bpm}} and follow the tab: the open G string, one note per beat. The arrows under the tab show each stroke, down then up.\nStay with it until the upstroke is as loud as the downstroke."
           },
           {
             "type": "tool",
@@ -71,26 +78,12 @@
       },
       {
         "type": "section",
-        "heading": "Faster in stages",
+        "heading": "A little faster",
         "minutes": 2,
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 72
-            },
-            {
-              "bpm": 88
-            },
-            {
-              "bpm": 104
-            }
-          ]
-        },
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome and play the drill across the strings again.\nWhen every stroke lands on the click, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the strokes get uneven at a new stage, go back one stage and stay there a little longer."
+            "text": "Press Play below to start the metronome, a little faster now, and play the drill across the strings again.\nIf the strokes get uneven, play only the open G string until they are even again."
           },
           {
             "type": "tool",
