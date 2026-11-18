@@ -11,8 +11,8 @@
  * Teachers' students are made with the app's own `addStudent` (account on the taught plan, link, plan document with the
  * questionnaire answers of a dev persona), then given a first week with `makeWeek` when the library has blocks
  * (`db:seed-plans`, `db:seed-blocks`). Most of them have opened their link: those started 1 to 4 weeks ago, have a week
- * for each, and have rated their past days (`fakeProgress`: a level of their own, one or two weak topics, noise). The
- * rest were added this week and have done nothing. One solo student is left before setup, to see /account/setup.
+ * for each, have rated their past days (`rateWeek`: better each week, one or two weak topics), and their teacher moved a
+ * few sliders up before each next week (`teacherNudge`). The rest were added this week and have done nothing. One solo student is left before setup, to see /account/setup.
  *
  * Log in as any of them with the email: in dev, `POST /api/auth/email-link` answers with a `devLink`.
  *
@@ -25,7 +25,7 @@ import { toAccount } from "../src/features/account/server/auth";
 import { auth as authOf } from "../src/features/account/server/http";
 import type { UserRow } from "../src/features/account/server/repo";
 import { TERMS_UPDATED } from "../src/features/account/terms";
-import type { Role } from "../src/features/account/model";
+import type { Account, Role } from "../src/features/account/model";
 import { PERSONAS } from "../src/features/devtools/model/personas";
 import { drizzleLibraryRepo } from "../src/features/library/server/repo.drizzle";
 import { areasMissingTopics, migrateAnswers } from "../src/features/plan/intake/answers";
@@ -33,8 +33,8 @@ import { entryFor } from "../src/features/plan/model/progressLog";
 import { addDays, localDate } from "../src/features/plan/model/schedule";
 import type { PlanAnswers, PlanState } from "../src/features/plan/model/types";
 import type { Stars } from "../src/features/progress/stars";
-import { makeWeek } from "../src/features/students/server/plans";
-import { addStudent } from "../src/features/students/server/students";
+import { makeWeek, studentView } from "../src/features/students/server/plans";
+import { addStudent, type StudentsDeps } from "../src/features/students/server/students";
 import { readDocVersioned, writeDoc } from "../src/features/userData/server/data";
 import { userData as userDataOf } from "../src/features/userData/server/http";
 import type { UserDataRepo } from "../src/features/userData/server/repo";
@@ -95,54 +95,79 @@ function weakAnswers(raw: PlanAnswers): { answers: PlanAnswers; weak: Set<string
 const gauss = (sd: number) => Math.sqrt(-2 * Math.log(1 - faker.number.float({ min: 0, max: 0.999999 }))) * Math.cos(2 * Math.PI * faker.number.float()) * sd;
 
 /**
- * Ratings and practice time on the student's past days, as if they had used the app: each student has a level of their
- * own (3.3 to 4.4 stars), their weak topics (`weakAnswers`) well under it, a little better each week, and noise on every
- * rating. A rating can only lift a topic (4 stars or more makes a concept solid), so the weak topics stay low and the
- * strong ones creep between levels.
- * Some days are skipped, and some exercises of a day are left unrated. Written to the plan document (`done`, `rated`),
- * the progress log and the day timer, the three places a real rating and a real timer reach. Days after today are left.
- * Answers a line for the listing: the weak topics and how many ratings.
+ * What the teacher moves on the student's page before making the next week, as a teacher would after a good week:
+ * about half the topics a step up from where they stand now (0.2 to 0.5), a weak one only 0.1. The rest are left.
  */
-async function fakeProgress(repo: UserDataRepo, userId: string, today: string, weak: Set<string>): Promise<string> {
+async function teacherNudge(deps: StudentsDeps, teacher: Account, studentId: string, on: string, weak: Set<string>): Promise<Record<string, number> | undefined> {
+  const view = await studentView(deps, teacher, studentId, on);
+  if (!view.ok) return undefined;
+  const moved = view.topics.filter((t) => t.now < 3 && faker.datatype.boolean({ probability: 0.5 }));
+  return Object.fromEntries(moved.map((t) => [t.topic, Math.min(3, Math.round((t.now + (weak.has(t.topic) ? 0.1 : faker.number.float({ min: 0.2, max: 0.5 }))) * 10) / 10)]));
+}
+
+/** How one student's ratings go, from their first day to today (`learner`). */
+interface Learner {
+  weak: Set<string>;
+  first: string;
+  today: string;
+  strong: { from: number; to: number };
+  low: { from: number; to: number };
+  /** the chance they practise on a day */
+  keen: number;
+}
+
+/**
+ * A student who gets better from their first day to today: a topic from about 2.8 stars to 5, a weak one
+ * (`weakAnswers`) from about 1.5 to 4.2, so it turns solid (4 stars) only near the end; a little of each is their own.
+ */
+function learner(weak: Set<string>, first: string, today: string): Learner {
+  const lift = faker.number.float({ min: -0.3, max: 0.3 });
+  return { weak, first, today, strong: { from: 2.8 + lift, to: 5 + lift }, low: { from: 1.5 + lift, to: 4.2 + lift }, keen: faker.number.float({ min: 0.55, max: 0.95 }) };
+}
+
+/**
+ * Ratings and practice time on the newest week's days before today and before the next week, as if the student had used
+ * the app. Called after each week is made, so the composer of the next week paces it by these ratings, as it would a real
+ * student's: a concept rated solid at its level brings the next level's steps, which lift the topic's score when they are
+ * rated solid in turn. Some days are skipped and some exercises left unrated. Written to the plan document (`done`,
+ * `rated`), the progress log and the day timer, the three places a real rating and a real timer reach. Answers how many
+ * ratings it made.
+ */
+async function rateWeek(repo: UserDataRepo, userId: string, l: Learner): Promise<number> {
   const { data, version } = await readDocVersioned(repo, userId, "plan");
   const state = data as PlanState;
-  const weeks = [...state.given].sort((a, b) => a.startedOn.localeCompare(b.startedOn));
-  const level = faker.number.float({ min: 3.3, max: 4.4 });
-  const weakLevel = faker.number.float({ min: 1.2, max: 2.2 });
-  const keen = faker.number.float({ min: 0.45, max: 0.95 });
+  const plan = [...state.given].sort((a, b) => b.startedOn.localeCompare(a.startedOn))[0];
+  if (!plan) return 0;
+  const span = Math.max(1, (Date.parse(l.today) - Date.parse(l.first)) / DAY);
+  plan.done = { ...plan.done };
+  plan.rated = { ...plan.rated };
   let ratings = 0;
-
-  for (const [w, plan] of weeks.entries()) {
-    plan.done = { ...plan.done };
-    plan.rated = { ...plan.rated };
-    for (const [d, day] of plan.config.days.entries()) {
-      const date = addDays(plan.startedOn, d);
-      if (date >= today || !faker.datatype.boolean({ probability: keen })) continue;
-      const spent: Record<string, number> = {};
-      const blocks: Record<string, string> = {};
-      for (const [x, e] of day.exercises.entries()) {
-        if (!e.id || !faker.datatype.boolean({ probability: 0.85 })) continue;
-        const isWeak = !!e.topic && weak.has(e.topic);
-        const mean = (isWeak ? weakLevel + 0.1 * w : level + 0.2 * w) + gauss(0.7);
-        const stars = Math.min(5, Math.max(1, Math.round(mean))) as Stars;
-        const [y, m, dd] = date.split("-").map(Number);
-        const at = new Date(y, m - 1, dd, faker.number.int({ min: 16, max: 21 }), faker.number.int({ min: 0, max: 59 })).toISOString();
-        plan.done[`${d}:${x}`] = true;
-        plan.rated[`${d}:${x}`] = { stars, at };
-        const entry = entryFor(plan, d, x, { stars, at }, () => crypto.randomUUID());
-        if (entry) await repo.putProgress(userId, entry, new Date(at));
-        spent[e.id] = Math.round(e.minutes * 60 * faker.number.float({ min: 0.6, max: 1.3 }));
-        if (e.blockId) blocks[e.id] = e.blockId;
-        ratings++;
-      }
-      const elapsed = Object.values(spent).reduce((a, b) => a + b, 0);
-      if (elapsed) await repo.putPlanTime(userId, { planId: plan.id, day: d, elapsed, spent, blocks, on: { [date]: elapsed } }, new Date(`${date}T20:00:00`));
+  for (const [d, day] of plan.config.days.entries()) {
+    const date = addDays(plan.startedOn, d);
+    if (date >= l.today || !faker.datatype.boolean({ probability: l.keen })) continue;
+    const f = (Date.parse(date) - Date.parse(l.first)) / DAY / span;
+    const spent: Record<string, number> = {};
+    const blocks: Record<string, string> = {};
+    for (const [x, e] of day.exercises.entries()) {
+      if (!e.id || !faker.datatype.boolean({ probability: 0.85 })) continue;
+      const { from, to } = e.topic && l.weak.has(e.topic) ? l.low : l.strong;
+      const stars = Math.min(5, Math.max(1, Math.round(from + (to - from) * f + gauss(0.35)))) as Stars;
+      const [y, m, dd] = date.split("-").map(Number);
+      const at = new Date(y, m - 1, dd, faker.number.int({ min: 16, max: 21 }), faker.number.int({ min: 0, max: 59 })).toISOString();
+      plan.done[`${d}:${x}`] = true;
+      plan.rated[`${d}:${x}`] = { stars, at };
+      const entry = entryFor(plan, d, x, { stars, at }, () => crypto.randomUUID());
+      if (entry) await repo.putProgress(userId, entry, new Date(at));
+      spent[e.id] = Math.round(e.minutes * 60 * faker.number.float({ min: 0.6, max: 1.3 }));
+      if (e.blockId) blocks[e.id] = e.blockId;
+      ratings++;
     }
+    const elapsed = Object.values(spent).reduce((a, b) => a + b, 0);
+    if (elapsed) await repo.putPlanTime(userId, { planId: plan.id, day: d, elapsed, spent, blocks, on: { [date]: elapsed } }, new Date(`${date}T20:00:00`));
   }
-
-  const wrote = await writeDoc(repo, userId, "plan", { ...state, given: [...weeks].reverse() }, new Date(), version);
+  const wrote = await writeDoc(repo, userId, "plan", state, new Date(), version);
   if (!wrote.ok) throw new Error(`the student's ratings were not written: ${wrote.error}`);
-  return `${ratings} ratings`;
+  return ratings;
 }
 
 async function main() {
@@ -209,7 +234,9 @@ async function main() {
       // a student who opened their link has been at it for 1 to 4 weeks before this one; one who hasn't was added this week
       const claimed = faker.datatype.boolean({ probability: 0.6 });
       const weeksBack = opts.progress && claimed ? faker.number.int({ min: 1, max: 4 }) : 0;
-      const addedOn = new Date(now.getTime() - (weeksBack * 7 + faker.number.int({ min: 0, max: 2 })) * DAY);
+      // this week started a few days ago, so its first days are rated too and the page shows how far it moved
+      const into = weeksBack ? faker.number.int({ min: 2, max: 5 }) : 0;
+      const addedOn = new Date(now.getTime() - (weeksBack * 7 + into + faker.number.int({ min: 0, max: 2 })) * DAY);
       const added = await addStudent({ auth: { ...auth, now: () => addedOn }, userData: store.repo }, account, { name: `${first} ${last}`, email: email(first, last), answers, today: localDate(addedOn) });
       if (!added.ok) {
         console.warn(`  ${teacher.email}: student not added (${added.error})`);
@@ -219,16 +246,20 @@ async function main() {
       const student = (await repo.userById(added.studentId))!;
       // one week a week, oldest first, ending with the one running today
       let given = 0;
+      let ratings = 0;
+      const rates = opts.progress && claimed;
+      const l = learner(weak, localDate(new Date(now.getTime() - (weeksBack * 7 + into) * DAY)), today);
       for (let k = weeksBack; k >= 0; k--) {
-        const on = new Date(now.getTime() - k * 7 * DAY);
-        const week = await makeWeek({ auth, userData: store.repo, library }, account, added.studentId, { today: localDate(on), rotate: false }, on, () => crypto.randomUUID());
+        const on = new Date(now.getTime() - (k * 7 + into) * DAY);
+        const scores = rates && k < weeksBack ? await teacherNudge({ auth, userData: store.repo }, account, added.studentId, localDate(on), weak) : undefined;
+        const week = await makeWeek({ auth, userData: store.repo, library }, account, added.studentId, { today: localDate(on), rotate: false, scores }, on, () => crypto.randomUUID());
         if (week.ok) given++;
         else weekNote = `no weeks: ${week.error}`;
+        if (week.ok && rates) ratings += await rateWeek(store.repo, added.studentId, l);
       }
       if (given) weeks++;
       if (claimed) await repo.markClaimed(added.studentId, new Date(addedOn.getTime() + faker.number.int({ min: 0, max: 1 }) * DAY));
-      const progress = claimed && given && opts.progress ? await fakeProgress(store.repo, added.studentId, today, weak) : null;
-      rows.push({ email: student.email, role: "student", plan: "taught", note: `${persona.id}, of ${teacher.name}${claimed ? ", link opened" : ""}, weak in ${[...weak].join(" and ")}${progress ? `, ${progress}` : ""}` });
+      rows.push({ email: student.email, role: "student", plan: "taught", note: `${persona.id}, of ${teacher.name}${claimed ? ", link opened" : ""}, weak in ${[...weak].join(" and ")}${ratings ? `, ${ratings} ratings` : ""}` });
     }
     rows.splice(rows.length - made, 0, { email: teacher.email, role: "teacher", plan: plan.id, note: `${made} students, ${weeks} with a week${weekNote && !weeks ? ` (${weekNote}: seed the library)` : ""}` });
   }
