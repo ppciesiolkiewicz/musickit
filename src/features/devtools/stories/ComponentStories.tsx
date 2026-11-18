@@ -7,6 +7,7 @@ import { parseTool } from "@/features/plan/model/tools";
 import Controls from "./Controls";
 import { matchesQuery, storyGroups, type Props, type StoryGroup } from "./stories";
 import { UI_GROUPS, type UiGroup } from "./uiStories";
+import { STUB_GROUPS } from "./stubStories";
 
 type Tab = "controls" | "json" | "parsed";
 type Group = StoryGroup | UiGroup;
@@ -52,7 +53,7 @@ const KindTitle = ({ children, count, open, onToggle }: { children: string; coun
 
 /** Every learning component in many set-ups, Storybook-style: pick a story, change its props with controls or JSON. */
 export default function ComponentStories() {
-  const groups = useMemo<Group[]>(() => [...storyGroups(), ...UI_GROUPS], []);
+  const groups = useMemo<Group[]>(() => [...storyGroups(), ...UI_GROUPS, ...STUB_GROUPS], []);
   const [gi, setGi] = useState(0);
   const [si, setSi] = useState(0);
   const [props, setProps] = useState<Props>(groups[0].stories[0].props);
@@ -94,7 +95,7 @@ export default function ComponentStories() {
     setExpanded((e) => e.has(groups[g].id) ? e : new Set(e).add(groups[g].id));
     // the section holding the shown story opens too
     const gr = groups[g];
-    const keys = "render" in gr ? ["components"] : ["ai", `kind:${gr.doc?.kind ?? "stub"}`];
+    const keys = "render" in gr ? [gr.stub ? "stubs" : "components"] : ["ai", `kind:${gr.doc?.kind ?? "stub"}`];
     setClosed((c) => (keys.some((k) => c.has(k)) ? new Set([...c].filter((k) => !keys.includes(k))) : c));
     setProps(p);
     setText(JSON.stringify(p, null, 2));
@@ -132,7 +133,8 @@ export default function ComponentStories() {
   };
   const matches = (g: Group) => storyHits(g).length > 0;
   const toolsOf = (kind: string) => groups.filter((g) => !("render" in g) && (g.doc?.kind ?? "stub") === kind && matches(g));
-  const uiShown = groups.filter((g) => "render" in g && matches(g));
+  const uiShown = groups.filter((g) => "render" in g && !g.stub && matches(g));
+  const stubShown = groups.filter((g) => "render" in g && g.stub && matches(g));
   const aiCount = kinds.reduce((n, k) => n + toolsOf(k).length, 0);
   // a filter opens every section with a hit
   const isOpen = (key: string) => !!q || !closed.has(key);
@@ -142,7 +144,7 @@ export default function ComponentStories() {
   };
   const collapseAll = () => {
     setExpanded(new Set());
-    setClosed(new Set(["ai", "components", ...kinds.map((k) => `kind:${k}`)]));
+    setClosed(new Set(["ai", "components", "stubs", ...kinds.map((k) => `kind:${k}`)]));
   };
 
   const row = (g: Group, n: number) => {
@@ -195,10 +197,16 @@ export default function ComponentStories() {
         {uiShown.length > 0 && <SectionTitle count={uiShown.length} open={isOpen("components")} onToggle={() => toggleSection("components")}>Components</SectionTitle>}
         {uiShown.length > 0 && isOpen("components") && (
           <div className="flex flex-col gap-0.5">
-            {groups.map((g, n) => ("render" in g ? row(g, n) : null))}
+            {groups.map((g, n) => ("render" in g && !g.stub ? row(g, n) : null))}
           </div>
         )}
-        {q && !aiCount && !uiShown.length && <p className="px-2 text-xs text-slate-500">Nothing matches.</p>}
+        {stubShown.length > 0 && <SectionTitle count={stubShown.length} open={isOpen("stubs")} onToggle={() => toggleSection("stubs")}>Missing tools (stubs)</SectionTitle>}
+        {stubShown.length > 0 && isOpen("stubs") && (
+          <div className="flex flex-col gap-0.5">
+            {groups.map((g, n) => ("render" in g && g.stub ? row(g, n) : null))}
+          </div>
+        )}
+        {q && !aiCount && !uiShown.length && !stubShown.length && <p className="px-2 text-xs text-slate-500">Nothing matches.</p>}
       </nav>
 
       <div className="flex min-w-0 flex-col gap-3">

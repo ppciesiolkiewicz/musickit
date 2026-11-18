@@ -156,6 +156,15 @@ come from the code, not the database (`model/stepBlocks.ts`): seed blocks by the
 plan exercise or seed block whose tools say the step (`stepOf`), then those that only tag the track at the step's level,
 marked "level match only". A test holds that every step has a block.
 
+## Stories (`/dev/stories`)
+
+Every learning component in many set-ups (`stories/`). The sidebar has three sections: *AI Autoplan Tools* (every tool in
+`TOOLS`, with hand-written stories in `stories.ts` and every tool cell of the seed), *Components* (`uiStories.tsx`, React
+components that are not AI tools) and *Missing tools (stubs)*: the new tools of tasks.txt's MissingTools series, not built
+yet. A stub (`stubs.ts`, drawn by `stubStories.tsx`) is a card with what the tool is for, which seed steps wait on it, what
+is still open and its planned props; it is not in `TOOLS`, so the prompt never offers it and no seed file can use it (a
+test holds this). Building the tool means adding it to `TOOLS` and deleting its stub.
+
 ## Library (`/dev/library`)
 
 A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days, reviews), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). A plan or block that comes from a seed file has a *Seed* tag after its title, and a version older than the current one (`PROMPT_VERSION`, `DOC_VERSIONS`) is amber, one not recorded grey, so files written to older rules stand out. `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows what is not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. The one page for the library's plans and blocks; it replaced the examples page.

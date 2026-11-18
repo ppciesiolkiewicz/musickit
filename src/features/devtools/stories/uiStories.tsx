@@ -27,6 +27,8 @@ export interface UiGroup {
   doc: { description: string; props: PropDoc[] };
   stories: Story[];
   render: (props: Props) => ReactNode;
+  /** a tool not built yet (stubStories.tsx): its own sidebar section */
+  stub?: boolean;
   shape?: undefined;
   shapeDoc?: undefined;
 }

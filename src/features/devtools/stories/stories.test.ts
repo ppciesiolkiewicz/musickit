@@ -43,3 +43,19 @@ test("the filter matches every word anywhere", () => {
   assert.ok(find("ear training").includes("interval-ears"));
   assert.ok(!find("sing interval").includes("scale-neck"));
 });
+
+test("a stub is only a story: not a tool, not in the prompt, not in the seed", async () => {
+  const { STUBS } = await import("./stubs");
+  const { buildPrompt } = await import("@/features/plan/model/prompt");
+  const { SEED_BLOCKS, SEED_PLANS } = await import("@/features/library/seed");
+  const prompt = buildPrompt(null, []);
+  const seed = JSON.stringify([...SEED_BLOCKS, ...SEED_PLANS]);
+  const ids = new Set(groups.map((g) => g.id));
+  for (const s of STUBS) {
+    assert.ok(!(s.id in TOOLS), `${s.id} is a tool now: delete its stub`);
+    assert.ok(!ids.has(s.id), `${s.id} has an AI tool story`);
+    assert.ok(!prompt.includes(`"${s.id}"`), `${s.id} is in the prompt`);
+    assert.ok(!seed.includes(`"type":"${s.id}"`), `${s.id} is in the seed`);
+    assert.ok(s.stories.length && s.props.length, `${s.id} has stories and props`);
+  }
+});

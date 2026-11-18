@@ -56,6 +56,10 @@ MissingTools14: [NEW 2026-11-18] a vowel modification tool for singers: an anima
 tool expects back (the request ended at "and expect"). Is it a pitch target held on each vowel, read by the mic like
 the other voice tools, or only a guide to copy with no check? Some voice blocks already mention vowels in their text
 (voice-intermediate-slides-across-the-break, voice-advanced-guide-tones). Those are the first ones to use the tool.
+[2026-11-18 done] Stubs on /dev/stories, section "Missing tools (stubs)", for the new tools: double-stops-neck (1),
+clap-along (2, with today's RhythmGame under it), chord-change-quiz (3), song-chart (8), vowel-guide (14), staff-reading
+(15). Each: what it does, what waits on it, what is open, planned props. In src/features/devtools/stories/stubs.ts; not in
+TOOLS, the prompt or the seed (stories.test.ts). Prop gaps on existing tools (3 qualities, 4-7, 9-13) have no stub.
 
 TaskSeries ChoiceSplit: take the choice (stages, variants, pick-a-step) out of blocks (from NEW15, 2026-11-17)
 ChoiceSplit1: [NEW 2026-11-17] Brainstorm a choice that lives apart from its block, so new alternatives of a block (other
