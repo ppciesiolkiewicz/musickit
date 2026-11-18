@@ -35,7 +35,7 @@ export default function InfoTip({ label, children, hover = false, align = "right
   return (
     <span
       ref={box}
-      className="relative"
+      className="relative inline-flex"
       onPointerEnter={hover ? (e) => e.pointerType === "mouse" && setOpen(true) : undefined}
       onPointerLeave={hover ? (e) => e.pointerType === "mouse" && setOpen(false) : undefined}
     >
