@@ -26,17 +26,6 @@ export const addDays = (iso: string, n: number): string => {
 /** Which day of the plan today is, from 0. Past the last day it keeps counting, so callers can tell the week is over. */
 export const dayIndex = (startedOn: string, today: string): number => Math.max(0, dayNumber(today) - dayNumber(startedOn));
 
-/**
- * Start `config` on `today`: a new plan id and a new id on every exercise (so a plan used again from the history never
- * shares ids with its earlier run). Its cells are cleaned as a stored plan's are (`cleanExercise`) before the block ids
- * are made, so a reload keeps them. The running plan, if any, moves to the front of the history, which keeps `HISTORY_CAP`.
- */
-export const startPlan = (s: PlanState, config: PlanConfig, newId: () => string, today: string): PlanState => ({
-  ...s,
-  current: { id: newId(), config: storedConfig(config, newId), startedOn: today, done: {} },
-  history: s.current ? [s.current, ...s.history].slice(0, HISTORY_CAP) : s.history,
-});
-
 /** A config as a started plan stores it: a new id on every exercise, cells cleaned, then the block ids worked out. */
 const storedConfig = (config: PlanConfig, newId: () => string): PlanConfig => withBlockIds(cleanCells(withExerciseIds(config, newId, true)));
 
@@ -136,7 +125,7 @@ export const storedPlans = (s: PlanState): StoredPlan[] => [...(s.current ? [s.c
 
 /**
  * Which day of a given plan is today (`today`, from 0, never past its last day) and whether its days are over: only once
- * its last day's date has passed (a fully rated last day stays the open day until then, unlike `weekOver`). Over, `today`
+ * its last day's date has passed (a fully rated last day stays the open day until then). Over, `today`
  * is the last day, so every day can be opened.
  */
 export function givenToday(plan: StoredPlan, date: string): { today: number; over: boolean } {
@@ -144,15 +133,6 @@ export function givenToday(plan: StoredPlan, date: string): { today: number; ove
   const over = dayIndex(plan.startedOn, date) > last;
   return { today: over ? last : Math.min(dayIndex(plan.startedOn, date), last), over };
 }
-
-/**
- * Use an earlier plan again. Like `startPlan`, but the plan takes the running plan's progress summary (the AI's newest
- * notes on the student) in place of the old one it was written with, so the next prompt does not send stale notes.
- */
-export const restartPlan = (s: PlanState, config: PlanConfig, newId: () => string, today: string): PlanState => {
-  const progress = s.current?.config.progress;
-  return startPlan(s, progress ? { ...config, progress } : config, newId, today);
-};
 
 export const doneKey = (day: number, exercise: number) => `${day}:${exercise}`;
 
@@ -183,9 +163,3 @@ export function dayProgress(plan: StoredPlan, day: number): number {
   return done / n;
 }
 
-/** The plan is over the day after its last day (`planDays`: one for a composed day), or as soon as the last day is all done. */
-export const weekOver = (plan: StoredPlan, today: string): boolean => {
-  const days = planDays(plan);
-  const i = dayIndex(plan.startedOn, today);
-  return i >= days || (i === days - 1 && dayProgress(plan, days - 1) === 1);
-};

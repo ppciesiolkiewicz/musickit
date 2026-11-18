@@ -8,7 +8,7 @@ import { randomId } from "./model/exerciseIds";
 import { recordAnswers } from "./model/answersHistory";
 import { backfill } from "./model/progressLog";
 import { useProgress } from "@/features/progress/useProgress";
-import { reviewPlan, storedPlans } from "./model/schedule";
+import { storedPlans } from "./model/schedule";
 import type { PlanAnswers, PlanState, StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
 import { useAllPlanTimes, usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
@@ -44,8 +44,7 @@ export default function PlanApp() {
     for (const row of backfill(storedPlans(state), randomId)) progress.put(row);
   }, [loaded, progress, state]);
   // a flow left open (reload, hot reload) comes back; the modal only renders after the store loads, so no hydration mismatch
-  // only the first questionnaire: a daily plan has no week to review (a "next" flow saved before is not reopened here)
-  const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode === "start" ? "start" : null));
+  const [flow, setFlow] = useState(() => (typeof window === "undefined" ? false : !!savedFlow()));
   // the clock's date, moving at midnight: the streak's day, and today's plan's (which waits for an open edit or request)
   const today = useClockDate();
   const store = usePlanStore();
@@ -75,12 +74,12 @@ export default function PlanApp() {
     </Modal>
   );
 
-  // a finished flow keeps the answers (with their date when the topic screens were asked); with answers and no plan for
-  // today, `useTodayPlan` puts one together, so the player lands on the plan being made
-  const onAnswers = (answers: PlanAnswers, feedback: string | undefined, asked: boolean) => {
+  // a finished flow keeps the answers, remembered with their date; with answers and no plan for today, `useTodayPlan` puts
+  // one together, so the player lands on the plan being made
+  const onAnswers = (answers: PlanAnswers) => {
     const at = new Date().toISOString();
-    update((s) => ({ ...(asked ? recordAnswers(s, answers, at) : s), answers, current: s.current && feedback !== undefined ? { ...s.current, feedback } : s.current }));
-    setFlow(null);
+    update((s) => ({ ...recordAnswers(s, answers, at), answers }));
+    setFlow(false);
     // today's plan stays as it is; with none (it failed), the new answers may make one: ask again
     if (day.view.kind === "plan") setAnswersSaved(true);
     else if (day.view.kind === "failed") day.retry();
@@ -104,7 +103,7 @@ export default function PlanApp() {
   if (!loaded || !timesLoaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
   const modal = flow && (
-    <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} review={plan?.review ?? null} onReview={(r) => setPlan((p) => reviewPlan(p, r, new Date().toISOString()))} onAnswers={onAnswers} onClose={() => setFlow(null)} />
+    <PlanFlow answers={state.answers ?? DEFAULT_ANSWERS} current={plan} onAnswers={onAnswers} onClose={() => setFlow(false)} />
   );
   const primary = "!rounded-xl !border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 shadow-md shadow-sky-500/20 transition hover:!bg-sky-400";
 
@@ -113,7 +112,7 @@ export default function PlanApp() {
   const given = <GivenPlans plans={state.given} />;
   // the questionnaire again, from the stored answers (areas, where you are in each topic, minutes a day)
   const changeAnswers = (
-    <Button onClick={() => setFlow("start")} title="Answer the questions again: what you play, where you are in each topic, and how long you practise a day" className={BIG}>
+    <Button onClick={() => setFlow(true)} title="Answer the questions again: what you play, where you are in each topic, and how long you practise a day" className={BIG}>
       <Icon name="pencil" size={16} />Change my answers
     </Button>
   );
@@ -136,7 +135,7 @@ export default function PlanApp() {
               </li>
             ))}
           </ol>
-          <Button data-tour="plan-start" onClick={() => setFlow("start")} className={`${primary} px-5 py-2 text-sm`}><Icon name="sparkles" size={16} />Start</Button>
+          <Button data-tour="plan-start" onClick={() => setFlow(true)} className={`${primary} px-5 py-2 text-sm`}><Icon name="sparkles" size={16} />Start</Button>
         </section>
         {past}
         {modal}

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addDays, anotherDay, givenPlan, givenToday, ownDay, ratePlan, startDay, startPlan, storedPlans, updateGiven, weekOver } from "./schedule";
+import { addDays, anotherDay, givenPlan, givenToday, ownDay, ratePlan, startDay, storedPlans, updateGiven } from "./schedule";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import type { ComposedDay } from "./compose";
 import { EMPTY_STATE, planDays, type PlanConfig, type PlanExercise, type PlanState, type StoredPlan } from "./types";
@@ -62,8 +62,6 @@ test("the history keeps 60 plans (was 20)", () => {
   s = startDay(s, dayOf("B"), { date: "2026-11-18", attempt: 0 }, ids("b"));
   assert.equal(s.history.length, 60);
   assert.equal(s.history[0].startedOn, "2026-11-17");
-  const started = startPlan({ ...EMPTY_STATE, current: many[0], history: many.slice(1) }, { title: "w", days: [] }, ids(), "2026-11-18");
-  assert.equal(started.history.length, 60);
 });
 
 test("anotherDay keeps the rated exercise with its slot id and rating at its new place, and declines the rest", () => {
@@ -121,16 +119,6 @@ test("anotherDay without today's own plan changes nothing", () => {
   const s = startDay(EMPTY_STATE, dayOf("A"), { date: "2026-11-17", attempt: 0 }, ids());
   assert.equal(anotherDay(s, dayOf("B"), { date: "2026-11-18", attempt: 1 }, ids()), s);
   assert.equal(anotherDay(EMPTY_STATE, dayOf("B"), { date: "2026-11-18", attempt: 1 }, ids()), EMPTY_STATE);
-});
-
-test("weekOver follows planDays: a one-day plan is over the day after; a seven-day plan as before", () => {
-  const one = startDay(EMPTY_STATE, dayOf("A", "B"), { date: "2026-11-18", attempt: 0 }, ids()).current!;
-  assert.equal(weekOver(one, "2026-11-18"), false);
-  assert.equal(weekOver(one, "2026-11-19"), true);
-  const week: StoredPlan = { id: "w", startedOn: "2026-11-10", done: {}, from: "s1", config: { title: "w", days: Array.from({ length: 7 }, () => ({ theme: "t", exercises: [exOf("A")] })) } };
-  assert.equal(planDays(week), 7);
-  assert.equal(weekOver(week, "2026-11-16"), false);
-  assert.equal(weekOver(week, "2026-11-17"), true);
 });
 
 test("givenPlan finds a plan in the given list only", () => {

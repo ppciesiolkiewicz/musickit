@@ -16,7 +16,7 @@ import { KEY_PANELS, PROMPT_HIDDEN, canFollowPart, cellInterface, cellsOf, degre
 import { transposeTool } from "./transpose";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
-import { addDays, dayIndex, dayOf, dayProgress, localDate, reviewPlan, weekOver } from "./schedule";
+import { addDays, dayIndex, dayOf, dayProgress, localDate, reviewPlan } from "./schedule";
 import { MAX_REVIEW_WHY, cleanReview, sanitiseState } from "./state";
 import type { StoredPlan } from "./types";
 
@@ -471,12 +471,9 @@ describe("schedule", () => {
     assert.equal(dayIndex("2026-10-26", "2026-10-20"), 0);
     assert.equal(localDate(new Date(2026, 0, 5)), "2026-01-05");
   });
-  it("the week ends after day 7 or when day 7 is done", () => {
-    assert.equal(weekOver(plan, "2026-11-01"), false);
-    assert.equal(weekOver(plan, "2026-11-02"), true);
+  it("a day is all done once each exercise is ticked", () => {
     const done = { ...plan, done: { "6:0": true as const } };
     assert.equal(dayProgress(done, 6), 1);
-    assert.equal(weekOver(done, "2026-11-01"), true);
   });
   it("the next prompt reports last week", () => {
     const done = { ...plan, done: { "0:0": true as const }, feedback: "too easy" };
