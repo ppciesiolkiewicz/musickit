@@ -174,7 +174,7 @@ function Panel({ context, onClose, onRead, position }: { context: MessageContext
       {...{ [PANEL_ATTR]: "" }}
       role="dialog"
       aria-label="Messages"
-      className={`fixed inset-0 z-[2300] flex flex-col bg-slate-900 text-slate-100 sm:inset-auto sm:right-12 ${position} sm:h-[min(32rem,calc(100dvh-8rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-slate-700 sm:shadow-2xl`}
+      className={`fixed inset-0 z-[2450] flex flex-col bg-slate-900 text-slate-100 sm:inset-auto sm:right-12 ${position} sm:h-[min(32rem,calc(100dvh-8rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-slate-700 sm:shadow-2xl`}
     >
       <header className="flex items-center gap-2 border-b border-slate-800 px-4 py-3">
         {view === "list" ? (

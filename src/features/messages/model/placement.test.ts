@@ -13,7 +13,7 @@ test("the bubble hides where it would cover a tool's controls, and on dev pages"
 });
 
 test("the ref names the course section; other pages put nothing in the URL to name", () => {
-  assert.equal(refOf("/course/3", "#triads"), "course/3#triads");
+  assert.equal(refOf("/course/1/strings-and-tuning", "#tune"), "course/1/strings-and-tuning#tune");
   assert.equal(refOf("/course/3", ""), "course/3");
   assert.equal(refOf("/plan", ""), undefined);
   assert.equal(refOf("/", ""), undefined);

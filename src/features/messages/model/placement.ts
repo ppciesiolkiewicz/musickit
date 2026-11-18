@@ -15,6 +15,6 @@ export const bubblePlacement = (pathname: string): "show" | "hide" =>
  * TODO(ref): name the plan day and exercise once those pages put them in the URL or a context.
  */
 export function refOf(pathname: string, hash: string): string | undefined {
-  const m = /^\/course\/([^/]+)/.exec(pathname);
+  const m = /^\/course\/(.+)$/.exec(pathname);
   return m ? `course/${m[1]}${hash}` : undefined;
 }
