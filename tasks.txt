@@ -56,6 +56,11 @@ MissingTools14: [NEW 2026-11-18] a vowel modification tool for singers: an anima
 tool expects back (the request ended at "and expect"). Is it a pitch target held on each vowel, read by the mic like
 the other voice tools, or only a guide to copy with no check? Some voice blocks already mention vowels in their text
 (voice-intermediate-slides-across-the-break, voice-advanced-guide-tones). Those are the first ones to use the tool.
+MissingTools15: [NEW 2026-11-18] a staff-reading tool: learning the notes on the staff (user). A note shows on the
+staff and the player names it (answer buttons, like note-finder on the neck), in levels: lines, then spaces, then ledger
+lines; treble first, bass later. Open: whether a guitar player's version also plays it on the neck, and whether it
+listens for the note sung or played (mic) as well as tapped. Ties to MissingTools12 (staff can't label its notes),
+sight-singing:1 and note-names:3, whose blocks have no reading drill today.
 [2026-11-18 done] Stubs on /dev/stories, section "Missing tools (stubs)", for the new tools: double-stops-neck (1),
 clap-along (2, with today's RhythmGame under it), chord-change-quiz (3), song-chart (8), vowel-guide (14), staff-reading
 (15). Each: what it does, what waits on it, what is open, planned props. In src/features/devtools/stories/stubs.ts; not in
@@ -137,31 +142,12 @@ Rebrand4: [NEW 2026-11-18] /intro still says "AI practice plan" and tells player
 It is recorded narration (src/features/intro/script.json, scenes.tsx, voices/*.json, four voices), so the words and
 the audio change together: new script, new ElevenLabs takes. Also says a thing the app no longer does (both outside-AI
 routes went with NEW15), so it is wrong today, not only off-brand.
-
-TaskSeries SeedStandalone: seed exercises that only make sense next to another day of their week (from NEW7, 2026-11-18)
-The composer (NEW7) hands out one block at a time, for a player's day and for a teacher's seven days, so a block
-can't lean on "day 2". The beginner singer got "Day 2's run, twice as fast" on day one. User, 2026-11-18: rewrite them
-to stand alone (Claude's recommendation); keeping them out of composed days is the stopgap, only if the rewrite waits.
-Standalone wording is also true inside the whole 7-day plan, so the seed plans lose nothing.
-SeedStandalone1: [NEW 2026-11-18] Rewrite the 13 exercises titled after another day (exercise-example skill, then
-review-teaching-text). Title and text say what to play, not when it was first played ("The Do to Sol run, twice as
-fast"). A rewritten file takes the current versions; block ids change, so reseed after (db:seed-plans, db:seed-blocks).
-In src/features/library/seed/plans:
-- guitar-beginner: "Position 1: day 1 again, then your own drill"
-- guitar-intermediate: "Hammer and pull, day 1 again"
-- guitar-advanced: "Skip a string, day 1 again"
-- guitar-new-first-week: "Em to Am: day 2 again, then down and up"; "The notes game, day 2 again"; "Day 3's tune,
-  then your own"
-- voice-intermediate: "Day 4's breath again"; "Day 2's run, twice as fast"
-- voice-advanced: "Day 4's breath, one count more"; "Day 1's run again"; "Day 1's changes, your way"
-- voice-guitar-advanced-first-week: "Five notes, day 1 again"; "Comp the ii–V–I, day 1 again"
-SeedStandalone2: [NEW 2026-11-18] The text lines that name another day ("yesterday", "day 3", "this week"): about 77
-counted in NEW7, in all ten seed plans (most in voice-guitar-advanced-first-week, guitar-new-first-week,
-guitar-beginner, voice-advanced). Sort them first: a line in an exercise's own text goes (the block travels alone); a
-line in a day's or the plan's intro can stay, since the composer doesn't carry those. Then rewrite per file.
-SeedStandalone3: [NEW 2026-11-18] Keep new ones out: `seed check` fails an exercise whose title or text names another
-day, and the rule goes into exercise-example (a rule that changes what gets written: raise the teaching version and
-DOC_VERSIONS, changelog entry). After 1 and 2, so the check passes on what is there.
+[2026-11-18 done, words and scenes] The one tour is now two, written from /dev/kickstarter: `solo` (solo musicians) and
+`teachers` (src/features/intro/script.json, scenes.tsx, README). Both on /intro behind a switch, each on its home page
+("Quick tour" section) and the teachers' one on /demo. No "AI" in either; a test holds that. Left: the audio. Every
+scene plays silent with captions until recorded: `node scripts/intro/voice.mjs --voice <name>` for charlie, george,
+laura and sarah (14 scenes each, ElevenLabs credits). The old takes in public/intro/<voice>/ (hello.mp3 … end.mp3) are
+unused and can be deleted once the new ones are in.
 
 TaskSeries TeacherStudentFlow: teachers add students, give them plans and make the next one (moved out of NEW, 2026-11-18)
 [2026-11-18, user] The main direction now. Design: docs/superpowers/specs/2026-11-17-teacher-students-design.md. NEW7 (the
@@ -196,9 +182,7 @@ own day (a slider moved in the evening west of UTC was ignored until the next da
 next week; claim links capped at 5 a student a day; a student counts as opened on any first log-in. Walked in a browser
 on a copy of the app against the local database: add a student, sliders, make and rotate a week, claim link, welcome,
 the student's /plan, and the reload when the teacher changes the plan while it is open. Not seen: phone width, light theme.
-BEFORE THIS GOES LIVE: run migrations 0027 and 0028 on Supabase first (the build does not migrate; the new code on the
-old tables fails every save and load). Open for the user: a teacher can make an account for any address with none, and
-there is no unlink yet.
+[2026-11-18] Migrations 0027 and 0028 run on Supabase (user). Open items moved to TeacherStudentFlow4-8.
 
 TeacherStudentFlow2: (was NEW18) [NEW 2026-11-17] Rethink the follow-up ("Review this week", ui/PlanFlow.tsx mode "next") for daily and weekly plans
 [2026-11-17] Merged with NEW12 into one design: docs/superpowers/specs/2026-11-17-teacher-students-design.md (1385e638).
@@ -275,69 +259,98 @@ Also factor in how many reusable videos they have in the plan.
 These videos can be included in notes and plans.
 How are they included in plans? This comes later.
 
-TaskSeries NEW:
-NEW15: [NEW 2026-11-16] Rework /dev/examples
-[2026-11-16, user, replaces "examples from DB on /dev page"] NEW15 is about the prompt and the data it reads from the DB
-over MCP, and the tooling:
-- The DB is the source for the prompt, so there are no /examples any more (the prompt is mainly used in Claude Code now).
-- Call them "Seed AI Autoplans", and keep only whole 7-day plans (no exercise examples).
-Two goals:
-1. Agents get context about exercises from the DB (MCP) to write new exercises (Claude Code, now).
-2. The autoplan API finds blocks and plans in the DB (later, with NEW7).
-Needs brainstorming first: what replaces the examples inside the writer prompt, the exercise-example skill and
-DOC_VERSIONS, the six demos that are plan examples, and the tests that read src/features/plan/examples.
-[2026-11-17, user] Players lose both outside-AI routes: the AI extension (the page's tools for the browser's AI) and
-copy-the-prompt-into-any-AI. So the prompt carries no examples; agents look plans and blocks up with the library tools.
-Knock-on: /terms and Selling1 promise the paste-your-own-AI way stays free; both need changing.
-[2026-11-17, user] Both routes go now, not with NEW7. The seed files are the one source: the DB holds them for agents,
-pages (/demo, dev pages) import them. The library tables on the .env.local DB may be reset and reseeded. Moved files that
-fail `seed check` go in as they are (NEW17). Choice as its own table: ChoiceSplit. Design:
-docs/superpowers/specs/2026-11-17-seed-autoplans-design.md.
-[2026-11-17 done] Tasks 1-8: the 7 plans and 22 exercises are seed files (library/seed), the prompt pastes no examples and
-tells agents to use the library tools, /dev/library replaces /dev/examples, players lose both outside-AI routes, and the
-skills, AGENTS.md and READMEs point at the seed (exercise-example skill keeps its name). Left: Task 9 (final checks), NEW17.
+TeacherStudentFlow4: [NEW 2026-11-18] ActiveStudent: a student counts toward the teacher's bill only if active in the
+billing period (user: "we honestly treat non-action with student within billing period as inactive"). Teachers pay per
+student (`plans.students`, design doc above; PricingFaq1). To settle: what counts as action (the student practised or
+saved, the teacher moved a slider or made a week, either?); whether an inactive student frees a place in "n of 15
+students" or only drops off the bill; where the billing period comes from (the subscription). Then say it plainly on
+/students, the pricing page, FAQ and terms (ux-copy + "Words about the app"; /terms says when it last changed).
+[2026-11-18, user] Decided (brainstorm, no design doc yet):
+- A teacher's plan limits active students, not the list. An active student is one the teacher gave a training plan this
+  month: added them (that makes the first week), Make next week's plan, or Rotate this week's plan. Sliders, comments
+  and the student's own practice don't count. Old students stay on the list for free; nobody has to remove anyone.
+- Grace: each plan level has a configurable number of extra students (2, 3 or 4) above its limit this month.
+- At the limit (15 of 15), /students shows a notice: n more this month for free, but upgrade or contact us for a plan.
+- The count reads "n of 15 active students", with a hover (a tap on a phone) saying we count the students you gave a
+  training plan this month.
+Guesses not yet confirmed: past limit + grace, giving a plan to a student not yet active this month (or adding one) is
+refused, naming upgrade and contact; a student already counted can always get another week; "Any number of students"
+plans have no count and no notice.
+- "This month" is the calendar month, from the 1st, for yearly payers too (user, 2026-11-18).
+- Extras: Solo 2, Music school 3; Unlimited is priced on request and has no limit (user, 2026-11-18). Stored per plan
+  (a new `plans` column, default 0, set by hand for a plan made for one teacher).
+- Copy, friendlier (user asked; draft, not yet in code):
+  At the limit: "You've given plans to the 15 students your plan covers this month. 2 more are on us, so carry on. If
+  you often teach more than 15 students a month, a bigger plan fits better." [Change your plan] [Send feedback]
+  In the extras: "1 extra student left this month, on us."
+  Past the extras: "That's your plan's 15 students and 2 extra for this month. Students you already gave a plan this
+  month can still get their next week. To add more, change your plan, or send us feedback and we'll find a plan that fits."
+  Hover: "Students you gave a training plan this month: you added them, made their next week or rotated their week.
+  Everyone else stays on your list for free. The count starts again on the 1st."
+[2026-11-18 done] Built, 5fa989df: model/places.ts (the count, the extras, the words), plans.extra_students and
+teacher_students.planned_on (migration 0030: run it on Supabase), the check in addStudent and makeWeek, /students with
+the count, the (i) and the notice. Walked on the local database: at the limit, in the extras, full (Add disabled), and a
+refused week on a student's page. Left: PricingFaq2. [2026-11-18] The refusal on a student's page has Change your plan and Send feedback too.
+FAQ and terms: see PricingFaq2.
 
-[2026-11-17, Claude] NEW15 data step done on Supabase (aws-1-eu-west-1 pooler, release DB): library tables reset (practice_plans 8, practice_plan_blocks 231, blocks 253, block_owners 253 app-owned; no player rows) and reseeded: 10 practice_plans, 411 blocks, 268 plan block rows; migration 0023_block_steps applied by the user first; db:seed-blocks run again adds nothing (411/268). MCP find_plans, get_plan guitar-beginner, find_blocks, get_block on 3 showcase ids checked. Left: NEW17.
-NEW17: [NEW 2026-11-17] Make the files moved from plan/examples pass `seed check` (after NEW15). None of the 22 exercises
-or the ~196 exercises inside the 7 plans names a path step; 26 plan exercises use a tool whose concept has steps without
-setting its level or stage (picking-drill, legato-trill, finger-pattern, note-finder, breathwork, interval-singer); none
-carries the current versions. Add steps and levels (calculator, `stepOf`), rewrite to current rules where needed with the
-writing skill, then their versions are current.
-[2026-11-17, user] Keep their old versions: no full rewrite. Two parts:
-1. /dev/library tables show a "Seed" tag (source) and mark versions behind the current ones, so older files are easy to
-   spot (the opened item already colours its version pills).
-2. Add `steps` to every exercise and set `level` or stage on each stepped tool, so the library and NEW7 find them by
-   step. Small clear text improvements are fine without raising the version; a real rewrite is not part of this.
-Counted 2026-11-17: 218 exercises in the 29 files; 15 have a tool that already says the step (`stepOf`, can be filled by
-script), 203 only match their track by level and need a step chosen by reading the exercise (agent work, per file).
-[2026-11-17, user] Order: part 2 (steps and levels, data only) goes last in NEW17; finish everything else first.
-[2026-11-17, user] Part 2 now comes before NEW7: the composer picks blocks by step.
-[2026-11-17 done] Part 2: 40 steps read from tools by script (58617e1f), 235 chosen by six agents, levels set on stepped
-tools (b850003e). Versions left old (user: a later round aligns them). Left:
-- [2026-11-18 done, 44b1d03a] The 19 voice exercises with no step now name one (user: path and exercises both; ear
-  games retagged). Path: breath has 8 steps (new: breath:3 a long held note, :5 hiss then buzz, :6 a long breath out,
-  :8 longer breaths out; the counts 4-10 and 4-20 moved to breath:4 and :7), intervals:8 "Wider than an octave";
-  PROMPT_VERSION 6. Beginner and intermediate farinelli drills use their level (3-8, 4-10); the advanced ones keep
-  their counts beside level "advanced" (4-20 runs ten minutes in a 3-minute slot). voice-advanced's 7 interval-ears
-  games are `intervals` (theory-ear, area theory, in a voice-only plan), a level beside each set; its 4 interval-singer
-  drills set a level and name singing-intervals:4. Every seed file now fails `seed check` on versions only (plus
-  voice-guitar-advanced's notes below); the seed blocks say prompt 5, one behind.
-- [2026-11-18 done] Library reset and reseeded on Supabase (user's go): 10 plans, 411 blocks, 268 plan block rows, a
-  second db:seed-blocks adds nothing; find_blocks by the new steps answers.
-- Six steps have no block now that level-only matches are gone: seventh-shapes:4, sus-add9:4, notes-on-neck:3 and 4,
-  range:4, runs:8 (KNOWN_GAPS in devtools/model/stepBlocks.test.ts; new blocks are NEW10 work).
-- Some steps sit at another level than their exercise, so the parser moves those blocks' level (agents' reports).
-- voice-guitar-advanced-first-week: 5 run picks match no tune (parser falls back to runs 116/117, steps read from
-  those); one exercise sings and plays at once.
-  [2026-11-18 done] Fixed in the seed file: the five picks named runs the book doesn't have (five is Medium only, nine
-  and octave-run stop at Hard), so the tool played an arpeggio under text about Do to Sol. Picks now name real runs
-  (113, 115, 127, 126, 115), three texts say what those runs do, and the steps follow them (runs:1, runs:7, runs:1).
-  The sing-and-play note was "use Play to check", now "press Play to check". `seed check` shows versions only.
-  Left: reseed (db:seed-plans, db:seed-blocks; block ids change), then read it on /dev/library, which shows the DB copy.
-[2026-11-17 done] Part 1: /dev/library tables tag seed plans and blocks "Seed" and colour versions behind the current ones
-amber (1da93760). Not yet seen in the browser (Chrome tab hung on a slow network); checked by a render test.
+TeacherStudentFlow5: [NEW 2026-11-18] Unlink a student. [Postponed 2026-11-18, user] Today a teacher can make an account for any address that has
+none; if that person later signs up they land on it, linked to the teacher, who sees their practice, and nothing undoes
+it. Decide who can unlink (the student, the teacher, both) and what each keeps (the student's account and history; the
+teacher's weeks and comments). Ties to "deleted keeping the record" in TeacherStudentFlow3.
+[2026-11-18 done, de6c94ff] One teacher per student for now (user): adding an address that is another teacher's student
+is refused ("taught": "This person has already been invited by a teacher. Send us a message on the Send feedback page
+and we'll help you out."), the teacher's own is "listed". A player's existing account was already refused ("exists").
+Several schools for one student waits for a decision here.
 
-NEW19: [NEW 2026-11-18] Keys in the questionnaire and in every plan
+TeacherStudentFlow6: [DONE 2026-11-18] Show the student's star ratings on the teacher's read-only week on /students/<id>.
+Needs src/features/plan/ui/ExerciseCard.tsx and WeekView.tsx, which held another session's open edits on 2026-11-18.
+[2026-11-18 done] A rated exercise on the teacher's view shows "How it went for Ben" and the stars, read-only (`ratedBy`
+through GivenPlanView, WeekView, DayPanel to ExerciseCard; StarRating without onChange). Render-tested, not walked.
+
+TeacherStudentFlow7: [NEW 2026-11-18] Look at the flow where it wasn't seen: phone width (the top bar's four links scroll
+sideways), the light theme, and the "next plan is waiting" line on the teacher's page. A student sees an upcoming week as
+a line only; decide whether to draw it.
+[2026-11-18 walked] Playwright on a copy of the app with its own database: add a student, /students, /students/<id>, Make
+next week's plan, the rotate question, /claim, /welcome, the student's /plan; at 390 px dark, 390 px and 1280 px in Surf
+Rock (the light style), the teacher's pages at 320 px too. /claim was seen in dark only (the link is used once).
+Fixed: the (i) beside "n of 15 active students" opened a note that ran off the right edge of a phone and made the page
+scroll sideways (InfoTip now moves a note back inside the window, for every InfoTip); right after Make next week's plan
+the page said the same thing twice, the notice and the waiting line (the line now stays away while that notice shows,
+and is back on the next visit and after a rotation).
+The light style reads well on every page of the flow; nothing to fix. The top bar at 390 px fits all four links (Students
+is its icon); it scrolls only at 320 px, where the Students icon starts off screen with nothing to show it is there.
+Open, to decide (user):
+- On /students/<id> the day of the week is drawn whole, so on a phone "Next plan" (the sliders, the waiting line, Make
+  next week's plan) starts about 11 000 px down. A teacher who comes to make a plan scrolls past every exercise first, and
+  a waiting next plan is only named down there. Ways: the waiting line and a link to Next plan at the top; the week closed
+  to its day strip until a day is pressed; or Next plan above the week.
+- The student's upcoming week as a line: keep the line. With today's rules a student only sees it when no week covers
+  today and the next hasn't started, which Make next week's plan doesn't produce (the next week starts the day after this
+  one ends); drawing it would be work for a state nobody reaches.
+- 320 px: leave, or drop a label so the four links fit.
+Not this flow, seen on the way: on the student's /plan the "Press here for a tour of this page" tip covers the first
+line of the intro at 390 px, and its pulsing ring makes the page 2-4 px wider than the phone while it pulses.
+[2026-11-18] The open items moved to TeacherStudentFlow9, decided there.
+
+TeacherStudentFlow8: [NEW 2026-11-18] Small items left from the build, in the ledger in
+.superpowers/sdd/2026-11-18-teacher-students/ (git-ignored). Read them into tasks here, then delete the folder.
+
+TeacherStudentFlow9: [NEW 2026-11-18] Fix what the phone walk in TeacherStudentFlow7 found (decided 2026-11-18)
+1. /students/<id> on a phone: Next plan (the sliders, the waiting line, Make next week's plan) starts about 11 000 px
+   down, below the whole day. Decided: put the waiting line and a link to Next plan at the top of the page, above the
+   week. Not chosen: the week closed to its day strip (hides the plan the teacher came to read), Next plan above the
+   week (pushes the week down on desktop too). Words through design:ux-copy + "Words about the app"; report old → new.
+2. The student's upcoming week as a line: keep the line, no work. Make next week's plan starts the next week the day
+   after this one ends, so a student should not normally land on that state.
+3. 320 px top bar: the Students icon starts off screen with nothing to show it is there. Decided: drop a label so the
+   four links fit at 320 px (check which one reads clearly as an icon alone); no sideways scroll left in the bar.
+4. Not this flow: on the student's /plan at 390 px the "Press here for a tour of this page" tip covers the first line
+   of the intro, and its pulsing ring makes the page 2-4 px wider. Move the tip off the intro and keep the ring inside
+   the page width (clip it or pulse inward).
+Check each at 320 and 390 px, dark and Surf Rock, on the 127.0.0.1 signed-in setup.
+
+TaskSeries LibraryGrowth: keys, more seed plans and exercises, new exercise tools (moved out of NEW, 2026-11-18)
+LibraryGrowth1: (was NEW19) [NEW 2026-11-18] Keys in the questionnaire and in every plan
 The key the player picks should set the key of every task in the plan, not only the theory ones.
 Today the questionnaire asks no key (src/features/plan/intake); keys show up only as a theory topic (theory-scales-keys).
 Keys by level, easiest first (user's list, to be finished):
@@ -348,7 +361,98 @@ Open: how the questionnaire asks it (pick keys, or take the ladder by level); ho
 blocks carry a key (transpose.ts, the block `key`); whether a later week moves the player up the key ladder.
 Check key facts with `npm run theory`.
 
-NEW13: [NEW 2026-11-15] Steps inside a concept: track progress in steps players don't see (later)
+LibraryGrowth2: (was NEW10) [NEW 2026-11-15] Seed more plans and exercises, written by Fable through agents (after NEW8 and NEW9)
+Agents read library_coverage (NEW8) first and write to the gaps, each plan recording its model and versions.
+- Before seeding plans that reuse an example block: an example's owner row is stored not enabled, and the seed only
+  inserts owner rows, so such a block stays not enabled (get_plan lists it, get_block and `unused` don't). The seed has
+  to upgrade the app's owner row to `seed`, enabled. Today 0 of the 35 library blocks are also examples.
+  [2026-11-16 done] seedBlocks promotes them (promoteExampleBlocks; tested on Postgres too).
+- Seed plans record model and versions; the published compare-models plans have none recorded (all null).
+  [2026-11-16 done for new runs] saveRun stamps each run with its versions; publish-model-plans and libraryRows carry
+  them. Runs from before have none, so those stay null rather than guessed.
+- Not started, needs your go: writing plans costs money (a Fable plan run was $3.45), and new examples change what the
+  live plan writer copies, so both wait for you to pick which gaps first.
+- Topics with no example exercise: guitar Barre chords, Techniques, Extended chords; voice Breath & range, Runs;
+  theory Basics, Scales & keys. Thin: guitar Basic chords, CAGED; voice Melodies, Harmony; theory Progressions,
+  Modes, Building chords. 22 exercise examples cover 23 of the concepts.
+- Tools no example uses, so the AI has nothing to copy: circle-of-fifths, key-chords, relative-modes, mode-intervals,
+  piano-keys, progressions, triads, improvisation, tunings, chord-circle, caged-neck, voice-hill, lip-roll,
+  string-singer.
+- Plans only exist for guitar (beginner, intermediate, advanced), guitar+theory intermediate and voice (beginner,
+  intermediate, advanced): none for "new", theory alone, or voice with guitar.
+- Steps inside a concept (NEW13, see /dev/path): agents write to steps, not only to concepts and levels. A concept
+  with four steps needs an exercise for each, so the next plan has somewhere to go. Read the steps from
+  src/features/devtools/model/steps.ts (LADDERS, LINKS, PLANNED) until they move into the plan model. If NEW13 takes up
+  the proposed path (proposal.ts, "Proposed" on /dev/path), write to its tracks and steps instead: each step has its own
+  level, so a beginner plan can hold the first steps of a track whose last steps are advanced.
+- A new exercise for a concept with a ladder sets the tool's `level` (or picks the tune or run by stage), never the
+  raw settings: the step is read back from the tool (`stepOf`), so an exercise written with raw props counts for no
+  step. Check a seeded exercise on /dev/path with "Student on the diagram".
+- A step marked "not implemented" has no tool setting that stands for it. Seed it anyway when an example helps, and
+  note which tool would need a level for it (NEW11).
+[2026-11-16] Seed files: one JSON per plan or exercise in src/features/library/seed/{plans,blocks} (README there),
+loaded through generated index.gen.ts (npm run gen:json-index); the model plans are one file each too. `npm run seed --
+prompt <persona> out.txt` prints the live writer's prompt for a player; `seed -- check <file>` fails on any parser
+warning, old versions, an untagged exercise or a laddered skill whose tool sets no level. db:seed-plans and
+db:seed-blocks read the folder. First seed, written by Fable agents in Claude Code (no API calls), all ✔ on the check:
+plans guitar-new-first-week (open chords, strumming, notes, spider, one-string tunes, picking) and
+theory-only-first-week (intervals, scales, keys, triads to 7ths, sus4, 1-4-5; first use of circle-of-fifths, piano-keys,
+mode-intervals, key-chords, chord-circle); blocks small F to Bm (barre 1-2), slides (bends-slides 1), clap on the beat
+(beat 1), holding a note (breath 1). Not in the database yet (.env.local points at Supabase): run db:seed-plans, then
+db:seed-blocks. Not read on screen. What the agents found missing (NEW11): no chord box for the small F (chord-shapes
+"F" draws the full barre, and the Opus model plan guitar-beginner--claude-opus-5-5 shows that for its small F); nothing
+draws or sounds a slide; nothing listens to a clap; key-chords sounds 7th chords where a triad is asked for; inline
+note dots ({{f-sharp}}) on piano-keys and chord-circle not seen drawn.
+
+LibraryGrowth3: (was NEW11) [NEW 2026-11-15] New exercise components to weigh (after the examples in NEW10 use what exists)
+- A rhythm tool for "Steady beat": src/features/rhythm has a clap-along game with mic onset judging, not in the plan.
+- A bend-to-pitch tool: bends and slides have no tool. Check first whether the play-along tab can show bends.
+- Maybe a chord-change ear quiz: "hearing chord changes" runs on backing-track with no answer check.
+- See /dev/path: an amber step (not implemented) has no tool level standing for it. On "Proposed", 160 of 216 steps are
+  amber; the tracks with none from a ladder (rhythm, bends, hearing changes, CAGED, triads, chord building) show which
+  tools would need levels.
+[2026-11-16 weighed, nothing built] Cheapest first:
+1. Rhythm tool: the engine is built and tested (src/features/rhythm: 5 one-bar patterns, ±35/70/120 ms judging, tap or
+   mic). RhythmGame takes no props and keeps its settings in localStorage; it needs pattern/bpm/bars props, a bare mode,
+   and its Space key handler moved off `window` (two on one page would both fire). Its patterns cover the proposed
+   "Steady beat & rhythm" steps except sixteenths (one new pattern). Wiring is the usual tool list: props file + docs
+   regen, tools.ts (union, PARSERS, LEVELED, levelProps), ui/Tool.tsx, prompt.ts, transpose.ts (no key), checks.ts (it
+   sounds the beat), a tour (toolTours test), a story, a ladder + LINKS in steps.ts.
+2. Chord-change ear quiz: no new tool. A third `kind` in src/lib/practice/earGame.ts asked through interval-ears:
+   I then a chord, answer a numeral; levels IV/V, then + vi, then more. Catch: EarQuestion.midi is one flat list, so
+   chords in sequence need a model change and a change to play().
+3. Bends: nothing exists. No articulation in the timeline step or cue model, TabView draws only fret numbers, even
+   legato-trill shows no h/p. Needs a model field, tab drawing, bent-pitch playback; a bend-to-pitch check would be a
+   new tool on useMicPitch.
+Also: src/features/exercises/CLAUDE.md says the view goes in ui/ExerciseTool.tsx; the switch is in ui/Tool.tsx.
+
+TaskSeries Intake: the first questionnaire and the steps players don't see (moved out of NEW, 2026-11-18)
+Intake1: (was NEW9) [NEW 2026-11-15] Rework the first questionnaire (after NEW8)
+Use brainstorming first. What /dev/questionnaire showed:
+- Topics whose lines have nothing to tag: Barre chords has one concept (bm-f-barre), so its top two lines are empty;
+  Extended chords has no guitar concept for plain 7th chord shapes (its first line); Theory basics has two concepts,
+  both "new"; Voice runs and Voice melodies have two each.
+- Nothing asks about rhythm and timing beyond "steady beat", fingerpicking, playing whole songs, or reading tab/staff.
+- The intake README says 70 concepts; concepts.ts has 67. Find out which is right. [2026-11-16: 67; README fixed]
+- After week 1 the level comes from the stars per block, not from these answers: settle what the questionnaire still
+  has to ask, and how a player says "more of the same" or "something new".
+- Steps inside a concept (NEW13, see /dev/path): many concepts are one thing at several depths. Merge those (triads on
+  the top strings and on every string set; the four guitar melody concepts; runs and fast runs), and give each
+  concept that stays its steps. /dev/path counts the concepts with no steps and the steps "not implemented".
+  Every merge is drafted on /dev/path → "Proposed: overlapping steps" (src/features/devtools/model/proposal.ts): 67 concepts → 44 tracks, each with steps
+  across the levels. It also fills the empty lines above: Barre chords gets steps at three levels, Extended chords gets
+  a 7th chord shapes track for its first line.
+- A questionnaire line can then point at a step, not only at a level: "I play one pentatonic position" is step 1 of the
+  boxes. Settle whether an answer sets a starting step.
+- Add a voice concept for singing the modes, with one step per mode.
+[2026-11-16 done, placement] An answer sets a starting step on every track of its topic (src/features/plan/intake/placement.ts):
+the line picked is a level; each track starts at its first step of that level, steps under it taken as known; a track
+all below is done, one starting above is "ahead". /dev/questionnaire shows "Starting steps". Nothing reads it yet: the
+plan writer gets it with NEW7. Open: "I play one pentatonic position" starts on step 1 (Position 1, minor), which they
+already play; starting one step on would skip the rest of the level. Still to do here: the questions themselves
+(rhythm, fingerpicking, songs, reading), and singing the modes is already a track (singing-modes).
+
+Intake2: (was NEW13) [NEW 2026-11-15] Steps inside a concept: track progress in steps players don't see (later)
 Proposal with mock-ups of the teacher, player and plan-writer displays: https://claude.ai/artifact/S9VYpVAt6dDqtH7PbLg8ox
 A first version is on /dev/path (src/features/devtools/model/steps.ts): 11 concepts read their steps from ladders in
 the code (tool levels, tune and run stages); 44 more steps are drafts marked "not implemented".
@@ -459,96 +563,7 @@ state; a level stands as its last step there. The progress log copies an exercis
 solidSteps(outcome) is the input for reach({ solid }); nothing calls it yet (NEW7). Not shown on screen: the progress
 tracker still shows concepts and levels, not steps.
 
-NEW9: [NEW 2026-11-15] Rework the first questionnaire (after NEW8)
-Use brainstorming first. What /dev/questionnaire showed:
-- Topics whose lines have nothing to tag: Barre chords has one concept (bm-f-barre), so its top two lines are empty;
-  Extended chords has no guitar concept for plain 7th chord shapes (its first line); Theory basics has two concepts,
-  both "new"; Voice runs and Voice melodies have two each.
-- Nothing asks about rhythm and timing beyond "steady beat", fingerpicking, playing whole songs, or reading tab/staff.
-- The intake README says 70 concepts; concepts.ts has 67. Find out which is right. [2026-11-16: 67; README fixed]
-- After week 1 the level comes from the stars per block, not from these answers: settle what the questionnaire still
-  has to ask, and how a player says "more of the same" or "something new".
-- Steps inside a concept (NEW13, see /dev/path): many concepts are one thing at several depths. Merge those (triads on
-  the top strings and on every string set; the four guitar melody concepts; runs and fast runs), and give each
-  concept that stays its steps. /dev/path counts the concepts with no steps and the steps "not implemented".
-  Every merge is drafted on /dev/path → "Proposed: overlapping steps" (src/features/devtools/model/proposal.ts): 67 concepts → 44 tracks, each with steps
-  across the levels. It also fills the empty lines above: Barre chords gets steps at three levels, Extended chords gets
-  a 7th chord shapes track for its first line.
-- A questionnaire line can then point at a step, not only at a level: "I play one pentatonic position" is step 1 of the
-  boxes. Settle whether an answer sets a starting step.
-- Add a voice concept for singing the modes, with one step per mode.
-[2026-11-16 done, placement] An answer sets a starting step on every track of its topic (src/features/plan/intake/placement.ts):
-the line picked is a level; each track starts at its first step of that level, steps under it taken as known; a track
-all below is done, one starting above is "ahead". /dev/questionnaire shows "Starting steps". Nothing reads it yet: the
-plan writer gets it with NEW7. Open: "I play one pentatonic position" starts on step 1 (Position 1, minor), which they
-already play; starting one step on would skip the rest of the level. Still to do here: the questions themselves
-(rhythm, fingerpicking, songs, reading), and singing the modes is already a track (singing-modes).
-
-NEW10: [NEW 2026-11-15] Seed more plans and exercises, written by Fable through agents (after NEW8 and NEW9)
-Agents read library_coverage (NEW8) first and write to the gaps, each plan recording its model and versions.
-- Before seeding plans that reuse an example block: an example's owner row is stored not enabled, and the seed only
-  inserts owner rows, so such a block stays not enabled (get_plan lists it, get_block and `unused` don't). The seed has
-  to upgrade the app's owner row to `seed`, enabled. Today 0 of the 35 library blocks are also examples.
-  [2026-11-16 done] seedBlocks promotes them (promoteExampleBlocks; tested on Postgres too).
-- Seed plans record model and versions; the published compare-models plans have none recorded (all null).
-  [2026-11-16 done for new runs] saveRun stamps each run with its versions; publish-model-plans and libraryRows carry
-  them. Runs from before have none, so those stay null rather than guessed.
-- Not started, needs your go: writing plans costs money (a Fable plan run was $3.45), and new examples change what the
-  live plan writer copies, so both wait for you to pick which gaps first.
-- Topics with no example exercise: guitar Barre chords, Techniques, Extended chords; voice Breath & range, Runs;
-  theory Basics, Scales & keys. Thin: guitar Basic chords, CAGED; voice Melodies, Harmony; theory Progressions,
-  Modes, Building chords. 22 exercise examples cover 23 of the concepts.
-- Tools no example uses, so the AI has nothing to copy: circle-of-fifths, key-chords, relative-modes, mode-intervals,
-  piano-keys, progressions, triads, improvisation, tunings, chord-circle, caged-neck, voice-hill, lip-roll,
-  string-singer.
-- Plans only exist for guitar (beginner, intermediate, advanced), guitar+theory intermediate and voice (beginner,
-  intermediate, advanced): none for "new", theory alone, or voice with guitar.
-- Steps inside a concept (NEW13, see /dev/path): agents write to steps, not only to concepts and levels. A concept
-  with four steps needs an exercise for each, so the next plan has somewhere to go. Read the steps from
-  src/features/devtools/model/steps.ts (LADDERS, LINKS, PLANNED) until they move into the plan model. If NEW13 takes up
-  the proposed path (proposal.ts, "Proposed" on /dev/path), write to its tracks and steps instead: each step has its own
-  level, so a beginner plan can hold the first steps of a track whose last steps are advanced.
-- A new exercise for a concept with a ladder sets the tool's `level` (or picks the tune or run by stage), never the
-  raw settings: the step is read back from the tool (`stepOf`), so an exercise written with raw props counts for no
-  step. Check a seeded exercise on /dev/path with "Student on the diagram".
-- A step marked "not implemented" has no tool setting that stands for it. Seed it anyway when an example helps, and
-  note which tool would need a level for it (NEW11).
-[2026-11-16] Seed files: one JSON per plan or exercise in src/features/library/seed/{plans,blocks} (README there),
-loaded through generated index.gen.ts (npm run gen:json-index); the model plans are one file each too. `npm run seed --
-prompt <persona> out.txt` prints the live writer's prompt for a player; `seed -- check <file>` fails on any parser
-warning, old versions, an untagged exercise or a laddered skill whose tool sets no level. db:seed-plans and
-db:seed-blocks read the folder. First seed, written by Fable agents in Claude Code (no API calls), all ✔ on the check:
-plans guitar-new-first-week (open chords, strumming, notes, spider, one-string tunes, picking) and
-theory-only-first-week (intervals, scales, keys, triads to 7ths, sus4, 1-4-5; first use of circle-of-fifths, piano-keys,
-mode-intervals, key-chords, chord-circle); blocks small F to Bm (barre 1-2), slides (bends-slides 1), clap on the beat
-(beat 1), holding a note (breath 1). Not in the database yet (.env.local points at Supabase): run db:seed-plans, then
-db:seed-blocks. Not read on screen. What the agents found missing (NEW11): no chord box for the small F (chord-shapes
-"F" draws the full barre, and the Opus model plan guitar-beginner--claude-opus-5-5 shows that for its small F); nothing
-draws or sounds a slide; nothing listens to a clap; key-chords sounds 7th chords where a triad is asked for; inline
-note dots ({{f-sharp}}) on piano-keys and chord-circle not seen drawn.
-
-NEW11: [NEW 2026-11-15] New exercise components to weigh (after the examples in NEW10 use what exists)
-- A rhythm tool for "Steady beat": src/features/rhythm has a clap-along game with mic onset judging, not in the plan.
-- A bend-to-pitch tool: bends and slides have no tool. Check first whether the play-along tab can show bends.
-- Maybe a chord-change ear quiz: "hearing chord changes" runs on backing-track with no answer check.
-- See /dev/path: an amber step (not implemented) has no tool level standing for it. On "Proposed", 160 of 216 steps are
-  amber; the tracks with none from a ladder (rhythm, bends, hearing changes, CAGED, triads, chord building) show which
-  tools would need levels.
-[2026-11-16 weighed, nothing built] Cheapest first:
-1. Rhythm tool: the engine is built and tested (src/features/rhythm: 5 one-bar patterns, ±35/70/120 ms judging, tap or
-   mic). RhythmGame takes no props and keeps its settings in localStorage; it needs pattern/bpm/bars props, a bare mode,
-   and its Space key handler moved off `window` (two on one page would both fire). Its patterns cover the proposed
-   "Steady beat & rhythm" steps except sixteenths (one new pattern). Wiring is the usual tool list: props file + docs
-   regen, tools.ts (union, PARSERS, LEVELED, levelProps), ui/Tool.tsx, prompt.ts, transpose.ts (no key), checks.ts (it
-   sounds the beat), a tour (toolTours test), a story, a ladder + LINKS in steps.ts.
-2. Chord-change ear quiz: no new tool. A third `kind` in src/lib/practice/earGame.ts asked through interval-ears:
-   I then a chord, answer a numeral; levels IV/V, then + vi, then more. Catch: EarQuestion.midi is one flat list, so
-   chords in sequence need a model change and a change to play().
-3. Bends: nothing exists. No articulation in the timeline step or cue model, TabView draws only fret numbers, even
-   legato-trill shows no h/p. Needs a model field, tab drawing, bent-pitch playback; a bend-to-pitch check would be a
-   new tool on useMicPitch.
-Also: src/features/exercises/CLAUDE.md says the view goes in ui/ExerciseTool.tsx; the switch is in ui/Tool.tsx.
-
+TaskSeries NEW:
 NEW7: [NEW 2026-11-15] Autoplans on the server: reuse first, then the right model
 [2026-11-17, user, brainstorm in progress; replaces the reuse/assess/model flow below] Every plan is composed from library
 blocks by our own code. No AI anywhere, and no whole library plan used as is (tricky to get right; later, maybe).
@@ -584,6 +599,19 @@ Left:
 - theory-modes has no beginner concept, so its level can't be raised from new by ratings.
 - Who shared a plan is not shown (not stored). `reviewPlan` has no caller. No removing a shared plan from the list.
 - Teacher screens (NEW12/NEW18), the six steps with no block (NEW10).
+[2026-11-18 done] Signed-in check on a scratch server against the local database (API, not the browser: Chrome would not
+open 127.0.0.1): no answers → 409 no-answers; answers saved → today's plan (6 exercises, 33 min); stored with startDay,
+survives a reload; Get another plan → attempt 1, five new exercises, same plan id, the first six declined. Shared plans
+can be removed from "Plans shared with you" and put back (b4e656e4, `hidden`: ratings still count). Left: who shared a
+plan (needs a decision: note links never show the owner's name); `reviewPlan` has no caller (kept: plan_reviews reads
+stored reviews); theory-modes has no beginner concept.
+[2026-11-18 done] Supabase library reset and reseeded with the standalone exercises (user's go): 10 plans, 411 blocks,
+268 plan block rows. Who shared a plan: "shared by Ann" on the list and the page (d0cbcc2d, `sharedBy`, user: yes).
+theory-modes: `modes` starts at beginner, "Major and minor from one root" (32b1b6c2, PROMPT_VERSION 7), with a seed
+block (theory-beginner-major-minor-one-root) and a planned course section (stage 3, major-and-minor-scales). Left:
+reseed Supabase again for it (the new block, and modes:N refs moved up one); read the block on /dev/library;
+`reviewPlan`: whole-plan reviews removed (user, 31c00ec0): plan_reviews dropped by migration 0031, not yet run on
+Supabase or the local DB (Docker was stuck).
 [2026-11-16, user] The autoplan route composes a plan from library blocks by the player's steps (the next steps
 not yet solid, a few solid ones mixed back in), with no AI. Claude writes a new plan only by a small chance
 (new_plan_percent), and more likely when the player adds their own words to the request. Brainstorm the composer and
@@ -745,6 +773,11 @@ Like - seeing chords within a scale!
 
 
 ------ DEFER -----
+TaskSeries Upkeep: keeping the stack up to date (2026-11-18)
+Upkeep1: [NEW 2026-11-18] Next.js security upgrade. `next dev` stops on its first start with a security advisory and
+recommends `next upgrade --agent=security` (user: add to tasks). Run it in a worktree, then tests, tsc, eslint, the dev
+server and a few pages; read node_modules/next/dist/docs for breaking changes first (AGENTS.md). Land as one commit.
+
 TaskSeries Deferred: parked, not worked on until picked up again
 Deferred1: (was NEW6) WhatsApp and text message reminders. Nothing decided beyond this line.
 
@@ -770,6 +803,100 @@ This probably could use some sort of injection mechanism or predefined slots.
 
 
 oooooooooooooooooooooooooooooooooo DONE tasks below ooooooooooooooooooooooooooooooooooooooooooooooo
+
+TaskSeries SeedStandalone: seed exercises that only make sense next to another day of their week (from NEW7, 2026-11-18)
+The composer (NEW7) hands out one block at a time, for a player's day and for a teacher's seven days, so a block
+can't lean on "day 2". The beginner singer got "Day 2's run, twice as fast" on day one. User, 2026-11-18: rewrite them
+to stand alone (Claude's recommendation); keeping them out of composed days is the stopgap, only if the rewrite waits.
+Standalone wording is also true inside the whole 7-day plan, so the seed plans lose nothing.
+SeedStandalone1: [DONE 2026-11-18] Rewrite the 13 exercises titled after another day (exercise-example skill, then
+review-teaching-text). Title and text say what to play, not when it was first played ("The Do to Sol run, twice as
+fast"). A rewritten file takes the current versions; block ids change, so reseed after (db:seed-plans, db:seed-blocks).
+In src/features/library/seed/plans:
+- guitar-beginner: "Position 1: day 1 again, then your own drill"
+- guitar-intermediate: "Hammer and pull, day 1 again"
+- guitar-advanced: "Skip a string, day 1 again"
+- guitar-new-first-week: "Em to Am: day 2 again, then down and up"; "The notes game, day 2 again"; "Day 3's tune,
+  then your own"
+- voice-intermediate: "Day 4's breath again"; "Day 2's run, twice as fast"
+- voice-advanced: "Day 4's breath, one count more"; "Day 1's run again"; "Day 1's changes, your way"
+- voice-guitar-advanced-first-week: "Five notes, day 1 again"; "Comp the ii–V–I, day 1 again"
+SeedStandalone2: [DONE 2026-11-18] The text lines that name another day ("yesterday", "day 3", "this week"): about 77
+counted in NEW7, in all ten seed plans (most in voice-guitar-advanced-first-week, guitar-new-first-week,
+guitar-beginner, voice-advanced). Sort them first: a line in an exercise's own text goes (the block travels alone); a
+line in a day's or the plan's intro can stay, since the composer doesn't carry those. Then rewrite per file.
+SeedStandalone3: [DONE 2026-11-18] Keep new ones out: `seed check` fails an exercise whose title or text names another
+day, and the rule goes into exercise-example (a rule that changes what gets written: raise the teaching version and
+DOC_VERSIONS, changelog entry). After 1 and 2, so the check passes on what is there.
+[2026-11-18 done, da42eb80] 66 exercises in the ten seed plans rewritten line by line by five agents (exercise-example, then
+review-teaching-text): 13 retitled, ids, steps, tools, minutes and versions kept (not a full rewrite, so versions stay old).
+Plan summaries, progress and day themes keep their day words. `seed check` fails a day word (seed/dayRefs.ts); the rule is
+in exercise-example and review-teaching-text, teaching version 6. Local DB reseeded and the composer checked on it.
+Left: reseed Supabase (db:seed-plans, db:seed-blocks; block ids of the changed exercises change). Not read on /dev/library.
+
+NEW15: [DONE 2026-11-18] Rework /dev/examples
+[2026-11-16, user, replaces "examples from DB on /dev page"] NEW15 is about the prompt and the data it reads from the DB
+over MCP, and the tooling:
+- The DB is the source for the prompt, so there are no /examples any more (the prompt is mainly used in Claude Code now).
+- Call them "Seed AI Autoplans", and keep only whole 7-day plans (no exercise examples).
+Two goals:
+1. Agents get context about exercises from the DB (MCP) to write new exercises (Claude Code, now).
+2. The autoplan API finds blocks and plans in the DB (later, with NEW7).
+Needs brainstorming first: what replaces the examples inside the writer prompt, the exercise-example skill and
+DOC_VERSIONS, the six demos that are plan examples, and the tests that read src/features/plan/examples.
+[2026-11-17, user] Players lose both outside-AI routes: the AI extension (the page's tools for the browser's AI) and
+copy-the-prompt-into-any-AI. So the prompt carries no examples; agents look plans and blocks up with the library tools.
+Knock-on: /terms and Selling1 promise the paste-your-own-AI way stays free; both need changing.
+[2026-11-17, user] Both routes go now, not with NEW7. The seed files are the one source: the DB holds them for agents,
+pages (/demo, dev pages) import them. The library tables on the .env.local DB may be reset and reseeded. Moved files that
+fail `seed check` go in as they are (NEW17). Choice as its own table: ChoiceSplit. Design:
+docs/superpowers/specs/2026-11-17-seed-autoplans-design.md.
+[2026-11-17 done] Tasks 1-8: the 7 plans and 22 exercises are seed files (library/seed), the prompt pastes no examples and
+tells agents to use the library tools, /dev/library replaces /dev/examples, players lose both outside-AI routes, and the
+skills, AGENTS.md and READMEs point at the seed (exercise-example skill keeps its name). Left: Task 9 (final checks), NEW17.
+
+[2026-11-17, Claude] NEW15 data step done on Supabase (aws-1-eu-west-1 pooler, release DB): library tables reset (practice_plans 8, practice_plan_blocks 231, blocks 253, block_owners 253 app-owned; no player rows) and reseeded: 10 practice_plans, 411 blocks, 268 plan block rows; migration 0023_block_steps applied by the user first; db:seed-blocks run again adds nothing (411/268). MCP find_plans, get_plan guitar-beginner, find_blocks, get_block on 3 showcase ids checked. Left: NEW17.
+[2026-11-18] Task 9 (reset and reseed) was the Supabase data step above, so nothing is left.
+
+NEW17: [DONE 2026-11-18] Make the files moved from plan/examples pass `seed check` (after NEW15). None of the 22 exercises
+or the ~196 exercises inside the 7 plans names a path step; 26 plan exercises use a tool whose concept has steps without
+setting its level or stage (picking-drill, legato-trill, finger-pattern, note-finder, breathwork, interval-singer); none
+carries the current versions. Add steps and levels (calculator, `stepOf`), rewrite to current rules where needed with the
+writing skill, then their versions are current.
+[2026-11-17, user] Keep their old versions: no full rewrite. Two parts:
+1. /dev/library tables show a "Seed" tag (source) and mark versions behind the current ones, so older files are easy to
+   spot (the opened item already colours its version pills).
+2. Add `steps` to every exercise and set `level` or stage on each stepped tool, so the library and NEW7 find them by
+   step. Small clear text improvements are fine without raising the version; a real rewrite is not part of this.
+Counted 2026-11-17: 218 exercises in the 29 files; 15 have a tool that already says the step (`stepOf`, can be filled by
+script), 203 only match their track by level and need a step chosen by reading the exercise (agent work, per file).
+[2026-11-17, user] Order: part 2 (steps and levels, data only) goes last in NEW17; finish everything else first.
+[2026-11-17, user] Part 2 now comes before NEW7: the composer picks blocks by step.
+[2026-11-17 done] Part 2: 40 steps read from tools by script (58617e1f), 235 chosen by six agents, levels set on stepped
+tools (b850003e). Versions left old (user: a later round aligns them). Left:
+- [2026-11-18 done, 44b1d03a] The 19 voice exercises with no step now name one (user: path and exercises both; ear
+  games retagged). Path: breath has 8 steps (new: breath:3 a long held note, :5 hiss then buzz, :6 a long breath out,
+  :8 longer breaths out; the counts 4-10 and 4-20 moved to breath:4 and :7), intervals:8 "Wider than an octave";
+  PROMPT_VERSION 6. Beginner and intermediate farinelli drills use their level (3-8, 4-10); the advanced ones keep
+  their counts beside level "advanced" (4-20 runs ten minutes in a 3-minute slot). voice-advanced's 7 interval-ears
+  games are `intervals` (theory-ear, area theory, in a voice-only plan), a level beside each set; its 4 interval-singer
+  drills set a level and name singing-intervals:4. Every seed file now fails `seed check` on versions only (plus
+  voice-guitar-advanced's notes below); the seed blocks say prompt 5, one behind.
+- [2026-11-18 done] Library reset and reseeded on Supabase (user's go): 10 plans, 411 blocks, 268 plan block rows, a
+  second db:seed-blocks adds nothing; find_blocks by the new steps answers.
+- Six steps have no block now that level-only matches are gone: seventh-shapes:4, sus-add9:4, notes-on-neck:3 and 4,
+  range:4, runs:8 (KNOWN_GAPS in devtools/model/stepBlocks.test.ts; new blocks are NEW10 work).
+- Some steps sit at another level than their exercise, so the parser moves those blocks' level (agents' reports).
+- voice-guitar-advanced-first-week: 5 run picks match no tune (parser falls back to runs 116/117, steps read from
+  those); one exercise sings and plays at once.
+  [2026-11-18 done] Fixed in the seed file: the five picks named runs the book doesn't have (five is Medium only, nine
+  and octave-run stop at Hard), so the tool played an arpeggio under text about Do to Sol. Picks now name real runs
+  (113, 115, 127, 126, 115), three texts say what those runs do, and the steps follow them (runs:1, runs:7, runs:1).
+  The sing-and-play note was "use Play to check", now "press Play to check". `seed check` shows versions only.
+  Left: reseed (db:seed-plans, db:seed-blocks; block ids change), then read it on /dev/library, which shows the DB copy.
+[2026-11-17 done] Part 1: /dev/library tables tag seed plans and blocks "Seed" and colour versions behind the current ones
+amber (1da93760). Not yet seen in the browser (Chrome tab hung on a slow network); checked by a render test.
+[2026-11-18] The voice-guitar-advanced fix is in the database (MCP get_block: "Five notes, faster in stages" plays run 113). Versions stay old (user). The six steps with no block are LibraryGrowth2 work. Not read on /dev/library.
 
 NEW16: [DONE 2026-11-16] Questionnaire "Concepts" in/out by step, not by whole concept (after NEW9 placement)
 /dev/questionnaire → "Concepts" marks each concept "in" or "out" for the area's level (conceptsFor in

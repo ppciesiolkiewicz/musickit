@@ -19,7 +19,7 @@ import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
  * since on a phone the name sits a screen above the button. The terms of use box is never ticked for them, and Continue
  * needs it; its link opens /terms in a new tab, so nothing typed here is lost.
  */
-export default function SetupForm({ next }: { next: string }) {
+export default function SetupForm({ next, start }: { next: string; /** the side asked for (`?for=teachers`, from "Become a founding partner") */ start?: Audience | null }) {
   const { account, loaded: accountLoaded } = useAccount();
   const [name, setName] = useState<string | null>(null);
   const [plans, setPlans] = useState<Loaded | null>(null);
@@ -55,7 +55,8 @@ export default function SetupForm({ next }: { next: string }) {
   const shownBilling = billing ?? plans?.billing ?? "year";
   // unticked for a new account; their own earlier yes when they come back
   const shownEmails = emails ?? account.emailUpdates;
-  const shownAudience = audience ?? (plans ? startAudience(plans.plans, plans.current, account) : "individual");
+  const shownAudience = audience ?? (plans ? startAudience(plans.plans, plans.current, account, start) : "individual");
+  const early = plans?.early[shownAudience] ?? true;
   const shownPlans = plans?.plans.filter((p) => audienceOf(p) === shownAudience) ?? [];
   // a pick on the other side is out of sight, so it doesn't count: Continue asks for a plan on this side
   const chosenPlan = shownPlans.find((p) => p.id === chosen) ?? null;
@@ -144,7 +145,7 @@ export default function SetupForm({ next }: { next: string }) {
           {plans && (
             <>
               <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setPlanError(null); setError(null); }} />
-              <EarlyOffer audience={shownAudience} />
+              <EarlyOffer audience={shownAudience} open={early} />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <AudienceLead audience={shownAudience} />
                 <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} onChange={(b) => { setBilling(b); setError(null); }} /></div>
@@ -155,13 +156,13 @@ export default function SetupForm({ next }: { next: string }) {
           {plans && (
             <div className={`${planGrid(shownPlans.length)} rounded-2xl transition ${planError ? "ring-1 ring-rose-400/60 ring-offset-4 ring-offset-slate-900" : ""}`}>
               {shownPlans.map((p) => (
-                <PlanOption key={p.id} plan={p} hue={planHue(plans.plans.indexOf(p))} billing={shownBilling} checked={p.id === chosenPlan?.id} trial={plans.current === null} onPick={() => pick(p.id)} />
+                <PlanOption key={p.id} plan={p} hue={planHue(plans.plans.indexOf(p))} billing={shownBilling} checked={p.id === chosenPlan?.id} trial={plans.current === null} early={early} onPick={() => pick(p.id)} />
               ))}
             </div>
           )}
         </fieldset>
 
-        {chosenPlan && plans && <PaymentBox plan={chosenPlan} hue={planHue(plans.plans.indexOf(chosenPlan))} billing={shownBilling} trial={plans.current === null} />}
+        {chosenPlan && plans && <PaymentBox plan={chosenPlan} hue={planHue(plans.plans.indexOf(chosenPlan))} billing={shownBilling} trial={plans.current === null} early={early} />}
 
         <div className="flex flex-col gap-4 border-t border-slate-800 pt-5 metal-rule">
           <EmailUpdatesBox checked={shownEmails} onChange={setEmails} where="account" />

@@ -61,8 +61,15 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   plan, of any size, at 50% off (`FOUNDING_OFFER`; the old $360 AUD a year is gone). `src/lib/studentOffer.ts` reads the 500. Every page that quotes a
   price shows the early price beside the full one struck through, with the red `DiscountBadge` (`@/components/ui`): the
   plan cards on setup and `/account`, the line over them (`EarlyOffer`, by the side shown), `PaymentBox`, the home
-  Pricing section, /kickstarter, the FAQ and the intro video. Shown only: the rows keep the full price, and nothing counts
-  the first 20 or 500 yet.
+  Pricing section, /kickstarter, the FAQ and the intro video. Shown only: the rows keep the full price.
+  How many places are taken is one count for both sides, `earlyTaken()` (`server/earlyTaken.ts`, typed in by hand until
+  payments count it; 0 and 0 now), served by `GET /api/early-price` (`{ schools, students: { taken, places }, open }`) and
+  read by /kickstarter (its countdown) and `GET /api/account/plan` (`early`: `earlyOpen`, by side). A side's plan cards,
+  `EarlyOffer` and `PaymentBox` show the early price only while its places aren't all taken, and /kickstarter drops its
+  half price when the 20 have joined. The home Pricing section, the FAQ and the intro video don't read the count yet.
+- `?for=teachers` (`TEACHER_SIGNUP` in `loginGuard.ts`, `/account?for=teachers`): where every "Become a founding
+  partner" on /kickstarter goes. Signed out, the login page says "Create your teacher account"; a new account's setup
+  and `/account` open their plans on the Teachers side (`startAudience`'s `wanted`).
 - `ui/EmailUpdates.tsx`: the marketing consent, "Email me news about the app". Unticked until the person ticks
   it: on setup (sent as `emailUpdates` with the rest) and in the Profile card on /account (saved as it changes, `PATCH
   /api/account` with `{ emailUpdates }`). Kept as `users.email_updates_at` (migration `0022_email_updates`), the time of
@@ -109,6 +116,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   - `auth.ts`: the rules, with no HTTP and no SQL in them: `requestEmailLink`, `openEmailLink`, `openEmailCode`, `googleSignIn`,
     `startName`, `pathAfterSignIn`, `setUpAccount`, `sessionAccount`, `signOut`, `rename`.
   - `repo.ts`: what those rules need from storage. `repo.drizzle.ts` is Postgres, `repo.memory.ts` is for tests.
+  - `publicPlans.ts`: the plans anyone can choose, for a public page. The Pricing section of `/` and `/players` reads it (rebuilt at most once an hour), so the home pages show the same rows as `/dev/kickstarter/teachers` and `/dev/costs`. Null with no database or no answer in 8 seconds: the section then shows no number and says so.
   - `http.ts`: cookies, the same-site check, `auth()` (null when there is no database), `requestAccount(req)`.
   - `google.ts`: the Google code flow with PKCE. `mail.ts`: the email with the link and the code, sent through Resend.
 

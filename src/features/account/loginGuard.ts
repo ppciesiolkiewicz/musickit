@@ -11,6 +11,19 @@ export const SETUP_PATH = "/account/setup";
 
 /** The setup page, going on to `next` afterwards. */
 export const setupHref = (next: string): string => `${SETUP_PATH}?${new URLSearchParams({ next }).toString()}`;
+/**
+ * Where "Become a founding partner" goes: /account on its Teachers side. A visitor who isn't signed in logs in (or makes
+ * an account) first, and a new account chooses its plan on setup, on the Teachers side too.
+ */
+export const TEACHER_SIGNUP = "/account?for=teachers";
+
+/** Does this address (a path with its query, or a page's `?for=`) ask for the Teachers side of the plans? */
+export function asksForTeachers(path: string | null | undefined): boolean {
+  if (!path) return false;
+  const q = path.includes("?") ? path.slice(path.indexOf("?") + 1) : path;
+  return new URLSearchParams(q).get("for") === "teachers";
+}
+
 /** A login that takes longer than this is a new visit; the old hash is dropped. */
 const LIFE = 60 * 60_000;
 
@@ -60,6 +73,9 @@ export function loginWords(next: string | null, goingTo = "your practice plan"):
   }
   if (isJoinPath(next)) {
     return { title: "Create your teacher account", intro: "You were invited to try attunr as a teacher. Log in with your email or with Google. If you're new, this also creates your account." };
+  }
+  if (asksForTeachers(next)) {
+    return { title: "Create your teacher account", intro: "Log in with your email or with Google. If you're new, this also creates your account. Then choose a teacher plan." };
   }
   return { title: "Log in", intro: `Log in with your email or with Google to open ${goingTo}. If you're new, this also creates your account.` };
 }

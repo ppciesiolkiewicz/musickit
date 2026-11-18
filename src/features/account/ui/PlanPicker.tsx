@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { DiscountBadge, HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
 import { allowanceLabel, bestSavingLabel, priceCents, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
-import { EARLY_OFFER, earlyCents } from "../pricing";
+import { EARLY_OFFER, earlyCents, type EarlyOpen } from "../pricing";
 import { ErrorLine, PRIMARY, errorOf, send } from "./parts";
 import { AUDIENCES, AUDIENCE_LEAD, audienceOf, pitchOf, type Audience } from "./planPitch";
 
 /** `GET /api/account/plan` (`AccountPlans` in server/auth.ts, which a client file can't import). */
-export type Loaded = { plans: Plan[]; current: string | null; billing: Billing; request: { planId: string; at: string } | null };
+export type Loaded = { plans: Plan[]; current: string | null; billing: Billing; request: { planId: string; at: string } | null; early: EarlyOpen };
 
 /** Over the plans here and on /account/setup: the open beta charges nothing, while what people choose shows us who would pay for what. */
 export const BETA_PLAN_LINE = "It's free while we're in open beta, so picking a plan won't ask you to pay.";
@@ -72,7 +72,7 @@ export const earlyOfferLine = (audience: Audience): string =>
     ? `Early price for the first ${EARLY_OFFER.students} students. It's locked in, so it won't go up later.`
     : `Early price on any teacher plan, of any size, for the first ${EARLY_OFFER.schools} schools. It's locked in, so it won't go up later.`;
 
-export const EarlyOffer = ({ audience }: { audience: Audience }) => (
+export const EarlyOffer = ({ audience, open }: { audience: Audience; /** this side's places aren't all taken (`Loaded.early`) */ open: boolean }) => open && (
   <p className="flex max-w-2xl items-center gap-2.5 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-200">
     <DiscountBadge percent={EARLY_OFFER.percentOff} />
     <span>{earlyOfferLine(audience)}</span>
@@ -86,8 +86,12 @@ export const AudienceLead = ({ audience }: { audience: Audience }) => <p classNa
 export const planGrid = (count: number) =>
   count === 1 ? "grid gap-3 sm:max-w-md" : "grid gap-3 sm:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]";
 
-/** The side to open on: the person's own plan's side, else Teachers for a teacher or owner, else Individual. */
-export const startAudience = (plans: Plan[], current: string | null, account: Pick<Account, "role">): Audience => {
+/**
+ * The side to open on: the side asked for in the address (`?for=teachers`, from "Become a founding partner"), else the
+ * person's own plan's side, else Teachers for a teacher or owner, else Individual.
+ */
+export const startAudience = (plans: Plan[], current: string | null, account: Pick<Account, "role">, wanted?: Audience | null): Audience => {
+  if (wanted) return wanted;
   const mine = plans.find((p) => p.id === current);
   if (mine) return audienceOf(mine);
   return account.role === "student" ? "individual" : "teachers";
@@ -134,7 +138,7 @@ export const planHue = (i: number): Hue => PLAN_HUES[i % PLAN_HUES.length];
  * One plan to pick, as a radio card in its own colour: its name, its price paid this way under it, what it gives. The same
  * card in setup's row of plans and in /account's column.
  */
-export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "sky", onPick }: { plan: Plan; billing: Billing; checked: boolean; /** "Your plan" note */ mine?: string | null; trial?: boolean; hue?: Hue; onPick: () => void }) {
+export function PlanOption({ plan, billing, checked, mine, trial = true, early = true, hue = "sky", onPick }: { plan: Plan; billing: Billing; checked: boolean; /** "Your plan" note */ mine?: string | null; trial?: boolean; /** the early price is open on this plan's side */ early?: boolean; hue?: Hue; onPick: () => void }) {
   const custom = pricedWithYou(plan);
   const saving = billing === "year" && !custom ? savingLabel(plan) : null;
   const tone = HUE_TONES[hue];
@@ -149,7 +153,12 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "
           {custom ? (
             <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 py-1">
               <span className="text-sm font-semibold text-slate-50">Price set with you</span>
-              <DiscountBadge percent={EARLY_OFFER.percentOff} />
+              {early && <DiscountBadge percent={EARLY_OFFER.percentOff} />}
+            </span>
+          ) : !early ? (
+            <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+              <span className="text-lg font-semibold text-slate-50">{dollars(priceCents(plan, billing))}</span>
+              <span className="text-xs text-slate-400">a {billing}</span>
             </span>
           ) : (
             <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
@@ -172,10 +181,10 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "
  * What the chosen plan costs and when, above where the card details will go. A placeholder: nothing is charged during
  * the beta, and there is no payment provider yet.
  */
-export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; billing: Billing; /** the chosen plan's colour, for its dot */ hue?: Hue; /** a new account's first plan starts with the free trial; a change doesn't */ trial: boolean }) {
+export function PaymentBox({ plan, billing, trial, early: open = true, hue = "sky" }: { plan: Plan; billing: Billing; /** the chosen plan's colour, for its dot */ hue?: Hue; /** a new account's first plan starts with the free trial; a change doesn't */ trial: boolean; /** the early price is open on this plan's side */ early?: boolean }) {
   const full = priceCents(plan, billing);
-  const early = dollars(earlyCents(full));
-  const price = `${early} a ${billing} (early price, ${EARLY_OFFER.percentOff}% off ${dollars(full)})`;
+  const early = dollars(open ? earlyCents(full) : full);
+  const price = open ? `${early} a ${billing} (early price, ${EARLY_OFFER.percentOff}% off ${dollars(full)})` : `${early} a ${billing}`;
   const days = plan.trialDays === 1 ? "1 day" : `${plan.trialDays} days`;
   return (
     <section aria-labelledby="payment-heading" className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
@@ -183,7 +192,7 @@ export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; 
       <p className="text-sm text-slate-300">
         <span aria-hidden className={`mr-2 inline-block size-2 rounded-full align-middle ${HUE_TONES[hue].fill}`} />
         {pricedWithYou(plan)
-          ? `${plan.name}, price set with you, then ${EARLY_OFFER.percentOff}% off it. We'll email you to agree on a price.`
+          ? `${plan.name}, price set with you${open ? `, then ${EARLY_OFFER.percentOff}% off it` : ""}. We'll email you to agree on a price.`
           : <>{plan.name}, {price}.{" "}{trial && plan.trialDays > 0 ? `${days} free, then ${early} every ${billing}.` : `${early} every ${billing}.`}</>}
       </p>
       <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500">
@@ -200,7 +209,7 @@ export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; 
  * first that it takes away sharing plans; a Teacher plan with fewer students says its limit. Both say the students keep
  * the plans already shared: an invite claimed is a copy in the student's own plans (`claimInvite`).
  */
-export default function PlanPicker({ account }: { account: Account }) {
+export default function PlanPicker({ account, start }: { account: Account; /** the side asked for in the address (`?for=teachers`) */ start?: Audience | null }) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -219,7 +228,8 @@ export default function PlanPicker({ account }: { account: Account }) {
   }, []);
 
   const shownBilling = billing ?? loaded?.billing ?? "year";
-  const shownAudience = audience ?? (loaded ? startAudience(loaded.plans, loaded.current, account) : "individual");
+  const shownAudience = audience ?? (loaded ? startAudience(loaded.plans, loaded.current, account, start) : "individual");
+  const early = loaded?.early[shownAudience] ?? true;
   const shownPlans = loaded?.plans.filter((p) => audienceOf(p) === shownAudience) ?? [];
   const chosenId = picked ?? loaded?.current ?? null;
   // only a plan on the side shown: the other side's pick (or their own plan) is out of sight, so nothing to pay for
@@ -257,7 +267,7 @@ export default function PlanPicker({ account }: { account: Account }) {
       {loaded && (
         <>
           <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setError(null); }} />
-          <EarlyOffer audience={shownAudience} />
+          <EarlyOffer audience={shownAudience} open={early} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <AudienceLead audience={shownAudience} />
             <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} onChange={(b) => { setBilling(b); setError(null); }} /></div>
@@ -272,6 +282,7 @@ export default function PlanPicker({ account }: { account: Account }) {
                 checked={p.id === chosenId}
                 mine={p.id === loaded.current ? `Your plan, paid ${loaded.billing === "month" ? "monthly" : "yearly"}` : null}
                 trial={loaded.current === null}
+                early={early}
                 onPick={() => { setPicked(p.id); setError(null); }}
               />
             ))}
@@ -279,7 +290,7 @@ export default function PlanPicker({ account }: { account: Account }) {
           {request && <p role="status" className="text-xs text-slate-400">You chose {request.name} on {request.on}. We&apos;ll email you at {account.email} to agree on a price.</p>}
           {changes && chosen && (
             <div className="flex flex-col gap-2">
-              <PaymentBox plan={chosen} hue={planHue(loaded.plans.indexOf(chosen))} billing={shownBilling} trial={loaded?.current === null} />
+              <PaymentBox plan={chosen} hue={planHue(loaded.plans.indexOf(chosen))} billing={shownBilling} trial={loaded?.current === null} early={early} />
               {losesSharing && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">On {chosen.name} you won&apos;t be able to share plans with your students. {KEEP}</p>}
               {fewerStudents && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">{chosen.name} takes up to {chosen.students} students. {KEEP}</p>}
               <button type="button" disabled={busy} className={`${PRIMARY} sm:w-auto sm:self-start sm:px-8`} onClick={() => void move()}>

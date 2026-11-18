@@ -4,10 +4,12 @@ import AccountPanel from "@/features/account/ui/AccountPanel";
 
 export const metadata: Metadata = { title: "Your account · attunr", robots: { index: false } };
 
-export default function AccountPage() {
+/** `?for=teachers` (from "Become a founding partner") opens the plans on their Teachers side. */
+export default async function AccountPage({ searchParams }: { searchParams: Promise<{ for?: string }> }) {
+  const q = await searchParams;
   return (
     <PageShell title="Your account" active="/account">
-      <AccountPanel />
+      <AccountPanel start={q.for === "teachers" ? "teachers" : null} />
     </PageShell>
   );
 }

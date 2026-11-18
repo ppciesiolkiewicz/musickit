@@ -1,4 +1,6 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
+import { earlyOpen, type EarlyOpen } from "../pricing";
+import { earlyTaken } from "./earlyTaken";
 import { isJoinPath, setupHref } from "../loginGuard";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
 import { canChoose, choosablePlans, pricedWithYou, roleOnPlan, TAUGHT_PLAN_ID, type Billing, type Plan } from "../plans";
@@ -233,15 +235,18 @@ export async function accountPlans(deps: AuthDeps, userId: string): Promise<Acco
     current: user.planId,
     billing: user.billing,
     request: request ? { planId: request.planId, at: request.createdAt.toISOString() } : null,
+    early: earlyOpen(await earlyTaken()),
   };
 }
 
-/** `GET /api/account/plan`: the plans to choose from, the one they are on, how they'd pay, and their request for a plan priced with them. */
+/** `GET /api/account/plan`: the plans to choose from, the one they are on, how they'd pay, their request for a plan priced with them, and where the early price is open. */
 export interface AccountPlans {
   plans: Plan[];
   current: string | null;
   billing: Billing;
   request: { planId: string; at: string } | null;
+  /** Whether each side's plans still show the early price (`earlyOpen`). */
+  early: EarlyOpen;
 }
 
 /** On the plan now, and when it is one priced with the person, the request we write to them about. */

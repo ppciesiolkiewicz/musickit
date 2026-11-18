@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { loginWords, sendToLogin, stashHash, takeHash } from "./loginGuard";
+import { TEACHER_SIGNUP, asksForTeachers, loginWords, sendToLogin, stashHash, takeHash } from "./loginGuard";
 
 /** A Storage in memory. */
 function memory(): Storage {
@@ -59,4 +59,12 @@ test("the login page asks an invited person to create an account or log in; any 
   assert.equal(loginWords(null).title, "Log in");
   assert.equal(loginWords("/plan/invitex").title, "Log in");
   assert.notEqual(loginWords("/plan/invite/abc").intro, loginWords(null).intro);
+});
+
+test("Become a founding partner asks for the Teachers side, through login and setup", () => {
+  assert.equal(asksForTeachers(TEACHER_SIGNUP), true);
+  assert.equal(asksForTeachers("/account?for=students"), false);
+  assert.equal(asksForTeachers("/account"), false);
+  assert.equal(asksForTeachers(null), false);
+  assert.equal(loginWords(TEACHER_SIGNUP).title, "Create your teacher account");
 });

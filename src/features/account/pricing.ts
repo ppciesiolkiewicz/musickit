@@ -28,8 +28,8 @@ export const PRICING = {
 /**
  * The early price: every plan at half its price, locked in (it doesn't go up later), for the first 20 schools (the
  * founding partners on /kickstarter, who pick any teacher plan, of any size) and the first 500 students. Every page that
- * quotes a price shows it beside the full one, with `DiscountBadge`. Nothing is charged or counted yet: there is no
- * payment, so this is the price for when paid plans open.
+ * quotes a price shows it beside the full one, with `DiscountBadge`, while that side's places are not all taken
+ * (`earlyOpen`). Nothing is charged yet: there is no payment, so this is the price for when paid plans open.
  */
 export const EARLY_OFFER = {
   percentOff: 50,
@@ -39,6 +39,17 @@ export const EARLY_OFFER = {
 
 /** The founding partners' offer, as it is written: "50% off any teacher plan". */
 export const FOUNDING_OFFER = `${EARLY_OFFER.percentOff}% off any teacher plan`;
+
+/** How many early places are taken: schools (the founding partners) and students. `earlyTaken()` in server/earlyTaken.ts counts them. */
+export type EarlyTaken = { schools: number; students: number };
+
+/** Whether the early price is still open, by side of the plans: while fewer have taken it than there are places. */
+export type EarlyOpen = { individual: boolean; teachers: boolean };
+
+export const earlyOpen = (taken: EarlyTaken): EarlyOpen => ({
+  individual: taken.students < EARLY_OFFER.students,
+  teachers: taken.schools < EARLY_OFFER.schools,
+});
 
 /** US cents at the early price, rounded to the cent. */
 export const earlyCents = (cents: number): number => Math.round((cents * (100 - EARLY_OFFER.percentOff)) / 100);

@@ -8,6 +8,7 @@ import { useAccount, useAccountStore } from "../useAccount";
 import EmailUpdates from "./EmailUpdates";
 import { FEEDBACK_HREF } from "@/features/messages/ui/FeedbackPage";
 import PlanPicker from "./PlanPicker";
+import type { Audience } from "./planPitch";
 import { Card, ErrorLine, FIELD, LABEL, LINK, PRIMARY, SECONDARY, errorOf, send } from "./parts";
 
 /** After anything that changes who is signed in, every page reads its data again. */
@@ -17,7 +18,7 @@ const go = (path: string) => window.location.assign(path);
  * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, their plan, feedback and, under
  * everything, Log out. Delete account shows in development only (`DevOnly`; the route is closed in production too). Logged out, it points to Log in.
  */
-export default function AccountPanel() {
+export default function AccountPanel({ start }: { /** the plans' side asked for in the address (`?for=teachers`) */ start?: Audience | null }) {
   const { account, loaded } = useAccount();
   const store = useAccountStore();
   const [name, setName] = useState<string | null>(null);
@@ -103,7 +104,7 @@ export default function AccountPanel() {
         </div>
 
         <Card fill>
-          <PlanPicker account={account} />
+          <PlanPicker account={account} start={start} />
         </Card>
       </div>
 

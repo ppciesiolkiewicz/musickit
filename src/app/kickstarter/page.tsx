@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import FoundingHome from "@/components/landing/home/FoundingHome";
+import { earlyTaken } from "@/features/account/server/earlyTaken";
 
 /* The founding-partner page: the offer to the first teachers and schools. The outreach emails (/dev/kickstarter) point here. */
 
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
-export default function Kickstarter() {
-  return <FoundingHome />;
+export default async function Kickstarter() {
+  const taken = await earlyTaken();
+  return <FoundingHome joined={taken.schools} />;
 }

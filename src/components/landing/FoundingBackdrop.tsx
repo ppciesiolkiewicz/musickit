@@ -1,4 +1,4 @@
-import { FOUNDING_PARTNERS_JOINED, FOUNDING_PARTNERS_NEEDED } from "@/lib/foundingOffer";
+import { FOUNDING_PARTNERS_NEEDED } from "@/lib/foundingOffer";
 
 /*
  * The picture behind the founding-partner page: a ring of seats, one for each founding partner the project needs, each
@@ -13,11 +13,12 @@ const SEAT_RING = 400;
 const RINGS = [150, 235, 320, 400, 480, 560];
 const FADE = "radial-gradient(closest-side, black 35%, transparent 96%)";
 
-export default function FoundingBackdrop() {
+/** `joined`: how many founding partners have joined (`earlyTaken().schools`). */
+export default function FoundingBackdrop({ joined }: { joined: number }) {
   const seats = Array.from({ length: FOUNDING_PARTNERS_NEEDED }, (_, i) => {
     const a = (i / FOUNDING_PARTNERS_NEEDED) * Math.PI * 2 - Math.PI / 2;
     // rounded, so the server and the browser write the same numbers
-    return { x: Math.round(C + Math.cos(a) * SEAT_RING), y: Math.round(C + Math.sin(a) * SEAT_RING), joined: i < FOUNDING_PARTNERS_JOINED };
+    return { x: Math.round(C + Math.cos(a) * SEAT_RING), y: Math.round(C + Math.sin(a) * SEAT_RING), joined: i < joined };
   });
   return (
     <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -z-10 aspect-square w-[max(64rem,105vw)] max-w-none -translate-x-1/2 -translate-y-1/2" style={{ maskImage: FADE, WebkitMaskImage: FADE }}>

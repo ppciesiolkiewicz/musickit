@@ -15,5 +15,4 @@ export const FOUNDING_TRIAL_DAYS = 90;
 /** How many founding partners the project needs before it starts: the schools that get the early price. */
 export const FOUNDING_PARTNERS_NEEDED = EARLY_OFFER.schools;
 
-/** How many have joined so far. The countdown on /kickstarter reads it: raise it by hand when a partner joins. */
-export const FOUNDING_PARTNERS_JOINED = 0;
+/* How many have joined is counted on the server: `earlyTaken().schools` (features/account/server/earlyTaken.ts). */

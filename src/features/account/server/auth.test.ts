@@ -317,6 +317,7 @@ test("a new account has no plan yet and sees the enabled plans in order", async 
   assert.equal(seen?.current, null);
   assert.deepEqual(seen?.plans.map((p) => p.id), ["student", "teacher-pro", "teacher-unlimited"]);
   assert.equal(await accountPlans(deps, "nobody"), null);
+  assert.deepEqual(seen?.early, { individual: true, teachers: true }, "no early places are taken yet");
 });
 
 test("choosing a Teacher plan makes a student a teacher, and back; an owner stays an owner", async () => {
