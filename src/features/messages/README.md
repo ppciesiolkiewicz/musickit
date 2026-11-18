@@ -6,8 +6,8 @@ section that is wrong. So each message carries where it was sent from. Design:
 
 ## The three ways in
 
-- **The chat bubble** (`ui/Bubble.tsx`, mounted in `src/app/layout.tsx`). Signed-in users only, at the bottom right, left of
-  the Rec tab and lifted with it by `--corner-stack`; in development higher, clear of the dev Notes button. Hidden
+- **The chat bubble** (`ui/Bubble.tsx`, mounted in `src/app/layout.tsx`). Signed-in users only, at the bottom left, away
+  from the Rec tab, the day timer and the dev Notes button; on a phone lifted over the day timer by `--corner-stack`. Hidden
   where it would cover a tool (`model/placement.ts`). It opens a panel on the user's newest thread, with a list of
   their threads and New message. A message goes into the thread open in the panel.
 - **The Send feedback page** (`/feedback`, `ui/FeedbackPage.tsx`, `FEEDBACK_HREF`). Linked from the profile menu

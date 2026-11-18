@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import Icon from "@/components/Icon";
 import { useAccount } from "@/features/account/useAccount";
 import { errorOf, send } from "@/features/account/ui/parts";
-import { devUi } from "@/features/devtools/gate";
 import { bubblePlacement } from "../model/placement";
 import type { MessageContext } from "../model/message";
 import { PANEL_ATTR, aboutLine, pageContext, readSelection } from "./pageContext";
@@ -18,9 +17,10 @@ const COUNT_POLL = 60_000;
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 
 /**
- * The chat bubble: signed-in users only, bottom right, left of the Rec tab and lifted with it over the plan's day
- * timer (`--corner-stack`); higher in development, clear of the dev Notes button. Opens a panel with the user's threads
- * with us. Each message carries where it was sent from (`pageContext`). Hidden where it would cover a tool (`bubblePlacement`).
+ * The chat bubble: signed-in users only, bottom left, away from the Rec tab, the plan's day timer and the dev Notes
+ * button, which keep the bottom right. On a phone the day timer's row can reach across, so there the bubble is lifted
+ * over it (`--corner-stack`). Opens a panel with the user's threads with us. Each message carries where it was sent
+ * from (`pageContext`). Hidden where it would cover a tool (`bubblePlacement`).
  */
 export default function Bubble() {
   const { account, loaded } = useAccount();
@@ -54,10 +54,6 @@ export default function Bubble() {
 
   if (!show) return null;
 
-  // whole class names, so Tailwind sees them
-  const dev = devUi();
-  const bottom = dev ? "bottom-[calc(4.5rem+var(--corner-stack,0px))]" : "bottom-[calc(1.5rem+var(--corner-stack,0px))]";
-  const panelBottom = dev ? "sm:bottom-[calc(4.5rem+var(--corner-stack,0px))]" : "sm:bottom-[calc(1.5rem+var(--corner-stack,0px))]";
   return (
     <>
       {!open && (
@@ -70,7 +66,7 @@ export default function Bubble() {
             setContext(pageContext(selection.current ?? readSelection()));
             setOpenOn(pathname);
           }}
-          className={`fixed right-11 ${bottom} z-[2300] flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-slate-600 bg-slate-800/90 text-slate-200 shadow-lg backdrop-blur hover:bg-slate-700 sm:right-12 sm:h-12 sm:w-12`}
+          className="fixed bottom-[calc(1.5rem+var(--corner-stack,0px))] left-4 z-[2300] flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-slate-600 bg-slate-800/90 text-slate-200 shadow-lg backdrop-blur hover:bg-slate-700 sm:bottom-6 sm:left-6 sm:h-12 sm:w-12"
         >
           <Icon name="message-circle" size={20} />
           {unread > 0 && <span aria-hidden className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-slate-900 bg-amber-400" />}
@@ -84,14 +80,13 @@ export default function Bubble() {
             setOpenOn(null);
           }}
           onRead={markRead}
-          position={panelBottom}
         />
       )}
     </>
   );
 }
 
-function Panel({ context, onClose, onRead, position }: { context: MessageContext; onClose: () => void; onRead: () => void; position: string }) {
+function Panel({ context, onClose, onRead }: { context: MessageContext; onClose: () => void; onRead: () => void }) {
   const [threads, setThreads] = useState<ThreadItem[] | null>(null);
   const [current, setCurrent] = useState<string | null>(null);
   const [view, setView] = useState<"thread" | "list">("thread");
@@ -176,7 +171,7 @@ function Panel({ context, onClose, onRead, position }: { context: MessageContext
       {...{ [PANEL_ATTR]: "" }}
       role="dialog"
       aria-label="Messages"
-      className={`fixed inset-0 z-[2450] flex flex-col bg-slate-900 text-slate-100 sm:inset-auto sm:right-12 ${position} sm:h-[min(32rem,calc(100dvh-8rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-slate-700 sm:shadow-2xl`}
+      className={`fixed inset-0 z-[2450] flex flex-col bg-slate-900 text-slate-100 sm:inset-auto sm:bottom-6 sm:left-6 sm:h-[min(32rem,calc(100dvh-8rem))] sm:w-96 sm:rounded-2xl sm:border sm:border-slate-700 sm:shadow-2xl`}
     >
       <header className="flex items-center gap-2 border-b border-slate-800 px-4 py-3">
         {view === "list" ? (

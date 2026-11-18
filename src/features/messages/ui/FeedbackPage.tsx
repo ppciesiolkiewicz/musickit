@@ -38,7 +38,7 @@ export default function FeedbackPage() {
     <section aria-label="Feedback" className="flex max-w-xl flex-col gap-3">
       <p className="text-sm text-slate-400">
         Something broken, confusing or missing? Tell us what happened and on which page. We read every message, and our
-        reply shows in Messages, the chat button at the bottom right of the page.
+        reply shows in Messages, the chat button at the bottom left of the page.
       </p>
       {state === "sent" ? (
         <div className="flex flex-col gap-2">
