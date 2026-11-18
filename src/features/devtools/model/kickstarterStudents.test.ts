@@ -11,7 +11,8 @@ const demos: DemoLink[] = [
 ];
 
 test("the offer stands on three pillars: the daily plan, the change, the exercises", () => {
-  assert.deepEqual(PILLARS.map((p) => p.title), ["A daily practice plan fitted to you", "The change: a daily habit you can see", "Interactive exercises"]);
+  assert.deepEqual(PILLARS.map((p) => p.title), ["A daily practice plan fitted to you", "The change: a daily habit you can see", "Engaging, interactive exercises"]);
+  assert.ok(STUDENT_OFFER_LINE.includes("engaging"));
   for (const p of PILLARS) assert.ok(p.promise && p.facts.length, p.title);
 });
 

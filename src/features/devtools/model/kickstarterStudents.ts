@@ -8,7 +8,7 @@ import { FIRST_STUDENTS, FIRST_STUDENTS_PRICE, STUDENT_PRICE } from "@/lib/stude
 import { LINK_GROUPS, type DemoLink } from "./kickstarter";
 
 /** The whole offer in one line. */
-export const STUDENT_OFFER_LINE = "A daily practice plan made for you, with exercises you play and sing along with on the screen. Free while attunr is in beta.";
+export const STUDENT_OFFER_LINE = "A daily practice plan made for you, with engaging exercises you play and sing along with on the screen. Free while attunr is in beta.";
 
 /** One of the three things the offer stands on, in the order an ad leads with them. */
 export interface Pillar {
@@ -44,9 +44,10 @@ export const PILLARS: Pillar[] = [
     ],
   },
   {
-    title: "Interactive exercises",
+    title: "Engaging, interactive exercises",
     promise: "Every exercise is something to play, sing or hear on the screen, not a page to read.",
     facts: [
+      "The word is \"engaging\": an exercise answers back. It plays with them, listens to them and shows what it heard, so the minutes hold their attention. Say why it is engaging; the word alone says little.",
       "Each exercise has its tool on the page: a guitar neck that shows the notes, a tab that plays along, a staff that draws the voice's pitch from the microphone, a backing band, a metronome, ear games.",
       "The exact material is in front of them: this scale, in this key, in this position. Nothing to transpose in their head.",
       "For guitar, singing and music theory, from a first week to advanced.",
