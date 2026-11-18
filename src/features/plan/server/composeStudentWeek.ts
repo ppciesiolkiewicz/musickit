@@ -10,13 +10,15 @@ import { candidateOf } from "./composeToday";
 /**
  * Seven days for a teacher's student from `start`, from the same inputs as `composeToday`: the library's blocks of the
  * student's areas, the steps their ratings made solid, and each topic paced by the answer, the teacher's score and the
- * ratings (`raisedAnswers` with `state.teacherScores`). Writes nothing. Every day kept, empty ones too, so day numbers
- * match dates; `short` when any day is short or empty, `no-blocks` only when every day is empty.
+ * ratings (`raisedAnswers` with `state.teacherScores`), as of the later of `start` and `today` (a rotated week starts in
+ * the past; a slider moved today and the ratings since its start still count). `yesterday`: the block ids of the day
+ * before `start`, never picked on its first day. Writes nothing. Every day kept, empty ones too, so day numbers match
+ * dates; `short` when any day is short or empty, `no-blocks` only when every day is empty.
  */
 export async function composeStudentWeek(
   d: { library: LibraryRepo; userData: UserDataRepo },
   studentId: string,
-  body: { start: string; seed: string },
+  body: { start: string; seed: string; today?: string; yesterday?: string[] },
   state: PlanState,
 ): Promise<{ ok: true; days: ComposedDay[]; short: boolean } | { ok: false; code: "no-answers" | "no-blocks" }> {
   const answers = state.answers;
@@ -24,8 +26,9 @@ export async function composeStudentWeek(
   const blocks = (await d.library.composeBlocks(studentId, answers.areas)).map(candidateOf);
   if (!blocks.length) return { ok: false, code: "no-blocks" };
   const entries = await readEntries(d.userData, studentId);
-  const levelled = raisedAnswers(answers, entries, body.start, state.teacherScores);
-  const days = composeWeek({ answers: levelled, solid: solidRatedAt(entries), blocks, date: body.start, seed: body.seed }, 7);
+  const asOf = body.today && body.today > body.start ? body.today : body.start;
+  const levelled = raisedAnswers(answers, entries, asOf, state.teacherScores);
+  const days = composeWeek({ answers: levelled, solid: solidRatedAt(entries), blocks, date: body.start, seed: body.seed, yesterday: body.yesterday ?? [] }, 7);
   if (days.every((day) => !day.exercises.length)) return { ok: false, code: "no-blocks" };
   return { ok: true, days, short: days.some((day) => day.short || !day.exercises.length) };
 }

@@ -53,3 +53,23 @@ test("a teacher's score paces the week: set to 2, the topic gets intermediate st
   const raised = await composeStudentWeek(d(), S, { start: "2026-11-18", seed: "x" }, taught);
   assert.ok(levels(raised).has("intermediate"), [...levels(raised)].join());
 });
+
+test("yesterday: the day before the week is barred on its first day", async () => {
+  const two = [stubBlock("notes-on-neck:1", 0), stubBlock("notes-on-neck:1", 1)];
+  const one = { ...answers, minutes: 5 };
+  const st = state({ answers: one as PlanState["answers"] });
+  for (const barred of [two[0].id, two[1].id]) {
+    const r = await composeStudentWeek({ library: stubLibrary(two), userData: memoryUserDataRepo() }, S, { start: "2026-11-18", seed: "x", yesterday: [barred] }, st);
+    assert.ok(r.ok);
+    assert.deepEqual(r.days[0].exercises.map((e) => e.blockId), [two.find((b) => b.id !== barred)!.id]);
+  }
+});
+
+test("a week that starts in the past is paced as of today: a score set today counts", async () => {
+  const taught = state({ teacherScores: [{ topic: "guitar-scales", score: 2, at: "2026-11-18T12:00:00.000Z" }] });
+  const d = () => ({ library: stubLibrary(topicBlocks("guitar-scales")), userData: memoryUserDataRepo() });
+  const past = await composeStudentWeek(d(), S, { start: "2026-11-16", seed: "x" }, taught);
+  assert.ok(!levels(past).has("intermediate"), "as of the start the score is not set yet");
+  const today = await composeStudentWeek(d(), S, { start: "2026-11-16", seed: "x", today: "2026-11-18" }, taught);
+  assert.ok(levels(today).has("intermediate"));
+});

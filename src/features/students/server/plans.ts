@@ -3,11 +3,12 @@ import type { LibraryRepo } from "@/features/library/server/repo";
 import { topicsFor } from "@/features/plan/intake/topics";
 import type { Area } from "@/features/plan/model/concepts";
 import { outcome } from "@/features/plan/model/outcome";
-import { addDays, giveWeek, givenToday, storedPlans, teacherWeek, teacherWeekOn, updateGiven } from "@/features/plan/model/schedule";
-import { MAX_TEACHER_COMMENT } from "@/features/plan/model/state";
+import { addDays, dayBeforeWeek, giveWeek, givenToday, storedPlans, teacherWeek, teacherWeekOn, upcomingTeacherWeek, updateGiven } from "@/features/plan/model/schedule";
+import { MAX_TEACHER_COMMENT, fitPlanState } from "@/features/plan/model/state";
 import { setScores } from "@/features/plan/model/teacherScores";
 import { planDays, type PlanState, type StoredPlan } from "@/features/plan/model/types";
 import { composeStudentWeek } from "@/features/plan/server/composeStudentWeek";
+import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { readAllPlanTimes, readDocVersioned, readEntries, writeDoc } from "@/features/userData/server/data";
 import { studentRow, type StudentRow, type StudentsDeps } from "./students";
 
@@ -84,9 +85,13 @@ export async function studentView(
  * 1. the moved sliders (`scores`, topics of the student's areas only, clamped to 0..3) are recorded against the scores
  *    the teacher saw (`studentView`'s `now`), so a value sent unchanged records nothing;
  * 2. the comment (trimmed, at most 2000 characters; empty changes nothing) goes on the current week, never the new one;
- * 3. the start: rotate takes the running week's start and replaces it; next starts the day after the running week's
- *    last day; with no running week either starts today;
- * 4. seven days are composed and put first in `given`.
+ *    (`comment` in the answer: "stored", "none" when none was sent, "no-week" when there was no week to put it on);
+ * 3. the start: rotate takes the running week's start and replaces it; next replaces the upcoming week (one that has
+ *    not started) on its own start, so there is never more than one, else starts the day after the running week's last
+ *    day; with no running week either starts today. A replaced upcoming week nobody touched is dropped, any other
+ *    replaced week goes to the history;
+ * 4. seven days are composed (paced as of today at the earliest, the last day of the week before barred on day one)
+ *    and put first in `given`; the document is fitted to its size cap (`fitPlanState`) as the browser's saves are.
  * The write expects the version read; when the student saved in between, it all starts again from a fresh read, up to
  * three tries, then `busy`. When no week could be made nothing is written, not the scores and not the comment.
  */
@@ -97,7 +102,7 @@ export async function makeWeek(
   input: { today: string; rotate: boolean; scores?: Record<string, number>; comment?: string },
   now: Date,
   newId: () => string,
-): Promise<{ ok: true; planId: string; start: string; short: boolean } | { ok: false; error: "not-found" | "no-answers" | "no-blocks" | "busy" }> {
+): Promise<{ ok: true; planId: string; start: string; short: boolean; comment: "stored" | "none" | "no-week" } | { ok: false; error: "not-found" | "no-answers" | "no-blocks" | "busy" | "too-big" }> {
   if (!(await studentOf(d, teacher, studentId))) return { ok: false, error: "not-found" };
   const { today } = input;
   const madeAt = now.toISOString();
@@ -118,14 +123,17 @@ export async function makeWeek(
     const current = currentWeek(s, today);
     if (current && comment) s = updateGiven(s, current.id, (p) => ({ ...p, teacher: { ...p.teacher!, comment } }));
     const running = current && !givenToday(current, today).over ? current : null;
-    const start = !running ? today : input.rotate ? running.startedOn : addDays(running.startedOn, planDays(running));
+    const upcoming = input.rotate ? null : upcomingTeacherWeek(s, today);
+    const replace = upcoming ?? (input.rotate ? running : null);
+    const start = upcoming ? upcoming.startedOn : !running ? today : input.rotate ? running.startedOn : addDays(running.startedOn, planDays(running));
 
-    const week = await composeStudentWeek(d, studentId, { start, seed: `${studentId}:${start}:${madeAt}` }, s);
+    const week = await composeStudentWeek(d, studentId, { start, seed: `${studentId}:${start}:${madeAt}`, today, yesterday: dayBeforeWeek(s, start) }, s);
     if (!week.ok) return { ok: false, error: week.code };
-    s = giveWeek(s, week.days, { start, madeAt, title: "", ...(input.rotate && running ? { replace: running.id } : {}) }, newId);
+    s = giveWeek(s, week.days, { start, madeAt, title: "", ...(replace ? { replace: replace.id, dropUntouched: replace === upcoming } : {}) }, newId);
 
-    const wrote = await writeDoc(d.userData, studentId, "plan", s, now, read.version);
-    if (wrote.ok) return { ok: true, planId: s.given[0].id, start, short: week.short };
+    const wrote = await writeDoc(d.userData, studentId, "plan", fitPlanState(s, MAX_PLAN_BYTES), now, read.version);
+    if (wrote.ok) return { ok: true, planId: s.given[0].id, start, short: week.short, comment: !comment ? "none" : current ? "stored" : "no-week" };
+    if (wrote.error === "too-big") return { ok: false, error: "too-big" };
     if (wrote.error !== "stale") throw new Error(`the student's plan document was not written: ${wrote.error}`);
   }
   return { ok: false, error: "busy" };

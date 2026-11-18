@@ -182,11 +182,14 @@ export function composeDay(input: ComposeInput, tracks: Track[] = PATH): Compose
   };
 }
 
-/** Seven days for a teacher's student: each day gets the days before it as its history; no ratings arrive in between. */
-export function composeWeek(input: Omit<ComposeInput, "keep" | "declined" | "yesterday">, days = 7, tracks: Track[] = PATH): ComposedDay[] {
+/**
+ * Seven days for a teacher's student: each day gets the days before it as its history; no ratings arrive in between.
+ * `yesterday` is the day before the first one (the last day of the week before), `[]` when left out.
+ */
+export function composeWeek(input: Omit<ComposeInput, "keep" | "declined" | "yesterday"> & { yesterday?: string[] }, days = 7, tracks: Track[] = PATH): ComposedDay[] {
   const out: ComposedDay[] = [];
   for (let i = 0; i < days; i++) {
-    const yesterday = i ? out[i - 1].exercises.flatMap((e) => (e.blockId ? [e.blockId] : [])) : [];
+    const yesterday = i ? out[i - 1].exercises.flatMap((e) => (e.blockId ? [e.blockId] : [])) : (input.yesterday ?? []);
     out.push(composeDay({ ...input, date: addDays(input.date, i), seed: `${input.seed}:${i}`, yesterday, keep: [], declined: [] }, tracks));
   }
   return out;

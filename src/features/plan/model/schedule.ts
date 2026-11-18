@@ -108,16 +108,33 @@ export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId:
 /**
  * A week a teacher made for the student, put first in `given`: seven days from `meta.start` (an empty composed day stays,
  * so day numbers match dates), each day's theme "", the exercises stored as `startDay` stores them (new ids, block ids
- * computed). `current` and `history` are left as they are. With `replace` (a plan id in `given`, the week being rotated),
- * that plan leaves `given` and goes first in `history` (which keeps `HISTORY_CAP`), its ratings and comment kept on it.
+ * computed). `current` and `history` are left as they are. With `replace` (a plan id in `given`: the week being rotated,
+ * or the upcoming week made again), that plan leaves `given` and goes first in `history` (which keeps `HISTORY_CAP`), its
+ * ratings and comment kept on it; with `dropUntouched` a replaced week nobody touched (no tick, no rating, no comment) is
+ * dropped instead.
  */
-export function giveWeek(s: PlanState, days: ComposedDay[], meta: { start: string; madeAt: string; title: string; replace?: string }, newId: () => string): PlanState {
+export function giveWeek(s: PlanState, days: ComposedDay[], meta: { start: string; madeAt: string; title: string; replace?: string; dropUntouched?: boolean }, newId: () => string): PlanState {
   const id = newId();
   const config = storedConfig({ title: meta.title, days: days.map((d) => ({ theme: "", exercises: d.exercises })) }, newId);
   const plan: StoredPlan = { id, config, startedOn: meta.start, done: {}, teacher: { madeAt: meta.madeAt } };
   const old = meta.replace === undefined ? undefined : givenPlan(s, meta.replace);
   if (!old) return { ...s, given: [plan, ...s.given] };
-  return { ...s, given: [plan, ...s.given.filter((p) => p !== old)], history: [old, ...s.history].slice(0, HISTORY_CAP) };
+  const given = [plan, ...s.given.filter((p) => p !== old)];
+  if (meta.dropUntouched && !touched(old)) return { ...s, given };
+  return { ...s, given, history: [old, ...s.history].slice(0, HISTORY_CAP) };
+}
+
+/** A plan someone did something with: a tick, a rating or a teacher's comment on it. */
+const touched = (p: StoredPlan): boolean => Object.keys(p.done).length > 0 || Object.keys(p.rated ?? {}).length > 0 || !!p.teacher?.comment;
+
+/** The week a teacher made that starts after `date` (there is at most one: making the next week again replaces it), else null. */
+export const upcomingTeacherWeek = (s: PlanState, date: string): StoredPlan | null =>
+  s.given.filter((p) => p.teacher && p.startedOn > date).sort((a, b) => (a.startedOn < b.startedOn ? 1 : a.startedOn > b.startedOn ? -1 : 0))[0] ?? null;
+
+/** The block ids of the last day of a week a teacher made that ends the day before `start` (given or history), else []. */
+export function dayBeforeWeek(s: PlanState, start: string): string[] {
+  const before = [...s.given, ...s.history].find((p) => p.teacher && addDays(p.startedOn, planDays(p)) === start);
+  return (before?.config.days[planDays(before) - 1]?.exercises ?? []).flatMap((e) => (e.blockId ? [e.blockId] : []));
 }
 
 /** The given weeks a teacher made that have started by `date`, newest first (by start, then by when they were made). */

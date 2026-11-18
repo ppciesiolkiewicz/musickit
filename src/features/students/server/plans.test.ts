@@ -9,7 +9,9 @@ import { readDocVersioned, writeDoc } from "@/features/userData/server/data";
 import type { UserDataRepo } from "@/features/userData/server/repo";
 import { stepAt } from "@/features/plan/model/path";
 import { addDays, ratePlan, updateGiven } from "@/features/plan/model/schedule";
-import type { PlanState, StoredPlan } from "@/features/plan/model/types";
+import { sanitiseState } from "@/features/plan/model/state";
+import type { PlanConfig, PlanState, StoredPlan } from "@/features/plan/model/types";
+import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { stubBlock, stubLibrary, topicBlocks } from "@/features/plan/server/stubLibrary";
 import { addStudent } from "./students";
 import { makeWeek, studentView } from "./plans";
@@ -266,5 +268,98 @@ test("a block id from the library is computed again when the week is stored", as
   const s = await setup({ blocks: forged });
   const r = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: false }, NOW, s.newId));
   const p = week((await s.doc()).data, r.planId)!;
-  assert.ok(p.config.days.every((d) => d.exercises.every((e) => e.blockId && e.blockId !== "forged" && !e.blockId.startsWith("block-"))));
+  const ids = new Set(forged.slice(0, -1).map((b) => b.id));
+  assert.ok(p.config.days.every((d) => d.exercises.every((e) => e.blockId && e.blockId !== "forged" && (ids.has(e.blockId) || e.title === "notes-on-neck:1 #9"))));
+});
+
+// --- fix round 1
+
+test("rotate paces from today: a slider moved now counts for a week that started two days ago", async () => {
+  const s = await setup();
+  const first = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: "2026-11-16", rotate: false }, new Date("2026-11-16T12:00:00Z"), s.newId));
+  assert.ok(!levelsOf(week((await s.doc()).data, first.planId)!).has("intermediate"));
+  const rot = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: true, scores: { "guitar-scales": 2 } }, NOW, s.newId));
+  assert.equal(rot.start, "2026-11-16");
+  assert.ok(levelsOf(week((await s.doc()).data, rot.planId)!).has("intermediate"));
+});
+
+test("next pressed twice: one upcoming week on the same start, the running week untouched; an untouched upcoming week is dropped", async () => {
+  const s = await setup();
+  const run = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: "2026-11-16", rotate: false }, new Date("2026-11-16T12:00:00Z"), s.newId));
+  const runBefore = week((await s.doc()).data, run.planId);
+  const a = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: false }, NOW, s.newId));
+  const b = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: false, comment: "Watch the thumb." }, new Date("2026-11-18T12:05:00Z"), s.newId));
+  assert.equal(a.start, "2026-11-23");
+  assert.equal(b.start, "2026-11-23");
+  assert.equal(b.comment, "stored");
+  const doc = (await s.doc()).data;
+  assert.deepEqual(doc.given.map((p) => p.id), [b.planId, run.planId]);
+  assert.ok(!doc.history.some((p) => p.id === a.planId), "never touched: dropped");
+  assert.deepEqual({ ...week(doc, run.planId)!, teacher: undefined }, { ...runBefore!, teacher: undefined }, "the running week is untouched");
+  assert.equal(week(doc, run.planId)!.teacher?.comment, "Watch the thumb.", "the comment goes on the running week, never the upcoming one");
+  assert.equal(week(doc, b.planId)!.teacher?.comment, undefined);
+  const v = ok(await studentView(s.d, s.teacher, s.studentId, TODAY));
+  assert.equal(v.plan?.id, run.planId);
+  // an upcoming week the student already rated goes to history when it is made again
+  await s.put(updateGiven(doc, b.planId, (p) => ratePlan(p, 0, 0, 4, "2026-11-18T13:00:00Z")));
+  const c = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: false }, new Date("2026-11-18T14:00:00Z"), s.newId));
+  const after = (await s.doc()).data;
+  assert.deepEqual(after.given.map((p) => p.id), [c.planId, run.planId]);
+  assert.equal(after.history[0].id, b.planId);
+  assert.equal(after.history[0].rated?.["0:0"]?.stars, 4);
+});
+
+test("next after a running week: the new week's first day repeats no block of the running week's last day", async () => {
+  const s = await setup();
+  const run = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: "2026-11-16", rotate: false }, new Date("2026-11-16T12:00:00Z"), s.newId));
+  const next = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: false }, NOW, s.newId));
+  const doc = (await s.doc()).data;
+  const last = new Set(week(doc, run.planId)!.config.days[6].exercises.map((e) => e.blockId));
+  assert.ok(last.size > 0);
+  for (const e of week(doc, next.planId)!.config.days[0].exercises) assert.ok(!last.has(e.blockId), e.title);
+});
+
+test("comment in the answer: none when none was sent, no-week when there was no week to put it on", async () => {
+  const s = await setup();
+  assert.equal(ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: false, comment: "Early days." }, NOW, s.newId)).comment, "no-week");
+  assert.equal(ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: true }, NOW, s.newId)).comment, "none");
+  assert.equal(ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: true, comment: "  " }, NOW, s.newId)).comment, "none");
+});
+
+/** A stored plan of `n` exercises of 700 characters of text each (the most a text cell keeps). */
+const bulky = (id: string, n: number): StoredPlan =>
+  ({ id, startedOn: "2026-01-01", done: {}, config: { title: id, days: [{ theme: "", exercises: Array.from({ length: n }, (_, i) => ({ id: `${id}e${i}`, title: `Ex ${i}`, minutes: 5, cells: [{ type: "text", id: "c", text: "x".repeat(700) }] })) }] } as unknown as PlanConfig });
+const size = (s: PlanState) => JSON.stringify(sanitiseState(s)).length;
+/** How many such exercises fill `bytes` of a stored document. */
+const perExercise = (base: PlanState) => size({ ...base, history: [bulky("m", 2)] }) - size({ ...base, history: [bulky("m", 1)] });
+
+test("a document near its cap is fitted (the oldest plans go) instead of refused; one that can't fit is too-big, nothing written", async () => {
+  const s = await setup();
+  const base = (await s.doc()).data;
+  // 20 earlier plans, the oldest one topped up, to within 2000 characters of the cap
+  const nearWith = (each: number, extra = 0): PlanState => ({ ...base, history: Array.from({ length: 20 }, (_, i) => bulky(`h${i}`, each + (i === 19 ? extra : 0))) });
+  let each = Math.floor(MAX_PLAN_BYTES / perExercise(base) / 20);
+  while (size(nearWith(each)) > MAX_PLAN_BYTES - 2000) each--;
+  let extra = 0;
+  while (size(nearWith(each, extra + 1)) <= MAX_PLAN_BYTES - 2000) extra++;
+  const near = nearWith(each, extra);
+  assert.ok(size(near) <= MAX_PLAN_BYTES && size(near) > MAX_PLAN_BYTES - 3000, String(size(near)));
+  await s.put(near);
+  assert.equal((await s.doc()).data.history.length, 20);
+  const r = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: false }, NOW, s.newId));
+  const doc = (await s.doc()).data;
+  assert.equal(doc.given[0].id, r.planId);
+  assert.ok(doc.history.length < 20, "the oldest plans made room");
+  assert.equal(doc.history[0].id, "h0", "the newest earlier plans stay");
+
+  const full = await setup();
+  const fb = (await full.doc()).data;
+  // the running plan is never dropped: a current plan this big can't fit with a week beside it
+  let n = Math.floor(MAX_PLAN_BYTES / perExercise(fb));
+  while (size({ ...fb, current: bulky("big", n) }) > MAX_PLAN_BYTES - 1500) n--;
+  await full.base.putDoc(full.studentId, "plan", { ...fb, current: bulky("big", n) }, NOW);
+  const before = await full.doc();
+  assert.ok(before.data.current, "the big plan is stored");
+  assert.deepEqual(await makeWeek(full.d, full.teacher, full.studentId, { today: TODAY, rotate: false }, NOW, full.newId), { ok: false, error: "too-big" });
+  assert.deepEqual(await full.doc(), before);
 });

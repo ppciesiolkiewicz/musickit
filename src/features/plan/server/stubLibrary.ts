@@ -1,19 +1,21 @@
 import type { LibraryRepo } from "@/features/library/server/repo";
 import type { ComposeBlock } from "@/features/library/server/types";
+import { blockIdOf, blockKeyOf } from "../model/blockId";
 import { PATH, stepAt } from "../model/path";
+import { candidateOf } from "./composeToday";
 
 /*
  * For tests of the server composers: hand-made library blocks and a library that only answers `composeBlocks`. Not used
  * by the app.
  */
 
-/** A block on one path step: topic and level from the step, 5 minutes, its own title (`name`, else the step and `n`). */
+/** A block on one path step: topic and level from the step, 5 minutes, its own title (the step and `n`), and the id the library would give it (the stored exercise's block id) unless `over` names one. */
 export function stubBlock(step: string, n = 0, over: Partial<ComposeBlock> = {}): ComposeBlock {
   const at = stepAt(step);
   if (!at) throw new Error(`no step ${step}`);
   const title = `${step} #${n}`;
-  return {
-    id: `block-${step}-${n}`,
+  const block: ComposeBlock = {
+    id: "",
     content: { title, cells: [{ type: "text", text: `Play ${title}.` }] } as ComposeBlock["content"],
     area: at.track.area,
     topic: at.track.topic,
@@ -26,6 +28,7 @@ export function stubBlock(step: string, n = 0, over: Partial<ComposeBlock> = {})
     mine: null,
     ...over,
   };
+  return over.id ? block : { ...block, id: blockIdOf(blockKeyOf(candidateOf(block).exercise)) };
 }
 
 /** `per` blocks on every step of every track of the topic. */
