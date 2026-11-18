@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Practice · attunr", robots: { index
 
 export default function PracticePage() {
   return (
-    <PageShell active="/practice" title="Practice" intro="Every tool and drill in attunr. Your AI autoplan opens the ones each exercise needs. Here you can open any of them yourself.">
+    <PageShell active="/practice" title="Practice" intro="Every tool and drill in attunr. Your Practice plan opens the ones each exercise needs. Here you can open any of them yourself.">
       <PracticeTiles />
     </PageShell>
   );

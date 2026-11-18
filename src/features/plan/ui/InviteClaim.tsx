@@ -55,7 +55,7 @@ export default function InviteClaim({ id }: { id: string }) {
       <p className="text-sm leading-relaxed text-slate-400">{notice.text}</p>
       <div className="flex flex-wrap justify-center gap-3">
         {state === "failed" && <Button onClick={() => void claim()}><Icon name="rotate-ccw" size={14} /> Try again</Button>}
-        <Link href="/plan" className={btn}><Icon name="chevron-left" size={14} /> Open AI autoplan</Link>
+        <Link href="/plan" className={btn}><Icon name="chevron-left" size={14} /> Open Practice plan</Link>
       </div>
     </div>
   );

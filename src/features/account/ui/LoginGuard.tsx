@@ -11,7 +11,7 @@ import { useAccount } from "../useAccount";
 /**
  * The client half of the login wall (the proxy is the other): sends a person with no account to log in when the proxy
  * couldn't tell (a stale session cookie), and an account with no plan yet to /account/setup from the app's three places
- * (AI autoplan, Interactive notes, Practice: `APP_PLACES`), going on to the page afterwards. Every other page stays open. Keeps the hash across
+ * (Practice plan, Interactive notes, Practice: `APP_PLACES`), going on to the page afterwards. Every other page stays open. Keeps the hash across
  * logging in and puts it back after. Renders nothing. Mounted once in the root layout.
  */
 export default function LoginGuard() {

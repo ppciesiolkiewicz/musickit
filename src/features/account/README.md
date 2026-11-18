@@ -114,7 +114,7 @@ Things that are on purpose:
   made with Google's name or the email before the @, and `users.plan_id` null (migration `0012_new_accounts_choose_plan`;
   accounts from before it kept Student). While it is null, `Account.needsSetup` is true: `pathAfterSignIn` sends every
   sign-in to `/account/setup?next=…` (`setupHref`, `loginGuard.ts`), and `ui/LoginGuard` sends the app's three places
-  there (AI autoplan, Interactive notes, Practice: `APP_PLACES` in `src/lib/appPlaces.ts`), keeping the page as `next`.
+  there (Practice plan, Interactive notes, Practice: `APP_PLACES` in `src/lib/appPlaces.ts`), keeping the page as `next`.
   Every other page stays open: the landing pages, the FAQ, `/account`. It is held in the browser only: the API routes don't refuse
   an account with no plan, which is a student meanwhile.
 - **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256.

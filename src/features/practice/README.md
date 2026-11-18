@@ -1,7 +1,7 @@
 # Practice
 
 `/practice`: every tool, drill and lesson page as a wall of flat tiles (Windows Phone style). It is the app's third
-place, after AI autoplan and Interactive notes (the nav, `src/components/SiteNav.tsx`). Design:
+place, after Practice plan and Interactive notes (the nav, `src/components/SiteNav.tsx`). Design:
 `docs/superpowers/specs/2026-11-14-autoplan-centre-design.md`.
 
 - `tiles.ts`: `practiceTiles()` groups `THEORY_SECTIONS` (`src/features/theory/sections.ts`) into Guitar, Singing,

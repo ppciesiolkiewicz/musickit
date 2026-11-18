@@ -14,7 +14,7 @@ import { Check, PlanDayCard } from "./PracticeSections";
 import { PRICING } from "@/features/account/pricing";
 
 /*
- * The two home pages, / (music schools) and /players, in one shape: the AI autoplan first, then how it works, then
+ * The two home pages, / (music schools) and /players, in one shape: the Practice plan first, then how it works, then
  * Notes, then the other teaching resources in one strip, then the ending. Design:
  * docs/superpowers/specs/2026-11-14-autoplan-centre-design.md.
  */
@@ -125,7 +125,7 @@ export default function AutoplanHome({ audience, ending }: { audience: Audience;
           <SiteNav active={audience === "schools" ? "/" : "/players"} />
         </div>
 
-        {/* Hero: the AI autoplan */}
+        {/* Hero: the Practice plan */}
         <section className="relative isolate grid grid-cols-[minmax(0,1fr)] items-center gap-12 py-12 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:py-20">
           <Glow spots={[
             { tone: "sky", at: { right: "-6rem", top: "-8rem" }, size: "46rem", strength: 0.26 },
@@ -158,7 +158,7 @@ export default function AutoplanHome({ audience, ending }: { audience: Audience;
         {/* How the plan works */}
         <section id="plan" aria-labelledby="plan-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="mx-auto max-w-2xl text-center">
-            <Eyebrow>AI autoplan<BetaBadge /></Eyebrow>
+            <Eyebrow>Practice plan<BetaBadge /></Eyebrow>
             <H2 id="plan-h">How the plan <span className="ls-accent italic text-sky-300">works.</span></H2>
           </div>
           <ol className="mt-10 grid gap-4 lg:grid-cols-3">

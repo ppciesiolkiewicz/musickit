@@ -107,8 +107,8 @@ function NotFound() {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center gap-3 py-6 text-center">
       <h2 className="text-lg text-slate-100">This shared plan isn&apos;t in your plans</h2>
-      <p className="text-sm leading-relaxed text-slate-400">The link may be wrong, or you are logged in to another account. Your own plan for today is on the AI autoplan page.</p>
-      <Link href="/plan" className={btn}><Icon name="chevron-left" size={14} /> Open AI autoplan</Link>
+      <p className="text-sm leading-relaxed text-slate-400">The link may be wrong, or you are logged in to another account. Your own plan for today is on the Practice plan page.</p>
+      <Link href="/plan" className={btn}><Icon name="chevron-left" size={14} /> Open Practice plan</Link>
     </div>
   );
 }

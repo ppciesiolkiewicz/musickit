@@ -46,7 +46,7 @@ const SECTIONS: Section[] = [
     title: "What these terms cover",
     body: (
       <>
-        <p>These terms apply to everything at attunr.app: the AI autoplan, Notes, Practice and every tool and lesson in it, and your account. By making an account or using the app you agree to them. If you don&apos;t agree, don&apos;t use attunr.</p>
+        <p>These terms apply to everything at attunr.app: the Practice plan, Notes, Practice and every tool and lesson in it, and your account. By making an account or using the app you agree to them. If you don&apos;t agree, don&apos;t use attunr.</p>
         <p>If you use attunr for a school, you agree for the school, and you confirm you may do so.</p>
       </>
     ),

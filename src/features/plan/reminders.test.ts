@@ -32,5 +32,5 @@ test("reminderDue: never without answers, switched off, before its time or once 
 
 test("reminderBody: names today's plan when it is there, and says the page makes it when it isn't", () => {
   assert.equal(reminderBody(stateOf(dayPlan("2026-11-18")), at("2026-11-18")), "Today's plan: Scales");
-  assert.equal(reminderBody(stateOf(dayPlan("2026-11-17")), at("2026-11-18")), "Open the plan page, and attunr puts today's plan together.");
+  assert.equal(reminderBody(stateOf(dayPlan("2026-11-17")), at("2026-11-18")), "Open the Practice plan page, and attunr puts today's plan together.");
 });

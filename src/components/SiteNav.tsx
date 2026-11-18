@@ -40,7 +40,7 @@ function DemoLink({ current }: { current: boolean }) {
 }
 
 /**
- * The attunr top navigation, shared by every page. Every page shows the app's three places (AI autoplan, Interactive
+ * The attunr top navigation, shared by every page. Every page shows the app's three places (Practice plan, Interactive
  * notes, Practice; on a phone the wordmark and buttons take the first row and the three links the second), so a visitor
  * sees what is inside; without a login they lead to the login page (src/proxy.ts). A page a visitor may read
  * (`isMarketingPath`: the home pages, FAQ, demos, logging in) adds Demos and has the wordmark go home (the switch

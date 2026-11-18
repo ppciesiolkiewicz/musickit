@@ -13,7 +13,7 @@ import TourCard from "@/features/intro/TourCard";
 
 export const metadata: Metadata = {
   title: "Demos: ready-made AI practice plans and teacher notes · attunr",
-  description: "Try a week of daily practice written by the AI autoplan, and a lesson note a student can play. No account needed.",
+  description: "Try a week of daily practice written by AI, and a lesson note a student can play. No account needed.",
   alternates: { canonical: "/plan" },
   robots: { index: false },
 };
@@ -90,7 +90,7 @@ function PlanCard({ demo, accent }: { demo: DemoCard; accent: string }) {
   );
 }
 
-/** The three steps of the autoplan, drawn beside its pitch. */
+/** The three steps of the Practice plan, drawn beside its pitch. */
 const AUTOPLAN_STEPS: { icon: IconName; text: string }[] = [
   { icon: "list", text: "Answer a few questions: what you play, your level and the minutes you have." },
   { icon: "puzzle", text: "attunr picks exercises from its library for the steps you are on." },
@@ -110,7 +110,7 @@ function Autoplan() {
   return (
     <section aria-labelledby="autoplan-h" className={`${TOOL} border-sky-400/25 bg-linear-to-br from-sky-500/10 via-slate-900/60 to-violet-500/10`}>
       <p className="flex items-center text-xs font-medium uppercase tracking-[0.2em] text-sky-300">
-        <Icon name="sparkles" size={14} className="mr-2" /> AI autoplan<BetaBadge />
+        <Icon name="sparkles" size={14} className="mr-2" /> Practice plan<BetaBadge />
       </p>
       <h2 id="autoplan-h" className="mt-3 text-3xl leading-tight text-slate-50 text-balance" style={DISPLAY}>A week of practice, written for one student</h2>
       <ol className="mb-7 mt-6 flex flex-col gap-3">
@@ -122,7 +122,7 @@ function Autoplan() {
         ))}
       </ol>
       <Link href="/plan" className="mt-auto inline-flex w-fit items-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
-        <Icon name="sparkles" size={16} /> Try the AI autoplan
+        <Icon name="sparkles" size={16} /> Try the Practice plan
       </Link>
     </section>
   );
@@ -255,7 +255,7 @@ export default function DemoIndex() {
         {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
         <div className="grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]">
           <section aria-labelledby="plans-h" className={`${PANEL} border-sky-400/30 bg-linear-to-br from-sky-500/30 via-indigo-500/15 to-violet-600/30 shadow-2xl shadow-sky-950/40`}>
-            <PanelHead id="plans-h" badge="AI autoplan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="A week of practice, one day at a time" text="Each card is one student's week, as the AI autoplan wrote it: a few minutes of exercises a day, with the tools to play them on the page. Open a week and try any day." />
+            <PanelHead id="plans-h" badge="Practice plan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="A week of practice, one day at a time" text="Each card is one student's week, as the AI wrote it: a few minutes of exercises a day, with the tools to play them on the page. Open a week and try any day." />
             <div className="grid gap-8 sm:grid-cols-2 sm:gap-4">
               {AREAS.map(({ area, name, icon, tile, card }) => {
                 const group = cards.filter((c) => c.area === area);
@@ -308,7 +308,7 @@ export default function DemoIndex() {
           </div>
           <p className="mt-4 flex gap-2 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3 text-sm text-slate-400 backdrop-blur-xl">
             <Icon name="info" size={16} className="mt-0.5 shrink-0 text-sky-300" />
-            <span><b className="font-semibold text-slate-200">In the beta, attunr can&apos;t make new plans yet.</b> The demo plans on this page show what a week looks like. Answer the questions on the plan page, and attunr saves your answers for your first plan.</span>
+            <span><b className="font-semibold text-slate-200">In the beta, attunr can&apos;t make new plans yet.</b> The demo plans on this page show what a week looks like. Answer the questions on the Practice plan page, and attunr saves your answers for your first plan.</span>
           </p>
         </div>
 

@@ -11,11 +11,11 @@ import { databaseUrl } from "@/lib/db/client";
 
 export const metadata: Metadata = { title: "Log in · attunr", robots: { index: false } };
 
-/** What the visitor was on the way to, in the intro's words: "your AI autoplan", "Interactive notes", "Practice". */
+/** What the visitor was on the way to, in the intro's words: "your Practice plan", "Interactive notes", "Practice". */
 function goingTo(next: string | null): string {
   const place = next ? placeFor(next) : null;
   if (!place) return "your practice plan";
-  return place.href === "/plan" ? "your AI autoplan" : place.label;
+  return place.href === "/plan" ? "your Practice plan" : place.label;
 }
 
 /** The form, and the quick tour beside it on a wide screen (under it on a phone), so a visitor sees what logging in opens. */

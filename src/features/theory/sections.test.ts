@@ -43,7 +43,7 @@ describe("section colours", () => {
 });
 
 describe("tools menu", () => {
-  it("starts with the AI autoplan, then Interactive notes", () => {
+  it("starts with the Practice plan, then Interactive notes", () => {
     const tools = sectionsIn("tools");
     assert.deepEqual(tools.filter((s) => s.sub === tools[0].sub).map((s) => s.href), ["/plan", "/teachers/studio?notes=1"]);
   });

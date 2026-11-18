@@ -1,4 +1,4 @@
-# AI practice plan: rules
+# Practice plan: rules
 
 What it is and where things live: `README.md`. Keep it up to date with every change.
 

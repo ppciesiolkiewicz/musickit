@@ -29,7 +29,7 @@ export function reminderDue(state: PlanState, now: Date): boolean {
 /** The reminder's words: today's plan and its topics, or, before it is made, that opening the plan page makes it. */
 export function reminderBody(state: PlanState, now: Date): string {
   const own = ownDay(state, localDate(now));
-  if (!own) return "Open the plan page, and attunr puts today's plan together.";
+  if (!own) return "Open the Practice plan page, and attunr puts today's plan together.";
   const theme = own.config.days[0]?.theme;
   return `Today's plan${theme ? `: ${theme}` : ""}`;
 }

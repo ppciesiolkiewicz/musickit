@@ -40,7 +40,7 @@ export const TONE: Record<Tone, { icon: string; chip: string }> = {
 
 export const THEORY_SECTIONS: TheorySection[] = [
   { group: "learn", href: "/course", tone: "amber", label: "Course", desc: "Learn the neck one position at a time", icon: "graduation-cap", wide: true },
-  { group: "learn", href: "/plan", tone: "violet", label: "AI autoplan", desc: "A continuous daily plan for your practice", icon: "sparkles", alsoIn: [{ group: "tools", sub: "Plan & notes" }] },
+  { group: "learn", href: "/plan", tone: "violet", label: "Practice plan", desc: "A continuous daily plan for your practice", icon: "sparkles", alsoIn: [{ group: "tools", sub: "Plan & notes" }] },
   { group: "learn", href: "/theory/circle", tone: "sky", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot", alsoIn: [{ group: "tools", sub: "Tuning & theory" }] },
   { group: "learn", href: "/theory/basics", tone: "emerald", label: "Guitar basics", desc: "Strings, frets, notes and intervals", icon: "guitar" },
   { group: "guitar", sub: "Explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3", wide: true },

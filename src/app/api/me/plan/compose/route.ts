@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MESSAGES = {
-  "no-answers": "There are no answers to make a plan from. Answer the questions on the plan page first.",
+  "no-answers": "There are no answers to make a plan from. Answer the questions on the Practice plan page first.",
   "bad-date": "The page sent a date that isn't today's. Check the device's date and time, then reload the page.",
   "no-blocks": "The library has no exercises yet that fit your answers, so no plan was made. Change your answers to pick other areas.",
 };
