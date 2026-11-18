@@ -106,6 +106,7 @@ model/            pure, no React; tested in model/plan.test.ts
   progressLog.ts  entryFor(), backfill(): a plan's ratings as progress-log rows
   answersHistory.ts cleanAnswersHistory(), movedOver(), recordAnswers(): every finished questionnaire kept with its date (`PlanState.answersHistory`, oldest first, at most 100)
   outcome.ts      startOutcome(), TopicScore: each topic's starting score from the questionnaire answers; outcome(input, asOf): per step, concept, topic and area, from ratings and questionnaires up to a day (time and streak are added to the same function)
+  daySteps.ts     solidRatedAt(), daySteps(): which path steps a day's plan works on (fresh, open, review) from the answers, the solid steps with their rating dates and the date; pure (NEW7)
   trackerView.ts  mergeTimes(), shownAreas(), topicLevel(), minutesOf(): what the progress tracker shows, from an outcome (the live day timer laid over every plan's records; the areas chosen plus practised ones; a topic's level by name and the next one; whole minutes)
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   choice.ts       applyChoice(), choiceWarnings(), resolvedChoice(): a choice's value set on the tools under it (one `PARTS` entry per part); transpose.ts moves a tool to another key, `setLevel` (tools.ts) to another level
