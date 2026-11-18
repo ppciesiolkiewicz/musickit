@@ -7,11 +7,13 @@ import FoundingBackdrop from "@/components/landing/FoundingBackdrop";
 import SiteFooter from "@/components/landing/SiteFooter";
 import { DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
 import { SoonHeading, StudioSoonCards } from "@/components/landing/StudioSoon";
-import { FOUNDING_PARTNERS_JOINED, FOUNDING_PARTNERS_NEEDED, FOUNDING_PRICE, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
+import { DiscountBadge } from "@/components/ui";
+import { EARLY_OFFER } from "@/features/account/pricing";
+import { FOUNDING_OFFER, FOUNDING_PARTNERS_JOINED, FOUNDING_PARTNERS_NEEDED, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
 
 /*
  * The founding-partner page, at /kickstarter: the count of founding partners still needed, a founding partner's part in
- * the project, what a teacher does in every lesson (the AI practice plan and interactive lesson notes, `AiPrep`), the offer (a locked-in yearly price, with 90 days to change your mind and get all the money back)
+ * the project, what a teacher does in every lesson (the AI practice plan and interactive lesson notes, `AiPrep`), the offer (50% off any teacher plan, locked in, with 90 days to change your mind and get all the money back)
  * and what the partners shape next (scheduling, online payments, profiles, courses to sell). Everything is centred and short. It is
  * written as the founder to one reader, in the voice of the outreach emails (`VOICE` in
  * src/features/devtools/model/kickstarter.ts): "I", plain, no hype, no deadline. The numbers come from
@@ -29,9 +31,9 @@ const PART: { title: string; text: string }[] = [
 ];
 
 /** The offer, one number each. */
-const OFFER: { big: string; text: string; tone: string }[] = [
+const OFFER: { big: string; text: string; tone: string; /** shown as the red DiscountBadge */ discount?: boolean }[] = [
   { big: TRIAL, text: "to change your mind. Tell me in that time and you get 100% of your money back.", tone: "text-teal-300" },
-  { big: FOUNDING_PRICE, text: "a year.", tone: "text-sky-300" },
+  { big: FOUNDING_OFFER, text: "Any teacher plan, of any size, at half the price.", tone: "", discount: true },
   { big: "Locked in", text: "A founding partner's price doesn't go up later.", tone: "text-amber-300" },
 ];
 
@@ -97,7 +99,10 @@ export default function FoundingHome() {
               <Icon name="check" size={18} className="shrink-0 text-emerald-300" />
               <span><b className="font-semibold text-emerald-50">100% money-back guarantee.</b> You have {TRIAL} to change your mind.</span>
             </p>
-            <p className="mt-4 text-sm text-slate-400">{FOUNDING_PRICE} a year, locked in · An Australian company</p>
+            <p className="mt-4 inline-flex flex-wrap items-center justify-center gap-2 text-sm text-slate-400">
+              <DiscountBadge percent={EARLY_OFFER.percentOff} />
+              <span>any teacher plan, locked in · An Australian company</span>
+            </p>
           </div>
       </section>
 
@@ -128,7 +133,9 @@ export default function FoundingHome() {
           <ul className="mt-10 grid gap-4 lg:grid-cols-3">
             {OFFER.map((o) => (
               <li key={o.big} className={`${CARD} items-center`}>
-                <span className={`text-5xl leading-none ${o.tone}`} style={DISPLAY}>{o.big}</span>
+                {o.discount
+                  ? <DiscountBadge percent={EARLY_OFFER.percentOff} size="xl" />
+                  : <span className={`text-5xl leading-none ${o.tone}`} style={DISPLAY}>{o.big}</span>}
                 <p className="max-w-xs text-sm leading-relaxed text-slate-400">{o.text}</p>
               </li>
             ))}

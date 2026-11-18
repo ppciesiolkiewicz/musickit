@@ -79,6 +79,20 @@ src/app/faq/page.tsx and src/app/terms/page.tsx; `autoplansPerMonth` on the `pla
 plans table). Rewrite those texts (ux-copy + "Words about the app"), and decide what happens to `autoplansPerMonth`,
 AI notes and the /dev/costs pages that price plans by tokens. A change to the terms: /terms says when they last changed.
 Also: teachers pay per student, not per plan (docs/superpowers/specs/2026-11-17-teacher-students-design.md).
+PricingFaq2: [NEW 2026-11-18] Teacher plans count active students a month (TeacherStudentFlow4). The pricing page, FAQ
+and terms say it plainly: "Up to 15 students" becomes active students a month (`studentsLabel` in
+src/features/account/plans.ts); an active student is one you gave a training plan this month; students you didn't give a
+plan this month stay on your list and cost nothing; each plan has a few extra students a month for free (the grace, per
+plan level), and past that you upgrade or contact us. The month is the calendar month, from the 1st
+(user, 2026-11-18). Write after TeacherStudentFlow4 settles the grace numbers, in the same friendly wording as its notice. A change to the terms: /terms says when they last changed. With PricingFaq1,
+since both rewrite the same pages.
+PricingFaq3: [NEW 2026-11-18] Put the early price in /terms (src/app/terms/page.tsx). Every plan is 50% off, locked in,
+for the first 20 schools (the founding partners, who pick any teacher plan of any size) and the first 500 students
+(`EARLY_OFFER` in src/features/account/pricing.ts). The pricing pages, /account, /kickstarter and the FAQ show it
+already; /terms still says "A player subscription costs $36 a year" with no early price. To decide (user): how "first"
+is counted (sign-up order, or the first to pay), what "locked in" means when someone cancels and comes back, and what a
+founding partner's 50% is off for Teacher Unlimited, whose price is set with them. Read from `EARLY_OFFER`, not a
+written number. A change to the terms: raise TERMS_UPDATED (src/features/account/terms.ts). With PricingFaq1 and 2.
 
 TaskSeries ToolsImprovement: tools that leave the player stuck when a block leaves something out (2026-11-18)
 ToolsImprovement1: [NEW 2026-11-18] strum-along should always give a way to see the chord shapes it asks for, even

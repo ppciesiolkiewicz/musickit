@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HUE_TONES, type Hue } from "@/components/ui";
+import { DiscountBadge, HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
 import { allowanceLabel, bestSavingLabel, priceCents, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
 import { EARLY_OFFER, earlyCents } from "../pricing";
@@ -69,13 +69,13 @@ export function AudienceSwitch({ audience, onChange }: { audience: Audience; onC
 /** The early offer for the shown side, over its plans: who gets half off (`EARLY_OFFER` in pricing.ts). */
 export const earlyOfferLine = (audience: Audience): string =>
   audience === "individual"
-    ? `Early price: ${EARLY_OFFER.percentOff}% off for the first ${EARLY_OFFER.students} students. It's locked in, so it won't go up later.`
-    : `Early price: ${EARLY_OFFER.percentOff}% off every plan for the first ${EARLY_OFFER.schools} schools. It's locked in, so it won't go up later.`;
+    ? `Early price for the first ${EARLY_OFFER.students} students. It's locked in, so it won't go up later.`
+    : `Early price on any teacher plan, of any size, for the first ${EARLY_OFFER.schools} schools. It's locked in, so it won't go up later.`;
 
 export const EarlyOffer = ({ audience }: { audience: Audience }) => (
-  <p className="flex max-w-2xl flex-wrap items-center gap-2 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
-    <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-xs font-semibold text-slate-950">{EARLY_OFFER.percentOff}% off</span>
-    {earlyOfferLine(audience)}
+  <p className="flex max-w-2xl items-center gap-2.5 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-200">
+    <DiscountBadge percent={EARLY_OFFER.percentOff} />
+    <span>{earlyOfferLine(audience)}</span>
   </p>
 );
 
@@ -147,12 +147,16 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "
           <span className={`text-base font-semibold ${checked ? "text-slate-50" : tone.ink}`}>{plan.name}</span>
           {pitchOf(plan) && <span className="text-xs text-slate-400">{pitchOf(plan)!.forWho}</span>}
           {custom ? (
-            <span className="py-1 text-sm font-semibold text-slate-50">Price set with you</span>
+            <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1 py-1">
+              <span className="text-sm font-semibold text-slate-50">Price set with you</span>
+              <DiscountBadge percent={EARLY_OFFER.percentOff} />
+            </span>
           ) : (
-            <span className="flex flex-wrap items-baseline gap-x-1.5">
+            <span className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
               <span className="text-lg font-semibold text-slate-50">{dollars(earlyCents(priceCents(plan, billing)))}</span>
               <span className="text-sm text-slate-500 line-through"><span className="sr-only">instead of </span>{dollars(priceCents(plan, billing))}</span>
               <span className="text-xs text-slate-400">a {billing}</span>
+              <DiscountBadge percent={EARLY_OFFER.percentOff} />
             </span>
           )}
         </span>
@@ -179,7 +183,7 @@ export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; 
       <p className="text-sm text-slate-300">
         <span aria-hidden className={`mr-2 inline-block size-2 rounded-full align-middle ${HUE_TONES[hue].fill}`} />
         {pricedWithYou(plan)
-          ? `${plan.name}, price set with you. We'll email you to agree on a price.`
+          ? `${plan.name}, price set with you, then ${EARLY_OFFER.percentOff}% off it. We'll email you to agree on a price.`
           : <>{plan.name}, {price}.{" "}{trial && plan.trialDays > 0 ? `${days} free, then ${early} every ${billing}.` : `${early} every ${billing}.`}</>}
       </p>
       <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500">

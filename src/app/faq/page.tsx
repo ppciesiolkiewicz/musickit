@@ -3,10 +3,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import PageShell from "@/components/PageShell";
 import { FAQ_TOUR } from "@/features/guide/tours/faq";
-import { PRICING } from "@/features/account/pricing";
+import { EARLY_OFFER, PRICING } from "@/features/account/pricing";
 
 const P = PRICING.player;
-const PRICE_LINE = `Free while attunr is in beta. From launch, ${P.price} ${P.period}: ${P.plansPerMonth} AI autoplans a month (or up to ${P.notesPerMonth} AI-written notes instead), and every other tool and lesson as much as you like. After the year you keep your plans and every tool, and top up only for new autoplans. Music schools are priced by agreement.`;
+const PRICE_LINE = `Free while attunr is in beta. From launch, ${P.price} ${P.period}: ${P.plansPerMonth} AI autoplans a month (or up to ${P.notesPerMonth} AI-written notes instead), and every other tool and lesson as much as you like. After the year you keep your plans and every tool, and top up only for new autoplans. Music schools are priced by agreement. The first ${EARLY_OFFER.students} students and the first ${EARLY_OFFER.schools} schools get the early price: ${EARLY_OFFER.percentOff}% off any plan, locked in, so it doesn't go up later.`;
 const REFUND_LINE = `Yes. Email us within ${P.guaranteeDays} days of paying for a full refund, no reason needed. That is on top of your rights under Australian Consumer Law.`;
 
 export const metadata: Metadata = {

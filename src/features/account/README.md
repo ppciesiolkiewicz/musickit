@@ -56,11 +56,13 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   them, and Continue needs it. Sent as `acceptTerms: true`; `setUpAccount` refuses anything else (`error: "terms"`) before
   it saves anything, and keeps `users.terms_accepted_at` and `users.terms_version` (migration `0029_terms_accepted`),
   the date on `/terms` then (`TERMS_UPDATED` in `terms.ts`, which the terms page shows too).
-- The early price (`EARLY_OFFER` in `pricing.ts`): every plan at 50% off, locked in, for the first 20 schools (the
-  founding partners, `FOUNDING_PARTNERS_NEEDED`) and the first 500 students (`src/lib/studentOffer.ts` reads it). On setup
-  and `/account` each plan card shows the early price with the full one struck through, a green line over the plans
-  says who gets it (`EarlyOffer`, by the side shown), and `PaymentBox` quotes the early price. Shown only: the rows keep
-  the full price, and nothing counts the first 20 or 500 yet.
+- The early price (`EARLY_OFFER` in `pricing.ts`): every plan at 50% off, locked in, for the first 20 schools and the
+  first 500 students. The 20 are the founding partners (`src/lib/foundingOffer.ts` reads it): one picks any teacher
+  plan, of any size, at 50% off (`FOUNDING_OFFER`; the old $360 AUD a year is gone). `src/lib/studentOffer.ts` reads the 500. Every page that quotes a
+  price shows the early price beside the full one struck through, with the red `DiscountBadge` (`@/components/ui`): the
+  plan cards on setup and `/account`, the line over them (`EarlyOffer`, by the side shown), `PaymentBox`, the home
+  Pricing section, /kickstarter, the FAQ and the intro video. Shown only: the rows keep the full price, and nothing counts
+  the first 20 or 500 yet.
 - `ui/EmailUpdates.tsx`: the marketing consent, "Email me news about the app". Unticked until the person ticks
   it: on setup (sent as `emailUpdates` with the rest) and in the Profile card on /account (saved as it changes, `PATCH
   /api/account` with `{ emailUpdates }`). Kept as `users.email_updates_at` (migration `0022_email_updates`), the time of
