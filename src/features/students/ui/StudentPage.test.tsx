@@ -47,7 +47,7 @@ test("afterMake: a failed make keeps the sliders and the comment; a made one emp
   const made = afterMake({ ok: true, planId: "p1", start: "2026-11-23", short: false, comment: "stored" }, before, "Ann", false, TODAY);
   assert.deepEqual(made.form, { start: before.values, values: before.values, comment: "", savedComment: "" });
   assert.equal(made.reload, true);
-  assert.deepEqual(made.sent, { kind: "made", line: "attunr made Ann's next plan. It starts on Monday 23 November. Your words about this week are saved." });
+  assert.deepEqual(made.sent, { kind: "made", line: "attunr made Ann's next plan. It starts on Monday 23 November. Your words about this week are saved.", next: true });
   assert.deepEqual(planInput(TODAY, false, made.form, true).scores, {}, "nothing is sent twice before the reload");
 });
 
@@ -129,7 +129,7 @@ test("while a plan is made the buttons and sliders wait; after, the line says wh
   assert.match(busy, /Making the plan…/);
   assert.ok(buttons(busy).filter((b) => b.includes("plan")).every((b) => / disabled=""/.test(b)));
   assert.match(slider(busy, "Chords"), /data-disabled=""/);
-  const made = draw({ sent: { kind: "made", line: "attunr made Ann's next plan. It starts on Monday 23 November." } });
+  const made = draw({ sent: { kind: "made", line: "attunr made Ann's next plan. It starts on Monday 23 November.", next: true } });
   assert.match(made, /It starts on Monday 23 November\./);
 });
 
@@ -192,4 +192,7 @@ test("a next plan already made: one line with its start, and that Make next week
   const html = draw({ state: { kind: "view", view: { ...withWeek, upcoming: { start: "2026-11-23" } } } });
   assert.match(html, /Ann&#x27;s next plan is made\. It starts on Monday 23 November\./);
   assert.doesNotMatch(draw(), /next plan is made/, "no upcoming week: no line");
+  const waiting = { kind: "view", view: { ...withWeek, upcoming: { start: "2026-11-23" } } } as const;
+  assert.doesNotMatch(draw({ state: waiting, sent: { kind: "made", line: "attunr made Ann's next plan.", next: true } }), /next plan is made/, "just made: the notice says it, not both");
+  assert.match(draw({ state: waiting, sent: { kind: "made", line: "attunr rotated Ann's plan for this week.", next: false } }), /next plan is made/, "after a rotation the waiting week is still named");
 });

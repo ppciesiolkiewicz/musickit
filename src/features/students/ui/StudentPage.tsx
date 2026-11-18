@@ -164,7 +164,8 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
         )}
         {sent.kind === "made" && <Notice icon={<Icon name="check" size={14} />}><span role="status">{sent.line}</span></Notice>}
         {busy && <p role="status" className="text-sm text-slate-400">Making the plan…</p>}
-        {upcoming && <p className="text-sm leading-relaxed text-slate-300">{upcomingLine(student.name, upcoming.start)}</p>}
+        {/* right after a next week is made, the notice above already says it is made and when it starts */}
+        {upcoming && !(sent.kind === "made" && sent.next) && <p className="text-sm leading-relaxed text-slate-300">{upcomingLine(student.name, upcoming.start)}</p>}
 
         <div className="flex flex-wrap items-center gap-3">
           <Button className={primary} disabled={busy} onClick={() => onMake(false)}><Icon name="plus" size={14} />Make next week&apos;s plan</Button>
