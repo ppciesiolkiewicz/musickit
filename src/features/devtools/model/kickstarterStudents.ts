@@ -8,7 +8,7 @@ import { FIRST_STUDENTS, FIRST_STUDENTS_PRICE, STUDENT_PRICE } from "@/lib/stude
 import { LINK_GROUPS, type DemoLink } from "./kickstarter";
 
 /** The whole offer in one line. */
-export const STUDENT_OFFER_LINE = "A daily practice plan made for you, with engaging exercises you play and sing along with on the screen. Free while attunr is in beta.";
+export const STUDENT_OFFER_LINE = "A friendly daily practice plan made for you, with engaging exercises you play and sing along with on the screen. Free while attunr is in beta.";
 
 /** One of the three things the offer stands on, in the order an ad leads with them. */
 export interface Pillar {
@@ -29,6 +29,7 @@ export const PILLARS: Pillar[] = [
       "The plan follows how they rate each exercise: it brings the next thing within reach, and mixes back a little of what already feels solid.",
       "Each day is a bit different from the day before, and they can ask for another plan on the same day.",
       "Daily plans are unlimited.",
+      "The word is \"friendly\": the plan starts where they are, a first week included, and nobody is tested to get in. The exercises are written in plain, short English, and when something goes wrong they say calmly what to do next, with no blame. The student is the one who says how an exercise went. Say why it is friendly; the word alone says little.",
     ],
   },
   {
