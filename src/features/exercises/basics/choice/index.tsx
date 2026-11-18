@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { keyName } from "@/features/theory/keySlug";
 import { findPentatonic } from "@/features/theory/pentatonics";
 import { findModePage } from "@/features/theory/scales";
@@ -38,7 +38,7 @@ export function optionText(o: Option): string {
  * sets; without a name, for options of one part, the row carries the part's name and each chip its value. In an exercise
  * the reader owns the picked option (`value`, `onChange`, an index into `options`); alone (a story) it keeps its own.
  */
-export function View({ options, label, value: picked, onChange }: { options: Option[]; label?: "stage" | "variant"; value?: number; onChange?: (index: number) => void }) {
+export function View({ options, label, back, value: picked, onChange }: { options: Option[]; label?: "stage" | "variant"; /** the index where the earlier keys start (a player's keys to go back to, last in the row): "Earlier" is written before them */ back?: number; value?: number; onChange?: (index: number) => void }) {
   const [own, setOwn] = useState(0);
   const at = picked ?? own;
   const pick = (i: number) => {
@@ -54,12 +54,17 @@ export function View({ options, label, value: picked, onChange }: { options: Opt
       {plain && <span className="mr-1 text-xs font-medium uppercase tracking-wide text-slate-400">{ROW[plain]}</span>}
       {options.map((o, i) => {
         const on = i === at;
-        const tone = on ? "border-sky-400/70 bg-sky-500/20 text-sky-50" : "border-slate-600 bg-slate-800/60 text-slate-300 hover:border-slate-500 hover:text-slate-100";
+        // an earlier key is quieter than the keys of today, until it is the one picked
+        const earlier = back !== undefined && i >= back;
+        const tone = on ? "border-sky-400/70 bg-sky-500/20 text-sky-50" : earlier ? "border-slate-700 bg-transparent text-slate-400 hover:border-slate-500 hover:text-slate-100" : "border-slate-600 bg-slate-800/60 text-slate-300 hover:border-slate-500 hover:text-slate-100";
         if (plain)
           return (
-            <button key={i} type="button" role="radio" aria-checked={on} onClick={() => pick(i)} className={`h-8 min-w-10 rounded-full border px-3 text-sm font-semibold tabular-nums transition active:scale-[0.97] ${tone}`}>
-              {value(o, plain)}
-            </button>
+            <Fragment key={i}>
+              {back === i && <span className="ml-2 mr-1 text-xs font-medium uppercase tracking-wide text-slate-500">Earlier</span>}
+              <button type="button" role="radio" aria-checked={on} aria-label={earlier ? `${value(o, plain)}, an earlier key` : undefined} onClick={() => pick(i)} className={`h-8 min-w-10 rounded-full border px-3 text-sm font-semibold tabular-nums transition active:scale-[0.97] ${tone}`}>
+                {value(o, plain)}
+              </button>
+            </Fragment>
           );
         return (
           <button key={i} type="button" role="radio" aria-checked={on} onClick={() => pick(i)} className={`flex min-w-24 flex-col items-start rounded-xl border px-3 py-1.5 text-left transition active:scale-[0.97] ${tone}`}>

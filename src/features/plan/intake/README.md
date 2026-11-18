@@ -12,7 +12,9 @@ Which areas the student plays (guitar, voice, theory & ear), then six **topics**
 from "Not yet" to solid, and the student taps the one that sounds like them (a `Rung`, 0 to 3). A topic may be left
 unanswered. The topics come one at a time in a panel whose four lines never move (`ui/TopicStep.tsx`), so a student
 who knows their level taps the same spot without moving the pointer; the area's topics are listed under it with
-their answers. Then the voice (if they sing), minutes a day, and anything else.
+their answers. Then the voice (if they sing), minutes a day, the keys, and anything else.
+
+The keys question is one question for every area: how many keys they are at home in, from "One key" to "Any key" (`PlanAnswers.keys`, 0 to 4), or Not sure. The answer is a rung of each area's key ladder (`KEY_LADDERS` in `../model/keys.ts`: guitar starts in E, voice and theory in C), and the screen says under the lines which keys that is in each chosen area. With no answer each area's level decides (`keyRung`). The composer gives every exercise with a Key selector those keys, and the earlier ones to go back to.
 
 The voice screen (`ui/YourVoice.tsx`) offers the range finder first (`ui/RangeFinder.tsx`: the player slides down to their lowest easy note, then up to their highest; each step keeps the furthest note held for half a second and ends when they press its button), then the voice types. A player's voice is theirs on every page, so the screen changes it at once (`usePlayerVoice`, their `user_voices` row) and keeps a copy in the answers. It is one or the other: a range of their own, which the singing tools then use and name whole ("A2 to E4"; under an octave it is widened to one, `rangeOf`), or a type, whose range is its definition (`VOICES`).
 

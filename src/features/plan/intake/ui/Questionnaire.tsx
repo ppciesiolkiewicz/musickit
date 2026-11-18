@@ -3,7 +3,9 @@
 import Icon from "@/components/Icon";
 import { Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
 import { AREAS, type Area } from "../../model/concepts";
-import { MINUTES, type PlanAnswers } from "../answers";
+import { keyName } from "@/features/theory/keySlug";
+import { KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
+import { MINUTES, levelOf, type PlanAnswers } from "../answers";
 import { topicsFor } from "../topics";
 import YourVoice, { VoiceField } from "./YourVoice";
 import TopicStep from "./TopicStep";
@@ -85,7 +87,60 @@ function voiceStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Quest
   };
 }
 
-/** The screens after the topics: voice (when Voice is chosen and `voice` isn't false), minutes a day, anything else. */
+/** The lines of the keys question, one per rung of the key ladders (`KEY_LADDERS`), in the player's own words. */
+const KEY_LINES: Record<KeyRung, { name: string; line: string }> = {
+  0: { name: "One key", line: "I play or sing everything in one key." },
+  1: { name: "Two or three keys", line: "I know a couple of easy keys." },
+  2: { name: "The common keys", line: "Most songs I meet are in a key I know." },
+  3: { name: "Most keys", line: "Only keys with many sharps or flats slow me down." },
+  4: { name: "Any key", line: "Every key feels the same." },
+};
+
+/** "A", "A and G", "A, G and C". */
+const listed = (keys: number[]): string => {
+  const names = keys.map((k) => keyName(k));
+  return names.length < 2 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+};
+
+/**
+ * One question for the whole plan: how many keys they are at home in. The answer is a rung of every area's key ladder,
+ * so under the lines each chosen area says which keys that is there. Not sure leaves it to each area's level.
+ */
+function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: QuestionOpts = {}): ModalStep {
+  const row = (on: boolean, pick: () => void, name: string, line: string, i: number) => (
+    <button key={name} type="button" role="radio" aria-checked={on} onClick={pick} className={`flex cursor-pointer flex-col items-start rounded-xl border px-3 py-2 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hueAt(i), on)}`}>
+      <span className="text-sm font-medium">{name}</span>
+      <span className="text-xs opacity-70">{line}</span>
+    </button>
+  );
+  return {
+    title: forStudent ? "How many keys is your student at home in?" : "How many keys are you at home in?",
+    hint: forStudent
+      ? "Optional. One answer for the whole plan: it sets the keys their exercises start in."
+      : "Optional. One answer for your whole plan: it sets the keys your exercises start in.",
+    body: (
+      <div className="flex flex-col gap-4">
+        <div role="radiogroup" className="grid gap-2 desk:grid-cols-2">
+          {KEY_RUNGS.map((r, i) => row(a.keys === r, () => set("keys", r), KEY_LINES[r].name, KEY_LINES[r].line, i))}
+          {row(a.keys === undefined, () => set("keys", undefined), "Not sure", forStudent ? "The plan picks the keys from their other answers." : "The plan picks the keys from your other answers.", KEY_RUNGS.length)}
+        </div>
+        <ul className="flex flex-col gap-1 text-xs text-slate-400">
+          {AREAS.filter((ar) => a.areas.includes(ar.id)).map((ar) => {
+            const { now, back } = keysAt(ar.id, keyRung(a.keys, levelOf(a, ar.id)));
+            return (
+              <li key={ar.id}>
+                <span className="font-medium text-slate-200">{ar.label}:</span> {forStudent ? "their" : "your"} exercises start in {listed(now)}.
+                {back.length > 0 && ` ${listed(back.slice(0, 3))} ${back.slice(0, 3).length > 1 ? "stay" : "stays"} in the Key selector, under Earlier.`}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ),
+  };
+}
+
+/** The screens after the topics: voice (when Voice is chosen and `voice` isn't false), minutes a day, the keys, anything else. */
 export function restSteps(a: PlanAnswers, set: SetAnswer, voice = true, opts: QuestionOpts = {}): ModalStep[] {
   const forStudent = opts.forStudent ?? false;
   return [
@@ -110,6 +165,7 @@ export function restSteps(a: PlanAnswers, set: SetAnswer, voice = true, opts: Qu
         </div>
       ),
     },
+    keysStep(a, set, opts),
     {
       title: "Anything else?",
       hint: "Optional",

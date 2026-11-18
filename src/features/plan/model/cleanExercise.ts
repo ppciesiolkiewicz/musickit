@@ -1,4 +1,5 @@
 import { parseChoiceDiag, parseCellDiag, resolveChordPlacement, type Cell } from "./tools";
+import { cleanKeys } from "./keys";
 import type { PlanConfig, PlanExercise } from "./types";
 
 /**
@@ -16,6 +17,10 @@ export function cleanExercise(e: PlanExercise): PlanExercise {
   }));
   const out: PlanExercise = { ...e, title, cells: cells.length ? cells : [{ type: "text", text: title || "Exercise" }] };
   delete out.choice;
+  // the player's keys ride with the slot: kept when they read as keys, else dropped
+  delete out.keys;
+  const keys = cleanKeys(e.keys);
+  if (keys) out.keys = keys;
   if (e.choice !== undefined) {
     const c = parseChoiceDiag(e.choice, { notes: [], stored: true });
     if (c.choice) out.choice = c.choice;

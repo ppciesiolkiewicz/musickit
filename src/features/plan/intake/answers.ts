@@ -10,6 +10,11 @@ export interface PlanAnswers {
   /** topic id (topics.ts) to the line they picked; a topic left out was not answered */
   topics: Record<string, Rung>;
   voice?: { type?: Voice; range?: { low: number; high: number } };
+  /**
+   * How many keys they are at home in, 0 (one key) to 4 (any key): one answer for every area, the rung of each area's
+   * key ladder (`KEY_LADDERS` in model/keys.ts). Left out: not answered, and each area's level decides.
+   */
+  keys?: 0 | 1 | 2 | 3 | 4;
   /** minutes a day they can practise */
   minutes: number;
   /** styles they love, free text ("blues, indie") */
@@ -64,6 +69,7 @@ export function migrateAnswers(raw: unknown): PlanAnswers {
     areas,
     topics,
     ...(voice ? { voice } : {}),
+    ...(raw.keys === 0 || raw.keys === 1 || raw.keys === 2 || raw.keys === 3 || raw.keys === 4 ? { keys: raw.keys } : {}),
     minutes: typeof raw.minutes === "number" && raw.minutes > 0 ? raw.minutes : DEFAULT_ANSWERS.minutes,
     styles: typeof raw.styles === "string" ? raw.styles : "",
     notes: typeof raw.notes === "string" ? raw.notes : "",

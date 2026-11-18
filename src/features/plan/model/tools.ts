@@ -75,7 +75,14 @@ export type StepOption = ChoiceOption;
  * option 1); `open` is one value of each part it holds, any value, drawn as a picker (the note's key bar). A tool under
  * it follows every part it can, unless the part is in its `pinned`.
  */
-export type Choice = { label?: ChoiceLabel; options: ChoiceOption[] } | { open: ChoiceOption };
+export type Choice =
+  | {
+      label?: ChoiceLabel;
+      options: ChoiceOption[];
+      /** set only when a block is drawn with a player's keys (`withKeys`, model/keys.ts), never parsed or stored: the index where the keys to go back to start */
+      back?: number;
+    }
+  | { open: ChoiceOption };
 /** On any tool: the parts that keep the tool's own value under a choice. */
 export type Pinned = { pinned?: PartName[] };
 

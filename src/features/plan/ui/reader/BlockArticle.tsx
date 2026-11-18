@@ -97,7 +97,7 @@ export function BlockBody({ block, size, keyBar = false, address = "ex" }: { blo
   };
   const chipRow = (id: string, c: Choice | null | undefined) => {
     if (!c || "open" in c) return null;
-    const row = <ChoiceChips options={c.options} label={c.label} value={pickAt(c, picks, id)} onChange={(index) => setPicks((k) => ({ ...k, [id]: index }))} />;
+    const row = <ChoiceChips options={c.options} label={c.label} back={c.back} value={pickAt(c, picks, id)} onChange={(index) => setPicks((k) => ({ ...k, [id]: index }))} />;
     return aside ? <ToolFigure type="choice" look="framed" measure={measure}>{row}</ToolFigure> : <div className={`-mb-1 pt-1 ${measure}`}>{row}</div>;
   };
   const firstBlockTool = flat.findIndex((c) => c.type === "tool");

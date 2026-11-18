@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { Stars } from "@/features/progress/stars";
 import { PERSONAS } from "@/features/devtools/model/personas";
-import { composeDay, composeWeek, type Candidate, type ComposeInput } from "./compose";
+import { composeDay, composeWeek, explainDay, type Candidate, type ComposeInput } from "./compose";
 import { daySteps, solidRatedAt } from "./daySteps";
 import type { ProgressEntry } from "@/features/progress/log";
 import { PATH, type Track } from "./path";
@@ -388,4 +388,60 @@ test("a rating with no time is the oldest for solid steps too: a dated rating wi
   }
   const solid = new Map([["b:1", "2026-11-01T10:00:00Z"], ["a:1", ""]]);
   assert.deepEqual(daySteps({ answers: guitar, solid, date: "2026-11-18" }, AB).review, ["a:1", "b:1"]);
+});
+
+// --- keys
+
+const keyed = (id: string, step: string, area: "guitar" | "voice"): Candidate => {
+  const c = cand(id, [step]);
+  const exercise = { ...c.exercise, area, choice: { options: [{ key: 9 }, { key: 7 }] }, cells: [{ type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9 } }] } as unknown as PlanExercise;
+  return { ...c, exercise };
+};
+
+test("keys: an exercise with a Key selector gets the player's keys; one without gets none", () => {
+  const blocks = [keyed("k", "a:1", "guitar"), cand("plain", ["b:1"])];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 10, keys: 1 }, blocks }), AB);
+  const k = d.exercises.find((e) => e.blockId === "k")!;
+  assert.deepEqual(k.keys, { now: [9, 7], back: [4] }, "guitar on rung 1: A and G, with E to go back to");
+  assert.equal(d.exercises.find((e) => e.blockId === "plain")!.keys, undefined);
+  assert.deepEqual((k.choice as { options: unknown[] }).options, [{ key: 9 }, { key: 7 }], "the block itself is as written");
+});
+
+test("keys: with no answer the area's level decides, and the answer changes no pick", () => {
+  const blocks = [keyed("k", "a:1", "guitar"), cand("plain", ["b:1"])];
+  const unasked = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks }), AB);
+  assert.deepEqual(unasked.exercises.find((e) => e.blockId === "k")!.keys, { now: [9, 7], back: [4] }, "a beginner by default");
+  const top = composeDay(base({ answers: { ...guitar, minutes: 10, keys: 4 }, blocks }), AB);
+  assert.deepEqual(ids(top), ids(unasked));
+  assert.equal(top.exercises.find((e) => e.blockId === "k")!.keys!.now.length, 3);
+});
+
+test("keys: the same answer is a different key in each area", () => {
+  const voiceTrack: Track = { ...mk("v", "voice-pitch", 2), area: "voice" };
+  const answers = { ...guitar, areas: ["guitar", "voice"] as ("guitar" | "voice")[], minutes: 10, keys: 0 as const };
+  const d = composeDay(base({ answers, blocks: [keyed("g", "a:1", "guitar"), keyed("s", "v:1", "voice")] }), [...AB, voiceTrack]);
+  assert.deepEqual(d.exercises.find((e) => e.blockId === "g")!.keys, { now: [4], back: [] }, "E on guitar");
+  assert.deepEqual(d.exercises.find((e) => e.blockId === "s")!.keys, { now: [0], back: [] }, "C for the voice");
+});
+
+// --- the trace
+
+test("explainDay: the day is composeDay's, and the trace names every pick with its stage, step and reason", () => {
+  const input = base({ blocks: [...many("a:1", 3), ...many("b:1", 3)], yesterday: ["a:1#0"] });
+  const { day, trace } = explainDay(input, AB);
+  assert.deepEqual(day, composeDay(input, AB));
+  assert.deepEqual(trace.library, { all: 6, inReach: 6, usable: 5 });
+  assert.deepEqual(trace.minutes, { asked: 20, kept: 0, budget: 20, reviewCount: 1, reviewCap: 20 / 3, filled: 20 });
+  assert.deepEqual(trace.picks.map((p) => p.stage), ["fresh", "fresh", "more", "more"]);
+  assert.deepEqual(trace.picks.map((p) => p.blockId).sort(), ids(day).sort());
+  assert.ok(trace.picks.every((p) => p.reason === "unrated" && p.step === p.asked));
+  assert.deepEqual(trace.picks.map((p) => p.total), [5, 10, 15, 20]);
+});
+
+test("explainDay: a step with no block is listed as empty; one filled from an earlier step says which", () => {
+  const solid = new Map([["a:1", "2026-11-01T00:00:00Z"]]);
+  const { trace } = explainDay(base({ solid, blocks: many("a:1", 4) }), AB);
+  assert.ok(trace.empty.includes("b:1"), JSON.stringify(trace.empty));
+  const down = trace.picks.find((p) => p.asked === "a:2");
+  assert.equal(down?.step, "a:1", "a:2 has no block: the nearest earlier step's is used");
 });

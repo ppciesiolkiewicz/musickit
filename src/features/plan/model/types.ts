@@ -39,6 +39,12 @@ export interface ExerciseMeta {
   learnBefore?: string[];
   /** attunr pages for going deeper, shown at the bottom */
   exploreMore?: string[];
+  /**
+   * The player's keys for this exercise (`PlayerKeys`, model/keys.ts), set by the composer on an exercise with a Key
+   * selector: the keys it starts in and the earlier keys to go back to. The slot's, like the minutes: never part of the
+   * block's id. The reader puts them in the selector when it draws the block (`withKeys`).
+   */
+  keys?: { now: number[]; back: number[] };
 }
 
 /** One exercise of a day, as the AI wrote it. `id` is set by the app when the plan starts, never by the AI; ratings in the progress log point at it. */
