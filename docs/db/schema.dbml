@@ -1,6 +1,7 @@
 enum auth_token_kind {
   email_link
   signup
+  claim
 }
 
 enum block_source {
@@ -284,10 +285,22 @@ table shares {
   }
 }
 
+table teacher_students {
+  teacher_id uuid [not null]
+  student_id uuid [not null, unique]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  claimed_at "timestamp with time zone"
+
+  indexes {
+    (teacher_id, student_id) [pk]
+  }
+}
+
 table user_documents {
   user_id uuid [not null]
   kind text [not null]
   data jsonb [not null]
+  version integer [not null, default: 0]
   updated_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
@@ -361,6 +374,10 @@ ref share_videos_share_id_shares_id_fk: share_videos.share_id > shares.id [delet
 ref share_videos_video_id_videos_id_fk: share_videos.video_id > videos.id [delete: cascade, update: no action]
 
 ref shares_user_id_users_id_fk: shares.user_id > users.id [delete: cascade, update: no action]
+
+ref teacher_students_teacher_id_users_id_fk: teacher_students.teacher_id > users.id [delete: cascade, update: no action]
+
+ref teacher_students_student_id_users_id_fk: teacher_students.student_id > users.id [delete: cascade, update: no action]
 
 ref user_documents_user_id_users_id_fk: user_documents.user_id > users.id [delete: cascade, update: no action]
 
