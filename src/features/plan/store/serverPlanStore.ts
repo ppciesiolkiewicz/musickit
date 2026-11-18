@@ -1,5 +1,5 @@
 import { accountHeaders } from "@/features/userData/client/accountHeader";
-import { createDocClient, putDocument, type DocClient } from "@/features/userData/client/docClient";
+import { createDocClient, putDocument, reloadSoon, type DocClient } from "@/features/userData/client/docClient";
 import { getJson, loadReporter, type LoadReporter } from "@/features/userData/client/load";
 import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { parseDayTime, withDayTime, type DayTime } from "../model/planTime";
@@ -9,7 +9,7 @@ import type { PlanStore } from "./PlanStore";
 
 export interface ServerPlanOpts {
   client?: DocClient;
-  /** reads the document: `{ data }` */
+  /** reads the document: `{ data, version }` */
   get?: () => Promise<unknown>;
   /** the sender of one day's timer record (tests pass their own) */
   timeClient?: () => DocClient;
@@ -34,7 +34,7 @@ export interface ServerPlanOpts {
  * own `DocClient`, a few bytes and small enough for `keepalive` as the page leaves.
  */
 export function createServerPlanStore(opts: ServerPlanOpts = {}): PlanStore {
-  const client = opts.client ?? createDocClient({ put: putDocument("plan") });
+  const client = opts.client ?? createDocClient({ put: putDocument("plan"), onStale: reloadSoon });
   const get = opts.get ?? (() => getJson("/api/me/documents/plan"));
   const getTimes = opts.getTimes ?? ((planId: string) => getJson(`/api/me/plan/time?plan=${encodeURIComponent(planId)}`));
   const getAllTimes = opts.getAllTimes ?? (() => getJson("/api/me/plan/time"));
@@ -52,6 +52,9 @@ export function createServerPlanStore(opts: ServerPlanOpts = {}): PlanStore {
     reading ??= get().then(
       (body) => {
         loads.loaded();
+        // later saves say which version they were made from: another device or a teacher's change is refused as stale, not overwritten
+        const version = (body as { version?: unknown } | null)?.version;
+        if (typeof version === "number") client.setVersion(version);
         // a save made while the read was out is newer than what the server sent
         held ??= sanitiseState((body as { data?: unknown } | null)?.data ?? null);
         return held;

@@ -3,7 +3,7 @@ import test from "node:test";
 import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
 import { EMPTY_STATE, type PlanExercise, type PlanState } from "@/features/plan/model/types";
 import { sanitiseState } from "@/features/plan/model/state";
-import { putEntry, readDoc, readEntries, readAllPlanTimes, readPlanTimes, reviewRowsOf, storePlanBlocks, writeDoc, writePlanTime } from "./data";
+import { putEntry, readDoc, readDocVersioned, readEntries, readAllPlanTimes, readPlanTimes, reviewRowsOf, storePlanBlocks, writeDoc, writePlanTime } from "./data";
 import { memoryUserDataRepo } from "./repo.memory";
 
 const now = new Date("2026-11-15T10:00:00Z");
@@ -18,13 +18,13 @@ test("writeDoc refuses a document over the cap", async () => {
 test("writeDoc takes a plan up to 2 MB, and refuses one over it", async () => {
   const repo = memoryUserDataRepo();
   const plan = (feedback: string) => ({ current: { id: "p", startedOn: "2026-11-01", done: {}, feedback, config: { title: "W", days: [] } }, history: [] });
-  assert.deepEqual(await writeDoc(repo, "u1", "plan", plan("x".repeat(1024 * 1024)), now), { ok: true });
+  assert.deepEqual(await writeDoc(repo, "u1", "plan", plan("x".repeat(1024 * 1024)), now), { ok: true, version: 1 });
   assert.deepEqual(await writeDoc(repo, "u1", "plan", plan("x".repeat(2 * 1024 * 1024)), now), { ok: false, error: "too-big" });
 });
 
 test("a written plan reads back sanitised", async () => {
   const repo = memoryUserDataRepo();
-  assert.deepEqual(await writeDoc(repo, "u1", "plan", { current: "junk", reminder: { enabled: 1, time: "bad" }, extra: 1 }, now), { ok: true });
+  assert.deepEqual(await writeDoc(repo, "u1", "plan", { current: "junk", reminder: { enabled: 1, time: "bad" }, extra: 1 }, now), { ok: true, version: 1 });
   const plan = (await readDoc(repo, "u1", "plan")) as { current: unknown; history: unknown[]; reminder: { enabled: boolean } };
   assert.equal(plan.current, null);
   assert.deepEqual(plan.history, []);
@@ -184,7 +184,7 @@ test("the plan document is saved even when the library insert throws", async () 
   const error = console.error;
   console.error = (...args: unknown[]) => void logged.push(args);
   try {
-    assert.deepEqual(await writeDoc(failing, "u1", "plan", planDoc([ex]), now), { ok: true });
+    assert.deepEqual(await writeDoc(failing, "u1", "plan", planDoc([ex]), now), { ok: true, version: 1 });
   } finally {
     console.error = error;
   }
@@ -223,7 +223,7 @@ test("the plan document is saved even when syncPlanReviews throws", async () => 
   const error = console.error;
   console.error = (...args: unknown[]) => void logged.push(args);
   try {
-    assert.deepEqual(await writeDoc(failing, "u1", "plan", reviewedDoc(2, "slow"), now), { ok: true });
+    assert.deepEqual(await writeDoc(failing, "u1", "plan", reviewedDoc(2, "slow"), now), { ok: true, version: 1 });
   } finally {
     console.error = error;
   }
@@ -322,4 +322,39 @@ test("a reviewed given plan becomes a plan_reviews row", async () => {
   const given = { id: "g1", from: "share-1", startedOn: "2026-11-01", done: {}, config: { title: "Given week", days: [] }, review: { stars: 4, at: "2026-11-15T09:00:00.000Z" } };
   await writeDoc(repo, "u1", "plan", { current: null, history: [], given: [given] }, now);
   assert.deepEqual((await repo.listPlanReviews(10)).map((r) => [r.planId, r.title, r.stars]), [["g1", "Given week", 4]]);
+});
+
+test("each write adds 1 to the version; reading answers it, 0 when nothing is stored", async () => {
+  const repo = memoryUserDataRepo();
+  assert.equal((await readDocVersioned(repo, "u1", "note")).version, 0);
+  assert.deepEqual(await writeDoc(repo, "u1", "note", { block: null }, now), { ok: true, version: 1 });
+  assert.deepEqual(await writeDoc(repo, "u1", "note", { block: null }, now), { ok: true, version: 2 });
+  assert.equal((await readDocVersioned(repo, "u1", "note")).version, 2);
+  assert.equal((await readDocVersioned(repo, "u2", "note")).version, 0);
+});
+
+test("a write that names an old version is stale: nothing changes, and the stored version is answered", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "creator", { family: 0, mode: 1, tonicPc: 5 }, now);
+  const before = await readDocVersioned(repo, "u1", "creator");
+  assert.deepEqual(await writeDoc(repo, "u1", "creator", { family: 0, mode: 2, tonicPc: 7 }, now, 0), { ok: false, error: "stale", version: 1 });
+  assert.deepEqual(await readDocVersioned(repo, "u1", "creator"), before);
+  assert.deepEqual(await writeDoc(repo, "u1", "creator", { family: 0, mode: 2, tonicPc: 7 }, now, 1), { ok: true, version: 2 });
+});
+
+test("expecting 0 writes a document that is not stored yet, once; expecting more than 0 does not create one", async () => {
+  const repo = memoryUserDataRepo();
+  assert.deepEqual(await writeDoc(repo, "u1", "creator", { family: 0, mode: 1, tonicPc: 5 }, now, 3), { ok: false, error: "stale", version: 0 });
+  assert.equal(await repo.getDocVersioned("u1", "creator"), null);
+  assert.deepEqual(await writeDoc(repo, "u1", "creator", { family: 0, mode: 1, tonicPc: 5 }, now, 0), { ok: true, version: 1 });
+});
+
+test("a stale plan write does not touch the library", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", planDoc([ex]), now);
+  assert.equal(repo.peekOwners().length, 1);
+  const done = await writeDoc(repo, "u1", "plan", planDoc([ex, ex2]), now, 0);
+  assert.deepEqual(done, { ok: false, error: "stale", version: 1 });
+  assert.equal(repo.peekOwners().length, 1);
+  assert.equal(repo.peekBlocks().size, 1);
 });

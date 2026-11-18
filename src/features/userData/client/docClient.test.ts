@@ -250,3 +250,59 @@ test("flush with nothing to send is saved", async () => {
   const { put } = fakePut(200);
   assert.equal(await createDocClient({ put, schedule: clock.schedule }).flush(), "saved");
 });
+
+const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+
+test("a save carries the version it started from, and after an ok answer the version that answer gave", async () => {
+  const clock = fakeClock();
+  const seen: (number | undefined)[] = [];
+  const answers = [json(200, { ok: true, version: 5 }), json(200, { ok: true, version: 6 })];
+  const client = createDocClient({ put: async (_b, _i, v) => (seen.push(v), answers.shift()!), version: 4, schedule: clock.schedule });
+  client.save({ n: 1 });
+  await clock.tick(1000);
+  client.save({ n: 2 });
+  await clock.tick(1000);
+  assert.deepEqual(seen, [4, 5]);
+  assert.equal(client.status(), "saved");
+});
+
+test("setVersion sets the version of a client made before the load, and never lowers it", async () => {
+  const clock = fakeClock();
+  const seen: (number | undefined)[] = [];
+  const client = createDocClient({ put: async (_b, _i, v) => (seen.push(v), json(200, { ok: true, version: (v ?? 0) + 1 })), schedule: clock.schedule });
+  client.setVersion(7);
+  client.setVersion(3);
+  client.save({ n: 1 });
+  await clock.tick(1000);
+  assert.deepEqual(seen, [7]);
+});
+
+test("a 409 stale answer sets status stale, is not retried, calls onStale once and sends nothing more", async () => {
+  const clock = fakeClock();
+  const { put, sent } = (() => {
+    const sent: unknown[] = [];
+    return { sent, put: async (b: unknown) => (sent.push(b), json(409, { error: "x", code: "stale", version: 9 })) };
+  })();
+  let stale = 0;
+  const client = createDocClient({ put, version: 1, onStale: () => stale++, schedule: clock.schedule });
+  client.save({ n: 1 });
+  await clock.tick(1000);
+  assert.equal(client.status(), "stale");
+  await clock.tick(120_000);
+  client.save({ n: 2 });
+  await clock.tick(5000);
+  assert.equal(await client.flush(), "stale");
+  assert.equal(sent.length, 1);
+  assert.equal(stale, 1);
+  assert.equal(clock.waiting(), 0);
+});
+
+test("a 409 that is not stale stays a plain rejection", async () => {
+  const clock = fakeClock();
+  let stale = 0;
+  const client = createDocClient({ put: async () => json(409, { error: "x", code: "account-changed" }), onStale: () => stale++, schedule: clock.schedule });
+  client.save({ n: 1 });
+  await clock.tick(1000);
+  assert.equal(client.status(), "rejected");
+  assert.equal(stale, 0);
+});

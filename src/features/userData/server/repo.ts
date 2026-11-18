@@ -86,8 +86,13 @@ export interface PlanReviewRow {
 export interface UserDataRepo {
   /** The stored document, or null when there is none. */
   getDoc(userId: string, kind: DocKind): Promise<unknown | null>;
-  /** Replaces the player's document of this kind. */
-  putDoc(userId: string, kind: DocKind, data: unknown, now: Date): Promise<void>;
+  /** The stored document with its version (a document no one has written is version 0), or null when there is none. */
+  getDocVersioned(userId: string, kind: DocKind): Promise<{ data: unknown; version: number } | null>;
+  /**
+   * Replaces the player's document of this kind and adds 1 to its version, in one statement. With `expect` it writes only when
+   * the stored version is `expect` (no row counts as 0); otherwise it answers `ok: false` with the stored version and writes nothing.
+   */
+  putDoc(userId: string, kind: DocKind, data: unknown, now: Date, expect?: number): Promise<{ ok: true; version: number } | { ok: false; version: number }>;
   listProgress(userId: string): Promise<ProgressEntry[]>;
   /** Replaces the entry for the same exercise. */
   putProgress(userId: string, entry: ProgressEntry, now: Date): Promise<void>;

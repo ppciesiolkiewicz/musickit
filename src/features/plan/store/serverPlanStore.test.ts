@@ -169,3 +169,22 @@ test("loadAllTimes reads every plan's records and lays this session's saves over
   await store.saveTime({ ...day0, elapsed: 400 });
   assert.deepEqual((await store.loadAllTimes()).map((d) => [d.planId, d.day, d.elapsed]), [["p", 0, 400], ["q", 1, 5]]);
 });
+
+test("the plan is saved at the version it was loaded at, and a stale refusal stops the saves and tells onStale", async () => {
+  const clock = heldClock();
+  const seen: (number | undefined)[] = [];
+  let stale = 0;
+  const client = createDocClient({
+    put: async (_b, _i, v) => (seen.push(v), new Response(JSON.stringify({ error: "x", code: "stale", version: 8 }), { status: 409 })),
+    onStale: () => stale++,
+    schedule: clock.schedule,
+  });
+  const store = createServerPlanStore({ client, get: async () => ({ data: null, version: 7 }) });
+  await store.load();
+  await store.save(withReminder("07:00"));
+  assert.equal(await store.flush?.(), false);
+  await store.save(withReminder("08:00"));
+  assert.equal(await store.flush?.(), false);
+  assert.deepEqual(seen, [7]);
+  assert.equal(stale, 1);
+});

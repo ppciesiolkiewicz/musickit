@@ -185,6 +185,8 @@ export const userDocuments = pgTable(
     userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
     kind: text("kind").notNull(),
     data: jsonb("data").notNull(),
+    /** +1 on every write; a save that names an older version is refused, so a write made elsewhere is never overwritten unseen. */
+    version: integer("version").notNull().default(0),
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
   (t) => [uniqueIndex("user_documents_user_kind").on(t.userId, t.kind)],

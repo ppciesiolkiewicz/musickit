@@ -10,16 +10,32 @@ export async function readDoc(repo: UserDataRepo, userId: string, kind: DocKind)
   return parseDoc(kind, await repo.getDoc(userId, kind));
 }
 
+/** The player's document with its version, parsed; the kind's empty value at version 0 when none is stored. */
+export async function readDocVersioned(repo: UserDataRepo, userId: string, kind: DocKind): Promise<{ data: unknown; version: number }> {
+  const row = await repo.getDocVersioned(userId, kind);
+  return { data: parseDoc(kind, row?.data ?? null), version: row?.version ?? 0 };
+}
+
 /**
  * Parses before storing, so a stored document is always safe to read back. Over its kind's cap (`maxDocBytes`) it is too big.
  * A plan also puts its blocks in the library (`storePlanBlocks`) and syncs its reviews (`syncPlanReviews`), from the parsed state. Those are side effects: the document
  * save is what the player asked for, so a failure there is logged and the save still succeeds; the next save repairs it.
+ * Every write adds 1 to the document's version. With `expect` it writes only when the stored version is `expect` (0 when none is stored);
+ * otherwise it is "stale", with the stored version, and nothing is written, not even the plan's side effects. Without `expect` it always writes.
  */
-export async function writeDoc(repo: UserDataRepo, userId: string, kind: string, raw: unknown, now: Date): Promise<{ ok: true } | { ok: false; error: "too-big" | "bad-kind" }> {
+export async function writeDoc(
+  repo: UserDataRepo,
+  userId: string,
+  kind: string,
+  raw: unknown,
+  now: Date,
+  expect?: number,
+): Promise<{ ok: true; version: number } | { ok: false; error: "too-big" | "bad-kind" | "stale"; version?: number }> {
   if (!isDocKind(kind)) return { ok: false, error: "bad-kind" };
   if ((JSON.stringify(raw) ?? "").length > maxDocBytes(kind)) return { ok: false, error: "too-big" };
   const doc = parseDoc(kind, raw);
-  await repo.putDoc(userId, kind, doc, now);
+  const put = await repo.putDoc(userId, kind, doc, now, expect);
+  if (!put.ok) return { ok: false, error: "stale", version: put.version };
   if (kind === "plan") {
     try {
       await storePlanBlocks(repo, userId, doc as PlanState, now);
@@ -33,7 +49,7 @@ export async function writeDoc(repo: UserDataRepo, userId: string, kind: string,
       console.error("[writeDoc] syncPlanReviews failed", { userId, error });
     }
   }
-  return { ok: true };
+  return { ok: true, version: put.version };
 }
 
 /**

@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { SectionNotes } from "@/features/course/notes";
 import type { KeyChoice } from "@/features/creator/model/key";
 import { parseDoc, type About, type DocKind, type Records } from "../model";
-import { createDocClient, putDocument, type DocClient } from "./docClient";
+import { createDocClient, putDocument, reloadSoon, type DocClient } from "./docClient";
 import { getJson, LoadRefused } from "./load";
 import { report, type SaveStatus, type Tracked } from "./registry";
 import { localBackend } from "./localDocs";
@@ -178,9 +178,19 @@ export function backendsFor(source: DataSource): Backends {
         let b = made.get(kind);
         if (!b) {
           let client: DocClient | null = null;
+          // the version the document was loaded at; a client made before the load learns it when the load arrives
+          let loadedVersion: number | undefined;
           b = {
-            load: () => getJson(`/api/me/documents/${kind}`).then((body) => (body as { data?: unknown } | null)?.data ?? null),
-            save: (doc) => (client ??= createDocClient({ put: putDocument(kind) })).save(doc),
+            load: () =>
+              getJson(`/api/me/documents/${kind}`).then((body) => {
+                const version = (body as { version?: unknown } | null)?.version;
+                if (typeof version === "number") {
+                  loadedVersion = version;
+                  client?.setVersion(version);
+                }
+                return (body as { data?: unknown } | null)?.data ?? null;
+              }),
+            save: (doc) => (client ??= createDocClient({ put: putDocument(kind), version: loadedVersion, onStale: reloadSoon })).save(doc),
           };
           made.set(kind, b);
         }

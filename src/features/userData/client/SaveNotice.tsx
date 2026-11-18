@@ -9,7 +9,7 @@ import { useSaveAccountChanged, useSaveStatus, useSaveTooBig, useUnsaved } from 
 
 /**
  * The one save notice, mounted once in the root layout (so every page has it, with or without PageShell). It shows only when a save failed (and is retried), was refused, or the player
- * was logged out, and while
+ * was logged out (or the document was changed somewhere else: the page then reloads), and while
  * anything is unsaved it asks the browser to warn before the page is left.
  */
 export default function SaveNotice() {
@@ -45,6 +45,10 @@ export default function SaveNotice() {
           ) : status === "rejected" && accountChanged ? (
             <>
               <strong className="font-semibold text-slate-100">Not saved: another account is logged in now.</strong> This page is still open from before. Reload it to use the account that is logged in.
+            </>
+          ) : status === "stale" ? (
+            <>
+              <strong className="font-semibold text-slate-100">Not saved: your data was changed somewhere else.</strong> Another device or your teacher changed it. This page is loading the newer version.
             </>
           ) : status === "rejected" ? (
             <>

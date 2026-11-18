@@ -16,8 +16,25 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
       const [row] = await db.select({ data: userDocuments.data }).from(userDocuments).where(and(eq(userDocuments.userId, userId), eq(userDocuments.kind, kind))).limit(1);
       return row?.data ?? null;
     },
-    async putDoc(userId, kind, data, now) {
-      await db.insert(userDocuments).values({ userId, kind, data, updatedAt: now }).onConflictDoUpdate({ target: [userDocuments.userId, userDocuments.kind], set: { data, updatedAt: now } });
+    async getDocVersioned(userId, kind) {
+      const [row] = await db.select({ data: userDocuments.data, version: userDocuments.version }).from(userDocuments).where(and(eq(userDocuments.userId, userId), eq(userDocuments.kind, kind))).limit(1);
+      return row ?? null;
+    },
+    async putDoc(userId, kind, data, now, expect) {
+      // one statement: insert version 1, or on conflict add 1 (only when the stored version is `expect`, if one is given)
+      const insert = db.insert(userDocuments).values({ userId, kind, data, updatedAt: now, version: 1 });
+      const set = { data, updatedAt: now, version: sql`${userDocuments.version} + 1` };
+      const target = [userDocuments.userId, userDocuments.kind];
+      // a document that does not exist yet is version 0: `expect` above 0 must not insert it
+      if (expect !== undefined && expect > 0) {
+        const [row] = await db.update(userDocuments).set(set).where(and(eq(userDocuments.userId, userId), eq(userDocuments.kind, kind), eq(userDocuments.version, expect))).returning({ version: userDocuments.version });
+        if (row) return { ok: true, version: row.version };
+      } else {
+        const [row] = await (expect === undefined ? insert.onConflictDoUpdate({ target, set }) : insert.onConflictDoUpdate({ target, set, setWhere: eq(userDocuments.version, 0) })).returning({ version: userDocuments.version });
+        if (row) return { ok: true, version: row.version };
+      }
+      const [current] = await db.select({ version: userDocuments.version }).from(userDocuments).where(and(eq(userDocuments.userId, userId), eq(userDocuments.kind, kind))).limit(1);
+      return { ok: false, version: current?.version ?? 0 };
     },
     async listProgress(userId) {
       const rows = await db.select({ entry: progressEntries.entry }).from(progressEntries).where(eq(progressEntries.userId, userId));

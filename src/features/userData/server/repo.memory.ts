@@ -38,6 +38,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
   peekOwners(): OwnerRow[];
 } {
   const docs = new Map<string, unknown>();
+  const docVersions = new Map<string, number>();
   const progress = new Map<string, ProgressEntry>();
   /** `plan_day_times` rows, keyed `${userId}/${planId}/${day}`. */
   const planTimes = new Map<string, DayTime>();
@@ -71,8 +72,17 @@ export function memoryUserDataRepo(): UserDataRepo & {
       const v = docs.get(`${userId}/${kind}`);
       return v === undefined ? null : structuredClone(v);
     },
-    async putDoc(userId, kind, data) {
-      docs.set(`${userId}/${kind}`, structuredClone(data));
+    async getDocVersioned(userId, kind) {
+      const v = docs.get(`${userId}/${kind}`);
+      return v === undefined ? null : { data: structuredClone(v), version: docVersions.get(`${userId}/${kind}`) ?? 0 };
+    },
+    async putDoc(userId, kind, data, _now, expect) {
+      const key = `${userId}/${kind}`;
+      const stored = docVersions.get(key) ?? 0;
+      if (expect !== undefined && expect !== stored) return { ok: false, version: stored };
+      docs.set(key, structuredClone(data));
+      docVersions.set(key, stored + 1);
+      return { ok: true, version: stored + 1 };
     },
     async listProgress(userId) {
       return [...progress.entries()].filter(([k]) => k.startsWith(`${userId}/`)).map(([, e]) => structuredClone(e));

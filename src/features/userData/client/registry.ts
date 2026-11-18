@@ -6,12 +6,13 @@
 
 /**
  * `failed`: a network error or 5xx, being retried. `rejected`: another 4xx (400, 403, 409, 413), not retried, since sending
- * the same thing again gets the same answer. `signedOut`: a 401.
+ * the same thing again gets the same answer. `stale`: a 409 `stale`, the document was changed elsewhere (another device, a teacher);
+ * the page reloads to load the newer version, and nothing more is sent. `signedOut`: a 401.
  */
-export type SaveStatus = "saved" | "saving" | "failed" | "rejected" | "signedOut";
+export type SaveStatus = "saved" | "saving" | "failed" | "rejected" | "stale" | "signedOut";
 
 /** Worse is higher: the notice shows the worst of all clients. */
-const RANK: Record<SaveStatus, number> = { saved: 0, saving: 1, failed: 2, rejected: 3, signedOut: 4 };
+const RANK: Record<SaveStatus, number> = { saved: 0, saving: 1, failed: 2, rejected: 3, stale: 4, signedOut: 5 };
 
 export interface Tracked {
   status(): SaveStatus;
