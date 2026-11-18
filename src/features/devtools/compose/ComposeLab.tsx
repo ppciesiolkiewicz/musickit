@@ -6,11 +6,12 @@ import { MINUTES, levelOf } from "@/features/plan/intake/answers";
 import { topicById } from "@/features/plan/intake/topics";
 import { AREAS } from "@/features/plan/model/concepts";
 import type { PickReason, PickStage } from "@/features/plan/model/compose";
-import { shownTitle } from "@/features/plan/model/moves";
+import { shownTitle, type Given } from "@/features/plan/model/moves";
+import { ROLL } from "@/features/plan/model/roll";
 import { KEY_LADDERS, KEY_RUNGS, hasKeySelector, keyRung, keysAt, type KeyRung } from "@/features/plan/model/keys";
 import { stepAt } from "@/features/plan/model/path";
 import { keyName } from "@/features/theory/keySlug";
-import { seedCandidates, simulate, type LabRating } from "../model/composeLab";
+import { nextVersion, seedCandidates, simulate, type LabRating } from "../model/composeLab";
 import { PERSONAS } from "../model/personas";
 import Architecture, { C } from "./Architecture";
 
@@ -42,6 +43,13 @@ const REASON: Record<PickReason, string> = {
   solid: "every block is solid: the one rated longest ago",
 };
 const keys = (list: number[]) => list.map((k) => keyName(k)).join(" ");
+const pct = (n: number) => `${Math.round(n * 100)}%`;
+const PART_NAME = { key: "key", bpm: "tempo" } as const;
+/** A version in words: "A G · earlier E · 70 bpm · earlier 60". */
+const version = (g: Given) => [
+  g.keys ? keys(g.keys.now) : "", g.keys?.back.length ? `earlier ${keys(g.keys.back)}` : "",
+  g.bpm ? `${g.bpm.now} bpm` : "", g.bpm?.back.length ? `earlier ${g.bpm.back.join(" ")}` : "",
+].filter(Boolean).join(" · ") || "as written";
 
 function stepName(ref: string): string {
   const at = stepAt(ref);
@@ -116,7 +124,9 @@ export default function ComposeLab() {
   const { trace, day } = d;
   const areas = AREAS.filter((a) => d.answers.areas.includes(a.id));
   const picked = new Set(trace.picks.map((p) => p.step));
-  const keyed = trace.picks.filter((p) => p.given?.keys);
+  const keyed = trace.picks.filter((p) => p.given?.keys && !p.roll);
+  const rolled = trace.picks.filter((p) => p.roll);
+  const withMoves = blocks.filter((b) => b.exercise.moves).length;
   const withSelector = blocks.filter((b) => hasKeySelector(b.exercise)).length;
 
   return (
@@ -230,7 +240,7 @@ export default function ComposeLab() {
           </ul>
         </Stage>
 
-        <Stage n={5} title="The keys" rule="Last, and it changes no pick: an exercise with a Key selector gets the keys of the player's rung in its area (at most three; a rung with more takes a different three per exercise and day) and the three nearest earlier keys, which the selector shows last, under Earlier. The keys ride on the exercise's slot; the block is stored as written. An exercise with no Key selector stays in its own key.">
+        <Stage n={5} title="The keys" rule="Last, and it changes no pick. For a block of the older shape, with its own Key selector and no moves: it gets the keys of the player's rung in its area (at most three; a rung with more takes a different three per exercise and day) and the three nearest earlier keys, which the selector shows last, under Earlier. The keys ride on the exercise's slot; the block is stored as written. An exercise with no Key selector stays in its own key.">
           <div className="mb-3 grid gap-2 desk:grid-cols-3">
             {areas.map((a) => {
               const r = keyRung(d.answers.keys, levelOf(d.answers, a.id));
@@ -259,7 +269,31 @@ export default function ComposeLab() {
           <p className="mt-2 text-xs text-slate-500">{keyed.length} of this day&apos;s {trace.picks.length} picks have a Key selector; {withSelector} of the {blocks.length} blocks in these areas do.</p>
         </Stage>
 
-        <Stage n={6} title="The day" rule="As it is stored: the day's steps in pick order, review last. Short means the library ran out more than 5 minutes under the budget.">
+        <Stage n={6} title="The versions" rule={<>Also last, and it changes no pick: a block with <C>moves</C> is played in a version (<C>plan/model/roll.ts</C>). A first play opens in the first key of its track and at its starting tempo. After that the newest rating of the block tilts the dice: {Math.round(ROLL.low.back * 100)}% the version before after 1 or 2 stars, {Math.round(ROLL.mid.move * 100)}% a move after 3, {Math.round(ROLL.high.move * 100)}% a move after 4 or 5, else the same again. A move is one part, by weight (tempo {ROLL.weights.bpm}, key {ROLL.weights.key}), and keeps the earlier values as chips. The dice are seeded by the player, the block and that rating, so a version changes only when the block is rated again.</>}>
+          {rolled.length ? (
+            <Table
+              head={["Block", "Last play", "Odds: back / same / move", "Dice", "Moves in", "Outcome", "Given", "If rated 1", "If rated 3", "If rated 5"]}
+              rows={rolled.map((p) => {
+                const r = p.roll!;
+                const e = day.exercises.find((x) => x.blockId === p.blockId);
+                const next = (stars: 1 | 3 | 5) => { const v = e ? nextVersion(e, d, seed, stars) : null; return v ? <span key={stars}>{version(v.given)}<span className="block text-[10px] text-slate-500">{v.roll?.outcome}{v.roll?.moved ? `: ${PART_NAME[v.roll.moved]}` : ""}</span></span> : "–"; };
+                return [
+                  <span key="t" className="text-slate-100">{p.title}<span className="block font-mono text-[10px] text-slate-500">{p.blockId}</span></span>,
+                  r.last ? <span key="l">{version(r.last.given)} <span className="text-amber-200">{r.last.stars}★</span></span> : "first play",
+                  r.last ? `${pct(r.odds.back)} / ${pct(r.odds.same)} / ${pct(r.odds.move)}` : "–",
+                  r.draws.length ? r.draws.map((x) => x.toFixed(2)).join(", ") : "–",
+                  r.movesIn.length ? r.movesIn.map((m) => `${PART_NAME[m.part]} ${m.weight} (to ${m.part === "key" ? keyName(m.to) : m.to})`).join(" · ") : "–",
+                  <b key="o" className="text-sky-100">{r.outcome}{r.moved ? `: ${PART_NAME[r.moved]}` : ""}</b>,
+                  p.given ? version(p.given) : "–",
+                  next(1), next(3), next(5),
+                ];
+              })}
+            />
+          ) : <p className="text-xs text-slate-500">No exercise of this day has moves.</p>}
+          <p className="mt-2 text-xs text-slate-500">{rolled.length} of this day&apos;s {trace.picks.length} picks have moves; {withMoves} of the {blocks.length} blocks in these areas do. The last three columns are the roll the composer would make next for each rating of the version shown.</p>
+        </Stage>
+
+        <Stage n={7} title="The day" rule="As it is stored: the day's steps in pick order, review last. Short means the library ran out more than 5 minutes under the budget.">
           <ol className="flex flex-col gap-1 text-xs text-slate-300">
             {day.exercises.map((e, i) => (
               <li key={e.blockId ?? i} className="flex flex-wrap items-baseline gap-2">
@@ -267,7 +301,7 @@ export default function ComposeLab() {
                 <span className="text-slate-100">{shownTitle(e)}</span>
                 <span className="text-slate-500">{e.minutes} min</span>
                 {(e.steps ?? []).map((r) => <StepChip key={r} refId={r} />)}
-                {e.given?.keys && <span className="text-sky-200">Key {keys(e.given.keys.now)}{e.given.keys.back.length ? ` · Earlier ${keys(e.given.keys.back)}` : ""}</span>}
+                {e.given && <span className="text-sky-200">{version(e.given)}</span>}
               </li>
             ))}
           </ol>

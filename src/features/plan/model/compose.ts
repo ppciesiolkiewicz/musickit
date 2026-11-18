@@ -248,7 +248,7 @@ const at = (row: ProgressEntry): number => { const t = Date.parse(row.at ?? "");
  * so it is the same on every day and every try until the block is rated again. A block of the old shape, with its own
  * Key selector, gets the player's keys as before. Any other block gets none.
  */
-function versionFor(e: PlanExercise, input: ComposeInput, tracks: Track[]): { given: Given; roll?: RollTrace } | null {
+export function versionFor(e: PlanExercise, input: { answers: PlanAnswers; seed: string; history?: ProgressEntry[]; player?: string }, tracks: Track[] = PATH): { given: Given; roll?: RollTrace } | null {
   if (!e.moves) {
     const keys = keysFor(e, input.answers, hash(`${input.seed}:${e.blockId ?? ""}`));
     return keys ? { given: { keys } } : null;

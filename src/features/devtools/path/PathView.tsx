@@ -12,6 +12,7 @@ import { blockHref } from "../model/stepHref";
 import { EXAMPLE_STUDENTS, entryProgress, exampleRatings, playerReach, stepProgress, studentReach, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
 import type { SpareSteps, Step } from "../model/steps";
 import JourneyView from "./JourneyView";
+import KeyStages from "./KeyStages";
 import KeysView from "./KeysView";
 import SlopeView from "./SlopeView";
 
@@ -220,6 +221,7 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
       {view === "journey" && (
         <>
           <JourneyView area={area} nodes={nodes} progress={progress} selected={sel} onPick={setSel} />
+          <KeyStages area={area} entries={who === "me" && entriesLoaded ? entries : null} selected={sel} />
           {selected
             ? <Detail node={selected} nodes={nodes} progress={progress?.[selected.id]} today={today} blocks={blocks} pick={(id, a) => { setArea(a); setSel(id); }} />
             : <p className="text-sm text-slate-500">Pick a skill to see its steps, what it builds on and its seed blocks and plans.</p>}

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { composeDay } from "@/features/plan/model/compose";
 import { PERSONAS } from "./personas";
-import { seedCandidates, simulate } from "./composeLab";
+import { nextVersion, seedCandidates, simulate } from "./composeLab";
 
 const persona = (id: string) => PERSONAS.find((p) => p.id === id)!.answers;
 
@@ -38,4 +38,19 @@ test("simulate: an exercise with a Key selector carries the player's keys", () =
   const keyed = days.flatMap((d) => d.day.exercises).filter((e) => e.given?.keys);
   assert.ok(keyed.length > 0, "the seed has voice blocks with a Key selector");
   assert.ok(keyed.every((e) => JSON.stringify(e.given?.keys) === JSON.stringify({ now: [9, 7], back: [4, 0] })));
+});
+
+test("nextVersion: the composer's own next roll for a rating of the version an exercise has now", () => {
+  const e = {
+    title: "Run", minutes: 5, area: "guitar", steps: ["pentatonic-positions:1"], blockId: "b", moves: { key: "any", bpm: { from: 60, to: 90, step: 10 } }, given: { keys: { now: [9], back: [] }, bpm: { now: 60, back: [] } },
+    cells: [{ type: "tool", tool: { type: "backing-band", bpm: 60, key: 9, parts: { click: "on" } } }, { type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] } }],
+  } as never;
+  const d = { answers: persona("guitar-new"), history: [], date: "2026-11-19" };
+  const hard = nextVersion(e, d, "lab", 1)!;
+  assert.deepEqual(hard.given, { keys: { now: [9], back: [] }, bpm: { now: 60, back: [] } }, "found hard at the first version: back or same are both the first version");
+  assert.equal(hard.roll!.last!.stars, 1);
+  const outcomes = Array.from({ length: 30 }, (_, i) => nextVersion(e, d, `p${i}`, 5)!.roll!.outcome);
+  assert.ok(outcomes.includes("move") && outcomes.every((o) => o === "move" || o === "same"));
+  assert.deepEqual(nextVersion(e, d, "lab", 5), nextVersion(e, d, "lab", 5), "the same player, block and rating roll the same");
+  assert.equal(nextVersion({ title: "Plain", minutes: 5, cells: [], blockId: "x" } as never, d, "lab", 5), null);
 });

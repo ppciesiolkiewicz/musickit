@@ -1,12 +1,14 @@
 import { SEED_BLOCKS } from "@/features/library/seed";
 import type { Area } from "@/features/plan/model/concepts";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
-import { explainDay, type Candidate, type ComposeTrace, type ComposedDay } from "@/features/plan/model/compose";
+import { explainDay, versionFor, type Candidate, type ComposeTrace, type ComposedDay } from "@/features/plan/model/compose";
 import { parseExercise } from "@/features/plan/model/config";
 import { solidRatedAt } from "@/features/plan/model/daySteps";
 import { addDays } from "@/features/plan/model/schedule";
 import { raisedAnswers } from "@/features/plan/model/topicLevels";
-import type { PlanAnswers } from "@/features/plan/model/types";
+import type { Given } from "@/features/plan/model/moves";
+import type { RollTrace } from "@/features/plan/model/roll";
+import type { PlanAnswers, PlanExercise } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 import type { Stars } from "@/features/progress/stars";
 
@@ -38,6 +40,18 @@ export interface LabDay {
   answers: PlanAnswers;
   /** how many steps were solid before the day */
   solid: number;
+  /** the ratings made before the day: what its versions were rolled from */
+  history: ProgressEntry[];
+}
+
+/**
+ * What the next roll of an exercise would give if the player rated the version it has now with `stars`: the composer's
+ * own roll (`versionFor`) over the day's history plus that one rating. Null for an exercise with no moves.
+ */
+export function nextVersion(e: PlanExercise, d: Pick<LabDay, "answers" | "history" | "date">, player: string, stars: Stars): { given: Given; roll?: RollTrace } | null {
+  if (!e.moves || !e.blockId) return null;
+  const row: ProgressEntry = { id: `if-${stars}`, planId: "lab", exerciseId: `if-${e.blockId}`, day: 0, exercise: 0, title: e.title, steps: e.steps, blockId: e.blockId, ...(e.given ? { given: e.given } : {}), stars, at: `${d.date}T23:59:59.000Z` };
+  return versionFor(e, { answers: d.answers, history: [...d.history, row], player, seed: player });
 }
 
 /**
@@ -55,7 +69,8 @@ export function simulate(opts: { answers: PlanAnswers; date: string; days: numbe
     const yesterday = i ? out[i - 1].day.exercises.flatMap((e) => (e.blockId ? [e.blockId] : [])) : [];
     const rated = blocks.map((b) => ({ ...b, mine: mine.get(b.blockId) ?? null }));
     const { day, trace } = explainDay({ answers, solid, blocks: rated, date, yesterday, keep: [], declined: [], seed: `${opts.seed}:${date}:0`, history: [...entries], player: opts.seed });
-    out.push({ date, day, trace, answers, solid: solid.size });
+    const history = [...entries];
+    out.push({ date, day, trace, answers, solid: solid.size, history });
     if (opts.rating === "none") continue;
     const stars = STARS[opts.rating];
     const at = `${date}T18:00:00.000Z`;
