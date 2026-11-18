@@ -390,7 +390,7 @@ its block named on that track and every step before it, never after (`reachIndex
 outside it, the first level without one: `ratingLevel`). A step's state is the newest rating that reaches it. The
 progress log copies the exercise's `steps` onto each rating. A concept stands at a level as its last step at or under
 that level does (`at`), and a topic's level is reached when every concept with a step there is solid there.
-`solidSteps(outcome)` lists the solid step refs for `reach({ solid })`; nothing passes them in yet (NEW7).
+`solidSteps(outcome)` lists the solid step refs by the outcome's rule; nothing calls it. The composer (NEW7) takes its solid steps from `solidRatedAt(entries)` (`model/daySteps.ts`: a step is solid when its newest rating that counts for it, by `reachIndex`, has 4 or 5 stars) and hands them to `reach()`; `/dev/path` shows the player in the browser by the same two (`entryProgress`, `playerReach` in `devtools/model/stepProgress.ts`).
 
 ### Course sections to write
 

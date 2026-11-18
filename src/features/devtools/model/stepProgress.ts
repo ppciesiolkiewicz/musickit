@@ -1,6 +1,8 @@
 import { CONCEPTS, conceptIds } from "@/features/plan/model/concepts";
 import type { Rung } from "@/features/plan/intake/topics";
-import { SOLID_STARS } from "@/features/plan/model/outcome";
+import { solidRatedAt } from "@/features/plan/model/daySteps";
+import { SOLID_STARS, reachIndex } from "@/features/plan/model/outcome";
+import { stepAt } from "@/features/plan/model/path";
 import { reach, type StepReach } from "@/features/plan/model/reach";
 import { addDays, dayOf } from "@/features/plan/model/schedule";
 import { toolsOf } from "@/features/plan/model/tools";
@@ -223,3 +225,54 @@ export const solidRefs = (progress: Record<string, ConceptProgress>): string[] =
 /** Each step marked known, within reach or ahead for a student (plan/model/reach.ts): their answers and their solid steps. */
 export const studentReach = (topics: Record<string, Rung>, progress: Record<string, ConceptProgress>): Map<string, StepReach> =>
   reach({ topics, solid: solidRefs(progress) });
+
+/** An entry's day, null when its `at` is not a time. */
+const entryDay = (e: ProgressEntry): string | null => (typeof e.at === "string" && !Number.isNaN(Date.parse(e.at)) ? dayOf(e.at) : null);
+const entryMs = (e: ProgressEntry): number => { const t = Date.parse(e.at ?? ""); return Number.isNaN(t) ? -Infinity : t; };
+
+/**
+ * The player in this browser, read by the rule the composer uses (NEW7): a rating counts for the steps its exercise
+ * names (`steps`) and every step before them on that track (`reachIndex`), and a step is solid exactly when
+ * `solidRatedAt` has it (its newest counting rating is 4 or 5 stars), so a newer low rating on an easier step is never
+ * covered by a harder solid one. A rating that names no step of the concept's track counts in `noStep` only.
+ */
+export function entryProgress(entries: ProgressEntry[], steps: Record<string, ConceptSteps> = conceptSteps()): Record<string, ConceptProgress> {
+  const solid = solidRatedAt(entries);
+  const out: Record<string, ConceptProgress> = {};
+  for (const { id } of CONCEPTS) {
+    const list = steps[id]?.steps ?? [];
+    const per: ProgressEntry[][] = list.map(() => []);
+    const counted: ProgressEntry[] = [];
+    let noStep = 0;
+    for (const e of entries) {
+      const named = (e.steps ?? []).filter((r) => stepAt(r)?.track.id === id);
+      if (!named.length) {
+        if (conceptIds(e.concepts ?? []).includes(id)) noStep++;
+        continue;
+      }
+      counted.push(e);
+      const upTo = reachIndex(id, { steps: named, entry: e });
+      for (let i = 0; i <= upTo && i < per.length; i++) per[i].push(e);
+    }
+    const newestOf = (xs: ProgressEntry[]) => xs.reduce<ProgressEntry | null>((b, e) => (!b || entryMs(e) >= entryMs(b) ? e : b), null);
+    const stepList: StepProgress[] = per.map((on, i) => {
+      const top = newestOf(on);
+      const days = on.map(entryDay).filter((d): d is string => !!d).sort();
+      return {
+        state: solid.has(`${id}:${i + 1}`) ? "solid" : on.length ? "working" : "none",
+        ratings: on.length, stars: top?.stars ?? null, firstOn: days[0] ?? null, lastOn: top ? entryDay(top) : null,
+      };
+    });
+    const last = newestOf(counted);
+    const at = stepList.findLastIndex((st) => st.ratings > 0);
+    out[id] = {
+      state: !last ? "not-yet" : last.stars >= SOLID_STARS ? "solid" : "working",
+      ratings: counted.length, lastOn: last ? entryDay(last) : null, steps: stepList, at: at < 0 ? null : at, noStep,
+    };
+  }
+  return out;
+}
+
+/** The reach marks the composer works from for a player: their answers' topics and `solidRatedAt(entries)`. */
+export const playerReach = (topics: Record<string, Rung>, entries: ProgressEntry[]): Map<string, StepReach> =>
+  reach({ topics, solid: solidRatedAt(entries).keys() });

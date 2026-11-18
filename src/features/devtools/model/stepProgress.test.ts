@@ -6,7 +6,9 @@ import type { StoredPlan } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 import { conceptSteps, stepOf } from "./steps";
 import { topicById } from "@/features/plan/intake/topics";
-import { EXAMPLE_STUDENTS, exampleRatings, solidRefs, stepProgress, stepRatings, studentReach, weeksBetween, type StepRating } from "./stepProgress";
+import { EXAMPLE_STUDENTS, entryProgress, exampleRatings, playerReach, solidRefs, stepProgress, stepRatings, studentReach, weeksBetween, type StepRating } from "./stepProgress";
+import { solidRatedAt } from "@/features/plan/model/daySteps";
+import { reach } from "@/features/plan/model/reach";
 
 const tool = (t: Record<string, unknown>) => t as unknown as PlanTool;
 const r = (concept: string, step: string | null, stars: 1 | 2 | 3 | 4 | 5, on: string): StepRating => ({ concept, step, stars, on });
@@ -72,4 +74,25 @@ test("studentReach: a solid step is known, and every example student has somethi
     for (const ref of solidRefs(progress)) assert.equal(marks.get(ref)?.mark, "known", `${st.id}: ${ref}`);
     assert.ok([...marks.values()].some((m) => m.mark === "reach"), st.id);
   }
+});
+
+// --- the player in this browser: the composer's rule (solidRatedAt + reach)
+
+const pe = (id: string, steps: string[], stars: 1 | 2 | 3 | 4 | 5, at: string, concepts?: string[]): ProgressEntry =>
+  ({ id, planId: "p", exerciseId: id, day: 0, exercise: 0, title: id, steps, stars, at, ...(concepts ? { concepts } : {}) }) as ProgressEntry;
+
+test("entryProgress: a step is solid exactly when the composer has it solid; a newer low rating is not covered by a harder solid step", () => {
+  const entries = [pe("a", ["spider:3"], 5, "2026-11-01T10:00:00Z"), pe("b", ["spider:1"], 2, "2026-11-05T10:00:00Z"), pe("c", [], 5, "2026-11-06T10:00:00Z", ["spider"])];
+  const p = entryProgress(entries).spider;
+  assert.deepEqual(p.steps.map((s) => s.state), ["working", "solid", "solid", "none"]);
+  assert.equal(p.at, 2);
+  assert.equal(p.noStep, 1);
+  assert.deepEqual([p.steps[0].ratings, p.steps[0].stars, p.steps[0].firstOn, p.steps[0].lastOn], [2, 2, "2026-11-01", "2026-11-05"]);
+  assert.deepEqual(solidRefs(entryProgress(entries)).sort(), [...solidRatedAt(entries).keys()].sort());
+});
+
+test("playerReach: the marks the composer works from (answers' topics and solidRatedAt)", () => {
+  const entries = [pe("a", ["spider:3"], 5, "2026-11-01T10:00:00Z"), pe("b", ["spider:1"], 2, "2026-11-05T10:00:00Z")];
+  const topics = { "guitar-techniques": 1 } as const;
+  assert.deepEqual([...playerReach(topics, entries)], [...reach({ topics, solid: solidRatedAt(entries).keys() })]);
 });

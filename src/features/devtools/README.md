@@ -124,13 +124,17 @@ the player in this browser (read through `usePlan` and `useProgress`, nothing wr
 (`EXAMPLE_STUDENTS`). It is the teacher's view of a student, tried here first (NEW12, NEW13 in `tasks.txt`). A concept's
 edge turns green when its newest rating is 4 stars or more and amber when it is less, as the progress outcome has it.
 Each step gets a square: green solid, amber working, empty not started, dashed for a planned step, which can't be
-tracked. The step a rating counts for is read from the rated exercise's own tools (`stepOf` in `plan/model/path.ts`: the
-`level` kept on a tool, or the stage of the tune or run), the hardest one when several are in it; a solid step makes the
-easier ones under it solid. The bold step is the one the student is on, with the whole weeks since its first rating
+tracked. For a made-up student the step a rating counts for is read from the rated exercise's own tools (`stepOf` in
+`plan/model/path.ts`: the `level` kept on a tool, or the stage of the tune or run), the hardest one when several are in
+it; a solid step makes the easier ones under it solid. The player in this browser is read by the composer's rule, so the
+page that checks the composer shows what it works on (`entryProgress`): a rating counts for the steps its exercise names
+and every step before them, and a step is solid exactly when `solidRatedAt` (`plan/model/daySteps.ts`) has it, so a
+newer low rating on an easier step stays amber. The bold step is the one the student is on, with the whole weeks since its first rating
 while it is not solid: time on a step is shown as a number, and nothing is called stuck. Picking a concept lists each
-tracked step's ratings and dates. On Slope the student's steps also carry their reach marks (`studentReach`, from
-`reach()` in `plan/model/reach.ts`): their questionnaire answers (each persona has its own `topics`; the player in this
-browser their last ones) and their solid steps. A step within reach is dashed blue and says "next" (or "start" where the
+tracked step's ratings and dates. On Slope the student's steps also carry their reach marks (from `reach()` in
+`plan/model/reach.ts`): their questionnaire answers (each persona has its own `topics`; the player in this browser their
+last ones) and their solid steps (`studentReach` for a made-up student; `playerReach`, `solidRatedAt(entries)`, for the
+player in this browser, as the composer gets them). A step within reach is dashed blue and says "next" (or "start" where the
 questionnaire puts them), a known step not rated solid says "known", and a step ahead is faded. Nothing is written by
 hand: the page (`src/app/dev/path/page.tsx`) builds the nodes on the server from `CONCEPTS`, `TOPICS`, the course and the
 library's seed files, so the diagram changes when they do. It writes nothing.

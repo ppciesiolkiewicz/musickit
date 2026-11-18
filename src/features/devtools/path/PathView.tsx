@@ -3,13 +3,13 @@
 import { useMemo, useState, type KeyboardEvent } from "react";
 import { AREAS, type Area } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
-import { localDate, storedPlans } from "@/features/plan/model/schedule";
+import { localDate } from "@/features/plan/model/schedule";
 import { usePlan } from "@/features/plan/store/usePlan";
 import { STAR_LABELS } from "@/features/progress/stars";
 import { useProgress } from "@/features/progress/useProgress";
 import { areaPath, chain, gaps, wrap, type PathNode } from "../model/path";
 import { blockHref } from "../model/stepHref";
-import { EXAMPLE_STUDENTS, exampleRatings, stepProgress, stepRatings, studentReach, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
+import { EXAMPLE_STUDENTS, entryProgress, exampleRatings, playerReach, stepProgress, studentReach, weeksBetween, type ConceptProgress, type StepState } from "../model/stepProgress";
 import type { SpareSteps, Step } from "../model/steps";
 import JourneyView from "./JourneyView";
 import ProposalView from "./ProposalView";
@@ -268,18 +268,19 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
     if (who === "none") return null;
     if (who === "me") {
       if (!planLoaded || !entriesLoaded) return null;
-      // every plan, the given ones too, as `/plan` and the server's `playerProgress` count them
-      return stepProgress(stepRatings(entries, storedPlans(planState)), today);
+      // the composer's rule: the steps the ratings name, solid as `solidRatedAt` has them
+      return entryProgress(entries);
     }
     const student = EXAMPLE_STUDENTS.find((s) => s.id === who);
     return student ? stepProgress(exampleRatings(student, today), today) : null;
-  }, [who, today, planState, planLoaded, entries, entriesLoaded]);
-  // the student's questionnaire answers: an example's own, or the player's last ones
+  }, [who, today, planLoaded, entries, entriesLoaded]);
+  // the reach marks: for the player in this browser the composer's own inputs (their answers, `solidRatedAt`), for an
+  // example its topics and its made-up progress
   const reachMarks = useMemo(() => {
     if (!progress) return null;
-    const topics = who === "me" ? answers?.topics ?? {} : EXAMPLE_STUDENTS.find((s) => s.id === who)?.topics ?? {};
-    return studentReach(topics, progress);
-  }, [progress, who, answers]);
+    if (who === "me") return playerReach(answers?.topics ?? {}, entries);
+    return studentReach(EXAMPLE_STUDENTS.find((s) => s.id === who)?.topics ?? {}, progress);
+  }, [progress, who, answers, entries]);
   const path = useMemo(() => areaPath(area, nodes), [area, nodes]);
   const { lanes, boxes, height } = useMemo(() => layout(path), [path]);
   const lit = useMemo(() => (sel ? chain(sel, nodes) : null), [sel, nodes]);
