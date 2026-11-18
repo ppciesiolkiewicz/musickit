@@ -378,3 +378,14 @@ test("a slider moved in the teacher's evening west of UTC counts on the teacher'
   const v = ok(await studentView(s.d, s.teacher, s.studentId, TODAY));
   assert.equal(v.topics.find((t) => t.topic === "guitar-scales")!.now, 2, "the slider opens at the new score");
 });
+
+test("studentView: the upcoming week's start when the teacher made one, else null", async () => {
+  const s = await setup();
+  assert.equal(ok(await studentView(s.d, s.teacher, s.studentId, TODAY)).upcoming, null);
+  ok(await makeWeek(s.d, s.teacher, s.studentId, { today: "2026-11-16", rotate: false }, new Date("2026-11-16T12:00:00Z"), s.newId));
+  assert.equal(ok(await studentView(s.d, s.teacher, s.studentId, TODAY)).upcoming, null, "the running week is not upcoming");
+  ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: false }, NOW, s.newId));
+  const v = ok(await studentView(s.d, s.teacher, s.studentId, TODAY));
+  assert.deepEqual(v.upcoming, { start: "2026-11-23" });
+  assert.equal(v.plan?.startedOn, "2026-11-16", "the running week is still the plan shown");
+});

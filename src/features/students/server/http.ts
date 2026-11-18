@@ -8,6 +8,7 @@ import { localDate } from "@/features/plan/model/schedule";
 import { isNearToday } from "@/features/plan/server/composeToday";
 import { signedIn } from "@/features/userData/server/http";
 import type { UserDataRepo } from "@/features/userData/server/repo";
+import { ACCOUNT_CHANGED_WORDS, LOGGED_OUT_WORDS } from "../model/words";
 import { claimEmail, claimUrl } from "./mail";
 import { makeWeek, studentView } from "./plans";
 import { addStudent, listStudents, newClaimLink, openClaim, peekClaim, studentRow } from "./students";
@@ -39,16 +40,18 @@ const MESSAGES = {
   "bad-date": "The page sent a date that isn't today's. Check the device's date and time, then reload the page.",
   name: "Type your student's name.",
   email: "Type your student's email address, like ann@school.com.",
-  answers: "Choose at least one area, and a level for each topic in it.",
+  answers: "Pick at least one area, and at least one topic in each area you pick.",
   exists: "Someone already has an account with that email address. Use another address for your student.",
   limit: "Your plan has no places left for students. Change your plan to add more.",
   "not-found": "That student isn't on your list.",
   claimed: "Your student has already logged in, so they don't need the link.",
   wait: "A link went out a moment ago. Wait a minute, then press Send the link again.",
   "mail-failed": "The email didn't go out. Wait a minute, then press Send the link again.",
-  "no-answers": "Your student has no answers yet, so no plan can be made. Ask your student to answer the questions on the Practice plan page, then try again.",
+  "no-answers": "Your student has no answers on file, so no plan can be made. Tell us about it on the Send feedback page.",
   "no-blocks": "The library has no exercises yet that fit your student's answers, so no plan was made.",
-  busy: "Your student saved changes at the same moment. Try again.",
+  busy: "Your student saved a change at the same moment, so no plan was made. Press Make next week's plan again.",
+  /** `busy` after Rotate this week's plan: the same code, naming the button that was pressed */
+  "busy-rotate": "Your student saved a change at the same moment, so no plan was made. Press Rotate this week's plan again.",
   "too-big": "This student's saved plans take up too much room, so no plan was made. Tell us about it on the Send feedback page.",
   gone: "This link is too old or was already used. If you have opened it before, press Log in. If not, ask your teacher to send a new link.",
   failed: "attunr couldn't do that. Try again in a moment.",
@@ -62,8 +65,8 @@ const FORBIDDEN = "That request didn't come from this site. Reload the page and 
 const AUTH: Record<number, { code: string; error: string }> = {
   503: { code: "no-accounts", error: NO_ACCOUNTS },
   403: { code: "forbidden", error: FORBIDDEN },
-  401: { code: "logged-out", error: "You are logged out. Log in and try again." },
-  409: { code: "account-changed", error: "Another account is logged in in this browser. Reload the page, then try again." },
+  401: { code: "logged-out", error: LOGGED_OUT_WORDS },
+  409: { code: "account-changed", error: ACCOUNT_CHANGED_WORDS },
 };
 
 /** `signedIn`'s own answers carry no `code` and a raw line: give each a code and a sentence, keeping the status and the cookies. */
@@ -194,6 +197,7 @@ export async function planRoute(h: StudentsHttpDeps, req: Request, id: string): 
   try {
     const made = await makeWeek(h, me.account, id, { today: body.today, rotate: body.rotate === true, scores, comment: typeof body.comment === "string" ? body.comment : undefined }, h.auth.now(), h.newId);
     if (made.ok) return json({ planId: made.planId, start: made.start, short: made.short, comment: made.comment }, 200, me.cookies);
+    if (made.error === "busy" && body.rotate === true) return json({ error: MESSAGES["busy-rotate"], code: "busy" }, 409, me.cookies);
     const status = made.error === "not-found" ? 404 : made.error === "too-big" ? 413 : 409;
     return fail(made.error, status, me.cookies);
   } catch (error) {

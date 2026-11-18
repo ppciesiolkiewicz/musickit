@@ -11,7 +11,7 @@ import { givenToday, localDate } from "@/features/plan/model/schedule";
 import { MAX_TEACHER_COMMENT } from "@/features/plan/model/state";
 import { loginHref } from "@/lib/publicPaths";
 import { fetchStudent, postStudentPlan, type Failure } from "../client";
-import { afterMake, planInput, viewOf, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
+import { afterMake, planInput, upcomingLine, viewOf, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
 import { tenth } from "../model/sliders";
 import type { StudentView } from "../model/types";
 import type { Access } from "./StudentsApp";
@@ -22,16 +22,16 @@ const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py
 const warn = <Icon name="alert-triangle" size={14} />;
 
 /** The title of the question before Rotate this week's plan. */
-export const ROTATE_TITLE = "Replace this week's plan?";
+export const ROTATE_TITLE = "Rotate this week's plan?";
 
 /** The question before Rotate this week's plan, inside its `Modal`: what changes, what stays, and the two answers. */
-export function RotateQuestion({ name, onReplace, onKeep }: { name: string; onReplace: () => void; onKeep: () => void }) {
+export function RotateQuestion({ name, onRotate, onKeep }: { name: string; onRotate: () => void; onKeep: () => void }) {
   return (
     <div className="flex flex-col gap-4 text-sm leading-relaxed text-slate-300">
       <p>attunr makes {name} a new plan for the same dates, from the sliders as you set them. The new plan takes the place of the one {name} is in now.</p>
       <p>{name}&apos;s ratings stay and still count toward their next plans.</p>
       <div className="flex flex-wrap gap-3">
-        <Button className={primary} onClick={onReplace}>Replace the plan</Button>
+        <Button className={primary} onClick={onRotate}>Rotate the plan</Button>
         <Button onClick={onKeep}>Keep this plan</Button>
       </div>
     </div>
@@ -113,7 +113,7 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
     );
   }
 
-  const { student, plan, topics } = state.view;
+  const { student, plan, topics, upcoming } = state.view;
   const running = !!plan && !givenToday(plan, today).over;
   const busy = sent.kind === "busy";
   return (
@@ -156,6 +156,7 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
         {sent.kind === "failed" && <Notice tone="warn" icon={warn}><span role="alert">{sent.error}</span></Notice>}
         {sent.kind === "made" && <Notice icon={<Icon name="check" size={14} />}><span role="status">{sent.line}</span></Notice>}
         {busy && <p role="status" className="text-sm text-slate-400">Making the plan…</p>}
+        {upcoming && <p className="text-sm leading-relaxed text-slate-300">{upcomingLine(student.name, upcoming.start)}</p>}
 
         <div className="flex flex-wrap items-center gap-3">
           <Button className={primary} disabled={busy} onClick={() => onMake(false)}><Icon name="plus" size={14} />Make next week&apos;s plan</Button>
@@ -165,7 +166,7 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
 
       {confirming && running && (
         <Modal title={ROTATE_TITLE} narrow onClose={() => onConfirm(false)}>
-          <RotateQuestion name={student.name} onReplace={() => onMake(true)} onKeep={() => onConfirm(false)} />
+          <RotateQuestion name={student.name} onRotate={() => onMake(true)} onKeep={() => onConfirm(false)} />
         </Modal>
       )}
     </div>
@@ -175,25 +176,28 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
 /**
  * A teacher's page for one student (`GET /api/students/<id>`): their current week, read-only, and the next plan made with
  * the sliders (`POST …/plan`). Only the sliders the teacher moved are sent; after a plan is made the page loads the
- * student again, so the sliders open at the new scores and the comment box is empty (`afterMake`).
+ * student again, so the sliders open at the new scores and the comment box at the comment saved on the week now shown
+ * (`afterMake`, `viewOf`).
  */
 export default function StudentPage({ id }: { id: string }) {
   const { account, loaded, can } = useAccount();
   const access: Access = !loaded ? "loading" : !account ? (accountsOpen() ? "logged-out" : "no-accounts") : can("students") ? "teacher" : "not-teacher";
   const [today] = useState(() => localDate());
   const [state, setState] = useState<ViewState>({ kind: "loading" });
-  const [form, setForm] = useState<MakeForm>({ start: {}, values: {}, comment: "" });
+  const [form, setForm] = useState<MakeForm>({ start: {}, values: {}, comment: "", savedComment: "" });
   const [sent, setSent] = useState<Sent>({ kind: "idle" });
   const [confirming, setConfirming] = useState(false);
   const [day, setDay] = useState<number | null>(null);
 
-  // the one way a loaded student reaches the page: its state, and every slider opening at the score today
+  // the one way a loaded student reaches the page: its state, every slider opening at the score today, and the comment
+  // box at the comment already saved on this week
   const show = useCallback((r: ({ ok: true } & StudentView) | Failure) => {
     const next = viewOf(r);
     setState(next.state);
     if (next.opening) {
       const opening = next.opening;
-      setForm((f) => ({ ...f, start: opening, values: opening }));
+      const saved = next.comment ?? "";
+      setForm({ start: opening, values: opening, comment: saved, savedComment: saved });
       setDay(null);
     }
   }, []);

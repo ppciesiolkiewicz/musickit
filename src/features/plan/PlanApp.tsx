@@ -117,7 +117,7 @@ export default function PlanApp() {
     const controls = <><Reminder state={state} update={update} /><PhoneLabels /></>;
     return (
       <>
-        <TaughtPlanView view={taughtView(state, today)} week={(p) => <LiveGivenPlan key={p.id} id={p.id} date={today} controls={() => controls} />} streak={streak} />
+        <TaughtPlanView view={taughtView(state, today)} week={(p) => <LiveGivenPlan key={p.id} id={p.id} date={today} controls={() => controls} />} streak={streak} given={state.given} />
         {tracker}
       </>
     );

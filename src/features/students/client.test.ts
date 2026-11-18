@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { CLIENT_WORDS, fetchClaim, fetchStudent, fetchStudents, postClaim, postClaimLink, postStudent, postStudentPlan } from "./client";
 import { migrateAnswers } from "@/features/plan/intake/answers";
+import { ACCOUNT_CHANGED_WORDS, LOGGED_OUT_WORDS } from "./model/words";
 
 const answer = (status: number, body: unknown): typeof fetch => (async () => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } })) as typeof fetch;
 const row = { id: "a1", name: "Ann", email: "ann@school.com", addedAt: "2026-11-10T10:00:00.000Z", claimedAt: null };
@@ -47,9 +48,9 @@ test("fetchStudent: asks with today, reads the student, the week and the sliders
   let url = "";
   const fetcher = (async (u: string) => {
     url = u;
-    return new Response(JSON.stringify({ ok: true, student: row, plan: null, topics: [topic] }), { status: 200 });
+    return new Response(JSON.stringify({ ok: true, student: row, plan: null, topics: [topic], upcoming: null }), { status: 200 });
   }) as unknown as typeof fetch;
-  assert.deepEqual(await fetchStudent("a1", "2026-11-18", fetcher), { ok: true, student: row, plan: null, topics: [topic] });
+  assert.deepEqual(await fetchStudent("a1", "2026-11-18", fetcher), { ok: true, student: row, plan: null, topics: [topic], upcoming: null });
   assert.equal(url, "/api/students/a1?today=2026-11-18");
   assert.equal((await fetchStudent("a1", "2026-11-18", answer(200, { student: row, plan: null, topics: [{ topic: "x" }] })) as { code: string }).code, "failed");
   assert.equal((await fetchStudent("a1", "2026-11-18", answer(200, { student: row, plan: "x", topics: [] })) as { code: string }).code, "failed");
@@ -104,4 +105,21 @@ test("postClaim: posts the token and answers where to go, only a path on this si
   assert.deepEqual(await postClaim("tok", answer(200, { next: "https://evil.example/" })), { ok: true, next: "/welcome" });
   assert.deepEqual(await postClaim("tok", answer(200, { next: "//evil.example/" })), { ok: true, next: "/welcome" });
   assert.deepEqual(await postClaim("tok", answer(410, GONE)), { ok: false, ...GONE });
+});
+
+// --- final fix wave
+
+test("fetchStudent reads the upcoming week's start; an older answer without it is null; a broken one is a failure", async () => {
+  const body = { student: row, plan: null, topics: [topic] };
+  assert.deepEqual(await fetchStudent("a1", "2026-11-18", answer(200, { ...body, upcoming: { start: "2026-11-23" } })), { ok: true, ...body, upcoming: { start: "2026-11-23" } });
+  assert.deepEqual(await fetchStudent("a1", "2026-11-18", answer(200, body)), { ok: true, ...body, upcoming: null });
+  assert.equal((await fetchStudent("a1", "2026-11-18", answer(200, { ...body, upcoming: { start: "soon" } })) as { code: string }).code, "failed");
+});
+
+test("account-changed is known by its code, whatever words the route sent, and gets the one wording", async () => {
+  const changed = await fetchStudents(answer(409, { error: "Some other sentence.", code: "account-changed" }));
+  assert.deepEqual(changed, { ok: false, code: "account-changed", error: ACCOUNT_CHANGED_WORDS });
+  assert.equal(CLIENT_WORDS["account-changed"], ACCOUNT_CHANGED_WORDS);
+  assert.equal(CLIENT_WORDS["logged-out"], LOGGED_OUT_WORDS);
+  assert.equal((await fetchStudents(answer(401, { error: "x", code: "logged-out" })) as { error: string }).error, LOGGED_OUT_WORDS);
 });

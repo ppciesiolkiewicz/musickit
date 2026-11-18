@@ -1,6 +1,7 @@
-import { ACCOUNT_CHANGED_WORDS, accountHeaders, isAccountChanged } from "@/features/userData/client/accountHeader";
+import { accountHeaders, isAccountChanged } from "@/features/userData/client/accountHeader";
 import type { PlanAnswers } from "@/features/plan/intake/answers";
 import { AREAS } from "@/features/plan/model/concepts";
+import { ACCOUNT_CHANGED_WORDS, LOGGED_OUT_WORDS } from "./model/words";
 import type { AddedStudent, ClaimMail, CommentKept, MadePlan, StudentList, StudentRow, StudentView, TopicSlider } from "./model/types";
 
 /**
@@ -16,11 +17,11 @@ export type Failure = { ok: false; code: string; error: string };
 
 const TIMEOUT_MS = 20_000;
 
-/** The page's own words for the failures the route can't word. */
+/** The page's own words for the failures the route can't word; the sign-in ones are the routes' too (`model/words.ts`). */
 export const CLIENT_WORDS: Record<string, string> = {
   offline: "attunr can't reach the server. Check your connection, then try again.",
   failed: "attunr couldn't do that. Try again in a moment.",
-  "logged-out": "You're logged out. Log in again, then reload the page.",
+  "logged-out": LOGGED_OUT_WORDS,
   "account-changed": ACCOUNT_CHANGED_WORDS,
 };
 
@@ -46,7 +47,8 @@ async function send(url: string, init: RequestInit, fetcher: typeof fetch): Prom
   } catch {
     body = null;
   }
-  if (isAccountChanged(res.status, body)) return failure("account-changed");
+  // by its code (the students routes), or by the bare answer the other data routes send
+  if (isAccountChanged(res.status, body) || (res.status === 409 && body?.code === "account-changed")) return failure("account-changed");
   if (res.status === 401) return failure("logged-out");
   if (!res.ok) return failure(typeof body?.code === "string" ? body.code : "failed", body?.error);
   return { status: res.status, body };
@@ -89,13 +91,19 @@ const isWeek = (p: unknown): p is NonNullable<StudentView["plan"]> => {
   return !!x && typeof x.id === "string" && typeof x.startedOn === "string" && !!x.config && Array.isArray(x.config.days);
 };
 
+/** The upcoming week as the route sends it: its first day. An answer from before it was sent has none (null). */
+const isUpcoming = (u: unknown): u is NonNullable<StudentView["upcoming"]> => {
+  const x = u as { start?: unknown } | null;
+  return !!x && typeof x.start === "string" && /^\d{4}-\d\d-\d\d$/.test(x.start);
+};
+
 /** `GET /api/students/<id>?today=`: the student, their current week and a slider per topic; `today` is the device's date. */
 export async function fetchStudent(id: string, today: string, fetcher: typeof fetch = fetch): Promise<({ ok: true } & StudentView) | Failure> {
   const r = await send(`/api/students/${encodeURIComponent(id)}?today=${encodeURIComponent(today)}`, { method: "GET" }, fetcher);
   if ("ok" in r) return r;
-  const { student, plan, topics } = r.body ?? {};
-  if (!isRow(student) || !(plan === null || isWeek(plan)) || !Array.isArray(topics) || !topics.every(isSlider)) return failure("failed");
-  return { ok: true, student, plan, topics };
+  const { student, plan, topics, upcoming = null } = r.body ?? {};
+  if (!isRow(student) || !(plan === null || isWeek(plan)) || !Array.isArray(topics) || !topics.every(isSlider) || !(upcoming === null || isUpcoming(upcoming))) return failure("failed");
+  return { ok: true, student, plan, topics, upcoming };
 }
 
 /**

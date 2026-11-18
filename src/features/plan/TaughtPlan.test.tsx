@@ -28,6 +28,7 @@ const draw = (s = state, date = TODAY) =>
       view={taughtView(s, date)}
       week={(p: StoredPlan) => <GivenPlanView plan={p} date={date} day={null} onDay={() => {}} onRate={() => {}} times={[]} onTime={() => {}} onEdit={() => {}} controls={null} corner={null} />}
       streak={null}
+      given={s.given}
     />,
   );
 
@@ -50,7 +51,8 @@ test("older weeks are listed as links to their own page; the shared plan is not 
   assert.match(html, /href="\/plan\/given\/old"/);
   assert.match(html, /Week of 9 November/);
   assert.doesNotMatch(html, /href="\/plan\/given\/now"/, "the week drawn is not listed again");
-  assert.doesNotMatch(html, /href="\/plan\/given\/shared"/);
+  const earlier = html.slice(html.indexOf("Earlier plans"), html.indexOf("Plans shared with you"));
+  assert.doesNotMatch(earlier, /href="\/plan\/given\/shared"/, "not among the earlier weeks");
 });
 
 test("with every week ended, the newest is drawn under a line that the teacher hasn't made a new one", () => {
@@ -105,4 +107,11 @@ test("a given plan's page heading: Practice plan for a teacher's week, Shared pl
   assert.equal(givenPageTitle(state.given[0]), TEACHER_WEEK_PAGE);
   assert.equal(givenPageTitle(state.given.find((p) => p.id === "shared")), SHARED_PLAN);
   assert.equal(givenPageTitle(undefined), SHARED_PLAN);
+});
+
+test("plans someone shared with the student are listed under the week, teacher weeks left out", () => {
+  const html = draw();
+  assert.match(html, /Plans shared with you/);
+  assert.match(html, /href="\/plan\/given\/shared"/);
+  assert.equal(html.match(/href="\/plan\/given\/old"/g)?.length, 1, "a teacher week only under Earlier plans");
 });

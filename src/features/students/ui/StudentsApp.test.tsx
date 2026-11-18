@@ -96,7 +96,7 @@ test("the add flow: name and email first, required before the questions; then th
 test("the line after adding says what happened to the plan and the email, and what to do next", () => {
   const student = ann;
   assert.equal(addedLine({ student, plan: "made", mail: "sent" }), "Ann has a plan for their first week. attunr emailed ann@school.com a link to log in.");
-  assert.match(addedLine({ student, plan: "none", mail: "failed" }), /couldn't make a plan.*Open Ann's page.*Press Send the link again in Ann's row\./);
+  assert.equal(addedLine({ student, plan: "none", mail: "failed" }), "attunr couldn't make a plan for Ann's first week. Press Ann's name in the list below to open their page and make one. The email with the link didn't go out. Press Send the link again in Ann's row.");
   assert.match(addedLine({ student, plan: "short", mail: "off" }), /shorter than the minutes you picked.*no link went out/);
 });
 

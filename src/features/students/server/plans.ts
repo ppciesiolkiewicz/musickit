@@ -55,22 +55,24 @@ async function scoresOf(d: StudentsDeps, studentId: string, s: PlanState, dates:
 const currentWeek = (s: PlanState, today: string): StoredPlan | null => teacherWeekOn(s, today) ?? teacherWeek(s, today);
 
 /**
- * What the teacher sees of their student: the account row, the current week (with the teacher's own comment) and a
- * slider per topic of the student's areas, opening at the score today, with the score at the start of the current week.
+ * What the teacher sees of their student: the account row, the current week (with the teacher's own comment), a slider
+ * per topic of the student's areas, opening at the score today, with the score at the start of the current week, and
+ * the start of the upcoming week when one is made (the next Make next week's plan replaces it).
  */
 export async function studentView(
   d: StudentsDeps,
   teacher: Account,
   studentId: string,
   today: string,
-): Promise<{ ok: true; student: StudentRow; plan: StoredPlan | null; topics: TopicSlider[] } | { ok: false; error: "not-found" }> {
+): Promise<{ ok: true; student: StudentRow; plan: StoredPlan | null; topics: TopicSlider[]; upcoming: { start: string } | null } | { ok: false; error: "not-found" }> {
   const student = await studentOf(d, teacher, studentId);
   if (!student) return { ok: false, error: "not-found" };
   const s = (await readDocVersioned(d.userData, studentId, "plan")).data as PlanState;
   const plan = currentWeek(s, today);
   const dates = plan ? [today, addDays(plan.startedOn, -1)] : [today];
   const topics = (await scoresOf(d, studentId, s, dates)).map(({ scores, ...t }) => ({ ...t, now: scores[0] ?? 0, atStart: plan ? scores[1] ?? 0 : null }));
-  return { ok: true, student, plan, topics };
+  const next = upcomingTeacherWeek(s, today);
+  return { ok: true, student, plan, topics, upcoming: next ? { start: next.startedOn } : null };
 }
 
 /**

@@ -12,9 +12,6 @@ export async function askNotifications(): Promise<boolean> {
   return (await Notification.requestPermission()) === "granted";
 }
 
-/** A teacher's student: their plans are the weeks their teacher makes, and no daily plan is made for them. */
-const isTaught = (state: PlanState): boolean => state.given.some((p) => !!p.teacher);
-
 /** Today's day of the teacher's week that covers today, for a teacher's student; else null. */
 function weekDay(state: PlanState, today: string) {
   const week = teacherWeekOn(state, today);
@@ -25,14 +22,15 @@ function weekDay(state: PlanState, today: string) {
  * Whether a reminder is due now: switched on, past the chosen time, not already shown today, the questions answered, and
  * today's own plan either not made yet (the plan page makes it when it opens) or not finished. A plan shared with the
  * player plays no part. For a teacher's student today's plan is today's day of the teacher's week: due while it is not
- * finished, and never with no week covering today (no daily plan is made for them).
+ * finished, and never with no week covering today (no daily plan is made for them). `taught` is the account's
+ * (`Account.taught`), as every screen reads it, never guessed from the document.
  */
-export function reminderDue(state: PlanState, now: Date): boolean {
+export function reminderDue(state: PlanState, now: Date, taught: boolean): boolean {
   const { reminder } = state;
   if (!reminder.enabled || !state.answers) return false;
   const today = localDate(now);
   if (reminder.lastShownOn === today) return false;
-  if (isTaught(state)) {
+  if (taught) {
     const w = weekDay(state, today);
     if (!w || dayProgress(w.week, w.day) === 1) return false;
   }
@@ -44,10 +42,10 @@ export function reminderDue(state: PlanState, now: Date): boolean {
 
 /**
  * The reminder's words: today's plan and its topics, or, before it is made, that opening the plan page makes it. For a
- * teacher's student, which day of their plan today is.
+ * teacher's student (`taught`, the account's), which day of their plan today is.
  */
-export function reminderBody(state: PlanState, now: Date): string {
-  const w = isTaught(state) ? weekDay(state, localDate(now)) : null;
+export function reminderBody(state: PlanState, now: Date, taught: boolean): string {
+  const w = taught ? weekDay(state, localDate(now)) : null;
   if (w) return `Today is day ${w.day + 1} of ${planDays(w.week)} of your plan.`;
   const own = ownDay(state, localDate(now));
   if (!own) return "Open the Practice plan page, and attunr puts today's plan together.";
@@ -62,9 +60,9 @@ export function confirmReminder(time: string): void {
 }
 
 /** Show the daily reminder; clicking it opens the plan. */
-export function showReminder(state: PlanState, now: Date): void {
+export function showReminder(state: PlanState, now: Date, taught: boolean): void {
   if (!notificationsSupported() || Notification.permission !== "granted") return;
-  const n = new Notification("Time to practise", { body: reminderBody(state, now), tag: "attunr-plan", icon: "/icon.png" });
+  const n = new Notification("Time to practise", { body: reminderBody(state, now, taught), tag: "attunr-plan", icon: "/icon.png" });
   n.onclick = () => {
     window.focus();
     // a notification click is outside React, so there is no router to push with

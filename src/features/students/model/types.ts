@@ -52,6 +52,8 @@ export interface StudentView {
   /** the week a teacher made that covers today, else the newest that has started; an upcoming week is not here */
   plan: StoredPlan | null;
   topics: TopicSlider[];
+  /** the week the teacher made that hasn't started yet (at most one), by its first day; null when there is none */
+  upcoming: { start: string } | null;
 }
 
 /** What happened to the teacher's comment: kept on the current week, none was sent, or there was no week to keep it on. */

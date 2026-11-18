@@ -4,11 +4,12 @@ import { startSession, type AuthDeps } from "@/features/account/server/auth";
 import { memoryRepo } from "@/features/account/server/repo.memory";
 import type { Plan } from "@/features/account/plans";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
-import { readDocVersioned } from "@/features/userData/server/data";
+import { readDocVersioned, writeDoc } from "@/features/userData/server/data";
 import { sanitiseState } from "@/features/plan/model/state";
 import type { PlanConfig, PlanState, StoredPlan } from "@/features/plan/model/types";
 import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { stubLibrary, topicBlocks } from "@/features/plan/server/stubLibrary";
+import { ACCOUNT_CHANGED_WORDS, LOGGED_OUT_WORDS } from "../model/words";
 import { addRoute, claimLinkRoute, claimOpenRoute, claimPeekRoute, listRoute, planRoute, viewRoute, type StudentsHttpDeps } from "./http";
 
 const T0 = new Date("2026-11-18T12:00:00.000Z");
@@ -341,4 +342,47 @@ test("signedIn's own answers get a code and a sentence; the claim route's cross-
   const [a, b] = [(await evil.json()) as { error: string }, (await claimEvil.json()) as { error: string }];
   assert.equal(a.error, b.error);
   assert.ok(!a.error.includes("Bad request"));
+});
+
+// --- final fix wave: the lines a person reads
+
+const errorOf = async (r: Response) => (await r.json()) as { code: string; error: string };
+
+test("the sign-in answers use the one wording the page uses", async () => {
+  const s = await setup();
+  const out = await errorOf(await listRoute(s.h, call("/api/students", "GET", null)));
+  assert.deepEqual(out, { code: "logged-out", error: LOGGED_OUT_WORDS });
+  const other = await errorOf(await listRoute(s.h, call("/api/students", "GET", s.teacher.cookie, undefined, { "x-account-id": "someone-else" })));
+  assert.deepEqual(other, { code: "account-changed", error: ACCOUNT_CHANGED_WORDS });
+});
+
+test("answers: the rule as it is, worded with pick", async () => {
+  const s = await setup();
+  const { body } = await add(s, { ...NEW, answers: { areas: [] } });
+  assert.equal(body.error, "Pick at least one area, and at least one topic in each area you pick.");
+});
+
+test("busy names the button to press again; no-answers points to Send feedback", async () => {
+  const s = await setup();
+  const id = (await add(s)).body.student.id as string;
+  const stale: StudentsHttpDeps = { ...s.h, userData: { ...s.userData, putDoc: async () => ({ ok: false, version: 99 }) } };
+  const next = await errorOf(await planRoute(stale, call(`/api/students/${id}/plan`, "POST", s.teacher.cookie, { today: TODAY, rotate: false }), id));
+  assert.equal(next.error, "Your student saved a change at the same moment, so no plan was made. Press Make next week's plan again.");
+  const rot = await errorOf(await planRoute(stale, call(`/api/students/${id}/plan`, "POST", s.teacher.cookie, { today: TODAY, rotate: true }), id));
+  assert.equal(rot.code, "busy");
+  assert.equal(rot.error, "Your student saved a change at the same moment, so no plan was made. Press Rotate this week's plan again.");
+  assert.ok((await writeDoc(s.userData, id, "plan", sanitiseState({}), T0)).ok);
+  const none = await errorOf(await planRoute(s.h, call(`/api/students/${id}/plan`, "POST", s.teacher.cookie, { today: TODAY, rotate: false }), id));
+  assert.equal(none.code, "no-answers");
+  assert.equal(none.error, "Your student has no answers on file, so no plan can be made. Tell us about it on the Send feedback page.");
+});
+
+test("GET /api/students/<id> answers the upcoming week's start", async () => {
+  const s = await setup();
+  const id = (await add(s)).body.student.id as string;
+  const v0 = await (await viewRoute(s.h, call(`/api/students/${id}?today=${TODAY}`, "GET", s.teacher.cookie), id)).json();
+  assert.equal(v0.upcoming, null);
+  await planRoute(s.h, call(`/api/students/${id}/plan`, "POST", s.teacher.cookie, { today: TODAY, rotate: false }), id);
+  const v1 = await (await viewRoute(s.h, call(`/api/students/${id}?today=${TODAY}`, "GET", s.teacher.cookie), id)).json();
+  assert.deepEqual(v1.upcoming, { start: "2026-11-25" });
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useAccount } from "@/features/account/useAccount";
 import { notificationsSupported, reminderDue, showReminder } from "./reminders";
 import { usePlanStore } from "./store/usePlan";
 import { localDate } from "./model/schedule";
@@ -11,11 +12,14 @@ import type { PlanState } from "./model/types";
  * practice reminder is due, and shows it. Browsers give no reliable timer once every tab is closed without a push server.
  * It reads the plan through the page's `PlanStore` (on the server for a signed-in player): once when the page opens or
  * the tab comes back, and again only when the plan it holds says a reminder is due, so the server is not asked each minute.
+ * Whether the player is a teacher's student is the account's (`Account.taught`); nothing is checked until the account is known.
  */
 export default function PracticeReminder() {
   const store = usePlanStore();
+  const { account, loaded } = useAccount();
+  const taught = !!account?.taught;
   useEffect(() => {
-    if (!notificationsSupported() || Notification.permission !== "granted") return;
+    if (!loaded || !notificationsSupported() || Notification.permission !== "granted") return;
     let live = true;
     let busy = false;
     let held: PlanState | null = null;
@@ -24,9 +28,9 @@ export default function PracticeReminder() {
       busy = true;
       try {
         const now = new Date();
-        if (fresh || !held || reminderDue(held, now)) held = await store.load();
-        if (!live || !reminderDue(held, now)) return;
-        showReminder(held, now);
+        if (fresh || !held || reminderDue(held, now, taught)) held = await store.load();
+        if (!live || !reminderDue(held, now, taught)) return;
+        showReminder(held, now, taught);
         held = { ...held, reminder: { ...held.reminder, lastShownOn: localDate(now) } };
         await store.save(held);
       } catch {
@@ -44,6 +48,6 @@ export default function PracticeReminder() {
       clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [store]);
+  }, [store, loaded, taught]);
   return null;
 }

@@ -13,11 +13,12 @@ export type ViewState = { kind: "loading" } | { kind: "error"; code: string; err
 /** Making a plan: nothing asked yet, going out (and the page loading again after), what was made, or why not. */
 export type Sent = { kind: "idle" } | { kind: "busy" } | { kind: "made"; line: string } | { kind: "failed"; error: string };
 
-/** What the teacher has set: where each slider opened (`start`), where it is now (`values`), and the comment. */
+/** What the teacher has set: where each slider opened (`start`), where it is now (`values`), the comment, and the comment already saved on this week (what the box opened with). */
 export interface MakeForm {
   start: Record<string, number>;
   values: Record<string, number>;
   comment: string;
+  savedComment: string;
 }
 
 type Failure = { ok: false; code: string; error: string };
@@ -29,7 +30,7 @@ const dayName = (date: string): string => dayWords(date, []).title;
 export function madeLine(name: string, made: Pick<MadePlan, "start" | "short" | "comment">, rotate: boolean, today: string): string {
   const when = made.start === today ? `today, ${dayName(made.start)}` : `on ${dayName(made.start)}`;
   const plan = rotate
-    ? `attunr replaced ${name}'s plan for this week. The new plan keeps the same dates, from ${dayName(made.start)}.`
+    ? `attunr rotated ${name}'s plan for this week. The new plan keeps the same dates, from ${dayName(made.start)}.`
     : `attunr made ${name}'s next plan. It starts ${when}.`;
   const short = made.short ? ` Some days are shorter than the minutes you picked, because few exercises in the library fit ${name}'s answers.` : "";
   const comment = {
@@ -40,9 +41,18 @@ export function madeLine(name: string, made: Pick<MadePlan, "start" | "short" | 
   return `${plan}${short}${comment}`;
 }
 
-/** What the page sends to make a plan: only the sliders the teacher moved, and the comment only when there is a week to put it on. */
+/** The line under "Next plan" while a next week is made and hasn't started: when it starts, and what pressing Make next week's plan does to it. */
+export function upcomingLine(name: string, start: string): string {
+  return `${name}'s next plan is made. It starts on ${dayName(start)}. Press Make next week's plan below to make a new one in its place.`;
+}
+
+/**
+ * What the page sends to make a plan: only the sliders the teacher moved, and the comment only when there is a week to
+ * put it on and the teacher changed it (the box opens with the saved one; sending it again changes nothing).
+ */
 export function planInput(today: string, rotate: boolean, form: MakeForm, hasWeek: boolean) {
-  return { today, rotate, scores: moved(form.start, form.values), comment: hasWeek ? form.comment : "" };
+  const changed = form.comment.trim() !== form.savedComment.trim();
+  return { today, rotate, scores: moved(form.start, form.values), comment: hasWeek && changed ? form.comment : "" };
 }
 
 /**
@@ -52,12 +62,15 @@ export function planInput(today: string, rotate: boolean, form: MakeForm, hasWee
  */
 export function afterMake(result: ({ ok: true } & MadePlan) | Failure, form: MakeForm, name: string, rotate: boolean, today: string): { form: MakeForm; sent: Sent; reload: boolean } {
   if (!result.ok) return { form, sent: { kind: "failed", error: result.error }, reload: false };
-  return { form: { start: form.values, values: form.values, comment: "" }, sent: { kind: "made", line: madeLine(name, result, rotate, today) }, reload: true };
+  return { form: { start: form.values, values: form.values, comment: "", savedComment: "" }, sent: { kind: "made", line: madeLine(name, result, rotate, today) }, reload: true };
 }
 
-/** A loaded student as the page's state, with every slider opening at the score today (at a tenth); a failure as the error state. */
-export function viewOf(r: ({ ok: true } & StudentView) | Failure): { state: ViewState; opening: Record<string, number> | null } {
-  if (!r.ok) return { state: { kind: "error", code: r.code, error: r.error }, opening: null };
-  const view: StudentView = { student: r.student, plan: r.plan, topics: r.topics };
-  return { state: { kind: "view", view }, opening: Object.fromEntries(view.topics.map((t) => [t.topic, tenth(t.now)])) };
+/**
+ * A loaded student as the page's state, with every slider opening at the score today (at a tenth) and the comment box
+ * at the comment already saved on the current week ("" with none); a failure as the error state.
+ */
+export function viewOf(r: ({ ok: true } & StudentView) | Failure): { state: ViewState; opening: Record<string, number> | null; comment: string | null } {
+  if (!r.ok) return { state: { kind: "error", code: r.code, error: r.error }, opening: null, comment: null };
+  const view: StudentView = { student: r.student, plan: r.plan, topics: r.topics, upcoming: r.upcoming };
+  return { state: { kind: "view", view }, opening: Object.fromEntries(view.topics.map((t) => [t.topic, tenth(t.now)])), comment: view.plan?.teacher?.comment ?? "" };
 }

@@ -40,7 +40,7 @@ export function addedLine({ student, plan, mail }: AddedStudent): string {
   const week = {
     made: `${name} has a plan for their first week.`,
     short: `${name} has a plan for their first week. Some days are shorter than the minutes you picked, because few exercises in the library fit their answers.`,
-    none: `attunr couldn't make a plan for ${name}'s first week. Open ${name}'s page to make one.`,
+    none: `attunr couldn't make a plan for ${name}'s first week. Press ${name}'s name in the list below to open their page and make one.`,
   }[plan];
   const sent = {
     sent: `attunr emailed ${email} a link to log in.`,
