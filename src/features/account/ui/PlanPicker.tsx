@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
-import { allowanceLabel, bestSavingLabel, priceCents, priceLabel, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
+import { allowanceLabel, bestSavingLabel, priceCents, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
+import { EARLY_OFFER, earlyCents } from "../pricing";
 import { ErrorLine, PRIMARY, errorOf, send } from "./parts";
 import { AUDIENCES, AUDIENCE_LEAD, audienceOf, pitchOf, type Audience } from "./planPitch";
 
@@ -64,6 +65,19 @@ export function AudienceSwitch({ audience, onChange }: { audience: Audience; onC
     </div>
   );
 }
+
+/** The early offer for the shown side, over its plans: who gets half off (`EARLY_OFFER` in pricing.ts). */
+export const earlyOfferLine = (audience: Audience): string =>
+  audience === "individual"
+    ? `Early price: ${EARLY_OFFER.percentOff}% off for the first ${EARLY_OFFER.students} students. It's locked in, so it won't go up later.`
+    : `Early price: ${EARLY_OFFER.percentOff}% off every plan for the first ${EARLY_OFFER.schools} schools. It's locked in, so it won't go up later.`;
+
+export const EarlyOffer = ({ audience }: { audience: Audience }) => (
+  <p className="flex max-w-2xl flex-wrap items-center gap-2 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+    <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-xs font-semibold text-slate-950">{EARLY_OFFER.percentOff}% off</span>
+    {earlyOfferLine(audience)}
+  </p>
+);
 
 /** What every plan on the shown side gives, said once over its cards. */
 export const AudienceLead = ({ audience }: { audience: Audience }) => <p className="max-w-2xl text-sm text-slate-300">{AUDIENCE_LEAD[audience]}</p>;
@@ -136,7 +150,8 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "
             <span className="py-1 text-sm font-semibold text-slate-50">Price set with you</span>
           ) : (
             <span className="flex flex-wrap items-baseline gap-x-1.5">
-              <span className="text-lg font-semibold text-slate-50">{dollars(priceCents(plan, billing))}</span>
+              <span className="text-lg font-semibold text-slate-50">{dollars(earlyCents(priceCents(plan, billing)))}</span>
+              <span className="text-sm text-slate-500 line-through"><span className="sr-only">instead of </span>{dollars(priceCents(plan, billing))}</span>
               <span className="text-xs text-slate-400">a {billing}</span>
             </span>
           )}
@@ -154,7 +169,9 @@ export function PlanOption({ plan, billing, checked, mine, trial = true, hue = "
  * the beta, and there is no payment provider yet.
  */
 export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; billing: Billing; /** the chosen plan's colour, for its dot */ hue?: Hue; /** a new account's first plan starts with the free trial; a change doesn't */ trial: boolean }) {
-  const price = priceLabel(plan, billing);
+  const full = priceCents(plan, billing);
+  const early = dollars(earlyCents(full));
+  const price = `${early} a ${billing} (early price, ${EARLY_OFFER.percentOff}% off ${dollars(full)})`;
   const days = plan.trialDays === 1 ? "1 day" : `${plan.trialDays} days`;
   return (
     <section aria-labelledby="payment-heading" className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/40 p-3">
@@ -163,7 +180,7 @@ export function PaymentBox({ plan, billing, trial, hue = "sky" }: { plan: Plan; 
         <span aria-hidden className={`mr-2 inline-block size-2 rounded-full align-middle ${HUE_TONES[hue].fill}`} />
         {pricedWithYou(plan)
           ? `${plan.name}, price set with you. We'll email you to agree on a price.`
-          : <>{plan.name}, {price}.{" "}{trial && plan.trialDays > 0 ? `${days} free, then ${dollars(priceCents(plan, billing))} every ${billing}.` : `${dollars(priceCents(plan, billing))} every ${billing}.`}</>}
+          : <>{plan.name}, {price}.{" "}{trial && plan.trialDays > 0 ? `${days} free, then ${early} every ${billing}.` : `${early} every ${billing}.`}</>}
       </p>
       <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-slate-700 px-3 py-4 text-center text-xs text-slate-500">
         Your card details will go here. During the open beta we won&apos;t charge you anything.
@@ -236,6 +253,7 @@ export default function PlanPicker({ account }: { account: Account }) {
       {loaded && (
         <>
           <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setError(null); }} />
+          <EarlyOffer audience={shownAudience} />
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <AudienceLead audience={shownAudience} />
             <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} onChange={(b) => { setBilling(b); setError(null); }} /></div>

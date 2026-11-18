@@ -56,6 +56,11 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   them, and Continue needs it. Sent as `acceptTerms: true`; `setUpAccount` refuses anything else (`error: "terms"`) before
   it saves anything, and keeps `users.terms_accepted_at` and `users.terms_version` (migration `0029_terms_accepted`),
   the date on `/terms` then (`TERMS_UPDATED` in `terms.ts`, which the terms page shows too).
+- The early price (`EARLY_OFFER` in `pricing.ts`): every plan at 50% off, locked in, for the first 20 schools (the
+  founding partners, `FOUNDING_PARTNERS_NEEDED`) and the first 500 students (`src/lib/studentOffer.ts` reads it). On setup
+  and `/account` each plan card shows the early price with the full one struck through, a green line over the plans
+  says who gets it (`EarlyOffer`, by the side shown), and `PaymentBox` quotes the early price. Shown only: the rows keep
+  the full price, and nothing counts the first 20 or 500 yet.
 - `ui/EmailUpdates.tsx`: the marketing consent, "Email me news about the app". Unticked until the person ticks
   it: on setup (sent as `emailUpdates` with the rest) and in the Profile card on /account (saved as it changes, `PATCH
   /api/account` with `{ emailUpdates }`). Kept as `users.email_updates_at` (migration `0022_email_updates`), the time of

@@ -6,7 +6,7 @@ import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
 import { EmailUpdatesBox } from "./EmailUpdates";
-import { AudienceLead, AudienceSwitch, BillingSwitch, PaymentBox, PlanOption, planGrid, planHue, startAudience, type Loaded } from "./PlanPicker";
+import { AudienceLead, AudienceSwitch, BillingSwitch, EarlyOffer, PaymentBox, PlanOption, planGrid, planHue, startAudience, type Loaded } from "./PlanPicker";
 import { audienceOf, type Audience } from "./planPitch";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
@@ -144,6 +144,7 @@ export default function SetupForm({ next }: { next: string }) {
           {plans && (
             <>
               <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setPlanError(null); setError(null); }} />
+              <EarlyOffer audience={shownAudience} />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <AudienceLead audience={shownAudience} />
                 <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} onChange={(b) => { setBilling(b); setError(null); }} /></div>
