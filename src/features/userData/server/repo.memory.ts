@@ -1,3 +1,4 @@
+import type { SingerVoice } from "@/features/theory/voiceRange";
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
@@ -42,6 +43,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
   const progress = new Map<string, ProgressEntry>();
   /** `plan_day_times` rows, keyed `${userId}/${planId}/${day}`. */
   const planTimes = new Map<string, DayTime>();
+  const voices = new Map<string, SingerVoice>();
   const videos = new Map<string, VideoRow>();
   const shares = new Map<string, ShareRow>();
   /** `share_videos` rows, as `${shareId} ${videoId}`. */
@@ -107,6 +109,13 @@ export function memoryUserDataRepo(): UserDataRepo & {
       const blocks = t.blocks ?? old?.blocks;
       const on = t.on ?? old?.on;
       planTimes.set(k, structuredClone({ ...t, ...(blocks ? { blocks } : {}), ...(on ? { on } : {}) }));
+    },
+    async getVoice(userId) {
+      return structuredClone(voices.get(userId) ?? null);
+    },
+    async putVoice(userId, voice) {
+      if (voice) voices.set(userId, structuredClone(voice));
+      else voices.delete(userId);
     },
     async ownedBlockIds(userId, ids) {
       return new Set(ids.filter((id) => owners.has(pair(userId, id))));
@@ -213,6 +222,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
       return [...videos.values()].filter((v) => v.userId === userId).map((v) => v.blobPath);
     },
     cascadeUser(userId) {
+      voices.delete(userId);
       for (const k of [...docs.keys()]) if (k.startsWith(`${userId}/`)) docs.delete(k);
       for (const k of [...progress.keys()]) if (k.startsWith(`${userId}/`)) progress.delete(k);
       for (const k of [...planTimes.keys()]) if (k.startsWith(`${userId}/`)) planTimes.delete(k);

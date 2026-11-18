@@ -5,8 +5,6 @@ import { readLevel, readOverrides } from "@/features/guide/levelStorage";
 import type { Level } from "@/features/guide/levels";
 import { parseBlock } from "@/features/plan/model/config";
 import { fitPlanState, sanitiseState } from "@/features/plan/model/state";
-import { savedVoice } from "@/features/theory/singing";
-import type { Voice } from "@/features/theory/singing";
 
 /** The documents a player keeps on the server, one row each per player. Pure and client-safe: no `window`. */
 export const DOC_KINDS = ["plan", "note", "course_notes", "creator", "records", "about"] as const;
@@ -36,7 +34,6 @@ export interface Records {
 export interface About {
   level: Level;
   levelPages: Record<string, Level>;
-  voice: Voice | null;
 }
 
 const obj = (v: unknown): Record<string, unknown> => (typeof v === "object" && v !== null && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
@@ -65,7 +62,6 @@ export function parseDoc(kind: DocKind, raw: unknown): unknown {
       return {
         level: readLevel(typeof a.level === "string" ? a.level : null),
         levelPages: readOverrides(JSON.stringify(obj(a.levelPages))),
-        voice: savedVoice(a.voice),
       } satisfies About;
     }
   }

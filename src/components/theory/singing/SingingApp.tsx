@@ -1,5 +1,7 @@
 "use client";
 
+import VoiceSelect from "./VoiceSelect";
+import { usePlayerVoice } from "@/features/userData/client/usePlayerVoice";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
 import { AccuracyRow, KeyRow, MAX_LAG_MS, MelodyViewRow, PlayAheadRow, PocketSection, ScaleFacts, keyAndScaleName, usePlayAhead } from "@/features/settings";
@@ -8,9 +10,8 @@ import Icon from "@/components/Icon";
 import { Button, Hint, HintProvider, Select, Slider } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
-import { getAudioContext, getSharedPiano, midiToName, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
+import { getAudioContext, getSharedPiano, onSilence, playSequence, silence, wakeAudio } from "@/features/sound";
 import { MAX_BPM, MIN_BPM, type PocketStatus } from "@/features/instruments";
-import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
 import { VOICES, buildLadder, clefFor, hzToMidi, scaleRun, tuneLadderFor, type Ladder, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, DIFFICULTIES, RUNS, runPasses, type BookTune, type PlacedNote } from "@/features/theory/singingMelodies";
 import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
@@ -52,8 +53,9 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
   const linked = tuneTab ? book.find((t) => t.n === initial.melody) : undefined;
   const [tonicPc, setTonicPc] = useState(initial.tonicPc);
   const [scale, setScale] = useState(initial.scale);
-  // the voice picked last is part of the player's "about me" (kept with the account); soprano until it loads or is picked
-  const voice: Voice = useUserDoc("about")[0].voice ?? "soprano";
+  // the player's voice, kept with their account: a type or their own range; soprano until it loads or is picked
+  const singer = usePlayerVoice();
+  const voice: Voice = singer.type ?? "soprano";
   // how close counts as on the note, shared with the singing tools
   const [cents] = useAccuracy();
   // how far the bar runs ahead of the voice dot on a melody
@@ -64,8 +66,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
       <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">{lagMs} ms</span>
     </>
   );
-  const pickVoice = (v: Voice) => userDoc("about").update((a) => ({ ...a, voice: v }));
-  const range = VOICES[voice];
+  const range = singer.range ?? VOICES[voice];
   const [rest, setRest] = useState(2);
   // the tune being sung, by number, and the difficulty whose tunes are listed ("all", the whole book, to start with)
   const [active, setActive] = useState(linked?.n ?? book[0].n);
@@ -217,10 +218,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
     ?? (status === "on" ? "Listening. Sing the scale up from the root: the dot turns green on a note of the scale, red on a note outside it."
     : "Tap a note to hear it, or play the scale up and down on the metronome's tempo. Then press Start microphone and sing it back.");
 
-  const voiceSelect = (
-    <Select size="sm" value={voice} onChange={pickVoice} aria-label="Voice"
-      options={(Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: `${VOICES[v].label} · ${midiToName(VOICES[v].low)}–${midiToName(VOICES[v].high)}` }))} />
-  );
+  const voiceSelect = <VoiceSelect fallback="soprano" />;
   const difficulties = [...levels.map((i) => ({ value: i as number | "all", label: DIFFICULTIES[i].title })), { value: "all" as const, label: "All" }];
 
   return (
@@ -257,7 +255,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
         {lead}
         <section data-tour="singing-drill" className={`${panel} flex flex-col gap-3`}>
           <div data-tour="singing-controls" className="flex flex-wrap items-center gap-3">
-            <h2 className="text-base font-medium text-slate-100">{tab === "runs" ? `Runs across the ${range.label.toLowerCase()} range` : tab === "melodies" ? `Melodies in ${tuneLadder.title}` : ladder.title}</h2>
+            <h2 className="text-base font-medium text-slate-100">{tab === "runs" ? (singer.voice?.range ? `Runs across your range, ${range.label}` : `Runs across the ${range.label.toLowerCase()} range`) : tab === "melodies" ? `Melodies in ${tuneLadder.title}` : ladder.title}</h2>
             {tab === "scales" && (
               <Hint title={running ? "Stop" : "Play the scale"} description={running ? "Ends the scale." : "Runs it up and down on the metronome's tempo."}>
                 <Button size="sm" pressed={running} onClick={() => void play()} className={`inline-flex items-center gap-1.5 ${running ? "!border-sky-400/70 !bg-sky-500/20 !text-sky-100" : ""}`}>

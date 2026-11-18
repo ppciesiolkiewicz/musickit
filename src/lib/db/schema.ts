@@ -440,3 +440,23 @@ export const planClaims = pgTable(
   },
   (t) => [primaryKey({ columns: [t.shareId, t.userId] }), index("plan_claims_user_id_idx").on(t.userId)],
 );
+
+/**
+ * A player's singing voice (`SingerVoice` in features/theory/voiceRange.ts), one row a player, none while it is not
+ * known. Either a voice type (`type`, a key of `VOICES`: the singing tools then use that type's range from its
+ * definition) or a range of the player's own, found with the microphone (`low` and `high`, MIDI notes), never both.
+ * Written by the player (`PUT /api/me/voice`), or by a teacher when they add the student.
+ */
+export const userVoices = pgTable(
+  "user_voices",
+  {
+    userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+    type: text("type"),
+    low: integer("low"),
+    high: integer("high"),
+    updatedAt: at("updated_at").notNull().defaultNow(),
+  },
+  (t) => [
+    check("user_voices_type_or_range", sql`(${t.type} is not null and ${t.low} is null and ${t.high} is null) or (${t.type} is null and ${t.low} is not null and ${t.high} is not null and ${t.low} < ${t.high})`),
+  ],
+);

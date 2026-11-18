@@ -17,14 +17,15 @@ const CREATOR_KEY = "musickit.creator.key";
 const IMPROV_KEY = "musickit.improv.stats";
 const NOTE_GAME_KEY = "musickit.noteGame.best";
 const ROLL_KEY = "musickit.lipRoll.accuracy";
-/** the voice picked last on the singing pages (once its range, which still reads back) */
+/** the player's singing voice: a type or a range of their own (once a bare type name or range, which still read back) */
 const VOICE_KEY = "singing.range";
 
 const KEYS: Record<UserDocKind, string[]> = {
   course_notes: [NOTES_KEY],
   creator: [CREATOR_KEY],
   records: [IMPROV_KEY, NOTE_GAME_KEY, ROLL_KEY],
-  about: [GLOBAL_KEY, PAGE_KEY, VOICE_KEY],
+  about: [GLOBAL_KEY, PAGE_KEY],
+  voice: [VOICE_KEY],
 };
 
 const read = (k: string): string | null => {
@@ -65,7 +66,9 @@ function readDoc(kind: UserDocKind): unknown {
       return { improv: { done: Number(improv?.done) || 0, best: Number(improv?.best) || 0 }, noteGameBest: Number(read(NOTE_GAME_KEY)) || 0, lipRollAccuracy: json(ROLL_KEY) };
     }
     case "about":
-      return { level: read(GLOBAL_KEY), levelPages: json(PAGE_KEY), voice: json(VOICE_KEY) };
+      return { level: read(GLOBAL_KEY), levelPages: json(PAGE_KEY) };
+    case "voice":
+      return json(VOICE_KEY);
   }
 }
 
@@ -86,9 +89,11 @@ function writeDoc(kind: UserDocKind, doc: unknown) {
       const a = doc as About;
       write(GLOBAL_KEY, a.level);
       write(PAGE_KEY, JSON.stringify(a.levelPages));
-      if (a.voice !== null) write(VOICE_KEY, JSON.stringify(a.voice));
       return;
     }
+    case "voice":
+      write(VOICE_KEY, JSON.stringify(doc));
+      return;
   }
 }
 

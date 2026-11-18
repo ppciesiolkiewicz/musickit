@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
 import { EMPTY_STATE, type PlanExercise, type PlanState } from "@/features/plan/model/types";
-import { putEntry, readDoc, readDocVersioned, readEntries, readOwnDocVersioned, readAllPlanTimes, readPlanTimes, storePlanBlocks, writeDoc, writePlanTime } from "./data";
+import { putEntry, readDoc, readDocVersioned, readEntries, readOwnDocVersioned, readAllPlanTimes, readPlanTimes, storePlanBlocks, readVoice, writeDoc, writePlanTime, writeVoice } from "./data";
 import { memoryUserDataRepo } from "./repo.memory";
 
 const now = new Date("2026-11-15T10:00:00Z");
@@ -392,4 +392,23 @@ test("a save without a version reads again when another write lands between its 
   const stored = (await readDoc(base, "u1", "plan")) as PlanState;
   assert.equal(stored.given[0].teacher?.comment, "newer words");
   assert.deepEqual(stored.given[0].done, { "0:0": true });
+});
+
+test("writeVoice keeps one voice a player: a type or their own range; null removes it; a broken one is refused", async () => {
+  const repo = memoryUserDataRepo();
+  const now = new Date();
+  assert.equal(await readVoice(repo, "u1"), null);
+  assert.equal(await writeVoice(repo, "u1", { type: "tenor" }, now), true);
+  assert.deepEqual(await readVoice(repo, "u1"), { type: "tenor" });
+  assert.equal(await writeVoice(repo, "u1", { type: "tenor", range: { low: 45, high: 64 } }, now), true);
+  assert.deepEqual(await readVoice(repo, "u1"), { range: { low: 45, high: 64 } }, "their own range replaces the type");
+  assert.equal(await writeVoice(repo, "u1", { type: "loud" }, now), false);
+  assert.equal(await writeVoice(repo, "u1", { range: { low: 64, high: 45 } }, now), false);
+  assert.deepEqual(await readVoice(repo, "u1"), { range: { low: 45, high: 64 } }, "a refused save changes nothing");
+  assert.equal(await readVoice(repo, "u2"), null, "one player's voice is not another's");
+  assert.equal(await writeVoice(repo, "u1", null, now), true);
+  assert.equal(await readVoice(repo, "u1"), null);
+  await writeVoice(repo, "u1", { type: "bass" }, now);
+  repo.cascadeUser("u1");
+  assert.equal(await readVoice(repo, "u1"), null, "gone with the account");
 });

@@ -1,12 +1,13 @@
 "use client";
 
+import VoiceSelect from "./VoiceSelect";
+import { usePlayerVoice } from "@/features/userData/client/usePlayerVoice";
+import { SingerVoiceProvider } from "@/features/exercises/basics/voiceChoice";
 import { useState, type ReactNode } from "react";
-import { Checkbox, Chip, Select, SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
+import { Checkbox, Chip, SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
 import { DirectionChips } from "@/components/practice/DirectionChips";
 import { useLevelAtLeast } from "@/features/guide/Tier";
-import { midiToName } from "@/features/sound";
-import { VOICES, type Voice } from "@/features/theory/singing";
-import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
+import type { Voice } from "@/features/theory/singing";
 import { AccuracyRow, VolumeRow } from "@/features/settings";
 import { INTERVALS } from "@/lib/chordKit/intervals";
 import { EAR_LEVELS, levelSemis } from "@/lib/practice/earGame";
@@ -25,8 +26,9 @@ const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
  */
 export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   const standard = useLevelAtLeast("standard");
-  // the voice picked last, shared with the other singing pages through the player's "about me"; tenor until it loads or is picked
-  const voice: Voice = useUserDoc("about")[0].voice ?? "tenor";
+  // the player's voice, shared with the other singing pages and kept with their account; tenor until it loads or is picked
+  const singer = usePlayerVoice();
+  const voice: Voice = singer.type ?? "tenor";
   const [dir, setDir] = useState<IntervalDir>("up");
   const [level, setLevel] = useState<number | "custom">(1);
   const [custom, setCustom] = useState<number[] | null>(null);
@@ -34,7 +36,6 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   const [random, setRandom] = useState(false);
   const [lookPicked, setLook] = useState<Look>("roll");
   const [dotPicked, setDot] = useState(true);
-  const pickVoice = (v: Voice) => userDoc("about").update((a) => ({ ...a, voice: v }));
   const intervals = level === "custom" ? custom ?? [] : levelSemis(level);
   // the first Custom starts from the level it came from; after that it keeps its own set
   const pickCustom = () => {
@@ -50,8 +51,7 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   const bar = (
     <SettingsSection first>
         <SettingsRow label="Voice">
-          <Select size="sm" value={voice} onChange={pickVoice} aria-label="Voice"
-            options={(Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: `${VOICES[v].label} · ${midiToName(VOICES[v].low)}–${midiToName(VOICES[v].high)}` }))} />
+          <VoiceSelect fallback="tenor" />
         </SettingsRow>
         {standard && <SettingsRow label="Keys" info="Where Do comes from: only the keys picked, or a random one of all twelve each time.">
           <KeysSwitch random={random} onRandom={setRandom} />
@@ -83,7 +83,7 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
     <SettingsPanel settings={bar}>
       {lead}
       <section className={`${panel} mx-auto w-full max-w-3xl`}>
-        <IntervalSinger key={voice} voice={voice} intervals={intervals} dir={dir} options={options} hostSettings />
+        <SingerVoiceProvider voice={singer.voice}><IntervalSinger key={singer.range?.label ?? voice} voice={voice} intervals={intervals} dir={dir} options={options} hostSettings /></SingerVoiceProvider>
       </section>
     </SettingsPanel>
   );

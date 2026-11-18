@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
-import { VOICES, buildLadder, clefFor, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
+import { useVoiceRange } from "./voiceChoice";
+import { buildLadder, clefFor, tuneLadderFor, type Range, type Voice } from "@/features/theory/singing";
 import { BOOK, RUNS, placeRun, placeTune, runPasses } from "@/features/theory/singingMelodies";
 import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory/melodyChords";
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
@@ -21,7 +22,7 @@ const TAP_MS = 900;
  */
 export function SingerView({ n, pc = 0, voice = "soprano", chords = true, metronome = false }: { n: number; pc?: number; voice?: Voice; chords?: boolean; metronome?: boolean }) {
   const tune = BOOK.find((t) => t.n === n) ?? RUNS.find((t) => t.n === n);
-  const range = VOICES[voice] ?? VOICES.soprano;
+  const range = useVoiceRange(voice, "soprano");
   const clef = clefFor(range);
   const { ladder, passes, notes, harmony } = useMemo(() => {
     const ladderIn = (k: number, r: Range) => tuneLadderFor(buildLadder("major-ionian", k, r)!, k, r);

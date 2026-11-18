@@ -1,12 +1,11 @@
 "use client";
 
 import Icon from "@/components/Icon";
-import { Chip, Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
-import { VOICES, type Voice } from "@/features/theory/singing";
+import { Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
 import { AREAS, type Area } from "../../model/concepts";
 import { MINUTES, type PlanAnswers } from "../answers";
 import { topicsFor } from "../topics";
-import RangeFinder from "./RangeFinder";
+import YourVoice, { VoiceField } from "./YourVoice";
 import TopicStep from "./TopicStep";
 
 const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
@@ -23,7 +22,9 @@ export type SetAnswer = <K extends keyof PlanAnswers>(k: K, v: PlanAnswers[K]) =
 /**
  * How the screens are worded and what they ask. `forStudent`: a teacher fills them in for a student (the Students page):
  * "you" becomes "your student", the answer options keep their own words, the voice screen has no range finder (it
- * listens to the person at the microphone), and each topic screen needs one answer (an area with none can't make a plan).
+ * listens to the person at the microphone) and its answer goes with the others to the student's account, and each topic
+ * screen needs one answer (an area with none can't make a plan). A player's own voice screen changes their voice at
+ * once (`YourVoice`, their `user_voices` row) and keeps a copy with the answers.
  */
 export interface QuestionOpts {
   forStudent?: boolean;
@@ -72,21 +73,15 @@ export function topicSteps(a: PlanAnswers, set: SetAnswer, areas: Area[] = a.are
 }
 
 function voiceStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: QuestionOpts = {}): ModalStep {
-  const type = a.voice?.type;
   return {
     title: forStudent ? "Your student's voice" : "Your voice",
     hue: AREA_LOOK.voice.hue,
-    hint: forStudent ? "Optional. Pick their voice type, or leave it at Not sure." : "Optional. Pick a type, or find your range with the mic.",
-    body: (
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap gap-2">
-          {(Object.keys(VOICES) as Voice[]).map((v, i) => <Chip key={v} hue={hueAt(i)} on={type === v} onClick={() => set("voice", { ...a.voice, type: v })}>{VOICES[v].label}</Chip>)}
-          <Chip on={!type} onClick={() => set("voice", undefined)}>Not sure</Chip>
-        </div>
-        {!forStudent && type && a.voice?.range && <p className="text-xs text-slate-400">Range found. It is kept with your answers.</p>}
-        {!forStudent && <RangeFinder onRange={(range, v) => set("voice", { type: v, range })} />}
-      </div>
-    ),
+    hint: forStudent
+      ? "Optional. Pick their voice type, or leave it at Not sure. Your student can find their own range later, on Sing a scale."
+      : "Optional. Find your range with the microphone, or pick a voice type.",
+    body: forStudent
+      ? <VoiceField finder={false} value={a.voice ?? null} onChange={(v) => set("voice", v ?? undefined)} />
+      : <YourVoice onPicked={(v) => set("voice", v ?? undefined)} />,
   };
 }
 

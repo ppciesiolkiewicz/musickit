@@ -6,34 +6,38 @@ import InputChip, { micStatusMessage } from "@/components/InputChip";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 import { getAudioContext, openInputStream, openLiveInput, tapChannels } from "@/features/sound";
 import { usePitch } from "@/features/tuner/usePitch";
-import { VOICES, hzToMidi, type Voice } from "@/features/theory/singing";
-import { isHighEnough, nearestVoice, noteName, normaliseRange, steadyNote } from "@/features/theory/voiceRange";
+import { VOICES, hzToMidi, type Range, type Voice } from "@/features/theory/singing";
+import { MIN_SPAN, furthest, isHighEnough, nearestVoice, noteName, rangeOf, rangeWords, steadyNote } from "@/features/theory/voiceRange";
 
 type Step = "idle" | "low" | "high" | "done";
 
 const FRAME = 4096;
-/** Readings come about 30 a second: a second of the same note. */
-const STEADY_FRAMES = 30;
-const GIVE_UP_MS = 10_000;
+/** Readings come about 30 a second: half a second of the same note counts as held. */
+const HELD_FRAMES = 15;
+/** with no note held this long into a step, the finder says so (it keeps listening) */
+const QUIET_MS = 10_000;
 const MIN_HZ = 60;
 /** how often the input's level is published for the chip */
 const LEVEL_MS = 66;
 
 /**
- * Finds a singing range with the microphone: sing the lowest comfortable note, then the highest, each held for about a second.
- * Reports the range and its nearest voice type. Releases the microphone when done or unmounted. It sits in a modal where the
+ * Finds a singing range with the microphone, in two steps: the player slides down to their lowest easy note, then up to
+ * their highest. Every note held for half a second counts, and the step keeps the lowest (then the highest) of them, so
+ * the player can take their time and go further; they end each step themself. `current` is the range they already have.
+ * Reports the range when both ends are in. Releases the microphone when done or unmounted. It sits in a modal where the
  * nav's devices menu can't be reached, so the input chip beside its button shows and changes the input and the level it hears.
  */
-export default function RangeFinder({ onRange }: { onRange: (r: { low: number; high: number }, voice: Voice) => void }) {
+export default function RangeFinder({ current = null, onRange }: { current?: Range | null; onRange: (r: Range) => void }) {
   const [step, setStep] = useState<Step>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<MicStatus>("off");
-  const [result, setResult] = useState<{ low: number; high: number; voice: Voice } | null>(null);
   const analyser = useRef<AnalyserNode | null>(null);
   const release = useRef<(() => void) | null>(null);
-  const low = useRef<number | null>(null);
-  /** the low note once found, for the chart */
-  const [lowNote, setLowNote] = useState<number | null>(null);
+  /** the lowest note held in the first step, and the highest held in the second (at least a minor 3rd above it) */
+  const [low, setLow] = useState<number | null>(null);
+  const [high, setHigh] = useState<number | null>(null);
+  /** no note held yet, a while into the step */
+  const [quiet, setQuiet] = useState(false);
   const alive = useRef(true);
   const starting = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -51,8 +55,6 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
     alive.current = true;
     return () => { alive.current = false; stop(); };
   }, []);
-
-  const giveUp = () => { stop(); setStep("idle"); setMessage("Couldn't hear you; pick a type above."); };
 
   const start = async () => {
     if (starting.current || release.current) return;
@@ -89,7 +91,8 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
       const meter = window.setInterval(() => live.levels(tap.levels()), LEVEL_MS);
       release.current = () => { window.clearInterval(meter); live.close(); tap.close(); src.disconnect(); free(); };
       setStatus("on");
-      low.current = null;
+      setLow(null);
+      setHigh(null);
       history.current = [];
       setStep("low");
     } catch (e) {
@@ -101,58 +104,90 @@ export default function RangeFinder({ onRange }: { onRange: (r: { low: number; h
         const st: MicStatus = e instanceof DOMException && (e.name === "NotAllowedError" || e.name === "SecurityError") ? "denied" : "error";
         setStatus(st);
         setStep("idle");
-        setMessage(`${micStatusMessage(st)} Or pick a type above.`);
-      } else giveUp();
+        setMessage(`${micStatusMessage(st)} Or pick a voice type below.`);
+      } else {
+        setStep("idle");
+        setMessage("The microphone didn't start. Press Find my range to try again, or pick a voice type below.");
+      }
     } finally { starting.current = false; if (alive.current) setBusy(false); }
   };
 
-  // each reading joins the history; a held note ends the step
+  // each reading joins the history; a held note moves the step's end when it is further out
   useEffect(() => {
     if (!listening) return;
-    history.current = [...history.current, hz === null ? null : hzToMidi(hz)].slice(-STEADY_FRAMES * 2);
-    const note = steadyNote(history.current, STEADY_FRAMES);
+    history.current = [...history.current, hz === null ? null : hzToMidi(hz)].slice(-HELD_FRAMES * 2);
+    const note = steadyNote(history.current, HELD_FRAMES);
     if (note === null) return;
-    history.current = [];
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the step follows the mic reading
-    if (step === "low") { low.current = note; setLowNote(note); setStep("high"); return; }
-    if (low.current !== null && !isHighEnough(low.current, note)) return; // still holding the low note
-    stop();
-    const range = normaliseRange(low.current ?? note, note);
-    const voice = nearestVoice(range);
-    setResult({ ...range, voice });
-    setStep("done");
-    onRange(range, voice);
+    if (step === "low") setLow((n) => furthest(n, note, "low"));
+    else if (low !== null && isHighEnough(low, note)) setHigh((n) => furthest(n, note, "high"));
   }, [hz]); // eslint-disable-line react-hooks/exhaustive-deps -- one reading at a time
 
-  // no steady note within a while of a step starting
+  // a while into a step with no note held: say so, and keep listening
+  const held = step === "low" ? low : high;
   useEffect(() => {
-    if (!listening) return;
-    const id = window.setTimeout(giveUp, GIVE_UP_MS);
-    return () => window.clearTimeout(id);
-  }, [listening, step]); // eslint-disable-line react-hooks/exhaustive-deps -- the wait is per step
+    if (!listening || held !== null) return;
+    const id = window.setTimeout(() => setQuiet(true), QUIET_MS);
+    return () => { window.clearTimeout(id); setQuiet(false); };
+  }, [listening, step, held]);
 
+  const next = () => { history.current = []; setStep("high"); };
+  const finish = () => {
+    if (low === null || high === null) return;
+    stop();
+    setStep("done");
+    onRange({ low, high });
+  };
+
+  const found = step === "done" && low !== null && high !== null ? { low, high } : null;
+  const shown = found ?? (step === "idle" ? current : null);
+  const used = shown ? rangeOf({ range: shown }) : null;
+  const nearest = shown ? nearestVoice(shown) : null;
   const liveMidi = listening && hz !== null ? hzToMidi(hz) : null;
   return (
     <div className="flex w-full flex-col items-start gap-2" aria-live="polite">
+      {!listening && !shown && <p className="text-sm text-slate-300">Sing your lowest and your highest easy note, and the singing exercises fit your own voice. It takes under a minute.</p>}
+      {!listening && shown && used && nearest && (
+        <div className="text-sm text-slate-200">
+          <p>Your range is <b className="font-semibold text-slate-50">{rangeWords(shown)}</b>. {shown.high - shown.low >= MIN_SPAN ? "The singing exercises stay inside it." : `That is less than an octave, so the singing exercises use ${rangeWords(used)}.`}</p>
+          <p className="mt-1 text-xs text-slate-400">
+            {shown.high - shown.low >= MIN_SPAN ? <>Closest voice type: <span className={VOICE_STYLE[nearest].text}>{VOICES[nearest].label}</span>.</> : "Press Find it again below once your voice is warm: most voices reach further then."}
+          </p>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-2">
-        {step === "idle" && <Button onClick={start} disabled={busy}>Find my range</Button>}
+        {!listening && <Button onClick={start} disabled={busy}>{shown ? "Find it again" : "Find my range"}</Button>}
+        {step === "low" && <Button onClick={next} disabled={low === null}>That&apos;s my lowest</Button>}
+        {step === "high" && <Button onClick={finish} disabled={high === null}>That&apos;s my highest</Button>}
         <InputChip status={status} />
       </div>
       {listening && (
-        <div className="flex items-center gap-2 text-sm">
-          <StepDot n={1} on={step === "low"} done={step === "high"} label="Lowest" />
-          <span aria-hidden className="h-px w-4 bg-slate-700" />
-          <StepDot n={2} on={step === "high"} done={false} label="Highest" />
-          <span className="ml-2 text-slate-200">{step === "low" ? "Sing your lowest comfortable note and hold it" : "Now your highest, and hold it"}</span>
+        <div className="flex flex-col gap-1.5 text-sm">
+          <div className="flex items-center gap-2">
+            <StepDot n={1} on={step === "low"} done={step === "high"} label="Lowest" />
+            <span aria-hidden className="h-px w-4 bg-slate-700" />
+            <StepDot n={2} on={step === "high"} done={false} label="Highest" />
+          </div>
+          <p className="text-slate-200">
+            {step === "low"
+              ? "Slide down on \"ah\" to the lowest note that still feels easy, and hold it. Then press That's my lowest above."
+              : "Now slide up on \"oo\" to the highest note that still feels easy, and hold it. Then press That's my highest above."}
+          </p>
+          <p className="text-xs">
+            {/* a care line, drawn as the plan's are (`CareLine` in plan/ui/reader/NoteText.tsx) */}
+            <mark className="rounded-[2px] bg-transparent px-0.5 font-medium text-slate-50" style={{ backgroundImage: "linear-gradient(transparent 62%, color-mix(in oklab, var(--color-amber-400) 40%, transparent) 62%)" }}>
+              Sing only notes that feel easy. Don&apos;t push for a lower or a higher one.
+            </mark>
+          </p>
+          <p className="text-xs text-slate-300">
+            {held !== null
+              ? <>{step === "low" ? "Lowest" : "Highest"} so far: <b className="text-slate-100">{noteName(held)}</b>. Go further if it still feels easy.</>
+              : quiet
+                ? "The microphone hears no held note yet. Check the input above, then sing a little louder and hold the note."
+                : step === "high" && low !== null ? `Your lowest is ${noteName(low)}. The microphone is listening for a higher note.` : "The microphone is listening."}
+          </p>
         </div>
       )}
-      {step === "done" && result && (
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-slate-200">{noteName(result.low)} – {noteName(result.high)} → <b className={`font-semibold ${VOICE_STYLE[result.voice].text}`}>{VOICES[result.voice].label}</b></p>
-          <Button onClick={() => { setResult(null); setStep("idle"); }}>Retry</Button>
-        </div>
-      )}
-      {(listening || result) && <RangeChart live={liveMidi} low={step === "high" ? lowNote : result?.low ?? null} high={result?.high ?? null} voice={result?.voice ?? null} />}
+      {(listening || found) && <RangeChart live={liveMidi} low={low} high={high} voice={found ? nearest : null} />}
       {message && <p role="alert" className="text-xs text-rose-300">{message}</p>}
     </div>
   );

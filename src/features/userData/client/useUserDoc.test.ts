@@ -60,9 +60,9 @@ test("before loading, get returns the empty document and loaded is false", async
   const stop = doc.subscribe(() => {});
   assert.deepEqual(doc.get(), parseDoc("about", null));
   assert.equal(doc.loaded(), false);
-  await src.answer({ level: "full", voice: "alto" });
+  await src.answer({ levelPages: { one: "standard" } });
   assert.equal(doc.loaded(), true);
-  assert.equal((doc.get() as { voice: string }).voice, "alto");
+  assert.deepEqual(doc.get().levelPages, { one: "standard" });
   assert.deepEqual(src.saved, [], "a load saves nothing");
   stop();
 });
@@ -110,13 +110,13 @@ test("a new source resets the document and loads it again", async () => {
   use(first);
   const doc = userDoc("about");
   const stop = doc.subscribe(() => {});
-  await first.answer({ voice: "bass" });
+  await first.answer({ levelPages: { one: "standard" } });
   const second = fakeSource();
   use(second);
   assert.equal(doc.loaded(), false);
   assert.deepEqual(doc.get(), parseDoc("about", null));
-  await second.answer({ voice: "alto" });
-  assert.equal((doc.get() as { voice: string }).voice, "alto");
+  await second.answer({ levelPages: { two: "standard" } });
+  assert.deepEqual(doc.get().levelPages, { two: "standard" });
   stop();
 });
 
@@ -127,10 +127,10 @@ test("a load from an old source that answers late is ignored", async () => {
   const stop = doc.subscribe(() => {});
   const second = fakeSource();
   use(second);
-  await first.answer({ voice: "bass" });
+  await first.answer({ levelPages: { one: "standard" } });
   assert.equal(doc.loaded(), false);
   await second.answer(null);
-  assert.equal((doc.get() as { voice: unknown }).voice, null);
+  assert.deepEqual(doc.get().levelPages, {});
   stop();
 });
 
@@ -140,7 +140,7 @@ test("an update waiting on the load counts as saving, then saved once the load l
   const doc = userDoc("about");
   const stop = doc.subscribe(() => {});
   assert.equal(worstStatus(), "saved");
-  doc.update((a) => ({ ...a, voice: "alto" }));
+  doc.update((a) => ({ ...a, levelPages: { one: "standard" } }));
   assert.equal(worstStatus(), "saving", "the leave warning covers it");
   await src.answer(null);
   assert.equal(worstStatus(), "saved");

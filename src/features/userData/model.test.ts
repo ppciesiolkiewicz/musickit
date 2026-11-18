@@ -10,10 +10,10 @@ test("parseDoc: a missing plan is the sanitised empty state", () => {
 });
 
 test("parseDoc: about falls back piece by piece", () => {
-  const a = parseDoc("about", { level: "nope", voice: 3 }) as { level: string; levelPages: object; voice: unknown };
+  const a = parseDoc("about", { level: "nope", voice: 3 }) as { level: string; levelPages: object };
   assert.equal(a.level, DEFAULT_LEVEL);
   assert.deepEqual(a.levelPages, {});
-  assert.equal(a.voice, null);
+  assert.equal("voice" in a, false, "the voice has its own table");
 });
 
 test("parseDoc: records fall back to zero, and an unset lip roll accuracy is null", () => {

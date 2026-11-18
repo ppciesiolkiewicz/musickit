@@ -3,7 +3,9 @@
 import { useSyncExternalStore } from "react";
 import type { SectionNotes } from "@/features/course/notes";
 import type { KeyChoice } from "@/features/creator/model/key";
+import { cleanVoice, type SingerVoice } from "@/features/theory/voiceRange";
 import { parseDoc, type About, type DocKind, type Records } from "../model";
+import { accountHeaders } from "./accountHeader";
 import { createDocClient, putDocument, reloadSoon, type DocClient } from "./docClient";
 import { getJson, LoadRefused } from "./load";
 import { report, type SaveStatus, type Tracked } from "./registry";
@@ -11,13 +13,26 @@ import { localBackend } from "./localDocs";
 import type { DataSource } from "./source";
 
 /** The documents read and written through `userDoc`. The plan and the note have their own stores. */
-export type UserDocKind = Extract<DocKind, "course_notes" | "creator" | "records" | "about">;
+/**
+ * The player's singing voice is read and written the same way, but it is not a stored document: on the server it is
+ * the player's `user_voices` row (`/api/me/voice`). Null while it is not known.
+ */
+export type UserDocKind = Extract<DocKind, "course_notes" | "creator" | "records" | "about"> | "voice";
+
+/** A document as stored, made safe; the kind's empty value for missing or broken input. */
+const parse = (kind: UserDocKind, raw: unknown): unknown => (kind === "voice" ? cleanVoice(raw) : parseDoc(kind, raw));
+
+/** How long a save of the voice may take before it counts as failed and is tried again. */
+const VOICE_PUT_MS = 15_000;
+const putVoice = (data: unknown, init?: { keepalive: boolean }): Promise<Response> =>
+  fetch("/api/me/voice", { method: "PUT", headers: accountHeaders({ "content-type": "application/json" }), body: JSON.stringify({ data }), keepalive: !!init?.keepalive, signal: AbortSignal.timeout(VOICE_PUT_MS) });
 
 export interface UserDocTypes {
   course_notes: Record<string, SectionNotes>;
   creator: KeyChoice;
   records: Records;
   about: About;
+  voice: SingerVoice | null;
 }
 
 /** Where one document is read from and saved to, for the current source. */
@@ -89,7 +104,7 @@ const emit = (e: Entry) => e.listeners.forEach((fn) => fn());
 function entry(kind: UserDocKind): Entry {
   let e = entries.get(kind);
   if (!e) {
-    const empty = parseDoc(kind, null);
+    const empty = parse(kind, null);
     const made: Entry = {
       kind, empty, value: empty, loaded: false, loading: false, overridden: false, unsaved: false, pending: [], listeners: new Set(), unwatch: null, refused: null,
       // nothing can be sent before the load, so a flush has nothing to send
@@ -112,7 +127,7 @@ function start(e: Entry) {
       e.loading = false;
       e.loaded = true;
       const write = e.unsaved || e.pending.length > 0;
-      if (!e.overridden) e.value = e.pending.reduce((v, fn) => fn(v), parseDoc(e.kind, raw));
+      if (!e.overridden) e.value = e.pending.reduce((v, fn) => fn(v), parse(e.kind, raw));
       e.pending = [];
       e.overridden = false;
       e.unsaved = false;
@@ -122,7 +137,7 @@ function start(e: Entry) {
       e.unwatch = b.watch?.(() => {
         void b.load().then((fresh) => {
           if (gen !== generation) return;
-          e.value = parseDoc(e.kind, fresh);
+          e.value = parse(e.kind, fresh);
           emit(e);
         }, () => {});
       }) ?? null;
@@ -180,7 +195,10 @@ export function backendsFor(source: DataSource): Backends {
           let client: DocClient | null = null;
           // the version the document was loaded at; a client made before the load learns it when the load arrives
           let loadedVersion: number | undefined;
-          b = {
+          b = kind === "voice" ? {
+            load: () => getJson("/api/me/voice").then((body) => (body as { data?: unknown } | null)?.data ?? null),
+            save: (doc) => (client ??= createDocClient({ put: putVoice })).save(doc),
+          } : {
             load: () =>
               getJson(`/api/me/documents/${kind}`).then((body) => {
                 const version = (body as { version?: unknown } | null)?.version;

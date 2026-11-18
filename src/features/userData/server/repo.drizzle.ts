@@ -1,7 +1,8 @@
 import { and, desc, eq, exists, inArray, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "@/lib/db/client";
-import { blockOwners, blocks, planClaims, planDayTimes, practicePlanBlocks, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
+import { blockOwners, blocks, planClaims, planDayTimes, practicePlanBlocks, progressEntries, shareVideos, shares, userDocuments, userVoices, videos } from "@/lib/db/schema";
+import { cleanVoice } from "@/features/theory/voiceRange";
 import type { ProgressEntry } from "@/features/progress/log";
 import { levelOfSteps } from "@/features/plan/model/path";
 import type { Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
@@ -83,6 +84,20 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
           // a record without blocks or dates (a tab running code from before them) keeps the stored ones
           set: { elapsed: t.elapsed, spent: t.spent, blocks: sql`coalesce(excluded.blocks, ${planDayTimes.blocks})`, onDates: sql`coalesce(excluded.on_dates, ${planDayTimes.onDates})`, updatedAt: now },
         });
+    },
+    async getVoice(userId) {
+      const [row] = await db.select({ type: userVoices.type, low: userVoices.low, high: userVoices.high }).from(userVoices).where(eq(userVoices.userId, userId)).limit(1);
+      if (!row) return null;
+      return cleanVoice(row.low !== null && row.high !== null ? { range: { low: row.low, high: row.high } } : { type: row.type });
+    },
+    async putVoice(userId, voice, now) {
+      if (!voice) {
+        await db.delete(userVoices).where(eq(userVoices.userId, userId));
+        return;
+      }
+      // a range of their own, or a type: the table's check takes one or the other
+      const row = voice.range ? { type: null, low: voice.range.low, high: voice.range.high } : { type: voice.type ?? null, low: null, high: null };
+      await db.insert(userVoices).values({ userId, ...row, updatedAt: now }).onConflictDoUpdate({ target: userVoices.userId, set: { ...row, updatedAt: now } });
     },
     async ownedBlockIds(userId, ids) {
       if (!ids.length) return new Set();

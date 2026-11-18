@@ -39,6 +39,14 @@ const ok = <T extends { ok: boolean }>(r: T) => {
   return r as Extract<T, { ok: true }>;
 };
 
+test("the voice type a teacher picks is the student's voice; with none picked, no voice is stored", async () => {
+  const s = await setup({ students: 5 });
+  const sung = ok(await addStudent(s.both, s.teacher, { name: "Ann", email: "ann@x.com", answers: { ...ANSWERS, areas: ["guitar", "voice"], topics: { ...ANSWERS.topics, "voice-pitch": 1 }, voice: { type: "alto" } }, today: TODAY }));
+  assert.deepEqual(await s.userData.getVoice(sung.studentId), { type: "alto" });
+  const plain = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@x.com", answers: ANSWERS, today: TODAY }));
+  assert.equal(await s.userData.getVoice(plain.studentId), null);
+});
+
 test("a student is made on the taught plan, with the answers in a plan document and one history entry", async () => {
   const s = await setup();
   const r = ok(await addStudent(s.both, s.teacher, { name: "  Ben  Ray ", email: " Ben@Home.com ", answers: ANSWERS, today: TODAY }));

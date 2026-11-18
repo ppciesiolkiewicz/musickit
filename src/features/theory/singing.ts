@@ -36,14 +36,6 @@ export const RANGE_MAX = 96;
 /** The voice type whose range this is exactly, or null for any other. */
 export const voiceOf = (r: Range): Voice | null => (Object.keys(VOICES) as Voice[]).find((v) => VOICES[v].low === r.low && VOICES[v].high === r.high) ?? null;
 
-/** A stored voice: its name, or (as the page once kept it) its exact range; anything else is null. */
-export function savedVoice(v: unknown): Voice | null {
-  if (typeof v === "string") return Object.hasOwn(VOICES, v) ? (v as Voice) : null;
-  if (!v || typeof v !== "object") return null;
-  const { low, high } = v as Record<string, unknown>;
-  return typeof low === "number" && typeof high === "number" ? voiceOf({ low, high }) : null;
-}
-
 /**
  * The clef singers read in for a range, by its middle: treble for the higher voices (alto and up), the tenor's treble
  * with an 8 under it for one centred around middle C, bass for baritone and bass.

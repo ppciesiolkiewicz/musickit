@@ -4,7 +4,7 @@ import { hashToken, startSession, type AuthDeps, type SignedIn } from "@/feature
 import { migrateAnswers, areasMissingTopics } from "@/features/plan/intake/answers";
 import { recordAnswers } from "@/features/plan/model/answersHistory";
 import { EMPTY_STATE } from "@/features/plan/model/types";
-import { writeDoc } from "@/features/userData/server/data";
+import { writeDoc, writeVoice } from "@/features/userData/server/data";
 import type { UserDataRepo } from "@/features/userData/server/repo";
 import { activeOn, canGive, type Places } from "../model/places";
 import type { StudentList, StudentRow } from "../model/types";
@@ -109,6 +109,8 @@ export async function addStudent(
     const state = recordAnswers({ ...EMPTY_STATE, answers }, answers, now.toISOString());
     const wrote = await writeDoc(deps.userData, made.id, "plan", state, now);
     if (!wrote.ok) throw new Error(`the student's plan document was not written: ${wrote.error}`);
+    // the voice the teacher picked is the student's voice until they find their own range
+    if (answers.voice) await writeVoice(deps.userData, made.id, answers.voice, now);
     return { ok: true, studentId: made.id, claimToken: await makeClaim(auth, email) };
   } catch (error) {
     // the delete failing must not hide why the add failed: it is logged, and the first error is the one thrown

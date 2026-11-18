@@ -12,14 +12,14 @@ import { Badge, Button, Checkbox, Hint, KeyCap } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { getSharedPiano, playSequence, wakeAudio } from "@/features/sound";
-import { IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, spellName, type Ladder, type LadderNote, type Range, type Voice } from "@/features/theory/singing";
+import { IN_TUNE_CENTS, buildLadder, clefFor, hzToMidi, spellName, type Ladder, type LadderNote, type Range, type Voice } from "@/features/theory/singing";
 import { spellInterval } from "@/features/theory/singingIntervals";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { DEFAULT_INTERVALS, longName, nextAsk, placeDo, shortName, solfegeOf, toggleOne, type IntervalDir } from "./asks";
 import IntervalRoll from "./IntervalRoll";
 import { KeyChips, KeysSwitch, LookSwitch, type Look } from "./IntervalOptions";
-import { useVoice } from "../voiceChoice";
+import { useVoice, useVoiceRange } from "../voiceChoice";
 
 /** how long Do (and each note played back) sounds, in ms */
 const NOTE_MS = 900;
@@ -70,7 +70,7 @@ const NO_PITCH = { current: null };
 export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", play = "do", dot: dotProp = true, picker = true, options, hostSettings = false }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; /** "both": Do and then the note sound before the student sings (the easier way); "do": only Do */ play?: "do" | "both"; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean }; /** the page holds accuracy and the volume in its settings panel: no settings button here */ hostSettings?: boolean }) {
   useCoverage({ hints: 7 });
   const voice = useVoice(own);
-  const range = VOICES[voice] ?? VOICES.tenor;
+  const range = useVoiceRange(voice);
   const clef = clefFor(range);
   // Standard controls, each kept at Simple when the exercise sets it (several keys, the voice dot off); a hidden one
   // gives its default (the exercise's own setting), and what was picked returns when it shows again

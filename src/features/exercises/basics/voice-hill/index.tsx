@@ -7,11 +7,11 @@ import { useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
 import { getAudioContext, getOutputBus, getSharedPiano, wakeAudio } from "@/features/sound";
 import { useCoverage } from "@/features/guide/useCoverage";
-import { voiceMap } from "@/features/theory/registers";
+import { voiceMapIn } from "@/features/theory/registers";
 import { VOICES } from "@/features/theory/singing";
 import { Button, Hint } from "@/components/ui";
 import { PlayerCard } from "../../play-along/PlayerParts";
-import { useVoice } from "../voiceChoice";
+import { useVoice, useVoiceRange } from "../voiceChoice";
 import { noteLabel, useVoicePitch } from "../voicePitch";
 import { WarmUpBar, useWarmUpKeys } from "../warmUpBar";
 import { DEFAULTS, LIMITS, ballX, clampInt, heightAt, inZone, stepHold, towards, zoneFor, zoneX, type HillSound, type HillWhere } from "./hill";
@@ -74,8 +74,8 @@ export function View({ where = "low", sound = "hum", seconds: secondsProp, reps:
 }) {
   useCoverage({ hints: 2 });
   const voice = useVoice(own);
-  const range = VOICES[voice] ?? VOICES.tenor;
-  const map = useMemo(() => voiceMap(voice in VOICES ? voice : "tenor"), [voice]);
+  const range = useVoiceRange(voice);
+  const map = useMemo(() => voiceMapIn(voice in VOICES ? voice : "tenor", range), [voice, range]);
   const seconds = clampInt(secondsProp, LIMITS.seconds, DEFAULTS.seconds);
   const reps = clampInt(repsProp, LIMITS.reps, DEFAULTS.reps);
 

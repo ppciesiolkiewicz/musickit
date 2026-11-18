@@ -20,7 +20,7 @@ import { useLevelAtLeast } from "@/features/guide/Tier";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import dynamic from "next/dynamic";
-import { useVoice } from "../voiceChoice";
+import { useVoice, useVoiceRange } from "../voiceChoice";
 
 const PracticeBand = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBand), { ssr: false });
 
@@ -43,7 +43,7 @@ const GAP_FRAMES = 6;
 export function View({ slug, pc, voice: own, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels, external }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; external?: ExternalInput }) {
   useCoverage({ hints: 3 });
   const voice = useVoice(own);
-  const range = VOICES[voice];
+  const range = useVoiceRange(voice);
   // three looks: highlighted notes ringed, enabled ones plain, muted ones faint
   const state = useMemo(() => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
@@ -198,7 +198,7 @@ export function View({ slug, pc, voice: own, notes, under = false, enable, highl
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge>{ladder.title}</Badge>
-        <Badge>{VOICES[voice].label}</Badge>
+        <Badge>{range.label}</Badge>
         {drone && <Badge>Drone on {ladder.title.split(/[: ]/)[0]}</Badge>}
         {click && <Badge>Click {bpm} bpm</Badge>}
         {micButton && <Badge>Accuracy ±{cents}¢</Badge>}

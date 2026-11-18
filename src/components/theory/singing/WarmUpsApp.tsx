@@ -1,16 +1,18 @@
 "use client";
 
+import VoiceSelect from "./VoiceSelect";
+import { usePlayerVoice } from "@/features/userData/client/usePlayerVoice";
+import { SingerVoiceProvider } from "@/features/exercises/basics/voiceChoice";
 import { useState } from "react";
 import { GameChoice } from "@/components/practice/shared";
 import Lesson from "@/components/theory/Lesson";
-import { Select, SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
-import { midiToName } from "@/features/sound";
+import { SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
 import { View as LipRoll } from "@/features/exercises/basics/lip-roll";
 import type { LipRollPlay, LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
 import { LipRollSettings, type LipRollShape } from "@/features/exercises/basics/lip-roll/settings";
 import { View as VoiceHill } from "@/features/exercises/basics/voice-hill";
 import { HILL_PLACES, HillSettings, type HillPlace, type HillSoundChoice } from "@/features/exercises/basics/voice-hill/settings";
-import { VOICES, type Voice } from "@/features/theory/singing";
+import type { Voice } from "@/features/theory/singing";
 import { VolumeRow } from "@/features/settings";
 
 
@@ -40,7 +42,6 @@ const GUIDE: Record<Kind, string[]> = {
   ],
 };
 
-const VOICE_OPTIONS = (Object.keys(VOICES) as Voice[]).map((v) => ({ value: v, label: `${VOICES[v].label} · ${midiToName(VOICES[v].low)}–${midiToName(VOICES[v].high)}` }));
 
 /**
  * The voice warm-ups page: why and what to try (both), what to practise (Lip roll or The hill, two separate tools) and
@@ -53,14 +54,16 @@ export default function WarmUpsApp() {
   const [shape, setShape] = useState<LipRollShape>("down");
   const [place, setPlace] = useState<HillPlace>("low");
   const [sound, setSound] = useState<HillSoundChoice>("hum");
-  const [voice, setVoice] = useState<Voice>("tenor");
+  // the player's voice, shared with the other singing pages and kept with their account; tenor until it loads or is picked
+  const singer = usePlayerVoice();
+  const voice: Voice = singer.type ?? "tenor";
   const [play, setPlay] = useState<LipRollPlay>("echo");
   const [speed, setSpeed] = useState<LipRollSpeed>("medium");
   const h = HILL_PLACES.find((x) => x.id === place)!;
   const bar = (
     <SettingsSection first>
         <SettingsRow label="Voice">
-          <Select size="sm" value={voice} onChange={setVoice} options={VOICE_OPTIONS} aria-label="Voice" />
+          <VoiceSelect fallback="tenor" />
         </SettingsRow>
         {kind === "lip-roll"
           ? <LipRollSettings shape={shape} onShape={setShape} play={play} onPlay={setPlay} speed={speed} onSpeed={setSpeed} />
@@ -78,8 +81,8 @@ export default function WarmUpsApp() {
         </div>
         <div className="mx-auto w-full max-w-2xl">
           {kind === "lip-roll"
-            ? <LipRoll shape={shape} play={play} speed={speed} voice={voice} hostSettings />
-            : <VoiceHill {...h.props} sound={sound} voice={voice} hostSettings />}
+            ? <SingerVoiceProvider voice={singer.voice}><LipRoll shape={shape} play={play} speed={speed} voice={voice} hostSettings /></SingerVoiceProvider>
+            : <SingerVoiceProvider voice={singer.voice}><VoiceHill {...h.props} sound={sound} voice={voice} hostSettings /></SingerVoiceProvider>}
         </div>
       </div>
     </SettingsPanel>

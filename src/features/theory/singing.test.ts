@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, savedVoice, scaleRun, spellName, tuneLadderFor, voiceOf } from "./singing";
+import { VOICES, buildLadder, clefFor, fitOf, hzToMidi, locate, scaleRun, spellName, tuneLadderFor, voiceOf } from "./singing";
 import { place } from "./piano/staff";
 
 describe("singing ladder", () => {
@@ -114,14 +114,6 @@ describe("fitOf", () => {
   it("hzToMidi", () => {
     assert.equal(hzToMidi(440), 69);
     assert.ok(Math.abs(hzToMidi(261.6256) - 60) < 1e-4);
-  });
-});
-
-describe("a stored voice", () => {
-  it("reads a voice by name or by its old stored range, drops anything else", () => {
-    assert.equal(savedVoice("tenor"), "tenor");
-    assert.equal(savedVoice({ low: 48, high: 72 }), "tenor");
-    for (const bad of [null, "nope", "toString", 3, {}, { low: 48 }, { low: 50, high: 63 }]) assert.equal(savedVoice(bad), null);
   });
 });
 

@@ -3,7 +3,22 @@ import { parseDayTime, type DayTime } from "@/features/plan/model/planTime";
 import type { PlanState, StoredPlan } from "@/features/plan/model/types";
 import { cleanEntries, type ProgressEntry } from "@/features/progress/log";
 import { isDocKind, maxDocBytes, parseDoc, type DocKind } from "../model";
+import { cleanVoice, type SingerVoice } from "@/features/theory/voiceRange";
 import type { UserDataRepo } from "./repo";
+
+/** The player's singing voice, or null when it is not known. */
+export const readVoice = (repo: UserDataRepo, userId: string): Promise<SingerVoice | null> => repo.getVoice(userId);
+
+/**
+ * Stores the player's singing voice as sent (`PUT /api/me/voice`): a voice type, a range of their own, or null for
+ * "not known", which removes it. False when it is none of those; nothing is stored then.
+ */
+export async function writeVoice(repo: UserDataRepo, userId: string, raw: unknown, now: Date): Promise<boolean> {
+  const voice = cleanVoice(raw);
+  if (!voice && raw !== null) return false;
+  await repo.putVoice(userId, voice, now);
+  return true;
+}
 
 /** The player's document of this kind, parsed; the kind's empty value when none is stored. */
 export async function readDoc(repo: UserDataRepo, userId: string, kind: DocKind): Promise<unknown> {

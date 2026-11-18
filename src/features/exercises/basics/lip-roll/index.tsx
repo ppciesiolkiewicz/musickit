@@ -6,11 +6,11 @@ import { useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
 import { useAudioFocus, wakeAudio } from "@/features/sound";
 import { useCoverage } from "@/features/guide/useCoverage";
-import { REGISTERS, voiceMap, type Registers } from "@/features/theory/registers";
+import { voiceMapIn, type Registers } from "@/features/theory/registers";
 import { VOICES, type Voice } from "@/features/theory/singing";
 import { Hint } from "@/components/ui";
 import { PlayerCard } from "../../play-along/PlayerParts";
-import { useVoice } from "../voiceChoice";
+import { useVoice, useVoiceRange } from "../voiceChoice";
 import { noteLabel, useVoicePitch } from "../voicePitch";
 import { WarmUpBar, useRollAccuracy, useWarmUpKeys, type WarmUpStatus } from "../warmUpBar";
 import { usePlayAhead } from "@/features/settings";
@@ -51,8 +51,8 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
   useCoverage({ hints: 1 });
   const voice = useVoice(own);
   const known: Voice = voice in VOICES ? voice : "tenor";
-  const range = VOICES[known];
-  const map = useMemo(() => voiceMap(known), [known]);
+  const range = useVoiceRange(known);
+  const map = useMemo(() => voiceMapIn(known, range), [known, range]);
   const seconds = clampInt(secondsProp, LIMITS.seconds, DEFAULTS.seconds);
   const plays = clampInt(playsProp, LIMITS.plays, DEFAULTS.plays);
   const ownSpeed: LipRollSpeed = LIP_ROLL_SPEEDS.includes(speedProp) ? speedProp : "medium";
@@ -234,7 +234,7 @@ export function View({ shape = "down", speed: speedProp = "medium", play: playPr
         <StartCover show={status === "idle" && !now && trace.length === 0} title={TITLES[shape]} onStart={() => void start()} keyCap={armed ? "Space" : undefined} note="The mic starts with it.">
           {WHAT_PLAY[play]}
         </StartCover>
-        <Roll path={shown} registers={REGISTERS[known]} trace={trace} at={phase === "listen" || phase === "along" || phase === "you" ? now!.at : null} voiceAt={now?.voiceAt ?? 0} phase={phase} voice={voiceNow} near={near} tol={tol} />
+        <Roll path={shown} registers={map} trace={trace} at={phase === "listen" || phase === "along" || phase === "you" ? now!.at : null} voiceAt={now?.voiceAt ?? 0} phase={phase} voice={voiceNow} near={near} tol={tol} />
       </div>
 
       <p className="min-h-10 border-t border-slate-800 pt-3 text-sm leading-snug text-slate-300">

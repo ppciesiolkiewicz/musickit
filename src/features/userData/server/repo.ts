@@ -1,3 +1,4 @@
+import type { SingerVoice } from "@/features/theory/voiceRange";
 import type { DocKind } from "../model";
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
@@ -95,6 +96,10 @@ export interface UserDataRepo {
    * running code from before them doesn't wipe them.
    */
   putPlanTime(userId: string, time: DayTime, now: Date): Promise<void>;
+  /** The player's singing voice (`user_voices`), or null when none is stored. */
+  getVoice(userId: string): Promise<SingerVoice | null>;
+  /** Stores the player's singing voice, replacing the one before; null removes it (the voice is not known). */
+  putVoice(userId: string, voice: SingerVoice | null, now: Date): Promise<void>;
   /** Which of these block ids the user owns (has a `block_owners` row for). */
   ownedBlockIds(userId: string, ids: string[]): Promise<Set<string>>;
   /**

@@ -1,4 +1,4 @@
-import { VOICES, type Voice } from "./singing";
+import { VOICES, type Range, type Voice } from "./singing";
 
 /**
  * Where each voice type typically changes register, as MIDI notes. Chest voice runs up to the first break (`primo`, the
@@ -24,3 +24,13 @@ export const REGISTERS: Record<Voice, Registers> = {
 
 /** The voice's range and registers together: low, high (its comfortable two octaves), primo and secondo. */
 export const voiceMap = (voice: Voice) => ({ ...VOICES[voice], ...REGISTERS[voice] });
+
+/**
+ * The same for a range that may be the player's own: the voice type's registers, each kept inside the range (a break
+ * can't sit outside the notes the player sings), with the range's ends and its name.
+ */
+export function voiceMapIn(voice: Voice, range: Range & { label: string }) {
+  const inside = (n: number) => Math.min(Math.max(n, range.low), range.high);
+  const { primo, secondo } = REGISTERS[voice];
+  return { low: range.low, high: range.high, label: range.label, primo: inside(primo), secondo: inside(secondo) };
+}
