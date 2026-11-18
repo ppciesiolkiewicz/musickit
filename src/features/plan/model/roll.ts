@@ -108,7 +108,8 @@ export function rollVersion(input: RollInput, rng: () => number): { given: Given
   const r = draw();
   if (odds.back > 0) {
     if (r >= odds.back) return { given: last, trace };
-    const before = history.slice(1).map(versionOf).find((v) => !sameVersion(v, last));
+    // the version before is an easier one: the newest earlier play fewer moves from the first, never a harder one found hard
+    const before = history.slice(1).map(versionOf).find((v) => (v.moved ?? 0) < (last.moved ?? 0) && !sameVersion(v, last));
     trace.outcome = "back";
     return { given: before ?? first, trace };
   }

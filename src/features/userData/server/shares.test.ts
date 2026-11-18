@@ -380,3 +380,19 @@ test("sharePlan: a teacher's week shared onward carries no teacher comment", asy
   const row = await repo.getShare("s1");
   assert.doesNotMatch(JSON.stringify(row?.snapshot), /comment|rushes|madeAt|teacher/);
 });
+
+test("sharePlan: the sharer's versions stay with the sharer: no exercise of the snapshot carries `given`", async () => {
+  const repo = await setup();
+  const mine = plan("ann-plan");
+  const exercise = {
+    title: "{{=key}} run", minutes: 5, moves: { key: "any", bpm: { from: 60, to: 90, step: 10 } }, given: { keys: { now: [7, 9], back: [] }, bpm: { now: 80, back: [70, 60] }, moved: 3 },
+    cells: [{ type: "tool", tool: { type: "backing-band", bpm: 60, key: 9, parts: { click: "on" } } }, { type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] } }],
+  };
+  const withGiven = { ...mine, config: { ...mine.config, days: [{ theme: "", exercises: [exercise] }, ...mine.config.days.slice(1)] } };
+  await repo.putDoc(ANN, "plan", { current: withGiven, history: [], given: [] }, NOW);
+  assert.deepEqual(await sharePlan(repo, ann, "ann-plan", NOW, ids("s")), { id: "s1" });
+  const shared = ((await repo.getShare("s1"))?.snapshot as { config: { days: { exercises: Record<string, unknown>[] }[] } }).config;
+  const first = shared.days[0].exercises[0];
+  assert.equal("given" in first, false);
+  assert.deepEqual(first.moves, exercise.moves, "what the block is travels with it");
+});

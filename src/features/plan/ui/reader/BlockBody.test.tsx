@@ -66,3 +66,9 @@ test("selectorLine: what the selector changes, the earlier values only when ther
   assert.equal(selectorLine("key", true, true), 'The Key selector changes the key of this exercise. The keys after "Earlier" are the ones you played it in before. After a change, press Play to start again in the new key.');
   assert.equal(selectorLine("bpm", true, true), 'The Tempo selector changes the tempo of this exercise. The tempos after "Earlier" are the ones you played it at before. After a change, press Play to start again at the new tempo.');
 });
+
+test("a chip index past the values: the chips, the text and the tools all stand on the first value", () => {
+  const html = draw({ bpm: { now: 70, back: [60] } }, { bpm: 5 });
+  assert.ok(html.includes("Play it at 70."));
+  assert.ok(/aria-checked="true"[^>]*>70</.test(html));
+});

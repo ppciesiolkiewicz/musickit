@@ -115,7 +115,9 @@ export function BlockBody({ block: asWritten, size, keyBar = false, address = "e
   };
   // the version's chips: one row per part, the values of now first and the earlier ones after "Earlier", with the app's line under it
   const givenRows = selectors.map((sel) => {
-    const stands = Math.min(sel.values.length - 1, Math.max(0, where[sel.part] ?? 0));
+    // an index past the values (the slot got another version) is the first value, as `applyGiven` reads it
+    const asked = where[sel.part] ?? 0;
+    const stands = Number.isInteger(asked) && asked >= 0 && asked < sel.values.length ? asked : 0;
     const row = (
       <div className="flex flex-col gap-1.5">
         <ChoiceChips options={sel.values.map((v) => ({ [sel.part]: v }))} back={sel.back < sel.values.length ? sel.back : undefined} value={stands} onChange={(index) => setWhere({ ...where, [sel.part]: index })} />

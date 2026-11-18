@@ -79,14 +79,16 @@ export async function shareNoteBlock(repo: UserDataRepo, account: Account, raw: 
  * Shares one of the user's plans as an invite (teachers and owners): the plan the page names by `planId`, which is the own
  * current plan (today's day on `/plan`) or a plan in `given` (its own page). Any other id, an earlier plan's too, is
  * `not-found`. The snapshot is `{ config }`: the plan's days only, without ticks, ratings, feedback, intake answers or
- * history. The AI's `progress` notes are about the sharer, so they are left out too.
+ * history. The AI's `progress` notes are about the sharer, so they are left out too, and so is each exercise's `given`
+ * (the version rolled for the sharer).
  */
 export async function sharePlan(repo: UserDataRepo, account: Account, planId: string, now: Date, newId: () => string = newShareId): Promise<{ id: string } | { error: "not-allowed" | "not-found" } | NotUploaded> {
   if (!can(account, "sharePlan")) return { error: "not-allowed" };
   const state = (await readDoc(repo, account.id, "plan")) as PlanState;
   const plan = state.current?.id === planId ? state.current : state.given.find((p) => p.id === planId);
   if (!planId || !plan) return { error: "not-found" };
-  const config: PlanConfig = { ...plan.config };
+  // the version each exercise was rolled in is the sharer's own (their keys, their tempo, their earlier ones): the copy starts as the block is written
+  const config: PlanConfig = { ...plan.config, days: plan.config.days.map((d) => ({ ...d, exercises: d.exercises.map(({ given: _given, ...e }) => e) })) };
   delete config.progress;
   return create(repo, account.id, "plan", plan.id, { config }, now, newId);
 }

@@ -102,3 +102,16 @@ test("the same history and the same draws give the same version (Review Focus 4)
   const cleared = rollVersion(input([row("r0", 3, FIRST)]), seq(0.9));
   assert.deepEqual(cleared.given, FIRST, "the newest rating cleared: the roll reads the row before it");
 });
+
+test("the version before is an easier one: never a harder version the player already found hard", () => {
+  const v = (bpm: number, back: number[], moved: number): Given => ({ keys: { now: [A], back: [] }, bpm: { now: bpm, back }, ...(moved ? { moved } : {}) });
+  // 60 easy, 70 hard, back at 60 hard again: "back" is the first version, not 70
+  const a = [row("r3", 2, v(60, [], 0)), row("r2", 1, v(70, [60], 1)), row("r1", 5, v(60, [], 0))];
+  assert.deepEqual(rollVersion(input(a), seq(0.2)).given, FIRST);
+  // 60, 70, 80 hard, 70 hard: "back" is 60, not 80
+  const b = [row("r4", 1, v(70, [60], 1)), row("r3", 1, v(80, [70, 60], 2)), row("r2", 5, v(70, [60], 1)), row("r1", 5, v(60, [], 0))];
+  assert.deepEqual(rollVersion(input(b), seq(0.2)).given, FIRST);
+  // 60, 70, 80 hard: "back" is 70
+  const c = [row("r3", 1, v(80, [70, 60], 2)), row("r2", 5, v(70, [60], 1)), row("r1", 5, v(60, [], 0))];
+  assert.deepEqual(rollVersion(input(c), seq(0.2)).given, v(70, [60], 1));
+});
