@@ -44,9 +44,10 @@ export function useClockDate(): string {
  * visit (yesterday's plan becomes a past day, today's is asked for), but not while `editing` (the day editor is open) or
  * a request is out: then it moves when that ends (`pageDate`). The store is flushed before every request, so the server
  * reads the answers and ratings the page has. What an answer means is decided in `model/today.ts` (`applyFirst`,
- * `applyAnother`); this hook holds the requests and their state.
+ * `applyAnother`); this hook holds the requests and their state. With `off` (a teacher's student, whose plans are the
+ * teacher's weeks, or an account not known yet) it asks for nothing: no request goes out, not even from `retry` or `another`.
  */
-export function useTodayPlan(state: PlanState, loaded: boolean, update: (change: (s: PlanState) => PlanState) => void, store: PlanStore, clock: string, editing: boolean): TodayPlan {
+export function useTodayPlan(state: PlanState, loaded: boolean, update: (change: (s: PlanState) => PlanState) => void, store: PlanStore, clock: string, editing: boolean, off = false): TodayPlan {
   const [date, setDate] = useState(clock);
   const own = loaded ? ownDay(state, date) : null;
   const answers = !!state.answers;
@@ -68,6 +69,7 @@ export function useTodayPlan(state: PlanState, loaded: boolean, update: (change:
   }
 
   const make = useCallback(async () => {
+    if (off) return;
     setReq({ date, inFlight: true });
     setFailure(null);
     try {
@@ -85,14 +87,14 @@ export function useTodayPlan(state: PlanState, loaded: boolean, update: (change:
     } finally {
       setReq({ date, inFlight: false });
     }
-  }, [date, store, update]);
+  }, [date, store, update, off]);
 
   const asked = req?.date === date;
   useEffect(() => {
-    if (!shouldAsk({ loaded, answers, own, asked: askedRef.current === date })) return;
+    if (!shouldAsk({ loaded, answers, own, asked: askedRef.current === date, off })) return;
     askedRef.current = date;
     void make();
-  }, [loaded, answers, own, date, make]);
+  }, [loaded, answers, own, date, make, off]);
 
   const retry = useCallback(() => {
     askedRef.current = date;
@@ -100,6 +102,7 @@ export function useTodayPlan(state: PlanState, loaded: boolean, update: (change:
   }, [date, make]);
 
   const another = useCallback(() => {
+    if (off) return;
     setAsking(true);
     setNone(false);
     setAnotherFailed(null);
@@ -121,8 +124,8 @@ export function useTodayPlan(state: PlanState, loaded: boolean, update: (change:
         setAsking(false);
       }
     })();
-  }, [date, store, update]);
+  }, [date, store, update, off]);
 
-  const view = todayView({ loaded, answers, own, asked, inFlight: req?.date === date && req.inFlight, failure });
+  const view = todayView({ loaded, answers, own, asked, inFlight: req?.date === date && req.inFlight, failure, off });
   return { date, view, retry, another, asking, none, anotherFailed };
 }

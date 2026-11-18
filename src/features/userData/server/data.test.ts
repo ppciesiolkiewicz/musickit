@@ -3,7 +3,7 @@ import test from "node:test";
 import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
 import { EMPTY_STATE, type PlanExercise, type PlanState } from "@/features/plan/model/types";
 import { sanitiseState } from "@/features/plan/model/state";
-import { putEntry, readDoc, readDocVersioned, readEntries, readAllPlanTimes, readPlanTimes, reviewRowsOf, storePlanBlocks, writeDoc, writePlanTime } from "./data";
+import { putEntry, readDoc, readDocVersioned, readEntries, readOwnDocVersioned, readAllPlanTimes, readPlanTimes, reviewRowsOf, storePlanBlocks, writeDoc, writePlanTime } from "./data";
 import { memoryUserDataRepo } from "./repo.memory";
 
 const now = new Date("2026-11-15T10:00:00Z");
@@ -357,4 +357,77 @@ test("a stale plan write does not touch the library", async () => {
   assert.deepEqual(done, { ok: false, error: "stale", version: 1 });
   assert.equal(repo.peekOwners().length, 1);
   assert.equal(repo.peekBlocks().size, 1);
+});
+
+/** A student's plan document: a week their teacher made, with the teacher's comment, in `given`, and an older one in the history. */
+const taughtDoc = (comment: string | null, done: Record<string, true> = {}) => ({
+  current: null,
+  history: [{ id: "old", startedOn: "2026-11-02", done: {}, teacher: { madeAt: "2026-11-02T09:00:00.000Z", comment: "old words" }, config: { title: "", days: [{ theme: "", exercises: [ex] }] } }],
+  given: [{ id: "wk", startedOn: "2026-11-16", done, teacher: { madeAt: "2026-11-16T09:00:00.000Z", ...(comment === null ? {} : { comment }) }, config: { title: "", days: [{ theme: "", exercises: [ex] }] } }],
+});
+
+test("the owner's read of a plan has no teacher comment anywhere; the stored document keeps it", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", taughtDoc("Ben rushes the changes"), now);
+  const read = await readOwnDocVersioned(repo, "u1", "plan");
+  assert.equal(read.version, 1);
+  assert.doesNotMatch(JSON.stringify(read.data), /comment|rushes|old words/);
+  const s = read.data as PlanState;
+  assert.deepEqual(s.given[0].teacher, { madeAt: "2026-11-16T09:00:00.000Z" });
+  assert.deepEqual(s.history[0].teacher, { madeAt: "2026-11-02T09:00:00.000Z" });
+  const stored = (await readDoc(repo, "u1", "plan")) as PlanState;
+  assert.equal(stored.given[0].teacher?.comment, "Ben rushes the changes");
+  assert.equal(stored.history[0].teacher?.comment, "old words");
+});
+
+test("the owner's read of another kind is the document as stored", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "creator", { family: 0, mode: 1, tonicPc: 5 }, now);
+  assert.deepEqual(await readOwnDocVersioned(repo, "u1", "creator"), await readDocVersioned(repo, "u1", "creator"));
+});
+
+test("a student's save, sent without the comments, keeps the stored ones on the same plan ids", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", taughtDoc("Ben rushes the changes"), now);
+  const seen = (await readOwnDocVersioned(repo, "u1", "plan")).data as PlanState;
+  const ticked = { ...seen, given: [{ ...seen.given[0], done: { "0:0": true as const } }] };
+  assert.deepEqual(await writeDoc(repo, "u1", "plan", ticked, now, 1), { ok: true, version: 2 });
+  const stored = (await readDoc(repo, "u1", "plan")) as PlanState;
+  assert.deepEqual(stored.given[0].done, { "0:0": true });
+  assert.equal(stored.given[0].teacher?.comment, "Ben rushes the changes");
+  assert.equal(stored.history[0].teacher?.comment, "old words");
+});
+
+test("a save without a version keeps the stored comments too", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", taughtDoc("Ben rushes the changes"), now);
+  await writeDoc(repo, "u1", "plan", taughtDoc(null), now);
+  assert.equal(((await readDoc(repo, "u1", "plan")) as PlanState).given[0].teacher?.comment, "Ben rushes the changes");
+});
+
+test("a write carrying a new comment keeps the new one (the teacher's write)", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", taughtDoc("Ben rushes the changes"), now);
+  assert.deepEqual(await writeDoc(repo, "u1", "plan", taughtDoc("Slower this week"), now, 1), { ok: true, version: 2 });
+  assert.equal(((await readDoc(repo, "u1", "plan")) as PlanState).given[0].teacher?.comment, "Slower this week");
+});
+
+test("a stale plan save still writes nothing, comments or not", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", taughtDoc("Ben rushes the changes"), now);
+  await writeDoc(repo, "u1", "plan", taughtDoc("Slower this week"), now, 1);
+  assert.deepEqual(await writeDoc(repo, "u1", "plan", taughtDoc(null, { "0:0": true }), now, 1), { ok: false, error: "stale", version: 2 });
+  const stored = (await readDoc(repo, "u1", "plan")) as PlanState;
+  assert.deepEqual(stored.given[0].done, {});
+  assert.equal(stored.given[0].teacher?.comment, "Slower this week");
+});
+
+test("a comment is put back only on a plan that still has a teacher record and the same id", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", taughtDoc("Ben rushes the changes"), now);
+  const other = taughtDoc(null);
+  other.given[0].id = "new-wk";
+  await writeDoc(repo, "u1", "plan", other, now);
+  const stored = (await readDoc(repo, "u1", "plan")) as PlanState;
+  assert.equal(stored.given[0].teacher?.comment, undefined);
 });

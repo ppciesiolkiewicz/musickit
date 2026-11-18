@@ -113,3 +113,21 @@ export async function postStudentPlan(
   if (typeof planId !== "string" || typeof start !== "string" || !/^\d{4}-\d\d-\d\d$/.test(start) || typeof short !== "boolean" || !["stored", "none", "no-week"].includes(comment as string)) return failure("failed");
   return { ok: true, planId, start, short, comment: comment as CommentKept };
 }
+
+/** `GET /api/auth/claim?token=`: whose account a claim link opens. Spends nothing; a used or old link is `gone` (410). */
+export async function fetchClaim(token: string, fetcher: typeof fetch = fetch): Promise<{ ok: true; name: string } | Failure> {
+  const r = await send(`/api/auth/claim?token=${encodeURIComponent(token)}`, { method: "GET" }, fetcher);
+  if ("ok" in r) return r;
+  const name = r.body?.name;
+  return typeof name === "string" && name ? { ok: true, name } : failure("failed");
+}
+
+/** A path on this site to go to after a claim; anything else (another site, `//host`) goes to `/welcome`. */
+const localPath = (next: unknown): string => (typeof next === "string" && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\") ? next : "/welcome");
+
+/** `POST /api/auth/claim { token }`: spends the link and logs the student in (cookies); answers where to go next. */
+export async function postClaim(token: string, fetcher: typeof fetch = fetch): Promise<{ ok: true; next: string } | Failure> {
+  const r = await send("/api/auth/claim", { method: "POST", body: JSON.stringify({ token }) }, fetcher);
+  if ("ok" in r) return r;
+  return { ok: true, next: localPath(r.body?.next) };
+}

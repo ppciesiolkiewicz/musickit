@@ -24,6 +24,10 @@ import PastDays from "./ui/PastDays";
 import { useClockDate, useTodayPlan } from "./ui/useTodayPlan";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
 import { FixedLabelRoot } from "@/features/theory/useLabelSystem";
+import { useAccount } from "@/features/account/useAccount";
+import { taughtView } from "./model/today";
+import TaughtPlanView from "./ui/TaughtPlan";
+import { LiveGivenPlan } from "./GivenPlan";
 
 /**
  * The player's own daily plan. Without answers: the intro and Start, which runs the questions in one step modal. With
@@ -31,9 +35,15 @@ import { FixedLabelRoot } from "@/features/theory/useLabelSystem";
  * `DayPlan`, with Get another plan; while it is made or when it can't be, `TodayStatus` says so where the plan would be.
  * Past days are listed under it, read-only. The plans the player was given are listed (`GivenPlans`), each a link to its own
  * page (`/plan/given/<id>`); they are never drawn here.
+ *
+ * A teacher's student (`Account.taught`) gets their teacher's weeks instead (`TaughtPlanView`, decided by `taughtView`):
+ * the week covering today drawn live as on its own page, no questionnaire, no composing (`useTodayPlan` is `off` for them,
+ * and until the account is known), no Get another plan, no Change my answers.
  */
 export default function PlanApp() {
   const { state, loaded, update } = usePlan();
+  const { account, loaded: accountLoaded } = useAccount();
+  const taught = !!account?.taught;
   const progress = useProgress();
   // ratings given before the log existed: copied into it once, the first time it is found empty
   const filled = useRef(false);
@@ -52,7 +62,7 @@ export default function PlanApp() {
   const [editingDay, setEditingDay] = useState<number | null>(null);
 
   // today's own plan, composed on the server when the page has answers and none for today
-  const day = useTodayPlan(state, loaded, update, store, today, editingDay !== null);
+  const day = useTodayPlan(state, loaded, update, store, today, editingDay !== null, !accountLoaded || taught);
   const plan = day.view.kind === "plan" ? day.view.plan : null;
   // the day timer's seconds, kept apart from the plan
   const { times, loaded: timesLoaded, saveTime } = usePlanTimes(plan?.id ?? null);
@@ -100,7 +110,18 @@ export default function PlanApp() {
   usePlanAgentTools(loaded ? plan : null, (next) => setPlan(() => next), editingDay);
   const rate = rateHandler(plan, setPlan, progress);
 
-  if (!loaded || !timesLoaded) return <p className="text-sm text-slate-500">Loading…</p>;
+  if (!loaded || !timesLoaded || !accountLoaded) return <p className="text-sm text-slate-500">Loading…</p>;
+
+  if (taught) {
+    // the teacher's week, live as on its own page (keyed by id: a newer week starts on its own day); the reminder reads it too
+    const controls = <><Reminder state={state} update={update} /><PhoneLabels /></>;
+    return (
+      <>
+        <TaughtPlanView view={taughtView(state, today)} week={(p) => <LiveGivenPlan key={p.id} id={p.id} date={today} controls={() => controls} />} streak={streak} />
+        {tracker}
+      </>
+    );
+  }
 
   const modal = flow && (
     <PlanFlow answers={state.answers ?? DEFAULT_ANSWERS} current={plan} onAnswers={onAnswers} onClose={() => setFlow(false)} />

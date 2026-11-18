@@ -1,6 +1,6 @@
 import { NO_ACCOUNTS, json, readJson } from "@/features/account/server/http";
 import { isDocKind } from "@/features/userData/model";
-import { readDocVersioned, writeDoc } from "@/features/userData/server/data";
+import { readOwnDocVersioned, writeDoc } from "@/features/userData/server/data";
 import { signedIn, userData } from "@/features/userData/server/http";
 
 export const runtime = "nodejs";
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 type Ctx = { params: Promise<{ kind: string }> };
 
-/** The signed-in player's document of this kind: { data, version }. */
+/** The signed-in player's document of this kind: { data, version }. A plan comes without the teacher's comments (`readOwnDocVersioned`). */
 export async function GET(req: Request, { params }: Ctx) {
   const { kind } = await params;
   const me = await signedIn(req);
@@ -16,7 +16,7 @@ export async function GET(req: Request, { params }: Ctx) {
   if (!isDocKind(kind)) return json({ error: "Not found." }, 404, me.cookies);
   const store = userData();
   if (!store) return json({ error: NO_ACCOUNTS }, 503, me.cookies);
-  return json(await readDocVersioned(store.repo, me.account.id, kind), 200, me.cookies);
+  return json(await readOwnDocVersioned(store.repo, me.account.id, kind), 200, me.cookies);
 }
 
 /**

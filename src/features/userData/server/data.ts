@@ -16,12 +16,54 @@ export async function readDocVersioned(repo: UserDataRepo, userId: string, kind:
   return { data: parseDoc(kind, row?.data ?? null), version: row?.version ?? 0 };
 }
 
+/** Every plan of a plan document: the current one, the history, the given plans. */
+const plansOf = (s: PlanState): StoredPlan[] => [s.current, ...s.history, ...s.given].filter((p): p is StoredPlan => !!p);
+
+/** A plan with its `teacher` record's comment left out (the comment is for our team only; it never reaches the student's screen). */
+function withoutComment(p: StoredPlan): StoredPlan {
+  if (p.teacher?.comment === undefined) return p;
+  const teacher = { ...p.teacher };
+  delete teacher.comment;
+  return { ...p, teacher };
+}
+
+/** A parsed plan document with the teacher's comment taken off every plan (current, history, given). */
+export function withoutTeacherComments(s: PlanState): PlanState {
+  return { ...s, current: s.current && withoutComment(s.current), history: s.history.map(withoutComment), given: s.given.map(withoutComment) };
+}
+
+/**
+ * The document as its owner's browser gets it (`GET /api/me/documents/<kind>`): `readDocVersioned`, with the teacher's
+ * comments taken off a plan document. The stored document keeps them; `writeDoc` puts them back on the owner's save.
+ */
+export async function readOwnDocVersioned(repo: UserDataRepo, userId: string, kind: DocKind): Promise<{ data: unknown; version: number }> {
+  const read = await readDocVersioned(repo, userId, kind);
+  return kind === "plan" ? { ...read, data: withoutTeacherComments(read.data as PlanState) } : read;
+}
+
+/**
+ * The stored teacher's comments put back onto an incoming plan document: on each plan with the same id that has a
+ * `teacher` record and no comment of its own (the owner's browser never had it). A comment the incoming document
+ * carries (the teacher's write) is kept as it is.
+ */
+export function keepTeacherComments(incoming: PlanState, stored: PlanState): PlanState {
+  const comments = new Map(plansOf(stored).flatMap((p) => (p.teacher?.comment ? [[p.id, p.teacher.comment] as const] : [])));
+  if (!comments.size) return incoming;
+  const put = (p: StoredPlan): StoredPlan => (p.teacher && p.teacher.comment === undefined && comments.has(p.id) ? { ...p, teacher: { ...p.teacher, comment: comments.get(p.id)! } } : p);
+  return { ...incoming, current: incoming.current && put(incoming.current), history: incoming.history.map(put), given: incoming.given.map(put) };
+}
+
+/** How many times a plan save without `expect` reads, merges the comments and writes before it writes regardless. */
+const COMMENT_TRIES = 3;
+
 /**
  * Parses before storing, so a stored document is always safe to read back. Over its kind's cap (`maxDocBytes`) it is too big.
  * A plan also puts its blocks in the library (`storePlanBlocks`) and syncs its reviews (`syncPlanReviews`), from the parsed state. Those are side effects: the document
  * save is what the player asked for, so a failure there is logged and the save still succeeds; the next save repairs it.
  * Every write adds 1 to the document's version. With `expect` it writes only when the stored version is `expect` (0 when none is stored);
  * otherwise it is "stale", with the stored version, and nothing is written, not even the plan's side effects. Without `expect` it always writes.
+ * A plan keeps the teacher's comments stored on it (`keepTeacherComments`), read in the same call: with `expect`, from the
+ * version it replaces; without, the write names the version it read and reads again when another write came between.
  */
 export async function writeDoc(
   repo: UserDataRepo,
@@ -33,8 +75,21 @@ export async function writeDoc(
 ): Promise<{ ok: true; version: number } | { ok: false; error: "too-big" | "bad-kind" | "stale"; version?: number }> {
   if (!isDocKind(kind)) return { ok: false, error: "bad-kind" };
   if ((JSON.stringify(raw) ?? "").length > maxDocBytes(kind)) return { ok: false, error: "too-big" };
-  const doc = parseDoc(kind, raw);
-  const put = await repo.putDoc(userId, kind, doc, now, expect);
+  let doc = parseDoc(kind, raw);
+  let put: Awaited<ReturnType<UserDataRepo["putDoc"]>>;
+  if (kind === "plan") {
+    const incoming = doc as PlanState;
+    for (let i = 0; ; i++) {
+      const stored = await readDocVersioned(repo, userId, "plan");
+      if (expect !== undefined && stored.version !== expect) return { ok: false, error: "stale", version: stored.version };
+      doc = keepTeacherComments(incoming, stored.data as PlanState);
+      // without `expect` the last try writes regardless, as a save without a version always does
+      put = await repo.putDoc(userId, kind, doc, now, expect ?? (i < COMMENT_TRIES - 1 ? stored.version : undefined));
+      if (put.ok || expect !== undefined || i >= COMMENT_TRIES - 1) break;
+    }
+  } else {
+    put = await repo.putDoc(userId, kind, doc, now, expect);
+  }
   if (!put.ok) return { ok: false, error: "stale", version: put.version };
   if (kind === "plan") {
     try {

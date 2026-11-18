@@ -360,3 +360,12 @@ test("liveLinks: the owner's live links of one item, newest first, with ids and 
   await repo.stopShare(ANN, "s2", LATER);
   assert.deepEqual((await liveLinks(repo, ANN, "note", "note")).map((l) => l.id), ["s1"]);
 });
+
+test("sharePlan: a teacher's week shared onward carries no teacher comment", async () => {
+  const repo = await setup();
+  await repo.putDoc(ANN, "plan", { current: null, history: [], given: [plan("wk", V2, { teacher: { madeAt: NOW.toISOString(), comment: "Ann rushes the changes" } })] }, NOW);
+  const made = await sharePlan(repo, ann, "wk", NOW, ids("s"));
+  assert.deepEqual(made, { id: "s1" });
+  const row = await repo.getShare("s1");
+  assert.doesNotMatch(JSON.stringify(row?.snapshot), /comment|rushes|madeAt|teacher/);
+});

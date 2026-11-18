@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CLIENT_WORDS, fetchStudent, fetchStudents, postClaimLink, postStudent, postStudentPlan } from "./client";
+import { CLIENT_WORDS, fetchClaim, fetchStudent, fetchStudents, postClaim, postClaimLink, postStudent, postStudentPlan } from "./client";
 import { migrateAnswers } from "@/features/plan/intake/answers";
 
 const answer = (status: number, body: unknown): typeof fetch => (async () => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } })) as typeof fetch;
@@ -74,4 +74,34 @@ test("postStudentPlan: sends what it is given, reads the new week; a 409 keeps i
   const none = await postStudentPlan("a1", body, answer(409, { error: "The library has no exercises yet.", code: "no-blocks" }));
   assert.deepEqual(none, { ok: false, code: "no-blocks", error: "The library has no exercises yet." });
   assert.equal((await postStudentPlan("a1", body, answer(200, { planId: "p1", start: "2026-11-23", short: false, comment: "kept" })) as { code: string }).code, "failed");
+});
+
+const GONE = { error: "This link is too old or was already used. If you have opened it before, press Log in. If not, ask your teacher to send a new link.", code: "gone" };
+
+test("fetchClaim: whose link it is, by a GET that spends nothing; a 410 keeps the route's words", async () => {
+  let sent: { url: string; init: RequestInit } | undefined;
+  const fetcher = (async (url: string, init: RequestInit) => {
+    sent = { url, init };
+    return new Response(JSON.stringify({ name: "Ben" }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.deepEqual(await fetchClaim("t o/k", fetcher), { ok: true, name: "Ben" });
+  assert.equal(sent?.url, "/api/auth/claim?token=t%20o%2Fk");
+  assert.equal(sent?.init.method, "GET");
+  assert.ok(sent?.init.signal, "a timeout");
+  assert.deepEqual(await fetchClaim("x", answer(410, GONE)), { ok: false, ...GONE });
+  assert.deepEqual(await fetchClaim("x", answer(200, { name: 3 })), { ok: false, code: "failed", error: CLIENT_WORDS.failed });
+});
+
+test("postClaim: posts the token and answers where to go, only a path on this site", async () => {
+  let sent: RequestInit | undefined;
+  const fetcher = (async (_url: string, init: RequestInit) => {
+    sent = init;
+    return new Response(JSON.stringify({ next: "/welcome" }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.deepEqual(await postClaim("tok", fetcher), { ok: true, next: "/welcome" });
+  assert.equal(sent?.method, "POST");
+  assert.deepEqual(JSON.parse(String(sent?.body)), { token: "tok" });
+  assert.deepEqual(await postClaim("tok", answer(200, { next: "https://evil.example/" })), { ok: true, next: "/welcome" });
+  assert.deepEqual(await postClaim("tok", answer(200, { next: "//evil.example/" })), { ok: true, next: "/welcome" });
+  assert.deepEqual(await postClaim("tok", answer(410, GONE)), { ok: false, ...GONE });
 });

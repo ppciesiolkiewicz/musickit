@@ -11,12 +11,17 @@ const MESSAGES = {
   "no-answers": "There are no answers to make a plan from. Answer the questions on the Practice plan page first.",
   "bad-date": "The page sent a date that isn't today's. Check the device's date and time, then reload the page.",
   "no-blocks": "The library has no exercises yet that fit your answers, so no plan was made. Change your answers to pick other areas.",
+  taught: "Your teacher makes your plans, so attunr doesn't make a daily plan for you. Reload the page to see your teacher's plan.",
 };
 
-/** Today's plan, composed from the player's answers, ratings and the library: JSON { date, another }. Writes nothing; the page stores the day. */
+/**
+ * Today's plan, composed from the player's answers, ratings and the library: JSON { date, another }. Writes nothing; the page stores the day.
+ * A teacher's student (`Account.taught`) gets their teacher's weeks only: 409 `taught`, so a stale tab can't compose over them.
+ */
 export async function POST(req: Request) {
   const me = await signedIn(req);
   if (me instanceof Response) return me;
+  if (me.account.taught) return json({ error: MESSAGES.taught, code: "taught" }, 409, me.cookies);
   const store = userData();
   const db = getDb();
   if (!store || !db) return json({ error: NO_ACCOUNTS }, 503, me.cookies);

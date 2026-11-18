@@ -29,6 +29,10 @@ test("requestDay: a 409 gives its code", async () => {
   }
 });
 
+test("requestDay: a 409 taught (the account's plans are its teacher's) gives its code", async () => {
+  assert.deepEqual(await requestDay({ date: "2026-11-18", another: false }, json(409, { error: "x", code: "taught" }) as unknown as typeof fetch), { ok: false, code: "taught" });
+});
+
 test("requestDay: a 409 with an unknown code is a failed request", async () => {
   assert.deepEqual(await requestDay({ date: "2026-11-18", another: false }, json(409, { error: "x", code: "what" }) as unknown as typeof fetch), { ok: false, code: "failed" });
 });

@@ -34,6 +34,7 @@ const ANOTHER_FAILED: Record<TodayFailure, string> = {
   "logged-out": `You're logged out, so your plan stays as it is. Log in, then press ${ANOTHER} again.`,
   "account-changed": `Another account is logged in now, so your plan stays as it is. Reload the page, then press ${ANOTHER} again.`,
   "no-blocks": "There are no other exercises for today's steps, so your plan stays as it is.",
+  taught: "Your teacher makes your plans now, so attunr doesn't make another one. Reload the page to see your teacher's plan.",
 };
 
 /**
@@ -140,11 +141,12 @@ export function TodayStatus({ view, onRetry, answers }: { view: Extract<TodayVie
     later: "A plan for a later day is already running on another device or tab. The date on this device is behind that day, so attunr can't show that plan here. Check this device's date and time: the plan shows here once the date is right.",
     "logged-out": "You're logged out, so attunr couldn't make today's plan. Log in, then come back to this page.",
     "account-changed": "Another account is logged in now, so attunr couldn't make today's plan. Press Reload page to open the plan of the account that's logged in.",
+    taught: "Your teacher makes your plans now, so attunr doesn't make a daily plan for you. Press Reload page to see your teacher's plan.",
     failed: "attunr couldn't put today's plan together. Press Try again. If the plan still doesn't come, try again in a few minutes.",
   };
   const action = failed === "later" ? null
     : failed === "logged-out" ? <LogIn />
-      : failed === "bad-date" || failed === "account-changed" ? <Button onClick={() => window.location.reload()}><Icon name="rotate-ccw" size={14} />Reload page</Button>
+      : failed === "bad-date" || failed === "account-changed" || failed === "taught" ? <Button onClick={() => window.location.reload()}><Icon name="rotate-ccw" size={14} />Reload page</Button>
         : <Button onClick={onRetry}><Icon name="rotate-ccw" size={14} />Try again</Button>;
   return (
     <section role="alert" className={`${panel} border-l-rose-400`}>

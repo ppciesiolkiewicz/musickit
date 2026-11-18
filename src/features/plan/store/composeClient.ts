@@ -7,10 +7,10 @@ import type { ComposedDay } from "../model/compose";
  */
 export type ComposeResult =
   | { ok: true; day: ComposedDay; date: string; attempt: number }
-  | { ok: false; code: "no-answers" | "bad-date" | "no-blocks" | "offline" | "logged-out" | "account-changed" | "failed" };
+  | { ok: false; code: "no-answers" | "bad-date" | "no-blocks" | "taught" | "offline" | "logged-out" | "account-changed" | "failed" };
 
 const TIMEOUT_MS = 15_000;
-const CODES = new Set(["no-answers", "bad-date", "no-blocks"]);
+const CODES = new Set(["no-answers", "bad-date", "no-blocks", "taught"]);
 
 const isDay = (d: unknown): d is ComposedDay => {
   const x = d as ComposedDay | null;
@@ -19,7 +19,8 @@ const isDay = (d: unknown): d is ComposedDay => {
 
 /**
  * Asks the server for today's plan (`POST /api/me/plan/compose`): `another` asks for another try of today's. Never throws;
- * 15 s timeout. Sends the page's account (`X-Account-Id`, `accountHeaders`). A 409 gives its code; a 401 `logged-out`; a
+ * 15 s timeout. Sends the page's account (`X-Account-Id`, `accountHeaders`). A 409 gives its code (`taught`: the
+ * account is a teacher's student, whose plans are the teacher's); a 401 `logged-out`; a
  * 409 `account-changed` its own code; a fetch that throws (no network) gives `offline`; a timeout, a 500 or an answer of
  * another shape gives `failed`. The page words go by the code, never by the route's error text.
  */
@@ -46,7 +47,7 @@ export async function requestDay(body: { date: string; another: boolean }, fetch
   }
   if (isAccountChanged(res.status, data)) return { ok: false, code: "account-changed" };
   const d = data as { ok?: unknown; day?: unknown; date?: unknown; attempt?: unknown; code?: unknown } | null;
-  if (res.status === 409 && typeof d?.code === "string" && CODES.has(d.code)) return { ok: false, code: d.code as "no-answers" | "bad-date" | "no-blocks" };
+  if (res.status === 409 && typeof d?.code === "string" && CODES.has(d.code)) return { ok: false, code: d.code as "no-answers" | "bad-date" | "no-blocks" | "taught" };
   if (res.ok && d?.ok === true && isDay(d.day) && typeof d.date === "string" && typeof d.attempt === "number") {
     return { ok: true, day: d.day, date: d.date, attempt: d.attempt };
   }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PAST_DAYS, applyAnother, applyFirst, dateLabel, dayWords, daysLabel, hasNewPicks, pageDate, pastDays, shouldAsk, todayView } from "./today";
+import { PAST_DAYS, applyAnother, applyFirst, dateLabel, dayWords, daysLabel, hasNewPicks, pageDate, pastDays, shouldAsk, taughtView, todayView } from "./today";
 import { ownDay, ratePlan, startDay } from "./schedule";
 import { EMPTY_STATE, type PlanState } from "./types";
 import type { ComposedDay } from "./compose";
@@ -162,4 +162,56 @@ test("past midnight: yesterday's plan as current is not today's plan; the new da
   assert.equal(shouldAsk({ loaded: true, answers: true, own, asked: true }), false);
   // yesterday's plan is listed with the past days
   assert.deepEqual(pastDays(s.history, s.current, next).map((p) => p.id), [s.current!.id]);
+});
+
+test("off (a teacher's student, or the account not known yet): never asks, whatever the state, and never says a plan is being made", () => {
+  for (const loaded of [true, false]) for (const answers of [true, false]) for (const asked of [true, false]) for (const o of [null, own]) {
+    const i = { ...base, loaded, answers, asked, own: o, off: true };
+    assert.equal(shouldAsk(i), false);
+    assert.deepEqual(todayView(i), { kind: "loading" });
+  }
+});
+
+// --- a teacher's student: the teacher's weeks, never a composed day
+
+const week = (id: string, startedOn: string, madeAt = `${startedOn}T09:00:00.000Z`): StoredPlan => ({
+  id,
+  startedOn,
+  done: {},
+  teacher: { madeAt },
+  config: { title: "", days: Array.from({ length: 7 }, () => ({ theme: "", exercises: [ex("a")] })) },
+});
+const shared: StoredPlan = { ...week("shared", "2026-11-17"), teacher: undefined, from: "s1" };
+const taught = (given: StoredPlan[], more: Partial<PlanState> = {}): PlanState => ({ ...EMPTY_STATE, answers: { areas: ["guitar"], topics: {}, minutes: 10, styles: "", notes: "" } as PlanState["answers"], given, ...more });
+
+test("taughtView: the teacher's week covering today, with the older started weeks listed newest first", () => {
+  const s = taught([week("next", "2026-11-23"), week("now", "2026-11-16"), shared, week("old", "2026-11-09"), week("older", "2026-11-02")]);
+  const v = taughtView(s, "2026-11-18");
+  assert.equal(v.kind, "week");
+  assert.equal(v.kind === "week" && v.plan.id, "now");
+  assert.deepEqual(v.older.map((p) => p.id), ["old", "older"], "a shared plan and the upcoming week are not in the list");
+});
+
+test("taughtView: an own composed day in the document is never drawn", () => {
+  const today = { ...plan(["a"], []), startedOn: "2026-11-18" };
+  assert.deepEqual(taughtView(taught([], { current: today }), "2026-11-18"), { kind: "none", older: [] });
+});
+
+test("taughtView: no week covers today but one is coming: when it starts, in words", () => {
+  const v = taughtView(taught([week("next", "2026-11-23"), week("old", "2026-11-02")]), "2026-11-18");
+  assert.equal(v.kind, "upcoming");
+  assert.equal(v.kind === "upcoming" && v.starts, "Monday 23 November");
+  assert.deepEqual(v.older.map((p) => p.id), ["old"]);
+});
+
+test("taughtView: every week has ended: the newest ended one is drawn, the rest listed", () => {
+  const v = taughtView(taught([week("old", "2026-11-02"), week("newer", "2026-11-09")]), "2026-11-18");
+  assert.equal(v.kind, "ended");
+  assert.equal(v.kind === "ended" && v.plan.id, "newer");
+  assert.deepEqual(v.older.map((p) => p.id), ["old"]);
+});
+
+test("taughtView: no week at all, a shared plan aside, is none", () => {
+  assert.deepEqual(taughtView(taught([shared]), "2026-11-18"), { kind: "none", older: [] });
+  assert.deepEqual(taughtView(EMPTY_STATE, "2026-11-18"), { kind: "none", older: [] });
 });

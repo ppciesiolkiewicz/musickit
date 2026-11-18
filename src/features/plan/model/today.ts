@@ -1,7 +1,7 @@
 import { topicById } from "../intake/topics";
 import { conceptById } from "./concepts";
 import type { ComposedDay } from "./compose";
-import { anotherDay, doneKey, ownDay, startDay } from "./schedule";
+import { anotherDay, doneKey, ownDay, startDay, teacherWeek, teacherWeekOn, upcomingTeacherWeek } from "./schedule";
 import type { PlanExercise, PlanState, StoredPlan } from "./types";
 import type { ComposeResult } from "../store/composeClient";
 
@@ -78,11 +78,11 @@ export function pastDays(history: StoredPlan[], current: StoredPlan | null, date
 }
 
 /**
- * Why today's plan, or another one, isn't there: a route code, the request itself (`offline`, `logged-out`,
- * `account-changed`, `failed`), or `later`, a plan for a later date already running (another tab or device): this
+ * Why today's plan, or another one, isn't there: a route code (`taught`: the account became a teacher's student, whose
+ * plans are the teacher's; a page loaded before that), the request itself (`offline`, `logged-out`, `account-changed`, `failed`), or `later`, a plan for a later date already running (another tab or device): this
  * device's date is behind the plan's.
  */
-export type TodayFailure = "no-blocks" | "bad-date" | "later" | "offline" | "logged-out" | "account-changed" | "failed";
+export type TodayFailure = "no-blocks" | "bad-date" | "later" | "offline" | "logged-out" | "account-changed" | "taught" | "failed";
 
 type Failed = Extract<ComposeResult, { ok: false }>["code"];
 /** `no-answers` can't happen after the flush (the page has answers): it is said as a failed request, with the retry. */
@@ -106,10 +106,12 @@ export interface TodayInput {
   /** a request is out */
   inFlight: boolean;
   failure: TodayFailure | null;
+  /** nothing is composed: the account is a teacher's student (their plans are the teacher's weeks), or not known yet */
+  off?: boolean;
 }
 
 export function todayView(i: TodayInput): TodayView {
-  if (!i.loaded) return { kind: "loading" };
+  if (!i.loaded || i.off) return { kind: "loading" };
   if (!i.answers) return { kind: "intro" };
   if (i.own) return { kind: "plan", plan: i.own };
   if (i.inFlight) return { kind: "making" };
@@ -128,7 +130,33 @@ export function todayView(i: TodayInput): TodayView {
 export const pageDate = (shown: string, clock: string, busy: boolean): string => (busy ? shown : clock);
 
 /** Whether the page asks for today's plan now: once per page view and date, with answers and no plan for today. */
-export const shouldAsk = (i: Pick<TodayInput, "loaded" | "answers" | "own" | "asked">): boolean => i.loaded && i.answers && !i.own && !i.asked;
+export const shouldAsk = (i: Pick<TodayInput, "loaded" | "answers" | "own" | "asked" | "off">): boolean => !i.off && i.loaded && i.answers && !i.own && !i.asked;
+
+/**
+ * What `/plan` draws for a teacher's student (`Account.taught`), whose plans are the weeks their teacher makes, never a
+ * composed day: the week covering `date` (`teacherWeekOn`); else a week still to come, with the day it starts in words
+ * ("Monday 23 November"); else the newest week that has ended; else none. `older`: the other weeks the teacher made that
+ * have started, newest first, each listed as a link to its own page. A plan shared with the student is not one of them.
+ */
+export type TaughtView =
+  | { kind: "week"; plan: StoredPlan; older: StoredPlan[] }
+  | { kind: "upcoming"; plan: StoredPlan; starts: string; older: StoredPlan[] }
+  | { kind: "ended"; plan: StoredPlan; older: StoredPlan[] }
+  | { kind: "none"; older: StoredPlan[] };
+
+export function taughtView(s: PlanState, date: string): TaughtView {
+  const started = (shown: StoredPlan | null) =>
+    s.given
+      .filter((p) => p.teacher && p.startedOn <= date && p !== shown)
+      .sort((a, b) => (a.startedOn !== b.startedOn ? (a.startedOn < b.startedOn ? 1 : -1) : Date.parse(b.teacher!.madeAt) - Date.parse(a.teacher!.madeAt)));
+  const on = teacherWeekOn(s, date);
+  if (on) return { kind: "week", plan: on, older: started(on) };
+  const next = upcomingTeacherWeek(s, date);
+  if (next) return { kind: "upcoming", plan: next, starts: dayWords(next.startedOn, []).title, older: started(null) };
+  const last = teacherWeek(s, date);
+  if (last) return { kind: "ended", plan: last, older: started(last) };
+  return { kind: "none", older: [] };
+}
 
 /** The first plan of the day's answer applied: the day stored with its words, or what the page says instead. */
 export function applyFirst(s: PlanState, date: string, r: ComposeResult, newId: () => string): { state: PlanState; failure: TodayFailure | null } {

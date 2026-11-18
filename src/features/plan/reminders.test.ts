@@ -34,3 +34,24 @@ test("reminderBody: names today's plan when it is there, and says the page makes
   assert.equal(reminderBody(stateOf(dayPlan("2026-11-18")), at("2026-11-18")), "Today's plan: Scales");
   assert.equal(reminderBody(stateOf(dayPlan("2026-11-17")), at("2026-11-18")), "Open the Practice plan page, and attunr puts today's plan together.");
 });
+
+// a teacher's student: today's plan is the day of the teacher's week that covers today
+const teacherWeek = (startedOn: string, done: Record<string, true> = {}): StoredPlan => ({
+  id: "w", startedOn, done, teacher: { madeAt: `${startedOn}T09:00:00.000Z` },
+  config: { title: "", days: Array.from({ length: 7 }, () => ({ theme: "", exercises: [ex] })) } as unknown as PlanConfig,
+});
+const taught = (week: StoredPlan | null): PlanState => ({ ...stateOf(null), given: week ? [week] : [] });
+
+test("reminderDue, a teacher's student: today's day of the teacher's week, unfinished, is due; finished is not", () => {
+  assert.equal(reminderDue(taught(teacherWeek("2026-11-16")), at("2026-11-18")), true);
+  assert.equal(reminderDue(taught(teacherWeek("2026-11-16", { "2:0": true })), at("2026-11-18")), false);
+  assert.equal(reminderDue(taught(teacherWeek("2026-11-16", { "0:0": true })), at("2026-11-18")), true, "another day's tick is not today's");
+});
+
+test("reminderDue, a teacher's student: with every week ended, nothing is due (no daily plan is made for them)", () => {
+  assert.equal(reminderDue(taught(teacherWeek("2026-11-02")), at("2026-11-18")), false);
+});
+
+test("reminderBody, a teacher's student: which day of the plan today is, never that attunr makes one", () => {
+  assert.equal(reminderBody(taught(teacherWeek("2026-11-16")), at("2026-11-18")), "Today is day 3 of 7 of your plan.");
+});

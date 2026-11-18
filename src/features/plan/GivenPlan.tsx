@@ -25,14 +25,24 @@ import WeekView, { DayPanel } from "./ui/WeekView";
  * one day (a day shared from `/plan`) is drawn as one day, the way `/plan` draws today's (`DayPanel`): no day strip. An id not in `given` shows the not-found state with a link back to `/plan`.
  */
 export default function GivenPlan({ id }: { id: string }) {
-  const { state, loaded, update } = usePlan();
-  const plan = loaded ? givenPlan(state, id) : undefined;
   // the day the page counts from, moving at midnight
   const [date, setDate] = useState(() => localDate());
   useEffect(() => {
     const t = setInterval(() => setDate(localDate()), 60_000);
     return () => clearInterval(t);
   }, []);
+  return <LiveGivenPlan id={id} date={date} controls={(plan) => <><PhoneLabels /><SharePlan planId={plan.id} /></>} />;
+}
+
+/**
+ * One given plan, live: read from the plan document, every change through `updateGiven` (ratings, which also go to the
+ * progress log, ticks, the day timer, Edit), drawn by `GivenPlanView`. `/plan/given/<id>` hosts it, and so does `/plan`
+ * for a teacher's student (their teacher's week). The host gives the header's controls. Keyed by the plan's id where the
+ * id can change, so the open day starts again with a new plan.
+ */
+export function LiveGivenPlan({ id, date, controls }: { id: string; date: string; controls: (plan: StoredPlan) => ReactNode }) {
+  const { state, loaded, update } = usePlan();
+  const plan = loaded ? givenPlan(state, id) : undefined;
   const [day, setDay] = useState<number | null>(null);
   const { times, loaded: timesLoaded, saveTime } = usePlanTimes(plan?.id ?? null);
   const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => updateGiven(s, id, change));
@@ -50,7 +60,7 @@ export default function GivenPlan({ id }: { id: string }) {
       times={times}
       onTime={saveTime}
       onEdit={(next) => setPlan(() => next)}
-      controls={plan && <><PhoneLabels /><SharePlan planId={plan.id} /></>}
+      controls={plan && controls(plan)}
       corner={<CornerLabels />}
     />
   );
