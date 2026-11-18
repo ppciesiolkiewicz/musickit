@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { CLIENT_WORDS, fetchStudents, postClaimLink, postStudent } from "./client";
+import { CLIENT_WORDS, fetchStudent, fetchStudents, postClaimLink, postStudent, postStudentPlan } from "./client";
 import { migrateAnswers } from "@/features/plan/intake/answers";
 
 const answer = (status: number, body: unknown): typeof fetch => (async () => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } })) as typeof fetch;
@@ -39,4 +39,39 @@ test("postClaimLink: sent or off; a 502 mail-failed keeps the route's words", as
   assert.deepEqual(await postClaimLink("a1", answer(200, { mail: "sent" })), { ok: true, mail: "sent" });
   const failed = await postClaimLink("a1", answer(502, { error: "The email didn't go out.", code: "mail-failed" }));
   assert.deepEqual(failed, { ok: false, code: "mail-failed", error: "The email didn't go out." });
+});
+
+const topic = { topic: "guitar-chords", label: "Chords", area: "guitar", now: 1.3, atStart: null };
+
+test("fetchStudent: asks with today, reads the student, the week and the sliders; another shape is a failure", async () => {
+  let url = "";
+  const fetcher = (async (u: string) => {
+    url = u;
+    return new Response(JSON.stringify({ ok: true, student: row, plan: null, topics: [topic] }), { status: 200 });
+  }) as unknown as typeof fetch;
+  assert.deepEqual(await fetchStudent("a1", "2026-11-18", fetcher), { ok: true, student: row, plan: null, topics: [topic] });
+  assert.equal(url, "/api/students/a1?today=2026-11-18");
+  assert.equal((await fetchStudent("a1", "2026-11-18", answer(200, { student: row, plan: null, topics: [{ topic: "x" }] })) as { code: string }).code, "failed");
+  assert.equal((await fetchStudent("a1", "2026-11-18", answer(200, { student: row, plan: "x", topics: [] })) as { code: string }).code, "failed");
+  const gone = await fetchStudent("a1", "2026-11-18", answer(404, { error: "That student isn't on your list.", code: "not-found" }));
+  assert.deepEqual(gone, { ok: false, code: "not-found", error: "That student isn't on your list." });
+});
+
+test("postStudentPlan: sends what it is given, reads the new week; a 409 keeps its code and words", async () => {
+  let sent: RequestInit | undefined;
+  let url = "";
+  const fetcher = (async (u: string, init: RequestInit) => {
+    url = u;
+    sent = init;
+    return new Response(JSON.stringify({ planId: "p1", start: "2026-11-23", short: true, comment: "no-week" }), { status: 200 });
+  }) as unknown as typeof fetch;
+  const body = { today: "2026-11-18", rotate: false, scores: { "guitar-chords": 1.7 }, comment: "Busy week" };
+  assert.deepEqual(await postStudentPlan("a1", body, fetcher), { ok: true, planId: "p1", start: "2026-11-23", short: true, comment: "no-week" });
+  assert.equal(url, "/api/students/a1/plan");
+  assert.equal(sent?.method, "POST");
+  assert.deepEqual(JSON.parse(String(sent?.body)), body);
+  assert.ok(sent?.signal, "a timeout");
+  const none = await postStudentPlan("a1", body, answer(409, { error: "The library has no exercises yet.", code: "no-blocks" }));
+  assert.deepEqual(none, { ok: false, code: "no-blocks", error: "The library has no exercises yet." });
+  assert.equal((await postStudentPlan("a1", body, answer(200, { planId: "p1", start: "2026-11-23", short: false, comment: "kept" })) as { code: string }).code, "failed");
 });

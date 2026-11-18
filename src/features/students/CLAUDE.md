@@ -8,3 +8,5 @@
 - `features/account` imports nothing from here; this feature imports account, userData, plan and the library's repo type.
 - **No client file imports `server/`.** A shape both sides need goes in `model/types.ts`.
 - The page words a failure by the route's own `error` line, or `CLIENT_WORDS` for the page's codes; every call has a timeout.
+- **Only a slider the teacher moved is sent** (`moved` in `model/sliders.ts`): the server records a teacher's score for every topic it is sent, and that score holds the topic from then on.
+- **A student's week on the teacher's page is read-only**: `GivenPlanView` without `onRate`, `onTime` or `onEdit`, so nothing runs or saves there. Replacing a running week (Rotate) asks first, in the app's `Modal`, never a browser dialog.

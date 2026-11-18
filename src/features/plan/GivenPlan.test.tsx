@@ -103,3 +103,16 @@ test("isDayTitle: the date title of a composed day, and nothing else", () => {
   assert.equal(isDayTitle("Open chords, week 1"), false);
   assert.equal(isDayTitle("Wednesday 18 November and more"), false);
 });
+
+test("without onRate, onTime and onEdit (a teacher looking): the week as the player sees it, with no stars, no day timer and no Edit", () => {
+  const live = view("given-1", "2026-11-17");
+  assert.match(live, /How did it go\?/);
+  assert.match(live, /Reset the day&#x27;s timer/);
+  const html = renderToStaticMarkup(<GivenPlanView plan={plan} date="2026-11-17" day={null} onDay={() => {}} controls={null} corner={null} />);
+  assert.equal(html.match(/role="tab"/g)?.length, 7, "the days can still be opened");
+  assert.match(html, /Day 3 of 7 · started 15 November/);
+  assert.match(html, /Day 3: /);
+  assert.doesNotMatch(html, /How did it go\?/);
+  assert.doesNotMatch(html, /Reset the day&#x27;s timer/);
+  assert.doesNotMatch(html, />\s*Edit\s*</);
+});

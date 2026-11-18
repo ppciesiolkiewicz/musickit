@@ -10,6 +10,7 @@ import { planDays, type PlanState, type StoredPlan } from "@/features/plan/model
 import { composeStudentWeek } from "@/features/plan/server/composeStudentWeek";
 import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { readAllPlanTimes, readDocVersioned, readEntries, writeDoc } from "@/features/userData/server/data";
+import type { CommentKept, TopicSlider } from "../model/types";
 import { studentRow, type StudentRow, type StudentsDeps } from "./students";
 
 /**
@@ -26,15 +27,7 @@ export interface PlansDeps extends StudentsDeps {
 /** How many times a week is made over a document the student keeps changing before giving up. */
 const TRIES = 3;
 
-export interface TopicSlider {
-  topic: string;
-  label: string;
-  area: Area;
-  /** the score today, 0 when nothing is known */
-  now: number;
-  /** the score the day before the current week started; null with no week */
-  atStart: number | null;
-}
+export type { TopicSlider };
 
 /** The student's row, when the teacher has them; null for anyone else's student or an unknown id. */
 async function studentOf(d: StudentsDeps, teacher: Account, studentId: string): Promise<StudentRow | null> {
@@ -102,7 +95,7 @@ export async function makeWeek(
   input: { today: string; rotate: boolean; scores?: Record<string, number>; comment?: string },
   now: Date,
   newId: () => string,
-): Promise<{ ok: true; planId: string; start: string; short: boolean; comment: "stored" | "none" | "no-week" } | { ok: false; error: "not-found" | "no-answers" | "no-blocks" | "busy" | "too-big" }> {
+): Promise<{ ok: true; planId: string; start: string; short: boolean; comment: CommentKept } | { ok: false; error: "not-found" | "no-answers" | "no-blocks" | "busy" | "too-big" }> {
   if (!(await studentOf(d, teacher, studentId))) return { ok: false, error: "not-found" };
   const { today } = input;
   const madeAt = now.toISOString();

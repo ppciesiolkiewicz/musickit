@@ -1,6 +1,7 @@
 import { ACCOUNT_CHANGED_WORDS, accountHeaders, isAccountChanged } from "@/features/userData/client/accountHeader";
 import type { PlanAnswers } from "@/features/plan/intake/answers";
-import type { AddedStudent, ClaimMail, StudentList, StudentRow } from "./model/types";
+import { AREAS } from "@/features/plan/model/concepts";
+import type { AddedStudent, ClaimMail, CommentKept, MadePlan, StudentList, StudentRow, StudentView, TopicSlider } from "./model/types";
 
 /**
  * The page's typed calls to the students routes (`server/http.ts`). None throws: each answers `{ ok: true, … }` or
@@ -75,4 +76,40 @@ export async function postClaimLink(id: string, fetcher: typeof fetch = fetch): 
   if ("ok" in r) return r;
   const mail = r.body?.mail;
   return mail === "sent" || mail === "off" ? { ok: true, mail } : failure("failed");
+}
+
+const isSlider = (t: unknown): t is TopicSlider => {
+  const x = t as TopicSlider | null;
+  return !!x && typeof x.topic === "string" && typeof x.label === "string" && AREAS.some((a) => a.id === x.area) && typeof x.now === "number" && (x.atStart === null || typeof x.atStart === "number");
+};
+
+/** A stored week as far as the page needs to trust it: an id, a start date and its days. */
+const isWeek = (p: unknown): p is NonNullable<StudentView["plan"]> => {
+  const x = p as NonNullable<StudentView["plan"]> | null;
+  return !!x && typeof x.id === "string" && typeof x.startedOn === "string" && !!x.config && Array.isArray(x.config.days);
+};
+
+/** `GET /api/students/<id>?today=`: the student, their current week and a slider per topic; `today` is the device's date. */
+export async function fetchStudent(id: string, today: string, fetcher: typeof fetch = fetch): Promise<({ ok: true } & StudentView) | Failure> {
+  const r = await send(`/api/students/${encodeURIComponent(id)}?today=${encodeURIComponent(today)}`, { method: "GET" }, fetcher);
+  if ("ok" in r) return r;
+  const { student, plan, topics } = r.body ?? {};
+  if (!isRow(student) || !(plan === null || isWeek(plan)) || !Array.isArray(topics) || !topics.every(isSlider)) return failure("failed");
+  return { ok: true, student, plan, topics };
+}
+
+/**
+ * `POST /api/students/<id>/plan`: the next week (`rotate: false`) or a new one in place of this week's (`rotate: true`).
+ * `scores` holds only the sliders the teacher moved (`moved`): each topic sent is recorded as the teacher's score.
+ */
+export async function postStudentPlan(
+  id: string,
+  input: { today: string; rotate: boolean; scores: Record<string, number>; comment: string },
+  fetcher: typeof fetch = fetch,
+): Promise<({ ok: true } & MadePlan) | Failure> {
+  const r = await send(`/api/students/${encodeURIComponent(id)}/plan`, { method: "POST", body: JSON.stringify(input) }, fetcher);
+  if ("ok" in r) return r;
+  const { planId, start, short, comment } = r.body ?? {};
+  if (typeof planId !== "string" || typeof start !== "string" || !/^\d{4}-\d\d-\d\d$/.test(start) || typeof short !== "boolean" || !["stored", "none", "no-week"].includes(comment as string)) return failure("failed");
+  return { ok: true, planId, start, short, comment: comment as CommentKept };
 }

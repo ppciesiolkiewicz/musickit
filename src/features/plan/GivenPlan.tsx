@@ -56,8 +56,12 @@ export default function GivenPlan({ id }: { id: string }) {
   );
 }
 
-/** The page once the plan document has loaded: the given plan's header and week, or the not-found state. */
-export function GivenPlanView({ plan, date, day, onDay, onRate, times, onTime, onEdit, controls, corner }: {
+/**
+ * The page once the plan document has loaded: the given plan's header and week, or the not-found state. Without `onRate`,
+ * `onTime` and `onEdit` (a teacher looking at a student's week) it is read-only: no stars, no day timer, no Edit; the days
+ * and the tools in the exercises still open.
+ */
+export function GivenPlanView({ plan, date, day, onDay, onRate, times = [], onTime, onEdit, controls, corner }: {
   /** the given plan, or undefined when the id is not in `given` */
   plan: StoredPlan | undefined;
   /** today's local date */
@@ -65,10 +69,13 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, times, onTime, o
   /** the day the player opened (null: today's) */
   day: number | null;
   onDay: (d: number) => void;
-  onRate: (day: number, ex: number, stars: Stars | null) => void;
-  times: DayTime[];
-  onTime: (time: DayTime) => void;
-  onEdit: (next: StoredPlan) => void;
+  /** rates an exercise; without it the cards have no stars */
+  onRate?: (day: number, ex: number, stars: Stars | null) => void;
+  times?: DayTime[];
+  /** saves the day timer's time; without it there is no timer */
+  onTime?: (time: DayTime) => void;
+  /** saves a day edited in place; without it the day has no Edit */
+  onEdit?: (next: StoredPlan) => void;
   /** the header's controls (Labels on a phone, Share plan) */
   controls: ReactNode;
   /** small controls over the day timer (Labels) */
@@ -82,13 +89,13 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, times, onTime, o
   return (
     <FixedLabelRoot value="scale">
       {/* necks keep the page's margins rather than bleeding to the window's edge */}
-      <div className="flex flex-col gap-4 pb-28 [&_.bleed]:mx-0">
+      <div className={`flex flex-col gap-4 ${onTime ? "pb-28" : ""} [&_.bleed]:mx-0`}>
         <div className="mt-4 mb-2 flex flex-col gap-5 sm:mt-6">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">
               {over || one ? length : `Day ${today + 1} of ${planDays(plan)}`} · started {dateLabel(plan.startedOn)}
             </p>
-            <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{givenTitle(plan)}</h2>
+            {givenTitle(plan) && <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{givenTitle(plan)}</h2>}
             {(plan.config.summary || (one && plan.config.days[0]?.theme)) && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">{plan.config.summary || plan.config.days[0].theme}</p>}
           </div>
           {controls && <div className="flex flex-wrap items-center gap-2">{controls}</div>}
@@ -96,11 +103,14 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, times, onTime, o
         {one
           // the timer starts by itself only while the day runs
           ? <DayPanel plan={plan} day={0} heading={null} timerLabel={over ? "Shared plan" : "Today"} autoStart={!over} onRate={onRate} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />
-          : <WeekView plan={plan} today={today} ended={over} day={day ?? today} onDay={onDay} onRate={onRate} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />}
+          : <WeekView plan={plan} today={today} ended={over} day={day ?? today} onDay={onDay} onRate={onRate as WeekRate} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />}
       </div>
     </FixedLabelRoot>
   );
 }
+
+/** `WeekView` types its `onRate` as required, but its days take none (no stars); read-only passes none. */
+type WeekRate = (day: number, ex: number, stars: Stars | null) => void;
 
 /** The id is not one of the player's given plans: what that means, and the way back to their own plan. */
 function NotFound() {
