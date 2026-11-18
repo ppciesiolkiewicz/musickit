@@ -379,6 +379,21 @@ at 320 px in Surf Rock "Remind me at" wraps onto two lines.
 follows the style, so its clock icon shows in Surf Rock. Also seen now: the tip on /theory/notes and with reduced
 motion (no pulse), and the plan cards on /account, Monthly and Yearly, at 390 and 1280 px.
 
+TaskSeries Leftover: small things left after the launch copy and phone fixes (2026-11-18)
+Leftover1: [NEW 2026-11-18] What the pricing, terms and phone-fix session (af59a23c, 8929010e, 09194114) left unseen
+or undone:
+- /account/setup was not seen with the new plan cards (it needs a brand-new account). It draws the same `PlanOption`,
+  `PlanLines`, `EarlyOffer` and `BillingSwitch` as /account, which was walked at 390 and 1280 px, Monthly and Yearly.
+  Look at it once: the early price on Monthly only, no "Save 50%" on Yearly, the active-students lines.
+- /students/<id>: the top waiting line is hidden right after Make next week's plan (the notice already says it). Held
+  by a render test only (StudentPage.test.tsx); press the button in a browser once and check nothing is said twice.
+- Scratch files from the browser walks are still on disk and safe to delete (a combined delete was blocked):
+  /private/tmp/claude-501/-Users-pio-projects-musickit/09509f96-1293-4126-bfc3-335ac96ad06f/scratchpad (wt/, a copy of
+  the app; pg/, a scratch Postgres with test users only; screenshots; cookie jars). Both servers are stopped.
+- The Docker database (musickit-db, port 5433) accepts connections but hangs on every query. Left alone (user:
+  "no need to do docker"); the walks used a scratch Homebrew Postgres on 5544 instead.
+- /terms promises cancelling a subscription on Your profile. Not built: there is no payment yet (Selling1).
+
 TaskSeries LibraryGrowth: keys, more seed plans and exercises, new exercise tools (moved out of NEW, 2026-11-18)
 LibraryGrowth1: (was NEW19) [NEW 2026-11-18] Keys in the questionnaire and in every plan
 The key the player picks should set the key of every task in the plan, not only the theory ones.
