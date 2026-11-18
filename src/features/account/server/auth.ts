@@ -62,7 +62,7 @@ const later = (now: Date, ms: number) => new Date(now.getTime() + ms);
 
 export type SignedIn = { kind: "session"; sessionToken: string; expiresAt: Date; account: Account; next: string; created: boolean };
 
-async function startSession(deps: AuthDeps, user: UserRow, next: string | null, userAgent: string | null, created: boolean): Promise<SignedIn> {
+export async function startSession(deps: AuthDeps, user: UserRow, next: string | null, userAgent: string | null, created: boolean): Promise<SignedIn> {
   const now = deps.now();
   const sessionToken = deps.token();
   const expiresAt = later(now, SESSION_TTL);
