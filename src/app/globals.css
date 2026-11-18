@@ -147,6 +147,13 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
   100% { box-shadow: 0 0 0 16px rgb(24 24 27 / 0); transform: none; }
 }
 .style-pulse { animation: style-pulse 1.6s ease-out 3; }
+/* step modal: Next once every answer on the screen is in; glows a few times, then stays solid */
+@keyframes next-ready {
+  0% { box-shadow: 0 0 0 0 rgb(56 189 248 / 0.6); }
+  100% { box-shadow: 0 0 0 12px rgb(56 189 248 / 0); }
+}
+.next-ready { animation: next-ready 1.4s ease-out 3; }
+@media (prefers-reduced-motion: reduce) { .next-ready { animation: none; box-shadow: 0 0 0 2px rgb(56 189 248 / 0.6); } }
 /* quick record: the record button's circle beats while the input hears sound */
 @keyframes rec-pulse {
   0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgb(244 63 94 / 0.45); }

@@ -49,8 +49,11 @@ export function topicSteps(a: PlanAnswers, set: SetAnswer, areas: Area[] = a.are
     const answered = list.filter((t) => a.topics[t.id] !== undefined).length;
     return {
       title: `${ar.label}: where are you now?`,
-      hint: `For each topic, pick the line that sounds most like you. ${answered} of ${list.length} answered.`,
+      hint: answered === list.length
+        ? "All topics answered. Press a topic to change its answer."
+        : `For each topic, pick the line that sounds most like you. ${answered} of ${list.length} answered.`,
       hue: AREA_LOOK[ar.id].hue,
+      ready: answered === list.length,
       body: <TopicStep key={ar.id} area={ar.id} topics={a.topics} onTopics={(t) => set("topics", t)} />,
     };
   });

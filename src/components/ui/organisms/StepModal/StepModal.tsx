@@ -12,6 +12,8 @@ export interface ModalStep {
   hint?: ReactNode;
   body: ReactNode;
   canNext?: boolean;
+  /** everything on the screen is answered: Next lights up so the eye goes there */
+  ready?: boolean;
   /** colour codes the screen with a dot by its title (a questionnaire's area, say) */
   hue?: Hue;
 }
@@ -22,6 +24,7 @@ export interface ModalStep {
  * Only the Close button closes it (not Escape or a click beside it), so coming back from another window never loses the flow.
  * Pass `step`/`onStep` to own the screen number (to restore it after a reload).
  * The progress bar shows done screens green, the current one amber. A screen's `hue` puts a coloured dot by its title.
+ * A screen with `ready` lights Next up (solid, with a ring that glows a few times).
  * `bodyHeight` (a height class, e.g. "h-[22rem]") gives every screen that same height, scrolling inside, so Back and Next never move.
  */
 export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done", step: stepProp, onStep, bodyHeight, medium = false, large = false }: {
@@ -51,7 +54,7 @@ export function StepModal({ title, steps, onFinish, onClose, finishLabel = "Done
         <div className="flex items-center gap-2">
           {i > 0 && <Button onClick={() => setI(i - 1)}><Icon name="chevron-left" size={12} />Back</Button>}
           <Button
-            className="ml-auto !border-sky-500/70 !bg-sky-500/20 !text-sky-100"
+            className={`ml-auto ${step.ready ? "next-ready !border-sky-300 !bg-sky-500 !text-slate-950" : "!border-sky-500/70 !bg-sky-500/20 !text-sky-100"}`}
             disabled={step.canNext === false}
             onClick={() => (last ? onFinish() : setI(i + 1))}
           >
