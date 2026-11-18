@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Icon from "@/components/Icon";
 import { btn } from "@/components/ui";
 import { DISPLAY } from "@/components/landing/Display";
@@ -9,7 +10,7 @@ import { FixedLabelRoot } from "@/features/theory/useLabelSystem";
 import type { Stars } from "@/features/progress/stars";
 import { useProgress } from "@/features/progress/useProgress";
 import type { DayTime } from "./model/planTime";
-import { givenPlan, givenToday, localDate, updateGiven } from "./model/schedule";
+import { givenPlan, givenToday, hideGiven, localDate, updateGiven } from "./model/schedule";
 import { dateLabel, daysLabel } from "./model/today";
 import { planDays, type StoredPlan } from "./model/types";
 import { usePlan, usePlanTimes } from "./store/usePlan";
@@ -32,7 +33,34 @@ export default function GivenPlan({ id }: { id: string }) {
     return () => clearInterval(t);
   }, []);
   // a teacher's week is the student's own practice plan, not one to pass on: no Share plan (it would offer them the Teacher upgrade)
-  return <LiveGivenPlan id={id} date={date} controls={(plan) => <><PhoneLabels />{!plan.teacher && <SharePlan planId={plan.id} />}</>} />;
+  return <LiveGivenPlan id={id} date={date} controls={(plan) => <><PhoneLabels />{!plan.teacher && <><SharePlan planId={plan.id} /><RemoveShared plan={plan} /></>}</>} />;
+}
+
+/** The words of the controls that take a shared plan off "Plans shared with you" and put it back. */
+export const REMOVE_SHARED = "Remove from list";
+export const RESTORE_SHARED = "Put back on the list";
+export const REMOVED_LINE = "You removed this plan from Plans shared with you. Your ratings in it still count.";
+
+/**
+ * Takes a shared plan off the list on `/plan` (`hideGiven`) and goes back there; on a plan already removed, says so and
+ * puts it back. The plan stays in the document, so its ratings still count and its page still opens.
+ */
+function RemoveShared({ plan }: { plan: StoredPlan }) {
+  const { update } = usePlan();
+  const router = useRouter();
+  if (plan.hidden) {
+    return (
+      <p className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
+        {REMOVED_LINE}
+        <button type="button" className={btn} onClick={() => update((s) => hideGiven(s, plan.id, false))}>{RESTORE_SHARED}</button>
+      </p>
+    );
+  }
+  return (
+    <button type="button" className={btn} onClick={() => { update((s) => hideGiven(s, plan.id, true)); router.push("/plan"); }}>
+      <Icon name="x" size={14} /> {REMOVE_SHARED}
+    </button>
+  );
 }
 
 /** The page's name on a teacher's week: the student's practice plan, named as on `/plan`. */

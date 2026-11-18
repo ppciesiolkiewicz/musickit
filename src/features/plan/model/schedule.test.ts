@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addDays, anotherDay, dayBeforeWeek, giveWeek, givenPlan, givenToday, ownDay, ratePlan, startDay, storedPlans, teacherWeek, teacherWeekOn, upcomingTeacherWeek, updateGiven } from "./schedule";
-import { HISTORY_CAP } from "./state";
+import { addDays, anotherDay, dayBeforeWeek, giveWeek, givenPlan, givenToday, hideGiven, ownDay, ratePlan, startDay, storedPlans, teacherWeek, teacherWeekOn, upcomingTeacherWeek, updateGiven } from "./schedule";
+import { HISTORY_CAP, sanitiseState } from "./state";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import type { ComposedDay } from "./compose";
 import { EMPTY_STATE, planDays, type PlanConfig, type PlanExercise, type PlanState, type StoredPlan } from "./types";
@@ -151,6 +151,19 @@ test("updateGiven with an id not in given (the plan's own id, or gone) changes n
   const s: PlanState = { ...EMPTY_STATE, current: week("own"), given: [week("g1")] };
   assert.equal(updateGiven(s, "own", (p) => ratePlan(p, 0, 0, 5, "x")), s);
   assert.equal(updateGiven(s, "gone", (p) => ratePlan(p, 0, 0, 5, "x")), s);
+});
+
+test("hideGiven takes a shared plan off the list and puts it back; it stays in given and in storedPlans, and survives a reload", () => {
+  const rated = ratePlan(week("g1"), 0, 0, 4, "2026-11-12T10:00:00Z");
+  const s: PlanState = { ...EMPTY_STATE, given: [rated, week("g2")] };
+  const hidden = hideGiven(s, "g1", true);
+  assert.equal(hidden.given[0].hidden, true);
+  assert.equal(hidden.given[1], s.given[1]);
+  assert.ok(storedPlans(hidden).some((p) => p.id === "g1" && p.rated?.["0:0"]));
+  assert.equal(sanitiseState(hidden).given[0].hidden, true);
+  assert.equal("hidden" in hideGiven(hidden, "g1", false).given[0], false);
+  assert.equal(hideGiven(s, "gone", true), s);
+  assert.equal("hidden" in sanitiseState({ ...s, given: [{ ...rated, hidden: "yes" }] }).given[0], false);
 });
 
 test("storedPlans lists every plan the player has: current, then history, then given", () => {

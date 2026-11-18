@@ -97,6 +97,12 @@ test("Plans shared with you: a shared composed day is listed as a shared plan wi
   assert.ok(html.includes(plan.config.title.replace(/&/g, "&amp;").replace(/'/g, "&#x27;")));
 });
 
+test("Plans shared with you leaves out a plan the player removed; with only removed ones it draws nothing", () => {
+  const html = renderToStaticMarkup(<GivenPlans plans={[{ ...lateDay, hidden: true }, plan]} />);
+  assert.doesNotMatch(html, />Shared plan</);
+  assert.equal(renderToStaticMarkup(<GivenPlans plans={[{ ...plan, hidden: true }]} />), "");
+});
+
 test("isDayTitle: the date title of a composed day, and nothing else", () => {
   assert.equal(isDayTitle("Wednesday 18 November"), true);
   assert.equal(isDayTitle(dayWords("2027-01-01", []).title), true);

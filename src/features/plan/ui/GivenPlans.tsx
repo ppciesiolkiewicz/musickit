@@ -22,11 +22,11 @@ export const givenHref = (id: string): string => `/plan/given/${encodeURICompone
 
 /**
  * The plans shared with the player (`PlanState.given`, newest first, without the weeks a teacher made) on `/plan`: each its
- * title, how many days and when it started, a link to its own page. Nothing when there are none. Who shared one isn't
- * stored, so it isn't shown.
+ * title, how many days and when it started, a link to its own page. One the player removed (`hidden`) is left out. Nothing
+ * when there are none. Who shared one isn't stored, so it isn't shown.
  */
 export default function GivenPlans({ plans }: { plans: StoredPlan[] }) {
-  return <PlanLinks id="given-plans-h" heading="Plans shared with you" rows={plans.filter((p) => !p.teacher).map((plan) => ({ plan, replaced: false }))} />;
+  return <PlanLinks id="given-plans-h" heading="Plans shared with you" rows={plans.filter((p) => !p.teacher && !p.hidden).map((plan) => ({ plan, replaced: false }))} />;
 }
 
 /**

@@ -165,6 +165,15 @@ export function updateGiven(s: PlanState, id: string, change: (p: StoredPlan) =>
   return { ...s, given };
 }
 
+/** Takes a shared plan off the list on `/plan` (`hidden`) or puts it back; the plan stays, so its ratings still count. An id not in `given`: `s` unchanged. */
+export function hideGiven(s: PlanState, id: string, hidden: boolean): PlanState {
+  return updateGiven(s, id, (p) => {
+    const next = { ...p };
+    delete next.hidden;
+    return hidden ? { ...next, hidden: true } : next;
+  });
+}
+
 /** Every plan the player has, for progress and the outcome: the current plan, then the history, then the given plans. */
 export const storedPlans = (s: PlanState): StoredPlan[] => [...(s.current ? [s.current] : []), ...s.history, ...s.given];
 
