@@ -25,6 +25,15 @@ export type LinkState = { busy: true } | { busy: false; ok: boolean; text: strin
 /** The student's own page, where the teacher sees and makes their plans. */
 export const studentHref = (id: string): string => `/students/${id}`;
 
+/**
+ * How the line after adding looks: the warning tone when something needs the teacher (no plan, or no email went out),
+ * the plain tone otherwise; the check only when the plan and the email both went as meant.
+ */
+export function addedLook({ plan, mail }: Pick<AddedStudent, "plan" | "mail">): { tone: "info" | "warn"; icon: "check" | "info" | "alert-triangle" } {
+  if (plan === "none" || mail !== "sent") return { tone: "warn", icon: "alert-triangle" };
+  return plan === "short" ? { tone: "info", icon: "info" } : { tone: "info", icon: "check" };
+}
+
 /** The one line after adding: what happened to the first week, then to the email, with what to do when either didn't work. */
 export function addedLine({ student, plan, mail }: AddedStudent): string {
   const { name, email } = student;
@@ -111,7 +120,7 @@ export function StudentsView({ access, list, added, links, onRetry, onAdd, onSen
   const full = limit !== null && students.length >= limit;
   return (
     <div className="flex flex-col gap-4">
-      {added && <Notice icon={<Icon name="check" size={14} />}><span role="status">{addedLine(added)}</span></Notice>}
+      {added && <Notice tone={addedLook(added).tone} icon={<Icon name={addedLook(added).icon} size={14} />}><span role="status">{addedLine(added)}</span></Notice>}
       <div className="flex flex-wrap items-center gap-3">
         <Button className={primary} disabled={full} onClick={onAdd}><Icon name="plus" size={14} />Add a student</Button>
         {limit !== null && <span className="text-sm tabular-nums text-slate-400">{students.length} of {limit} students</span>}

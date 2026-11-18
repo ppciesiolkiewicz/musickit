@@ -4,24 +4,14 @@ import { useEffect, useState } from "react";
 import Icon from "@/components/Icon";
 import { Notice, StepModal, type ModalStep } from "@/components/ui";
 import { cleanEmail, cleanName, isEmail } from "@/features/account/model";
-import { migrateAnswers, type PlanAnswers } from "@/features/plan/intake/answers";
+import { migrateAnswers } from "@/features/plan/intake/answers";
 import { questionSteps, type SetAnswer } from "@/features/plan/intake/ui/Questionnaire";
 import { localDate } from "@/features/plan/model/schedule";
 import { postStudent } from "../client";
+import { afterAdd, type AddDraft, type AddError } from "../model/addFlow";
 import type { AddedStudent } from "../model/types";
 
-/** What the teacher has typed and picked so far. */
-export interface AddDraft {
-  name: string;
-  email: string;
-  answers: PlanAnswers;
-}
-
-/** A failed add: `field` puts the line under that field on the first screen; without it the line is on the last screen. */
-export interface AddError {
-  field?: "name" | "email";
-  text: string;
-}
+export { placeError, type AddDraft, type AddError } from "../model/addFlow";
 
 /** The flow in progress, kept for the tab's life so a reload reopens it where it was (as the plan's flow is). */
 export const ADD_KEY = "musickit.students.add";
@@ -52,13 +42,6 @@ function clearAdd(): void {
 /** The finish button, named in the last screen's words. */
 export const ADD_FINISH = "Add student";
 
-/** Which screen a route's error belongs on: a name or email error under its field, anything else on the last screen. */
-export function placeError(code: string, text: string): AddError {
-  if (code === "name") return { field: "name", text };
-  if (code === "email" || code === "exists") return { field: "email", text };
-  return { text };
-}
-
 const input = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
 const errorLine = "mt-1 text-xs text-rose-300";
 
@@ -88,9 +71,10 @@ export function WhoStep({ draft, onName, onEmail, error }: { draft: AddDraft; on
 
 /**
  * Every screen of adding a student: name and email, then the player's questionnaire worded for a student
- * (`questionSteps(…, { forStudent: true })`), then what Add student does, with the error of a failed try.
+ * (`questionSteps(…, { forStudent: true })`), then what Add student does, with the error of a failed try. Every edit
+ * goes through `setDraft`, which the flow uses to clear the error too.
  */
-export function addSteps(draft: AddDraft, setDraft: (change: (d: AddDraft) => AddDraft) => void, error: AddError | null, busy: boolean, onFieldEdit: () => void): ModalStep[] {
+export function addSteps(draft: AddDraft, setDraft: (change: (d: AddDraft) => AddDraft) => void, error: AddError | null, busy: boolean): ModalStep[] {
   const set: SetAnswer = (k, v) => setDraft((d) => ({ ...d, answers: { ...d.answers, [k]: v } }));
   const who: ModalStep = {
     title: "Who is your student?",
@@ -100,8 +84,8 @@ export function addSteps(draft: AddDraft, setDraft: (change: (d: AddDraft) => Ad
       <WhoStep
         draft={draft}
         error={error?.field ? error : null}
-        onName={(name) => { onFieldEdit(); setDraft((d) => ({ ...d, name })); }}
-        onEmail={(email) => { onFieldEdit(); setDraft((d) => ({ ...d, email })); }}
+        onName={(name) => setDraft((d) => ({ ...d, name }))}
+        onEmail={(email) => setDraft((d) => ({ ...d, email }))}
       />
     ),
   };
@@ -124,7 +108,8 @@ export function addSteps(draft: AddDraft, setDraft: (change: (d: AddDraft) => Ad
 /**
  * Adding a student, as one step modal. It closes only with its Close button, or after the route has added the student
  * (`onAdded`). A failed try keeps everything typed: a name or email error goes back to the first screen with its line
- * under the field; any other error shows on the last screen. The flow survives a reload (`ADD_KEY`).
+ * under the field; any other error shows on the last screen (`afterAdd`). Any edit clears the error. The flow survives a
+ * reload (`ADD_KEY`).
  */
 export default function AddStudent({ onAdded, onClose }: { onAdded: (added: AddedStudent) => void; onClose: () => void }) {
   const [saved] = useState(() => savedAdd());
@@ -132,9 +117,13 @@ export default function AddStudent({ onAdded, onClose }: { onAdded: (added: Adde
   const [step, setStep] = useState(saved?.step ?? 0);
   const [error, setError] = useState<AddError | null>(null);
   const [busy, setBusy] = useState(false);
-  const setDraft = (change: (d: AddDraft) => AddDraft) => setDraftState(change);
+  // an edit answers the error: the line goes until the next try
+  const setDraft = (change: (d: AddDraft) => AddDraft) => {
+    setError(null);
+    setDraftState(change);
+  };
 
-  const steps = addSteps(draft, setDraft, error, busy, () => setError((e) => (e?.field ? null : e)));
+  const steps = addSteps(draft, setDraft, error, busy);
   const at = Math.min(step, steps.length - 1);
   useEffect(() => {
     try {
@@ -150,14 +139,14 @@ export default function AddStudent({ onAdded, onClose }: { onAdded: (added: Adde
     setError(null);
     const r = await postStudent({ name: cleanName(draft.name), email: cleanEmail(draft.email), answers: draft.answers, today: localDate() });
     setBusy(false);
-    if (r.ok) {
+    const next = afterAdd(r, draft, steps.length - 1);
+    if (next.added) {
       clearAdd();
-      onAdded(r);
+      onAdded(next.added);
       return;
     }
-    const placed = placeError(r.code, r.error);
-    setError(placed);
-    if (placed.field) setStep(0);
+    setError(next.error);
+    setStep(next.step);
   };
 
   return (

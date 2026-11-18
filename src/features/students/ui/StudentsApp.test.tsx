@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { StudentRow } from "../model/types";
-import { StudentsView, addedLine, type Access, type ListState, type LinkState } from "./StudentsApp";
+import { StudentsView, addedLine, addedLook, type Access, type ListState, type LinkState } from "./StudentsApp";
 import { WhoStep, addSteps, emptyDraft, placeError } from "./AddStudent";
 
 const ann: StudentRow = { id: "a1", name: "Ann", email: "ann@school.com", addedAt: "2026-11-10T10:00:00.000Z", claimedAt: null };
@@ -79,16 +79,16 @@ test("an exists answer shows its line under the email field and keeps what was t
 });
 
 test("the add flow: name and email first, required before the questions; then the questions worded for a student; then Add", () => {
-  const steps = addSteps(emptyDraft(), () => {}, null, false, () => {});
+  const steps = addSteps(emptyDraft(), () => {}, null, false);
   assert.equal(steps[0].canNext, false, "nothing typed: no Next");
-  assert.equal(addSteps({ ...emptyDraft(), name: "Ann", email: "ann@" }, () => {}, null, false, () => {})[0].canNext, false, "a half email: no Next");
-  assert.equal(addSteps({ ...emptyDraft(), name: "Ann", email: "ann@school.com" }, () => {}, null, false, () => {})[0].canNext, true);
+  assert.equal(addSteps({ ...emptyDraft(), name: "Ann", email: "ann@" }, () => {}, null, false)[0].canNext, false, "a half email: no Next");
+  assert.equal(addSteps({ ...emptyDraft(), name: "Ann", email: "ann@school.com" }, () => {}, null, false)[0].canNext, true);
   assert.equal(steps[1].title, "What does your student play?");
   assert.equal(steps[2].title, "Guitar: where is your student now?");
   assert.equal(steps[2].canNext, false, "a topic screen needs one answer for a student");
   const last = steps[steps.length - 1];
   const errorText = "Your plan has no places left for students.";
-  const failed = addSteps({ ...emptyDraft(), name: "Ann", email: "ann@school.com" }, () => {}, placeError("limit", errorText), false, () => {});
+  const failed = addSteps({ ...emptyDraft(), name: "Ann", email: "ann@school.com" }, () => {}, placeError("limit", errorText), false);
   assert.match(renderToStaticMarkup(<>{failed[failed.length - 1].body}</>), /no places left/);
   assert.match(String(last.title), /Add your student/);
 });
@@ -98,4 +98,14 @@ test("the line after adding says what happened to the plan and the email, and wh
   assert.equal(addedLine({ student, plan: "made", mail: "sent" }), "Ann has a plan for their first week. attunr emailed ann@school.com a link to log in.");
   assert.match(addedLine({ student, plan: "none", mail: "failed" }), /couldn't make a plan.*Open Ann's page.*Press Send the link again in Ann's row\./);
   assert.match(addedLine({ student, plan: "short", mail: "off" }), /shorter than the minutes you picked.*no link went out/);
+});
+
+test("the line after adding warns when something needs the teacher; the check only when all went as meant", () => {
+  assert.deepEqual(addedLook({ plan: "made", mail: "sent" }), { tone: "info", icon: "check" });
+  assert.deepEqual(addedLook({ plan: "short", mail: "sent" }), { tone: "info", icon: "info" });
+  for (const a of [{ plan: "none", mail: "sent" }, { plan: "made", mail: "failed" }, { plan: "made", mail: "off" }] as const) {
+    assert.equal(addedLook(a).tone, "warn", `${a.plan} / ${a.mail}`);
+  }
+  const html = renderToStaticMarkup(<StudentsView access="teacher" list={{ kind: "list", students: [ann], limit: null }} added={{ student: ann, plan: "none", mail: "failed" }} links={{}} onRetry={() => {}} onAdd={() => {}} onSendLink={() => {}} />);
+  assert.match(html, /border-amber-500/, "the warning tone");
 });

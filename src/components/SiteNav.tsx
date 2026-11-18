@@ -17,7 +17,7 @@ function NavLink({ href, label, current, icon }: { href: string; label: string; 
       href={href}
       aria-current={current ? "page" : undefined}
       aria-label={icon ? label : undefined}
-      className={`rounded-lg px-2 py-2 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:px-3.5 ${current ? "metal-btn bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
+      className={`whitespace-nowrap rounded-lg px-2.5 py-2 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 sm:px-3.5 ${current ? "metal-btn bg-sky-500/20 text-sky-100" : "text-slate-400 hover:text-slate-200"}`}
     >
       {icon ? <><Icon name={icon} size={16} className="sm:hidden" /><span className="hidden sm:inline">{label}</span></> : label}
     </Link>
@@ -59,8 +59,10 @@ export default function SiteNav({ active, devices = false }: { active: string; d
       <Link href={visitor ? "/" : "/plan"} aria-label={visitor ? "attunr home" : "attunr: your plan"} className="mr-5 inline rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
         <Wordmark className="text-[1.7rem]" />
       </Link>
-      {/* the app's three links share a second row on a phone, under the wordmark and the buttons */}
-      <div className="order-last -ml-2 flex w-[calc(100%+0.5rem)] justify-between sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1">
+      {/* the app's three links share a second row on a phone, under the wordmark and the buttons; with a teacher's fourth
+          on a narrow phone the row scrolls sideways (no scrollbar) instead of wrapping a label or widening the page; the
+          -my-1 py-1 pair leaves room for the focus ring inside the scroll box without moving anything */}
+      <div className="order-last -my-1 -ml-2.5 flex w-[calc(100%+0.625rem)] justify-between overflow-x-auto py-1 [scrollbar-width:none] sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1">
         {APP_PLACES.map((l) => (
           <NavLink key={l.href} href={l.href} label={l.label} current={isUnder(active, l.under)} />
         ))}

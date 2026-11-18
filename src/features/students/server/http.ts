@@ -44,13 +44,13 @@ const MESSAGES = {
   limit: "Your plan has no places left for students. Change your plan to add more.",
   "not-found": "That student isn't on your list.",
   claimed: "Your student has already logged in, so they don't need the link.",
-  wait: "A link went out a moment ago. Wait a minute, then choose Send the link again.",
-  "mail-failed": "The email didn't go out. Wait a minute, then choose Send the link again.",
+  wait: "A link went out a moment ago. Wait a minute, then press Send the link again.",
+  "mail-failed": "The email didn't go out. Wait a minute, then press Send the link again.",
   "no-answers": "Your student has no answers yet, so no plan can be made. Ask your student to answer the questions on the Practice plan page, then try again.",
   "no-blocks": "The library has no exercises yet that fit your student's answers, so no plan was made.",
   busy: "Your student saved changes at the same moment. Try again.",
   "too-big": "This student's saved plans take up too much room, so no plan was made. Tell us about it on the Send feedback page.",
-  gone: "This link is too old or was already used. If you have opened it before, choose Log in. If not, ask your teacher to send a new link.",
+  gone: "This link is too old or was already used. If you have opened it before, press Log in. If not, ask your teacher to send a new link.",
   failed: "attunr couldn't do that. Try again in a moment.",
 } as const;
 
