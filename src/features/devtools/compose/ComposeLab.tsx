@@ -115,7 +115,7 @@ export default function ComposeLab() {
   const { trace, day } = d;
   const areas = AREAS.filter((a) => d.answers.areas.includes(a.id));
   const picked = new Set(trace.picks.map((p) => p.step));
-  const keyed = trace.picks.filter((p) => p.keys);
+  const keyed = trace.picks.filter((p) => p.given?.keys);
   const withSelector = blocks.filter((b) => hasKeySelector(b.exercise)).length;
 
   return (
@@ -251,7 +251,7 @@ export default function ComposeLab() {
               rows={keyed.map((p) => {
                 const e = day.exercises.find((x) => x.blockId === p.blockId);
                 const written = e?.choice && "options" in e.choice ? e.choice.options.flatMap((o) => (o.key === undefined ? [] : [o.key])) : [];
-                return [<span key="t" className="text-slate-100">{p.title}</span>, e?.area ?? "", keys(written), <b key="n" className="text-sky-100">{keys(p.keys!.now)}</b>, keys(p.keys!.back) || "–"];
+                return [<span key="t" className="text-slate-100">{p.title}</span>, e?.area ?? "", keys(written), <b key="n" className="text-sky-100">{keys(p.given!.keys!.now)}</b>, keys(p.given!.keys!.back) || "–"];
               })}
             />
           ) : <p className="text-xs text-slate-500">No exercise of this day has a Key selector.</p>}

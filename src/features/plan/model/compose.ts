@@ -1,12 +1,16 @@
 import { mulberry32 } from "@/lib/improv/schillinger";
+import type { ProgressEntry } from "@/features/progress/log";
 import type { Stars } from "@/features/progress/stars";
 import type { Area } from "./concepts";
 import { daySteps, type DaySteps } from "./daySteps";
 import { levelOf } from "../intake/answers";
 import { exerciseKeys, hasKeySelector, keyRung, type PlayerKeys } from "./keys";
+import { keyTrackOf, playerKeys } from "./keyStages";
+import { written, type Given } from "./moves";
 import { SOLID_STARS } from "./outcome";
 import { PATH, type Track } from "./path";
 import { reach } from "./reach";
+import { rollVersion, type RollTrace } from "./roll";
 import { addDays } from "./schedule";
 import type { PlanAnswers, PlanExercise } from "./types";
 
@@ -40,6 +44,10 @@ export interface ComposeInput {
   declined: string[];
   /** who and which try: `${playerId}:${date}:${attempt}` */
   seed: string;
+  /** the player's whole progress log: what each block's version is rolled from, and the keys they have earned. Absent: none. */
+  history?: ProgressEntry[];
+  /** who the versions are rolled for; absent: the part of `seed` before its first ":" */
+  player?: string;
 }
 
 export interface ComposedDay {
@@ -71,8 +79,10 @@ export interface TracedPick {
   among: number;
   /** the minutes filled after this pick */
   total: number;
-  /** the keys given to its Key selector; absent when it has none */
-  keys?: PlayerKeys;
+  /** the version it was given: rolled for a block with moves, the player's keys for one with a Key selector; absent when it has neither */
+  given?: Given;
+  /** how the version was rolled; only for a block with moves */
+  roll?: RollTrace;
 }
 
 /** Everything `composeDay` decided, stage by stage, for /dev/compose. Not stored. */
@@ -226,6 +236,32 @@ function keysFor(e: PlanExercise, answers: PlanAnswers, turn: number): PlayerKey
   return exerciseKeys(area, keyRung(answers.keys, levelOf(answers, area)), turn);
 }
 
+/** What a block's version is rolled from: the player, the block, and their newest rated play of it. A new rating is a new roll; nothing else is. */
+export const rollSeed = (player: string, blockId: string, newestRowId: string | undefined): string => `${player}:${blockId}:${newestRowId ?? ""}`;
+
+/** An ISO time in ms; no time counts as the oldest. */
+const at = (row: ProgressEntry): number => { const t = Date.parse(row.at ?? ""); return Number.isNaN(t) ? -Infinity : t; };
+
+/**
+ * The version an exercise is given. A block with `moves` gets a rolled one (model/roll.ts): from the player's rated
+ * plays of this block, in the keys of its track (the first step it names on the path), with dice seeded by `rollSeed`,
+ * so it is the same on every day and every try until the block is rated again. A block of the old shape, with its own
+ * Key selector, gets the player's keys as before. Any other block gets none.
+ */
+function versionFor(e: PlanExercise, input: ComposeInput, tracks: Track[]): { given: Given; roll?: RollTrace } | null {
+  if (!e.moves) {
+    const keys = keysFor(e, input.answers, hash(`${input.seed}:${e.blockId ?? ""}`));
+    return keys ? { given: { keys } } : null;
+  }
+  const log = input.history ?? [];
+  const history = log.filter((r) => !!e.blockId && r.blockId === e.blockId).sort((a, b) => at(b) - at(a));
+  const on = keyTrackOf(e.steps, tracks);
+  const keys = on ? playerKeys(on.track, on.step, log, input.answers.keys ?? 0) : null;
+  const player = input.player ?? input.seed.split(":")[0];
+  const { given, trace } = rollVersion({ moves: e.moves, written: written(e), keys, history }, mulberry32(hash(rollSeed(player, e.blockId ?? "", history[0]?.id))));
+  return given.keys || given.bpm ? { given, roll: trace } : null;
+}
+
 /** One day's plan with every decision that made it (`ComposeTrace`): what /dev/compose draws. `composeDay` is its `day`. */
 export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: ComposedDay; trace: ComposeTrace } {
   const { answers, keep } = input;
@@ -247,15 +283,18 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
   };
   const { picks, total } = fill(steps, reviewCount, reviewCap, budget, inReach, used, mulberry32(hash(input.seed)), trace);
   trace.minutes.filled = total;
-  // the keys last: they change no pick, only the keys an exercise with a Key selector opens in
-  const keyed = new Map<string, PlayerKeys>();
+  // the versions last: they change no pick, only what each exercise opens in
+  const versions = new Map<string, { given: Given; roll?: RollTrace }>();
   for (const p of picks) {
-    const keys = keysFor(p.cand.exercise, answers, hash(`${input.seed}:${p.cand.blockId}`));
-    if (keys) keyed.set(p.cand.blockId, keys);
+    const v = versionFor(p.cand.exercise, input, tracks);
+    if (v) versions.set(p.cand.blockId, v);
   }
-  for (const t of trace.picks) if (keyed.has(t.blockId)) t.keys = keyed.get(t.blockId);
+  for (const t of trace.picks) {
+    const v = versions.get(t.blockId);
+    if (v) Object.assign(t, { given: v.given }, v.roll ? { roll: v.roll } : {});
+  }
   const day: ComposedDay = {
-    exercises: [...keep, ...picks.map((p) => (keyed.has(p.cand.blockId) ? { ...p.cand.exercise, given: { keys: keyed.get(p.cand.blockId)! } } : p.cand.exercise))],
+    exercises: [...keep, ...picks.map((p) => (versions.has(p.cand.blockId) ? { ...p.cand.exercise, given: versions.get(p.cand.blockId)!.given } : p.cand.exercise))],
     steps: [...new Set(picks.map((p) => p.step))],
     short: budget - total > SLACK,
   };

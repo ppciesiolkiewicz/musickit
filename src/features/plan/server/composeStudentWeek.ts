@@ -28,7 +28,7 @@ export async function composeStudentWeek(
   const entries = await readEntries(d.userData, studentId);
   const asOf = body.today && body.today > body.start ? body.today : body.start;
   const levelled = raisedAnswers(answers, entries, asOf, state.teacherScores);
-  const days = composeWeek({ answers: levelled, solid: solidRatedAt(entries), blocks, date: body.start, seed: body.seed, yesterday: body.yesterday ?? [] }, 7);
+  const days = composeWeek({ answers: levelled, solid: solidRatedAt(entries), blocks, date: body.start, seed: body.seed, yesterday: body.yesterday ?? [], history: entries, player: studentId }, 7);
   if (days.every((day) => !day.exercises.length)) return { ok: false, code: "no-blocks" };
   return { ok: true, days, short: days.some((day) => day.short || !day.exercises.length) };
 }

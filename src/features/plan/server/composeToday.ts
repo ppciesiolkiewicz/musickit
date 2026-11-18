@@ -77,7 +77,7 @@ export async function composeToday(
   // each topic paced by the higher of the answer (or a teacher's score) and the level its ratings reach (the progress tracker's rule)
   const levelled = raisedAnswers(answers, entries, date, state.teacherScores);
 
-  const day = composeDay({ answers: levelled, solid, blocks, date, yesterday: yesterdayOf(state, date), keep, declined, seed: `${player}:${date}:${attempt}` });
+  const day = composeDay({ answers: levelled, solid, blocks, date, yesterday: yesterdayOf(state, date), keep, declined, seed: `${player}:${date}:${attempt}`, history: entries, player });
   if (!day.exercises.length) return { ok: false, code: "no-blocks" };
   return { ok: true, day, date, attempt };
 }

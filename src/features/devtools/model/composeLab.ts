@@ -54,13 +54,13 @@ export function simulate(opts: { answers: PlanAnswers; date: string; days: numbe
     const answers = raisedAnswers(opts.answers, entries, date);
     const yesterday = i ? out[i - 1].day.exercises.flatMap((e) => (e.blockId ? [e.blockId] : [])) : [];
     const rated = blocks.map((b) => ({ ...b, mine: mine.get(b.blockId) ?? null }));
-    const { day, trace } = explainDay({ answers, solid, blocks: rated, date, yesterday, keep: [], declined: [], seed: `${opts.seed}:${date}:0` });
+    const { day, trace } = explainDay({ answers, solid, blocks: rated, date, yesterday, keep: [], declined: [], seed: `${opts.seed}:${date}:0`, history: [...entries], player: opts.seed });
     out.push({ date, day, trace, answers, solid: solid.size });
     if (opts.rating === "none") continue;
     const stars = STARS[opts.rating];
     const at = `${date}T18:00:00.000Z`;
     day.exercises.forEach((e, j) => {
-      entries.push({ id: `${date}:${j}`, planId: date, exerciseId: `${date}:${j}`, day: 0, exercise: j, title: e.title, area: e.area, level: e.level, topic: e.topic, concepts: e.concepts, steps: e.steps, blockId: e.blockId, stars, at });
+      entries.push({ id: `${date}:${j}`, planId: date, exerciseId: `${date}:${j}`, day: 0, exercise: j, title: e.title, area: e.area, level: e.level, topic: e.topic, concepts: e.concepts, steps: e.steps, blockId: e.blockId, ...(e.given ? { given: e.given } : {}), stars, at });
       if (e.blockId) mine.set(e.blockId, { stars, ratedAt: at });
     });
   }

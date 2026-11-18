@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { Stars } from "@/features/progress/stars";
 import { PERSONAS } from "@/features/devtools/model/personas";
-import { composeDay, composeWeek, explainDay, type Candidate, type ComposeInput } from "./compose";
+import { composeDay, composeWeek, explainDay, rollSeed, type Candidate, type ComposeInput } from "./compose";
 import { daySteps, solidRatedAt } from "./daySteps";
 import type { ProgressEntry } from "@/features/progress/log";
 import { PATH, type Track } from "./path";
@@ -444,4 +444,75 @@ test("explainDay: a step with no block is listed as empty; one filled from an ea
   assert.ok(trace.empty.includes("b:1"), JSON.stringify(trace.empty));
   const down = trace.picks.find((p) => p.asked === "a:2");
   assert.equal(down?.step, "a:1", "a:2 has no block: the nearest earlier step's is used");
+});
+
+// --- versions (ChoiceSplit): a block with moves gets a rolled version
+
+const KEYED: Track[] = [mk("a", "guitar-basic-chords", 3), { ...mk("b", "guitar-scales", 3), keys: [[9], [7, 4], [0]] }];
+const mover = (id: string, step: string): Candidate => {
+  const c = cand(id, [step]);
+  const exercise = {
+    ...c.exercise, area: "guitar", moves: { key: "any", bpm: { from: 60, to: 90, step: 10 } },
+    cells: [{ type: "tool", tool: { type: "backing-band", bpm: 60, key: 9, parts: { click: "on" } } }, { type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] } }],
+  } as unknown as PlanExercise;
+  return { ...c, exercise };
+};
+const FIRST_PLAY = { keys: { now: [9], back: [] }, bpm: { now: 60, back: [] } };
+const playedRow = (id: string, blockId: string, step: string, stars: number, at: string, given?: ProgressEntry["given"]): ProgressEntry =>
+  ({ id, planId: "p", exerciseId: `e-${id}`, day: 0, exercise: 0, title: blockId, steps: [step], blockId, stars, at, ...(given ? { given } : {}) }) as ProgressEntry;
+const givenOf = (d: { exercises: PlanExercise[] }, id: string) => d.exercises.find((e) => e.blockId === id)!.given;
+
+test("versions: a first play opens in the track's first key and the block's starting tempo, whatever the player's rung", () => {
+  const blocks = [mover("m", "b:1"), cand("plain", ["a:1"])];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks }), KEYED);
+  assert.deepEqual(givenOf(d, "m"), FIRST_PLAY, "A, not the beginner rung's E");
+  assert.equal(givenOf(d, "plain"), undefined);
+  assert.deepEqual((d.exercises.find((e) => e.blockId === "m")! as PlanExercise).moves, { key: "any", bpm: { from: 60, to: 90, step: 10 } }, "the block itself is as written");
+});
+
+test("versions: the roll is made once per rating, not per day or per try", () => {
+  const blocks = [mover("m", "b:1"), cand("plain", ["a:1"])];
+  const history = [playedRow("r1", "m", "b:1", 5, "2026-11-17T10:00:00.000Z", FIRST_PLAY)];
+  const at = (seed: string, date: string) => givenOf(composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks, history, seed, date }), KEYED), "m");
+  const one = at("p1:2026-11-18:0", "2026-11-18");
+  assert.deepEqual(at("p1:2026-11-18:1", "2026-11-18"), one, "another try");
+  assert.deepEqual(at("p1:2026-11-19:0", "2026-11-19"), one, "another day");
+  assert.equal(rollSeed("p1", "m", "r1"), "p1:m:r1");
+  assert.equal(rollSeed("p1", "m", undefined), "p1:m:");
+  // over many players the 80% move shows: the roll does depend on who rolls
+  const moved = Array.from({ length: 40 }, (_, i) => givenOf(composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks, history, seed: `q${i}:2026-11-18:0` }), KEYED), "m")!.moved ?? 0);
+  assert.ok(moved.some((m) => m === 1) && moved.some((m) => m === 0));
+});
+
+test("versions: the trace carries the roll", () => {
+  const { trace } = explainDay(base({ answers: { ...guitar, minutes: 10 }, blocks: [mover("m", "b:1")], history: [playedRow("r1", "m", "b:1", 5, "2026-11-17T10:00:00.000Z", FIRST_PLAY)] }), KEYED);
+  const pick = trace.picks.find((p) => p.blockId === "m")!;
+  assert.ok(pick.roll);
+  assert.deepEqual(pick.roll.last, { stars: 5, given: FIRST_PLAY });
+  assert.deepEqual(pick.roll.odds, { back: 0, same: 0.2, move: 0.8 });
+  assert.deepEqual(pick.given, givenOf(explainDay(base({ answers: { ...guitar, minutes: 10 }, blocks: [mover("m", "b:1")], history: [playedRow("r1", "m", "b:1", 5, "2026-11-17T10:00:00.000Z", FIRST_PLAY)] }), KEYED).day, "m"));
+});
+
+test("versions: the newest rated play of the block is the one the roll starts from", () => {
+  const top = { keys: { now: [0, 4, 7], back: [9] }, bpm: { now: 90, back: [80, 70] }, moved: 6 };
+  const history = [playedRow("r1", "m", "b:1", 5, "2026-11-10T10:00:00.000Z", FIRST_PLAY), playedRow("r2", "m", "b:1", 5, "2026-11-17T10:00:00.000Z", top), playedRow("r3", "other", "b:1", 1, "2026-11-18T10:00:00.000Z")];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks: [mover("m", "b:1")], history }), KEYED);
+  assert.deepEqual(givenOf(d, "m"), top, "at the top of every move, easy stays the same version");
+});
+
+test("versions: a week gives a block the same version on every day it comes up; a kept exercise keeps its own", () => {
+  const blocks = [mover("m", "b:1"), mover("n", "b:1"), cand("x", ["a:1"]), cand("y", ["a:1"])];
+  const week = composeWeek({ answers: { ...guitar, minutes: 10 }, solid: none, blocks, date: "2026-11-16", seed: "t1", history: [playedRow("r1", "m", "b:1", 5, "2026-11-10T10:00:00.000Z", FIRST_PLAY)] }, 7, KEYED);
+  const seen = week.flatMap((d) => d.exercises.filter((e) => e.blockId === "m").map((e) => JSON.stringify(e.given)));
+  assert.ok(seen.length > 1);
+  assert.equal(new Set(seen).size, 1);
+  const kept = { ...mover("m", "b:1").exercise, given: { bpm: { now: 80, back: [70] }, moved: 2 } };
+  const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks, keep: [kept] }), KEYED);
+  assert.deepEqual(d.exercises[0].given, { bpm: { now: 80, back: [70] }, moved: 2 });
+});
+
+test("versions: the first step a block names on the path decides its keys", () => {
+  const off = mover("m", "b:1");
+  const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks: [{ ...off, exercise: { ...off.exercise, steps: ["nowhere:1", "b:1"] } }] }), KEYED);
+  assert.deepEqual(givenOf(d, "m"), FIRST_PLAY, "the first step it names on the path decides");
 });
