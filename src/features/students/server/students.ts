@@ -6,6 +6,7 @@ import { recordAnswers } from "@/features/plan/model/answersHistory";
 import { EMPTY_STATE } from "@/features/plan/model/types";
 import { writeDoc } from "@/features/userData/server/data";
 import type { UserDataRepo } from "@/features/userData/server/repo";
+import type { StudentRow } from "../model/types";
 
 /**
  * A teacher's students, as rules over the repos: adding one (which makes a normal account for them), the claim link the
@@ -28,13 +29,7 @@ export interface StudentsDeps {
   userData: UserDataRepo;
 }
 
-export interface StudentRow {
-  id: string;
-  name: string;
-  email: string;
-  addedAt: string;
-  claimedAt: string | null;
-}
+export type { StudentRow } from "../model/types";
 
 /** A student as the teacher's list shows them, from the account row and the link's dates. */
 export const studentRow = (user: { id: string; name: string; email: string }, createdAt: Date, claimedAt: Date | null): StudentRow => ({
@@ -115,14 +110,15 @@ export async function newClaimLink(
   deps: StudentsDeps,
   teacher: Account,
   studentId: string,
-): Promise<{ ok: true; email: string; name: string; claimToken: string } | { ok: false; error: NewClaimError }> {
+): Promise<{ ok: true; email: string; name: string; claimToken: string } | { ok: false; error: Exclude<NewClaimError, "wait"> } | { ok: false; error: "wait"; waitMs: number }> {
   const { repo, now } = deps.auth;
   const link = await repo.studentLink(teacher.id, studentId);
   const student = link && (await repo.userById(studentId));
   if (!link || !student) return { ok: false, error: "not-found" };
   if (link.claimedAt) return { ok: false, error: "claimed" };
   const last = await repo.lastTokenAt(student.email, "claim");
-  if (last && last.getTime() + CLAIM_WAIT > now().getTime()) return { ok: false, error: "wait" };
+  const left = last ? last.getTime() + CLAIM_WAIT - now().getTime() : 0;
+  if (left > 0) return { ok: false, error: "wait", waitMs: left };
   return { ok: true, email: student.email, name: student.name, claimToken: await makeClaim(deps.auth, student.email) };
 }
 

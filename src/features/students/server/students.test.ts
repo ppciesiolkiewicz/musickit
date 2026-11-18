@@ -180,12 +180,12 @@ test("a mailed log-in link token is not a claim token", async () => {
 test("newClaimLink: own unclaimed student, one a minute; not another teacher's; not a claimed one", async () => {
   const s = await setup();
   const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS }));
-  assert.deepEqual(await newClaimLink(s.both, s.teacher, r.studentId), { ok: false, error: "wait" });
+  assert.deepEqual(await newClaimLink(s.both, s.teacher, r.studentId), { ok: false, error: "wait", waitMs: MINUTE });
   s.wait(MINUTE);
   const again = ok(await newClaimLink(s.both, s.teacher, r.studentId));
   assert.equal(again.email, "ben@home.com");
   assert.equal(again.name, "Ben");
-  assert.deepEqual(await newClaimLink(s.both, s.teacher, r.studentId), { ok: false, error: "wait" });
+  assert.deepEqual(await newClaimLink(s.both, s.teacher, r.studentId), { ok: false, error: "wait", waitMs: MINUTE });
   assert.deepEqual(await peekClaim(s.deps, again.claimToken), { name: "Ben" });
 
   const other = await s.repo.createUser({ email: "olly@school.com", name: "Olly", role: "teacher" }, new Date(START));

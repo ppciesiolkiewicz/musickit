@@ -5,7 +5,9 @@ import { memoryRepo } from "@/features/account/server/repo.memory";
 import type { Plan } from "@/features/account/plans";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
 import { readDocVersioned } from "@/features/userData/server/data";
-import type { PlanState } from "@/features/plan/model/types";
+import { sanitiseState } from "@/features/plan/model/state";
+import type { PlanConfig, PlanState, StoredPlan } from "@/features/plan/model/types";
+import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { stubLibrary, topicBlocks } from "@/features/plan/server/stubLibrary";
 import { addRoute, claimLinkRoute, claimOpenRoute, claimPeekRoute, listRoute, planRoute, viewRoute, type StudentsHttpDeps } from "./http";
 
@@ -165,7 +167,7 @@ test("[id] routes: another teacher's student, a random uuid and a non-uuid are a
   const id = (await add(s)).body.student.id as string;
   const before = JSON.stringify((await readDocVersioned(s.userData, id, "plan")).data);
   const tokens = (await s.h.auth.repo.lastTokenAt("ben@home.com", "claim"))?.getTime();
-  for (const target of [id, RANDOM, "not-a-uuid", "1; drop table users"]) {
+  for (const target of [id, s.teacher.id, RANDOM, "not-a-uuid", "1; drop table users"]) {
     const asOther = target === id ? s.other : s.teacher;
     const results = [
       await viewRoute(s.h, call(`/api/students/${target}?today=${TODAY}`, "GET", asOther.cookie), target),
@@ -202,7 +204,9 @@ test("POST claim-link: 429 wait right after adding, 200 after a minute, 409 once
   const id = (await add(s)).body.student.id as string;
     const wait = await claimLinkRoute(s.h, call(`/api/students/${id}/claim-link`, "POST", s.teacher.cookie, {}), id);
   assert.equal(wait.status, 429);
-  assert.equal(((await wait.json()) as { code: string }).code, "wait");
+  const waited = (await wait.json()) as { code: string; waitSeconds: number };
+  assert.equal(waited.code, "wait");
+  assert.equal(waited.waitSeconds, 60);
   const later: StudentsHttpDeps = { ...s.h, auth: { ...s.h.auth, now: () => new Date(T0.getTime() + 61_000) } };
   const ok = await claimLinkRoute(later, call(`/api/students/${id}/claim-link`, "POST", s.teacher.cookie, {}), id);
   assert.equal(ok.status, 200);
@@ -302,4 +306,38 @@ test("a student id that is not a uuid is a 404 before any query (the default che
     assert.equal((await claimLinkRoute(noQuery, call(`/api/students/${id}/claim-link`, "POST", session.cookie, {}), id)).status, 404);
     assert.equal((await planRoute(noQuery, call(`/api/students/${id}/plan`, "POST", session.cookie, { today: TODAY }), id)).status, 404);
   }
+});
+
+test("POST plan: a document too big for another week is 413 too-big, and nothing is written", async () => {
+  const s = await setup();
+  const id = (await add(s)).body.student.id as string;
+  const base = (await readDocVersioned(s.userData, id, "plan")).data as PlanState;
+  const bulky = (n: number): StoredPlan =>
+    ({ id: "big", startedOn: "2026-01-01", done: {}, config: { title: "big", days: [{ theme: "", exercises: Array.from({ length: n }, (_, i) => ({ id: `e${i}`, title: `Ex ${i}`, minutes: 5, cells: [{ type: "text", id: "c", text: "x".repeat(700) }] })) }] } as unknown as PlanConfig });
+  const size = (n: number) => JSON.stringify(sanitiseState({ ...base, given: [], current: bulky(n) })).length;
+  const each = size(2) - size(1);
+  let n = Math.floor((MAX_PLAN_BYTES - 1500 - size(0)) / each);
+  while (size(n) > MAX_PLAN_BYTES - 1500) n--;
+  await s.userData.putDoc(id, "plan", { ...base, given: [], current: bulky(n) }, T0);
+  const before = JSON.stringify((await readDocVersioned(s.userData, id, "plan")).data);
+  const r = await planRoute(s.h, call(`/api/students/${id}/plan`, "POST", s.teacher.cookie, { today: TODAY, rotate: false }), id);
+  assert.equal(r.status, 413);
+  const b = (await r.json()) as { code: string; error: string };
+  assert.equal(b.code, "too-big");
+  assert.ok(b.error.includes("try again"));
+  assert.equal(JSON.stringify((await readDocVersioned(s.userData, id, "plan")).data), before);
+});
+
+test("signedIn's own answers get a code and a sentence; the claim route's cross-origin 403 says the same", async () => {
+  const s = await setup();
+  const other = await listRoute(s.h, call("/api/students", "GET", s.teacher.cookie, undefined, { "x-account-id": "someone-else" }));
+  assert.equal(other.status, 409);
+  const o = (await other.json()) as { code: string; error: string };
+  assert.equal(o.code, "account-changed");
+  assert.match(o.error, /Reload the page/);
+  const evil = await addRoute(s.h, call("/api/students", "POST", s.teacher.cookie, NEW, { origin: "https://evil.com" }));
+  const claimEvil = await claimOpenRoute(s.h, call("/api/auth/claim", "POST", null, { token: "x" }, { origin: "https://evil.com" }));
+  const [a, b] = [(await evil.json()) as { error: string }, (await claimEvil.json()) as { error: string }];
+  assert.equal(a.error, b.error);
+  assert.ok(!a.error.includes("Bad request"));
 });

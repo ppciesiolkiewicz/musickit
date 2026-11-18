@@ -46,11 +46,11 @@ const MESSAGES = {
   claimed: "Your student has already logged in, so they don't need the link.",
   wait: "A link went out a moment ago. Wait a minute, then choose Send the link again.",
   "mail-failed": "The email didn't go out. Wait a minute, then choose Send the link again.",
-  "no-answers": "Your student has no answers yet, so no plan can be made.",
+  "no-answers": "Your student has no answers yet, so no plan can be made. Ask your student to answer the questions on the Practice plan page, then try again.",
   "no-blocks": "The library has no exercises yet that fit your student's answers, so no plan was made.",
   busy: "Your student saved changes at the same moment. Try again.",
-  "too-big": "This student's plan has grown too big to hold another week.",
-  gone: "This link is too old or was already used. Ask your teacher to send a new one.",
+  "too-big": "This student's plan has grown too big to hold another week, so no plan was made. Ask your student to remove an old plan on the Practice plan page, then try again.",
+  gone: "This link is too old or was already used. If you have opened it before, choose Log in. If not, ask your teacher to send a new link.",
   failed: "attunr couldn't do that. Try again in a moment.",
 } as const;
 
@@ -58,14 +58,21 @@ type Code = keyof typeof MESSAGES;
 
 const fail = (code: Code, status: number, cookies: string[] = []): Response => json({ error: MESSAGES[code], code }, status, cookies);
 
-const AUTH_CODES: Record<number, string> = { 503: "no-accounts", 403: "forbidden", 401: "logged-out", 409: "account-changed" };
+const FORBIDDEN = "That request didn't come from this site. Reload the page and try again.";
+const AUTH: Record<number, { code: string; error: string }> = {
+  503: { code: "no-accounts", error: NO_ACCOUNTS },
+  403: { code: "forbidden", error: FORBIDDEN },
+  401: { code: "logged-out", error: "You are logged out. Log in and try again." },
+  409: { code: "account-changed", error: "Another account is logged in in this browser. Reload the page, then try again." },
+};
 
-/** `signedIn`'s own answers carry no `code`: add one, keeping the status and the cookies. */
+/** `signedIn`'s own answers carry no `code` and a raw line: give each a code and a sentence, keeping the status and the cookies. */
 async function withCode(res: Response): Promise<Response> {
-  const body = (await res.json().catch(() => ({}))) as { error?: string };
+  const a = AUTH[res.status] ?? { code: "failed", error: MESSAGES.failed };
   const headers = new Headers(res.headers);
   headers.delete("content-length");
-  return Response.json({ error: body.error ?? NO_ACCOUNTS, code: AUTH_CODES[res.status] ?? "failed" }, { status: res.status, headers });
+  headers.delete("content-type");
+  return Response.json(a, { status: res.status, headers });
 }
 
 const isUuid = (id: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
@@ -166,7 +173,8 @@ export async function claimLinkRoute(h: StudentsHttpDeps, req: Request, id: stri
   if (!(h.validId ?? isUuid)(id)) return fail("not-found", 404, me.cookies);
   try {
     const link = await newClaimLink(h, me.account, id);
-    if (!link.ok) return fail(link.error, link.error === "not-found" ? 404 : link.error === "claimed" ? 409 : 429, me.cookies);
+    if (!link.ok && link.error === "wait") return json({ error: MESSAGES.wait, code: "wait", waitSeconds: Math.max(1, Math.ceil(link.waitMs / 1000)) }, 429, me.cookies);
+    if (!link.ok) return fail(link.error, link.error === "not-found" ? 404 : 409, me.cookies);
     const mail = await mailClaim(h, req, link, me.account.name, link.claimToken);
     return mail === "failed" ? fail("mail-failed", 502, me.cookies) : json({ mail }, 200, me.cookies);
   } catch (error) {
@@ -205,7 +213,7 @@ export async function claimPeekRoute(h: StudentsHttpDeps, req: Request): Promise
 
 /** POST /api/auth/claim { token }: spends the link and signs the student in. Used signed out. */
 export async function claimOpenRoute(h: StudentsHttpDeps, req: Request): Promise<Response> {
-  if (!sameOrigin(req)) return json({ error: "Bad request.", code: "forbidden" }, 403);
+  if (!sameOrigin(req)) return json({ error: FORBIDDEN, code: "forbidden" }, 403);
   const body = await readJson(req);
   if (!body) return fail("bad-request", 400);
   try {
