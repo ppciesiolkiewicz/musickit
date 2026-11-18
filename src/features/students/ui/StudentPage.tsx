@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Icon from "@/components/Icon";
 import { Button, Modal, Notice, btn } from "@/components/ui";
@@ -9,49 +9,34 @@ import { useAccount } from "@/features/account/useAccount";
 import { GivenPlanView } from "@/features/plan/GivenPlan";
 import { givenToday, localDate } from "@/features/plan/model/schedule";
 import { MAX_TEACHER_COMMENT } from "@/features/plan/model/state";
-import { dayWords } from "@/features/plan/model/today";
 import { loginHref } from "@/lib/publicPaths";
 import { fetchStudent, postStudentPlan, type Failure } from "../client";
-import { moved, tenth } from "../model/sliders";
-import type { MadePlan, StudentView } from "../model/types";
+import { afterMake, planInput, viewOf, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
+import { tenth } from "../model/sliders";
+import type { StudentView } from "../model/types";
 import type { Access } from "./StudentsApp";
 import TopicSliders from "./TopicSliders";
-
-/** The student's page as the page has it: loading, failed (a 404 is the not-found state), or the student. */
-export type ViewState = { kind: "loading" } | { kind: "error"; code: string; error: string } | { kind: "view"; view: StudentView };
-
-/** Making a plan: nothing asked yet, going out (and the page loading again after), what was made, or why not. */
-export type Sent = { kind: "idle" } | { kind: "busy" } | { kind: "made"; line: string } | { kind: "failed"; error: string };
-
-/** A local `yyyy-mm-dd` as the app writes a day: "Monday 23 November". */
-const dayName = (date: string): string => dayWords(date, []).title;
-
-/** The line after a plan was made: what attunr made and from which date, a short week, and what became of the comment. */
-export function madeLine(name: string, made: Pick<MadePlan, "start" | "short" | "comment">, rotate: boolean, today: string): string {
-  const when = made.start === today ? `today, ${dayName(made.start)}` : `on ${dayName(made.start)}`;
-  const plan = rotate
-    ? `attunr replaced ${name}'s plan for this week. The new plan keeps the same dates, from ${dayName(made.start)}.`
-    : `attunr made ${name}'s next plan. It starts ${when}.`;
-  const short = made.short ? ` Some days are shorter than the minutes you picked, because few exercises in the library fit ${name}'s answers.` : "";
-  const comment = {
-    stored: " Your words about this week are saved.",
-    none: "",
-    "no-week": ` Your words about this week weren't kept, because ${name} had no plan this week to keep them with.`,
-  }[made.comment];
-  return `${plan}${short}${comment}`;
-}
-
-/** What the page sends to make a plan: only the sliders the teacher moved, and the comment only when there is a week to put it on. */
-export function planInput(today: string, rotate: boolean, start: Record<string, number>, values: Record<string, number>, comment: string, hasWeek: boolean) {
-  return { today, rotate, scores: moved(start, values), comment: hasWeek ? comment : "" };
-}
-
-/** Where every slider opens: the student's score today, at a tenth. */
-const openingValues = (view: StudentView): Record<string, number> => Object.fromEntries(view.topics.map((t) => [t.topic, tenth(t.now)]));
 
 const primary = "!border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 hover:!bg-sky-400";
 const field = "w-full rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-sky-500 focus:outline-none";
 const warn = <Icon name="alert-triangle" size={14} />;
+
+/** The title of the question before Rotate this week's plan. */
+export const ROTATE_TITLE = "Replace this week's plan?";
+
+/** The question before Rotate this week's plan, inside its `Modal`: what changes, what stays, and the two answers. */
+export function RotateQuestion({ name, onReplace, onKeep }: { name: string; onReplace: () => void; onKeep: () => void }) {
+  return (
+    <div className="flex flex-col gap-4 text-sm leading-relaxed text-slate-300">
+      <p>attunr makes {name} a new plan for the same dates, from the sliders as you set them. The new plan takes the place of the one {name} is in now.</p>
+      <p>{name}&apos;s ratings stay and still count toward their next plans.</p>
+      <div className="flex flex-wrap gap-3">
+        <Button className={primary} onClick={onReplace}>Replace the plan</Button>
+        <Button onClick={onKeep}>Keep this plan</Button>
+      </div>
+    </div>
+  );
+}
 
 /** Who may see it, as the Students page words it, with Log in coming back to this student. */
 function AccessLine({ access, id }: { access: Exclude<Access, "teacher">; id: string }) {
@@ -179,54 +164,39 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
       </section>
 
       {confirming && running && (
-        <Modal title="Replace this week's plan?" narrow onClose={() => onConfirm(false)}>
-          <div className="flex flex-col gap-4 text-sm leading-relaxed text-slate-300">
-            <p>attunr makes {student.name} a new plan for the same dates, from the sliders as you set them. The new plan takes the place of the one {student.name} is in now.</p>
-            <p>{student.name}&apos;s ratings stay and still count toward their next plans.</p>
-            <div className="flex flex-wrap gap-3">
-              <Button className={primary} onClick={() => onMake(true)}>Replace the plan</Button>
-              <Button onClick={() => onConfirm(false)}>Keep this plan</Button>
-            </div>
-          </div>
+        <Modal title={ROTATE_TITLE} narrow onClose={() => onConfirm(false)}>
+          <RotateQuestion name={student.name} onReplace={() => onMake(true)} onKeep={() => onConfirm(false)} />
         </Modal>
       )}
     </div>
   );
 }
 
-/** A loaded student as the page's state, and where the sliders open; a failure as the page's error state. */
-function viewOf(r: ({ ok: true } & StudentView) | Failure): { state: ViewState; start: Record<string, number> | null } {
-  if (!r.ok) return { state: { kind: "error", code: r.code, error: r.error }, start: null };
-  const view: StudentView = { student: r.student, plan: r.plan, topics: r.topics };
-  return { state: { kind: "view", view }, start: openingValues(view) };
-}
-
 /**
  * A teacher's page for one student (`GET /api/students/<id>`): their current week, read-only, and the next plan made with
  * the sliders (`POST …/plan`). Only the sliders the teacher moved are sent; after a plan is made the page loads the
- * student again, so the sliders open at the new scores and the comment box is empty.
+ * student again, so the sliders open at the new scores and the comment box is empty (`afterMake`).
  */
 export default function StudentPage({ id }: { id: string }) {
   const { account, loaded, can } = useAccount();
   const access: Access = !loaded ? "loading" : !account ? (accountsOpen() ? "logged-out" : "no-accounts") : can("students") ? "teacher" : "not-teacher";
   const [today] = useState(() => localDate());
   const [state, setState] = useState<ViewState>({ kind: "loading" });
-  const [start, setStart] = useState<Record<string, number>>({});
-  const [values, setValues] = useState<Record<string, number>>({});
-  const [comment, setComment] = useState("");
+  const [form, setForm] = useState<MakeForm>({ start: {}, values: {}, comment: "" });
   const [sent, setSent] = useState<Sent>({ kind: "idle" });
   const [confirming, setConfirming] = useState(false);
   const [day, setDay] = useState<number | null>(null);
 
-  const show = (r: ({ ok: true } & StudentView) | Failure) => {
+  // the one way a loaded student reaches the page: its state, and every slider opening at the score today
+  const show = useCallback((r: ({ ok: true } & StudentView) | Failure) => {
     const next = viewOf(r);
     setState(next.state);
-    if (next.start) {
-      setStart(next.start);
-      setValues(next.start);
+    if (next.opening) {
+      const opening = next.opening;
+      setForm((f) => ({ ...f, start: opening, values: opening }));
       setDay(null);
     }
-  };
+  }, []);
 
   // Try again sets the state to loading and asks again
   const [asked, setAsked] = useState(0);
@@ -234,18 +204,12 @@ export default function StudentPage({ id }: { id: string }) {
     if (access !== "teacher") return;
     let live = true;
     fetchStudent(id, today).then((r) => {
-      if (!live) return;
-      const next = viewOf(r);
-      setState(next.state);
-      if (next.start) {
-        setStart(next.start);
-        setValues(next.start);
-      }
+      if (live) show(r);
     });
     return () => {
       live = false;
     };
-  }, [access, id, today, asked]);
+  }, [access, id, today, asked, show]);
   const retry = () => {
     setState({ kind: "loading" });
     setAsked((n) => n + 1);
@@ -255,14 +219,11 @@ export default function StudentPage({ id }: { id: string }) {
     if (state.kind !== "view" || sent.kind === "busy") return;
     setConfirming(false);
     setSent({ kind: "busy" });
-    const r = await postStudentPlan(id, planInput(today, rotate, start, values, comment, !!state.view.plan));
-    if (!r.ok) {
-      setSent({ kind: "failed", error: r.error });
-      return;
-    }
-    setComment("");
-    show(await fetchStudent(id, today));
-    setSent({ kind: "made", line: madeLine(state.view.student.name, r, rotate, today) });
+    const r = await postStudentPlan(id, planInput(today, rotate, form, !!state.view.plan));
+    const after = afterMake(r, form, state.view.student.name, rotate, today);
+    setForm(after.form);
+    if (after.reload) show(await fetchStudent(id, today));
+    setSent(after.sent);
   };
 
   return (
@@ -271,10 +232,14 @@ export default function StudentPage({ id }: { id: string }) {
       id={id}
       state={state}
       today={today}
-      values={values}
-      onValue={(topic, v) => setValues((m) => ({ ...m, [topic]: tenth(v) }))}
-      comment={comment}
-      onComment={setComment}
+      values={form.values}
+      onValue={(topic, v) => {
+        setForm((f) => ({ ...f, values: { ...f.values, [topic]: tenth(v) } }));
+        // the line about the last plan made reads as stale once a slider moves again
+        setSent((x) => (x.kind === "made" ? { kind: "idle" } : x));
+      }}
+      comment={form.comment}
+      onComment={(comment) => setForm((f) => ({ ...f, comment }))}
       sent={sent}
       onMake={(rotate) => void make(rotate)}
       confirming={confirming}

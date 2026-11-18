@@ -1,44 +1,26 @@
 "use client";
 
 import Icon from "@/components/Icon";
-import { HUE_TONES, type Hue } from "@/components/ui";
+import { HUE_TONES, Slider, type Hue } from "@/components/ui";
 import { AREAS, type Area } from "@/features/plan/model/concepts";
 import { AREA_LOOK } from "@/features/plan/intake/ui/Questionnaire";
 import { LEVEL_MARKS, STEP, levelWord } from "../model/sliders";
 import type { TopicSlider } from "../model/types";
 
-/** The native slider's own colour (`accent-color`) per hue, written out whole so Tailwind sees it. */
-const ACCENT: Record<Hue, string> = {
-  sky: "accent-sky-400", amber: "accent-amber-400", emerald: "accent-emerald-400", rose: "accent-rose-400",
-  violet: "accent-violet-400", teal: "accent-teal-400", pink: "accent-pink-400", red: "accent-red-400",
-};
-
 /**
- * Where a score sits along a native range input, as a CSS `left`: the thumb's centre runs from half a thumb in from
- * one end to half a thumb in from the other (a 1rem thumb), so marks under it line up with it.
+ * Where a score sits along the slider, as a CSS `left`: the `Slider` atom (Radix, size md) keeps its 1rem thumb inside the
+ * track, so the thumb's centre runs from half a thumb in from one end to half a thumb in from the other; the marks follow it.
  */
 const along = (score: number): string => `calc(0.5rem + (100% - 1rem) * ${score / 3})`;
 
 /** One topic: its name, the slider (0 to 3, a tenth at a time) with the start-of-week mark, the four levels under it, the value in words. */
 function TopicRow({ t, value, hue, onChange, disabled }: { t: TopicSlider; value: number; hue: Hue; onChange: (v: number) => void; disabled: boolean }) {
-  const id = `slider-${t.topic}`;
   return (
     <li className="grid grid-cols-1 gap-x-4 gap-y-1 border-t border-slate-800 py-3 first:border-t-0 sm:grid-cols-[9rem_1fr_11rem] sm:items-start">
-      <label htmlFor={id} className="text-sm font-medium text-slate-200 sm:pt-0.5">{t.label}</label>
+      <p className="text-sm font-medium text-slate-200">{t.label}</p>
       <div className="flex flex-col gap-1">
         <div className="relative">
-          <input
-            id={id}
-            type="range"
-            min={0}
-            max={3}
-            step={STEP}
-            value={value}
-            disabled={disabled}
-            aria-valuetext={levelWord(value)}
-            onChange={(e) => onChange(Number(e.target.value))}
-            className={`block h-5 w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${ACCENT[hue]}`}
-          />
+          <Slider aria-label={t.label} value={value} onChange={onChange} min={0} max={3} step={STEP} hue={hue} disabled={disabled} />
           {t.atStart !== null && (
             <span
               aria-hidden
@@ -54,7 +36,7 @@ function TopicRow({ t, value, hue, onChange, disabled }: { t: TopicSlider; value
           ))}
         </div>
       </div>
-      <p className="text-sm text-slate-300 sm:pt-0.5">
+      <p className="text-sm text-slate-300">
         <span aria-live="polite">{levelWord(value)}</span>
         {t.atStart !== null && <span className="sr-only">. At the start of this week: {levelWord(t.atStart)}</span>}
       </p>
@@ -65,7 +47,7 @@ function TopicRow({ t, value, hue, onChange, disabled }: { t: TopicSlider; value
 /**
  * A slider per topic of the student's areas, grouped by area with the area's colour and icon (`AREA_LOOK`), as on the
  * questionnaire. Each opens where `values` has it; a mark shows the score at the start of the current week (none
- * without a week). Native range inputs: a screen reader reads the topic's name and the value in words.
+ * without a week). The `Slider` atom carries the topic's name (`aria-label`); the value in words beside it is read out as it changes.
  */
 export default function TopicSliders({ topics, values, onChange, disabled = false }: {
   topics: TopicSlider[];
