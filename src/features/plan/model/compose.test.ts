@@ -1,0 +1,296 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import type { Stars } from "@/features/progress/stars";
+import { PERSONAS } from "@/features/devtools/model/personas";
+import { composeDay, composeWeek, type Candidate, type ComposeInput } from "./compose";
+import { daySteps } from "./daySteps";
+import { PATH, type Track } from "./path";
+import type { PlanExercise } from "./types";
+
+const guitar = PERSONAS.find((p) => p.id === "guitar-new")!.answers;
+
+const mk = (id: string, topic: string, n: number): Track => ({
+  id, label: id, area: "guitar", topic, merges: [],
+  steps: Array.from({ length: n }, () => ({ level: "new", text: "x" })) as unknown as Track["steps"],
+});
+// chords and scales: one fresh step each at the start (a:1, b:1)
+const AB = [mk("a", "guitar-basic-chords", 3), mk("b", "guitar-scales", 3)];
+
+function cand(id: string, steps: string[], minutes = 5, mine: { stars: Stars; ratedAt: string } | null = null, use = { times: 0, seconds: 0 }): Candidate {
+  const exercise: PlanExercise = { title: id, cells: [], minutes, steps, blockId: id };
+  return { blockId: id, steps, minutes, use, mine, exercise };
+}
+
+const none = new Map<string, string>();
+const base = (over: Partial<ComposeInput> = {}): ComposeInput => ({
+  answers: { ...guitar, minutes: 20 }, solid: none, blocks: [], date: "2026-11-18",
+  yesterday: [], keep: [], declined: [], seed: "p1:2026-11-18:0", ...over,
+});
+const ids = (d: { exercises: PlanExercise[] }) => d.exercises.map((e) => e.blockId!);
+const total = (d: { exercises: PlanExercise[] }) => d.exercises.reduce((s, e) => s + e.minutes, 0);
+const many = (step: string, n: number, minutes = 5) => Array.from({ length: n }, (_, i) => cand(`${step}#${i}`, [step], minutes));
+
+// --- minutes
+
+test("minutes: 20 minutes of 5-minute blocks gives 4 exercises, not short", () => {
+  const d = composeDay(base({ blocks: [...many("a:1", 3), ...many("b:1", 3)] }), AB);
+  assert.equal(d.exercises.length, 4);
+  assert.equal(total(d), 20);
+  assert.equal(d.short, false);
+});
+
+test("minutes: a day runs over by less than its last block, never under by more than 5", () => {
+  for (const m of [3, 4, 5, 7, 10]) {
+    const d = composeDay(base({ blocks: [...many("a:1", 5, m), ...many("b:1", 5, m)] }), AB);
+    assert.ok(total(d) >= 15, `${m}: ${total(d)}`);
+    assert.ok(total(d) < 20 + m, `${m}: ${total(d)}`);
+    assert.equal(d.short, false);
+  }
+});
+
+// --- new and review
+
+const solidA1 = new Map([["a:1", "2026-11-01T10:00:00Z"]]);
+const reviewOf = (d: { exercises: PlanExercise[] }, review: string[]) => d.exercises.filter((e) => e.steps!.some((s) => review.includes(s)));
+
+test("new and review: one solid step gives exactly one review exercise, and it is last", () => {
+  const d = composeDay(base({ solid: solidA1, blocks: [...many("a:1", 3), ...many("a:2", 3), ...many("b:1", 3)] }), AB);
+  const r = reviewOf(d, ["a:1"]);
+  assert.equal(r.length, 1);
+  assert.equal(d.exercises.at(-1), r[0]);
+});
+
+test("new and review: 30 minutes a day gives two review exercises, last", () => {
+  const solid = new Map([["a:1", "2026-11-01T10:00:00Z"], ["b:1", "2026-11-02T10:00:00Z"]]);
+  const d = composeDay(base({ answers: { ...guitar, minutes: 30 }, solid, blocks: [...many("a:1", 3), ...many("b:1", 3), ...many("a:2", 5), ...many("b:2", 5)] }), AB);
+  assert.deepEqual(d.exercises.slice(-2).map((e) => e.steps![0]), ["a:1", "b:1"]);
+  assert.equal(reviewOf(d, ["a:1", "b:1"]).length, 2);
+});
+
+test("new and review: nothing solid gives no review exercise, the whole day is new", () => {
+  const d = composeDay(base({ blocks: [...many("a:1", 3), ...many("b:1", 3)] }), AB);
+  assert.ok(d.exercises.every((e) => ["a:1", "b:1"].includes(e.steps![0])));
+  assert.equal(total(d), 20);
+});
+
+// --- which block for a step
+
+const one = { ...guitar, minutes: 5 };
+const A = [mk("a", "guitar-basic-chords", 3)];
+
+test("which block: a block rated 2 stars comes before an unrated one", () => {
+  const blocks = [cand("u", ["a:1"]), cand("low", ["a:1"], 5, { stars: 2, ratedAt: "2026-11-10T10:00:00Z" })];
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks }), A)), ["low"]);
+});
+
+test("which block: the most recently rated low block comes first", () => {
+  const blocks = [cand("old", ["a:1"], 5, { stars: 1, ratedAt: "2026-11-01T10:00:00Z" }), cand("new", ["a:1"], 5, { stars: 3, ratedAt: "2026-11-10T10:00:00Z" })];
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks }), A)), ["new"]);
+});
+
+test("which block: a block rated 5 only when no unrated and no low block is left", () => {
+  const five = cand("five", ["a:1"], 5, { stars: 5, ratedAt: "2026-11-10T10:00:00Z" });
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks: [five, cand("u", ["a:1"])] }), A)), ["u"]);
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks: [five, cand("u", ["a:1"])], declined: ["u"] }), A)), ["five"]);
+});
+
+test("which block: of blocks rated 4 or 5, the one rated longest ago", () => {
+  const blocks = [cand("recent", ["a:1"], 5, { stars: 5, ratedAt: "2026-11-10T10:00:00Z" }), cand("long", ["a:1"], 5, { stars: 4, ratedAt: "2026-11-01T10:00:00Z" })];
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks }), A)), ["long"]);
+});
+
+test("which block: an opened, unrated block is new, not had", () => {
+  const blocks = [cand("five", ["a:1"], 5, { stars: 5, ratedAt: "2026-11-01T10:00:00Z" }), cand("opened", ["a:1"], 5, null, { times: 3, seconds: 400 })];
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks }), A)), ["opened"]);
+});
+
+test("which block: among unrated blocks the pick is random among the 3 least used", () => {
+  const blocks = Array.from({ length: 10 }, (_, i) => cand(`u${i}`, ["a:1"], 5, null, { times: 1, seconds: (9 - i) * 60 }));
+  const picks = new Set<string>();
+  for (let s = 0; s < 30; s++) {
+    const [p] = ids(composeDay(base({ answers: one, blocks, seed: `p:${s}` }), A));
+    assert.ok(["u9", "u8", "u7"].includes(p), p);
+    picks.add(p);
+  }
+  assert.ok(picks.size > 1);
+});
+
+test("which block: least used is seconds, then times, then id", () => {
+  const blocks = [
+    cand("c", ["a:1"], 5, null, { times: 0, seconds: 0 }), cand("b", ["a:1"], 5, null, { times: 0, seconds: 0 }),
+    cand("x", ["a:1"], 5, null, { times: 1, seconds: 0 }), cand("a", ["a:1"], 5, null, { times: 0, seconds: 0 }),
+    cand("y", ["a:1"], 5, null, { times: 0, seconds: 1 }),
+  ];
+  for (let s = 0; s < 30; s++) assert.ok(["a", "b", "c"].includes(ids(composeDay(base({ answers: one, blocks, seed: `p:${s}` }), A))[0]));
+});
+
+test("which block: a block that also names a later step of the track is not handed out on the earlier step", () => {
+  const d = composeDay(base({ blocks: [cand("above", ["a:1", "a:2"])] }), A);
+  assert.deepEqual(d.exercises, []);
+  assert.equal(d.short, true);
+});
+
+test("which block: a block appears once in a day, also when it fits two of the day's steps", () => {
+  const d = composeDay(base({ blocks: [cand("both", ["a:1", "b:1"])] }), AB);
+  assert.deepEqual(ids(d), ["both"]);
+});
+
+// --- yesterday, declined, a step with no block
+
+test("yesterday and declined: never picked, also when they are the only blocks on a step", () => {
+  const d = composeDay(base({ blocks: [cand("y", ["a:1"]), cand("d", ["b:1"])], yesterday: ["y"], declined: ["d"] }), AB);
+  assert.deepEqual(d.exercises, []);
+  assert.equal(d.short, true);
+});
+
+test("a step with no usable block: the nearest earlier step of its track is used", () => {
+  const blocks = [cand("y", ["a:2"]), cand("d", ["a:2"]), cand("early1", ["a:1"]), cand("early2", ["a:1"]), cand("r", ["a:1"])];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, solid: solidA1, blocks, yesterday: ["y"], declined: ["d"] }), A);
+  assert.ok(!ids(d).includes("y") && !ids(d).includes("d"));
+  assert.equal(d.exercises.length, 2);
+  assert.ok(d.exercises.every((e) => e.steps![0] === "a:1"));
+  assert.ok(!d.steps.includes("a:2"));
+  assert.deepEqual(d.steps, ["a:1"]);
+});
+
+test("a step with no block on its track is skipped", () => {
+  const d = composeDay(base({ blocks: many("b:1", 4) }), AB);
+  assert.deepEqual(d.steps, ["b:1"]);
+  assert.equal(d.exercises.length, 4);
+});
+
+// --- order of filling when fresh steps run out
+
+const ABC = [mk("a", "guitar-basic-chords", 3), mk("a2", "guitar-basic-chords", 3), mk("b", "guitar-scales", 3)];
+
+test("fill order 1: open steps come after the fresh steps", () => {
+  // fresh a:1, b:1; a2:1 is open (the chords topic is full)
+  const d = composeDay(base({ blocks: [cand("A", ["a:1"]), cand("B", ["b:1"]), cand("O", ["a2:1"])] }), ABC);
+  assert.deepEqual(ids(d).sort(), ["A", "B", "O"]);
+  assert.equal(ids(d)[2], "O");
+  assert.equal(d.steps[2], "a2:1");
+});
+
+test("fill order 2: then a second block on a step already in the day, in the same step order", () => {
+  const blocks = [...many("a:1", 2), ...many("b:1", 2), cand("O", ["a2:1"]), cand("O2", ["a2:1"])];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 30 }, blocks }), ABC);
+  assert.equal(d.exercises.length, 6);
+  const order = d.exercises.map((e) => e.steps![0]);
+  assert.deepEqual(order.slice(3), order.slice(0, 3));
+});
+
+test("fill order 2: a third block too, until none is left", () => {
+  const d = composeDay(base({ answers: { ...guitar, minutes: 15 }, blocks: many("b:1", 3) }), AB);
+  assert.equal(d.exercises.length, 3);
+  assert.equal(d.short, false);
+});
+
+test("fill order 3: then more review blocks than the one or two", () => {
+  const solid = new Map([["a:1", "2026-11-01T10:00:00Z"], ["b:1", "2026-11-02T10:00:00Z"]]);
+  const tracks = [mk("a", "guitar-basic-chords", 2), mk("b", "guitar-scales", 1)];
+  // fresh a:2 only; review a:1 then b:1; 20 minutes plans one review block
+  const d = composeDay(base({ solid, blocks: [cand("N", ["a:2"]), cand("R1", ["a:1"]), cand("R2", ["b:1"])] }), tracks);
+  assert.deepEqual(ids(d), ["N", "R1", "R2"]);
+});
+
+test("fill order 3: a second block on the day's steps comes before more review", () => {
+  const solid = new Map([["a:1", "2026-11-01T10:00:00Z"], ["b:1", "2026-11-02T10:00:00Z"]]);
+  const tracks = [mk("a", "guitar-basic-chords", 2), mk("b", "guitar-scales", 1)];
+  const blocks = [cand("N1", ["a:2"]), cand("N2", ["a:2"]), cand("R1", ["a:1"]), cand("R2", ["b:1"])];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 15 }, solid, blocks }), tracks);
+  assert.deepEqual(ids(d).sort(), ["N1", "N2", "R1"]);
+  assert.equal(ids(d).at(-1), "R1");
+});
+
+test("fill order 4: then a short day", () => {
+  const d = composeDay(base({ answers: { ...guitar, minutes: 30 }, blocks: [cand("A", ["a:1"]), cand("B", ["b:1"])] }), AB);
+  assert.equal(total(d), 10);
+  assert.equal(d.short, true);
+  assert.deepEqual(d.steps, ["a:1", "b:1"]);
+});
+
+test("not short when the day ends 5 or fewer minutes under", () => {
+  const d = composeDay(base({ answers: { ...guitar, minutes: 15 }, blocks: [cand("A", ["a:1"]), cand("B", ["b:1"])] }), AB);
+  assert.equal(d.short, false);
+});
+
+// --- keep (asking for another plan)
+
+const kept = (id: string, minutes: number): PlanExercise => ({ title: `kept ${id}`, cells: [], minutes, steps: ["a:1"], blockId: id, id: `slot-${id}` });
+
+test("keep: kept exercises come first and unchanged, and the new picks fill the rest", () => {
+  const keep = [kept("k1", 4), kept("k2", 4)];
+  const d = composeDay(base({ keep, blocks: [...many("a:1", 4), ...many("b:1", 4)] }), AB);
+  assert.equal(d.exercises[0], keep[0]);
+  assert.equal(d.exercises[1], keep[1]);
+  const fresh = d.exercises.slice(2).reduce((s, e) => s + e.minutes, 0);
+  assert.ok(fresh >= 12 && fresh < 17, String(fresh));
+});
+
+test("keep: with every exercise rated, a fresh set for the whole minutes is added", () => {
+  const keep = [kept("k1", 10), kept("k2", 10)];
+  const d = composeDay(base({ keep, blocks: [...many("a:1", 4), ...many("b:1", 4)] }), AB);
+  const fresh = d.exercises.slice(2).reduce((s, e) => s + e.minutes, 0);
+  assert.equal(fresh, 20);
+});
+
+test("keep: no new pick repeats a kept block", () => {
+  const keep = [kept("a:1#0", 5)];
+  const d = composeDay(base({ keep, blocks: [...many("a:1", 2), ...many("b:1", 2)] }), AB);
+  assert.equal(ids(d).filter((i) => i === "a:1#0").length, 1);
+});
+
+// --- review focus
+
+test("review focus 1: a new guitar player with a block on every first step gets a full day", () => {
+  const blocks = PATH.filter((t) => t.area === "guitar").map((t) => cand(`${t.id}-1`, [`${t.id}:1`]));
+  const d = composeDay({ ...base(), answers: guitar, blocks });
+  assert.ok(total(d) >= guitar.minutes, String(total(d)));
+  assert.equal(d.short, false);
+});
+
+test("review focus 5: every block declined and no earlier step: only the kept ones, short, and it returns", () => {
+  const keep = [kept("k1", 5)];
+  const blocks = [...many("a:1", 3), ...many("b:1", 3)];
+  const d = composeDay(base({ keep, blocks, declined: blocks.map((b) => b.blockId) }), AB);
+  assert.deepEqual(d.exercises, keep);
+  assert.equal(d.short, true);
+});
+
+// --- the same answer twice
+
+test("same input, same output; another seed may change the picks but not the steps", () => {
+  const blocks = [...many("a:1", 10), ...many("b:1", 10)];
+  const a = composeDay(base({ blocks }), AB);
+  assert.deepEqual(composeDay(base({ blocks }), AB), a);
+  const others = Array.from({ length: 10 }, (_, s) => composeDay(base({ blocks, seed: `other:${s}` }), AB));
+  for (const o of others) assert.deepEqual(o.steps, a.steps);
+  assert.ok(others.some((o) => ids(o).join() !== ids(a).join()));
+});
+
+// --- seven days
+
+test("composeWeek: seven days, no block on two days running", () => {
+  const blocks = [...many("a:1", 4), ...many("b:1", 4)];
+  const week = composeWeek({ answers: { ...guitar, minutes: 10 }, solid: none, blocks, date: "2026-11-18", seed: "t" }, 7, AB);
+  assert.equal(week.length, 7);
+  for (let i = 1; i < 7; i++) {
+    const before = new Set(ids(week[i - 1]));
+    assert.ok(ids(week[i]).every((b) => !before.has(b)), `day ${i}`);
+    assert.ok(week[i].exercises.length > 0);
+  }
+});
+
+test("composeWeek: each day is composeDay with the next date, its own seed and the day before as yesterday", () => {
+  const blocks = [...many("a:1", 4), ...many("b:1", 4)];
+  const input = { answers: { ...guitar, minutes: 10 }, solid: none, blocks, date: "2026-11-18", seed: "t" };
+  const week = composeWeek(input, 3, AB);
+  assert.deepEqual(week[0], composeDay({ ...input, seed: "t:0", yesterday: [], keep: [], declined: [] }, AB));
+  assert.deepEqual(week[1], composeDay({ ...input, date: "2026-11-19", seed: "t:1", yesterday: ids(week[0]), keep: [], declined: [] }, AB));
+  assert.deepEqual(week[2], composeDay({ ...input, date: "2026-11-20", seed: "t:2", yesterday: ids(week[1]), keep: [], declined: [] }, AB));
+});
+
+test("daySteps sanity for these tracks", () => {
+  assert.deepEqual([...daySteps({ answers: guitar, solid: none, date: "2026-11-18" }, AB).fresh].sort(), ["a:1", "b:1"]);
+  assert.deepEqual(daySteps({ answers: guitar, solid: none, date: "2026-11-18" }, ABC).open, ["a2:1"]);
+});
