@@ -10,7 +10,7 @@ const json = (body: unknown, status = 200) => Response.json(body, { status, head
 const NO_DB = "No database: set DATABASE_URL.";
 
 /**
- * /dev/messages (dev only): `?status=open|closed|all` lists threads, `?thread=<id>` one thread with every message's
+ * /admin/messages (dev only for now): `?status=open|closed|all` lists threads, `?thread=<id>` one thread with every message's
  * context, marking it read on our side.
  */
 export async function GET(req: Request) {

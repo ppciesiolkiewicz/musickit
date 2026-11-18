@@ -12,7 +12,7 @@
   `EMAIL_WINDOW_MS`), so a quick follow-up still reaches us but a flood doesn't eat the Resend quota log-in shares. A
   failed email never fails the send.
   Contact form messages send no email from here: the contact route sends its own.
-- Our side is dev only: `/dev/messages` and `/api/dev/messages` 404 in a production build (`devGate()`). To answer
+- Our side is dev only: `/admin/messages` and `/api/admin/messages` 404 in a production build (`devGate()`). To answer
   production messages, run the dev server against the production database.
 - Every fetch in the bubble and the feedback page goes through `send()` in `features/account/ui/parts.tsx` (timeout,
   the account header) and shows its error inline. Typed text stays in the box until a send succeeds.

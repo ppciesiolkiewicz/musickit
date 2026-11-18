@@ -1,6 +1,6 @@
 /**
  * What the message routes do, over any repo: a user posts and reads their threads; we reply, close and reopen at
- * /dev/messages; the contact form adds its messages. Tested over the memory repo (messages.test.ts).
+ * /admin/messages; the contact form adds its messages. Tested over the memory repo (messages.test.ts).
  */
 
 import type { ContactMessage } from "@/features/contact/contact";
@@ -89,7 +89,7 @@ export async function markRead(repo: MessagesRepo, userId: string, threadId: unk
   return true;
 }
 
-/** Our reply, from /dev/messages. A contact message from a visitor has no user to read it: we answer those by email. */
+/** Our reply, from /admin/messages. A contact message from a visitor has no user to read it: we answer those by email. */
 export async function adminReply(repo: MessagesRepo, threadId: unknown, rawBody: unknown, now: Date): Promise<{ ok: true } | Failed> {
   const t = typeof threadId === "string" ? await repo.thread(threadId).catch(() => null) : null;
   if (!t) return NOT_FOUND;
@@ -110,7 +110,7 @@ export async function setStatus(repo: MessagesRepo, threadId: unknown, status: u
 }
 
 /**
- * A contact form message, stored for /dev/messages: always a new thread, the user's when they are signed in, else one
+ * A contact form message, stored for /admin/messages: always a new thread, the user's when they are signed in, else one
  * with only the email they typed. The contact route emails us itself, so nothing is sent here. Returns the thread id.
  */
 export async function addContactMessage(repo: MessagesRepo, c: ContactMessage, userId: string | null): Promise<string> {

@@ -322,7 +322,7 @@ export const planReviews = pgTable(
  * A conversation between a signed-in user and us (features/messages), or one contact form message from a visitor
  * (`user_id` null, `email` set). A user may have several. `last_user_at` / `last_admin_at` and the two read times say
  * what is unread on each side without reading the messages. `emailed_at` is when we were last emailed about it (at most
- * once in 10 minutes). Read and answered at /dev/messages.
+ * once in 10 minutes). Read and answered at /admin/messages.
  */
 export const messageThreads = pgTable(
   "message_threads",

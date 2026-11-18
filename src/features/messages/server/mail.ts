@@ -18,6 +18,6 @@ export function messageEmail(account: { email: string; name: string }, body: str
     to: [contactTo(env)],
     reply_to: account.email,
     subject: `Message from ${account.name || account.email}`,
-    text: `${account.name} <${account.email}>\n\n${body}\n\n${where.join("\n")}${where.length ? "\n\n" : ""}Answer it: http://localhost:3000/dev/messages?thread=${threadId}\n`,
+    text: `${account.name} <${account.email}>\n\n${body}\n\n${where.join("\n")}${where.length ? "\n\n" : ""}Answer it: http://localhost:3000/admin/messages?thread=${threadId}\n`,
   };
 }

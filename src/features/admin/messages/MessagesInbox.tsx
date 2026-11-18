@@ -26,7 +26,7 @@ async function call(url: string, init?: RequestInit): Promise<{ ok: boolean; bod
     const res = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15_000), headers: { "content-type": "application/json" }, ...init });
     return { ok: res.ok, body: (await res.json().catch(() => ({}))) as Record<string, unknown> };
   } catch {
-    return { ok: false, body: { error: "Couldn't reach the dev server." } };
+    return { ok: false, body: { error: "Couldn't reach the server." } };
   }
 }
 const errorIn = (r: { body: Record<string, unknown> }) => (typeof r.body.error === "string" ? r.body.error : "Something went wrong.");
@@ -50,7 +50,7 @@ function Context({ c }: { c: MessageContext }) {
   );
 }
 
-/** /dev/messages: every thread and contact message, one open beside the list, with reply and close. */
+/** /admin/messages: every thread and contact message, one open beside the list, with reply and close. */
 export default function MessagesInbox({ initialThread }: { initialThread: string | null }) {
   const [filter, setFilter] = useState<Filter>(initialThread ? "all" : "open");
   const [threads, setThreads] = useState<Listed[] | null>(null);
@@ -61,20 +61,20 @@ export default function MessagesInbox({ initialThread }: { initialThread: string
   const [error, setError] = useState<string | null>(null);
 
   const loadList = useCallback(async () => {
-    const r = await call(`/api/dev/messages?status=${filter}`);
+    const r = await call(`/api/admin/messages?status=${filter}`);
     if (!r.ok) return setError(errorIn(r));
     setThreads(r.body.threads as Listed[]);
   }, [filter]);
 
   const loadThread = useCallback(async (id: string) => {
-    const r = await call(`/api/dev/messages?thread=${encodeURIComponent(id)}`);
+    const r = await call(`/api/admin/messages?thread=${encodeURIComponent(id)}`);
     if (!r.ok) return setError(errorIn(r));
     setMessages(r.body.messages as Msg[]);
   }, []);
 
   useEffect(() => {
     let live = true;
-    void call(`/api/dev/messages?status=${filter}`).then((r) => {
+    void call(`/api/admin/messages?status=${filter}`).then((r) => {
       if (!live) return;
       if (r.ok) setThreads(r.body.threads as Listed[]);
       else setError(errorIn(r));
@@ -87,7 +87,7 @@ export default function MessagesInbox({ initialThread }: { initialThread: string
   // the thread named in the URL (the email links here), once
   useEffect(() => {
     if (!initialThread) return;
-    void call(`/api/dev/messages?thread=${encodeURIComponent(initialThread)}`).then((r) => {
+    void call(`/api/admin/messages?thread=${encodeURIComponent(initialThread)}`).then((r) => {
       if (r.ok) setMessages(r.body.messages as Msg[]);
       else setError(errorIn(r));
     });
@@ -109,7 +109,7 @@ export default function MessagesInbox({ initialThread }: { initialThread: string
     if (!selected || !reply.trim()) return;
     setBusy(true);
     setError(null);
-    const r = await call("/api/dev/messages", { method: "POST", body: JSON.stringify({ threadId: selected, body: reply }) });
+    const r = await call("/api/admin/messages", { method: "POST", body: JSON.stringify({ threadId: selected, body: reply }) });
     setBusy(false);
     if (!r.ok) return setError(errorIn(r));
     setReply("");
@@ -121,7 +121,7 @@ export default function MessagesInbox({ initialThread }: { initialThread: string
     if (!selected) return;
     setBusy(true);
     setError(null);
-    const r = await call("/api/dev/messages", { method: "PATCH", body: JSON.stringify({ threadId: selected, status }) });
+    const r = await call("/api/admin/messages", { method: "PATCH", body: JSON.stringify({ threadId: selected, status }) });
     setBusy(false);
     if (!r.ok) return setError(errorIn(r));
     await loadList();

@@ -2,9 +2,9 @@
 
 /**
  * Pages where the bubble would cover a tool's own controls, or has no place: the looper and the tuner fill the screen
- * with controls; /feedback is the same form; /dev pages are ours.
+ * with controls; /feedback is the same form; /dev and /admin pages are ours.
  */
-const HIDE = ["/looper", "/tuner", "/feedback", "/dev"];
+const HIDE = ["/looper", "/tuner", "/feedback", "/dev", "/admin"];
 
 export const bubblePlacement = (pathname: string): "show" | "hide" =>
   HIDE.some((p) => pathname === p || pathname.startsWith(`${p}/`)) ? "hide" : "show";

@@ -15,7 +15,7 @@ const json = (body: unknown, status = 200) => Response.json(body, { status, head
 
 /**
  * Contact form: JSON { email, message, source? }. The message is emailed through Resend (RESEND_API_KEY), stored as a private blob under contact/,
- * and saved in the database for /dev/messages (a new thread: the sender's when signed in, else one with the typed email).
+ * and saved in the database for /admin/messages (a new thread: the sender's when signed in, else one with the typed email).
  * It succeeds if at least one of the three worked; it fails (503) only when none is set up, so nothing is lost silently.
  */
 export async function POST(req: Request) {

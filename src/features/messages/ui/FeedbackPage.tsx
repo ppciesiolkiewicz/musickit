@@ -9,7 +9,7 @@ export const FEEDBACK_HREF = "/feedback";
 
 /**
  * /feedback, signed-in users only (LoginGuard sends others to log in): a message box whose Send feedback starts a new
- * thread with us (`POST /api/me/messages`, `newThread`, source `feedback-page`). We answer at /dev/messages; the answer
+ * thread with us (`POST /api/me/messages`, `newThread`, source `feedback-page`). We answer at /admin/messages; the answer
  * shows in the chat bubble (`Bubble`).
  */
 export default function FeedbackPage() {
