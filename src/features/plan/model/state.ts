@@ -1,6 +1,6 @@
 import { migrateAnswers } from "../intake/answers";
-import { EMPTY_STATE, type PlanReview, type PlanState, type StoredPlan } from "./types";
-import { cleanRating, isStars, type StarRating } from "@/features/progress/stars";
+import { EMPTY_STATE, type PlanState, type StoredPlan } from "./types";
+import { cleanRating, type StarRating } from "@/features/progress/stars";
 import { withBlockIds, withExerciseIds } from "./exerciseIds";
 import { cleanAnswersHistory, movedOver } from "./answersHistory";
 import { cleanCells } from "./cleanExercise";
@@ -24,18 +24,6 @@ const isPlan = (p: unknown): p is StoredPlan => {
   return !!x && typeof x.id === "string" && typeof x.startedOn === "string" && Array.isArray(x.config?.days) && typeof x.done === "object" && x.config.days.every((d) => !d?.exercises || (Array.isArray(d.exercises) && d.exercises.every((e) => Array.isArray(e?.cells))));
 };
 
-/** The longest `why` of a plan review kept. */
-export const MAX_REVIEW_WHY = 1000;
-
-/** A stored review made safe: null unless it has valid stars and a date. The why is trimmed, cut to `MAX_REVIEW_WHY`, and kept only for 1 or 2 stars. */
-export function cleanReview(raw: unknown): PlanReview | null {
-  if (!raw || typeof raw !== "object") return null;
-  const r = raw as Record<string, unknown>;
-  if (!isStars(r.stars) || typeof r.at !== "string" || !r.at) return null;
-  const why = r.stars <= 2 && typeof r.why === "string" ? r.why.trim().slice(0, MAX_REVIEW_WHY) : "";
-  return { stars: r.stars, ...(why ? { why } : {}), at: r.at };
-}
-
 /** The longest sharer's name kept on a claimed plan (`sharedBy`). */
 export const MAX_SHARER_NAME = 100;
 
@@ -50,7 +38,7 @@ function cleanComposed(raw: unknown): StoredPlan["composed"] | null {
   return { attempt: c.attempt as number, declined: c.declined.filter((d): d is string => typeof d === "string"), short: c.short };
 }
 
-/** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, `hidden` only when true, `sharedBy` only when it is text (trimmed, at most `MAX_SHARER_NAME`), and the timer's old `elapsed` and `spent` dropped. */
+/** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, `hidden` only when true, `sharedBy` only when it is text (trimmed, at most `MAX_SHARER_NAME`), the timer's old `elapsed` and `spent` and an old whole-plan `review` dropped. */
 function cleanPlan(stored: StoredPlan): StoredPlan {
   let p: StoredPlan = { ...stored, config: withBlockIds(cleanCells(withExerciseIds(stored.config))) };
   // the day timer's seconds were kept in the plan before they got their own store (`planTime.ts`); they are not read
@@ -79,11 +67,10 @@ function cleanPlan(stored: StoredPlan): StoredPlan {
     if (composed) p.composed = composed;
     else delete p.composed;
   }
+  // a whole-plan review was kept on the plan until reviews were dropped; old documents still carry one, and it is not read
   if ("review" in p) {
-    const review = cleanReview(p.review);
     p = { ...p };
-    if (review) p.review = review;
-    else delete p.review;
+    delete (p as { review?: unknown }).review;
   }
   if ("teacher" in p) {
     const teacher = cleanTeacher(p.teacher);

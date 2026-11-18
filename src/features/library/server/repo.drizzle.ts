@@ -160,7 +160,7 @@ function planWhere(scope: Scope, f: PlanFilter): SQL {
 
 interface PlanRow {
   id: string; title: string; answers: unknown; model: string; prompt_version: number | null; docs_agents: number | null; docs_teaching: number | null;
-  reply: string; days: number; minutes: number; blocks: number; topics: Count[]; concepts: Count[]; review_count: number; review_mean: number | null;
+  reply: string; days: number; minutes: number; blocks: number; topics: Count[]; concepts: Count[];
   had_share: number | null;
 }
 
@@ -178,8 +178,6 @@ function planQuery(scope: Scope, where: SQL, tail: SQL): SQL {
         from (select x.topic as id, count(*)::int as n from ${planBlocks} x where x.topic is not null group by x.topic) t) as topics,
       (select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'count', c.n) order by c.n desc, c.id collate "C"), '[]'::jsonb)
         from (select cx.c as id, count(distinct x.id)::int as n from ${planBlocks} x cross join lateral unnest(x.concepts) cx(c) group by cx.c) c) as concepts,
-      (select count(*)::int from plan_reviews pr where pr.library_plan_id = p.id) as review_count,
-      (select avg(pr.stars)::float8 from plan_reviews pr where pr.library_plan_id = p.id) as review_mean,
       ${had} as had_share
     from practice_plans p
     where ${where}
@@ -191,7 +189,6 @@ function planSummaryOf(r: PlanRow): PlanSummary {
     id: r.id, title: r.title, answers: r.answers,
     provenance: { model: r.model, promptVersion: r.prompt_version, docsAgents: r.docs_agents, docsTeaching: r.docs_teaching },
     days: r.days, minutes: r.minutes, blocks: r.blocks, topics: r.topics, concepts: r.concepts,
-    reviews: { count: r.review_count, mean: r.review_mean },
     hadShare: r.had_share,
   };
 }

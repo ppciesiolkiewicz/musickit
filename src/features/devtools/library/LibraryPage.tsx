@@ -97,7 +97,7 @@ export function PlansTable({ plans, params }: { plans: PlanSummary[]; params: Li
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm text-slate-200">
-        <Head cols={["Title", "Model", "Versions", "Days", "Reviews"]} />
+        <Head cols={["Title", "Model", "Versions", "Days"]} />
         <tbody>
           {plans.map((p) => (
             <tr key={p.id} className={ROW}>
@@ -105,7 +105,6 @@ export function PlansTable({ plans, params }: { plans: PlanSummary[]; params: Li
               <td className="p-2">{orDash(p.provenance.model)}</td>
               <td className="p-2"><Versions p={p.provenance} /></td>
               <td className="p-2">{p.days}</td>
-              <td className="p-2">{p.reviews.count === 0 ? "–" : `${p.reviews.count}, mean ${p.reviews.mean === null ? "–" : p.reviews.mean.toFixed(1)}`}</td>
             </tr>
           ))}
         </tbody>

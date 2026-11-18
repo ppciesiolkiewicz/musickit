@@ -103,8 +103,6 @@ export interface PlanSummary {
   /** by count, highest first, then id */
   topics: Count[];
   concepts: Count[];
-  /** only totals: how many players rated it and the mean of their stars (null when none) */
-  reviews: { count: number; mean: number | null };
   /** only with `scope.player`: the share of the plan's distinct blocks the player owns (0 when the plan has none), else null */
   hadShare: number | null;
 }

@@ -327,24 +327,6 @@ export const blockOwners = pgTable(
 );
 
 /**
- * A player's stars for a whole plan, and why when they gave few: one row per player and plan, replaced by the next save.
- * `library_plan_id` is the `practice_plans` row the plan was taken from, if any. `title` is the plan's, for `/dev/plan-reviews`.
- */
-export const planReviews = pgTable(
-  "plan_reviews",
-  {
-    userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-    planId: text("plan_id").notNull(),
-    libraryPlanId: text("library_plan_id").references(() => practicePlans.id, { onDelete: "set null" }),
-    title: text("title").notNull(),
-    stars: integer("stars").notNull(),
-    why: text("why"),
-    at: at("at").notNull(),
-  },
-  (t) => [uniqueIndex("plan_reviews_user_plan").on(t.userId, t.planId), index("plan_reviews_at").on(t.at), check("plan_reviews_stars_range", sql`${t.stars} between 1 and 5`)],
-);
-
-/**
  * A conversation between a signed-in user and us (features/messages), or one contact form message from a visitor
  * (`user_id` null, `email` set). A user may have several. `last_user_at` / `last_admin_at` and the two read times say
  * what is unread on each side without reading the messages. `emailed_at` is when we were last emailed about it (at most

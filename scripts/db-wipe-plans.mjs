@@ -1,7 +1,7 @@
 /**
  * Empties what players have stored about practice plans at DATABASE_URL, and nothing else: every player's plan document
  * (answers, today's plan, past days, plans shared with them), their ratings (progress_entries), the day timer's rows
- * (plan_day_times), plan reviews, shared plans and who claimed them, and the blocks only players own. Accounts,
+ * (plan_day_times), shared plans and who claimed them, and the blocks only players own. Accounts,
  * sessions, subscriptions, notes, videos, shared notes and the app's block library stay.
  *
  *   npm run db:wipe-plans
@@ -29,7 +29,6 @@ const counts = async (q) => {
     (select count(*)::int from user_documents where kind = 'plan') as plan_documents,
     (select count(*)::int from progress_entries) as ratings,
     (select count(*)::int from plan_day_times) as day_times,
-    (select count(*)::int from plan_reviews) as plan_reviews,
     (select count(*)::int from shares where kind = 'plan') as shared_plans,
     (select count(*)::int from plan_claims) as plan_claims,
     (select count(*)::int from block_owners where user_id is not null) as player_owned_blocks,
@@ -44,7 +43,6 @@ try {
     await tx`delete from user_documents where kind = 'plan'`;
     await tx`delete from progress_entries`;
     await tx`delete from plan_day_times`;
-    await tx`delete from plan_reviews`;
     await tx`delete from plan_claims`;
     await tx`delete from shares where kind = 'plan'`;
     await tx`delete from block_owners where user_id is not null`;

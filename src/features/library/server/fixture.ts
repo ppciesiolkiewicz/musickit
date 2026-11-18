@@ -23,7 +23,6 @@ export interface LibraryData {
     docsAgents: number | null; docsTeaching: number | null; enabledForReuse: boolean; createdAt: Date;
   }[];
   planBlocks: { planId: string; day: number; place: number; blockId: string; minutes: number }[];
-  reviews: { userId: string; planId: string; libraryPlanId: string | null; title: string; stars: number; why: string | null; at: Date }[];
 }
 
 export const PLAYER_A = "a0000000-0000-4000-8000-00000000000a";
@@ -51,7 +50,7 @@ const entry = (userId: string, exerciseId: string, blockId: string, stars: Progr
  * is A's private edit; R is a block A and B both own and both rated (A 3 stars, then 5 stars later in another slot; B 2 stars), not
  * enabled. PB is B's, enabled for reuse; D has two owner rows (A's not enabled, B's enabled); Zed and alpha are seed blocks with the
  * same created_at. Plans: P1 and P2 enabled, P3 (the app's, X only) not enabled, P4 enabled with no block rows and null answers. P1
- * holds S1 on two days, S2 and X; P2 holds R and D. Two reviews, A (4 stars) and B (2 stars), both of P1. A also owns S2 and rated it 2 stars. Timer rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
+ * holds S1 on two days, S2 and X; P2 holds R and D. A also owns S2 and rated it 2 stars. Timer rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
  */
 export function baseFixture(): LibraryData {
   return {
@@ -108,10 +107,6 @@ export function baseFixture(): LibraryData {
       { planId: "P2", day: 0, place: 0, blockId: "R", minutes: 20 },
       { planId: "P2", day: 0, place: 1, blockId: "D", minutes: 10 },
       { planId: "P3", day: 0, place: 0, blockId: "X", minutes: 10 },
-    ],
-    reviews: [
-      { userId: PLAYER_A, planId: "rp-1", libraryPlanId: "P1", title: "P1", stars: 4, why: null, at: new Date("2026-04-01T10:00:00Z") },
-      { userId: PLAYER_B, planId: "rp-2", libraryPlanId: "P1", title: "P1", stars: 2, why: "too long", at: new Date("2026-04-02T10:00:00Z") },
     ],
   };
 }

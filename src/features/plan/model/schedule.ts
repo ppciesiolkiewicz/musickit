@@ -1,6 +1,6 @@
 import { cleanCells } from "./cleanExercise";
 import { withBlockIds, withExerciseIds } from "./exerciseIds";
-import { HISTORY_CAP, cleanReview } from "./state";
+import { HISTORY_CAP } from "./state";
 import { planDays, type PlanConfig, type PlanState, type StoredPlan } from "./types";
 import type { ComposedDay } from "./compose";
 import type { StarRating, Stars } from "@/features/progress/stars";
@@ -198,14 +198,6 @@ export function ratePlan(plan: StoredPlan, day: number, exercise: number, stars:
   if (stars === null) { delete done[k]; delete rated[k]; }
   else { done[k] = true; rated[k] = { stars, at }; }
   return { ...plan, done, rated };
-}
-
-/** Review the whole plan, or take the review away with `null`. The why goes through `cleanReview`: kept only for 1 or 2 stars. */
-export function reviewPlan(plan: StoredPlan, review: { stars: Stars; why?: string } | null, at: string): StoredPlan {
-  const next = { ...plan };
-  delete next.review;
-  const clean = review ? cleanReview({ ...review, at }) : null;
-  return clean ? { ...next, review: clean } : next;
 }
 
 /** How much of one day is ticked off, 0..1. */

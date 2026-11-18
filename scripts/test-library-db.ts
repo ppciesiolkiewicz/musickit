@@ -68,7 +68,6 @@ async function load(data: LibraryData) {
   // `answers` is NOT NULL jsonb: a null in the data is the JSON null
   if (data.plans.length) await db.insert(s.practicePlans).values(data.plans.map((p) => ({ ...p, answers: p.answers ?? sql`'null'::jsonb` })));
   if (data.planBlocks.length) await db.insert(s.practicePlanBlocks).values(data.planBlocks);
-  if (data.reviews.length) await db.insert(s.planReviews).values(data.reviews);
 }
 
 libraryRepoContract(async (data) => {

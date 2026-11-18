@@ -55,8 +55,7 @@ const SPECS: Record<string, Spec> = {
   },
   find_plans: {
     description:
-      "List practice plans with their size (days, minutes, blocks), topics, concepts and reviews. Reviews are only a count and a mean of stars. " +
-      "They come from players' reviews of plans they took from the library; a count of 0 means no review is linked to the plan yet, not that the plan is bad. " +
+      "List practice plans with their size (days, minutes, blocks), topics and concepts. " +
       "Use it to see what a whole week looks like for a kind of player. " +
       `The answer is capped: ${PLAN_LIMIT.default} plans by default, at most ${PLAN_LIMIT.max}. A full page may mean there are more.`,
     args: {

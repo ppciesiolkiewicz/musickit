@@ -2,8 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
 import { EMPTY_STATE, type PlanExercise, type PlanState } from "@/features/plan/model/types";
-import { sanitiseState } from "@/features/plan/model/state";
-import { putEntry, readDoc, readDocVersioned, readEntries, readOwnDocVersioned, readAllPlanTimes, readPlanTimes, reviewRowsOf, storePlanBlocks, writeDoc, writePlanTime } from "./data";
+import { putEntry, readDoc, readDocVersioned, readEntries, readOwnDocVersioned, readAllPlanTimes, readPlanTimes, storePlanBlocks, writeDoc, writePlanTime } from "./data";
 import { memoryUserDataRepo } from "./repo.memory";
 
 const now = new Date("2026-11-15T10:00:00Z");
@@ -195,74 +194,6 @@ test("the plan document is saved even when the library insert throws", async () 
   assert.equal(repo.peekBlocks().size, 1);
 });
 
-// --- the plan review, kept in plan_reviews
-
-const reviewedDoc = (stars: number, why?: string, history: object[] = [], at = "2026-11-15T09:00:00.000Z") => ({
-  current: { id: "p", startedOn: "2026-11-01", done: {}, config: { title: "Warm-up week", days: [] }, review: { stars, ...(why ? { why } : {}), at } },
-  history,
-});
-const stateOf = (doc: object) => sanitiseState(doc);
-
-test("a reviewed plan becomes a plan_reviews row with its title", async () => {
-  const repo = memoryUserDataRepo();
-  await writeDoc(repo, "u1", "plan", reviewedDoc(2, "too fast"), now);
-  assert.deepEqual(await repo.listPlanReviews(10), [{ userId: "u1", planId: "p", libraryPlanId: null, title: "Warm-up week", stars: 2, why: "too fast", at: new Date("2026-11-15T09:00:00.000Z") }]);
-});
-
-test("a plan without a string title gets an empty title", () => {
-  const state = stateOf(reviewedDoc(3));
-  state.current!.config = { ...state.current!.config, title: undefined as unknown as string };
-  assert.equal(reviewRowsOf(state)[0].title, "");
-  assert.deepEqual(reviewRowsOf(stateOf({ current: null, history: [] })), []);
-});
-
-test("the plan document is saved even when syncPlanReviews throws", async () => {
-  const repo = memoryUserDataRepo();
-  const failing = { ...repo, syncPlanReviews: async () => { throw new Error("db down"); } };
-  const logged: unknown[] = [];
-  const error = console.error;
-  console.error = (...args: unknown[]) => void logged.push(args);
-  try {
-    assert.deepEqual(await writeDoc(failing, "u1", "plan", reviewedDoc(2, "slow"), now), { ok: true, version: 1 });
-  } finally {
-    console.error = error;
-  }
-  assert.equal(logged.length, 1);
-  assert.equal(((await readDoc(repo, "u1", "plan")) as PlanState).current?.review?.stars, 2);
-  assert.equal((await repo.listPlanReviews(10)).length, 0);
-  await writeDoc(repo, "u1", "plan", reviewedDoc(2, "slow"), now);
-  assert.equal((await repo.listPlanReviews(10)).length, 1);
-});
-
-test("changing the stars replaces the row; clearing the review removes it", async () => {
-  const repo = memoryUserDataRepo();
-  await writeDoc(repo, "u1", "plan", reviewedDoc(2, "slow"), now);
-  await writeDoc(repo, "u1", "plan", reviewedDoc(4, undefined, [], "2026-11-15T09:30:00.000Z"), now);
-  const rows = await repo.listPlanReviews(10);
-  assert.equal(rows.length, 1);
-  assert.equal(rows[0].stars, 4);
-  assert.equal(rows[0].why, null);
-  await writeDoc(repo, "u1", "plan", { ...reviewedDoc(4), current: { ...reviewedDoc(4).current, review: undefined } }, now);
-  assert.equal((await repo.listPlanReviews(10)).length, 0);
-});
-
-test("a plan dropped from the history keeps its review row", async () => {
-  const repo = memoryUserDataRepo();
-  await writeDoc(repo, "u1", "plan", reviewedDoc(5), now);
-  await writeDoc(repo, "u1", "plan", { current: null, history: [] }, now);
-  assert.deepEqual((await repo.listPlanReviews(10)).map((r) => r.planId), ["p"]);
-});
-
-test("listPlanReviews lists every player's, newest first", async () => {
-  const repo = memoryUserDataRepo();
-  const at = (s: string) => ({ id: "p", startedOn: "2026-11-01", done: {}, config: { title: "W", days: [] }, review: { stars: 3, at: s } });
-  await writeDoc(repo, "u1", "plan", { current: at("2026-11-10T00:00:00Z"), history: [] }, now);
-  await writeDoc(repo, "u2", "plan", { current: at("2026-11-12T00:00:00Z"), history: [] }, now);
-  await writeDoc(repo, "u3", "plan", { current: at("2026-11-11T00:00:00Z"), history: [] }, now);
-  assert.deepEqual((await repo.listPlanReviews(10)).map((r) => r.userId), ["u2", "u3", "u1"]);
-  assert.equal((await repo.listPlanReviews(2)).length, 2);
-});
-
 // --- block ids kept when a tab still running the old code saves
 
 const B1 = "1".repeat(32);
@@ -290,13 +221,6 @@ test("a progress entry written without a block id keeps the stored one (a slot's
   assert.equal((await readEntries(repo, "u1"))[0].blockId, B2);
 });
 
-test("reviewRowsOf gives one row per plan id, the current plan's first (two rows for one id make the upsert throw)", () => {
-  const state = stateOf(reviewedDoc(4, undefined, [{ id: "p", startedOn: "2026-10-01", done: {}, config: { title: "Old copy", days: [] }, review: { stars: 1, why: "no", at: "2026-10-08T09:00:00.000Z" } }]));
-  const rows = reviewRowsOf(state);
-  assert.equal(rows.length, 1);
-  assert.deepEqual([rows[0].title, rows[0].stars], ["Warm-up week", 4]);
-});
-
 test("readAllPlanTimes lists every plan's days for this player only", async () => {
   const repo = memoryUserDataRepo();
   const t = { planId: "p", day: 0, elapsed: 120, spent: { e1: 120 } };
@@ -315,13 +239,6 @@ test("storePlanBlocks puts the blocks of the given plans in the library too", as
   const given = { id: "g1", from: "share-1", startedOn: "2026-11-01", done: {}, config: { title: "Given", days: [{ theme: "d", exercises: [ex2] }] } };
   await writeDoc(repo, "u1", "plan", { ...planDoc([ex]), given: [given] }, now);
   assert.deepEqual([...repo.peekBlocks().keys()].sort(), [idOf(ex), idOf(ex2)].sort());
-});
-
-test("a reviewed given plan becomes a plan_reviews row", async () => {
-  const repo = memoryUserDataRepo();
-  const given = { id: "g1", from: "share-1", startedOn: "2026-11-01", done: {}, config: { title: "Given week", days: [] }, review: { stars: 4, at: "2026-11-15T09:00:00.000Z" } };
-  await writeDoc(repo, "u1", "plan", { current: null, history: [], given: [given] }, now);
-  assert.deepEqual((await repo.listPlanReviews(10)).map((r) => [r.planId, r.title, r.stars]), [["g1", "Given week", 4]]);
 });
 
 test("each write adds 1 to the version; reading answers it, 0 when nothing is stored", async () => {

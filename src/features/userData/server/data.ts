@@ -3,7 +3,7 @@ import { parseDayTime, type DayTime } from "@/features/plan/model/planTime";
 import type { PlanState, StoredPlan } from "@/features/plan/model/types";
 import { cleanEntries, type ProgressEntry } from "@/features/progress/log";
 import { isDocKind, maxDocBytes, parseDoc, type DocKind } from "../model";
-import type { PlanReviewRow, UserDataRepo } from "./repo";
+import type { UserDataRepo } from "./repo";
 
 /** The player's document of this kind, parsed; the kind's empty value when none is stored. */
 export async function readDoc(repo: UserDataRepo, userId: string, kind: DocKind): Promise<unknown> {
@@ -76,7 +76,7 @@ const COMMENT_TRIES = 3;
 
 /**
  * Parses before storing, so a stored document is always safe to read back. Over its kind's cap (`maxDocBytes`) it is too big.
- * A plan also puts its blocks in the library (`storePlanBlocks`) and syncs its reviews (`syncPlanReviews`), from the parsed state. Those are side effects: the document
+ * A plan also puts its blocks in the library (`storePlanBlocks`), from the parsed state. That is a side effect: the document
  * save is what the player asked for, so a failure there is logged and the save still succeeds; the next save repairs it.
  * Every write adds 1 to the document's version. With `expect` it writes only when the stored version is `expect` (0 when none is stored);
  * otherwise it is "stale", with the stored version, and nothing is written, not even the plan's side effects. Without `expect` it always writes.
@@ -120,30 +120,8 @@ export async function writeDoc(
     } catch (error) {
       console.error("[writeDoc] storePlanBlocks failed", { userId, error });
     }
-    try {
-      const state = doc as PlanState;
-      await repo.syncPlanReviews(userId, [state.current, ...state.history, ...state.given].flatMap((p) => (p ? [p.id] : [])), reviewRowsOf(state));
-    } catch (error) {
-      console.error("[writeDoc] syncPlanReviews failed", { userId, error });
-    }
   }
   return { ok: true, version: put.version };
-}
-
-/**
- * The `plan_reviews` rows of a parsed plan document: one for each plan (current, then history, then given) that has a review, and one per
- * plan id, the first kept (two rows for one id would make the upsert throw on every save). `libraryPlanId` stays null until a
- * stored plan records its library plan.
- */
-export function reviewRowsOf(state: PlanState): PlanReviewRow[] {
-  const seen = new Set<string>();
-  return [state.current, ...state.history, ...state.given].flatMap((p) => {
-    const review = p?.review;
-    const at = review ? new Date(review.at) : null;
-    if (!p || !review || !at || Number.isNaN(at.getTime()) || seen.has(p.id)) return [];
-    seen.add(p.id);
-    return [{ planId: p.id, libraryPlanId: null, title: typeof p.config?.title === "string" ? p.config.title : "", stars: review.stars, why: review.why ?? null, at }];
-  });
 }
 
 /**

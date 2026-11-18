@@ -134,7 +134,6 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
     const player = scope.player;
     const rows = data.planBlocks.filter((r) => r.planId === p.id);
     const blocks = planBlockRows(p.id);
-    const stars = data.reviews.filter((r) => r.libraryPlanId === p.id).map((r) => r.stars);
     return {
       id: p.id, title: p.title, answers: p.answers,
       provenance: { model: p.model, promptVersion: p.promptVersion, docsAgents: p.docsAgents, docsTeaching: p.docsTeaching },
@@ -143,7 +142,6 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
       blocks: blocks.length,
       topics: counts(blocks.flatMap((b) => (b.topic !== null ? [b.topic] : []))),
       concepts: counts(blocks.flatMap((b) => [...new Set(b.concepts)])),
-      reviews: { count: stars.length, mean: stars.length ? sum(stars) / stars.length : null },
       hadShare: player === undefined ? null : blocks.length ? blocks.filter((b) => had(player, b.id)).length / blocks.length : 0,
     };
   };

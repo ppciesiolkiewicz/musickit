@@ -311,11 +311,6 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.deepEqual(p2.topics, [{ id: "rhythm", count: 1 }, { id: "theory-basics", count: 1 }]);
       assert.deepEqual(p2.concepts, []);
     });
-    test("reviews are a count and a mean, and a plan without any has a null mean", async () => {
-      const r = await repo();
-      assert.deepEqual((await r.getPlan({}, "P1", false))?.reviews, { count: 2, mean: 3 });
-      assert.deepEqual((await r.getPlan({}, "P2", false))?.reviews, { count: 0, mean: null });
-    });
     test("hadShare is the owned share of the plan's blocks for the player, null without one", async () => {
       const r = await repo();
       const share = async (scope: Scope, id: string) => (await r.getPlan(scope, id, false))?.hadShare;
@@ -369,8 +364,7 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
     test("a plan summary, a detail and a schedule row have exactly these keys", async () => {
       const r = await repo();
       const [s] = await r.listPlans(all, {}, 1);
-      assert.deepEqual(keys(s), ["answers", "blocks", "concepts", "days", "hadShare", "id", "minutes", "provenance", "reviews", "title", "topics"]);
-      assert.deepEqual(keys(s.reviews), ["count", "mean"]);
+      assert.deepEqual(keys(s), ["answers", "blocks", "concepts", "days", "hadShare", "id", "minutes", "provenance", "title", "topics"]);
       assert.deepEqual(keys(s.provenance), ["docsAgents", "docsTeaching", "model", "promptVersion"]);
       assert.deepEqual(keys(s.topics[0]), ["count", "id"]);
       const d = (await r.getPlan(all, "P1", true))!;
@@ -454,7 +448,7 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.equal(c.topics.find((t) => t.topic === "rhythm")?.plans, 1);
     });
     test("an empty library has no plans, no coverage and no blocks", async () => {
-      const r = await make({ users: [], blocks: [], owners: [], progress: [], dayTimes: [], plans: [], planBlocks: [], reviews: [] });
+      const r = await make({ users: [], blocks: [], owners: [], progress: [], dayTimes: [], plans: [], planBlocks: [] });
       assert.deepEqual(await r.listPlans(all, {}, 10), []);
       assert.equal(await r.getPlan(all, "P1", true), null);
       assert.deepEqual(await r.coverage(all), { topics: [], concepts: [], steps: [] });

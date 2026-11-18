@@ -8,7 +8,7 @@ import { PROMPT_VERSION } from "@/features/plan/model/prompt";
 import { PlansTable } from "./LibraryPage";
 
 const row = (id: string, provenance: PlanSummary["provenance"]) =>
-  ({ id, title: id, days: 7, reviews: { count: 0, mean: null }, provenance }) as unknown as PlanSummary;
+  ({ id, title: id, days: 7, provenance }) as unknown as PlanSummary;
 
 test("a seed plan gets a Seed tag and an older version is marked behind", () => {
   const html = renderToStaticMarkup(

@@ -1,6 +1,6 @@
 import type { Cell, Choice } from "./tools";
 import type { Area } from "./concepts";
-import type { StarRating, Stars } from "@/features/progress/stars";
+import type { StarRating } from "@/features/progress/stars";
 import type { PlanAnswers } from "../intake/answers";
 
 export type { PlanAnswers } from "../intake/answers";
@@ -62,13 +62,6 @@ export interface PlanConfig {
   days: PlanDay[];
 }
 
-/** How the whole plan went: the stars and when they were given (ISO datetime). `why` is the player's words, kept only for 1 or 2 stars. */
-export interface PlanReview {
-  stars: Stars;
-  why?: string;
-  at: string;
-}
-
 /** A pasted plan the player is (or was) following. Days count from `startedOn`, a local yyyy-mm-dd. */
 export interface StoredPlan {
   id: string;
@@ -86,8 +79,6 @@ export interface StoredPlan {
   sharedBy?: string;
   /** a shared plan the player took off "Plans shared with you"; kept, so its ratings still count for progress */
   hidden?: true;
-  /** how the plan went as a whole, asked at the end of the week; absent until the player answers */
-  review?: PlanReview;
   /**
    * Set on a composed one-day plan only (the player's own, `startDay`): which try of the day it is (from 0), the block ids
    * turned down today (never picked again that day) and whether the library had too little to fill the minutes.

@@ -1,10 +1,10 @@
-import { and, desc, eq, exists, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, exists, inArray, isNull, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "@/lib/db/client";
-import { blockOwners, blocks, planClaims, planDayTimes, practicePlanBlocks, planReviews, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
+import { blockOwners, blocks, planClaims, planDayTimes, practicePlanBlocks, progressEntries, shareVideos, shares, userDocuments, videos } from "@/lib/db/schema";
 import type { ProgressEntry } from "@/features/progress/log";
 import { levelOfSteps } from "@/features/plan/model/path";
-import type { PlanReviewRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A UUID, as the `videos.id` column takes; anything else would make Postgres throw. */
 const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
@@ -169,27 +169,6 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
         await tx.delete(practicePlanBlocks).where(eq(practicePlanBlocks.planId, planId));
         if (rows.length) await tx.insert(practicePlanBlocks).values(rows.map((r) => ({ planId, day: r.day, place: r.place, blockId: r.blockId, minutes: r.minutes })));
       });
-    },
-    async syncPlanReviews(userId, planIds, rows) {
-      if (!planIds.length) return;
-      await db.transaction(async (tx) => {
-        if (rows.length) {
-          await tx
-            .insert(planReviews)
-            .values(rows.map((r) => ({ userId, planId: r.planId, libraryPlanId: r.libraryPlanId, title: r.title, stars: r.stars, why: r.why, at: r.at })))
-            .onConflictDoUpdate({
-              target: [planReviews.userId, planReviews.planId],
-              set: { libraryPlanId: sql`excluded.library_plan_id`, title: sql`excluded.title`, stars: sql`excluded.stars`, why: sql`excluded.why`, at: sql`excluded.at` },
-              setWhere: sql`${planReviews.at} is distinct from excluded.at`,
-            });
-        }
-        const kept = rows.map((r) => r.planId);
-        await tx.delete(planReviews).where(and(eq(planReviews.userId, userId), inArray(planReviews.planId, planIds), kept.length ? notInArray(planReviews.planId, kept) : undefined));
-      });
-    },
-    async listPlanReviews(limit) {
-      const out = await db.select().from(planReviews).orderBy(desc(planReviews.at)).limit(limit);
-      return out.map((r) => ({ userId: r.userId, planId: r.planId, libraryPlanId: r.libraryPlanId, title: r.title, stars: r.stars as PlanReviewRow["stars"], why: r.why, at: r.at }));
     },
     async createVideo(row) {
       const made = await db.insert(videos).values(row).onConflictDoNothing().returning({ id: videos.id });

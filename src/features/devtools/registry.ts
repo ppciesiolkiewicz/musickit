@@ -77,7 +77,6 @@ export const DEV_GROUPS: DevGroup[] = [
     tools: [
       { href: "/dev/data", label: "Data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
       { href: "/dev/progress", label: "Progress", desc: "The player's progress outcome: its inputs, then per concept, topic and area, the streak days and time, as of any date." },
-      { href: "/dev/plan-reviews", label: "Plan reviews", desc: "Every player's star rating and reason for a finished plan, newest first, from the plan_reviews table." },
     ],
   },
   {

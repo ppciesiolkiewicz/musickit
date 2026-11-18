@@ -2,7 +2,6 @@ import type { DocKind } from "../model";
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { Stars } from "@/features/progress/stars";
 
 /** A player's uploaded video: the `videos` row. `blobPath` is where its file is in the private Blob store. */
 export interface VideoRow {
@@ -72,16 +71,6 @@ export interface PlanBlockRow {
   minutes: number;
 }
 
-/** A player's review of a plan, the `plan_reviews` row. `libraryPlanId` is the library plan it was taken from, when known. */
-export interface PlanReviewRow {
-  planId: string;
-  libraryPlanId: string | null;
-  title: string;
-  stars: Stars;
-  why: string | null;
-  at: Date;
-}
-
 /** Everything a player's documents, progress and videos need from storage. `drizzleUserDataRepo` is Postgres, `memoryUserDataRepo` is for tests. */
 export interface UserDataRepo {
   /** The stored document, or null when there is none. */
@@ -126,14 +115,6 @@ export interface UserDataRepo {
    * owns: the library shows a plan to callers who may not see a player's private block (a schedule row on one has no title).
    */
   setPlanBlocks(planId: string, rows: PlanBlockRow[]): Promise<void>;
-  /**
-   * Makes the user's `plan_reviews` rows of these plans match `rows`: a row is added, or changed only when its `at` differs,
-   * and a row of the user whose plan is in `planIds` but not in `rows` is deleted. Rows of plans not in `planIds` (dropped
-   * from the history) are left. No `planIds`, nothing done.
-   */
-  syncPlanReviews(userId: string, planIds: string[], rows: PlanReviewRow[]): Promise<void>;
-  /** Every player's plan reviews, newest `at` first. */
-  listPlanReviews(limit: number): Promise<(PlanReviewRow & { userId: string })[]>;
   /** Stores a new video row; false when its id (or its path) is taken, and then nothing is changed. */
   createVideo(row: VideoRow): Promise<boolean>;
   /** The user's videos, newest first. */

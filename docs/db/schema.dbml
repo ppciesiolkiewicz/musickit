@@ -168,22 +168,6 @@ table plan_requests {
   contacted_at "timestamp with time zone"
 }
 
-table plan_reviews {
-  user_id uuid [not null]
-  plan_id text [not null]
-  library_plan_id text
-  title text [not null]
-  stars integer [not null]
-  why text
-  at "timestamp with time zone" [not null]
-
-  indexes {
-    (user_id, plan_id) [name: 'plan_reviews_user_plan', unique]
-    at [name: 'plan_reviews_at']
-    
-  }
-}
-
 table plans {
   id text [pk, not null]
   name text [not null]
@@ -194,6 +178,7 @@ table plans {
   price_cents integer
   period plan_period
   students integer
+  extra_students integer [not null, default: 0]
   autoplans_per_month integer [not null]
   batch boolean [not null, default: false]
   enabled boolean [not null, default: true]
@@ -290,6 +275,7 @@ table teacher_students {
   student_id uuid [not null, unique]
   created_at "timestamp with time zone" [not null, default: `now()`]
   claimed_at "timestamp with time zone"
+  planned_on date
 
   indexes {
     (teacher_id, student_id) [pk]
@@ -316,6 +302,8 @@ table users {
   plan_id text
   billing plan_period [not null, default: 'year']
   email_updates_at "timestamp with time zone"
+  terms_accepted_at "timestamp with time zone"
+  terms_version text
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
 }
@@ -356,10 +344,6 @@ ref plan_day_times_user_id_users_id_fk: plan_day_times.user_id > users.id [delet
 ref plan_requests_user_id_users_id_fk: plan_requests.user_id > users.id [delete: cascade, update: no action]
 
 ref plan_requests_plan_id_plans_id_fk: plan_requests.plan_id > plans.id [delete: cascade, update: no action]
-
-ref plan_reviews_user_id_users_id_fk: plan_reviews.user_id > users.id [delete: cascade, update: no action]
-
-ref plan_reviews_library_plan_id_practice_plans_id_fk: plan_reviews.library_plan_id > practice_plans.id [delete: set null, update: no action]
 
 ref practice_plan_blocks_plan_id_practice_plans_id_fk: practice_plan_blocks.plan_id > practice_plans.id [delete: cascade, update: no action]
 

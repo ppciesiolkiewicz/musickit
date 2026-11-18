@@ -167,7 +167,7 @@ test holds this). Building the tool means adding it to `TOOLS` and deleting its 
 
 ## Library (`/dev/library`)
 
-A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days, reviews), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). A plan or block that comes from a seed file has a *Seed* tag after its title, and a version older than the current one (`PROMPT_VERSION`, `DOC_VERSIONS`) is amber, one not recorded grey, so files written to older rules stand out. `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows what is not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. The one page for the library's plans and blocks; it replaced the examples page.
+A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). A plan or block that comes from a seed file has a *Seed* tag after its title, and a version older than the current one (`PROMPT_VERSION`, `DOC_VERSIONS`) is amber, one not recorded grey, so files written to older rules stand out. `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows what is not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. The one page for the library's plans and blocks; it replaced the examples page.
 
 **One item drawn.** A plan's or block's title in the tables links to `?item=<id>#item`, which draws it below the tables
 (`library/LibraryItem.tsx`; `loadItem` in `library/load.ts`, `library/item.ts`). A plan row draws from the seed plan with
@@ -194,12 +194,6 @@ note and *Copy all notes* warns on outdated ones. A section note links to `/dev/
 
 Code: `library/load.ts` (the loaders), `library/params.ts` (address parameters, minutes), `library/item.ts` (the item to
 draw), `library/LibraryPage.tsx` (tables), `library/LibraryItem.tsx`, `src/app/dev/library`.
-
-## Plan reviews (`/dev/plan-reviews`)
-
-Every player's plan reviews from the `plan_reviews` table (`listPlanReviews(500)`), newest first, as a plain table
-(`reviews/PlanReviewsTable.tsx`): date, stars, plan title, why, plan id, library plan id, user id. No charts. Without
-`DATABASE_URL` it says so in one line.
 
 ## Kickstarter (`/dev/kickstarter`)
 

@@ -1,7 +1,7 @@
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { BlockSlot, BlockSource, PlanBlockRow, PlanReviewRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { BlockSlot, BlockSource, PlanBlockRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A `blocks` row, as the memory repo keeps it. */
 interface StoredBlock {
@@ -54,8 +54,6 @@ export function memoryUserDataRepo(): UserDataRepo & {
   const planBlocks = new Map<string, PlanBlockRow[]>();
   /** `block_owners` rows, keyed `${userId ?? ""} ${blockId}`, so the app's (null) rows of a block are one, like `nulls not distinct`. */
   const owners = new Map<string, OwnerRow>();
-  /** `plan_reviews` rows, keyed `${userId} ${planId}`. */
-  const reviews = new Map<string, PlanReviewRow & { userId: string }>();
   const pair = (a: string, b: string) => `${a} ${b}`;
   const dropShare = (id: string) => {
     shares.delete(id);
@@ -149,17 +147,6 @@ export function memoryUserDataRepo(): UserDataRepo & {
     async setPlanBlocks(planId, rows) {
       planBlocks.set(planId, structuredClone(rows));
     },
-    async syncPlanReviews(userId, planIds, rows) {
-      const keep = new Set(rows.map((r) => r.planId));
-      for (const r of rows) {
-        const k = pair(userId, r.planId);
-        if (reviews.get(k)?.at.getTime() !== r.at.getTime()) reviews.set(k, { ...r, userId, at: new Date(r.at) });
-      }
-      for (const id of planIds) if (!keep.has(id)) reviews.delete(pair(userId, id));
-    },
-    async listPlanReviews(limit) {
-      return [...reviews.values()].sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, limit).map((r) => ({ ...r, at: new Date(r.at) }));
-    },
     async createVideo(row) {
       if (videos.has(row.id) || [...videos.values()].some((v) => v.blobPath === row.blobPath)) return false;
       videos.set(row.id, structuredClone(row));
@@ -232,7 +219,6 @@ export function memoryUserDataRepo(): UserDataRepo & {
       for (const k of [...claims]) if (k.endsWith(` ${userId}`)) claims.delete(k);
       for (const s of [...shares.values()]) if (s.userId === userId) dropShare(s.id);
       for (const v of [...videos.values()]) if (v.userId === userId) dropVideo(v.id);
-      for (const k of [...reviews.keys()]) if (k.startsWith(`${userId} `)) reviews.delete(k);
       for (const [k, o] of [...owners]) if (o.userId === userId) owners.delete(k);
     },
     peekBlocks() {
