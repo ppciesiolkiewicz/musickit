@@ -3,6 +3,7 @@ import type { Stars } from "@/features/progress/stars";
 import { daySteps } from "./daySteps";
 import { SOLID_STARS } from "./outcome";
 import { PATH, type Track } from "./path";
+import { reach } from "./reach";
 import { addDays } from "./schedule";
 import type { PlanAnswers, PlanExercise } from "./types";
 
@@ -60,14 +61,27 @@ function hash(s: string): number {
   return h;
 }
 
-const trackOf = (ref: string) => ref.slice(0, ref.lastIndexOf(":"));
-const numOf = (ref: string) => Number(ref.slice(ref.lastIndexOf(":") + 1));
+/** "trackId:n" read apart; null for anything else. */
+function parseRef(ref: string): { track: string; n: number } | null {
+  const m = /^(.+):([1-9]\d*)$/.exec(ref);
+  return m ? { track: m[1], n: Number(m[2]) } : null;
+}
 
 /** A block fits a step when it names it and names no later step of the same track. */
 function fits(c: Candidate, step: string): boolean {
-  if (!c.steps.includes(step)) return false;
-  const track = trackOf(step);
-  return c.steps.every((r) => trackOf(r) !== track || numOf(r) <= numOf(step));
+  const at = parseRef(step);
+  if (!at || !c.steps.includes(step)) return false;
+  return c.steps.every((r) => { const o = parseRef(r); return !o || o.track !== at.track || o.n <= at.n; });
+}
+
+/**
+ * The blocks a player may be given at all: every step they name is on the path and not beyond reach (marked ahead and
+ * not `open`). Known, within-reach and open steps are fine, on any track.
+ */
+function withinReach(blocks: Candidate[], answers: PlanAnswers, solid: Map<string, string>, tracks: Track[]): Candidate[] {
+  const marks = reach({ topics: answers.topics, solid: solid.keys() }, tracks);
+  const ok = (ref: string) => { const m = marks.get(ref); return !!m && (m.mark !== "ahead" || m.open); };
+  return blocks.filter((c) => c.steps.every(ok));
 }
 
 /** The block for a step among usable ones: low rated (newest first), unrated (random among the least used few), solid (longest ago). */
@@ -87,9 +101,9 @@ function choose(usable: Candidate[], rng: Rng): Candidate {
 
 /** A block for a step not in `used`, walking down the track to the nearest earlier step that has one. */
 function pickFor(step: string, blocks: Candidate[], used: Set<string>, rng: Rng): Pick | null {
-  const track = trackOf(step);
-  const n = numOf(step);
-  const refs = track && Number.isInteger(n) && n > 0 ? Array.from({ length: n }, (_, i) => `${track}:${n - i}`) : [step];
+  const at = parseRef(step);
+  if (!at) return null;
+  const refs = Array.from({ length: at.n }, (_, i) => `${at.track}:${at.n - i}`);
   for (const ref of refs) {
     const usable = blocks.filter((c) => !used.has(c.blockId) && fits(c, ref));
     if (usable.length) return { cand: choose(usable, rng), step: ref };
@@ -112,6 +126,17 @@ function fill(steps: { fresh: string[]; open: string[]; review: string[] }, revi
     return true;
   };
 
+  // round-robin: one block on each step in order, again and again, until the minutes are filled or a pass adds nothing
+  const rounds = (refs: string[], into: Pick[]) => {
+    for (let added = true; added && room();) {
+      added = false;
+      for (const step of refs) {
+        if (!room()) break;
+        if (take(step, into)) added = true;
+      }
+    }
+  };
+
   let r = 0;
   for (; r < steps.review.length && review.length < reviewCount && room(); r++) take(steps.review[r], review);
 
@@ -120,14 +145,9 @@ function fill(steps: { fresh: string[]; open: string[]; review: string[] }, revi
     if (!room()) break;
     if (take(step, picks)) inDay.push(step);
   }
-  for (let added = true; added && room();) {
-    added = false;
-    for (const step of inDay) {
-      if (!room()) break;
-      if (take(step, picks)) added = true;
-    }
-  }
-  for (; r < steps.review.length && room(); r++) take(steps.review[r], review);
+  rounds(inDay, picks);
+  // the review steps not tried yet first, then the planned ones again
+  rounds([...steps.review.slice(r), ...steps.review.slice(0, r)], review);
 
   return { picks: [...picks, ...review], total };
 }
@@ -140,7 +160,7 @@ export function composeDay(input: ComposeInput, tracks: Track[] = PATH): Compose
   const steps = daySteps({ answers, solid: input.solid, date: input.date }, tracks);
   const reviewCount = answers.minutes >= 30 ? 2 : 1;
   const used = new Set([...input.yesterday, ...input.declined, ...keep.flatMap((e) => (e.blockId ? [e.blockId] : []))]);
-  const { picks, total } = fill(steps, reviewCount, budget, input.blocks, used, mulberry32(hash(input.seed)));
+  const { picks, total } = fill(steps, reviewCount, budget, withinReach(input.blocks, answers, input.solid, tracks), used, mulberry32(hash(input.seed)));
   return {
     exercises: [...keep, ...picks.map((p) => p.cand.exercise)],
     steps: [...new Set(picks.map((p) => p.step))],

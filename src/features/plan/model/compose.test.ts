@@ -135,6 +135,31 @@ test("which block: a block appears once in a day, also when it fits two of the d
   assert.deepEqual(ids(d), ["both"]);
 });
 
+// --- never above the player's reach
+
+test("reach: a cross-track block whose other step is far ahead is never picked; the day is short instead", () => {
+  const d = composeDay({ ...base(), answers: guitar, blocks: [cand("far", ["open-chords:7", "strumming:1"])] });
+  assert.deepEqual(d.exercises, []);
+  assert.equal(d.short, true);
+});
+
+test("reach: a block naming a step ahead on another hand-made track is never picked", () => {
+  const d = composeDay(base({ answers: one, blocks: [cand("far", ["b:1", "a:3"])] }), AB);
+  assert.deepEqual(d.exercises, []);
+});
+
+test("reach: a cross-track block whose other step is known, within reach or open is picked", () => {
+  assert.deepEqual(ids(composeDay(base({ answers: one, solid: solidA1, blocks: [cand("known", ["b:1", "a:1"])] }), AB)), ["known"]);
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks: [cand("reach", ["b:1", "a:1"])] }), AB)), ["reach"]);
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks: [cand("open", ["b:1", "a2:1"])] }), ABC)), ["open"]);
+});
+
+test("reach: a block naming a step that is not on the path is never picked", () => {
+  for (const odd of ["zz:1", "a:9", "nocolon"]) {
+    assert.deepEqual(composeDay(base({ answers: one, blocks: [cand("odd", ["a:1", odd])] }), AB).exercises, [], odd);
+  }
+});
+
 // --- yesterday, declined, a step with no block
 
 test("yesterday and declined: never picked, also when they are the only blocks on a step", () => {
@@ -200,6 +225,19 @@ test("fill order 3: a second block on the day's steps comes before more review",
   const d = composeDay(base({ answers: { ...guitar, minutes: 15 }, solid, blocks }), tracks);
   assert.deepEqual(ids(d).sort(), ["N1", "N2", "R1"]);
   assert.equal(ids(d).at(-1), "R1");
+});
+
+test("fill order 3: more review goes round the review steps until the minutes are filled", () => {
+  const d = composeDay(base({ solid: new Map([["a:1", "2026-11-01T10:00:00Z"]]), blocks: many("a:1", 4) }), [mk("a", "guitar-basic-chords", 1)]);
+  assert.equal(d.exercises.length, 4);
+  assert.equal(d.short, false);
+});
+
+test("fill order 3: more review tries a review step not used yet before a second block on a used one", () => {
+  const solid = new Map([["a:1", "2026-11-01T10:00:00Z"], ["b:1", "2026-11-02T10:00:00Z"]]);
+  const tracks = [mk("a", "guitar-basic-chords", 1), mk("b", "guitar-scales", 1)];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, solid, blocks: [...many("a:1", 3), ...many("b:1", 3)] }), tracks);
+  assert.deepEqual(d.exercises.map((e) => e.steps![0]), ["a:1", "b:1"]);
 });
 
 test("fill order 4: then a short day", () => {
