@@ -1,47 +1,98 @@
 {
-  "title": "A quick tour of attunr",
-  "scenes": [
-    {
-      "id": "hello",
-      "caption": "attunr",
-      "text": "This is attunr: practice tools for guitar and singing, right in your browser. Here is a quick look around.",
-      "cues": { "tagline": "practice tools", "look": "Here is" }
+  "videos": {
+    "solo": {
+      "title": "attunr for solo musicians",
+      "scenes": [
+        {
+          "id": "solo-hello",
+          "caption": "attunr",
+          "text": "You pick up the guitar, or warm up your voice, and then wonder what to practise. attunr answers that every day, with a practice plan made for you. It opens in your browser, with nothing to install.",
+          "cues": { "tagline": "a practice plan made for you", "browser": "It opens" }
+        },
+        {
+          "id": "solo-questions",
+          "caption": "A few questions",
+          "text": "It starts with you. Say what you play or sing, where you are today, and how many minutes a day you have. Nobody is tested, and a first week is a fine place to start.",
+          "cues": { "what": "what you play", "where": "where you are", "minutes": "how many minutes" }
+        },
+        {
+          "id": "solo-today",
+          "caption": "Today's plan",
+          "text": "From then on, you never start by wondering what to play. Open the plan and today's practice is ready: what to work on, and for how long. It comes from a library of exercises, and each day is a bit different from the day before.",
+          "cues": { "ready": "today's practice is ready", "long": "for how long", "library": "a library of exercises", "different": "each day is a bit different" }
+        },
+        {
+          "id": "solo-exercise",
+          "caption": "Exercises",
+          "text": "These are not pages to read. Every exercise plays with you and listens to you. See the notes on a guitar neck. Play along with a tab. Watch your own voice on the staff as you sing, with a band behind you.",
+          "cues": { "neck": "See the notes", "tab": "Play along", "staff": "Watch your own voice", "band": "with a band" }
+        },
+        {
+          "id": "solo-rate",
+          "caption": "Rate it",
+          "text": "After each exercise you say how it went, from Can't do it yet to Easy now. That is all the plan needs. The next plan brings the next thing within reach, and mixes back a little of what already feels solid.",
+          "cues": { "rate": "you say how", "low": "Can't do it yet", "high": "Easy now", "next": "The next plan", "mix": "mixes back" }
+        },
+        {
+          "id": "solo-habit",
+          "caption": "A daily habit",
+          "text": "A short practice every day takes you further than a long one now and then. So you get a daily reminder at the time you choose, a timer for the day's practice and a day streak. There are no points and no score. Progress is what gets easier to play or sing.",
+          "cues": { "reminder": "a daily reminder", "timer": "a timer", "streak": "a day streak", "points": "There are no points", "easier": "Progress is" }
+        },
+        {
+          "id": "solo-end",
+          "caption": "Free in beta",
+          "text": "Practise every day, know what to play, and hear it get easier. attunr is in beta, and it is free now. The first people who sign up get the early price when paid plans open, and that price is locked in.",
+          "cues": { "free": "it is free now", "early": "The first people", "locked": "that price is locked in" }
+        }
+      ]
     },
-    {
-      "id": "menu",
-      "caption": "The menu",
-      "text": "The menu at the top has four parts. Learn holds the course and your AI practice plan. Guitar has chords, scales and CAGED, plus drills for the neck. Singing has warm-ups, scales and melodies you sing into the mic. Tools has the tuner, the looper, backing tracks and the notes creator.",
-      "cues": { "learn": "Learn holds", "guitar": "Guitar has", "singing": "Singing has", "tools": "Tools has", "notes": "the notes creator" }
-    },
-    {
-      "id": "plan",
-      "caption": "AI practice plan",
-      "text": "The AI practice plan writes your practice for each day. Answer a few questions, then send the prompt to your own AI and paste its reply back. Each exercise comes with the tool it needs. Rate how it went, and the next plan takes it into account.",
-      "cues": { "answer": "Answer a few", "send": "send the prompt", "paste": "paste its reply", "week": "Each exercise", "rate": "Rate how", "next": "the next plan" }
-    },
-    {
-      "id": "notes",
-      "caption": "Notes creator",
-      "text": "The notes creator makes a page of notes: text, a scale on the neck, chord boxes, a melody or a video. Press slash to add a widget. Change the key, and every widget follows it.",
-      "cues": { "text": "text,", "neck": "a scale on the neck", "chords": "chord boxes", "melody": "a melody", "slash": "Press slash", "key": "Change the key", "follow": "every widget follows" }
-    },
-    {
-      "id": "help",
-      "caption": "Help on every page",
-      "text": "Every page has help by its title. The compass button shows you around the page. The question mark explains what each control does: hover anything to find out. Every exercise has its own compass too.",
-      "cues": { "compass": "The compass", "tour": "shows you around", "hints": "The question mark", "hover": "hover anything", "exercise": "Every exercise" }
-    },
-    {
-      "id": "keys",
-      "caption": "Keys",
-      "text": "To open any page, press Command K, or Control K on Windows, and type its name. On a tool page, Space plays and stops, or presses the big button. In ear training, the number keys answer.",
-      "cues": { "cmdk": "press Command K", "type": "type its name", "space": "Space plays", "big": "presses the big button", "numbers": "the number keys" }
-    },
-    {
-      "id": "end",
-      "caption": "Start",
-      "text": "That's the tour. Press Command K, pick a page, and start playing.",
-      "cues": { "cmdk": "Press Command K" }
+    "teachers": {
+      "title": "attunr for teachers and schools",
+      "scenes": [
+        {
+          "id": "teach-hello",
+          "caption": "attunr",
+          "text": "You teach the lesson. What happens in the days until the next one? attunr is a web app for music teachers and schools. You give each student a week of practice and a lesson note, and they practise with them at home.",
+          "cues": { "tagline": "a web app", "give": "You give each student", "home": "they practise" }
+        },
+        {
+          "id": "teach-student",
+          "caption": "Add a student",
+          "text": "Getting a student started is quick. Add them by name and email, and answer a few questions about what they play and where they are. The student gets a link by email, and their first week is ready.",
+          "cues": { "name": "by name and email", "answers": "answer a few questions", "link": "The student gets a link", "week": "their first week" }
+        },
+        {
+          "id": "teach-week",
+          "caption": "A week of practice",
+          "text": "Each week is seven days of short exercises, chosen for that student from a library of exercises. Nothing is left to work out at home: the exact material is on the page. This scale, in this key, in this position. So the minutes they practise count for more.",
+          "cues": { "week": "seven days", "library": "from a library", "exact": "the exact material", "scale": "This scale", "key": "in this key", "position": "in this position" }
+        },
+        {
+          "id": "teach-next",
+          "caption": "The next week",
+          "text": "You stay the teacher. After each exercise the student rates how it went, so you see how the week really was. Before the next week, you set where the student is now, one slider for each topic, and the next plan follows you both.",
+          "cues": { "rate": "the student rates", "sliders": "you set where", "next": "the next plan follows" }
+        },
+        {
+          "id": "teach-notes",
+          "caption": "Lesson notes",
+          "text": "A lesson note puts today's lesson on one page the student can play: text, a scale on the neck, chord boxes and a melody. Change the key, and the whole page follows it. Then it goes to the student as a link, so the lesson comes home with them.",
+          "cues": { "text": "text,", "neck": "a scale on the neck", "chords": "chord boxes", "melody": "a melody", "key": "Change the key", "follow": "the whole page follows", "link": "Then it goes" }
+        },
+        {
+          "id": "teach-partners",
+          "caption": "Founding partners",
+          "text": "attunr is still being built, and that is your chance to shape it. It is looking for founding partners: teachers and schools who use it early and say what gets built first. In return, a founding partner gets a long trial and a locked-in price.",
+          "cues": { "built": "still being built", "partners": "founding partners", "early": "use it early", "say": "say what gets built", "trial": "a long trial", "price": "a locked-in price" }
+        },
+        {
+          "id": "teach-end",
+          "caption": "Try it",
+          "text": "See it for yourself. The demos work today, with no account. Open a student's week, or book a video call with the founder and see it working with what you teach.",
+          "cues": { "demos": "The demos work", "week": "Open a student's week", "call": "book a video call" }
+        }
+      ]
     }
-  ]
+  }
 }

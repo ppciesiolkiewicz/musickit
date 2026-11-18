@@ -1,16 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { DEFAULT_VOICE, SCRIPT, VOICES, voiceFromQuery } from "./data";
+import { VIDEOS, VOICE, type VideoId } from "./data";
 import { SCENES } from "./scenes";
-import { clock, sceneAt, timeline, totalLength } from "./timeline";
-
-/** Back and forward change the address (and with it `?voice`). */
-function onAddress(change: () => void) {
-  window.addEventListener("popstate", change);
-  return () => window.removeEventListener("popstate", change);
-}
+import { clock, sceneAt, subtitleAt, timeline, totalLength } from "./timeline";
 
 const W = 960;
 const H = 540;
@@ -22,16 +16,15 @@ const KEYFRAMES = `
 `;
 
 /**
- * The quick tour: a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voices/<name>.json`; `?voice=1|2|3|4` picks the narrator) or, for a
+ * A quick tour (`video`: the one for solo musicians or the one for teachers and schools): a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voices/george.json`) or, for a
  * scene not recorded yet, to an estimate, playing silent with its caption. The clock follows the audio while a scene's take
  * plays and the frame clock otherwise, so the picture never runs ahead of the voice. `spaceKey` lets Space play and pause
- * anywhere on the page; off on a page where Space should scroll (the home page). `compact` drops the scene chips and the
- * caption, for a small player beside other content (the demos page).
+ * anywhere on the page; off on a page where Space should scroll (the home page). Under the stage is the subtitle: the
+ * sentence being said. `compact` drops the scene chips and makes the subtitle smaller, for a small player beside other
+ * content (the demos page).
  */
-export default function IntroPlayer({ spaceKey = true, compact = false }: { spaceKey?: boolean; compact?: boolean }) {
-  // ?voice=1|2|3|4 picks a narrator; the server renders the default and the client switches after hydrating
-  const voice = useSyncExternalStore(onAddress, () => voiceFromQuery(window.location.search), () => DEFAULT_VOICE);
-  const scenes = useMemo(() => timeline(SCRIPT, VOICES[voice]), [voice]);
+export default function IntroPlayer({ video, spaceKey = true, compact = false }: { video: VideoId; spaceKey?: boolean; compact?: boolean }) {
+  const scenes = useMemo(() => timeline(VIDEOS[video], VOICE), [video]);
   const total = totalLength(scenes);
   const [t, setT] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -148,6 +141,8 @@ export default function IntroPlayer({ spaceKey = true, compact = false }: { spac
         )}
       </div>
 
+      <p className={`text-center text-slate-200 ${compact ? "min-h-[2.5rem] text-sm leading-5" : "min-h-[3.5rem] text-lg leading-7"}`}>{started ? subtitleAt(scene, local) : ""}</p>
+
       <div className="flex items-center gap-3">
         <button type="button" onClick={toggle} aria-label={playing ? "Pause" : "Play"} title={spaceKey ? (playing ? "Pause (Space)" : "Play (Space)") : playing ? "Pause" : "Play"} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white transition hover:bg-sky-400">
           <Icon name={playing ? "pause" : "play"} size={18} />
@@ -170,7 +165,7 @@ export default function IntroPlayer({ spaceKey = true, compact = false }: { spac
         )}
       </div>
 
-      {!compact && <>
+      {!compact && (
       <div className="flex flex-wrap gap-2" role="group" aria-label="Jump to a part">
         {scenes.map((s, i) => (
           <button
@@ -184,9 +179,7 @@ export default function IntroPlayer({ spaceKey = true, compact = false }: { spac
           </button>
         ))}
       </div>
-
-      <p aria-live="polite" className="min-h-[3.5rem] text-lg leading-relaxed text-slate-200">{started ? scene.text : ""}</p>
-      </>}
+      )}
     </div>
   );
 }

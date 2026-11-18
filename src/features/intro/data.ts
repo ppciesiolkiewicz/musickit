@@ -1,21 +1,18 @@
 import script from "./script.json";
 import george from "./voices/george.json";
-import charlie from "./voices/charlie.json";
-import laura from "./voices/laura.json";
-import sarah from "./voices/sarah.json";
 import type { IntroScript, VoiceManifest } from "./timeline";
 
-/** The tour's script and its recorded narration, typed (JSON imports type every scene's cues apart). */
-export const SCRIPT = script as unknown as IntroScript;
+/** The two tours: one for a person who practises on their own, one for teachers and schools. */
+export type VideoId = "solo" | "teachers";
 
-/** Every recorded voice, in the order `?voice=1|2|3|4` picks them (the same names as VOICES in scripts/intro/voice.mjs). */
-export const VOICES = [george, charlie, laura, sarah] as unknown as VoiceManifest[];
+/** Each tour's script, typed (JSON imports type every scene's cues apart). Scene ids are unique across both, so one voice manifest holds every take. */
+export const VIDEOS = script.videos as unknown as Record<VideoId, IntroScript>;
 
-/** The voice the tour plays without `?voice`: Charlie. */
-export const DEFAULT_VOICE = 1;
+/** The tours in the order a switch shows them, with the words on the switch. */
+export const VIDEO_LIST: { id: VideoId; label: string }[] = [
+  { id: "solo", label: "Solo musicians" },
+  { id: "teachers", label: "Teachers and schools" },
+];
 
-/** The voice a page's `?voice=` asks for (1-based), or the default when it is missing or out of range. */
-export function voiceFromQuery(search: string): number {
-  const n = Number(new URLSearchParams(search).get("voice"));
-  return Number.isInteger(n) && n >= 1 && n <= VOICES.length ? n - 1 : DEFAULT_VOICE;
-}
+/** The tour's one narrator, George: every scene's take, as scripts/intro/voice.mjs recorded it. */
+export const VOICE = george as unknown as VoiceManifest;

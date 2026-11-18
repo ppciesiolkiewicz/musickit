@@ -1,7 +1,7 @@
-// node scripts/intro/voice.mjs [--voice charlie] [--all] [--only hello,menu]
+// node scripts/intro/voice.mjs [--all] [--only solo-hello,teach-end]
 //
-// Records the intro tour's narration with ElevenLabs in one of the voices in VOICES: one MP3 per scene of
-// src/features/intro/script.json into public/intro/<voice>/<scene>.mp3, and the manifest src/features/intro/voices/<voice>.json
+// Records the narration of both tours (solo musicians, teachers) with ElevenLabs in the tour's one voice, George: one MP3
+// per scene of src/features/intro/script.json into public/intro/george/<scene>.mp3, and the manifest src/features/intro/voices/george.json
 // (each take's text, length and the second each cue's phrase starts, from ElevenLabs' character timings). Only scenes whose
 // text changed since their take are recorded, unless --all. Needs ELEVENLABS_API_KEY (read from the environment, else
 // .env.local, else .env); ELEVENLABS_MODEL picks the model. See src/features/intro/README.md.
@@ -11,19 +11,12 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const SCRIPT = join(ROOT, "src/features/intro/script.json");
-const MANIFESTS = join(ROOT, "src/features/intro/voices");
-const PUBLIC = join(ROOT, "public/intro");
+const NAME = "george";
+const MANIFEST = join(ROOT, `src/features/intro/voices/${NAME}.json`);
+const OUT = join(ROOT, `public/intro/${NAME}`);
 
-/**
- * The tour's voices, in the order of ?voice=1|2|3|4 (VOICES in src/features/intro/data.ts lists the same names).
- * Each keeps the settings it was recorded with.
- */
-const VOICES = {
-  george: { id: "JBFqnCBsd6RMkjVDRZzb", settings: { stability: 0.55, similarity_boost: 0.75, style: 0.15, use_speaker_boost: true, speed: 0.95 } }, // warm, calm, clear
-  charlie: { id: "IKne3meq5aSn9XLyUdCD", settings: { stability: 0.45, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true, speed: 1 } }, // Australian, casual, friendly
-  laura: { id: "FGY2WhTYpPnrIDTdsKH5", settings: { stability: 0.35, similarity_boost: 0.75, style: 0.45, use_speaker_boost: true, speed: 1.05 } }, // upbeat, energetic
-  sarah: { id: "EXAVITQu4vr4xnSDxMaL", settings: { stability: 0.65, similarity_boost: 0.75, style: 0.1, use_speaker_boost: true, speed: 0.95 } }, // calm, soft, reassuring
-};
+/** The tour's voice, George (warm, calm, clear), with the settings it is recorded with. */
+const VOICE = { id: "JBFqnCBsd6RMkjVDRZzb", settings: { stability: 0.55, similarity_boost: 0.75, style: 0.15, use_speaker_boost: true, speed: 0.95 } };
 
 for (const f of [".env.local", ".env"]) {
   try {
@@ -40,13 +33,12 @@ const SAY = [[/attunr/g, "attuner"]];
 const spoken = (text) => SAY.reduce((t, [from, to]) => t.replace(from, to), text);
 
 function args(argv) {
-  const o = { all: false, only: null, voice: "charlie" };
+  const o = { all: false, only: null };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--all") o.all = true;
-    else if (argv[i] === "--voice") o.voice = argv[++i] ?? "";
     else if (argv[i] === "--only") o.only = (argv[++i] ?? "").split(",");
     else {
-      console.error(`unknown option ${argv[i]}\nusage: node scripts/intro/voice.mjs [--voice charlie] [--all] [--only hello,menu]`);
+      console.error(`unknown option ${argv[i]}\nusage: node scripts/intro/voice.mjs [--all] [--only solo-hello,teach-end]`);
       process.exit(2);
     }
   }
@@ -75,19 +67,15 @@ async function main() {
     console.error("ELEVENLABS_API_KEY is not set. Add it to .env.local (or export it) and run again.");
     process.exit(1);
   }
-  const voice = VOICES[opts.voice];
-  if (!voice) {
-    console.error(`unknown voice "${opts.voice}"; one of: ${Object.keys(VOICES).join(", ")}`);
-    process.exit(2);
-  }
-  const MANIFEST = join(MANIFESTS, `${opts.voice}.json`);
-  const OUT = join(PUBLIC, opts.voice);
+  const voice = VOICE;
   const script = JSON.parse(await readFile(SCRIPT, "utf8"));
   const manifest = JSON.parse(await readFile(MANIFEST, "utf8").catch(() => '{"scenes":{}}'));
   if (manifest.voice !== voice.id || manifest.model !== MODEL) opts.all = true; // one voice for the whole tour
   await mkdir(OUT, { recursive: true });
 
-  const scenes = script.scenes;
+  // every scene of both tours; `tour` keeps a take's previous and next text inside its own tour
+  const scenes = Object.entries(script.videos).flatMap(([tour, v]) => v.scenes.map((s) => ({ ...s, tour })));
+  const near = (i, j) => (scenes[j] && scenes[j].tour === scenes[i].tour ? spoken(scenes[j].text) : undefined);
   let done = 0;
   for (let i = 0; i < scenes.length; i++) {
     const s = scenes[i];
@@ -95,7 +83,7 @@ async function main() {
     if (!opts.all && !opts.only && manifest.scenes[s.id]?.text === s.text) continue;
     const say = spoken(s.text);
     const started = Date.now();
-    const r = await record(voice, say, scenes[i - 1] && spoken(scenes[i - 1].text), scenes[i + 1] && spoken(scenes[i + 1].text));
+    const r = await record(voice, say, near(i, i - 1), near(i, i + 1));
     const a = r.alignment;
     if (!a?.character_start_times_seconds?.length) throw new Error(`${s.id}: no timings in the reply`);
     const starts = a.character_start_times_seconds;
@@ -109,7 +97,7 @@ async function main() {
     const file = `${s.id}.mp3`;
     await writeFile(join(OUT, file), Buffer.from(r.audio_base64, "base64"));
     const duration = Math.round((ends[ends.length - 1] + 0.15) * 100) / 100;
-    manifest.scenes[s.id] = { text: s.text, file: `/intro/${opts.voice}/${file}`, duration, cues };
+    manifest.scenes[s.id] = { text: s.text, file: `/intro/${NAME}/${file}`, duration, cues };
     done++;
     console.log(`${s.id}: ${duration}s (${((Date.now() - started) / 1000).toFixed(1)}s)`);
   }

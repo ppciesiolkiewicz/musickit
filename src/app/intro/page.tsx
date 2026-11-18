@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
-import IntroPlayer from "@/features/intro/IntroPlayer";
+import IntroVideos from "@/features/intro/IntroVideos";
 
 export const metadata: Metadata = {
   title: "Quick tour · attunr",
-  description: "A short tour of attunr: the menus, the AI practice plan, the notes creator, the help on every page and the keys that open any page.",
+  description: "Two short tours of attunr: a daily practice plan for a person who practises on their own, and weekly plans and lesson notes for teachers and schools.",
   alternates: { canonical: "/intro" },
 };
 
 export default function IntroPage() {
   return (
-    <PageShell title="Quick tour" intro="What's in the menus, where the help is, and the keys that get you anywhere." active="/intro" column>
-      <IntroPlayer />
+    <PageShell title="Quick tour" intro="What attunr does, in two short tours. Pick the one that fits you." active="/intro" column>
+      <IntroVideos />
     </PageShell>
   );
 }

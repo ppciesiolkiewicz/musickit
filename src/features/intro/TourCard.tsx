@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/Icon";
 import IntroPlayer from "./IntroPlayer";
+import type { VideoId } from "./data";
 
 /**
- * The quick tour as a small card beside other content, with a Cinema mode button that opens it over the whole page. The
+ * A quick tour (`video` picks which) as a small card beside other content, with a Cinema mode button that opens it over the whole page. The
  * same player stays mounted in both, so the tour keeps playing from where it was. In cinema mode Space plays and pauses,
  * and Escape or Close goes back.
  */
-export default function TourCard() {
+export default function TourCard({ video }: { video: VideoId }) {
   const [cinema, setCinema] = useState(false);
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function TourCard() {
             <Icon name={cinema ? "x" : "maximize"} size={13} /> {cinema ? "Close" : "Cinema mode"}
           </button>
         </div>
-        <IntroPlayer compact={!cinema} spaceKey={cinema} />
+        <IntroPlayer video={video} compact={!cinema} spaceKey={cinema} />
       </div>
     </div>
   );

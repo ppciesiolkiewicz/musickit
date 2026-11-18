@@ -247,7 +247,7 @@ export default function DemoIndex() {
             <PageHeading title="Practice that sounds like your lessons" eyebrow="Demos" bar={pageBar("/plan")} />
             <PageIntro>Hi, I&apos;m Pio. I&apos;m building attunr to make teaching easier for teachers and practice better for students. It&apos;s in demo mode, so try anything below. No account needed.</PageIntro>
           </div>
-          <TourCard />
+          <TourCard video="teachers" />
         </div>
       }
     >
