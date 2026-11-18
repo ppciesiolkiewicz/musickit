@@ -49,7 +49,7 @@ const MESSAGES = {
   "no-answers": "Your student has no answers yet, so no plan can be made. Ask your student to answer the questions on the Practice plan page, then try again.",
   "no-blocks": "The library has no exercises yet that fit your student's answers, so no plan was made.",
   busy: "Your student saved changes at the same moment. Try again.",
-  "too-big": "This student's plan has grown too big to hold another week, so no plan was made. Ask your student to remove an old plan on the Practice plan page, then try again.",
+  "too-big": "This student's saved plans take up too much room, so no plan was made. Tell us about it on the Send feedback page.",
   gone: "This link is too old or was already used. If you have opened it before, choose Log in. If not, ask your teacher to send a new link.",
   failed: "attunr couldn't do that. Try again in a moment.",
 } as const;

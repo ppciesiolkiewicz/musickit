@@ -290,6 +290,7 @@ test("claim: GET peeks without spending; POST signs in with cookies and { next }
   assert.equal(again.status, 410);
   const gone = (await again.json()) as { code: string; error: string };
   assert.equal(gone.code, "gone");
+  assert.ok(gone.error.includes("Log in"));
   assert.ok(gone.error);
   assert.equal((await claimPeekRoute(s.h, call(`/api/auth/claim?token=${tok1}`, "GET", null))).status, 410);
   assert.equal((await claimPeekRoute(s.h, call("/api/auth/claim", "GET", null))).status, 410);
@@ -324,7 +325,7 @@ test("POST plan: a document too big for another week is 413 too-big, and nothing
   assert.equal(r.status, 413);
   const b = (await r.json()) as { code: string; error: string };
   assert.equal(b.code, "too-big");
-  assert.ok(b.error.includes("try again"));
+  assert.ok(b.error.includes("Send feedback"));
   assert.equal(JSON.stringify((await readDocVersioned(s.userData, id, "plan")).data), before);
 });
 
