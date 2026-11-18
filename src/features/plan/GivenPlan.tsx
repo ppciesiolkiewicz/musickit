@@ -14,6 +14,7 @@ import { dateLabel, daysLabel } from "./model/today";
 import { planDays, type StoredPlan } from "./model/types";
 import { usePlan, usePlanTimes } from "./store/usePlan";
 import { CornerLabels, PhoneLabels, SharePlan, rateHandler } from "./ui/planPieces";
+import { givenTitle } from "./ui/GivenPlans";
 import WeekView, { DayPanel } from "./ui/WeekView";
 
 /**
@@ -87,7 +88,7 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, times, onTime, o
             <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">
               {over || one ? length : `Day ${today + 1} of ${planDays(plan)}`} · started {dateLabel(plan.startedOn)}
             </p>
-            <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
+            <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{givenTitle(plan)}</h2>
             {(plan.config.summary || (one && plan.config.days[0]?.theme)) && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">{plan.config.summary || plan.config.days[0].theme}</p>}
           </div>
           {controls && <div className="flex flex-wrap items-center gap-2">{controls}</div>}

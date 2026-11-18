@@ -1,10 +1,17 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
-import { dateLabel, daysLabel } from "../model/today";
+import { dateLabel, daysLabel, isDayTitle } from "../model/today";
 import { planDays, type StoredPlan } from "../model/types";
 
 /** One name for a plan someone shared with the player, on every screen that names it. */
 export const SHARED_PLAN = "Shared plan";
+
+/**
+ * A given plan's title on the screen. A composed day shared from `/plan` is titled with the sharer's date, which is not
+ * the day it runs for the player who claimed it: a one-day plan with a date title is named `SHARED_PLAN`, and the start
+ * date beside it is the only date shown.
+ */
+export const givenTitle = (p: StoredPlan): string => (planDays(p) === 1 && isDayTitle(p.config.title) ? SHARED_PLAN : p.config.title);
 
 /** The address of a given plan's own page. */
 export const givenHref = (id: string): string => `/plan/given/${encodeURIComponent(id)}`;
@@ -22,7 +29,7 @@ export default function GivenPlans({ plans }: { plans: StoredPlan[] }) {
         {plans.map((p) => (
           <li key={p.id}>
             <Link href={givenHref(p.id)} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 transition hover:border-sky-500/60 hover:bg-slate-800/60">
-              <span className="min-w-0 flex-1 text-sm text-slate-100">{p.config.title}</span>
+              <span className="min-w-0 flex-1 text-sm text-slate-100">{givenTitle(p)}</span>
               <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)}</span>
               <Icon name="chevron-right" size={14} className="text-slate-500" />
             </Link>

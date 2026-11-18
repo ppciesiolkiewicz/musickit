@@ -51,6 +51,10 @@ export function dayWords(date: string, exercises: PlanExercise[]): { title: stri
   return { title, theme: joined(words) };
 }
 
+/** Whether a title is a composed day's date title (`dayWords`: "Wednesday 18 November"), which names the sharer's day once shared. */
+export const isDayTitle = (title: string): boolean =>
+  new RegExp(`^(${WEEKDAYS.join("|")}) \\d{1,2} (${MONTHS.join("|")})$`).test(title);
+
 /**
  * Whether another try of today brought anything new: an exercise that is not one of today's rated ones (the server keeps
  * those). When it brought nothing, today's plan stays as it is and the page says there are no other exercises.

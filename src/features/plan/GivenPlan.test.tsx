@@ -4,6 +4,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { SEED_PLANS } from "@/features/library/seed";
 import { sanitiseState } from "./model/state";
 import { GivenPlanView } from "./GivenPlan";
+import GivenPlans from "./ui/GivenPlans";
+import { dayWords, isDayTitle } from "./model/today";
 
 /** A state with one given seven-day plan, made from a real seed plan the way a claim makes a copy. */
 const seed = SEED_PLANS.find((p) => (p.plan as { days?: unknown[] }).days?.length === 7)!;
@@ -61,7 +63,8 @@ test("a shared plan of one day, while its day runs: one day, no day strip, no da
   assert.doesNotMatch(html, /Day 1 of 1/);
   assert.doesNotMatch(html, /1 days/);
   assert.match(html, /1 day · started 18 November/);
-  assert.match(html, /Wednesday 18 November/);
+  assert.doesNotMatch(html, /Wednesday 18 November/, "the date title is not drawn: the start date says the day");
+  assert.match(html, />Shared plan</);
   assert.match(html, /Scales and basic chords/);
   assert.match(html, /How did it go\?/, "its exercises can be rated");
 });
@@ -73,4 +76,30 @@ test("a shared plan of one day, after its day: still one day, no strip, no day c
   assert.doesNotMatch(html, /1 days/);
   assert.match(html, /1 day · started 18 November/);
   assert.match(html, /How did it go\?/);
+});
+
+/** The same day, claimed a day later: the sharer's dated title, the receiver's start date. */
+const lateDay = { ...oneDay, id: "one-2", startedOn: "2026-11-19" };
+
+test("a shared composed day reads one date, the receiver's start, and its title is not the sharer's date", () => {
+  const html = draw(lateDay, "2026-11-19");
+  assert.match(html, /1 day · started 19 November/);
+  assert.doesNotMatch(html, /18 November/);
+  assert.match(html, />Shared plan</);
+  assert.match(html, /Scales and basic chords/);
+});
+
+test("Plans shared with you: a shared composed day is listed as a shared plan with one date; a titled plan keeps its title", () => {
+  const html = renderToStaticMarkup(<GivenPlans plans={[lateDay, plan]} />);
+  assert.doesNotMatch(html, /18 November/);
+  assert.match(html, />Shared plan</);
+  assert.match(html, /1 day · started 19 November/);
+  assert.ok(html.includes(plan.config.title.replace(/&/g, "&amp;").replace(/'/g, "&#x27;")));
+});
+
+test("isDayTitle: the date title of a composed day, and nothing else", () => {
+  assert.equal(isDayTitle("Wednesday 18 November"), true);
+  assert.equal(isDayTitle(dayWords("2027-01-01", []).title), true);
+  assert.equal(isDayTitle("Open chords, week 1"), false);
+  assert.equal(isDayTitle("Wednesday 18 November and more"), false);
 });
