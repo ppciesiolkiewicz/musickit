@@ -5,12 +5,14 @@
  *
  *   npm run -s db:seed-fake                         4 teachers with 2 to 6 students each, 6 solo students, 1 owner
  *   npm run -s db:seed-fake -- --teachers 8 --solo 20 --seed 7
+ *   npm run -s db:seed-fake -- --no-progress        the same accounts, every student with only this week and no ratings
  *   npm run -s db:seed-fake -- --wipe               delete every seeded account (and its data, by cascade)
  *
  * Teachers' students are made with the app's own `addStudent` (account on the taught plan, link, plan document with the
  * questionnaire answers of a dev persona), then given a first week with `makeWeek` when the library has blocks
- * (`db:seed-plans`, `db:seed-blocks`). About half of them are marked as having opened their link. One solo student is
- * left before setup, to see /account/setup.
+ * (`db:seed-plans`, `db:seed-blocks`). Most of them have opened their link: those started 1 to 4 weeks ago, have a week
+ * for each, and have rated their past days (`fakeProgress`: a level of their own, one or two weak topics, noise). The
+ * rest were added this week and have done nothing. One solo student is left before setup, to see /account/setup.
  *
  * Log in as any of them with the email: in dev, `POST /api/auth/email-link` answers with a `devLink`.
  *
@@ -27,10 +29,15 @@ import type { Role } from "../src/features/account/model";
 import { PERSONAS } from "../src/features/devtools/model/personas";
 import { drizzleLibraryRepo } from "../src/features/library/server/repo.drizzle";
 import { areasMissingTopics, migrateAnswers } from "../src/features/plan/intake/answers";
-import { localDate } from "../src/features/plan/model/schedule";
+import { entryFor } from "../src/features/plan/model/progressLog";
+import { addDays, localDate } from "../src/features/plan/model/schedule";
+import type { PlanAnswers, PlanState } from "../src/features/plan/model/types";
+import type { Stars } from "../src/features/progress/stars";
 import { makeWeek } from "../src/features/students/server/plans";
 import { addStudent } from "../src/features/students/server/students";
+import { readDocVersioned, writeDoc } from "../src/features/userData/server/data";
 import { userData as userDataOf } from "../src/features/userData/server/http";
+import type { UserDataRepo } from "../src/features/userData/server/repo";
 import { databaseUrl, getDb } from "../src/lib/db/client";
 import { users } from "../src/lib/db/schema";
 
@@ -46,7 +53,7 @@ function args() {
     if (!Number.isInteger(n) || n < 0) throw new Error(`${flag} needs a whole number.`);
     return n;
   };
-  return { wipe: argv.includes("--wipe"), allowRemote: argv.includes("--allow-remote"), teachers: num("--teachers", 4), solo: num("--solo", 6), seed: num("--seed", 42) };
+  return { wipe: argv.includes("--wipe"), progress: !argv.includes("--no-progress"), allowRemote: argv.includes("--allow-remote"), teachers: num("--teachers", 4), solo: num("--solo", 6), seed: num("--seed", 42) };
 }
 
 function isLocal(url: string): boolean {
@@ -67,6 +74,75 @@ function emailMaker() {
     used.add(email);
     return email;
   };
+}
+
+/**
+ * A persona's answers made one student's own: one or two topics a level or two lower (the weak ones, at least one level
+ * under the rest where it can be), every other topic moved a level up or down now and then.
+ */
+function weakAnswers(raw: PlanAnswers): { answers: PlanAnswers; weak: Set<string> } {
+  const answers = migrateAnswers(raw);
+  const ids = Object.keys(answers.topics);
+  const weak = new Set(faker.helpers.arrayElements(ids, { min: 1, max: Math.min(2, ids.length) }));
+  const clamp = (n: number) => Math.min(3, Math.max(0, n)) as PlanAnswers["topics"][string];
+  const topics = Object.fromEntries(
+    ids.map((id) => [id, weak.has(id) ? clamp(answers.topics[id] - faker.number.int({ min: 1, max: 2 })) : clamp(answers.topics[id] + faker.helpers.arrayElement([-1, 0, 0, 0, 1]))]),
+  );
+  return { answers: { ...answers, topics }, weak };
+}
+
+/** A normal draw (Box-Muller) from faker, so the same seed gives the same ratings. */
+const gauss = (sd: number) => Math.sqrt(-2 * Math.log(1 - faker.number.float({ min: 0, max: 0.999999 }))) * Math.cos(2 * Math.PI * faker.number.float()) * sd;
+
+/**
+ * Ratings and practice time on the student's past days, as if they had used the app: each student has a level of their
+ * own (3.3 to 4.4 stars), their weak topics (`weakAnswers`) well under it, a little better each week, and noise on every
+ * rating. A rating can only lift a topic (4 stars or more makes a concept solid), so the weak topics stay low and the
+ * strong ones creep between levels.
+ * Some days are skipped, and some exercises of a day are left unrated. Written to the plan document (`done`, `rated`),
+ * the progress log and the day timer, the three places a real rating and a real timer reach. Days after today are left.
+ * Answers a line for the listing: the weak topics and how many ratings.
+ */
+async function fakeProgress(repo: UserDataRepo, userId: string, today: string, weak: Set<string>): Promise<string> {
+  const { data, version } = await readDocVersioned(repo, userId, "plan");
+  const state = data as PlanState;
+  const weeks = [...state.given].sort((a, b) => a.startedOn.localeCompare(b.startedOn));
+  const level = faker.number.float({ min: 3.3, max: 4.4 });
+  const weakLevel = faker.number.float({ min: 1.2, max: 2.2 });
+  const keen = faker.number.float({ min: 0.45, max: 0.95 });
+  let ratings = 0;
+
+  for (const [w, plan] of weeks.entries()) {
+    plan.done = { ...plan.done };
+    plan.rated = { ...plan.rated };
+    for (const [d, day] of plan.config.days.entries()) {
+      const date = addDays(plan.startedOn, d);
+      if (date >= today || !faker.datatype.boolean({ probability: keen })) continue;
+      const spent: Record<string, number> = {};
+      const blocks: Record<string, string> = {};
+      for (const [x, e] of day.exercises.entries()) {
+        if (!e.id || !faker.datatype.boolean({ probability: 0.85 })) continue;
+        const isWeak = !!e.topic && weak.has(e.topic);
+        const mean = (isWeak ? weakLevel + 0.1 * w : level + 0.2 * w) + gauss(0.7);
+        const stars = Math.min(5, Math.max(1, Math.round(mean))) as Stars;
+        const [y, m, dd] = date.split("-").map(Number);
+        const at = new Date(y, m - 1, dd, faker.number.int({ min: 16, max: 21 }), faker.number.int({ min: 0, max: 59 })).toISOString();
+        plan.done[`${d}:${x}`] = true;
+        plan.rated[`${d}:${x}`] = { stars, at };
+        const entry = entryFor(plan, d, x, { stars, at }, () => crypto.randomUUID());
+        if (entry) await repo.putProgress(userId, entry, new Date(at));
+        spent[e.id] = Math.round(e.minutes * 60 * faker.number.float({ min: 0.6, max: 1.3 }));
+        if (e.blockId) blocks[e.id] = e.blockId;
+        ratings++;
+      }
+      const elapsed = Object.values(spent).reduce((a, b) => a + b, 0);
+      if (elapsed) await repo.putPlanTime(userId, { planId: plan.id, day: d, elapsed, spent, blocks, on: { [date]: elapsed } }, new Date(`${date}T20:00:00`));
+    }
+  }
+
+  const wrote = await writeDoc(repo, userId, "plan", { ...state, given: [...weeks].reverse() }, new Date(), version);
+  if (!wrote.ok) throw new Error(`the student's ratings were not written: ${wrote.error}`);
+  return `${ratings} ratings`;
 }
 
 async function main() {
@@ -129,19 +205,30 @@ async function main() {
       const first = faker.person.firstName();
       const last = faker.person.lastName();
       const persona = faker.helpers.arrayElement(personas);
-      const added = await addStudent({ auth, userData: store.repo }, account, { name: `${first} ${last}`, email: email(first, last), answers: persona.answers, today });
+      const { answers, weak } = weakAnswers(persona.answers);
+      // a student who opened their link has been at it for 1 to 4 weeks before this one; one who hasn't was added this week
+      const claimed = faker.datatype.boolean({ probability: 0.6 });
+      const weeksBack = opts.progress && claimed ? faker.number.int({ min: 1, max: 4 }) : 0;
+      const addedOn = new Date(now.getTime() - (weeksBack * 7 + faker.number.int({ min: 0, max: 2 })) * DAY);
+      const added = await addStudent({ auth: { ...auth, now: () => addedOn }, userData: store.repo }, account, { name: `${first} ${last}`, email: email(first, last), answers, today: localDate(addedOn) });
       if (!added.ok) {
         console.warn(`  ${teacher.email}: student not added (${added.error})`);
         continue;
       }
       made++;
       const student = (await repo.userById(added.studentId))!;
-      const week = await makeWeek({ auth, userData: store.repo, library }, account, added.studentId, { today, rotate: false }, now, () => crypto.randomUUID());
-      if (week.ok) weeks++;
-      else weekNote = `no weeks: ${week.error}`;
-      const claimed = faker.datatype.boolean();
-      if (claimed) await repo.markClaimed(added.studentId, new Date(now.getTime() - faker.number.int({ min: 0, max: 20 }) * DAY));
-      rows.push({ email: student.email, role: "student", plan: "taught", note: `${persona.id}, of ${teacher.name}${claimed ? ", link opened" : ""}` });
+      // one week a week, oldest first, ending with the one running today
+      let given = 0;
+      for (let k = weeksBack; k >= 0; k--) {
+        const on = new Date(now.getTime() - k * 7 * DAY);
+        const week = await makeWeek({ auth, userData: store.repo, library }, account, added.studentId, { today: localDate(on), rotate: false }, on, () => crypto.randomUUID());
+        if (week.ok) given++;
+        else weekNote = `no weeks: ${week.error}`;
+      }
+      if (given) weeks++;
+      if (claimed) await repo.markClaimed(added.studentId, new Date(addedOn.getTime() + faker.number.int({ min: 0, max: 1 }) * DAY));
+      const progress = claimed && given && opts.progress ? await fakeProgress(store.repo, added.studentId, today, weak) : null;
+      rows.push({ email: student.email, role: "student", plan: "taught", note: `${persona.id}, of ${teacher.name}${claimed ? ", link opened" : ""}, weak in ${[...weak].join(" and ")}${progress ? `, ${progress}` : ""}` });
     }
     rows.splice(rows.length - made, 0, { email: teacher.email, role: "teacher", plan: plan.id, note: `${made} students, ${weeks} with a week${weekNote && !weeks ? ` (${weekNote}: seed the library)` : ""}` });
   }

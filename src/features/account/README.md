@@ -181,9 +181,12 @@ reason (`[auth] the log-in email ... was not sent`). Each try at Resend gives up
 one), so it is held on `/account/setup` again: for trying the setup page. Same localhost rule as `db:wipe`.
 
 `npm run db:seed-fake` fills a local database with made-up accounts (`scripts/db-seed-fake.ts`, names from
-`@faker-js/faker`, the same every run): an owner, teachers with 2 to 6 students each (made with `addStudent`, then a
-first week with `makeWeek` when the library is seeded), and students on their own, one of them before setup. Every
-email ends in `@seed.musickit.test`; each run deletes the last run's accounts first, and `-- --wipe` only deletes them.
+`@faker-js/faker`, the same every run): an owner, teachers with 2 to 6 students each (made with `addStudent`, then a first
+week with `makeWeek` when the library is seeded), and students on their own, one of them before setup. A teacher's
+student who opened their link started 1 to 4 weeks ago, has a week for each, and has rated their past days: the
+persona's answers with one or two weak topics a level or two lower and the rest nudged, ratings near a level of their
+own, lower on the weak topics, with noise, a little better each week, plus day-timer time (`-- --no-progress` leaves
+that out). Every email ends in `@seed.musickit.test`; each run deletes the last run's accounts first, and `-- --wipe` only deletes them.
 `-- --teachers N --solo N --seed N` change the numbers. It refuses a database that isn't on this machine unless you pass
 `-- --allow-remote`. Log in as one by its email.
 
