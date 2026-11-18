@@ -111,7 +111,7 @@ export async function makeWeek(
     for (const [topic, value] of Object.entries(input.scores ?? {})) {
       if (shown.has(topic) && typeof value === "number" && Number.isFinite(value)) moved[topic] = Math.min(3, Math.max(0, value));
     }
-    s = setScores(s, moved, madeAt, Object.fromEntries(shown));
+    s = setScores(s, moved, madeAt, Object.fromEntries(shown), today);
 
     const current = currentWeek(s, today);
     if (current && comment) s = updateGiven(s, current.id, (p) => ({ ...p, teacher: { ...p.teacher!, comment } }));

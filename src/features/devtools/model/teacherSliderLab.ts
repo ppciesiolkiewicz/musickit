@@ -96,7 +96,7 @@ export function receive(s: LabSample, moves: Record<string, number>): Received[]
   const sliders = labSliders(s);
   const now = Object.fromEntries(sliders.map((t) => [t.topic, t.now]));
   const at = `${s.asOf}T12:00:00`;
-  const scores = setScores(EMPTY_STATE, moves, at, now).teacherScores;
+  const scores = setScores(EMPTY_STATE, moves, at, now, s.asOf).teacherScores;
   const before = raisedAnswers(s.answers, s.entries, s.asOf).topics;
   const after = raisedAnswers(s.answers, s.entries, s.asOf, scores).topics;
   const o0 = outcome(input(s), s.asOf).areas.flatMap((a) => a.topics);

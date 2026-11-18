@@ -218,10 +218,11 @@ function scoreOf(concepts: ConceptOutcome[], rung: Rung | null, rated: boolean):
 
 /**
  * Whether a rating's `at` is after a teacher's `t` (ISO datetime). A rating with only a date (an old entry) is after it
- * when its date is later than the local date of `t`: with no time, one on the teacher's own day is not counted.
+ * when its date is later than the teacher's day (`day`, the entry's own, else the local date of `t`): with no time, one
+ * on the teacher's own day is not counted.
  */
-export const isAfter = (at: string, t: string): boolean =>
-  /^\d{4}-\d\d-\d\d$/.test(at) ? at > dayOf(t) : Date.parse(at) > Date.parse(t);
+export const isAfter = (at: string, t: string, day?: string): boolean =>
+  /^\d{4}-\d\d-\d\d$/.test(at) ? at > (day ?? dayOf(t)) : Date.parse(at) > Date.parse(t);
 
 /** A teacher's value as the level it stands on: its whole part, 0 to 3. */
 export const floorOf = (score: number): Rung => Math.min(3, Math.max(0, Math.floor(score))) as Rung;
@@ -235,7 +236,7 @@ function topicOutcome(id: string, area: Area, label: string, rated: Rated[], his
     return { topic: id, label, score, area, rung, reached, ratings: mine.length, seconds: 0, concepts };
   }
   // the teacher's value is the start: the rung is its whole part, and only ratings after it count toward the rest
-  const after = rated.filter((r) => isAfter(r.entry.at, teacher.at));
+  const after = rated.filter((r) => isAfter(r.entry.at, teacher.at, teacher.day));
   const fromTeacher = scoreOf(conceptsOf(id).map((c) => conceptOutcome(c.id, after)), floorOf(teacher.score), true);
   const score = Math.min(3, Math.max(teacher.score, fromTeacher.score ?? 0));
   return { topic: id, label, score, area, rung, reached: Math.max(floorOf(teacher.score), fromTeacher.reached ?? 0), ratings: mine.length, seconds: 0, concepts };

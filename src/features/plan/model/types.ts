@@ -113,6 +113,8 @@ export interface TeacherScore {
   topic: string;
   score: number;
   at: string;
+  /** the teacher's local day (yyyy-mm-dd) when it was set; the entry counts from this day (old entries: the date of `at`) */
+  day?: string;
 }
 
 export interface PlanState {

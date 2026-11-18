@@ -23,7 +23,7 @@ export function raisedAnswers(answers: PlanAnswers, entries: ProgressEntry[], as
   if (!entries.length && !teacherScores.length) return answers;
   // only the ratings: no questionnaire rung (the answers are the floor here) and no timer records (time sets no level)
   const o = outcome({ plans: [], entries, times: [], answersHistory: [] }, asOf);
-  const afterTeacher = new Map<string, ReturnType<typeof outcome>>(); // by the time a teacher's score was set
+  const afterTeacher = new Map<string, ReturnType<typeof outcome>>(); // by the time (and day) a teacher's score was set
   let topics: Record<string, Rung> | null = null;
   for (const t of o.areas.flatMap((a) => a.topics)) {
     const teacher = scoreAt(teacherScores, t.topic, asOf);
@@ -31,10 +31,11 @@ export function raisedAnswers(answers: PlanAnswers, entries: ProgressEntry[], as
     const from = teacher ? floorOf(teacher.score) : was;
     let concepts = t.concepts;
     if (teacher) {
-      if (!afterTeacher.has(teacher.at)) {
-        afterTeacher.set(teacher.at, outcome({ plans: [], entries: entries.filter((e) => isAfter(e.at, teacher.at)), times: [], answersHistory: [] }, asOf));
+      const key = `${teacher.at}|${teacher.day ?? ""}`;
+      if (!afterTeacher.has(key)) {
+        afterTeacher.set(key, outcome({ plans: [], entries: entries.filter((e) => isAfter(e.at, teacher.at, teacher.day)), times: [], answersHistory: [] }, asOf));
       }
-      concepts = afterTeacher.get(teacher.at)!.areas.flatMap((a) => a.topics).find((x) => x.topic === t.topic)!.concepts;
+      concepts = afterTeacher.get(key)!.areas.flatMap((a) => a.topics).find((x) => x.topic === t.topic)!.concepts;
     }
     let level: number = from;
     while (level < LEVEL_ORDER.length - 1 && levelReached(concepts, level + 1)) level++;

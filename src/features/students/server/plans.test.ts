@@ -130,8 +130,8 @@ test("scores are recorded only for moved sliders of the student's areas, and pac
   }, NOW, s.newId));
   const doc = (await s.doc()).data;
   assert.deepEqual(doc.teacherScores, [
-    { topic: "guitar-scales", score: 2, at: NOW.toISOString() },
-    { topic: "guitar-barre-chords", score: 3, at: NOW.toISOString() },
+    { topic: "guitar-scales", score: 2, at: NOW.toISOString(), day: TODAY },
+    { topic: "guitar-barre-chords", score: 3, at: NOW.toISOString(), day: TODAY },
   ]);
   assert.ok(levelsOf(week(doc, r.planId)!).has("intermediate"));
   // sent again at the values they now have: nothing more is recorded
@@ -362,4 +362,19 @@ test("a document near its cap is fitted (the oldest plans go) instead of refused
   assert.ok(before.data.current, "the big plan is stored");
   assert.deepEqual(await makeWeek(full.d, full.teacher, full.studentId, { today: TODAY, rotate: false }, NOW, full.newId), { ok: false, error: "too-big" });
   assert.deepEqual(await full.doc(), before);
+});
+
+// --- final fix wave
+
+test("a slider moved in the teacher's evening west of UTC counts on the teacher's day: the rotated week and the view use it", async () => {
+  const s = await setup();
+  const evening = new Date("2026-11-19T01:00:00.000Z"); // 20:00 on 18 Nov in New York
+  const first = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: "2026-11-16", rotate: false }, new Date("2026-11-16T12:00:00Z"), s.newId));
+  assert.ok(!levelsOf(week((await s.doc()).data, first.planId)!).has("intermediate"));
+  const rot = ok(await makeWeek(s.d, s.teacher, s.studentId, { today: TODAY, rotate: true, scores: { "guitar-scales": 2 } }, evening, s.newId));
+  const doc = (await s.doc()).data;
+  assert.deepEqual(doc.teacherScores, [{ topic: "guitar-scales", score: 2, at: evening.toISOString(), day: TODAY }]);
+  assert.ok(levelsOf(week(doc, rot.planId)!).has("intermediate"), "the week is composed at the new level");
+  const v = ok(await studentView(s.d, s.teacher, s.studentId, TODAY));
+  assert.equal(v.topics.find((t) => t.topic === "guitar-scales")!.now, 2, "the slider opens at the new score");
 });
