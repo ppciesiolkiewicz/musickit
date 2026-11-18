@@ -34,6 +34,8 @@ Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answ
 
 Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, each skill's steps marked known, within reach, open or ahead by `reach`, and the `startOutcome` scores.
 
+**Teacher sliders** (the second view, `questionnaire/TeacherSlidersLab.tsx`, `model/teacherSliderLab.ts`): the real `TopicSliders` of a teacher's student page on three made-up students (brand new; a few weeks in; many ratings, all from `EXAMPLE_STUDENTS`), each opening at the topic's score today with its start-of-plan tick. "Now" is the day after the newest rating, never the clock. Moving a slider shows what the plan maker receives for each topic: the rung from `raisedAnswers` and the `outcome()` score, before and after the teacher's value (`receive`). It writes nothing.
+
 ## API routes (`/dev/api`)
 
 Every `route.ts` under `src/app/api`, read from disk on each load (`server/apiRoutes.ts`, parsed by `model/apiRoutes.ts`):

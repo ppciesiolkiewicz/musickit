@@ -7,6 +7,7 @@ import { topicById, topicsFor } from "@/features/plan/intake/topics";
 import { AREAS, CONCEPTS } from "@/features/plan/model/concepts";
 import { reach } from "@/features/plan/model/reach";
 import { startOutcome } from "@/features/plan/model/outcome";
+import TeacherSlidersLab from "./TeacherSlidersLab";
 
 const LEVELS = ["new", "beginner", "intermediate", "advanced"];
 const fresh = (): PlanAnswers => ({ ...DEFAULT_ANSWERS, areas: [...DEFAULT_ANSWERS.areas], topics: {} });
@@ -54,6 +55,21 @@ function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
 const areaLabel = (id: string) => AREAS.find((a) => a.id === id)?.label ?? id;
 
 export default function QuestionnaireLab() {
+  const [view, setView] = useState<"questionnaire" | "sliders">("questionnaire");
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        {([["questionnaire", "Questionnaire"], ["sliders", "Teacher sliders"]] as const).map(([v, label]) => (
+          <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)}
+            className={`rounded-lg border px-3 py-1.5 text-sm ${view === v ? "border-sky-500 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-200 hover:bg-slate-800"}`}>{label}</button>
+        ))}
+      </div>
+      {view === "sliders" ? <TeacherSlidersLab /> : <AnswersLab />}
+    </div>
+  );
+}
+
+function AnswersLab() {
   const [draft, setDraft] = useState<PlanAnswers>(fresh);
   const set: SetAnswer = (k, v) => setDraft((d) => ({ ...d, [k]: v }));
   const steps = questionSteps(draft, set);
