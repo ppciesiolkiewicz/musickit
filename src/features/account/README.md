@@ -151,7 +151,7 @@ development mails nothing: the link is shown on the page and printed in the serv
 reason (`[auth] the log-in email ... was not sent`). Each try at Resend gives up after 8 s and a timeout, a lost connection, a 429 or a 5xx is tried once more with the same `Idempotency-Key` (`MAIL_TIMEOUT`, `MAIL_TRIES`), so one email is never sent twice. The page itself gives up on any account request after 30 s (`SEND_TIMEOUT` in `ui/parts.tsx`) and shows the error under the form. An `AUTH_URL` that isn't an http(s) address is ignored. `.env.example` lists the rest
 (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AUTH_URL`, `AUTH_FROM_EMAIL`).
 
-`npm run db:unplan -- <email>` takes an account off its plan (plan_id null; a teacher becomes a student, an owner stays
+`npm run db:unplan` takes the account set in its package.json script off its plan (plan_id null; a teacher becomes a student, an owner stays
 one), so it is held on `/account/setup` again: for trying the setup page. Same localhost rule as `db:wipe`.
 
 `npm run db:wipe` deletes every row in a local database: accounts, sessions and saved data. The tables and the

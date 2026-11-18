@@ -25,7 +25,7 @@
     "db:wipe": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-wipe.mjs",
     "db:wipe-plans": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-wipe-plans.mjs",
     "db:reset-library": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-reset-library.mjs",
-    "db:unplan": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-unplan.mjs",
+    "db:unplan": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-unplan.mjs ppciesiolkiewicz@gmail.com",
     "db:studio": "node --env-file-if-exists=.env --env-file-if-exists=.env.local node_modules/.bin/drizzle-kit studio",
     "db:diagram": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/db-diagram.mts && dbml-renderer -i docs/db/schema.dbml -o docs/db/schema.svg && echo wrote docs/db/schema.svg",
     "deps": "mkdir -p .deps && npx dependency-cruiser src --include-only '^src' --output-type mermaid > .deps/deps.mmd",

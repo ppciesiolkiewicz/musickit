@@ -3,7 +3,7 @@
  * /account/setup, where it chooses a plan again. A teacher becomes a student meanwhile (a new account's role); an owner
  * stays an owner. Its name, sessions and saved data stay.
  *
- *   npm run db:unplan -- ann@school.com
+ *   npm run db:unplan   (the account is set in package.json)
  *
  * It refuses a database that isn't on localhost unless you pass --yes-really, so a stray DATABASE_URL in the shell
  * can't change production by accident.
@@ -18,7 +18,7 @@ if (!url) {
 
 const email = process.argv.slice(2).find((a) => !a.startsWith("--"))?.trim().toLowerCase();
 if (!email) {
-  console.error("Which account? npm run db:unplan -- <email>");
+  console.error("Which account? Set it in the db:unplan script in package.json.");
   process.exit(1);
 }
 
