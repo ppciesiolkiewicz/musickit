@@ -35,5 +35,7 @@ export interface MessagesRepo {
   /** Oldest first. */
   messagesOf(threadId: string): Promise<MessageRow[]>;
   lastMessage(threadId: string): Promise<MessageRow | null>;
+  /** How many messages the user wrote (not ours) at or after `since`, across their threads. */
+  userMessagesSince(userId: string, since: Date): Promise<number>;
   updateThread(id: string, patch: Partial<Pick<ThreadRow, "status" | "userReadAt" | "adminReadAt" | "emailedAt">>): Promise<void>;
 }

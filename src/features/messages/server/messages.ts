@@ -4,7 +4,7 @@
  */
 
 import type { ContactMessage } from "@/features/contact/contact";
-import { isUnread, parseBody, parseContext, preview, shouldEmail } from "../model/message";
+import { EMAIL_WINDOW_MS, isUnread, parseBody, parseContext, preview, shouldEmail } from "../model/message";
 import { messageEmail } from "./mail";
 import type { MessagesRepo, ThreadRow } from "./repo";
 
@@ -23,8 +23,8 @@ async function ownThread(repo: MessagesRepo, userId: string, threadId: unknown):
 
 /**
  * A user's message: `{ body, context?, threadId?, newThread? }`. Goes into `threadId` (theirs only, reopened if we
- * closed it), or a new thread when `newThread` is set or they have none, else their newest thread. Emails us at most
- * once per user in 10 minutes, across their threads; a failed email is logged, the message is kept.
+ * closed it), or a new thread when `newThread` is set or they have none, else their newest thread. Emails us for up
+ * to 3 of a user's messages in 10 minutes, across their threads; a failed email is logged, the message is kept.
  */
 export async function postMessage(repo: MessagesRepo, mailer: Mailer, account: { id: string; email: string; name: string }, raw: unknown, now: Date, env: Env): Promise<{ ok: true; threadId: string } | Failed> {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
@@ -44,9 +44,9 @@ export async function postMessage(repo: MessagesRepo, mailer: Mailer, account: {
 
   await repo.addMessage({ threadId: thread.id, fromAdmin: false, body: body.body, context, at: now });
   if (thread.status === "closed") await repo.updateThread(thread.id, { status: "open" });
-  // the gap counts across the user's threads, so starting new ones doesn't send more mail (it shares Resend with log-in)
-  const lastEmailed = (await repo.threadsOf(account.id)).reduce<Date | null>((m, t) => (t.emailedAt && (!m || t.emailedAt > m) ? t.emailedAt : m), null);
-  if (shouldEmail(lastEmailed, now)) {
+  // counted across the user's threads, so starting new ones doesn't send more mail (it shares Resend with log-in)
+  const recent = await repo.userMessagesSince(account.id, new Date(now.getTime() - EMAIL_WINDOW_MS));
+  if (shouldEmail(recent)) {
     try {
       await mailer(messageEmail(account, body.body, context, thread.id, env));
       await repo.updateThread(thread.id, { emailedAt: now });

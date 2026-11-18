@@ -50,6 +50,9 @@ export function memoryMessagesRepo(users: Map<string, { email: string; name: str
       const last = of(threadId).at(-1);
       return last ? { ...last } : null;
     },
+    async userMessagesSince(userId, since) {
+      return msgs.filter((m) => !m.fromAdmin && m.at >= since && threads.get(m.threadId)?.userId === userId).length;
+    },
     async updateThread(id, patch) {
       const t = threads.get(id);
       if (t) Object.assign(t, patch);

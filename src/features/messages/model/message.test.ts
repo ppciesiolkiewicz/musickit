@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { EMAIL_GAP_MS, MAX_SELECTION, isUnread, parseBody, parseContext, preview, shouldEmail } from "./message";
+import { EMAIL_BURST, EMAIL_WINDOW_MS, MAX_SELECTION, isUnread, parseBody, parseContext, preview, shouldEmail } from "./message";
 
 test("a body is trimmed; an empty, missing or too long one is refused", () => {
   assert.deepEqual(parseBody("  hi  "), { ok: true, body: "hi" });
@@ -56,12 +56,12 @@ test("unread when the other side wrote after the last read", () => {
   assert.equal(isUnread(t1, t2), false);
 });
 
-test("we are emailed at most once per thread every 10 minutes", () => {
-  const now = new Date(Date.UTC(2026, 10, 18, 12));
-  assert.equal(EMAIL_GAP_MS, 600_000);
-  assert.equal(shouldEmail(null, now), true);
-  assert.equal(shouldEmail(new Date(now.getTime() - 9 * 60_000), now), false);
-  assert.equal(shouldEmail(new Date(now.getTime() - 10 * 60_000), now), true);
+test("we are emailed for up to 3 of a user's messages in 10 minutes", () => {
+  assert.equal(EMAIL_WINDOW_MS, 600_000);
+  assert.equal(EMAIL_BURST, 3);
+  assert.equal(shouldEmail(1), true);
+  assert.equal(shouldEmail(3), true);
+  assert.equal(shouldEmail(4), false);
 });
 
 test("a path with a backslash, which browsers read as another site, is dropped", () => {

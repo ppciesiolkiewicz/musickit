@@ -10,8 +10,9 @@ import { EMAIL, MAX_MESSAGE } from "@/features/contact/contact";
 export type MessageContext = { path?: string; title?: string; under?: string[]; ref?: string; selection?: string; source?: string; email?: string };
 
 export const MAX_SELECTION = 500;
-/** We are emailed about a thread at most once in this long. */
-export const EMAIL_GAP_MS = 10 * 60_000;
+/** We are emailed for at most `EMAIL_BURST` of a user's messages in this long, so a follow-up or two still reaches us. */
+export const EMAIL_WINDOW_MS = 10 * 60_000;
+export const EMAIL_BURST = 3;
 
 export function parseBody(raw: unknown): { ok: true; body: string } | { ok: false; error: string } {
   const body = typeof raw === "string" ? raw.trim() : "";
@@ -54,4 +55,5 @@ export function preview(body: string): string {
 /** Whether the other side wrote after this side last read. */
 export const isUnread = (lastFromOther: Date | null, readAt: Date | null): boolean => !!lastFromOther && (!readAt || lastFromOther > readAt);
 
-export const shouldEmail = (emailedAt: Date | null, now: Date): boolean => !emailedAt || now.getTime() - emailedAt.getTime() >= EMAIL_GAP_MS;
+/** `recent`: the user's messages in the last `EMAIL_WINDOW_MS`, across their threads, counting the one just sent. */
+export const shouldEmail = (recent: number): boolean => recent <= EMAIL_BURST;

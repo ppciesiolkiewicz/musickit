@@ -8,7 +8,9 @@
   reason to refuse the message.
 - A user may have several threads. Writing in a closed thread reopens it. The user never sees "closed"; it is our
   inbox state.
-- We are emailed about a thread at most once in 10 minutes (`EMAIL_GAP_MS`). A failed email never fails the send.
+- We are emailed for up to 3 of a user's messages in any 10 minutes, counted across all their threads (`EMAIL_BURST`,
+  `EMAIL_WINDOW_MS`), so a quick follow-up still reaches us but a flood doesn't eat the Resend quota log-in shares. A
+  failed email never fails the send.
   Contact form messages send no email from here: the contact route sends its own.
 - Our side is dev only: `/dev/messages` and `/api/dev/messages` 404 in a production build (`devGate()`). To answer
   production messages, run the dev server against the production database.

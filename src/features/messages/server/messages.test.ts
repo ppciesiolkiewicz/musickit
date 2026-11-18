@@ -57,12 +57,29 @@ test("writing in a closed thread reopens it", async () => {
   assert.equal((await repo.thread(a.threadId))?.status, "open");
 });
 
-test("we are emailed once per thread in 10 minutes", async () => {
+test("we are emailed for a user's first 3 messages in 10 minutes, then not until it quiets down", async () => {
   const { repo, sent, mailer } = setup();
   await postMessage(repo, mailer, jo, { body: "1" }, t(0), {});
-  await postMessage(repo, mailer, jo, { body: "2" }, t(1), {});
-  await postMessage(repo, mailer, jo, { body: "3" }, t(11), {});
-  assert.equal(sent.length, 2);
+  await postMessage(repo, mailer, jo, { body: "2 follow-up" }, t(1), {});
+  await postMessage(repo, mailer, jo, { body: "3 follow-up" }, t(2), {});
+  assert.equal(sent.length, 3);
+  await postMessage(repo, mailer, jo, { body: "4" }, t(3), {});
+  await postMessage(repo, mailer, jo, { body: "5" }, t(9), {});
+  assert.equal(sent.length, 3);
+  // at 12:13 only "4" and "5" are inside the last 10 minutes, so the 3rd one counts again
+  await postMessage(repo, mailer, jo, { body: "6" }, t(13), {});
+  assert.equal(sent.length, 4);
+});
+
+test("our replies don't count toward the user's 3", async () => {
+  const { repo, sent, mailer } = setup();
+  const a = await postMessage(repo, mailer, jo, { body: "1" }, t(0), {});
+  assert.ok(a.ok);
+  await adminReply(repo, a.threadId, "r1", t(1));
+  await adminReply(repo, a.threadId, "r2", t(1));
+  await postMessage(repo, mailer, jo, { body: "2" }, t(2), {});
+  await postMessage(repo, mailer, jo, { body: "3" }, t(3), {});
+  assert.equal(sent.length, 3);
 });
 
 test("a failing mailer still stores the message", async () => {
@@ -123,14 +140,10 @@ test("status must be open or closed", async () => {
   assert.equal(await setStatus(repo, "nope", "closed"), false);
 });
 
-test("new threads don't get round the email gap: it counts across the user's threads", async () => {
+test("new threads don't get round the limit: it counts across the user's threads", async () => {
   const { repo, sent, mailer } = setup();
-  await postMessage(repo, mailer, jo, { body: "1", newThread: true }, t(0), {});
-  await postMessage(repo, mailer, jo, { body: "2", newThread: true }, t(1), {});
-  await postMessage(repo, mailer, jo, { body: "3", newThread: true }, t(2), {});
-  assert.equal(sent.length, 1);
-  await postMessage(repo, mailer, jo, { body: "4", newThread: true }, t(11), {});
-  assert.equal(sent.length, 2);
-  await postMessage(repo, mailer, al, { body: "other user" }, t(11), {});
+  for (let i = 0; i < 5; i++) await postMessage(repo, mailer, jo, { body: String(i), newThread: true }, t(i), {});
   assert.equal(sent.length, 3);
+  await postMessage(repo, mailer, al, { body: "other user" }, t(5), {});
+  assert.equal(sent.length, 4);
 });

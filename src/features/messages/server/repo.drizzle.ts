@@ -1,4 +1,4 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
 import { messageThreads, messages, users } from "@/lib/db/schema";
 import { preview, type MessageContext } from "../model/message";
@@ -58,6 +58,14 @@ export function drizzleMessagesRepo(db: Db): MessagesRepo {
     async lastMessage(threadId) {
       const [row] = await db.select().from(messages).where(eq(messages.threadId, threadId)).orderBy(desc(messages.at)).limit(1);
       return row ? message(row) : null;
+    },
+    async userMessagesSince(userId, since) {
+      const [row] = await db
+        .select({ n: count() })
+        .from(messages)
+        .innerJoin(messageThreads, eq(messageThreads.id, messages.threadId))
+        .where(and(eq(messageThreads.userId, userId), eq(messages.fromAdmin, false), gte(messages.at, since)));
+      return row?.n ?? 0;
     },
     async updateThread(id, patch) {
       if (!Object.keys(patch).length) return;
