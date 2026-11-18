@@ -115,7 +115,7 @@
               "runs",
               "fast-runs"
             ],
-            "steps": ["runs:2"],
+            "steps": ["runs:1"],
             "why": "A fast run is a slow run you no longer have to think about, so each tempo comes only once the one before is in tune on every note.",
             "learnBefore": [
               "/course/6/vocal-runs",
@@ -136,7 +136,7 @@
                     "tool": {
                       "type": "run-singer",
                       "pick": {
-                        "difficulty": "hard",
+                        "difficulty": "medium",
                         "stage": "five"
                       },
                       "voice": "baritone"
@@ -2233,15 +2233,16 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to hear the run: the mic starts with it. It is a harder five-note run than day 1's: it goes from Do up to Sol and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\".\nNotice which passes are cleaner than they were on day 1."
+                    "text": "Press Play below to hear the run: the mic starts with it. It is day 1's five-note run at twice the speed: it goes from Do up to Sol and back, twice, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\".\nNotice which passes are cleaner than they were on day 1."
                   },
                   {
                     "type": "tool",
                     "tool": {
                       "type": "run-singer",
                       "pick": {
-                        "difficulty": "expert",
-                        "stage": "five"
+                        "difficulty": "medium",
+                        "stage": "five",
+                        "index": 2
                       },
                       "voice": "baritone"
                     }
@@ -2986,7 +2987,7 @@
             "concepts": [
               "fast-runs"
             ],
-            "steps": ["runs:2"],
+            "steps": ["runs:7"],
             "why": "An octave run crosses from one part of the voice into another, so it only stays even when the top notes are sung lighter than the bottom ones.",
             "learnBefore": [
               "/course/9/fast-runs",
@@ -3007,7 +3008,7 @@
                     "tool": {
                       "type": "run-singer",
                       "pick": {
-                        "difficulty": "expert",
+                        "difficulty": "hard",
                         "stage": "octave-run"
                       },
                       "voice": "baritone"
@@ -3385,14 +3386,14 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to hear the run: the mic starts with it. It is a harder nine-note run than day 3's: it goes from Do up to Re above the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" at the top."
+                    "text": "Press Play below to hear the run: the mic starts with it. It is day 3's nine-note run, now as fast on the way up as on the way down: it goes from Do up to Re above the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" at the top."
                   },
                   {
                     "type": "tool",
                     "tool": {
                       "type": "run-singer",
                       "pick": {
-                        "difficulty": "expert",
+                        "difficulty": "medium",
                         "stage": "nine"
                       },
                       "voice": "baritone"
@@ -3649,7 +3650,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to hear the tune: the mic starts with it. This tune leaps wider than an octave. Sing it first on \"oo\", then sing it before you press Play and use Play to check.\n_If the top note strains, sing it softer, never louder._"
+                    "text": "Press Play below to hear the tune: the mic starts with it. This tune leaps wider than an octave. Sing it first on \"oo\", then sing it before you press Play, and press Play to check.\n_If the top note strains, sing it softer, never louder._"
                   },
                   {
                     "type": "tool",
@@ -3890,7 +3891,7 @@
             "concepts": [
               "fast-runs"
             ],
-            "steps": ["runs:2"],
+            "steps": ["runs:1"],
             "why": "The same run starting where day 1 stopped is the plainest way to hear what a week of stages has done.",
             "learnBefore": [
               "/course/9/fast-runs"
@@ -3947,15 +3948,16 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to hear the run with the metronome under it: the mic starts with it. The run goes from Do up to Sol and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" for the top passes."
+                    "text": "Press Play below to hear the run with the metronome under it: the mic starts with it. The run goes from Do up to Sol and back, twice, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" for the top passes."
                   },
                   {
                     "type": "tool",
                     "tool": {
                       "type": "run-singer",
                       "pick": {
-                        "difficulty": "expert",
-                        "stage": "five"
+                        "difficulty": "medium",
+                        "stage": "five",
+                        "index": 2
                       },
                       "voice": "baritone",
                       "metronome": true
