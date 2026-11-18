@@ -88,7 +88,7 @@ export async function sharePlan(repo: UserDataRepo, account: Account, planId: st
   const plan = state.current?.id === planId ? state.current : state.given.find((p) => p.id === planId);
   if (!planId || !plan) return { error: "not-found" };
   // the version each exercise was rolled in is the sharer's own (their keys, their tempo, their earlier ones): the copy starts as the block is written
-  const config: PlanConfig = { ...plan.config, days: plan.config.days.map((d) => ({ ...d, exercises: d.exercises.map(({ given: _given, ...e }) => e) })) };
+  const config: PlanConfig = { ...plan.config, days: plan.config.days.map((d) => ({ ...d, exercises: d.exercises.map(({ given: _given, ...e }) => (void _given, e)) })) };
   delete config.progress;
   return create(repo, account.id, "plan", plan.id, { config }, now, newId);
 }
