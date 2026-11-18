@@ -47,6 +47,17 @@ settings, not `level` (voice-advanced: Singing intervals 11 of 13, Leaps 6 of 6;
 for nothing. All 18 such exercises across the plan examples now name a track (NEW13). Not done: the examples on
 /dev/examples from the database (waiting on one answer, see the session report).
 
+NEW19: [NEW 2026-11-18] Keys in the questionnaire and in every plan
+The key the player picks should set the key of every task in the plan, not only the theory ones.
+Today the questionnaire asks no key (src/features/plan/intake); keys show up only as a theory topic (theory-scales-keys).
+Keys by level, easiest first (user's list, to be finished):
+- Beginner: Em
+- Next: A, G
+- Then: etc. (to settle)
+Open: how the questionnaire asks it (pick keys, or take the ladder by level); how the AI plan prompt and the seed
+blocks carry a key (transpose.ts, the block `key`); whether a later week moves the player up the key ladder.
+Check key facts with `npm run theory`.
+
 NEW16: [NEW 2026-11-16] Questionnaire "Concepts" in/out by step, not by whole concept (after NEW9 placement)
 /dev/questionnaire → "Concepts" marks each concept "in" or "out" for the area's level (conceptsFor in
 QuestionnaireLab.tsx). A concept is a track now (NEW13) and spans several levels, so in/out could be per step: which
