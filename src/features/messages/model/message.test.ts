@@ -63,3 +63,8 @@ test("we are emailed at most once per thread every 10 minutes", () => {
   assert.equal(shouldEmail(new Date(now.getTime() - 9 * 60_000), now), false);
   assert.equal(shouldEmail(new Date(now.getTime() - 10 * 60_000), now), true);
 });
+
+test("a path with a backslash, which browsers read as another site, is dropped", () => {
+  assert.equal(parseContext({ path: "/\\evil.com" }), null);
+  assert.equal(parseContext({ path: "/a\\b" }), null);
+});

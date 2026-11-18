@@ -33,7 +33,7 @@ export function parseContext(raw: unknown): MessageContext | null {
   const under = Array.isArray(r.under) ? r.under.map((u) => str(u, 80)).filter((u): u is string => !!u).slice(0, 4) : [];
   const email = str(r.email, 254)?.toLowerCase();
   const c: MessageContext = {
-    path: path && path.startsWith("/") && !path.startsWith("//") ? path : undefined,
+    path: path && path.startsWith("/") && !path.startsWith("//") && !path.includes("\\") ? path : undefined,
     title: str(r.title, 120),
     under: under.length ? under : undefined,
     ref: str(r.ref, 80),

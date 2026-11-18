@@ -24,7 +24,7 @@ async function ownThread(repo: MessagesRepo, userId: string, threadId: unknown):
 /**
  * A user's message: `{ body, context?, threadId?, newThread? }`. Goes into `threadId` (theirs only, reopened if we
  * closed it), or a new thread when `newThread` is set or they have none, else their newest thread. Emails us at most
- * once per thread in 10 minutes; a failed email is logged, the message is kept.
+ * once per user in 10 minutes, across their threads; a failed email is logged, the message is kept.
  */
 export async function postMessage(repo: MessagesRepo, mailer: Mailer, account: { id: string; email: string; name: string }, raw: unknown, now: Date, env: Env): Promise<{ ok: true; threadId: string } | Failed> {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
@@ -44,7 +44,9 @@ export async function postMessage(repo: MessagesRepo, mailer: Mailer, account: {
 
   await repo.addMessage({ threadId: thread.id, fromAdmin: false, body: body.body, context, at: now });
   if (thread.status === "closed") await repo.updateThread(thread.id, { status: "open" });
-  if (shouldEmail(thread.emailedAt, now)) {
+  // the gap counts across the user's threads, so starting new ones doesn't send more mail (it shares Resend with log-in)
+  const lastEmailed = (await repo.threadsOf(account.id)).reduce<Date | null>((m, t) => (t.emailedAt && (!m || t.emailedAt > m) ? t.emailedAt : m), null);
+  if (shouldEmail(lastEmailed, now)) {
     try {
       await mailer(messageEmail(account, body.body, context, thread.id, env));
       await repo.updateThread(thread.id, { emailedAt: now });

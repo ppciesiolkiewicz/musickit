@@ -122,3 +122,15 @@ test("status must be open or closed", async () => {
   assert.equal(await setStatus(repo, a.threadId, "gone"), false);
   assert.equal(await setStatus(repo, "nope", "closed"), false);
 });
+
+test("new threads don't get round the email gap: it counts across the user's threads", async () => {
+  const { repo, sent, mailer } = setup();
+  await postMessage(repo, mailer, jo, { body: "1", newThread: true }, t(0), {});
+  await postMessage(repo, mailer, jo, { body: "2", newThread: true }, t(1), {});
+  await postMessage(repo, mailer, jo, { body: "3", newThread: true }, t(2), {});
+  assert.equal(sent.length, 1);
+  await postMessage(repo, mailer, jo, { body: "4", newThread: true }, t(11), {});
+  assert.equal(sent.length, 2);
+  await postMessage(repo, mailer, al, { body: "other user" }, t(11), {});
+  assert.equal(sent.length, 3);
+});

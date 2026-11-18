@@ -25,7 +25,9 @@ const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyl
 export default function Bubble() {
   const { account, loaded } = useAccount();
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  // the path the panel was opened on: it counts as shut on any other page, so a message never carries the last page's context
+  const [openOn, setOpenOn] = useState<string | null>(null);
+  const open = openOn === pathname;
   const [unread, setUnread] = useState(0);
   const selection = useRef<{ text: string; y: number } | null>(null);
   const [context, setContext] = useState<MessageContext | null>(null);
@@ -66,7 +68,7 @@ export default function Bubble() {
           onPointerDown={() => (selection.current = readSelection())}
           onClick={() => {
             setContext(pageContext(selection.current ?? readSelection()));
-            setOpen(true);
+            setOpenOn(pathname);
           }}
           className={`fixed right-11 ${bottom} z-[2300] flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-slate-600 bg-slate-800/90 text-slate-200 shadow-lg backdrop-blur hover:bg-slate-700 sm:right-12 sm:h-12 sm:w-12`}
         >
@@ -79,7 +81,7 @@ export default function Bubble() {
           context={context}
           onClose={() => {
             selection.current = null;
-            setOpen(false);
+            setOpenOn(null);
           }}
           onRead={markRead}
           position={panelBottom}
