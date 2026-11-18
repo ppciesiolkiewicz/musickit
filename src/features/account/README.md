@@ -180,6 +180,13 @@ reason (`[auth] the log-in email ... was not sent`). Each try at Resend gives up
 `npm run db:unplan` takes the account set in its package.json script off its plan (plan_id null; a teacher becomes a student, an owner stays
 one), so it is held on `/account/setup` again: for trying the setup page. Same localhost rule as `db:wipe`.
 
+`npm run db:seed-fake` fills a local database with made-up accounts (`scripts/db-seed-fake.ts`, names from
+`@faker-js/faker`, the same every run): an owner, teachers with 2 to 6 students each (made with `addStudent`, then a
+first week with `makeWeek` when the library is seeded), and students on their own, one of them before setup. Every
+email ends in `@seed.musickit.test`; each run deletes the last run's accounts first, and `-- --wipe` only deletes them.
+`-- --teachers N --solo N --seed N` change the numbers. It refuses a database that isn't on this machine unless you pass
+`-- --allow-remote`. Log in as one by its email.
+
 `npm run db:wipe` deletes every row in a local database: accounts, sessions and saved data. The tables and the
 migration record stay. It refuses a database that isn't on localhost unless you pass `-- --yes-really`.
 

@@ -18,6 +18,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-migrate.mjs",
     "db:seed": "node --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed.mjs",
+    "db:seed-fake": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-fake.ts",
     "gen:json-index": "node scripts/gen-json-index.mjs",
     "seed": "npx tsx scripts/seed.ts",
     "db:seed-plans": "npx tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/db-seed-plans.ts",
@@ -66,6 +67,7 @@
     "tone": "^15.1.22"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
     "@softwaretechnik/dbml-renderer": "^1.0.31",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.19.43",
