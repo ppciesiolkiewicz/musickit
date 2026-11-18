@@ -50,6 +50,37 @@ tools moved, text params filled, chips for the values kept from before.
 - A low rating on a harder version pulling the player's step down (see "Ratings").
 - Text that points at chips that are not there, or names a key the tool is not in.
 
+## Keys on the path (user, 2026-11-19)
+
+The order of keys belongs to the path, not to one ladder per area: "students should first do position 1 in A and then
+position 1 in G and E" (user).
+
+- A track in `path.ts` may state its key order, in groups, first key first: pentatonic positions `[[A], [G, E], …]`
+  (the later groups are the builder's to fill with `npm run theory`, the user reads them). A track with none uses its
+  area's ladder (`KEY_LADDERS`).
+- A step has key stages, inside the step: stage 0 is the track's first group, stage 1 adds the next group, and so on.
+  A key stage is not a path step: the next step may open alongside it (user). The user's example:
+  - day 1: position 1 in A;
+  - day 2: position 1 in A and G; position 2 in A (or in A and G).
+- A stage opens on a step when the player rated 4 or 5 a play of that step that opened in a key of the stage before.
+- The first play of a block opens in the track's first key, whatever key the author wrote the tools in and whatever
+  the area's rung is. That is the fix for the weird first key: today a beginner's rung is E alone, and E is not where a
+  pentatonic position is learned.
+- The answer to the keys question (`PlanAnswers.keys`) starts a player that many stages along on every track, so an
+  advanced player gets a basic exercise in more keys (user).
+- Keys are earned per track: a key earned on one block of a track counts on every block of that track, so a later
+  step's first play may open with them (the "or in A and G" above). That is the key crossing; nothing crosses tracks.
+- A block that names steps of two tracks takes the key order of the first step it names (call).
+
+## First slice (user: "start small")
+
+- In: `moves` for key and bpm; `given`; the roll; text and title params; the app's line beside the chips; the key
+  order on one track (`pentatonic-positions`) with key stages; the roll on /dev/compose and the key stages on /dev/path.
+- Three seed blocks rewritten by hand to the new shape: `guitar-beginner-pentatonic-box1` (key and bpm),
+  `guitar-beginner-down-up-picking` (bpm), one chord-shape block (key fixed, bpm moves). The user reads them drawn.
+- Later slices: position moves; key orders for the other tracks; a voice block; the /dev/library version switcher; the
+  agents' rewrite of the other blocks. Old-shape blocks keep working as they are throughout.
+
 ## The block: `moves`
 
 A field on the block, beside `title` and `cells`. Part of the content, so part of the block id.
@@ -110,7 +141,8 @@ given?: {
 
 ## Text params
 
-- Text and list cells may name a given value: `{{=key}}`, `{{=bpm}}`, `{{=position}}` (call on the syntax: the `=`
+- The title, a section heading, and text and list cells may name a given value (today's titles and headings hold them:
+  "A minor pentatonic, position 1", "Position 1 at 60"): `{{=key}}`, `{{=bpm}}`, `{{=position}}` (call on the syntax: the `=`
   keeps them apart from the note dots `{{3}}` and `{{c-sharp}}`; `model/noteText.ts` splits them out).
 - A param reads the value the part is at right now: the picked chip, else `now`, else the tool as written. So the text
   follows the chips. `{{=key}}` draws the key's name ("A"), `{{=bpm}}` the number, `{{=position}}` the number.
@@ -127,8 +159,8 @@ A pure function in `model/` (say `moves.ts`): `rollVersion(block, player, histor
 
 Inputs:
 - the block's `moves`;
-- the player's keys in the block's area: the keys of their rung (`keyRung`, as today) plus the keys they have earned
-  (below);
+- the key order of the block's track, the key stage open on its step and the keys the player has earned on the track
+  ("Keys on the path");
 - `history`: this player's progress-log rows for this block id, newest first, each with the `given` it was played with
   and its stars;
 - its own rng, seeded from the player, the block id and the newest rated row's id (first play: player and block id
@@ -137,8 +169,9 @@ Inputs:
   changes, and nothing new has to be stored.
 
 First play (no rated row for this block):
-- key: the player's keys, as `exerciseKeys` gives them today (`now` at most three, `back` at most three). The block's
-  level plays no part (user).
+- key: the track's first key (further along for a player whose keys answer starts them there). When the player has
+  earned more keys on the track, 50% it opens with those too (`now` at most three), the first key kept (call on the
+  number). The block's level plays no part (user).
 - bpm: `from`. position: the first one. No `back`.
 
 Later plays, from the newest rated row (an unrated play is not a low rating: it changes nothing, the version stays):
@@ -151,14 +184,13 @@ Later plays, from the newest rated row (an unrated play is not a low rating: it 
 
 - "One move" is one part, chosen by weight among the moves that are in: `bpm` 3, `key` 2, `position` 1 (call; all
   numbers on this page are starting values, kept in one exported table, tuned on /dev/compose).
-- A move is in when the block declares it and there is somewhere to go: `bpm` below `to`; a key the player has or can
-  earn that this block has not been played in; a next position whose `after` the player has reached.
+- A move is in when the block declares it and there is somewhere to go: `bpm` below `to`; a key of a stage open on the
+  block's step that this block has not been played in; a next position whose `after` the player has reached.
 - What a move does:
   - `bpm`: `now` goes up by `step`; the old `now` goes first in `back`.
   - `key`: one key is added to `now`, first, so the exercise opens in it (A, then G and A), the others kept; `now`
-    stays at most three, the oldest moving to `back`. The added key is, 70%, a key the player earned on another block, else the next key on the area's ladder
-    (`KEY_LADDERS`) above their keys. That is the "bit of key crossing" (user): a key earned on one block may show up
-    on others, not everywhere at once.
+    stays at most three, the oldest moving to `back`. The added key is the next key of the open stages in the track's
+    order.
   - `position`: `now` becomes the next position; the old one goes first in `back`.
 - "The version before": the `given` of the newest earlier row for this block that differs from the last one; with none,
   the first-play version.
@@ -166,7 +198,7 @@ Later plays, from the newest rated row (an unrated play is not a low rating: it 
 
 Every move adds one to `given.moved`; going back to the version before takes that version's `moved`.
 
-Earned keys: a key is earned in an area once the player rated 4 or 5 a play that opened in it (`given.keys.now[0]`). Derived
+Earned keys: a key is earned on a track once the player rated 4 or 5 a play that opened in it (`given.keys.now[0]`). Derived
 from the progress log on each compose, not stored (call).
 
 Tempo and position are remembered per block only; they never cross to other blocks (call).
@@ -189,7 +221,8 @@ Teachers' weeks (`composeWeek`) use the same roll, a block appearing twice in a 
 
 - /dev/compose: per pick, the block's moves, the newest rated row (version and stars), the outcome table row used, the
   moves in with their weights, the roll, the `given` that came out. A made-up player can be given a rating history.
-- /dev/path → Keys: unchanged; add the earned keys of the made-up player.
+- /dev/path: each step shows its key stages and where the made-up player stands on them (open, earned), in the Path
+  view itself; the Keys view stays for the area ladders.
 - /dev/library?item=<id>: the block drawn in its first version and, by a small control, in each version its `moves`
   allow (every bpm step, each position, a second key), so text params and chips can be read drawn.
 
