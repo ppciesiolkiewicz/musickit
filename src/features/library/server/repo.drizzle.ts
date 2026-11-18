@@ -3,7 +3,7 @@ import type { Db } from "@/lib/db/client";
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryRepo } from "./repo";
-import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
+import type { BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
 
 /*
  * Every value from a caller is a bound parameter (`${...}` in `sql`); nothing is spliced into the text. Player ids are compared
@@ -74,6 +74,7 @@ interface BlockRow {
   id: string; title: string; area: string | null; topic: string | null; concepts: string[]; level: string | null; steps: string[]; tags: string[];
   model: string | null; prompt_version: number | null; docs_agents: number | null; docs_teaching: number | null;
   content: Block; parent_id: string | null;
+  minutes: number | null; why: string | null; learn_before: string[] | null; explore_more: string[] | null;
   times: number; seconds: number; rated: number; s1: number; s2: number; s3: number; s4: number; s5: number;
   my_stars: number | null; my_at: string | null; my_times: number; my_seconds: number;
 }
@@ -113,7 +114,7 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
     : sql``;
   return sql`
     select b.id, (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, b.area, b.topic, b.concepts, b.level, b.steps, b.tags,
-      b.model, b.prompt_version, b.docs_agents, b.docs_teaching, b.content, b.parent_id,
+      b.model, b.prompt_version, b.docs_agents, b.docs_teaching, b.content, b.parent_id, b.minutes, b.why, b.learn_before, b.explore_more,
       coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds,
       coalesce(r.rated, 0) as rated, coalesce(r.s1, 0) as s1, coalesce(r.s2, 0) as s2, coalesce(r.s3, 0) as s3, coalesce(r.s4, 0) as s4, coalesce(r.s5, 0) as s5
       ${mine}
@@ -194,6 +195,12 @@ function planSummaryOf(r: PlanRow): PlanSummary {
   };
 }
 
+/** The slot a block row holds, or null when it has no minutes. */
+function slotOf(r: BlockRow): BlockSlot | null {
+  if (r.minutes === null) return null;
+  return { minutes: r.minutes, ...(r.why ? { why: r.why } : {}), ...(r.learn_before?.length ? { learnBefore: r.learn_before } : {}), ...(r.explore_more?.length ? { exploreMore: r.explore_more } : {}) };
+}
+
 /** The library over Postgres: the same rules as `repo.memory.ts`, held to `repoContract.ts` by `npm run test:library-db`. */
 export function drizzleLibraryRepo(db: Db): LibraryRepo {
   const rows = async <T>(q: SQL): Promise<T[]> => [...(await db.execute(q))] as T[];
@@ -213,7 +220,7 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
     },
     async getBlock(scope, id): Promise<BlockDetail | null> {
       const [r] = await rows<BlockRow>(blockQuery(scope, sql`b.id = ${id} and ${blockVisible(scope, sql`b.id`)}`, sql``));
-      return r ? { ...summaryOf(scope, r), content: r.content, parentId: r.parent_id } : null;
+      return r ? { ...summaryOf(scope, r), content: r.content, parentId: r.parent_id, slot: slotOf(r) } : null;
     },
     async listPlans(scope, filter, limit) {
       const list = await rows<PlanRow>(planQuery(scope, planWhere(scope, filter), sql`order by p.id collate "C" ${limitOf(limit)}`));

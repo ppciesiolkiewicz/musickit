@@ -1,13 +1,15 @@
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { BlockSource, PlanBlockRow, PlanReviewRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { BlockSlot, BlockSource, PlanBlockRow, PlanReviewRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A `blocks` row, as the memory repo keeps it. */
 interface StoredBlock {
   key: BlockKey;
   parentId: string | null;
   provenance: Provenance;
+  /** only once a slot has been written */
+  slot?: BlockSlot;
 }
 
 const NO_PROVENANCE: Provenance = { model: null, promptVersion: null, docsAgents: null, docsTeaching: null };
@@ -111,6 +113,11 @@ export function memoryUserDataRepo(): UserDataRepo & {
       for (const b of list) {
         const row = blocks.get(b.id)!;
         if (b.provenance && isBare(row.provenance)) row.provenance = { ...b.provenance };
+      }
+      // the slot is filled once, only where minutes is still null
+      for (const b of list) {
+        const row = blocks.get(b.id)!;
+        if (b.slot && !row.slot) row.slot = structuredClone(b.slot);
       }
       for (const b of list) {
         const row = blocks.get(b.id)!;

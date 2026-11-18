@@ -176,6 +176,13 @@
       "when": 1794908048851,
       "tag": "0024_plan_names",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794966958360,
+      "tag": "0025_block_slot",
+      "breakpoints": true
     }
   ]
 }

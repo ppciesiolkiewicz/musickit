@@ -49,6 +49,12 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.equal((await r.getBlock({ includeNotEnabled: true }, "X"))?.id, "X");
       assert.equal(await r.getBlock(all, "nope"), null);
     });
+    test("getBlock returns the slot a block was stored with, and null for a block stored without one", async () => {
+      const r = await repo();
+      assert.deepEqual((await r.getBlock(all, "S1"))?.slot, { minutes: 5, why: "Warm the hand up.", learnBefore: ["/course/3/x"], exploreMore: ["/course/4/y"] });
+      assert.deepEqual((await r.getBlock(all, "S2"))?.slot, { minutes: 7 });
+      assert.equal((await r.getBlock(all, "X"))?.slot, null);
+    });
     test("no other player's id appears in a result", async () => {
       const r = await repo();
       const list = await r.listBlocks(all, {}, "newest", 100);
@@ -67,7 +73,7 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       const [n] = await r.listBlocks({}, {}, "newest", 1);
       assert.equal("mine" in n, false);
       const d = await r.getBlock({ player: A }, "S1");
-      assert.deepEqual(keys(d!), ["area", "concepts", "content", "id", "level", "mine", "parentId", "provenance", "steps", "tags", "title", "topic", "use"]);
+      assert.deepEqual(keys(d!), ["area", "concepts", "content", "id", "level", "mine", "parentId", "provenance", "slot", "steps", "tags", "title", "topic", "use"]);
     });
     test("userExists", async () => {
       const r = await repo();

@@ -43,6 +43,14 @@ export interface Provenance {
   docsTeaching: number | null;
 }
 
+/** What a block needs to stand in a plan on its own. */
+export interface BlockSlot {
+  minutes: number;
+  why?: string;
+  learnBefore?: string[];
+  exploreMore?: string[];
+}
+
 /** A block to put in the library and the owner row to give it. `parentId` is only ever a block the saver owns. */
 export interface NewBlock {
   id: string;
@@ -52,6 +60,8 @@ export interface NewBlock {
   enabledForReuse: boolean;
   /** Filled once, where the stored block has none (all four columns null); a block with a parent and none takes the parent's. */
   provenance?: Provenance;
+  /** Filled once, while the stored block has no `minutes`. */
+  slot?: BlockSlot;
 }
 
 /** One place in a plan: the block on a day at a position, and its minutes (`practice_plan_blocks`). */

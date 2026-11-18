@@ -22,7 +22,7 @@ Plans have their own gate: enabled for reuse, or `includeNotEnabled`, and `scope
 
 ## Files (`server/`)
 
-- `types.ts`: `Scope`, `BlockSummary`, `BlockDetail`, `BlockFilter`, `BlockOrder`, `PlanSummary`, `PlanDetail`, `PlanFilter`, `CoverageRow`, `ConceptCoverage`.
+- `types.ts`: `Scope`, `BlockSummary`, `BlockDetail` (with `slot`, a block's default minutes, why and lessons, or null), `BlockSlot`, `BlockFilter`, `BlockOrder`, `PlanSummary`, `PlanDetail`, `PlanFilter`, `CoverageRow`, `ConceptCoverage`.
 - `repo.ts`: the `LibraryRepo` interface.
 - `repo.memory.ts`: the repo over plain rows, the readable statement of the rules.
 - `fixture.ts`: `LibraryData` (rows shaped like the tables in `src/lib/db/schema.ts`) and `baseFixture()`.

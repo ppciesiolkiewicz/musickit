@@ -98,6 +98,14 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
           .insert(blockOwners)
           .values(list.map((b) => ({ userId, blockId: b.id, source: b.source, enabledForReuse: b.enabledForReuse, createdAt: now })))
           .onConflictDoNothing();
+        // the slot is written on insert and filled once after: only where minutes is still null
+        for (const b of list) {
+          if (!b.slot) continue;
+          await tx
+            .update(blocks)
+            .set({ minutes: b.slot.minutes, why: b.slot.why ?? null, learnBefore: b.slot.learnBefore ?? null, exploreMore: b.slot.exploreMore ?? null })
+            .where(and(eq(blocks.id, b.id), isNull(blocks.minutes)));
+        }
         // provenance is filled once: only where all four columns are still null
         const bare = and(isNull(blocks.model), isNull(blocks.promptVersion), isNull(blocks.docsAgents), isNull(blocks.docsTeaching));
         const groups = new Map<string, { p: Provenance; ids: string[] }>();

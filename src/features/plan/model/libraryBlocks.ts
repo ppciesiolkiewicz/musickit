@@ -11,7 +11,7 @@ export interface LibraryBlock {
 }
 
 /** Every exercise of the plans, skipping a day without an exercise list. */
-function* exercisesOf(plans: StoredPlan[]): Generator<PlanExercise> {
+export function* exercisesOf(plans: StoredPlan[]): Generator<PlanExercise> {
   for (const p of plans) for (const d of p?.config?.days ?? []) if (Array.isArray(d?.exercises)) yield* d.exercises;
 }
 

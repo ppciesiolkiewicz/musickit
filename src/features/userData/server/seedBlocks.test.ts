@@ -136,3 +136,46 @@ test("seedFileBlocks: a seed exercise file is a seed block, enabled, with its fi
   assert.deepEqual([list[0].source, list[0].enabledForReuse, list[0].provenance], ["seed", true, { model: "claude-fable-5-2", promptVersion: 1, docsAgents: 2, docsTeaching: 5 }]);
   assert.ok(seedFileBlocks().some((b) => b.id === list[0].id), "the same exercise gets the same block id");
 });
+
+// a block's default slot: the first writer wins (block files, then plans in id order), and a second run changes nothing
+// a plain exercise, so its minutes change no cell and the same block can be written with any minutes
+const plain = (title: string, over: Record<string, unknown> = {}) => ({ title, minutes: 4, level: "beginner", area: "guitar", tags: ["technique"], cells: [{ type: "text", text: "Play it slowly." }], ...over });
+const slotFile = (id: string, exercise: Record<string, unknown>) => ({ id, model: "m", versions: { prompt: 1, agents: 1, teaching: 1 }, note: "n", exercise });
+const planWith = (id: string, exercise: Record<string, unknown>): SeedPlan => ({ id, reply: JSON.stringify({ title: id, days: Array.from({ length: 7 }, (_, i) => ({ theme: `d${i}`, exercises: [exercise] })) }), provenance: prov });
+
+test("seedFileBlocks: an exercise's minutes, why and lessons are the block's slot", () => {
+  const [b] = seedFileBlocks([slotFile("x", plain("T", { minutes: 5, why: "w", learnBefore: ["/course/8/one-arpeggio"] }))]);
+  assert.equal(b.slot?.minutes, 5);
+  assert.equal(b.slot?.why, "w");
+  assert.deepEqual(b.slot?.learnBefore, ["/course/8/one-arpeggio"]);
+});
+
+test("a block's id does not hold its slot", () => {
+  const id = (over: Record<string, unknown>) => seedFileBlocks([slotFile("x", plain("T", over))])[0].id;
+  assert.equal(id({ minutes: 4, why: "a" }), id({ minutes: 9, why: "b", learnBefore: ["/course/8/one-arpeggio"] }));
+});
+
+test("seedBlocks: a block in a block file and in plans keeps the file's slot (4 minutes)", async () => {
+  const repo = memoryUserDataRepo();
+  const [own] = seedFileBlocks([slotFile("x", plain("T", { minutes: 4 }))]);
+  const plans = [planWith("a-plan", plain("T", { minutes: 8 })), planWith("b-plan", plain("T", { minutes: 6 }))];
+  await seedBlocks(repo, plans, NOW, [slotFile("x", plain("T", { minutes: 4 }))]);
+  assert.equal(repo.peekBlocks().get(own.id)!.slot?.minutes, 4);
+});
+
+test("seedBlocks: a block only in plans keeps the first plan's slot by id (8 minutes)", async () => {
+  const repo = memoryUserDataRepo();
+  const [own] = libraryPlanBlocks([planWith("a-plan", plain("T"))]);
+  await seedBlocks(repo, [planWith("a-plan", plain("T", { minutes: 8 })), planWith("b-plan", plain("T", { minutes: 6 }))], NOW, []);
+  assert.equal(repo.peekBlocks().get(own.id)!.slot?.minutes, 8);
+});
+
+test("seedBlocks run twice changes no slot", async () => {
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, [plan], NOW);
+  const slots = () => [...repo.peekBlocks()].map(([id, b]) => [id, b.slot]);
+  const first = slots();
+  assert.ok(first.some(([, s]) => s));
+  await seedBlocks(repo, [plan], NOW);
+  assert.deepEqual(slots(), first);
+});

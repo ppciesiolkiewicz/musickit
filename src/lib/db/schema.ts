@@ -256,6 +256,11 @@ export const blocks = pgTable(
     promptVersion: integer("prompt_version"),
     docsAgents: integer("docs_agents"),
     docsTeaching: integer("docs_teaching"),
+    /** The default slot: what the block needs to stand in a plan on its own. All null when unknown; filled once, while `minutes` is null. Never part of the id. */
+    minutes: integer("minutes"),
+    why: text("why"),
+    learnBefore: text("learn_before").array(),
+    exploreMore: text("explore_more").array(),
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("blocks_area").on(t.area), index("blocks_topic").on(t.topic)],

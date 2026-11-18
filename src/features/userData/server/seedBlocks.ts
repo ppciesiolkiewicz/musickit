@@ -5,7 +5,8 @@ import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
 import { libraryBlocksOf } from "@/features/plan/model/libraryBlocks";
 import { sanitiseState } from "@/features/plan/model/state";
 import type { PlanConfig, StoredPlan } from "@/features/plan/model/types";
-import type { NewBlock, PlanBlockRow, Provenance, UserDataRepo } from "./repo";
+import { exercisesOf } from "@/features/plan/model/libraryBlocks";
+import type { BlockSlot, NewBlock, PlanBlockRow, Provenance, UserDataRepo } from "./repo";
 
 /** A `practice_plans` row as the seed needs it: its id, its reply and how it was written. */
 export interface SeedPlan {
@@ -22,7 +23,14 @@ function storedPlanOf(config: PlanConfig): StoredPlan[] {
 
 /** The config's blocks as library blocks the app owns, `seed`, enabled for reuse. */
 function toNew(config: PlanConfig, provenance: Provenance): NewBlock[] {
-  return libraryBlocksOf(storedPlanOf(config)).map((b) => ({ id: b.id, key: b.key, parentId: null, source: "seed" as const, enabledForReuse: true, provenance: { ...provenance } }));
+  const stored = storedPlanOf(config);
+  // the slot is the first exercise's with that block id
+  const slots = new Map<string, BlockSlot>();
+  for (const e of exercisesOf(stored)) {
+    const id = blockIdOf(blockKeyOf(e));
+    if (!slots.has(id)) slots.set(id, { minutes: e.minutes, ...(e.why ? { why: e.why } : {}), ...(e.learnBefore?.length ? { learnBefore: [...e.learnBefore] } : {}), ...(e.exploreMore?.length ? { exploreMore: [...e.exploreMore] } : {}) });
+  }
+  return libraryBlocksOf(stored).map((b) => ({ id: b.id, key: b.key, parentId: null, source: "seed" as const, enabledForReuse: true, provenance: { ...provenance }, slot: slots.get(b.id) }));
 }
 
 /** The blocks of the `practice_plans` replies, owned by the app and enabled for reuse, each with its plan's provenance (a block in two plans keeps the first's). A reply that doesn't parse is left out; see `unparsedReplies`. */
@@ -73,8 +81,9 @@ function dedupe(list: NewBlock[]): NewBlock[] {
  * and a plan whose reply doesn't parse is left with none. A library block an earlier run stored as an example's (not
  * enabled) is promoted to `seed`, enabled; `promoted` counts those.
  */
-export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Date): Promise<{ library: number; planBlocks: number; promoted: number }> {
-  const library = dedupe([...libraryPlanBlocks(plans), ...seedFileBlocks()]);
+export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Date, files: SeedBlockFile[] = SEED_BLOCKS): Promise<{ library: number; planBlocks: number; promoted: number }> {
+  // the first writer of a block keeps its slot and provenance: block files first, then the plans in the order given (by id)
+  const library = dedupe([...seedFileBlocks(files), ...libraryPlanBlocks(plans)]);
   await repo.addBlocks(null, library, now);
   const promoted = await repo.promoteExampleBlocks(library.map((b) => b.id));
   let planBlocks = 0;

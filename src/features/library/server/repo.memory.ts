@@ -2,7 +2,7 @@ import type { Stars } from "@/features/progress/stars";
 import type { LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
 import type {
-  BlockDetail, BlockFilter, BlockOrder, BlockSummary, BlockUse, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope, StepCoverage,
+  BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, BlockUse, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope, StepCoverage,
 } from "./types";
 
 type Row = LibraryData["blocks"][number];
@@ -62,6 +62,12 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
     const l = latest(id, player), t = timed(id, player);
     return { stars: l?.stars ?? null, ratedAt: l?.at ?? null, times: t.length, seconds: sum(t) };
   };
+
+  /** The slot a block was stored with, or null when it has no minutes. */
+  const slotOf = (b: Row): BlockSlot | null =>
+    b.minutes === null
+      ? null
+      : { minutes: b.minutes, ...(b.why ? { why: b.why } : {}), ...(b.learnBefore?.length ? { learnBefore: [...b.learnBefore] } : {}), ...(b.exploreMore?.length ? { exploreMore: [...b.exploreMore] } : {}) };
 
   /** The block's title, or "" when its content has none. */
   const titleOf = (b: Row): string => (typeof b.content.title === "string" ? b.content.title : "");
@@ -171,7 +177,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
     async getBlock(scope, id): Promise<BlockDetail | null> {
       const b = data.blocks.find((x) => x.id === id);
       if (!b || !visible(scope, b)) return null;
-      return { ...summary(scope, b), content: b.content, parentId: b.parentId };
+      return { ...summary(scope, b), content: b.content, parentId: b.parentId, slot: slotOf(b) };
     },
     async listPlans(scope, filter, limit) {
       return data.plans.filter((p) => planVisible(scope, p) && planMatches(filter, p)).sort(byId)

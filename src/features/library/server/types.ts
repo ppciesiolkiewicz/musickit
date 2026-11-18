@@ -1,6 +1,8 @@
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
-import type { Provenance } from "@/features/userData/server/repo";
+import type { BlockSlot, Provenance } from "@/features/userData/server/repo";
+
+export type { BlockSlot };
 
 /** Who is asking and what they may see. Built by the server code that calls the library, never taken from a model. */
 export interface Scope {
@@ -40,7 +42,12 @@ export interface BlockSummary {
   mine?: PlayerBlock;
 }
 
-export interface BlockDetail extends BlockSummary { content: Block; parentId: string | null }
+export interface BlockDetail extends BlockSummary {
+  content: Block;
+  parentId: string | null;
+  /** the minutes, why and lessons the block stands in a plan with; null for a block stored without them */
+  slot: BlockSlot | null;
+}
 
 /** `unused`: reusable and not owned by the player. `had`: owned. `repeat`: owned and last rated 1 to 3 stars. */
 export type PlayerMode = "unused" | "had" | "repeat";
