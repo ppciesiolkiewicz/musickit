@@ -1,4 +1,4 @@
-import type { BlockDetail, BlockFilter, BlockOrder, BlockSummary, ConceptCoverage, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
+import type { BlockDetail, ComposeBlock, BlockFilter, BlockOrder, BlockSummary, ConceptCoverage, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
 
 /**
  * Reads the library. Nothing here writes. A block with several owner rows is listed once. Ties in an order break by id, compared
@@ -29,5 +29,11 @@ export interface LibraryRepo {
   getPlan(scope: Scope, id: string, withReply: boolean): Promise<PlanDetail | null>;
   /** by topic then level, by concept and by step, all bytewise; no zero rows */
   coverage(scope: Scope): Promise<{ topics: CoverageRow[]; concepts: ConceptCoverage[]; steps: StepCoverage[] }>;
+  /**
+   * The blocks a day's plan can be made from: owned by the app, enabled for reuse, in one of `areas`, naming at least one step and
+   * having a slot (minutes). A block only another player owns is never here. `use` counts every player's timer on the block;
+   * `mine` is `player`'s latest rating (the rule of `mine` above), null when they never rated it. By id, bytewise; no limit.
+   */
+  composeBlocks(player: string, areas: string[]): Promise<ComposeBlock[]>;
   userExists(id: string): Promise<boolean>;
 }

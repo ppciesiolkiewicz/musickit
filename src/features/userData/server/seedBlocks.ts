@@ -76,8 +76,9 @@ function dedupe(list: NewBlock[]): NewBlock[] {
 }
 
 /**
- * Puts the library plans' blocks and the seed files' single blocks in the library as the app's, then each plan's blocks
- * in `practice_plan_blocks`. Insert-only, so a second run adds no block; the plan rows are replaced with the same ones,
+ * Puts the seed files' single blocks, then the library plans' blocks (plans in id order), in the library as the app's, then
+ * each plan's blocks in `practice_plan_blocks`. The first writer of a block sets its provenance and its default slot
+ * (minutes, why, lessons), so a seed file's slot wins over a plan's. Insert-only, so a second run adds no block; the plan rows are replaced with the same ones,
  * and a plan whose reply doesn't parse is left with none. A library block an earlier run stored as an example's (not
  * enabled) is promoted to `seed`, enabled; `promoted` counts those.
  */

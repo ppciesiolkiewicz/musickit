@@ -3,7 +3,7 @@ import type { Db } from "@/lib/db/client";
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryRepo } from "./repo";
-import type { BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
+import type { BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, ComposeBlock, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
 
 /*
  * Every value from a caller is a bound parameter (`${...}` in `sql`); nothing is spliced into the text. Player ids are compared
@@ -31,8 +31,9 @@ const owns = (player: string, id: SQL): SQL => sql`exists (select 1 from block_o
  * One row per (day timer row, block) where the timer counted seconds on the block: the positive numbers in `spent` of the slots
  * `blocks` maps to that block, added. A row whose `blocks` or `spent` is not an object, a slot mapped to anything but a string, and a slot whose `spent` is not a number add nothing.
  */
-function timed(player?: string): SQL {
+function timed(player?: string, ids?: SQL): SQL {
   const who = player !== undefined ? sql`and t.user_id::text = ${player}` : sql``;
+  const only = ids !== undefined ? sql`and (b.value #>> '{}') = any(${ids})` : sql``;
   return sql`(
     select s.block_id, sum(s.secs) as seconds
     from (
@@ -40,16 +41,16 @@ function timed(player?: string): SQL {
         case when jsonb_typeof(t.spent) = 'object' and jsonb_typeof(t.spent -> b.key) = 'number' then (t.spent ->> b.key)::float8 end as secs
       from plan_day_times t
       cross join lateral jsonb_each(case when jsonb_typeof(t.blocks) = 'object' then t.blocks else '{}'::jsonb end) b
-      where jsonb_typeof(b.value) = 'string' ${who}
+      where jsonb_typeof(b.value) = 'string' ${who} ${only}
     ) s
     where s.secs > 0 and s.block_id is not null
     group by s.user_id, s.plan_id, s.day, s.block_id
   )`;
 }
 
-/** Times and seconds per block id. */
-const timeTotals = (player?: string): SQL =>
-  sql`(select block_id, count(*)::int as times, sum(seconds)::float8 as seconds from ${timed(player)} tr group by block_id)`;
+/** Times and seconds per block id; with `ids` (a SQL list of block ids), only those blocks are summed. */
+const timeTotals = (player?: string, ids?: SQL): SQL =>
+  sql`(select block_id, count(*)::int as times, sum(seconds)::float8 as seconds from ${timed(player, ids)} tr group by block_id)`;
 
 /** Ratings of every player per block id: how many, and how many at each star (compared as text, so a bad entry throws nothing). */
 const ratingTotals = sql`(
@@ -61,12 +62,12 @@ const ratingTotals = sql`(
 )`;
 
 /** The player's latest rating per block id: latest string `at` (bytewise), an entry without one last, then the lowest exercise id. */
-const latestRating = (player: string): SQL => sql`(
+const latestRating = (player: string, ids?: SQL): SQL => sql`(
   select distinct on (block_id) block_id,
     case when entry ->> 'stars' in ('1', '2', '3', '4', '5') then (entry ->> 'stars')::int end as stars,
     case when jsonb_typeof(entry -> 'at') = 'string' then entry ->> 'at' end as at
   from progress_entries
-  where block_id is not null and user_id::text = ${player}
+  where block_id is not null and user_id::text = ${player} ${ids !== undefined ? sql`and block_id = any(${ids})` : sql``}
   order by block_id, (case when jsonb_typeof(entry -> 'at') = 'string' then entry ->> 'at' end) collate "C" desc nulls last, exercise_id collate "C"
 )`;
 
@@ -263,6 +264,34 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
         group by vs.step
         order by vs.step collate "C"`);
       return { topics: topics.map((t) => ({ ...t })), concepts: concepts.map((c) => ({ ...c })), steps: steps.map((s) => ({ ...s })) };
+    },
+    async composeBlocks(player, areas): Promise<ComposeBlock[]> {
+      if (areas.length === 0) return [];
+      // the candidates first, so the time and rating totals are summed for these blocks only
+      const ids = sql`(select id from cand)`;
+      const list = await rows<{
+        id: string; content: Block; area: string; topic: string | null; concepts: string[]; steps: string[]; level: string | null; tags: string[];
+        minutes: number; why: string | null; learn_before: string[] | null; explore_more: string[] | null;
+        times: number; seconds: number; my_stars: number | null; my_at: string | null;
+      }>(sql`
+        with cand as (
+          select b.* from blocks b
+          where b.area = any(${textArray(areas)}) and b.minutes is not null and cardinality(b.steps) > 0
+            and exists (select 1 from block_owners o where o.block_id = b.id and o.user_id is null and o.enabled_for_reuse)
+        )
+        select c.id, c.content, c.area, c.topic, c.concepts, c.steps, c.level, c.tags, c.minutes, c.why, c.learn_before, c.explore_more,
+          coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds, l.stars as my_stars, l.at as my_at
+        from cand c
+        left join ${timeTotals(undefined, ids)} u on u.block_id = c.id
+        left join ${latestRating(player, ids)} l on l.block_id = c.id
+        order by c.id collate "C"`);
+      return list.map((r) => ({
+        id: r.id, content: r.content, area: r.area, topic: r.topic, concepts: r.concepts, steps: r.steps, level: r.level, tags: r.tags,
+        slot: slotOf({ minutes: r.minutes, why: r.why, learn_before: r.learn_before, explore_more: r.explore_more } as BlockRow)!,
+        use: { times: r.times, seconds: r.seconds },
+        // a rating row whose stars are not 1 to 5 reads as never rated
+        mine: r.my_stars !== null ? { stars: r.my_stars as Stars, ratedAt: r.my_at ?? "" } : null,
+      }));
     },
     async userExists(id) {
       const found = await rows<{ one: number }>(sql`select 1 as one from users where id::text = ${id} limit 1`);

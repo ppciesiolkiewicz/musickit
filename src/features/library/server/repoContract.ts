@@ -455,4 +455,72 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.equal(await r.countBlocks(all, {}), 0);
     });
   });
+
+  describe("library repo: composeBlocks", () => {
+    const seedOwner = (blockId: string): LibraryData["owners"][number] =>
+      ({ userId: null, blockId, source: "seed", enabledForReuse: true, createdAt: new Date("2026-01-01T00:00:00Z") });
+    const slotted = (id: string, extra: Partial<LibraryData["blocks"][number]> = {}): LibraryData["blocks"][number] => ({
+      ...baseFixture().blocks[0], id, content: { title: `Block ${id}`, cells: [] }, ...extra,
+    });
+    const rated = (userId: string, exerciseId: string, blockId: string, stars: number, at: string): LibraryData["progress"][number] => ({
+      userId, exerciseId, blockId,
+      entry: { id: `${userId}-${exerciseId}`, planId: "p-1", exerciseId, day: 0, exercise: 0, title: "t", blockId, stars, at } as unknown as ProgressEntry,
+    });
+    const composeIds = async (d: LibraryData, areas: string[], player = A) => (await (await make(d)).composeBlocks(player, areas)).map((b) => b.id);
+
+    test("returns only app-owned, enabled blocks of the given areas that name a step and have a slot", async () => {
+      const d = baseFixture();
+      d.blocks.push(
+        slotted("NoSteps", { steps: [] }), slotted("NoSlot", { minutes: null, why: null, learnBefore: null, exploreMore: null }),
+        slotted("Off", {}), slotted("Ear", { area: "ear" }),
+      );
+      d.owners.push(seedOwner("NoSteps"), seedOwner("NoSlot"), seedOwner("Ear"),
+        { userId: null, blockId: "Off", source: "example", enabledForReuse: false, createdAt: new Date("2026-01-01T00:00:00Z") });
+      assert.deepEqual(await composeIds(d, ["guitar"]), ["S1", "S2"]);
+      assert.deepEqual(await composeIds(d, ["ear", "guitar"]), ["Ear", "S1", "S2"]);
+      assert.deepEqual(await composeIds(d, ["ear"]), ["Ear"]);
+      assert.deepEqual(await composeIds(d, []), []);
+      assert.deepEqual(await composeIds(d, ["nope"]), []);
+    });
+    test("leaves out a block only another player owns, even enabled", async () => {
+      const d = baseFixture();
+      d.blocks.push(slotted("Theirs", { area: "guitar" }));
+      d.owners.push({ userId: B, blockId: "Theirs", source: "ai", enabledForReuse: true, createdAt: new Date("2026-01-01T00:00:00Z") });
+      assert.deepEqual(await composeIds(d, ["guitar"], A), ["S1", "S2"]);
+      assert.deepEqual(await composeIds(d, ["guitar"], B), ["S1", "S2"]);
+    });
+    test("a block has its content, fields and slot", async () => {
+      const [s1] = await (await repo()).composeBlocks(A, ["guitar"]);
+      assert.equal(s1.id, "S1");
+      assert.equal(s1.content.title, "Block S1");
+      assert.deepEqual([s1.area, s1.topic, s1.level], ["guitar", "guitar-scales", "beginner"]);
+      assert.deepEqual(s1.concepts, ["major-scale", "pentatonic"]);
+      assert.deepEqual(s1.steps, ["pentatonic:1", "pentatonic:2"]);
+      assert.deepEqual(s1.tags, ["warmup", "slow"]);
+      assert.deepEqual(s1.slot, { minutes: 5, why: "Warm the hand up.", learnBefore: ["/course/3/x"], exploreMore: ["/course/4/y"] });
+      assert.deepEqual(Object.keys(s1).sort(), ["area", "concepts", "content", "id", "level", "mine", "slot", "steps", "tags", "topic", "use"]);
+    });
+    test("use counts every player's time on the block", async () => {
+      const list = await (await repo()).composeBlocks(A, ["guitar"]);
+      // S1: A 600s and B 300s (B's bad row adds nothing); S2: A 100+200s in one row, B 50s
+      assert.deepEqual(list.map((b) => b.use), [{ times: 2, seconds: 900 }, { times: 2, seconds: 350 }]);
+      const other = await (await repo()).composeBlocks(C, ["guitar"]);
+      assert.deepEqual(other.map((b) => b.use), [{ times: 2, seconds: 900 }, { times: 2, seconds: 350 }]);
+    });
+    test("mine is the player's newest rating by at, and null for a block they own but never rated", async () => {
+      const d = baseFixture();
+      d.owners.push({ userId: A, blockId: "S1", source: "ai", enabledForReuse: false, createdAt: new Date("2026-01-01T00:00:00Z") });
+      d.progress.push(
+        rated(A, "e-s2-late", "S2", 4, "2026-03-09T10:00:00.000Z"), rated(A, "e-s2-early", "S2", 1, "2026-03-01T10:00:00.000Z"),
+        rated(B, "e-s2-b", "S2", 5, "2026-03-20T10:00:00.000Z"),
+      );
+      const r = await make(d);
+      const a = await r.composeBlocks(A, ["guitar"]);
+      assert.equal(a.find((b) => b.id === "S1")?.mine, null);
+      assert.deepEqual(a.find((b) => b.id === "S2")?.mine, { stars: 4, ratedAt: "2026-03-09T10:00:00.000Z" });
+      const b = await r.composeBlocks(B, ["guitar"]);
+      assert.deepEqual(b.find((x) => x.id === "S2")?.mine, { stars: 5, ratedAt: "2026-03-20T10:00:00.000Z" });
+      assert.equal((await r.composeBlocks(C, ["guitar"])).find((x) => x.id === "S2")?.mine, null);
+    });
+  });
 }

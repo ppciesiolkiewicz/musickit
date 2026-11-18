@@ -2,7 +2,7 @@ import type { Stars } from "@/features/progress/stars";
 import type { LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
 import type {
-  BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, BlockUse, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope, StepCoverage,
+  BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, BlockUse, ComposeBlock, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope, StepCoverage,
 } from "./types";
 
 type Row = LibraryData["blocks"][number];
@@ -211,6 +211,20 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
       const steps: StepCoverage[] = [...new Set(blocks.flatMap((b) => b.steps))].sort()
         .map((step) => ({ step, ...rows((b) => b.steps.includes(step)) }));
       return { topics, concepts, steps };
+    },
+    async composeBlocks(player, areas): Promise<ComposeBlock[]> {
+      const list: ComposeBlock[] = [];
+      for (const b of data.blocks) {
+        const slot = slotOf(b);
+        if (slot === null || b.area === null || !areas.includes(b.area) || b.steps.length === 0) continue;
+        if (!data.owners.some((o) => o.blockId === b.id && o.userId === null && o.enabledForReuse)) continue;
+        const t = timed(b.id), l = latest(b.id, player);
+        list.push({
+          id: b.id, content: b.content, area: b.area, topic: b.topic, concepts: [...b.concepts], steps: [...b.steps], level: b.level, tags: [...b.tags],
+          slot, use: { times: t.length, seconds: sum(t) }, mine: l ? { stars: l.stars, ratedAt: l.at ?? "" } : null,
+        });
+      }
+      return list.sort(byId);
     },
     async userExists(id) {
       return data.users.some((u) => u.id === id);

@@ -49,6 +49,24 @@ export interface BlockDetail extends BlockSummary {
   slot: BlockSlot | null;
 }
 
+/** A block the composer may pick: owned by the app, enabled for reuse, with a slot. */
+export interface ComposeBlock {
+  id: string;
+  content: Block;
+  area: string;
+  topic: string | null;
+  concepts: string[];
+  /** at least one: a block that names no step is never composed */
+  steps: string[];
+  level: string | null;
+  tags: string[];
+  slot: BlockSlot;
+  /** all players together, counted for these blocks only */
+  use: { times: number; seconds: number };
+  /** this player's newest rating of the block (by `at`); null when never rated. `ratedAt` is "" for an entry with no `at`. */
+  mine: { stars: Stars; ratedAt: string } | null;
+}
+
 /** `unused`: reusable and not owned by the player. `had`: owned. `repeat`: owned and last rated 1 to 3 stars. */
 export type PlayerMode = "unused" | "had" | "repeat";
 export type BlockOrder = "least-used" | "newest";
