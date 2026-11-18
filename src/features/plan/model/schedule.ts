@@ -105,6 +105,33 @@ export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId:
   return { ...s, current: plan };
 }
 
+/**
+ * A week a teacher made for the student, put first in `given`: seven days from `meta.start` (an empty composed day stays,
+ * so day numbers match dates), each day's theme "", the exercises stored as `startDay` stores them (new ids, block ids
+ * computed). `current` and `history` are left as they are. With `replace` (a plan id in `given`, the week being rotated),
+ * that plan leaves `given` and goes first in `history` (which keeps `HISTORY_CAP`), its ratings and comment kept on it.
+ */
+export function giveWeek(s: PlanState, days: ComposedDay[], meta: { start: string; madeAt: string; title: string; replace?: string }, newId: () => string): PlanState {
+  const id = newId();
+  const config = storedConfig({ title: meta.title, days: days.map((d) => ({ theme: "", exercises: d.exercises })) }, newId);
+  const plan: StoredPlan = { id, config, startedOn: meta.start, done: {}, teacher: { madeAt: meta.madeAt } };
+  const old = meta.replace === undefined ? undefined : givenPlan(s, meta.replace);
+  if (!old) return { ...s, given: [plan, ...s.given] };
+  return { ...s, given: [plan, ...s.given.filter((p) => p !== old)], history: [old, ...s.history].slice(0, HISTORY_CAP) };
+}
+
+/** The given weeks a teacher made that have started by `date`, newest first (by start, then by when they were made). */
+const teacherWeeks = (s: PlanState, date: string): StoredPlan[] =>
+  s.given
+    .filter((p) => p.teacher && p.startedOn <= date)
+    .sort((a, b) => (a.startedOn !== b.startedOn ? (a.startedOn < b.startedOn ? 1 : -1) : Date.parse(b.teacher!.madeAt) - Date.parse(a.teacher!.madeAt)));
+
+/** The newest week a teacher made that has started by `date` (yyyy-mm-dd), or null. */
+export const teacherWeek = (s: PlanState, date: string): StoredPlan | null => teacherWeeks(s, date)[0] ?? null;
+
+/** The newest week a teacher made whose days cover `date`, or null (none has started, or the newest has ended). */
+export const teacherWeekOn = (s: PlanState, date: string): StoredPlan | null => teacherWeeks(s, date).find((p) => !givenToday(p, date).over) ?? null;
+
 /** A plan the player was given, by id; never the player's own. */
 export const givenPlan = (s: PlanState, id: string): StoredPlan | undefined => s.given.find((p) => p.id === id);
 

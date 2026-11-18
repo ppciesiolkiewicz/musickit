@@ -63,8 +63,8 @@ export default function PlanApp() {
   const plans = useMemo(() => storedPlans(state), [state]);
   const allTimes = useMemo(() => mergeTimes(all.times, times), [all.times, times]);
   const result = useMemo(
-    () => outcome({ plans, entries: progress.entries, times: allTimes, answersHistory: state.answersHistory }, today),
-    [plans, progress.entries, allTimes, state.answersHistory, today],
+    () => outcome({ plans, entries: progress.entries, times: allTimes, answersHistory: state.answersHistory, teacherScores: state.teacherScores }, today),
+    [plans, progress.entries, allTimes, state.answersHistory, state.teacherScores, today],
   );
   // only once every input has loaded, so the count never shows 0 first; a refused read leaves it out
   const streak = all.loaded && progress.loaded ? <StreakButton streak={result.streak} onOpen={() => setTracking(true)} /> : null;

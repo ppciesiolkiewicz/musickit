@@ -13,7 +13,7 @@ export type ComposeAnswer =
   | { ok: false; code: "no-answers" | "bad-date" | "no-blocks" };
 
 /** A library block as a plan stores it: its content with the slot and the tags that say what it practises. */
-function candidateOf(b: ComposeBlock): Candidate {
+export function candidateOf(b: ComposeBlock): Candidate {
   const exercise: PlanExercise = {
     ...b.content,
     minutes: b.slot.minutes,
@@ -70,8 +70,8 @@ export async function composeToday(
   const declined = own?.composed ? [...own.composed.declined, ...unrated.flatMap((e) => (e.blockId ? [e.blockId] : []))] : [];
   const entries = await readEntries(d.userData, player);
   const solid = solidRatedAt(entries);
-  // each topic paced by the higher of the answer and the level its ratings reach (the progress tracker's rule)
-  const levelled = raisedAnswers(answers, entries, date);
+  // each topic paced by the higher of the answer (or a teacher's score) and the level its ratings reach (the progress tracker's rule)
+  const levelled = raisedAnswers(answers, entries, date, state.teacherScores);
 
   const day = composeDay({ answers: levelled, solid, blocks, date, yesterday: yesterdayOf(state, date), keep, declined, seed: `${player}:${date}:${attempt}` });
   if (!day.exercises.length) return { ok: false, code: "no-blocks" };

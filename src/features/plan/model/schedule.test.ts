@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addDays, anotherDay, givenPlan, givenToday, ownDay, ratePlan, startDay, storedPlans, updateGiven } from "./schedule";
+import { addDays, anotherDay, giveWeek, givenPlan, givenToday, ownDay, ratePlan, startDay, storedPlans, teacherWeek, teacherWeekOn, updateGiven } from "./schedule";
+import { HISTORY_CAP } from "./state";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import type { ComposedDay } from "./compose";
 import { EMPTY_STATE, planDays, type PlanConfig, type PlanExercise, type PlanState, type StoredPlan } from "./types";
@@ -192,4 +193,76 @@ test("anotherDay with an attempt lower than today's changes nothing (a late answ
 test("startDay for a date before today's own plan changes nothing (a stale answer)", () => {
   const s = startDay(EMPTY_STATE, dayOf("A"), { date: "2026-11-18", attempt: 0 }, ids("a"));
   assert.equal(startDay(s, dayOf("B"), { date: "2026-11-17", attempt: 0 }, ids("b")), s);
+});
+
+// --- a teacher's week for a student (teachers and students, Task 5)
+
+const sevenDays = (prefix: string): ComposedDay[] => Array.from({ length: 7 }, (_, i) => dayOf(`${prefix}${i}a`, `${prefix}${i}b`));
+
+test("giveWeek puts a seven-day plan first in given, made by the teacher; current and history are left as they are", () => {
+  const s: PlanState = { ...EMPTY_STATE, current: week("own", { from: undefined }), history: [week("old")], given: [week("g1")] };
+  const out = giveWeek(s, sevenDays("W"), { start: "2026-11-18", madeAt: "2026-11-18T12:00:00.000Z", title: "" }, ids("w"));
+  const p = out.given[0];
+  assert.equal(out.given.length, 2);
+  assert.equal(out.given[1], s.given[0]);
+  assert.equal(out.current, s.current);
+  assert.equal(out.history, s.history);
+  assert.equal(p.id, "w1");
+  assert.equal(p.startedOn, "2026-11-18");
+  assert.deepEqual(p.teacher, { madeAt: "2026-11-18T12:00:00.000Z" });
+  assert.deepEqual(p.done, {});
+  assert.equal(p.composed, undefined);
+  assert.equal(planDays(p), 7);
+  assert.deepEqual(p.config.days.map((d) => d.theme), ["", "", "", "", "", "", ""]);
+  // exercises stored as startDay stores them: new ids, block ids computed from the content
+  const e = p.config.days[2].exercises[1];
+  assert.equal(e.title, "W2b");
+  assert.match(e.id!, /^w\d+$/);
+  assert.equal(e.blockId, bid("W2b"));
+  assert.equal(new Set(p.config.days.flatMap((d) => d.exercises.map((x) => x.id))).size, 14);
+});
+
+test("giveWeek keeps empty composed days, so day numbers match dates", () => {
+  const days = sevenDays("W");
+  days[5] = { exercises: [], steps: [], short: true };
+  const p = giveWeek(EMPTY_STATE, days, { start: "2026-11-18", madeAt: "x", title: "" }, ids()).given[0];
+  assert.equal(planDays(p), 7);
+  assert.deepEqual(p.config.days[5].exercises, []);
+});
+
+test("giveWeek with replace: the old week leaves given and goes first in history with its ratings; a block id from the client is never trusted", () => {
+  const rated = { "0:0": { stars: 4 as const, at: "2026-11-18T10:00:00Z" } };
+  const old = week("t1", { from: undefined, teacher: { madeAt: "2026-11-17T09:00:00Z", comment: "Slow down." }, startedOn: "2026-11-17", rated, done: { "0:0": true } });
+  const s: PlanState = { ...EMPTY_STATE, history: Array.from({ length: HISTORY_CAP }, (_, i) => week(`h${i}`)), given: [week("g1"), old] };
+  const days = sevenDays("R");
+  days[0] = { ...days[0], exercises: [{ ...days[0].exercises[0], blockId: "forged" }] };
+  const out = giveWeek(s, days, { start: "2026-11-17", madeAt: "2026-11-18T12:00:00Z", title: "", replace: "t1" }, ids("r"));
+  assert.deepEqual(out.given.map((p) => p.id), ["r1", "g1"]);
+  assert.equal(out.history.length, HISTORY_CAP);
+  assert.equal(out.history[0], old);
+  assert.deepEqual(out.history[0].rated, rated);
+  assert.equal(out.history[1].id, "h0");
+  assert.equal(out.given[0].config.days[0].exercises[0].blockId, bid("R0a"));
+  // an id not in given replaces nothing
+  const none = giveWeek(s, days, { start: "2026-11-17", madeAt: "x", title: "", replace: "gone" }, ids("q"));
+  assert.deepEqual(none.given.map((p) => p.id), ["q1", "g1", "t1"]);
+  assert.equal(none.history, s.history);
+});
+
+test("teacherWeek: the newest given week a teacher made that has started by the date; teacherWeekOn: the one whose days cover it", () => {
+  const t = (id: string, startedOn: string, madeAt = `${startedOn}T08:00:00Z`) => week(id, { from: undefined, startedOn, teacher: { madeAt } });
+  const s: PlanState = { ...EMPTY_STATE, current: t("own", "2026-11-18"), given: [week("shared", { startedOn: "2026-11-20" }), t("next", "2026-11-17"), t("first", "2026-11-03")] };
+  assert.equal(teacherWeek(s, "2026-11-18")?.id, "next");
+  assert.equal(teacherWeek(s, "2026-11-10")?.id, "first");
+  assert.equal(teacherWeek(s, "2026-11-01"), null);
+  assert.equal(teacherWeekOn(s, "2026-11-17")?.id, "next");
+  assert.equal(teacherWeekOn(s, "2026-11-23")?.id, "next");
+  assert.equal(teacherWeekOn(s, "2026-11-24"), null, "its seven days are over");
+  assert.equal(teacherWeekOn(s, "2026-11-09")?.id, "first");
+  assert.equal(teacherWeekOn(s, "2026-11-12"), null, "between two weeks");
+  assert.equal(teacherWeek(EMPTY_STATE, "2026-11-18"), null);
+  // two weeks on the same start: the one made later
+  const twice: PlanState = { ...EMPTY_STATE, given: [t("a", "2026-11-17", "2026-11-17T08:00:00Z"), t("b", "2026-11-17", "2026-11-17T09:00:00Z")] };
+  assert.equal(teacherWeek(twice, "2026-11-18")?.id, "b");
+  assert.equal(teacherWeekOn(twice, "2026-11-18")?.id, "b");
 });

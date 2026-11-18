@@ -91,8 +91,8 @@ export function sanitiseState(raw: unknown): PlanState {
   const answers = s.answers && typeof s.answers === "object" ? migrateAnswers(s.answers) : null;
   const current = isPlan(s.current) ? cleanPlan(s.current) : null;
   const history = Array.isArray(s.history) ? s.history.filter(isPlan).slice(0, HISTORY_CAP).map(cleanPlan) : [];
-  // a given plan is one claimed from an invite: one without `from` is not one
-  const given = Array.isArray(s.given) ? s.given.filter((p) => isPlan(p) && typeof p.from === "string" && !!p.from).map(cleanPlan) : [];
+  // a given plan is one claimed from an invite (`from`) or a week a teacher made (`teacher`): one with neither is not one
+  const given = Array.isArray(s.given) ? s.given.filter((p) => isPlan(p) && ((typeof p.from === "string" && !!p.from) || !!cleanTeacher(p.teacher))).map(cleanPlan) : [];
   return {
     answers,
     // a document stored before the history: one entry from the answers, dated the earliest plan's start

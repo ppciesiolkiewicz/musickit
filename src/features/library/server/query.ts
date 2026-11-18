@@ -102,6 +102,7 @@ export async function playerProgress(d: Deps, scope: Scope): Promise<{ outcome: 
     entries: await readEntries(d.userData, player),
     times: await readAllPlanTimes(d.userData, player),
     answersHistory: state.answersHistory,
+    teacherScores: state.teacherScores,
   };
   const asOf = (d.today ?? (() => localDate()))();
   return {

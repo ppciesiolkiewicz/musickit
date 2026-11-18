@@ -36,6 +36,11 @@ export interface StudentRow {
   claimedAt: string | null;
 }
 
+/** A student as the teacher's list shows them, from the account row and the link's dates. */
+export const studentRow = (user: { id: string; name: string; email: string }, createdAt: Date, claimedAt: Date | null): StudentRow => ({
+  id: user.id, name: user.name, email: user.email, addedAt: createdAt.toISOString(), claimedAt: claimedAt?.toISOString() ?? null,
+});
+
 export type AddStudentError = "name" | "email" | "exists" | "limit" | "answers" | "not-teacher";
 
 /** How many students the teacher's plan allows: null is no limit; no plan row, or none with students, is 0. */
@@ -98,7 +103,7 @@ export async function addStudent(
 export async function listStudents(deps: StudentsDeps, teacher: Account): Promise<{ students: StudentRow[]; limit: number | null }> {
   const rows = await deps.auth.repo.studentsOf(teacher.id);
   return {
-    students: rows.map((r) => ({ id: r.user.id, name: r.user.name, email: r.user.email, addedAt: r.createdAt.toISOString(), claimedAt: r.claimedAt?.toISOString() ?? null })),
+    students: rows.map((r) => studentRow(r.user, r.createdAt, r.claimedAt)),
     limit: await limitOf(deps.auth, teacher),
   };
 }

@@ -14,6 +14,9 @@ test("sanitiseState gives given: [] to a document without it, and drops a given 
   assert.deepEqual(sanitiseState({ given: "junk" }).given, []);
   const s = sanitiseState({ given: [plan("g1", { from: "s1" }), plan("g2"), plan("g3", { from: 5 as unknown as string }), "junk", plan("g4", { from: "s4" })] });
   assert.deepEqual(s.given.map((p) => [p.id, p.from]), [["g1", "s1"], ["g4", "s4"]]);
+  // a week a teacher made has no invite: its teacher record makes it a given plan
+  const t = sanitiseState({ given: [plan("t1", { teacher: { madeAt: "2026-11-18T12:00:00Z", comment: "Hands hurt." } }), plan("t2", { teacher: {} as unknown as StoredPlan["teacher"] })] });
+  assert.deepEqual(t.given.map((p) => [p.id, p.teacher]), [["t1", { madeAt: "2026-11-18T12:00:00Z", comment: "Hands hurt." }]]);
 });
 
 test("sanitiseState keeps a valid composed record and drops a broken one", () => {

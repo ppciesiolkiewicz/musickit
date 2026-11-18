@@ -48,15 +48,15 @@ export default function ProgressPage() {
   const { times, loaded: timesLoaded } = useAllPlanTimes();
   const [asOf, setAsOf] = useState(() => localDate());
 
-  const { answersHistory } = state;
+  const { answersHistory, teacherScores } = state;
   // every plan, the given ones too, as `/plan` and the server's `playerProgress` count them
   const plans = useMemo(() => storedPlans(state), [state]);
   const ready = planLoaded && entriesLoaded && timesLoaded;
   const result = useMemo(() => {
     if (!ready) return null;
-    const input: OutcomeInput = { plans, entries, times, answersHistory };
+    const input: OutcomeInput = { plans, entries, times, answersHistory, teacherScores };
     return outcome(input, asOf);
-  }, [ready, plans, entries, times, answersHistory, asOf]);
+  }, [ready, plans, entries, times, answersHistory, teacherScores, asOf]);
 
   if (!ready || !result) return <p className="text-sm text-slate-400">Loading…</p>;
 
