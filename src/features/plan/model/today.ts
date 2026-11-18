@@ -115,6 +115,13 @@ export function todayView(i: TodayInput): TodayView {
   return { kind: "making" };
 }
 
+/**
+ * The date the page shows today's plan for: the clock's (`localDate`, read every minute and when the page is shown again),
+ * so a page left open past midnight moves to the new day like a fresh visit. While an edit is open or a request is out
+ * (`busy`) it stays, and moves when that ends.
+ */
+export const pageDate = (shown: string, clock: string, busy: boolean): string => (busy ? shown : clock);
+
 /** Whether the page asks for today's plan now: once per page view and date, with answers and no plan for today. */
 export const shouldAsk = (i: Pick<TodayInput, "loaded" | "answers" | "own" | "asked">): boolean => i.loaded && i.answers && !i.own && !i.asked;
 

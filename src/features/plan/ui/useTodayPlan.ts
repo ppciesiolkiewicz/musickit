@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { randomId } from "../model/exerciseIds";
 import { localDate, ownDay } from "../model/schedule";
-import { applyAnother, applyFirst, shouldAsk, todayView, type TodayFailure, type TodayView } from "../model/today";
+import { applyAnother, applyFirst, pageDate, shouldAsk, todayView, type TodayFailure, type TodayView } from "../model/today";
 import type { PlanState } from "../model/types";
 import type { PlanStore } from "../store/PlanStore";
 import { requestDay } from "../store/composeClient";
@@ -25,20 +25,47 @@ export interface TodayPlan {
   anotherFailed: TodayFailure | null;
 }
 
+/** The local date, read again every minute and when the page is shown again (a tab left open past midnight). */
+export function useClockDate(): string {
+  const [date, setDate] = useState(() => localDate());
+  useEffect(() => {
+    const read = () => setDate(localDate());
+    const t = setInterval(read, 60_000);
+    const onShow = () => { if (document.visibilityState === "visible") read(); };
+    document.addEventListener("visibilitychange", onShow);
+    return () => { clearInterval(t); document.removeEventListener("visibilitychange", onShow); };
+  }, []);
+  return date;
+}
+
 /**
  * Today's own plan, composed on the server when the page has answers and no plan for today. It is asked for once per page
- * view and date: the date is read when the page opens, so a page left open past midnight makes nothing until it is opened
- * again. The store is flushed before every request, so the server reads the answers and ratings the page has. What an
- * answer means is decided in `model/today.ts` (`applyFirst`, `applyAnother`); this hook holds the requests and their state.
+ * view and date. The date follows `clock` (`useClockDate`): past midnight the page moves to the new day like a fresh
+ * visit (yesterday's plan becomes a past day, today's is asked for), but not while `editing` (the day editor is open) or
+ * a request is out: then it moves when that ends (`pageDate`). The store is flushed before every request, so the server
+ * reads the answers and ratings the page has. What an answer means is decided in `model/today.ts` (`applyFirst`,
+ * `applyAnother`); this hook holds the requests and their state.
  */
-export function useTodayPlan(state: PlanState, loaded: boolean, update: (change: (s: PlanState) => PlanState) => void, store: PlanStore): TodayPlan {
-  const [date] = useState(() => localDate());
+export function useTodayPlan(state: PlanState, loaded: boolean, update: (change: (s: PlanState) => PlanState) => void, store: PlanStore, clock: string, editing: boolean): TodayPlan {
+  const [date, setDate] = useState(clock);
   const own = loaded ? ownDay(state, date) : null;
   const answers = !!state.answers;
   // the date asked for in this page view, and whether its request is out (state, for the view; the ref guards React's double effect)
   const [req, setReq] = useState<{ date: string; inFlight: boolean } | null>(null);
   const askedRef = useRef<string | null>(null);
   const [failure, setFailure] = useState<TodayFailure | null>(null);
+  const [asking, setAsking] = useState(false);
+  const [none, setNone] = useState(false);
+  const [anotherFailed, setAnotherFailed] = useState<TodayFailure | null>(null);
+
+  // past midnight: the new date, like a fresh visit (what was said about the day before goes with it)
+  const next = pageDate(date, clock, editing || asking || !!req?.inFlight);
+  if (next !== date) {
+    setDate(next);
+    setFailure(null);
+    setNone(false);
+    setAnotherFailed(null);
+  }
 
   const make = useCallback(async () => {
     setReq({ date, inFlight: true });
@@ -72,9 +99,6 @@ export function useTodayPlan(state: PlanState, loaded: boolean, update: (change:
     void make();
   }, [date, make]);
 
-  const [asking, setAsking] = useState(false);
-  const [none, setNone] = useState(false);
-  const [anotherFailed, setAnotherFailed] = useState<TodayFailure | null>(null);
   const another = useCallback(() => {
     setAsking(true);
     setNone(false);

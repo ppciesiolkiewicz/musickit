@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PAST_DAYS, applyAnother, applyFirst, dateLabel, dayWords, daysLabel, hasNewPicks, pastDays, shouldAsk, todayView } from "./today";
-import { ratePlan, startDay } from "./schedule";
+import { PAST_DAYS, applyAnother, applyFirst, dateLabel, dayWords, daysLabel, hasNewPicks, pageDate, pastDays, shouldAsk, todayView } from "./today";
+import { ownDay, ratePlan, startDay } from "./schedule";
 import { EMPTY_STATE, type PlanState } from "./types";
 import type { ComposedDay } from "./compose";
 import type { PlanExercise, StoredPlan } from "./types";
@@ -141,4 +141,25 @@ test("applyAnother: new picks change the plan; none, a 409 no-blocks, a failure 
   assert.deepEqual(applyAnother(s, D, { ok: false, code: "no-answers" }, n()), { state: s, outcome: "failed" });
   // an answer for a try already stored (late or twice): nothing changes, said as a failed request
   assert.deepEqual(applyAnother(s, D, { ok: true, day: composed("C"), date: D, attempt: 0 }, n()), { state: s, outcome: "failed" });
+});
+
+// --- past midnight with the page open
+
+test("pageDate: the page's date follows the clock, except while an edit or a request is open", () => {
+  assert.equal(pageDate("2026-11-18", "2026-11-19", false), "2026-11-19");
+  assert.equal(pageDate("2026-11-18", "2026-11-19", true), "2026-11-18");
+  assert.equal(pageDate("2026-11-18", "2026-11-18", false), "2026-11-18");
+});
+
+test("past midnight: yesterday's plan as current is not today's plan; the new date asks once", () => {
+  const s = startDay(EMPTY_STATE, composed("A"), { date: D, attempt: 0 }, n());
+  const next = "2026-11-19";
+  const own = ownDay(s, next);
+  assert.equal(own, null);
+  const view = todayView({ loaded: true, answers: true, own, asked: false, inFlight: false, failure: null });
+  assert.notEqual(view.kind, "plan");
+  assert.equal(shouldAsk({ loaded: true, answers: true, own, asked: false }), true);
+  assert.equal(shouldAsk({ loaded: true, answers: true, own, asked: true }), false);
+  // yesterday's plan is listed with the past days
+  assert.deepEqual(pastDays(s.history, s.current, next).map((p) => p.id), [s.current!.id]);
 });

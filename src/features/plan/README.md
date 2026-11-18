@@ -29,8 +29,10 @@ it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used b
    and no own plan for today (`ownDay`), the page flushes the store (`PlanStore.flush`), asks the route once
    (`requestDay({ date, another: false })`, 15 s timeout, never throws) and stores the answer (`startDay`, with the title
    and theme from `model/today.ts` `dayWords`: the date, "Wednesday 18 November", and the topics the exercises practise).
-   It runs once per page view and date: the date is read when the page opens, so a page left open past midnight makes
-   nothing until it is opened again (no timer). What the page shows is `todayView` (`model/today.ts`, tested): while
+   It runs once per page view and date. The date follows the clock (`useClockDate`: `localDate()` read every minute and
+   when the page is shown again, the one date `PlanApp` uses for the streak too): past midnight the page moves to the new
+   day like a fresh visit (yesterday's plan goes to Past days and today's is asked for), but not while the day editor is
+   open or a request is out; then it moves when that ends (`pageDate`). What the page shows is `todayView` (`model/today.ts`, tested): while
    the request is out it says "attunr is putting today's plan together…", never an empty plan and never yesterday's in
    its place; asked with nothing out and no answer it shows the failed state with Try again, so it never hangs. What an
    answer does is `applyFirst` / `applyAnother` (same file); the hook only holds the requests, and a thrown flush or

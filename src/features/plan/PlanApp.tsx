@@ -8,7 +8,7 @@ import { randomId } from "./model/exerciseIds";
 import { recordAnswers } from "./model/answersHistory";
 import { backfill } from "./model/progressLog";
 import { useProgress } from "@/features/progress/useProgress";
-import { localDate, reviewPlan, storedPlans } from "./model/schedule";
+import { reviewPlan, storedPlans } from "./model/schedule";
 import type { PlanAnswers, PlanState, StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
 import { useAllPlanTimes, usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
@@ -21,7 +21,7 @@ import ProgressTracker from "./ui/tracker/ProgressTracker";
 import PlanFlow, { savedFlow } from "./ui/PlanFlow";
 import DayPlan, { TodayStatus } from "./ui/DayPlan";
 import PastDays from "./ui/PastDays";
-import { useTodayPlan } from "./ui/useTodayPlan";
+import { useClockDate, useTodayPlan } from "./ui/useTodayPlan";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
 import { FixedLabelRoot } from "@/features/theory/useLabelSystem";
 
@@ -46,17 +46,14 @@ export default function PlanApp() {
   // a flow left open (reload, hot reload) comes back; the modal only renders after the store loads, so no hydration mismatch
   // only the first questionnaire: a daily plan has no week to review (a "next" flow saved before is not reopened here)
   const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode === "start" ? "start" : null));
-  // the streak's day, moving at midnight; today's plan keeps the date the page opened with (`useTodayPlan`)
-  const [today, setToday] = useState(() => localDate());
+  // the clock's date, moving at midnight: the streak's day, and today's plan's (which waits for an open edit or request)
+  const today = useClockDate();
   const store = usePlanStore();
-
-  useEffect(() => {
-    const t = setInterval(() => setToday(localDate()), 60_000);
-    return () => clearInterval(t);
-  }, []);
+  // the day the player has open in the day editor: the AI leaves it alone until Done, and a new date waits for it
+  const [editingDay, setEditingDay] = useState<number | null>(null);
 
   // today's own plan, composed on the server when the page has answers and none for today
-  const day = useTodayPlan(state, loaded, update, store);
+  const day = useTodayPlan(state, loaded, update, store, today, editingDay !== null);
   const plan = day.view.kind === "plan" ? day.view.plan : null;
   // the day timer's seconds, kept apart from the plan
   const { times, loaded: timesLoaded, saveTime } = usePlanTimes(plan?.id ?? null);
@@ -101,8 +98,6 @@ export default function PlanApp() {
   }
   const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current && s.current.id === plan?.id ? { ...s, current: change(s.current) } : s));
   // the browser AI's block tools, while a plan runs
-  // the day the player has open in the day editor: the AI leaves it alone until Done
-  const [editingDay, setEditingDay] = useState<number | null>(null);
   usePlanAgentTools(loaded ? plan : null, (next) => setPlan(() => next), editingDay);
   const rate = rateHandler(plan, setPlan, progress);
 
