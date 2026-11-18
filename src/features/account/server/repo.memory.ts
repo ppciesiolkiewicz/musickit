@@ -7,6 +7,7 @@ export function memoryRepo(plans: Plan[] = []) {
   const identities: { userId: string; provider: string; providerAccountId: string }[] = [];
   const tokens: (TokenRow & { createdAt: Date; usedAt: Date | null; tries: number })[] = [];
   const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
+  const links: { teacherId: string; studentId: string; createdAt: Date; claimedAt: Date | null }[] = [];
   const planRequests: (PlanRequest & { userId: string })[] = [];
   let n = 0;
 
@@ -55,7 +56,33 @@ export function memoryRepo(plans: Plan[] = []) {
       const r = planRequests.find((x) => x.userId === userId);
       return r ? { planId: r.planId, createdAt: r.createdAt } : null;
     },
+    async addStudent(teacherId, studentId, now) {
+      if (links.some((l) => l.studentId === studentId)) throw new Error("student already has a teacher");
+      links.push({ teacherId, studentId, createdAt: now, claimedAt: null });
+    },
+    async studentsOf(teacherId) {
+      return links
+        .filter((l) => l.teacherId === teacherId)
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .flatMap((l) => {
+          const user = users.find((u) => u.id === l.studentId);
+          return user ? [{ user, createdAt: l.createdAt, claimedAt: l.claimedAt }] : [];
+        });
+    },
+    async studentLink(teacherId, studentId) {
+      const l = links.find((x) => x.teacherId === teacherId && x.studentId === studentId);
+      return l ? { createdAt: l.createdAt, claimedAt: l.claimedAt } : null;
+    },
+    async markClaimed(studentId, now) {
+      const l = links.find((x) => x.studentId === studentId);
+      if (l && !l.claimedAt) l.claimedAt = now;
+    },
+    async teacherOf(studentId) {
+      const l = links.find((x) => x.studentId === studentId);
+      return (l && users.find((u) => u.id === l.teacherId)) ?? null;
+    },
     async deleteUser(id) {
+      for (let i = links.length - 1; i >= 0; i--) if (links[i].teacherId === id || links[i].studentId === id) links.splice(i, 1);
       for (const list of [identities, sessions, planRequests]) for (let i = list.length - 1; i >= 0; i--) if (list[i].userId === id) list.splice(i, 1);
       const i = users.findIndex((u) => u.id === id);
       if (i >= 0) users.splice(i, 1);
@@ -111,5 +138,5 @@ export function memoryRepo(plans: Plan[] = []) {
       for (let i = tokens.length - 1; i >= 0; i--) if (tokens[i].expiresAt <= now) tokens.splice(i, 1);
     },
   };
-  return { repo, users, identities, tokens, sessions, planRequests };
+  return { repo, users, identities, tokens, sessions, planRequests, links };
 }

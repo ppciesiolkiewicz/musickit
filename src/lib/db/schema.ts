@@ -148,12 +148,13 @@ export const sessions = pgTable(
   (t) => [index("sessions_user").on(t.userId), index("sessions_expires").on(t.expiresAt)],
 );
 
-export const authTokenKind = pgEnum("auth_token_kind", ["email_link", "signup"]);
+export const authTokenKind = pgEnum("auth_token_kind", ["email_link", "signup", "claim"]);
 
 /**
  * Short-lived, single-use proofs. `email_link`: the link mailed to log in or register (name and role are set when it
  * came from the register form). `signup`: the email is proven (by a link or Google) but there is no account yet, and
- * the person still has to give a name and a role.
+ * the person still has to give a name and a role. `claim`: the link a teacher gives a student they made an account for,
+ * to sign in to it (the token's email is the student's).
  */
 export const authTokens = pgTable(
   "auth_tokens",
@@ -176,6 +177,21 @@ export const authTokens = pgTable(
     usedAt: at("used_at"),
   },
   (t) => [index("auth_tokens_email").on(t.email, t.createdAt), index("auth_tokens_expires").on(t.expiresAt)],
+);
+
+/**
+ * A teacher and their student (a normal `users` row of its own). A student has one teacher, so `student_id` is unique.
+ * `claimed_at` is null until the student first signs in to the account the teacher made for them.
+ */
+export const teacherStudents = pgTable(
+  "teacher_students",
+  {
+    teacherId: uuid("teacher_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    studentId: uuid("student_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+    createdAt: at("created_at").notNull().defaultNow(),
+    claimedAt: at("claimed_at"),
+  },
+  (t) => [primaryKey({ columns: [t.teacherId, t.studentId] })],
 );
 
 /** One JSON document of a player's data per kind (their notes, their plans, and so on). */

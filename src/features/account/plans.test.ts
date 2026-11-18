@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { allowanceLabel, bestSavingLabel, bothPricesLabel, canChoose, modelLabel, priceLabel, pricedWithYou, savingLabel, studentsLabel, trialLabel, yearlyCents, type Plan } from "./plans";
+import { allowanceLabel, bestSavingLabel, bothPricesLabel, canChoose, choosablePlans, TAUGHT_PLAN_ID, modelLabel, priceLabel, pricedWithYou, savingLabel, studentsLabel, trialLabel, yearlyCents, type Plan } from "./plans";
 
 test("a plan with any number of students is priced with the person", () => {
   assert.equal(pricedWithYou({ students: null }), true);
@@ -39,4 +39,13 @@ test("a plan can be chosen paid either way; the one you are on only the other wa
   assert.equal(canChoose(plans, none, "old", "year"), null);
   assert.equal(canChoose(plans, { planId: "a", billing: "year" }, "a", "year"), null);
   assert.equal(canChoose(plans, { planId: "old", billing: "year" }, "old", "month")?.id, "old");
+});
+
+test("the taught plan is never offered to someone who is not on it", () => {
+  const plan = (id: string, enabled: boolean): Plan => ({ id, name: id, role: "student", monthCents: 0, yearCents: 0, trialDays: 0, students: 0, autoplansPerMonth: 0, batch: false, enabled, sort: 0 });
+  const all = [plan("student", true), plan(TAUGHT_PLAN_ID, false)];
+  assert.equal(TAUGHT_PLAN_ID, "taught");
+  assert.deepEqual(choosablePlans(all, "student").map((p) => p.id), ["student"]);
+  assert.deepEqual(choosablePlans(all, null).map((p) => p.id), ["student"]);
+  assert.deepEqual(choosablePlans(all, TAUGHT_PLAN_ID).map((p) => p.id), ["student", "taught"]);
 });

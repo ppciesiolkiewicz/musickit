@@ -22,6 +22,10 @@
   what `GET /api/account/plan` gives and never writes a price of its own. The plan's role comes with it (`roleOnPlan`).
   `plans.new_plan_percent` (the chance an autoplan is written new rather than taken from the `practice_plans` library) is an
   internal cost lever that players never see, always 1 to 99 (a check in the database): `listPlans` leaves it off `Plan`, which reaches the browser; only server code and /dev/costs read it.
+- **A teacher's student is a normal account on the `taught` plan** (`TAUGHT_PLAN_ID`: free, `enabled` false, so no one
+  chooses it; `Account.taught`), linked by a `teacher_students` row (`addStudent`, `studentsOf`, `studentLink`,
+  `teacherOf`, `markClaimed` on `AuthRepo`). A student has one teacher. Anything that reaches a student's data checks the
+  link on the server first; never trust a student id from a request. `students` in `FEATURES` is for teachers and owners.
 - **A token is stored as its hash, used once, and never logged** (the one exception: the development log-in link).
 - **Where to go next is checked with `safeNext`**, wherever it comes from. Never redirect to a raw `next`.
 - **`server/` is server only.** Nothing in `ui/` or any client file imports from it; pages (server components) may.

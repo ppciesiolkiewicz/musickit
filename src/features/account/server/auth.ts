@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { setupHref } from "../loginGuard";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
-import { canChoose, choosablePlans, pricedWithYou, roleOnPlan, type Billing, type Plan } from "../plans";
+import { canChoose, choosablePlans, pricedWithYou, roleOnPlan, TAUGHT_PLAN_ID, type Billing, type Plan } from "../plans";
 import type { AuthRepo, TokenRow, UserRow } from "./repo";
 
 /**
@@ -47,7 +47,7 @@ export const hashCode = (email: string, code: string): string => hashToken(`${em
 
 export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Date(), token: newToken, code: newCode });
 
-export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString(), needsSetup: u.planId === null, emailUpdates: u.emailUpdatesAt !== null });
+export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString(), needsSetup: u.planId === null, emailUpdates: u.emailUpdatesAt !== null, taught: u.planId === TAUGHT_PLAN_ID });
 
 /** Where to go after signing in when no page was asked for. */
 export const AFTER_LOGIN = "/plan";

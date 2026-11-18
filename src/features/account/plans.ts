@@ -35,6 +35,12 @@ export interface Plan {
 
 export const DEFAULT_PLAN_ID = "student";
 
+/**
+ * The plan of a student a teacher made an account for: it costs the student nothing and is never offered
+ * (`enabled` false), so only a teacher's student is on it. The row is written by migration 0028.
+ */
+export const TAUGHT_PLAN_ID = "taught";
+
 /** How a person pays for their plan: every month, or once a year. */
 export type Billing = "month" | "year";
 export const isBilling = (x: unknown): x is Billing => x === "month" || x === "year";

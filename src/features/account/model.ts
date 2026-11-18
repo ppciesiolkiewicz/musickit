@@ -19,6 +19,8 @@ export interface Account {
   needsSetup: boolean;
   /** Agreed to emails about what we fix and add (`email_updates_at`). */
   emailUpdates: boolean;
+  /** On the `taught` plan: a student a teacher made an account for. Accounts stored before this have no field. */
+  taught: boolean;
 }
 
 /**
@@ -32,6 +34,8 @@ export const FEATURES = {
   aiPlan: ["student", "teacher", "owner"],
   /** Sharing a plan as an invite (Share plan). Signing in is needed too: with no database there are no accounts and no sharing. */
   sharePlan: ["teacher", "owner"],
+  /** Having students: making their accounts and reading and writing their plans. */
+  students: ["teacher", "owner"],
 } as const satisfies Record<string, readonly Role[]>;
 export type Feature = keyof typeof FEATURES;
 

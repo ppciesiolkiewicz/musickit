@@ -1,6 +1,6 @@
-import { and, count, eq, getTableColumns, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
+import { and, count, desc, eq, getTableColumns, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { authTokens, identities, planRequests, plans, sessions, users } from "@/lib/db/schema";
+import { authTokens, identities, planRequests, plans, sessions, teacherStudents, users } from "@/lib/db/schema";
 import type { Plan } from "../plans";
 import type { AuthRepo, TokenRow } from "./repo";
 
@@ -67,6 +67,39 @@ export function drizzleRepo(db: Db): AuthRepo {
     },
     async planRequest(userId) {
       const [row] = await db.select({ planId: planRequests.planId, createdAt: planRequests.createdAt }).from(planRequests).where(eq(planRequests.userId, userId)).limit(1);
+      return row ?? null;
+    },
+    async addStudent(teacherId, studentId, now) {
+      // no onConflictDoNothing: a student who already has a teacher is an error, not a silent no-op
+      await db.insert(teacherStudents).values({ teacherId, studentId, createdAt: now });
+    },
+    async studentsOf(teacherId) {
+      const rows = await db
+        .select({ user: userCols, createdAt: teacherStudents.createdAt, claimedAt: teacherStudents.claimedAt })
+        .from(teacherStudents)
+        .innerJoin(users, eq(users.id, teacherStudents.studentId))
+        .where(eq(teacherStudents.teacherId, teacherId))
+        .orderBy(desc(teacherStudents.createdAt));
+      return rows;
+    },
+    async studentLink(teacherId, studentId) {
+      const [row] = await db
+        .select({ createdAt: teacherStudents.createdAt, claimedAt: teacherStudents.claimedAt })
+        .from(teacherStudents)
+        .where(and(eq(teacherStudents.teacherId, teacherId), eq(teacherStudents.studentId, studentId)))
+        .limit(1);
+      return row ?? null;
+    },
+    async markClaimed(studentId, now) {
+      await db.update(teacherStudents).set({ claimedAt: now }).where(and(eq(teacherStudents.studentId, studentId), isNull(teacherStudents.claimedAt)));
+    },
+    async teacherOf(studentId) {
+      const [row] = await db
+        .select(userCols)
+        .from(teacherStudents)
+        .innerJoin(users, eq(users.id, teacherStudents.teacherId))
+        .where(eq(teacherStudents.studentId, studentId))
+        .limit(1);
       return row ?? null;
     },
     async deleteUser(id) {

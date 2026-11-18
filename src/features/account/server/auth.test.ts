@@ -25,6 +25,7 @@ import {
   sessionAccount,
   signOut,
   startName,
+  toAccount,
   type AuthDeps,
   type GoogleProfile,
 } from "./auth";
@@ -67,7 +68,7 @@ test("a link for a new email makes a student account, named from the email, and 
   assert.ok(done?.kind === "session");
   assert.equal(done.created, true);
   assert.equal(done.next, "/plan");
-  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString(), needsSetup: true, emailUpdates: false });
+  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString(), needsSetup: true, emailUpdates: false, taught: false });
   assert.equal((await sessionAccount(deps, done.sessionToken))?.account.email, "ann@school.com");
   assert.equal(users.length, 1);
 });
@@ -426,4 +427,59 @@ test("an account with no plan goes to setup after every sign-in, then straight t
   assert.ok((await setUpAccount(deps, first.account, { name: "Ann Lee", planId: "student", billing: "year" })).ok);
   const done = await googleSignIn(deps, ann, { next: "/notes", userAgent: null });
   assert.equal(done && pathAfterSignIn(done), "/notes");
+});
+
+test("toAccount marks a student put on the taught plan", async () => {
+  const { repo, deps } = setup();
+  const user = await repo.createUser({ email: "kid@school.com", name: "Kid", role: "student" }, deps.now());
+  assert.ok(user);
+  assert.equal(toAccount(user).taught, false);
+  assert.equal(toAccount({ ...user, planId: "student" }).taught, false);
+  assert.equal(toAccount({ ...user, planId: "taught" }).taught, true);
+});
+
+test("a teacher's students: listed newest first, linked to one teacher, claimed once", async () => {
+  const { repo, deps } = setup();
+  const now = deps.now();
+  const at = (min: number) => new Date(now.getTime() + min * 60_000);
+  const teacher = (await repo.createUser({ email: "t@school.com", name: "T", role: "teacher" }, now))!;
+  const other = (await repo.createUser({ email: "o@school.com", name: "O", role: "teacher" }, now))!;
+  const a = (await repo.createUser({ email: "a@school.com", name: "A", role: "student" }, now))!;
+  const b = (await repo.createUser({ email: "b@school.com", name: "B", role: "student" }, now))!;
+
+  assert.equal(await repo.teacherOf(a.id), null);
+  await repo.addStudent(teacher.id, a.id, at(1));
+  await repo.addStudent(teacher.id, b.id, at(2));
+  assert.deepEqual((await repo.studentsOf(teacher.id)).map((s) => s.user.id), [b.id, a.id]);
+  assert.deepEqual(await repo.studentsOf(other.id), []);
+
+  assert.deepEqual(await repo.studentLink(teacher.id, a.id), { createdAt: at(1), claimedAt: null });
+  assert.equal(await repo.studentLink(other.id, a.id), null);
+  assert.equal((await repo.teacherOf(a.id))?.id, teacher.id);
+
+  await repo.markClaimed(a.id, at(5));
+  await repo.markClaimed(a.id, at(9));
+  assert.deepEqual(await repo.studentLink(teacher.id, a.id), { createdAt: at(1), claimedAt: at(5) });
+  assert.equal((await repo.studentsOf(teacher.id)).find((s) => s.user.id === b.id)?.claimedAt, null);
+});
+
+test("a student has one teacher: a second link for the same student is refused", async () => {
+  const { repo, deps } = setup();
+  const now = deps.now();
+  const t1 = (await repo.createUser({ email: "t1@school.com", name: "T", role: "teacher" }, now))!;
+  const t2 = (await repo.createUser({ email: "t2@school.com", name: "T", role: "teacher" }, now))!;
+  const kid = (await repo.createUser({ email: "k@school.com", name: "K", role: "student" }, now))!;
+  await repo.addStudent(t1.id, kid.id, now);
+  await assert.rejects(repo.addStudent(t2.id, kid.id, now));
+  assert.equal((await repo.teacherOf(kid.id))?.id, t1.id);
+});
+
+test("deleting a user removes their links", async () => {
+  const { repo, deps } = setup();
+  const now = deps.now();
+  const t = (await repo.createUser({ email: "t@school.com", name: "T", role: "teacher" }, now))!;
+  const kid = (await repo.createUser({ email: "k@school.com", name: "K", role: "student" }, now))!;
+  await repo.addStudent(t.id, kid.id, now);
+  await repo.deleteUser(kid.id);
+  assert.deepEqual(await repo.studentsOf(t.id), []);
 });

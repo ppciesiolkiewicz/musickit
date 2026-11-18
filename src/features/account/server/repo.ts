@@ -22,7 +22,7 @@ export interface PlanRequest {
   createdAt: Date;
 }
 
-export type TokenKind = "email_link" | "signup";
+export type TokenKind = "email_link" | "signup" | "claim";
 
 /** A short-lived single-use proof (see `authTokens` in lib/db/schema.ts). */
 export interface TokenRow {
@@ -67,6 +67,16 @@ export interface AuthRepo {
   requestPlan(userId: string, planId: string, now: Date): Promise<void>;
   /** The user's plan request, or null when they never chose a plan priced with them. */
   planRequest(userId: string): Promise<PlanRequest | null>;
+  /** Links a student to their teacher. Throws when the student already has a teacher. */
+  addStudent(teacherId: string, studentId: string, now: Date): Promise<void>;
+  /** The teacher's students, newest link first. */
+  studentsOf(teacherId: string): Promise<{ user: UserRow; createdAt: Date; claimedAt: Date | null }[]>;
+  /** The link of this teacher and student, or null when the student is not theirs. */
+  studentLink(teacherId: string, studentId: string): Promise<{ createdAt: Date; claimedAt: Date | null } | null>;
+  /** Records the student's first sign in. Only while it is null: a later call keeps the first time. */
+  markClaimed(studentId: string, now: Date): Promise<void>;
+  /** The student's teacher, or null. */
+  teacherOf(studentId: string): Promise<UserRow | null>;
   /** Deletes the user with their sessions and identities. */
   deleteUser(id: string): Promise<void>;
 
