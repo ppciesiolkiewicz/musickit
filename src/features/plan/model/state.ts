@@ -23,6 +23,17 @@ export function cleanReview(raw: unknown): PlanReview | null {
   return { stars: r.stars, ...(why ? { why } : {}), at: r.at };
 }
 
+/** The most earlier plans kept: about two months of one-day plans. */
+export const HISTORY_CAP = 60;
+
+/** A stored `composed` record made safe: null unless the attempt is a whole number from 0 and `short` a boolean; `declined` keeps its text items. */
+function cleanComposed(raw: unknown): StoredPlan["composed"] | null {
+  if (!raw || typeof raw !== "object") return null;
+  const c = raw as Record<string, unknown>;
+  if (!Number.isInteger(c.attempt) || (c.attempt as number) < 0 || typeof c.short !== "boolean" || !Array.isArray(c.declined)) return null;
+  return { attempt: c.attempt as number, declined: c.declined.filter((d): d is string => typeof d === "string"), short: c.short };
+}
+
 /** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, and the timer's old `elapsed` and `spent` dropped. */
 function cleanPlan(stored: StoredPlan): StoredPlan {
   let p: StoredPlan = { ...stored, config: withBlockIds(cleanCells(withExerciseIds(stored.config))) };
@@ -35,6 +46,12 @@ function cleanPlan(stored: StoredPlan): StoredPlan {
   if (p.from !== undefined && typeof p.from !== "string") {
     p = { ...p };
     delete p.from;
+  }
+  if ("composed" in p) {
+    const composed = cleanComposed(p.composed);
+    p = { ...p };
+    if (composed) p.composed = composed;
+    else delete p.composed;
   }
   if ("review" in p) {
     const review = cleanReview(p.review);
@@ -54,13 +71,16 @@ export function sanitiseState(raw: unknown): PlanState {
   const r = s.reminder;
   const answers = s.answers && typeof s.answers === "object" ? migrateAnswers(s.answers) : null;
   const current = isPlan(s.current) ? cleanPlan(s.current) : null;
-  const history = Array.isArray(s.history) ? s.history.filter(isPlan).slice(0, 20).map(cleanPlan) : [];
+  const history = Array.isArray(s.history) ? s.history.filter(isPlan).slice(0, HISTORY_CAP).map(cleanPlan) : [];
+  // a given plan is one claimed from an invite: one without `from` is not one
+  const given = Array.isArray(s.given) ? s.given.filter((p) => isPlan(p) && typeof p.from === "string" && !!p.from).map(cleanPlan) : [];
   return {
     answers,
     // a document stored before the history: one entry from the answers, dated the earliest plan's start
     answersHistory: Array.isArray(s.answersHistory) && s.answersHistory.length ? cleanAnswersHistory(s.answersHistory) : movedOver(answers, [current, ...history].filter((p): p is StoredPlan => !!p)),
     current,
     history,
+    given,
     reminder: {
       enabled: !!r?.enabled,
       time: typeof r?.time === "string" && /^\d\d:\d\d$/.test(r.time) ? r.time : EMPTY_STATE.reminder.time,
@@ -71,8 +91,8 @@ export function sanitiseState(raw: unknown): PlanState {
 
 /**
  * The state cut to fit `maxBytes` of JSON: its oldest earlier plans are dropped, one by one, until it fits. The running
- * plan is never dropped, and the newest earlier plan (where a claimed invite goes) is dropped last. Losing the oldest
- * history beats every save of the plan being refused. A state that fits comes back as the same object.
+ * plan and the given plans are never dropped. Losing the oldest history beats every save of the plan being refused. A
+ * state that fits comes back as the same object.
  */
 export function fitPlanState(s: PlanState, maxBytes: number): PlanState {
   const size = (x: PlanState) => JSON.stringify(x).length;

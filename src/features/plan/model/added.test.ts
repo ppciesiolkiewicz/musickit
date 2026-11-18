@@ -5,10 +5,11 @@ import { addedPlan, takeAdded } from "./added";
 
 const plan = (id: string): StoredPlan => ({ id, startedOn: "2026-11-15", done: {}, config: { title: id, days: [] } as unknown as PlanConfig });
 
-test("a claimed plan that became the current one needs no notice; one in the history is named; an unknown id is nothing", () => {
-  const s = { ...EMPTY_STATE, current: plan("mine"), history: [plan("invited"), plan("old")] };
-  assert.equal(addedPlan(s, "invited"), s.history[0]);
+test("a claimed plan is found in given; the current plan, the history and an unknown id are nothing", () => {
+  const s = { ...EMPTY_STATE, current: plan("mine"), history: [plan("old")], given: [{ ...plan("invited"), from: "s1" }] };
+  assert.equal(addedPlan(s, "invited"), s.given[0]);
   assert.equal(addedPlan(s, "mine"), null);
+  assert.equal(addedPlan(s, "old"), null);
   assert.equal(addedPlan(s, "gone"), null);
   assert.equal(addedPlan(s, null), null);
 });

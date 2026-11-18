@@ -11,7 +11,7 @@ import { addedPlan, takeAdded } from "./model/added";
 import { useProgress } from "@/features/progress/useProgress";
 import { dayIndex, localDate, ratePlan, restartPlan, reviewPlan, weekOver } from "./model/schedule";
 import type { Stars } from "@/features/progress/stars";
-import { PLAN_DAYS, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
+import { planDays, type PlanAnswers, type PlanConfig, type PlanState, type StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
 import { useAllPlanTimes, usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
 import { outcome } from "./model/outcome";
@@ -77,7 +77,7 @@ export default function PlanApp() {
   // the day timer's seconds, kept apart from the plan
   const { times, loaded: timesLoaded, saveTime } = usePlanTimes(plan?.id ?? null);
   const added = loaded ? addedPlan(state, addedId) : null;
-  const todayIdx = plan ? Math.min(dayIndex(plan.startedOn, today), PLAN_DAYS - 1) : 0;
+  const todayIdx = plan ? Math.min(dayIndex(plan.startedOn, today), planDays(plan) - 1) : 0;
   const over = plan ? weekOver(plan, today) : false;
   // the streak and the progress tracker: every plan's timer records with this plan's live ones laid over them, so
   // today's saves count without a reload
@@ -181,7 +181,7 @@ export default function PlanApp() {
         <div className="mt-4 mb-2 flex flex-col gap-5 sm:mt-6">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${PLAN_DAYS}`} · started {plan.startedOn}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">{over ? "Week done" : `Day ${todayIdx + 1} of ${planDays(plan)}`} · started {plan.startedOn}</p>
               {streak}
             </div>
             <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{plan.config.title}</h2>
@@ -212,7 +212,7 @@ export default function PlanApp() {
           </section>
         )}
 
-        <WeekView plan={plan} today={over ? PLAN_DAYS - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} times={times} onTime={saveTime} onEdit={(next) => setPlan(() => next)} onEditing={setEditingDay} corner={labels} />
+        <WeekView plan={plan} today={over ? planDays(plan) - 1 : todayIdx} day={day ?? todayIdx} onDay={setDay} onRate={rate} times={times} onTime={saveTime} onEdit={(next) => setPlan(() => next)} onEditing={setEditingDay} corner={labels} />
 
         {state.history.length > 0 && <History key={added?.id ?? ""} plans={state.history} onUse={startAgain} marked={added?.id} />}
         <div className="flex justify-center">

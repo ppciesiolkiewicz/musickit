@@ -48,7 +48,7 @@ async function setup() {
 }
 
 const planDoc = async (repo: UserDataRepo, userId: string) => (await readDoc(repo, userId, "plan")) as PlanState;
-const copiesOf = (s: PlanState, shareId: string) => [s.current, ...s.history].filter((p) => p?.from === shareId);
+const copiesOf = (s: PlanState, shareId: string) => [s.current, ...s.history, ...s.given].filter((p) => p?.from === shareId);
 
 test("videoIdsIn: finds recordings nested anywhere, once each, and skips library refs and placeholders", () => {
   const snap = {
@@ -163,7 +163,7 @@ test("sharePlan: the snapshot is the current week only, without ticks, ratings, 
   assert.equal("progress" in shared, false);
 });
 
-test("claimInvite twice gives one plan, and the claimer can watch the plan's video", async () => {
+test("claimInvite twice gives one plan, in given, and the claimer can watch the plan's video", async () => {
   const repo = await setup();
   await sharePlan(repo, ann, NOW, ids("s"));
   const first = await claimInvite(repo, ben, "s1", NOW, ids("p"));
@@ -171,31 +171,33 @@ test("claimInvite twice gives one plan, and the claimer can watch the plan's vid
   const again = await claimInvite(repo, ben, "s1", LATER, ids("q"));
   assert.deepEqual(again, { ok: true, planId: "p1" });
   const s = await planDoc(repo, BEN);
-  assert.equal(s.current?.id, "p1", "with no plan running, the copy becomes the current one");
-  assert.equal(s.current?.from, "s1");
-  assert.equal(s.current?.startedOn, "2026-11-15");
-  assert.deepEqual(s.current?.done, {});
-  assert.equal(s.current?.config.days[0].exercises[0].id === "e0", false, "the copy's exercises get new ids");
+  assert.equal(s.current, null, "with no plan running, the copy still goes to given, never current");
+  assert.deepEqual(s.given.map((p) => p.id), ["p1"]);
+  const [copy] = s.given;
+  assert.equal(copy.from, "s1");
+  assert.equal(copy.startedOn, "2026-11-15");
+  assert.deepEqual(copy.done, {});
+  assert.equal(copy.config.days[0].exercises[0].id === "e0", false, "the copy's exercises get new ids");
   assert.equal(s.history.length, 0);
   assert.equal((await repo.canWatch(BEN, V2))?.id, V2);
   assert.equal(await repo.canWatch(CAL, V2), null);
   assert.equal(await repo.canWatch(null, V2), null);
 });
 
-test("claimInvite: with a plan running, the copy goes to the front of the history and survives a full history", async () => {
+test("claimInvite: with a plan running, the copy goes to the front of given; current and history are untouched", async () => {
   const repo = await setup();
   const history = Array.from({ length: 20 }, (_, i) => plan(`old-${i}`, V3));
-  await repo.putDoc(BEN, "plan", { current: plan("ben-plan", V3), history }, NOW);
+  await repo.putDoc(BEN, "plan", { current: plan("ben-plan", V3), history, given: [plan("given-0", V3, { from: "s0" })] }, NOW);
+  const before = await planDoc(repo, BEN);
   await sharePlan(repo, ann, NOW, ids("s"));
   assert.deepEqual(await claimInvite(repo, ben, "s1", NOW, ids("p")), { ok: true, planId: "p1" });
   const s = await planDoc(repo, BEN);
-  assert.equal(s.current?.id, "ben-plan");
-  assert.equal(s.history[0].id, "p1");
-  assert.equal(s.history[0].from, "s1");
-  assert.equal(s.history.length, 20);
+  assert.deepEqual(s.current, before.current);
+  assert.deepEqual(s.history, before.history);
+  assert.deepEqual(s.given.map((p) => [p.id, p.from]), [["p1", "s1"], ["given-0", "s0"]]);
 });
 
-test("claimInvite again puts the copy back when another tab overwrote the plan document", async () => {
+test("claimInvite again puts the copy back in given when another tab overwrote the plan document", async () => {
   const repo = await setup();
   await sharePlan(repo, ann, NOW, ids("s"));
   await claimInvite(repo, ben, "s1", NOW, ids("p"));
@@ -204,8 +206,9 @@ test("claimInvite again puts the copy back when another tab overwrote the plan d
   assert.deepEqual(again, { ok: true, planId: "q1" });
   const s = await planDoc(repo, BEN);
   assert.equal(copiesOf(s, "s1").length, 1);
-  assert.equal(s.history[0].id, "q1");
+  assert.equal(s.given[0].id, "q1");
   assert.equal(s.current?.id, "ben-plan");
+  assert.equal(s.history.length, 0);
 });
 
 test("after stopShare a new claimer gets stopped, and the old claimer can still watch", async () => {

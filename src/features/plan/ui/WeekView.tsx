@@ -8,7 +8,7 @@ import DayEditor from "./DayEditor";
 import ExerciseCard from "./ExerciseCard";
 import { dayTime, elapsedOn, spentOn, type DayTime } from "../model/planTime";
 import { dayProgress, doneKey } from "../model/schedule";
-import { PLAN_DAYS, type StoredPlan } from "../model/types";
+import { planDays, type StoredPlan } from "../model/types";
 import type { Stars } from "@/features/progress/stars";
 
 /**
@@ -53,7 +53,7 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
   return (
     <div className="flex flex-col gap-5">
       <div data-tour="plan-week" className="grid grid-cols-7 gap-1.5" role="tablist" aria-label="Days">
-        {Array.from({ length: PLAN_DAYS }, (_, i) => {
+        {Array.from({ length: planDays(plan) }, (_, i) => {
           const ahead = i > today;
           const p = dayProgress(plan, i);
           const on = i === day;

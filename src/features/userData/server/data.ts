@@ -28,7 +28,7 @@ export async function writeDoc(repo: UserDataRepo, userId: string, kind: string,
     }
     try {
       const state = doc as PlanState;
-      await repo.syncPlanReviews(userId, [state.current, ...state.history].flatMap((p) => (p ? [p.id] : [])), reviewRowsOf(state));
+      await repo.syncPlanReviews(userId, [state.current, ...state.history, ...state.given].flatMap((p) => (p ? [p.id] : [])), reviewRowsOf(state));
     } catch (error) {
       console.error("[writeDoc] syncPlanReviews failed", { userId, error });
     }
@@ -37,13 +37,13 @@ export async function writeDoc(repo: UserDataRepo, userId: string, kind: string,
 }
 
 /**
- * The `plan_reviews` rows of a parsed plan document: one for each plan (current, then history) that has a review, and one per
+ * The `plan_reviews` rows of a parsed plan document: one for each plan (current, then history, then given) that has a review, and one per
  * plan id, the first kept (two rows for one id would make the upsert throw on every save). `libraryPlanId` stays null until a
  * stored plan records its library plan.
  */
 export function reviewRowsOf(state: PlanState): PlanReviewRow[] {
   const seen = new Set<string>();
-  return [state.current, ...state.history].flatMap((p) => {
+  return [state.current, ...state.history, ...state.given].flatMap((p) => {
     const review = p?.review;
     const at = review ? new Date(review.at) : null;
     if (!p || !review || !at || Number.isNaN(at.getTime()) || seen.has(p.id)) return [];
@@ -53,13 +53,13 @@ export function reviewRowsOf(state: PlanState): PlanReviewRow[] {
 }
 
 /**
- * Puts the blocks of a parsed plan document (the current plan, then the history) in the library, owned by the player:
+ * Puts the blocks of a parsed plan document (the current plan, then the history, then the given plans) in the library, owned by the player:
  * only those they don't own yet, so a second save adds nothing. Ids are worked out from content and tags, never taken from
  * the document. A parent is kept only when the player owns it or it is in this document, so no one hangs a block off
  * another player's private one. Returns how many blocks the player newly owns.
  */
 export async function storePlanBlocks(repo: UserDataRepo, userId: string, state: PlanState, now: Date): Promise<number> {
-  const found = libraryBlocksOf([state.current, ...state.history].filter((p): p is StoredPlan => !!p));
+  const found = libraryBlocksOf([state.current, ...state.history, ...state.given].filter((p): p is StoredPlan => !!p));
   if (!found.length) return 0;
   const inDoc = new Set(found.map((b) => b.id));
   const parents = found.flatMap((b) => (b.parentId && !inDoc.has(b.parentId) ? [b.parentId] : []));

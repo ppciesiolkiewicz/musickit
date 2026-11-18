@@ -53,7 +53,7 @@ export interface PlanDay {
   exercises: PlanExercise[];
 }
 
-/** The config the AI returns and the player pastes: always seven days. */
+/** The config the AI returns and the player pastes: always seven days. A composed plan (`startDay`) has one. */
 export interface PlanConfig {
   title: string;
   summary?: string;
@@ -84,6 +84,11 @@ export interface StoredPlan {
   from?: string;
   /** how the plan went as a whole, asked at the end of the week; absent until the player answers */
   review?: PlanReview;
+  /**
+   * Set on a composed one-day plan only (the player's own, `startDay`): which try of the day it is (from 0), the block ids
+   * turned down today (never picked again that day) and whether the library had too little to fill the minutes.
+   */
+  composed?: { attempt: number; declined: string[]; short: boolean };
 }
 
 export interface ReminderSettings {
@@ -108,9 +113,15 @@ export interface PlanState {
   current: StoredPlan | null;
   /** earlier plans, newest first */
   history: StoredPlan[];
+  /** plans the player was given (claimed from an invite, `from` set), newest first; never `current` */
+  given: StoredPlan[];
   reminder: ReminderSettings;
 }
 
+/** How many days a parsed plan has (`parsePlanConfig`, the prompt). A stored plan's own length is `planDays`. */
 export const PLAN_DAYS = 7;
 
-export const EMPTY_STATE: PlanState = { answers: null, answersHistory: [], current: null, history: [], reminder: { enabled: false, time: "18:00" } };
+/** How many days this plan has: one for a composed day, seven for a parsed or given plan. */
+export const planDays = (p: StoredPlan): number => p.config.days.length;
+
+export const EMPTY_STATE: PlanState = { answers: null, answersHistory: [], current: null, history: [], given: [], reminder: { enabled: false, time: "18:00" } };

@@ -115,9 +115,9 @@ function invitedConfig(snapshot: unknown): PlanConfig | null {
 }
 
 /**
- * Claims an invite: a copy of its plan in the claimer's plans, started today. It becomes the current plan when there is
- * none, and otherwise goes to the front of the history. A second claim adds nothing and returns the copy's id; if the
- * copy is gone from the document (another tab saved over it), it is added back. A stopped invite can't be claimed.
+ * Claims an invite: a copy of its plan at the front of the claimer's given plans (`PlanState.given`), started today,
+ * whatever the current plan is; `current` and `history` are left as they are. A second claim adds nothing and returns the
+ * copy's id; if the copy is gone from the document (another tab saved over it), it is added back. A stopped invite can't be claimed.
  */
 export async function claimInvite(
   repo: UserDataRepo,
@@ -133,11 +133,11 @@ export async function claimInvite(
   if (!config) return { error: "not-found" };
   await repo.claimPlan(id, account.id, now);
   const state = (await readDoc(repo, account.id, "plan")) as PlanState;
-  const copy = [state.current, ...state.history].find((p) => p?.from === id);
+  const copy = state.given.find((p) => p.from === id);
   if (copy) return { ok: true, planId: copy.id };
   const plan: StoredPlan = { id: newId(), config: withExerciseIds(config, newId, true), startedOn: localDate(now), done: {}, from: id };
-  const next: PlanState = state.current ? { ...state, history: [plan, ...state.history] } : { ...state, current: plan };
-  // the history keeps 20 (sanitiseState); too big a document loses its oldest plans (fitPlanState); the copy, first, goes last
+  const next: PlanState = { ...state, given: [plan, ...state.given] };
+  // too big a document loses its oldest earlier plans (fitPlanState); given plans are never dropped
   const saved = await writeDoc(repo, account.id, "plan", fitPlanState(next, MAX_PLAN_BYTES), now);
   if (!saved.ok) throw new Error(`claimInvite: plan document not saved (${saved.error})`);
   return { ok: true, planId: plan.id };

@@ -307,3 +307,19 @@ test("readAllPlanTimes lists every plan's days for this player only", async () =
   assert.deepEqual(all.map((d) => `${d.planId}:${d.day}`).sort(), ["p:0", "q:3"]);
   assert.deepEqual(all.find((d) => d.planId === "q")!.on, { "2026-11-14": 120 }); // on_dates comes back as on
 });
+
+// --- given plans (claimed from an invite) count like the player's own
+
+test("storePlanBlocks puts the blocks of the given plans in the library too", async () => {
+  const repo = memoryUserDataRepo();
+  const given = { id: "g1", from: "share-1", startedOn: "2026-11-01", done: {}, config: { title: "Given", days: [{ theme: "d", exercises: [ex2] }] } };
+  await writeDoc(repo, "u1", "plan", { ...planDoc([ex]), given: [given] }, now);
+  assert.deepEqual([...repo.peekBlocks().keys()].sort(), [idOf(ex), idOf(ex2)].sort());
+});
+
+test("a reviewed given plan becomes a plan_reviews row", async () => {
+  const repo = memoryUserDataRepo();
+  const given = { id: "g1", from: "share-1", startedOn: "2026-11-01", done: {}, config: { title: "Given week", days: [] }, review: { stars: 4, at: "2026-11-15T09:00:00.000Z" } };
+  await writeDoc(repo, "u1", "plan", { current: null, history: [], given: [given] }, now);
+  assert.deepEqual((await repo.listPlanReviews(10)).map((r) => [r.planId, r.title, r.stars]), [["g1", "Given week", 4]]);
+});

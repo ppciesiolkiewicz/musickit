@@ -118,3 +118,13 @@ test("playerProgress reads progress the way the player's API does: a broken stor
   assert.ok(r);
   assert.equal(r.outcome.areas.flatMap((a) => a.topics).find((t) => t.topic === "guitar-scales")?.ratings, 0);
 });
+
+test("playerProgress counts the plans in given: a slot's seconds find its exercise's topic there", async () => {
+  const userData = memoryUserDataRepo();
+  const exercise = { id: "g-e1", title: "Given scale", minutes: 10, cells: [{ type: "text", text: "Play it." }], area: "guitar", topic: "guitar-scales", concepts: ["scales"] };
+  const given = { id: "g1", from: "share-1", startedOn: "2026-11-10", done: {}, config: { title: "Given", days: [{ theme: "d", exercises: [exercise] }] } };
+  await userData.putDoc(PLAYER_B, "plan", { given: [given] }, now);
+  await userData.putPlanTime(PLAYER_B, { planId: "g1", day: 0, elapsed: 600, spent: { "g-e1": 600 }, on: { "2026-11-10": 600 } }, now);
+  const r = await playerProgress(deps({ userData }), { player: PLAYER_B });
+  assert.equal(r?.outcome.areas.flatMap((a) => a.topics).find((t) => t.topic === "guitar-scales")?.seconds, 600);
+});

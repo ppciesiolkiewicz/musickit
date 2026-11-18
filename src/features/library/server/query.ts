@@ -98,7 +98,7 @@ export async function playerProgress(d: Deps, scope: Scope): Promise<{ outcome: 
   if (player === undefined) return null;
   const state = (await readDoc(d.userData, player, "plan")) as PlanState;
   const input: OutcomeInput = {
-    plans: [state.current, ...state.history].filter((p) => p !== null),
+    plans: [state.current, ...state.history, ...state.given].filter((p) => p !== null),
     entries: await readEntries(d.userData, player),
     times: await readAllPlanTimes(d.userData, player),
     answersHistory: state.answersHistory,

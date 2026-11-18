@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise } from "@/features/plan/model/config";
 import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
-import { startPlan } from "@/features/plan/model/schedule";
-import { EMPTY_STATE, type PlanConfig } from "@/features/plan/model/types";
+import { startDay, startPlan } from "@/features/plan/model/schedule";
+import { EMPTY_STATE, type PlanConfig, type PlanExercise } from "@/features/plan/model/types";
 import { libraryBlocksOf } from "@/features/plan/model/libraryBlocks";
 import { parsePlanConfig } from "@/features/plan/model/config";
 import { libraryPlanBlocks, planBlockRows, seedBlocks, seedFileBlocks, type SeedPlan } from "./seedBlocks";
@@ -178,4 +178,14 @@ test("seedBlocks run twice changes no slot", async () => {
   assert.ok(first.some(([, s]) => s));
   await seedBlocks(repo, [plan], NOW);
   assert.deepEqual(slots(), first);
+});
+
+test("every seed block put in a composed day keeps its library id (the composer's pick is the stored blockId)", () => {
+  let n = 0;
+  for (const b of seedFileBlocks()) {
+    const { content, ...tags } = b.key;
+    const exercise = { ...content, ...tags, minutes: b.slot?.minutes ?? 10, ...(b.slot?.why ? { why: b.slot.why } : {}) } as PlanExercise;
+    const s = startDay(EMPTY_STATE, { exercises: [exercise], steps: [], short: false }, { date: "2026-11-18", attempt: 0 }, () => `n${++n}`);
+    assert.equal(s.current!.config.days[0].exercises[0].blockId, b.id, b.key.content.title);
+  }
 });

@@ -1,5 +1,5 @@
 import { dayIndex, dayProgress, localDate } from "./model/schedule";
-import { PLAN_DAYS, type PlanState } from "./model/types";
+import { planDays, type PlanState } from "./model/types";
 
 export const notificationsSupported = (): boolean => typeof window !== "undefined" && "Notification" in window;
 
@@ -21,7 +21,7 @@ export function reminderDue(state: PlanState, now: Date): boolean {
   const today = localDate(now);
   if (reminder.lastShownOn === today) return false;
   const day = dayIndex(current.startedOn, today);
-  if (day >= PLAN_DAYS || dayProgress(current, day) === 1) return false;
+  if (day >= planDays(current) || dayProgress(current, day) === 1) return false;
   const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   return hhmm >= reminder.time;
 }
