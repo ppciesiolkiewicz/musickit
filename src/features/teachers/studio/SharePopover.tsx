@@ -16,6 +16,8 @@ export const shareHref = (kind: "note" | "plan", id: string): string => (kind ==
 
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 const OFFLINE = "Check your connection, then try again.";
+/** Every request here gives up after 15 s; one that does shows the same line as a lost connection. */
+const timeout = () => AbortSignal.timeout(15_000);
 
 /** The server's own words for a refusal, else the connection line. */
 async function refusal(res: Response | null, what: string): Promise<string> {
@@ -131,7 +133,7 @@ function Sharing({ kind, itemId, block, prepare }: { kind: "note" | "plan"; item
 
   useEffect(() => {
     let live = true;
-    fetch(`/api/shares?kind=${kind}&item=${encodeURIComponent(itemId)}`, { headers: accountHeaders() })
+    fetch(`/api/shares?kind=${kind}&item=${encodeURIComponent(itemId)}`, { headers: accountHeaders(), signal: timeout() })
       .then(async (res) => {
         if (!live) return;
         if (!res.ok) return setError(await refusal(res, "Your links could not be loaded."));
@@ -158,13 +160,14 @@ function Sharing({ kind, itemId, block, prepare }: { kind: "note" | "plan"; item
     try {
       // a plan is named by its id: the server shares that one (today's own plan, or a given plan on its page)
       const body = block ? { kind, note: block() } : kind === "plan" ? { kind, planId: itemId } : { kind };
-      res = await fetch("/api/shares", { method: "POST", headers: accountHeaders({ "content-type": "application/json" }), body: JSON.stringify(body) });
+      res = await fetch("/api/shares", { method: "POST", headers: accountHeaders({ "content-type": "application/json" }), body: JSON.stringify(body), signal: timeout() });
     } catch {}
-    if (res?.ok) {
-      const { share: made } = (await res.json()) as { share: Link };
+    // the answer's body can still time out after its status came: then it reads as a lost connection
+    const made = res?.ok ? ((await res.json().catch(() => null)) as { share?: Link } | null)?.share : undefined;
+    if (made) {
       setFresh(made.id);
       setLinks((l) => [made, ...(l ?? [])]);
-    } else setError(await refusal(res, `The ${kind} was not shared.`));
+    } else setError(res?.ok ? `The ${kind} was not shared. ${OFFLINE}` : await refusal(res, `The ${kind} was not shared.`));
     setBusy(false);
   }, [kind, itemId, block, prepare]);
 
@@ -172,7 +175,7 @@ function Sharing({ kind, itemId, block, prepare }: { kind: "note" | "plan"; item
     setError(null);
     let res: Response | null = null;
     try {
-      res = await fetch(`/api/shares/${encodeURIComponent(id)}`, { method: "DELETE", headers: accountHeaders() });
+      res = await fetch(`/api/shares/${encodeURIComponent(id)}`, { method: "DELETE", headers: accountHeaders(), signal: timeout() });
     } catch {}
     // a 404 is a link already stopped (in another tab): it goes from the list as well
     if (res?.ok || res?.status === 404) {

@@ -17,8 +17,8 @@ const panel = "flex flex-wrap items-start gap-3 rounded-2xl border border-l-4 bo
 const primary = "!rounded-xl !border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 shadow-md shadow-sky-500/20 transition hover:!bg-sky-400";
 const big = "h-10 !rounded-xl px-4 text-sm";
 
-/** Get another plan's title while the day editor is open. */
-const EDITING_TITLE = `Press Done or Cancel in the editor first. Then press ${ANOTHER}.`;
+/** Why Get another plan can't be pressed while the day editor is open: a line under the controls, read with the button. */
+const EDITING_LINE = `Press Done or Cancel in the editor first. Then press ${ANOTHER}.`;
 
 /** Why another plan didn't come: the plan stays as it is in every case. */
 const ANOTHER_FAILED: Record<TodayFailure, string> = {
@@ -76,10 +76,12 @@ export default function DayPlan({ plan, streak, controls, notice, onAnother, ask
         <div className="flex flex-wrap items-center gap-2">
           {controls}
           {/* busy or waiting on the editor, it keeps focus: aria-disabled and presses ignored, not disabled */}
-          <Button data-tour="plan-another" onClick={() => !asking && !editing && onAnother()} aria-disabled={asking || editing} title={editing ? EDITING_TITLE : "attunr swaps the exercises you haven't rated for other ones. The ones you rated stay."} className={`${primary} ${big} ${asking ? "cursor-wait opacity-70" : editing ? "cursor-not-allowed opacity-50" : ""}`}>
+          <Button data-tour="plan-another" onClick={() => !asking && !editing && onAnother()} aria-disabled={asking || editing} aria-describedby={editing ? "plan-another-editing" : undefined} title={editing ? undefined : "attunr swaps the exercises you haven't rated for other ones. The ones you rated stay."} className={`${primary} ${big} ${asking ? "cursor-wait opacity-70" : editing ? "cursor-not-allowed opacity-50" : ""}`}>
             <Icon name="sparkles" size={16} />{asking ? "Getting another plan…" : ANOTHER}
           </Button>
         </div>
+        {/* on screen, not only in a title: a phone has no hover, and a screen reader reads it with the button */}
+        {editing && <p id="plan-another-editing" className="-mt-3 text-xs text-slate-400">{EDITING_LINE}</p>}
       </div>
 
       {notice}

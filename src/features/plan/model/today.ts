@@ -28,6 +28,16 @@ const inSentence = (label: string): string => (/^[A-Z]{2,}\b/.test(label) ? labe
 /** "a", "a and b", "a, b and c". */
 const joined = (xs: string[]): string => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 
+/** How long a plan is: "1 day", "7 days". */
+export const daysLabel = (n: number): string => `${n} day${n === 1 ? "" : "s"}`;
+
+/** A local `yyyy-mm-dd` as its day and month: "16 November". */
+export function dateLabel(date: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const at = new Date(y, m - 1, d);
+  return `${at.getDate()} ${MONTHS[at.getMonth()]}`;
+}
+
 /**
  * The words a composed day is stored with: the title is its date ("Wednesday 18 November"), the theme the questionnaire
  * topics its exercises practise, each once, in the order they come ("Scales, basic chords and pitch"); "" with none.
@@ -35,7 +45,7 @@ const joined = (xs: string[]): string => (xs.length < 2 ? xs.join("") : `${xs.sl
 export function dayWords(date: string, exercises: PlanExercise[]): { title: string; theme: string } {
   const [y, m, d] = date.split("-").map(Number);
   const at = new Date(y, m - 1, d);
-  const title = `${WEEKDAYS[at.getDay()]} ${at.getDate()} ${MONTHS[at.getMonth()]}`;
+  const title = `${WEEKDAYS[at.getDay()]} ${dateLabel(date)}`;
   const labels = [...new Set(exercises.map(topicOf).filter((t): t is string => !!t))].map((id) => topicById(id)!.label);
   const words = labels.map((l, i) => (i === 0 ? l : inSentence(l)));
   return { title, theme: joined(words) };

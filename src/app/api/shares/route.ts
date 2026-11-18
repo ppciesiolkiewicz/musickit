@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const NO_NOTE = "This note is empty. Add a widget, then press Share.";
 const TOO_BIG = "This note is too big to share.";
 const NOT_TEACHER = "Only a teacher account can share a plan.";
-const NO_SUCH_PLAN = "This plan isn't in your plans any more, so it wasn't shared. Reload the page, then press Share.";
+const NO_SUCH_PLAN = "This plan isn't in your plans any more, so the plan wasn't shared. Reload the page, then press Share.";
 const UPLOADING = (kind: "note" | "plan") => `A video in this ${kind} is still uploading. Wait until it's up, then press Share.`;
 
 /**
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     if ("error" in done) return done.error === "not-allowed" ? json({ error: NOT_TEACHER, code: "not-allowed" }, 403, me.cookies) : json({ error: NO_SUCH_PLAN, code: "not-found" }, 404, me.cookies);
     return json({ share: { id: done.id, createdAt: now.toISOString() } }, 200, me.cookies);
   }
-  if (body?.kind !== "note") return json({ error: "Send { kind: \"note\" } or { kind: \"plan\" }." }, 400, me.cookies);
+  if (body?.kind !== "note") return json({ error: "Send { kind: \"note\" } or { kind: \"plan\", planId }." }, 400, me.cookies);
   const done = "note" in body ? await shareNoteBlock(store.repo, me.account, body.note, now) : await shareNote(store.repo, me.account, now);
   if ("error" in done && done.error === "video-not-uploaded") return json({ error: UPLOADING("note"), code: done.error }, 409, me.cookies);
   if ("error" in done) return done.error === "too-big" ? json({ error: TOO_BIG }, 413, me.cookies) : json({ error: NO_NOTE }, 400, me.cookies);

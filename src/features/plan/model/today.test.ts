@@ -1,12 +1,23 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PAST_DAYS, applyAnother, applyFirst, dayWords, hasNewPicks, pastDays, shouldAsk, todayView } from "./today";
+import { PAST_DAYS, applyAnother, applyFirst, dateLabel, dayWords, daysLabel, hasNewPicks, pastDays, shouldAsk, todayView } from "./today";
 import { ratePlan, startDay } from "./schedule";
 import { EMPTY_STATE, type PlanState } from "./types";
 import type { ComposedDay } from "./compose";
 import type { PlanExercise, StoredPlan } from "./types";
 
 const ex = (title: string, more: Partial<PlanExercise> = {}): PlanExercise => ({ title, minutes: 5, cells: [{ type: "text", text: "x" }], ...more });
+
+test("daysLabel: how long a plan is, singular for one day", () => {
+  assert.equal(daysLabel(1), "1 day");
+  assert.equal(daysLabel(7), "7 days");
+  assert.equal(daysLabel(2), "2 days");
+});
+
+test("dateLabel: a local date as its day and month", () => {
+  assert.equal(dateLabel("2026-11-16"), "16 November");
+  assert.equal(dateLabel("2027-01-01"), "1 January");
+});
 
 test("dayWords: the title is the date's weekday, day and month", () => {
   assert.equal(dayWords("2026-11-18", []).title, "Wednesday 18 November");

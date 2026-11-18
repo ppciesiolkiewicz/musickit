@@ -180,6 +180,21 @@ test("givenToday: the day of a given plan to open, and whether its days are over
   assert.deepEqual(givenToday(p, "2026-11-01"), { today: 0, over: false }, "a device date before the start opens day 1");
 });
 
+test("givenToday: a fully rated last day stays the open day until its date has passed", () => {
+  const rated = Object.fromEntries(Array.from({ length: 7 }, (_, d) => [`${d}:0`, { stars: 4 as const, at: "2026-11-16T10:00:00Z" }]));
+  const done = Object.fromEntries(Object.keys(rated).map((k) => [k, true as const]));
+  const p = week("g", { startedOn: "2026-11-10", rated, done });
+  assert.deepEqual(givenToday(p, "2026-11-16"), { today: 6, over: false });
+  assert.deepEqual(givenToday(p, "2026-11-17"), { today: 6, over: true });
+});
+
+test("givenToday: a shared plan of one day runs on its date, rated or not, and is over the day after", () => {
+  const one: StoredPlan = { ...week("one", { startedOn: "2026-11-18" }), config: { title: "Wednesday 18 November", days: [week("x").config.days[0]] } as unknown as PlanConfig };
+  assert.deepEqual(givenToday(one, "2026-11-18"), { today: 0, over: false });
+  assert.deepEqual(givenToday({ ...one, done: { "0:0": true }, rated: { "0:0": { stars: 5, at: "2026-11-18T10:00:00Z" } } }, "2026-11-18"), { today: 0, over: false });
+  assert.deepEqual(givenToday(one, "2026-11-19"), { today: 0, over: true });
+});
+
 test("anotherDay with an attempt lower than today's changes nothing (a late answer)", () => {
   let s = startDay(EMPTY_STATE, dayOf("A"), { date: "2026-11-18", attempt: 0 }, ids("a"));
   s = anotherDay(s, dayOf("B"), { date: "2026-11-18", attempt: 2 }, ids("b"));

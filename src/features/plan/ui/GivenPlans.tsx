@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
+import { dateLabel, daysLabel } from "../model/today";
 import { planDays, type StoredPlan } from "../model/types";
 
 /** One name for a plan someone shared with the player, on every screen that names it. */
@@ -7,8 +8,6 @@ export const SHARED_PLAN = "Shared plan";
 
 /** The address of a given plan's own page. */
 export const givenHref = (id: string): string => `/plan/given/${encodeURIComponent(id)}`;
-
-const days = (n: number) => `${n} day${n === 1 ? "" : "s"}`;
 
 /**
  * The plans the player was given (`PlanState.given`, newest first) on `/plan`: each its title, how many days and when it
@@ -24,7 +23,7 @@ export default function GivenPlans({ plans }: { plans: StoredPlan[] }) {
           <li key={p.id}>
             <Link href={givenHref(p.id)} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 transition hover:border-sky-500/60 hover:bg-slate-800/60">
               <span className="min-w-0 flex-1 text-sm text-slate-100">{p.config.title}</span>
-              <span className="text-xs text-slate-500">{days(planDays(p))} · started {p.startedOn}</span>
+              <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)}</span>
               <Icon name="chevron-right" size={14} className="text-slate-500" />
             </Link>
           </li>

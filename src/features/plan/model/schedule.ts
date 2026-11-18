@@ -135,12 +135,13 @@ export function updateGiven(s: PlanState, id: string, change: (p: StoredPlan) =>
 export const storedPlans = (s: PlanState): StoredPlan[] => [...(s.current ? [s.current] : []), ...s.history, ...s.given];
 
 /**
- * Which day of a given plan is today (`today`, from 0, never past its last day) and whether its days are over (`weekOver`):
- * then `today` is the last day, so every day can be opened.
+ * Which day of a given plan is today (`today`, from 0, never past its last day) and whether its days are over: only once
+ * its last day's date has passed (a fully rated last day stays the open day until then, unlike `weekOver`). Over, `today`
+ * is the last day, so every day can be opened.
  */
 export function givenToday(plan: StoredPlan, date: string): { today: number; over: boolean } {
   const last = planDays(plan) - 1;
-  const over = weekOver(plan, date);
+  const over = dayIndex(plan.startedOn, date) > last;
   return { today: over ? last : Math.min(dayIndex(plan.startedOn, date), last), over };
 }
 
