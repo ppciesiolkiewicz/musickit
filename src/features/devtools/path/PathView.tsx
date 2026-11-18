@@ -3,8 +3,7 @@
 import { useMemo, useState, type KeyboardEvent } from "react";
 import { AREAS, type Area } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
-import { localDate } from "@/features/plan/model/schedule";
-import type { StoredPlan } from "@/features/plan/model/types";
+import { localDate, storedPlans } from "@/features/plan/model/schedule";
 import { usePlan } from "@/features/plan/store/usePlan";
 import { STAR_LABELS } from "@/features/progress/stars";
 import { useProgress } from "@/features/progress/useProgress";
@@ -262,17 +261,19 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
   const [who, setWho] = useState("none");
   const [view, setView] = useState<"journey" | "slope" | "today" | "proposed">("journey");
   const [today] = useState(() => localDate());
-  const { state: { current, history, answers }, loaded: planLoaded } = usePlan();
+  const { state: planState, loaded: planLoaded } = usePlan();
+  const { answers } = planState;
   const { entries, loaded: entriesLoaded } = useProgress();
   const progress = useMemo(() => {
     if (who === "none") return null;
     if (who === "me") {
       if (!planLoaded || !entriesLoaded) return null;
-      return stepProgress(stepRatings(entries, [current, ...history].filter((p): p is StoredPlan => p !== null)), today);
+      // every plan, the given ones too, as `/plan` and the server's `playerProgress` count them
+      return stepProgress(stepRatings(entries, storedPlans(planState)), today);
     }
     const student = EXAMPLE_STUDENTS.find((s) => s.id === who);
     return student ? stepProgress(exampleRatings(student, today), today) : null;
-  }, [who, today, current, history, planLoaded, entries, entriesLoaded]);
+  }, [who, today, planState, planLoaded, entries, entriesLoaded]);
   // the student's questionnaire answers: an example's own, or the player's last ones
   const reachMarks = useMemo(() => {
     if (!progress) return null;

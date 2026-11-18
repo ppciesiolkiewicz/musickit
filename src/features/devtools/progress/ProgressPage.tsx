@@ -2,8 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { outcome, type OutcomeInput } from "@/features/plan/model/outcome";
-import { addDays, localDate } from "@/features/plan/model/schedule";
-import type { StoredPlan } from "@/features/plan/model/types";
+import { addDays, localDate, storedPlans } from "@/features/plan/model/schedule";
 import { usePlan, useAllPlanTimes } from "@/features/plan/store/usePlan";
 import { useProgress } from "@/features/progress/useProgress";
 
@@ -49,8 +48,9 @@ export default function ProgressPage() {
   const { times, loaded: timesLoaded } = useAllPlanTimes();
   const [asOf, setAsOf] = useState(() => localDate());
 
-  const { current, history, answersHistory } = state;
-  const plans = useMemo(() => [current, ...history].filter((p): p is StoredPlan => p !== null), [current, history]);
+  const { answersHistory } = state;
+  // every plan, the given ones too, as `/plan` and the server's `playerProgress` count them
+  const plans = useMemo(() => storedPlans(state), [state]);
   const ready = planLoaded && entriesLoaded && timesLoaded;
   const result = useMemo(() => {
     if (!ready) return null;

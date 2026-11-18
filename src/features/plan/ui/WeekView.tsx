@@ -13,10 +13,11 @@ import type { Stars } from "@/features/progress/stars";
 
 /**
  * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day,
- * drawn by `DayPanel`. Only the day shown when the page opened starts its timer by itself.
+ * drawn by `DayPanel`. Only the day shown when the page opened starts its timer by itself. With `ended` (the plan's days are
+ * over; `today` is then its last day, so every day is open) no day is marked "Today" and no timer starts by itself.
  */
-export default function WeekView({ plan, today, day, onDay, onRate, times = [], onTime, onEdit, onEditing, corner }: {
-  plan: StoredPlan; today: number; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;
+export default function WeekView({ plan, today, ended = false, day, onDay, onRate, times = [], onTime, onEdit, onEditing, corner }: {
+  plan: StoredPlan; today: number; ended?: boolean; day: number; onDay: (d: number) => void; onRate: (day: number, ex: number, stars: Stars | null) => void;
   /** the day timer's records of this plan (`planTime.ts`), kept apart from the plan */
   times?: DayTime[];
   /** saves the day timer's used seconds and the seconds spent on each exercise; without it (a preview) there is no timer */
@@ -35,7 +36,7 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
     onEditing?.(d);
   }, [onEditing]);
   // only the day shown when the page opened starts its timer by itself
-  const [autoDay, setAutoDay] = useState<number | null>(day <= today ? day : null);
+  const [autoDay, setAutoDay] = useState<number | null>(!ended && day <= today ? day : null);
   const d = plan.config.days[day];
   const openDay = (i: number) => {
     setAutoDay(null);
@@ -59,7 +60,7 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
               title={ahead ? `Coming up: ${plan.config.days[i].theme}` : plan.config.days[i].theme}
               className={`relative flex cursor-pointer flex-col items-center gap-0.5 overflow-hidden rounded-xl border px-1 py-2 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-400 bg-sky-500/25 text-sky-50 shadow-md shadow-sky-500/20" : ahead ? "border-dashed border-slate-700 bg-transparent text-slate-500 hover:border-slate-500 hover:text-slate-300" : p === 1 ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-100 hover:border-emerald-400" : "border-slate-600 bg-slate-800/60 text-slate-200 hover:border-sky-500/60 hover:bg-slate-800"}`}
             >
-              <span className={`text-[10px] font-medium uppercase tracking-wider ${i === today ? "text-amber-300" : on ? "text-sky-200" : "text-slate-500"}`}>{i === today ? "Today" : "Day"}</span>
+              <span className={`text-[10px] font-medium uppercase tracking-wider ${i === today && !ended ? "text-amber-300" : on ? "text-sky-200" : "text-slate-500"}`}>{i === today && !ended ? "Today" : "Day"}</span>
               <span className="text-lg font-semibold tabular-nums">{i + 1}</span>
               {p === 1 ? <Icon name="check" size={12} className="text-emerald-300" /> : <span className="h-3" />}
               <span aria-hidden className="absolute inset-x-0 bottom-0 h-1 bg-emerald-400/80" style={{ width: `${p * 100}%` }} />

@@ -117,7 +117,7 @@ test("a share naming a take that isn't uploaded yet is refused (note, studio blo
   assert.deepEqual(await shareNote(repo, ann, NOW, ids("s")), { error: "video-not-uploaded" });
   assert.deepEqual(await shareNoteBlock(repo, ann, note(take), NOW, ids("s")), { error: "video-not-uploaded" });
   await repo.putDoc(ANN, "plan", { current: plan("p1", take), history: [] }, NOW);
-  assert.deepEqual(await sharePlan(repo, ann, NOW, ids("s")), { error: "video-not-uploaded" });
+  assert.deepEqual(await sharePlan(repo, ann, "p1", NOW, ids("s")), { error: "video-not-uploaded" });
   assert.equal(await repo.getShare("s1"), null, "nothing is stored");
   await repo.createVideo(video(take, ANN));
   assert.deepEqual(await shareNote(repo, ann, NOW, ids("s")), { id: "s1" });
@@ -134,7 +134,7 @@ test("shareNote: no note, or an empty one, is not shared", async () => {
 
 test("a plan share's video can't be watched through the note route", async () => {
   const repo = await setup();
-  const made = await sharePlan(repo, ann, NOW, ids("s"));
+  const made = await sharePlan(repo, ann, "ann-plan", NOW, ids("s"));
   assert.deepEqual(made, { id: "s1" });
   assert.equal(await openNoteShare(repo, "s1"), null);
   assert.equal(await repo.canWatch(null, V2), null);
@@ -142,17 +142,39 @@ test("a plan share's video can't be watched through the note route", async () =>
   assert.equal(await openNoteShare(repo, "nope"), null);
 });
 
-test("sharePlan: a student is not allowed, and no current plan is no-plan", async () => {
+test("sharePlan: a student is not allowed, and with no plan of that id nothing is shared", async () => {
   const repo = await setup();
   await repo.putDoc(BEN, "plan", { current: plan("ben-plan", V3) }, NOW);
-  assert.deepEqual(await sharePlan(repo, ben, NOW, ids("s")), { error: "not-allowed" });
-  assert.deepEqual(await sharePlan(repo, account(CAL, "owner"), NOW, ids("s")), { error: "no-plan" });
+  assert.deepEqual(await sharePlan(repo, ben, "ben-plan", NOW, ids("s")), { error: "not-allowed" });
+  assert.deepEqual(await sharePlan(repo, account(CAL, "owner"), "ben-plan", NOW, ids("s")), { error: "not-found" });
+  assert.equal(await repo.getShare("s1"), null);
+});
+
+test("sharePlan: a given plan is shared by its id, as its week only", async () => {
+  const repo = await setup();
+  const given = { ...plan("given-1", V2, { from: "s0" }), config: { ...config(V2), title: "Given week" } };
+  await repo.putDoc(ANN, "plan", { current: plan("ann-plan"), history: [], given: [given] }, NOW);
+  assert.deepEqual(await sharePlan(repo, ann, "given-1", NOW, ids("s")), { id: "s1" });
+  const row = await repo.getShare("s1");
+  assert.equal(row?.itemId, "given-1");
+  assert.deepEqual(Object.keys(row?.snapshot as object), ["config"]);
+  const shared = (row?.snapshot as { config: Record<string, unknown> }).config;
+  assert.equal(shared.title, "Given week");
+  assert.equal("progress" in shared, false);
+});
+
+test("sharePlan: an id that is neither the current plan nor a given one is refused, an earlier plan's too", async () => {
+  const repo = await setup();
+  await repo.putDoc(ANN, "plan", { current: plan("ann-plan"), history: [plan("old-1")], given: [plan("given-1", V2, { from: "s0" })] }, NOW);
+  assert.deepEqual(await sharePlan(repo, ann, "old-1", NOW, ids("s")), { error: "not-found" });
+  assert.deepEqual(await sharePlan(repo, ann, "nope", NOW, ids("s")), { error: "not-found" });
+  assert.deepEqual(await sharePlan(repo, ann, "", NOW, ids("s")), { error: "not-found" });
   assert.equal(await repo.getShare("s1"), null);
 });
 
 test("sharePlan: the snapshot is the current week only, without ticks, ratings, feedback or the AI's notes on the teacher", async () => {
   const repo = await setup();
-  await sharePlan(repo, ann, NOW, ids("s"));
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("s"));
   const row = await repo.getShare("s1");
   assert.equal(row?.kind, "plan");
   assert.equal(row?.itemId, "ann-plan");
@@ -165,7 +187,7 @@ test("sharePlan: the snapshot is the current week only, without ticks, ratings, 
 
 test("claimInvite twice gives one plan, in given, and the claimer can watch the plan's video", async () => {
   const repo = await setup();
-  await sharePlan(repo, ann, NOW, ids("s"));
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("s"));
   const first = await claimInvite(repo, ben, "s1", NOW, ids("p"));
   assert.deepEqual(first, { ok: true, planId: "p1" });
   const again = await claimInvite(repo, ben, "s1", LATER, ids("q"));
@@ -189,7 +211,7 @@ test("claimInvite: with a plan running, the copy goes to the front of given; cur
   const history = Array.from({ length: 20 }, (_, i) => plan(`old-${i}`, V3));
   await repo.putDoc(BEN, "plan", { current: plan("ben-plan", V3), history, given: [plan("given-0", V3, { from: "s0" })] }, NOW);
   const before = await planDoc(repo, BEN);
-  await sharePlan(repo, ann, NOW, ids("s"));
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("s"));
   assert.deepEqual(await claimInvite(repo, ben, "s1", NOW, ids("p")), { ok: true, planId: "p1" });
   const s = await planDoc(repo, BEN);
   assert.deepEqual(s.current, before.current);
@@ -199,7 +221,7 @@ test("claimInvite: with a plan running, the copy goes to the front of given; cur
 
 test("claimInvite again puts the copy back in given when another tab overwrote the plan document", async () => {
   const repo = await setup();
-  await sharePlan(repo, ann, NOW, ids("s"));
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("s"));
   await claimInvite(repo, ben, "s1", NOW, ids("p"));
   await repo.putDoc(BEN, "plan", { current: plan("ben-plan", V3) }, LATER);
   const again = await claimInvite(repo, ben, "s1", LATER, ids("q"));
@@ -213,7 +235,7 @@ test("claimInvite again puts the copy back in given when another tab overwrote t
 
 test("after stopShare a new claimer gets stopped, and the old claimer can still watch", async () => {
   const repo = await setup();
-  await sharePlan(repo, ann, NOW, ids("s"));
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("s"));
   await claimInvite(repo, ben, "s1", NOW, ids("p"));
   assert.equal(await repo.stopShare(ANN, "s1", LATER), true);
   assert.deepEqual(await claimInvite(repo, cal, "s1", LATER, ids("p")), { error: "stopped" });
@@ -235,7 +257,7 @@ test("deleting a video makes canWatch null for the owner, a note visitor and a c
   const repo = await setup();
   await repo.putDoc(ANN, "note", note(V1, V2), NOW);
   await shareNote(repo, ann, NOW, ids("s"));
-  await sharePlan(repo, ann, NOW, ids("t"));
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("t"));
   await claimInvite(repo, ben, "t1", NOW, ids("p"));
   assert.equal((await repo.canWatch(null, V2))?.id, V2);
   assert.ok(await repo.deleteVideo(ANN, V2));
@@ -249,7 +271,7 @@ test("listShares: live shares of the item, never another user's", async () => {
   await shareNote(repo, ann, NOW, ids("a"));
   await shareNote(repo, ann, LATER, ids("b"));
   await shareNote(repo, ben, NOW, ids("c"));
-  await sharePlan(repo, ann, NOW, ids("d"));
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("d"));
   assert.deepEqual((await repo.listShares(ANN, "note", "note")).map((s) => s.id), ["b1", "a1"]);
   assert.deepEqual((await repo.listShares(BEN, "note", "note")).map((s) => s.id), ["c1"]);
   assert.deepEqual((await repo.listShares(ANN, "plan", "ann-plan")).map((s) => s.id), ["d1"]);
@@ -263,7 +285,7 @@ test("videoPaths: every video path of that user, none of another's; deleting the
   await repo.putDoc(BEN, "note", note(V3), NOW);
   await shareNote(repo, ann, NOW, ids("s"));
   await shareNote(repo, ben, NOW, ids("b"));
-  await sharePlan(repo, ann, NOW, ids("t"));
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("t"));
   await claimInvite(repo, ben, "t1", NOW, ids("p"));
   const blobPaths = await repo.videoPaths(ANN);
   assert.equal((await repo.listVideos(ANN)).length, 2, "reading the paths deletes nothing");
@@ -318,7 +340,7 @@ test("readNoteShare: the note and its date for a live note link, never the owner
   assert.equal(open?.sharedAt, NOW.toISOString());
   assert.equal(JSON.stringify(open).includes(ANN), false);
   assert.equal(await readNoteShare(repo, "nope"), null);
-  await sharePlan(repo, ann, NOW, () => "p1");
+  await sharePlan(repo, ann, "ann-plan", NOW, () => "p1");
   assert.equal(await readNoteShare(repo, "p1"), null);
   assert.ok(await repo.stopShare(ANN, "s1", LATER));
   assert.equal(await readNoteShare(repo, "s1"), null);

@@ -1,4 +1,5 @@
 import type { DayTime } from "@/features/plan/model/planTime";
+import { storedPlans } from "@/features/plan/model/schedule";
 import type { PlanState, StoredPlan } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 
@@ -11,22 +12,29 @@ export interface PlanRow {
   rated: number;
   total: number;
   current: boolean;
+  /** a plan someone shared with the player (`PlanState.given`) */
+  given: boolean;
   /** the AI's hidden progress summary that came with the plan */
   progress?: string;
 }
 
-const rowOf = (p: StoredPlan, current: boolean): PlanRow => ({
+const rowOf = (p: StoredPlan, current: boolean, given = false): PlanRow => ({
   id: p.id,
   title: p.config.title,
   startedOn: p.startedOn,
   rated: Object.keys(p.rated ?? {}).length,
   total: p.config.days.reduce((n, d) => n + d.exercises.length, 0),
   current,
+  given,
   ...(p.config.progress ? { progress: p.config.progress } : {}),
 });
 
-/** The stored plans: the current one first, then the history in its own order (newest first). */
-export const planRows = (state: PlanState): PlanRow[] => [...(state.current ? [rowOf(state.current, true)] : []), ...state.history.map((p) => rowOf(p, false))];
+/** The stored plans: the current one first, then the history in its own order (newest first), then the given plans (newest first). */
+export const planRows = (state: PlanState): PlanRow[] => [
+  ...(state.current ? [rowOf(state.current, true)] : []),
+  ...state.history.map((p) => rowOf(p, false)),
+  ...state.given.map((p) => rowOf(p, false, true)),
+];
 
 /** One exercise's time as /dev/data lists it: what the day timer counted while its card was in view. */
 export interface SpentRow {
@@ -39,9 +47,9 @@ export interface SpentRow {
   spent: number;
 }
 
-/** Every exercise with time on it (`times`: the day timer's records), of the current plan and the history, in plan, day and exercise order. */
+/** Every exercise with time on it (`times`: the day timer's records), of every stored plan (`storedPlans`: the given ones too), in plan, day and exercise order. */
 export const spentRows = (state: PlanState, times: DayTime[]): SpentRow[] =>
-  [...(state.current ? [state.current] : []), ...state.history].flatMap((p) =>
+  storedPlans(state).flatMap((p) =>
     p.config.days.flatMap((d, di) => {
       const t = times.find((x) => x.planId === p.id && x.day === di);
       return d.exercises.flatMap((e) => {

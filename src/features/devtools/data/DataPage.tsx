@@ -181,7 +181,7 @@ export default function DataPage() {
         <Raw value={a} />
       </Block>
 
-      <Block title="Plans" about="The current plan and the history (newest first, 20 kept).">
+      <Block title="Plans" about="The current plan, the history (newest first, 60 kept), then the plans shared with the player (given, newest first).">
         {plans.length ? (
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
@@ -189,7 +189,7 @@ export default function DataPage() {
               <tbody>
                 {plans.map((p) => (
                   <tr key={p.id} className="border-t border-slate-800">
-                    <td className={TD}>{p.title}{p.current && <span className="ml-2 rounded bg-sky-500/20 px-1.5 py-0.5 text-xs text-sky-200">current</span>}</td>
+                    <td className={TD}>{p.title}{p.current && <span className="ml-2 rounded bg-sky-500/20 px-1.5 py-0.5 text-xs text-sky-200">current</span>}{p.given && <span className="ml-2 rounded bg-violet-500/20 px-1.5 py-0.5 text-xs text-violet-200">given</span>}</td>
                     <td className={TD}>{p.startedOn}</td>
                     <td className={`${TD} tabular-nums`}>{p.rated} / {p.total}</td>
                     <td className={`${TD} font-mono text-xs text-slate-400`}>{p.id}</td>
@@ -199,7 +199,7 @@ export default function DataPage() {
             </table>
           </div>
         ) : EMPTY}
-        <Raw value={{ current: state.current, history: state.history }} />
+        <Raw value={{ current: state.current, history: state.history, given: state.given }} />
       </Block>
 
       <Block title="Time per exercise" about={`Seconds the day timer ran while each exercise was the card in view (localStorage "${PLAN_TIMES_KEY}"), against its planned minutes.`}>

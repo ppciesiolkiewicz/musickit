@@ -1,19 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Button, Checkbox, HUE_TONES, Modal } from "@/components/ui";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { recordAnswers } from "./model/answersHistory";
-import { backfill, entryFor } from "./model/progressLog";
-import { takeAdded } from "./model/added";
+import { backfill } from "./model/progressLog";
 import { useProgress } from "@/features/progress/useProgress";
-import { localDate, ratePlan, reviewPlan } from "./model/schedule";
-import type { Stars } from "@/features/progress/stars";
+import { localDate, reviewPlan, storedPlans } from "./model/schedule";
 import type { PlanAnswers, PlanState, StoredPlan } from "./model/types";
 import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
 import { useAllPlanTimes, usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
+import { BIG, CornerLabels, PhoneLabels, SharePlan, rateHandler } from "./ui/planPieces";
+import GivenPlans from "./ui/GivenPlans";
 import { outcome } from "./model/outcome";
 import { mergeTimes } from "./model/trackerView";
 import StreakButton from "./ui/tracker/StreakButton";
@@ -23,18 +23,14 @@ import DayPlan, { TodayStatus } from "./ui/DayPlan";
 import PastDays from "./ui/PastDays";
 import { useTodayPlan } from "./ui/useTodayPlan";
 import { usePlanAgentTools } from "./ui/useBlockAgentTools";
-import Link from "next/link";
-import SharePopover, { ShareRefused } from "@/features/teachers/studio/SharePopover";
-import { useAccount } from "@/features/account/useAccount";
-import { FixedLabelRoot, LabelSelect } from "@/features/theory/useLabelSystem";
-
-const NOT_SAVED = "Your latest change isn't saved yet, so the plan wasn't shared. Wait a moment, then press Share again.";
+import { FixedLabelRoot } from "@/features/theory/useLabelSystem";
 
 /**
  * The player's own daily plan. Without answers: the intro and Start, which runs the questions in one step modal. With
  * answers: today's plan, composed on the server the first time the page opens that day (`useTodayPlan`), drawn by
  * `DayPlan`, with Get another plan; while it is made or when it can't be, `TodayStatus` says so where the plan would be.
- * Past days are listed under it, read-only.
+ * Past days are listed under it, read-only. The plans the player was given are listed (`GivenPlans`), each a link to its own
+ * page (`/plan/given/<id>`); they are never drawn here.
  */
 export default function PlanApp() {
   const { state, loaded, update } = usePlan();
@@ -45,30 +41,14 @@ export default function PlanApp() {
     if (!loaded || !progress.loaded || filled.current) return;
     filled.current = true;
     if (progress.entries.length) return;
-    for (const row of backfill([...(state.current ? [state.current] : []), ...state.history], randomId)) progress.put(row);
+    for (const row of backfill(storedPlans(state), randomId)) progress.put(row);
   }, [loaded, progress, state]);
   // a flow left open (reload, hot reload) comes back; the modal only renders after the store loads, so no hydration mismatch
   // only the first questionnaire: a daily plan has no week to review (a "next" flow saved before is not reopened here)
   const [flow, setFlow] = useState<"start" | "next" | null>(() => (typeof window === "undefined" ? null : savedFlow()?.mode === "start" ? "start" : null));
   // the streak's day, moving at midnight; today's plan keeps the date the page opened with (`useTodayPlan`)
   const [today, setToday] = useState(() => localDate());
-  // Share plan: a teacher makes an invite; anyone else is shown what a teacher account does
-  const [shareOpen, setShareOpen] = useState(false);
-  const closeShare = useCallback(() => setShareOpen(false), []);
-  const { can } = useAccount();
-  // a plan just claimed from an invite (?added=<id>): it is not drawn on /plan (given plans get their own page); the
-  // query is only taken out of the address, so a reload doesn't carry it
-  // taken out once the plan has loaded, not on mount: the page can mount again before then (the data source settling)
-  useEffect(() => {
-    if (!loaded) return;
-    const { id, rest } = takeAdded(window.location.href.slice(window.location.origin.length));
-    if (id) window.history.replaceState(window.history.state, "", rest);
-  }, [loaded]);
   const store = usePlanStore();
-  // the invite is made from the stored plan: the latest change has to land first (a store in this browser has it already)
-  const prepareShare = useCallback(async () => {
-    if ((await store.flush?.()) === false) throw new ShareRefused(NOT_SAVED);
-  }, [store]);
 
   useEffect(() => {
     const t = setInterval(() => setToday(localDate()), 60_000);
@@ -81,11 +61,10 @@ export default function PlanApp() {
   // the day timer's seconds, kept apart from the plan
   const { times, loaded: timesLoaded, saveTime } = usePlanTimes(plan?.id ?? null);
   // the streak and the progress tracker: every plan's timer records with this plan's live ones laid over them, so
-  // today's saves count without a reload
+  // today's saves count without a reload; every plan counts, the given ones too (as the server's `playerProgress`)
   const all = useAllPlanTimes();
   const [tracking, setTracking] = useState(false);
-  const { current: running, history } = state;
-  const plans = useMemo(() => (running ? [running, ...history] : history), [running, history]);
+  const plans = useMemo(() => storedPlans(state), [state]);
   const allTimes = useMemo(() => mergeTimes(all.times, times), [all.times, times]);
   const result = useMemo(
     () => outcome({ plans, entries: progress.entries, times: allTimes, answersHistory: state.answersHistory }, today),
@@ -109,24 +88,23 @@ export default function PlanApp() {
     if (day.view.kind === "plan") setAnswersSaved(true);
     else if (day.view.kind === "failed") day.retry();
   };
-  // the answers were changed while today's plan was there: said under the header until closed
+  // the answers were changed while today's plan was there: said under the header until closed, or until Get another plan
+  // answers (a new set, or none), as the notice tells the player to press it
   const [answersSaved, setAnswersSaved] = useState(false);
+  const attempt = plan?.composed?.attempt ?? null;
+  const [seen, setSeen] = useState({ attempt, none: day.none });
+  if (seen.attempt !== attempt || seen.none !== day.none) {
+    // a new set came, or the answer was "no other exercises" (`none` turning false is only the next press going out)
+    const answered = seen.attempt !== attempt || day.none;
+    setSeen({ attempt, none: day.none });
+    if (answered && answersSaved) setAnswersSaved(false);
+  }
   const setPlan = (change: (p: StoredPlan) => StoredPlan) => update((s) => (s.current && s.current.id === plan?.id ? { ...s, current: change(s.current) } : s));
   // the browser AI's block tools, while a plan runs
   // the day the player has open in the day editor: the AI leaves it alone until Done
   const [editingDay, setEditingDay] = useState<number | null>(null);
   usePlanAgentTools(loaded ? plan : null, (next) => setPlan(() => next), editingDay);
-  // a rating goes to the plan (what the week view draws) and to the progress log (the lasting record, one row per exercise)
-  const rate = (d: number, e: number, stars: Stars | null) => {
-    const at = new Date().toISOString();
-    setPlan((p) => ratePlan(p, d, e, stars, at));
-    const current = plan;
-    const id = current?.config.days[d]?.exercises[e]?.id;
-    if (!current || !id) return;
-    const row = stars === null ? null : entryFor(current, d, e, { stars, at }, randomId);
-    if (row) progress.put(row);
-    else progress.remove(id);
-  };
+  const rate = rateHandler(plan, setPlan, progress);
 
   if (!loaded || !timesLoaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
@@ -134,13 +112,13 @@ export default function PlanApp() {
     <PlanFlow mode={flow} answers={state.answers ?? DEFAULT_ANSWERS} current={plan} review={plan?.review ?? null} onReview={(r) => setPlan((p) => reviewPlan(p, r, new Date().toISOString()))} onAnswers={onAnswers} onClose={() => setFlow(null)} />
   );
   const primary = "!rounded-xl !border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 shadow-md shadow-sky-500/20 transition hover:!bg-sky-400";
-  // the header's controls: one height, big enough to hit with a guitar in the other hand
-  const big = "h-10 !rounded-xl px-4 text-sm";
 
   const past = <PastDays history={state.history} current={state.current} date={day.date} />;
+  // the plans the player was given, each a link to its own page; above the intro, too (a plan can be claimed before the questions)
+  const given = <GivenPlans plans={state.given} />;
   // the questionnaire again, from the stored answers (areas, where you are in each topic, minutes a day)
   const changeAnswers = (
-    <Button onClick={() => setFlow("start")} title="Answer the questions again: what you play, where you are in each topic, and how long you practise a day" className={big}>
+    <Button onClick={() => setFlow("start")} title="Answer the questions again: what you play, where you are in each topic, and how long you practise a day" className={BIG}>
       <Icon name="pencil" size={16} />Change my answers
     </Button>
   );
@@ -149,6 +127,7 @@ export default function PlanApp() {
     return (
       <div className="flex flex-col gap-4">
         {state.history.length > 0 && streak && <div>{streak}</div>}
+        {given}
         <section className="flex flex-col items-start gap-4 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-6">
           <ol data-tour="plan-steps" className="grid w-full gap-3 text-sm text-slate-300 sm:grid-cols-3">
             {[
@@ -177,6 +156,7 @@ export default function PlanApp() {
       <div className="flex flex-col gap-4">
         {streak && <div>{streak}</div>}
         {(day.view.kind === "making" || day.view.kind === "failed") && <TodayStatus view={day.view} onRetry={day.retry} answers={changeAnswers} />}
+        {given}
         {past}
         {modal}
         {tracker}
@@ -184,16 +164,12 @@ export default function PlanApp() {
     );
   }
 
-  // the exercises set their own keys and always count from the scale's root, so the only setting is how notes are labelled:
-  // a small pill floating over the day timer, or on a phone a control in the header row, so the corner stays small
-  const labels = <LabelSelect className="rounded-xl border border-slate-700 bg-slate-950/90 px-2.5 py-1.5 shadow-xl shadow-black/40 backdrop-blur max-sm:hidden" />;
+  // the Labels control: a pill over the day timer, or on a phone in the header row, so the corner stays small
   const controls = (<>
     {changeAnswers}
     <Reminder state={state} update={update} />
-    <LabelSelect className="h-10 rounded-lg border border-slate-700 px-3 sm:hidden" />
-    <SharePopover kind="plan" itemId={plan.id} open={shareOpen} onClose={closeShare} prepare={prepareShare} instead={can("sharePlan") ? undefined : <UpgradeToTeacher />}>
-      <Button onClick={() => setShareOpen((s) => !s)} aria-expanded={shareOpen} className={`${big} !font-semibold !border-sky-400/70 !text-sky-100 transition hover:!bg-sky-500/15`}><Icon name="share-2" size={16} />Share plan</Button>
-    </SharePopover>
+    <PhoneLabels />
+    <SharePlan planId={plan.id} />
   </>);
   return (
     <FixedLabelRoot value="scale">
@@ -208,13 +184,15 @@ export default function PlanApp() {
           asking={day.asking}
           none={day.none}
           anotherFailed={day.anotherFailed}
+          editing={editingDay !== null}
           onRate={rate}
           times={times}
           onTime={saveTime}
           onEdit={(next) => setPlan(() => next)}
           onEditing={setEditingDay}
-          corner={labels}
+          corner={<CornerLabels />}
         />
+        {given}
         {past}
         <div className="flex justify-center">
           <Button size="sm" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} title="Scroll back to the top of the page">
@@ -225,18 +203,6 @@ export default function PlanApp() {
         {tracker}
       </div>
     </FixedLabelRoot>
-  );
-}
-
-/** Share plan for a player without a teacher account: what one does, and the teacher offer. */
-function UpgradeToTeacher() {
-  return (
-    <div className="mt-3 flex flex-col gap-3">
-      <p className="text-xs leading-relaxed text-slate-300">With a teacher account, you share a plan as a link, and each student who opens it gets their own copy to practise.</p>
-      <Link href="/kickstarter" className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-sky-500/20 transition hover:bg-sky-400">
-        Upgrade to Teacher account
-      </Link>
-    </div>
   );
 }
 

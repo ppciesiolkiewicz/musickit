@@ -120,6 +120,31 @@ export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId:
 export const givenPlan = (s: PlanState, id: string): StoredPlan | undefined => s.given.find((p) => p.id === id);
 
 /**
+ * A change to one given plan (a rating, a tick, an edit), stored on that plan in `given`; `current`, the history and the
+ * other given plans are left as they are. An id not in `given` changes nothing (`s` returned as it is).
+ */
+export function updateGiven(s: PlanState, id: string, change: (p: StoredPlan) => StoredPlan): PlanState {
+  const i = s.given.findIndex((p) => p.id === id);
+  if (i < 0) return s;
+  const given = [...s.given];
+  given[i] = change(given[i]);
+  return { ...s, given };
+}
+
+/** Every plan the player has, for progress and the outcome: the current plan, then the history, then the given plans. */
+export const storedPlans = (s: PlanState): StoredPlan[] => [...(s.current ? [s.current] : []), ...s.history, ...s.given];
+
+/**
+ * Which day of a given plan is today (`today`, from 0, never past its last day) and whether its days are over (`weekOver`):
+ * then `today` is the last day, so every day can be opened.
+ */
+export function givenToday(plan: StoredPlan, date: string): { today: number; over: boolean } {
+  const last = planDays(plan) - 1;
+  const over = weekOver(plan, date);
+  return { today: over ? last : Math.min(dayIndex(plan.startedOn, date), last), over };
+}
+
+/**
  * Use an earlier plan again. Like `startPlan`, but the plan takes the running plan's progress summary (the AI's newest
  * notes on the student) in place of the old one it was written with, so the next prompt does not send stale notes.
  */

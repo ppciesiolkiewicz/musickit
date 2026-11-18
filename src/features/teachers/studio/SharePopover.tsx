@@ -30,7 +30,7 @@ async function refusal(res: Response | null, what: string): Promise<string> {
  * (`DELETE /api/shares/<id>`). In the notes creator it keeps **View as a note** (`onView`).
  *
  * `kind` and `itemId` say what is shared and whose links are listed: a note's item is "note" (the stored note) or "studio"
- * (the studio's stage, sent as `block()`). `prepare` runs before sharing (the notes creator sends its unsaved change first); when it throws, nothing is shared and
+ * (the studio's stage, sent as `block()`); a plan's is the plan's id, sent with Share so the server shares that plan. `prepare` runs before sharing (the notes creator sends its unsaved change first); when it throws, nothing is shared and
  * the popover shows a `ShareRefused`'s message.
  * `instead` replaces Share and the links (the plan page's Upgrade to Teacher account). A plan's live links are dates, not
  * links: opening an invite would add a copy to the sharer's own plans. Closes on ✕, Esc or a press outside it and
@@ -156,7 +156,8 @@ function Sharing({ kind, itemId, block, prepare }: { kind: "note" | "plan"; item
       return;
     }
     try {
-      const body = block ? { kind, note: block() } : { kind };
+      // a plan is named by its id: the server shares that one (today's own plan, or a given plan on its page)
+      const body = block ? { kind, note: block() } : kind === "plan" ? { kind, planId: itemId } : { kind };
       res = await fetch("/api/shares", { method: "POST", headers: accountHeaders({ "content-type": "application/json" }), body: JSON.stringify(body) });
     } catch {}
     if (res?.ok) {
@@ -165,7 +166,7 @@ function Sharing({ kind, itemId, block, prepare }: { kind: "note" | "plan"; item
       setLinks((l) => [made, ...(l ?? [])]);
     } else setError(await refusal(res, `The ${kind} was not shared.`));
     setBusy(false);
-  }, [kind, block, prepare]);
+  }, [kind, itemId, block, prepare]);
 
   const stop = useCallback(async (id: string) => {
     setError(null);

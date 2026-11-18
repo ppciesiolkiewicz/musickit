@@ -17,6 +17,9 @@ const panel = "flex flex-wrap items-start gap-3 rounded-2xl border border-l-4 bo
 const primary = "!rounded-xl !border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 shadow-md shadow-sky-500/20 transition hover:!bg-sky-400";
 const big = "h-10 !rounded-xl px-4 text-sm";
 
+/** Get another plan's title while the day editor is open. */
+const EDITING_TITLE = `Press Done or Cancel in the editor first. Then press ${ANOTHER}.`;
+
 /** Why another plan didn't come: the plan stays as it is in every case. */
 const ANOTHER_FAILED: Record<TodayFailure, string> = {
   offline: `attunr couldn't reach the server, so your plan stays as it is. Check your connection, then press ${ANOTHER} again.`,
@@ -31,9 +34,10 @@ const ANOTHER_FAILED: Record<TodayFailure, string> = {
  * controls (`controls`, the host's) with Get another plan, then the day's exercises with their stars and the day timer
  * (`DayPanel`, the list the week view draws for a day, with no day strip). A line under the controls (a live region,
  * always there) says when another plan couldn't come or found no other exercises; the short-day line sits under the
- * exercises. A new set from Get another plan starts with the timer stopped; Edit can't be pressed while it is asked for.
+ * exercises. A new set from Get another plan starts with the timer stopped; Edit can't be pressed while it is asked for, and
+ * Get another plan can't be pressed while the day editor is open (`editing`: a new set would drop the editor's draft).
  */
-export default function DayPlan({ plan, streak, controls, notice, onAnother, asking, none, anotherFailed, onRate, times, onTime, onEdit, onEditing, corner }: {
+export default function DayPlan({ plan, streak, controls, notice, onAnother, asking, none, anotherFailed, editing = false, onRate, times, onTime, onEdit, onEditing, corner }: {
   plan: StoredPlan;
   streak: ReactNode;
   controls: ReactNode;
@@ -44,6 +48,8 @@ export default function DayPlan({ plan, streak, controls, notice, onAnother, ask
   /** another plan found no other exercises: the plan stays */
   none: boolean;
   anotherFailed: TodayFailure | null;
+  /** the day editor is open: Get another plan waits for Done or Cancel */
+  editing?: boolean;
   onRate: (day: number, ex: number, stars: Stars | null) => void;
   times: DayTime[];
   onTime: (time: DayTime) => void;
@@ -69,8 +75,8 @@ export default function DayPlan({ plan, streak, controls, notice, onAnother, ask
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {controls}
-          {/* busy, it keeps focus: aria-disabled and presses ignored, not disabled */}
-          <Button data-tour="plan-another" onClick={() => !asking && onAnother()} aria-disabled={asking} title="attunr swaps the exercises you haven't rated for other ones. The ones you rated stay." className={`${primary} ${big} ${asking ? "cursor-wait opacity-70" : ""}`}>
+          {/* busy or waiting on the editor, it keeps focus: aria-disabled and presses ignored, not disabled */}
+          <Button data-tour="plan-another" onClick={() => !asking && !editing && onAnother()} aria-disabled={asking || editing} title={editing ? EDITING_TITLE : "attunr swaps the exercises you haven't rated for other ones. The ones you rated stay."} className={`${primary} ${big} ${asking ? "cursor-wait opacity-70" : editing ? "cursor-not-allowed opacity-50" : ""}`}>
             <Icon name="sparkles" size={16} />{asking ? "Getting another plan…" : ANOTHER}
           </Button>
         </div>

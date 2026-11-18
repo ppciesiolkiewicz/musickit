@@ -11,15 +11,22 @@ const plan = (id: string, rated: number, progress?: string): StoredPlan => ({
   config: { title: `Plan ${id}`, ...(progress ? { progress } : {}), days: Array.from({ length: 7 }, (_, d) => ({ theme: `T${d}`, exercises: [{ id: `${id}${d}a`, title: "A", minutes: 5, cells: [] }, { id: `${id}${d}b`, title: "B", minutes: 5, cells: [] }] })) },
 });
 
-test("planRows: the current plan first, then the history in its order, with counts and the summary", () => {
-  const state: PlanState = { ...EMPTY_STATE, current: plan("c", 3, "Barre: better."), history: [plan("hh", 0), plan("hhh", 14)] };
+test("planRows: the current plan first, then the history in its order, then the given plans, with counts and the summary", () => {
+  const state: PlanState = { ...EMPTY_STATE, current: plan("c", 3, "Barre: better."), history: [plan("hh", 0), plan("hhh", 14)], given: [{ ...plan("gggg", 1), from: "s1" }] };
   assert.deepEqual(planRows(state), [
-    { id: "c", title: "Plan c", startedOn: "2026-11-01", rated: 3, total: 14, current: true, progress: "Barre: better." },
-    { id: "hh", title: "Plan hh", startedOn: "2026-11-02", rated: 0, total: 14, current: false },
-    { id: "hhh", title: "Plan hhh", startedOn: "2026-11-03", rated: 14, total: 14, current: false },
+    { id: "c", title: "Plan c", startedOn: "2026-11-01", rated: 3, total: 14, current: true, given: false, progress: "Barre: better." },
+    { id: "hh", title: "Plan hh", startedOn: "2026-11-02", rated: 0, total: 14, current: false, given: false },
+    { id: "hhh", title: "Plan hhh", startedOn: "2026-11-03", rated: 14, total: 14, current: false, given: false },
+    { id: "gggg", title: "Plan gggg", startedOn: "2026-11-04", rated: 1, total: 14, current: false, given: true },
   ]);
   assert.deepEqual(planRows(EMPTY_STATE), []);
   assert.equal(planRows({ ...EMPTY_STATE, current: { ...plan("x", 0), rated: undefined } })[0].rated, 0);
+});
+
+test("spentRows: a given plan's timer seconds are listed too", () => {
+  const g = { ...plan("g", 0), from: "s1" };
+  const times: DayTime[] = [{ planId: "g", day: 0, elapsed: 60, spent: { g0a: 60 } } as unknown as DayTime];
+  assert.deepEqual(spentRows({ ...EMPTY_STATE, given: [g] }, times), [{ plan: "Plan g", day: 0, exercise: "A", planned: 5, spent: 60 }]);
 });
 
 const row = (id: string, at: string, topic?: string): ProgressEntry => ({ id, planId: "p", exerciseId: `e-${id}`, day: 0, exercise: 0, title: id, stars: 4, at, ...(topic ? { topic } : {}) });

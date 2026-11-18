@@ -76,16 +76,19 @@ export async function shareNoteBlock(repo: UserDataRepo, account: Account, raw: 
 }
 
 /**
- * Shares the user's current plan as an invite (teachers and owners). The snapshot is `{ config }`: the week only, without
- * ticks, ratings, feedback, intake answers or history. The AI's `progress` notes are about the sharer, so they are left out too.
+ * Shares one of the user's plans as an invite (teachers and owners): the plan the page names by `planId`, which is the own
+ * current plan (today's day on `/plan`) or a plan in `given` (its own page). Any other id, an earlier plan's too, is
+ * `not-found`. The snapshot is `{ config }`: the plan's days only, without ticks, ratings, feedback, intake answers or
+ * history. The AI's `progress` notes are about the sharer, so they are left out too.
  */
-export async function sharePlan(repo: UserDataRepo, account: Account, now: Date, newId: () => string = newShareId): Promise<{ id: string } | { error: "not-allowed" | "no-plan" } | NotUploaded> {
+export async function sharePlan(repo: UserDataRepo, account: Account, planId: string, now: Date, newId: () => string = newShareId): Promise<{ id: string } | { error: "not-allowed" | "not-found" } | NotUploaded> {
   if (!can(account, "sharePlan")) return { error: "not-allowed" };
-  const { current } = (await readDoc(repo, account.id, "plan")) as PlanState;
-  if (!current) return { error: "no-plan" };
-  const config: PlanConfig = { ...current.config };
+  const state = (await readDoc(repo, account.id, "plan")) as PlanState;
+  const plan = state.current?.id === planId ? state.current : state.given.find((p) => p.id === planId);
+  if (!planId || !plan) return { error: "not-found" };
+  const config: PlanConfig = { ...plan.config };
   delete config.progress;
-  return create(repo, account.id, "plan", current.id, { config }, now, newId);
+  return create(repo, account.id, "plan", plan.id, { config }, now, newId);
 }
 
 /** A live note share, for its public page; null when there is none, it is stopped, or it is a plan share. */

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addDays, anotherDay, givenPlan, ownDay, ratePlan, startDay, startPlan, weekOver } from "./schedule";
+import { addDays, anotherDay, givenPlan, givenToday, ownDay, ratePlan, startDay, startPlan, storedPlans, updateGiven, weekOver } from "./schedule";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import type { ComposedDay } from "./compose";
 import { EMPTY_STATE, planDays, type PlanConfig, type PlanExercise, type PlanState, type StoredPlan } from "./types";
@@ -138,6 +138,46 @@ test("givenPlan finds a plan in the given list only", () => {
   const s: PlanState = { ...EMPTY_STATE, current: { ...g, id: "c" }, given: [g] };
   assert.equal(givenPlan(s, "g"), g);
   assert.equal(givenPlan(s, "c"), undefined);
+});
+
+const week = (id: string, extra: Partial<StoredPlan> = {}): StoredPlan => ({
+  id, startedOn: "2026-11-10", done: {}, from: "s1",
+  config: { title: id, days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [{ id: `${id}-e${i}`, title: "Ex", minutes: 5, cells: [] }] })) } as unknown as PlanConfig,
+  ...extra,
+});
+
+test("a rating on a given plan is stored on that plan in given; current, history and the other given plans are untouched", () => {
+  const own: StoredPlan = { ...week("own"), from: undefined };
+  const s: PlanState = { ...EMPTY_STATE, current: own, history: [week("old")], given: [week("g1"), week("g2")] };
+  const next = updateGiven(s, "g2", (p) => ratePlan(p, 2, 0, 4, "2026-11-12T10:00:00Z"));
+  assert.equal(next.current, own);
+  assert.equal(next.history, s.history);
+  assert.equal(next.given[0], s.given[0]);
+  assert.deepEqual(next.given[1].rated, { "2:0": { stars: 4, at: "2026-11-12T10:00:00Z" } });
+  assert.deepEqual(next.given[1].done, { "2:0": true });
+  assert.equal(next.current?.rated, undefined);
+});
+
+test("updateGiven with an id not in given (the plan's own id, or gone) changes nothing", () => {
+  const s: PlanState = { ...EMPTY_STATE, current: week("own"), given: [week("g1")] };
+  assert.equal(updateGiven(s, "own", (p) => ratePlan(p, 0, 0, 5, "x")), s);
+  assert.equal(updateGiven(s, "gone", (p) => ratePlan(p, 0, 0, 5, "x")), s);
+});
+
+test("storedPlans lists every plan the player has: current, then history, then given", () => {
+  const s: PlanState = { ...EMPTY_STATE, current: week("own"), history: [week("old")], given: [week("g1")] };
+  assert.deepEqual(storedPlans(s).map((p) => p.id), ["own", "old", "g1"]);
+  assert.deepEqual(storedPlans({ ...s, current: null }).map((p) => p.id), ["old", "g1"]);
+});
+
+test("givenToday: the day of a given plan to open, and whether its days are over (then every day stays open)", () => {
+  const p = week("g", { startedOn: "2026-11-10" });
+  assert.deepEqual(givenToday(p, "2026-11-10"), { today: 0, over: false });
+  assert.deepEqual(givenToday(p, "2026-11-13"), { today: 3, over: false });
+  assert.deepEqual(givenToday(p, "2026-11-16"), { today: 6, over: false });
+  assert.deepEqual(givenToday(p, "2026-11-17"), { today: 6, over: true });
+  assert.deepEqual(givenToday(p, "2026-12-30"), { today: 6, over: true });
+  assert.deepEqual(givenToday(p, "2026-11-01"), { today: 0, over: false }, "a device date before the start opens day 1");
 });
 
 test("anotherDay with an attempt lower than today's changes nothing (a late answer)", () => {
