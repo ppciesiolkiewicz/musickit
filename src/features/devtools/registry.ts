@@ -63,6 +63,7 @@ export const DEV_TOOLS: DevTool[] = [
   { href: "/dev/progress", label: "Progress", tone: "data", desc: "The player's progress outcome: its inputs, then per concept, topic and area, the streak days and time, as of any date." },
   { href: "/dev/library", label: "Library", tone: "data", desc: "The plans and blocks agents read: coverage by step, each one drawn as the player sees it, with the versions it was written to." },
   { href: "/dev/plan-reviews", label: "Plan reviews", tone: "prompt", desc: "Every player's star rating and reason for a finished plan, newest first, from the plan_reviews table." },
+  { href: "/dev/messages", label: "Messages", tone: "prompt", desc: "Messages from signed-in players (the chat bubble and Send feedback) and the contact form: read, reply, close." },
   { href: "/dev/notes", label: "Copy notes", tone: "notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
   { href: "/dev/kickstarter", label: "Kickstarter", tone: "pitch", desc: "Students: the offer to a person who practises on their own (the daily plan, the change, the exercises, the early price). Teachers: the brief for a founding-partner email, to copy into an AI chat with the school's thread." },
 ];

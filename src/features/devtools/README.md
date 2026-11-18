@@ -9,7 +9,7 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
   `src/app/api/dev/*` handler starts with `devGate()` (`gate.ts`). In development no login is needed: `/dev` is a public
   path (`src/lib/publicPaths.ts`). `/dev` is not in the sitemap and robots.txt disallows it.
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
-  `src/app/dev` and `src/app/api/dev` imports dev tools.
+  `src/app/dev` and `src/app/api/dev` imports dev tools, except `gate.ts`, which any file may import.
 - **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files. Pure logic in `model/`, with tests.
 - **Dev notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens the notes bar, the same on every page: all notes' count, this page's, how many are on changed seed sections (on /dev/library), HEAD, *Note a text*, *Re-pin all to HEAD*, *Clear all*, *Copy all notes*. *N on this page* opens a modal with this page's notes, each linking to its entry on `/dev/notes`; a page's notes show only there, not on the page. Opening the bar turns on note mode (*Note a text* toggles it, and so does the A key outside a text box); in note mode a click on any text opens a note, in a box six lines tall. Every note, wherever it shows (under its section, in the bar, on /dev/notes), is one `copy/NoteBar.tsx`: the note, `@commit` (the example file's for a section note, else the HEAD it was made at), edit and delete. Every note, on any page or on an example's section, is in one registry: `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`, `model/copyNotes.ts`), each with the HEAD it was made at. The old `musickit.dev.comments` is moved in once. A page's notes are kept by its route: the path, and the hash where there is one, since some pages move by it (each `/dev/stories#<group>~<n>` has its own notes; `routeOf`, followed through `history.replaceState` too). Section notes are kept by the path alone. A text note also keeps its context (`copy/context.ts`): the labelled regions and headings it sits under, the app's React components that render it (from React's dev fiber, up to the router), each with the file and line of its JSX round the text, the line of JSX that renders the noted element, and the text round it; the copied Markdown gives them as `under:`, `components:`, `source:` and `around:` lines. Files and lines come from the stack React keeps of each JSX call in dev, mapped back to the source by `/api/dev/source` (Next's own `/__nextjs_original-stack-frames`, Turbopack only), so an AI tool can find what to change. A note links to its place with `<path>?note=<id><hash>` (`noteHref`; the older `#note-<id>` still opens): the page opens the notes modal, marks the note there and scrolls to its text, and a section note opens its seed item on /dev/library. `/dev/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, each with *Open →*, with copy, re-pin and clear for one page or all. The bar needs no plan code: /dev/library hands it its section hashes and a `repin` (`useShowSections`).
 - **A new tool** is one entry in `registry.ts` and one page under `src/app/dev`; the index and the tab bar (`DevNav.tsx`, in the layout) both read the registry.
@@ -189,6 +189,15 @@ Every player's plan reviews from the `plan_reviews` table (`listPlanReviews(500)
 (`reviews/PlanReviewsTable.tsx`): date, stars, plan title, why, plan id, library plan id, user id. No charts. Without
 `DATABASE_URL` it says so in one line.
 
+## Messages (`/dev/messages`)
+
+Our inbox for `src/features/messages` (`messages/MessagesInbox.tsx`, over `GET/POST/PATCH /api/dev/messages`):
+threads from signed-in users (the chat bubble and the Send feedback page) and contact form messages, newest first,
+filtered Open / Closed / All. Opening one shows every message with where it was sent from (path, headings, the text
+they had selected) and marks it read on our side; reply, or Close / Reopen. A contact message from a visitor (tagged
+"contact") has no reply box, only an email link. `?thread=<id>` opens one; the email we get about a message links there.
+Dev only like every /dev page, so to answer production messages run the dev server against the production database.
+
 ## Kickstarter (`/dev/kickstarter`)
 
 Two pages under one nav (`kickstarter/KickstarterNav.tsx`: *Students*, *Teachers*); the Kickstarter tab of the dev nav is lit on both.
@@ -246,7 +255,7 @@ returns one.
 
 ## Code map
 
-- `gate.ts`: `devOnly`, `devGate`, `devUi`. `src/app/dev/layout.tsx`: the page gate (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
+- `gate.ts`: `devOnly`, `devGate`, `devUi`: the one dev flag. No file reads `NODE_ENV` to ask "is this development?" on its own; it calls `devOnly()` (anything, a route included), `devGate()` (an `/api/dev` handler) or `devUi()` (something drawn on a real page). A dev-only control on a real page goes inside `DevOnly` (`src/components/DevOnly.tsx`), which gates on `devUi()` and draws the fuchsia `dev` tag and a dashed outline; `DevName` is the same mark for a component's name. `src/app/dev/layout.tsx`: the page gate (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the CLI aliases and the pinned `DEMO_MODELS`.
 - `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/published.json`, `server/ollama.ts`, `scripts/compare-models.ts`, `scripts/publish-model-plans.ts`: comparing AI models from the command line.
