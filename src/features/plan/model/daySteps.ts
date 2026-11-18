@@ -1,6 +1,7 @@
 import type { ProgressEntry } from "@/features/progress/log";
 import type { PlanAnswers } from "../intake/answers";
 import { topicsFor } from "../intake/topics";
+import { scoringRows } from "./moves";
 import { SOLID_STARS, reachIndex } from "./outcome";
 import { PATH, stepAt, type Track } from "./path";
 import { reach } from "./reach";
@@ -25,7 +26,7 @@ const ms = (at: string | undefined): number => { const t = Date.parse(at ?? "");
 /** When each solid step was last rated: the newest rating that counts for it (`reachIndex`), as an ISO datetime. */
 export function solidRatedAt(entries: ProgressEntry[]): Map<string, string> {
   const newest = new Map<string, ProgressEntry>();
-  for (const entry of entries) {
+  for (const entry of scoringRows(entries)) {
     const steps = (entry.steps ?? []).filter((r) => stepAt(r));
     for (const id of new Set(steps.map((r) => stepAt(r)!.track.id))) {
       const upTo = reachIndex(id, { steps, entry });

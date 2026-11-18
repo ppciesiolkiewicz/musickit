@@ -185,3 +185,12 @@ export function paramWarnings(block: Pick<Block, "title" | "moves" | "cells">): 
   const named = new Set(texts.flatMap((t) => [...t.matchAll(PARAM)].map((m) => m[1] as MovePart)));
   return MOVE_PARTS.filter((p) => named.has(p) && !(p === "key" ? block.moves?.key : block.moves?.bpm)).map((p) => `text names {{=${p}}} but the block has no ${PARAM_WORD[p]} move.`);
 }
+
+/**
+ * The rated rows that count for a step: a play found hard (1 or 2 stars) in a version past the first one is left out,
+ * as if it was not rated. It tilts the next roll of its block (model/roll.ts) and never pulls the step down. Every
+ * other reader of the log sees the row as it is.
+ */
+export function scoringRows<T extends { stars: number; given?: { moved?: number } }>(rows: T[]): T[] {
+  return rows.filter((r) => !(r.stars <= 2 && (r.given?.moved ?? 0) >= 1));
+}

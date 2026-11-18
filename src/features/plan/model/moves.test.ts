@@ -3,7 +3,11 @@ import assert from "node:assert/strict";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import { cleanExercise } from "./cleanExercise";
 import { parseExercise } from "./config";
-import { applyGiven, cleanGiven, paramWarnings, parseMoves, selectorsOf, written, type Moves } from "./moves";
+import type { ProgressEntry } from "@/features/progress/log";
+import { solidRatedAt } from "./daySteps";
+import { applyGiven, cleanGiven, paramWarnings, parseMoves, scoringRows, selectorsOf, written, type Moves } from "./moves";
+import { outcome } from "./outcome";
+import { entryFor } from "./progressLog";
 import type { Cell, PlanTool } from "./tools";
 import type { PlanExercise } from "./types";
 
@@ -195,4 +199,35 @@ test("paramWarnings: a param needs its move", () => {
   assert.deepEqual(paramWarnings({ title: "{{=key}} run", moves: { bpm: BPM }, cells: [text("at {{=bpm}}"), tool(band(60))] }), ["text names {{=key}} but the block has no key move."]);
   assert.deepEqual(paramWarnings({ title: "Run", cells: [{ type: "section", heading: "At {{=bpm}}", cells: [tool(band(60))] } as Cell] }), ["text names {{=bpm}} but the block has no tempo move."]);
   assert.deepEqual(paramWarnings({ title: "Run", moves: { bpm: BPM }, cells: [text("at {{=bpm}}"), tool(band(60))] }), []);
+});
+
+// --- Task 5: a rating keeps its version, and a hard moved version doesn't lower the step
+
+test("scoringRows: only a play found hard in a version past the first is left out", () => {
+  const rows = [{ stars: 2, given: { moved: 1 } }, { stars: 2 }, { stars: 2, given: { moved: 0 } }, { stars: 3, given: { moved: 2 } }, { stars: 1, given: { moved: 4 } }];
+  assert.deepEqual(scoringRows(rows), [{ stars: 2 }, { stars: 2, given: { moved: 0 } }, { stars: 3, given: { moved: 2 } }]);
+});
+
+const P1 = "pentatonic-positions:1";
+const rated = (id: string, stars: number, at: string, given?: ProgressEntry["given"]): ProgressEntry =>
+  ({ id, planId: "p", exerciseId: `e-${id}`, day: 0, exercise: 0, title: "Position 1", area: "guitar", level: "beginner", topic: "guitar-scales", concepts: ["pentatonic-positions"], steps: [P1], blockId: "b", stars, at, ...(given ? { given } : {}) }) as ProgressEntry;
+
+test("a step stays solid when a harder version of its block was found hard", () => {
+  const easy = [rated("1", 5, "2026-11-10T10:00:00.000Z"), rated("2", 5, "2026-11-11T10:00:00.000Z")];
+  const hard = rated("3", 1, "2026-11-12T10:00:00.000Z", { bpm: { now: 70, back: [60] }, moved: 1 });
+  assert.deepEqual(solidRatedAt([...easy, hard]), solidRatedAt(easy));
+  const o = (entries: ProgressEntry[]) => outcome({ plans: [], entries, times: [], answersHistory: [] }, "2026-11-19");
+  const topics = (entries: ProgressEntry[]) => o(entries).areas.flatMap((a) => a.topics.map((t) => ({ topic: t.topic, score: t.score, concepts: t.concepts.map((c) => ({ id: c.id, state: c.state })) })));
+  assert.deepEqual(topics([...easy, hard]), topics(easy));
+  assert.equal(o([...easy, hard]).areas.find((a) => a.area === "guitar")!.ratings, 3, "the rating is still counted as a rating");
+  const first = rated("3", 1, "2026-11-12T10:00:00.000Z", { bpm: { now: 60, back: [] } });
+  assert.notDeepEqual(topics([...easy, first]), topics(easy), "found hard in the first version, it counts as today");
+});
+
+test("entryFor: the row carries the version the exercise was played in", () => {
+  const given = { keys: { now: [G, A], back: [] }, bpm: { now: 70, back: [60] }, moved: 2 };
+  const plan = { id: "p", startedOn: "2026-11-19", done: {}, config: { title: "t", days: [{ theme: "", exercises: [{ ...ex({ moves: { key: "any", bpm: BPM }, given }), id: "s1" }, { ...ex(), id: "s2" }] }] } };
+  const at = "2026-11-19T10:00:00.000Z";
+  assert.deepEqual(entryFor(plan as never, 0, 0, { stars: 5, at }, () => "n")!.given, given);
+  assert.equal("given" in entryFor(plan as never, 0, 1, { stars: 5, at }, () => "n")!, false);
 });

@@ -1,6 +1,5 @@
 import type { ProgressEntry } from "@/features/progress/log";
 import { KEY_LADDERS } from "./keys";
-import type { Given } from "./moves";
 import { PATH, stepAt, type Track } from "./path";
 
 /*
@@ -37,8 +36,7 @@ export interface TrackKeys {
 
 /** The key a rated play opened in, when it earns: the first of its `now` keys. */
 function opened(row: ProgressEntry): number | null {
-  const given = (row as { given?: Given }).given;
-  const key = given?.keys?.now?.[0];
+  const key = row.given?.keys?.now?.[0];
   return row.stars >= EARNS && typeof key === "number" ? key : null;
 }
 

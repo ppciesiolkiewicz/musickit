@@ -1,6 +1,7 @@
 import type { PlanAnswers } from "../intake/answers";
 import { topicById, topicsFor, type Rung } from "../intake/topics";
 import type { ProgressEntry } from "@/features/progress/log";
+import { scoringRows } from "./moves";
 import { AREAS, conceptById, conceptIds, conceptsOf, type Area } from "./concepts";
 import { stepAt } from "./path";
 import type { DayTime } from "./planTime";
@@ -306,13 +307,15 @@ function streakOf(rated: Rated[], byDate: Record<string, number>, asOf: string):
  * questionnaires up to then. Time and the streak come from the day timer's records.
  */
 export function outcome(input: OutcomeInput, asOf: string): Outcome {
-  const rated = ratedEntries(input.entries, asOf);
+  // every rating counts for the streak and the count; a play found hard in a version past the first doesn't score a step
+  const all = ratedEntries(input.entries, asOf);
+  const rated = ratedEntries(scoringRows(input.entries), asOf);
   const { slots, byDate } = timeAsOf(input, asOf);
   const areas: AreaOutcome[] = AREAS.map(({ id, label }) => ({
     area: id,
     label,
     topics: topicsFor(id).map((t) => topicOutcome(t.id, id, t.label, rated, input.answersHistory, asOf, scoreAt(input.teacherScores ?? [], t.id, asOf))),
-    ratings: rated.filter((r) => r.area === id).length,
+    ratings: all.filter((r) => r.area === id).length,
     seconds: 0,
   }));
   const topics = areas.flatMap((a) => a.topics);
@@ -328,7 +331,7 @@ export function outcome(input: OutcomeInput, asOf: string): Outcome {
     if (area) area.seconds += seconds;
     if (topic || area) sorted += seconds;
   }
-  return { asOf, areas, streak: streakOf(rated, byDate, asOf), seconds: { total, sorted } };
+  return { asOf, areas, streak: streakOf(all, byDate, asOf), seconds: { total, sorted } };
 }
 
 /** The step refs rated solid, for `reach({ solid })` (reach.ts): the composer's input for what a player knows. */

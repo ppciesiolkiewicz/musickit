@@ -55,3 +55,14 @@ test("cleanEntries keeps a rated block's id, and drops a broken one without drop
     assert.equal("blockId" in r, false);
   }
 });
+
+test("cleanEntries keeps the version a row was played in, and drops a broken one without the row", () => {
+  const base = { id: "a", planId: "p", exerciseId: "e1", day: 0, exercise: 0, title: "t", stars: 5, at: "2026-11-19T10:00:00.000Z" };
+  const given = { keys: { now: [7, 9], back: [4] }, bpm: { now: 70, back: [60] }, moved: 2 };
+  assert.deepEqual(cleanEntries([{ ...base, given }])[0].given, given);
+  assert.deepEqual(cleanEntries([{ ...base, given: { keys: { now: "a" }, bpm: { now: 70, back: [] }, moved: 1.5 } }])[0].given, { bpm: { now: 70, back: [] } });
+  const broken = cleanEntries([{ ...base, given: { keys: { now: [], back: [] }, moved: 3 } }]);
+  assert.equal(broken.length, 1);
+  assert.equal("given" in broken[0], false);
+  assert.equal("given" in cleanEntries([{ ...base, given: "x" }])[0], false);
+});
