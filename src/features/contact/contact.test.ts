@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { contactEmail, contactPath, contactTo, parseContact } from "./contact";
+import { contactEmail, contactOutcome, contactPath, contactTo, parseContact } from "./contact";
 
 const NOW = Date.UTC(2026, 10, 8, 12, 0, 0);
 
@@ -30,4 +30,10 @@ test("the email goes to attunrapp@gmail.com unless overridden, replying to the s
   assert.match(mail.text, /Hello/);
   assert.equal(contactTo({ CONTACT_TO_EMAIL: "me@x.io" }), "me@x.io");
   assert.match(contactPath(r.contact, "abc123"), /^contact\/2026-11-08T12-00-00-000Z-abc123\.json$/);
+});
+
+test("a contact message counts as received if any one of email, blob or database took it", () => {
+  assert.equal(contactOutcome({ emailed: false, stored: false, saved: true }), "ok");
+  assert.equal(contactOutcome({ emailed: true, stored: false, saved: false }), "ok");
+  assert.equal(contactOutcome({ emailed: false, stored: false, saved: false }), "fail");
 });

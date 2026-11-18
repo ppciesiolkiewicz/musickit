@@ -43,3 +43,6 @@ export function contactEmail(c: ContactMessage, env: Record<string, string | und
     text: `From: ${c.email}\nSection: ${c.source || "-"}\nAt: ${new Date(c.at).toISOString()}\n\n${c.message}\n`,
   };
 }
+
+/** A message is received if any one of the email, the blob or the database row took it; it fails only when none did. */
+export const contactOutcome = (r: { emailed: boolean; stored: boolean; saved: boolean }): "ok" | "fail" => (r.emailed || r.stored || r.saved ? "ok" : "fail");
