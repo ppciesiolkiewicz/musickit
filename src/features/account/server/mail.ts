@@ -95,7 +95,7 @@ export const MAIL_TRIES = 2;
  * once more, with the same Idempotency-Key so Resend never sends the email twice. Throws with Resend's reason when the
  * mail is refused or the last try fails.
  */
-export async function sendMail(mail: ReturnType<typeof linkEmail>, env: Env = process.env, fetcher: typeof fetch = fetch): Promise<"sent" | "off"> {
+export async function sendMail(mail: { from: string; to: string[]; subject: string; text: string; html?: string; reply_to?: string }, env: Env = process.env, fetcher: typeof fetch = fetch): Promise<"sent" | "off"> {
   const apiKey = env.RESEND_API_KEY?.trim();
   if (!apiKey) return "off";
   const headers = { authorization: `Bearer ${apiKey}`, "content-type": "application/json", "idempotency-key": crypto.randomUUID() };
