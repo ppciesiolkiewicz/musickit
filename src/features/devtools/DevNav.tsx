@@ -11,7 +11,7 @@ export default function DevNav() {
   return (
     <nav aria-label="Dev tools" className="mb-4 flex flex-wrap gap-1 border-b border-slate-800 pb-2 text-sm">
       {tabs.map((t) => {
-        const active = path === t.href;
+        const active = path === t.href || (t.href !== "/dev" && path.startsWith(`${t.href}/`));
         const tone = TONE_CLASSES[t.tone];
         return (
           <Link

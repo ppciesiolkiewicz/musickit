@@ -11,7 +11,7 @@ const brief = () => outreachBrief(demos);
 
 test("the brief carries the offer, the demo-mode line and every demo link", () => {
   const b = brief();
-  for (const word of ["founding partners", "locked in", "90 days", "$360 AUD a year", "change their mind", "100% money-back guarantee", "ABN 48 737 987 261", "at least 20 founding partners", "Australian company", "scheduling", "profiles", "sells it through the attunr website", "/kickstarter", "involved in the creation", "demo mode", "The vision for attunr is", "manage more of a music school", "video call with me, Piotr, the founder", "about 30 minutes", "commits them to nothing", "Never invent a day or a time", "https://calendly.com/attunrapp/30min", "https://calendly.com/attunrapp/attunr", "never both", "Quality of practice matters more than hours", "20 minutes of focused practice", "how consistently they practise", "in each lesson the teacher", "daily exercises for the next week", "how engaged a student is", "supports teachers in creating practice plans", "support studios with many parts of running them"]) {
+  for (const word of ["founding partners", "locked in", "90 days", "$360 AUD a year", "change their mind", "100% money-back guarantee", "ABN 48 737 987 261", "at least 20 founding partners", "Australian company", "scheduling", "profiles", "sells it through the attunr website", "/kickstarter", "involved in the creation", "demo mode", "The vision for attunr is", "manage more of a music school", "video call with me, Piotr, the founder", "about 30 minutes", "commits them to nothing", "Never invent a day or a time", "https://calendly.com/attunrapp/30min", "https://calendly.com/attunrapp/attunr", "never both", "Quality of practice matters more than hours", "20 minutes of focused practice", "how consistently they practise", "in each lesson the teacher", "daily exercises for the next week", "how engaged a student is", "supports teachers in creating practice plans", "support studios with many parts of running them", "No AI writes the plan", "one slider for each topic", "by how many students they have", "attunr has two sides"]) {
     assert.ok(b.includes(word), word);
   }
 });
@@ -24,6 +24,7 @@ test("the brief lists the links by group, strongest first, and the pages never t
   assert.ok(!b.includes("### For guitarists"), "an empty group is left out");
   assert.ok(b.indexOf("### Lead with") < b.indexOf("### For singers"));
   for (const a of LINKS_TO_AVOID) assert.ok(b.includes(`${a.label} (${a.path})`), a.label);
+  assert.ok(!b.includes("AI helping to draft both"), "the plan is not drafted by AI");
   for (const path of ["/tuner", "/theory/chords"]) assert.ok(LINKS_TO_AVOID.some((a) => a.path === path), path);
 });
 

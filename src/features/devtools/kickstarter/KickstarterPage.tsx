@@ -7,7 +7,7 @@ import { FACTS, LINK_GROUPS, LINKS_TO_AVOID, VOICE, outreachBrief, SAMPLE_EMAILS
 
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border border-slate-700 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-sky-400";
 
-function CopyButton({ text, label }: { text: string; label: string }) {
+export function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -26,7 +26,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-function Block({ title, about, children }: { title: string; about: string; children: ReactNode }) {
+export function Block({ title, about, children }: { title: string; about: string; children: ReactNode }) {
   return (
     <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-4">
       <h2 className="text-base font-semibold text-slate-100">{title}</h2>
@@ -36,7 +36,7 @@ function Block({ title, about, children }: { title: string; about: string; child
   );
 }
 
-/** /dev/kickstarter: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. What autoplans cost is on /dev/costs. */
+/** /dev/kickstarter/teachers: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. What autoplans cost is on /dev/costs. */
 export default function KickstarterPage({ demos, plans }: { demos: DemoLink[]; /** the plans table; null without a database */ plans: Plan[] | null }) {
   const brief = useMemo(() => outreachBrief(demos, plans ?? []), [demos, plans]);
   return (
