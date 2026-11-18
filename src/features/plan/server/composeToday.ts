@@ -31,7 +31,11 @@ export function candidateOf(b: ComposeBlock): Candidate {
   return { blockId: b.id, steps: b.steps, minutes: b.slot.minutes, use: b.use, mine: b.mine, exercise };
 }
 
-const isRealDate = (s: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`)) && new Date(`${s}T00:00:00Z`).toISOString().slice(0, 10) === s;
+export const isRealDate = (s: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`)) && new Date(`${s}T00:00:00Z`).toISOString().slice(0, 10) === s;
+
+/** A date a page may send as today: a real date within one day of the server's. */
+export const isNearToday = (date: unknown, today: string): date is string =>
+  typeof date === "string" && isRealDate(date) && (date === today || date === addDays(today, 1) || date === addDays(today, -1));
 
 const blockIds = (p: StoredPlan | undefined): string[] =>
   (p?.config.days[0]?.exercises ?? []).flatMap((e) => (e.blockId ? [e.blockId] : []));
@@ -57,7 +61,7 @@ export async function composeToday(
   if (!answers) return { ok: false, code: "no-answers" };
   const today = (d.today ?? (() => localDate()))();
   const { date } = body;
-  if (!isRealDate(date) || (date !== today && date !== addDays(today, 1) && date !== addDays(today, -1))) return { ok: false, code: "bad-date" };
+  if (!isNearToday(date, today)) return { ok: false, code: "bad-date" };
 
   const blocks = (await d.library.composeBlocks(player, answers.areas)).map(candidateOf);
   if (!blocks.length) return { ok: false, code: "no-blocks" };
