@@ -74,6 +74,11 @@ is it its own row with an id, reused across blocks? A block's step is read from 
 the step (and coverage, find_blocks by step, ratings) belongs to the block plus its choice. Block text that points at the
 choice ("use the Stage selector below") only makes sense when a choice is there. Today's blocks carry their choice inside
 `content`; splitting them moves it onto their plan rows. Not before the NEW series is released.
+[2026-11-18, user] From the keys work: the slot now carries the player's keys over the block's Key selector
+(`PlanExercise.keys`, `withKeys`). "This could also allow overwriting some of the fields as well. I almost wonder:
+maybe blocks should be more basic and content should be using props in content." So: the same slot could carry a
+tempo, a position or a level, and a block's text and tools would read those props instead of holding values. Weigh
+here, with the keys as the first case that works.
 ChoiceSplit2: [NEW 2026-11-17] A choice table (a connector) between blocks and plans: one row joins a block to a plan
 (library or player) and carries the choice for that use (stages, variants, a key, a tempo ladder), so one block is
 reused many ways without a new block for each. After ChoiceSplit1 settles the shape. Touches `practice_plan_blocks`
@@ -129,6 +134,27 @@ along." Store them as data, a list of tips per tool (and a block can add its own
 the tips can be shown another way later (one at a time, a random one per session, in the step text) (user,
 2026-11-18). The InfoTip molecule (src/components/ui/molecules/InfoTip) may already be the button. Write the tips with
 teaching-voice.
+ToolsImprovement3: [NEW 2026-11-18] guitar-play-along (seen on chord-steps, "5ths on two strings › One string over",
+seed blocks/guitar-new-fifths-on-two-strings.json) gets the usual mute controls: mute guitar, mute metronome (user, from
+a page comment). Then a block can lock the click off: a prop the AI and seed can set (no metronome, and no way to turn
+it on there), so a block can be the same exercise again without the click. Its text says, in the user's words: "Now try
+without the metronome click. Try not to look at the metronome dots or bars. Can you keep on time?" (write it with
+exercise-example / teaching-voice). Open: whether "no click" also hides the beat dots/bars or only asks the player not
+to look; how it reads in the prompt and the seed check. Wiring: tools.ts (prop + parser), ui/Tool.tsx, prompt.ts,
+transpose.ts, docs regen, story on /dev/stories; then seed follow-up blocks for the play-along exercises.
+
+TaskSeries SeedWording: seed exercise text that reads wrong on /plan (from page comments, 2026-11-18)
+Rewrite with exercise-example, then review-teaching-text. A rewritten file takes the current versions; block ids change,
+so reseed after (db:seed-plans, db:seed-blocks). A wording rule that goes into the skills raises the teaching version
+(DOC_VERSIONS, changelog).
+SeedWording1: [NEW 2026-11-18] "Press a chord box below to see the new shapes" is wrong: the shapes already show,
+pressing a box doesn't make them appear (user). Say what pressing does (check in Tool.tsx / chord-shapes first: sound
+the chord?), or just "The new shapes are below." Seen: guitar-intermediate "Sus groove in D › Dsus4 into D". Same
+wording in plans/guitar-beginner.json, plans/guitar-intermediate.json, blocks/guitar-advanced-barre-shapes-anywhere.json.
+SeedWording2: [NEW 2026-11-18] Pushy endings: "Keep going until the stretch feels as easy as it did at the 5th fret"
+(guitar-beginner "Spider from the 1st fret"). User: friendlier, not pushing; say "Take as many breaks as you need."
+"Keep going until" is in ~115 lines across 78 seed files: sort which push and which only say when to stop, rewrite the
+pushy ones. Likely a teaching-voice rule too (no pushing; breaks are fine). Ties to CounterTask2 (breaks in plans).
 
 TaskSeries Rebrand: "AI Autoplan" gets a new name everywhere, now that plans are composed with no AI (from NEW7, 2026-11-18)
 Counted 2026-11-18: "autoplan" is in 30 files under src (tests aside), "AI plan" / "AI practice plan" in 34.
@@ -379,6 +405,41 @@ at 320 px in Surf Rock "Remind me at" wraps onto two lines.
 follows the style, so its clock icon shows in Surf Rock. Also seen now: the tip on /theory/notes and with reduced
 motion (no pulse), and the plan cards on /account, Monthly and Yearly, at 390 and 1280 px.
 
+TaskSeries Reminders: daily practice reminders that reach the player with no attunr tab open (user, 2026-11-18)
+What exists: "Remind me at" on /plan (`ReminderSettings` in the plan document: enabled, time, lastShownOn), and a
+browser notification from `PracticeReminder` (mounted in PageShell) only while an attunr tab is open; `reminderDue` and
+`reminderBody` (src/features/plan/reminders.ts, tested) decide when it is due and what it says. No email, no push.
+Mail goes through Resend (`sendMail`, src/features/account/server/mail.ts). Copy: design:ux-copy + "Words about the app".
+Reminders1: [NEW 2026-11-18] Server reminders every 15 minutes: one scheduled run sends what is due
+- A route (e.g. GET /api/cron/reminders) that finds every reminder due in the last 15 minutes and sends it; checks
+  `Authorization: Bearer $CRON_SECRET`, as Vercel Cron sends it. Scheduled from vercel.json `crons`, `*/15 * * * *`.
+- Vercel: Hobby runs a cron at most once a day (and only to the hour), so every 15 minutes needs Pro. Check the
+  project's plan first. Without Pro: an outside scheduler (GitHub Actions `schedule`, cron-job.org) calls the same route
+  with the secret. Either way the route is the same.
+- Time picker in 15-minute steps (`step=900`), so a chosen time always falls on a run.
+- The player's time zone: stored with the reminder (the browser's `Intl.DateTimeFormat().resolvedOptions().timeZone`,
+  updated when it changes), since `time` is local. Due = the zone's local time is past `time`, not sent today.
+- Finding due reminders without reading every plan document: a reminders table (account, time, zone, channels, next
+  send at in UTC, indexed) kept in step with the document's `reminder`, or the document's reminder moved there. The
+  "today's plan finished / teacher's week covers today" rules of `reminderDue` still apply at send time.
+- Sent once: a sent-on date per channel, written before or in the same step as the send, so a retried run doesn't send twice.
+Reminders2: [NEW 2026-11-18] Email reminders (after Reminders1)
+- "Time to practise" with `reminderBody`'s words and a button to /plan; same dark layout as the log-in and claim emails.
+- An unsubscribe link in every email that switches the email reminder off with no log-in, plus `List-Unsubscribe` and
+  `List-Unsubscribe-Post` headers (Gmail and Yahoo ask for one-click unsubscribe).
+Reminders3: [NEW 2026-11-18] Browser notifications with no tab open: Web Push (after Reminders1)
+- A service worker, VAPID keys, a push subscription per browser stored on the account (one account, several devices),
+  sent by the same run (`web-push` package). A subscription the push service answers 404/410 for is deleted.
+- iPhone: push works only for a site added to the Home Screen (iOS 16.4+), which needs a web app manifest (none yet).
+  Say so next to the switch on an iPhone.
+- The open-tab `PracticeReminder` goes once push works, or stays for a browser without push: decide, so a player never
+  gets the same reminder twice.
+Reminders4: [NEW 2026-11-18] Ask for the reminder in account setup and when claiming (after Reminders2)
+- /account/setup and /claim (a teacher's student) each get a step: the time, and which ways (email, browser).
+- Always changeable on /plan: "Remind me at" grows the same choices (email, browser), one control on every page.
+- Open: on or off by default at setup; the default time (today 18:00).
+Deferred1 (WhatsApp and text message reminders) would be one more channel on the same run.
+
 TaskSeries Leftover: small things left after the launch copy and phone fixes (2026-11-18)
 Leftover1: [NEW 2026-11-18] What the pricing, terms and phone-fix session (af59a23c, 8929010e, 09194114) left unseen
 or undone:
@@ -405,6 +466,49 @@ Keys by level, easiest first (user's list, to be finished):
 Open: how the questionnaire asks it (pick keys, or take the ladder by level); how the AI plan prompt and the seed
 blocks carry a key (transpose.ts, the block `key`); whether a later week moves the player up the key ladder.
 Check key facts with `npm run theory`.
+[2026-11-18 proposal, not decided] Three ladders, one per area, because "easy" means a different thing in each.
+- Guitar, by how many of the key's six main chords are open chords (C D E G A Am Dm Em; chords from `theory scale`):
+  1. new: E minor (Em G Am C D open, only Bm is a barre).
+  2. beginner: G major (the same chords; I IV V all open) and A: A minor for scales (pentatonic position 1 at the 5th
+     fret, Am C Dm Em G open, F is the small F) and A major for three-chord songs (A D E).
+  3. beginner, later: C major (needs F) and D major (needs Bm): they come with barre:1-2.
+  4. intermediate: E major (B is a barre, B7 is open), D minor, B minor, F major: the tonic or two chords are barres.
+  5. advanced: F♯ minor, C♯ minor, B, B♭, E♭, A♭: no open chords, movable shapes only. "Any key."
+  The seed already leans this way: guitar blocks are in A (20), Am (19), D (12), C (9), G (8).
+- Voice: no ladder and no question. The key of a sung exercise is the one that puts its lowest and highest note inside
+  the player's range (`user_voices`, built 2026-11-18), nearest its middle. Today voice blocks are in C (38) and D (29)
+  for a tenor. Covers MissingTools10 (run-singer range cap) and the staff-range note in the older tasks.
+- Theory & ear, by sharps and flats: C, then G and F, then D and B♭, then A and E♭, outward on the circle of fifths,
+  each with its relative minor. This is the `keys` track of path.ts already.
+- The questionnaire asks no key from a new or beginner player (they can't answer it): the key comes from the rung of
+  their guitar topics. From intermediate, one optional screen: "Keys you play in most" (chips), which sets the home key.
+- How a plan carries it: a block is either movable (scale and position necks, play-along, backing, singing: 28 of the
+  49 guitar blocks) or fixed (its chord shapes are the lesson: 21 guitar blocks use chord-shapes or strum-along). The
+  composer moves a movable block to the player's key with `transposeTool` (as the Key selector does, model/choice.ts);
+  a fixed block names its key, and the composer takes fixed blocks at or under the player's rung. Needs a `keys:
+  "any" | "fixed"` on the block, and block text that names no literal note or chord in a movable block.
+- Moving up: most of a day stays in the home key; when the blocks of a rung are rated Solid or Easy now, the next plan
+  brings one block in the next key ("one more key" is already the prompt's next stage).
+To decide (user): A as both A minor and A major on rung 2; no key question for singers; `keys` on the block vs one
+block file per key.
+[2026-11-18 decided, user] A is both A minor and A major. Singers follow the same flow as guitar, with C as the most
+basic key. One question about keys at the end of the questionnaire, for every area. Earlier keys stay in the Key
+selector, at its end. Keys are part of the plan algorithm.
+[2026-11-18 done] model/keys.ts: `KEY_LADDERS` (five rungs an area; guitar E | A G | C D | F B | the rest; voice
+C | E | A G | D F | the rest; theory by sharps and flats), a key is a tonic and the exercise's scale says minor or
+major. Questionnaire: "How many keys are you at home in?" (One key … Any key, Not sure), before Anything else;
+`PlanAnswers.keys`; unanswered, the area's level decides. Composer: each picked exercise with a Key selector gets
+`keys` (the rung's keys, at most three, then the three nearest earlier ones), on the slot, so block ids don't change;
+the card draws them into the selector with "Earlier" before the back keys (`withKeys`). /dev/compose shows the whole
+algorithm stage by stage for a made-up player (`explainDay`, a trace of every pick).
+[2026-11-18, user] "We don't want to go through every key on every level. Beginner has only E and then we start
+adding." Done: by level, new and beginner have the first key only, intermediate adds the second rung, advanced the
+third (`RUNG_OF_LEVEL`); the last two rungs come only from the answer to the keys question. Drawn on /dev/path →
+"Keys": areas down, levels across, the keys each level adds and the earlier ones it keeps.
+Left: only blocks with a Key selector follow the keys (15 of 53 guitar blocks, 66 of 144 in all), so many days have
+none: the other movable blocks need a selector (seed work). The 21 chord-shape blocks keep their key and are not yet
+picked by rung. Nothing moves a player up a rung from ratings yet (only their level does, when the question is
+unanswered). A selector that sets a key and a tempo together is left as written. Not walked on a signed-in /plan.
 
 LibraryGrowth2: (was NEW10) [NEW 2026-11-15] Seed more plans and exercises, written by Fable through agents (after NEW8 and NEW9)
 Agents read library_coverage (NEW8) first and write to the gaps, each plan recording its model and versions.
