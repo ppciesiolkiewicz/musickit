@@ -276,7 +276,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Play below to start the metronome. Same frets as yesterday, but now play frets 5, 7, 6 and 8 with fingers 1, 3, 2 and 4 on every string, up and back. Keep it slow enough that every note rings, until the order stops needing thought."
+                "text": "Press Play below to start the metronome. Play the spider in a new finger order, up the strings and back, with the finger shown under each note of the tab. Keep it slow enough that every note rings, until the order stops needing thought."
               },
               {
                 "type": "tool",
@@ -918,7 +918,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the play-along. One small shape on the top three strings is G, and the same shape further up the neck is C, then D, just as the power chord shape moved on day 2. Strike the three strings on every beat and follow the tab, until the slide lands on beat 1."
+                    "text": "Press Play below to start the play-along. One small shape on the top three strings is G, and the same shape further up the neck is C, then D, just as a power chord shape moves to a new root. Strike the three strings on every beat and follow the tab, until the slide lands on beat 1."
                   },
                   {
                     "type": "tool",
@@ -1307,7 +1307,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Tap a chord box to see where each chord sits. It is day 2's shape, in three new places."
+                "text": "Press a chord box below to see where each chord sits. All three are one power chord shape, moved to three roots."
               },
               {
                 "type": "tool",
@@ -1443,7 +1443,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Play below to start the band. Take a phrase you made up in A this week and play it here, then make up new ones that end on {{1}}."
+                "text": "Press Play below to start the band. Take a phrase you play in A minor pentatonic and play it here, then make up new ones that end on {{1}}."
               },
               {
                 "type": "tool",
@@ -1498,7 +1498,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Play below to start the play-along. These are day 4's chords, moved from the top three strings to the D, G and B strings: the shapes change, the chords don't. Strike the three strings on every beat, until each new shape lands on beat 1."
+                "text": "Press Play below to start the play-along. These are the G, C and D triads, moved from the top three strings to the D, G and B strings: the shapes change, the chords don't. Strike the three strings on every beat, until each new shape lands on beat 1."
               },
               {
                 "type": "tool",
@@ -1926,7 +1926,7 @@
             ]
           },
           {
-            "title": "Position 1: day 1 again, then your own drill",
+            "title": "Position 1 at 80, then your own drill",
             "minutes": 5,
             "level": "beginner",
             "area": "guitar",
@@ -1938,7 +1938,7 @@
               "pentatonic-positions"
             ],
             "steps": ["pentatonic-positions:1"],
-            "why": "Every drill this week changed one thing (the key, the tempo, the notes in play), so you can make your own by changing one thing yourself.",
+            "why": "Each drill fixes a key, a tempo and a set of notes, so changing just one of them makes a new drill of your own.",
             "learnBefore": [
               "/course/5/pentatonic",
               "/course/5/soloing"
@@ -1946,7 +1946,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Play below to start the metronome at 80: on day 1 this was 60. Play position 1 up and down from the low {{1}}, and notice what your hands no longer have to think about."
+                "text": "Press Play below to start the metronome at 80. Play position 1 up and down from the low {{1}}, until your hands find each next note without you thinking about it."
               },
               {
                 "type": "tool",
@@ -2060,7 +2060,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the same backing. This time end your phrases on one of day 2's double stops on the B and high e strings, and listen for which one suits Am and which suits G."
+                    "text": "Press Play below to start the same backing. This time end your phrases on one of the two double stops in position 1 on the B and high e strings, and listen for which one suits Am and which suits G."
                   },
                   {
                     "type": "tool",
@@ -2107,7 +2107,7 @@
               "guitar-melodies"
             ],
             "steps": ["guitar-melodies:2"],
-            "why": "Playing the week's tune once more, then somewhere new, shows you what has changed in your hands.",
+            "why": "A tune is the same steps from its home note in any key, so in a new key your hands play the same shape in new frets.",
             "learnBefore": [
               "/course/4/melodies"
             ],
@@ -2119,7 +2119,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start day 6's tune, and play along with it.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape.\nTo finish, play it on your own and change one thing: the speed, the octave or the ending."
+                    "text": "Press Play below to start the tune, and play along with it.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape.\nTo finish, play it on your own and change one thing: the speed, the octave or the ending."
                   },
                   {
                     "type": "tool",

@@ -33,7 +33,7 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the
    current ones (`npm run -s seed -- versions`), every exercise names a concept and at least one step (each in a track of
    its concepts), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
-   level or stage.
+   level or stage, and no exercise names another day or week.
    Then `npm run -s gen:json-index`, so the folder's `index.gen.ts` imports the new file.
 4. `npm run -s db:seed-plans`, then `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first).
 
@@ -56,6 +56,8 @@ set a key and a position). The prompt names each of the five by its block id (`s
 - A plan has a `progress`: the notes the AI keeps on the student after that week, one line per topic the plan's
   exercises use (`<Topic label>: where they stand. Next: …`), under 300 words. The student never sees it; the next
   prompt sends it back.
+- An exercise stands alone: the composer hands out one block at a time, so its title, headings, text and why name no
+  other day or week ("day 2", "yesterday", "this week"; `dayRefs.ts`). A plan's `summary`, `progress` and day themes may.
 - Pasted, it parses with zero warnings: real tools and props only (`COMPONENT_DOCS`), links only to attunr pages,
   picks that match a tune exactly.
 - An exercise is a block: `title`, an optional `choice`, `cells` (text, list, notice, tool, section). A `section` cell holds a

@@ -196,7 +196,7 @@
             "why": "The strings are the same distance apart under every chord, so a pick that finds the open strings without a look will find them inside a chord too.",
             "learnBefore": ["/course/1/strings-and-tuning"],
             "cells": [
-              { "type": "text", "text": "Press Play below to start the metronome: it is a little faster than on day 1. Pick each open string four times, down, one note per beat, and follow the tab up and back.\nThis time watch the tab and not your picking hand. If the pick lands on the wrong string, keep going and catch the next one." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick each open string four times, down, one note per beat, and follow the tab up and back.\nThis time watch the tab and not your picking hand. If the pick lands on the wrong string, keep going and catch the next one." },
               { "type": "tool", "tool": { "type": "picking-drill", "level": "new", "bpm": 72 } }
             ]
           },
@@ -250,7 +250,7 @@
             "topic": "guitar-scales",
             "concepts": ["guitar-melodies"],
             "steps": ["guitar-melodies:1"],
-            "why": "This tune uses the three notes of day 1's tune and plays two of them twice, so the frets are known and the new job is giving each note its beat.",
+            "why": "This tune has only three notes and plays two of them twice, so there are only three frets to find and the new job is giving each note its beat.",
             "learnBefore": ["/course/4/melodies"],
             "cells": [
               {
@@ -282,7 +282,7 @@
             "why": "A note rings when the finger presses close to its fret, the same press every string of a chord needs, so the spider is chord practice with one finger at a time.",
             "learnBefore": ["/course/1/spider"],
             "cells": [
-              { "type": "text", "text": "Press Play below to start the metronome: it is a little faster than on day 2. Follow the tab, frets 5 to 8 with fingers 1, 2, 3 and 4, one note per beat.\nListen to each note. If one buzzes, press that finger closer to its fret when it comes round on the next string." },
+              { "type": "text", "text": "Press Play below to start the metronome. Follow the tab, frets 5 to 8 with fingers 1, 2, 3 and 4, one note per beat.\nListen to each note. If one buzzes, press that finger closer to its fret when it comes round on the next string." },
               { "type": "tool", "tool": { "type": "finger-pattern", "level": "new", "show": "finger", "bpm": 60 } }
             ]
           },
@@ -373,7 +373,7 @@
             "topic": "guitar-techniques",
             "concepts": ["picking"],
             "steps": ["picking:1"],
-            "why": "An up stroke is the pick's trip back after a down stroke, so picking down and up on one open string is the smallest form of the strum you learn today.",
+            "why": "An up stroke is the pick's trip back after a down stroke, so picking down and up on one open string is the smallest form of a down and up strum.",
             "learnBefore": ["/course/1/strings-and-tuning"],
             "cells": [
               {
@@ -382,7 +382,7 @@
                 "minutes": 3,
                 "choice": { "options": [{ "level": "new" }, { "level": "beginner" }] },
                 "cells": [
-                  { "type": "text", "text": "Press Play below to start the metronome. Pick each open string four times, down, one note per beat, as on day 1.\nWhen the pick finds every string without a look, try the next stage: it picks down, then up, in turn. Use the Stage selector below to change the stage, then press Play to start the metronome again.\nIf the up strokes miss the string, go back one stage for a round." },
+                  { "type": "text", "text": "Press Play below to start the metronome. Pick each open string four times, down, one note per beat.\nWhen the pick finds every string without a look, try the next stage: it picks down, then up, in turn. Use the Stage selector below to change the stage, then press Play to start the metronome again.\nIf the up strokes miss the string, go back one stage for a round." },
                   { "type": "tool", "tool": { "type": "picking-drill", "level": "new", "bpm": 60 } }
                 ]
               }
@@ -533,7 +533,7 @@
                 "heading": "With the band",
                 "minutes": 3,
                 "cells": [
-                  { "type": "text", "text": "Press Play below to start the band: drums and bass play the same four bars, and the lit chord box shows the chord. Strum down on every beat, and try day 5's down and up strum on the A bars.\nKeep going until you can look away from your fretting hand on the A bars." },
+                  { "type": "text", "text": "Press Play below to start the band: drums and bass play the same four bars, and the lit chord box shows the chord. Strum down on every beat, and try a down and up strum on the A bars.\nKeep going until you can look away from your fretting hand on the A bars." },
                   { "type": "tool", "tool": { "type": "backing-track", "progression": "three-chord", "key": "a", "style": "pop", "bpm": 60, "parts": { "drums": "on", "bass": "on" } } }
                 ]
               }
@@ -553,15 +553,15 @@
             "topic": "guitar-techniques",
             "concepts": ["picking"],
             "steps": ["picking:1"],
-            "why": "On day 1 your eyes found each string, and since then the pick has made the same trip many times, so today your hand can find the strings while you look away.",
+            "why": "The pick makes the same trip between the strings every round, so after enough rounds your hand can find the strings while you look away.",
             "learnBefore": ["/course/1/strings-and-tuning"],
             "cells": [
-              { "type": "text", "text": "Press Play below to start the metronome: it is faster than on day 1. Pick each open string four times, down, one note per beat.\nFollow the tab for one round, then look away and listen. A wrong string sounds too high or too low: let your hand fix it by feel." },
+              { "type": "text", "text": "Press Play below to start the metronome. Pick each open string four times, down, one note per beat.\nFollow the tab for one round, then look away and listen. A wrong string sounds too high or too low: let your hand fix it by feel." },
               { "type": "tool", "tool": { "type": "picking-drill", "level": "new", "bpm": 80 } }
             ]
           },
           {
-            "title": "Em to Am: day 2 again, then down and up",
+            "title": "Em to Am, then down and up",
             "minutes": 5,
             "level": "new",
             "area": "guitar",
@@ -569,15 +569,15 @@
             "topic": "guitar-basic-chords",
             "concepts": ["open-chords", "strumming"],
             "steps": ["open-chords:1", "strumming:2"],
-            "why": "On day 2 the change from Em to Am took most of a bar, and now it takes less, so the time you gained is where the extra strums fit.",
+            "why": "The change from Em to Am gets quicker as your hand learns it, and the time you gain is where the extra strums fit.",
             "learnBefore": ["/course/2/em-and-am", "/course/2/all-downstrums"],
             "cells": [
               {
                 "type": "section",
-                "heading": "Day 2 again",
+                "heading": "One strum a bar",
                 "minutes": 2,
                 "cells": [
-                  { "type": "text", "text": "Press Play below to start the metronome: one strum a bar, as on day 2.\nNotice how early your hand is ready for the next chord now." },
+                  { "type": "text", "text": "Press Play below to start the metronome. Strum Em, then Am, one down strum a bar.\nNotice how early your hand is ready for the next chord." },
                   { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Am"], "bpm": 60, "pattern": "D . . ." } }
                 ]
               },
@@ -586,14 +586,14 @@
                 "heading": "Down and up, faster",
                 "minutes": 3,
                 "cells": [
-                  { "type": "text", "text": "Press Play below to start the metronome: it is a little faster than on day 5. Strum down and up, two bars on each chord.\nIf a change comes late, keep your hand swinging and catch the next beat 1." },
+                  { "type": "text", "text": "Press Play below to start the metronome: it is a little faster than above. Strum down and up, two bars on each chord.\nIf a change comes late, keep your hand swinging and catch the next beat 1." },
                   { "type": "tool", "tool": { "type": "strum-along", "chords": ["Em", "Em", "Am", "Am"], "bpm": 70, "pattern": "D U D U D U D U" } }
                 ]
               }
             ]
           },
           {
-            "title": "The notes game, day 2 again",
+            "title": "Low E and A strings: which notes come at once",
             "minutes": 3,
             "level": "new",
             "area": "guitar",
@@ -601,16 +601,16 @@
             "topic": "guitar-scales",
             "concepts": ["notes-on-neck"],
             "steps": ["notes-on-neck:1"],
-            "why": "The game asks the same notes as on day 2, so the ones you now find at once show what a week of short rounds has done, and the ones you still count are next week's work.",
+            "why": "The game keeps asking the notes on the two lowest strings, so the ones you find at once show what short rounds have done, and the ones you still count up to are the ones to practise next.",
             "learnBefore": ["/course/1/notes-on-e-and-a"],
             "cells": [
-              { "type": "text", "text": "Press Start in the game below. As on day 2, the game names a note and a string: tap that note on the neck, then play it on your guitar.\nNotice which notes your finger goes to at once, and which ones you still count up to." },
+              { "type": "text", "text": "Press Start in the game below. The game names a note and a string: tap that note on the neck, then play it on your guitar.\nNotice which notes your finger goes to at once, and which ones you still count up to." },
               { "type": "tool", "tool": { "type": "note-finder", "level": "new", "mode": "find" } }
             ],
             "exploreMore": ["/theory/notes"]
           },
           {
-            "title": "Day 3's tune, then your own",
+            "title": "A three-note tune, then your own",
             "minutes": 5,
             "level": "new",
             "area": "guitar",
@@ -623,10 +623,10 @@
             "cells": [
               {
                 "type": "section",
-                "heading": "Day 3's tune, faster",
+                "heading": "Play the tune",
                 "minutes": 2,
                 "cells": [
-                  { "type": "text", "text": "Press Play below to hear day 3's tune, a little faster this time, and play along from the tab.\nNotice which of its notes your fingers now find without the tab." },
+                  { "type": "text", "text": "Press Play below to hear the tune, then play along from the tab.\nNotice which of its notes your fingers find without the tab." },
                   { "type": "tool", "tool": { "type": "guitar-play-along", "shape": { "shape": "melody", "tune": 5, "key": "g" }, "bpm": 76, "view": "tab" } }
                 ]
               },

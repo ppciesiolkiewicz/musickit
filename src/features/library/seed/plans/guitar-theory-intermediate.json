@@ -1194,7 +1194,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below and the game plays a chord. Pick its name as fast as you can for 30 seconds, then rest. Can you beat your tally from day 1?"
+                "text": "Press Start below and the game plays a chord. Pick its name as fast as you can for 30 seconds, then rest.\nNotice which chords you name at once, and which ones still make you think."
               },
               {
                 "type": "tool",
@@ -1758,14 +1758,14 @@
               "sevenths-up"
             ],
             "steps": ["sevenths-up:5"],
-            "why": "The week's ear work as a score to beat next week.",
+            "why": "Naming chords with no warm-up shows which qualities you hear at once and which you still have to work out.",
             "learnBefore": [
               "/course/7/hearing-sevenths"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below and the game plays a chord. Pick its name and play a few rounds, then compare the tally with days 1 and 5."
+                "text": "Press Start below and the game plays a chord. Pick its name and play a few rounds.\nNotice which qualities you name at once, and which ones you still work out."
               },
               {
                 "type": "tool",
@@ -1894,7 +1894,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the backing. Play one guide tone per chord, either line from day 2."
+                    "text": "Press Play below to start the backing. Play one guide tone per chord: start on the 3rd or the 7th of Dm7, and move to the nearest target at each change."
                   },
                   {
                     "type": "tool",
@@ -1955,7 +1955,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Improvise freely. Still land on a target at each change. Record it and keep it for next week."
+                    "text": "Improvise freely. Still land on a target at each change. Record it, then listen back for the changes you landed on."
                   }
                 ]
               }

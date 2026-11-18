@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 5
+version: 6
 description: Write or fix a seed exercise (block) or 7-day plan file in src/features/library/seed - what agents find in the library and copy - so it meets every writing rule and reads well against its tools. Use when asked to add, write, improve or fix a seed exercise or plan, or a showcase.
 ---
 
@@ -29,6 +29,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
      - Wrong: "Joining positions turns five separate shapes into one neck you can move along mid-phrase."
      - Right: "Position 2 starts on the notes where position 1 ends, so one slide along one string carries a phrase from the first into the second."
    - `title` names what is practised in the learner's words; it may end with hashtags for the metadata (`#guitar #beginner #technique`), which the app reads into the fields. There is no `focus`: the title and the first text say what the drill is. Each section's heading names its task in five words or fewer.
+   - An exercise stands alone. The app hands out one block at a time, on any day, so its title, headings, text and why name no other day or week: no "day 2", "yesterday", "this week", "next week", "the week's". Say what to play, not when it was first played ("The Do to Sol run, twice as fast", not "Day 2's run, twice as fast"), and name the drill a block builds on by what it is ("the hammer-on drill"). A plan's `summary`, `progress` and day `theme` may name days: they don't travel with the block. `seed check` fails an exercise that names a day.
 
    *The steps*
    - Each text step says which control to press and where it is ("Press Play below to start the metronome"), then what to play or sing. Controls and game answers carry the label the screen shows (see "Words about the app" in **teaching-voice**): read it in the tool's component before you name it.
@@ -77,6 +78,7 @@ A rewrite keeps the file, its `id`, `area`, `topic`, `concepts`, `steps` and min
 What usually fails in an older file:
 
 - The why says the skill matters instead of what makes the drill work.
+- A title, step or why that names another day or week ("Day 1's run again", "same frets as yesterday", "keep it for next week").
 - The text carries fret numbers or note names the neck already shows ("D, 7th fret").
 - A bare "Press Play below." that doesn't say what starts, or two controls in one sentence.
 - A chip named or the options listed ("tap G in the Key row", "tap Stage 2 above the tab"), or text about a selector placed after the tools.

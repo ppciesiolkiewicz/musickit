@@ -1055,7 +1055,7 @@
               "tunes"
             ],
             "steps": ["tunes:2"],
-            "why": "Steps and 3rds are the two moves most tunes use, so a tune of each is the week in two songs.",
+            "why": "Steps and 3rds are the two moves most tunes use, so a tune built on each trains the two moves you will meet most.",
             "learnBefore": [
               "/course/3/step-melodies",
               "/course/3/intervals"
@@ -1125,7 +1125,7 @@
         "theme": "Your own line",
         "exercises": [
           {
-            "title": "A long Do, then and now",
+            "title": "A long, steady Do",
             "minutes": 3,
             "level": "beginner",
             "area": "voice",
@@ -1137,14 +1137,14 @@
               "breath"
             ],
             "steps": ["breath:3"],
-            "why": "A long note shows every wobble in your pitch line, so holding Do again at the end of the week shows what your breath has learned.",
+            "why": "A long note shows every wobble in your pitch line, so holding the low Do shows how steady your breath keeps it.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}} on \"oo\" and hold it while your line stays flat.\nYou held a note like this on day 1 and day 3: look at how flat your line stays now."
+                "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}} on \"oo\" and hold it while your line stays flat.\nWatch your line as your breath runs low: that is where it starts to wobble."
               },
               {
                 "type": "tool",
@@ -1164,7 +1164,7 @@
             ]
           },
           {
-            "title": "The week's intervals",
+            "title": "Five intervals, sung back",
             "minutes": 5,
             "level": "beginner",
             "area": "voice",
@@ -1176,14 +1176,14 @@
               "steps-to-leaps"
             ],
             "steps": ["steps-to-leaps:8"],
-            "why": "Every interval from this week in one game shows which ones your ear now knows by itself.",
+            "why": "Five intervals mixed in one game, from a step to a 6th, show which ones your ear knows by itself.",
             "learnBefore": [
               "/course/3/intervals"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below to hear any interval from this week. Sing it back on \"la\", then answer."
+                "text": "Press Start below to hear a step, a 3rd, a 5th or a 6th, going up. Sing it back on \"la\", then answer."
               },
               {
                 "type": "tool",
@@ -1215,7 +1215,7 @@
               "tunes"
             ],
             "steps": ["tunes:1"],
-            "why": "You have sung Do, Mi and Sol over chords this week, so now you can choose them yourself.",
+            "why": "A tune that steps down from Sol to Do puts both notes in your ear first, so your own line from Do, Mi and Sol has a start and an end to choose from.",
             "learnBefore": [
               "/course/3/step-melodies",
               "/course/3/hearing-do-fa-sol"

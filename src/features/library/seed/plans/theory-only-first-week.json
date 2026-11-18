@@ -38,7 +38,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start in the game below. The game plays two notes, one after the other: pick P5 for a 5th or P8 for an octave. Press Replay to hear them again before you answer.\nWhen the name comes before you think about it, try the next stage: it adds the two 3rds, M3 for a major 3rd and m3 for a minor 3rd. Use the Stage selector below to change the stage, then press Start to hear the first pair.\nIf the 3rds get mixed up, go back a stage for now: day 2 is all about them."
+                    "text": "Press Start in the game below. The game plays two notes, one after the other: pick P5 for a 5th or P8 for an octave. Press Replay to hear them again before you answer.\nWhen the name comes before you think about it, try the next stage: it adds the two 3rds, M3 for a major 3rd and m3 for a minor 3rd. Use the Stage selector below to change the stage, then press Start to hear the first pair.\nIf the 3rds get mixed up, go back a stage and stay with the 5th and the octave for now."
                   },
                   { "type": "tool", "tool": { "type": "interval-ears", "level": "new" } }
                 ]
@@ -510,7 +510,7 @@
         "theme": "Review: the whole week in F",
         "exercises": [
           {
-            "title": "5ths, octaves and 3rds again",
+            "title": "5ths, octaves and 3rds, by ear",
             "minutes": 4,
             "level": "beginner",
             "area": "theory",
@@ -523,7 +523,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start in the game below: the game from day 2, with its four answers, P5, P8, M3 and m3.\nNotice which ones you now name without pressing Replay. For the others, hear the start of a major or a minor chord in your head and compare.\nThen say each answer out loud before you pick it."
+                "text": "Press Start in the game below. The game plays two notes, one after the other: pick P5, P8, M3 or m3.\nNotice which ones you name without pressing Replay. For the others, hear the start of a major or a minor chord in your head and compare.\nThen say each answer out loud before you pick it."
               },
               { "type": "tool", "tool": { "type": "interval-ears", "level": "beginner" } }
             ],
@@ -572,7 +572,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band in F: the 1, the 4, the 5 with its 7th, and the 1 again. Look away and call out the numbers, then look back at the chord boxes to check.\nOn day 4 the chord boxes led the way. Notice how often your ear now gets there first."
+                    "text": "Press Play below to start the band in F: the 1, the 4, the 5 with its 7th, and the 1 again. Look away and call out the numbers, then look back at the chord boxes to check.\nNotice how often your ear gets there before the chord boxes."
                   },
                   { "type": "tool", "tool": { "type": "backing-track", "key": "f", "numerals": ["I", "IV", "V7", "I"], "style": "pop", "bpm": 80 } }
                 ]

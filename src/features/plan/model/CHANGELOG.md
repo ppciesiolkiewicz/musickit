@@ -48,6 +48,10 @@ Everything before the prompt had a version.
 
 ## Teaching
 
+### 6 (2026-11-18)
+
+An exercise stands alone: its title, headings, text and why name no other day or week ("day 2", "yesterday", "this week"), since the app hands out one block at a time. A plan's summary, progress and day themes may. `seed check` fails an exercise that does (exercise-example, review-teaching-text).
+
 ### 5 (2026-11-12)
 
 The block format: `cells` and `section` cells in place of `sections` and headings, a `choice` on a section or the block in place of the `step-choice` tool, hashtags in a title, no `focus`.

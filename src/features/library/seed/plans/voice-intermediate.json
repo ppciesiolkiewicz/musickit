@@ -650,7 +650,7 @@
         "theme": "A harmony line",
         "exercises": [
           {
-            "title": "In, hold, out, two counts longer",
+            "title": "In, hold, out, filled to 80%",
             "minutes": 3,
             "level": "intermediate",
             "area": "voice",
@@ -662,14 +662,14 @@
               "breath"
             ],
             "steps": ["breath:4"],
-            "why": "Each round adds one count, so going two rounds further than on day 1 makes the breath longer without a jump.",
+            "why": "Each round adds one count, and filling to about 80% leaves room to hold, so the longest rounds stay easy instead of tight.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, as on day 1. The last two rounds are new: fill to about 80%, not to the top, so the hold stays easy."
+                "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown. Fill to about 80%, not to the top, so the hold stays easy in the long rounds at the end."
               },
               {
                 "type": "tool",
@@ -1180,7 +1180,7 @@
               "runs"
             ],
             "steps": ["runs:6"],
-            "why": "A nine-note run is day 2's five-note run carried on up the scale, so what kept five notes even keeps nine even: slow first, then quicker.",
+            "why": "A nine-note run is the five-note run from Do to Sol carried on up the scale, so what kept five notes even keeps nine even: slow first, then quicker.",
             "learnBefore": [
               "/course/6/vocal-runs"
             ],
@@ -1297,7 +1297,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band. Sing day 4's line on \"oo\": {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
+                    "text": "Press Start exercise below to start the mic and the band. Sing the harmony line on \"oo\": {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
                   },
                   {
                     "type": "tool",
@@ -1406,7 +1406,7 @@
         "theme": "Then and now",
         "exercises": [
           {
-            "title": "Day 4's breath again",
+            "title": "In, hold, out: the long rounds",
             "minutes": 3,
             "level": "intermediate",
             "area": "voice",
@@ -1418,14 +1418,14 @@
               "breath"
             ],
             "steps": ["breath:4"],
-            "why": "The same counts three days later let you feel the change where it was hardest: in the last rounds.",
+            "why": "The count grows by one each round, so the last rounds are where your breath runs short first, and where you feel it get longer.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, as on day 4. Notice how the last two rounds feel now."
+                "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown. Keep the last two rounds as easy as the first."
               },
               {
                 "type": "tool",
@@ -1438,7 +1438,7 @@
             ]
           },
           {
-            "title": "The week's leaps, falling",
+            "title": "Six falling leaps, sung back",
             "minutes": 5,
             "level": "intermediate",
             "area": "voice",
@@ -1450,7 +1450,7 @@
               "steps-to-leaps"
             ],
             "steps": ["steps-to-leaps:17"],
-            "why": "Every leap of the week in one game, the hard way round, shows which ones your ear now knows by itself.",
+            "why": "A leap heard going down is harder to name than going up, so singing the lower note back before you pick shows which leaps your ear knows by itself.",
             "learnBefore": [
               "/course/6/every-interval",
               "/course/6/singing-leaps"
@@ -1478,7 +1478,7 @@
             ]
           },
           {
-            "title": "Day 2's run, twice as fast",
+            "title": "The Do to Sol run, four notes a beat",
             "minutes": 5,
             "level": "intermediate",
             "area": "voice",
@@ -1490,14 +1490,14 @@
               "runs"
             ],
             "steps": ["runs:1"],
-            "why": "The notes are the ones you learnt slowly on day 2, so the speed is new and the tuning is not.",
+            "why": "A run stays in tune when it is fast once each note is in tune slow, so the five notes from Do to Sol at four a beat train the speed alone.",
             "learnBefore": [
               "/course/6/vocal-runs"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\": from Do up to Sol and back, twice round, four notes per beat. Each pass starts a semitone higher. Notice which notes stay clear now, and change to \"oo\" when it gets high."
+                "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\": from Do up to Sol and back, twice round, four notes per beat. Each pass starts a semitone higher. Notice which notes stay clear at this speed, and change to \"oo\" when it gets high."
               },
               {
                 "type": "tool",
@@ -1527,7 +1527,7 @@
               "improvise"
             ],
             "steps": ["improvise:1"],
-            "why": "From Do up to Sol is a 5th, from Sol up to the next Do is a 4th, and Do to Do is an octave, so three notes hold every leap of the week.",
+            "why": "From Do up to Sol is a 5th, from Sol up to the next Do is a 4th, and Do to Do is an octave, so three notes hold a 4th, a 5th and an octave.",
             "learnBefore": [
               "/course/6/singing-leaps",
               "/course/6/harmony-line"
@@ -1574,7 +1574,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band: C, G, Am and F, a bar each. Make up a line on \"ah\" from {{1}}, {{3}} and {{5}}, and put a 4th, a 5th and an octave somewhere in it. Sing the notes above the middle {{1}} on \"oo\". Notice which leap you now reach for first."
+                    "text": "Press Start exercise below to start the mic and the band: C, G, Am and F, a bar each. Make up a line on \"ah\" from {{1}}, {{3}} and {{5}}, and put a 4th, a 5th and an octave somewhere in it. Sing the notes above the middle {{1}} on \"oo\". Notice which leap you reach for first."
                   },
                   {
                     "type": "tool",

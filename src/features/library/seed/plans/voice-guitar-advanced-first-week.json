@@ -390,7 +390,7 @@
               "seventh-chords"
             ],
             "steps": ["sevenths-up:5"],
-            "why": "Every chord you comp this week is built on a major 7, a minor 7 or a dominant 7, so naming those three by ear is naming what your hands are playing.",
+            "why": "Am9, D9 and Gmaj7 are built on a minor 7, a dominant 7 and a major 7, so naming those three by ear is naming what your hands play when you comp.",
             "learnBefore": [
               "/course/7/hearing-sevenths"
             ],
@@ -2233,7 +2233,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to hear the run: the mic starts with it. It is day 1's five-note run at twice the speed: it goes from Do up to Sol and back, twice, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\".\nNotice which passes are cleaner than they were on day 1."
+                    "text": "Press Play below to hear the run: the mic starts with it. It is the five-note run at twice the speed: it goes from Do up to Sol and back, twice, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\".\nNotice which passes stay clean at this speed."
                   },
                   {
                     "type": "tool",
@@ -2595,7 +2595,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band: Am9 and D9 three times round, a bar each, then two bars of Gmaj7. Leave strums out in the vamp, then play every strum when Gmaj7 arrives.\nListen for how the two vamp chords turn into day 1's ii–V–I the moment Gmaj7 follows them."
+                    "text": "Press Play below to start the band: Am9 and D9 three times round, a bar each, then two bars of Gmaj7. Leave strums out in the vamp, then play every strum when Gmaj7 arrives.\nListen for how the two vamp chords turn into a ii–V–I in G the moment Gmaj7 follows them."
                   },
                   {
                     "type": "tool",
@@ -2704,7 +2704,7 @@
               "shells-comping"
             ],
             "steps": ["shells:2"],
-            "why": "A shell is counted from its root, so in C the shapes from day 2 sit on new frets and the 3rd and 7th keep their places inside them.",
+            "why": "A shell is counted from its root, so in a new key it sits on new frets and the 3rd and 7th keep their places inside it.",
             "learnBefore": [
               "/course/11/shells",
               "/course/11/guide-tones"
@@ -2717,7 +2717,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the backing: it holds Dm7, G7 and two bars of Cmaj7 while you play the tab, one note per beat, only the 3rd and the 7th of each chord.\nTry a round with your eyes off the tab: the moves are the ones you played in G on day 2."
+                    "text": "Press Play below to start the backing: it holds Dm7, G7 and two bars of Cmaj7 while you play the tab, one note per beat, only the 3rd and the 7th of each chord.\nTry a round with your eyes off the tab: the 3rd and 7th move by the same small steps in any key."
                   },
                   {
                     "type": "tool",
@@ -3090,7 +3090,7 @@
               "intervals"
             ],
             "steps": ["intervals:4"],
-            "why": "A leap you can name by ear is a leap you can aim your voice at, so this is the listening half of day 3's singing.",
+            "why": "A leap you can name by ear is a leap you can aim your voice at, so hearing the gap first is half of singing it in tune.",
             "learnBefore": [
               "/theory/ears",
               "/course/6/every-interval"
@@ -3140,7 +3140,7 @@
               "improvise-melody"
             ],
             "steps": ["improvise:2"],
-            "why": "Guide tones give a line its skeleton, and turns and runs are the ways to get from one to the next, so a made-up line is the week's two skills joined.",
+            "why": "Guide tones give a line its skeleton, and turns and runs are the ways to get from one to the next, so a made-up line joins the two: guide tones to aim at, turns and runs to get there.",
             "learnBefore": [
               "/course/11/guide-tones",
               "/course/9/improvising-a-melody"
@@ -3323,7 +3323,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Start the breathing below: the same drill as day 1, one count longer at the end. Keep your shoulders still, and let the hold be relaxed, not clamped."
+                    "text": "Start the breathing below: you breathe in, hold and breathe out for the same count, and the count grows by one each round, up to ten. Keep your shoulders still, and let the hold be relaxed, not clamped."
                   },
                   {
                     "type": "tool",
@@ -3386,7 +3386,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to hear the run: the mic starts with it. It is day 3's nine-note run, now as fast on the way up as on the way down: it goes from Do up to Re above the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" at the top."
+                    "text": "Press Play below to hear the run: the mic starts with it. It is the nine-note run, as fast on the way up as on the way down: it goes from Do up to Re above the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" at the top."
                   },
                   {
                     "type": "tool",
@@ -3445,7 +3445,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to hear the run from day 4, now with the metronome under it: the mic starts with it. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and keep every pass on the beat."
+                    "text": "Press Play below to hear the pentatonic run with the metronome under it: the mic starts with it. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and keep every pass on the beat."
                   },
                   {
                     "type": "tool",
@@ -3539,7 +3539,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band: drums and bass at 90, with the chord boxes lighting bar by bar. Play one round with the full shapes. On the next round play only a shell of each chord, its root, 3rd and 7th on the A, D and G strings, as on day 2.\nListen for how much space opens up when you change to shells."
+                    "text": "Press Play below to start the band: drums and bass at 90, with the chord boxes lighting bar by bar. Play one round with the full shapes. On the next round play only a shell of each chord, its root, 3rd and 7th on the A, D and G strings.\nListen for how much space opens up when you change to shells."
                   },
                   {
                     "type": "tool",
@@ -3879,7 +3879,7 @@
             ]
           },
           {
-            "title": "Five notes, day 1 again",
+            "title": "The Do to Sol run, faster",
             "minutes": 8,
             "level": "advanced",
             "area": "voice",
@@ -3892,7 +3892,7 @@
               "fast-runs"
             ],
             "steps": ["runs:1"],
-            "why": "The same run starting where day 1 stopped is the plainest way to hear what a week of stages has done.",
+            "why": "The middle notes of a fast run blur first, so raising the tempo a stage at a time shows where they start to go.",
             "learnBefore": [
               "/course/9/fast-runs"
             ],
@@ -3918,7 +3918,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the metronome and the mic: day 1's run, starting at the tempo where day 1 ended. Sing the run {{1}} {{2}} {{3}} {{4}} {{5}} {{4}} {{3}} {{2}} {{1}}, four notes per beat, on \"ah\".\nWhen the last {{1}} lands exactly with the click, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nNotice how much less you have to think about the middle notes than you did on day 1."
+                    "text": "Press Start exercise below to start the metronome and the mic. Sing the run {{1}} {{2}} {{3}} {{4}} {{5}} {{4}} {{3}} {{2}} {{1}}, four notes per beat, on \"ah\".\nWhen the last {{1}} lands exactly with the click, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the middle notes blur at a new stage, go back one stage."
                   },
                   {
                     "type": "tool",
@@ -3968,7 +3968,7 @@
             ]
           },
           {
-            "title": "Comp the ii–V–I, day 1 again",
+            "title": "Comp the ii–V–I in G, faster",
             "minutes": 8,
             "level": "advanced",
             "area": "guitar",
@@ -3980,7 +3980,7 @@
               "shells-comping"
             ],
             "steps": ["shells:4"],
-            "why": "Day 1's three chords at tempos day 1 never reached show how far the changes have settled into your hand.",
+            "why": "Raising the tempo a stage at a time shows which change still makes your strumming hand wait, so you know which one to drill.",
             "learnBefore": [
               "/course/11/comping",
               "/course/11/extended"
@@ -4007,7 +4007,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the metronome: day 1's pattern, starting at the tempo where day 1 ended. A bar of Am9, a bar of D9, two bars of Gmaj7.\nWhen the changes take no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the misses start to sound, go back one stage."
+                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes: a bar of Am9, a bar of D9, two bars of Gmaj7.\nWhen the changes take no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the misses start to sound, go back one stage."
                   },
                   {
                     "type": "tool",
@@ -4032,7 +4032,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band: drums and bass at 96, with the chord boxes lighting bar by bar. Mix what you have: full 9th shapes, shells, a small triad up high on Gmaj7. Leave strums out, and notice how much easier the gaps are to keep steady than on day 1."
+                    "text": "Press Play below to start the band: drums and bass at 96, with the chord boxes lighting bar by bar. Mix what you have: full 9th shapes, shells, a small triad up high on Gmaj7. Leave strums out, and keep your hand moving through the gaps."
                   },
                   {
                     "type": "tool",
@@ -4084,7 +4084,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the backing: day 2's line, the 3rd and 7th of Am7, D7 and Gmaj7, one note per beat. The neck shows the whole line with the chord playing standing out. Play with your eyes off the screen, and check it only when a note will not come."
+                    "text": "Press Play below to start the backing: a line of the 3rd and 7th of Am7, D7 and Gmaj7, one note per beat. The neck shows the whole line with the chord playing standing out. Play with your eyes off the screen, and check it only when a note will not come."
                   },
                   {
                     "type": "tool",
@@ -4241,7 +4241,7 @@
               "harmony-line"
             ],
             "steps": ["improvise:2", "harmony-line:4"],
-            "why": "Each day gave you one thing to do with a phrase (a guide tone, a turn, a run into the next chord), so a set is choosing which one each phrase gets.",
+            "why": "A phrase can aim at a guide tone, carry a turn or run into the next chord, so a set is choosing which one each phrase gets.",
             "learnBefore": [
               "/course/9/improvising-a-melody",
               "/course/11/guide-tones",
@@ -4255,7 +4255,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band: day 1's Am7, D7 and Gmaj7. Sing your own line on any vowel. Start each chord on one of its ringed notes, and this time join them with turns and runs.\nNotice how much sooner you hear the next ringed note than you did on day 1."
+                    "text": "Press Start exercise below to start the mic and the band: Am7, D7 and Gmaj7. Sing your own line on any vowel. Start each chord on one of its ringed notes, and join them with turns and runs.\nListen for the next ringed note before its chord arrives."
                   },
                   {
                     "type": "tool",
@@ -4303,7 +4303,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band: G, D, Em and C. Sing day 4's two harmony lines once each on \"oo\": {{3}} {{2}} {{1}} {{1}}, then {{5}} {{5}} {{6}} {{6}}. Then leave them and make up a tune of your own around the ringed notes, with a run where a line ends."
+                    "text": "Press Start exercise below to start the mic and the band: G, D, Em and C. Sing two harmony lines once each on \"oo\": {{3}} {{2}} {{1}} {{1}}, then {{5}} {{5}} {{6}} {{6}}. Then leave them and make up a tune of your own around the ringed notes, with a run where a line ends."
                   },
                   {
                     "type": "tool",
@@ -4346,7 +4346,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band on Am7 and D7. Sing one long solo on any vowel, with everything from the week in it: a falling run into a ringed {{6}}, a turn on a held note, a bar left empty.\nKeep the one phrase you like best and bring it to your next gig."
+                    "text": "Press Start exercise below to start the mic and the band on Am7 and D7. Sing one long solo on any vowel, with all of these in it: a falling run into a ringed {{6}}, a turn on a held note, a bar left empty.\nKeep the one phrase you like best and bring it to your next gig."
                   },
                   {
                     "type": "tool",

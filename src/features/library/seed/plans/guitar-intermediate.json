@@ -1465,7 +1465,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord: the chords from day 2 in a new order.\nWhen the change no longer makes your strumming hand wait, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late, keep the hand going and catch the next beat 1."
+                    "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord.\nWhen the change no longer makes your strumming hand wait, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a change comes late, keep the hand going and catch the next beat 1."
                   },
                   {
                     "type": "tool",
@@ -2033,7 +2033,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start day 4's tune, and play along from the tab.\nWhen the quick notes in the third bar come out even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf they smear, go back one stage."
+                    "text": "Press Play below to start the tune, and play along from the tab.\nWhen the quick notes in the third bar come out even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf they smear, go back one stage."
                   },
                   {
                     "type": "tool",
@@ -2095,7 +2095,7 @@
         "theme": "Day 1 again, then the jam",
         "exercises": [
           {
-            "title": "Hammer and pull, day 1 again",
+            "title": "Hammer and pull, both finger pairs",
             "minutes": 4,
             "level": "intermediate",
             "area": "guitar",
@@ -2107,7 +2107,7 @@
               "legato"
             ],
             "steps": ["legato:2"],
-            "why": "The same trill at a faster tempo than on day 1 is the plainest way to feel what a week of hammering has done.",
+            "why": "Trilling fingers 1 and 3, then 2 and 4, at the same tempo puts the two pairs side by side, so you hear which one hammers weaker and needs the practice.",
             "learnBefore": [
               "/course/4/legato"
             ],
@@ -2119,7 +2119,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play on the first tab below to start the metronome: day 1's trill, starting where day 1 ended. Trill fingers 1 and 3.\nWhen both notes are even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again."
+                    "text": "Press Play on the first tab below to start the metronome. Pick the first note once, then trill fingers 1 and 3 with hammer-ons and pull-offs, one note per beat.\nWhen both notes are even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again."
                   },
                   {
                     "type": "tool",
@@ -2133,7 +2133,7 @@
                   },
                   {
                     "type": "text",
-                    "text": "Then press Play on the second tab and do the same with fingers 2 and 4. Notice which pair is weaker now: that is the one to keep for next week."
+                    "text": "Then press Play on the second tab and do the same with fingers 2 and 4.\nWhen you change pairs, listen for the one whose hammered note is quieter: that is the pair to practise more."
                   },
                   {
                     "type": "tool",
@@ -2190,7 +2190,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the metronome. Strum yesterday's part with the pattern in the boxes: two bars of Am7, then Dsus2 and Dm7."
+                    "text": "Press Play below to start the metronome. Strum the part with the pattern in the boxes: two bars of Am7, then Dsus2 and Dm7."
                   },
                   {
                     "type": "tool",
@@ -2362,7 +2362,7 @@
               "pentatonic-positions"
             ],
             "steps": ["pentatonic-positions:7"],
-            "why": "Each day gave you one thing to aim a phrase at (a root, a 3rd, a bend, a slide), so a solo is choosing which one each phrase goes for.",
+            "why": "A phrase can aim at one of four things (a root, a 3rd, a bend, a slide), so a solo is choosing which one each phrase goes for.",
             "learnBefore": [
               "/course/5/soloing",
               "/course/5/bends-and-slides",
@@ -2417,7 +2417,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band: the slow blues from day 2. Put yesterday's move in each time round: slide up the G string into the next position and finish with a bend. Notice how much sooner the bend arrives than it did on day 2."
+                    "text": "Press Play below to start the band: a slow blues in A minor. Put the slide-in, bend-out move in each time round: slide up the G string into the next position and finish with a bend.\nHold the bend and let the band move under it before the next phrase."
                   },
                   {
                     "type": "tool",
@@ -2454,7 +2454,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band, now on Am7 and D7. Play one long solo that climbs from position 1 to position 3 and comes back down. Choose what each phrase aims for: a root, a 3rd, a bend or a slide. Keep the one phrase you like best for next week."
+                    "text": "Press Play below to start the band, now on Am7 and D7. Play one long solo that climbs from position 1 to position 3 and comes back down. Choose what each phrase aims for: a root, a 3rd, a bend or a slide. Keep the phrase you like best and start your next solo with it."
                   },
                   {
                     "type": "tool",

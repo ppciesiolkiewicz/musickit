@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { composePrompt } from "../src/features/devtools/model/compose";
 import { PERSONAS } from "../src/features/devtools/model/personas";
+import { dayRefs } from "../src/features/library/seed/dayRefs";
 import { DOC_VERSIONS } from "../src/features/library/seed/versions";
 import { catalogue } from "../src/features/plan/model/catalogue";
 import { conceptById } from "../src/features/plan/model/concepts";
@@ -30,7 +31,7 @@ function answersOf(arg: string): PlanAnswers {
 }
 
 /**
- * What is wrong with one exercise beyond the parser: no concept, no steps, a named step with a ladder that none of its
+ * What is wrong with one exercise beyond the parser: no concept, no steps, a word naming another day of the week, a named step with a ladder that none of its
  * tools sits on, or a laddered concept whose tools say no step. (A step of a track that is not one of its concepts, or no
  * step at all, is already a parser warning.)
  */
@@ -38,6 +39,8 @@ function exerciseProblems(e: PlanExercise, where: string): string[] {
   const out: string[] = [];
   if (!e.concepts?.length) out.push(`${where}: tags no concept, so it counts for no skill or step.`);
   if (!e.steps?.length) out.push(`${where}: names no step ("steps": ["trackId:n"]), so the library finds it by level only.`);
+  const days = dayRefs(e);
+  if (days.length) out.push(`${where}: names another day (${[...new Set(days)].map((d) => `"${d}"`).join(", ")}); the composer hands a block out alone, so say what to play, not when.`);
   const tools = toolsOf(e.cells);
   for (const ref of e.steps ?? []) {
     const ladder = stepAt(ref)?.step.ladder;

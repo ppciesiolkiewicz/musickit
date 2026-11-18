@@ -885,7 +885,7 @@
               "major-on-neck"
             ],
             "steps": ["major-on-neck:3"],
-            "why": "The notes of Am and D are all inside A Dorian, so the triads you just played are the places a solo over those two chords can land.",
+            "why": "The notes of Am and D are all inside A Dorian, so the notes of the Am and D triads are the places a solo over those two chords can land.",
             "learnBefore": [
               "/course/9/modes",
               "/course/5/arpeggios"
@@ -941,7 +941,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the backing again. Now the ringed note is the 3rd of each chord: {{c}} over Am7 and {{f-sharp}} over D7. Aim every phrase at it.\nThe 3rd of D7 is the Dorian note from day 1, so this is the same aim with a second target."
+                    "text": "Press Play below to start the backing again. Now the ringed note is the 3rd of each chord: {{c}} over Am7 and {{f-sharp}} over D7. Aim every phrase at it.\nThe 3rd of D7 is also the 6th of A Dorian, the note that sets the mode apart, so landing on it says both the chord and the mode."
                   },
                   {
                     "type": "tool",
@@ -981,7 +981,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band on Am7 and D7. Open a phrase with one of today's triads, carry on with the scale, and end on a note of the chord playing.\nIf a phrase ends on a note that sounds unfinished, move it one step up or down the scale."
+                    "text": "Press Play below to start the band on Am7 and D7. Open a phrase with the Am or the D triad, carry on with the scale, and end on a note of the chord playing.\nIf a phrase ends on a note that sounds unfinished, move it one step up or down the scale."
                   },
                   {
                     "type": "tool",
@@ -1787,7 +1787,7 @@
               "major-on-neck"
             ],
             "steps": ["major-on-neck:4"],
-            "why": "Mixolydian is the major scale with one note lowered, the 7th, so day 1's method works again: find the one note that differs, then aim for it.",
+            "why": "Mixolydian is the major scale with one note lowered, the 7th, so that one note is where the mode can be heard: find it first, then aim for it.",
             "learnBefore": [
               "/course/9/modes",
               "/course/9/modes-over-drone"
@@ -2622,7 +2622,7 @@
               "major-on-neck"
             ],
             "steps": ["major-on-neck:3"],
-            "why": "B, the 6th of D Dorian, is the 3rd of G7: the job F♯ did over D7, so the aim you built in A works here with new note names.",
+            "why": "B, the 6th of D Dorian, is the 3rd of G7: the job F♯ does over D7 in A Dorian, so the same aim works here with new note names.",
             "learnBefore": [
               "/course/9/modes",
               "/course/10/moving-keys"
@@ -2675,7 +2675,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band on Dm7 and G7. Play a phrase you liked in A this week, moved to D, then carry on from it.\nWhen you change the key, the notes are new but the ringed {{6}} still lands on the second chord."
+                    "text": "Press Play below to start the band on Dm7 and G7. Play a phrase you like from A Dorian, moved to D, then carry on from it.\nWhen you change the key, the notes are new but the ringed {{6}} still lands on the second chord."
                   },
                   {
                     "type": "tool",
@@ -2712,7 +2712,7 @@
         "theme": "Day 1 again, then the jam",
         "exercises": [
           {
-            "title": "Skip a string, day 1 again",
+            "title": "Skip a string, faster stages",
             "minutes": 4,
             "level": "advanced",
             "area": "guitar",
@@ -2724,19 +2724,19 @@
               "picking"
             ],
             "steps": ["picking:4"],
-            "why": "The same drill starting a stage above day 1 is the plainest way to feel what a week of string skipping has done.",
+            "why": "Skipping a string makes the pick travel twice as far between notes, so a faster tempo shows whether your hand aims the jump or your eyes do.",
             "learnBefore": [
               "/course/8/string-skipping"
             ],
             "cells": [
               {
                 "type": "section",
-                "heading": "A stage further",
+                "heading": "Faster stages",
                 "minutes": 4,
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the metronome: day 1's drill, starting a stage higher than day 1 did. Pick down, up on each string, then jump over the next string.\nWhen the pick lands on the right string without you looking, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nNotice how much less you watch your picking hand than you did on day 1."
+                    "text": "Press Play below to start the metronome. Pick down, up on each string, then jump over the next string, as the tab shows.\nWhen the pick lands on the right string without you looking, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf you have to watch your picking hand to make the jump, stay on a slower stage until you don't."
                   },
                   {
                     "type": "tool",
@@ -2873,7 +2873,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the backing: day 4's triads on the top three strings. Play with your eyes off the tab, and check it only when a shape will not come."
+                    "text": "Press Play below to start the backing: A, G and D triads on the top three strings. Play with your eyes off the tab, and check it only when a shape will not come."
                   },
                   {
                     "type": "tool",
@@ -3045,7 +3045,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the backing: the same chords on the A, D and G strings, a set day 4 left out. Find each shape before its bar starts, and say the chord's name as you strike it."
+                    "text": "Press Play below to start the backing: the same chords on the A, D and G strings. Find each shape before its bar starts, and say the chord's name as you strike it."
                   },
                   {
                     "type": "tool",
@@ -3225,7 +3225,7 @@
               "major-on-neck"
             ],
             "steps": ["major-on-neck:3", "major-on-neck:4"],
-            "why": "Each day gave you one thing to aim a phrase at (the 6th, a triad note, the ♭7, a crossing), so a solo is choosing which one each phrase goes for.",
+            "why": "A phrase can aim at the 6th, a triad note, the ♭7 or a crossing, so a solo is choosing which one each phrase goes for.",
             "learnBefore": [
               "/course/9/modes",
               "/course/5/soloing",
@@ -3239,7 +3239,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the backing: day 1's Am7 and D7. Land on {{f-sharp}} when D7 comes round, in any position you like. Notice how much sooner your fingers find it than they did on day 1."
+                    "text": "Press Play below to start the backing on Am7 and D7. Land on {{f-sharp}} when D7 comes round, in any position you like. Keep going until your fingers find it before the chord changes."
                   },
                   {
                     "type": "tool",
@@ -3316,7 +3316,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Play below to start the band, back on Am7 and D7. Play one long solo in A Dorian that climbs from position 1 to position 3 and comes back down. Choose what each phrase aims for: the 6th, a triad note or a crossing. Keep the one phrase you like best for next week."
+                    "text": "Press Play below to start the band, back on Am7 and D7. Play one long solo in A Dorian that climbs from position 1 to position 3 and comes back down. Choose what each phrase aims for: the 6th, a triad note or a crossing. Keep the one phrase you like best, and start your next solo from it."
                   },
                   {
                     "type": "tool",

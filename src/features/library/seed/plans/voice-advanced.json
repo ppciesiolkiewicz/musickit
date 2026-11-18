@@ -673,7 +673,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below to hear Do and start the mic. The leaps now go down from Do: m3 is the minor 3rd, TT the tritone, m6 the minor 6th.\nHear the landing note in your head before you sing: the minor 3rd lands on La, the minor 6th on Mi, and the tritone a half step under Sol. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but the leaps still land on La, on Mi and just under Sol."
+                "text": "Press Start below to hear Do and start the mic. The leaps go down from Do: m3 is the minor 3rd, TT the tritone, m6 the minor 6th.\nHear the landing note in your head before you sing: the minor 3rd lands on La, the minor 6th on Mi, and the tritone a half step under Sol. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but the leaps still land on La, on Mi and just under Sol."
               },
               {
                 "type": "tool",
@@ -881,7 +881,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, as on day 1. The rounds now start where day 1 was halfway, so keep your shoulders still and fill to about 80%."
+                "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, The rounds start at eight counts, past the easy ones, so keep your shoulders still and fill to about 80%."
               },
               {
                 "type": "tool",
@@ -957,7 +957,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below to hear Do and start the mic. Every hard leap of the week can come now, up or down, and Do moves to a new key each time.\nName the neighbour before you sing: Sol for the tritone and the minor 6th, the next Do for the 7ths. Then sing the landing note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap down misses, press Restart below and hear the landing note in your head first."
+                "text": "Press Start below to hear Do and start the mic. Any hard leap can come: the minor 3rd, the tritone, the minor 6th or a 7th, up or down, and Do moves to a new key each time.\nName the neighbour before you sing: Sol for the tritone and the minor 6th, the next Do for the 7ths. Then sing the landing note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap down misses, press Restart below and hear the landing note in your head first."
               },
               {
                 "type": "tool",
@@ -1267,7 +1267,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band. Sing day 1's two lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
+                    "text": "Press Start exercise below to start the mic and the band. Sing the two guide-tone lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
                   },
                   {
                     "type": "tool",
@@ -1542,7 +1542,7 @@
               "runs"
             ],
             "steps": ["runs:7"],
-            "why": "The run goes two notes past the high Do, to the high Mi of the tunes you just read, so the note you leapt to is now reached by step.",
+            "why": "The run goes two notes past the high Do, to the high Mi, so a note you usually reach by a leap is reached by step.",
             "learnBefore": [
               "/course/9/fast-runs"
             ],
@@ -1586,12 +1586,12 @@
             "cells": [
               {
                 "type": "section",
-                "heading": "Both lines, a new key",
+                "heading": "Both lines, round the turnaround",
                 "minutes": 3,
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band: Cmaj7, Am7, Dm7 and G7, a bar each. Sing day 3's two lines on \"oo\", one note per chord: {{7}}, {{1}}, {{1}}, {{7}}, then {{3}}, {{5}}, {{4}}, {{4}}.\nThe key is new, but the first line still moves by half steps and the second still opens with a minor 3rd."
+                    "text": "Press Start exercise below to start the mic and the band: Cmaj7, Am7, Dm7 and G7, a bar each. Sing the two guide-tone lines on \"oo\", one note per chord: {{7}}, {{1}}, {{1}}, {{7}}, then {{3}}, {{5}}, {{4}}, {{4}}.\nListen for the first line moving by half steps and the second opening with a minor 3rd."
                   },
                   {
                     "type": "tool",
@@ -1680,7 +1680,7 @@
         "theme": "Then and now",
         "exercises": [
           {
-            "title": "Day 4's breath, one count more",
+            "title": "In, hold, out to 13",
             "minutes": 3,
             "level": "advanced",
             "area": "voice",
@@ -1692,14 +1692,14 @@
               "breath"
             ],
             "steps": ["breath:7"],
-            "why": "The rounds start one count later than on day 4 and end one count further, so you feel the change at the long end, where it was hardest.",
+            "why": "Starting at nine counts and ending at thirteen keeps the whole drill at the long end, where holding is hardest, so most of the time goes to the rounds past ten.",
             "learnBefore": [
               "/course/3/breath-and-holding-a-note"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown, as on day 4. Notice how the rounds past ten feel now."
+                "text": "Press Start in the circle below. Breathe in, hold and breathe out for the count shown. Notice how the rounds past ten feel."
               },
               {
                 "type": "tool",
@@ -1759,7 +1759,7 @@
               "singing-intervals"
             ],
             "steps": ["singing-intervals:4"],
-            "why": "Day 1 gave you one neighbour, two leaps and the picture of your voice, and today has every leap, both ways, in any key with no picture, so what lands now is what your ear has learnt.",
+            "why": "With every hard leap, both ways, in any key and no picture of your voice, nothing but your ear can find the landing note, so the leaps you land are the ones your ear has learnt.",
             "learnBefore": [
               "/course/6/every-interval",
               "/course/6/singing-leaps"
@@ -1767,7 +1767,7 @@
             "cells": [
               {
                 "type": "text",
-                "text": "Press Start below to hear Do. Any hard leap of the week can come, up or down, in any key, and your voice is not drawn.\nSing the landing note on \"oo\" and hold it until Yes shows. Press Next below for another leap.\nNotice which leaps you now land without thinking of a neighbour first."
+                "text": "Press Start below to hear Do. Any hard leap can come, the minor 3rd, the tritone, the minor 6th or a 7th, up or down, in any key, and your voice is not drawn.\nSing the landing note on \"oo\" and hold it until Yes shows. Press Next below for another leap.\nNotice which leaps you land without thinking of a neighbour first."
               },
               {
                 "type": "tool",
@@ -1781,7 +1781,7 @@
             ]
           },
           {
-            "title": "Day 1's run again",
+            "title": "A fast pentatonic run, to the top",
             "minutes": 4,
             "level": "advanced",
             "area": "voice",
@@ -1793,14 +1793,14 @@
               "runs"
             ],
             "steps": ["runs:4"],
-            "why": "The notes are the ones from day 1, so what you hear changing is your voice: how many passes stay clear before the top.",
+            "why": "The run keeps its notes on every pass while the key climbs, so what you hear changing is your voice: how many passes stay clear before the top.",
             "learnBefore": [
               "/course/9/fast-runs"
             ],
             "cells": [
               {
                 "type": "text",
-                "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. It is day 1's run: from Mi up to the high Do and down to the La under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and notice how far up the passes stay clear now."
+                "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Mi up to the high Do and down to the La under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and notice how far up the passes stay clear."
               },
               {
                 "type": "tool",
@@ -1816,7 +1816,7 @@
             ]
           },
           {
-            "title": "Day 1's changes, your way",
+            "title": "ii-V-I guide tones, your way",
             "minutes": 10,
             "level": "advanced",
             "area": "voice",
@@ -1842,7 +1842,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band: Dm7, G7 and Cmaj7, as on day 1. Sing day 1's two lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}. Then close your eyes and sing them again.\nNotice how early you now hear each change coming."
+                    "text": "Press Start exercise below to start the mic and the band: Dm7, G7 and Cmaj7. Sing the two guide-tone lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}. Then close your eyes and sing them again.\nNotice how early you hear each change coming."
                   },
                   {
                     "type": "tool",
@@ -1889,7 +1889,7 @@
                 "cells": [
                   {
                     "type": "text",
-                    "text": "Press Start exercise below to start the mic and the band, now as a bossa. Make up your own line, and sing it on any vowel. Start each chord on one of its ringed notes, and put one of the week's hard leaps somewhere in each round.\nThen sing over another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the chords are new but the ringed notes are the same numbers."
+                    "text": "Press Start exercise below to start the mic and the band, now as a bossa. Make up your own line, and sing it on any vowel. Start each chord on one of its ringed notes, and put one hard leap, such as a tritone or a 7th, somewhere in each round.\nThen sing over another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the chords are new but the ringed notes are the same numbers."
                   },
                   {
                     "type": "tool",
