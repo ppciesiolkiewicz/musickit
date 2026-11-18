@@ -82,6 +82,8 @@ export interface StoredPlan {
   feedback?: string;
   /** the id of the invite (a plan share) this copy was claimed from; absent for the player's own plans */
   from?: string;
+  /** the name of the person who shared it, as their account had it when this copy was claimed; absent when unknown */
+  sharedBy?: string;
   /** a shared plan the player took off "Plans shared with you"; kept, so its ratings still count for progress */
   hidden?: true;
   /** how the plan went as a whole, asked at the end of the week; absent until the player answers */

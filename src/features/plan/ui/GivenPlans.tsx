@@ -17,13 +17,16 @@ export const weekTitle = (startedOn: string): string => `Week of ${dateLabel(sta
 export const givenTitle = (p: StoredPlan): string =>
   p.teacher && !p.config.title.trim() ? weekTitle(p.startedOn) : planDays(p) === 1 && isDayTitle(p.config.title) ? SHARED_PLAN : p.config.title;
 
+/** "shared by Ann", for a given plan whose sharer is known; "" otherwise. */
+export const sharedByLabel = (p: StoredPlan): string => (p.sharedBy ? `shared by ${p.sharedBy}` : "");
+
 /** The address of a given plan's own page. */
 export const givenHref = (id: string): string => `/plan/given/${encodeURIComponent(id)}`;
 
 /**
  * The plans shared with the player (`PlanState.given`, newest first, without the weeks a teacher made) on `/plan`: each its
  * title, how many days and when it started, a link to its own page. One the player removed (`hidden`) is left out. Nothing
- * when there are none. Who shared one isn't stored, so it isn't shown.
+ * when there are none. Who shared it (`sharedBy`) ends the line when it is known.
  */
 export default function GivenPlans({ plans }: { plans: StoredPlan[] }) {
   return <PlanLinks id="given-plans-h" heading="Plans shared with you" rows={plans.filter((p) => !p.teacher && !p.hidden).map((plan) => ({ plan, replaced: false }))} />;
@@ -60,7 +63,7 @@ function PlanLinks({ id, heading, rows }: { id: string; heading: string; rows: E
             ) : (
               <Link href={givenHref(p.id)} className={`${ROW} transition hover:border-sky-500/60 hover:bg-slate-800/60`}>
                 <span className="min-w-0 flex-1 text-sm text-slate-100">{givenTitle(p)}</span>
-                <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)}</span>
+                <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)}{sharedByLabel(p) && ` · ${sharedByLabel(p)}`}</span>
                 <Icon name="chevron-right" size={14} className="text-slate-500" />
               </Link>
             )}

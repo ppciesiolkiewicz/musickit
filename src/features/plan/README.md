@@ -67,7 +67,7 @@ it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used b
    **Plans shared with you** (`ui/GivenPlans.tsx`): the given plans (`PlanState.given`, newest first, without the weeks a teacher made), each its title (`givenTitle`: a shared composed day is "Shared plan", not the sharer's date),
    how many days and when it started ("7 days · started 16 November": `daysLabel`, `dateLabel`), a link to `/plan/given/<id>`; under today's plan (above Past days), under the line
    while it is made, and above the intro for a player with no answers yet (a plan can be claimed before the questions).
-   A plan the player removed (`hidden`) is left out. Nothing when there are none. Who shared a plan isn't stored (`from` is the invite's id), so it isn't shown.
+   A plan the player removed (`hidden`) is left out. Nothing when there are none. Who shared it ends the line ("shared by Ann", `sharedBy`: the sharer's account name when it was claimed; `claimInvite`'s `nameOf`).
    On a shared plan's page, **Remove from list** (`hideGiven`) takes it off this list and goes back to `/plan`; the plan stays in `given`, so its ratings still count and its page still opens, where a line says it was removed and **Put back on the list** returns it.
    **A seven-day plan** (`ui/WeekView.tsx`; the dev prompt studio's preview, a given plan's page): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position): title in the display face, its hashtags (area, level, kind) small
@@ -139,7 +139,7 @@ it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used b
 
 ```
 model/            pure, no React; tested in model/plan.test.ts
-  types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan (`from`: the invite a claimed copy came from; `hidden`: a shared plan the player took off the list; `composed`: on a composed one-day plan, its try of the day, the block ids turned down today and whether it is short), AnswersEntry, PlanState (the stored document: `current`, the player's own plan, never a given one; `history`, earlier plans, newest first, at most 60; `given`, plans claimed from an invite, newest first), PLAN_DAYS (7, the days of a parsed plan), planDays(plan) (how long a stored plan is: 1 for a composed day)
+  types.ts        PlanAnswers, PlanConfig (what the AI returns), StoredPlan (`from`: the invite a claimed copy came from; `hidden`: a shared plan the player took off the list; `sharedBy`: the sharer's name at claim time; `composed`: on a composed one-day plan, its try of the day, the block ids turned down today and whether it is short), AnswersEntry, PlanState (the stored document: `current`, the player's own plan, never a given one; `history`, earlier plans, newest first, at most 60; `given`, plans claimed from an invite, newest first), PLAN_DAYS (7, the days of a parsed plan), planDays(plan) (how long a stored plan is: 1 for a composed day)
   questions.ts    LEVELS (what an exercise is pitched at), labelOf()
   catalogue.ts    the attunr pages a plan may link to; checkLink() keeps only those; linkLabel() names a link's page
   tools.ts        THE one file for what an exercise is made of, like an MCP server: TOOLS (one parse per learning component; description and props come from the components' COMPONENT_DOCS), the cell kinds, the choice, tags, link resources; the prompt's interface is generated from it; legacySections reads older plans

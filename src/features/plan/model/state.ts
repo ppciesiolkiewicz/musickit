@@ -36,6 +36,9 @@ export function cleanReview(raw: unknown): PlanReview | null {
   return { stars: r.stars, ...(why ? { why } : {}), at: r.at };
 }
 
+/** The longest sharer's name kept on a claimed plan (`sharedBy`). */
+export const MAX_SHARER_NAME = 100;
+
 /** The most earlier plans kept: about two months of one-day plans. */
 export const HISTORY_CAP = 60;
 
@@ -47,7 +50,7 @@ function cleanComposed(raw: unknown): StoredPlan["composed"] | null {
   return { attempt: c.attempt as number, declined: c.declined.filter((d): d is string => typeof d === "string"), short: c.short };
 }
 
-/** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, `hidden` only when true, and the timer's old `elapsed` and `spent` dropped. */
+/** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, `hidden` only when true, `sharedBy` only when it is text (trimmed, at most `MAX_SHARER_NAME`), and the timer's old `elapsed` and `spent` dropped. */
 function cleanPlan(stored: StoredPlan): StoredPlan {
   let p: StoredPlan = { ...stored, config: withBlockIds(cleanCells(withExerciseIds(stored.config))) };
   // the day timer's seconds were kept in the plan before they got their own store (`planTime.ts`); they are not read
@@ -59,6 +62,12 @@ function cleanPlan(stored: StoredPlan): StoredPlan {
   if (p.from !== undefined && typeof p.from !== "string") {
     p = { ...p };
     delete p.from;
+  }
+  if ("sharedBy" in p) {
+    const by = typeof p.sharedBy === "string" ? p.sharedBy.trim().slice(0, MAX_SHARER_NAME) : "";
+    p = { ...p };
+    if (by) p.sharedBy = by;
+    else delete p.sharedBy;
   }
   if ("hidden" in p && p.hidden !== true) {
     p = { ...p };

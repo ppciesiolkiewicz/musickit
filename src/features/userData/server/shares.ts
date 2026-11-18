@@ -121,6 +121,7 @@ function invitedConfig(snapshot: unknown): PlanConfig | null {
  * Claims an invite: a copy of its plan at the front of the claimer's given plans (`PlanState.given`), started today,
  * whatever the current plan is; `current` and `history` are left as they are. A second claim adds nothing and returns the
  * copy's id; if the copy is gone from the document (another tab saved over it), it is added back. A stopped invite can't be claimed.
+ * `nameOf` gives the sharer's name, stored on the copy (`sharedBy`) so the claimer sees who shared it.
  */
 export async function claimInvite(
   repo: UserDataRepo,
@@ -128,6 +129,7 @@ export async function claimInvite(
   id: string,
   now: Date,
   newId: () => string = randomUUID,
+  nameOf: (userId: string) => Promise<string | null> = async () => null,
 ): Promise<{ ok: true; planId: string } | { error: "stopped" | "not-found" }> {
   const share = await repo.getShare(id);
   if (!share || share.kind !== "plan") return { error: "not-found" };
@@ -138,7 +140,8 @@ export async function claimInvite(
   const state = (await readDoc(repo, account.id, "plan")) as PlanState;
   const copy = state.given.find((p) => p.from === id);
   if (copy) return { ok: true, planId: copy.id };
-  const plan: StoredPlan = { id: newId(), config: withExerciseIds(config, newId, true), startedOn: localDate(now), done: {}, from: id };
+  const sharedBy = share.userId === account.id ? null : await nameOf(share.userId);
+  const plan: StoredPlan = { id: newId(), config: withExerciseIds(config, newId, true), startedOn: localDate(now), done: {}, from: id, ...(sharedBy ? { sharedBy } : {}) };
   const next: PlanState = { ...state, given: [plan, ...state.given] };
   // too big a document loses its oldest earlier plans, then its oldest given plans (fitPlanState); the copy, newest, goes last
   const saved = await writeDoc(repo, account.id, "plan", fitPlanState(next, MAX_PLAN_BYTES), now);

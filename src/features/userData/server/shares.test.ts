@@ -206,6 +206,17 @@ test("claimInvite twice gives one plan, in given, and the claimer can watch the 
   assert.equal(await repo.canWatch(null, V2), null);
 });
 
+test("claimInvite stores the sharer's name on the copy, from nameOf; none when unknown", async () => {
+  const repo = await setup();
+  await sharePlan(repo, ann, "ann-plan", NOW, ids("s"));
+  const asked: string[] = [];
+  await claimInvite(repo, ben, "s1", NOW, ids("p"), async (id) => (asked.push(id), "  Ann Lee "));
+  assert.deepEqual(asked, [ANN]);
+  assert.equal((await planDoc(repo, BEN)).given[0].sharedBy, "Ann Lee");
+  await claimInvite(repo, cal, "s1", NOW, ids("c"), async () => null);
+  assert.equal("sharedBy" in (await planDoc(repo, CAL)).given[0], false);
+});
+
 test("claimInvite: with a plan running, the copy goes to the front of given; current and history are untouched", async () => {
   const repo = await setup();
   const history = Array.from({ length: 20 }, (_, i) => plan(`old-${i}`, V3));

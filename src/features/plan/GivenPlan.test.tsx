@@ -103,6 +103,12 @@ test("Plans shared with you leaves out a plan the player removed; with only remo
   assert.equal(renderToStaticMarkup(<GivenPlans plans={[{ ...plan, hidden: true }]} />), "");
 });
 
+test("Plans shared with you ends a row with who shared it, when that is known", () => {
+  const html = renderToStaticMarkup(<GivenPlans plans={[{ ...plan, sharedBy: "Ann Lee" }, lateDay]} />);
+  assert.match(html, /started [^<]* · shared by Ann Lee</);
+  assert.equal((html.match(/shared by/g) ?? []).length, 1);
+});
+
 test("isDayTitle: the date title of a composed day, and nothing else", () => {
   assert.equal(isDayTitle("Wednesday 18 November"), true);
   assert.equal(isDayTitle(dayWords("2027-01-01", []).title), true);
