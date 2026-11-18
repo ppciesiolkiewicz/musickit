@@ -54,13 +54,14 @@ async function send(url: string, init: RequestInit, fetcher: typeof fetch): Prom
   return { status: res.status, body };
 }
 
-/** `GET /api/students`: the teacher's students and their plan's limit. */
-export async function fetchStudents(fetcher: typeof fetch = fetch): Promise<({ ok: true } & StudentList) | Failure> {
-  const r = await send("/api/students", { method: "GET" }, fetcher);
+/** `GET /api/students?today=`: the teacher's students, their plan's limit and extras, and the active count this month; `today` is the device's date. */
+export async function fetchStudents(today: string, fetcher: typeof fetch = fetch): Promise<({ ok: true } & StudentList) | Failure> {
+  const r = await send(`/api/students?today=${encodeURIComponent(today)}`, { method: "GET" }, fetcher);
   if ("ok" in r) return r;
-  const { students, limit } = r.body ?? {};
+  const { students, limit, extra, active } = r.body ?? {};
   if (!Array.isArray(students) || !students.every(isRow) || !(limit === null || typeof limit === "number")) return failure("failed");
-  return { ok: true, students, limit };
+  if (typeof extra !== "number" || typeof active !== "number") return failure("failed");
+  return { ok: true, students, limit, extra, active };
 }
 
 /** `POST /api/students`: adds a student with the answers given for them; `today` is the device's date (`localDate()`). */

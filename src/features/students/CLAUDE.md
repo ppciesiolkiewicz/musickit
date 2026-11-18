@@ -6,7 +6,8 @@
 - **A claim token is stored as its hash, used once, never logged.** It is returned raw only so the route can mail it.
 - **No half-made student.** Anything after `createUser` that throws deletes the user again; if that delete fails too, it is logged and the first error is thrown.
 - **A claim link is mailed at most once a minute and 5 times a day per student** (`newClaimLink`), so a teacher can't have attunr mail an address over and over.
-- `features/account` imports nothing from here; this feature imports account, userData, plan and the library's repo type.
+- `features/account` imports nothing from here; this feature imports account, userData, plan, the library's repo type and `FEEDBACK_HREF` from messages.
+- **A teacher's plan limits active students, not the list**: students given a week in the calendar month, plus the plan's `extraStudents`. Every way a week is given (`makeWeek`, and `addStudent` before it) checks `canGive` first and marks the student active after; one already active this month is never refused. The page and the routes word it from `model/places.ts` only.
 - **No client file imports `server/`.** A shape both sides need goes in `model/types.ts`.
 - The page words a failure by the route's own `error` line, or `CLIENT_WORDS` for the page's codes; every call has a timeout.
 - **Only a slider the teacher moved is sent** (`moved` in `model/sliders.ts`): the server records a teacher's score for every topic it is sent, and that score holds the topic from then on.

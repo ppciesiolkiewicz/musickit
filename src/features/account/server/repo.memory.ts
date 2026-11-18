@@ -7,7 +7,7 @@ export function memoryRepo(plans: Plan[] = []) {
   const identities: { userId: string; provider: string; providerAccountId: string }[] = [];
   const tokens: (TokenRow & { createdAt: Date; usedAt: Date | null; tries: number })[] = [];
   const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
-  const links: { teacherId: string; studentId: string; createdAt: Date; claimedAt: Date | null }[] = [];
+  const links: { teacherId: string; studentId: string; createdAt: Date; claimedAt: Date | null; plannedOn: string | null }[] = [];
   const planRequests: (PlanRequest & { userId: string })[] = [];
   let n = 0;
 
@@ -65,7 +65,7 @@ export function memoryRepo(plans: Plan[] = []) {
     },
     async addStudent(teacherId, studentId, now) {
       if (links.some((l) => l.studentId === studentId)) throw new Error("student already has a teacher");
-      links.push({ teacherId, studentId, createdAt: now, claimedAt: null });
+      links.push({ teacherId, studentId, createdAt: now, claimedAt: null, plannedOn: null });
     },
     async studentsOf(teacherId) {
       return links
@@ -73,7 +73,7 @@ export function memoryRepo(plans: Plan[] = []) {
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
         .flatMap((l) => {
           const user = users.find((u) => u.id === l.studentId);
-          return user ? [{ user, createdAt: l.createdAt, claimedAt: l.claimedAt }] : [];
+          return user ? [{ user, createdAt: l.createdAt, claimedAt: l.claimedAt, plannedOn: l.plannedOn }] : [];
         });
     },
     async studentLink(teacherId, studentId) {
@@ -83,6 +83,10 @@ export function memoryRepo(plans: Plan[] = []) {
     async markClaimed(studentId, now) {
       const l = links.find((x) => x.studentId === studentId);
       if (l && !l.claimedAt) l.claimedAt = now;
+    },
+    async markPlanned(teacherId, studentId, day) {
+      const l = links.find((x) => x.teacherId === teacherId && x.studentId === studentId);
+      if (l) l.plannedOn = day;
     },
     async teacherOf(studentId) {
       const l = links.find((x) => x.studentId === studentId);

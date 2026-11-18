@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { startSession, type AuthDeps } from "@/features/account/server/auth";
+import { startSession, toAccount, type AuthDeps } from "@/features/account/server/auth";
 import { memoryRepo } from "@/features/account/server/repo.memory";
 import type { Plan } from "@/features/account/plans";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
@@ -11,12 +11,13 @@ import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { stubLibrary, topicBlocks } from "@/features/plan/server/stubLibrary";
 import { ACCOUNT_CHANGED_WORDS, LOGGED_OUT_WORDS } from "../model/words";
 import { addRoute, claimLinkRoute, claimOpenRoute, claimPeekRoute, listRoute, planRoute, viewRoute, type StudentsHttpDeps } from "./http";
+import { addStudent } from "./students";
 
 const T0 = new Date("2026-11-18T12:00:00.000Z");
 const TODAY = "2026-11-18";
 const ANSWERS = { areas: ["guitar"], topics: { "guitar-scales": 1 }, minutes: 10, styles: "", notes: "" };
 const RANDOM = "11111111-1111-4111-8111-111111111111";
-const plan = (id: string, students: number | null): Plan => ({ id, name: id, role: "teacher", monthCents: 0, yearCents: 0, trialDays: 0, students, autoplansPerMonth: 0, batch: false, enabled: true, sort: 1 });
+const plan = (id: string, students: number | null): Plan => ({ id, name: id, role: "teacher", monthCents: 0, yearCents: 0, trialDays: 0, students, extraStudents: 0, autoplansPerMonth: 0, batch: false, enabled: true, sort: 1 });
 
 type Mail = { to: string[]; subject: string; text: string };
 
@@ -102,9 +103,27 @@ test("POST /api/students adds, makes the first week, mails the link", async () =
   assert.match(s.sent[0].text, /http:\/\/localhost:3000\/claim\?token=tok\d+/);
   const doc = (await readDocVersioned(s.userData, body.student.id, "plan")).data as PlanState;
   assert.equal(doc.given.length, 1);
-  const list = await (await listRoute(s.h, call("/api/students", "GET", s.teacher.cookie))).json();
+  const list = await (await listRoute(s.h, call(`/api/students?today=${TODAY}`, "GET", s.teacher.cookie))).json();
   assert.equal(list.students.length, 1);
-  assert.equal(list.limit, 5);
+  assert.deepEqual([list.limit, list.extra, list.active], [5, 0, 1], "the first week makes the student active this month");
+  assert.equal((await listRoute(s.h, call("/api/students?today=2026-02-31", "GET", s.teacher.cookie))).status, 400);
+});
+
+test("POST plan: past the limit and extras a student not yet active this month is refused; an active one still gets a week", async () => {
+  const s = await setup({ students: 1 });
+  const ben = (await add(s)).body.student.id;
+  const me = toAccount((await s.store.repo.userById(s.teacher.id))!);
+  const quiet = await addStudent(s.h, me, { name: "Cy", email: "cy@home.com", answers: ANSWERS, today: "2026-12-01" });
+  assert.ok(quiet.ok, "added on another month's count, with no week");
+  const cy = quiet.studentId;
+  const refused = await planRoute(s.h, call(`/api/students/${cy}/plan`, "POST", s.teacher.cookie, { today: TODAY, rotate: false }), cy);
+  assert.equal(refused.status, 409);
+  const body = (await refused.json()) as { code: string; error: string };
+  assert.equal(body.code, "limit");
+  assert.match(body.error, /Students you already gave a plan this month can still get their next week/);
+  assert.equal(((await readDocVersioned(s.userData, cy, "plan")).data as PlanState).given.length, 0, "nothing written");
+  const again = await planRoute(s.h, call(`/api/students/${ben}/plan`, "POST", s.teacher.cookie, { today: TODAY, rotate: true }), ben);
+  assert.equal(again.status, 200);
 });
 
 test("POST /api/students: no library blocks keeps the student, plan none; mail off and mail failing are still 200", async () => {
@@ -156,6 +175,7 @@ test("POST /api/students: 400 for name, email, answers and a bad today; 409 for 
   const over = await add(s, { ...NEW, email: "cy@home.com" });
   assert.equal(over.r.status, 409);
   assert.equal(over.body.code, "limit");
+  assert.match(over.body.error, /^That's your plan's 1 student for this month\./);
   const roomy = await setup();
   await add(roomy);
   const dup = await add(roomy);

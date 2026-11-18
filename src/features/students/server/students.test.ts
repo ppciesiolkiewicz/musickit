@@ -12,13 +12,14 @@ import { CLAIM_TTL, addStudent, listStudents, newClaimLink, openClaim, peekClaim
 
 const START = Date.UTC(2026, 10, 18, 12, 0, 0);
 const MINUTE = 60_000;
-const plan = (id: string, students: number | null): Plan => ({ id, name: id, role: "teacher", monthCents: 0, yearCents: 0, trialDays: 0, students, autoplansPerMonth: 0, batch: false, enabled: true, sort: 1 });
+const TODAY = "2026-11-18";
+const plan = (id: string, students: number | null, extraStudents = 0): Plan => ({ id, name: id, role: "teacher", monthCents: 0, yearCents: 0, trialDays: 0, students, extraStudents, autoplansPerMonth: 0, batch: false, enabled: true, sort: 1 });
 const ANSWERS = { areas: ["guitar"], topics: { "guitar-scales": 1 }, minutes: 20, styles: "", notes: "" };
 
 /** A teacher on a plan with `students` places (a plan row of its own, unless `planId` is null), over the memory repos. */
-async function setup(opts: { students?: number | null; planId?: string | null; role?: "teacher" | "owner" | "student" } = {}) {
+async function setup(opts: { students?: number | null; extra?: number; planId?: string | null; role?: "teacher" | "owner" | "student" } = {}) {
   const planId = opts.planId === undefined ? "teacher-x" : opts.planId;
-  const store = memoryRepo([plan("teacher-x", opts.students === undefined ? 2 : opts.students), plan("teacher-zero", 0)]);
+  const store = memoryRepo([plan("teacher-x", opts.students === undefined ? 2 : opts.students, opts.extra), plan("teacher-zero", 0)]);
   const userData = memoryUserDataRepo();
   let time = START;
   let n = 0;
@@ -40,7 +41,7 @@ const ok = <T extends { ok: boolean }>(r: T) => {
 
 test("a student is made on the taught plan, with the answers in a plan document and one history entry", async () => {
   const s = await setup();
-  const r = ok(await addStudent(s.both, s.teacher, { name: "  Ben  Ray ", email: " Ben@Home.com ", answers: ANSWERS }));
+  const r = ok(await addStudent(s.both, s.teacher, { name: "  Ben  Ray ", email: " Ben@Home.com ", answers: ANSWERS, today: TODAY }));
   const user = await s.repo.userById(r.studentId);
   assert.equal(user?.email, "ben@home.com");
   assert.equal(user?.name, "Ben Ray");
@@ -61,7 +62,7 @@ test("a student is made on the taught plan, with the answers in a plan document 
 
 test("each error, in order", async () => {
   const s = await setup();
-  const good = { name: "Ben", email: "ben@home.com", answers: ANSWERS };
+  const good = { name: "Ben", email: "ben@home.com", answers: ANSWERS, today: TODAY };
   const err = async (t: Account, input: object) => {
     const r = await addStudent(s.both, t, { ...good, ...input });
     assert.equal(r.ok, false);
@@ -81,55 +82,71 @@ test("each error, in order", async () => {
   assert.equal(await err(s.teacher, { email: "x", answers: null }), "email");
 });
 
-test("the limit counts every student, claimed or not; refused at the limit", async () => {
-  const s = await setup({ students: 2 });
-  const a = ok(await addStudent(s.both, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }));
-  ok(await addStudent(s.both, s.teacher, { name: "B", email: "b@x.com", answers: ANSWERS }));
-  const r = await addStudent(s.both, s.teacher, { name: "C", email: "c@x.com", answers: ANSWERS });
-  assert.deepEqual(r, { ok: false, error: "limit" });
-  assert.ok(await openClaim(s.deps, a.claimToken, null));
-  assert.deepEqual(await addStudent(s.both, s.teacher, { name: "C", email: "c@x.com", answers: ANSWERS }), { ok: false, error: "limit" });
-  assert.equal((await listStudents(s.both, s.teacher)).limit, 2);
+test("the limit counts students given a week this month, plus the extras; old students cost nothing; the month turns", async () => {
+  const s = await setup({ students: 2, extra: 1 });
+  const give = async (name: string, day = TODAY) => {
+    const r = ok(await addStudent(s.both, s.teacher, { name, email: `${name}@x.com`, answers: ANSWERS, today: day }));
+    await s.repo.markPlanned(s.teacher.id, r.studentId, day);
+    return r;
+  };
+  const old = await give("old", "2026-10-31");
+  assert.deepEqual(await listStudents(s.both, s.teacher, TODAY).then(({ limit, extra, active }) => ({ limit, extra, active })), { limit: 2, extra: 1, active: 0 }, "last month's week doesn't count");
+  await give("a");
+  ok(await addStudent(s.both, s.teacher, { name: "unplanned", email: "u@x.com", answers: ANSWERS, today: TODAY }));
+  await give("b");
+  await give("c");
+  const list = await listStudents(s.both, s.teacher, TODAY);
+  assert.equal(list.students.length, 5, "every student stays on the list");
+  assert.equal(list.active, 3, "2 places and 1 extra used; the student with no week isn't counted");
+  assert.deepEqual(await addStudent(s.both, s.teacher, { name: "d", email: "d@x.com", answers: ANSWERS, today: TODAY }), { ok: false, error: "limit", limit: 2, extra: 1 });
+  assert.equal((await listStudents(s.both, s.teacher, "2026-12-01")).active, 0, "a new month starts from 0");
+  ok(await addStudent(s.both, s.teacher, { name: "d", email: "d@x.com", answers: ANSWERS, today: "2026-12-01" }));
+  void old;
 });
 
 test("no limit when the plan's students is null; no plan row or 0 refuses; an owner is limited by their own plan", async () => {
-  const none = await setup({ students: null });
-  for (const e of ["a", "b", "c", "d"]) ok(await addStudent(none.both, none.teacher, { name: e, email: `${e}@x.com`, answers: ANSWERS }));
-  assert.equal((await listStudents(none.both, none.teacher)).limit, null);
+  const none = await setup({ students: null, extra: 3 });
+  for (const e of ["a", "b", "c", "d"]) {
+    const r = ok(await addStudent(none.both, none.teacher, { name: e, email: `${e}@x.com`, answers: ANSWERS, today: TODAY }));
+    await none.repo.markPlanned(none.teacher.id, r.studentId, TODAY);
+  }
+  const open = await listStudents(none.both, none.teacher, TODAY);
+  assert.deepEqual([open.limit, open.extra, open.active], [null, 0, 4], "no limit: no extras");
 
   const zero = await setup({ planId: "teacher-zero" });
-  assert.deepEqual(await addStudent(zero.both, zero.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }), { ok: false, error: "limit" });
+  assert.deepEqual(await addStudent(zero.both, zero.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }), { ok: false, error: "limit", limit: 0, extra: 0 });
 
   const noPlan = await setup({ planId: null });
-  assert.deepEqual(await addStudent(noPlan.both, noPlan.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }), { ok: false, error: "limit" });
-  assert.equal((await listStudents(noPlan.both, noPlan.teacher)).limit, 0);
+  assert.deepEqual(await addStudent(noPlan.both, noPlan.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }), { ok: false, error: "limit", limit: 0, extra: 0 });
+  assert.equal((await listStudents(noPlan.both, noPlan.teacher, TODAY)).limit, 0);
 
   const owner = await setup({ role: "owner", students: 1 });
-  ok(await addStudent(owner.both, owner.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }));
-  assert.deepEqual(await addStudent(owner.both, owner.teacher, { name: "B", email: "b@x.com", answers: ANSWERS }), { ok: false, error: "limit" });
+  const a = ok(await addStudent(owner.both, owner.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }));
+  await owner.repo.markPlanned(owner.teacher.id, a.studentId, TODAY);
+  assert.deepEqual(await addStudent(owner.both, owner.teacher, { name: "B", email: "b@x.com", answers: ANSWERS, today: TODAY }), { ok: false, error: "limit", limit: 1, extra: 0 });
 });
 
 test("an email that has an account is refused and leaves no link, no document, no token; so is the teacher's own", async () => {
   const s = await setup();
-  const own = await addStudent(s.both, s.teacher, { name: "T", email: "TESS@school.com", answers: ANSWERS });
+  const own = await addStudent(s.both, s.teacher, { name: "T", email: "TESS@school.com", answers: ANSWERS, today: TODAY });
   assert.deepEqual(own, { ok: false, error: "exists" });
-  ok(await addStudent(s.both, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }));
+  ok(await addStudent(s.both, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }));
   const before = { users: s.users.length, links: s.links.length, tokens: s.tokens.length };
-  assert.deepEqual(await addStudent(s.both, s.teacher, { name: "A2", email: "a@x.com", answers: ANSWERS }), { ok: false, error: "exists" });
+  assert.deepEqual(await addStudent(s.both, s.teacher, { name: "A2", email: "a@x.com", answers: ANSWERS, today: TODAY }), { ok: false, error: "exists" });
   assert.deepEqual({ users: s.users.length, links: s.links.length, tokens: s.tokens.length }, before);
 });
 
 test("a lost race on the email is exists", async () => {
   const s = await setup();
   const racing: AuthRepo = { ...s.repo, createUser: async () => null };
-  const r = await addStudent({ auth: { ...s.deps, repo: racing }, userData: s.userData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS });
+  const r = await addStudent({ auth: { ...s.deps, repo: racing }, userData: s.userData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY });
   assert.deepEqual(r, { ok: false, error: "exists" });
 });
 
 test("a step that throws after the user was made deletes the user", async () => {
   const s = await setup();
   const broken: AuthRepo = { ...s.repo, addStudent: async () => { throw new Error("db down"); } };
-  await assert.rejects(addStudent({ auth: { ...s.deps, repo: broken }, userData: s.userData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }), /db down/);
+  await assert.rejects(addStudent({ auth: { ...s.deps, repo: broken }, userData: s.userData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }), /db down/);
   assert.equal(await s.repo.userByEmail("a@x.com"), null);
   assert.equal(s.users.length, 1);
   assert.equal(s.tokens.length, 0);
@@ -138,14 +155,14 @@ test("a step that throws after the user was made deletes the user", async () => 
 test("a document write that fails also deletes the user", async () => {
   const s = await setup();
   const brokenData = { ...s.userData, putDoc: async () => { throw new Error("docs down"); } };
-  await assert.rejects(addStudent({ auth: s.deps, userData: brokenData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }), /docs down/);
+  await assert.rejects(addStudent({ auth: s.deps, userData: brokenData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }), /docs down/);
   assert.equal(await s.repo.userByEmail("a@x.com"), null);
   assert.equal(s.links.length, 0);
 });
 
 test("openClaim signs in once, sets claimedAt, and goes to /welcome", async () => {
   const s = await setup();
-  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS }));
+  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS, today: TODAY }));
   assert.deepEqual(await peekClaim(s.deps, r.claimToken), { name: "Ben" });
   s.wait(5 * MINUTE);
   const done = await openClaim(s.deps, r.claimToken, "Firefox");
@@ -162,7 +179,7 @@ test("openClaim signs in once, sets claimedAt, and goes to /welcome", async () =
 
 test("an expired claim is null", async () => {
   const s = await setup();
-  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS }));
+  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS, today: TODAY }));
   s.wait(CLAIM_TTL + 1);
   assert.equal(await peekClaim(s.deps, r.claimToken), null);
   assert.equal(await openClaim(s.deps, r.claimToken, null), null);
@@ -171,7 +188,7 @@ test("an expired claim is null", async () => {
 
 test("a mailed log-in link token is not a claim token", async () => {
   const s = await setup();
-  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS }));
+  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS, today: TODAY }));
   await s.repo.createToken({ kind: "email_link", tokenHash: hashToken("other"), codeHash: null, email: "ben@home.com", name: null, role: null, provider: null, providerAccountId: null, next: null, expiresAt: new Date(START + MINUTE) }, new Date(START));
   assert.equal(await openClaim(s.deps, "other", null), null);
   assert.ok(await openClaim(s.deps, r.claimToken, null));
@@ -179,7 +196,7 @@ test("a mailed log-in link token is not a claim token", async () => {
 
 test("newClaimLink: own unclaimed student, one a minute; not another teacher's; not a claimed one", async () => {
   const s = await setup();
-  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS }));
+  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS, today: TODAY }));
   assert.deepEqual(await newClaimLink(s.both, s.teacher, r.studentId), { ok: false, error: "wait", waitMs: MINUTE });
   s.wait(MINUTE);
   const again = ok(await newClaimLink(s.both, s.teacher, r.studentId));
@@ -200,12 +217,12 @@ test("newClaimLink: own unclaimed student, one a minute; not another teacher's; 
 
 test("listStudents: newest first, with the dates and the limit", async () => {
   const s = await setup({ students: 5 });
-  const a = ok(await addStudent(s.both, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }));
+  const a = ok(await addStudent(s.both, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }));
   s.wait(MINUTE);
-  const b = ok(await addStudent(s.both, s.teacher, { name: "B", email: "b@x.com", answers: ANSWERS }));
+  const b = ok(await addStudent(s.both, s.teacher, { name: "B", email: "b@x.com", answers: ANSWERS, today: TODAY }));
   s.wait(MINUTE);
   await openClaim(s.deps, a.claimToken, null);
-  const list = await listStudents(s.both, s.teacher);
+  const list = await listStudents(s.both, s.teacher, TODAY);
   assert.equal(list.limit, 5);
   assert.deepEqual(list.students, [
     { id: b.studentId, name: "B", email: "b@x.com", addedAt: new Date(START + MINUTE).toISOString(), claimedAt: null },
@@ -217,7 +234,7 @@ test("listStudents: newest first, with the dates and the limit", async () => {
 
 test("newClaimLink: at most 5 claim links a student a day, the first one counted; the next day it works again", async () => {
   const s = await setup();
-  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS }));
+  const r = ok(await addStudent(s.both, s.teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS, today: TODAY }));
   for (let i = 0; i < 4; i++) {
     s.wait(MINUTE);
     ok(await newClaimLink(s.both, s.teacher, r.studentId));
@@ -235,7 +252,7 @@ test("a rollback whose delete fails logs it and throws the first error", async (
   const keep = console.error;
   console.error = (...a: unknown[]) => void logged.push(a);
   try {
-    await assert.rejects(addStudent({ auth: { ...s.deps, repo: broken }, userData: s.userData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS }), /db down/);
+    await assert.rejects(addStudent({ auth: { ...s.deps, repo: broken }, userData: s.userData }, s.teacher, { name: "A", email: "a@x.com", answers: ANSWERS, today: TODAY }), /db down/);
   } finally {
     console.error = keep;
   }

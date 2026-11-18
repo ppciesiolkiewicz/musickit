@@ -15,7 +15,7 @@ const buttons = (html: string) => [...html.matchAll(/<button[^>]*>.*?<\/button>/
 const addButton = (html: string) => buttons(html).find((b) => b.includes("Add a student"));
 
 test("no students: one line and the Add a student button, which works", () => {
-  const html = view({ kind: "list", students: [], limit: null });
+  const html = view({ kind: "list", students: [], limit: null, extra: 0, active: 0 });
   assert.match(html, /No students yet\./);
   assert.equal(html.match(/<p /g)?.length, 1, "one line");
   const add = addButton(html);
@@ -25,23 +25,36 @@ test("no students: one line and the Add a student button, which works", () => {
 });
 
 test("the list: name links to the student's page, email, opened or not, Send the link again only for an unopened link", () => {
-  const html = view({ kind: "list", students: [ann, ben], limit: 5 });
+  const html = view({ kind: "list", students: [ann, ben], limit: 5, extra: 2, active: 1 });
   assert.match(html, /href="\/students\/a1"[^>]*>Ann</);
   assert.match(html, /href="\/students\/b2"[^>]*>Ben</);
   assert.match(html, /ann@school\.com/);
   assert.match(html, /Not opened yet/);
   assert.match(html, /Opened the link on 3 November/);
   assert.equal(html.match(/Send the link again/g)?.length, 1);
-  assert.match(html, /2 of 5 students/);
+  assert.match(html, /1 of 5 active students/);
+  assert.match(html, /What counts as an active student/, "the (i) beside the count");
+  assert.doesNotMatch(html, /on us|That&#x27;s your plan/, "no notice under the limit");
   assert.doesNotMatch(addButton(html)!, / disabled=""/);
 });
 
-test("a full list disables Add a student and says why, with a link to the account page", () => {
-  const html = view({ kind: "list", students: [ann, ben], limit: 2 });
+test("at the limit and in the extras: Add a student still works, the notice says how many are on us, with the two ways on", () => {
+  const at = view({ kind: "list", students: [ann, ben], limit: 2, extra: 2, active: 2 });
+  assert.doesNotMatch(addButton(at)!, / disabled=""/);
+  assert.match(at, /2 of 2 active students/);
+  assert.match(at, /You&#x27;ve given plans to the 2 students your plan covers this month\. 2 more are on us, so carry on\./);
+  assert.match(at, /href="\/account"[^>]*>Change your plan</);
+  assert.match(at, /href="\/feedback"[^>]*>Send feedback</);
+  const extras = view({ kind: "list", students: [ann, ben], limit: 2, extra: 2, active: 3 });
+  assert.match(extras, /3 of 2 active students/);
+  assert.match(extras, /1 extra student left this month, on us\./);
+});
+
+test("limit and extras used: Add a student is disabled and the notice says what still works and what to do", () => {
+  const html = view({ kind: "list", students: [ann, ben], limit: 2, extra: 0, active: 2 });
   assert.match(addButton(html)!, / disabled=""/);
-  assert.match(html, /2 of 2 students/);
-  assert.match(html, /no places left for students/);
-  assert.match(html, /href="\/account"[^>]*>change your plan</);
+  assert.match(html, /That&#x27;s your plan&#x27;s 2 students for this month\. Students you already gave a plan this month can still get their next week\./);
+  assert.match(html, /href="\/account"[^>]*>Change your plan</);
 });
 
 test("a failed list load shows the error and Try again", () => {
@@ -59,9 +72,9 @@ test("an account without students gets a line and a link to /account, not a blan
 });
 
 test("a row's Send the link again answer shows under the student; while it goes out the button is disabled", () => {
-  const html = view({ kind: "list", students: [ann], limit: null }, { links: { a1: { busy: false, ok: false, text: "A link went out a moment ago." } } });
+  const html = view({ kind: "list", students: [ann], limit: null, extra: 0, active: 0 }, { links: { a1: { busy: false, ok: false, text: "A link went out a moment ago." } } });
   assert.match(html, /A link went out a moment ago\./);
-  const busy = view({ kind: "list", students: [ann], limit: null }, { links: { a1: { busy: true } } });
+  const busy = view({ kind: "list", students: [ann], limit: null, extra: 0, active: 0 }, { links: { a1: { busy: true } } });
   assert.match(buttons(busy).find((b) => b.includes("Send the link again"))!, / disabled=""/);
 });
 
@@ -106,6 +119,6 @@ test("the line after adding warns when something needs the teacher; the check on
   for (const a of [{ plan: "none", mail: "sent" }, { plan: "made", mail: "failed" }, { plan: "made", mail: "off" }] as const) {
     assert.equal(addedLook(a).tone, "warn", `${a.plan} / ${a.mail}`);
   }
-  const html = renderToStaticMarkup(<StudentsView access="teacher" list={{ kind: "list", students: [ann], limit: null }} added={{ student: ann, plan: "none", mail: "failed" }} links={{}} onRetry={() => {}} onAdd={() => {}} onSendLink={() => {}} />);
+  const html = renderToStaticMarkup(<StudentsView access="teacher" list={{ kind: "list", students: [ann], limit: null, extra: 0, active: 0 }} added={{ student: ann, plan: "none", mail: "failed" }} links={{}} onRetry={() => {}} onAdd={() => {}} onSendLink={() => {}} />);
   assert.match(html, /border-amber-500/, "the warning tone");
 });

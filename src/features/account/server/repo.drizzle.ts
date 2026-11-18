@@ -79,7 +79,7 @@ export function drizzleRepo(db: Db): AuthRepo {
     },
     async studentsOf(teacherId) {
       const rows = await db
-        .select({ user: userCols, createdAt: teacherStudents.createdAt, claimedAt: teacherStudents.claimedAt })
+        .select({ user: userCols, createdAt: teacherStudents.createdAt, claimedAt: teacherStudents.claimedAt, plannedOn: teacherStudents.plannedOn })
         .from(teacherStudents)
         .innerJoin(users, eq(users.id, teacherStudents.studentId))
         .where(eq(teacherStudents.teacherId, teacherId))
@@ -96,6 +96,9 @@ export function drizzleRepo(db: Db): AuthRepo {
     },
     async markClaimed(studentId, now) {
       await db.update(teacherStudents).set({ claimedAt: now }).where(and(eq(teacherStudents.studentId, studentId), isNull(teacherStudents.claimedAt)));
+    },
+    async markPlanned(teacherId, studentId, day) {
+      await db.update(teacherStudents).set({ plannedOn: day }).where(and(eq(teacherStudents.teacherId, teacherId), eq(teacherStudents.studentId, studentId)));
     },
     async teacherOf(studentId) {
       const [row] = await db

@@ -11,7 +11,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role, `taught`: on the `taught` plan, a student a teacher made), `FEATURES` (the parts
   of the app with the roles that may use them; every role gets every feature except `sharePlan` and `students` (having students, see `features/students`), for teachers and owners), `can(account, feature)` and
   `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
-- `plans.ts`: `Plan` (a row of the `plans` table: name, the role it gives, a price in US cents a month (`monthCents`, paid monthly) and one a year (`yearCents`, paid yearly), a free trial (`trialDays`), students,
+- `plans.ts`: `Plan` (a row of the `plans` table: name, the role it gives, a price in US cents a month (`monthCents`, paid monthly) and one a year (`yearCents`, paid yearly), a free trial (`trialDays`), students and `extraStudents` (extra active students a month, free: Solo 2, Music school 3, `0030_active_students`; see `features/students/model/places.ts`),
   AI autoplans a month, Batch, `enabled`, `sort`; every plan's autoplans and notes are written by one model, `SUBSCRIPTION_MODEL`, Haiku 5.5), `choosablePlans`
   (the enabled plans, plus the one the person is on even when turned off), `canChoose` (an enabled plan paid either way, or their own plan, even turned off, paid the other way), `roleOnPlan`, `Billing` (`"month" | "year"`) and the labels.
   Every plan can be paid monthly or yearly (migration `0013_yearly_and_monthly`, 2026-11-15): Student $9 a month or $27 a year,

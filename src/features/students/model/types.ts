@@ -16,10 +16,15 @@ export interface StudentRow {
   claimedAt: string | null;
 }
 
-/** What `GET /api/students` answers: the students, newest first, and how many the teacher's plan allows (null: any number). */
+/**
+ * What `GET /api/students?today=` answers: the students, newest first; how many active students the teacher's plan
+ * allows a month (null: any number) and its extras; how many are active this month (`model/places.ts`).
+ */
 export interface StudentList {
   students: StudentRow[];
   limit: number | null;
+  extra: number;
+  active: number;
 }
 
 /** What happened to the first week when a student was added. */

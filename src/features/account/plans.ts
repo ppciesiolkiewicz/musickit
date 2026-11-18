@@ -23,6 +23,8 @@ export interface Plan {
   trialDays: number;
   /** Students a teacher can have on the plan; null is no limit. 0 for a student's own plan. */
   students: number | null;
+  /** Extra students a month on top of `students`, free; the active-students count (features/students/model/places.ts). */
+  extraStudents: number;
   /** AI autoplans a month. AI notes spend the same allowance, `NOTES_PER_AUTOPLAN` to an autoplan. */
   autoplansPerMonth: number;
   /** Autoplans go through the Batch API: half the price, the plan arrives minutes later. */

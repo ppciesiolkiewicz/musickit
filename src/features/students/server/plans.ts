@@ -11,7 +11,8 @@ import { composeStudentWeek } from "@/features/plan/server/composeStudentWeek";
 import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { readAllPlanTimes, readDocVersioned, readEntries, writeDoc } from "@/features/userData/server/data";
 import type { CommentKept, TopicSlider } from "../model/types";
-import { studentRow, type StudentRow, type StudentsDeps } from "./students";
+import { canGive } from "../model/places";
+import { placesOf, studentRow, type StudentRow, type StudentsDeps } from "./students";
 
 /**
  * A teacher's view of a student's plan and the next week they make for them, as rules over the repos. The week is made
@@ -97,9 +98,16 @@ export async function makeWeek(
   input: { today: string; rotate: boolean; scores?: Record<string, number>; comment?: string },
   now: Date,
   newId: () => string,
-): Promise<{ ok: true; planId: string; start: string; short: boolean; comment: CommentKept } | { ok: false; error: "not-found" | "no-answers" | "no-blocks" | "busy" | "too-big" }> {
+): Promise<
+  | { ok: true; planId: string; start: string; short: boolean; comment: CommentKept }
+  | { ok: false; error: "not-found" | "no-answers" | "no-blocks" | "busy" | "too-big" }
+  | { ok: false; error: "limit"; limit: number; extra: number }
+> {
   if (!(await studentOf(d, teacher, studentId))) return { ok: false, error: "not-found" };
   const { today } = input;
+  // a student not yet given a week this month takes a place; one already active can always get another week
+  const places = await placesOf(d.auth, teacher, today);
+  if (!canGive(places, places.activeIds.has(studentId))) return { ok: false, error: "limit", limit: places.limit ?? 0, extra: places.extra };
   const madeAt = now.toISOString();
   const comment = typeof input.comment === "string" ? input.comment.trim().slice(0, MAX_TEACHER_COMMENT) : "";
 
@@ -127,7 +135,15 @@ export async function makeWeek(
     s = giveWeek(s, week.days, { start, madeAt, title: "", ...(replace ? { replace: replace.id, dropUntouched: replace === upcoming } : {}) }, newId);
 
     const wrote = await writeDoc(d.userData, studentId, "plan", fitPlanState(s, MAX_PLAN_BYTES), now, read.version);
-    if (wrote.ok) return { ok: true, planId: s.given[0].id, start, short: week.short, comment: !comment ? "none" : current ? "stored" : "no-week" };
+    if (wrote.ok) {
+      // the week is written whatever happens here; a failed mark only leaves the student out of this month's count
+      try {
+        await d.auth.repo.markPlanned(teacher.id, studentId, today);
+      } catch (error) {
+        console.error(`[students] the week given to ${studentId} was not counted as active`, error);
+      }
+      return { ok: true, planId: s.given[0].id, start, short: week.short, comment: !comment ? "none" : current ? "stored" : "no-week" };
+    }
     if (wrote.error === "too-big") return { ok: false, error: "too-big" };
     if (wrote.error !== "stale") throw new Error(`the student's plan document was not written: ${wrote.error}`);
   }

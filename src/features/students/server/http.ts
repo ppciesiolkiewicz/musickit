@@ -8,6 +8,7 @@ import { localDate } from "@/features/plan/model/schedule";
 import { isNearToday } from "@/features/plan/server/composeToday";
 import { signedIn } from "@/features/userData/server/http";
 import type { UserDataRepo } from "@/features/userData/server/repo";
+import { fullLine } from "../model/places";
 import { ACCOUNT_CHANGED_WORDS, LOGGED_OUT_WORDS } from "../model/words";
 import { claimEmail, claimUrl } from "./mail";
 import { makeWeek, studentView } from "./plans";
@@ -42,7 +43,6 @@ const MESSAGES = {
   email: "Type your student's email address, like ann@school.com.",
   answers: "Pick at least one area, and at least one topic in each area you pick.",
   exists: "Someone already has an account with that email address. Use another address for your student.",
-  limit: "Your plan has no places left for students. Change your plan to add more.",
   "not-found": "That student isn't on your list.",
   claimed: "Your student has already logged in, so they don't need the link.",
   wait: "A link went out a moment ago. Wait a minute, then press Send the link again.",
@@ -61,6 +61,9 @@ const MESSAGES = {
 type Code = keyof typeof MESSAGES;
 
 const fail = (code: Code, status: number, cookies: string[] = []): Response => json({ error: MESSAGES[code], code }, status, cookies);
+
+/** Limit and extras used this month: 409 `limit`, the line naming the plan's numbers. */
+const full = (r: { limit: number; extra: number }, cookies: string[]): Response => json({ error: fullLine(r.limit, r.extra), code: "limit" }, 409, cookies);
 
 const FORBIDDEN = "That request didn't come from this site. Reload the page and try again.";
 const AUTH: Record<number, { code: string; error: string }> = {
@@ -111,12 +114,14 @@ async function mailClaim(h: StudentsHttpDeps, req: Request, to: { email: string;
   }
 }
 
-/** GET /api/students */
+/** GET /api/students?today=yyyy-mm-dd */
 export async function listRoute(h: StudentsHttpDeps, req: Request): Promise<Response> {
   const me = await teacher(h, req);
   if (me instanceof Response) return me;
+  const today = new URL(req.url).searchParams.get("today");
+  if (!isNearToday(today, serverToday(h))) return fail("bad-date", 400, me.cookies);
   try {
-    return json(await listStudents(h, me.account), 200, me.cookies);
+    return json(await listStudents(h, me.account, today), 200, me.cookies);
   } catch (error) {
     return unexpected("list", error, me.cookies);
   }
@@ -133,12 +138,13 @@ export async function addRoute(h: StudentsHttpDeps, req: Request): Promise<Respo
 
   let added;
   try {
-    added = await addStudent(h, me.account, { name: body.name, email: body.email, answers: body.answers });
+    added = await addStudent(h, me.account, { name: body.name, email: body.email, answers: body.answers, today });
   } catch (error) {
     return unexpected("add", error, me.cookies);
   }
   if (!added.ok) {
-    const status = added.error === "exists" || added.error === "limit" ? 409 : added.error === "not-teacher" ? 403 : 400;
+    if (added.error === "limit") return full(added, me.cookies);
+    const status = added.error === "exists" ? 409 : added.error === "not-teacher" ? 403 : 400;
     return fail(added.error, status, me.cookies);
   }
   const now = h.auth.now();
@@ -198,6 +204,7 @@ export async function planRoute(h: StudentsHttpDeps, req: Request, id: string): 
   try {
     const made = await makeWeek(h, me.account, id, { today: body.today, rotate: body.rotate === true, scores, comment: typeof body.comment === "string" ? body.comment : undefined }, h.auth.now(), h.newId);
     if (made.ok) return json({ planId: made.planId, start: made.start, short: made.short, comment: made.comment }, 200, me.cookies);
+    if (made.error === "limit") return full(made, me.cookies);
     if (made.error === "busy" && body.rotate === true) return json({ error: MESSAGES["busy-rotate"], code: "busy" }, 409, me.cookies);
     const status = made.error === "not-found" ? 404 : made.error === "too-big" ? 413 : 409;
     return fail(made.error, status, me.cookies);

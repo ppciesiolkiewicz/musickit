@@ -31,7 +31,7 @@ test("plan labels", () => {
 });
 
 test("a plan can be chosen paid either way; the one you are on only the other way, even turned off", () => {
-  const base = { role: "student", students: 0, autoplansPerMonth: 8, batch: false, monthCents: 900, yearCents: 2700, trialDays: 14, sort: 0 } as const;
+  const base = { role: "student", students: 0, extraStudents: 0, autoplansPerMonth: 8, batch: false, monthCents: 900, yearCents: 2700, trialDays: 14, sort: 0 } as const;
   const plans: Plan[] = [{ ...base, id: "a", name: "A", enabled: true }, { ...base, id: "old", name: "Old", enabled: false }];
   const none = { planId: null, billing: "year" } as const;
   assert.equal(canChoose(plans, none, "a", "month")?.id, "a");
@@ -42,7 +42,7 @@ test("a plan can be chosen paid either way; the one you are on only the other wa
 });
 
 test("the taught plan is never offered to someone who is not on it", () => {
-  const plan = (id: string, enabled: boolean): Plan => ({ id, name: id, role: "student", monthCents: 0, yearCents: 0, trialDays: 0, students: 0, autoplansPerMonth: 0, batch: false, enabled, sort: 0 });
+  const plan = (id: string, enabled: boolean): Plan => ({ id, name: id, role: "student", monthCents: 0, yearCents: 0, trialDays: 0, students: 0, extraStudents: 0, autoplansPerMonth: 0, batch: false, enabled, sort: 0 });
   const all = [plan("student", true), plan(TAUGHT_PLAN_ID, false)];
   assert.equal(TAUGHT_PLAN_ID, "taught");
   assert.deepEqual(choosablePlans(all, "student").map((p) => p.id), ["student"]);

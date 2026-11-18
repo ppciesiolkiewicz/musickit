@@ -6,7 +6,8 @@ import { recordAnswers } from "@/features/plan/model/answersHistory";
 import { EMPTY_STATE } from "@/features/plan/model/types";
 import { writeDoc } from "@/features/userData/server/data";
 import type { UserDataRepo } from "@/features/userData/server/repo";
-import type { StudentRow } from "../model/types";
+import { activeOn, canGive, type Places } from "../model/places";
+import type { StudentList, StudentRow } from "../model/types";
 
 /**
  * A teacher's students, as rules over the repos: adding one (which makes a normal account for them), the claim link the
@@ -40,11 +41,21 @@ export const studentRow = (user: { id: string; name: string; email: string }, cr
 
 export type AddStudentError = "name" | "email" | "exists" | "limit" | "answers" | "not-teacher";
 
-/** How many students the teacher's plan allows: null is no limit; no plan row, or none with students, is 0. */
-async function limitOf(deps: AuthDeps, teacher: Account): Promise<number | null> {
+/** The teacher's plan's limit (null: no limit; no plan row, or none with students: 0) and its extra students a month. */
+async function planPlaces(deps: AuthDeps, teacher: Account): Promise<{ limit: number | null; extra: number }> {
   const user = await deps.repo.userById(teacher.id);
   const plan = user?.planId ? (await deps.repo.listPlans()).find((p) => p.id === user.planId) : undefined;
-  return plan ? plan.students : 0;
+  return plan ? { limit: plan.students, extra: plan.students === null ? 0 : plan.extraStudents } : { limit: 0, extra: 0 };
+}
+
+/**
+ * The teacher's places in `today`'s month (the teacher's day): the plan's limit and extras, how many students are
+ * active (given a week this month), and which ones, so a student already active can always get another week.
+ */
+export async function placesOf(deps: AuthDeps, teacher: Account, today: string): Promise<Places & { activeIds: Set<string> }> {
+  const rows = await deps.repo.studentsOf(teacher.id);
+  const activeIds = new Set(rows.filter((r) => activeOn(r.plannedOn, today)).map((r) => r.user.id));
+  return { ...(await planPlaces(deps, teacher)), active: activeIds.size, activeIds };
 }
 
 async function makeClaim(deps: AuthDeps, email: string): Promise<string> {
@@ -65,8 +76,8 @@ async function makeClaim(deps: AuthDeps, email: string): Promise<string> {
 export async function addStudent(
   deps: StudentsDeps,
   teacher: Account,
-  input: { name: unknown; email: unknown; answers: unknown },
-): Promise<{ ok: true; studentId: string; claimToken: string } | { ok: false; error: AddStudentError }> {
+  input: { name: unknown; email: unknown; answers: unknown; today: string },
+): Promise<{ ok: true; studentId: string; claimToken: string } | { ok: false; error: Exclude<AddStudentError, "limit"> } | { ok: false; error: "limit"; limit: number; extra: number }> {
   const { auth } = deps;
   if (!can(teacher, "students")) return { ok: false, error: "not-teacher" };
   const name = cleanName(input.name);
@@ -76,8 +87,9 @@ export async function addStudent(
   const answers = migrateAnswers(input.answers);
   if (!answers.areas.length || areasMissingTopics(answers).length) return { ok: false, error: "answers" };
 
-  const limit = await limitOf(auth, teacher);
-  if (limit !== null && (await auth.repo.studentsOf(teacher.id)).length >= limit) return { ok: false, error: "limit" };
+  // a new student is active once their first week is made, so adding one needs a place this month
+  const places = await placesOf(auth, teacher, input.today);
+  if (!canGive(places, false)) return { ok: false, error: "limit", limit: places.limit ?? 0, extra: places.extra };
   if (await auth.repo.userByEmail(email)) return { ok: false, error: "exists" };
 
   const now = auth.now();
@@ -101,13 +113,11 @@ export async function addStudent(
   }
 }
 
-/** The teacher's students, newest first, and how many their plan allows (null: any number). */
-export async function listStudents(deps: StudentsDeps, teacher: Account): Promise<{ students: StudentRow[]; limit: number | null }> {
+/** The teacher's students, newest first, with the plan's limit (null: any number), its extras and the active count on `today`. */
+export async function listStudents(deps: StudentsDeps, teacher: Account, today: string): Promise<StudentList> {
   const rows = await deps.auth.repo.studentsOf(teacher.id);
-  return {
-    students: rows.map((r) => studentRow(r.user, r.createdAt, r.claimedAt)),
-    limit: await limitOf(deps.auth, teacher),
-  };
+  const { limit, extra, active } = await placesOf(deps.auth, teacher, today);
+  return { students: rows.map((r) => studentRow(r.user, r.createdAt, r.claimedAt)), limit, extra, active };
 }
 
 export type NewClaimError = "not-found" | "claimed" | "wait" | "daily";

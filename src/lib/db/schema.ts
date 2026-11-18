@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { bigint, boolean, check, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { bigint, boolean, check, date, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
@@ -39,6 +39,8 @@ export const plans = pgTable("plans", {
   period: planPeriod("period"),
   /** Students a teacher can have; null is no limit, 0 a student's own plan. */
   students: integer("students"),
+  /** Extra students a month on top of `students`, free (Solo 2, Music school 3); 0 for a plan with no limit or none set. */
+  extraStudents: integer("extra_students").notNull().default(0),
   autoplansPerMonth: integer("autoplans_per_month").notNull(),
   batch: boolean("batch").notNull().default(false),
   /** Can be chosen in the app. People already on a turned-off plan keep it. */
@@ -194,6 +196,8 @@ export const teacherStudents = pgTable(
     studentId: uuid("student_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
     createdAt: at("created_at").notNull().defaultNow(),
     claimedAt: at("claimed_at"),
+    /** The teacher's day the teacher last gave this student a week (added them, made or rotated a week): active that month. */
+    plannedOn: date("planned_on", { mode: "string" }),
   },
   (t) => [primaryKey({ columns: [t.teacherId, t.studentId] })],
 );

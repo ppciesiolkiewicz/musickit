@@ -3,21 +3,23 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Icon from "@/components/Icon";
-import { Button, Notice, btn } from "@/components/ui";
+import { Button, InfoTip, Notice, btn } from "@/components/ui";
 import { accountsOpen } from "@/features/account/serverAccountStore";
 import { useAccount } from "@/features/account/useAccount";
 import { localDate } from "@/features/plan/model/schedule";
 import { dateLabel } from "@/features/plan/model/today";
+import { FEEDBACK_HREF } from "@/features/messages/ui/FeedbackPage";
 import { loginHref } from "@/lib/publicPaths";
 import { fetchStudents, postClaimLink } from "../client";
-import type { AddedStudent, StudentRow } from "../model/types";
+import { COUNT_HELP, countLine, placesLine, placesState } from "../model/places";
+import type { AddedStudent, StudentList, StudentRow } from "../model/types";
 import AddStudent, { savedAdd } from "./AddStudent";
 
 /** Who is looking: still unknown, a site without accounts, signed out, an account without students, a teacher. */
 export type Access = "loading" | "no-accounts" | "logged-out" | "not-teacher" | "teacher";
 
 /** The list as the page has it. */
-export type ListState = { kind: "loading" } | { kind: "error"; error: string } | { kind: "list"; students: StudentRow[]; limit: number | null };
+export type ListState = { kind: "loading" } | { kind: "error"; error: string } | ({ kind: "list" } & StudentList);
 
 /** A row's Send the link again: going out, or what came of it. */
 export type LinkState = { busy: true } | { busy: false; ok: boolean; text: string };
@@ -117,18 +119,31 @@ export function StudentsView({ access, list, added, links, onRetry, onAdd, onSen
   }
 
   const { students, limit } = list;
-  const full = limit !== null && students.length >= limit;
+  const places = placesState(list);
+  const full = places.kind === "full";
+  const line = placesLine(places);
   return (
     <div className="flex flex-col gap-4">
       {added && <Notice tone={addedLook(added).tone} icon={<Icon name={addedLook(added).icon} size={14} />}><span role="status">{addedLine(added)}</span></Notice>}
       <div className="flex flex-wrap items-center gap-3">
         <Button className={primary} disabled={full} onClick={onAdd}><Icon name="plus" size={14} />Add a student</Button>
-        {limit !== null && <span className="text-sm tabular-nums text-slate-400">{students.length} of {limit} students</span>}
+        {limit !== null && (
+          <span className="flex items-center gap-1.5 text-sm tabular-nums text-slate-400">
+            {countLine(limit, list.active)}
+            <InfoTip label="What counts as an active student" hover align="center">{COUNT_HELP}</InfoTip>
+          </span>
+        )}
       </div>
-      {full && (
-        <p className="text-sm text-slate-300">
-          Your plan has no places left for students. To add more, <Link href="/account" className="text-sky-300 hover:underline">change your plan</Link>.
-        </p>
+      {line && (
+        <Notice tone={full ? "warn" : "info"} icon={<Icon name={full ? "alert-triangle" : "info"} size={14} />}>
+          <span className="flex flex-col items-start gap-2">
+            <span>{line}</span>
+            <span className="flex flex-wrap gap-2">
+              <Link href="/account" className={btn}>Change your plan</Link>
+              <Link href={FEEDBACK_HREF} className={btn}>Send feedback</Link>
+            </span>
+          </span>
+        </Notice>
       )}
       {students.length === 0 ? (
         <p className="text-sm text-slate-400">No students yet. Add one, and attunr makes their account and a plan for their first week.</p>
@@ -163,8 +178,8 @@ export default function StudentsApp() {
   useEffect(() => {
     if (access !== "teacher") return;
     let live = true;
-    fetchStudents().then((r) => {
-      if (live) setList(r.ok ? { kind: "list", students: r.students, limit: r.limit } : { kind: "error", error: r.error });
+    fetchStudents(localDate()).then((r) => {
+      if (live) setList(r.ok ? { kind: "list", students: r.students, limit: r.limit, extra: r.extra, active: r.active } : { kind: "error", error: r.error });
     });
     return () => {
       live = false;
@@ -178,7 +193,8 @@ export default function StudentsApp() {
   const onAdded = (a: AddedStudent) => {
     setAdding(false);
     setAdded(a);
-    setList((l) => (l.kind === "list" ? { ...l, students: [a.student, ...l.students.filter((s) => s.id !== a.student.id)] } : l));
+    // a student given a first week is active this month
+    setList((l) => (l.kind === "list" ? { ...l, students: [a.student, ...l.students.filter((s) => s.id !== a.student.id)], active: l.active + (a.plan === "none" ? 0 : 1) } : l));
   };
 
   const onSendLink = async (id: string) => {

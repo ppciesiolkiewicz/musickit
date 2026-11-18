@@ -18,7 +18,7 @@ import { makeWeek, studentView } from "./plans";
 
 const NOW = new Date("2026-11-18T12:00:00.000Z");
 const TODAY = "2026-11-18";
-const plan = (id: string): Plan => ({ id, name: id, role: "teacher", monthCents: 0, yearCents: 0, trialDays: 0, students: null, autoplansPerMonth: 0, batch: false, enabled: true, sort: 1 });
+const plan = (id: string): Plan => ({ id, name: id, role: "teacher", monthCents: 0, yearCents: 0, trialDays: 0, students: null, extraStudents: 0, autoplansPerMonth: 0, batch: false, enabled: true, sort: 1 });
 const ANSWERS = { areas: ["guitar"], topics: { "guitar-scales": 1 }, minutes: 10, styles: "", notes: "" };
 
 async function teacherOf(store: ReturnType<typeof memoryRepo>, email: string, time: Date): Promise<Account> {
@@ -37,7 +37,7 @@ async function setup(opts: { userData?: UserDataRepo; blocks?: ReturnType<typeof
   const auth: AuthDeps = { repo: store.repo, now: () => new Date("2026-11-01T12:00:00Z"), token: () => `t${++n}`, code: () => "100000" };
   const teacher = await teacherOf(store, "tess@school.com", new Date("2026-11-01T12:00:00Z"));
   const other = await teacherOf(store, "otto@school.com", new Date("2026-11-01T12:00:00Z"));
-  const added = await addStudent({ auth, userData: base }, teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS });
+  const added = await addStudent({ auth, userData: base }, teacher, { name: "Ben", email: "ben@home.com", answers: ANSWERS, today: "2026-11-18" });
   assert.ok(added.ok);
   const library = stubLibrary(opts.blocks ?? topicBlocks("guitar-scales"));
   let id = 0;

@@ -300,7 +300,7 @@ test("with nowhere else to go, logging in lands on the plan", () => {
   assert.equal(AFTER_LOGIN, "/plan");
 });
 
-const PLAN = { monthCents: 1500, yearCents: 12000, trialDays: 14, students: 10, autoplansPerMonth: 40, batch: false } as const;
+const PLAN = { monthCents: 1500, yearCents: 12000, trialDays: 14, students: 10, extraStudents: 0, autoplansPerMonth: 40, batch: false } as const;
 const PLANS: Plan[] = [
   { ...PLAN, id: "teacher-pro", name: "Teacher Pro", role: "teacher", enabled: true, sort: 2 },
   { ...PLAN, id: "student", name: "Student", role: "student", enabled: true, sort: 0 },

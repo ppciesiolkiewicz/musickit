@@ -9,18 +9,19 @@ const row = { id: "a1", name: "Ann", email: "ann@school.com", addedAt: "2026-11-
 const input = { name: "Ann", email: "ann@school.com", answers: migrateAnswers(null), today: "2026-11-18" };
 
 test("fetchStudents: the list and the limit; an answer of another shape is a failure", async () => {
-  assert.deepEqual(await fetchStudents(answer(200, { students: [row], limit: 3 })), { ok: true, students: [row], limit: 3 });
-  assert.deepEqual(await fetchStudents(answer(200, { students: [row], limit: null })), { ok: true, students: [row], limit: null });
-  assert.deepEqual(await fetchStudents(answer(200, { students: [{ id: 1 }], limit: null })), { ok: false, code: "failed", error: CLIENT_WORDS.failed });
+  assert.deepEqual(await fetchStudents("2026-11-18", answer(200, { students: [row], limit: 3, extra: 2, active: 1 })), { ok: true, students: [row], limit: 3, extra: 2, active: 1 });
+  assert.deepEqual(await fetchStudents("2026-11-18", answer(200, { students: [row], limit: null, extra: 0, active: 0 })), { ok: true, students: [row], limit: null, extra: 0, active: 0 });
+  assert.equal((await fetchStudents("2026-11-18", answer(200, { students: [row], limit: 3 }))).ok, false, "no extras or count is a failure");
+  assert.deepEqual(await fetchStudents("2026-11-18", answer(200, { students: [{ id: 1 }], limit: null })), { ok: false, code: "failed", error: CLIENT_WORDS.failed });
 });
 
 test("a route's error keeps its code and its own words; a 401 and no network get the page's words", async () => {
   const exists = await postStudent(input, answer(409, { error: "Someone already has an account with that email address.", code: "exists" }));
   assert.deepEqual(exists, { ok: false, code: "exists", error: "Someone already has an account with that email address." });
-  assert.equal((await fetchStudents(answer(401, { error: "x" })) as { code: string }).code, "logged-out");
-  const offline = await fetchStudents((async () => { throw new TypeError("fetch failed"); }) as typeof fetch);
+  assert.equal((await fetchStudents("2026-11-18", answer(401, { error: "x" })) as { code: string }).code, "logged-out");
+  const offline = await fetchStudents("2026-11-18", (async () => { throw new TypeError("fetch failed"); }) as typeof fetch);
   assert.deepEqual(offline, { ok: false, code: "offline", error: CLIENT_WORDS.offline });
-  const changed = await fetchStudents(answer(409, { error: "account-changed", code: "account-changed" }));
+  const changed = await fetchStudents("2026-11-18", answer(409, { error: "account-changed", code: "account-changed" }));
   assert.deepEqual(changed, { ok: false, code: "account-changed", error: CLIENT_WORDS["account-changed"] });
 });
 
@@ -117,9 +118,9 @@ test("fetchStudent reads the upcoming week's start; an older answer without it i
 });
 
 test("account-changed is known by its code, whatever words the route sent, and gets the one wording", async () => {
-  const changed = await fetchStudents(answer(409, { error: "Some other sentence.", code: "account-changed" }));
+  const changed = await fetchStudents("2026-11-18", answer(409, { error: "Some other sentence.", code: "account-changed" }));
   assert.deepEqual(changed, { ok: false, code: "account-changed", error: ACCOUNT_CHANGED_WORDS });
   assert.equal(CLIENT_WORDS["account-changed"], ACCOUNT_CHANGED_WORDS);
   assert.equal(CLIENT_WORDS["logged-out"], LOGGED_OUT_WORDS);
-  assert.equal((await fetchStudents(answer(401, { error: "x", code: "logged-out" })) as { error: string }).error, LOGGED_OUT_WORDS);
+  assert.equal((await fetchStudents("2026-11-18", answer(401, { error: "x", code: "logged-out" })) as { error: string }).error, LOGGED_OUT_WORDS);
 });

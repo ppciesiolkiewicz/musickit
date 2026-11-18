@@ -44,9 +44,9 @@ test("the brief carries every sample email, fenced, as a model not a source", ()
 test("the brief lists the enabled plans after the facts, and none without a database", () => {
   const plan = { role: "student" as const, trialDays: 14, students: 0, batch: true, enabled: true };
   const plans = [
-    { ...plan, id: "pro", name: "Teacher Pro", role: "teacher" as const, monthCents: 4900, yearCents: 39200, students: 30, autoplansPerMonth: 120, sort: 3 },
-    { ...plan, id: "student", name: "Student", monthCents: 900, yearCents: 2700, autoplansPerMonth: 8, sort: 1 },
-    { ...plan, id: "old", name: "Old", monthCents: 100, yearCents: 800, autoplansPerMonth: 1, sort: 2, enabled: false },
+    { ...plan, id: "pro", name: "Teacher Pro", role: "teacher" as const, monthCents: 4900, yearCents: 39200, students: 30, extraStudents: 0, autoplansPerMonth: 120, sort: 3 },
+    { ...plan, id: "student", name: "Student", monthCents: 900, yearCents: 2700, extraStudents: 0, autoplansPerMonth: 8, sort: 1 },
+    { ...plan, id: "old", name: "Old", monthCents: 100, yearCents: 800, extraStudents: 0, autoplansPerMonth: 1, sort: 2, enabled: false },
   ];
   const b = outreachBrief(demos, plans);
   assert.ok(b.includes("## The plans"));

@@ -13,7 +13,7 @@ import { stubLibrary, topicBlocks } from "./stubLibrary";
 const T0 = new Date("2026-11-18T12:00:00.000Z");
 const TODAY = "2026-11-18";
 const ANSWERS = { areas: ["guitar"], topics: { "guitar-scales": 1 }, minutes: 10, styles: "", notes: "" };
-const plan = (id: string, role: Plan["role"]): Plan => ({ id, name: id, role, monthCents: 0, yearCents: 0, trialDays: 0, students: null, autoplansPerMonth: 0, batch: false, enabled: true, sort: 1 });
+const plan = (id: string, role: Plan["role"]): Plan => ({ id, name: id, role, monthCents: 0, yearCents: 0, trialDays: 0, students: null, extraStudents: 0, autoplansPerMonth: 0, batch: false, enabled: true, sort: 1 });
 
 async function setup() {
   const store = memoryRepo([plan("student-x", "student"), plan(TAUGHT_PLAN_ID, "student")]);
