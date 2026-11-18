@@ -8,12 +8,12 @@ import { accountsOpen } from "@/features/account/serverAccountStore";
 import { useAccount } from "@/features/account/useAccount";
 import { localDate } from "@/features/plan/model/schedule";
 import { dateLabel } from "@/features/plan/model/today";
-import { FEEDBACK_HREF } from "@/features/messages/ui/FeedbackPage";
 import { loginHref } from "@/lib/publicPaths";
 import { fetchStudents, postClaimLink } from "../client";
 import { COUNT_HELP, countLine, placesLine, placesState } from "../model/places";
 import type { AddedStudent, StudentList, StudentRow } from "../model/types";
 import AddStudent, { savedAdd } from "./AddStudent";
+import PlanWays from "./PlanWays";
 
 /** Who is looking: still unknown, a site without accounts, signed out, an account without students, a teacher. */
 export type Access = "loading" | "no-accounts" | "logged-out" | "not-teacher" | "teacher";
@@ -138,10 +138,7 @@ export function StudentsView({ access, list, added, links, onRetry, onAdd, onSen
         <Notice tone={full ? "warn" : "info"} icon={<Icon name={full ? "alert-triangle" : "info"} size={14} />}>
           <span className="flex flex-col items-start gap-2">
             <span>{line}</span>
-            <span className="flex flex-wrap gap-2">
-              <Link href="/account" className={btn}>Change your plan</Link>
-              <Link href={FEEDBACK_HREF} className={btn}>Send feedback</Link>
-            </span>
+            <PlanWays />
           </span>
         </Notice>
       )}

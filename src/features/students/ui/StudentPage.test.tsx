@@ -43,7 +43,7 @@ test("the page sends only the sliders the teacher moved, and the comment only wi
 test("afterMake: a failed make keeps the sliders and the comment; a made one empties the comment and counts the sliders as unmoved", () => {
   const before = form({ ...opening, "guitar-chords": 2.4 }, "Busy week");
   const failed = afterMake({ ok: false, code: "no-blocks", error: "The library has no exercises yet." }, before, "Ann", false, TODAY);
-  assert.deepEqual(failed, { form: before, sent: { kind: "failed", error: "The library has no exercises yet." }, reload: false });
+  assert.deepEqual(failed, { form: before, sent: { kind: "failed", error: "The library has no exercises yet.", code: "no-blocks" }, reload: false });
   const made = afterMake({ ok: true, planId: "p1", start: "2026-11-23", short: false, comment: "stored" }, before, "Ann", false, TODAY);
   assert.deepEqual(made.form, { start: before.values, values: before.values, comment: "", savedComment: "" });
   assert.equal(made.reload, true);
@@ -100,10 +100,18 @@ test("a week that has ended: no Rotate (Make next week's plan starts today)", ()
 
 test("a 409 no-blocks shows its line and keeps the sliders where the teacher put them", () => {
   const error = "The library has no exercises yet that fit your student's answers, so no plan was made.";
-  const html = draw({ values: { ...opening, "guitar-chords": 2.4 }, sent: { kind: "failed", error } });
+  const html = draw({ values: { ...opening, "guitar-chords": 2.4 }, sent: { kind: "failed", error, code: "no-blocks" } });
   assert.match(html, /The library has no exercises yet that fit your student&#x27;s answers/);
   assert.match(html, /Intermediate, 40% to Advanced/, "chords where the teacher put it, not at 1.3");
   assert.doesNotMatch(html, /Beginner, 30% to Intermediate/);
+  assert.doesNotMatch(html, />Change your plan</, "the plan's ways show only for the limit");
+});
+
+test("a 409 limit shows its line with Change your plan and Send feedback", () => {
+  const html = draw({ sent: { kind: "failed", error: "That's your plan's 15 students and 2 extra for this month.", code: "limit" } });
+  assert.match(html, /That&#x27;s your plan&#x27;s 15 students/);
+  assert.match(html, /href="\/account"[^>]*>Change your plan</);
+  assert.match(html, /href="\/feedback"[^>]*>Send feedback</);
 });
 
 test("while a plan is made the buttons and sliders wait; after, the line says what was made", () => {

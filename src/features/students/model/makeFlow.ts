@@ -11,7 +11,7 @@ import type { MadePlan, StudentView } from "./types";
 export type ViewState = { kind: "loading" } | { kind: "error"; code: string; error: string } | { kind: "view"; view: StudentView };
 
 /** Making a plan: nothing asked yet, going out (and the page loading again after), what was made, or why not. */
-export type Sent = { kind: "idle" } | { kind: "busy" } | { kind: "made"; line: string } | { kind: "failed"; error: string };
+export type Sent = { kind: "idle" } | { kind: "busy" } | { kind: "made"; line: string } | { kind: "failed"; error: string; code: string };
 
 /** What the teacher has set: where each slider opened (`start`), where it is now (`values`), the comment, and the comment already saved on this week (what the box opened with). */
 export interface MakeForm {
@@ -61,7 +61,7 @@ export function planInput(today: string, rotate: boolean, form: MakeForm, hasWee
  * Failed: the route's line, and the sliders and the comment stay as the teacher left them.
  */
 export function afterMake(result: ({ ok: true } & MadePlan) | Failure, form: MakeForm, name: string, rotate: boolean, today: string): { form: MakeForm; sent: Sent; reload: boolean } {
-  if (!result.ok) return { form, sent: { kind: "failed", error: result.error }, reload: false };
+  if (!result.ok) return { form, sent: { kind: "failed", error: result.error, code: result.code }, reload: false };
   return { form: { start: form.values, values: form.values, comment: "", savedComment: "" }, sent: { kind: "made", line: madeLine(name, result, rotate, today) }, reload: true };
 }
 

@@ -15,6 +15,7 @@ import { afterMake, planInput, upcomingLine, viewOf, type MakeForm, type Sent, t
 import { tenth } from "../model/sliders";
 import type { StudentView } from "../model/types";
 import type { Access } from "./StudentsApp";
+import PlanWays from "./PlanWays";
 import TopicSliders from "./TopicSliders";
 
 const primary = "!border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 hover:!bg-sky-400";
@@ -153,7 +154,14 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
           </div>
         )}
 
-        {sent.kind === "failed" && <Notice tone="warn" icon={warn}><span role="alert">{sent.error}</span></Notice>}
+        {sent.kind === "failed" && (
+          <Notice tone="warn" icon={warn}>
+            <span className="flex flex-col items-start gap-2">
+              <span role="alert">{sent.error}</span>
+              {sent.code === "limit" && <PlanWays />}
+            </span>
+          </Notice>
+        )}
         {sent.kind === "made" && <Notice icon={<Icon name="check" size={14} />}><span role="status">{sent.line}</span></Notice>}
         {busy && <p role="status" className="text-sm text-slate-400">Making the plan…</p>}
         {upcoming && <p className="text-sm leading-relaxed text-slate-300">{upcomingLine(student.name, upcoming.start)}</p>}
