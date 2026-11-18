@@ -32,7 +32,7 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
      are when the file is written. `model` is the API id of the model that wrote it. `note` says which gap, in one line.
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the
    current ones (`npm run -s seed -- versions`), every exercise names a concept and at least one step (each in a track of
-   its concepts), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
+   its concepts), no choice sets a key or a tempo and no exercise with `moves` mentions a selector (`movesCheck.ts`), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
    level or stage, and no exercise names another day or week.
    Then `npm run -s gen:json-index`, so the folder's `index.gen.ts` imports the new file.
 4. `npm run -s db:seed-plans`, then `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first).
@@ -63,6 +63,15 @@ set a key and a position). The prompt names each of the five by its block id (`s
 - An exercise is a block: `title`, an optional `choice`, `cells` (text, list, notice, tool, section). A `section` cell holds a
   `heading`, `minutes` when it is a timed block, a `choice` when its tools change, and its own `cells`. No `focus`; the
   title may end with hashtags (`#guitar #beginner #technique`) that stand for the fields.
+- A drill that works in other keys or at other tempos states `moves` on the exercise, beside `cells`: `"key": "any"`
+  when it can be played in any key (left out when the key is the lesson, as with open chord shapes), and
+  `"bpm": { "from": 60, "to": 90, "step": 10 }` for the tempos it makes sense in. Its tools are written at the start:
+  the key the drill is first learned in and the `from` tempo (a later, faster section keeps its distance: 20 above
+  stays 20 above). The app gives each player a version (a key of theirs, a faster tempo once they found it easy) and
+  draws the selector and its line itself. So such an exercise has no choice that sets a key or a tempo, its text never
+  mentions a selector, and where its title, a heading or the text names the key or the tempo it writes `{{=key}}` or
+  `{{=bpm}}` ("{{=key}} minor pentatonic", "the metronome is at {{=bpm}}"), never the value itself. A tool that must
+  keep its own key or tempo lists the part in `pinned`.
 - Over 5 minutes: at least two sections with `minutes`, of 2 to 5 minutes each, adding up to the exercise's
   minutes; consecutive blocks change something real (tempo, key, position, which note is lit, the task).
 - Singing or playing, never both. Singing exercises never mention the instrument (drones, the backing and a backing-track
@@ -75,13 +84,14 @@ set a key and a position). The prompt names each of the five by its block id (`s
   added to the course for it first.
 - A sung or played pattern (Do Mi Sol, a leap, a tune, guide tones) comes back in a second key, and a line of its own
   says what stays the same in this drill ("When you change the key, the notes change but the drop is still an octave.").
-  The same drill in more keys is one section with a `choice` in its header, an option per key
-  (the section's tools move to the picked key). The text invites and names the selector, never a chip or the keys: "Then
-  sing it in another key. Use the Key selector below to change the key." A new key with a new task is a later block or
-  another tool.
-- A choice also takes one drill up in stages or across variants, without a copy of its tools per version. `"label": "stage"`
-  when each option is harder than the last (a tempo going up): the text says what a stage feels like before the next and
-  what to do when one is too fast. `"label": "variant"` when the options are equals to compare (one pattern in two keys
+  The same drill in more keys is `moves` with `"key": "any"` (above): the app brings the next key, so the text says
+  what stays the same in another key and names no selector. A new key with a new task is a later block or another
+  tool. (Older files give the section a `choice` with an option per key and name "the Key selector"; that shape is
+  still read, and no longer written.)
+- A choice takes one drill up in stages or across variants, without a copy of its tools per version, for a position, a
+  scale or a level (a key or a tempo is `moves`, above; a tempo ladder as a choice is the older shape). `"label": "stage"`
+  when each option is harder than the last (the next level of a tool): the text says what a stage feels like before the next and
+  what to do when one is too hard. `"label": "variant"` when the options are equals to compare (one pattern in two keys
   or positions): the text says what to look or listen for between them. The text names the selector by its label ("Use
   the Stage selector below to change the tempo"), never a chip, sits above the selector, says what Play starts again
   after a change, and names no tempo, key or position as the only one.

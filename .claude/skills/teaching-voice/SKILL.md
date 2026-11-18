@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 6
+version: 7
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -76,6 +76,7 @@ A step is also interface copy: the learner has to find a control with one hand o
   - Then, on a new line, what changes and what stays: "When you change the key, the notes change but the tune keeps its shape."
   - The text that names a selector sits above it, so the selector is always "below".
   - Wrong: "Tap G in the Key row above the neck below, play the crossing there, then tap C." Right: "Play the same crossing in other keys. Use the Key selector below to change the key."
+  - An exercise that states `moves` (it can be played in other keys or tempos) never mentions a selector: the app decides when the Key or Tempo selector is there and writes the line under it. Its text names the key and the tempo only as `{{=key}}` and `{{=bpm}}`, which the app fills in.
 - **Say what they will see next**, when it isn't obvious: "After a bar of count-in, the lit box shows the chord to play."
 - **Say what to do when it goes wrong**, inside the step, calmly and as an action: "If a change comes late, keep your strumming hand going and catch the next beat 1." No blame, no "don't worry", no "try again".
 - **One name for each thing on the screen**, the same in every step:

@@ -10,6 +10,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 8 (2026-11-19)
+
+- Moves (ChoiceSplit): an exercise that works in other keys or at other tempos states `moves` (`"key": "any"`, `"bpm": { from, to, step }`), with its tools written at the starting key and tempo. The app gives each player a version and writes the selector's line itself.
+- An exercise with moves has no choice that sets a key or a tempo, its text never mentions a selector, and it names its key and tempo only as `{{=key}}` and `{{=bpm}}` in the title, headings and text.
+- A choice no longer sets a key or a tempo: it is for a position, a scale or a level. The second key of a sung or played pattern is `moves`, not a Key selector on the section; a tempo ladder is `moves`, not a stage choice.
+- The exercise interface lists `moves`.
+
 ### 7 (2026-11-18)
 
 - `modes` starts at beginner: a new first step, "Major and minor from one root" (bright and dark, the first two modes), after the major scale. Dorian and the steps after it move up one (`modes:1` is now `modes:2`, up to `modes:6`); the seed blocks and `after` refs moved with them.
@@ -51,6 +58,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 Everything before the prompt had a version.
 
 ## Teaching
+
+### 7 (2026-11-19)
+
+- Moves (ChoiceSplit): `exercise-example` has "Moves: other keys, other tempos" (state `moves`, write the tools at the start, no choice that sets a key or a tempo, no selector in the text, `{{=key}}` and `{{=bpm}}` for the values, a heading that names the task and not the tempo); the second key of a pattern is `moves`; a choice is for a position, a scale or a level.
+- `teaching-voice`, "The selector": an exercise with `moves` never mentions a selector; the app writes the line under it.
+- `review-teaching-text` checks for a selector, a key or tempo choice, or a written-out key or tempo in an exercise with `moves`.
+- The seed README's writing rules say the same; the Key selector on a section and the tempo ladder as a stage choice are the older shape, still read, no longer written.
 
 ### 6 (2026-11-18)
 

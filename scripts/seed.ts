@@ -12,6 +12,7 @@ import path from "node:path";
 import { composePrompt } from "../src/features/devtools/model/compose";
 import { PERSONAS } from "../src/features/devtools/model/personas";
 import { dayRefs } from "../src/features/library/seed/dayRefs";
+import { movesProblems } from "../src/features/library/seed/movesCheck";
 import { DOC_VERSIONS } from "../src/features/library/seed/versions";
 import { catalogue } from "../src/features/plan/model/catalogue";
 import { conceptById } from "../src/features/plan/model/concepts";
@@ -72,17 +73,20 @@ function check(file: string): string[] {
   if (typeof raw.note !== "string" || !raw.note) problems.push("no note saying which gap it fills.");
   const v = raw.versions as typeof VERSIONS | undefined;
   if (!v || v.prompt !== VERSIONS.prompt || v.agents !== VERSIONS.agents || v.teaching !== VERSIONS.teaching) problems.push(`versions ${JSON.stringify(v)} are not the current ${JSON.stringify(VERSIONS)}.`);
+  // rules newer than a file are not held against it: an older file is read in the shape it was written in
+  const current = !!v && v.prompt === VERSIONS.prompt && v.agents === VERSIONS.agents && v.teaching === VERSIONS.teaching;
+  const newRules = (e: PlanExercise, where: string) => (current ? movesProblems(e, where) : []);
   const entries = catalogue();
   if ("plan" in raw) {
     if (!raw.answers) problems.push("no answers: say which player the plan is for.");
     const r = parsePlanConfig(JSON.stringify(raw.plan), entries);
     if (!r.ok) return [...problems, `the plan does not parse: ${r.error}`];
     problems.push(...r.warnings);
-    r.config.days.forEach((d, i) => d.exercises.forEach((e, j) => problems.push(...exerciseProblems(e, `Day ${i + 1}, exercise ${j + 1}`))));
+    r.config.days.forEach((d, i) => d.exercises.forEach((e, j) => problems.push(...exerciseProblems(e, `Day ${i + 1}, exercise ${j + 1}`), ...newRules(e, `Day ${i + 1}, exercise ${j + 1}`))));
   } else if ("exercise" in raw) {
     const { block, warnings } = parseExercise(raw.exercise, id, entries);
     if (!block) return [...problems, "the exercise does not parse."];
-    problems.push(...warnings, ...exerciseProblems(block, id));
+    problems.push(...warnings, ...exerciseProblems(block, id), ...newRules(block, id));
   } else problems.push('neither "plan" nor "exercise".');
   return problems;
 }
