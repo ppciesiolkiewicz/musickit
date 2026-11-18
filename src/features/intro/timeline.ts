@@ -8,7 +8,7 @@ export type IntroScene = {
   id: string;
   /** a short label for the scene chips under the stage */
   caption: string;
-  /** what the narrator says, also the subtitles under the stage */
+  /** what the narrator says, also the subtitles above the slider */
   text: string;
   /** cue name → a phrase of `text`; the cue fires when the narrator starts that phrase */
   cues: Record<string, string>;

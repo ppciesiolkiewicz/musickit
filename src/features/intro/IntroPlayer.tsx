@@ -19,8 +19,8 @@ const KEYFRAMES = `
  * A quick tour (`video`: the one for solo musicians or the one for teachers and schools): a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voices/george.json`) or, for a
  * scene not recorded yet, to an estimate, playing silent with its caption. The clock follows the audio while a scene's take
  * plays and the frame clock otherwise, so the picture never runs ahead of the voice. `spaceKey` lets Space play and pause
- * anywhere on the page; off on a page where Space should scroll (the home page). Under the stage is the subtitle: the
- * sentence being said. `compact` drops the scene chips and makes the subtitle smaller, for a small player beside other
+ * anywhere on the page; off on a page where Space should scroll (the home page). Right of the Play button, above the slider, is the
+ * subtitle: the sentence being said. `compact` drops the scene chips and makes the subtitle smaller, for a small player beside other
  * content (the demos page).
  */
 export default function IntroPlayer({ video, spaceKey = true, compact = false }: { video: VideoId; spaceKey?: boolean; compact?: boolean }) {
@@ -141,28 +141,31 @@ export default function IntroPlayer({ video, spaceKey = true, compact = false }:
         )}
       </div>
 
-      <p className={`text-center text-slate-200 ${compact ? "min-h-[2.5rem] text-sm leading-5" : "min-h-[3.5rem] text-lg leading-7"}`}>{started ? subtitleAt(scene, local) : ""}</p>
-
       <div className="flex items-center gap-3">
         <button type="button" onClick={toggle} aria-label={playing ? "Pause" : "Play"} title={spaceKey ? (playing ? "Pause (Space)" : "Play (Space)") : playing ? "Pause" : "Play"} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-500 text-white transition hover:bg-sky-400">
           <Icon name={playing ? "pause" : "play"} size={18} />
         </button>
-        <input
-          type="range"
-          min={0}
-          max={total}
-          step={0.05}
-          value={t}
-          onChange={(e) => seek(Number(e.target.value))}
-          aria-label="Position in the tour"
-          className="min-w-0 flex-1 accent-sky-400"
-        />
-        <span className="w-24 shrink-0 text-right text-sm tabular-nums text-slate-400">{clock(t)} / {clock(total)}</span>
-        {!silent && (
-          <button type="button" onClick={() => setMuted((m) => !m)} aria-label={muted ? "Turn the sound on" : "Mute"} title={muted ? "Turn the sound on" : "Mute"} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:text-slate-200">
-            <Icon name={muted ? "volume-x" : "volume-2"} size={18} />
-          </button>
-        )}
+        <div className="grid min-w-0 flex-1 gap-1">
+          <p className={`flex items-end text-slate-200 ${compact ? "min-h-[2.5rem] text-sm leading-5" : "min-h-[3.5rem] text-lg leading-7"}`}>{started ? subtitleAt(scene, local) : ""}</p>
+          <div className="flex items-center gap-3">
+            <input
+              type="range"
+              min={0}
+              max={total}
+              step={0.05}
+              value={t}
+              onChange={(e) => seek(Number(e.target.value))}
+              aria-label="Position in the tour"
+              className="min-w-0 flex-1 accent-sky-400"
+            />
+            <span className="w-24 shrink-0 text-right text-sm tabular-nums text-slate-400">{clock(t)} / {clock(total)}</span>
+            {!silent && (
+              <button type="button" onClick={() => setMuted((m) => !m)} aria-label={muted ? "Turn the sound on" : "Mute"} title={muted ? "Turn the sound on" : "Mute"} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:text-slate-200">
+                <Icon name={muted ? "volume-x" : "volume-2"} size={18} />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {!compact && (
