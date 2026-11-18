@@ -38,32 +38,38 @@ export function solidRatedAt(entries: ProgressEntry[]): Map<string, string> {
   return out;
 }
 
-const dayNumber = (date: string) => Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000);
+const dayNumber = (date: string) => { const n = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000); return Number.isNaN(n) ? 0 : n; };
 
 export function daySteps(input: { answers: PlanAnswers; solid: Map<string, string>; date: string }, tracks: Track[] = PATH): DaySteps {
   const { answers, solid, date } = input;
   const areas = new Set<string>(answers.areas);
   const mine = (ref: string) => { const at = stepAt(ref, tracks); return at && areas.has(at.track.area) ? at.track.topic : null; };
   const marks = reach({ topics: answers.topics, solid: solid.keys() }, tracks);
-  const topicOrder = answers.areas.flatMap((a) => topicsFor(a).map((t) => t.id));
+  const known = answers.areas.flatMap((a) => topicsFor(a).map((t) => t.id));
 
-  // one step per topic before any topic's second, topics in questionnaire order rotated by the day
+  const inReach = [...marks.values()].filter((s) => mine(s.ref) !== null);
+  const freshRefs = inReach.filter((s) => s.mark === "reach").map((s) => s.ref);
+  const openRefs = inReach.filter((s) => s.open).map((s) => s.ref);
+
+  // One topic order for the day: questionnaire order (topics no area lists come last), rotated by the day over the
+  // topics that have a fresh or an open step.
+  const have = new Set([...freshRefs, ...openRefs].map((r) => mine(r)!));
+  const base = [...known, ...have].filter((t, i, all) => have.has(t) && all.indexOf(t) === i);
+  const shift = base.length ? dayNumber(date) % base.length : 0;
+  const order = [...base.slice(shift), ...base.slice(0, shift)];
+
+  // one step per topic before any topic's second
   const spread = (refs: string[]): string[] => {
     const byTopic = new Map<string, string[]>();
     for (const ref of refs) { const t = mine(ref)!; byTopic.set(t, [...(byTopic.get(t) ?? []), ref]); }
-    const withSteps = topicOrder.filter((t) => byTopic.has(t));
-    if (!withSteps.length) return [];
-    const shift = ((dayNumber(date) % withSteps.length) + withSteps.length) % withSteps.length;
-    const ordered = [...withSteps.slice(shift), ...withSteps.slice(0, shift)];
     const out: string[] = [];
-    for (let round = 0; out.length < refs.length; round++) for (const t of ordered) { const r = byTopic.get(t)![round]; if (r) out.push(r); }
+    for (let round = 0; out.length < refs.length; round++) for (const t of order) { const r = byTopic.get(t)?.[round]; if (r) out.push(r); }
     return out;
   };
 
-  const inReach = [...marks.values()].filter((s) => mine(s.ref) !== null);
   return {
-    fresh: spread(inReach.filter((s) => s.mark === "reach").map((s) => s.ref)),
-    open: spread(inReach.filter((s) => s.open).map((s) => s.ref)),
+    fresh: spread(freshRefs),
+    open: spread(openRefs),
     review: [...solid].filter(([ref]) => mine(ref) !== null).sort((a, b) => Date.parse(a[1]) - Date.parse(b[1]) || a[0].localeCompare(b[0])).map(([ref]) => ref),
   };
 }

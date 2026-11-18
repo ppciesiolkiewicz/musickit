@@ -17,7 +17,6 @@ test("a new guitar player: guitar steps only, one per topic before any topic's s
   const topics = d.fresh.map(topicOf);
   const all = new Set(topics);
   assert.deepEqual(new Set(topics.slice(0, all.size)), all);
-  assert.equal(new Set(topics.slice(0, all.size)).size, all.size);
 });
 
 test("voice only: no guitar or theory step anywhere", () => {
@@ -71,4 +70,24 @@ test("solidRatedAt: a later low rating removes it; an entry with no steps adds n
   assert.equal(m.has("breath:4"), false);
   assert.equal(m.has("breath:1"), false);
   assert.equal(solidRatedAt([entry(undefined, 5, "2026-11-07T09:00:00Z")]).size, 0);
+});
+
+test("open steps keep the topic order of fresh, one per topic before a topic's second", () => {
+  const tracks = [mk("a1", "guitar-basic-chords", 1), mk("a2", "guitar-basic-chords", 1), mk("b1", "guitar-scales", 1), mk("b2", "guitar-scales", 1), mk("c1", "guitar-techniques", 1)];
+  for (const date of ["2026-11-18", "2026-11-19", "2026-11-20"]) {
+    const d = daySteps({ answers: guitar, solid: none, date }, tracks);
+    assert.deepEqual([...d.open].sort(), ["a2", "b2"].map((t) => `${t}:1`));
+    assert.deepEqual(d.open.map((r) => r[0]), d.fresh.map((r) => r[0]).filter((l) => l !== "c"), date);
+  }
+});
+
+test("a topic outside the chosen areas' topics still ends the call, its step kept", () => {
+  const odd = { ...mk("z", "guitar-basic-chords", 1), topic: "guitar-not-a-topic" };
+  const d = daySteps({ answers: guitar, solid: none, date: "2026-11-18" }, [mk("a", "guitar-basic-chords", 1), odd]);
+  assert.deepEqual([...d.fresh].sort(), ["a:1", "z:1"]);
+});
+
+test("a broken date does not break the call", () => {
+  const d = daySteps({ answers: guitar, solid: none, date: "nope" }, [mk("a", "guitar-basic-chords", 1)]);
+  assert.deepEqual(d.fresh, ["a:1"]);
 });
