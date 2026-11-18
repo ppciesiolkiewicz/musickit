@@ -204,6 +204,13 @@
       "when": 1794983928950,
       "tag": "0028_shallow_slyde",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794994345953,
+      "tag": "0029_terms_accepted",
+      "breakpoints": true
     }
   ]
 }

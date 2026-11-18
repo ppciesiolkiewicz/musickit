@@ -29,6 +29,7 @@ import {
   type AuthDeps,
   type GoogleProfile,
 } from "./auth";
+import { TERMS_UPDATED } from "../terms";
 import { memoryRepo } from "./repo.memory";
 
 const START = Date.UTC(2026, 10, 11, 12, 0, 0);
@@ -265,14 +266,29 @@ test("setup: the box turns the emails on or off; left out, they stay as they wer
   const store = memoryRepo(PLANS);
   const deps: AuthDeps = { ...setup().deps, repo: store.repo };
   const { account } = await signUp(deps, "ann@school.com", "Ann");
-  const off = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", emailUpdates: false });
+  const off = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", acceptTerms: true, emailUpdates: false });
   assert.ok(off.ok && !off.account.emailUpdates);
-  const on = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", emailUpdates: true });
+  const on = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", acceptTerms: true, emailUpdates: true });
   assert.ok(on.ok && on.account.emailUpdates);
-  const kept = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year" });
+  const kept = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", acceptTerms: true });
   assert.ok(kept.ok && kept.account.emailUpdates);
-  const offAgain = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", emailUpdates: false });
+  const offAgain = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", acceptTerms: true, emailUpdates: false });
   assert.ok(offAgain.ok && !offAgain.account.emailUpdates);
+});
+
+test("setup: the terms of use must be agreed to, before anything is saved, and are kept with their date", async () => {
+  const store = memoryRepo(PLANS);
+  const deps: AuthDeps = { ...setup().deps, repo: store.repo };
+  const { account } = await signUp(deps, "ann@school.com", "Ann");
+  for (const acceptTerms of [undefined, false, "yes"]) {
+    assert.deepEqual(await setUpAccount(deps, account, { name: "Ann Lee", planId: "student", billing: "year", acceptTerms }), { ok: false, error: "terms" });
+  }
+  assert.equal(store.users[0].name, "Ann", "a refused setup changes nothing");
+  assert.equal(store.users[0].planId, null);
+  assert.equal(store.users[0].termsAcceptedAt, null);
+  assert.ok((await setUpAccount(deps, account, { name: "Ann Lee", planId: "student", billing: "year", acceptTerms: true })).ok);
+  assert.equal(store.users[0].termsVersion, TERMS_UPDATED);
+  assert.notEqual(store.users[0].termsAcceptedAt, null);
 });
 
 test("the page to open next is always on this site", () => {
@@ -339,20 +355,20 @@ test("setup: a new account's name and plan in one step; a bad plan changes nothi
   assert.ok(done);
   assert.equal(done.account.needsSetup, true);
 
-  assert.deepEqual(await setUpAccount(deps, done.account, { name: "  ", planId: "student", billing: "year" }), { ok: false, error: "name" });
-  assert.deepEqual(await setUpAccount(deps, done.account, { name: "Ann", planId: "teacher-old", billing: "year" }), { ok: false, error: "plan" });
-  assert.deepEqual(await setUpAccount(deps, done.account, { name: "Ann", planId: "nope", billing: "year" }), { ok: false, error: "plan" });
+  assert.deepEqual(await setUpAccount(deps, done.account, { name: "  ", planId: "student", billing: "year", acceptTerms: true }), { ok: false, error: "name" });
+  assert.deepEqual(await setUpAccount(deps, done.account, { name: "Ann", planId: "teacher-old", billing: "year", acceptTerms: true }), { ok: false, error: "plan" });
+  assert.deepEqual(await setUpAccount(deps, done.account, { name: "Ann", planId: "nope", billing: "year", acceptTerms: true }), { ok: false, error: "plan" });
   assert.equal(store.users.find((u) => u.id === done.account.id)?.name, "ann", "nothing changed");
 
   assert.equal((await sessionAccount(deps, done.sessionToken))?.account.needsSetup, true, "still no plan");
 
-  const chose = await setUpAccount(deps, done.account, { name: "Ann", planId: "student", billing: "year" });
+  const chose = await setUpAccount(deps, done.account, { name: "Ann", planId: "student", billing: "year", acceptTerms: true });
   assert.ok(chose.ok);
   assert.deepEqual([chose.account.name, chose.account.role, chose.account.needsSetup], ["Ann", "student", false]);
-  const kept = await setUpAccount(deps, chose.account, { name: "Ann", planId: "student", billing: "year" });
+  const kept = await setUpAccount(deps, chose.account, { name: "Ann", planId: "student", billing: "year", acceptTerms: true });
   assert.ok(kept.ok, "the plan you are on can be kept");
 
-  const moved = await setUpAccount(deps, kept.account, { name: "Ann Lee", planId: "teacher-pro", billing: "year" });
+  const moved = await setUpAccount(deps, kept.account, { name: "Ann Lee", planId: "teacher-pro", billing: "year", acceptTerms: true });
   assert.ok(moved.ok);
   assert.deepEqual([moved.account.name, moved.account.role], ["Ann Lee", "teacher"]);
   assert.equal((await store.repo.userById(done.account.id))?.planId, "teacher-pro");
@@ -364,7 +380,7 @@ test("choosing a plan priced with you, at setup or later, records one request we
   const deps: AuthDeps = { ...t.deps, repo: store.repo };
   const done = await openEmailLink(deps, await link(deps, { email: "ann@school.com" }), null);
   assert.ok(done);
-  const chose = await setUpAccount(deps, done.account, { name: "Ann", planId: "teacher-pro", billing: "year" });
+  const chose = await setUpAccount(deps, done.account, { name: "Ann", planId: "teacher-pro", billing: "year", acceptTerms: true });
   assert.ok(chose.ok);
   assert.equal((await accountPlans(deps, done.account.id))?.request, null, "a priced plan asks nothing");
 
@@ -381,7 +397,7 @@ test("choosing a plan priced with you, at setup or later, records one request we
 
   const other = await openEmailLink(deps, await link(deps, { email: "bo@school.com" }), null);
   assert.ok(other);
-  assert.ok((await setUpAccount(deps, other.account, { name: "Bo", planId: "teacher-unlimited", billing: "year" })).ok);
+  assert.ok((await setUpAccount(deps, other.account, { name: "Bo", planId: "teacher-unlimited", billing: "year", acceptTerms: true })).ok);
   assert.equal((await accountPlans(deps, other.account.id))?.request?.planId, "teacher-unlimited", "setup records it too");
 });
 
@@ -406,11 +422,11 @@ test("setup: a missing billing changes nothing; the same plan the other way chan
   const store = memoryRepo(PLANS);
   const deps: AuthDeps = { ...setup().deps, repo: store.repo };
   const { account } = await signUp(deps, "ann@school.com", "Ann");
-  assert.deepEqual(await setUpAccount(deps, account, { name: "Ann Lee", planId: "student", billing: undefined }), { ok: false, error: "plan" });
+  assert.deepEqual(await setUpAccount(deps, account, { name: "Ann Lee", planId: "student", billing: undefined, acceptTerms: true }), { ok: false, error: "plan" });
   assert.equal((await store.repo.userById(account.id))?.name, "Ann", "nothing changed");
-  const chose = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year" });
+  const chose = await setUpAccount(deps, account, { name: "Ann", planId: "student", billing: "year", acceptTerms: true });
   assert.ok(chose.ok);
-  const switched = await setUpAccount(deps, chose.account, { name: "Ann", planId: "student", billing: "month" });
+  const switched = await setUpAccount(deps, chose.account, { name: "Ann", planId: "student", billing: "month", acceptTerms: true });
   assert.ok(switched.ok);
   assert.equal((await store.repo.userById(account.id))?.billing, "month");
 });
@@ -424,7 +440,7 @@ test("an account with no plan goes to setup after every sign-in, then straight t
   assert.equal(pathAfterSignIn(first), "/account/setup?next=%2Fnotes");
   const again = await googleSignIn(deps, ann, { next: "/notes", userAgent: null });
   assert.equal(again && pathAfterSignIn(again), "/account/setup?next=%2Fnotes", "leaving setup doesn't skip it");
-  assert.ok((await setUpAccount(deps, first.account, { name: "Ann Lee", planId: "student", billing: "year" })).ok);
+  assert.ok((await setUpAccount(deps, first.account, { name: "Ann Lee", planId: "student", billing: "year", acceptTerms: true })).ok);
   const done = await googleSignIn(deps, ann, { next: "/notes", userAgent: null });
   assert.equal(done && pathAfterSignIn(done), "/notes");
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { emailName } from "../model";
 import type { Billing } from "../plans";
@@ -15,7 +16,8 @@ import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
  * is filled in to keep or change. No plan is chosen for them; they pick it paid monthly or yearly, and the payment box
  * under it shows what it costs. Nothing is charged during the open beta. The page reloads into `next`, since a Teacher plan
  * changes the role every page reads. A Continue that can't go on brings the first thing to fix into view and focus,
- * since on a phone the name sits a screen above the button.
+ * since on a phone the name sits a screen above the button. The terms of use box is never ticked for them, and Continue
+ * needs it; its link opens /terms in a new tab, so nothing typed here is lost.
  */
 export default function SetupForm({ next }: { next: string }) {
   const { account, loaded: accountLoaded } = useAccount();
@@ -28,9 +30,12 @@ export default function SetupForm({ next }: { next: string }) {
   const [nameError, setNameError] = useState<string | null>(null);
   const [planError, setPlanError] = useState<string | null>(null);
   const [emails, setEmails] = useState<boolean | null>(null);
+  const [terms, setTerms] = useState(false);
+  const [termsError, setTermsError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const plansRef = useRef<HTMLFieldSetElement>(null);
+  const termsRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let live = true;
@@ -61,17 +66,22 @@ export default function SetupForm({ next }: { next: string }) {
     const noPlan = !chosenPlan && !!plans;
     setNameError(noName ? "Please type your name." : null);
     setPlanError(noPlan ? "Please pick a plan." : null);
+    setTermsError(terms ? null : "Please agree to the terms of use.");
     setError(null);
     if (noName) return showName();
     if (noPlan) return showPlans();
+    if (!terms) return showTerms();
     if (!chosenPlan) return;
     setBusy(true);
-    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosenPlan.id, billing: shownBilling, emailUpdates: shownEmails });
+    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosenPlan.id, billing: shownBilling, emailUpdates: shownEmails, acceptTerms: terms });
     if (r.ok) return window.location.assign(next);
     setBusy(false);
     if (r.body.field === "name") {
       setNameError(errorOf(r));
       showName();
+    } else if (r.body.field === "terms") {
+      setTermsError(errorOf(r));
+      showTerms();
     } else setError(errorOf(r));
   };
 
@@ -84,6 +94,10 @@ export default function SetupForm({ next }: { next: string }) {
   const showPlans = () => {
     plansRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     plansRef.current?.querySelector<HTMLInputElement>("input[type=radio]")?.focus({ preventScroll: true });
+  };
+  const showTerms = () => {
+    termsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    termsRef.current?.focus({ preventScroll: true });
   };
   const pick = (id: string) => { setPlanId(id); setPlanError(null); setError(null); };
 
@@ -148,8 +162,26 @@ export default function SetupForm({ next }: { next: string }) {
 
         {chosenPlan && plans && <PaymentBox plan={chosenPlan} hue={planHue(plans.plans.indexOf(chosenPlan))} billing={shownBilling} trial={plans.current === null} />}
 
-        <div className="border-t border-slate-800 pt-5 metal-rule">
+        <div className="flex flex-col gap-4 border-t border-slate-800 pt-5 metal-rule">
           <EmailUpdatesBox checked={shownEmails} onChange={setEmails} where="account" />
+          <div className="flex flex-col gap-1.5">
+            <label className="flex items-start gap-3 text-sm">
+              <input
+                ref={termsRef}
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 shrink-0 scroll-mt-24 accent-sky-400"
+                checked={terms}
+                onChange={(e) => { setTerms(e.target.checked); setTermsError(null); }}
+                aria-invalid={!!termsError}
+                aria-describedby={termsError ? "setup-terms-error" : undefined}
+              />
+              <span className="text-slate-200">
+                I agree to the{" "}
+                <Link href="/terms" target="_blank" className="text-sky-300 underline decoration-sky-500/40 underline-offset-4 hover:text-sky-200">terms of use</Link>
+              </span>
+            </label>
+            <ErrorLine id="setup-terms-error">{termsError}</ErrorLine>
+          </div>
         </div>
 
         <ErrorLine>{error}</ErrorLine>

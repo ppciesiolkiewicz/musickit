@@ -3,9 +3,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import PageShell from "@/components/PageShell";
 import { PRICING } from "@/features/account/pricing";
+import { TERMS_UPDATED } from "@/features/account/terms";
 
 /*
- * The terms of use. Public, linked from the footer and (once it exists) the login page's agreement line. Plain English,
+ * The terms of use. Public, linked from the footer and from the box a new account ticks on /account/setup. Plain English,
  * one short section per subject, so a player can read it; the law part (Australian Consumer Law, the liability cap)
  * is the minimum a sole trader on an ABN needs. Prices come from features/account/pricing.ts so this page and the home
  * pages never disagree.
@@ -17,8 +18,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-/** Last change to the words on this page; raise it when a term changes, not for a typo. */
-const UPDATED = "17 November 2026";
+/** Last change to the words on this page (`TERMS_UPDATED`, also saved with each account that agrees to them). */
+const UPDATED = TERMS_UPDATED;
 const EMAIL = "hello@attunr.app";
 
 const A = ({ href, children }: { href: string; children: ReactNode }) => (

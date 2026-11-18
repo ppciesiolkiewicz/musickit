@@ -4,7 +4,7 @@ import { authTokens, identities, planRequests, plans, sessions, teacherStudents,
 import type { Plan } from "../plans";
 import type { AuthRepo, TokenRow } from "./repo";
 
-const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, planId: users.planId, billing: users.billing, emailUpdatesAt: users.emailUpdatesAt, createdAt: users.createdAt };
+const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, planId: users.planId, billing: users.billing, emailUpdatesAt: users.emailUpdatesAt, termsAcceptedAt: users.termsAcceptedAt, termsVersion: users.termsVersion, createdAt: users.createdAt };
 
 const tokenCols = {
   kind: authTokens.kind,
@@ -41,6 +41,10 @@ export function drizzleRepo(db: Db): AuthRepo {
       // on again keeps the first yes: coalesce, so the record is when they first agreed
       const emailUpdatesAt = on ? sql`coalesce(${users.emailUpdatesAt}, ${now.toISOString()}::timestamptz)` : null;
       const [row] = await db.update(users).set({ emailUpdatesAt, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
+      return row ?? null;
+    },
+    async acceptTerms(id, version, now) {
+      const [row] = await db.update(users).set({ termsAcceptedAt: now, termsVersion: version, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
       return row ?? null;
     },
     async listPlans() {

@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomInt } from "node:crypto";
 import { setupHref } from "../loginGuard";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
 import { canChoose, choosablePlans, pricedWithYou, roleOnPlan, TAUGHT_PLAN_ID, type Billing, type Plan } from "../plans";
+import { TERMS_UPDATED } from "../terms";
 import type { AuthRepo, TokenRow, UserRow } from "./repo";
 
 /**
@@ -264,22 +265,25 @@ export async function choosePlan(deps: AuthDeps, account: Account, planId: unkno
 /** The role after a plan change: the plan's, except that paying for the same plan the other way changes no role. */
 const roleAfter = (user: { role: Account["role"]; planId: string | null }, plan: Plan) => (plan.id === user.planId ? user.role : roleOnPlan(user.role, plan));
 
-export type SetupError = "name" | "plan";
+export type SetupError = "name" | "terms" | "plan";
 
 /**
  * /account/setup: the account's name and plan, in one step; a new account has no plan and must choose one. The plan is
  * checked before anything changes, so a bad plan leaves the name as it was. Choosing the plan the account is already on,
- * paid the same way, keeps it. No payment (the beta).
+ * paid the same way, keeps it. The terms of use must be agreed to (`acceptTerms: true`), every time, and are saved with
+ * the date on /terms (`TERMS_UPDATED`). No payment (the beta).
  */
-export async function setUpAccount(deps: AuthDeps, account: Account, input: { name: unknown; planId: unknown; billing: unknown; emailUpdates?: unknown }): Promise<{ ok: true; account: Account } | { ok: false; error: SetupError }> {
+export async function setUpAccount(deps: AuthDeps, account: Account, input: { name: unknown; planId: unknown; billing: unknown; emailUpdates?: unknown; acceptTerms?: unknown }): Promise<{ ok: true; account: Account } | { ok: false; error: SetupError }> {
   const name = cleanName(input.name);
   if (!name) return { ok: false, error: "name" };
+  if (input.acceptTerms !== true) return { ok: false, error: "terms" };
   const had = await deps.repo.userById(account.id);
   if (!had) return { ok: false, error: "plan" };
   const keeps = had.planId !== null && input.planId === had.planId && input.billing === had.billing;
   const plan = keeps ? null : canChoose(await deps.repo.listPlans(), had, input.planId, input.billing);
   if (!keeps && !plan) return { ok: false, error: "plan" };
   let user = await deps.repo.updateUserName(account.id, name, deps.now());
+  if (user) user = await deps.repo.acceptTerms(account.id, TERMS_UPDATED, deps.now());
   if (user && plan) user = await movePlan(deps, account.id, plan, input.billing as Billing, roleAfter(had, plan));
   // the box on setup, ticked or not; left out, the choice stays as it was
   if (user && typeof input.emailUpdates === "boolean") user = await deps.repo.setEmailUpdates(account.id, input.emailUpdates, deps.now());

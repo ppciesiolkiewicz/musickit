@@ -102,6 +102,10 @@ export const users = pgTable("users", {
    * turned it off. Kept as a time, as the record of when they said yes.
    */
   emailUpdatesAt: at("email_updates_at"),
+  /** When they agreed to the terms of use, on /account/setup; null for an account that hasn't set up yet. */
+  termsAcceptedAt: at("terms_accepted_at"),
+  /** Which terms they agreed to: the date on /terms then (`TERMS_UPDATED`). */
+  termsVersion: text("terms_version"),
   createdAt: at("created_at").notNull().defaultNow(),
   updatedAt: at("updated_at").notNull().defaultNow(),
 });
