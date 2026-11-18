@@ -274,13 +274,14 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
     const student = EXAMPLE_STUDENTS.find((s) => s.id === who);
     return student ? stepProgress(exampleRatings(student, today), today) : null;
   }, [who, today, planLoaded, entries, entriesLoaded]);
-  // the reach marks: for the player in this browser the composer's own inputs (their answers, `solidRatedAt`), for an
+  // the reach marks: for the player in this browser the composer's own inputs (their answers raised by their ratings,
+  // `solidRatedAt`), for an
   // example its topics and its made-up progress
   const reachMarks = useMemo(() => {
     if (!progress) return null;
-    if (who === "me") return playerReach(answers?.topics ?? {}, entries);
+    if (who === "me") return playerReach(answers?.topics ?? {}, entries, today);
     return studentReach(EXAMPLE_STUDENTS.find((s) => s.id === who)?.topics ?? {}, progress);
-  }, [progress, who, answers, entries]);
+  }, [progress, who, answers, entries, today]);
   const path = useMemo(() => areaPath(area, nodes), [area, nodes]);
   const { lanes, boxes, height } = useMemo(() => layout(path), [path]);
   const lit = useMemo(() => (sel ? chain(sel, nodes) : null), [sel, nodes]);

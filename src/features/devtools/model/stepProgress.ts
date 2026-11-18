@@ -1,6 +1,7 @@
 import { CONCEPTS, conceptIds } from "@/features/plan/model/concepts";
 import type { Rung } from "@/features/plan/intake/topics";
 import { solidRatedAt } from "@/features/plan/model/daySteps";
+import { raisedAnswers } from "@/features/plan/model/topicLevels";
 import { SOLID_STARS, reachIndex } from "@/features/plan/model/outcome";
 import { stepAt } from "@/features/plan/model/path";
 import { reach, type StepReach } from "@/features/plan/model/reach";
@@ -273,6 +274,9 @@ export function entryProgress(entries: ProgressEntry[], steps: Record<string, Co
   return out;
 }
 
-/** The reach marks the composer works from for a player: their answers' topics and `solidRatedAt(entries)`. */
-export const playerReach = (topics: Record<string, Rung>, entries: ProgressEntry[]): Map<string, StepReach> =>
-  reach({ topics, solid: solidRatedAt(entries).keys() });
+/**
+ * The reach marks the composer works from for a player as of a day: their answers' topics raised by their ratings
+ * (`raisedAnswers`) and `solidRatedAt(entries)`.
+ */
+export const playerReach = (topics: Record<string, Rung>, entries: ProgressEntry[], asOf: string): Map<string, StepReach> =>
+  reach({ topics: raisedAnswers({ areas: [], topics, minutes: 0, styles: "", notes: "" }, entries, asOf).topics, solid: solidRatedAt(entries).keys() });

@@ -4,6 +4,7 @@ import { readDoc, readEntries } from "@/features/userData/server/data";
 import type { UserDataRepo } from "@/features/userData/server/repo";
 import { composeDay, type Candidate, type ComposedDay } from "../model/compose";
 import { solidRatedAt } from "../model/daySteps";
+import { raisedAnswers } from "../model/topicLevels";
 import { addDays, doneKey, localDate, ownDay } from "../model/schedule";
 import type { PlanExercise, PlanState, StoredPlan } from "../model/types";
 
@@ -67,9 +68,12 @@ export async function composeToday(
   const unrated = own ? before.filter((_, i) => !own.rated?.[doneKey(0, i)]) : [];
   const attempt = own?.composed ? own.composed.attempt + 1 : 0;
   const declined = own?.composed ? [...own.composed.declined, ...unrated.flatMap((e) => (e.blockId ? [e.blockId] : []))] : [];
-  const solid = solidRatedAt(await readEntries(d.userData, player));
+  const entries = await readEntries(d.userData, player);
+  const solid = solidRatedAt(entries);
+  // each topic paced by the higher of the answer and the level its ratings reach (the progress tracker's rule)
+  const levelled = raisedAnswers(answers, entries, date);
 
-  const day = composeDay({ answers, solid, blocks, date, yesterday: yesterdayOf(state, date), keep, declined, seed: `${player}:${date}:${attempt}` });
+  const day = composeDay({ answers: levelled, solid, blocks, date, yesterday: yesterdayOf(state, date), keep, declined, seed: `${player}:${date}:${attempt}` });
   if (!day.exercises.length) return { ok: false, code: "no-blocks" };
   return { ok: true, day, date, attempt };
 }

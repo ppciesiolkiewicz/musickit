@@ -9,6 +9,7 @@ import { topicById } from "@/features/plan/intake/topics";
 import { EXAMPLE_STUDENTS, entryProgress, exampleRatings, playerReach, solidRefs, stepProgress, stepRatings, studentReach, weeksBetween, type StepRating } from "./stepProgress";
 import { solidRatedAt } from "@/features/plan/model/daySteps";
 import { reach } from "@/features/plan/model/reach";
+import { raisedAnswers } from "@/features/plan/model/topicLevels";
 
 const tool = (t: Record<string, unknown>) => t as unknown as PlanTool;
 const r = (concept: string, step: string | null, stars: 1 | 2 | 3 | 4 | 5, on: string): StepRating => ({ concept, step, stars, on });
@@ -91,8 +92,9 @@ test("entryProgress: a step is solid exactly when the composer has it solid; a n
   assert.deepEqual(solidRefs(entryProgress(entries)).sort(), [...solidRatedAt(entries).keys()].sort());
 });
 
-test("playerReach: the marks the composer works from (answers' topics and solidRatedAt)", () => {
+test("playerReach: the marks the composer works from (answers' topics raised by the ratings, and solidRatedAt)", () => {
   const entries = [pe("a", ["spider:3"], 5, "2026-11-01T10:00:00Z"), pe("b", ["spider:1"], 2, "2026-11-05T10:00:00Z")];
   const topics = { "guitar-techniques": 1 } as const;
-  assert.deepEqual([...playerReach(topics, entries)], [...reach({ topics, solid: solidRatedAt(entries).keys() })]);
+  const answers = { areas: [], topics, minutes: 0, styles: "", notes: "" };
+  assert.deepEqual([...playerReach(topics, entries, "2026-11-18")], [...reach({ topics: raisedAnswers(answers, entries, "2026-11-18").topics, solid: solidRatedAt(entries).keys() })]);
 });

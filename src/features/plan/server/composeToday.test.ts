@@ -3,7 +3,7 @@ import test from "node:test";
 import { baseFixture, PLAYER_A, type LibraryData } from "@/features/library/server/fixture";
 import { memoryLibraryRepo } from "@/features/library/server/repo.memory";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
-import { writeDoc } from "@/features/userData/server/data";
+import { putEntry, writeDoc } from "@/features/userData/server/data";
 import { blockIdOf, blockKeyOf } from "../model/blockId";
 import { startDay } from "../model/schedule";
 import { ratePlan } from "../model/schedule";
@@ -153,4 +153,22 @@ test("a given plan is never read as yesterday or today", async () => {
   assert.ok(b.ok);
   assert.equal(b.attempt, 0);
   assert.deepEqual(ids(b).sort(), ["b1", "b2"]);
+});
+
+test("ratings that reach beginner in a topic raise its level for the composer: its next step is fresh, not only open", async () => {
+  // basic chords answered new; every concept of the topic rated solid at its last beginner step yesterday
+  const rated: [string, string][] = [["open-chords", "open-chords:7"], ["strumming", "strumming:3"], ["power-chords", "power-chords:3"]];
+  const s = state({ answers: { ...answers, topics: { "guitar-basic-chords": 0 }, minutes: 5 } as PlanState["answers"] });
+  // x on open-chords:8 (fresh at beginner's cap of two, only open at new's), y on guitar-melodies:1 (open either way, and first)
+  const data = lib(["x", "y"]);
+  data.blocks[0].steps = ["open-chords:8"];
+  data.blocks[1].steps = ["guitar-melodies:1"];
+  const plain = await setup(s, data);
+  const titles = (a: Awaited<ReturnType<typeof composeToday>>) => (a.ok ? a.day.exercises.map((e) => e.title) : []);
+  assert.deepEqual(titles(await composeToday(plain, P, { date: "2026-11-18", another: false })), ["Block y"], "without ratings: the open steps' order");
+  const d = await setup(s, data);
+  for (const [concept, step] of rated) {
+    assert.ok(await putEntry(d.userData, P, { id: concept, planId: "p", exerciseId: concept, day: 0, exercise: 0, title: concept, topic: "guitar-basic-chords", concepts: [concept], steps: [step], stars: 5, at: "2026-11-17T10:00:00.000Z" }, now));
+  }
+  assert.deepEqual(titles(await composeToday(d, P, { date: "2026-11-18", another: false })), ["Block x"]);
 });
