@@ -137,7 +137,7 @@ export async function claimInvite(
   if (copy) return { ok: true, planId: copy.id };
   const plan: StoredPlan = { id: newId(), config: withExerciseIds(config, newId, true), startedOn: localDate(now), done: {}, from: id };
   const next: PlanState = { ...state, given: [plan, ...state.given] };
-  // too big a document loses its oldest earlier plans (fitPlanState); given plans are never dropped
+  // too big a document loses its oldest earlier plans, then its oldest given plans (fitPlanState); the copy, newest, goes last
   const saved = await writeDoc(repo, account.id, "plan", fitPlanState(next, MAX_PLAN_BYTES), now);
   if (!saved.ok) throw new Error(`claimInvite: plan document not saved (${saved.error})`);
   return { ok: true, planId: plan.id };

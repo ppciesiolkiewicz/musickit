@@ -90,14 +90,15 @@ export function sanitiseState(raw: unknown): PlanState {
 }
 
 /**
- * The state cut to fit `maxBytes` of JSON: its oldest earlier plans are dropped, one by one, until it fits. The running
- * plan and the given plans are never dropped. Losing the oldest history beats every save of the plan being refused. A
- * state that fits comes back as the same object.
+ * The state cut to fit `maxBytes` of JSON: its oldest earlier plans are dropped, one by one, until it fits; with no earlier
+ * plan left, the oldest given plans, one by one, never the newest one. The running plan is never dropped. Losing the oldest
+ * plans beats every save of the plan being refused. A state that fits comes back as the same object.
  */
 export function fitPlanState(s: PlanState, maxBytes: number): PlanState {
   const size = (x: PlanState) => JSON.stringify(x).length;
   if (size(s) <= maxBytes) return s;
-  const out = { ...s, history: [...s.history] };
+  const out = { ...s, history: [...s.history], given: [...s.given] };
   while (out.history.length > 0 && size(out) > maxBytes) out.history.pop();
+  while (out.given.length > 1 && size(out) > maxBytes) out.given.pop();
   return out;
 }

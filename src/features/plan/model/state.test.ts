@@ -47,3 +47,27 @@ test("fitPlanState drops the oldest earlier plans until it fits, never the given
   assert.equal(fit.current, s.current);
   assert.equal(fitPlanState(s, size), s);
 });
+
+test("fitPlanState with no history left drops the oldest given plans, never the newest", () => {
+  const big = (id: string) => plan(id, { from: `s-${id}`, feedback: "x".repeat(1000) });
+  const s: PlanState = { ...EMPTY_STATE, current: plan("c"), given: Array.from({ length: 10 }, (_, i) => big(`g${i}`)) };
+  const cap = JSON.stringify({ ...s, given: s.given.slice(0, 3) }).length;
+  const fit = fitPlanState(s, cap);
+  assert.ok(JSON.stringify(fit).length <= cap);
+  assert.deepEqual(fit.given.map((p) => p.id), ["g0", "g1", "g2"]);
+  // even when one given plan alone is over the cap, the newest is kept
+  assert.deepEqual(fitPlanState(s, 10).given.map((p) => p.id), ["g0"]);
+});
+
+test("fitPlanState drops all of the history before any given plan", () => {
+  const big = (id: string, extra: Partial<StoredPlan> = {}) => plan(id, { feedback: "x".repeat(1000), ...extra });
+  const s: PlanState = { ...EMPTY_STATE, history: Array.from({ length: 5 }, (_, i) => big(`h${i}`)), given: Array.from({ length: 5 }, (_, i) => big(`g${i}`, { from: "s" })) };
+  const cap = JSON.stringify({ ...s, history: [], given: s.given.slice(0, 4) }).length;
+  const fit = fitPlanState(s, cap);
+  assert.deepEqual(fit.history, []);
+  assert.deepEqual(fit.given.map((p) => p.id), ["g0", "g1", "g2", "g3"]);
+  const cap2 = JSON.stringify({ ...s, history: s.history.slice(0, 1) }).length;
+  const fit2 = fitPlanState(s, cap2);
+  assert.deepEqual(fit2.history.map((p) => p.id), ["h0"]);
+  assert.equal(fit2.given.length, 5);
+});

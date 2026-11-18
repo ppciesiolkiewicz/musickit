@@ -59,10 +59,11 @@ export function ownDay(s: PlanState, date: string): StoredPlan | null {
 /**
  * Puts a composed day in as `current`; the plan before it moves to the front of `history` (which keeps `HISTORY_CAP`).
  * When today already has its own plan, `s` comes back as it is: the same try asked twice (two tabs, an answer arriving
- * twice) must not replace or double it, and another try is `anotherDay`'s.
+ * twice) must not replace or double it, and another try is `anotherDay`'s. A date before the running composed day's (a
+ * stale answer) also changes nothing.
  */
 export function startDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId: () => string): PlanState {
-  if (ownDay(s, meta.date)) return s;
+  if (ownDay(s, meta.date) || (s.current?.composed && meta.date < s.current.startedOn)) return s;
   const plan: StoredPlan = { id: newId(), config: dayConfig(day, meta, newId), startedOn: meta.date, done: {}, composed: { attempt: meta.attempt, declined: [], short: day.short } };
   return { ...s, current: plan, history: s.current ? [s.current, ...s.history].slice(0, HISTORY_CAP) : s.history };
 }
@@ -71,11 +72,11 @@ export function startDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId: (
  * Today's plan replaced by another try (`meta.attempt`). An exercise of today's plan that is in the new day (by block id)
  * keeps its slot id, its tick and its rating, re-keyed to its new place; the day timer's seconds follow it by slot id. Every
  * block id of today's plan that is not in the new one joins `composed.declined`. The plan keeps its id and `startedOn`.
- * Without today's own plan, or for the try it already holds, `s` comes back as it is.
+ * Without today's own plan, or for the try it already holds or an earlier one (a late answer), `s` comes back as it is.
  */
 export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId: () => string): PlanState {
   const today = ownDay(s, meta.date);
-  if (!today?.composed || today.composed.attempt === meta.attempt) return s;
+  if (!today?.composed || meta.attempt <= today.composed.attempt) return s;
   const before = today.config.days[0]?.exercises ?? [];
   const config = dayConfig(day, meta, newId);
   const used = new Set<number>();

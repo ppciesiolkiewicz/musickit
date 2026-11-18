@@ -18,7 +18,8 @@ export const MAX_DOC_BYTES = 512 * 1024;
 
 /**
  * The plan's cap: the running plan, up to 60 earlier ones and the given plans (a seven-day plan is about 20 to 50 KB, a one-day plan a seventh of that). Past it, the oldest earlier
- * plans are dropped (`fitPlanState`), on the server in `parseDoc` and in the browser before a save, so a save is never refused for it.
+ * plans are dropped, then the oldest given plans but never the newest one (`fitPlanState`), on the server in `parseDoc` and in the browser before a
+ * save, so a save is never refused for it.
  */
 export const MAX_PLAN_BYTES = 2 * 1024 * 1024;
 

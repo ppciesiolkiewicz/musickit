@@ -124,3 +124,14 @@ test("givenPlan finds a plan in the given list only", () => {
   assert.equal(givenPlan(s, "g"), g);
   assert.equal(givenPlan(s, "c"), undefined);
 });
+
+test("anotherDay with an attempt lower than today's changes nothing (a late answer)", () => {
+  let s = startDay(EMPTY_STATE, dayOf("A"), { date: "2026-11-18", attempt: 0 }, ids("a"));
+  s = anotherDay(s, dayOf("B"), { date: "2026-11-18", attempt: 2 }, ids("b"));
+  assert.equal(anotherDay(s, dayOf("C"), { date: "2026-11-18", attempt: 1 }, ids("c")), s);
+});
+
+test("startDay for a date before today's own plan changes nothing (a stale answer)", () => {
+  const s = startDay(EMPTY_STATE, dayOf("A"), { date: "2026-11-18", attempt: 0 }, ids("a"));
+  assert.equal(startDay(s, dayOf("B"), { date: "2026-11-17", attempt: 0 }, ids("b")), s);
+});
