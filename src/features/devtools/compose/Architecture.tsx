@@ -54,7 +54,8 @@ function Column({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-const C = ({ children }: { children: ReactNode }) => <code className="font-mono text-[11px] text-slate-200">{children}</code>;
+/** A name from the code, an API call or a status: one font for all of them, here and in the One day view. */
+export const C = ({ children }: { children: ReactNode }) => <code className="font-mono text-[11px] text-slate-200">{children}</code>;
 
 /** What `composeDay` takes: the field, where the server gets it, what the composer does with it. */
 const INPUTS: [string, ReactNode, ReactNode][] = [
@@ -110,26 +111,26 @@ const HOLDS: ReactNode[] = [
   <>A block is stored as written. Minutes, why and links are the slot&apos;s; the keys ride on the exercise in the plan.</>,
   <>A block never comes two days running, and never twice in a day.</>,
   <>A day more than 5 minutes under its budget is <C>short</C>: the library has no more for these steps. Left over time of 5 minutes or less after the kept exercises asks for a whole new day&apos;s minutes.</>,
-  <>A teacher&apos;s student is never composed for here: the route answers 409 <C>taught</C> before reading anything.</>,
+  <>A teacher&apos;s student is never composed for here: the route answers <C>409 taught</C> before reading anything.</>,
 ];
 
-const FILES: [string, string][] = [
-  ["plan/ui/useTodayPlan.ts", "When the page asks: once per page view and date, after the store is flushed."],
-  ["plan/model/today.ts", "What the page shows and what an answer does to the stored plan (applyFirst, applyAnother). Pure."],
-  ["plan/store/composeClient.ts", "requestDay: the POST, a 15 s timeout, every failure as a code."],
-  ["app/api/me/plan/compose/route.ts", "The route file: builds the real repos and calls composeRoute."],
-  ["plan/server/composeRoute.ts", "Signed in, not a teacher's student, body checked; codes to 409s."],
-  ["plan/server/composeToday.ts", "Reads the plan document, the ratings and the library, and builds the composer's input."],
-  ["plan/server/composeStudentWeek.ts", "The same inputs for a teacher's student, seven days through composeWeek."],
-  ["plan/model/topicLevels.ts", "raisedAnswers: the topic levels the day is paced by."],
-  ["plan/model/compose.ts", "composeDay, explainDay (the same day with its trace), composeWeek."],
-  ["plan/model/daySteps.ts", "daySteps and solidRatedAt."],
-  ["plan/model/reach.ts", "reach: known, within reach, ahead."],
-  ["plan/model/path.ts", "PATH: tracks, steps, what comes first."],
-  ["plan/model/keys.ts", "The key ladders and a player's keys."],
-  ["plan/model/schedule.ts", "startDay, anotherDay, giveWeek: a composed day into the stored plan."],
-  ["library/server/repo.ts", "composeBlocks: the blocks a day can be made from."],
-  ["devtools/model/composeLab.ts", "This page's stand-ins: seedCandidates, simulate."],
+const FILES: [string, ReactNode][] = [
+  ["plan/ui/useTodayPlan.ts", <>When the page asks: once per page view and date, after the store is flushed.</>],
+  ["plan/model/today.ts", <>What the page shows and what an answer does to the stored plan (<C>applyFirst</C>, <C>applyAnother</C>). Pure.</>],
+  ["plan/store/composeClient.ts", <><C>requestDay</C>: the <C>POST</C>, a 15 s timeout, every failure as a code.</>],
+  ["app/api/me/plan/compose/route.ts", <>The route file: builds the real repos and calls <C>composeRoute</C>.</>],
+  ["plan/server/composeRoute.ts", <>Signed in, not a teacher&apos;s student, body checked; codes to <C>409</C>s.</>],
+  ["plan/server/composeToday.ts", <>Reads the plan document, the ratings and the library, and builds the composer&apos;s input.</>],
+  ["plan/server/composeStudentWeek.ts", <>The same inputs for a teacher&apos;s student, seven days through <C>composeWeek</C>.</>],
+  ["plan/model/topicLevels.ts", <><C>raisedAnswers</C>: the topic levels the day is paced by.</>],
+  ["plan/model/compose.ts", <><C>composeDay</C>, <C>explainDay</C> (the same day with its trace), <C>composeWeek</C>.</>],
+  ["plan/model/daySteps.ts", <><C>daySteps</C> and <C>solidRatedAt</C>.</>],
+  ["plan/model/reach.ts", <><C>reach</C>: known, within reach, ahead.</>],
+  ["plan/model/path.ts", <><C>PATH</C>: tracks, steps, what comes first.</>],
+  ["plan/model/keys.ts", <>The key ladders and a player&apos;s keys.</>],
+  ["plan/model/schedule.ts", <><C>startDay</C>, <C>anotherDay</C>, <C>giveWeek</C>: a composed day into the stored plan.</>],
+  ["library/server/repo.ts", <><C>composeBlocks</C>: the blocks a day can be made from.</>],
+  ["devtools/model/composeLab.ts", <>This page&apos;s stand-ins: <C>seedCandidates</C>, <C>simulate</C>.</>],
 ];
 
 export default function Architecture() {
@@ -139,23 +140,23 @@ export default function Architecture() {
         {(Object.keys(LAYER) as Layer[]).map((l) => <li key={l} className="flex items-center gap-1.5"><span aria-hidden className={`size-2.5 rounded-full ${LAYER[l].dot}`} />{LAYER[l].label}</li>)}
       </ul>
 
-      <Panel title="Who asks for a plan" note="Three callers, one composer. Each gathers the same eight inputs its own way and hands them to composeDay, which knows nothing about who asked.">
+      <Panel title="Who asks for a plan" note={<>Three callers, one composer. Each gathers the same eight inputs its own way and hands them to <C>composeDay</C>, which knows nothing about who asked.</>}>
         <div className="grid gap-4 desk:grid-cols-3">
           <Column title="A player's day">
             <Node layer="browser" name="useTodayPlan" file="plan/ui/useTodayPlan.ts">The Practice plan page has answers and no plan for today, or the player asks for another plan.</Node>
             <Arrow>flushes the store, then</Arrow>
-            <Node layer="browser" name="requestDay" file="plan/store/composeClient.ts">POST /api/me/plan/compose {"{ date, another }"}</Node>
+            <Node layer="browser" name="requestDay" file="plan/store/composeClient.ts"><C>{"POST /api/me/plan/compose { date, another }"}</C></Node>
             <Arrow />
-            <Node layer="server" name="composeRoute" file="plan/server/composeRoute.ts">Signed in; a teacher&apos;s student is refused (409 taught).</Node>
-            <Arrow>player id, date, another</Arrow>
+            <Node layer="server" name="composeRoute" file="plan/server/composeRoute.ts">Signed in; a teacher&apos;s student is refused (<C>409 taught</C>).</Node>
+            <Arrow><C>player, {"{ date, another }"}</C></Arrow>
             <Node layer="server" name="composeToday" file="plan/server/composeToday.ts">Reads the stored data and builds the input (below).</Node>
           </Column>
           <Column title="A teacher's week">
             <Node layer="browser" name="A teacher's student page">The teacher makes the next week for a student.</Node>
             <Arrow />
             <Node layer="server" name="students/server/plans.ts">Works out the week&apos;s first day and the day before it.</Node>
-            <Arrow>student id, start, seed</Arrow>
-            <Node layer="server" name="composeStudentWeek" file="plan/server/composeStudentWeek.ts">The same reads as composeToday, for the student.</Node>
+            <Arrow><C>studentId, {"{ start, seed, today, yesterday }"}</C></Arrow>
+            <Node layer="server" name="composeStudentWeek" file="plan/server/composeStudentWeek.ts">The same reads as <C>composeToday</C>, for the student.</Node>
             <Arrow />
             <Node layer="pure" name="composeWeek" file="plan/model/compose.ts">Seven days, each with the day before as its yesterday. No ratings arrive in between.</Node>
           </Column>
@@ -167,11 +168,11 @@ export default function Architecture() {
             <Node layer="pure" name="simulate" file="devtools/model/composeLab.ts">Seven days in a row, every exercise rated by one rule, each day seeing the days before.</Node>
           </Column>
         </div>
-        <Arrow>ComposeInput</Arrow>
-        <Node layer="pure" name="composeDay(input) → ComposedDay" file="plan/model/compose.ts">One day from its input. <C>explainDay</C> is the same call that also returns every decision (<C>ComposeTrace</C>); the One day view draws that trace.</Node>
-        <Arrow>{"{ exercises, steps, short }"}</Arrow>
+        <Arrow><C>ComposeInput</C></Arrow>
+        <Node layer="pure" name="composeDay(input): ComposedDay" file="plan/model/compose.ts">One day from its input. <C>explainDay</C> is the same call that also returns every decision (<C>ComposeTrace</C>); the One day view draws that trace.</Node>
+        <Arrow><C>{"ComposedDay { exercises, steps, short }"}</C></Arrow>
         <div className="grid gap-4 desk:grid-cols-3">
-          <Node layer="data" name="startDay / anotherDay" file="plan/model/schedule.ts">The page stores the day as the player&apos;s current plan, through PlanStore. A rated exercise is never lost to another try.</Node>
+          <Node layer="data" name="startDay / anotherDay" file="plan/model/schedule.ts">The page stores the day as the player&apos;s current plan, through <C>PlanStore</C>. A rated exercise is never lost to another try.</Node>
           <Node layer="data" name="giveWeek" file="plan/model/schedule.ts">The server writes the week into the student&apos;s plan document, with a version check.</Node>
           <Node layer="browser" name="One day view">Drawn, never stored.</Node>
         </div>
@@ -194,7 +195,7 @@ export default function Architecture() {
         </div>
       </Panel>
 
-      <Panel title="Inside composeDay" note="Four calls in order, each with what it calls in turn. The number is the stage of the One day view that shows the call's result for a real day (stage 1 is the input, stage 6 the day that comes out).">
+      <Panel title="Inside composeDay" note={<>Four calls in order, each with what it calls in turn. The number is the stage of the One day view that shows the call&apos;s result for a real day (stage 1 is the input, stage 6 the day that comes out).</>}>
         <ol className="flex flex-col">
           {INSIDE.map((s, i) => (
             <li key={s.name}>
@@ -224,7 +225,7 @@ export default function Architecture() {
         </ul>
       </Panel>
 
-      <Panel title="Files" note="Under src/features, except the route file. The design: docs/superpowers/specs/2026-11-18-plan-composer-design.md.">
+      <Panel title="Files" note={<>Under <C>src/features</C>, except the route file. The design: <C>docs/superpowers/specs/2026-11-18-plan-composer-design.md</C>.</>}>
         <dl className="grid gap-x-6 gap-y-1.5 text-xs desk:grid-cols-[max-content_1fr]">
           {FILES.map(([file, what]) => (
             <div key={file} className="contents">

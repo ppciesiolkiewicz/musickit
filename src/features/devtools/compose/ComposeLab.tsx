@@ -11,7 +11,7 @@ import { stepAt } from "@/features/plan/model/path";
 import { keyName } from "@/features/theory/keySlug";
 import { seedCandidates, simulate, type LabRating } from "../model/composeLab";
 import { PERSONAS } from "../model/personas";
-import Architecture from "./Architecture";
+import Architecture, { C } from "./Architecture";
 
 /*
  * /dev/compose: how a day's plan is built, stage by stage, for a made-up player over the seed blocks in the code. The
@@ -52,7 +52,7 @@ function StepChip({ refId, tone = "border-slate-700 text-slate-300" }: { refId: 
 }
 
 /** One stage of the algorithm: its number, its name, the rule in a sentence, then what the rule gave for this player and day. */
-function Stage({ n, title, rule, children }: { n: number; title: string; rule: string; children: ReactNode }) {
+function Stage({ n, title, rule, children }: { n: number; title: string; rule: ReactNode; children: ReactNode }) {
   return (
     <li className="relative pl-12">
       <span aria-hidden className="absolute left-0 top-0 grid size-8 place-items-center rounded-full border border-sky-400/60 bg-sky-500/15 text-sm font-semibold tabular-nums text-sky-100">{n}</span>
@@ -123,7 +123,7 @@ export default function ComposeLab() {
       <div>
         <h1 className="text-lg font-semibold text-slate-100">Plan algorithm</h1>
         <p className="max-w-3xl text-sm text-slate-400">
-          How one day&apos;s practice plan is built. One day: stage by stage, for a made-up player. Architecture: who asks for a plan, what goes in, what the composer calls inside. The composer is the real one (plan/model/compose.ts); the library is the seed blocks in the code, not the database, and the player is made up. Seven days are made in a row, so a day sees the days before it.
+          How one day&apos;s practice plan is built. One day: stage by stage, for a made-up player. Architecture: who asks for a plan, what goes in, what the composer calls inside. The composer is the real one (<C>plan/model/compose.ts</C>); the library is the seed blocks in the code, not the database, and the player is made up. Seven days are made in a row, so a day sees the days before it.
         </p>
       </div>
 
@@ -154,7 +154,7 @@ export default function ComposeLab() {
       </div>
 
       <ol className="flex flex-col gap-5">
-        <Stage n={1} title="The player" rule="The answers of the first questionnaire, with each topic raised to the level the ratings reach (raisedAnswers). A topic's line sets where its tracks start and how many steps it offers at once.">
+        <Stage n={1} title="The player" rule={<>The answers of the first questionnaire, with each topic raised to the level the ratings reach (<C>raisedAnswers</C>). A topic&apos;s line sets where its tracks start and how many steps it offers at once.</>}>
           <Table
             head={["Area", "Level", "Topics (line picked, raised by ratings)", "Key rung", "Keys now", "Earlier keys"]}
             rows={areas.map((a) => {
@@ -177,7 +177,7 @@ export default function ComposeLab() {
           <p className="mt-2 text-xs text-slate-500">{d.solid} steps solid before this day · {d.answers.minutes} minutes a day</p>
         </Stage>
 
-        <Stage n={2} title="The steps of the day" rule="daySteps: fresh steps are within reach and not solid, one per topic before any topic's second, and the topic that opens the day rotates with the date. Open steps are ahead only because their topic already offers its share. Review is every solid step, rated longest ago first. A filled chip is a step the day picked a block for.">
+        <Stage n={2} title="The steps of the day" rule={<><C>daySteps</C>: fresh steps are within reach and not solid, one per topic before any topic&apos;s second, and the topic that opens the day rotates with the date. Open steps are ahead only because their topic already offers its share. Review is every solid step, rated longest ago first. A filled chip is a step the day picked a block for.</>}>
           <div className="flex flex-col gap-2 text-xs">
             {([["Fresh", trace.steps.fresh, STAGE_STYLE.fresh], ["Open", trace.steps.open, STAGE_STYLE.open], ["Review", trace.steps.review, STAGE_STYLE.review]] as const).map(([name, refs, tone]) => (
               <div key={name} className="flex gap-3">
