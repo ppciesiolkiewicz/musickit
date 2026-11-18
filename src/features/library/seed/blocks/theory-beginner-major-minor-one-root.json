@@ -1,0 +1,152 @@
+{
+  "id": "theory-beginner-major-minor-one-root",
+  "model": "claude-opus-5-5",
+  "versions": {
+    "prompt": 7,
+    "agents": 2,
+    "teaching": 6
+  },
+  "note": "Track modes (theory-modes), step 1: the major and minor scales from one root over one drone, with the three notes that differ ringed on both staffs; the first block taps the two scales, the second taps a line of the player's own both ways in a second key, which sets up Dorian as minor with one of those notes raised.",
+  "exercise": {
+    "title": "Major and minor from one root",
+    "minutes": 6,
+    "level": "beginner",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "theory"
+    ],
+    "topic": "theory-modes",
+    "concepts": [
+      "modes"
+    ],
+    "steps": [
+      "modes:1"
+    ],
+    "why": "From the same root, the minor scale is the major scale with its 3rd, 6th and 7th a half step lower, so keeping the home note and changing only those three notes turns bright into dark.",
+    "learnBefore": [
+      "/course/3/major-or-minor",
+      "/course/3/major-and-minor-scales"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two scales, one root",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on C. Tap up the first staff from {{1}} to the high {{1}}: that is C major. Then tap up the second staff, C minor, from the same {{1}}.\nThe ringed notes are the three that differ: in minor, the {{b3}}, {{b6}} and {{b7}} sit a half step lower than the {{3}}, {{6}} and {{7}} of major.\nKeep going until you can hear the major {{3}} and the minor {{b3}} in your head before you tap them."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "c",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "highlight": [
+                "3",
+                "6",
+                "7"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "natural-minor-aeolian",
+              "key": "c",
+              "voice": "tenor",
+              "highlight": [
+                "b3",
+                "b6",
+                "b7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Your own line, both ways",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "a"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone. Tap a short line of your own on the first staff, in major, that ends on {{1}}. Then tap the same line, note for note, on the second staff, in minor.\nOnce you can hear the minor version of a line in your head before you tap it, try another key. Use the Key selector below to change the key, then press Play to start the drone again.\nWhen you change the key, the notes are new but the same three ringed notes still turn major into minor."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "g",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "3",
+                "6",
+                "7"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "natural-minor-aeolian",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "b3",
+                "b6",
+                "b7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/natural-minor-aeolian/c",
+      "/course/9/modes"
+    ]
+  }
+}

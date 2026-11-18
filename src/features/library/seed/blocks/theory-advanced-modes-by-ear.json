@@ -21,9 +21,9 @@
       "modes"
     ],
     "steps": [
-      "modes:1",
       "modes:2",
-      "modes:3"
+      "modes:3",
+      "modes:4"
     ],
     "why": "Each mode is plain major or minor with one note changed, so learning to hear that one note is learning to hear the mode.",
     "learnBefore": [

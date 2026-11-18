@@ -94,7 +94,7 @@ test("slope: every step once, each after everything it needs, levels never going
 
 test("the prerequisites the user named (2026-11-16)", () => {
   const after = (ref: string) => stepAt(ref)!.step.after ?? [];
-  assert.ok(after("modes:1").includes("scales:1") && after("modes:1").includes("scales:3"));
+  assert.ok(after("modes:2").includes("scales:1") && after("modes:2").includes("scales:3"));
   assert.ok(after("singing-modes:1").includes("scales:1"));
   for (const ref of ["major-on-neck:1", "arpeggios:1", "caged:1"]) assert.ok(after(ref).includes("pentatonic-positions:1"), ref);
   assert.ok(after("triads:1").includes("double-stops:2"));

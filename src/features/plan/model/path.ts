@@ -157,7 +157,7 @@ export const PATH: Track[] = [
   g("scales", "major-on-neck", "Major scale & modes on the neck", ["modes-on-neck"], [
     s(I, "Major scale, root on 6", "one position", { after: ["pentatonic-positions:1"] }),
     s(I, "Major scale, root on 5", ""),
-    s(A, "Dorian", "", { after: ["modes:1"] }),
+    s(A, "Dorian", "", { after: ["modes:2"] }),
     s(A, "Mixolydian", ""),
     s(A, "Phrygian", ""),
     s(A, "Lydian", ""),
@@ -250,12 +250,12 @@ export const PATH: Track[] = [
     s(A, "A new tune from the staff", ""),
   ]),
   v("melodies", "singing-modes", "Singing the modes", [], [
-    s(I, "Dorian", "over a drone", { after: ["modes:1", "scales:1"] }),
-    s(I, "Mixolydian", "", { after: ["modes:2"] }),
+    s(I, "Dorian", "over a drone", { after: ["modes:2", "scales:1"] }),
+    s(I, "Mixolydian", "", { after: ["modes:3"] }),
     m(I, "Dorian or Mixolydian", "from one Do, over one drone"),
-    s(A, "Phrygian", "", { after: ["modes:3"] }),
-    s(A, "Lydian", "", { after: ["modes:4"] }),
-    s(A, "Locrian", "", { after: ["modes:5"] }),
+    s(A, "Phrygian", "", { after: ["modes:4"] }),
+    s(A, "Lydian", "", { after: ["modes:5"] }),
+    s(A, "Locrian", "", { after: ["modes:6"] }),
     m(A, "all five modes", "from one Do, with major and minor between them"),
   ]),
   v("breath-range", "breath", "Breath & holding a note", ["breath-holding-note"], [
@@ -393,6 +393,7 @@ export const PATH: Track[] = [
     s(A, "Guide tones", "the 3rds and 7ths through the changes"),
   ]),
   t("modes", "modes", "Modes", ["modes", "lydian-locrian"], [
+    s(B, "Major and minor from one root", "bright and dark, the first two modes", { after: ["scales:3"] }),
     s(I, "Dorian", "minor with a major 6th", { after: ["scales:3", "scales:1"] }),
     s(I, "Mixolydian", "major with a b7"),
     s(A, "Phrygian", "minor with a b2"),

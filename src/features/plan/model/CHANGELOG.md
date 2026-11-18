@@ -10,6 +10,10 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 7 (2026-11-18)
+
+- `modes` starts at beginner: a new first step, "Major and minor from one root" (bright and dark, the first two modes), after the major scale. Dorian and the steps after it move up one (`modes:1` is now `modes:2`, up to `modes:6`); the seed blocks and `after` refs moved with them.
+
 ### 6 (2026-11-18)
 
 - Five new steps in the list of each concept's steps. `breath` has eight in place of four: "A long held note" (beginner), "Hiss, then buzz" and "A long breath out" (intermediate) and "Longer breaths out" (advanced) join the four count steps, so the count steps for 4 to 10 and 4 to 20 are now `breath:4` and `breath:7` (they were 3 and 4). `intervals` ends with "Wider than an octave" (`intervals:8`).

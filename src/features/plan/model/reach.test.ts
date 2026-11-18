@@ -32,7 +32,7 @@ test("starts are never capped, and the steps under a start are known", () => {
 
 test("a start carries known back across topics, even unanswered ones", () => {
   const r = reach({ topics: { "theory-modes": 2 } });
-  assert.deepEqual([m(r, "modes:1").mark, m(r, "modes:1").start], ["reach", true]);
+  assert.deepEqual([m(r, "modes:2").mark, m(r, "modes:2").start], ["reach", true]);
   for (const ref of ["scales:1", "scales:2", "scales:3"]) assert.equal(m(r, ref).mark, "known", ref);
 });
 
