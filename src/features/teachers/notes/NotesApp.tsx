@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { Modal } from "@/components/ui";
-import { devUi } from "@/features/devtools/gate";
+import DevOnly from "@/components/DevOnly";
 import { parseBlock } from "@/features/plan/model/config";
 import { editBlock, insertAt, pathOf, readable, selectionAfterRemove, withIds } from "@/features/plan/model/editBlock";
 import type { Cell, PlanTool } from "@/features/plan/model/tools";
@@ -209,12 +209,12 @@ export default function NotesApp({ preset }: { preset?: string }) {
           <Icon name="eye" size={12} />
           View as a note
         </button>
-        {devUi() && (
-          <button type="button" onClick={() => setJson(true)} title="The whole note as JSON, to read, change and apply in one go. Development only." className="flex items-center gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600">
+        <DevOnly>
+          <button type="button" onClick={() => setJson(true)} title="The whole note as JSON, to read, change and apply in one go." className="flex items-center gap-2 rounded-md border border-slate-800 px-2 py-1 text-left text-xs text-slate-300 hover:border-slate-600">
             <Icon name="pencil" size={12} />
-            Edit as JSON (dev)
+            Edit as JSON
           </button>
-        )}
+        </DevOnly>
         <button type="button" onClick={() => setPalette(selected)} data-tour="notes-add" className="mt-2 flex items-center justify-between gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-200 hover:border-slate-500">
           Add a widget
           <span className="rounded border border-slate-700 px-1.5 font-mono text-[10px] text-slate-400">/ or ⌘K</span>

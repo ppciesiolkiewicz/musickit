@@ -1,6 +1,7 @@
 import { after } from "next/server";
 import { LINK_DAY_LIMIT, LINK_LIMIT, LINK_WINDOW, RESEND_WAIT, requestEmailLink, type LinkError } from "@/features/account/server/auth";
 import { NO_ACCOUNTS, auth, baseUrl, json, readJson, sameOrigin } from "@/features/account/server/http";
+import { devOnly } from "@/features/devtools/gate";
 import { LINK_LIFE, confirmUrl, linkEmail, sendMail } from "@/features/account/server/mail";
 
 export const runtime = "nodejs";
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
   after(() => deps.repo.deleteExpired(deps.now()).catch(() => {}));
 
   const link = confirmUrl(baseUrl(req), r.token);
-  const dev = process.env.NODE_ENV !== "production";
+  const dev = devOnly();
   let sent: "sent" | "off";
   try {
     sent = await sendMail(linkEmail(r.email, link, r.code, process.env));

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { devOnly } from "@/features/devtools/gate";
 import { registerCoverage, type CoverageEntry } from "./coverage";
 import type { Level } from "./levels";
 import { PageIdContext } from "./pageContext";
@@ -9,7 +10,7 @@ type Scope = Pick<CoverageEntry, "kind" | "id">;
 type Part = { levels?: Level[]; tourSteps?: number; hints?: number };
 
 /** Chosen once per build: a production build gets the no-ops, so hook order is fixed and the bundler can drop the rest. */
-const PRODUCTION = process.env.NODE_ENV === "production";
+const PRODUCTION = !devOnly();
 
 const ToolScopeContext = createContext<string | undefined>(undefined);
 

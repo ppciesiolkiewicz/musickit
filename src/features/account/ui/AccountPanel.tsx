@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
+import DevOnly from "@/components/DevOnly";
 import { ROLE_LABEL } from "../model";
 import { useAccount, useAccountStore } from "../useAccount";
 import EmailUpdates from "./EmailUpdates";
@@ -13,8 +14,8 @@ import { Card, ErrorLine, FIELD, LABEL, LINK, PRIMARY, SECONDARY, errorOf, send 
 const go = (path: string) => window.location.assign(path);
 
 /**
- * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, their plan, feedback, Log out and Delete account. Logged
- * out, it points to Log in.
+ * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, their plan, feedback and, under
+ * everything, Log out. Delete account shows in development only (`DevOnly`; the route is closed in production too). Logged out, it points to Log in.
  */
 export default function AccountPanel() {
   const { account, loaded } = useAccount();
@@ -22,6 +23,7 @@ export default function AccountPanel() {
   const [name, setName] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
   const [asking, setAsking] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -59,7 +61,7 @@ export default function AccountPanel() {
     const r = await send("/api/account", "DELETE");
     if (r.ok) return go("/");
     setBusy(false);
-    setError(errorOf(r));
+    setRemoveError(errorOf(r));
   };
 
   return (
@@ -95,21 +97,6 @@ export default function AccountPanel() {
               <p className="text-xs text-slate-500">Your plans, progress, notes and videos are kept in your account.</p>
               <ErrorLine>{error}</ErrorLine>
 
-              <div className="flex flex-col gap-3 border-t border-slate-800 pt-4">
-                <button type="button" disabled={busy} className={SECONDARY} onClick={() => void store.signOut().then(() => go("/"))}>Log out</button>
-
-                {asking ? (
-                  <div className="flex flex-col gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3">
-                    <p className="text-sm text-rose-100">Delete the account for {account.email}? This can&apos;t be undone.</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button type="button" disabled={busy} className={SECONDARY} onClick={() => setAsking(false)}>Keep account</button>
-                      <button type="button" disabled={busy} className={`${SECONDARY} !border-rose-500/60 !text-rose-100`} onClick={() => void remove()}>Delete account</button>
-                    </div>
-                  </div>
-                ) : (
-                  <button type="button" className="self-start text-xs text-slate-500 underline-offset-2 hover:text-rose-300 hover:underline" onClick={() => setAsking(true)}>Delete account</button>
-                )}
-              </div>
             </section>
           </Card>
 
@@ -118,6 +105,25 @@ export default function AccountPanel() {
         <Card fill>
           <PlanPicker account={account} />
         </Card>
+      </div>
+
+      <div className="flex flex-col items-start gap-3 border-t border-slate-800 pt-5">
+        <button type="button" disabled={busy} className={`${SECONDARY} !w-auto`} onClick={() => void store.signOut().then(() => go("/"))}>Log out</button>
+
+        <DevOnly>
+          {asking ? (
+            <div className="flex flex-col gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3">
+              <p className="text-sm text-rose-100">Delete the account for {account.email}? This can&apos;t be undone.</p>
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button" disabled={busy} className={SECONDARY} onClick={() => setAsking(false)}>Keep account</button>
+                <button type="button" disabled={busy} className={`${SECONDARY} !border-rose-500/60 !text-rose-100`} onClick={() => void remove()}>Delete account</button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" className="self-start text-xs text-slate-500 underline-offset-2 hover:text-rose-300 hover:underline" onClick={() => setAsking(true)}>Delete account</button>
+          )}
+          <ErrorLine>{removeError}</ErrorLine>
+        </DevOnly>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import { devOnly } from "@/features/devtools/gate";
 import { LEVELS, type Level } from "./levels";
 
 /**
@@ -18,7 +19,7 @@ let version = 0;
  * tool, counts nothing twice (levels are a set, the counts the largest seen).
  */
 export function registerCoverage(entry: CoverageEntry): void {
-  if (process.env.NODE_ENV === "production") return;
+  if (!devOnly()) return;
   const key = `${entry.kind}:${entry.id}`;
   const was = entries.get(key);
   const levels = LEVELS.filter((l) => entry.levels.includes(l) || was?.levels.includes(l));
