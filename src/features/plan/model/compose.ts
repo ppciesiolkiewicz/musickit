@@ -84,10 +84,17 @@ function withinReach(blocks: Candidate[], answers: PlanAnswers, solid: Map<strin
   return blocks.filter((c) => c.steps.every(ok));
 }
 
+/** When a block was rated, in ms; a rating with no time counts as the oldest. */
+function ratedMs(c: Candidate): number {
+  const t = Date.parse(c.mine?.ratedAt ?? "");
+  return Number.isNaN(t) ? -Infinity : t;
+}
+const byNum = (x: number, y: number) => (x < y ? -1 : x > y ? 1 : 0);
+
 /** The block for a step among usable ones: low rated (newest first), unrated (random among the least used few), solid (longest ago). */
 function choose(usable: Candidate[], rng: Rng): Candidate {
   const low = usable.filter((c) => c.mine && c.mine.stars < SOLID_STARS)
-    .sort((a, b) => Date.parse(b.mine!.ratedAt) - Date.parse(a.mine!.ratedAt) || a.blockId.localeCompare(b.blockId));
+    .sort((a, b) => byNum(ratedMs(b), ratedMs(a)) || a.blockId.localeCompare(b.blockId));
   if (low.length) return low[0];
   const unrated = usable.filter((c) => !c.mine)
     .sort((a, b) => a.use.seconds - b.use.seconds || a.use.times - b.use.times || a.blockId.localeCompare(b.blockId));
@@ -96,7 +103,7 @@ function choose(usable: Candidate[], rng: Rng): Candidate {
     return pool[Math.floor(rng() * pool.length)];
   }
   return usable.filter((c) => c.mine)
-    .sort((a, b) => Date.parse(a.mine!.ratedAt) - Date.parse(b.mine!.ratedAt) || a.blockId.localeCompare(b.blockId))[0];
+    .sort((a, b) => byNum(ratedMs(a), ratedMs(b)) || a.blockId.localeCompare(b.blockId))[0];
 }
 
 /** A block for a step not in `used`, walking down the track to the nearest earlier step that has one. */
@@ -111,14 +118,17 @@ function pickFor(step: string, blocks: Candidate[], used: Set<string>, rng: Rng)
   return null;
 }
 
-/** Fill a day to its budget: planned review first (placed last), then fresh, open, more blocks on the day's steps, more review. */
-function fill(steps: { fresh: string[]; open: string[]; review: string[] }, reviewCount: number, budget: number, blocks: Candidate[], used: Set<string>, rng: Rng) {
+/**
+ * Fill a day to its budget: planned review first (placed last), then fresh, open, more blocks on the day's steps, more
+ * review. A planned review block fits `reviewCap` minutes (a third of the day); the later "more review" has no cap.
+ */
+function fill(steps: { fresh: string[]; open: string[]; review: string[] }, reviewCount: number, reviewCap: number, budget: number, blocks: Candidate[], used: Set<string>, rng: Rng) {
   const picks: Pick[] = [];
   const review: Pick[] = [];
   let total = 0;
   const room = () => total < budget;
-  const take = (step: string, into: Pick[]): boolean => {
-    const p = pickFor(step, blocks, used, rng);
+  const take = (step: string, into: Pick[], from = blocks): boolean => {
+    const p = pickFor(step, from, used, rng);
     if (!p) return false;
     used.add(p.cand.blockId);
     total += p.cand.minutes;
@@ -137,8 +147,10 @@ function fill(steps: { fresh: string[]; open: string[]; review: string[] }, revi
     }
   };
 
+  // a review step with no block short enough is passed over for the next one
+  const short = blocks.filter((c) => c.minutes <= reviewCap);
   let r = 0;
-  for (; r < steps.review.length && review.length < reviewCount && room(); r++) take(steps.review[r], review);
+  for (; r < steps.review.length && review.length < reviewCount && room(); r++) take(steps.review[r], review, short);
 
   const inDay: string[] = [];
   for (const step of [...steps.fresh, ...steps.open]) {
@@ -160,7 +172,9 @@ export function composeDay(input: ComposeInput, tracks: Track[] = PATH): Compose
   const steps = daySteps({ answers, solid: input.solid, date: input.date }, tracks);
   const reviewCount = answers.minutes >= 30 ? 2 : 1;
   const used = new Set([...input.yesterday, ...input.declined, ...keep.flatMap((e) => (e.blockId ? [e.blockId] : []))]);
-  const { picks, total } = fill(steps, reviewCount, budget, withinReach(input.blocks, answers, input.solid, tracks), used, mulberry32(hash(input.seed)));
+  // a planned review block fits a third of the day (at least 5 minutes), so most of a short day stays new
+  const reviewCap = Math.max(5, answers.minutes / 3);
+  const { picks, total } = fill(steps, reviewCount, reviewCap, budget, withinReach(input.blocks, answers, input.solid, tracks), used, mulberry32(hash(input.seed)));
   return {
     exercises: [...keep, ...picks.map((p) => p.cand.exercise)],
     steps: [...new Set(picks.map((p) => p.step))],

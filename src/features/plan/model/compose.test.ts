@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import type { Stars } from "@/features/progress/stars";
 import { PERSONAS } from "@/features/devtools/model/personas";
 import { composeDay, composeWeek, type Candidate, type ComposeInput } from "./compose";
-import { daySteps } from "./daySteps";
+import { daySteps, solidRatedAt } from "./daySteps";
+import type { ProgressEntry } from "@/features/progress/log";
 import { PATH, type Track } from "./path";
 import type { PlanExercise } from "./types";
 
@@ -331,4 +332,60 @@ test("composeWeek: each day is composeDay with the next date, its own seed and t
 test("daySteps sanity for these tracks", () => {
   assert.deepEqual([...daySteps({ answers: guitar, solid: none, date: "2026-11-18" }, AB).fresh].sort(), ["a:1", "b:1"]);
   assert.deepEqual(daySteps({ answers: guitar, solid: none, date: "2026-11-18" }, ABC).open, ["a2:1"]);
+});
+
+// --- a reserved review block fits a third of the day
+
+const solidA1b = new Map([["a:1", "2026-11-01T10:00:00Z"]]);
+const tracksA3 = [mk("a", "guitar-basic-chords", 3), mk("b", "guitar-scales", 3)];
+
+test("review fits a third: 15 minutes and only a 10-minute review block gives no review, three new", () => {
+  const blocks = [cand("R10", ["a:1"], 10), ...many("a:2", 3), ...many("b:1", 3)];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 15 }, solid: solidA1b, blocks }), tracksA3);
+  assert.ok(!ids(d).includes("R10"), ids(d).join());
+  assert.equal(d.exercises.length, 3);
+  assert.ok(d.exercises.every((e) => e.steps![0] !== "a:1"));
+});
+
+test("review fits a third: with a 5-minute review block too, that one is picked and is last", () => {
+  const blocks = [cand("R10", ["a:1"], 10), cand("R5", ["a:1"], 5), ...many("a:2", 3), ...many("b:1", 3)];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 15 }, solid: solidA1b, blocks }), tracksA3);
+  assert.equal(ids(d).at(-1), "R5");
+  assert.ok(!ids(d).includes("R10"));
+  assert.equal(d.exercises.length, 3);
+});
+
+test("review fits a third: a review step with no block that fits is passed over for the next one", () => {
+  const solid = new Map([["a:1", "2026-11-01T10:00:00Z"], ["b:1", "2026-11-02T10:00:00Z"]]);
+  const blocks = [cand("RA", ["a:1"], 10), cand("RB", ["b:1"], 5), ...many("a:2", 3), ...many("b:2", 3)];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 15 }, solid, blocks }), tracksA3);
+  assert.equal(ids(d).at(-1), "RB");
+  assert.ok(!ids(d).includes("RA"));
+});
+
+test("review fits a third: 30 minutes still gets two review blocks of 10 minutes", () => {
+  const solid = new Map([["a:1", "2026-11-01T10:00:00Z"], ["b:1", "2026-11-02T10:00:00Z"]]);
+  const blocks = [cand("RA", ["a:1"], 10), cand("RB", ["b:1"], 10), ...many("a:2", 3), ...many("b:2", 3)];
+  const d = composeDay(base({ answers: { ...guitar, minutes: 30 }, solid, blocks }), tracksA3);
+  assert.deepEqual(ids(d).slice(-2), ["RA", "RB"]);
+});
+
+// --- a rating with no time
+
+test("a rating with no time sorts as the oldest: last among low blocks, first among solid ones", () => {
+  const low = [cand("notime", ["a:1"], 5, { stars: 2, ratedAt: "" }), cand("dated", ["a:1"], 5, { stars: 2, ratedAt: "2026-11-01T10:00:00Z" })];
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks: low }), A)), ["dated"]);
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks: [...low].reverse() }), A)), ["dated"]);
+  const solid = [cand("dated", ["a:1"], 5, { stars: 5, ratedAt: "2026-11-01T10:00:00Z" }), cand("notime", ["a:1"], 5, { stars: 5, ratedAt: "" })];
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks: solid }), A)), ["notime"]);
+  assert.deepEqual(ids(composeDay(base({ answers: one, blocks: [...solid].reverse() }), A)), ["notime"]);
+});
+
+test("a rating with no time is the oldest for solid steps too: a dated rating wins, and review puts it first", () => {
+  const e = (stars: number, at: string | undefined) => ({ id: `e${stars}`, planId: "p", exerciseId: "x", day: 0, exercise: 0, title: "t", stars, steps: ["open-chords:1"], ...(at === undefined ? {} : { at }) }) as unknown as ProgressEntry;
+  for (const list of [[e(2, undefined), e(5, "2026-11-01T10:00:00Z")], [e(5, "2026-11-01T10:00:00Z"), e(2, undefined)]]) {
+    assert.deepEqual([...solidRatedAt(list).keys()], ["open-chords:1"]);
+  }
+  const solid = new Map([["b:1", "2026-11-01T10:00:00Z"], ["a:1", ""]]);
+  assert.deepEqual(daySteps({ answers: guitar, solid, date: "2026-11-18" }, AB).review, ["a:1", "b:1"]);
 });

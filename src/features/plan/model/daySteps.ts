@@ -19,6 +19,9 @@ export interface DaySteps {
   review: string[];
 }
 
+/** An ISO time in ms; no time (or one that does not parse) counts as the oldest. */
+const ms = (at: string | undefined): number => { const t = Date.parse(at ?? ""); return Number.isNaN(t) ? -Infinity : t; };
+
 /** When each solid step was last rated: the newest rating that counts for it (`reachIndex`), as an ISO datetime. */
 export function solidRatedAt(entries: ProgressEntry[]): Map<string, string> {
   const newest = new Map<string, ProgressEntry>();
@@ -29,7 +32,7 @@ export function solidRatedAt(entries: ProgressEntry[]): Map<string, string> {
       for (let i = 0; i <= upTo; i++) {
         const ref = `${id}:${i + 1}`;
         const prev = newest.get(ref);
-        if (!prev || Date.parse(entry.at) >= Date.parse(prev.at)) newest.set(ref, entry);
+        if (!prev || ms(entry.at) >= ms(prev.at)) newest.set(ref, entry);
       }
     }
   }
@@ -70,6 +73,6 @@ export function daySteps(input: { answers: PlanAnswers; solid: Map<string, strin
   return {
     fresh: spread(freshRefs),
     open: spread(openRefs),
-    review: [...solid].filter(([ref]) => mine(ref) !== null).sort((a, b) => Date.parse(a[1]) - Date.parse(b[1]) || a[0].localeCompare(b[0])).map(([ref]) => ref),
+    review: [...solid].filter(([ref]) => mine(ref) !== null).sort((a, b) => (ms(a[1]) < ms(b[1]) ? -1 : ms(a[1]) > ms(b[1]) ? 1 : 0) || a[0].localeCompare(b[0])).map(([ref]) => ref),
   };
 }

@@ -178,6 +178,13 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       const rr = await r.getBlock({ player: A }, "R");
       assert.deepEqual([rr?.mine?.stars, rr?.mine?.ratedAt], [5, "2026-03-05T10:00:00.000Z"]);
     });
+    test("composeBlocks: a rating without a date gives ratedAt \"\", and a dated one wins over it", async () => {
+      const d = baseFixture();
+      const undated = await make({ ...d, progress: [...d.progress, rating(C, "e-u0", "S2", 2)] });
+      assert.deepEqual((await undated.composeBlocks(C, ["guitar"])).find((b) => b.id === "S2")?.mine, { stars: 2, ratedAt: "" });
+      const both = await make({ ...d, progress: [...d.progress, rating(C, "e-u0", "S2", 2), rating(C, "e-u1", "S2", 4, "2026-03-01T10:00:00.000Z")] });
+      assert.deepEqual((await both.composeBlocks(C, ["guitar"])).find((b) => b.id === "S2")?.mine, { stars: 4, ratedAt: "2026-03-01T10:00:00.000Z" });
+    });
     test("two ratings at the same time: the lower exercise id is the latest", async () => {
       const d = baseFixture();
       const at = "2026-03-09T10:00:00.000Z";
