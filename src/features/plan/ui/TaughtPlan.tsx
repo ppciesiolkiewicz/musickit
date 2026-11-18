@@ -34,7 +34,7 @@ export default function TaughtPlanView({ view, week, streak }: {
       {view.kind === "none" && <Line>Your teacher hasn&apos;t made a plan for you yet. When they make one, it shows here.</Line>}
       {view.kind === "ended" && <Line>Your teacher hasn&apos;t made a new plan yet. Until then, you can keep practising from your last plan below.</Line>}
       {(view.kind === "week" || view.kind === "ended") && week(view.plan)}
-      <EarlierWeeks plans={view.older} />
+      <EarlierWeeks weeks={view.older} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Icon from "@/components/Icon";
-import { dateLabel, daysLabel, isDayTitle } from "../model/today";
+import { dateLabel, daysLabel, isDayTitle, type EarlierWeek } from "../model/today";
 import { planDays, type StoredPlan } from "../model/types";
 
 /** One name for a plan someone shared with the player, on every screen that names it. */
@@ -26,28 +26,44 @@ export const givenHref = (id: string): string => `/plan/given/${encodeURICompone
  * stored, so it isn't shown.
  */
 export default function GivenPlans({ plans }: { plans: StoredPlan[] }) {
-  return <PlanLinks id="given-plans-h" heading="Plans shared with you" plans={plans.filter((p) => !p.teacher)} />;
+  return <PlanLinks id="given-plans-h" heading="Plans shared with you" rows={plans.filter((p) => !p.teacher).map((plan) => ({ plan, replaced: false }))} />;
 }
 
-/** A teacher's student's earlier weeks on `/plan`, under the one drawn there: each a link to its own page. Nothing when there are none. */
-export function EarlierWeeks({ plans }: { plans: StoredPlan[] }) {
-  return <PlanLinks id="earlier-weeks-h" heading="Earlier plans" plans={plans} />;
+/**
+ * A teacher's student's earlier weeks on `/plan`, under the one drawn there (`taughtView`'s `older`): a given week is a link
+ * to its own page; a week the teacher replaced with a new plan has no page, so it is a plain row that says so. Nothing when
+ * there are none.
+ */
+export function EarlierWeeks({ weeks }: { weeks: EarlierWeek[] }) {
+  return <PlanLinks id="earlier-weeks-h" heading="Earlier plans" rows={weeks} />;
 }
 
-/** A headed list of given plans, each a link to its own page; nothing when there are none. */
-function PlanLinks({ id, heading, plans }: { id: string; heading: string; plans: StoredPlan[] }) {
-  if (!plans.length) return null;
+/** The words a replaced week's row ends with. */
+export const REPLACED = "Replaced by a new plan";
+
+const ROW = "flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2";
+
+/** A headed list of plans: each a link to its own page, or a plain row for a replaced week; nothing when there are none. */
+function PlanLinks({ id, heading, rows }: { id: string; heading: string; rows: EarlierWeek[] }) {
+  if (!rows.length) return null;
   return (
     <section aria-labelledby={id} className="flex flex-col gap-2">
       <h2 id={id} className="text-xs font-medium uppercase tracking-wider text-slate-400">{heading}</h2>
       <ul className="flex flex-col gap-2">
-        {plans.map((p) => (
+        {rows.map(({ plan: p, replaced }) => (
           <li key={p.id}>
-            <Link href={givenHref(p.id)} className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-slate-800 bg-slate-900/40 px-3 py-2 transition hover:border-sky-500/60 hover:bg-slate-800/60">
-              <span className="min-w-0 flex-1 text-sm text-slate-100">{givenTitle(p)}</span>
-              <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)}</span>
-              <Icon name="chevron-right" size={14} className="text-slate-500" />
-            </Link>
+            {replaced ? (
+              <div className={ROW}>
+                <span className="min-w-0 flex-1 text-sm text-slate-300">{givenTitle(p)}</span>
+                <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)} · {REPLACED}</span>
+              </div>
+            ) : (
+              <Link href={givenHref(p.id)} className={`${ROW} transition hover:border-sky-500/60 hover:bg-slate-800/60`}>
+                <span className="min-w-0 flex-1 text-sm text-slate-100">{givenTitle(p)}</span>
+                <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)}</span>
+                <Icon name="chevron-right" size={14} className="text-slate-500" />
+              </Link>
+            )}
           </li>
         ))}
       </ul>

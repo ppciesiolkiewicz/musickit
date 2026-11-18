@@ -53,6 +53,24 @@ export function keepTeacherComments(incoming: PlanState, stored: PlanState): Pla
   return { ...incoming, current: incoming.current && put(incoming.current), history: incoming.history.map(put), given: incoming.given.map(put) };
 }
 
+/**
+ * An owner's plan document with the teacher's records as stored: each plan gets the stored `teacher` record of the plan with
+ * the same id (madeAt and comment), or none. An owner's save never writes a teacher record or a comment of its own, never
+ * changes one and never drops one from a plan it still sends.
+ */
+export function storedTeacherRecords(incoming: PlanState, stored: PlanState): PlanState {
+  const records = new Map(plansOf(stored).flatMap((p) => (p.teacher ? [[p.id, p.teacher] as const] : [])));
+  const put = (p: StoredPlan): StoredPlan => {
+    const teacher = records.get(p.id);
+    if (teacher) return { ...p, teacher: { ...teacher } };
+    if (!p.teacher) return p;
+    const rest = { ...p };
+    delete rest.teacher;
+    return rest;
+  };
+  return { ...incoming, current: incoming.current && put(incoming.current), history: incoming.history.map(put), given: incoming.given.map(put) };
+}
+
 /** How many times a plan save without `expect` reads, merges the comments and writes before it writes regardless. */
 const COMMENT_TRIES = 3;
 
@@ -62,8 +80,11 @@ const COMMENT_TRIES = 3;
  * save is what the player asked for, so a failure there is logged and the save still succeeds; the next save repairs it.
  * Every write adds 1 to the document's version. With `expect` it writes only when the stored version is `expect` (0 when none is stored);
  * otherwise it is "stale", with the stored version, and nothing is written, not even the plan's side effects. Without `expect` it always writes.
- * A plan keeps the teacher's comments stored on it (`keepTeacherComments`), read in the same call: with `expect`, from the
- * version it replaces; without, the write names the version it read and reads again when another write came between.
+ * A plan keeps the teacher's comments stored on it, read in the same call: with `expect`, from the version it replaces;
+ * without, the write names the version it read and reads again when another write came between. With `owner` (the
+ * player's own save, `PUT /api/me/documents/plan`) the stored teacher records always win (`storedTeacherRecords`), so the
+ * owner can't change, add or drop a comment; without it (a server writer, `makeWeek`) a comment the document carries wins
+ * and a missing one is put back (`keepTeacherComments`).
  */
 export async function writeDoc(
   repo: UserDataRepo,
@@ -72,6 +93,7 @@ export async function writeDoc(
   raw: unknown,
   now: Date,
   expect?: number,
+  opts: { owner?: boolean } = {},
 ): Promise<{ ok: true; version: number } | { ok: false; error: "too-big" | "bad-kind" | "stale"; version?: number }> {
   if (!isDocKind(kind)) return { ok: false, error: "bad-kind" };
   if ((JSON.stringify(raw) ?? "").length > maxDocBytes(kind)) return { ok: false, error: "too-big" };
@@ -82,7 +104,8 @@ export async function writeDoc(
     for (let i = 0; ; i++) {
       const stored = await readDocVersioned(repo, userId, "plan");
       if (expect !== undefined && stored.version !== expect) return { ok: false, error: "stale", version: stored.version };
-      doc = keepTeacherComments(incoming, stored.data as PlanState);
+      // an owner's merge can leave a given plan with neither `from` nor `teacher`: parsed again, it is dropped as any such plan is
+      doc = opts.owner ? parseDoc("plan", storedTeacherRecords(incoming, stored.data as PlanState)) : keepTeacherComments(incoming, stored.data as PlanState);
       // without `expect` the last try writes regardless, as a save without a version always does
       put = await repo.putDoc(userId, kind, doc, now, expect ?? (i < COMMENT_TRIES - 1 ? stored.version : undefined));
       if (put.ok || expect !== undefined || i >= COMMENT_TRIES - 1) break;

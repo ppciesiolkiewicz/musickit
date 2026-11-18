@@ -1,7 +1,7 @@
 import { topicById } from "../intake/topics";
 import { conceptById } from "./concepts";
 import type { ComposedDay } from "./compose";
-import { anotherDay, doneKey, ownDay, startDay, teacherWeek, teacherWeekOn, upcomingTeacherWeek } from "./schedule";
+import { anotherDay, doneKey, newestWeekFirst, ownDay, startDay, teacherWeek, teacherWeekOn, teacherWeeks, upcomingTeacherWeek } from "./schedule";
 import type { PlanExercise, PlanState, StoredPlan } from "./types";
 import type { ComposeResult } from "../store/composeClient";
 
@@ -133,29 +133,40 @@ export const pageDate = (shown: string, clock: string, busy: boolean): string =>
 export const shouldAsk = (i: Pick<TodayInput, "loaded" | "answers" | "own" | "asked" | "off">): boolean => !i.off && i.loaded && i.answers && !i.own && !i.asked;
 
 /**
+ * One of a teacher's student's earlier weeks, listed under the week drawn: a given week (a link to its own page), or one
+ * the teacher replaced with a new plan (`replaced`: moved to the history, where its ratings still count; no page draws it).
+ */
+export interface EarlierWeek {
+  plan: StoredPlan;
+  replaced: boolean;
+}
+
+/**
  * What `/plan` draws for a teacher's student (`Account.taught`), whose plans are the weeks their teacher makes, never a
  * composed day: the week covering `date` (`teacherWeekOn`); else a week still to come, with the day it starts in words
- * ("Monday 23 November"); else the newest week that has ended; else none. `older`: the other weeks the teacher made that
- * have started, newest first, each listed as a link to its own page. A plan shared with the student is not one of them.
+ * ("Monday 23 November"); else the newest week that has started; else none. `older`: the other weeks the teacher made
+ * that have started, given or replaced, newest first in the schedule's one order (`newestWeekFirst`). A plan shared with
+ * the student is not one of them.
  */
 export type TaughtView =
-  | { kind: "week"; plan: StoredPlan; older: StoredPlan[] }
-  | { kind: "upcoming"; plan: StoredPlan; starts: string; older: StoredPlan[] }
-  | { kind: "ended"; plan: StoredPlan; older: StoredPlan[] }
-  | { kind: "none"; older: StoredPlan[] };
+  | { kind: "week"; plan: StoredPlan; older: EarlierWeek[] }
+  | { kind: "upcoming"; plan: StoredPlan; starts: string; older: EarlierWeek[] }
+  | { kind: "ended"; plan: StoredPlan; older: EarlierWeek[] }
+  | { kind: "none"; older: EarlierWeek[] };
 
 export function taughtView(s: PlanState, date: string): TaughtView {
-  const started = (shown: StoredPlan | null) =>
-    s.given
-      .filter((p) => p.teacher && p.startedOn <= date && p !== shown)
-      .sort((a, b) => (a.startedOn !== b.startedOn ? (a.startedOn < b.startedOn ? 1 : -1) : Date.parse(b.teacher!.madeAt) - Date.parse(a.teacher!.madeAt)));
+  const replaced = s.history.filter((p) => p.teacher && p.startedOn <= date);
+  const older = (shown: StoredPlan | null): EarlierWeek[] =>
+    [...teacherWeeks(s, date).filter((p) => p !== shown), ...replaced]
+      .sort(newestWeekFirst)
+      .map((plan) => ({ plan, replaced: replaced.includes(plan) }));
   const on = teacherWeekOn(s, date);
-  if (on) return { kind: "week", plan: on, older: started(on) };
+  if (on) return { kind: "week", plan: on, older: older(on) };
   const next = upcomingTeacherWeek(s, date);
-  if (next) return { kind: "upcoming", plan: next, starts: dayWords(next.startedOn, []).title, older: started(null) };
+  if (next) return { kind: "upcoming", plan: next, starts: dayWords(next.startedOn, []).title, older: older(null) };
   const last = teacherWeek(s, date);
-  if (last) return { kind: "ended", plan: last, older: started(last) };
-  return { kind: "none", older: [] };
+  if (last) return { kind: "ended", plan: last, older: older(last) };
+  return { kind: "none", older: older(null) };
 }
 
 /** The first plan of the day's answer applied: the day stored with its words, or what the page says instead. */

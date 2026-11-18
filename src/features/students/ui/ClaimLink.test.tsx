@@ -41,9 +41,17 @@ test("a check that failed: its line and Try again", () => {
 });
 
 test("the welcome page greets the student by name, with one link to the plan", () => {
-  const html = renderToStaticMarkup(<WelcomeView name="Ben" />);
+  const html = renderToStaticMarkup(<WelcomeView name="Ben" hasPlan />);
   assert.match(html, /Hello, Ben/);
   assert.equal(html.match(/<a /g)?.length, 1);
   assert.match(html, /href="\/plan"[^>]*>Open your practice plan</);
-  assert.match(renderToStaticMarkup(<WelcomeView name={null} />), /Loading…/);
+  assert.match(html, /Your teacher made you a practice plan\./);
+  assert.match(renderToStaticMarkup(<WelcomeView name={null} hasPlan={false} />), /Loading…/);
+});
+
+test("the welcome page with no plan made yet says so, never that a plan is waiting", () => {
+  const html = renderToStaticMarkup(<WelcomeView name="Ben" hasPlan={false} />);
+  assert.doesNotMatch(html, /made you a practice plan/);
+  assert.match(html, /When your teacher makes your first plan, you&#x27;ll find it on your practice plan page\./);
+  assert.match(html, /href="\/plan"[^>]*>Open your practice plan</);
 });

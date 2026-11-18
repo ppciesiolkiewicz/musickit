@@ -189,7 +189,7 @@ test("taughtView: the teacher's week covering today, with the older started week
   const v = taughtView(s, "2026-11-18");
   assert.equal(v.kind, "week");
   assert.equal(v.kind === "week" && v.plan.id, "now");
-  assert.deepEqual(v.older.map((p) => p.id), ["old", "older"], "a shared plan and the upcoming week are not in the list");
+  assert.deepEqual(v.older.map((w) => w.plan.id), ["old", "older"], "a shared plan and the upcoming week are not in the list");
 });
 
 test("taughtView: an own composed day in the document is never drawn", () => {
@@ -201,17 +201,25 @@ test("taughtView: no week covers today but one is coming: when it starts, in wor
   const v = taughtView(taught([week("next", "2026-11-23"), week("old", "2026-11-02")]), "2026-11-18");
   assert.equal(v.kind, "upcoming");
   assert.equal(v.kind === "upcoming" && v.starts, "Monday 23 November");
-  assert.deepEqual(v.older.map((p) => p.id), ["old"]);
+  assert.deepEqual(v.older.map((w) => w.plan.id), ["old"]);
 });
 
 test("taughtView: every week has ended: the newest ended one is drawn, the rest listed", () => {
   const v = taughtView(taught([week("old", "2026-11-02"), week("newer", "2026-11-09")]), "2026-11-18");
   assert.equal(v.kind, "ended");
   assert.equal(v.kind === "ended" && v.plan.id, "newer");
-  assert.deepEqual(v.older.map((p) => p.id), ["old"]);
+  assert.deepEqual(v.older.map((w) => w.plan.id), ["old"]);
 });
 
 test("taughtView: no week at all, a shared plan aside, is none", () => {
   assert.deepEqual(taughtView(taught([shared]), "2026-11-18"), { kind: "none", older: [] });
   assert.deepEqual(taughtView(EMPTY_STATE, "2026-11-18"), { kind: "none", older: [] });
+});
+
+test("taughtView: a week the teacher replaced (now in the history) is listed, marked replaced, in the one order", () => {
+  const rotated = week("rotated", "2026-11-16", "2026-11-16T09:00:00.000Z");
+  const s = taught([week("now", "2026-11-16", "2026-11-17T09:00:00.000Z"), week("old", "2026-11-09")], { history: [rotated, { ...plan(["a"], []), id: "own-day", startedOn: "2026-11-12" }] });
+  const v = taughtView(s, "2026-11-18");
+  assert.equal(v.kind === "week" && v.plan.id, "now", "the newer of two weeks on the same dates is drawn");
+  assert.deepEqual(v.older.map((w) => [w.plan.id, w.replaced]), [["rotated", true], ["old", false]], "a composed day in the history is not a week");
 });

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
 import { PLAN_TOUR } from "@/features/guide/tours/plan";
-import { PlanApp } from "@/features/plan";
+import { PlanApp, PlanIntro } from "@/features/plan";
 import { NotesEditorHost } from "@/features/teachers/notes";
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function PlanPage() {
   return (
-    <PageShell active="/plan" column devices pageId="plan" tour={PLAN_TOUR} tourNudge title="Practice plan" intro="A daily plan for your practice, put together from attunr's library of exercises. Each day you open this page, attunr makes a new plan, and the stars you give each exercise shape the next one.">
+    <PageShell active="/plan" column devices pageId="plan" tour={PLAN_TOUR} tourNudge title="Practice plan" intro={<PlanIntro />}>
       {/* no HintProvider: in a plan each tool has one help button, its tour (ToolTour), so SingAlong's "?" stays hidden */}
       {/* the day editor gets the studio's widget controls and palette from here (the plan never imports the studio) */}
       <NotesEditorHost>

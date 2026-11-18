@@ -27,10 +27,12 @@ const COLUMN = "mx-auto w-full max-w-[51rem]";
  * cards hold a column of text and tools), while the nav and footer keep the page's width.
  */
 export default function PageShell({ title, eyebrow, intro, active, wide = false, full = false, devices = false, mic = false, centered = false, column = false, columnTitle = false, action, header, related, pageId, tour, tourNudge = false, decor, children }: {
-  title: string;
+  /** the page's heading; a node when the browser decides its words (a given plan's page, by the plan) */
+  title: ReactNode;
   /** a short line over the title saying what kind of page this is ("A note from your teacher") */
   eyebrow?: string;
-  intro?: string; active: string; wide?: boolean; full?: boolean;
+  /** a line under the title; a node when the browser decides its words (the plan's, by who is reading) */
+  intro?: ReactNode; active: string; wide?: boolean; full?: boolean;
   devices?: boolean;
   /** the page listens to the microphone: adds the mic and headphones note under the intro */
   mic?: boolean;

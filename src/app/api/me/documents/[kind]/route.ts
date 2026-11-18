@@ -34,7 +34,8 @@ export async function PUT(req: Request, { params }: Ctx) {
   if (!body || !("data" in body)) return json({ error: "Send { data }." }, 400, me.cookies);
   const expect = typeof body.version === "number" && Number.isInteger(body.version) && body.version >= 0 ? body.version : undefined;
   if ("version" in body && body.version !== undefined && expect === undefined) return json({ error: "Send { data, version } with a whole number for version." }, 400, me.cookies);
-  const done = await writeDoc(store.repo, me.account.id, kind, body.data, new Date(), expect);
+  // the owner's own save: the teacher's records and comments stay as stored
+  const done = await writeDoc(store.repo, me.account.id, kind, body.data, new Date(), expect, { owner: true });
   if (!done.ok) {
     if (done.error === "stale") return json({ error: "This was changed somewhere else. Load the newer version.", code: "stale", version: done.version }, 409, me.cookies);
     return done.error === "too-big" ? json({ error: "That is too big to keep." }, 413, me.cookies) : json({ error: "Not found." }, 404, me.cookies);

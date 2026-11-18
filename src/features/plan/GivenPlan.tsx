@@ -14,7 +14,7 @@ import { dateLabel, daysLabel } from "./model/today";
 import { planDays, type StoredPlan } from "./model/types";
 import { usePlan, usePlanTimes } from "./store/usePlan";
 import { CornerLabels, PhoneLabels, SharePlan, rateHandler } from "./ui/planPieces";
-import { givenTitle } from "./ui/GivenPlans";
+import { SHARED_PLAN, givenTitle } from "./ui/GivenPlans";
 import WeekView, { DayPanel } from "./ui/WeekView";
 
 /**
@@ -31,7 +31,24 @@ export default function GivenPlan({ id }: { id: string }) {
     const t = setInterval(() => setDate(localDate()), 60_000);
     return () => clearInterval(t);
   }, []);
-  return <LiveGivenPlan id={id} date={date} controls={(plan) => <><PhoneLabels /><SharePlan planId={plan.id} /></>} />;
+  // a teacher's week is the student's own practice plan, not one to pass on: no Share plan (it would offer them the Teacher upgrade)
+  return <LiveGivenPlan id={id} date={date} controls={(plan) => <><PhoneLabels />{!plan.teacher && <SharePlan planId={plan.id} />}</>} />;
+}
+
+/** The page's name on a teacher's week: the student's practice plan, named as on `/plan`. */
+export const TEACHER_WEEK_PAGE = "Practice plan";
+
+/** The heading of a given plan's page: `TEACHER_WEEK_PAGE` for a week a teacher made, else `SHARED_PLAN` (the not-found state too). */
+export const givenPageTitle = (plan: StoredPlan | undefined): string => (plan?.teacher ? TEACHER_WEEK_PAGE : SHARED_PLAN);
+
+/**
+ * The page heading of `/plan/given/<id>` (`PageShell`'s `title`), drawn in the browser, which has the plan document. Until it
+ * loads the words hold the space, hidden, so a student never reads "Shared plan" over their teacher's week.
+ */
+export function GivenPlanTitle({ id }: { id: string }) {
+  const { state, loaded } = usePlan();
+  if (!loaded) return <span aria-hidden className="invisible">{SHARED_PLAN}</span>;
+  return <>{givenPageTitle(givenPlan(state, id))}</>;
 }
 
 /**

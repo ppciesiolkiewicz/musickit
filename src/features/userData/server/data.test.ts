@@ -431,3 +431,48 @@ test("a comment is put back only on a plan that still has a teacher record and t
   const stored = (await readDoc(repo, "u1", "plan")) as PlanState;
   assert.equal(stored.given[0].teacher?.comment, undefined);
 });
+
+test("an owner's save can't change the teacher's comment: the stored one stays", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", taughtDoc("Ben rushes the changes"), now);
+  assert.deepEqual(await writeDoc(repo, "u1", "plan", taughtDoc("I practised a lot"), now, 1, { owner: true }), { ok: true, version: 2 });
+  assert.equal(((await readDoc(repo, "u1", "plan")) as PlanState).given[0].teacher?.comment, "Ben rushes the changes");
+});
+
+test("an owner's save that drops a week's teacher record gets the record and its comment back, by plan id", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", taughtDoc("Ben rushes the changes"), now);
+  const sent = taughtDoc(null);
+  const { teacher: _gone, ...bare } = sent.history[0];
+  void _gone;
+  await writeDoc(repo, "u1", "plan", { ...sent, history: [bare] }, now, 1, { owner: true });
+  assert.deepEqual(((await readDoc(repo, "u1", "plan")) as PlanState).history[0].teacher, { madeAt: "2026-11-02T09:00:00.000Z", comment: "old words" });
+});
+
+test("an owner's save can't make a teacher record or a comment of its own", async () => {
+  const repo = memoryUserDataRepo();
+  const own = { current: { id: "mine", startedOn: "2026-11-18", done: {}, teacher: { madeAt: "2026-11-18T09:00:00.000Z", comment: "made up" }, config: { title: "", days: [{ theme: "", exercises: [ex] }] } }, history: [], given: [] };
+  await writeDoc(repo, "u1", "plan", own, now, undefined, { owner: true });
+  assert.equal(((await readDoc(repo, "u1", "plan")) as PlanState).current?.teacher, undefined);
+});
+
+test("a save without a version reads again when another write lands between its read and its write, and keeps that write's comment", async () => {
+  const base = memoryUserDataRepo();
+  await writeDoc(base, "u1", "plan", taughtDoc("first words"), now);
+  let raced = false;
+  const repo = {
+    ...base,
+    async putDoc(...args: Parameters<typeof base.putDoc>) {
+      if (!raced) {
+        raced = true;
+        // the teacher's write lands after this save read version 1
+        await base.putDoc("u1", "plan", taughtDoc("newer words"), now);
+      }
+      return base.putDoc(...args);
+    },
+  };
+  assert.deepEqual(await writeDoc(repo, "u1", "plan", taughtDoc(null, { "0:0": true }), now), { ok: true, version: 3 });
+  const stored = (await readDoc(base, "u1", "plan")) as PlanState;
+  assert.equal(stored.given[0].teacher?.comment, "newer words");
+  assert.deepEqual(stored.given[0].done, { "0:0": true });
+});

@@ -137,11 +137,12 @@ export function dayBeforeWeek(s: PlanState, start: string): string[] {
   return (before?.config.days[planDays(before) - 1]?.exercises ?? []).flatMap((e) => (e.blockId ? [e.blockId] : []));
 }
 
-/** The given weeks a teacher made that have started by `date`, newest first (by start, then by when they were made). */
-const teacherWeeks = (s: PlanState, date: string): StoredPlan[] =>
-  s.given
-    .filter((p) => p.teacher && p.startedOn <= date)
-    .sort((a, b) => (a.startedOn !== b.startedOn ? (a.startedOn < b.startedOn ? 1 : -1) : Date.parse(b.teacher!.madeAt) - Date.parse(a.teacher!.madeAt)));
+/** The one order of a teacher's weeks, newest first: by start, then by when the teacher made it. */
+export const newestWeekFirst = (a: StoredPlan, b: StoredPlan): number =>
+  a.startedOn !== b.startedOn ? (a.startedOn < b.startedOn ? 1 : -1) : Date.parse(b.teacher?.madeAt ?? "") - Date.parse(a.teacher?.madeAt ?? "") || 0;
+
+/** The given weeks a teacher made that have started by `date`, newest first (`newestWeekFirst`). */
+export const teacherWeeks = (s: PlanState, date: string): StoredPlan[] => s.given.filter((p) => p.teacher && p.startedOn <= date).sort(newestWeekFirst);
 
 /** The newest week a teacher made that has started by `date` (yyyy-mm-dd), or null. */
 export const teacherWeek = (s: PlanState, date: string): StoredPlan | null => teacherWeeks(s, date)[0] ?? null;

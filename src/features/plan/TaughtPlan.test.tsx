@@ -4,7 +4,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { SEED_PLANS } from "@/features/library/seed";
 import { sanitiseState } from "./model/state";
 import { taughtView } from "./model/today";
-import { GivenPlanView } from "./GivenPlan";
+import { GivenPlanView, TEACHER_WEEK_PAGE, givenPageTitle } from "./GivenPlan";
+import { PLAYER_INTRO, TAUGHT_INTRO, introFor } from "./ui/PlanIntro";
+import { SHARED_PLAN } from "./ui/GivenPlans";
 import GivenPlans from "./ui/GivenPlans";
 import TaughtPlanView from "./ui/TaughtPlan";
 import type { StoredPlan } from "./model/types";
@@ -81,4 +83,26 @@ test("a teacher's week on its own page (no `from`) draws, with a title from its 
   const html = renderToStaticMarkup(<GivenPlanView plan={state.given[0]} date={TODAY} day={null} onDay={() => {}} controls={null} corner={null} />);
   assert.match(html, /Week of 16 November/);
   assert.equal(html.match(/role="tab"/g)?.length, 7);
+});
+
+test("a week the teacher replaced is listed without a link, saying it was replaced", () => {
+  const s = sanitiseState({ current: null, given: [week("now", "2026-11-16")], history: [week("rotated", "2026-11-16")] });
+  const html = draw(s);
+  assert.match(html, /Replaced by a new plan/);
+  assert.doesNotMatch(html, /href="\/plan\/given\/rotated"/);
+});
+
+test("the /plan intro is true for whoever reads it, and none is read before the account is known", () => {
+  assert.equal(introFor(true, false), PLAYER_INTRO);
+  assert.match(PLAYER_INTRO, /Each day you open this page, attunr makes a new plan/);
+  assert.equal(introFor(true, true), TAUGHT_INTRO);
+  assert.doesNotMatch(TAUGHT_INTRO, /each day|daily|attunr makes/i);
+  assert.equal(introFor(false, false), null);
+  assert.equal(introFor(false, true), null);
+});
+
+test("a given plan's page heading: Practice plan for a teacher's week, Shared plan otherwise", () => {
+  assert.equal(givenPageTitle(state.given[0]), TEACHER_WEEK_PAGE);
+  assert.equal(givenPageTitle(state.given.find((p) => p.id === "shared")), SHARED_PLAN);
+  assert.equal(givenPageTitle(undefined), SHARED_PLAN);
 });
