@@ -75,6 +75,10 @@ table blocks {
   prompt_version integer
   docs_agents integer
   docs_teaching integer
+  minutes integer
+  why text
+  learn_before text[]
+  explore_more text[]
   created_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
@@ -93,6 +97,40 @@ table identities {
   indexes {
     (provider, provider_account_id) [name: 'identities_provider_account', unique]
     user_id [name: 'identities_user']
+  }
+}
+
+table message_threads {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  kind text [not null, default: 'support']
+  user_id uuid
+  email text
+  status text [not null, default: 'open']
+  last_at "timestamp with time zone" [not null]
+  last_user_at "timestamp with time zone"
+  last_admin_at "timestamp with time zone"
+  user_read_at "timestamp with time zone"
+  admin_read_at "timestamp with time zone"
+  emailed_at "timestamp with time zone"
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (user_id, last_at) [name: 'message_threads_user']
+    (status, last_at) [name: 'message_threads_status']
+    
+  }
+}
+
+table messages {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  thread_id uuid [not null]
+  from_admin boolean [not null]
+  body text [not null]
+  context jsonb
+  at "timestamp with time zone" [not null]
+
+  indexes {
+    (thread_id, at) [name: 'messages_thread']
   }
 }
 
@@ -291,6 +329,10 @@ ref block_owners_user_id_users_id_fk: block_owners.user_id > users.id [delete: c
 ref block_owners_block_id_blocks_id_fk: block_owners.block_id > blocks.id [delete: no action, update: no action]
 
 ref identities_user_id_users_id_fk: identities.user_id > users.id [delete: cascade, update: no action]
+
+ref message_threads_user_id_users_id_fk: message_threads.user_id > users.id [delete: cascade, update: no action]
+
+ref messages_thread_id_message_threads_id_fk: messages.thread_id > message_threads.id [delete: cascade, update: no action]
 
 ref plan_claims_share_id_shares_id_fk: plan_claims.share_id > shares.id [delete: cascade, update: no action]
 

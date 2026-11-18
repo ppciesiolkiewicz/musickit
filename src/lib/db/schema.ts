@@ -318,6 +318,46 @@ export const planReviews = pgTable(
   (t) => [uniqueIndex("plan_reviews_user_plan").on(t.userId, t.planId), index("plan_reviews_at").on(t.at), check("plan_reviews_stars_range", sql`${t.stars} between 1 and 5`)],
 );
 
+/**
+ * A conversation between a signed-in user and us (features/messages), or one contact form message from a visitor
+ * (`user_id` null, `email` set). A user may have several. `last_user_at` / `last_admin_at` and the two read times say
+ * what is unread on each side without reading the messages. `emailed_at` is when we were last emailed about it (at most
+ * once in 10 minutes). Read and answered at /dev/messages.
+ */
+export const messageThreads = pgTable(
+  "message_threads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** 'support' today; teacher and student threads later. */
+    kind: text("kind").notNull().default("support"),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+    email: text("email"),
+    status: text("status").notNull().default("open"),
+    lastAt: at("last_at").notNull(),
+    lastUserAt: at("last_user_at"),
+    lastAdminAt: at("last_admin_at"),
+    userReadAt: at("user_read_at"),
+    adminReadAt: at("admin_read_at"),
+    emailedAt: at("emailed_at"),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("message_threads_user").on(t.userId, t.lastAt), index("message_threads_status").on(t.status, t.lastAt), check("message_threads_status_value", sql`${t.status} in ('open', 'closed')`)],
+);
+
+/** One message in a thread, from the user or from us. `context` is where the user sent it from (`MessageContext`). */
+export const messages = pgTable(
+  "messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    threadId: uuid("thread_id").notNull().references(() => messageThreads.id, { onDelete: "cascade" }),
+    fromAdmin: boolean("from_admin").notNull(),
+    body: text("body").notNull(),
+    context: jsonb("context"),
+    at: at("at").notNull(),
+  },
+  (t) => [index("messages_thread").on(t.threadId, t.at)],
+);
+
 /** A video a player uploaded. The file is in the private blob store at `blobPath`. */
 export const videos = pgTable(
   "videos",

@@ -183,6 +183,13 @@
       "when": 1794966958360,
       "tag": "0025_block_slot",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794973842213,
+      "tag": "0026_safe_diamondback",
+      "breakpoints": true
     }
   ]
 }
