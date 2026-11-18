@@ -1,3 +1,4 @@
+import { shownTitle } from "./moves";
 import { GLOSSARY } from "@/features/course/glossary";
 import type { CatalogueEntry } from "./catalogue";
 import { keyName } from "@/features/theory/keySlug";
@@ -71,7 +72,7 @@ export function weekReport(plan: StoredPlan): string {
   plan.config.days.forEach((d, di) => {
     const ex = d.exercises.map((e, ei) => {
       const mark = markOf(plan, di, ei);
-      return `${mark} ${e.title}${aboutOf(e)}`;
+      return `${mark} ${shownTitle(e)}${aboutOf(e)}`;
     }).join("; ");
     lines.push(`- Day ${di + 1} (${d.theme}): ${ex}`);
   });
@@ -94,7 +95,7 @@ export function weekByTopic(plan: StoredPlan): string {
   const groups = new Map<string, string[]>();
   plan.config.days.forEach((d, di) => d.exercises.forEach((e, ei) => {
     const key = e.topic && topicById(e.topic) ? e.topic : "";
-    groups.set(key, [...(groups.get(key) ?? []), `- Day ${di + 1}: ${markOf(plan, di, ei)} ${e.title}${aboutOf(e)}`]);
+    groups.set(key, [...(groups.get(key) ?? []), `- Day ${di + 1}: ${markOf(plan, di, ei)} ${shownTitle(e)}${aboutOf(e)}`]);
   }));
   const lines = [`Plan "${plan.config.title}", started ${plan.startedOn}:`];
   for (const t of TOPICS) if (groups.has(t.id)) lines.push(`### ${AREAS.find((a) => a.id === t.area)!.label} · ${t.label}`, ...groups.get(t.id)!);

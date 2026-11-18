@@ -6,7 +6,7 @@ import { daySteps, type DaySteps } from "./daySteps";
 import { levelOf } from "../intake/answers";
 import { exerciseKeys, hasKeySelector, keyRung, type PlayerKeys } from "./keys";
 import { keyTrackOf, playerKeys } from "./keyStages";
-import { written, type Given } from "./moves";
+import { shownTitle, written, type Given } from "./moves";
 import { SOLID_STARS } from "./outcome";
 import { PATH, type Track } from "./path";
 import { reach } from "./reach";
@@ -188,7 +188,7 @@ function fill(steps: { fresh: string[]; open: string[]; review: string[] }, revi
     used.add(p.cand.blockId);
     total += p.cand.minutes;
     into.push(p);
-    trace?.picks.push({ blockId: p.cand.blockId, title: p.cand.exercise.title, minutes: p.cand.minutes, stage, asked: step, step: p.step, reason: p.reason, among: p.among, total });
+    trace?.picks.push({ blockId: p.cand.blockId, title: shownTitle(p.cand.exercise), minutes: p.cand.minutes, stage, asked: step, step: p.step, reason: p.reason, among: p.among, total });
     return true;
   };
 

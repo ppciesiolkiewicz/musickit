@@ -251,6 +251,20 @@ complete (their own key, scale, tempo); `applyChoice(cells, choice, index)` sets
 the tools are written, or a tool written in another value than an open choice ("staff written in G under a choice in A;
 it will follow A."). The tools know nothing about the chooser.
 
+**Moves and the version** (`model/moves.ts`, ChoiceSplit: `docs/superpowers/specs/2026-11-18-choice-split-design.md`). A
+block may state `moves` beside its cells: `"key": "any"` (it can be played in any key; absent, its key is the lesson)
+and `"bpm": { "from", "to", "step" }` (the tempos it makes sense in). Its tools are written at the starting values,
+and such a block has no choice with chips that sets a key or a tempo (one is left out on paste, with a warning). The
+composer rolls the version each exercise is played in (`model/roll.ts`) and stores it on the slot as `given` (the keys
+it opens in and the earlier ones, its tempo and the earlier ones). The reader draws the block in it (`applyGiven`):
+tools moved by the distance from the written key and starting tempo, a `pinned` tool left alone, and the params
+`{{=key}}` and `{{=bpm}}` in the title, headings, text and lists filled with the value the chips stand on. For a part
+with more than one value it draws a row of chips before the block's first tool (Key, Tempo; the earlier values after
+"Earlier") with one line of the app's own under it (`ui/reader/selectorLine.ts`); the block's text never names a
+selector. With nothing given (a note, a shared plan from before, a dev page) the block is drawn as written, with no
+chips. A title shown outside the card is `shownTitle(e)`. A block of the older shape, with a Key selector in a section,
+still follows the player's keys through `withKeys`.
+
 On paste: a code fence or prose around it is fine; minutes are clamped to 1–120. The parser is forgiving, but it says
 so: everything it changes or drops is a warning in `parsePlanConfig` (`config.ts`; `parseExercise` does one block),
 worded to be pasted back to the AI. Left out, with why (`parseToolDiag`, `parseCellDiag`): a tool of an unknown type, or

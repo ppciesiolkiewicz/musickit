@@ -177,6 +177,9 @@ export function applyGiven<B extends Pick<Block, "title" | "moves" | "cells">>(b
   return { ...block, title: fill(block.title, values), cells };
 }
 
+/** An exercise's title as the player reads it: its params filled with the version it was given (the first of its keys, its tempo), or with the block as written. */
+export const shownTitle = (e: Pick<Block, "title" | "moves" | "cells"> & { given?: Given }): string => (e.moves ? applyGiven(e, e.given).title : e.title);
+
 const PARAM_WORD: Record<MovePart, string> = { key: "key", bpm: "tempo" };
 
 /** What's wrong with a block's params: one that names a part the block has no move for. Worded to be pasted back. */

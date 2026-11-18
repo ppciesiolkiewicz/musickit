@@ -1,6 +1,7 @@
 "use client";
 
 import { withKeys } from "../model/keys";
+import { applyGiven, type At } from "../model/moves";
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/Icon";
 import { HUE_TONES, Popover, StarRating, hueAt, type Hue } from "@/components/ui";
@@ -61,7 +62,10 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   const tags = hashtagLine(e);
   // the reader gets the block alone, never what the plan knows about it
   // with the player's keys in its Key selector, when the composer gave the exercise some
-  const block: Block = withKeys({ title: e.title, ...(e.choice ? { choice: e.choice } : {}), cells: e.cells }, e.given?.keys);
+  // a block with moves is drawn in its version by the reader; the title follows where the version's chips stand
+  const block: Block = withKeys({ title: e.title, ...(e.choice ? { choice: e.choice } : {}), ...(e.moves ? { moves: e.moves } : {}), cells: e.cells }, e.moves ? null : e.given?.keys);
+  const [at, setAt] = useState<At>({});
+  const title = applyGiven(block, e.given, at).title;
   // the planned time reached: the whole card turns green with a soft glow, and flashes brighter at the moment it happens
   const reached = spent !== undefined && e.minutes > 0 && spent >= e.minutes * 60;
   const [was, setWas] = useState(reached);
@@ -81,21 +85,21 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   return (
     <section
       data-tour={tour ? "plan-exercise" : undefined}
-      aria-label={e.title}
+      aria-label={title}
       aria-current={now ? "step" : undefined}
       style={glow}
       className={`flex flex-col gap-3 rounded-2xl border border-l-4 p-3 transition-all ${ticking && !reached ? "duration-[1500ms]" : "duration-700"} sm:p-5 ${EDGE[hue]} ${flash ? "border-emerald-300 bg-emerald-500/20 shadow-[0_0_40px] shadow-emerald-400/50 ring-2 ring-emerald-300/70" : reached ? "border-emerald-400/60 bg-emerald-500/10 shadow-[0_0_24px] shadow-emerald-400/25" : ticking ? "border-sky-400/50 bg-sky-500/5" : done ? "border-emerald-500/40 bg-emerald-500/5" : now ? "border-slate-600 bg-slate-900/80 shadow-lg shadow-black/30" : "border-slate-800 bg-slate-900/50"}`}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className={`grid size-8 shrink-0 place-items-center rounded-full text-sm font-semibold tabular-nums ${HUE_TONES[hue].disc[1]}`}>{index + 1}</span>
-        <BlockTitle title={e.title} size="card" done={done} />
+        <BlockTitle title={title} size="card" done={done} />
         {tags && <span className="text-xs text-slate-500">{tags}</span>}
         {spent === undefined
           ? <span className="ml-auto flex items-center gap-1 text-xs text-slate-400"><Icon name="timer" size={12} />{e.minutes} min</span>
           : <SpentTime seconds={spent} minutes={e.minutes} ticking={ticking} />}
       </div>
       <LinkSlot title="Learn before" hrefs={e.learnBefore ?? []} />
-      <ExerciseSettings><BlockBody block={block} size="card" address={address} /></ExerciseSettings>
+      <ExerciseSettings><BlockBody block={block} size="card" address={address} given={e.given} at={at} onAt={setAt} /></ExerciseSettings>
       {e.why && <p className="border-l-2 border-slate-700 pl-3 text-xs italic leading-relaxed text-slate-400">{e.why}</p>}
       <LinkSlot title="Explore more" hrefs={e.exploreMore ?? []} />
       {spent !== undefined && <span className="self-end"><SpentBar seconds={spent} minutes={e.minutes} ticking={ticking} small /></span>}

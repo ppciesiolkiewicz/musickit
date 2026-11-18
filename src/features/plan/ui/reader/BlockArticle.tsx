@@ -9,6 +9,7 @@ import HeadphonesNotice from "@/features/stage/render/HeadphonesNotice";
 import { ExerciseStep, StartExercise } from "@/components/practice/exerciseStep";
 import { noteRootFor } from "../../model/noteText";
 import { drawnParts, keyBarValue, pickAt, type DrawnPart, type Picks } from "../../model/choice";
+import { applyGiven, selectorsOf, shownTitle, written, type At, type Given } from "../../model/moves";
 import type { Choice, PlainCell } from "../../model/tools";
 import type { Block } from "../../model/types";
 import ExerciseTool from "../ExerciseTool";
@@ -17,6 +18,7 @@ import KeyBar from "./KeyBar";
 import { NoteText } from "./NoteText";
 import ToolBoundary from "./ToolBoundary";
 import ToolFigure from "./ToolFigure";
+import { selectorLine } from "./selectorLine";
 
 /**
  * The reader of a block: its title, then its cells as an article (text in a column, tools as figures, each section a step
@@ -59,10 +61,21 @@ function ToSectionTop() {
  * first tool); the picked option sets the tools under it (and the dots in the text), remounting them. An open choice sets
  * its tools; it is drawn as the key bar only when the host says `keyBar` (a note: a block with no exercise metadata).
  * Under a `CellAsideContext` (the review view) each cell carries the aside and each tool is framed with its type.
+ *
+ * A block with `moves` is drawn in the version it was `given` (model/moves.ts): its tools moved, the params in its text
+ * filled, and, for each part with more than one value, a row of chips before the block's first tool with one line
+ * under it saying what the chips do. With nothing given it is drawn as written, with no chips. The host may hold where
+ * the chips stand (`at`, `onAt`), so a title outside the body follows them; else the body holds it.
  */
-export function BlockBody({ block, size, keyBar = false, address = "ex" }: { block: Block; size: ReaderSize; /** draw an open block choice as the key bar */ keyBar?: boolean; /** which block, for a cell aside */ address?: string }) {
+export function BlockBody({ block: asWritten, size, keyBar = false, address = "ex", given, at, onAt }: { block: Block; size: ReaderSize; /** draw an open block choice as the key bar */ keyBar?: boolean; /** which block, for a cell aside */ address?: string; /** the version to draw a block with moves in */ given?: Given | null; /** where the version's chips stand, when the host holds it */ at?: At; onAt?: (at: At) => void }) {
   const aside = useContext(CellAsideContext);
   const [picks, setPicks] = useState<Picks>({});
+  const [ownAt, setOwnAt] = useState<At>({});
+  const where = at ?? ownAt;
+  const setWhere = onAt ?? setOwnAt;
+  const selectors = selectorsOf(asWritten, given);
+  const block = applyGiven(asWritten, given, where);
+  const hasPlay = written(asWritten).bpm !== null;
   const { measure, text: textSize, heading } = SIZE[size];
   const look = aside ? "framed" : size === "page" ? "page" : "plain";
   const parts = drawnParts(block, picks);
@@ -92,7 +105,7 @@ export function BlockBody({ block, size, keyBar = false, address = "ex" }: { blo
         return <div key={i} className={measure}><HeadphonesNotice /></div>;
       case "tool":
         // a new option remounts the tool, so what it was playing stops
-        return <ToolFigure key={`${i}-${blockAt}-${p.chips ? pickAt(p.chips, picks, p.id) : ""}`} type={s.tool.type} look={look} measure={measure}><ToolBoundary><ExerciseTool tool={s.tool} /></ToolBoundary></ToolFigure>;
+        return <ToolFigure key={`${i}-${blockAt}-${p.chips ? pickAt(p.chips, picks, p.id) : ""}-${where.key ?? 0}-${where.bpm ?? 0}`} type={s.tool.type} look={look} measure={measure}><ToolBoundary><ExerciseTool tool={s.tool} /></ToolBoundary></ToolFigure>;
     }
   };
   const chipRow = (id: string, c: Choice | null | undefined) => {
@@ -100,6 +113,17 @@ export function BlockBody({ block, size, keyBar = false, address = "ex" }: { blo
     const row = <ChoiceChips options={c.options} label={c.label} back={c.back} value={pickAt(c, picks, id)} onChange={(index) => setPicks((k) => ({ ...k, [id]: index }))} />;
     return aside ? <ToolFigure type="choice" look="framed" measure={measure}>{row}</ToolFigure> : <div className={`-mb-1 pt-1 ${measure}`}>{row}</div>;
   };
+  // the version's chips: one row per part, the values of now first and the earlier ones after "Earlier", with the app's line under it
+  const givenRows = selectors.map((sel) => {
+    const stands = Math.min(sel.values.length - 1, Math.max(0, where[sel.part] ?? 0));
+    const row = (
+      <div className="flex flex-col gap-1.5">
+        <ChoiceChips options={sel.values.map((v) => ({ [sel.part]: v }))} back={sel.back < sel.values.length ? sel.back : undefined} value={stands} onChange={(index) => setWhere({ ...where, [sel.part]: index })} />
+        <p className="text-xs leading-relaxed text-slate-400">{selectorLine(sel.part, sel.back < sel.values.length, hasPlay)}</p>
+      </div>
+    );
+    return aside ? <ToolFigure key={sel.part} type="choice" look="framed" measure={measure}>{row}</ToolFigure> : <div key={sel.part} className={`pt-1 ${measure}`}>{row}</div>;
+  });
   const firstBlockTool = flat.findIndex((c) => c.type === "tool");
   // the part's items: the chips, then "Start exercise" (shown only when there is more than one thing to start), before its first tool
   const items = (p: DrawnPart) => {
@@ -110,6 +134,7 @@ export function BlockBody({ block, size, keyBar = false, address = "ex" }: { blo
       if (j !== firstTool) return node;
       return (
         <Fragment key={i}>
+          {i === firstBlockTool && givenRows}
           {i === firstBlockTool && chipRow("block", block.choice)}
           {chipRow(p.id, p.chips)}
           <StartExercise />
@@ -152,7 +177,7 @@ export function BlockBody({ block, size, keyBar = false, address = "ex" }: { blo
 export default function BlockArticle({ block, keyBar = false, address }: { block: Block; keyBar?: boolean; address?: string }) {
   return (
     <article aria-label={block.title} className="flex w-full flex-col gap-6">
-      <BlockTitle title={block.title} size="page" />
+      <BlockTitle title={shownTitle(block)} size="page" />
       <BlockBody block={block} size="page" keyBar={keyBar} address={address} />
     </article>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { shownTitle } from "../model/moves";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
 import { DISPLAY } from "@/components/landing/Display";
@@ -176,7 +177,7 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
         // a day whose exercises change (an AI's insert or removal, another plan) gets a fresh timer, so it never saves the old order's seconds
         key={`${plan.id}:${day}:${ids}`}
         minutes={d.exercises.map((e) => e.minutes)}
-        titles={d.exercises.map((e) => e.title)}
+        titles={d.exercises.map(shownTitle)}
         label={timerLabel}
         elapsed={elapsedOn(times, day)}
         spent={saved}

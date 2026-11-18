@@ -61,7 +61,7 @@ export function View({ options, label, back, value: picked, onChange }: { option
           return (
             <Fragment key={i}>
               {back === i && <span className="ml-2 mr-1 text-xs font-medium uppercase tracking-wide text-slate-500">Earlier</span>}
-              <button type="button" role="radio" aria-checked={on} aria-label={earlier ? `${value(o, plain)}, an earlier key` : undefined} onClick={() => pick(i)} className={`h-8 min-w-10 rounded-full border px-3 text-sm font-semibold tabular-nums transition active:scale-[0.97] ${tone}`}>
+              <button type="button" role="radio" aria-checked={on} aria-label={earlier ? `${value(o, plain)}, an earlier ${plain === "bpm" ? "tempo" : plain}` : undefined} onClick={() => pick(i)} className={`h-8 min-w-10 rounded-full border px-3 text-sm font-semibold tabular-nums transition active:scale-[0.97] ${tone}`}>
                 {value(o, plain)}
               </button>
             </Fragment>

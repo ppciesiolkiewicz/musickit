@@ -1,5 +1,6 @@
 import type { ProgressEntry } from "@/features/progress/log";
 import type { StarRating } from "@/features/progress/stars";
+import { shownTitle } from "./moves";
 import type { StoredPlan } from "./types";
 
 /**
@@ -10,7 +11,7 @@ export function entryFor(plan: StoredPlan, day: number, exercise: number, rating
   const e = plan.config.days[day]?.exercises[exercise];
   if (!e?.id) return null;
   return {
-    id: newId(), planId: plan.id, exerciseId: e.id, day, exercise, title: e.title,
+    id: newId(), planId: plan.id, exerciseId: e.id, day, exercise, title: shownTitle(e),
     ...(e.area ? { area: e.area } : {}),
     ...(e.level ? { level: e.level } : {}),
     ...(e.topic ? { topic: e.topic } : {}),

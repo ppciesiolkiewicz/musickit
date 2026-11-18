@@ -6,6 +6,7 @@ import { MINUTES, levelOf } from "@/features/plan/intake/answers";
 import { topicById } from "@/features/plan/intake/topics";
 import { AREAS } from "@/features/plan/model/concepts";
 import type { PickReason, PickStage } from "@/features/plan/model/compose";
+import { shownTitle } from "@/features/plan/model/moves";
 import { KEY_LADDERS, KEY_RUNGS, hasKeySelector, keyRung, keysAt, type KeyRung } from "@/features/plan/model/keys";
 import { stepAt } from "@/features/plan/model/path";
 import { keyName } from "@/features/theory/keySlug";
@@ -263,7 +264,7 @@ export default function ComposeLab() {
             {day.exercises.map((e, i) => (
               <li key={e.blockId ?? i} className="flex flex-wrap items-baseline gap-2">
                 <span className="w-5 tabular-nums text-slate-500">{i + 1}</span>
-                <span className="text-slate-100">{e.title}</span>
+                <span className="text-slate-100">{shownTitle(e)}</span>
                 <span className="text-slate-500">{e.minutes} min</span>
                 {(e.steps ?? []).map((r) => <StepChip key={r} refId={r} />)}
                 {e.given?.keys && <span className="text-sky-200">Key {keys(e.given.keys.now)}{e.given.keys.back.length ? ` · Earlier ${keys(e.given.keys.back)}` : ""}</span>}
