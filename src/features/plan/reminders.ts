@@ -1,5 +1,5 @@
-import { dayIndex, dayProgress, localDate } from "./model/schedule";
-import { planDays, type PlanState } from "./model/types";
+import { dayProgress, localDate, ownDay } from "./model/schedule";
+import type { PlanState } from "./model/types";
 
 export const notificationsSupported = (): boolean => typeof window !== "undefined" && "Notification" in window;
 
@@ -12,18 +12,26 @@ export async function askNotifications(): Promise<boolean> {
 }
 
 /**
- * Whether a reminder is due now: switched on, a plan running and not over, today's exercises not all done,
- * past the chosen time, and not already shown today.
+ * Whether a reminder is due now: switched on, past the chosen time, not already shown today, the questions answered, and
+ * today's own plan either not made yet (the plan page makes it when it opens) or not finished. A given plan plays no part.
  */
 export function reminderDue(state: PlanState, now: Date): boolean {
-  const { reminder, current } = state;
-  if (!reminder.enabled || !current) return false;
+  const { reminder } = state;
+  if (!reminder.enabled || !state.answers) return false;
   const today = localDate(now);
   if (reminder.lastShownOn === today) return false;
-  const day = dayIndex(current.startedOn, today);
-  if (day >= planDays(current) || dayProgress(current, day) === 1) return false;
+  const own = ownDay(state, today);
+  if (own && dayProgress(own, 0) === 1) return false;
   const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
   return hhmm >= reminder.time;
+}
+
+/** The reminder's words: today's plan and its topics, or, before it is made, that opening the plan page makes it. */
+export function reminderBody(state: PlanState, now: Date): string {
+  const own = ownDay(state, localDate(now));
+  if (!own) return "Open the plan page, and attunr puts today's plan together.";
+  const theme = own.config.days[0]?.theme;
+  return `Today's plan${theme ? `: ${theme}` : ""}`;
 }
 
 /** A notification the moment the reminder is switched on, so the player sees one and knows notifications get through. */
@@ -34,12 +42,8 @@ export function confirmReminder(time: string): void {
 
 /** Show the daily reminder; clicking it opens the plan. */
 export function showReminder(state: PlanState, now: Date): void {
-  if (!notificationsSupported() || Notification.permission !== "granted" || !state.current) return;
-  const day = dayIndex(state.current.startedOn, localDate(now));
-  const theme = state.current.config.days[day]?.theme;
-  // a composed plan is one day: "Day 1" would say nothing, so it names today's plan
-  const body = state.current.composed ? `Today's plan${theme ? `: ${theme}` : ""}` : `Day ${day + 1}${theme ? `: ${theme}` : ""}`;
-  const n = new Notification("Time to practise", { body, tag: "attunr-plan", icon: "/icon.png" });
+  if (!notificationsSupported() || Notification.permission !== "granted") return;
+  const n = new Notification("Time to practise", { body: reminderBody(state, now), tag: "attunr-plan", icon: "/icon.png" });
   n.onclick = () => {
     window.focus();
     // a notification click is outside React, so there is no router to push with

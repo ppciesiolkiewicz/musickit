@@ -44,7 +44,8 @@ export const REVIEW = "Review this week";
  * over), how the week went, minutes and anything else. The topic screens are left out of "next" (ratings say more than
  * they do), except for an area with no answer yet (answers kept from before the topics), and unless the player asks with
  * "Change my answers". No plan is made here: "start"'s last screen says attunr puts today's plan together from the answers
- * (the page does, `useTodayPlan`, once `onAnswers` has stored them); "next" (a seven-day plan's week, not opened on `/plan`)
+ * (the page does, `useTodayPlan`, once `onAnswers` has stored them), or, opened with today's plan there (`current`, the
+ * page's Change my answers), that the plan stays and Get another plan makes one from the new answers; "next" (a seven-day plan's week, not opened on `/plan`)
  * says next week's plan isn't ready and points to the demo plans. Finishing hands `onAnswers` the answers, for "next" the
  * notes on the week, and `asked`: whether the topic screens were shown (the answers are then remembered with their date).
  * Once the week is over, "next" opens on the plan review (`PlanReviewStep`, optional), which goes to `onReview` straight away.
@@ -101,7 +102,19 @@ export default function PlanFlow({ mode, answers, current, review, onReview, onA
         ...(editing ? [areasStep(draft, set), ...topicSteps(draft, set)] : topicSteps(draft, set, unanswered)),
         ...restSteps(draft, set, editing),
       ];
-  steps.push(mode === "start"
+  steps.push(mode === "start" && current
+    ? {
+        // Change my answers with today's plan there: the plan stays
+        title: "Your new answers",
+        hint: "Today's plan stays as it is.",
+        body: (
+          <div className="flex flex-col gap-3 text-sm leading-relaxed text-slate-300">
+            <p>When you press {FINISH}, attunr saves your new answers. Today&apos;s plan stays as it is.</p>
+            <p>For a plan from your new answers, press Get another plan on the plan page. From tomorrow, each new plan starts from them.</p>
+          </div>
+        ),
+      }
+    : mode === "start"
     ? {
         title: "Your first plan",
         hint: "attunr makes today's plan from your answers.",

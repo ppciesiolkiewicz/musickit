@@ -46,12 +46,13 @@ function LinkSlot({ title, hrefs }: { title: string; hrefs: string[] }) {
  * `now` (the card in view while the day timer runs) only lifts the card a little: the timer is a guide, not a rule. With
  * `spent`, the planned minutes become `SpentTime`: time on it so far of the time planned, with a bar that fills to green.
  */
-export default function ExerciseCard({ exercise: e, index, done = false, now = false, spent, rating = null, onRate, address }: {
+export default function ExerciseCard({ exercise: e, index, done = false, now = false, spent, rating = null, onRate, address, tour = true }: {
   exercise: PlanExercise; index: number; done?: boolean; now?: boolean;
   /** seconds spent on it so far; without it only the planned minutes show */ spent?: number;
   /** how the player rated it; null when not rated */ rating?: Stars | null;
   /** rate it (or clear the rating with null); without it the card has no stars */ onRate?: (stars: Stars | null) => void;
   /** which exercise, for a `CellAside` */ address?: string;
+  /** carries the page tour's hook (`plan-exercise`); off for a past day shown under today's */ tour?: boolean;
 }) {
   const hue = hueAt(index);
   const tags = hashtagLine(e);
@@ -59,7 +60,7 @@ export default function ExerciseCard({ exercise: e, index, done = false, now = f
   const block: Block = { title: e.title, ...(e.choice ? { choice: e.choice } : {}), cells: e.cells };
   return (
     <section
-      data-tour="plan-exercise"
+      data-tour={tour ? "plan-exercise" : undefined}
       aria-label={e.title}
       aria-current={now ? "step" : undefined}
       className={`flex flex-col gap-3 rounded-2xl border border-l-4 p-3 transition sm:p-5 ${EDGE[hue]} ${done ? "border-emerald-500/40 bg-emerald-500/5" : now ? "border-slate-600 bg-slate-900/80 shadow-lg shadow-black/30" : "border-slate-800 bg-slate-900/50"}`}

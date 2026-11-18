@@ -70,9 +70,11 @@ export function startDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId: (
 
 /**
  * Today's plan replaced by another try (`meta.attempt`). An exercise of today's plan that is in the new day (by block id)
- * keeps its slot id, its tick and its rating, re-keyed to its new place; the day timer's seconds follow it by slot id. Every
- * block id of today's plan that is not in the new one joins `composed.declined`. The plan keeps its id and `startedOn`.
- * Without today's own plan, or for the try it already holds or an earlier one (a late answer), `s` comes back as it is.
+ * keeps its slot id, its tick and its rating, re-keyed to its new place; the day timer's seconds follow it by slot id. An
+ * exercise rated in `s` that the answer left out (rated while the request was out, so the server didn't know) is kept
+ * anyway, as it is: then the kept ones go first in their old order, before the new picks. Every block id of today's plan
+ * that is not in the new day joins `composed.declined`. The plan keeps its id and `startedOn`. Without today's own plan,
+ * or for the try it already holds or an earlier one (a late answer), `s` comes back as it is.
  */
 export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId: () => string): PlanState {
   const today = ownDay(s, meta.date);
@@ -80,18 +82,27 @@ export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId:
   const before = today.config.days[0]?.exercises ?? [];
   const config = dayConfig(day, meta, newId);
   const used = new Set<number>();
+  // each exercise of the answer, with the index in today's plan it was kept from (-1: a new pick)
+  const placed = config.days[0].exercises.map((e) => {
+    const j = before.findIndex((old, k) => !used.has(k) && !!old.blockId && old.blockId === e.blockId);
+    if (j < 0) return { e, from: -1 };
+    used.add(j);
+    return { e: before[j].id ? { ...e, id: before[j].id } : e, from: j };
+  });
+  const late = before.flatMap((e, j) => (!used.has(j) && today.rated?.[doneKey(0, j)] ? [{ e, from: j }] : []));
+  const order = late.length
+    ? [...[...placed.filter((x) => x.from >= 0), ...late].sort((a, b) => a.from - b.from), ...placed.filter((x) => x.from < 0)]
+    : placed;
   const done: Record<string, true> = {};
   const rated: Record<string, StarRating> = {};
-  const exercises = config.days[0].exercises.map((e, i) => {
-    const j = before.findIndex((old, k) => !used.has(k) && !!old.blockId && old.blockId === e.blockId);
-    if (j < 0) return e;
-    used.add(j);
-    const from = doneKey(0, j), to = doneKey(0, i);
-    if (today.done[from]) done[to] = true;
-    const r = today.rated?.[from];
+  order.forEach(({ from }, i) => {
+    if (from < 0) return;
+    const at = doneKey(0, from), to = doneKey(0, i);
+    if (today.done[at]) done[to] = true;
+    const r = today.rated?.[at];
     if (r) rated[to] = r;
-    return before[j].id ? { ...e, id: before[j].id } : e;
   });
+  const exercises = order.map((x) => x.e);
   const now = new Set(exercises.map((e) => e.blockId));
   const declined = [...today.composed.declined];
   for (const e of before) if (e.blockId && !now.has(e.blockId) && !declined.includes(e.blockId)) declined.push(e.blockId);

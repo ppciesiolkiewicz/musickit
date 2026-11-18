@@ -102,6 +102,21 @@ test("the spec's case: A (rated 4), B, C, then [A, D, E]", () => {
   assert.equal(p.composed?.attempt, 1);
 });
 
+test("anotherDay keeps a rating given while the request was out: A (rated 4), B (rated 5 after the request), C; answer [A, D, E]", () => {
+  let s = startDay(EMPTY_STATE, dayOf("A", "B", "C"), { date: "2026-11-18", attempt: 0 }, ids("a"));
+  const [a, b] = s.current!.config.days[0].exercises;
+  s = { ...s, current: ratePlan(s.current!, 0, 0, 4, "2026-11-18T10:00:00Z") };
+  // the request goes out here; B is rated before the answer lands
+  s = { ...s, current: ratePlan(s.current!, 0, 1, 5, "2026-11-18T10:01:00Z") };
+  const p = anotherDay(s, dayOf("A", "D", "E"), { date: "2026-11-18", attempt: 1 }, ids("b")).current!;
+  assert.deepEqual(p.config.days[0].exercises.map((e) => e.blockId), [bid("A"), bid("B"), bid("D"), bid("E")]);
+  assert.equal(p.config.days[0].exercises[0].id, a.id);
+  assert.equal(p.config.days[0].exercises[1].id, b.id);
+  assert.deepEqual(Object.fromEntries(Object.entries(p.rated ?? {}).map(([k, r]) => [k, r.stars])), { "0:0": 4, "0:1": 5 });
+  assert.deepEqual(p.done, { "0:0": true, "0:1": true });
+  assert.deepEqual(p.composed?.declined, [bid("C")]);
+});
+
 test("anotherDay without today's own plan changes nothing", () => {
   const s = startDay(EMPTY_STATE, dayOf("A"), { date: "2026-11-17", attempt: 0 }, ids());
   assert.equal(anotherDay(s, dayOf("B"), { date: "2026-11-18", attempt: 1 }, ids()), s);

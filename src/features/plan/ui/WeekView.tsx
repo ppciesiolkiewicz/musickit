@@ -96,7 +96,7 @@ export default function WeekView({ plan, today, day, onDay, onRate, times = [], 
  * the timer names and counts time for, and it is lifted a little. With `onEdit` the day has Edit (`DayEditor`). Without `onRate`
  * the cards have no stars (a past day, read-only). The week's strip and today's plan (`DayPlan`) both draw a day with it.
  */
-export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, times = [], onTime, onEdit, onEditing, corner }: {
+export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, times = [], onTime, onEdit, editLocked = false, onEditing, corner, readOnly = false }: {
   plan: StoredPlan; day: number; heading: ReactNode;
   /** the day timer's name for the day ("Day 3", "Today") */
   timerLabel: string;
@@ -106,8 +106,12 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ti
   times?: DayTime[];
   onTime?: (time: DayTime) => void;
   onEdit?: (next: StoredPlan) => void;
+  /** Edit shows but can't be pressed (another plan is being asked for) */
+  editLocked?: boolean;
   onEditing?: (day: number | null) => void;
   corner?: ReactNode;
+  /** a past day shown under today's: no tour hooks, and its cards' addresses kept apart from today's */
+  readOnly?: boolean;
 }) {
   // the day editor is open: the cards give way to it and the timer is put away until Done or Cancel
   const [editing, setEditing] = useState(false);
@@ -126,17 +130,17 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ti
   const spent = live?.ids === ids ? live.spent : saved;
   return (
     <>
-      <div data-tour="plan-day" className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <div data-tour={readOnly ? undefined : "plan-day"} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         {heading}
         <span className="text-xs text-slate-400">{d.exercises.length} exercises · {total} min</span>
         {onEdit && !editing && (
-          <button type="button" onClick={() => {
+          <button type="button" disabled={editLocked} onClick={() => {
             // the timer is put away: it neither starts again by itself nor keeps the seconds of the old order when it comes back
             setAuto(false);
             setNow(null);
             setLive(null);
             setEditing(true);
-          }} className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-200 hover:border-slate-500">
+          }} className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-200 hover:border-slate-500 disabled:opacity-40">
             <Icon name="pencil" size={12} />
             Edit
           </button>
@@ -152,7 +156,7 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ti
             const isNow = now === i && !done;
             return (
               <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
-                <ExerciseCard exercise={e} index={i} done={done} now={isNow} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} address={`d${day}.e${i}`} />
+                <ExerciseCard exercise={e} index={i} done={done} now={isNow} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} />
               </li>
             );
           })}

@@ -29,21 +29,33 @@ it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used b
    (`requestDay({ date, another: false })`, 15 s timeout, never throws) and stores the answer (`startDay`, with the title
    and theme from `model/today.ts` `dayWords`: the date, "Wednesday 18 November", and the topics the exercises practise).
    It runs once per page view and date: the date is read when the page opens, so a page left open past midnight makes
-   nothing until it is opened again (no timer). While it is made the page says "attunr is putting today's plan
-   together…", never an empty plan and never yesterday's in its place. When it can't be made, `TodayStatus` says so where
+   nothing until it is opened again (no timer). What the page shows is `todayView` (`model/today.ts`, tested): while
+   the request is out it says "attunr is putting today's plan together…", never an empty plan and never yesterday's in
+   its place; asked with nothing out and no answer it shows the failed state with Try again, so it never hangs. What an
+   answer does is `applyFirst` / `applyAnother` (same file); the hook only holds the requests, and a thrown flush or
+   update is a failed request. When it can't be made, `TodayStatus` says so where
    the plan would be, by the route's `code` (never its `error` text): `no-blocks` "No plan today" (not retried, come back
-   tomorrow); `offline` and `failed` with **Try again**; `bad-date` with **Reload page**; `no-answers` (impossible after
-   the flush) as `failed`. The plan: "Today's plan" with the streak, the date as the title, the topics under it, the
+   tomorrow); `offline` and `failed` with **Try again**; `bad-date` with **Reload page**; `later` (a plan of a later date already
+   running, from another tab or device) with **Reload page** and its own line; `no-answers` (impossible after the flush)
+   as `failed`. **Change my answers** (in the header, and on "No plan today") opens the first questionnaire again with
+   the stored answers; its last screen, with today's plan there, says the plan stays and Get another plan makes one from
+   the new answers, and so does a notice once saved (`AnswersSaved`). Saved with no plan for today (it failed), the page
+   asks again. The plan: "Today's plan" with the streak, the date as the title, the topics under it, the
    reminder, Labels on a phone, **Share plan** and **Get another plan**, then the day (`DayPanel` from `WeekView.tsx`, no
    day strip, no "Day N of M": the exercise cards with stars and the day timer, named "Today"; Edit as on a week's day).
    **Get another plan** flushes, asks with `another: true` and stores the answer with `anotherDay` (rated exercises stay,
-   with their ratings and timer seconds; the rest are replaced and turned down for the day). When the answer has no new
+   with their ratings and timer seconds, also one rated while the request was out, which the server didn't know of; the
+   rest are replaced and turned down for the day). While it is out the button keeps focus (`aria-disabled`, presses
+   ignored) and Edit can't be pressed; the new set starts with the timer stopped (the day is keyed by the try). The line
+   under the header is a live region, there before its text. When the answer has no new
    pick (`hasNewPicks`: only today's rated exercises came back, or a 409 `no-blocks`) the plan stays and a line says there
    are no other exercises for today's steps; a failed request says the plan stays and what to do. A short day
    (`composed.short`) has a line under the exercises: shorter than the time set for a day, the library has no more for
-   today's steps yet. **Past days** (`ui/PastDays.tsx`, `pastDays`): the composed days of `history`, newest first, the last
-   14, each with its date, topics and how many exercises were rated; **Show exercises** opens it read-only (no stars, no
-   timer). "Week done", "Review this week", "Start anew" and the earlier-plans list are not on `/plan`.
+   today's steps yet. **Past days** (`ui/PastDays.tsx`, `pastDays`): the composed days of `history`, and a composed `current`
+   from before today (today's plan didn't come), newest first, the last 14, each with its date, topics and how many
+   exercises were rated; **Show exercises** opens it read-only (`DayPanel readOnly`: no stars, no timer, no tour hooks, its
+   own card addresses). "Week done", "Review this week", "Start anew", the earlier-plans list and the notice for a plan
+   claimed from an invite (`AddedNotice`) are not on `/plan`; `?added=` is only taken out of the address.
    **A seven-day plan** (`ui/WeekView.tsx`; the dev prompt studio's preview, a given plan's page next): seven day buttons; any day can be opened, days ahead are dashed and marked "coming up". The day's
    exercises are colour-coded cards (a hue per position): title in the display face, its hashtags (area, level, kind) small
    under it, its cells (a section shows its heading, its minutes and the chips of its choice), why, and five stars, "How did it go?" (1 Can't do it yet, 3 Same again next time, 5 Easy now: the
@@ -106,7 +118,9 @@ it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used b
    "Working on" or "Not yet", with an (i) (`InfoTip`, hover or tap) for how often it was rated, when last and the minutes
    practised. No score, number out of 3 or percentage is shown; `/dev/progress` has the raw numbers.
 8. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open; clicking it opens `/plan`.
-   For a composed plan it reads "Today's plan: <topics>" (a seven-day plan's "Day N: <theme>"). Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
+   It is due (`reminderDue`) once the questions are answered, past the time, not shown yet today, and while today's own
+   plan is not made yet or not finished; a given plan plays no part. It reads "Today's plan: <topics>", or before the
+   plan is made "Open the plan page, and attunr puts today's plan together." (`reminderBody`). Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
 
 ## Demos
 
@@ -130,7 +144,7 @@ model/            pure, no React; tested in model/plan.test.ts
   outcome.ts      startOutcome(), TopicScore: each topic's starting score from the questionnaire answers; outcome(input, asOf): per step, concept, topic and area, from ratings and questionnaires up to a day (time and streak are added to the same function)
   daySteps.ts     solidRatedAt(), daySteps(): which path steps a day's plan works on (fresh, open, review) from the answers, the solid steps with their rating dates and the date; pure (NEW7)
   compose.ts      composeDay(): one day's plan of library blocks (`Candidate`) for those steps, filled to the minutes (planned review blocks counted first and placed last; then fresh steps, open steps, more blocks on the day's steps, more review; `short` when more than 5 minutes under); a block naming any step beyond the player's reach (`reach()`: ahead and not open) or off the path is never picked; a block fits the highest step it names on a track, a step with none walks down its track, also onto a step already solid, and that block counts as new, not as the day's review; more review goes round the review steps until the minutes are filled; never yesterday's, declined or kept blocks; random only from `seed`. composeWeek(): seven days in a row, each the day before as `yesterday` (NEW7)
-  today.ts        dayWords(date, exercises): a composed day's title (its date) and theme (its topics, from `topic` or the steps' tracks); hasNewPicks(today, day): whether another try brought anything besides today's rated exercises; pastDays(history): the composed days, newest first, the last PAST_DAYS (14)
+  today.ts        dayWords(date, exercises): a composed day's title (its date) and theme (its topics, from `topic` or the steps' tracks); hasNewPicks(today, day): whether another try brought anything besides today's rated exercises; pastDays(history, current, date): the composed days (and a composed current from before `date`), newest first, the last PAST_DAYS (14); todayView(), shouldAsk(): what the page shows for today and when it asks; applyFirst(), applyAnother(): what an answer does to the state, or the failure to say (`TodayFailure`)
   trackerView.ts  mergeTimes(), shownAreas(), topicLevel(), minutesOf(): what the progress tracker shows, from an outcome (the live day timer laid over every plan's records; the areas chosen plus practised ones; a topic's level by name and the next one; whole minutes)
   blocks.ts       blocksOf(), fitBlocks(), blockAt(): an exercise's timed blocks
   choice.ts       applyChoice(), choiceWarnings(), resolvedChoice(): a choice's value set on the tools under it (one `PARTS` entry per part); transpose.ts moves a tool to another key, `setLevel` (tools.ts) to another level
@@ -142,7 +156,7 @@ model/            pure, no React; tested in model/plan.test.ts
   CHANGELOG.md    what each version of the prompt, the teaching skills and AGENTS.md changed, newest first; versions.test.ts (in library/seed) holds the newest to the code
   cleanExercise.ts cleanExercise(), cleanCells(): an exercise's cells and choice run through the plan's parser again (`parseCellDiag` with `stored`, as a draft), so a tool the reader can't draw is dropped, and an exercise left with no cell shows its title; used by sanitiseState, startPlan and editDay before the block id is made
   state.ts        sanitiseState(): a stored PlanState made safe, for client and server (localPlanStore re-exports it): every exercise cleaned (`cleanExercise.ts`), the history cut to `HISTORY_CAP` (60), `given: []` when missing and a given plan without `from` dropped, a broken `composed` dropped. fitPlanState(s, maxBytes): the oldest earlier plans dropped until the JSON fits (the server's 2 MB cap, `MAX_PLAN_BYTES`), then, with none left, the oldest given plans, never the newest one; the current plan is never dropped
-  schedule.ts     local dates, today's day, progress, when the plan is over (`weekOver`, by `planDays`), startPlan(), ratePlan(), reviewPlan(); the composed day: ownDay(s, date) (today's own plan, a composed `current` started on that date, else null), startDay(s, day, meta, newId) (a `ComposedDay` as `current`, one day, `startedOn` the date, `composed = { attempt, declined: [], short }`, cleaned and given ids like startPlan; the plan before it goes first in the history; today's own plan already there, or a date before the running composed day's: `s` unchanged, so two tabs, an answer arriving twice or a stale answer never replace or double it), anotherDay(s, day, meta, newId) (another try of today: same plan id and `startedOn`; an exercise kept by block id keeps its slot id, tick and rating, re-keyed to its new place, and so its day-timer seconds; the old block ids not in the new day join `composed.declined`; the same or a lower attempt (a late answer) or no own plan today: `s` unchanged); `meta` is `{ date, attempt, title?, theme? }`, the words going to `config.title` and the day's `theme` ("" when left out); givenPlan(s, id)
+  schedule.ts     local dates, today's day, progress, when the plan is over (`weekOver`, by `planDays`), startPlan(), ratePlan(), reviewPlan(); the composed day: ownDay(s, date) (today's own plan, a composed `current` started on that date, else null), startDay(s, day, meta, newId) (a `ComposedDay` as `current`, one day, `startedOn` the date, `composed = { attempt, declined: [], short }`, cleaned and given ids like startPlan; the plan before it goes first in the history; today's own plan already there, or a date before the running composed day's: `s` unchanged, so two tabs, an answer arriving twice or a stale answer never replace or double it), anotherDay(s, day, meta, newId) (another try of today: same plan id and `startedOn`; an exercise kept by block id keeps its slot id, tick and rating, re-keyed to its new place, and so its day-timer seconds; one rated in `s` that the answer left out (rated while the request was out) is kept anyway, and the kept ones then go first in their old order; the old block ids not in the new day join `composed.declined`; the same or a lower attempt (a late answer) or no own plan today: `s` unchanged); `meta` is `{ date, attempt, title?, theme? }`, the words going to `config.title` and the day's `theme` ("" when left out); givenPlan(s, id)
   dayClock.ts     dayClock(): a day's countdown, which exercise its elapsed time falls in
   planTime.ts     DayTime: the day timer's record of one day of one plan (used seconds, seconds per exercise id), kept apart from the plan, with `blocks` (slot id -> block id, for the slots with seconds, so time finds its block without the plan) and `on` (seconds per local date, the 31 latest, so a day's time has the dates it was practised; stored in the column `plan_day_times.on_dates`); parseDayTime() (client and server), elapsedOn(), spentOn(), dayTime(), withDayTime()
 server/           what needs the database; tested on memory repos

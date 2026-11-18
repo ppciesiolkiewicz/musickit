@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 const MESSAGES = {
   "no-answers": "There are no answers to make a plan from. Answer the questions on the plan page first.",
-  "bad-date": "The date sent isn't today's date. Check the device's date and time, then reload the page.",
+  "bad-date": "The page sent a date that isn't today's. Check the device's date and time, then reload the page.",
   "no-blocks": "The library has no exercises yet that fit your answers, so no plan was made. Come back tomorrow.",
 };
 

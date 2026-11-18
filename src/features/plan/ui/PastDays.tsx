@@ -8,8 +8,8 @@ import type { StoredPlan } from "../model/types";
 import { DayPanel } from "./WeekView";
 
 /** The past days, folded: each its date, its topics and how many exercises were rated, and its exercises read-only on Show exercises. */
-export default function PastDays({ history }: { history: StoredPlan[] }) {
-  const days = pastDays(history);
+export default function PastDays({ history, current, date }: { history: StoredPlan[]; current: StoredPlan | null; date: string }) {
+  const days = pastDays(history, current, date);
   const [open, setOpen] = useState<string | null>(null);
   if (!days.length) return null;
   return (
@@ -29,7 +29,7 @@ export default function PastDays({ history }: { history: StoredPlan[] }) {
                 <span className="text-xs text-slate-500">{rated} of {exercises.length} rated</span>
                 <Button size="sm" aria-expanded={shown} onClick={() => setOpen(shown ? null : p.id)}>{shown ? "Hide exercises" : "Show exercises"}</Button>
               </div>
-              {shown && <DayPanel plan={p} day={0} heading={null} timerLabel="" autoStart={false} />}
+              {shown && <DayPanel plan={p} day={0} heading={null} timerLabel="" autoStart={false} readOnly />}
             </li>
           );
         })}

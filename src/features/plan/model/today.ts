@@ -1,8 +1,9 @@
 import { topicById } from "../intake/topics";
 import { conceptById } from "./concepts";
 import type { ComposedDay } from "./compose";
-import { doneKey } from "./schedule";
-import type { PlanExercise, StoredPlan } from "./types";
+import { anotherDay, doneKey, ownDay, startDay } from "./schedule";
+import type { PlanExercise, PlanState, StoredPlan } from "./types";
+import type { ComposeResult } from "../store/composeClient";
 
 /*
  * The words and checks of today's composed plan (NEW7), pure: no AI writes them.
@@ -53,6 +54,75 @@ export function hasNewPicks(today: StoredPlan | null, day: ComposedDay): boolean
 /** How many past days `/plan` lists. Every day is kept (`history`, up to its cap); the page shows the newest. */
 export const PAST_DAYS = 14;
 
-/** The composed days of the history, newest first, the last `PAST_DAYS`. A given or seven-day plan is not a past day. */
-export const pastDays = (history: StoredPlan[]): StoredPlan[] =>
-  history.filter((p) => !!p.composed).sort((a, b) => (a.startedOn < b.startedOn ? 1 : a.startedOn > b.startedOn ? -1 : 0)).slice(0, PAST_DAYS);
+/**
+ * The past days, newest first, the last `PAST_DAYS`: the composed days of the history, and the composed `current` when it is
+ * from before `date` (today's plan didn't come yet, so yesterday's is still current). A given or seven-day plan is not one.
+ */
+export function pastDays(history: StoredPlan[], current: StoredPlan | null, date: string): StoredPlan[] {
+  const days = [...(current?.composed && current.startedOn < date ? [current] : []), ...history.filter((p) => !!p.composed)];
+  return days.sort((a, b) => (a.startedOn < b.startedOn ? 1 : a.startedOn > b.startedOn ? -1 : 0)).slice(0, PAST_DAYS);
+}
+
+/**
+ * Why today's plan, or another one, isn't there: a route code, the request itself, or `later`, a plan for a later date
+ * already running (another tab or device, past midnight).
+ */
+export type TodayFailure = "no-blocks" | "bad-date" | "later" | "offline" | "failed";
+
+type Failed = Extract<ComposeResult, { ok: false }>["code"];
+/** `no-answers` can't happen after the flush (the page has answers): it is said as a failed request, with the retry. */
+const failureOf = (code: Failed): TodayFailure => (code === "no-answers" ? "failed" : code);
+
+/** What `/plan` shows for today: the plan is being made only while a request is out (or about to go out), never otherwise. */
+export type TodayView =
+  | { kind: "loading" }
+  | { kind: "intro" }
+  | { kind: "plan"; plan: StoredPlan }
+  | { kind: "making" }
+  | { kind: "failed"; failure: TodayFailure };
+
+export interface TodayInput {
+  loaded: boolean;
+  answers: boolean;
+  /** today's own plan (`ownDay`) */
+  own: StoredPlan | null;
+  /** this date was asked for in this page view */
+  asked: boolean;
+  /** a request is out */
+  inFlight: boolean;
+  failure: TodayFailure | null;
+}
+
+export function todayView(i: TodayInput): TodayView {
+  if (!i.loaded) return { kind: "loading" };
+  if (!i.answers) return { kind: "intro" };
+  if (i.own) return { kind: "plan", plan: i.own };
+  if (i.inFlight) return { kind: "making" };
+  if (i.failure) return { kind: "failed", failure: i.failure };
+  // asked, nothing out, no answer kept (the plan went away after it came): a failed request, with Try again
+  if (i.asked) return { kind: "failed", failure: "failed" };
+  // not asked yet: the request goes out in the same commit (`shouldAsk`)
+  return { kind: "making" };
+}
+
+/** Whether the page asks for today's plan now: once per page view and date, with answers and no plan for today. */
+export const shouldAsk = (i: Pick<TodayInput, "loaded" | "answers" | "own" | "asked">): boolean => i.loaded && i.answers && !i.own && !i.asked;
+
+/** The first plan of the day's answer applied: the day stored with its words, or what the page says instead. */
+export function applyFirst(s: PlanState, date: string, r: ComposeResult, newId: () => string): { state: PlanState; failure: TodayFailure | null } {
+  if (!r.ok) return { state: s, failure: failureOf(r.code) };
+  const next = startDay(s, r.day, { date: r.date, attempt: r.attempt, ...dayWords(r.date, r.day.exercises) }, newId);
+  // a plan of a later date running (another tab, past midnight): this page's date is behind
+  return ownDay(next, date) ? { state: next, failure: null } : { state: s, failure: "later" };
+}
+
+/**
+ * Another plan's answer applied. `none`: no other exercise for today's steps (only today's rated ones came back, or a 409
+ * `no-blocks`), the plan stays. A failure, or an answer for a try already stored (late or twice), also leaves it.
+ */
+export function applyAnother(s: PlanState, date: string, r: ComposeResult, newId: () => string): { state: PlanState; outcome: "changed" | "none" | TodayFailure } {
+  if (!r.ok) return { state: s, outcome: r.code === "no-blocks" ? "none" : failureOf(r.code) };
+  if (!hasNewPicks(ownDay(s, date), r.day)) return { state: s, outcome: "none" };
+  const next = anotherDay(s, r.day, { date: r.date, attempt: r.attempt, ...dayWords(r.date, r.day.exercises) }, newId);
+  return next === s ? { state: s, outcome: "failed" } : { state: next, outcome: "changed" };
+}
