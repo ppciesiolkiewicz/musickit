@@ -22,7 +22,7 @@ import { drizzleLibraryRepo } from "../src/features/library/server/repo.drizzle"
 import { PLAYER_A, type LibraryData } from "../src/features/library/server/fixture";
 import { localTestDatabase } from "../src/features/library/server/testDatabase";
 import { drizzleUserDataRepo } from "../src/features/userData/server/repo.drizzle";
-import type { NewBlock, Provenance } from "../src/features/userData/server/repo";
+import type { CuratedBlock, NewBlock, Provenance } from "../src/features/userData/server/repo";
 
 const target = localTestDatabase(process.env.LIBRARY_TEST_DATABASE_URL);
 if (!target) {
@@ -143,16 +143,62 @@ describe("user data repo on Postgres: block provenance", () => {
     assert.deepEqual(await rows("p"), [{ day: 1, place: 0, blockId: "c", minutes: 10 }]);
     assert.equal((await rows("q")).length, 1);
   });
-  test("promoteExampleBlocks makes the app's example rows seed, enabled, and leaves every other row", async () => {
+  const curated = (id: string, names: string[], over: Partial<CuratedBlock> = {}): CuratedBlock => ({
+    id,
+    content: { title: id, cells: [] } as unknown as CuratedBlock["content"],
+    area: "guitar",
+    topic: "guitar-techniques",
+    concepts: ["picking"],
+    tags: ["technique"],
+    slot: { why: "w" },
+    provenance: full,
+    choices: names.map((name, place) => ({ id: `${id}/${name}`, name, level: "beginner", steps: ["picking:1"], moves: null, minutes: 4 + place, active: true, place })),
+    ...over,
+  });
+  const choiceRows = async () =>
+    (await db.select().from(schema.choices).orderBy(schema.choices.id)).map((c) => ({ id: c.id, active: c.active, minutes: c.minutes, place: c.place, updatedAt: c.updatedAt.getTime() }));
+  test("upsertCurated stores curated blocks with no level or steps, their choices and the app's owner row", async () => {
     await fresh();
-    await repo.addBlocks(null, [block("ex", { source: "example" }), block("off", { source: "seed" }), block("on", { source: "seed", enabledForReuse: true })], NOW);
-    await repo.addBlocks(PLAYER_A, [block("ex", { source: "example" })], NOW);
-    assert.equal(await repo.promoteExampleBlocks(["ex", "off", "on", "ex", "missing"]), 1);
-    assert.equal(await repo.promoteExampleBlocks([]), 0);
-    const owners = await db.select({ userId: schema.blockOwners.userId, blockId: schema.blockOwners.blockId, source: schema.blockOwners.source, enabled: schema.blockOwners.enabledForReuse }).from(schema.blockOwners);
-    const of = (userId: string | null, blockId: string) => owners.find((o) => o.userId === userId && o.blockId === blockId);
-    assert.deepEqual([of(null, "ex")?.source, of(null, "ex")?.enabled], ["seed", true]);
-    assert.deepEqual([of(null, "off")?.source, of(null, "off")?.enabled], ["seed", false]);
-    assert.deepEqual([of(PLAYER_A, "ex")?.source, of(PLAYER_A, "ex")?.enabled], ["example", false]);
+    assert.deepEqual(await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW), { blocks: 1, choices: 2, deactivated: 0 });
+    const [b] = await db.select().from(schema.blocks);
+    assert.deepEqual([b.kind, b.level, b.steps, b.tags, b.why, b.minutes, b.model], ["curated", null, [], ["technique"], "w", 4, "m1"]);
+    const owners = await db.select({ userId: schema.blockOwners.userId, source: schema.blockOwners.source, enabled: schema.blockOwners.enabledForReuse }).from(schema.blockOwners);
+    assert.deepEqual(owners, [{ userId: null, source: "seed", enabled: true }]);
+    const [c] = await db.select().from(schema.choices).where(eq(schema.choices.id, "guitar-a-b/new"));
+    assert.deepEqual([c.blockId, c.name, c.level, c.steps, c.moves, c.minutes, c.active, c.place], ["guitar-a-b", "new", "beginner", ["picking:1"], null, 5, true, 1]);
+  });
+  test("upsertCurated twice changes nothing; a text edit and new provenance overwrite the block under the same id", async () => {
+    await fresh();
+    await repo.upsertCurated([curated("guitar-a-b", ["beginner"])], NOW);
+    const before = await choiceRows();
+    const later = new Date(NOW.getTime() + 60_000);
+    assert.equal((await repo.upsertCurated([curated("guitar-a-b", ["beginner"])], later)).deactivated, 0);
+    assert.deepEqual(await choiceRows(), before);
+    await repo.upsertCurated([curated("guitar-a-b", ["beginner"], { content: { title: "New title", cells: [] } as unknown as CuratedBlock["content"], tags: ["rhythm"], provenance: { ...full, model: "m2" } })], later);
+    const rows = await db.select().from(schema.blocks);
+    assert.deepEqual(rows.map((r) => [r.id, (r.content as { title: string }).title, r.tags, r.model]), [["guitar-a-b", "New title", ["rhythm"], "m2"]]);
+    assert.equal((await db.select().from(schema.blockOwners)).length, 1);
+  });
+  test("upsertCurated makes a dropped choice and a removed block's choices inactive, and a changed choice moves updated_at", async () => {
+    await fresh();
+    await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"]), curated("guitar-c-d", ["beginner"])], NOW);
+    const later = new Date(NOW.getTime() + 60_000);
+    // a hashed block's rows are never touched
+    await repo.addBlocks(null, [block("a")], NOW);
+    assert.equal((await repo.upsertCurated([curated("guitar-a-b", ["beginner"], { choices: [{ ...curated("guitar-a-b", ["beginner"]).choices[0], minutes: 9 }] })], later)).deactivated, 2);
+    assert.deepEqual(await choiceRows(), [
+      { id: "guitar-a-b/beginner", active: true, minutes: 9, place: 0, updatedAt: later.getTime() },
+      { id: "guitar-a-b/new", active: false, minutes: 5, place: 1, updatedAt: later.getTime() },
+      { id: "guitar-c-d/beginner", active: false, minutes: 4, place: 0, updatedAt: later.getTime() },
+    ]);
+    assert.equal((await repo.upsertCurated([curated("guitar-a-b", ["beginner"], { choices: [{ ...curated("guitar-a-b", ["beginner"]).choices[0], minutes: 9 }] })], later)).deactivated, 0);
+  });
+  test("setPlanBlocks writes a curated slot's choice id", async () => {
+    await fresh();
+    await repo.upsertCurated([curated("guitar-a-b", ["beginner"])], NOW);
+    await db.insert(schema.practicePlans).values({ id: "p", title: "p", answers: {}, model: "m", reply: "", source: "test" });
+    await repo.setPlanBlocks("p", [{ day: 0, place: 0, blockId: "guitar-a-b", choiceId: "guitar-a-b/beginner", minutes: 6 }]);
+    const rows = await db.select({ blockId: schema.practicePlanBlocks.blockId, choiceId: schema.practicePlanBlocks.choiceId, minutes: schema.practicePlanBlocks.minutes }).from(schema.practicePlanBlocks);
+    assert.deepEqual(rows, [{ blockId: "guitar-a-b", choiceId: "guitar-a-b/beginner", minutes: 6 }]);
   });
 });

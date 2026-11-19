@@ -1,122 +1,111 @@
-import { SEED_BLOCKS, type SeedBlockFile } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, type SeedBlockFile, type SeedBlockRef, type SeedPlanFile } from "@/features/library/seed";
 import { exerciseOf } from "@/features/library/seed/choices";
 import { catalogue } from "@/features/plan/model/catalogue";
-import { parseExercise, parsePlanConfig } from "@/features/plan/model/config";
-import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
-import { libraryBlocksOf } from "@/features/plan/model/libraryBlocks";
-import { sanitiseState } from "@/features/plan/model/state";
-import type { PlanConfig, StoredPlan } from "@/features/plan/model/types";
-import { exercisesOf } from "@/features/plan/model/libraryBlocks";
-import type { BlockSlot, NewBlock, PlanBlockRow, Provenance, UserDataRepo } from "./repo";
+import { parseExercise } from "@/features/plan/model/config";
+import { blockKeyOf, choiceIdOf } from "@/features/plan/model/blockId";
+import { levelOfSteps } from "@/features/plan/model/path";
+import type { CuratedBlock, CuratedChoice, PlanBlockRow, Provenance, UserDataRepo } from "./repo";
 
-/** A `practice_plans` row as the seed needs it: its id, its reply and how it was written. */
-export interface SeedPlan {
-  id: string;
-  reply: string;
-  provenance: Provenance;
-}
-
-/** The config as a player's stored plan would hold it, so a block id is the one that plan's exercise gets. */
-function storedPlanOf(config: PlanConfig): StoredPlan[] {
-  const cur = sanitiseState({ current: { id: "seed", startedOn: "2026-01-01", done: {}, config } }).current;
-  return cur ? [cur] : [];
-}
-
-/** The config's blocks as library blocks the app owns, `seed`, enabled for reuse. */
-function toNew(config: PlanConfig, provenance: Provenance): NewBlock[] {
-  const stored = storedPlanOf(config);
-  // the slot is the first exercise's with that block id
-  const slots = new Map<string, BlockSlot>();
-  for (const e of exercisesOf(stored)) {
-    const id = blockIdOf(blockKeyOf(e));
-    if (!slots.has(id)) slots.set(id, { minutes: e.minutes, ...(e.why ? { why: e.why } : {}), ...(e.learnBefore?.length ? { learnBefore: [...e.learnBefore] } : {}), ...(e.exploreMore?.length ? { exploreMore: [...e.exploreMore] } : {}) });
-  }
-  return libraryBlocksOf(stored).filter((b) => !b.curated).map((b) => ({ id: b.id, key: b.key, parentId: null, source: "seed" as const, enabledForReuse: true, provenance: { ...provenance }, slot: slots.get(b.id) }));
-}
-
-/** The blocks of the `practice_plans` replies, owned by the app and enabled for reuse, each with its plan's provenance (a block in two plans keeps the first's). A reply that doesn't parse is left out; see `unparsedReplies`. */
-export function libraryPlanBlocks(plans: SeedPlan[]): NewBlock[] {
+/**
+ * The seed block files as curated blocks: the file's id, its exercise's content (without moves), tags and slot (why,
+ * lessons), its model and versions, and one choice per choice in the file, in file order (`place`), each parsed as the
+ * exercise `exerciseOf` makes of it: its level (the choice's, else its steps' highest), steps, moves and minutes; a
+ * `draft` choice is inactive. A file whose exercise doesn't parse is left out and named in `skipped`.
+ */
+export function curatedBlocks(files: SeedBlockFile[] = SEED_BLOCKS): { blocks: CuratedBlock[]; skipped: string[] } {
   const entries = catalogue();
-  const out: NewBlock[] = [];
-  for (const p of plans) {
-    const r = parsePlanConfig(p.reply, entries);
-    if (r.ok) out.push(...toNew(r.config, p.provenance));
-  }
-  return dedupe(out);
-}
-
-/** The single seed exercises (src/features/library/seed/blocks, the former exercise examples among them) as library blocks the app owns, enabled for reuse, each with its file's model and versions. One that doesn't parse is left out. */
-export function seedFileBlocks(files: SeedBlockFile[] = SEED_BLOCKS): NewBlock[] {
-  const entries = catalogue();
-  const out: NewBlock[] = [];
+  const blocks: CuratedBlock[] = [];
+  const skipped: string[] = [];
   for (const f of files) {
-    const provenance: Provenance = { model: f.model, promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching };
-    for (const c of f.choices ?? []) {
-      const { block } = parseExercise(exerciseOf(f, c), f.id, entries);
-      if (block) out.push(...toNew({ title: f.id, days: [{ theme: f.id, exercises: [block] }] }, provenance));
+    const parsed = (f.choices ?? []).map((c) => ({ c, e: parseExercise(exerciseOf(f, c), f.id, entries).block }));
+    const first = parsed[0]?.e;
+    if (!first || parsed.some((p) => !p.e)) {
+      skipped.push(f.id);
+      continue;
     }
+    const key = blockKeyOf(first);
+    const { moves: _moves, ...content } = key.content;
+    void _moves;
+    const provenance: Provenance = { model: f.model, promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching };
+    const choices: CuratedChoice[] = parsed.map(({ c, e }, place) => {
+      const k = blockKeyOf(e!);
+      const steps = k.steps ?? [];
+      return { id: choiceIdOf(f.id, c.name), name: c.name, level: e!.level ?? levelOfSteps(steps) ?? null, steps, moves: e!.moves ?? null, minutes: e!.minutes, active: !c.draft, place };
+    });
+    blocks.push({
+      id: f.id,
+      content,
+      area: key.area ?? null,
+      topic: key.topic ?? null,
+      concepts: key.concepts ?? [],
+      tags: key.tags ?? [],
+      slot: { ...(first.why ? { why: first.why } : {}), ...(first.learnBefore?.length ? { learnBefore: [...first.learnBefore] } : {}), ...(first.exploreMore?.length ? { exploreMore: [...first.exploreMore] } : {}) },
+      provenance,
+      choices,
+    });
   }
-  return dedupe(out);
+  return { blocks, skipped };
 }
 
-/** One row per exercise slot of a reply, in order, with `day` and `place` from 0; the same block id may repeat. `[]` when the reply doesn't parse. */
-export function planBlockRows(reply: string): PlanBlockRow[] {
-  const r = parsePlanConfig(reply, catalogue());
-  if (!r.ok) return [];
-  return r.config.days.flatMap((d, day) => d.exercises.map((e, place) => ({ day, place, blockId: blockIdOf(blockKeyOf(e)), minutes: e.minutes })));
-}
-
-/** The positions of the replies that don't parse, for the script to name. */
-export function unparsedReplies(replies: string[]): number[] {
-  const entries = catalogue();
-  return replies.flatMap((r, i) => (parsePlanConfig(r, entries).ok ? [] : [i]));
+/**
+ * A seed plan file's `practice_plan_blocks` rows, from its refs: one per ref, `day` and `place` from 0, naming the block
+ * and its choice, with the ref's minutes or else the choice's. A ref to a block or choice not in `blocks` is left out
+ * and named in `unknown` (`<block>/<choice>`), and the places close up, as `expandPlan` leaves it out of the reply.
+ */
+export function planRowsOf(file: SeedPlanFile, blocks: CuratedBlock[]): { rows: PlanBlockRow[]; unknown: string[] } {
+  const choices = new Map(blocks.flatMap((b) => b.choices.map((c) => [c.id, { blockId: b.id, c }] as const)));
+  const rows: PlanBlockRow[] = [];
+  const unknown: string[] = [];
+  const days = Array.isArray(file.plan.days) ? (file.plan.days as Record<string, unknown>[]) : [];
+  days.forEach((d, day) => {
+    const refs = Array.isArray(d.exercises) ? (d.exercises as SeedBlockRef[]) : [];
+    let place = 0;
+    for (const r of refs) {
+      const id = choiceIdOf(r.block, r.choice);
+      const hit = choices.get(id);
+      if (!hit || hit.blockId !== r.block) {
+        unknown.push(id);
+        continue;
+      }
+      rows.push({ day, place: place++, blockId: r.block, choiceId: id, minutes: r.minutes ?? hit.c.minutes });
+    }
+  });
+  return { rows, unknown };
 }
 
 function secs(since: number): string {
   return `${((Date.now() - since) / 1000).toFixed(1)}s`;
 }
 
-function dedupe(list: NewBlock[]): NewBlock[] {
-  const seen = new Map<string, NewBlock>();
-  for (const b of list) if (!seen.has(b.id)) seen.set(b.id, b);
-  return [...seen.values()];
-}
-
 /**
- * Puts the seed files' single blocks, then the library plans' blocks (plans in id order), in the library as the app's, then
- * each plan's blocks in `practice_plan_blocks`. The first writer of a block sets its provenance and its default slot
- * (minutes, why, lessons), so a seed file's slot wins over a plan's. Insert-only, so a second run adds no block; the plan rows are replaced with the same ones,
- * and a plan whose reply doesn't parse is left with none. A library block an earlier run stored as an example's (not
- * enabled) is promoted to `seed`, enabled; `promoted` counts those.
+ * Puts the seed block files in the library as curated blocks with their choices (`upsertCurated`: the file is the source
+ * of truth, so a second run with the same files changes nothing, and a choice no longer in a file is made inactive), then
+ * each seed plan's rows in `practice_plan_blocks` from its refs. `plans` must already be in `practice_plans` (the script
+ * passes the ones `db:seed-plans` stored). Returns the counts, the skipped block files and the refs that name nothing.
  */
 export async function seedBlocks(
   repo: UserDataRepo,
-  plans: SeedPlan[],
   now: Date,
-  files: SeedBlockFile[] = SEED_BLOCKS,
-  log: (line: string) => void = () => {},
-): Promise<{ library: number; planBlocks: number; promoted: number }> {
-  // the first writer of a block keeps its slot and provenance: block files first, then the plans in the order given (by id)
-  const fileBlocks = seedFileBlocks(files);
-  const planLibrary = libraryPlanBlocks(plans);
-  const library = dedupe([...fileBlocks, ...planLibrary]);
-  log(`${library.length} distinct blocks (${fileBlocks.length} from ${files.length} seed files, ${planLibrary.length} from ${plans.length} plans)`);
-  log(`storing blocks: one transaction, one slot update per block…`);
+  { files = SEED_BLOCKS, plans = SEED_PLANS, log = () => {} }: { files?: SeedBlockFile[]; plans?: SeedPlanFile[]; log?: (line: string) => void } = {},
+): Promise<{ blocks: number; choices: number; deactivated: number; planBlocks: number; skipped: string[]; unknownRefs: string[] }> {
+  const { blocks, skipped } = curatedBlocks(files);
+  for (const id of skipped) log(`skipped  ${id}  (exercise does not parse)`);
+  for (const b of blocks) log(`block  ${b.id}  ${b.choices.map((c) => `${c.name}${c.active ? "" : " (draft)"}`).join(", ")}`);
+  log(`${blocks.length} curated blocks, ${blocks.reduce((n, b) => n + b.choices.length, 0)} choices from ${files.length} block files; storing in one transaction…`);
   let t = Date.now();
-  await repo.addBlocks(null, library, now);
-  log(`stored blocks in ${secs(t)}`);
-  t = Date.now();
-  const promoted = await repo.promoteExampleBlocks(library.map((b) => b.id));
-  log(`promoted ${promoted} example blocks in ${secs(t)}`);
+  const stored = await repo.upsertCurated(blocks, now);
+  log(`stored blocks and choices in ${secs(t)}; ${stored.deactivated} choice${stored.deactivated === 1 ? "" : "s"} made inactive`);
   let planBlocks = 0;
+  const unknownRefs: string[] = [];
   t = Date.now();
   for (const [i, p] of plans.entries()) {
-    // a reply that no longer parses clears the plan's rows, so none point at blocks it doesn't hold
-    const rows = planBlockRows(p.reply);
+    const { rows, unknown } = planRowsOf(p, blocks);
+    for (const u of unknown) log(`plan ${p.id}: no block and choice ${u}; left out`);
+    unknownRefs.push(...unknown.map((u) => `${p.id}: ${u}`));
     await repo.setPlanBlocks(p.id, rows);
     planBlocks += rows.length;
     log(`plan ${i + 1}/${plans.length}  ${p.id}  ${rows.length} rows`);
   }
   if (plans.length) log(`plan block rows written in ${secs(t)}`);
-  return { library: library.length, planBlocks, promoted };
+  return { ...stored, planBlocks, skipped, unknownRefs };
 }

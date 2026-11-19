@@ -1,6 +1,9 @@
 import type { SingerVoice } from "@/features/theory/voiceRange";
 import type { DocKind } from "../model";
 import type { BlockKey } from "@/features/plan/model/blockId";
+import type { Area } from "@/features/plan/model/concepts";
+import type { Moves } from "@/features/plan/model/moves";
+import type { Block } from "@/features/plan/model/types";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
 
@@ -64,12 +67,39 @@ export interface NewBlock {
   slot?: BlockSlot;
 }
 
-/** One place in a plan: the block on a day at a position, and its minutes (`practice_plan_blocks`). */
+/** One place in a plan: the block on a day at a position, the choice of it (a curated block's; absent for a hashed block), and its minutes (`practice_plan_blocks`). */
 export interface PlanBlockRow {
   day: number;
   place: number;
   blockId: string;
+  choiceId?: string;
   minutes: number;
+}
+
+/** A curated block's choice as the seed writes it (`choices`): its id is `<block id>/<name>`, `place` its index in the file. */
+export interface CuratedChoice {
+  id: string;
+  name: string;
+  level: string | null;
+  steps: string[];
+  moves: Moves | null;
+  minutes: number;
+  /** false for a choice marked `draft` in its file */
+  active: boolean;
+  place: number;
+}
+
+/** A seed block file as a curated block (`blocks.kind` 'curated'): the id is the file's, `content` holds no moves, and level, steps, moves and minutes sit on its choices. */
+export interface CuratedBlock {
+  id: string;
+  content: Block;
+  area: Area | null;
+  topic: string | null;
+  concepts: string[];
+  tags: string[];
+  slot: Omit<BlockSlot, "minutes">;
+  provenance: Provenance;
+  choices: CuratedChoice[];
 }
 
 /** Everything a player's documents, progress and videos need from storage. `drizzleUserDataRepo` is Postgres, `memoryUserDataRepo` is for tests. */
@@ -110,11 +140,13 @@ export interface UserDataRepo {
    */
   addBlocks(userId: string | null, blocks: NewBlock[], now: Date): Promise<void>;
   /**
-   * The app's owner rows of these blocks that are an example's (`source` "example", stored not enabled) become `seed`,
-   * enabled for reuse: a library plan uses the block now. A row of any other source is left as it is, so a seed block
-   * turned off in the database stays off. Returns how many rows changed.
+   * In one transaction, the seed's curated blocks: each block upserted by id (`kind` 'curated'; content, tags, slot and
+   * provenance overwritten, level null and steps empty), the app's owner row (`seed`, enabled for reuse) inserted once,
+   * each choice upserted by id (written only when a field differs, so `updated_at` moves only on a change), then every
+   * active choice of a curated block that isn't listed set inactive: one dropped from its file, or every choice of a file
+   * removed. Nothing is deleted. `deactivated` counts the choices this call turned off.
    */
-  promoteExampleBlocks(ids: string[]): Promise<number>;
+  upsertCurated(blocks: CuratedBlock[], now: Date): Promise<{ blocks: number; choices: number; deactivated: number }>;
   /**
    * Replaces the plan's `practice_plan_blocks` rows with these, in one transaction. A library plan's rows name only blocks the app
    * owns: the library shows a plan to callers who may not see a player's private block (a schedule row on one has no title).

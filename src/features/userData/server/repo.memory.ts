@@ -2,10 +2,11 @@ import type { SingerVoice } from "@/features/theory/voiceRange";
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { BlockSlot, BlockSource, PlanBlockRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { BlockSlot, BlockSource, CuratedChoice, PlanBlockRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A `blocks` row, as the memory repo keeps it. */
 interface StoredBlock {
+  kind: "curated" | "hashed";
   key: BlockKey;
   parentId: string | null;
   provenance: Provenance;
@@ -15,6 +16,12 @@ interface StoredBlock {
 
 const NO_PROVENANCE: Provenance = { model: null, promptVersion: null, docsAgents: null, docsTeaching: null };
 const isBare = (p: Provenance) => p.model === null && p.promptVersion === null && p.docsAgents === null && p.docsTeaching === null;
+
+/** A `choices` row, as the memory repo keeps it. */
+interface StoredChoice extends CuratedChoice {
+  blockId: string;
+  updatedAt: Date;
+}
 
 /** A `block_owners` row, as the memory repo keeps it. */
 interface OwnerRow {
@@ -33,6 +40,8 @@ export function memoryUserDataRepo(): UserDataRepo & {
   cascadeUser(userId: string): void;
   /** Test only: the `blocks` rows. */
   peekBlocks(): Map<string, StoredBlock>;
+  /** Test only: the `choices` rows. */
+  peekChoices(): Map<string, StoredChoice>;
   /** Test only: a plan's `practice_plan_blocks` rows. */
   peekPlanBlocks(planId: string): PlanBlockRow[];
   /** Test only: the `block_owners` rows. */
@@ -50,8 +59,10 @@ export function memoryUserDataRepo(): UserDataRepo & {
   const shareVideos = new Set<string>();
   /** `plan_claims` rows, as `${shareId} ${userId}`. */
   const claims = new Set<string>();
-  /** `blocks` rows, by id; content and tags never change once set, provenance is filled once. */
+  /** `blocks` rows, by id; a hashed block's content and tags never change once set, provenance is filled once. A curated block is overwritten by the seed. */
   const blocks = new Map<string, StoredBlock>();
+  /** `choices` rows, by id. */
+  const choices = new Map<string, StoredChoice>();
   /** `practice_plan_blocks` rows, by plan id. */
   const planBlocks = new Map<string, PlanBlockRow[]>();
   /** `block_owners` rows, keyed `${userId ?? ""} ${blockId}`, so the app's (null) rows of a block are one, like `nulls not distinct`. */
@@ -121,7 +132,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
       return new Set(ids.filter((id) => owners.has(pair(userId, id))));
     },
     async addBlocks(userId, list) {
-      for (const b of list) if (!blocks.has(b.id)) blocks.set(b.id, { key: structuredClone(b.key), parentId: b.parentId, provenance: { ...NO_PROVENANCE } });
+      for (const b of list) if (!blocks.has(b.id)) blocks.set(b.id, { kind: "hashed", key: structuredClone(b.key), parentId: b.parentId, provenance: { ...NO_PROVENANCE } });
       for (const b of list) {
         const k = pair(userId ?? "", b.id);
         if (!owners.has(k)) owners.set(k, { userId, blockId: b.id, source: b.source, enabledForReuse: b.enabledForReuse });
@@ -142,16 +153,31 @@ export function memoryUserDataRepo(): UserDataRepo & {
         if (parent && isBare(row.provenance)) row.provenance = { ...parent.provenance };
       }
     },
-    async promoteExampleBlocks(ids) {
-      let n = 0;
-      for (const id of new Set(ids)) {
-        const row = owners.get(pair("", id));
-        if (row && row.userId === null && row.source === "example") {
-          owners.set(pair("", id), { ...row, source: "seed", enabledForReuse: true });
-          n++;
+    async upsertCurated(list, now) {
+      const listed = new Set<string>();
+      for (const b of list) {
+        const key: BlockKey = { content: structuredClone(b.content), ...(b.area ? { area: b.area } : {}), ...(b.topic ? { topic: b.topic } : {}), concepts: [...b.concepts], tags: [...b.tags] };
+        // the block's default minutes are its first choice's, as in Postgres
+        const slot: BlockSlot | undefined = b.choices.length ? { minutes: b.choices[0].minutes, ...structuredClone(b.slot) } : undefined;
+        blocks.set(b.id, { kind: "curated", key, parentId: null, provenance: { ...b.provenance }, ...(slot ? { slot } : {}) });
+        const k = pair("", b.id);
+        if (!owners.has(k)) owners.set(k, { userId: null, blockId: b.id, source: "seed", enabledForReuse: true });
+        for (const c of b.choices) {
+          listed.add(c.id);
+          const row: StoredChoice = { ...structuredClone(c), blockId: b.id, updatedAt: now };
+          const old = choices.get(c.id);
+          // like the `is distinct from` guard in Postgres: an unchanged choice keeps its updated_at
+          const same = (x: StoredChoice) => JSON.stringify({ ...x, updatedAt: null });
+          if (!old || same(old) !== same(row)) choices.set(c.id, row);
         }
       }
-      return n;
+      let deactivated = 0;
+      for (const [id, c] of choices) {
+        if (listed.has(id) || !c.active || blocks.get(c.blockId)?.kind !== "curated") continue;
+        choices.set(id, { ...c, active: false, updatedAt: now });
+        deactivated++;
+      }
+      return { blocks: list.length, choices: listed.size, deactivated };
     },
     async setPlanBlocks(planId, rows) {
       planBlocks.set(planId, structuredClone(rows));
@@ -233,6 +259,9 @@ export function memoryUserDataRepo(): UserDataRepo & {
     },
     peekBlocks() {
       return structuredClone(blocks);
+    },
+    peekChoices() {
+      return structuredClone(choices);
     },
     peekPlanBlocks(planId) {
       return structuredClone(planBlocks.get(planId) ?? []);

@@ -1,7 +1,7 @@
-import { and, desc, eq, exists, inArray, isNull, or, sql } from "drizzle-orm";
+import { and, desc, eq, exists, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "@/lib/db/client";
-import { blockOwners, blocks, planClaims, planDayTimes, practicePlanBlocks, progressEntries, shareVideos, shares, userDocuments, userVoices, videos } from "@/lib/db/schema";
+import { blockOwners, blocks, choices, planClaims, planDayTimes, practicePlanBlocks, progressEntries, shareVideos, shares, userDocuments, userVoices, videos } from "@/lib/db/schema";
 import { cleanVoice } from "@/features/theory/voiceRange";
 import type { ProgressEntry } from "@/features/progress/log";
 import { levelOfSteps } from "@/features/plan/model/path";
@@ -170,19 +170,97 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
           .where(and(inArray(blocks.id, list.map((b) => b.id)), eq(blocks.parentId, parent.id), bare));
       });
     },
-    async promoteExampleBlocks(ids) {
-      if (!ids.length) return 0;
-      const rows = await db
-        .update(blockOwners)
-        .set({ source: "seed", enabledForReuse: true })
-        .where(and(isNull(blockOwners.userId), eq(blockOwners.source, "example"), inArray(blockOwners.blockId, [...new Set(ids)])))
-        .returning({ id: blockOwners.blockId });
-      return rows.length;
+    async upsertCurated(list, now) {
+      const listed = list.flatMap((b) => b.choices.map((c) => c.id));
+      return db.transaction(async (tx) => {
+        if (list.length) {
+          // a curated block is the seed file's: everything but its id and created_at is overwritten
+          await tx
+            .insert(blocks)
+            .values(
+              list.map((b) => ({
+                id: b.id,
+                kind: "curated",
+                content: b.content,
+                area: b.area,
+                topic: b.topic,
+                concepts: b.concepts,
+                level: null,
+                steps: [],
+                tags: b.tags,
+                parentId: null,
+                ...b.provenance,
+                // the block's default minutes are its first choice's
+                minutes: b.choices[0]?.minutes ?? null,
+                why: b.slot.why ?? null,
+                learnBefore: b.slot.learnBefore ?? null,
+                exploreMore: b.slot.exploreMore ?? null,
+                createdAt: now,
+              })),
+            )
+            .onConflictDoUpdate({
+              target: blocks.id,
+              set: {
+                kind: sql`excluded.kind`,
+                content: sql`excluded.content`,
+                area: sql`excluded.area`,
+                topic: sql`excluded.topic`,
+                concepts: sql`excluded.concepts`,
+                level: sql`excluded.level`,
+                steps: sql`excluded.steps`,
+                tags: sql`excluded.tags`,
+                parentId: sql`excluded.parent_id`,
+                model: sql`excluded.model`,
+                promptVersion: sql`excluded.prompt_version`,
+                docsAgents: sql`excluded.docs_agents`,
+                docsTeaching: sql`excluded.docs_teaching`,
+                minutes: sql`excluded.minutes`,
+                why: sql`excluded.why`,
+                learnBefore: sql`excluded.learn_before`,
+                exploreMore: sql`excluded.explore_more`,
+              },
+            });
+          await tx
+            .insert(blockOwners)
+            .values(list.map((b) => ({ userId: null, blockId: b.id, source: "seed" as const, enabledForReuse: true, createdAt: now })))
+            .onConflictDoNothing();
+        }
+        const rows = list.flatMap((b) => b.choices.map((c) => ({ id: c.id, blockId: b.id, name: c.name, level: c.level, steps: c.steps, moves: c.moves, minutes: c.minutes, active: c.active, place: c.place, createdAt: now, updatedAt: now })));
+        if (rows.length) {
+          // written only when a field differs, so updated_at says when the seed last changed the choice
+          const changed = or(
+            sql`${choices.blockId} is distinct from excluded.block_id`,
+            sql`${choices.name} is distinct from excluded.name`,
+            sql`${choices.level} is distinct from excluded.level`,
+            sql`${choices.steps} is distinct from excluded.steps`,
+            sql`${choices.moves} is distinct from excluded.moves`,
+            sql`${choices.minutes} is distinct from excluded.minutes`,
+            sql`${choices.active} is distinct from excluded.active`,
+            sql`${choices.place} is distinct from excluded.place`,
+          );
+          await tx
+            .insert(choices)
+            .values(rows)
+            .onConflictDoUpdate({
+              target: choices.id,
+              set: { blockId: sql`excluded.block_id`, name: sql`excluded.name`, level: sql`excluded.level`, steps: sql`excluded.steps`, moves: sql`excluded.moves`, minutes: sql`excluded.minutes`, active: sql`excluded.active`, place: sql`excluded.place`, updatedAt: now },
+              setWhere: changed,
+            });
+        }
+        // every other active choice of a curated block is no longer in the seed: off, never deleted
+        const curated = tx.select({ id: blocks.id }).from(blocks).where(eq(blocks.kind, "curated"));
+        const off = await tx
+          .update(choices)
+          .set({ active: false, updatedAt: now })
+          .where(and(eq(choices.active, true), inArray(choices.blockId, curated), ...(listed.length ? [notInArray(choices.id, listed)] : [])))
+          .returning({ id: choices.id });
+        return { blocks: list.length, choices: listed.length, deactivated: off.length };
+      });
     },
     async setPlanBlocks(planId, rows) {
       await db.transaction(async (tx) => {
         await tx.delete(practicePlanBlocks).where(eq(practicePlanBlocks.planId, planId));
-        if (rows.length) await tx.insert(practicePlanBlocks).values(rows.map((r) => ({ planId, day: r.day, place: r.place, blockId: r.blockId, minutes: r.minutes })));
+        if (rows.length) await tx.insert(practicePlanBlocks).values(rows.map((r) => ({ planId, day: r.day, place: r.place, blockId: r.blockId, choiceId: r.choiceId ?? null, minutes: r.minutes })));
       });
     },
     async createVideo(row) {

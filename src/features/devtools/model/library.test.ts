@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { SEED_PLANS, seedPlan } from "@/features/library/seed";
 import { DEMO_PLANS } from "@/features/plan/demos";
+import { blockOfChoice, isCuratedId } from "@/features/plan/model/blockId";
 import { seedLibraryRows } from "./library";
 
 test("every demo's plan is a library plan with the same id", () => {
@@ -29,4 +30,14 @@ test("a seed plan file is a library row with its own answers, model and versions
   const [r] = rows;
   assert.deepEqual([r.id, r.source, r.model, r.promptVersion, r.docsAgents, r.docsTeaching, r.enabledForReuse], ["guitar-new-test", "seed", "claude-fable-5-2", 1, 2, 5, true]);
   assert.deepEqual(r.answers, answers);
+});
+
+test("every exercise in a seed reply names its block and choice", () => {
+  for (const r of seedLibraryRows()) {
+    const plan = JSON.parse(r.reply) as { days: { exercises: { blockId?: string; choiceId?: string }[] }[] };
+    for (const e of plan.days.flatMap((d) => d.exercises)) {
+      assert.ok(e.blockId && isCuratedId(e.blockId), r.id);
+      assert.equal(e.choiceId && blockOfChoice(e.choiceId), e.blockId, r.id);
+    }
+  }
 });
