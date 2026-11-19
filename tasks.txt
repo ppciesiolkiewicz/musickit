@@ -16,6 +16,10 @@ A TaskSeries is a named group of tasks that belong together: one feature or one 
 - Order inside a series is the order to work in unless a task says it waits for another ("after NEW8").
 - A series can point into another: a task that needs a missing tool names the MissingTools task instead of repeating it.
 
+
+TaskSeries:
+Visualize singing certain notes over chords as a grid of sus2 sus4 or as a bubble chart.
+
 TaskSeries CounterTask
 CounterTask1:
 Improve counter ->

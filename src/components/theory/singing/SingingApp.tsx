@@ -4,7 +4,7 @@ import VoiceSelect from "./VoiceSelect";
 import { usePlayerVoice } from "@/features/userData/client/usePlayerVoice";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
-import { AccuracyRow, KeyRow, MAX_LAG_MS, MelodyViewRow, PlayAheadRow, PocketSection, ScaleFacts, keyAndScaleName, usePlayAhead } from "@/features/settings";
+import { AccuracyRow, KeyRow, PlayAheadRow, PocketSection, ScaleFacts, keyAndScaleName, usePlayAhead } from "@/features/settings";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import Icon from "@/components/Icon";
 import { Button, Hint, HintProvider, Select, Slider } from "@/components/ui";
@@ -59,13 +59,7 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
   // how close counts as on the note, shared with the singing tools
   const [cents] = useAccuracy();
   // how far the bar runs ahead of the voice dot on a melody
-  const [lagMs, pickLag] = usePlayAhead();
-  const lagSlider = (
-    <>
-      <Slider min={0} max={MAX_LAG_MS} step={10} value={lagMs} onChange={pickLag} size="sm" className="w-40" aria-label="Play-ahead" />
-      <span className="whitespace-nowrap pl-1 text-xs tabular-nums text-slate-500">{lagMs} ms</span>
-    </>
-  );
+  const [lagMs] = usePlayAhead();
   const range = singer.range ?? VOICES[voice];
   const [rest, setRest] = useState(2);
   // the tune being sung, by number, and the difficulty whose tunes are listed ("all", the whole book, to start with)
@@ -239,7 +233,6 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
             <KeyRow tonicPc={tonicPc} onTonic={setTonicPc} scale={{ slug: scale, onPick: pickScale }} keys={tab !== "runs"} />
             <SettingsRow label="Voice">{voiceSelect}</SettingsRow>
             <AccuracyRow />
-            {tuneTab && <MelodyViewRow />}
             {tuneTab && <PlayAheadRow />}
             {/* the settings of the drill picked, under the ones every drill shares */}
             {tab === "scales" && (
@@ -284,7 +277,6 @@ export default function SingingApp({ mode, initial, lead }: { mode: SingingMode;
               listen={listen}
               cents={cents}
               lagMs={lagMs}
-              playAhead={lagSlider}
               hostSettings
               tapped={tapped}
               onNote={(t, i) => void tapTune(t, i)}

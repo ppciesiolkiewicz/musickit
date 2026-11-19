@@ -9,7 +9,7 @@ import { DropdownSection, Hint, HintToggle, KeyCap } from "@/components/ui";
 import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
-import { ToolSettings, Volume } from "@/features/settings";
+import { PlayAheadRow, ToolSettings, Volume, usePlayAhead } from "@/features/settings";
 import { useExerciseSetting } from "@/components/practice/exerciseSettings";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import type { Clef } from "@/features/theory/piano/staff";
@@ -58,6 +58,11 @@ function IconButton({ on, lit: litProp, tone = "sky", big, title, onClick, disab
   );
 }
 
+const VIEWS: { id: "staff" | "roll"; label: string; icon: "music" | "piano"; what: string }[] = [
+  { id: "staff", label: "Staff", icon: "music", what: "Shows the notes as written." },
+  { id: "roll", label: "Piano roll", icon: "piano", what: "Shows each note as a bar at its pitch and keeps the line your voice took." },
+];
+
 const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome"; what: string }[] = [
   { id: "tune", label: "Tune", icon: "piano", what: "the tune on the piano" },
   { id: "chords", label: "Chords", icon: "music", what: "the chords under the tune" },
@@ -70,13 +75,13 @@ const LAYERS: { id: Layer; label: string; icon: "piano" | "music" | "metronome";
  * mic (any button switches it on; plain, so Play is the one green button); mute buttons for the tune, its chords (when it has them)
  * and the metronome together in a frame under a speaker badge, each on or off while it plays, the bar running either way; a loop over a part of
  * the tune set on a strip of the whole tune (on by default, over all of it; the strip shows only while looping), and the tune drawn on an endless staff or
- * as a piano roll that keeps the line the voice took. Full screen is a page modal (Esc closes it), drawn big, the notes
+ * as a piano roll that keeps the line the voice took, switched beside the mute buttons. The play-ahead is the player's saved one, its slider under the sliders button. Full screen is a page modal (Esc closes it), drawn big, the notes
  * sliding under a bar that stays put so the voice dot holds its place. It is the same player moved over the page, so a
  * tune playing plays on into full screen and back out of it. Key it by the tune: a new one starts over (a new tempo does not).
  * The (?) arms a shared `HintProvider` (from a host up the tree, e.g. the singing page): once armed, hovering a
  * control (or tapping it, on touch) shows what it does instead of firing it.
  */
-export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, listen, tapped, onNote, info, cents: centsProp, lagMs, full: fullProp, onFull, nav, tools, settings, playAhead, hostSettings = false }: {
+export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, listen, tapped, onNote, info, cents: centsProp, lagMs: lagProp, full: fullProp, onFull, nav, tools, settings, hostSettings = false }: {
   notes: PlacedNote[];
   chords: MelodyChord[];
   /** the metronome heard from the start; off by default */
@@ -92,7 +97,7 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   info: ReactNode | ((at: number | null) => ReactNode);
   /** within this many cents counts as on the note (the student's accuracy setting when left out) */
   cents?: number;
-  /** how far the voice dot runs behind the bar (the app's default when left out) */
+  /** how far the voice dot runs behind the bar (the player's saved play-ahead when left out) */
   lagMs?: number;
   /** full screen held by the caller (with `onFull`), so it stays open across tunes; left out, the player keeps its own */
   full?: boolean;
@@ -103,17 +108,17 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
   tools?: ReactNode;
   /** settings shown on a line under the buttons while full screen (tempo, accuracy, …) */
   settings?: ReactNode;
-  /** the play-ahead slider, in the settings dropdown (how far the moving bar runs ahead of the voice dot) */
-  playAhead?: ReactNode;
-  /** the page holds accuracy, melody view and play-ahead in its settings panel: the tool keeps the volume and its own (share). The panel there has the play-along tools, whose own Volume would sit beside the app's */
+  /** the page holds accuracy and play-ahead in its settings panel: the tool keeps the volume and its own (share). The panel there has the play-along tools, whose own Volume would sit beside the app's */
   hostSettings?: boolean;
 }) {
-  useCoverage({ hints: 8 });
+  useCoverage({ hints: 9 });
   const total = notes[notes.length - 1].at + notes[notes.length - 1].beats;
   // looping a part is a Standard control; hidden, the clock loops the whole tune
   const looping = useLevelAtLeast("standard");
   const { focus, ...sa } = useSingAlong({ notes, chords, beatMs, total, click, listen, loopControl: looping });
-  const [look] = useExerciseSetting("view");
+  const [look, setLook] = useExerciseSetting("view");
+  const [storedLag] = usePlayAhead();
+  const lagMs = lagProp ?? storedLag;
   const [storedCents] = useAccuracy();
   const cents = centsProp ?? storedCents;
   const [ownFull, setOwnFull] = useState(false);
@@ -251,14 +256,26 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
             );
           })}
         </span>
+        {/* how the tune is drawn, beside the sounds so it is one tap away */}
+        <span role="radiogroup" aria-label="Melody view" className="ml-1 inline-flex items-center gap-1 rounded-xl border border-slate-800 p-1">
+          {VIEWS.map((v) => (
+            <Hint key={v.id} title={v.label} description={v.what}>
+              <button type="button" role="radio" aria-checked={look === v.id} title={v.label} onClick={() => setLook(v.id)}
+                className={`flex h-8 items-center gap-1.5 rounded-lg border px-1.5 transition ${look === v.id ? "border-sky-400/70 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
+                <Icon name={v.icon} size={14} />
+                <span className="text-[11px]">{v.label}</span>
+              </button>
+            </Hint>
+          ))}
+        </span>
         <Hint title="Volume" description="Sets every sound in the app, not just this tune.">
           <span className="ml-1 flex items-center border-l border-slate-800 pl-2"><Volume /></span>
         </Hint>
         {full && nav?.label && <span className="tabular-nums text-slate-300">{nav.label}</span>}
         <span className="ml-auto" />
-        <Hint title="Sound and view settings" description={hostSettings ? "Share." : "Accuracy, melody view, play-ahead, share."}>
-          <ToolSettings volume={false} accuracy={!hostSettings} view={!hostSettings} more={<>
-            {playAhead && <DropdownSection title="Play-ahead">{playAhead}</DropdownSection>}
+        <Hint title="Sound and view settings" description={hostSettings ? "Share." : "Accuracy, play-ahead, share."}>
+          <ToolSettings volume={false} accuracy={!hostSettings} more={<>
+            {!hostSettings && <PlayAheadRow look="menu" />}
             {tools && <DropdownSection title="Share">{tools}</DropdownSection>}
           </>} />
         </Hint>
