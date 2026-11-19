@@ -69,6 +69,17 @@ sight-singing:1 and note-names:3, whose blocks have no reading drill today.
 clap-along (2, with today's RhythmGame under it), chord-change-quiz (3), song-chart (8), vowel-guide (14), staff-reading
 (15). Each: what it does, what waits on it, what is open, planned props. In src/features/devtools/stories/stubs.ts; not in
 TOOLS, the prompt or the seed (stories.test.ts). Prop gaps on existing tools (3 qualities, 4-7, 9-13) have no stub.
+MissingTools16: [NEW 2026-11-19] Put the new tools on the path first, before building them (user: "I really want to
+factor them into path first"). Each path step that waits on a tool names it (double-stops-neck, clap-along,
+chord-change-quiz, song-chart, vowel-guide, staff-reading), and /dev/path shows it as "waits on <tool>". Today such
+steps only read "not implemented" (no `ladder` in src/features/plan/model/path.ts): double-stops, beat,
+hearing-changes and sight-singing already have tracks. vowel-guide (14) and staff-reading (15) have no track or steps
+yet, so those get written. Then build the tools one at a time; a finished tool gets a ladder for its steps, and blocks
+are written for them.
+Decided (user, 2026-11-19): no enable/disable switch for tools or blocks. An unfinished tool stays on /dev/stories and
+no seed block uses it until it works, so no plan can include it ("there should be no plan with these tools"; "it's
+just me"). Its steps stay missing on the path until then.
+Open: whether "factor into path" means tagging the existing steps, writing the new tracks, or both.
 
 TaskSeries ChoiceSplit: take the choice (stages, variants, pick-a-step) out of blocks (from NEW15, 2026-11-17)
 ChoiceSplit1: [NEW 2026-11-17] Brainstorm a choice that lives apart from its block, so new alternatives of a block (other
@@ -133,6 +144,30 @@ user: "seed exercises can be also cleaned up if needed"). With exercise-example,
 near-copy blocks into one block with choices; drop or merge blocks that say the same thing; give the ~266 exercises moved
 out of the plan files proper titles and text of their own; the SeedWording1-2 fixes ride along. The user reads a first
 batch before agents do the rest. Reseed after.
+[2026-11-19, order] Waits on DayShape1-2 and MissingTools16, so each block is rewritten once to the final shape (warm-up
+blocks, steps for the new tools). Counted 2026-11-19: 413 blocks, none at the current versions (prompt 9, teaching 8;
+~130 at teaching 0-2); 3 have moves, all guitar; none has more than one choice; 9 titles are shared by 18 blocks (first
+folds: "Down-up picking in stages", "The octave run", "Join positions 1 and 2", ...). Before the rewrite: the signed-in
+/plan walk and the text-fix reseed that keeps a rating (ChoiceSplit2 Task 10), and decide what moves voice and theory
+blocks get (today only key and tempo; position moves, other tracks' key orders and a voice block are open in
+ChoiceSplit1), or say they get versions and cleanup only.
+
+TaskSeries DayShape: how a day's plan is laid out by its minutes, and warm-ups (user, 2026-11-19)
+Before MissingTools16 and ChoiceSplit3: it changes what every player gets tomorrow.
+DayShape1: [NEW 2026-11-19] Split a day by its minutes. 20 minutes: concentrated training in one area, guitar or
+voice. 40 and 60 minutes: more sections. Today the composer takes the day's steps from every area the player picked
+(src/features/plan/model/daySteps.ts) and goes round them one block at a time (compose.ts `fill`), so a 20-minute day
+can jump between guitar, voice and theory. Open: what a section is (one area each, or several in one area); the order
+of a 40-minute guitar-and-voice day (voice warm-up, voice, then guitar?); which area a 20-minute day gets, and whether
+it turns from day to day; where theory sits. Show it on /dev/compose.
+DayShape2: [NEW 2026-11-19] Warm-ups: a kind of block that opens the day, not a step on the path. Voice warm-ups
+(user): breathwork; lip rolls down; lip rolls down and up; lip rolls up and down; singing scales; each interval out
+from do and back (do re do, do mi do, do fa do, ...), then the same going down. Today 12 seed blocks mention a warm-up
+or lip rolls (most in blocks/voice-guitar-advanced-first-week-warm-up-*.json, and voice-beginner-lip-rolls-middle);
+the composer doesn't know a warm-up and places them like any block. Guessed, not confirmed: warm-ups are for voice days
+only, and count toward the day's minutes. Open: a guitar warm-up too (spider, stretches?); how many minutes; one
+warm-up a day or a short sequence; how they are marked (`kind` on blocks, a tag, a choice). Write them with
+exercise-example. With DayShape1.
 
 TaskSeries PricingFaq: what the pricing, FAQ and terms promise, kept true to how plans are made (from NEW7, 2026-11-17)
 PricingFaq1: [NEW 2026-11-17] Drop the plan allowance. With NEW7, plans are composed from library blocks by our own code,
