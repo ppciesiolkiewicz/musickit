@@ -41,11 +41,12 @@ test("a student joins: becomes a teacher on Teacher Demo, and the invite is thei
   const { token } = await makeInvite(deps, "Ann");
   const ann = await person("ann@school.com", "student");
   assert.equal((await viewInvite(deps, ann, token)).state, "open");
+  assert.equal((await viewInvite(deps, ann, token)).name, "Ann", "the invite's note names who it is for");
   const r = await joinWithInvite(deps, ann, token, {});
   assert.ok(r.ok);
   assert.equal(r.account.role, "teacher");
   assert.equal((await deps.repo.userById(ann.id))?.planId, TEACHER_DEMO_PLAN_ID);
-  assert.deepEqual(await viewInvite(deps, ann, token), { state: "yours", plan: { name: "Teacher Demo", students: 2 } });
+  assert.deepEqual(await viewInvite(deps, ann, token), { state: "yours", plan: { name: "Teacher Demo", students: 2 }, name: "Ann" });
   assert.ok((await joinWithInvite(deps, ann, token, {})).ok, "joining again changes nothing");
   const [listed] = await listInvites(deps);
   assert.equal(listed.claimedBy?.email, "ann@school.com");
@@ -57,6 +58,7 @@ test("one invite, one account", async () => {
   await joinWithInvite(deps, await person("ann@school.com", "student"), token, {});
   const bob = await person("bob@school.com", "student");
   assert.equal((await viewInvite(deps, bob, token)).state, "used");
+  assert.equal((await viewInvite(deps, bob, token)).name, null, "no name from an invite made without one");
   assert.deepEqual(await joinWithInvite(deps, bob, token, {}), { ok: false, error: "used" });
   assert.equal((await deps.repo.userById(bob.id))?.planId, "student");
 });

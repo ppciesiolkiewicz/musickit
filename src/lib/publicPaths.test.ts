@@ -43,6 +43,12 @@ test("a shared note's page is public; the notes creator and other notes pages ar
   assert.equal(isMarketingPath("/notes/shared/abc"), false);
 });
 
+test("a teacher invite is public: it logs the visitor in on the page", () => {
+  assert.equal(isPublicPath("/join/abc_-1"), true);
+  assert.equal(isPublicPath("/joinx"), false);
+  assert.equal(isMarketingPath("/join/abc"), false);
+});
+
 test("a plan invite needs a login: it shows nothing of the plan before", () => {
   assert.equal(isPublicPath("/plan/invite/abc"), false);
 });

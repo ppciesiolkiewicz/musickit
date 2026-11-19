@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { cleanEmail } from "../model";
 import { Card, ErrorLine, FIELD, GoogleButton, LABEL, LINK, OrLine, PRIMARY, errorOf, send } from "./parts";
 
@@ -46,7 +46,14 @@ function useResendWait() {
   return { email: wait?.email ?? null, secondsLeft, start };
 }
 
-export default function LinkForm({ google, next, error }: { google: boolean; next: string | null; error?: string }) {
+export default function LinkForm({ google, next, error, bare = false }: {
+  google: boolean;
+  next: string | null;
+  error?: string;
+  /** no card of its own: it sits inside another one (the teacher invite) */
+  bare?: boolean;
+}) {
+  const Frame = bare ? Bare : Card;
   const [email, setEmail] = useState("");
   const [state, setState] = useState<State>(error && GOOGLE_ERRORS[error] ? { kind: "error", message: GOOGLE_ERRORS[error] } : { kind: "idle" });
   // The server sends one email to an address a minute (RESEND_WAIT); another address can be sent to straight away.
@@ -73,7 +80,7 @@ export default function LinkForm({ google, next, error }: { google: boolean; nex
 
   if (state.kind === "sent") {
     return (
-      <Card>
+      <Frame>
         <div role="status">
           <h2 className="text-base font-semibold text-slate-100">Check your email</h2>
           <p className="mt-1 text-sm text-slate-300">
@@ -93,12 +100,12 @@ export default function LinkForm({ google, next, error }: { google: boolean; nex
         ) : (
           <button type="button" className={`${LINK} self-start text-sm`} onClick={() => setState({ kind: "idle" })}>Send a new email</button>
         )}
-      </Card>
+      </Frame>
     );
   }
 
   return (
-    <Card>
+    <Frame>
       <form noValidate onSubmit={(e) => void submit(e)} className="flex flex-col gap-4">
         <label>
           <span className={LABEL}>Email</span>
@@ -111,7 +118,7 @@ export default function LinkForm({ google, next, error }: { google: boolean; nex
               ? `We just sent a log-in email to this address. Use that one, or send a new one in ${secondsLeft} seconds.`
               : null}
         </ErrorLine>
-        <button type="submit" disabled={state.kind === "sending" || waiting} className={PRIMARY}>
+        <button type="submit" disabled={state.kind === "sending" || waiting} className={`${PRIMARY} btn-metal`}>
           {state.kind === "sending" ? "Sending…" : "Email me a log-in link"}
         </button>
         <p className="text-xs text-slate-500">No password. We email you a link and a code, and either one logs you in.</p>
@@ -122,8 +129,13 @@ export default function LinkForm({ google, next, error }: { google: boolean; nex
           <GoogleButton next={next} />
         </>
       )}
-    </Card>
+    </Frame>
   );
+}
+
+/** The card's column without its frame. */
+function Bare({ children }: { children: ReactNode }) {
+  return <div className="flex flex-col gap-4">{children}</div>;
 }
 
 /** The 6-digit code from the email, typed on this page: it logs in here even when the email was opened on another device. */

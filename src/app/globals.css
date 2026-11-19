@@ -103,6 +103,11 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
   select {
     cursor: pointer;
   }
+  /* every button shows the hand on hover (Tailwind's reset leaves the arrow); a disabled one keeps the arrow */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
   :focus-visible {
     outline-color: var(--color-sky-400);
   }
@@ -212,3 +217,27 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
   .tour-wobble { outline: 2px solid var(--color-sky-400); outline-offset: 2px; }
   .tour-ring { display: none; }
 }
+/* log-in button: a soft brushed-metal face with a slow light sweep across it */
+@keyframes metal-sheen {
+  0%, 70% { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
+.btn-metal {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.28) 0%, rgb(255 255 255 / 0.06) 48%, rgb(0 0 0 / 0.06) 52%, rgb(255 255 255 / 0.1) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), inset 0 -1px 0 rgb(0 0 0 / 0.12), 0 1px 2px rgb(0 0 0 / 0.25);
+}
+.btn-metal::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.35), transparent);
+  animation: metal-sheen 6s ease-in-out infinite;
+}
+.btn-metal:disabled::after { animation: none; opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .btn-metal::after { animation: none; opacity: 0; } }

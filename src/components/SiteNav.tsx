@@ -57,7 +57,7 @@ function DemoLink({ current }: { current: boolean }) {
  * sees what is inside; without a login they lead to the login page (src/proxy.ts). A page a visitor may read
  * (`isMarketingPath`: the home pages, FAQ, demos, logging in) adds Demos and has the wordmark go home (the switch
  * between the two home pages is at the top of each, and in the footer); on the app's pages the wordmark goes to the
- * plan, and search and the tuner join the bar. The tuner button sits left of the style, except on the tuner page;
+ * plan, and search joins the bar. The tuner button sits left of the style on every page but the tuner page, home pages included;
  * `devices` adds the audio devices button after the style. A teacher's account (`can("students")`) gets a fourth link,
  * Students, after the three (on a phone its icon only; under 380 px Interactive notes is its icon too, so the four fit; under 340 px it is for everyone).
  */
@@ -86,7 +86,7 @@ export default function SiteNav({ active, devices = false }: { active: string; d
       {visitor && <DemoLink current={isUnder(active, ["/demo"])} />}
       <span className="ml-auto" />
       {!visitor && <SpotlightButton />}
-      {!visitor && active !== "/tuner" && <TunerButton className="hidden sm:mr-1.5 sm:block" />}
+      {active !== "/tuner" && <TunerButton className="hidden sm:mr-1.5 sm:block" />}
       <ThemeSwitcher autoOpen={active === "/players"} />
       {devices && <AudioDevicesButton className="sm:ml-1.5" />}
       <AccountLink className="sm:ml-1.5" />

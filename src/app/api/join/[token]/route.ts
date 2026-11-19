@@ -1,4 +1,4 @@
-import { auth, json, NO_ACCOUNTS, readJson } from "@/features/account/server/http";
+import { auth, json, NO_ACCOUNTS, readJson, requestAccount } from "@/features/account/server/http";
 import { joinWithInvite, viewInvite, type JoinError } from "@/features/account/server/invites";
 import { signedIn } from "@/features/userData/server/http";
 
@@ -7,14 +7,16 @@ export const dynamic = "force-dynamic";
 
 type Ctx = { params: Promise<{ token: string }> };
 
-/** `/join/<token>`, a teacher invite: `{ state, plan, needsSetup }` for the signed-in person. */
+/**
+ * `/join/<token>`, a teacher invite: `{ state, plan, name, signedIn, needsSetup, taught }`. Open to a visitor who isn't
+ * logged in (`signedIn` false): the page shows them the invite and logs them in there.
+ */
 export async function GET(req: Request, { params }: Ctx) {
   const deps = auth();
   if (!deps) return json({ error: NO_ACCOUNTS }, 503);
-  const me = await signedIn(req, deps);
-  if (me instanceof Response) return me;
-  const view = await viewInvite(deps, me.account, (await params).token);
-  return json({ ...view, needsSetup: me.account.needsSetup, taught: me.account.taught }, 200, me.cookies);
+  const { account, cookies } = await requestAccount(deps, req);
+  const view = await viewInvite(deps, account, (await params).token);
+  return json({ ...view, signedIn: !!account, needsSetup: account?.needsSetup ?? false, taught: account?.taught ?? false }, 200, cookies);
 }
 
 const ERRORS: Record<JoinError, { status: number; error: string; field?: string }> = {

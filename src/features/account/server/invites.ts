@@ -29,10 +29,11 @@ export const listInvites = async (deps: AuthDeps): Promise<InviteListing[]> => (
 /** How an invite looks to the person who opened it. */
 export type InviteState = "open" | "yours" | "used" | "not-found";
 
-/** What `/join/<token>` shows: the invite's state and its plan (name and students). */
+/** What `/join/<token>` shows: the invite's state, its plan (name and students) and who it is for (its note), if we said. */
 export interface InviteView {
   state: InviteState;
   plan: Pick<Plan, "name" | "students"> | null;
+  name: string | null;
 }
 
 /** The token's hash, or null for anything that can't be a token. */
@@ -40,15 +41,17 @@ const hashOf = (token: unknown): string | null => (typeof token === "string" && 
 
 const find = async (deps: AuthDeps, hash: string | null) => (hash ? deps.repo.inviteByHash(hash) : null);
 
-const stateFor = (invite: InviteRow | null, userId: string): InviteState =>
+const stateFor = (invite: InviteRow | null, userId: string | null): InviteState =>
   !invite ? "not-found" : invite.claimedBy === null ? "open" : invite.claimedBy.id === userId ? "yours" : "used";
 
-/** The invite as `/join/<token>` shows it to this person. */
-export async function viewInvite(deps: AuthDeps, account: Account, token: unknown): Promise<InviteView> {
+/** The invite as `/join/<token>` shows it to this person, or to a visitor not logged in yet (`null`). */
+export async function viewInvite(deps: AuthDeps, account: Account | null, token: unknown): Promise<InviteView> {
   const invite = await find(deps, hashOf(token));
   const plan = invite && (await deps.repo.listPlans()).find((p) => p.id === invite.planId);
-  if (!invite || !plan) return { state: "not-found", plan: null };
-  return { state: stateFor(invite, account.id), plan: { name: plan.name, students: plan.students } };
+  if (!invite || !plan) return { state: "not-found", plan: null, name: null };
+  const state = stateFor(invite, account?.id ?? null);
+  // the name is for the person it was made for: not shown to someone else on a used link
+  return { state, plan: { name: plan.name, students: plan.students }, name: state === "used" ? null : invite.note || null };
 }
 
 export type JoinError = "not-found" | "used" | "taught" | "name" | "terms";

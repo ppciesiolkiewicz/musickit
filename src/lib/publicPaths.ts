@@ -10,8 +10,11 @@
  */
 const MARKETING = ["/", "/players", "/faq", "/terms", "/demo", "/login", "/claim", "/kickstarter", "/landing-1", "/intro"];
 
-/** The app's pages anyone may open by their link: a shared note (`/notes/shared/<id>`). Not marketing: they show the app's bar. */
-const SHARED = ["/notes/shared"];
+/**
+ * The app's pages anyone may open by their link: a shared note (`/notes/shared/<id>`), and a teacher invite (`/join/<token>`),
+ * which logs a visitor in on the page itself. Not marketing: they show the app's bar.
+ */
+const SHARED = ["/notes/shared", "/join"];
 
 /**
  * Public but not for reading: APIs, Next's and Vercel's own paths, the folders of `public/` (the pitch model's weight files
