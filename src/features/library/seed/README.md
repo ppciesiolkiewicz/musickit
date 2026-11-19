@@ -75,7 +75,12 @@ set a key and a position). The prompt names each of the five by its block id (`s
 - An exercise is a block: `title`, an optional `choice`, `cells` (text, list, notice, tool, section). A `section` cell holds a
   `heading`, `minutes` when it is a timed block, a `choice` when its tools change, and its own `cells`. No `focus`; the
   title may end with hashtags (`#guitar #beginner #technique`) that stand for the fields.
-- A drill that works in other keys or at other tempos states `moves` on the exercise, beside `cells`: `"key": "any"`
+- One block per exercise. The same drill at another level or over another range (another path step, other keys or
+  tempos in `moves`, more minutes) is another choice in the same file, never a copy. Every choice shows the same words:
+  when the text, a heading, the why or a tool must differ by level, write separate blocks. A change to what the block
+  is (another tool, another drill) is a new block or a new choice, never an edit. A choice that isn't ready is
+  `"draft": true`, kept inactive.
+- A drill that works in other keys or at other tempos states `moves` on its choice: `"key": "any"`
   when it can be played in any key (left out when the key is the lesson, as with open chord shapes), and
   `"bpm": { "from": 60, "to": 90, "step": 10 }` for the tempos it makes sense in. Its tools are written at the start:
   the key the drill is first learned in and the `from` tempo (a later, faster section keeps its distance: 20 above

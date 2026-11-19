@@ -207,7 +207,7 @@ export default function ComposeLab() {
           <div className="flex flex-col gap-1.5">
             <Bar label="Choices of these areas" n={trace.library.all} of={trace.library.all} tone="bg-slate-500" />
             <Bar label="Every step within reach" n={trace.library.inReach} of={trace.library.all} tone="bg-sky-500" />
-            <Bar label="Not in yesterday's plan" n={trace.library.usable} of={trace.library.all} tone="bg-emerald-500" />
+            <Bar label="Not barred today" n={trace.library.usable} of={trace.library.all} tone="bg-emerald-500" />
           </div>
         </Stage>
 

@@ -1,7 +1,7 @@
-import type { BlockSummary, ConceptCoverage, CoverageRow, PlanSummary } from "@/features/library/server/types";
+import type { BlockChoice, BlockSummary, ConceptCoverage, CoverageRow, PlanSummary } from "@/features/library/server/types";
 import type { ItemResult, LibraryResult } from "./load";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
-import { SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
 import { seedBlocksById } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
@@ -113,17 +113,58 @@ export function PlansTable({ plans, params }: { plans: PlanSummary[]; params: Li
   );
 }
 
+/** A block's choices, one per line: its name (a link that draws it; the drawn one marked), level, steps, minutes, active or not. */
+export function ChoicesTable({ choices, drawn, params }: { choices: BlockChoice[]; drawn?: string; params: LibraryParams }) {
+  if (choices.length === 0) return null;
+  return (
+    <div className="mb-3 overflow-x-auto">
+      <table className="w-full text-left text-sm text-slate-200">
+        <Head cols={["Choice", "Level", "Steps", "Minutes", "Status"]} />
+        <tbody>
+          {choices.map((c) => (
+            <tr key={c.id} className={ROW}>
+              <td className="p-2">{c.id === drawn ? <span className="font-semibold text-slate-100">{c.name}</span> : <a className={LINK} href={`${libraryHref(params, { item: c.id })}#item`}>{c.name}</a>}</td>
+              <td className="p-2">{orDash(c.level)}</td>
+              <td className="p-2">{c.steps.join(", ") || "–"}</td>
+              <td className="p-2">{c.minutes}</td>
+              <td className={`p-2 ${c.active ? "" : "text-amber-300"}`}>{c.active ? "active" : "inactive"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** A block's choices as links that draw each; an inactive one is amber. */
+function ChoiceLinks({ choices, params }: { choices: BlockChoice[]; params: LibraryParams }) {
+  if (choices.length === 0) return <>–</>;
+  return (
+    <span>
+      {choices.map((c, i) => (
+        <span key={c.id}>
+          {i > 0 && ", "}
+          <a className={c.active ? LINK : "text-amber-300 underline"} title={c.active ? undefined : "inactive"} href={`${libraryHref(params, { item: c.id })}#item`}>{c.name}</a>
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export function BlocksTable({ blocks, params }: { blocks: BlockSummary[]; params: LibraryParams }) {
   if (blocks.length === 0) return <Muted>No blocks for this topic.</Muted>;
-  const seed = seedBlocksById();
+  const hashed = seedBlocksById();
+  const curated = new Set(SEED_BLOCKS.map((f) => f.id));
+  const seed = { has: (id: string) => curated.has(id) || hashed.has(id) };
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm text-slate-200">
-        <Head cols={["Title", "Level", "Concepts", "Model", "Versions", "Times", "Minutes", "1 star", "2 stars", "3 stars", "4 stars", "5 stars"]} />
+        <Head cols={["Title", "Choices", "Level", "Concepts", "Model", "Versions", "Times", "Minutes", "1 star", "2 stars", "3 stars", "4 stars", "5 stars"]} />
         <tbody>
           {blocks.map((b) => (
             <tr key={b.id} className={ROW}>
               <td className="p-2"><ItemLink id={b.id} title={b.title} params={params} /><SeedTag seed={seed.has(b.id)} /></td>
+              <td className="p-2"><ChoiceLinks choices={b.choices} params={params} /></td>
               <td className="p-2">{orDash(b.level)}</td>
               <td className="p-2">{b.concepts.join(", ") || "–"}</td>
               <td className="p-2">{orDash(b.provenance.model)}</td>
@@ -139,7 +180,7 @@ export function BlocksTable({ blocks, params }: { blocks: BlockSummary[]; params
   );
 }
 
-/** The plan or block in `?item=`, drawn, or a line saying it was not found. */
+/** The plan, block or choice in `?item=`, drawn (a block's choices listed above it), or a line saying it was not found. */
 function Item({ result, params }: { result: ItemResult; params: LibraryParams }) {
   if (result.state === "none") return null;
   return (
@@ -149,7 +190,10 @@ function Item({ result, params }: { result: ItemResult; params: LibraryParams })
         <a className="ml-2 text-xs font-normal text-sky-300 underline hover:text-sky-200" href={libraryHref(params, { item: undefined })}>close</a>
       </H>
       {result.state === "found" ? (
-        <LibraryItem item={result.item} />
+        <>
+          {result.item.choices && <ChoicesTable choices={result.item.choices} drawn={result.item.choiceId} params={params} />}
+          <LibraryItem item={result.item} />
+        </>
       ) : (
         <div>
           <Muted>Not found: no seed file and no block in the database with id {result.id}.</Muted>
@@ -189,7 +233,7 @@ function Tables({ result, params }: { result: LibraryResult; params: LibraryPara
     <div>
       {data.scopeError !== null && <p className="mb-3 text-sm text-red-300">{data.scopeError}. Shown without a player.</p>}
       <p className="mb-3 text-sm text-slate-400">
-        Player: {params.player ?? "none"} (add <code>?player=</code> and a user id). Not enabled for reuse:{" "}
+        Player: {params.player ?? "none"} (add <code>?player=</code> and a user id). Inactive choices, old blocks and plans not enabled for reuse:{" "}
         {params.includeNotEnabled ? "included" : "left out"}
         {" "}<a className={LINK} href={libraryHref(params, { includeNotEnabled: !params.includeNotEnabled })}>{params.includeNotEnabled ? "leave out" : "include"}</a>
       </p>

@@ -182,12 +182,16 @@ test holds this). Building the tool means adding it to `TOOLS` and deleting its 
 
 ## Library (`/dev/library`)
 
-A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days), and the blocks of the topic in `?topic=` (title, level, concepts, model, versions, times, minutes, ratings per star). A plan or block that comes from a seed file has a *Seed* tag after its title, and a version older than the current one (`PROMPT_VERSION`, `DOC_VERSIONS`) is amber, one not recorded grey, so files written to older rules stand out. `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows inactive choices, the app's old example and AI blocks, and plans not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. The one page for the library's plans and blocks; it replaced the examples page.
+A bare-table view of the practice-plan library through the same query functions as the MCP tools (`features/library/server`): coverage by topic and level and by concept (blocks, plans, times, minutes), the plans (title, model, versions, days), and the blocks of the topic in `?topic=` (title, choices (each a link that draws it, an inactive one amber), level, concepts, model, versions, times, minutes, ratings per star). A plan or block that comes from a seed file has a *Seed* tag after its title, and a version older than the current one (`PROMPT_VERSION`, `DOC_VERSIONS`) is amber, one not recorded grey, so files written to older rules stand out. `?player=<user id>` is passed through `devScope`; `?include_not_enabled=1` (toggled by a link) also shows inactive choices, the app's old example and AI blocks, and plans not enabled for reuse. Without a database, or when the query fails (for example migration 0019 is not applied), it says so in a line. The one page for the library's plans and blocks; it replaced the examples page.
 
 **One item drawn.** A plan's or block's title in the tables links to `?item=<id>#item`, which draws it below the tables
 (`library/LibraryItem.tsx`; `loadItem` in `library/load.ts`, `library/item.ts`). A plan row draws from the seed plan with
-that id; a block row from the seed block whose computed id (`blockIdOf(blockKeyOf(parseExercise(...).block))`) matches,
-else from the database block's content (`getBlock`, under the page's scope). A seed block's file id works too. With
+that id. A block id (a curated block's is its seed file's id) lists the block's choices above it (`ChoicesTable`: name,
+level, steps, minutes, active or inactive; a seed `draft` is inactive) and draws its first; a choice id
+(`<block id>/<name>`) draws that choice, its level, steps, moves and minutes on the exercise. From the seed file when
+there is one (an older hashed id is matched by `blockIdOf(blockKeyOf(parseExercise(...).block))` of each choice), else
+from the database block's content and choices (`getBlock`, under the page's scope; a choice the scope does not list,
+such as an inactive one without `?include_not_enabled=1`, is not found; a database choice draws without its moves). With
 neither, a line says it was not found. Seed items draw without the database. The head shows the versions it was written
 to as pills against the current ones (`teaching`, `agents` against `DOC_VERSIONS`, `prompt` against `PROMPT_VERSION`;
 `v—` when not recorded, amber when older), the model, a showcase's feature, the note, and the tools it uses. Under it,

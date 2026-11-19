@@ -145,7 +145,7 @@ export interface UserDataRepo {
   addBlocks(userId: string | null, blocks: NewBlock[], now: Date): Promise<void>;
   /**
    * In one transaction, the seed's curated blocks: each block upserted by id (`kind` 'curated'; content, tags, slot and
-   * provenance overwritten, level null and steps empty), the app's owner row (`seed`, enabled for reuse) inserted once,
+   * provenance overwritten, level null and steps empty), the app's owner row (`seed`) inserted once,
    * each choice upserted by id (written only when a field differs, so `updated_at` moves only on a change), then every
    * active choice of a curated block that isn't listed set inactive: one dropped from its file, or every choice of a file
    * removed. Nothing is deleted. `deactivated` counts the choices this call turned off.

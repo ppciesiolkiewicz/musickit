@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 7
+version: 8
 description: Write or fix a seed exercise (block) or 7-day plan file in src/features/library/seed - what agents find in the library and copy - so it meets every writing rule and reads well against its tools. Use when asked to add, write, improve or fix a seed exercise or plan, or a showcase.
 ---
 
@@ -19,8 +19,16 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
 
 1. **Pick the gap.** Read `library_coverage` and the steps on `/dev/path`: find an area × level × concept or path step, or showcase kind, that nothing covers yet. `concepts` ids come from `model/concepts.ts`, links from `model/catalogue.ts`. Never invent either.
 2. **Get the facts from the calculator.** Run `npm run -s theory -- …` for the key, scale, positions and chords. Check that the notes the text names are really in the scale or chord.
-3. **Shape the sections.** An exercise is a block: a `title`, an optional `choice`, and `cells` (text, list, notice, tool, section). A `section` cell has a `heading`, its own `cells`, `minutes` when it is a timed block, and a `choice` when its tools change key, tempo, position or level. Over 5 minutes means two or more sections with `minutes` (2–5 each) that add up to the exercise `minutes`. Each block changes one real thing: tempo, key, position, which notes are lit, or the task. Write the block plan as one line per section before writing any JSON.
+3. **Shape the sections.** An exercise is a block: a `title`, an optional `choice` (a selector), and `cells` (text, list, notice, tool, section). A `section` cell has a `heading`, its own `cells`, `minutes` when it is a timed block, and a `choice` when its tools change key, tempo, position or level. Over 5 minutes means two or more sections with `minutes` (2–5 each) that add up to the choice's `minutes`. Each block changes one real thing: tempo, key, position, which notes are lit, or the task. Write the block plan as one line per section before writing any JSON.
 4. **Write it.** The rules below are grouped by what they are about; a seed file meets all of them.
+
+   *The file: one block and its choices*
+   - A block file is one exercise. `exercise` holds what every way of playing it shares: the title, the why, the tags and the cells. `choices` lists the ways to play it, each with a `name` and its own `level`, `steps`, `moves` and `minutes`, so those four never sit in `exercise`. A choice's id is `<block id>/<name>`, and a plan's day names a block and one of its choices.
+   - One block per exercise. The same drill at another level or over another range (another path step, other keys or tempos in `moves`, more minutes) is another choice in the same file, never a copy of the file.
+   - Every choice shows the same words. When the text, a heading, the why or a tool must differ by level, write separate blocks.
+   - Never edit a block into something else. A change to what the block is (another tool, another drill) is a new block, or a new choice when only the level or the range changes. An edit keeps what the block is: a clearer step, a fixed fact, a better-lit note.
+   - A choice that isn't ready gets `"draft": true`: the library keeps it inactive, so no plan gets it.
+   - A block's `choices` and a section's `choice` are different things. The app picks one of the block's choices for a plan; a section's `choice` draws a selector inside the exercise (*Stages and variants*, below).
 
    *The why, the title, the headings*
    - `why` is one sentence: what the drill trains and why it works, so the learner could make up the next one. Sections start with the first block, so don't repeat the why there. The blocks themselves model "make it your own": the same drill, with one thing changed each time. A why that only says the skill matters is not a why:
@@ -47,7 +55,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
    - The staff still shows the notes above the ones a beginner's drill asks for, so where the singer could wander up (the first staff of a plan, a slide, a tune they make up, a skip up to Sol) the text carries the underlined care line ("The underlined line" in **teaching-voice**): `_Don't reach for high notes: sing only where your voice feels easy._`, on a line of its own, at most one in an exercise, with the words "reach for high notes" kept and the rest varied. Underline nothing else.
 
    *Moves: other keys, other tempos*
-   - A drill that works in other keys or at other tempos states `moves` on the exercise, beside `cells`: `"moves": { "key": "any", "bpm": { "from": 60, "to": 90, "step": 10 } }`. `"key": "any"` when it can be played in any key; leave it out when the key is the lesson (open chord shapes, a song in its key). `bpm` is the range of tempos the drill makes sense in, `from` the tempo its first tool is written at. Write the tools at the start: the key the drill is first learned in (check where it sits with `npm run -s theory`) and the `from` tempo; a later, faster section keeps its distance. A tool that must not follow lists the part in `"pinned"`.
+   - A drill that works in other keys or at other tempos states `moves` on its choice: `"moves": { "key": "any", "bpm": { "from": 60, "to": 90, "step": 10 } }`. `"key": "any"` when it can be played in any key; leave it out when the key is the lesson (open chord shapes, a song in its key). `bpm` is the range of tempos the drill makes sense in, `from` the tempo its first tool is written at. Write the tools at the start: the key the drill is first learned in (check where it sits with `npm run -s theory`) and the `from` tempo; a later, faster section keeps its distance. A tool that must not follow lists the part in `"pinned"`.
    - The app gives each player a version of the exercise (a key of theirs, a faster tempo once they found it easy, the earlier ones kept as chips) and draws the selector and the line about it itself. So an exercise with `moves` has no `choice` that sets a key or a tempo, and its text never mentions a selector.
    - Where the title, a heading or the text names the key or the tempo, write the param, never the value: `"{{=key}} minor pentatonic, position 1"`, `"Press Play below to start the metronome at {{=bpm}}."` A heading names the task, not the tempo ("Over the band", not "Over a band at 80"). The note dots are unchanged (`{{1}}`, `{{c-sharp}}`).
    - Say what stays the same in another key as a plain line, with no selector in it: "In another key the position sits on other frets, and the roots keep their places inside it."
@@ -61,7 +69,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
    - A change that needs new words or a new task is a later block, not a chip.
 
    *The metadata*
-   - Every exercise is tagged (the card shows them as chips, and the AI copies them): `"area"` = its area (in a guitar + theory plan, ear and theory drills are `"theory"`), `"tags"` = 1 to 3 kinds from `EXERCISE_TAGS` (`model/tools.ts`: ear, sing, rhythm, technique, theory, improv, song, multi-octave). Write them as `"area": "voice", "tags": ["sing", "ear"]` right after `minutes`; the level is the highest of the exercise's path steps (the parser sets it).
+   - Every exercise is tagged (the card shows them as chips, and the AI copies them): `"area"` = its area (in a guitar + theory plan, ear and theory drills are `"theory"`), `"tags"` = 1 to 3 kinds from `EXERCISE_TAGS` (`model/tools.ts`: ear, sing, rhythm, technique, theory, improv, song, multi-octave). Write them as `"area": "voice", "tags": ["sing", "ear"]` right after `title`; a choice's level is its own `level`, else the highest of its path steps (the parser sets it).
    - Every exercise has at least one `learnBefore`: the course section(s) that teach what the drill uses (`/course/<stage>/<section>`, from `src/features/course/stages`). A planned stub section counts. If nothing fits, add a stub section to the right stage first (a *planned* section in the **course-article** skill: `section(slug, title, topic, about)` with no blocks), then link it.
    - `note` (metadata) is one or two sentences on why this is a good model: what each block does and which rule it shows off.
 5. **Write the file and gate it.** A new file is `plans/<id>.json` or `blocks/<id>.json` in `src/features/library/seed` (shape and `versions` in the seed README), with `note` saying the gap in one line. Then:
@@ -74,7 +82,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
 
 ## Rewriting a seed file that exists
 
-A rewrite keeps the file, its `id`, `area`, `topic`, `concepts`, `steps` and minutes, so nothing that points at it breaks. Do it in this order:
+A rewrite keeps the file, its `id`, `area`, `topic`, `concepts`, and its choices' names, `steps` and minutes, so nothing that points at it breaks. A rewrite that would change what the block is makes a new block or choice instead (*The file*, above). Do it in this order:
 
 1. Read the old file against the list below and write down what fails, one line each. If nothing fails, leave it alone.
 2. Fix the tools first (a better tool, a missing `labels`, `pattern`, `choice` or `"always"`), then the text around them.

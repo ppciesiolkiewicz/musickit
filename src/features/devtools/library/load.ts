@@ -2,6 +2,7 @@ import { findBlocks, findPlans, getBlock, libraryCoverage, BLOCK_LIMIT, PLAN_LIM
 import { drizzleLibraryRepo } from "@/features/library/server/repo.drizzle";
 import type { BlockSummary, ConceptCoverage, CoverageRow, PlanSummary } from "@/features/library/server/types";
 import { devScope } from "@/features/library/server/mcp";
+import { blockOfChoice } from "@/features/plan/model/blockId";
 import { drizzleUserDataRepo } from "@/features/userData/server/repo.drizzle";
 import type { Db } from "@/lib/db/client";
 import { databaseItem, seedItem, type DrawnItem } from "./item";
@@ -30,8 +31,8 @@ export type ItemResult =
 const depsOf = (db: Db): Deps => ({ library: drizzleLibraryRepo(db), userData: drizzleUserDataRepo(db) });
 
 /**
- * The plan or block in `?item=`: from its seed file when it has one, else a block from the database (under the page's
- * scope). Never throws: a failed read is a not-found with the reason.
+ * The plan, block or choice in `?item=`: from its seed file when it has one, else a block from the database (under the
+ * page's scope; a choice id draws that choice of its block). Never throws: a failed read is a not-found with the reason.
  */
 export async function loadItem(db: Db | null, params: LibraryParams): Promise<ItemResult> {
   const id = params.item;
@@ -44,8 +45,12 @@ export async function loadItem(db: Db | null, params: LibraryParams): Promise<It
     let s = await devScope(devArgs(params), deps);
     if ("error" in s) s = await devScope(devArgs({ ...params, player: undefined }), deps);
     if ("error" in s) return { state: "not-found", id, message: s.error };
-    const block = await getBlock(deps, s.scope, id);
-    return block ? { state: "found", item: databaseItem(block) } : { state: "not-found", id };
+    // a choice id draws that choice of its block, when the scope lists it
+    const blockId = blockOfChoice(id);
+    const block = await getBlock(deps, s.scope, blockId ?? id);
+    if (!block) return { state: "not-found", id };
+    if (blockId && !block.choices.some((c) => c.id === id)) return { state: "not-found", id, message: "The block has no such choice, or it is inactive (show inactive ones too)." };
+    return { state: "found", item: databaseItem(block, blockId ? id : undefined) };
   } catch (e) {
     return { state: "not-found", id, message: e instanceof Error ? e.message : String(e) };
   }

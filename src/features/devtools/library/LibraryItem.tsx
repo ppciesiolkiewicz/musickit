@@ -148,6 +148,7 @@ export default function LibraryItem({ item }: { item: DrawnItem }) {
         <span className="flex flex-wrap items-center gap-2">
           <span className="font-mono text-sm text-sky-200">{item.seedId ?? item.id}</span>
           <Pill tone={KIND_TONE[item.kind]}>{item.seedId ? `seed ${item.kind}` : item.kind}</Pill>
+          {item.choiceId && <Pill tone="slate" title="The choice drawn">choice {item.choiceId.slice(item.choiceId.indexOf("/") + 1)}</Pill>}
           <VersionPill name="teaching" v={item.versions.teaching} current={DOC_VERSIONS.teaching} title="The teaching skills' version it was written to" />
           <VersionPill name="agents" v={item.versions.agents} current={DOC_VERSIONS.agents} title="The AGENTS.md version it was written to" />
           <VersionPill name="prompt" v={item.versions.prompt} current={PROMPT_VERSION} title="The plan prompt's version it was written to" />
