@@ -111,6 +111,19 @@ text params per level); the composer picks choices; ratings count per choice; `e
 active or not, from the seed). Design: docs/superpowers/specs/2026-11-19-block-ids-and-choices-design.md (approved
 2026-11-19). Part 1 before launch: ids, the inline plan exercises moved to block files, the choices table with one row
 per block, choiceId on plans and progress, wipe and reseed. Part 2 after: several choices per block, folding near-copies.
+[2026-11-19 built, Part 1 tasks 1-9] Plan: docs/superpowers/plans/2026-11-19-block-ids-and-choices-part1.md. On main
+(7eddb4bd..1e051ae7; origin/main had 5c14ce26 pushed mid-way, the rest not pushed). 412 seed block files, each with one
+choice (268 moved out of the ten plan files, which now name blocks by id and choice); `choices` table, choice ids on
+progress and plan rows, `blocks.kind`, no `enabled_for_reuse` on block owners (migrations 0036, 0037); db:seed-blocks
+updates curated blocks and choices in place and refuses to write when a seed file does not parse; the composer picks
+choices and a rating keeps its choice; /dev/library lists a block's choices, /dev/progress shows the choice; writing
+rules at teaching 8, prompt 9 (every seed file reports older versions until ChoiceSplit3). Checked: tests, types, the
+Drizzle repos on a local Postgres 17 (Homebrew; 14 removed), reset and reseed on that database. Not checked: any page
+in a browser.
+Left: Task 10 (user's go): db:migrate on Supabase (pushed code already needs 0036), db:reset-library, db:wipe-plans,
+db:seed-plans, db:seed-blocks, then a signed-in walk of /plan and a text fix + reseed that keeps a rating. Can wait:
+a player can get an owner row on a draft-only curated block; outcome.ts and planTime.ts resolve a slot by block id
+(Part 2); liveInput.test.ts fails on its own (another session's voice-range work).
 ChoiceSplit3: [NEW 2026-11-19] Clean up and rewrite the seed exercises for the new shape (after ChoiceSplit2 Part 1;
 user: "seed exercises can be also cleaned up if needed"). With exercise-example, then review-teaching-text: fold
 near-copy blocks into one block with choices; drop or merge blocks that say the same thing; give the ~266 exercises moved
