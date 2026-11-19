@@ -9,7 +9,7 @@ export function memoryRepo(plans: Plan[] = []) {
   const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
   const links: { teacherId: string; studentId: string; createdAt: Date; claimedAt: Date | null; plannedOn: string | null }[] = [];
   const planRequests: (PlanRequest & { userId: string })[] = [];
-  const invites: { id: string; tokenHash: string; planId: string; note: string; createdAt: Date; claimedBy: string | null; claimedAt: Date | null }[] = [];
+  const invites: { id: string; token: string | null; tokenHash: string; planId: string; note: string; createdAt: Date; claimedBy: string | null; claimedAt: Date | null }[] = [];
   let n = 0;
 
   const toInvite = ({ tokenHash, claimedBy, ...row }: (typeof invites)[number]): InviteRow => {

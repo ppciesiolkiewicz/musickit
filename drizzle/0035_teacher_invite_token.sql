@@ -1,0 +1,1 @@
+ALTER TABLE "teacher_invites" ADD COLUMN "token" text;

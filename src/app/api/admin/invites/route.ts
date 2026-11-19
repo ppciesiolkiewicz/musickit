@@ -25,16 +25,18 @@ const linkBase = (req: Request): string => {
   return host === "localhost" || host === "127.0.0.1" ? new URL(req.url).origin : SITE_URL;
 };
 
-/** /admin/invites (development, or an admin): every teacher invite, newest first. The links themselves are never stored. */
+/** /admin/invites (development, or an admin): every teacher invite, newest first, with its `link` (null when it was made before tokens were kept). */
 export async function GET(req: Request) {
   const gate = await devOrAdminGate(req);
   if (gate) return gate;
   const deps = auth();
   if (!deps) return json({ error: NO_DB }, 503);
-  return json({ invites: await listInvites(deps) });
+  const base = linkBase(req);
+  const invites = (await listInvites(deps)).map(({ token, ...invite }) => ({ ...invite, link: token ? `${base}${joinHref(token)}` : null }));
+  return json({ invites });
 }
 
-/** A new invite onto the Teacher Demo plan: JSON `{ note }`. Answers `{ invite, link }`; the link is shown this once. */
+/** A new invite onto the Teacher Demo plan: JSON `{ note }`. Answers `{ invite, link }`. */
 export async function POST(req: Request) {
   const gate = await devOrAdminGate(req);
   if (gate) return gate;

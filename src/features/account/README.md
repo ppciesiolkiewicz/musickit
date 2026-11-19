@@ -94,8 +94,8 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 - Teacher invites (`server/invites.ts`, table `teacher_invites`, migration `0032_teacher_invites`): a link we make on
   `/admin/invites` and send a teacher, `/join/<token>` (`JOIN_PATH`, `joinHref` in `loginGuard.ts`). It puts the
   account that opens it on the Teacher Demo plan (`TEACHER_DEMO_PLAN_ID`: teacher, 2 students, 8 autoplans a month,
-  free, `enabled` false), with the plan's role (an owner stays an owner). One invite, one account; the token is stored
-  as its hash, so the link is shown once. The page is not public: a visitor logs in first (the login page says "Create
+  free, `enabled` false), with the plan's role (an owner stays an owner). One invite, one account; the invite is found by
+  its token's hash, and the token is kept too, so /admin/invites can copy the link again. The page is not public: a visitor logs in first (the login page says "Create
   your teacher account"), and `pathAfterSignIn` sends a new account straight back to the invite, not to setup:
   `ui/JoinForm.tsx` asks its name and the terms (and the email box) there, as setup would. A student of a teacher (the
   `taught` plan) can't join. Routes: `GET/POST /api/join/<token>`; the admin's are `/api/admin/invites`.
@@ -146,7 +146,8 @@ Things that are on purpose:
   there (Practice plan, Interactive notes, Practice: `APP_PLACES` in `src/lib/appPlaces.ts`), keeping the page as `next`.
   Every other page stays open: the landing pages, the FAQ, `/account`. It is held in the browser only: the API routes don't refuse
   an account with no plan, which is a student meanwhile.
-- **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256.
+- **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256
+  (a teacher invite keeps its token too, for /admin/invites).
   A code is stored as the SHA-256 of the email and the code.
 - **The link and the code are one proof.** They are the same row: using one spends the other. The code works on the
   page that asked for it, so it logs in there even when the email was read on a phone.

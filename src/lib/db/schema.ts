@@ -204,7 +204,8 @@ export const teacherStudents = pgTable(
 
 /**
  * A link we send a teacher to try the app on a plan no one can choose (`plan_id`, the Teacher Demo: 2 students, free).
- * Made on /admin/invites; `token_hash` is the SHA-256 of the token in the link, which is shown once. `note` says who it
+ * Made on /admin/invites; `token_hash` is the SHA-256 of the token in the link, used to look it up. `token` is the token
+ * itself, kept so /admin/invites can copy the link again (null for invites made before it was kept). `note` says who it
  * was for. Used once: `claimed_by` and `claimed_at` are set when a signed-in person opens it and joins.
  */
 export const teacherInvites = pgTable(
@@ -212,6 +213,7 @@ export const teacherInvites = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     tokenHash: text("token_hash").notNull().unique(),
+    token: text("token"),
     planId: text("plan_id").notNull().references(() => plans.id),
     note: text("note").notNull().default(""),
     createdAt: at("created_at").notNull().defaultNow(),

@@ -24,17 +24,19 @@ const inviteCols = {
   id: teacherInvites.id,
   planId: teacherInvites.planId,
   note: teacherInvites.note,
+  token: teacherInvites.token,
   createdAt: teacherInvites.createdAt,
   claimedAt: teacherInvites.claimedAt,
   userId: users.id,
   userEmail: users.email,
   userName: users.name,
 };
-type InviteSelect = { id: string; planId: string; note: string; createdAt: Date; claimedAt: Date | null; userId: string | null; userEmail: string | null; userName: string | null };
+type InviteSelect = { id: string; planId: string; note: string; token: string | null; createdAt: Date; claimedAt: Date | null; userId: string | null; userEmail: string | null; userName: string | null };
 const toInvite = (r: InviteSelect): InviteRow => ({
   id: r.id,
   planId: r.planId,
   note: r.note,
+  token: r.token,
   createdAt: r.createdAt,
   claimedAt: r.claimedAt,
   claimedBy: r.userId && r.userEmail !== null && r.userName !== null ? { id: r.userId, email: r.userEmail, name: r.userName } : null,
@@ -138,7 +140,7 @@ export function drizzleRepo(db: Db): AuthRepo {
     },
     async createInvite(input, now) {
       const [row] = await db.insert(teacherInvites).values({ ...input, createdAt: now }).returning({ id: teacherInvites.id });
-      return { id: row.id, planId: input.planId, note: input.note, createdAt: now, claimedBy: null, claimedAt: null };
+      return { id: row.id, planId: input.planId, note: input.note, token: input.token, createdAt: now, claimedBy: null, claimedAt: null };
     },
     async listInvites() {
       const rows = await db.select(inviteCols).from(teacherInvites).leftJoin(users, eq(users.id, teacherInvites.claimedBy)).orderBy(desc(teacherInvites.createdAt));

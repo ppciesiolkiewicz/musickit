@@ -6,21 +6,21 @@ import type { InviteRow } from "./repo";
 
 /**
  * Teacher invites: a link we make on /admin/invites and send a teacher, so they can try the app as a teacher on a plan no
- * one can choose (the Teacher Demo: 2 students, free). The link is `/join/<token>`; only the token's hash is stored, so
- * the link is shown once, when it is made. One invite, one account: the first signed-in person to join with it keeps it.
+ * one can choose (the Teacher Demo: 2 students, free). The link is `/join/<token>`; the token is kept beside its hash
+ * (the hash finds it), so /admin/invites can copy the link again. One invite, one account: the first signed-in person to join with it keeps it.
  *
  * Rules only, like auth.ts: no Request and no SQL.
  */
 
-/** What /admin/invites lists: an invite, never its token. */
+/** What /admin/invites lists: an invite with its token (admin only), dates as ISO strings. */
 export type InviteListing = Omit<InviteRow, "createdAt" | "claimedAt"> & { createdAt: string; claimedAt: string | null };
 
 const listing = (i: InviteRow): InviteListing => ({ ...i, createdAt: i.createdAt.toISOString(), claimedAt: i.claimedAt?.toISOString() ?? null });
 
-/** A new invite onto the Teacher Demo plan. `note` says who it is for. The token goes in the link and is never stored. */
+/** A new invite onto the Teacher Demo plan. `note` says who it is for. The token is kept so the link can be copied again. */
 export async function makeInvite(deps: AuthDeps, note: unknown): Promise<{ token: string; invite: InviteListing }> {
   const token = deps.token();
-  const invite = await deps.repo.createInvite({ tokenHash: hashToken(token), planId: TEACHER_DEMO_PLAN_ID, note: cleanName(note) }, deps.now());
+  const invite = await deps.repo.createInvite({ token, tokenHash: hashToken(token), planId: TEACHER_DEMO_PLAN_ID, note: cleanName(note) }, deps.now());
   return { token, invite: listing(invite) };
 }
 

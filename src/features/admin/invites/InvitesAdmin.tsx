@@ -6,6 +6,8 @@ type Invite = {
   id: string;
   planId: string;
   note: string;
+  /** The `/join/<token>` link; null for invites made before links were kept. */
+  link: string | null;
   createdAt: string;
   claimedBy: { id: string; email: string; name: string } | null;
   claimedAt: string | null;
@@ -27,13 +29,14 @@ const errorIn = (r: { body: Record<string, unknown> }) => (typeof r.body.error =
 
 /**
  * /admin/invites: make a teacher invite onto the Teacher Demo plan (2 students, free, never offered), copy its link, and
- * see who joined with each. Only the token's hash is stored, so a link is shown once, right after it is made.
+ * see who joined with each. Each row's Copy link copies its link again (not for invites made before links were kept).
  */
 export default function InvitesAdmin() {
   const [invites, setInvites] = useState<Invite[] | null>(null);
   const [note, setNote] = useState("");
   const [made, setMade] = useState<{ link: string; note: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  /** What was copied last: "made" for the new link, else an invite's id. */
+  const [copied, setCopied] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,16 +60,16 @@ export default function InvitesAdmin() {
     setBusy(false);
     if (!r.ok) return setError(errorIn(r));
     setMade({ link: String(r.body.link), note });
-    setCopied(false);
+    setCopied(null);
     setNote("");
     void load();
   };
 
-  const copy = async () => {
-    if (!made) return;
+  const copy = async (link: string, which: string) => {
+    setError(null);
     try {
-      await navigator.clipboard.writeText(made.link);
-      setCopied(true);
+      await navigator.clipboard.writeText(link);
+      setCopied(which);
     } catch {
       setError("Couldn't copy. Select the link and copy it by hand.");
     }
@@ -103,10 +106,10 @@ export default function InvitesAdmin() {
         </div>
         {made && (
           <div role="status" className="flex flex-col gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm">
-            <span className="text-emerald-100">Link for {made.note || "a teacher"}. It is shown only now: copy it before you leave the page.</span>
+            <span className="text-emerald-100">Link for {made.note || "a teacher"}. You can copy it again from the list below.</span>
             <div className="flex flex-wrap items-center gap-2">
               <input readOnly value={made.link} onFocus={(e) => e.target.select()} className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-1.5 font-mono text-xs text-slate-100" />
-              <button type="button" onClick={() => void copy()} className={BTN}>{copied ? "Copied" : "Copy link"}</button>
+              <button type="button" onClick={() => void copy(made.link, "made")} className={BTN}>{copied === "made" ? "Copied" : "Copy link"}</button>
             </div>
           </div>
         )}
@@ -129,6 +132,11 @@ export default function InvitesAdmin() {
                   <span className="text-xs text-slate-400">Joined, account deleted</span>
                 ) : (
                   <span className="text-xs text-amber-300">Not used yet</span>
+                )}
+                {i.link ? (
+                  <button type="button" onClick={() => void copy(i.link!, i.id)} className={BTN}>{copied === i.id ? "Copied" : "Copy link"}</button>
+                ) : (
+                  <span className="text-xs text-slate-500" title="Made before links were saved">Link not saved</span>
                 )}
                 <button type="button" onClick={() => void remove(i.id)} className={BTN}>Delete</button>
               </li>

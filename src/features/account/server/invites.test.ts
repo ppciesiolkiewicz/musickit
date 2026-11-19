@@ -26,14 +26,14 @@ function setup() {
   return { ...store, deps, person };
 }
 
-test("an invite stores only its token's hash and lists who it is for", async () => {
+test("an invite is found by its token's hash, keeps its token and lists who it is for", async () => {
   const { deps, invites } = setup();
   const { token, invite } = await makeInvite(deps, "  Ann   at Ridge school ");
   assert.equal(token, "t1");
   assert.equal(invites[0].tokenHash, hashToken("t1"));
   assert.equal(invite.note, "Ann at Ridge school");
   assert.equal(invite.planId, TEACHER_DEMO_PLAN_ID);
-  assert.deepEqual((await listInvites(deps)).map((i) => i.id), [invite.id]);
+  assert.deepEqual((await listInvites(deps)).map((i) => [i.id, i.token]), [[invite.id, "t1"]]);
 });
 
 test("a student joins: becomes a teacher on Teacher Demo, and the invite is theirs", async () => {

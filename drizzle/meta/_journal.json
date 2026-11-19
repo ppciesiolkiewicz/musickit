@@ -246,6 +246,13 @@
       "when": 1795066812864,
       "tag": "0034_admin_role",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1795068037531,
+      "tag": "0035_teacher_invite_token",
+      "breakpoints": true
     }
   ]
 }

@@ -48,6 +48,8 @@ export interface InviteRow {
   planId: string;
   /** Who it was for, as we typed it on /admin/invites. */
   note: string;
+  /** The token in the link, so /admin/invites can copy it again; null for invites made before it was kept. */
+  token: string | null;
   createdAt: Date;
   /** The account that joined with it, and when; null while no one has. */
   claimedBy: { id: string; email: string; name: string } | null;
@@ -98,8 +100,8 @@ export interface AuthRepo {
   markPlanned(teacherId: string, studentId: string, day: string): Promise<void>;
   /** The student's teacher, or null. */
   teacherOf(studentId: string): Promise<UserRow | null>;
-  /** Stores a new teacher invite by its token's hash. */
-  createInvite(input: { tokenHash: string; planId: string; note: string }, now: Date): Promise<InviteRow>;
+  /** Stores a new teacher invite: its token, and the token's hash to find it by. */
+  createInvite(input: { token: string; tokenHash: string; planId: string; note: string }, now: Date): Promise<InviteRow>;
   /** Every teacher invite, newest first. */
   listInvites(): Promise<InviteRow[]>;
   /** The invite with this token hash, used or not. */

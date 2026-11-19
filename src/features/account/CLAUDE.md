@@ -29,9 +29,12 @@
 - **The Teacher Demo plan comes only from an invite.** `teacher-demo` is `enabled` false; `joinWithInvite`
   (`server/invites.ts`) is the one way onto it, never `canChoose`. A teacher invite's page (`/join/<token>`) does the
   setup itself (name, terms), so `pathAfterSignIn` doesn't send it to `/account/setup`.
-- **A token is stored as its hash, used once, and never logged** (the one exception: the development log-in link).
+- **A token is stored as its hash, used once, and never logged** (exceptions: the development log-in link is logged;
+  a teacher invite also keeps its token, so /admin/invites can copy the link again: it only puts someone on the free
+  Teacher Demo plan, once, and only admins can read it).
 - **Where to go next is checked with `safeNext`**, wherever it comes from. Never redirect to a raw `next`.
 - **`server/` is server only.** Nothing in `ui/` or any client file imports from it; pages (server components) may.
 - **This folder imports no feature.** Plan, progress, dev tools and the site nav import it.
 - The words on these screens follow "Words about the app" in `teaching-voice`: Log in, Log out, Create account, the
-  same on every screen.
+  same on every screen. One exception (user, 2026-11-19): the teacher invite (`ui/JoinForm.tsx`) is warmer and
+  excited, with confetti (`@/components/confetti`) and "You're in!", since it's the moment a teacher says yes.
