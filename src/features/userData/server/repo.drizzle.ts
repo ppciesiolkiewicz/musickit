@@ -43,16 +43,18 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
     },
     async putProgress(userId, entry, now) {
       const blockId = entry.blockId ?? null;
+      const choiceId = entry.choiceId ?? null;
       await db
         .insert(progressEntries)
-        .values({ userId, exerciseId: entry.exerciseId, entry, blockId, updatedAt: now })
+        .values({ userId, exerciseId: entry.exerciseId, entry, blockId, choiceId, updatedAt: now })
         .onConflictDoUpdate({
           target: [progressEntries.userId, progressEntries.exerciseId],
-          // an entry without a block id (a tab running code from before blocks) keeps the stored one, in the column and in
-          // the entry; a slot's block never changes, so this is safe
+          // an entry without a block id or a choice id (a tab running code from before them) keeps the stored one, in the column
+          // and in the entry; a slot's block never changes, so this is safe
           set: {
-            entry: sql`case when excluded.block_id is null and ${progressEntries.blockId} is not null then excluded.entry || jsonb_build_object('blockId', ${progressEntries.blockId}) else excluded.entry end`,
+            entry: sql`(case when excluded.block_id is null and ${progressEntries.blockId} is not null then excluded.entry || jsonb_build_object('blockId', ${progressEntries.blockId}) else excluded.entry end) || (case when excluded.choice_id is null and ${progressEntries.choiceId} is not null then jsonb_build_object('choiceId', ${progressEntries.choiceId}) else '{}'::jsonb end)`,
             blockId: sql`coalesce(excluded.block_id, ${progressEntries.blockId})`,
+            choiceId: sql`coalesce(excluded.choice_id, ${progressEntries.choiceId})`,
             updatedAt: now,
           },
         });
@@ -103,6 +105,13 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
       if (!ids.length) return new Set();
       const rows = await db.select({ id: blockOwners.blockId }).from(blockOwners).where(and(eq(blockOwners.userId, userId), inArray(blockOwners.blockId, ids)));
       return new Set(rows.map((r) => r.id));
+    },
+    async ownCurated(userId, ids, now) {
+      if (!ids.length) return;
+      // only a block that is stored: its row is the seed's, never written here
+      const stored = await db.select({ id: blocks.id }).from(blocks).where(inArray(blocks.id, ids));
+      if (!stored.length) return;
+      await db.insert(blockOwners).values(stored.map((b) => ({ userId, blockId: b.id, source: "ai" as const, createdAt: now }))).onConflictDoNothing();
     },
     async addBlocks(userId, list, now) {
       if (!list.length) return;

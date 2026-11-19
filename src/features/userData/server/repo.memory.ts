@@ -101,7 +101,8 @@ export function memoryUserDataRepo(): UserDataRepo & {
       const k = `${userId}/${entry.exerciseId}`;
       // like the coalesce in Postgres: an entry without a block id keeps the stored one (a slot's block never changes)
       const blockId = entry.blockId ?? progress.get(k)?.blockId;
-      progress.set(k, structuredClone({ ...entry, ...(blockId ? { blockId } : {}) }));
+      const choiceId = entry.choiceId ?? progress.get(k)?.choiceId;
+      progress.set(k, structuredClone({ ...entry, ...(blockId ? { blockId } : {}), ...(choiceId ? { choiceId } : {}) }));
     },
     async removeProgress(userId, exerciseId) {
       progress.delete(`${userId}/${exerciseId}`);
@@ -129,6 +130,12 @@ export function memoryUserDataRepo(): UserDataRepo & {
     },
     async ownedBlockIds(userId, ids) {
       return new Set(ids.filter((id) => owners.has(pair(userId, id))));
+    },
+    async ownCurated(userId, ids) {
+      for (const id of ids) {
+        const k = pair(userId, id);
+        if (blocks.has(id) && !owners.has(k)) owners.set(k, { userId, blockId: id, source: "ai" });
+      }
     },
     async addBlocks(userId, list) {
       for (const b of list) if (!blocks.has(b.id)) blocks.set(b.id, { kind: "hashed", key: structuredClone(b.key), parentId: b.parentId, provenance: { ...NO_PROVENANCE } });

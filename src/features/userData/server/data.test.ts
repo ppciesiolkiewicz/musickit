@@ -412,3 +412,39 @@ test("writeVoice keeps one voice a player: a type or their own range; null remov
   repo.cascadeUser("u1");
   assert.equal(await readVoice(repo, "u1"), null, "gone with the account");
 });
+
+// --- curated blocks: a save writes their owner row only, never a block row
+
+const curatedEx = { id: "s3", title: "Spider walk", minutes: 5, cells: [], blockId: "guitar-spider-walk", choiceId: "guitar-spider-walk/beginner" } as PlanExercise;
+const seededCurated = (repo: ReturnType<typeof memoryUserDataRepo>) =>
+  repo.upsertCurated(
+    [{ id: "guitar-spider-walk", content: { title: "Spider walk", cells: [] } as never, area: "guitar", topic: "guitar-techniques", concepts: [], tags: [], slot: {}, provenance: { model: null, promptVersion: null, docsAgents: null, docsTeaching: null }, choices: [{ id: "guitar-spider-walk/beginner", name: "beginner", level: "beginner", steps: [], moves: null, minutes: 5, active: true, place: 0 }] }],
+    now,
+  );
+
+test("a save with a curated id writes no block row, and the player's owner row when the block exists", async () => {
+  const repo = memoryUserDataRepo();
+  await seededCurated(repo);
+  const before = repo.peekBlocks().get("guitar-spider-walk");
+  await writeDoc(repo, "u1", "plan", planDoc([curatedEx, ex]), now);
+  assert.deepEqual([...repo.peekBlocks().keys()].sort(), [idOf(ex), "guitar-spider-walk"].sort());
+  assert.deepEqual(repo.peekBlocks().get("guitar-spider-walk"), before);
+  assert.ok(repo.peekOwners().some((o) => o.userId === "u1" && o.blockId === "guitar-spider-walk"));
+});
+
+test("a save with an unknown curated id adds no block row and no owner row", async () => {
+  const repo = memoryUserDataRepo();
+  await writeDoc(repo, "u1", "plan", planDoc([curatedEx]), now);
+  assert.equal(repo.peekBlocks().size, 0);
+  assert.equal(repo.peekOwners().length, 0);
+});
+
+test("the server stores choice_id and keeps it when a later write lacks it", async () => {
+  const repo = memoryUserDataRepo();
+  await putEntry(repo, "u1", entry({ blockId: "guitar-spider-walk", choiceId: "guitar-spider-walk/beginner" }), now);
+  assert.equal((await readEntries(repo, "u1"))[0].choiceId, "guitar-spider-walk/beginner");
+  await putEntry(repo, "u1", entry({ blockId: "guitar-spider-walk", stars: 4 }), now);
+  const [e] = await readEntries(repo, "u1");
+  assert.equal(e.choiceId, "guitar-spider-walk/beginner");
+  assert.equal(e.stars, 4);
+});

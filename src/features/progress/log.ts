@@ -21,6 +21,8 @@ export interface ProgressEntry {
   steps?: string[];
   /** the block rated, when the plan had one; a row stays one per slot (progress knows nothing of the id's shape) */
   blockId?: string;
+  /** the choice rated, when the block is a curated one and the plan named a choice of it (`<blockId>/<name>`); kept like `blockId` */
+  choiceId?: string;
   /**
    * The version the exercise was played in, when the plan gave it one: the keys it opened in and the earlier ones, its
    * tempo and the earlier ones, and how many moves that is from a first play. Progress only keeps it; the plan reads it.
@@ -74,6 +76,7 @@ function cleanEntry(raw: unknown): ProgressEntry | null {
     ...(concepts.length ? { concepts } : {}),
     ...(steps.length ? { steps } : {}),
     ...(text(r.blockId) && r.blockId.length <= 200 ? { blockId: r.blockId } : {}),
+    ...(text(r.choiceId) && r.choiceId.length <= 200 ? { choiceId: r.choiceId } : {}),
     ...(given ? { given } : {}),
     stars: r.stars, at: r.at,
   };

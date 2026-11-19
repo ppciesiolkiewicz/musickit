@@ -132,6 +132,11 @@ export interface UserDataRepo {
   /** Which of these block ids the user owns (has a `block_owners` row for). */
   ownedBlockIds(userId: string, ids: string[]): Promise<Set<string>>;
   /**
+   * The player's owner rows (source `ai`) for these curated block ids, only for an id `blocks` already has and a row the player
+   * lacks. It never writes a block: a curated block's row is the seed's. An id `blocks` doesn't have is skipped.
+   */
+  ownCurated(userId: string, ids: string[], now: Date): Promise<void>;
+  /**
    * In one transaction: the blocks not stored yet (a stored block's content and tags are never changed), then the owner
    * rows the user lacks, then provenance: a listed block whose four provenance columns are all null takes its own
    * `provenance`, and one that is still all null and has a stored parent takes the parent's. A block with any column set

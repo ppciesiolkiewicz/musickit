@@ -202,4 +202,26 @@ describe("user data repo on Postgres: block provenance", () => {
     const rows = await db.select({ blockId: schema.practicePlanBlocks.blockId, choiceId: schema.practicePlanBlocks.choiceId, minutes: schema.practicePlanBlocks.minutes }).from(schema.practicePlanBlocks);
     assert.deepEqual(rows, [{ blockId: "guitar-a-b", choiceId: "guitar-a-b/beginner", minutes: 6 }]);
   });
+  test("putProgress stores choice_id and keeps it (and block_id) when a later write lacks it", async () => {
+    await fresh();
+    const entry = (over: object) => ({ id: "e1", planId: "p", exerciseId: "x1", day: 0, exercise: 0, title: "T", stars: 3 as const, at: "2026-11-15T10:00:00Z", ...over });
+    const row = async () => (await db.select().from(schema.progressEntries))[0];
+    await repo.putProgress(PLAYER_A, entry({ blockId: "guitar-a-b", choiceId: "guitar-a-b/beginner" }), NOW);
+    assert.equal((await row()).choiceId, "guitar-a-b/beginner");
+    await repo.putProgress(PLAYER_A, entry({ stars: 4 }), NOW);
+    const r = await row();
+    assert.deepEqual([r.blockId, r.choiceId, (r.entry as { choiceId?: string }).choiceId, (r.entry as { blockId?: string }).blockId], ["guitar-a-b", "guitar-a-b/beginner", "guitar-a-b/beginner", "guitar-a-b"]);
+    await repo.putProgress(PLAYER_A, entry({ blockId: "guitar-a-b", choiceId: "guitar-a-b/new" }), NOW);
+    assert.equal((await row()).choiceId, "guitar-a-b/new");
+  });
+  test("ownCurated adds the player's owner row only for a stored block, writes no block row, and twice adds one", async () => {
+    await fresh();
+    await repo.upsertCurated([curated("guitar-a-b", ["beginner"])], NOW);
+    const blocksBefore = await db.select().from(schema.blocks);
+    await repo.ownCurated(PLAYER_A, ["guitar-a-b", "guitar-unknown-one"], NOW);
+    await repo.ownCurated(PLAYER_A, ["guitar-a-b"], NOW);
+    assert.deepEqual(await db.select().from(schema.blocks), blocksBefore);
+    const owners = await db.select().from(schema.blockOwners).where(eq(schema.blockOwners.userId, PLAYER_A));
+    assert.deepEqual(owners.map((o) => o.blockId), ["guitar-a-b"]);
+  });
 });

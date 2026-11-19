@@ -96,3 +96,14 @@ test("sanitiseState keeps a plan's teacher record, caps the comment at 2000, and
     assert.equal("teacher" in sanitiseState({ current: plan("c", { teacher: bad as unknown as StoredPlan["teacher"] }) }).current!, false, JSON.stringify(bad));
   }
 });
+
+test("sanitiseState keeps a curated exercise's block id and choice id as stored", () => {
+  const e = { id: "s1", title: "Spider walk", minutes: 5, cells: [{ type: "text", text: "Frets 1 to 4." }], blockId: "guitar-spider-walk", choiceId: "guitar-spider-walk/beginner" };
+  const stored = plan("p", { config: { title: "p", days: [{ theme: "T", exercises: [e] }] } as unknown as PlanConfig });
+  const once = sanitiseState({ current: stored });
+  const got = once.current?.config.days[0].exercises[0];
+  assert.equal(got?.blockId, "guitar-spider-walk");
+  assert.equal(got?.choiceId, "guitar-spider-walk/beginner");
+  const again = sanitiseState(JSON.parse(JSON.stringify(once)));
+  assert.equal(again.current?.config.days[0].exercises[0].choiceId, "guitar-spider-walk/beginner");
+});

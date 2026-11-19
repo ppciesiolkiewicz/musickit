@@ -18,6 +18,7 @@ export function entryFor(plan: StoredPlan, day: number, exercise: number, rating
     ...(e.concepts?.length ? { concepts: e.concepts } : {}),
     ...(e.steps?.length ? { steps: e.steps } : {}),
     ...(e.blockId ? { blockId: e.blockId } : {}),
+    ...(e.choiceId ? { choiceId: e.choiceId } : {}),
     // the version it was played in: the next roll of this block starts from it
     ...(e.given ? { given: e.given } : {}),
     stars: rating.stars, at: rating.at,

@@ -46,3 +46,12 @@ test("entryFor copies the exercise's block id; an exercise without one gives a r
   assert.equal(entryFor(p, 0, 0, { stars: 2, at: AT }, counter())?.blockId, "b".repeat(32));
   assert.equal("blockId" in (entryFor(p, 0, 1, { stars: 2, at: AT }, counter()) ?? {}), false);
 });
+
+test("a rating of a composed exercise records its choice id", () => {
+  const p = plan("p");
+  p.config.days[0].exercises[0] = ex("p-0-0", { blockId: "guitar-spider-walk", choiceId: "guitar-spider-walk/beginner" });
+  const e = entryFor(p, 0, 0, { stars: 4, at: AT }, counter());
+  assert.equal(e?.blockId, "guitar-spider-walk");
+  assert.equal(e?.choiceId, "guitar-spider-walk/beginner");
+  assert.equal("choiceId" in (entryFor(p, 0, 1, { stars: 4, at: AT }, counter()) ?? {}), false);
+});
