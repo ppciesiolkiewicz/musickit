@@ -4,7 +4,7 @@ import Icon from "@/components/Icon";
 import { Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
 import { AREAS, type Area } from "../../model/concepts";
 import { keyName } from "@/features/theory/keySlug";
-import { KEY_LADDERS, KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
+import { KEY_LADDERS, KEY_RUNGS, homeChoices, homeKeyOf, keyRung, keysAt, type KeyRung } from "../../model/keys";
 import { MINUTES, levelOf, type PlanAnswers } from "../answers";
 import { topicsFor } from "../topics";
 import YourVoice, { VoiceField } from "./YourVoice";
@@ -119,23 +119,44 @@ function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Questi
     }
     return groups;
   };
-  const row = (on: boolean, pick: () => void, name: string, line: string, i: number, r?: KeyRung) => {
-    const groups = r === undefined ? [] : keyGroups(r);
-    return (
-      <button key={name} type="button" role="radio" aria-checked={on} onClick={pick} className={`flex cursor-pointer flex-col items-start rounded-xl border px-3 py-2 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hueAt(i), on)}`}>
-        <span className="text-sm font-medium">{name}</span>
-        <span className="text-xs opacity-70">{line}</span>
-        {groups.map((g) => (
-          <span key={g.label} className="mt-1 flex flex-wrap items-center gap-1 text-[11px]">
-            {groups.length > 1 && <span className="opacity-60">{g.label}</span>}
-            {g.keys.map((k) => (
-              <span key={k} className="rounded border border-current/30 px-1.5 leading-4 opacity-80">{k}</span>
-            ))}
-          </span>
-        ))}
-      </button>
-    );
+  // "One key": the player picks which one, from the first keys of their areas (guitar A, G, E)
+  const choices = [...new Set(chosen.flatMap((ar) => homeChoices(ar.id)))];
+  const firstKey = chosen.length ? KEY_LADDERS[chosen[0].id][0][0] : choices[0];
+  const home = a.keys === 0 ? (a.homeKey ?? firstKey) : undefined;
+  const pickHome = (k: number) => {
+    set("keys", 0);
+    set("homeKey", k);
   };
+  const tag = "inline-flex min-w-7 justify-center rounded-md border border-current/40 px-1.5 py-0.5 text-xs font-medium";
+  const row = (on: boolean, pick: () => void, name: string, line: string, i: number, r?: KeyRung) => (
+    <div key={name} className={`flex flex-col rounded-xl border transition ${hueClass(hueAt(i), on)}`}>
+      <button type="button" role="radio" aria-checked={on} onClick={pick} className="flex w-full cursor-pointer flex-col items-start rounded-xl px-3 pt-2 pb-1 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
+        <span className="text-sm font-medium">{name}</span>
+        <span className="text-xs opacity-80">{line}</span>
+      </button>
+      {r === 0 ? (
+        <div className="flex flex-wrap items-center gap-1.5 px-3 pb-2" role="group" aria-label={forStudent ? "Their key" : "Your key"}>
+          <span className="text-xs opacity-80">{forStudent ? "Their key:" : "Your key:"}</span>
+          {choices.map((k) => (
+            <button key={k} type="button" aria-pressed={home === k} onClick={() => pickHome(k)} className={`${tag} cursor-pointer text-sm ${home === k ? "border-sky-300 bg-sky-500 text-white" : "opacity-80 hover:opacity-100"}`}>
+              {keyName(k)}
+            </button>
+          ))}
+        </div>
+      ) : r !== undefined ? (
+        <div className="flex flex-col gap-1 px-3 pb-2">
+          {keyGroups(r).map((g, _, all) => (
+            <span key={g.label} className="flex flex-wrap items-center gap-1">
+              {all.length > 1 && <span className="mr-0.5 text-xs opacity-80">{g.label}</span>}
+              {g.keys.map((k) => <span key={k} className={tag}>{k}</span>)}
+            </span>
+          ))}
+        </div>
+      ) : (
+        <div className="pb-1" />
+      )}
+    </div>
+  );
   return {
     title: forStudent ? "How many keys is your student at home in?" : "How many keys are you at home in?",
     hint: forStudent
@@ -149,7 +170,7 @@ function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Questi
         </div>
         <ul className="flex flex-col gap-1 text-xs text-slate-400">
           {AREAS.filter((ar) => a.areas.includes(ar.id)).map((ar) => {
-            const { now, back } = keysAt(ar.id, keyRung(a.keys, levelOf(a, ar.id)));
+            const { now, back } = keysAt(ar.id, keyRung(a.keys, levelOf(a, ar.id)), homeKeyOf(a));
             return (
               <li key={ar.id}>
                 <span className="font-medium text-slate-200">{ar.label}:</span> {forStudent ? "their" : "your"} exercises start in {listed(now)}.

@@ -48,3 +48,9 @@ test("playerKeys: the keys answer starts the player further along", () => {
   assert.deepEqual(playerKeys(penta, P1, [], 1), { first: G, open: [A, G, E], earned: [] });
   assert.equal(playerKeys(penta, P1, [], 99).first, trackKeys(penta).at(-1)![0], "capped to the last stage");
 });
+
+test("a home key opens a step in that key first", () => {
+  const k = playerKeys(penta, P1, [], 0, E);
+  assert.equal(k.first, E);
+  assert.deepEqual(trackKeys(penta, E)[0], [E]);
+});

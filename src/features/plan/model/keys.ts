@@ -38,14 +38,34 @@ export const RUNG_OF_LEVEL: Record<Level, KeyRung> = { new: 0, beginner: 0, inte
 /** The rung in an area: the answer to the keys question when there is one, else from the area's level. */
 export const keyRung = (answered: KeyRung | undefined, level: Level): KeyRung => answered ?? RUNG_OF_LEVEL[level];
 
+/**
+ * The keys a player at "One key" can pick as theirs in an area: the first two rungs of its ladder (guitar A, G, E).
+ * Further up, a key is not one a player starts in.
+ */
+export const homeChoices = (area: Area): number[] => KEY_LADDERS[area].slice(0, 2).flat();
+
+/** The home key the answers ask for: only with "One key" (`keys` 0), the key they picked there. */
+export const homeKeyOf = (a: { keys?: number; homeKey?: number }): number | undefined => (a.keys === 0 ? a.homeKey : undefined);
+
+/**
+ * A ladder with the player's home key first: it swaps places with the first rung's key, so E on guitar gives E, then
+ * G and A, then the rest as before. A key that is already first, or isn't in the first two rungs, leaves the ladder as it is.
+ */
+export function homeLadder(ladder: number[][], home?: number): number[][] {
+  if (home === undefined) return ladder;
+  const at = ladder.findIndex((g) => g.includes(home));
+  if (at !== 1) return ladder;
+  return ladder.map((g, i) => (i === 0 ? [home] : i === at ? g.flatMap((k) => (k === home ? ladder[0] : [k])) : [...g]));
+}
+
 /** A player's keys in an area: `now`, the keys of their rung, and `back`, the keys of the rungs below, nearest rung first. */
 export interface PlayerKeys {
   now: number[];
   back: number[];
 }
 
-export function keysAt(area: Area, rung: KeyRung): PlayerKeys {
-  const ladder = KEY_LADDERS[area];
+export function keysAt(area: Area, rung: KeyRung, home?: number): PlayerKeys {
+  const ladder = homeLadder(KEY_LADDERS[area], home);
   return { now: [...ladder[rung]], back: ladder.slice(0, rung).reverse().flat() };
 }
 
@@ -57,8 +77,8 @@ export const MAX_BACK = 3;
  * The keys one exercise offers: at most `MAX_NOW` of the rung's keys (a rung with more takes a different three by
  * `turn`, so over the days every key comes round) and the `MAX_BACK` nearest keys to go back to.
  */
-export function exerciseKeys(area: Area, rung: KeyRung, turn = 0): PlayerKeys {
-  const { now, back } = keysAt(area, rung);
+export function exerciseKeys(area: Area, rung: KeyRung, turn = 0, home?: number): PlayerKeys {
+  const { now, back } = keysAt(area, rung, home);
   const from = now.length > MAX_NOW ? ((turn % now.length) + now.length) % now.length : 0;
   return { now: [...now.slice(from), ...now.slice(0, from)].slice(0, MAX_NOW), back: back.slice(0, MAX_BACK) };
 }
