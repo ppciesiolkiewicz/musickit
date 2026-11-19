@@ -136,7 +136,6 @@ function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Questi
           {(chosen.length ? chosen : AREAS.filter((x) => x.id === "guitar")).map((ar, _, all) => (
             <span key={ar.id} className="flex flex-wrap items-center gap-1 text-xs">
               {all.length > 1 && <span className="mr-0.5 opacity-80">{ar.label}</span>}
-              <span className="opacity-80">e.g.</span>
               {oneKey(ar.id).map((k, i) => (
                 <span key={k} className="flex items-center gap-1">
                   {i > 0 && <span className="opacity-80">or</span>}
