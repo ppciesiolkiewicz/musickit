@@ -9,8 +9,6 @@
   "note": "Track tunes (voice-melodies), step 4: mix of easy to hard, three tunes by ear, one Hard, one Easy and one Medium in that order, with no word on which is which: for each the singer finds the first note against Do (the last note) and the widest move, sings the second before hearing it, and takes the third to a second key.",
   "exercise": {
     "title": "Three tunes, easy to hard, in no order",
-    "minutes": 9,
-    "level": "intermediate",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-melodies",
     "concepts": [
       "tunes"
-    ],
-    "steps": [
-      "tunes:4"
     ],
     "why": "Every tune in the book ends on Do, so its last note tells you where home is and how far from home it starts, and those two things tell you what to listen for before you sing.",
     "learnBefore": [
@@ -114,5 +109,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "tunes:4"
+      ],
+      "minutes": 9
+    }
+  ]
 }

@@ -1,0 +1,86 @@
+{
+  "id": "voice-intermediate-read-two-tunes-with-a-5th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 6.",
+  "exercise": {
+    "title": "Read two tunes with a 5th",
+    "area": "voice",
+    "tags": [
+      "song"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "sight-singing"
+    ],
+    "why": "A leap you can read is one you know by its look as well as its sound, so reading two tunes built on one leap ties the two together.",
+    "learnBefore": [
+      "/course/6/sight-singing",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "From the staff",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Before you press Play, tap the first note of the tune below to hear it. It starts on Sol and falls a 5th to Do. Sing it from the staff on the note names, then press Play on the tune to check."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "fifths",
+                "index": 1
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The same leap, a new ending",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This tune starts with the same fall and then dips under Do before it comes home. Tap its first note, sing it from the staff, then press Play on the tune to check. Look for the bar where the two tunes part."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "fifths",
+                "index": 2
+              },
+              "key": "f",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sight-singing:2"
+      ],
+      "minutes": 6
+    }
+  ]
+}

@@ -9,8 +9,6 @@
   "note": "Track singing-intervals (voice-intervals), step 1: the major 3rd and the 5th up from Do, first copied after the piano, then found from Do alone.",
   "exercise": {
     "title": "A 3rd and a 5th up from Do",
-    "minutes": 6,
-    "level": "new",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-intervals",
     "concepts": [
       "singing-intervals"
-    ],
-    "steps": [
-      "singing-intervals:1"
     ],
     "why": "Do, Mi and Sol are the three notes of the home chord, so the leaps from Do to Mi and from Do to Sol are the two you will meet most, and copying them first gives your ear the sound to aim for.",
     "learnBefore": [
@@ -83,5 +78,15 @@
     "exploreMore": [
       "/theory/singing/intervals"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "singing-intervals:1"
+      ],
+      "minutes": 6
+    }
+  ]
 }

@@ -1,0 +1,97 @@
+{
+  "id": "voice-beginner-a-longer-skipping-tune-then-your-own",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 5.",
+  "exercise": {
+    "title": "A longer skipping tune, then your own",
+    "area": "voice",
+    "tags": [
+      "song"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "A longer tune asks for one skip after another, and making up your own afterwards shows which skips your voice finds by itself.",
+    "learnBefore": [
+      "/course/3/do-mi-sol"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A longer skipping tune",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\".\nOnce the last bar comes out as sure as the first, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still opens with Do Mi Sol."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "skips"
+              },
+              "key": "a",
+              "voice": "tenor"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Your own skips",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the drone and the mic. Make up a tune of skips between {{1}}, {{3}} and {{5}}, sing it on \"la\", and end it on {{1}}.\n_Don't reach for high notes: the low {{1}}, {{3}} and {{5}} are enough for a tune._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "a",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "3",
+                "5"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "tunes:2"
+      ],
+      "minutes": 9
+    }
+  ]
+}

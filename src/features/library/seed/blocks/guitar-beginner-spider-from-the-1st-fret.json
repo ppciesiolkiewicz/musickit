@@ -1,0 +1,50 @@
+{
+  "id": "guitar-beginner-spider-from-the-1st-fret",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 5.",
+  "exercise": {
+    "title": "Spider from the 1st fret",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "spider"
+    ],
+    "why": "Low on the neck the frets are widest, so the spider there builds the stretch that today's open position needs.",
+    "learnBefore": [
+      "/course/1/spider"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome and follow the tab: frets 1 to 4 with fingers 1, 2, 3 and 4 on every string, up and back. Keep going until the stretch feels as easy as it did at the 5th fret."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "finger-pattern",
+          "level": "beginner",
+          "show": "finger",
+          "bpm": 60
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "spider:2"
+      ],
+      "minutes": 4
+    }
+  ]
+}

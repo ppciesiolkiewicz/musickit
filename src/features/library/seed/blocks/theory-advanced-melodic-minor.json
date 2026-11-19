@@ -9,8 +9,6 @@
   "note": "Track minor-colours (theory-modes), step 3: melodic minor, the raised 6th that closes harmonic minor's gap, heard against natural minor and tapped over a drone in two keys.",
   "exercise": {
     "title": "Melodic minor: the raised 6th and 7th",
-    "minutes": 9,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "theory-modes",
     "concepts": [
       "minor-colours"
-    ],
-    "steps": [
-      "minor-colours:3"
     ],
     "why": "Harmonic minor leaves a wide gap under its raised 7th, and melodic minor raises the 6th as well to close it, so the scale climbs to the home note by steps.",
     "learnBefore": [
@@ -150,5 +145,15 @@
     "exploreMore": [
       "/theory/scales/melodic-minor/a"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "minor-colours:3"
+      ],
+      "minutes": 9
+    }
+  ]
 }

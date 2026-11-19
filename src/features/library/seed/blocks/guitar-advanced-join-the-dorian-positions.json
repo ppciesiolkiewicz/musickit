@@ -1,0 +1,129 @@
+{
+  "id": "guitar-advanced-join-the-dorian-positions",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 3.",
+  "exercise": {
+    "title": "Join the Dorian positions",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "Each position starts on the notes where the one below ends, so one slide along one string carries a line from one position into the next.",
+    "learnBefore": [
+      "/course/6/joining",
+      "/course/9/modes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "From position 1 to 2",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows only the crossing from position 1 to position 2 of A Dorian. Climb position 1 from the low {{1}}. On the G string, slide up into position 2 and finish the climb there. Come back down the same way."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From position 2 to 3",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same crossing one position higher: climb position 2, slide up the G string and finish in position 3. Then play both crossings in a row, from the low {{1}} in position 1 to the top of position 3."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "cross": {
+                "from": 2,
+                "to": 3
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The crossing in other keys",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Play the crossing from position 1 to 2 in other keys. Use the Key selector below to change the key.\nWhen you change the key, the notes change but the crossing is the same slide on the G string. Stay in each key until the slide lands without you looking for it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "e"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

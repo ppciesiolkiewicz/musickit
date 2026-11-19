@@ -9,8 +9,6 @@
   "note": "Track guitar-melodies (guitar-scales), step 5: a tune in D Dorian made from a four-note motive, ended on the root over a drone, then played over a Dm7 to G7 band. missing: the tune book behind the melody shape is major only, so there is no written modal tune to play from tab; the player makes one up.",
   "exercise": {
     "title": "Make up a Dorian tune",
-    "minutes": 10,
-    "level": "advanced",
     "area": "guitar",
     "tags": [
       "improv",
@@ -19,9 +17,6 @@
     "topic": "guitar-scales",
     "concepts": [
       "guitar-melodies"
-    ],
-    "steps": [
-      "guitar-melodies:5"
     ],
     "why": "A tune sounds Dorian when it rests on the root and passes through the raised 6th, so a short motive that ends on one and touches the other keeps the mode however you turn it round.",
     "learnBefore": [
@@ -141,5 +136,15 @@
     "exploreMore": [
       "/theory/scales/dorian/d"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "guitar-melodies:5"
+      ],
+      "minutes": 10
+    }
+  ]
 }

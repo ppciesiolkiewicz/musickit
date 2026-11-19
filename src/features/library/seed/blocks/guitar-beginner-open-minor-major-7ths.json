@@ -9,8 +9,6 @@
   "note": "Track seventh-shapes (guitar-extended-chords), step 2: the five open minor 7th and major 7th shapes, two as one finger off Am and C, three new, then strummed in time.",
   "exercise": {
     "title": "Open m7 and maj7 chords",
-    "minutes": 10,
-    "level": "beginner",
     "area": "guitar",
     "tags": [
       "technique",
@@ -19,9 +17,6 @@
     "topic": "guitar-extended-chords",
     "concepts": [
       "seventh-shapes"
-    ],
-    "steps": [
-      "seventh-shapes:2"
     ],
     "why": "Am7 and Cmaj7 are Am and C with one finger lifted, so each one is a shape you know with one more string ringing open.",
     "learnBefore": [
@@ -125,5 +120,15 @@
     "exploreMore": [
       "/course/7/hearing-sevenths"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "seventh-shapes:2"
+      ],
+      "minutes": 10
+    }
+  ]
 }

@@ -1,0 +1,48 @@
+{
+  "id": "guitar-theory-intermediate-ear-check",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 7.",
+  "exercise": {
+    "title": "Ear check",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sevenths-up"
+    ],
+    "why": "Naming chords with no warm-up shows which qualities you hear at once and which you still have to work out.",
+    "learnBefore": [
+      "/course/7/hearing-sevenths"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below and the game plays a chord. Pick its name and play a few rounds.\nNotice which qualities you name at once, and which ones you still work out."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "kind": "chord"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sevenths-up:5"
+      ],
+      "minutes": 5
+    }
+  ]
+}

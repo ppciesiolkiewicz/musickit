@@ -9,8 +9,6 @@
   "note": "Track beat (theory-basics), step 4: sixteenths counted \"1 e and a\", then a rest on the number and a rest on the \"and\", against the click and over drums. Missing: a rhythm tool that shows a written rhythm with its rests and listens to the claps; backing-band's click sounds only the beat.",
   "exercise": {
     "title": "Sixteenths and rests",
-    "minutes": 8,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "rhythm"
@@ -18,9 +16,6 @@
     "topic": "theory-basics",
     "concepts": [
       "beat"
-    ],
-    "steps": [
-      "beat:4"
     ],
     "why": "A sixteenth is a quarter of a beat, so counting \"1 e and a\" gives every clap a word, and a rest is a word you say without clapping.",
     "learnBefore": [
@@ -135,5 +130,15 @@
       "/course/2/sixteenths",
       "/theory/rhythm"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "beat:4"
+      ],
+      "minutes": 8
+    }
+  ]
 }

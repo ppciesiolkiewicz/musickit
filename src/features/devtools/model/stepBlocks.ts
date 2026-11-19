@@ -1,20 +1,20 @@
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, seedExercises } from "@/features/library/seed";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
 import { conceptId } from "@/features/plan/model/concepts";
-import { parseExercise, parsePlanConfig } from "@/features/plan/model/config";
+import { parseExercise } from "@/features/plan/model/config";
 import { PATH, stepAt, stepOf } from "@/features/plan/model/path";
 import { toolsOf } from "@/features/plan/model/tools";
 import type { PlanExercise } from "@/features/plan/model/types";
 
 /*
- * Every block in the code, by the path step it practises, for /dev/path and /dev/block: the seed blocks (the library's
- * single blocks, not in the database until db:seed-blocks runs) and the seed plans' exercises. A seed block names its
+ * Every block in the code, by the path step it practises, for /dev/path and /dev/block: the seed blocks, one entry per
+ * choice (not in the database until db:seed-blocks runs; a seed plan's days name them, so its exercises are among them). A seed block names its
  * steps (`steps` in the file); any other exercise counts where its tools say a step (`stepOf`), or else, as the library
  * matches today, for every step of its track at its level. Database blocks carry no steps yet
  * (docs/superpowers/specs/2026-11-16-blocks-by-step-design.md), so they are not here.
  */
 
-export type StepBlockSource = "seed block" | "seed plan";
+export type StepBlockSource = "seed block";
 
 export interface StepBlock {
   /** unique on the page: the file id, and for a plan's exercise its day and place */
@@ -50,13 +50,6 @@ function add(by: Map<string, StepBlock[]>, ref: string, b: StepBlock) {
   by.set(ref, list.sort((x, y) => RANK[x.how] - RANK[y.how]));
 }
 
-function planExercises(plan: unknown, entries: CatalogueEntry[]): { e: PlanExercise; raw: unknown; at: string }[] {
-  const r = parsePlanConfig(JSON.stringify(plan), entries);
-  if (!r.ok) return [];
-  const days = (plan as { days?: { exercises?: unknown[] }[] }).days ?? [];
-  return r.config.days.flatMap((d, i) => d.exercises.map((e, j) => ({ e, raw: days[i]?.exercises?.[j], at: `day ${i + 1}, ${j + 1}` })));
-}
-
 /** Every block in the code by step ref ("trackId:n"): in each list, the ones that name the step, then read, then level. */
 export function blocksByStep(entries: CatalogueEntry[] = catalogue()): Map<string, StepBlock[]> {
   const by = new Map<string, StepBlock[]>();
@@ -65,12 +58,13 @@ export function blocksByStep(entries: CatalogueEntry[] = catalogue()): Map<strin
     for (const { ref, how } of stepsOf(e, level)) add(by, ref, { ...b, how });
   };
   for (const f of SEED_BLOCKS) {
-    const { block } = parseExercise(f.exercise, f.id, entries);
-    const b = { id: f.id, title: block?.title ?? f.id, source: "seed block" as const, json: JSON.stringify(f.exercise) };
-    if (block) each(block, block.level, b);
-  }
-  for (const f of SEED_PLANS) {
-    for (const { e, raw, at } of planExercises(f.plan, entries)) each(e, e.level, { id: `${f.id} (${at})`, title: e.title, source: "seed plan", json: JSON.stringify(raw) });
+    for (const raw of seedExercises(f)) {
+      const { block } = parseExercise(raw, f.id, entries);
+      // one choice is the file; more are told apart by their choice ids
+      const id = f.choices.length > 1 ? String(raw.choiceId) : f.id;
+      const b = { id, title: block?.title ?? f.id, source: "seed block" as const, json: JSON.stringify(raw) };
+      if (block) each(block, block.level, b);
+    }
   }
   return by;
 }

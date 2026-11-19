@@ -1,0 +1,80 @@
+{
+  "id": "theory-only-first-week-major-key-or-minor-key-by-ear",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 3.",
+  "exercise": {
+    "title": "Major key or minor key, by ear",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "home-and-colour"
+    ],
+    "why": "G major and E minor use the same seven notes, so what tells the two keys apart is the chord the music comes to rest on.",
+    "learnBefore": [
+      "/course/3/major-or-minor",
+      "/course/3/la-minor-home"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Home is G",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band in G major: two bars of G, then C and D. Listen for the chord where the music comes to rest, and call out \"home\" each time it comes round.\nThe chord boxes show it: home is G, a major chord, so the key is major."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "three-chord",
+              "key": "g",
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Home is E minor",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band again. The notes are the ones of G major, with the same one sharp, but now the band rests on Em, a minor chord: the key is E minor. Call out \"home\" on each Em.\nThen put on a song you like and listen for the chord it comes to rest on: major or minor?"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "aeolian",
+              "key": "e",
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "home-and-colour:3"
+      ],
+      "minutes": 4
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "id": "theory-only-first-week-c-major-whole-steps-and-half-steps",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 1.",
+  "exercise": {
+    "title": "C major: whole steps and half steps",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "scales"
+    ],
+    "why": "A major scale is the same row of whole steps and half steps from any note, so once you see and hear where its two half steps fall, you can build the scale in any key.",
+    "learnBefore": [
+      "/course/3/piano-and-guitar"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The steps in C",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The panel below spells C major, and under each note it shows the step to the next one: W for a whole step, H for a half step. Press Play on the panel to hear the scale.\nThen tap up the piano under it, from {{1}} to the next {{1}}. Between {{3}} and {{4}}, and between {{7}} and {{1}}, there is no black key: those are the two half steps."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "mode-intervals",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The same steps from G",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The piano below shows G major. Tap from {{1}} up to the next {{1}} and listen for the same two half steps.\nTo keep the steps in the same places, one white key gives way to a black one: {{f-sharp}}, the 7th note. Tap {{7}}, then {{1}}, until you hear how close the two are."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "g",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Tap a tune home",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below, the five lines of music, shows C major: tap a note to hear it. Make up short tunes by tapping, moving mostly by step, and end each one on a ringed {{1}}.\nThen end a tune on {{7}} and stop. Listen for how it leans up the half step to {{1}}, then tap {{1}} to finish it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "7"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/major-ionian/c",
+      "/theory/piano"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "scales:3"
+      ],
+      "minutes": 7
+    }
+  ]
+}

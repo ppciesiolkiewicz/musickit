@@ -9,8 +9,6 @@
   "note": "Track beat (theory-basics), step 6: syncopation, claps between the clicks and then a rhythm that mixes on and off the beat. Missing: a rhythm tool for clapping (a written rhythm with no chord, that hears the claps); strum-along stands in, so the page shows a chord name and strum arrows for a clapped rhythm.",
   "exercise": {
     "title": "Syncopation: claps between the beats",
-    "minutes": 8,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "rhythm"
@@ -18,9 +16,6 @@
     "topic": "theory-basics",
     "concepts": [
       "beat"
-    ],
-    "steps": [
-      "beat:6"
     ],
     "why": "A syncopated note lands between two beats, so you can only place it when something else, your foot, keeps marking the beats it avoids.",
     "learnBefore": [
@@ -112,5 +107,15 @@
     "exploreMore": [
       "/theory/rhythm"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "beat:6"
+      ],
+      "minutes": 8
+    }
+  ]
 }

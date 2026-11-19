@@ -1,0 +1,107 @@
+{
+  "id": "guitar-theory-intermediate-solo-with-the-3rd",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 6.",
+  "exercise": {
+    "title": "Solo with the 3rd",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Adding the chord's 3rd to the pentatonic position makes a blues solo follow the changes.",
+    "learnBefore": [
+      "/course/7/twelve-bar",
+      "/course/7/blues-solo"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Slide into C♯",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Improvise in position 1. When A7 comes round, slide from {{b3}} (C) up to {{c-sharp}}: the 3rd of A7, not in A minor pentatonic. End your phrases on {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "add": [
+                "c-sharp"
+              ],
+              "highlight": [
+                "1",
+                "b3"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "chords": [
+                  {
+                    "chord": "A7",
+                    "scale": "minor-pentatonic",
+                    "target": [
+                      "3"
+                    ],
+                    "approach": "slide from C into C♯"
+                  },
+                  {
+                    "chord": "D7",
+                    "target": [
+                      "1"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 90,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over D7",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Same backing. When D7 comes round, aim for {{d}}. When A7 comes round, keep sliding into {{c-sharp}}."
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "minutes": 8
+    }
+  ]
+}

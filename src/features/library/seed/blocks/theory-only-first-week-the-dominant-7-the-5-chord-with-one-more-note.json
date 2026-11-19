@@ -1,0 +1,99 @@
+{
+  "id": "theory-only-first-week-the-dominant-7-the-5-chord-with-one-more-note",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 5.",
+  "exercise": {
+    "title": "The dominant 7: the 5 chord with one more note",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sevenths-up"
+    ],
+    "why": "A chord is every other note of the scale stacked up, and a fourth note on the stack makes a 7th chord: on the 5th note of a major key that gives a major chord with a ♭7, the dominant 7.",
+    "learnBefore": [
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Stack a fourth note",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The panel below shows the chord on every note of C major, each with four notes: root, 3rd, 5th and 7th. Tap a row to hear its chord.\nFind the V row, G7. It is the only row with a major 3rd and a ♭7: that pair makes a dominant 7. Tap G7, then the I row, Cmaj7, and go between the two until you hear G7 leaning towards the I chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "key-chords",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Hear the 7th arrive",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "f"
+            },
+            {
+              "key": "g"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: the 5 chord for a bar, the same chord with its 7th for a bar, then two bars of the 1 chord. Listen for the bar where one note joins the 5 chord, and call out \"seven\" when you hear it.\nOnce you hear the 7th before the box lights, try it in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the 7th still arrives in the second bar and leans to the 1 chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "V",
+                "V7",
+                "I",
+                "I"
+              ],
+              "style": "ballad",
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/7/hearing-sevenths"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "sevenths-up:2"
+      ],
+      "minutes": 6
+    }
+  ]
+}

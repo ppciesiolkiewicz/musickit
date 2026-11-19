@@ -9,8 +9,6 @@
   "note": "Track home-and-colour (theory-ear), step 5: Do or La as home, mixed: the major chord on Do against the minor chord on La, tunes that end on either in three keys, then a band whose four lines rest on Do or La out of turn, in a new key. Missing: backing-track plays a fixed order, so the homes can't come at random.",
   "exercise": {
     "title": "Do or La: which note is home",
-    "minutes": 8,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "ear",
@@ -19,9 +17,6 @@
     "topic": "theory-ear",
     "concepts": [
       "home-and-colour"
-    ],
-    "steps": [
-      "home-and-colour:5"
     ],
     "why": "A major key and a minor key can use the same seven notes and rest on different ones, Do or La, so the note where the music comes to rest tells you which of the two you are hearing.",
     "learnBefore": [
@@ -147,5 +142,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "home-and-colour:5"
+      ],
+      "minutes": 8
+    }
+  ]
 }

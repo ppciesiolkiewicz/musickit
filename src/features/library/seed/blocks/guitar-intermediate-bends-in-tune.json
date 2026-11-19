@@ -1,0 +1,113 @@
+{
+  "id": "guitar-intermediate-bends-in-tune",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Bends in tune",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "bends-slides"
+    ],
+    "why": "A bend is in tune when it reaches the sound of the note two frets up, so play that note first, then bend until you match it.",
+    "learnBefore": [
+      "/course/5/bends-and-slides"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the target first",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "On the G string, play {{5}} in position 2 and keep its sound in your ear. Then bend {{4}}, the note under it on the same string, up until it sounds the same. Go back and forth between the two until the bend stops on the sound of {{5}} every time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1,
+                2
+              ],
+              "highlight": [
+                "4",
+                "5"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Against the drone",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on A. Bend {{4}} up to {{5}} again and hold it at the top. When the bend arrives, the held note and the drone sound steady together; while the bend is short, they sound rough."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The B string",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play above to start the drone again. Now the same on the B string: play the ringed {{1}} in position 2, then bend {{b7}} up to it. This bend ends on the drone's own note, so you will hear it settle. Then make up short phrases that end on one of the two bends."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1,
+                2
+              ],
+              "highlight": [
+                "b7",
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "bends-slides:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

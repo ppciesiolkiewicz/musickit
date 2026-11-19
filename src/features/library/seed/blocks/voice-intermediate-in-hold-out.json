@@ -1,0 +1,49 @@
+{
+  "id": "voice-intermediate-in-hold-out",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 1.",
+  "exercise": {
+    "title": "In, hold, out",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath"
+    ],
+    "why": "The count grows by one each round, so your breath gets longer in steps too small to strain.",
+    "learnBefore": [
+      "/course/3/breath-and-holding-a-note"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out as the circle grows, stays and shrinks, each for the count shown. Keep your shoulders still and let your belly do the moving."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "breathwork",
+          "drill": "farinelli",
+          "level": "intermediate"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "breath:4"
+      ],
+      "minutes": 3
+    }
+  ]
+}

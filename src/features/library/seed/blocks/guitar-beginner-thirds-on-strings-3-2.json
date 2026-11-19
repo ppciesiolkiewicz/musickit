@@ -9,8 +9,6 @@
   "note": "Track double-stops (guitar-caged), step 2: 3rds in G major on strings 3 and 2: the two shapes, four of them up the key and back, then a root and 3rd over G, C and D. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
   "exercise": {
     "title": "3rds on the G and B strings",
-    "minutes": 8,
-    "level": "beginner",
     "area": "guitar",
     "tags": [
       "technique"
@@ -18,9 +16,6 @@
     "topic": "guitar-caged",
     "concepts": [
       "double-stops"
-    ],
-    "steps": [
-      "double-stops:2"
     ],
     "why": "A 3rd on the G and B strings has only two shapes, both notes in one fret or the B string one fret lower, so a whole key is those two shapes moved along the strings.",
     "learnBefore": [
@@ -307,5 +302,15 @@
     "exploreMore": [
       "/theory/double-stops"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "double-stops:2"
+      ],
+      "minutes": 8
+    }
+  ]
 }

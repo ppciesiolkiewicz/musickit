@@ -1,0 +1,114 @@
+{
+  "id": "guitar-theory-intermediate-arpeggios-of-the-ii-v-i",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 1.",
+  "exercise": {
+    "title": "Arpeggios of the ii-V-I",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "An arpeggio is the chord one note at a time, so a solo built from it outlines the changes.",
+    "learnBefore": [
+      "/course/7/sevenths",
+      "/course/5/arpeggios"
+    ],
+    "cells": [
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-band",
+          "bpm": 70,
+          "key": "d",
+          "parts": {
+            "click": "on"
+          }
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Dm7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play above to start the metronome. Play the Dm7 arpeggio up and down, one note per beat: {{1}} {{b3}} {{5}} {{b7}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "Dm7",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "G7",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "G7: {{1}} {{3}} {{5}} {{b7}}. Lean on its {{3}} (B) and {{b7}} (F): these two notes pull toward Cmaj7."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "G7",
+              "highlight": [
+                "1",
+                "3",
+                "b7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Cmaj7",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Cmaj7: {{1}} {{3}} {{5}} {{7}}. Then play all three arpeggios in a row, one bar each, without stopping."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "Cmaj7",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "arpeggios:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

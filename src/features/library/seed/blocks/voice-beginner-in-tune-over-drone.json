@@ -9,8 +9,6 @@
   "note": "The why gives the learner the way to check themselves (smooth means in tune, a wobble means off), the bare drill stays at 3 minutes, and the second block turns it into tunes the learner makes up in a new key. Both staffs keep a beginner tenor at A4 or under, sung on \"oo\", and the text says to pick a Do that sits easily instead of the top one.",
   "exercise": {
     "title": "In tune over a drone: find the smooth spot",
-    "minutes": 6,
-    "level": "beginner",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-pitch",
     "concepts": [
       "pitch"
-    ],
-    "steps": [
-      "pitch:3"
     ],
     "why": "A note in tune with the drone sounds smooth and a note that is off wobbles against it, so the drone tells your ear when you are on the note.",
     "learnBefore": [
@@ -85,5 +80,15 @@
     "exploreMore": [
       "/course/3/do-mi-sol"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pitch:3"
+      ],
+      "minutes": 6
+    }
+  ]
 }

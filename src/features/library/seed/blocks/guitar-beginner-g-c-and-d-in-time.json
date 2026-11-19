@@ -1,0 +1,87 @@
+{
+  "id": "guitar-beginner-g-c-and-d-in-time",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 1.",
+  "exercise": {
+    "title": "G, C and D in time",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming"
+    ],
+    "why": "G, C and D are the 1, 4 and 5 chords of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
+    "learnBefore": [
+      "/course/2/c-d-g",
+      "/course/2/all-downstrums"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The shapes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap a chord box to hear the chord, then fret it as shown. Change between two shapes slowly without looking, then look to check that every string rings."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "C",
+                "D"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "In time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, and start moving on beat 4. It's working when the new chord lands on beat 1 without a gap."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "C",
+                "D",
+                "G"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "open-chords:7",
+        "strumming:1"
+      ],
+      "minutes": 6
+    }
+  ]
+}

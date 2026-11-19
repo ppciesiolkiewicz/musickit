@@ -1,0 +1,127 @@
+{
+  "id": "guitar-advanced-mixolydian-over-a-g-and-d",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 4.",
+  "exercise": {
+    "title": "Mixolydian over A, G and D",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "G, the ♭7 of A Mixolydian, is the root of the G chord, so landing on it as G comes round puts the mode's one changed note where it sounds most at home.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Land on the ♭7",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: A, G, D and A, two bars each. Improvise in A Mixolydian and land on the ringed note as each chord arrives.\nThe one to listen for is {{g}} over the G chord: it is the note you found in the last exercise."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "scale": "mixolydian",
+                "chords": [
+                  {
+                    "chord": "A",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "target": [
+                      "1"
+                    ],
+                    "approach": "land on G on beat 1"
+                  },
+                  {
+                    "chord": "D",
+                    "target": [
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "A",
+                    "target": [
+                      "3"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 90,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over the band",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: A, G, D and A with drums, bass and keys. Play phrases that end on a ringed note, and try one that holds {{b7}} right through the G bar.\nIf you lose your place, stop on a ringed {{1}} and wait for the first bar to come round."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "mixolydian",
+              "key": "a",
+              "style": "rock",
+              "bpm": 100
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "mixolydian",
+              "key": "a",
+              "positions": [
+                1,
+                2
+              ],
+              "highlight": [
+                "1",
+                "b7"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

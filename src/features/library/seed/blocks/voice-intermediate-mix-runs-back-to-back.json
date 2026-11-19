@@ -9,8 +9,6 @@
   "note": "Track runs (voice-runs), step 5: mix of every run so far, one run of each stage back to back: the five notes by step in sixteenths, the home chord by skip, turns, then a pentatonic run with no chords. missing: a run-singer that plays several runs in turn in one tool (a new run each pass), so back to back is four tools the singer starts one after another, and a prop that caps the top pass (each run's last pass reaches the top of the voice's range).",
   "exercise": {
     "title": "Four runs, back to back",
-    "minutes": 8,
-    "level": "intermediate",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-runs",
     "concepts": [
       "runs"
-    ],
-    "steps": [
-      "runs:5"
     ],
     "why": "Each run you know moves in its own way, by step, by skip, round a note, or over the five pentatonic notes, so singing them one after another trains your voice to change the move while the beat stays the same.",
     "learnBefore": [
@@ -123,5 +118,15 @@
     "exploreMore": [
       "/theory/singing/runs"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "runs:5"
+      ],
+      "minutes": 8
+    }
+  ]
 }

@@ -9,8 +9,6 @@
   "note": "Track tunes (voice-melodies), step 5: three Expert tunes by ear, one with two leaps of a 6th (in three keys), one that starts on Fa and has a dotted note, with the metronome, and one with two leaps of a 7th and no chords under it.",
   "exercise": {
     "title": "Tunes with awkward leaps and dotted notes",
-    "minutes": 10,
-    "level": "advanced",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-melodies",
     "concepts": [
       "tunes"
-    ],
-    "steps": [
-      "tunes:5"
     ],
     "why": "A wide leap lands in tune when you hear its landing note before you sing it, and a dotted note lands in time when you feel the beat it holds through, so each tune is heard first and sung second.",
     "learnBefore": [
@@ -118,5 +113,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "tunes:5"
+      ],
+      "minutes": 10
+    }
+  ]
 }

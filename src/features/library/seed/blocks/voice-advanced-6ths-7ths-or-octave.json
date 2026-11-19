@@ -1,0 +1,56 @@
+{
+  "id": "voice-advanced-6ths-7ths-or-octave",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 2.",
+  "exercise": {
+    "title": "6ths, 7ths or octave?",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "The major 7th stops a half step short of the high Do and the minor 7th a whole step short, so you can tell them apart by how far each is from the octave.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 6th, a 7th or an octave above it. Hum the second note back, then pick its name: m7 for the minor 7th, M7 for the major 7th, P8 for the octave."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "advanced",
+          "set": [
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "intervals:6"
+      ],
+      "minutes": 5
+    }
+  ]
+}

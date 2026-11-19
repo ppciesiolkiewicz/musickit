@@ -9,8 +9,6 @@
   "note": "Track pentatonic-positions (guitar-scales), step 7: a run through positions 1, 2 and 3 with two slides, each crossing on its own first, then the run against a metronome and in a solo in a second key. missing: position-neck's cross shows one crossing between two positions, so the three-position run is told in the text over a plain three-position neck.",
   "exercise": {
     "title": "A run across three positions",
-    "minutes": 11,
-    "level": "advanced",
     "area": "guitar",
     "tags": [
       "technique",
@@ -19,9 +17,6 @@
     "topic": "guitar-scales",
     "concepts": [
       "pentatonic-positions"
-    ],
-    "steps": [
-      "pentatonic-positions:7"
     ],
     "why": "Each position starts on the notes where the one below it ends, so two slides, each along one string, carry a run through three positions without a break.",
     "learnBefore": [
@@ -174,5 +169,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "pentatonic-positions:7"
+      ],
+      "minutes": 11
+    }
+  ]
 }

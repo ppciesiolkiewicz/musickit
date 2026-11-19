@@ -1,0 +1,143 @@
+{
+  "id": "guitar-intermediate-g-minor-pentatonic-positions-1-to-3",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 5.",
+  "exercise": {
+    "title": "G minor pentatonic, positions 1 to 3",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "A position is a shape counted from its root, so moving the root from A down to G moves all five positions two frets lower, with the joins between them unchanged.",
+    "learnBefore": [
+      "/course/5/move-it",
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Where it sits in G",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The whole neck is drawn above the position: the framed part is position 1 of G minor pentatonic. Play it up and back down from the low {{1}}, and notice it is the shape you know from A, two frets lower."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "g",
+              "boxes": [
+                1
+              ],
+              "parts": {
+                "positions": "always",
+                "neck": "on"
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One position at a time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat.\nWhen it is steady, play the next position the same way. Use the Position selector below to change the position, then press Play to start the metronome again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "g",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "g",
+              "positions": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "position": 1
+            },
+            {
+              "position": 2
+            },
+            {
+              "position": 3
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Across both joins",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows the crossing from position 1 to position 2 in G: slide from {{4}} up to {{5}} on the G string, as in A. Then tap ⇄ between Position 2 and Position 3 under the neck and slide across there. To finish, tap another string beside \"Cross on\" under the neck: same move, new drill."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "g",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:4",
+        "pentatonic-positions:5"
+      ],
+      "minutes": 10
+    }
+  ]
+}

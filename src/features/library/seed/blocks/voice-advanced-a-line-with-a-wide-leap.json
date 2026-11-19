@@ -1,0 +1,126 @@
+{
+  "id": "voice-advanced-a-line-with-a-wide-leap",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 6.",
+  "exercise": {
+    "title": "A line with a wide leap",
+    "area": "voice",
+    "tags": [
+      "improv"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "improvise"
+    ],
+    "why": "Each guide tone is on the staff in more than one octave, so a line can leap an octave or more and still land on a note that fits the chord.",
+    "learnBefore": [
+      "/course/11/guide-tones",
+      "/course/9/improvising-a-melody"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Both lines, round the turnaround",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: Cmaj7, Am7, Dm7 and G7, a bar each. Sing the two guide-tone lines on \"oo\", one note per chord: {{7}}, {{1}}, {{1}}, {{7}}, then {{3}}, {{5}}, {{4}}, {{4}}.\nListen for the first line moving by half steps and the second opening with a minor 3rd."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "degree",
+              "under": true,
+              "notes": [
+                "1",
+                "3",
+                "4",
+                "5",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "style": "ballad",
+              "bpm": 72,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "progression": "turnaround"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Your own, with a leap",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. Make up your own line, and sing it on any vowel. Start each chord on a ringed note, and once in every round leap an octave or more to the next ringed note.\nIf a leap lands off the chord, sing the note an octave lower first, then leap to it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "degree",
+              "under": true,
+              "highlight": [
+                "1",
+                "3",
+                "4",
+                "5",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "style": "ballad",
+              "bpm": 72,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "progression": "turnaround"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "improvise:2"
+      ],
+      "minutes": 6
+    }
+  ]
+}

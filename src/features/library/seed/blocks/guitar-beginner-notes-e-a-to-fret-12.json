@@ -9,8 +9,6 @@
   "note": "Track notes-on-neck (guitar-scales), step 2: natural notes on the low E and A strings up to fret 12 (note-finder at level beginner), found, named, then every place of one note.",
   "exercise": {
     "title": "Notes on the low E and A strings, up to fret 12",
-    "minutes": 6,
-    "level": "beginner",
     "area": "guitar",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "guitar-scales",
     "concepts": [
       "notes-on-neck"
-    ],
-    "steps": [
-      "notes-on-neck:2"
     ],
     "why": "A barre chord or a scale position is named by the note under it on the low E or the A string, so knowing these two strings up to the 12th fret names every shape you move.",
     "learnBefore": [
@@ -89,5 +84,15 @@
     "exploreMore": [
       "/theory/notes"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "notes-on-neck:2"
+      ],
+      "minutes": 6
+    }
+  ]
 }

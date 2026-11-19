@@ -1,0 +1,50 @@
+{
+  "id": "guitar-beginner-the-spider-where-position-1-lives",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 1.",
+  "exercise": {
+    "title": "The spider where position 1 lives",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "spider"
+    ],
+    "why": "Position 1 sits at frets 5 to 8, one finger per fret, so warming up right there trains the exact stretch the scale needs.",
+    "learnBefore": [
+      "/course/1/spider"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome and follow the tab: frets 5 to 8 with fingers 1, 2, 3 and 4, one note per beat, on every string and back. The row under the tab shows the finger for each note. Keep going until your hand stays still and only the fingers move."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "finger-pattern",
+          "level": "new",
+          "show": "finger",
+          "bpm": 60
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "spider:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

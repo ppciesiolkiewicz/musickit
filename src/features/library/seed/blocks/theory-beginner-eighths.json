@@ -9,8 +9,6 @@
   "note": "Track beat (theory-basics), step 3: eighths, counted \"1 and 2 and\" and clapped against the click, then over drums. Missing: a rhythm tool that shows the eighths and listens to the claps; backing-band's click sounds only the beat, so nothing sounds or checks the \"and\".",
   "exercise": {
     "title": "Eighths: 1 and 2 and",
-    "minutes": 6,
-    "level": "beginner",
     "area": "theory",
     "tags": [
       "rhythm"
@@ -18,9 +16,6 @@
     "topic": "theory-basics",
     "concepts": [
       "beat"
-    ],
-    "steps": [
-      "beat:3"
     ],
     "why": "An eighth is half a beat, so when you count \"1 and 2 and\" the numbers land on the click and each \"and\" lands halfway to the next one.",
     "learnBefore": [
@@ -111,5 +106,15 @@
     "exploreMore": [
       "/theory/rhythm"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "beat:3"
+      ],
+      "minutes": 6
+    }
+  ]
 }

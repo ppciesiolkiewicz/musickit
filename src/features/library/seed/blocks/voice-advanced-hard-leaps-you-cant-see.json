@@ -1,0 +1,61 @@
+{
+  "id": "voice-advanced-hard-leaps-you-cant-see",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 5.",
+  "exercise": {
+    "title": "Hard leaps you can't see",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps",
+      "singing-intervals"
+    ],
+    "why": "With your voice not drawn, nothing shows you drifting towards the note, so the leap has to be heard whole before you start it.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear Do. This time your voice is not drawn: the game only shows whether your note counted.\nHear the neighbour and then the landing note in your head, then sing it on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. Press Show me below when you want to see the note."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-singer",
+          "level": "advanced",
+          "voice": "tenor",
+          "key": "c",
+          "keys": "random",
+          "intervals": [
+            6,
+            8,
+            10,
+            11
+          ],
+          "dot": false
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "steps-to-leaps:21",
+        "singing-intervals:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

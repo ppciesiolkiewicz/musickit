@@ -1,0 +1,85 @@
+{
+  "id": "guitar-theory-intermediate-major-or-minor-song",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 3.",
+  "exercise": {
+    "title": "Major or minor song?",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords"
+    ],
+    "why": "The same four chords can sound major or minor depending on which one feels like home.",
+    "learnBefore": [
+      "/course/3/major-or-minor"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Start on C",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below; the lit block shows the chord: C, G, Am, F, one bar each. Strum along. Notice that C feels like home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "C",
+                "G",
+                "Am",
+                "F"
+              ],
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Start on Am",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now Am, F, C, G: the same chords, but Am is home and it sounds minor. Strum along. Then stop: which chord feels finished?"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am",
+                "F",
+                "C",
+                "G"
+              ],
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "open-chords:8"
+      ],
+      "minutes": 9
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "id": "theory-only-first-week-major-pentatonic-five-notes-of-the-major-scale",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 6.",
+  "exercise": {
+    "title": "Major pentatonic: five notes of the major scale",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "improv"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "scales"
+    ],
+    "why": "The major pentatonic is the major scale without its 4th and 7th, the two notes that sit a half step from a neighbour, so no two of its five notes are a half step apart and any order of them makes a tune.",
+    "learnBefore": [
+      "/course/5/major-pentatonic"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Leave two notes out",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The staff below shows C major with two notes faded, the 4th and the 7th. Tap up the five notes that are left, from {{1}} to the next {{1}}: that is C major pentatonic.\nThe dots in this text play the notes left out. Tap {{3}} then {{4}}, and {{7}} then {{1}}, to hear the two half steps the pentatonic does without."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "enable": [
+                "1",
+                "2",
+                "3",
+                "5",
+                "6"
+              ],
+              "highlight": [
+                "1"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Tunes over a drone",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on G. The staff under it holds G major pentatonic: the same five steps of the scale from a new home note. Make up short tunes by tapping, and end each one on a ringed {{1}}.\nTry leaps as well as steps: with no half steps in the scale, any order of these notes fits over the drone."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "g",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-pentatonic",
+              "key": "g",
+              "voice": "tenor",
+              "highlight": [
+                "1"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/scales/major-pentatonic/c"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "scales:2"
+      ],
+      "minutes": 6
+    }
+  ]
+}

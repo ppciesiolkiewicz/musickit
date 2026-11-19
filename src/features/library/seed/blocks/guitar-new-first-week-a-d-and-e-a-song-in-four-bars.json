@@ -1,0 +1,116 @@
+{
+  "id": "guitar-new-first-week-a-d-and-e-a-song-in-four-bars",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 6.",
+  "exercise": {
+    "title": "A, D and E: a song in four bars",
+    "area": "guitar",
+    "tags": [
+      "rhythm",
+      "song"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming"
+    ],
+    "why": "The song stays on A for two bars and goes to D and E for one bar each, so the long A is where your hand rests and gets ready for the two quick changes.",
+    "learnBefore": [
+      "/course/2/first-songs",
+      "/course/2/e-a-dm"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One strum a bar",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: two bars of A, one of D, one of E. Strum down once on beat 1 and use the rest of the bar to move.\nKeep going until D and E are ready before their beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "A",
+                "A",
+                "D",
+                "E"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A strum on every beat",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The same four bars, with a down strum on every beat.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "A",
+                "A",
+                "D",
+                "E"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "With the band",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass play the same four bars, and the lit chord box shows the chord. Strum down on every beat, and try a down and up strum on the A bars.\nKeep going until you can look away from your fretting hand on the A bars."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "three-chord",
+              "key": "a",
+              "style": "pop",
+              "bpm": 60,
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "open-chords:2",
+        "strumming:1"
+      ],
+      "minutes": 9
+    }
+  ]
+}

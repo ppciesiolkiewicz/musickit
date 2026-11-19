@@ -9,8 +9,6 @@
   "note": "Track steps-to-leaps (voice-intervals), step 12: mix of the whole octave, the scale up by step and the home chord down by skip over a drone (then turned round), then two tunes of the home chord stage that join skips through the chord to steps past La and Ti (one in two keys). The stage's Medium tunes hold only the broken chord, so the two tunes are Hard ones; the keys keep the high Do at D4 or lower for a tenor.",
   "exercise": {
     "title": "The whole octave, by step and by skip",
-    "minutes": 8,
-    "level": "beginner",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
-    ],
-    "steps": [
-      "steps-to-leaps:12"
     ],
     "why": "The home chord is four of the eight notes from Do to the high Do, so when you go up by step and come down by skip, every skip lands on a note you sang a moment ago.",
     "learnBefore": [
@@ -118,5 +113,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:12"
+      ],
+      "minutes": 8
+    }
+  ]
 }

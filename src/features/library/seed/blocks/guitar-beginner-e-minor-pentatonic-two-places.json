@@ -1,0 +1,99 @@
+{
+  "id": "guitar-beginner-e-minor-pentatonic-two-places",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 5.",
+  "exercise": {
+    "title": "E minor pentatonic, two places",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "A position's shape doesn't change with the key, it only moves, so the shape you know in A is already E minor pentatonic at the 12th fret.",
+    "learnBefore": [
+      "/course/5/pentatonic"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The open position",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Play E minor pentatonic in the open position, up and down, one note per beat, starting and ending on {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "e",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "e",
+              "placement": {
+                "by": "open"
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "At the 12th fret",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same notes an octave up, in the shape you know from A. With the metronome above still going, play it up and down, then hop between the two positions, landing on a {{1}} each time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "e",
+              "placement": {
+                "by": "fret",
+                "fret": 12
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "minutes": 8
+    }
+  ]
+}

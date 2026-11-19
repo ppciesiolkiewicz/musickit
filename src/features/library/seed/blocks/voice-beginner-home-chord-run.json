@@ -9,8 +9,6 @@
   "note": "Track runs (voice-runs), step 2: Do Mi Sol and the high Do, one note per beat on a staff, then the book's home chord run in eighths, with its chords and alone. missing: a run-singer prop that caps the top note (its last pass puts the high Do on the top of the voice's range), and an arpeggio run the book rates under Hard (this stage holds one Hard and two Expert runs; only the Hard one is used).",
   "exercise": {
     "title": "The home chord as a quick run",
-    "minutes": 7,
-    "level": "beginner",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-runs",
     "concepts": [
       "runs"
-    ],
-    "steps": [
-      "runs:2"
     ],
     "why": "This run skips up the notes of the home chord, so you place Do, Mi, Sol and the high Do one at a time first, and the run only asks you to move between places your voice already knows.",
     "learnBefore": [
@@ -108,5 +103,15 @@
     "exploreMore": [
       "/theory/singing/runs"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "runs:2"
+      ],
+      "minutes": 7
+    }
+  ]
 }

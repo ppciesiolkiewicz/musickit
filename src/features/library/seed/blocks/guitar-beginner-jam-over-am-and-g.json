@@ -1,0 +1,117 @@
+{
+  "id": "guitar-beginner-jam-over-am-and-g",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 7.",
+  "exercise": {
+    "title": "Jam over Am and G",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Landing on a note of the chord as it changes is the simplest way to make a solo follow the chords.",
+    "learnBefore": [
+      "/course/5/pentatonic",
+      "/course/5/soloing",
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Land on the root",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Improvise from position 1 and land on the ringed note as each chord comes round: {{1}} for Am."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "scale": "minor-pentatonic",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "target": [
+                      "1"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Land on a double stop",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the same backing. This time end your phrases on one of the two double stops in position 1 on the B and high e strings, and listen for which one suits Am and which suits G."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "scale": "minor-pentatonic",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "target": [
+                      "1"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "minutes": 6
+    }
+  ]
+}

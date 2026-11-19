@@ -1,0 +1,78 @@
+{
+  "id": "voice-guitar-advanced-first-week-warm-up-siren-and-middle",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 7.",
+  "exercise": {
+    "title": "Warm-up: siren and middle",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "stretch-range"
+    ],
+    "learnBefore": [
+      "/theory/singing/warm-ups"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Siren",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the lip roll below: the tone slides up and back down, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll, loose and quiet."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "lip-roll",
+              "shape": "siren",
+              "voice": "baritone",
+              "plays": 4
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Middle",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the hill below and hold an easy sound on \"ee\" in the middle of your voice: the ball rests in the valley and the ring fills while you stay there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "voice-hill",
+              "where": "middle",
+              "sound": "ee",
+              "seconds": 4,
+              "reps": 5,
+              "voice": "baritone"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "range:2"
+      ],
+      "minutes": 5
+    }
+  ]
+}

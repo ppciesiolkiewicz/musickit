@@ -9,8 +9,6 @@
   "note": "Track beat (theory-basics), step 7: the metronome heard as beats 2 and 4. Missing: a metronome that sounds only beats 2 and 4 of a set tempo and shows the bar; the block uses a plain click at half the tempo and the count is the player's own.",
   "exercise": {
     "title": "The metronome on 2 and 4",
-    "minutes": 8,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "rhythm"
@@ -18,9 +16,6 @@
     "topic": "theory-basics",
     "concepts": [
       "beat"
-    ],
-    "steps": [
-      "beat:7"
     ],
     "why": "When the click sounds only on beats 2 and 4, nothing gives you beats 1 and 3, so your own count has to carry the bar from one click to the next.",
     "learnBefore": [
@@ -111,5 +106,15 @@
     "exploreMore": [
       "/theory/metronome-drone"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "beat:7"
+      ],
+      "minutes": 8
+    }
+  ]
 }

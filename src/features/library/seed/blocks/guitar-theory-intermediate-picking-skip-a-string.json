@@ -1,0 +1,60 @@
+{
+  "id": "guitar-theory-intermediate-picking-skip-a-string",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 5.",
+  "exercise": {
+    "title": "Picking, skip a string",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "picking"
+    ],
+    "why": "Arpeggios jump strings, so the pick hand needs to jump accurately.",
+    "learnBefore": [
+      "/course/8/string-skipping"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome. Pick two notes per string, down-up, skipping a string each time."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-band",
+          "bpm": 80,
+          "key": "a",
+          "parts": {
+            "click": "on"
+          }
+        }
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "picking-drill",
+          "level": "advanced",
+          "bpm": 80
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "picking:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

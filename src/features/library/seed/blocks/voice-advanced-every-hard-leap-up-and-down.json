@@ -1,0 +1,51 @@
+{
+  "id": "voice-advanced-every-hard-leap-up-and-down",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 4.",
+  "exercise": {
+    "title": "Every hard leap, up and down",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps",
+      "singing-intervals"
+    ],
+    "why": "With Do in a new key each time you can't lean on the last note you sang, so each leap has to be found from its neighbour: Sol, or the next Do.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear Do and start the mic. Any hard leap can come: the minor 3rd, the tritone, the minor 6th or a 7th, up or down, and Do moves to a new key each time.\nName the neighbour before you sing: Sol for the tritone and the minor 6th, the next Do for the 7ths. Then sing the landing note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap down misses, press Restart below and hear the landing note in your head first."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-singer",
+          "voice": "tenor",
+          "level": "advanced"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "singing-intervals:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

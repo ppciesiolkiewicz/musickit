@@ -1,0 +1,98 @@
+{
+  "id": "voice-intermediate-a-tune-that-falls-a-4th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 1.",
+  "exercise": {
+    "title": "A tune that falls a 4th",
+    "area": "voice",
+    "tags": [
+      "song"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "sight-singing"
+    ],
+    "why": "In a tune the leap sits between other notes, so singing one shows whether you can find the 4th without Do sounding first.",
+    "learnBefore": [
+      "/course/6/singing-leaps",
+      "/course/6/sight-singing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The tune, in two keys",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune starts on Fa and falls a 4th to Do.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the fall is still a 4th."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "fourths"
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "f"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Your own, with a leap",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the drone and the mic. Make up a short tune from {{1}}, {{4}} and {{5}} on \"la\", with one leap in it, and end on {{1}}. Then make another that starts with a leap down."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "4",
+                "5"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sight-singing:2"
+      ],
+      "minutes": 9
+    }
+  ]
+}

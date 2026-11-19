@@ -9,8 +9,6 @@
   "note": "The why says what makes the drill pay off (a moved chord is named by the note under it), each block is the same game turned a new way (find, name, every place), and every step says what to press, who acts (the game) and how the answer is given: by playing into the mic, by a name button, by tapping the neck. Done is a feel (no counting frets), never a count.",
   "exercise": {
     "title": "Notes on the low E and A strings",
-    "minutes": 6,
-    "level": "new",
     "area": "guitar",
     "tags": [
       "theory",
@@ -20,7 +18,6 @@
     "concepts": [
       "notes-on-neck"
     ],
-    "steps": ["notes-on-neck:1"],
     "why": "A chord shape moved up the neck is named by the note under it on the low E or the A string, so knowing these notes lets you find any chord you move.",
     "learnBefore": [
       "/course/1/notes-on-e-and-a"
@@ -87,5 +84,15 @@
     "exploreMore": [
       "/theory/notes"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "notes-on-neck:1"
+      ],
+      "minutes": 6
+    }
+  ]
 }

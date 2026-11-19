@@ -1,0 +1,84 @@
+{
+  "id": "guitar-intermediate-legato-inside-position-2",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 4.",
+  "exercise": {
+    "title": "Legato inside position 2",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "legato"
+    ],
+    "why": "Every string in a pentatonic position has two notes, so each string can be one picked note and one hammered or pulled note.",
+    "learnBefore": [
+      "/course/4/legato",
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The trill, where position 2 sits",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and follow the tab: pick once, then hammer on and pull off with no more picking. This is the G string of position 2, so your hand is already where the next block needs it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "beginner",
+              "string": 3,
+              "fret": 7,
+              "bpm": 72
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Through the whole position",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Play position 2 from its lowest note at your own pace. Going up, pick the lower note on each string and hammer the higher one. Coming down, pick the higher note and pull off to the lower. Keep going until the hammered notes are as loud as the picked ones."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                2
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "legato:2"
+      ],
+      "minutes": 7
+    }
+  ]
+}

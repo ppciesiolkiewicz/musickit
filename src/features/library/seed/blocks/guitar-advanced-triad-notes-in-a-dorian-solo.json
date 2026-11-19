@@ -1,0 +1,157 @@
+{
+  "id": "guitar-advanced-triad-notes-in-a-dorian-solo",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 2.",
+  "exercise": {
+    "title": "Triad notes in a Dorian solo",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "The notes of Am and D are all inside A Dorian, so the notes of the Am and D triads are the places a solo over those two chords can land.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/5/arpeggios"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "End on a triad note",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing, which switches between Am7 and D7. Improvise in A Dorian and end each phrase on a ringed note: a note of the Am triad over Am7, a note of the D triad over D7."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "scale": "dorian",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "1",
+                      "b3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "target": [
+                      "1",
+                      "3",
+                      "5"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 85,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Only the 3rds",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing again. Now the ringed note is the 3rd of each chord: {{c}} over Am7 and {{f-sharp}} over D7. Aim every phrase at it.\nThe 3rd of D7 is also the 6th of A Dorian, the note that sets the mode apart, so landing on it says both the chord and the mode."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "scale": "dorian",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "b3"
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "target": [
+                      "3"
+                    ],
+                    "approach": "land on F♯ on beat 1"
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 85,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over the band",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band on Am7 and D7. Open a phrase with the Am or the D triad, carry on with the scale, and end on a note of the chord playing.\nIf a phrase ends on a note that sounds unfinished, move it one step up or down the scale."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 90
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:3"
+      ],
+      "minutes": 11
+    }
+  ]
+}

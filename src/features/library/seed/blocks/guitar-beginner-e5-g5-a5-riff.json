@@ -1,0 +1,70 @@
+{
+  "id": "guitar-beginner-e5-g5-a5-riff",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 5.",
+  "exercise": {
+    "title": "E5, G5, A5 riff",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "power-chords"
+    ],
+    "why": "The power chord shape works on any root, so a riff in E is the same hand you used in A.",
+    "learnBefore": [
+      "/course/5/power-chords"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press a chord box below to see where each chord sits. All three are one power chord shape, moved to three roots."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "chord-shapes",
+          "chords": [
+            "E5",
+            "G5",
+            "A5"
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, until the slide from one to the next is smooth."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "strum-along",
+          "chords": [
+            "E5",
+            "G5",
+            "A5",
+            "E5"
+          ],
+          "bpm": 80,
+          "pattern": "D D D D"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "power-chords:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

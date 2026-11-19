@@ -1,0 +1,85 @@
+{
+  "id": "guitar-intermediate-cadd9-g-dsus4-em",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Cadd9, G, Dsus4, Em",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "sus-add9"
+    ],
+    "why": "Cadd9 adds one note to C and Dsus4 swaps one note of D, so both sound like the plain chord with a new colour on top.",
+    "learnBefore": [
+      "/course/7/sus-add9"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The four shapes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret the four chords as shown. Change between Cadd9 and G first, then between G and Dsus4, until each pair moves as one shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Cadd9",
+                "G",
+                "Dsus4",
+                "Em"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "In time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord. Stay on it until the changes stop interrupting your strumming hand."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Cadd9",
+                "G",
+                "Dsus4",
+                "Em"
+              ],
+              "bpm": 80,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sus-add9:3"
+      ],
+      "minutes": 6
+    }
+  ]
+}

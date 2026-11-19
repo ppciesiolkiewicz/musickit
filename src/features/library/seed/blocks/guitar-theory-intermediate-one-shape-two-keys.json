@@ -1,0 +1,100 @@
+{
+  "id": "guitar-theory-intermediate-one-shape-two-keys",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 3.",
+  "exercise": {
+    "title": "One shape, two keys",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "The relative minor works on the neck too: one pentatonic position serves both keys, with a different root.",
+    "learnBefore": [
+      "/course/5/major-pentatonic"
+    ],
+    "cells": [
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-band",
+          "bpm": 80,
+          "key": "a",
+          "parts": {
+            "click": "on"
+          }
+        }
+      },
+      {
+        "type": "section",
+        "heading": "As A minor",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play above to start the metronome. Play position 1 at the 5th fret up and down. Start and end on {{1}} (A)."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "As C major",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same frets, but now home is {{1}} (C). Start and end there. Hear how bright it sounds."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "major-pentatonic",
+              "key": "c",
+              "placement": {
+                "by": "fret",
+                "fret": 5
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:1",
+        "pentatonic-positions:2"
+      ],
+      "minutes": 10
+    }
+  ]
+}

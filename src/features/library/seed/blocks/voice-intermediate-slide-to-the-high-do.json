@@ -1,0 +1,57 @@
+{
+  "id": "voice-intermediate-slide-to-the-high-do",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 3.",
+  "exercise": {
+    "title": "Slide to the high Do",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-pitch",
+    "concepts": [
+      "pitch"
+    ],
+    "why": "A slow slide passes through every pitch between two notes, so it shows your voice the whole distance before you leap it.",
+    "learnBefore": [
+      "/course/3/home-note",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to the high {{1}} and back, like a siren, and watch your line pass {{5}} on the way. Then sing the two as one clean leap."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "staff",
+          "scale": "major-ionian",
+          "key": "a",
+          "voice": "tenor",
+          "labels": "solfege",
+          "notes": [
+            "1",
+            "5"
+          ],
+          "drone": true
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pitch:5"
+      ],
+      "minutes": 3
+    }
+  ]
+}

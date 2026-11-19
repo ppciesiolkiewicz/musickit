@@ -1,0 +1,95 @@
+{
+  "id": "guitar-theory-intermediate-c-major-and-a-minor-same-notes",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 3.",
+  "exercise": {
+    "title": "C major and A minor, same notes",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "scales"
+    ],
+    "why": "A minor uses exactly the notes of C major; only the home note changes, and with it the mood.",
+    "learnBefore": [
+      "/course/3/la-minor-home",
+      "/course/10/moving-keys"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the home move",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome; only the click sounds. Play C major from C for four bars. Then play the same notes from A for four bars: A minor. Where does each one come to rest?"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "c",
+                  "scale": "major-ionian"
+                },
+                "b": {
+                  "key": "a",
+                  "scale": "natural-minor-aeolian"
+                },
+                "bars": 8
+              },
+              "bpm": 70,
+              "view": "notes",
+              "under": "none"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "La is home",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap {{1}} (A) on the staff to hear it. Walk up to the C above it. In C major that C is Do; here it is the {{b3}}. A minor is C major starting from La."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "natural-minor-aeolian",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "b3"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "scales:5"
+      ],
+      "minutes": 6
+    }
+  ]
+}

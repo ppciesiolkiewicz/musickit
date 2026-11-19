@@ -1,0 +1,55 @@
+{
+  "id": "voice-intermediate-leaps-falling",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Leaps, falling",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "In a falling leap the top note comes first and there is no Do under it yet, so the ear has to measure downwards.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then one a 3rd, a 4th, a 5th or an octave below it. Hum the lower note back, then pick its name."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            4,
+            5,
+            7,
+            12
+          ],
+          "dir": "down"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "steps-to-leaps:17"
+      ],
+      "minutes": 5
+    }
+  ]
+}

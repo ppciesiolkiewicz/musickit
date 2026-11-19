@@ -1,0 +1,88 @@
+{
+  "id": "guitar-new-first-week-em-to-am-then-down-and-up",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 7.",
+  "exercise": {
+    "title": "Em to Am, then down and up",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming"
+    ],
+    "why": "The change from Em to Am gets quicker as your hand learns it, and the time you gain is where the extra strums fit.",
+    "learnBefore": [
+      "/course/2/em-and-am",
+      "/course/2/all-downstrums"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One strum a bar",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum Em, then Am, one down strum a bar.\nNotice how early your hand is ready for the next chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Em",
+                "Am"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Down and up, faster",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome: it is a little faster than above. Strum down and up, two bars on each chord.\nIf a change comes late, keep your hand swinging and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Em",
+                "Em",
+                "Am",
+                "Am"
+              ],
+              "bpm": 70,
+              "pattern": "D U D U D U D U"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "open-chords:1",
+        "strumming:2"
+      ],
+      "minutes": 5
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "id": "voice-guitar-advanced-first-week-sus-and-add9-on-top",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 4.",
+  "exercise": {
+    "title": "Sus and add9 on top",
+    "area": "guitar",
+    "tags": [
+      "rhythm",
+      "theory"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "sus-add9-shapes"
+    ],
+    "why": "Sus and add9 chords change one note of a chord you already hold, so the colour moves while the hand barely does: the folk way to enrich a plain I, IV and V.",
+    "learnBefore": [
+      "/course/7/sus-add9",
+      "/course/7/colour-paths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "What a chord can turn into",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the chords around the circle below to hear what G can turn into while it stays in the key."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-circle",
+              "key": "g",
+              "scale": "major-ionian",
+              "degree": 1
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press each chord box below to hear it, then fret the four shapes in order. Look for the fingers that can stay down from one shape to the next."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "Cadd9",
+                "Dsus4",
+                "D"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Sixteenths with misses",
+        "minutes": 5,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 80
+            },
+            {
+              "bpm": 90
+            },
+            {
+              "bpm": 100
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum the pattern in the boxes, one bar per chord, and listen for Dsus4 letting go into D.\nWhen the pattern runs without you reading it, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the misses start to sound at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Cadd9",
+                "Dsus4",
+                "D"
+              ],
+              "bpm": 80,
+              "pattern": "D . . U . U D U D . . U . U D U"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "sus-add9:3"
+      ],
+      "minutes": 8
+    }
+  ]
+}

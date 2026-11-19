@@ -1,0 +1,135 @@
+{
+  "id": "guitar-advanced-a-mixolydian-find-the-flat-7",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 4.",
+  "exercise": {
+    "title": "A Mixolydian: find the ♭7",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "Mixolydian is the major scale with one note lowered, the 7th, so that one note is where the mode can be heard: find it first, then aim for it.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the switch",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: A for eight bars, four in A major, then four in A Mixolydian. Play each scale up and back down along with the neck, and listen for the bar where one note changes.\nThe faded note is the one to leave out: G in the first half, G♯ in the second."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "a",
+                  "scale": "major-ionian"
+                },
+                "b": {
+                  "key": "a",
+                  "scale": "mixolydian"
+                },
+                "bars": 8,
+                "backingChord": "A"
+              },
+              "bpm": 70,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Root on the low E string",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The note that changed is {{b7}}: tap it on the neck below to hear it. This is the position with {{1}} on the low E string. Play it up and back down, then make up short phrases that stop on {{b7}} and step up to {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "mixolydian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "1",
+                "b7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Against the drone",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on A. This is the same mode in the position with {{1}} on the A string. Hold each ringed {{b7}} against the drone, then let it step up to {{1}}.\nKeep going until you can find {{b7}} from any {{1}} without looking."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "mixolydian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 5
+              },
+              "highlight": [
+                "1",
+                "b7"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

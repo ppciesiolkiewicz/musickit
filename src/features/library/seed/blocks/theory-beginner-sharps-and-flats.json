@@ -9,8 +9,6 @@
   "note": "Track note-names (theory-basics), step 2: sharps and flats, as the black key beside a white one, then one sharp (F♯ in G) and one flat (B♭ in F) on the staff. Missing: piano-keys labels only the notes of its scale, so the black keys carry no names, and no tool shows one black key under both of its names.",
   "exercise": {
     "title": "Sharps and flats",
-    "minutes": 6,
-    "level": "beginner",
     "area": "theory",
     "tags": [
       "theory"
@@ -18,9 +16,6 @@
     "topic": "theory-basics",
     "concepts": [
       "note-names"
-    ],
-    "steps": [
-      "note-names:2"
     ],
     "why": "A sharp is the next key to the right on the piano and a flat is the next key to the left, so every black key gets its name from the white key beside it.",
     "learnBefore": [
@@ -98,5 +93,15 @@
     "exploreMore": [
       "/theory/piano"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "note-names:2"
+      ],
+      "minutes": 6
+    }
+  ]
 }

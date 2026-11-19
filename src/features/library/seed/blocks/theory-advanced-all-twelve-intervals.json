@@ -9,8 +9,6 @@
   "note": "Track intervals (theory-ear), step 6 (ladder interval-ears:5): the 7ths and the tritone, then all twelve intervals up and down. The first game narrows to the three new intervals with \"set\"; the step is read from the two games set to \"level\": \"advanced\".",
   "exercise": {
     "title": "The 7ths, the tritone, then all twelve",
-    "minutes": 8,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "ear"
@@ -18,9 +16,6 @@
     "topic": "theory-ear",
     "concepts": [
       "intervals"
-    ],
-    "steps": [
-      "intervals:6"
     ],
     "why": "The two 7ths and the tritone are told apart by how far the upper note sits under the octave, so listening for that gap names the three intervals the earlier levels left out.",
     "learnBefore": [
@@ -90,5 +85,15 @@
     "exploreMore": [
       "/theory/ears"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "intervals:6"
+      ],
+      "minutes": 8
+    }
+  ]
 }

@@ -1,0 +1,100 @@
+{
+  "id": "guitar-intermediate-sus-groove-in-d",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 4.",
+  "exercise": {
+    "title": "Sus groove in D",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "sus-add9"
+    ],
+    "why": "A sus chord wants to go back to the plain chord, so placing it just before a change makes the change sound like an arrival.",
+    "learnBefore": [
+      "/course/7/sus-add9",
+      "/course/2/sixteenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Sixteenths on D",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum the pattern in the boxes: your hand goes down and up four times a beat and misses the strings where the box shows a dot. Change only the one finger between the chords."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "D",
+                "Dsus4",
+                "D",
+                "Dsus2"
+              ],
+              "bpm": 70,
+              "pattern": "D . . U . U D U D . . U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Dsus4 into D",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to see the new shapes. Then press Play under them to start the metronome. After G and A, Dsus4 lasts one bar and falls back to D in the next. Listen for how the bar of Dsus4 leans towards D."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "A",
+                "Dsus4",
+                "D"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "A",
+                "Dsus4",
+                "D"
+              ],
+              "bpm": 80,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sus-add9:1"
+      ],
+      "minutes": 8
+    }
+  ]
+}

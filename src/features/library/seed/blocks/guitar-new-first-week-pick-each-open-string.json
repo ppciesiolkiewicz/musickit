@@ -1,0 +1,50 @@
+{
+  "id": "guitar-new-first-week-pick-each-open-string",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 1.",
+  "exercise": {
+    "title": "Pick each open string",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "picking"
+    ],
+    "why": "Every chord and tune starts with the pick finding one string, so picking the six open strings in order teaches your hand how far apart they are.",
+    "learnBefore": [
+      "/course/1/strings-and-tuning",
+      "/tuner"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome and follow the tab: each open string four times, picking down, one note per beat. The tab goes from the low E string to the high e string and back.\nKeep going until your pick lands on the next string without you looking at it."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "picking-drill",
+          "level": "new",
+          "bpm": 60
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "picking:1"
+      ],
+      "minutes": 3
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "id": "guitar-beginner-a5-d5-e5",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 2.",
+  "exercise": {
+    "title": "A5, D5, E5",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "power-chords"
+    ],
+    "why": "A power chord is a root and its 5th, so once your hand knows the one shape, every chord is just a new place for it.",
+    "learnBefore": [
+      "/course/5/power-chords"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One shape, three places",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap a chord box to hear it. All three are the same shape, moved to a new string or fret. Strum only the strings with dots, and let the side of your picking hand rest on the others to keep them quiet."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "A5",
+                "D5",
+                "E5"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "In time",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, until the shape moves without your hand opening up."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "A5",
+                "D5",
+                "E5",
+                "A5"
+              ],
+              "bpm": 70,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Split it",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the play-along. Each bar is the whole chord, two of its notes picked on their own, then the chord again: the tab shows every note. Keep the shape held down the whole bar, so the single notes are already under your fingers."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "A5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654"
+                      },
+                      "1",
+                      "5",
+                      {
+                        "grip": [
+                          "1",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543"
+                      },
+                      "1",
+                      "5",
+                      {
+                        "grip": [
+                          "1",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "E5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543"
+                      },
+                      "1",
+                      "5",
+                      {
+                        "grip": [
+                          "1",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "A5",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654"
+                      },
+                      "1",
+                      "5",
+                      {
+                        "grip": [
+                          "1",
+                          "5",
+                          "1"
+                        ],
+                        "strings": "654"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "power-chords:1",
+        "power-chords:2"
+      ],
+      "minutes": 7
+    }
+  ]
+}

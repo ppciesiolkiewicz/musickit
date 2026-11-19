@@ -1,0 +1,51 @@
+{
+  "id": "theory-only-first-week-5ths-octaves-and-3rds-by-ear",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 7.",
+  "exercise": {
+    "title": "5ths, octaves and 3rds, by ear",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "The 3rds are the first two notes of a major or a minor chord and the 5th is its outside, so every interval in this game can be checked against a chord you already hear.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the game below. The game plays two notes, one after the other: pick P5, P8, M3 or m3.\nNotice which ones you name without pressing Replay. For the others, hear the start of a major or a minor chord in your head and compare.\nThen say each answer out loud before you pick it."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "beginner"
+        }
+      }
+    ],
+    "exploreMore": [
+      "/theory/ears"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "intervals:2"
+      ],
+      "minutes": 4
+    }
+  ]
+}

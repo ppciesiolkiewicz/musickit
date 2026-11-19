@@ -1,0 +1,56 @@
+{
+  "id": "voice-advanced-every-hard-leap-falling",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 5.",
+  "exercise": {
+    "title": "Every hard leap, falling",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "Going down, the note you would measure from comes second, so hum the lower note and measure back up to the first one: the leap is the same one you sang up from Do.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then a lower one. Hum the lower note, then the first one again, then pick m3, TT, m6, m7 or M7."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "advanced",
+          "set": [
+            3,
+            6,
+            8,
+            10,
+            11
+          ],
+          "dir": "down"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "intervals:7"
+      ],
+      "minutes": 5
+    }
+  ]
+}

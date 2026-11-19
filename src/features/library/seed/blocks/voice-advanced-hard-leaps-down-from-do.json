@@ -1,0 +1,67 @@
+{
+  "id": "voice-advanced-hard-leaps-down-from-do",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 3.",
+  "exercise": {
+    "title": "Hard leaps down from Do",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps",
+      "singing-intervals"
+    ],
+    "why": "A minor 3rd down from Do lands on La and a minor 6th down lands on Mi, two notes of the scale you already sing, so only the tritone is a new sound.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear Do and start the mic. The leaps go down from Do: m3 is the minor 3rd, TT the tritone, m6 the minor 6th.\nHear the landing note in your head before you sing: the minor 3rd lands on La, the minor 6th on Mi, and the tritone a half step under Sol. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but the leaps still land on La, on Mi and just under Sol."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-singer",
+          "level": "advanced",
+          "voice": "tenor",
+          "key": "c",
+          "keys": [
+            "c",
+            "d",
+            "e-flat",
+            "f",
+            "g",
+            "b-flat"
+          ],
+          "intervals": [
+            3,
+            6,
+            8
+          ],
+          "dir": "down"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "steps-to-leaps:21",
+        "singing-intervals:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

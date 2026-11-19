@@ -1,0 +1,168 @@
+{
+  "id": "voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 4.",
+  "exercise": {
+    "title": "Two harmony lines, then runs between",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "improv"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "harmony-line"
+    ],
+    "why": "A harmony line moves as little as it can from one chord note to the next, so it is easy to hold and leaves room to decorate.",
+    "learnBefore": [
+      "/course/6/harmony-line",
+      "/course/9/improvising-a-melody"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The lower line",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: G, D, Em and C, one bar each. On \"oo\", sing one long note per chord: {{3}} over G, {{2}} over D, then {{1}} over Em and again over C."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "5",
+                "6"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "pop",
+              "key": "g",
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The upper line",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band again. Now the line above it, on \"ee\": {{5}} over G and over D, then {{6}} over Em and over C.\nGo back and forth between the two lines until you can start either one without the staff."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "5",
+                "6"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "pop",
+              "key": "g",
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Runs between the notes",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. Sing either line, and in the last beat of a bar join its note to the next with a short run of steps, or put a turn on a held note. Sing the long notes on \"oo\" and the runs on \"ah\".\nIf a run makes you late, hold the next note plain and try again a bar later."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "highlight": [
+                "1",
+                "2",
+                "3",
+                "5",
+                "6"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "pop",
+              "key": "g",
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "harmony-line:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

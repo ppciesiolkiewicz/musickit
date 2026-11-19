@@ -7,10 +7,9 @@
     "teaching": 2
   },
   "note": "Shows choosing melodies by filter: each melody-singer names a difficulty and a stage with pick instead of a tune number, the second a step harder than the first. The why says what makes a step tune easier than a skip, the step tune comes back in A by the Key selector, and the text says what Play starts (the tune and the mic) and what to sing on.",
+  "showcase": "pick",
   "exercise": {
     "title": "Two tunes: steps, then skips",
-    "minutes": 6,
-    "level": "beginner",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,10 +18,6 @@
     "topic": "voice-melodies",
     "concepts": [
       "tunes"
-    ],
-    "steps": [
-      "tunes:1",
-      "tunes:2"
     ],
     "why": "In a tune that moves by step each note sits right next to the last one, while a skip asks you to hear the next note before you jump to it, so the step tune comes first.",
     "learnBefore": [
@@ -88,5 +83,15 @@
       }
     ]
   },
-  "showcase": "pick"
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "tunes:1",
+        "tunes:2"
+      ],
+      "minutes": 6
+    }
+  ]
 }

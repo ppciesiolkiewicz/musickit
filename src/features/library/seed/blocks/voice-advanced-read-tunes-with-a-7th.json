@@ -1,0 +1,98 @@
+{
+  "id": "voice-advanced-read-tunes-with-a-7th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 2.",
+  "exercise": {
+    "title": "Read tunes with a 7th",
+    "area": "voice",
+    "tags": [
+      "song"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "sight-singing"
+    ],
+    "why": "In a tune no one names the leap or sounds Do first, so reading one shows whether you can find a 7th from whatever note you are on.",
+    "learnBefore": [
+      "/course/6/sight-singing",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Do up to Ti",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the first note of the tune below to hear it, before you press Play. The tune opens with Do up to Ti, a major 7th, and its second bar opens with Re up to the high Do, a minor 7th. Sing it from the staff on the note names, at your own pace. Then press Play below to hear the tune, and check what you sang against it.\nOnce both leaps land without a slide, read the tune in another key. Use the Key selector below to change the key, then tap the first note again.\nWhen you change the key, the notes change but the two leaps are still a major 7th, then a minor 7th."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "sevenths",
+                "index": 1
+              },
+              "key": "d",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "g"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "A 7th from under Do",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This tune starts on the Sol under Do and leaps up to Fa, a minor 7th with no Do in it. Tap its first note below to hear it. Sing the tune from the staff on the note names, then press Play below to hear it.\nIf the first leap misses, sing Do between the two notes: Sol, Do, Fa. Then sing the leap again and only think the Do."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "sevenths",
+                "index": 2
+              },
+              "key": "g",
+              "voice": "tenor",
+              "chords": false
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "sight-singing:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "voice-guitar-advanced-first-week-warm-up-breath-and-a-lip-roll",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 1.",
+  "exercise": {
+    "title": "Warm-up: breath and a lip roll",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath-holding-note"
+    ],
+    "learnBefore": [
+      "/theory/singing/breathing",
+      "/theory/singing/warm-ups"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Breath",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the breathing below: you breathe in, hold and breathe out for the same count, and the count grows by one each round. Keep your shoulders still, and fill to about 80%, not to the top."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "breathwork",
+              "drill": "farinelli",
+              "level": "intermediate",
+              "to": 9
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Lip roll",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the lip roll below: a tone slides from head voice down to chest voice, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll, loose and quiet.\nEach round goes a little lower. Let the buzz stay even through the places where your voice wants to flip."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "lip-roll",
+              "shape": "down",
+              "voice": "baritone",
+              "plays": 4
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "breath:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

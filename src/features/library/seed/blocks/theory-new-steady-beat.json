@@ -9,8 +9,6 @@
   "note": "Track beat (theory-basics), step 1: clap on the beat.",
   "exercise": {
     "title": "Clap on the beat",
-    "minutes": 6,
-    "level": "new",
     "area": "theory",
     "tags": [
       "rhythm"
@@ -18,9 +16,6 @@
     "topic": "theory-basics",
     "concepts": [
       "beat"
-    ],
-    "steps": [
-      "beat:1"
     ],
     "why": "When your clap lands exactly on the click, the click hides under it, so the metronome tells you when you are on the beat.",
     "learnBefore": [
@@ -111,5 +106,15 @@
     "exploreMore": [
       "/theory/metronome-drone"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "beat:1"
+      ],
+      "minutes": 6
+    }
+  ]
 }

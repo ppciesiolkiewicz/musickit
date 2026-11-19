@@ -1,0 +1,107 @@
+{
+  "id": "voice-guitar-advanced-first-week-comp-the-ii-v-i-in-g-faster",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 7.",
+  "exercise": {
+    "title": "Comp the ii–V–I in G, faster",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "shells-comping"
+    ],
+    "why": "Raising the tempo a stage at a time shows which change still makes your strumming hand wait, so you know which one to drill.",
+    "learnBefore": [
+      "/course/11/comping",
+      "/course/11/extended"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A stage further",
+        "minutes": 4,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 96
+            },
+            {
+              "bpm": 104
+            },
+            {
+              "bpm": 112
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum the pattern in the boxes: a bar of Am9, a bar of D9, two bars of Gmaj7.\nWhen the changes take no thought, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the misses start to sound, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am9",
+                "D9",
+                "Gmaj7",
+                "Gmaj7"
+              ],
+              "bpm": 96,
+              "pattern": "D . . U . U D U D . . U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "With drums and bass",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass at 96, with the chord boxes lighting bar by bar. Mix what you have: full 9th shapes, shells, a small triad up high on Gmaj7. Leave strums out, and keep your hand moving through the gaps."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "Am9",
+                "D9",
+                "Gmaj7",
+                "Gmaj7"
+              ],
+              "key": "g",
+              "style": "pop",
+              "bpm": 96,
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "shells:4"
+      ],
+      "minutes": 8
+    }
+  ]
+}

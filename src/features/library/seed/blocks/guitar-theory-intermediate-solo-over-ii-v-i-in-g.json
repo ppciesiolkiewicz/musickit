@@ -1,0 +1,96 @@
+{
+  "id": "guitar-theory-intermediate-solo-over-ii-v-i-in-g",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 4.",
+  "exercise": {
+    "title": "Solo over ii-V-I in G",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "Guide tones work the same in a new key: C to C to B, or G to F♯ to F♯.",
+    "learnBefore": [
+      "/course/11/ii-v-i",
+      "/course/11/guide-tones"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Guide tones only",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Play only the targets, one long note per chord. Pick either line."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "g",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "b3",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "target": [
+                      "3",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "target": [
+                      "3",
+                      "7"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Fill in around them",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Same backing. Now improvise in G major. Still land on a target at each change. Record the last two minutes."
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "major-on-neck:1"
+      ],
+      "minutes": 10
+    }
+  ]
+}

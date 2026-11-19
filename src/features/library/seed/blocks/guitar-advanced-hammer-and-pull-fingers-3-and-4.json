@@ -1,0 +1,72 @@
+{
+  "id": "guitar-advanced-hammer-and-pull-fingers-3-and-4",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 2.",
+  "exercise": {
+    "title": "Hammer and pull, fingers 3 and 4",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "legato"
+    ],
+    "why": "Fingers 3 and 4 are the pair that moves apart least freely, so a trill on those two alone is the quickest way to make each one land by itself.",
+    "learnBefore": [
+      "/course/4/legato"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One stage at a time",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and follow the tab. Pick once, then hammer finger 4 on and pull it off to finger 3, one note per beat, with no more picking. Rest your hand when it gets tired, then go again.\nWhen the pulled-off note is as loud as the hammered one, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a note goes missing at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "advanced",
+              "string": 2,
+              "fret": 7,
+              "bpm": 72
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 84
+            },
+            {
+              "bpm": 96
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "legato:4"
+      ],
+      "minutes": 4
+    }
+  ]
+}

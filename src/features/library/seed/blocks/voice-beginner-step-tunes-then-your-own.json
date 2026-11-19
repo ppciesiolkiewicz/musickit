@@ -1,0 +1,121 @@
+{
+  "id": "voice-beginner-step-tunes-then-your-own",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 1.",
+  "exercise": {
+    "title": "Step tunes, then your own",
+    "area": "voice",
+    "tags": [
+      "song"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "Step tunes use notes right next to each other, so they train your voice to move one note at a time and stay in tune.",
+    "learnBefore": [
+      "/course/3/step-melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Up to Mi and back",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce you can sing it without the tune leading you, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still climbs two steps and comes home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "mi"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Down from Mi",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. This tune starts on Mi and steps down to Do. Sing along on the note names.\nOnce the names come without thinking, sing it again on \"la\"."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "mi",
+                "index": 1
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Your own tune",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the drone and the mic. Make up a short tune from the low {{1}}, {{2}} and {{3}}, sing it on \"la\", and end it on {{1}}.\nThen make up another that starts on {{3}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "2",
+                "3"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "tunes:1"
+      ],
+      "minutes": 9
+    }
+  ]
+}

@@ -9,8 +9,6 @@
   "note": "Position 2 alone, then only the way across (position-neck's cross: the slide on the G string), the same crossing in C and on a string the learner picks, then improvising across both over two chords. The why says what makes the join work, so the learner can find the next one; the text names the notes of the slide and leaves the frets to the neck.",
   "exercise": {
     "title": "Join positions 1 and 2",
-    "minutes": 12,
-    "level": "intermediate",
     "area": "guitar",
     "tags": [
       "technique",
@@ -20,7 +18,6 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "steps": ["pentatonic-positions:4"],
     "why": "Position 2 starts on the notes where position 1 ends, so one slide along one string carries a phrase from the first into the second.",
     "learnBefore": [
       "/course/6/joining"
@@ -155,5 +152,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:4"
+      ],
+      "minutes": 12
+    }
+  ]
 }

@@ -9,8 +9,6 @@
   "note": "Track styles (theory-progressions), step 4: the changes of a jazz standard as a major ii–V–I chained to the ii–V–i of the relative minor, the turnaround, then the same changes in other keys.",
   "exercise": {
     "title": "Jazz standards: ii–V–Is in a chain",
-    "minutes": 10,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "theory",
@@ -20,9 +18,6 @@
     "topic": "theory-progressions",
     "concepts": [
       "styles"
-    ],
-    "steps": [
-      "styles:4"
     ],
     "why": "A jazz standard is mostly ii–V–Is joined end to end, in the major key and in its relative minor, so spotting a ii–V tells you which home chord comes next.",
     "learnBefore": [
@@ -127,5 +122,15 @@
     "exploreMore": [
       "/theory/backing"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "styles:4"
+      ],
+      "minutes": 10
+    }
+  ]
 }

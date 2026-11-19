@@ -1,0 +1,150 @@
+{
+  "id": "guitar-theory-intermediate-guide-tones-on-the-guitar",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Guide tones on the guitar",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "The 3rd and 7th of each chord move by a half step or not at all, so two notes are enough to make the changes heard.",
+    "learnBefore": [
+      "/course/11/guide-tones"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The 3rd-7th line",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below and play along from the tab, one note per beat: F over Dm7 (its 3rd), F over G7 (its 7th), E over Cmaj7 (its 3rd)."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Dm7",
+                    "steps": [
+                      "b3",
+                      "b3",
+                      "b3",
+                      "b3"
+                    ]
+                  },
+                  {
+                    "chord": "G7",
+                    "steps": [
+                      "b7",
+                      "b7",
+                      "b7",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "Cmaj7",
+                    "steps": [
+                      "3",
+                      "3",
+                      "3",
+                      "3"
+                    ]
+                  }
+                ],
+                "guide": [
+                  "F: 3rd of Dm7",
+                  "",
+                  "",
+                  "",
+                  "F: now the 7th of G7",
+                  "",
+                  "",
+                  "",
+                  "E: 3rd of Cmaj7"
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The 7th-3rd line",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now the other line: C over Dm7 (its 7th), B over G7 (its 3rd), B over Cmaj7 (its 7th). Then switch between the two lines."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Dm7",
+                    "steps": [
+                      "b7",
+                      "b7",
+                      "b7",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "G7",
+                    "steps": [
+                      "3",
+                      "3",
+                      "3",
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "Cmaj7",
+                    "steps": [
+                      "7",
+                      "7",
+                      "7",
+                      "7"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "arpeggios:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "id": "guitar-advanced-two-bands-two-modes",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 5.",
+  "exercise": {
+    "title": "Two bands, two modes",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "A band's chords choose the mode for you: Am7 holds C and the A chord holds C♯, so the same position needs its 3rd moved when the band changes.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The Dorian band",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band on Am7 and D7. Improvise in A Dorian and lean on the two ringed notes, {{b3}} and {{6}}: the 3rd makes it minor and the 6th makes it Dorian."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 90
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "b3",
+                "6"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The Mixolydian band",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band on A, G and D. Stay in the same frets and improvise in A Mixolydian, leaning on {{3}} and {{b7}}.\nWhen you change the band, the root stays on A and one note under your fingers moves a fret: the 3rd."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "mixolydian",
+              "key": "a",
+              "style": "rock",
+              "bpm": 100
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "mixolydian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "3",
+                "b7"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:8"
+      ],
+      "minutes": 10
+    }
+  ]
+}

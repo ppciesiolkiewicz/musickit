@@ -1,0 +1,100 @@
+{
+  "id": "guitar-new-first-week-changes-one-pair-at-a-time",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 4.",
+  "exercise": {
+    "title": "Changes, one pair at a time",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords"
+    ],
+    "why": "A change gets quick when the fingers leave together and land together, and that comes from making one change many times in a row, so each block is one pair of chords and nothing else.",
+    "learnBefore": [
+      "/course/2/one-minute-changes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Em and Am",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. Change between Em and Am for about a minute, one strum on each, then rest your hand and go again.\nEach round, lift all your fingers at once and put them down at once."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Em",
+                "Am"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "E and Am",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same drill with E and Am. The chord boxes below show one shape in two places: all three fingers move across one string together.\nKeep going until the shape holds while it moves."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "E",
+                "Am"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A and D",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same drill with A and D. Finger 3 stays on its string and slides up one fret, so let it lead and put the other two fingers down around it.\nGo slowly enough that D is ready before you strum it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "A",
+                "D"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "open-chords:3"
+      ],
+      "minutes": 6
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "guitar-advanced-am7-and-d9",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 1.",
+  "exercise": {
+    "title": "Am7 and D9",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "shells"
+    ],
+    "why": "A 9th chord is a 7th chord with one more note on top, so D9 goes wherever D7 goes and adds a colour above it.",
+    "learnBefore": [
+      "/course/11/extended",
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The two shapes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Am7 to D9 and back until your fingers lift and land together."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Am7",
+                "D9"
+              ],
+              "voicing": "barre"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "As a groove",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, two bars of each chord. Your hand goes down and up four times a beat and misses the strings where the box shows a dot.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am7",
+                "Am7",
+                "D9",
+                "D9"
+              ],
+              "bpm": 80,
+              "pattern": "D . . U . U D U D . . U . U D U"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "shells:3"
+      ],
+      "minutes": 7
+    }
+  ]
+}

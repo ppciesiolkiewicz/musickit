@@ -1,0 +1,94 @@
+{
+  "id": "voice-beginner-steps-then-3rds",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 6.",
+  "exercise": {
+    "title": "Steps, then 3rds",
+    "area": "voice",
+    "tags": [
+      "song"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "Steps and 3rds are the two moves most tunes use, so a tune built on each trains the two moves you will meet most.",
+    "learnBefore": [
+      "/course/3/step-melodies",
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A tune from Re",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. This tune starts on Re, one step above Do.\nOnce you find Re without help, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still starts one step above Do."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "mi"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "A tune in 3rds",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on \"la\". The tune opens with a skip from Do to Mi, then moves by step.\nSing it until the skip and the steps feel as different as they sound."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "thirds"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "tunes:2"
+      ],
+      "minutes": 9
+    }
+  ]
+}

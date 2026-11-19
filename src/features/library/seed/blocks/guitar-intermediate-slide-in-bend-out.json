@@ -1,0 +1,113 @@
+{
+  "id": "guitar-intermediate-slide-in-bend-out",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 6.",
+  "exercise": {
+    "title": "Slide in, bend out",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "bends-slides"
+    ],
+    "why": "A slide takes your hand to a new position and a bend finishes the phrase there, so the two together are one move you can use at every join.",
+    "learnBefore": [
+      "/course/5/bends-and-slides",
+      "/course/6/joining"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The move, slowly",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "On the neck below, climb position 1 and slide up the G string from {{4}} to {{5}}. You are now in position 2: on the B string, bend {{b7}} up until it sounds like the ringed {{1}} next to it. Play the whole move slowly until the slide and the bend feel like one phrase."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Against the drone",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on A, and play the move again. The bend ends on the drone's own note, so hold it at the top and listen for the two to settle into one sound. If the bend stops short, push a little further and listen again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One position higher",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same move at the next join. Climb position 2 and slide up the G string from {{5}} to {{b7}} into position 3. On the high E string, bend {{4}} up until it sounds like {{5}}. Same move, new place: now try it going into a position you choose."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "cross": {
+                "from": 2,
+                "to": 3
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "bends-slides:1",
+        "bends-slides:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

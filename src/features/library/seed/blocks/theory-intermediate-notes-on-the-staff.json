@@ -9,8 +9,6 @@
   "note": "Track note-names (theory-basics), step 3: reading the treble clef, lines, spaces and the notes under the lines. The staffs use the mezzo voice because the tenor staff is drawn in the treble clef with an 8. Missing: a note-reading game (a note shown on the staff, the player names it); staff cannot hide its labels, fix its clef, or light only the notes on the lines, so the player has to check against labels that are always in view, and they are letters only while the player's label setting is note names.",
   "exercise": {
     "title": "Reading notes in the treble clef",
-    "minutes": 8,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "theory"
@@ -18,9 +16,6 @@
     "topic": "theory-basics",
     "concepts": [
       "note-names"
-    ],
-    "steps": [
-      "note-names:3"
     ],
     "why": "Notes go up the staff line, space, line, space in the order of the letters, so once you know one line by heart you can count to any note from it.",
     "learnBefore": [
@@ -121,5 +116,15 @@
     "exploreMore": [
       "/theory/piano"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "note-names:3"
+      ],
+      "minutes": 8
+    }
+  ]
 }

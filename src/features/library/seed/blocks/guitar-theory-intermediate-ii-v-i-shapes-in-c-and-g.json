@@ -1,0 +1,56 @@
+{
+  "id": "guitar-theory-intermediate-ii-v-i-shapes-in-c-and-g",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 7.",
+  "exercise": {
+    "title": "ii-V-I shapes in C and G",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "Both keys back to back shows the shapes are under your fingers.",
+    "learnBefore": [
+      "/course/7/sevenths",
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press a chord box to hear it. Play four strums per chord: the ii-V-I in C, then in G. Change keys without stopping."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "chord-shapes",
+          "chords": [
+            "Dm7",
+            "G7",
+            "Cmaj7",
+            "Am7",
+            "D7",
+            "Gmaj7"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "seventh-shapes:3"
+      ],
+      "minutes": 5
+    }
+  ]
+}

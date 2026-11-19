@@ -1,0 +1,109 @@
+{
+  "id": "guitar-new-first-week-e-a-and-d",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 3.",
+  "exercise": {
+    "title": "E, A and D",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming"
+    ],
+    "why": "E is Em with one finger added, so a new chord is often an old one with a small change: look for what stays before you look for what moves.",
+    "learnBefore": [
+      "/course/2/e-a-dm",
+      "/course/2/c-d-g"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Em, then E",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. Fret Em, then add the one finger that turns it into E.\nTake that finger off and put it back, with a strum each time, until you hear the chord change with it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Em",
+                "E"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A and D",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. Fret A as shown and pick its strings one at a time, from the A string to the high e string. Then do the same with D, from the D string.\nBoth chords leave their lowest strings out, so start each strum on the string the chord is named after."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "A",
+                "D"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Strum every beat",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on every beat, two bars on each chord.\nUse the second bar to look ahead at the next shape. If a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "E",
+                "E",
+                "A",
+                "A",
+                "D",
+                "D"
+              ],
+              "bpm": 60,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "open-chords:2",
+        "strumming:1"
+      ],
+      "minutes": 8
+    }
+  ]
+}

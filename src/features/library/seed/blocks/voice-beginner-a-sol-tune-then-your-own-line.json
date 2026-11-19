@@ -1,0 +1,118 @@
+{
+  "id": "voice-beginner-a-sol-tune-then-your-own-line",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 7.",
+  "exercise": {
+    "title": "A Sol tune, then your own line",
+    "area": "voice",
+    "tags": [
+      "song",
+      "improv"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "A tune that steps down from Sol to Do puts both notes in your ear first, so your own line from Do, Mi and Sol has a start and an end to choose from.",
+    "learnBefore": [
+      "/course/3/step-melodies",
+      "/course/3/hearing-do-fa-sol"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Down from Sol",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce you can start on Sol without hearing it first, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still steps down from Sol to Do."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "sol"
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Your own line",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. On \"oo\", make up your own line from the low {{1}}, {{3}} and {{5}}, one that moves when the chords do and ends on {{1}}.\n_Don't reach for high notes: the three low ones are enough for a line._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "3",
+                "5"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "tunes:1"
+      ],
+      "minutes": 9
+    }
+  ]
+}

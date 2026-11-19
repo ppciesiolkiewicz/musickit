@@ -1,0 +1,93 @@
+{
+  "id": "guitar-intermediate-comp-for-the-jam",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 7.",
+  "exercise": {
+    "title": "Comp for the jam",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "sus-add9"
+    ],
+    "why": "With no keyboard in the band your guitar is the only thing playing the chords, so the drums and bass show at once whether your changes land on beat 1.",
+    "learnBefore": [
+      "/course/7/sus-add9",
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "With the metronome",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum the part with the pattern in the boxes: two bars of Am7, then Dsus2 and Dm7."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am7",
+                "Am7",
+                "Dsus2",
+                "Dm7"
+              ],
+              "bpm": 85,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "With the band",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Play Dsus2 in the first bar of Dm7 if you like the sound, and leave it out if you don't."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "Am7",
+                "Am7",
+                "Dm7",
+                "Dm7"
+              ],
+              "key": "a",
+              "style": "pop",
+              "bpm": 85,
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sus-add9:1"
+      ],
+      "minutes": 6
+    }
+  ]
+}

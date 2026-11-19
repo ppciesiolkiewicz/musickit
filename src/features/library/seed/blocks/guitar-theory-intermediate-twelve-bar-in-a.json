@@ -1,0 +1,101 @@
+{
+  "id": "guitar-theory-intermediate-twelve-bar-in-a",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 6.",
+  "exercise": {
+    "title": "Twelve-bar in A",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "The twelve-bar form is a fixed road map: learn it once and you can join any blues jam.",
+    "learnBefore": [
+      "/course/7/twelve-bar"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Follow the form",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below; the lit block shows the chord: four bars of A7, two of D7, two of A7, then E7, D7, A7, E7. Strum along. Count the bars out loud."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "A7",
+                "A7",
+                "A7",
+                "A7",
+                "D7",
+                "D7",
+                "A7",
+                "A7",
+                "E7",
+                "D7",
+                "A7",
+                "E7"
+              ],
+              "bpm": 90
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Without counting",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Same form. Pick the bass note on beats 1 and 3. Strum on beats 2 and 4. Keep going without counting out loud."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "A7",
+                "A7",
+                "A7",
+                "A7",
+                "D7",
+                "D7",
+                "A7",
+                "A7",
+                "E7",
+                "D7",
+                "A7",
+                "E7"
+              ],
+              "bpm": 90
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "seventh-shapes:1"
+      ],
+      "minutes": 10
+    }
+  ]
+}

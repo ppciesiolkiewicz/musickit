@@ -1,0 +1,58 @@
+{
+  "id": "guitar-beginner-g-c-and-d-without-looking",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 6.",
+  "exercise": {
+    "title": "G, C and D without looking",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming"
+    ],
+    "why": "Looking at your hand is a habit, and a change you can make without looking is one you really own.",
+    "learnBefore": [
+      "/course/2/c-d-g",
+      "/course/2/all-downstrums"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome. Strum along, but watch the chord boxes instead of your hand. When a change goes wrong, keep strumming and catch the next one."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "strum-along",
+          "chords": [
+            "G",
+            "C",
+            "D",
+            "G"
+          ],
+          "bpm": 70,
+          "pattern": "D D D D"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "open-chords:7",
+        "strumming:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

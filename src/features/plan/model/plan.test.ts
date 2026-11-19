@@ -4,7 +4,7 @@ import { catalogue, checkLink } from "./catalogue";
 import { parseBlock, parseExercise, parsePlanConfig } from "./config";
 import { levelOfSteps } from "./path";
 import { GLOSSARY } from "@/features/course/glossary";
-import { SEED_BLOCKS } from "@/features/library/seed";
+import { SEED_BLOCKS, seedExercises } from "@/features/library/seed";
 import { buildPrompt, weekReport } from "./prompt";
 import { runChoices } from "@/features/exercises/basics/choices";
 import { COMPONENT_DOCS } from "@/features/exercises/docs";
@@ -265,7 +265,7 @@ describe("tools", () => {
     assert.equal(parseTool({ type: "kazoo" }), null);
   });
   it("a seed play-along exercise keeps its minutes after derivation", () => {
-    const ex = SEED_BLOCKS.map((f) => f.exercise as unknown as { minutes: number; cells: { tool?: { type: string } }[] }).find((e) => cellsOf(e.cells as Cell[]).some((s) => s.type === "tool" && s.tool.type === "guitar-play-along"))!;
+    const ex = SEED_BLOCKS.flatMap((f) => seedExercises(f) as unknown as { minutes: number; cells: { tool?: { type: string } }[] }[]).find((e) => cellsOf(e.cells as Cell[]).some((s) => s.type === "tool" && s.tool.type === "guitar-play-along"))!;
     const p = JSON.parse(week());
     p.days[0].exercises[0] = ex;
     const r = parsePlanConfig(JSON.stringify(p), entries);
@@ -510,7 +510,7 @@ describe("schedule", () => {
 
 describe("the seed blocks", () => {
   it("every seed exercise parses, its play-alongs keep their minutes", () => {
-    for (const ex of SEED_BLOCKS.map((f) => f.exercise as unknown as { title: string; minutes: number })) {
+    for (const ex of SEED_BLOCKS.flatMap((f) => seedExercises(f) as unknown as { title: string; minutes: number }[])) {
       const p = JSON.parse(week());
       p.days[0].exercises[0] = ex;
       const r = parsePlanConfig(JSON.stringify(p), entries);

@@ -1,0 +1,85 @@
+{
+  "id": "guitar-beginner-a-longer-tune",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 6.",
+  "exercise": {
+    "title": "A longer tune",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "Reading it once from tab and once from the neck links the numbers to the places your fingers go.",
+    "learnBefore": [
+      "/course/4/melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "From tab at 65",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune and play along from the tab."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 20,
+                "key": "g"
+              },
+              "bpm": 65,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "On the neck at 75",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below: now the tune is on the neck, a little faster. Play along until you can play it with your eyes closed."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 20,
+                "key": "g"
+              },
+              "bpm": 75,
+              "view": "neck"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "guitar-melodies:2"
+      ],
+      "minutes": 5
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "voice-intermediate-sing-the-3rd-the-4th-and-the-5th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 1.",
+  "exercise": {
+    "title": "Sing the 3rd, the 4th and the 5th",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "A leap lands in tune when you hear the landing note before you sing it, so the game gives you only Do and the name of the leap.",
+    "learnBefore": [
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below: Do sounds, and the leap to sing shows by name, a 3rd, a 4th or a 5th. Hear the landing note in your head first, then sing it on \"oo\" and hold it until it counts. Press Next for another leap, from a new Do. If a leap misses, press Restart to hear Do again."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-singer",
+          "key": "c",
+          "keys": [
+            "c",
+            "d",
+            "f",
+            "g"
+          ],
+          "voice": "tenor",
+          "intervals": [
+            4,
+            5,
+            7
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "steps-to-leaps:17"
+      ],
+      "minutes": 5
+    }
+  ]
+}

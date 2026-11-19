@@ -4,7 +4,7 @@ import { catalogue } from "./catalogue";
 import { buildPrompt, promptParts, settingsOf, showcaseBlocks, weekByTopic, weekReport } from "./prompt";
 import { TOPICS } from "../intake/topics";
 import { DEFAULT_ANSWERS } from "../intake/answers";
-import { SEED_BLOCKS } from "@/features/library/seed";
+import { SEED_BLOCKS, seedExercise } from "@/features/library/seed";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { blockIdOf, blockKeyOf } from "./blockId";
 import { parseExercise } from "./config";
@@ -80,7 +80,7 @@ test("each showcase is named by its current block id", () => {
   assert.equal(showcases.length, 5);
   assert.equal(showcaseBlocks().length, 5);
   const p = buildPrompt(DEFAULT_ANSWERS, catalogue());
-  for (const f of showcases) assert.ok(p.includes(blockIdOf(blockKeyOf(parseExercise(f.exercise, f.id, catalogue()).block!))), f.id);
+  for (const f of showcases) assert.ok(p.includes(blockIdOf(blockKeyOf(parseExercise(seedExercise(f), f.id, catalogue()).block!))), f.id);
 });
 
 const rated: PlanAnswers = {

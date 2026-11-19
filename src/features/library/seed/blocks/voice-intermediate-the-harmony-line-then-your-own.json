@@ -1,0 +1,146 @@
+{
+  "id": "voice-intermediate-the-harmony-line-then-your-own",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 6.",
+  "exercise": {
+    "title": "The harmony line, then your own",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "improv"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "harmony-line"
+    ],
+    "why": "A faster band gives you less time to find each note, so the line has to be in your ear before the chord arrives.",
+    "learnBefore": [
+      "/course/6/harmony-line"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The line, in stages",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. Sing the harmony line on \"oo\": {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "f",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "2",
+                "3",
+                "4"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "f",
+              "style": "ballad",
+              "bpm": 70,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 70
+            },
+            {
+              "bpm": 80
+            },
+            {
+              "bpm": 90
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "A line you choose",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. Now choose your own note for each chord from {{1}} up to {{5}}, one a bar, and move by step where you can. When you find a line you like, sing it again until you can start it from any bar."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "f",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "f",
+              "style": "ballad",
+              "bpm": 70,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "harmony-line:4"
+      ],
+      "minutes": 6
+    }
+  ]
+}

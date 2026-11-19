@@ -1,0 +1,75 @@
+{
+  "id": "voice-beginner-breathe-then-hold-do",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 3.",
+  "exercise": {
+    "title": "Breathe, then hold Do",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath"
+    ],
+    "why": "A note stays steady when the air under it does, so pace your breath first and then hold one note on the same slow air.",
+    "learnBefore": [
+      "/course/3/breath-and-holding-a-note"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out as the circle grows, stays and shrinks, each for the count shown.\nKeep your shoulders still and let your belly do the moving."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "breathwork",
+          "drill": "farinelli",
+          "level": "beginner"
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Then a long Do",
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the drone and the mic. Sing the low {{1}} on \"oo\" and hold it while your line stays flat.\nBreathe when you need to and go again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "tenor",
+              "labels": "solfege",
+              "enable": [
+                "1"
+              ],
+              "others": "hidden",
+              "drone": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "breath:2",
+        "breath:3"
+      ],
+      "minutes": 3
+    }
+  ]
+}

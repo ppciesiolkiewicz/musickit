@@ -9,8 +9,6 @@
   "note": "Track sus-add9 (guitar-extended-chords), step 1: Dsus2 and Dsus4 as one finger off or on a D, a bar of each, then changing inside the bar.",
   "exercise": {
     "title": "Dsus2 and Dsus4 around D",
-    "minutes": 6,
-    "level": "beginner",
     "area": "guitar",
     "tags": [
       "technique",
@@ -19,9 +17,6 @@
     "topic": "guitar-extended-chords",
     "concepts": [
       "sus-add9"
-    ],
-    "steps": [
-      "sus-add9:1"
     ],
     "why": "Dsus2 is D with one finger lifted and Dsus4 is D with one finger added, both on the high E string, so the rest of your hand stays still while one note moves.",
     "learnBefore": [
@@ -106,5 +101,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "sus-add9:1"
+      ],
+      "minutes": 6
+    }
+  ]
 }

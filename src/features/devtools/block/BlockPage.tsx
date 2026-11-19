@@ -20,7 +20,6 @@ export interface StepInfo {
 const PILL = "inline-block rounded-full border px-1.5 text-[10px] font-medium uppercase tracking-wider";
 const SOURCE_TONE: Record<StepBlock["source"], string> = {
   "seed block": "border-lime-500/40 bg-lime-500/10 text-lime-200",
-  "seed plan": "border-teal-500/40 bg-teal-500/10 text-teal-200",
 };
 
 const HOW: Record<StepBlock["how"], { label: string; title: string }> = {

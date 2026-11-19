@@ -1,0 +1,78 @@
+{
+  "id": "theory-only-first-week-sus4-the-4th-in-place-of-the-3rd",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 6.",
+  "exercise": {
+    "title": "Sus4: the 4th in place of the 3rd",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sus"
+    ],
+    "why": "A sus4 chord swaps the 3rd for the 4th, the next note up the scale, so it is neither major nor minor until the 4th falls back to the 3rd.",
+    "learnBefore": [
+      "/course/7/sus-add9"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "C and Csus4",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The diagram below has the C chord in the middle and, around it, the chords it can turn into. Tap the middle to hear C. Then tap Csus4, out to the right: the panel next to the diagram shows its notes, with F in place of E.\nGo from Csus4 back to C until you hear {{4}} falling to {{3}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-circle",
+              "key": "c",
+              "scale": "major-ionian",
+              "degree": 1
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "G and Gsus4",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same diagram for the G chord of G major. Tap the middle, then Gsus4, then the middle again.\nThe notes are new, but it is again {{4}} standing in for {{3}} and falling back to it. Then tap Gsus4 and wait. Hear in your head the note it will fall to, then tap the middle to check."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-circle",
+              "key": "g",
+              "scale": "major-ionian",
+              "degree": 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "sus:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

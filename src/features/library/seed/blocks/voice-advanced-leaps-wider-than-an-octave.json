@@ -1,0 +1,56 @@
+{
+  "id": "voice-advanced-leaps-wider-than-an-octave",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 6.",
+  "exercise": {
+    "title": "Leaps wider than an octave",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "multi-octave"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "A 9th is a 2nd with an octave added and a 10th is a 3rd with an octave added, so bring the top note down an octave in your head and the leap you know is there.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 2nd or a 3rd above it, sometimes an octave further up. Hum the top note an octave lower when it is far away, then pick M2, m3 or M3.\nThe answer is the same with or without the extra octave."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "advanced",
+          "set": [
+            2,
+            3,
+            4
+          ],
+          "dir": "up",
+          "wide": true
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "intervals:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

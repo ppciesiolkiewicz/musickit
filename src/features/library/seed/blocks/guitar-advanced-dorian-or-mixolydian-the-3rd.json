@@ -1,0 +1,126 @@
+{
+  "id": "guitar-advanced-dorian-or-mixolydian-the-3rd",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 5.",
+  "exercise": {
+    "title": "Dorian or Mixolydian: the 3rd",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "A Dorian and A Mixolydian share six notes and differ only in the 3rd, so moving that one note a fret turns the minor mode into the major one.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the switch",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: a drone on A for eight bars, four in A Dorian, then four in A Mixolydian. Play each scale up and back down along with the neck, and listen for the bar where the 3rd moves.\nThe faded note is the one to leave out: C♯ in the first half, C in the second."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "a",
+                  "scale": "dorian"
+                },
+                "b": {
+                  "key": "a",
+                  "scale": "mixolydian"
+                },
+                "bars": 8
+              },
+              "bpm": 70,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The minor 3rd",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "This is A Dorian in the position with {{1}} on the low E string, with {{b3}} ringed. Play the position up and back down, then make up a few phrases that end on {{b3}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "1",
+                "b3"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The major 3rd",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same frets in A Mixolydian: the 3rd has moved up a fret, to {{3}}. Play the phrases you just made up again and end them on the new 3rd.\nThen slide into it from one fret below. {{c}} is not in A Mixolydian: it is the minor 3rd you just left, and blues players slide from it up to {{3}} all the time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "mixolydian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "add": [
+                "c"
+              ],
+              "highlight": [
+                "1",
+                "3"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:8"
+      ],
+      "minutes": 9
+    }
+  ]
+}

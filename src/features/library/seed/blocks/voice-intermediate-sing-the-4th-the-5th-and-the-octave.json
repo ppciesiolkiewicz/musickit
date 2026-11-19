@@ -1,0 +1,62 @@
+{
+  "id": "voice-intermediate-sing-the-4th-the-5th-and-the-octave",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 3.",
+  "exercise": {
+    "title": "Sing the 4th, the 5th and the octave",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "The octave is the widest leap in most tunes, and Sol sits a little over halfway up it, so the 5th you know is the marker for the octave you are learning.",
+    "learnBefore": [
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below: Do sounds, and the leap to sing shows by name, a 4th, a 5th or an octave. For the octave, think of Sol on the way up and go past it. Sing the landing note on \"oo\", hold it until it counts, then press Next. If a leap misses, press Restart to hear Do again."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-singer",
+          "key": "c",
+          "keys": [
+            "c",
+            "d",
+            "f",
+            "g",
+            "a"
+          ],
+          "voice": "tenor",
+          "intervals": [
+            5,
+            7,
+            12
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "steps-to-leaps:17"
+      ],
+      "minutes": 5
+    }
+  ]
+}

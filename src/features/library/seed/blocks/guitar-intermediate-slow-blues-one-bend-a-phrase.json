@@ -1,0 +1,101 @@
+{
+  "id": "guitar-intermediate-slow-blues-one-bend-a-phrase",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Slow blues, one bend a phrase",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "A bend held over a slow band has time to be heard, so one bend per phrase trains you to aim it and wait on it.",
+    "learnBefore": [
+      "/course/5/bends-and-slides",
+      "/course/7/blues-solo"
+    ],
+    "cells": [
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-track",
+          "progression": "minor-blues",
+          "key": "a",
+          "style": "shuffle",
+          "bpm": 70
+        }
+      },
+      {
+        "type": "section",
+        "heading": "One bend a phrase",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play above to start the band: a slow 12-bar blues in A minor. Play short phrases from the neck below and put one bend in each: {{4}} up to {{5}}, or {{b7}} up to {{1}}. Hold the bend and let the band move under it before you go on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1,
+                2
+              ],
+              "highlight": [
+                "4",
+                "b7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Slide up to answer",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play above to start the band again. Play a phrase low in position 1, then answer it with one that slides up the G string from {{4}} to {{5}} and ends in position 2. Keep the two phrases close, as if one replies to the other."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

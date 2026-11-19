@@ -1,0 +1,141 @@
+{
+  "id": "voice-advanced-your-line-over-ii-v-i-faster",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 5.",
+  "exercise": {
+    "title": "Your line over ii-V-I, faster",
+    "area": "voice",
+    "tags": [
+      "improv"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "improvise"
+    ],
+    "why": "A faster band leaves less time to find each note, so a line holds together when you know where it lands: on the 3rd or the 7th as the last chord arrives.",
+    "learnBefore": [
+      "/course/11/ii-v-i",
+      "/course/11/guide-tones"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The two lines, in stages",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. Sing the two guide-tone lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "e-flat",
+              "voice": "tenor",
+              "labels": "degree",
+              "notes": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "e-flat",
+              "style": "ballad",
+              "bpm": 72,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 88
+            },
+            {
+              "bpm": 104
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Land on the 3rd",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, now as a bossa. Make up a line over the first two chords, and sing it on any vowel. Whatever you sing, land on {{3}} as the last chord arrives, and hold it.\nThen aim for {{7}} instead.\nOnce both landings come easily, sing whatever you hear and leave a bar empty now and then."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "e-flat",
+              "voice": "tenor",
+              "labels": "degree",
+              "under": true,
+              "highlight": [
+                "1",
+                "3",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "e-flat",
+              "style": "bossa",
+              "bpm": 110,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "progression": "ii-v-i"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "improvise:2"
+      ],
+      "minutes": 10
+    }
+  ]
+}

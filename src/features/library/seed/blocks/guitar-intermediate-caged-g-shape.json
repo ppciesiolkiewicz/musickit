@@ -9,8 +9,6 @@
   "note": "Track caged (guitar-caged), step 5: the G shape: open G moved up two frets to A with its arpeggio, pentatonic and scale, then joined to the E shape on the low E string root, in three keys.",
   "exercise": {
     "title": "CAGED: the G shape",
-    "minutes": 9,
-    "level": "intermediate",
     "area": "guitar",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
-    ],
-    "steps": [
-      "caged:5"
     ],
     "why": "The open G chord moved up the neck fills the gap between the A shape below it and the E shape above it, and it ends on the low E string root where the E shape begins.",
     "learnBefore": [
@@ -103,5 +98,15 @@
     "exploreMore": [
       "/theory/caged"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "caged:5"
+      ],
+      "minutes": 9
+    }
+  ]
 }

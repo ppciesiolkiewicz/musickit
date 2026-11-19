@@ -1,0 +1,56 @@
+{
+  "id": "voice-beginner-siren-to-sol",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 4.",
+  "exercise": {
+    "title": "Siren to Sol",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-pitch",
+    "concepts": [
+      "pitch"
+    ],
+    "why": "A slow slide passes through every pitch on the way, so it shows your voice the whole distance it needs to skip.",
+    "learnBefore": [
+      "/course/3/matching-a-pitch"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to {{5}} and back, like a siren.\nThen sing the two as a clean skip, with no slide between them.\n_Don't reach for high notes: turn the siren round at {{5}}._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "staff",
+          "scale": "major-ionian",
+          "key": "f",
+          "voice": "tenor",
+          "labels": "solfege",
+          "notes": [
+            "1",
+            "5"
+          ],
+          "drone": true
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pitch:4"
+      ],
+      "minutes": 3
+    }
+  ]
+}

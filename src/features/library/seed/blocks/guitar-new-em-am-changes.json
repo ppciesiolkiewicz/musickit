@@ -9,8 +9,6 @@
   "note": "The why names what makes this change easy (two fingers move as one shape), so the learner knows what to look for in the next pair of chords. The three blocks are the same change turned a new way: untimed, one strum a bar, a strum on every beat. Its key is the lesson, so its moves are a tempo only (60 to 90): the step names the tempo as a param and the chords stay Em and Am. The chord boxes show the fingers, so the text never does.",
   "exercise": {
     "title": "Em to Am, clean and in time",
-    "minutes": 8,
-    "level": "new",
     "area": "guitar",
     "tags": [
       "technique",
@@ -21,21 +19,10 @@
       "open-chords",
       "strumming"
     ],
-    "steps": [
-      "open-chords:1",
-      "strumming:1"
-    ],
     "why": "From Em to Am, fingers 2 and 3 keep their shape and move across one string together, so the change is one small move plus one finger: the easiest change to make automatic first.",
     "learnBefore": [
       "/course/2/one-minute-changes"
     ],
-    "moves": {
-      "bpm": {
-        "from": 60,
-        "to": 90,
-        "step": 10
-      }
-    },
     "cells": [
       {
         "type": "section",
@@ -112,5 +99,23 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "open-chords:1",
+        "strumming:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 8
+    }
+  ]
 }

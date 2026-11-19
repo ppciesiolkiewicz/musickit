@@ -9,8 +9,6 @@
   "note": "Track note-names (theory-basics), step 4: naming notes fast, on the neck game and aloud from the staff in time. Missing: a note-naming game that is not the guitar neck (a note shown on the staff or a piano key to name against the clock); the staff has no way to check a name the player says, and note-finder \"mode\": \"name\" needs the guitar neck.",
   "exercise": {
     "title": "Note names without stopping to think",
-    "minutes": 8,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "theory-basics",
     "concepts": [
       "note-names"
-    ],
-    "steps": [
-      "note-names:4"
     ],
     "why": "A metronome gives each name one beat to arrive, so you stop counting up from a note you know and start seeing each note as its own name.",
     "learnBefore": [
@@ -131,5 +126,15 @@
     "exploreMore": [
       "/theory/notes"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "note-names:4"
+      ],
+      "minutes": 8
+    }
+  ]
 }

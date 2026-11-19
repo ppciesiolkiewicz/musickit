@@ -1,4 +1,4 @@
-import { SEED_BLOCKS } from "@/features/library/seed";
+import { SEED_BLOCKS, seedExercises } from "@/features/library/seed";
 import type { Area } from "@/features/plan/model/concepts";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
 import { explainDay, versionFor, type Candidate, type ComposeTrace, type ComposedDay } from "@/features/plan/model/compose";
@@ -20,12 +20,12 @@ import type { Stars } from "@/features/progress/stars";
 
 /** The seed blocks as the composer's candidates, for these areas: never used and never rated. The block id is the file's id. */
 export function seedCandidates(areas: Area[], entries: CatalogueEntry[] = catalogue()): Candidate[] {
-  return SEED_BLOCKS.flatMap((f): Candidate[] => {
-    const { block } = parseExercise(f.exercise, f.id, entries);
+  return SEED_BLOCKS.flatMap((f) => seedExercises(f).flatMap((e): Candidate[] => {
+    const { block } = parseExercise(e, f.id, entries);
     if (!block || !block.area || !areas.includes(block.area as Area)) return [];
     const steps = block.steps ?? [];
     return [{ blockId: f.id, steps, minutes: block.minutes, use: { times: 0, seconds: 0 }, mine: null, exercise: { ...block, blockId: f.id } }];
-  });
+  }));
 }
 
 /** How the made-up player rates every exercise of a day: not at all, Solid (4 stars: the steps count as solid), or Hard (2 stars). */

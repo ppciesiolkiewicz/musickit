@@ -1,0 +1,49 @@
+{
+  "id": "guitar-new-first-week-find-the-note-and-play-it",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 4.",
+  "exercise": {
+    "title": "Find the note and play it",
+    "area": "guitar",
+    "tags": [
+      "theory"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "notes-on-neck"
+    ],
+    "why": "When the answer is a note you play, your hand has to find the place by itself, so the name gets tied to a feel and not only to a picture.",
+    "learnBefore": [
+      "/course/1/notes-on-e-and-a"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Playing it (mic) under the neck below. Then press Start above the neck. The game names a note and a string: find it on your guitar and play it, and the game hears your answer.\nKeep going until your finger goes to some of the notes without counting frets."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "note-finder",
+          "level": "new",
+          "mode": "find"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "notes-on-neck:1"
+      ],
+      "minutes": 3
+    }
+  ]
+}

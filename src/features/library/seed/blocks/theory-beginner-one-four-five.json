@@ -9,8 +9,6 @@
   "note": "Theory that is heard, not recited: tap the three roots on the staff and hear the chord on each, follow the chords in order, then in a new order and in a second key by the Key selector. The why gives the learner the method (listen for the root moving), and one word, the number, names a chord everywhere in the text. Works for any instrument, or none.",
   "exercise": {
     "title": "The 1, 4 and 5 chords in G, by ear",
-    "minutes": 8,
-    "level": "beginner",
     "area": "theory",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "theory-progressions",
     "concepts": [
       "chords-of-a-key"
-    ],
-    "steps": [
-      "chords-of-a-key:1"
     ],
     "why": "Each chord is built on one note of the scale, so once you hear the root move from 1 to 4 to 5, you can name the chord that is playing.",
     "learnBefore": [
@@ -131,5 +126,15 @@
     "exploreMore": [
       "/course/5/hearing-changes"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "chords-of-a-key:1"
+      ],
+      "minutes": 8
+    }
+  ]
 }

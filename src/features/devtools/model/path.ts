@@ -1,5 +1,5 @@
 import { ALL_SECTIONS, sectionHref } from "@/features/course/course";
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, seedExercises, seedPlan } from "@/features/library/seed";
 import { CONCEPTS, conceptIds, type Area, type Concept } from "@/features/plan/model/concepts";
 import { LEVEL_ORDER } from "@/features/plan/model/outcome";
 import { conceptSteps, type ConceptStep, type ConceptSteps } from "./steps";
@@ -29,8 +29,8 @@ const conceptsOf = (exercises: unknown[]): string[] => conceptIds(exercises.flat
 
 export const pathSource = (): PathSource => ({
   concepts: CONCEPTS,
-  exercises: SEED_BLOCKS.map((f) => ({ id: f.id, concepts: conceptsOf([f.exercise]) })),
-  plans: SEED_PLANS.map((f) => ({ id: f.id, concepts: conceptsOf(((f.plan as RawPlan).days ?? []).flatMap((d) => d.exercises ?? [])) })),
+  exercises: SEED_BLOCKS.map((f) => ({ id: f.id, concepts: conceptsOf(seedExercises(f)) })),
+  plans: SEED_PLANS.map((f) => ({ id: f.id, concepts: conceptsOf(((seedPlan(f) as RawPlan).days ?? []).flatMap((d) => d.exercises ?? [])) })),
   steps: conceptSteps(),
   written: new Set(ALL_SECTIONS.filter((r) => r.section.blocks.length > 0).map((r) => sectionHref(r.stage.slug, r.section.slug))),
 });

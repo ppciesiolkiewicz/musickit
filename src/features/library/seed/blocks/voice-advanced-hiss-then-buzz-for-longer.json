@@ -1,0 +1,50 @@
+{
+  "id": "voice-advanced-hiss-then-buzz-for-longer",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 3.",
+  "exercise": {
+    "title": "Hiss, then buzz, for longer",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath"
+    ],
+    "why": "A hiss is air alone and a buzz is the same air with your voice on it, so holding each for longer shows whether the air stays steady when the voice comes in.",
+    "learnBefore": [
+      "/course/3/breath-and-holding-a-note"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the circle below. Hiss on \"sss\", add your voice for \"zzz\", then hiss again, as the circle shows. Keep the air moving at the same speed through all three, right to the end of each sound."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "breathwork",
+          "drill": "sss-zzz",
+          "seconds": 6,
+          "rounds": 6
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "breath:8"
+      ],
+      "minutes": 3
+    }
+  ]
+}

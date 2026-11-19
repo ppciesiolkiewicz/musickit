@@ -9,8 +9,6 @@
   "note": "Seeing the key's chords inside one scale position, then using them in a solo: a scale-neck with `chords` rings each triad in position 1, a chord-steps riff strikes each triad and picks its notes, both with a Variant selector for a second key (the grips' frets move with the key), a solo-over lights each chord's triad as a `stab` to strike on beat 1 and leaves the rest of the bar free, and a last chord-steps cuts each triad to a double stop on the top two strings. The why says what makes it work (the chords already sit under the hand), so the learner can find the same in another position.",
   "exercise": {
     "title": "Chords inside the position",
-    "minutes": 12,
-    "level": "intermediate",
     "area": "guitar",
     "tags": [
       "technique",
@@ -21,7 +19,6 @@
       "triads",
       "arpeggios"
     ],
-    "steps": ["triads:3", "arpeggios:1"],
     "why": "Every chord of the key is a triad on the top three strings somewhere inside one scale position, so you can strike a chord and carry on soloing without moving your hand.",
     "learnBefore": [
       "/course/8/chords-in-position",
@@ -390,5 +387,16 @@
       "/theory/double-stops",
       "/theory/triads"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "triads:3",
+        "arpeggios:1"
+      ],
+      "minutes": 12
+    }
+  ]
 }

@@ -1,0 +1,49 @@
+{
+  "id": "guitar-new-first-week-say-the-name-then-check",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 6.",
+  "exercise": {
+    "title": "Say the name, then check",
+    "area": "guitar",
+    "tags": [
+      "theory"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "notes-on-neck"
+    ],
+    "why": "Saying the name before you see the answers makes you pull it from memory, and a name you have pulled from memory a few times stops needing to be counted.",
+    "learnBefore": [
+      "/course/1/notes-on-e-and-a"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the game below. The game lights a note on the neck: say its name out loud first, then press that name under the neck to check.\nKeep going until some names come before you can count up to them."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "note-finder",
+          "level": "new",
+          "mode": "name"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "notes-on-neck:1"
+      ],
+      "minutes": 3
+    }
+  ]
+}

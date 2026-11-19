@@ -9,8 +9,6 @@
   "note": "Track tunes (voice-melodies), step 6: mix of every difficulty with the chords off, four tunes alone, Expert, Easy, Hard and Medium in that order with no word on which is which: Do found from the last note, one sung before it is heard, one in three keys, one from memory.",
   "exercise": {
     "title": "Tunes of every difficulty, chords off",
-    "minutes": 10,
-    "level": "advanced",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-melodies",
     "concepts": [
       "tunes"
-    ],
-    "steps": [
-      "tunes:6"
     ],
     "why": "With the chords off the tune is the only sound, so you find home from the tune itself: every tune in the book ends on Do, and its first note is a set distance from that ending.",
     "learnBefore": [
@@ -145,5 +140,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "tunes:6"
+      ],
+      "minutes": 10
+    }
+  ]
 }

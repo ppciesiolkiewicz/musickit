@@ -1,0 +1,77 @@
+{
+  "id": "voice-guitar-advanced-first-week-warm-up-long-breath-out-lip-roll-up",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 3.",
+  "exercise": {
+    "title": "Warm-up: long breath out, lip roll up",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath-holding-note"
+    ],
+    "learnBefore": [
+      "/theory/singing/breathing",
+      "/theory/singing/warm-ups"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Long breath out",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the breathing below: in for 4, then out slowly for 12. Let the air leave at one steady speed, so the last counts feel the same as the first."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "breathwork",
+              "drill": "long-exhale",
+              "seconds": 12,
+              "rounds": 6
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Lip roll up",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the lip roll below: a tone slides from chest voice up to head voice, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll, and let it get lighter, not louder, as it climbs."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "lip-roll",
+              "shape": "up",
+              "voice": "baritone",
+              "plays": 4
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "breath:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

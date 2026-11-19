@@ -1,0 +1,70 @@
+{
+  "id": "guitar-advanced-down-up-picking-in-stages",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 3.",
+  "exercise": {
+    "title": "Down-up picking, in stages",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "picking"
+    ],
+    "why": "Picking down then up plays two notes with one swing of the hand, so the hand gets faster by making the swing smaller, not by working harder.",
+    "learnBefore": [
+      "/course/1/spider"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One stage at a time",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Pick each string down, up, down, up, and follow the arrows under the tab.\nWhen your hand swings evenly with no stop between strings, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the up strokes get quieter than the down strokes, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "beginner",
+              "bpm": 100
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 100
+            },
+            {
+              "bpm": 112
+            },
+            {
+              "bpm": 124
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "picking:2"
+      ],
+      "minutes": 4
+    }
+  ]
+}

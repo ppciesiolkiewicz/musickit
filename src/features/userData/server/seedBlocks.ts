@@ -1,4 +1,5 @@
 import { SEED_BLOCKS, type SeedBlockFile } from "@/features/library/seed";
+import { exerciseOf } from "@/features/library/seed/choices";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise, parsePlanConfig } from "@/features/plan/model/config";
 import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
@@ -49,9 +50,11 @@ export function seedFileBlocks(files: SeedBlockFile[] = SEED_BLOCKS): NewBlock[]
   const entries = catalogue();
   const out: NewBlock[] = [];
   for (const f of files) {
-    const { block } = parseExercise(f.exercise, f.id, entries);
     const provenance: Provenance = { model: f.model, promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching };
-    if (block) out.push(...toNew({ title: f.id, days: [{ theme: f.id, exercises: [block] }] }, provenance));
+    for (const c of f.choices ?? []) {
+      const { block } = parseExercise(exerciseOf(f, c), f.id, entries);
+      if (block) out.push(...toNew({ title: f.id, days: [{ theme: f.id, exercises: [block] }] }, provenance));
+    }
   }
   return dedupe(out);
 }

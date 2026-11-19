@@ -1,0 +1,110 @@
+{
+  "id": "guitar-theory-intermediate-ii-v-i-jam",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 7.",
+  "exercise": {
+    "title": "ii-V-I jam",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "Guide tones, arpeggios and the scale together are what make a solo over changes sound sure.",
+    "learnBefore": [
+      "/course/11/ii-v-i",
+      "/course/11/guide-tones"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Guide tones",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Play one guide tone per chord: start on the 3rd or the 7th of Dm7, and move to the nearest target at each change."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "c",
+                "chords": [
+                  {
+                    "chord": "Dm7",
+                    "scale": "dorian",
+                    "target": [
+                      "b3",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "G7",
+                    "scale": "mixolydian",
+                    "target": [
+                      "3",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "Cmaj7",
+                    "scale": "major-ionian",
+                    "target": [
+                      "3",
+                      "7"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 85,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Arpeggio phrases",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Same backing. Start each chord with a run up its arpeggio. Then leave space."
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Free, and record",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Improvise freely. Still land on a target at each change. Record it, then listen back for the changes you landed on."
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "major-on-neck:1"
+      ],
+      "minutes": 12
+    }
+  ]
+}

@@ -1,0 +1,266 @@
+{
+  "id": "voice-guitar-advanced-first-week-the-3rd-and-7th-of-each-chord",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 2.",
+  "exercise": {
+    "title": "The 3rd and 7th of each chord",
+    "area": "guitar",
+    "tags": [
+      "theory",
+      "improv"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "shells-comping"
+    ],
+    "why": "A shell is a chord cut down to its root, 3rd and 7th, so once you can find the 3rd and 7th alone you can build the chord, or a line, around them.",
+    "learnBefore": [
+      "/course/11/shells",
+      "/course/11/guide-tones"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two notes per chord",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: it holds Am7, D7 and two bars of Gmaj7 while you play the tab, one note per beat. You play only the 3rd and the 7th of each chord.\nWatch how little your hand moves from one chord to the next, then switch to the neck view to see the whole line in place."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "steps": [
+                      "b3",
+                      "b7",
+                      "b3",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "steps": [
+                      "3",
+                      "b7",
+                      "3",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "steps": [
+                      "3",
+                      "7",
+                      "3",
+                      "7"
+                    ]
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "steps": [
+                      "3",
+                      "7",
+                      "3",
+                      "7"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 66,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Shells",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Now the root goes under the two notes: strike the shell on the A, D and G strings on beat 1, pick its 3rd and its 7th, then strike the shell again.\nKeep going until your hand finds each shell before its bar starts."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "b7"
+                        ],
+                        "strings": "543"
+                      },
+                      "b3",
+                      "b7",
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "b7"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "b7"
+                        ],
+                        "strings": "543"
+                      },
+                      "3",
+                      "b7",
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "b7"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "7"
+                        ],
+                        "strings": "543"
+                      },
+                      "3",
+                      "7",
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "7"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "7"
+                        ],
+                        "strings": "543"
+                      },
+                      "3",
+                      "7",
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "7"
+                        ],
+                        "strings": "543"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 66,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Land on the 3rd",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing, which goes round Am7, D7 and Gmaj7. Improvise in G major and land on the ringed note as each chord arrives: {{c}} over Am7, {{f-sharp}} over D7, {{b}} over Gmaj7.\nThen aim for each chord's 7th instead, and hear how the line changes colour."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "g",
+                "scale": "major-ionian",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "b3"
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "target": [
+                      "3"
+                    ],
+                    "approach": "land on F♯ on beat 1"
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "target": [
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "Gmaj7",
+                    "target": [
+                      "3"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "shells:2"
+      ],
+      "minutes": 12
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "voice-intermediate-from-the-4th-up-to-the-octave",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 3.",
+  "exercise": {
+    "title": "From the 4th up to the octave",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "The high Do is the same note as Do, so the two blend into one sound where every other leap stands apart: listen for the blend first.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 4th, a 5th, a 6th or an octave above it. Hum the second note back, then pick its name: P8 is the octave, m6 and M6 the minor and major 6th."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            5,
+            7,
+            8,
+            9,
+            12
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "steps-to-leaps:17"
+      ],
+      "minutes": 5
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "voice-beginner-steps-or-skips",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 1.",
+  "exercise": {
+    "title": "Steps or skips?",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "Melodies move by steps and skips, so hearing which is which tells you where the next note is before you sing it.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear two notes, a step or a skip apart. Hum the two back, then answer."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            2,
+            4,
+            7
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

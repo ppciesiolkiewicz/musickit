@@ -9,8 +9,6 @@
   "note": "Track singing-modes (voice-melodies), step 4: Phrygian over a drone, the ♭2 a half step above home, the walk down from the 5th in three keys, then a made-up tune over i ♭II that lands on the ♭2 and steps home.",
   "exercise": {
     "title": "Phrygian over a drone",
-    "minutes": 10,
-    "level": "advanced",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-melodies",
     "concepts": [
       "singing-modes"
-    ],
-    "steps": [
-      "singing-modes:4"
     ],
     "why": "Phrygian is set apart by the ♭2, a half step above home, and a half step that close to the drone shows at once when it is too wide, so the drone tells you how small to make it.",
     "learnBefore": [
@@ -143,5 +138,15 @@
     "exploreMore": [
       "/theory/scales/phrygian/e"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "singing-modes:4"
+      ],
+      "minutes": 10
+    }
+  ]
 }

@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
-import { SEED_PLANS } from "@/features/library/seed";
+import { SEED_PLANS, seedPlan } from "@/features/library/seed";
 import { sanitiseState } from "./model/state";
 import { taughtView } from "./model/today";
 import { GivenPlanView, TEACHER_WEEK_PAGE, givenPageTitle } from "./GivenPlan";
@@ -12,12 +12,12 @@ import TaughtPlanView from "./ui/TaughtPlan";
 import type { StoredPlan } from "./model/types";
 
 /** A teacher's student's document: the week running now, an older week, an upcoming one, and a plan someone shared. */
-const seed = SEED_PLANS.find((p) => (p.plan as { days?: unknown[] }).days?.length === 7)!;
-const days = (seed.plan as { days: object[] }).days;
+const seed = seedPlan(SEED_PLANS.find((p) => (seedPlan(p) as { days?: unknown[] }).days?.length === 7)!);
+const days = (seed as { days: object[] }).days;
 const week = (id: string, startedOn: string) => ({ id, startedOn, done: {}, teacher: { madeAt: `${startedOn}T09:00:00.000Z` }, config: { title: "", days } });
 const state = sanitiseState({
   current: null,
-  given: [week("now", "2026-11-16"), week("old", "2026-11-09"), { id: "shared", startedOn: "2026-11-10", done: {}, from: "s1", config: seed.plan }],
+  given: [week("now", "2026-11-16"), week("old", "2026-11-09"), { id: "shared", startedOn: "2026-11-10", done: {}, from: "s1", config: seed }],
 });
 const TODAY = "2026-11-18";
 

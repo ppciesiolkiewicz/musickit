@@ -1,0 +1,52 @@
+{
+  "id": "guitar-beginner-g-to-c-smoother-each-round",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 3.",
+  "exercise": {
+    "title": "G to C, smoother each round",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords"
+    ],
+    "why": "The change you repeat is the one your hand learns, so short rounds on one change grow faster than long ones on many.",
+    "learnBefore": [
+      "/course/2/c-d-g",
+      "/course/2/one-minute-changes"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Tap a chord box to hear it. Change between G and C as smoothly as you can for about a minute, rest, and go again. Each round, try to have the next chord ready a little sooner after the strum."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "chord-shapes",
+          "chords": [
+            "G",
+            "C"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "open-chords:5"
+      ],
+      "minutes": 4
+    }
+  ]
+}

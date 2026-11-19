@@ -1,0 +1,49 @@
+{
+  "id": "voice-advanced-all-twelve-falling",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 7.",
+  "exercise": {
+    "title": "All twelve, falling",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "With all twelve to choose from, the hard leaps sit among the easy ones as they do in a song, so each one has to be known by its own sound.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then a lower one, any interval up to an octave. Hum the lower note, then the first one again, then pick the interval's name."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "advanced",
+          "dir": "down"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "intervals:7"
+      ],
+      "minutes": 5
+    }
+  ]
+}

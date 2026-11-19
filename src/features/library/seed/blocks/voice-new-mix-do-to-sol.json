@@ -9,8 +9,6 @@
   "note": "Track steps-to-leaps (voice-intervals), step 5: mix of Do to Sol, the five notes in an order the singer makes up over a drone, then two Sol-stage tunes that turn back and skip inside the five notes (one in two keys). The Sol stage's two Easy tunes are in the block for step 4, so these two are the stage's Medium ones.",
   "exercise": {
     "title": "Do to Sol in any order",
-    "minutes": 7,
-    "level": "new",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
-    ],
-    "steps": [
-      "steps-to-leaps:5"
     ],
     "why": "The five notes from Do to Sol stay in the same places whatever order they come in, so a tune that turns back or skips over a note is still made of places your voice already knows.",
     "learnBefore": [
@@ -122,5 +117,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "steps-to-leaps:5"
+      ],
+      "minutes": 7
+    }
+  ]
 }

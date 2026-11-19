@@ -1,0 +1,48 @@
+{
+  "id": "voice-intermediate-hiss-then-buzz",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Hiss, then buzz",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath"
+    ],
+    "why": "A hiss is air alone and a buzz is the same air with your voice added, so going from one to the other shows how little extra push a note needs.",
+    "learnBefore": [
+      "/course/3/breath-and-holding-a-note"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the circle below. Hiss on \"sss\", add your voice for \"zzz\", then hiss again, as the circle shows. Keep the air moving at the same speed through all three."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "breathwork",
+          "drill": "sss-zzz"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "breath:5"
+      ],
+      "minutes": 3
+    }
+  ]
+}

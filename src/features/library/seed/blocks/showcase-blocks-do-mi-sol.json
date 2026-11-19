@@ -7,10 +7,9 @@
     "teaching": 2
   },
   "note": "Shows blocks with a chart per step: each block adds one note, and its own neck puts exactly the notes named so far in play (enable) and rings the one just added (highlight), ending on a tune that uses only those notes and comes back in G by the Key selector. The neck shows the frets and the note names, so the text names only the degrees.",
+  "showcase": "blocks",
   "exercise": {
     "title": "Do, Mi, Sol on the neck, one note at a time",
-    "minutes": 8,
-    "level": "beginner",
     "area": "guitar",
     "tags": [
       "technique",
@@ -19,9 +18,6 @@
     "topic": "guitar-scales",
     "concepts": [
       "guitar-melodies"
-    ],
-    "steps": [
-      "guitar-melodies:2"
     ],
     "why": "Do, Mi and Sol are the three notes of the C chord, so adding them one at a time shows how a tune is built from a chord you can already fret.",
     "learnBefore": [
@@ -149,5 +145,14 @@
       }
     ]
   },
-  "showcase": "blocks"
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "guitar-melodies:2"
+      ],
+      "minutes": 8
+    }
+  ]
 }

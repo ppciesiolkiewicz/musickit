@@ -9,8 +9,6 @@
   "note": "Track caged (guitar-caged), step 8: one chord in all five shapes up the neck, the roots that join each shape to the next, then a new shape every bar in three keys.",
   "exercise": {
     "title": "One chord, five shapes",
-    "minutes": 10,
-    "level": "advanced",
     "area": "guitar",
     "tags": [
       "technique",
@@ -19,9 +17,6 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
-    ],
-    "steps": [
-      "caged:8"
     ],
     "why": "Each shape shares a root with the shape above it, so the five shapes of one chord join into a chain up the neck, always in the order C, A, G, E, D.",
     "learnBefore": [
@@ -120,5 +115,15 @@
       "/theory/caged",
       "/course/8/one-arpeggio"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "caged:8"
+      ],
+      "minutes": 10
+    }
+  ]
 }

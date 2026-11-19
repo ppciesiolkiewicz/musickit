@@ -1,0 +1,71 @@
+{
+  "id": "guitar-beginner-sol-la-sol-in-two-keys",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 3.",
+  "exercise": {
+    "title": "Sol La Sol, in two keys",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "A tune keeps its shape when the key changes, so playing it in two keys teaches your fingers the pattern, not a list of frets.",
+    "learnBefore": [
+      "/course/4/melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The tune",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune, then play along from the tab.\nOnce you can hum it before you play it, learn it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 36,
+                "key": "g"
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "guitar-melodies:2"
+      ],
+      "minutes": 5
+    }
+  ]
+}

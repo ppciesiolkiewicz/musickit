@@ -1,0 +1,90 @@
+{
+  "id": "theory-only-first-week-one-sharp-one-flat",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 3.",
+  "exercise": {
+    "title": "One sharp, one flat",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "keys"
+    ],
+    "why": "Each place you move round the circle of fifths changes one note of the scale, so the keys next to C are the ones that differ from it by a single sharp or flat.",
+    "learnBefore": [
+      "/course/10/circle-map"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "C's two neighbours",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle of fifths below starts on C major, which has no sharps or flats: the middle of the circle says so. Tap G on the outer ring, one place to the right of C. The circle moves to G, and the middle now shows 1♯.\nTap C to come back, then tap F on its other side to see 1♭.\nThen go a few places further each way, and watch the number in the middle as you move away from C."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "circle-of-fifths",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Find the changed note",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The piano below shows G major. Tap from {{1}} up to the next {{1}}: every key is white but one, {{f-sharp}}. That is the one sharp."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "g",
+              "scale": "major-ionian"
+            }
+          },
+          {
+            "type": "text",
+            "text": "This piano shows F major, with its one flat, {{b-flat}}. Tap up the scale from {{1}}. Then tap {{b-flat}} and the white key just to its right, the B that C major has in its place, to hear what the flat changed."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "f",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/circle"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "keys:1"
+      ],
+      "minutes": 6
+    }
+  ]
+}

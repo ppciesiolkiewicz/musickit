@@ -1,0 +1,68 @@
+{
+  "id": "theory-only-first-week-5th-or-octave-by-ear",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 1.",
+  "exercise": {
+    "title": "5th or octave, by ear",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "The octave is the same note again, higher, and the 5th is the outside of a chord, so these two wide gaps are the easiest to tell apart and the ones to measure every other interval against.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two wide gaps",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "level": "new"
+            },
+            {
+              "level": "beginner"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below. The game plays two notes, one after the other: pick P5 for a 5th or P8 for an octave. Press Replay to hear them again before you answer.\nWhen the name comes before you think about it, try the next stage: it adds the two 3rds, M3 for a major 3rd and m3 for a minor 3rd. Use the Stage selector below to change the stage, then press Start to hear the first pair.\nIf the 3rds get mixed up, go back a stage and stay with the 5th and the octave for now."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "new"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/ears"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "intervals:1"
+      ],
+      "minutes": 3
+    }
+  ]
+}

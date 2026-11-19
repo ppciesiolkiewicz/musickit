@@ -1,0 +1,70 @@
+{
+  "id": "voice-beginner-do-mi-sol-in-three-keys",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 5.",
+  "exercise": {
+    "title": "Do Mi Sol in three keys",
+    "choice": {
+      "options": [
+        {
+          "key": "a"
+        },
+        {
+          "key": "c"
+        },
+        {
+          "key": "d"
+        }
+      ]
+    },
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "Do Mi Sol is two skips of a fixed size, so it sounds the same from any Do, and moving it trains your ear on the shape and not on the notes.",
+    "learnBefore": [
+      "/course/3/do-mi-sol"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. Sing {{1}} {{3}} {{5}} up and back on the note names, starting from the low {{1}}.\nOnce the three land without a slide, try them in another key. Use the Key selector below to change the key, then press Start exercise to start the drone there.\nWhen you change the key, the notes change but the two skips are the same size."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "staff",
+          "scale": "major-ionian",
+          "key": "a",
+          "voice": "tenor",
+          "labels": "solfege",
+          "notes": [
+            "1",
+            "3",
+            "5"
+          ],
+          "drone": true
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:8"
+      ],
+      "minutes": 3
+    }
+  ]
+}

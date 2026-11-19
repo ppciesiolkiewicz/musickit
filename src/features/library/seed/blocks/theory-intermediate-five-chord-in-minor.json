@@ -9,8 +9,6 @@
   "note": "Track minor-colours (theory-modes), step 2: the 5 chord in minor, minor in natural minor and major with the raised 7th, heard as two chords, then in a band that plays one and then the other, then with its 7th in two more keys.",
   "exercise": {
     "title": "The 5 chord in minor",
-    "minutes": 8,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "ear",
@@ -19,9 +17,6 @@
     "topic": "theory-modes",
     "concepts": [
       "minor-colours"
-    ],
-    "steps": [
-      "minor-colours:2"
     ],
     "why": "The raised 7th of harmonic minor is the 3rd of the 5 chord, so it turns that chord from minor to major and makes it lead back to the 1.",
     "learnBefore": [
@@ -146,5 +141,15 @@
     "exploreMore": [
       "/theory/scales/harmonic-minor/a"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "minor-colours:2"
+      ],
+      "minutes": 8
+    }
+  ]
 }

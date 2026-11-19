@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, type ReactNode } from "react";
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, seedExercise, seedPlan } from "@/features/library/seed";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
@@ -18,8 +18,8 @@ import type { DrawnItem } from "./item";
 
 /** Every seed plan and block as section comments are kept: by the seed file's id. */
 const SEED_JSON: { id: string; json: string }[] = [
-  ...SEED_BLOCKS.map((f) => ({ id: f.id, json: JSON.stringify(f.exercise) })),
-  ...SEED_PLANS.map((f) => ({ id: f.id, json: JSON.stringify(f.plan) })),
+  ...SEED_BLOCKS.map((f) => ({ id: f.id, json: JSON.stringify(seedExercise(f)) })),
+  ...SEED_PLANS.map((f) => ({ id: f.id, json: JSON.stringify(seedPlan(f)) })),
 ];
 
 /** The tool types an example uses, walking its JSON for `{ type: "tool", tool: { type } }`, with how often each appears, in first-use order. */

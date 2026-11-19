@@ -1,0 +1,66 @@
+{
+  "id": "guitar-new-first-week-open-strings-down-then-down-and-up",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 5.",
+  "exercise": {
+    "title": "Open strings: down, then down and up",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "picking"
+    ],
+    "why": "An up stroke is the pick's trip back after a down stroke, so picking down and up on one open string is the smallest form of a down and up strum.",
+    "learnBefore": [
+      "/course/1/strings-and-tuning"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Add the up stroke",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "level": "new"
+            },
+            {
+              "level": "beginner"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Pick each open string four times, down, one note per beat.\nWhen the pick finds every string without a look, try the next stage: it picks down, then up, in turn. Use the Stage selector below to change the stage, then press Play to start the metronome again.\nIf the up strokes miss the string, go back one stage for a round."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "level": "new",
+              "bpm": 60
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "picking:1"
+      ],
+      "minutes": 3
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "id": "guitar-intermediate-solo-across-the-join",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 1.",
+  "exercise": {
+    "title": "Solo across the join",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "A slide in the middle of a phrase hides the change of position, so a solo is the place to make the join part of the music.",
+    "learnBefore": [
+      "/course/6/joining",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Land on the roots",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing, which switches between Am7 and Dm7. Improvise in positions 1 and 2 and slide from one to the other in the middle of a phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "scale": "minor-pentatonic",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "Dm7",
+                    "target": [
+                      "1"
+                    ],
+                    "approach": "land on D on beat 1"
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Start high, end low",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass in A, with no chords to follow. Start each phrase in position 2 and end it on a ringed {{1}} in position 1. Then turn it round: start low and end high."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:4"
+      ],
+      "minutes": 9
+    }
+  ]
+}

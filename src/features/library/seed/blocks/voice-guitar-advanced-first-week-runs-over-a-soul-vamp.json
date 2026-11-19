@@ -1,0 +1,160 @@
+{
+  "id": "voice-guitar-advanced-first-week-runs-over-a-soul-vamp",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 6.",
+  "exercise": {
+    "title": "Runs over a soul vamp",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "improv",
+      "song"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "fast-runs"
+    ],
+    "why": "Over Am7 and D7 the 6th of the scale is the 3rd of D7, so a run that lands on it as the chord changes sounds like it belongs to the band.",
+    "learnBefore": [
+      "/course/9/improvising-a-melody",
+      "/course/9/modes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two long notes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, which switches between Am7 and D7. On \"oo\", sing {{5}} over Am7 and step up to {{6}} over D7. Then try {{b7}} over Am7 and step down to {{6}} over D7.\nTap {{6}} on the staff to hear it: it is the note to aim for in the next block."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "a",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "b3",
+                "5",
+                "6",
+                "b7"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 84,
+              "parts": {
+                "drums": "on",
+                "bass": "on",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A run into each chord",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. Start high and sing a run down by step, on \"ah\", so that you land on a ringed {{6}} as D7 arrives. Then run down again and land on a ringed {{1}} when Am7 comes back.\nIf you land early, start the run later, not slower."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "a",
+              "voice": "baritone",
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 84,
+              "parts": {
+                "drums": "on",
+                "bass": "on",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Your own runs",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. Sing whole phrases now, on any vowel: a long note, a turn, the falling run from earlier today, a run of your own. Leave a bar empty after each phrase, as you would between lines of a song."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "a",
+              "voice": "baritone",
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 84,
+              "parts": {
+                "drums": "on",
+                "bass": "on",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "runs:5"
+      ],
+      "minutes": 11
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "guitar-beginner-a-riff-of-your-own",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 2.",
+  "exercise": {
+    "title": "A riff of your own",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "A riff is a short phrase repeated, so two notes and a rhythm are all you need to make one up.",
+    "learnBefore": [
+      "/course/5/power-chords",
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the band. Only {{1}} and {{5}} are in play, the two notes of today's power chords. Make up a short riff from them, one at a time or both together, and repeat it until it grooves. Then change one thing: the rhythm, the order or the octave."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-band",
+          "bpm": 80,
+          "key": "a",
+          "parts": {
+            "drums": "on",
+            "bass": "on"
+          }
+        }
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "scale-neck",
+          "scale": "minor-pentatonic",
+          "key": "a",
+          "boxes": [
+            1
+          ],
+          "enable": [
+            "1",
+            "5"
+          ],
+          "highlight": [
+            "1"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

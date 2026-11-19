@@ -9,8 +9,6 @@
   "note": "Track picking (guitar-techniques), step 2: down and up strokes, four notes a string (picking-drill at level beginner), on one string, across all six, then a little faster. It states its moves (tempo 60 to 100): the first step names the tempo as a param, the last section's drill stays 12 above the first, and no step mentions a selector, since the app brings the faster tempo.",
   "exercise": {
     "title": "Down and up with the pick",
-    "minutes": 6,
-    "level": "beginner",
     "area": "guitar",
     "tags": [
       "technique",
@@ -20,20 +18,10 @@
     "concepts": [
       "picking"
     ],
-    "steps": [
-      "picking:2"
-    ],
     "why": "The pick passes the string again on its way back up, so playing on the upstroke too gives you two notes for one movement of the hand.",
     "learnBefore": [
       "/course/1/spider"
     ],
-    "moves": {
-      "bpm": {
-        "from": 60,
-        "to": 100,
-        "step": 10
-      }
-    },
     "cells": [
       {
         "type": "section",
@@ -99,5 +87,22 @@
     "exploreMore": [
       "/course/8/string-skipping"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "picking:2"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 6
+    }
+  ]
 }

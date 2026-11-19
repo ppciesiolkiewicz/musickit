@@ -1,0 +1,60 @@
+{
+  "id": "guitar-theory-intermediate-alternate-picking",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Alternate picking",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "picking"
+    ],
+    "why": "Three notes per string puts the pick on alternating strokes at each string crossing.",
+    "learnBefore": [
+      "/course/1/spider"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome. Pick three notes per string, down-up, across all six strings and back."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-band",
+          "bpm": 90,
+          "key": "a",
+          "parts": {
+            "click": "on"
+          }
+        }
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "picking-drill",
+          "level": "intermediate",
+          "bpm": 90
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "picking:3"
+      ],
+      "minutes": 5
+    }
+  ]
+}

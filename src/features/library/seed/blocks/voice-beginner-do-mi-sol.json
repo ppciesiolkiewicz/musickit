@@ -9,8 +9,6 @@
   "note": "Do Mi Sol goes from a bare drill (3 minutes, the cap) to a tune that skips to singing chord notes over a band, so the longer singing time is musical. The drill goes through D, A and C from one Key selector, keys that keep a beginner's Do Mi Sol low on the staff. Both staffs label their notes Do Re Mi, as the text names them, the band's chords can't be muted under the singer, and each step says what starts, what to sing on and what to do when an entry comes late.",
   "exercise": {
     "title": "Do Mi Sol: skip, sing a tune, sing over chords",
-    "minutes": 9,
-    "level": "beginner",
     "area": "voice",
     "tags": [
       "sing"
@@ -19,7 +17,6 @@
     "concepts": [
       "steps-to-leaps"
     ],
-    "steps": ["steps-to-leaps:6"],
     "why": "Do, Mi and Sol are the three notes of the home chord, so the same skips come back in tune after tune: learn how they sound once and you can sing them in any key.",
     "learnBefore": [
       "/course/3/solfege",
@@ -134,5 +131,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:6"
+      ],
+      "minutes": 9
+    }
+  ]
 }

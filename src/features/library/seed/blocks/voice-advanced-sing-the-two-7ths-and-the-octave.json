@@ -1,0 +1,66 @@
+{
+  "id": "voice-advanced-sing-the-two-7ths-and-the-octave",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 2.",
+  "exercise": {
+    "title": "Sing the two 7ths and the octave",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps",
+      "singing-intervals"
+    ],
+    "why": "The high Do is the same note as Do, so you can always hear it, and each 7th is one small step down from there.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: m7 is the minor 7th, M7 the major 7th.\nHear the high Do in your head first: the major 7th lands a half step under it, the minor 7th a whole step under it. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a leap misses, press Restart below to hear Do again.\nWhen Do moves to a new key, the notes are new but each 7th is still the same distance under the high Do."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-singer",
+          "level": "advanced",
+          "voice": "tenor",
+          "key": "c",
+          "keys": [
+            "c",
+            "d",
+            "e-flat",
+            "f",
+            "g",
+            "b-flat"
+          ],
+          "intervals": [
+            10,
+            11,
+            12
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "steps-to-leaps:21",
+        "singing-intervals:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

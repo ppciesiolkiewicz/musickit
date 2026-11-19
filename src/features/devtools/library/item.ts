@@ -1,4 +1,4 @@
-import { SEED_BLOCKS, SEED_PLANS, type SeedBlockFile } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, seedExercise, seedExercises, seedPlan, type SeedBlockFile } from "@/features/library/seed";
 import type { BlockDetail } from "@/features/library/server/types";
 import { blockIdOf, blockKeyOf } from "@/features/plan/model/blockId";
 import { catalogue } from "@/features/plan/model/catalogue";
@@ -33,14 +33,16 @@ export interface DrawnItem {
 
 let seedBlockIds: Map<string, SeedBlockFile> | null = null;
 
-/** Each seed block by the block id the library stores it under (`blockIdOf(blockKeyOf(parseExercise(...).block))`). */
+/** Each seed block by the block id the library stores each of its choices under (`blockIdOf(blockKeyOf(parseExercise(...).block))`). */
 export function seedBlocksById(): Map<string, SeedBlockFile> {
   if (!seedBlockIds) {
     const entries = catalogue();
     seedBlockIds = new Map();
     for (const f of SEED_BLOCKS) {
-      const block = parseExercise(f.exercise, f.id, entries).block;
-      if (block) seedBlockIds.set(blockIdOf(blockKeyOf(block)), f);
+      for (const e of seedExercises(f)) {
+        const block = parseExercise(e, f.id, entries).block;
+        if (block) seedBlockIds.set(blockIdOf(blockKeyOf(block)), f);
+      }
     }
   }
   return seedBlockIds;
@@ -50,12 +52,12 @@ export function seedBlocksById(): Map<string, SeedBlockFile> {
 export function seedItem(id: string): DrawnItem | null {
   const plan = SEED_PLANS.find((f) => f.id === id);
   if (plan) {
-    return { id, kind: "plan", seedId: plan.id, versions: plan.versions, model: plan.model, note: plan.note, minutes: plan.answers.minutes, json: JSON.stringify(plan.plan) };
+    return { id, kind: "plan", seedId: plan.id, versions: plan.versions, model: plan.model, note: plan.note, minutes: plan.answers.minutes, json: JSON.stringify(seedPlan(plan)) };
   }
   // a block row names the block id; a section note's link names the seed file's id
   const block = seedBlocksById().get(id) ?? SEED_BLOCKS.find((f) => f.id === id);
   if (block) {
-    return { id, kind: "block", seedId: block.id, versions: block.versions, model: block.model, note: block.note, showcase: block.showcase, feature: block.showcase && SHOWCASE_FEATURE[block.showcase], json: JSON.stringify(block.exercise) };
+    return { id, kind: "block", seedId: block.id, versions: block.versions, model: block.model, note: block.note, showcase: block.showcase, feature: block.showcase && SHOWCASE_FEATURE[block.showcase], json: JSON.stringify(seedExercise(block)) };
   }
   return null;
 }

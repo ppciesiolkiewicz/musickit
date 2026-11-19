@@ -1,0 +1,51 @@
+{
+  "id": "guitar-beginner-spider-new-order",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 2.",
+  "exercise": {
+    "title": "Spider, new order",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "spider"
+    ],
+    "why": "A new finger order makes each finger move on its own, which is what phrases need once they stop going straight up and down.",
+    "learnBefore": [
+      "/course/1/spider"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome. Play the spider in a new finger order, up the strings and back, with the finger shown under each note of the tab. Keep it slow enough that every note rings, until the order stops needing thought."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "finger-pattern",
+          "level": "intermediate",
+          "fret": 5,
+          "show": "finger",
+          "bpm": 60
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "spider:3"
+      ],
+      "minutes": 4
+    }
+  ]
+}

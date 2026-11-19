@@ -1,0 +1,121 @@
+{
+  "id": "guitar-intermediate-solo-in-g",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 5.",
+  "exercise": {
+    "title": "Solo in G",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Chord notes sound settled and the others sound on the way somewhere, so ending a phrase on a note of the chord makes it sound finished.",
+    "learnBefore": [
+      "/course/5/move-it",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "End on a chord note",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing, which switches between Gm7 and Cm7. Improvise in any of the three positions and end each phrase on a ringed note: the root or the 3rd of the chord playing."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "g",
+                "scale": "minor-pentatonic",
+                "chords": [
+                  {
+                    "chord": "Gm7",
+                    "target": [
+                      "1",
+                      "b3"
+                    ]
+                  },
+                  {
+                    "chord": "Cm7",
+                    "target": [
+                      "1",
+                      "b3"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Arpeggio, then scale",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the same backing. Over Gm7, start each phrase with the three notes of the Gm arpeggio, then carry on with the scale. Over Cm7, answer with a phrase that ends on {{c}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "g",
+                "scale": "minor-pentatonic",
+                "chords": [
+                  {
+                    "chord": "Gm7",
+                    "target": [
+                      "1",
+                      "b3",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "Cm7",
+                    "target": [
+                      "1"
+                    ],
+                    "approach": "end on C"
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:5"
+      ],
+      "minutes": 6
+    }
+  ]
+}

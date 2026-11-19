@@ -1,0 +1,75 @@
+{
+  "id": "guitar-beginner-do-mi-sol-tune-in-g-c-and-d",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 4.",
+  "exercise": {
+    "title": "Do Mi Sol tune, in G, C and D",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "This tune uses only the three notes of a triad, one at a time, so your fingers learn today's chords as a melody.",
+    "learnBefore": [
+      "/course/4/do-mi-sol-neck",
+      "/course/5/triads"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The tune",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune and see each note on the neck: it is the G triad, one note at a time. Play along until you can hear the next note before you play it.\nThen play it in other keys. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune is still a triad, one note at a time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 22,
+                "key": "g"
+              },
+              "bpm": 70,
+              "view": "neck"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "guitar-melodies:2"
+      ],
+      "minutes": 5
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "id": "guitar-beginner-position-1-with-down-up-picking",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 3.",
+  "exercise": {
+    "title": "Position 1 with down-up picking",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Picking down then up plays two notes with one swing of the hand, so the position can speed up without the hand working harder.",
+    "learnBefore": [
+      "/course/1/spider",
+      "/course/5/pentatonic"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Down, up on open strings",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Pick each open string down, up, down, up, and follow the arrows under the tab. Keep going until your hand swings evenly, with no stop between the strokes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "picking-drill",
+              "strokes": "DU",
+              "notesPerString": 4,
+              "bpm": 70
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Position 1 at 70",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome at 70. Play the position up and down from the low {{1}}, one note per beat, picking down, up all the way."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Position 1 at 80",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome at 80. Same position, same picking. If it feels rushed, go back to 70 for a round."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "minutes": 6
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "id": "guitar-intermediate-join-positions-1-and-2",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 1.",
+  "exercise": {
+    "title": "Join positions 1 and 2",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Position 2 starts on the notes where position 1 ends, so one slide along one string carries a phrase from the first into the second.",
+    "learnBefore": [
+      "/course/6/joining",
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Position 2 on its own",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Play position 2 of A minor pentatonic up and back down, one note per beat, and notice where its ringed {{1}} notes sit. Keep going until the shape feels as familiar as position 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                2
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The crossing",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows only the crossing from position 1 to position 2. Climb position 1 from the low {{1}}. On the G string, slide from {{4}} up to {{5}} and finish the climb in position 2. Come back down the same way, sliding from {{5}} to {{4}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The same in G and C",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Play the same crossing in other keys. Use the Key selector below to change the key.\nWhen you change the key, the notes change but the slide on the G string is still {{4}} to {{5}}. Stay in each key until the slide lands without you looking for it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "a"
+            },
+            {
+              "key": "g"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

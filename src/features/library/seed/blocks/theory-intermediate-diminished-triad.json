@@ -9,8 +9,6 @@
   "note": "Track dim-aug (theory-building-chords), step 1: the diminished triad, 1 b3 b5, heard against the minor triad and found on the 7th note of a major key. Missing: interval-ears with kind \"chord\" has no diminished answer, so there is no game to name it by ear.",
   "exercise": {
     "title": "The diminished triad",
-    "minutes": 8,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "theory-building-chords",
     "concepts": [
       "dim-aug"
-    ],
-    "steps": [
-      "dim-aug:1"
     ],
     "why": "A diminished triad is a minor triad with the 5th lowered a half step, so listening for that one note tells the two chords apart.",
     "learnBefore": [
@@ -120,5 +115,15 @@
     "exploreMore": [
       "/theory/chords"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "dim-aug:1"
+      ],
+      "minutes": 8
+    }
+  ]
 }

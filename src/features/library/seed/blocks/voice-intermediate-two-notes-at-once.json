@@ -1,0 +1,54 @@
+{
+  "id": "voice-intermediate-two-notes-at-once",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 4.",
+  "exercise": {
+    "title": "Two notes at once",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "harmony-line"
+    ],
+    "why": "A harmony is two notes heard together, so your ear has to pull them apart before your voice can hold one of them.",
+    "learnBefore": [
+      "/course/6/harmony-line"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays two notes at the same time, a 3rd, a 4th or a 5th apart. Hum the lower one, then the upper one, then pick its name: m3 or M3 for a minor or major 3rd, P4 or P5."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            3,
+            4,
+            5,
+            7
+          ],
+          "dir": "together"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "harmony-line:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

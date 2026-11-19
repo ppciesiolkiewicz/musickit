@@ -1,0 +1,49 @@
+{
+  "id": "theory-only-first-week-3rds-both-notes-at-once",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 4.",
+  "exercise": {
+    "title": "3rds, both notes at once",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "A chord is notes sounding together, so naming an interval with both notes at once is the step from hearing intervals to hearing chords.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the game below. Now the game plays both notes at once: pick M3, m3, P5 or P8.\nTwo notes together sound like part of a chord, so ask whether it is major or minor: that names the 3rd.\nIf the two notes blur into one sound, press Replay and listen for the lower note, then for the higher one."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "beginner",
+          "dir": "together"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "intervals:2"
+      ],
+      "minutes": 3
+    }
+  ]
+}

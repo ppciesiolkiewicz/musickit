@@ -1,0 +1,78 @@
+{
+  "id": "voice-guitar-advanced-first-week-warm-up-hiss-to-voice-fast-siren",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 5.",
+  "exercise": {
+    "title": "Warm-up: hiss to voice, fast siren",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath-holding-note"
+    ],
+    "learnBefore": [
+      "/theory/singing/breathing",
+      "/theory/singing/warm-ups"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hiss, then voice",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the breathing below: a hiss, then the same breath with voice. Notice the moment the hiss turns into voice: it should start without a click or a push."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "breathwork",
+              "drill": "sss-zzz",
+              "seconds": 5,
+              "rounds": 5
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Fast siren",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the lip roll below: the tone slides up and back down quickly, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll. A fast slide is a run with no steps in it, so let it be loose."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "lip-roll",
+              "shape": "siren",
+              "speed": "fast",
+              "voice": "baritone",
+              "plays": 5
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "breath:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

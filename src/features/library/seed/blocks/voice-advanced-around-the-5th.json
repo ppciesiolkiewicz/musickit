@@ -1,0 +1,56 @@
+{
+  "id": "voice-advanced-around-the-5th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 1.",
+  "exercise": {
+    "title": "Around the 5th",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "The tritone is a half step under Sol and the minor 6th a half step over it, so you can hear each of them as a 5th that is a little too small or a little too wide.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 4th, a tritone, a 5th or a 6th above it. Hum the second note back, then pick its name: TT for the tritone, m6 for the minor 6th."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "advanced",
+          "set": [
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "intervals:6"
+      ],
+      "minutes": 5
+    }
+  ]
+}

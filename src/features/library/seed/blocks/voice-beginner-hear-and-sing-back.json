@@ -1,0 +1,55 @@
+{
+  "id": "voice-beginner-hear-and-sing-back",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 6.",
+  "exercise": {
+    "title": "Hear and sing back",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps",
+      "singing-intervals"
+    ],
+    "why": "Singing back what you hear links your ear to your voice, which is what learning a tune by ear is.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear a 3rd, a 5th or a 6th. Sing both notes back on \"la\" before you answer."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            3,
+            4,
+            7,
+            9
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

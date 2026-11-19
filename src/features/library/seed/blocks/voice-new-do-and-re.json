@@ -9,8 +9,6 @@
   "note": "Track steps-to-leaps (voice-intervals), step 1: Do and Re, over a drone and then as the book's one Do Re tune, in two keys.",
   "exercise": {
     "title": "Do and Re: one step up and home",
-    "minutes": 5,
-    "level": "new",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
-    ],
-    "steps": [
-      "steps-to-leaps:1"
     ],
     "why": "Do blends with the drone and Re does not, so the drone tells you when you have left home and when you are back.",
     "learnBefore": [
@@ -90,5 +85,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "steps-to-leaps:1"
+      ],
+      "minutes": 5
+    }
+  ]
 }

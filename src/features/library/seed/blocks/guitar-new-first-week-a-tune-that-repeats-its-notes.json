@@ -1,0 +1,71 @@
+{
+  "id": "guitar-new-first-week-a-tune-that-repeats-its-notes",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 3.",
+  "exercise": {
+    "title": "A tune that repeats its notes",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "This tune has only three notes and plays two of them twice, so there are only three frets to find and the new job is giving each note its beat.",
+    "learnBefore": [
+      "/course/4/melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One note per beat",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune, then play along from the tab, one note per beat until the long last note.\nOnce you can hum the tune before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the tune moves to a new place on another string, and each step down is still two frets."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 5,
+                "key": "g"
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "guitar-melodies:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

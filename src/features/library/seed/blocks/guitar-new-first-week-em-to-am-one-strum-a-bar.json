@@ -1,0 +1,84 @@
+{
+  "id": "guitar-new-first-week-em-to-am-one-strum-a-bar",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 2.",
+  "exercise": {
+    "title": "Em to Am, one strum a bar",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming"
+    ],
+    "why": "From Em to Am, fingers 2 and 3 keep their shape and move across one string together, so the change is one small move and one more finger.",
+    "learnBefore": [
+      "/course/2/em-and-am",
+      "/course/2/all-downstrums"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Back and forth, no metronome",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear the chord. Fret Em and strum it once, then move to Am and strum it once.\nGo back and forth slowly, and watch fingers 2 and 3 in the chord boxes: they move together.\nKeep going until your hand starts to find each shape before you look."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Em",
+                "Am"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "With the metronome",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play. Strum down once on beat 1, then use the rest of the bar to move to the next chord.\nIf a change comes late, leave that strum out and be ready for the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Em",
+                "Am"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "open-chords:1",
+        "strumming:1"
+      ],
+      "minutes": 6
+    }
+  ]
+}

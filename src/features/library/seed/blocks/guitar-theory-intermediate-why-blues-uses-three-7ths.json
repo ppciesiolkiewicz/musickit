@@ -1,0 +1,98 @@
+{
+  "id": "guitar-theory-intermediate-why-blues-uses-three-7ths",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 6.",
+  "exercise": {
+    "title": "Why blues uses three 7ths",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-progressions",
+    "concepts": [
+      "styles"
+    ],
+    "why": "Blues breaks the rule of one dominant per key: every chord is a 7th, which gives the style its restless sound.",
+    "learnBefore": [
+      "/course/7/twelve-bar",
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The three chords",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "A7, D7 and E7 are built on {{1}}, {{4}} and {{5}} of A. Tap those notes on the staff to hear them. Then press each chord box: the same dominant colour three times."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "mixolydian",
+              "key": "a",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "4",
+                "5"
+              ],
+              "mic": false
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "A7",
+                "D7",
+                "E7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A7's own notes",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the A7 arpeggio: {{1}} {{3}} {{5}} {{b7}}. Its {{3}} is C♯, which is not in A minor pentatonic. That clash is the sound of the blues."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "A7",
+              "highlight": [
+                "1",
+                "3",
+                "b7"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "styles:3"
+      ],
+      "minutes": 7
+    }
+  ]
+}

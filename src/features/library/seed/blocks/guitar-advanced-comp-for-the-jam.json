@@ -1,0 +1,101 @@
+{
+  "id": "guitar-advanced-comp-for-the-jam",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 7.",
+  "exercise": {
+    "title": "Comp for the jam",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "shells"
+    ],
+    "why": "The same two chords sound like a Dorian vamp while they loop and like a ii–V the moment Gmaj7 follows them, so the last two bars change what the first six meant.",
+    "learnBefore": [
+      "/course/11/comping",
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "With the metronome",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum the pattern in the boxes: Am9 and D9 three times round, a bar each, then two bars of Gmaj7."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am9",
+                "D9",
+                "Am9",
+                "D9",
+                "Am9",
+                "D9",
+                "Gmaj7",
+                "Gmaj7"
+              ],
+              "bpm": 90,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "With the band",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Leave strums out in the vamp, then play every strum when Gmaj7 arrives."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "Am9",
+                "D9",
+                "Am9",
+                "D9",
+                "Am9",
+                "D9",
+                "Gmaj7",
+                "Gmaj7"
+              ],
+              "key": "a",
+              "style": "funk",
+              "bpm": 90,
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "shells:4"
+      ],
+      "minutes": 6
+    }
+  ]
+}

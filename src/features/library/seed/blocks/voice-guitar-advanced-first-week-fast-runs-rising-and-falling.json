@@ -1,0 +1,121 @@
+{
+  "id": "voice-guitar-advanced-first-week-fast-runs-rising-and-falling",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 6.",
+  "exercise": {
+    "title": "Fast runs, rising and falling",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "fast-runs"
+    ],
+    "why": "Runs in songs fall more often than they rise, and a falling run tends to go flat, so the way down gets its own stages.",
+    "learnBefore": [
+      "/course/9/fast-runs",
+      "/theory/singing/runs"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The nine-note run",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the run: the mic starts with it. It is the nine-note run, as fast on the way up as on the way down: it goes from Do up to Re above the high Do and back, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\" and close towards \"oo\" at the top."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "nine"
+              },
+              "voice": "baritone"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The falling run on the click",
+        "minutes": 4,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 54
+            },
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 66
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the metronome and the mic. From the high {{1}}, sing the run {{1}} {{b7}} {{5}} {{4}} in one beat and land on {{b3}} on the next, then step down to the low {{1}} and hold it. Sing it on \"oo\".\nWhen {{b3}} lands on the click and in tune, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the low notes of the run sag at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "voice": "baritone",
+              "labels": "degree",
+              "click": true,
+              "bpm": 54
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The pentatonic run, with the metronome",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the pentatonic run with the metronome under it: the mic starts with it. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and keep every pass on the beat."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "expert",
+                "stage": "pentatonic-run"
+              },
+              "voice": "baritone",
+              "metronome": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "runs:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

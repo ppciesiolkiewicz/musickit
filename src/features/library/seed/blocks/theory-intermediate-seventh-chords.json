@@ -9,8 +9,6 @@
   "note": "Three 7th chords on one root, each a neck with only its root and the notes that make it different ringed, one view per chord, then named by ear on any root. The why gives the learner the way to tell them apart (which note moved), each step is a tap on the neck instead of a description of the sound, and the game's answers are named as its buttons show them.",
   "exercise": {
     "title": "Three 7th chords on C",
-    "minutes": 9,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "theory-building-chords",
     "concepts": [
       "sevenths-up"
-    ],
-    "steps": [
-      "sevenths-up:5"
     ],
     "why": "The three chords share a root and each differs from the next by one note, so when you can hear which note moved, you can name the chord.",
     "learnBefore": [
@@ -110,5 +105,15 @@
     "exploreMore": [
       "/course/7/hearing-sevenths"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sevenths-up:5"
+      ],
+      "minutes": 9
+    }
+  ]
 }

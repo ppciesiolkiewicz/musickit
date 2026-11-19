@@ -1,0 +1,106 @@
+{
+  "id": "guitar-beginner-triads-one-string-set-lower",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 6.",
+  "exercise": {
+    "title": "Triads, one string set lower",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "triads"
+    ],
+    "why": "Every three neighbouring strings hold the same triads in new shapes, so moving a drill one string set over makes a new drill from chords you know.",
+    "learnBefore": [
+      "/course/5/triads"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the play-along. These are the G, C and D triads, moved from the top three strings to the D, G and B strings: the shapes change, the chords don't. Strike the three strings on every beat, until each new shape lands on beat 1."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "chord-steps",
+            "chords": [
+              {
+                "chord": "G",
+                "steps": [
+                  {
+                    "grip": [
+                      "1",
+                      "3",
+                      "5"
+                    ],
+                    "strings": "432"
+                  }
+                ]
+              },
+              {
+                "chord": "C",
+                "steps": [
+                  {
+                    "grip": [
+                      "1",
+                      "3",
+                      "5"
+                    ],
+                    "strings": "432"
+                  }
+                ]
+              },
+              {
+                "chord": "D",
+                "steps": [
+                  {
+                    "grip": [
+                      "1",
+                      "3",
+                      "5"
+                    ],
+                    "strings": "432"
+                  }
+                ]
+              },
+              {
+                "chord": "G",
+                "steps": [
+                  {
+                    "grip": [
+                      "1",
+                      "3",
+                      "5"
+                    ],
+                    "strings": "432"
+                  }
+                ]
+              }
+            ]
+          },
+          "bpm": 60,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "triads:4"
+      ],
+      "minutes": 4
+    }
+  ]
+}

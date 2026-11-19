@@ -1,0 +1,63 @@
+{
+  "id": "guitar-new-first-week-em-and-am-with-a-band",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 4.",
+  "exercise": {
+    "title": "Em and Am with a band",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming"
+    ],
+    "why": "A band keeps going whether your change is ready or not, so playing with one teaches you to keep the strumming hand moving and let the chord catch up.",
+    "learnBefore": [
+      "/course/2/first-songs",
+      "/course/2/all-downstrums"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the band: drums and bass, two bars of Em and then two bars of Am. The lit chord box shows the chord to play. Strum down on every beat.\nIf a change comes late, keep your strumming hand going and join in on the next beat 1."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-track",
+          "key": "e",
+          "chords": [
+            "Em",
+            "Em",
+            "Am",
+            "Am"
+          ],
+          "style": "ballad",
+          "bpm": 60,
+          "parts": {
+            "drums": "on",
+            "bass": "on"
+          }
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "open-chords:1",
+        "strumming:1"
+      ],
+      "minutes": 3
+    }
+  ]
+}

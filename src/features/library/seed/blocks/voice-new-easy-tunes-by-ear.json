@@ -9,8 +9,6 @@
   "note": "Track tunes (voice-melodies), step 1: three Easy tunes from the book, all inside Do Re Mi: sung along, sung on \"la\", then sung from memory with the tune stopped.",
   "exercise": {
     "title": "Short tunes on Do, Re and Mi",
-    "minutes": 7,
-    "level": "new",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-melodies",
     "concepts": [
       "tunes"
-    ],
-    "steps": [
-      "tunes:1"
     ],
     "why": "A tune you can sing after it stops is one your ear has kept, so each tune here is heard, sung along with, then sung alone.",
     "learnBefore": [
@@ -113,5 +108,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "tunes:1"
+      ],
+      "minutes": 7
+    }
+  ]
 }

@@ -165,9 +165,9 @@ ladder steps real and used once, `after` never pointing at a higher level.
 **Blocks for a step.** Every Slope step carries a badge with how many blocks practise it (amber `!`: none), and each
 step in the Path detail a link; both open `/dev/block?step=<trackId:n>` in a new tab, which renders each block
 as the player sees it in a plan (`block/BlockPage.tsx`, `src/app/dev/block`; `?id=<block id>` renders one). The blocks
-come from the code, not the database (`model/stepBlocks.ts`): seed blocks by the steps their file names, then any seed
-plan exercise or seed block whose tools say the step (`stepOf`), then those that only tag the track at the step's level,
-marked "level match only". A test holds that every step has a block.
+come from the code, not the database (`model/stepBlocks.ts`), one per choice of each seed block (a seed plan's days
+name blocks, so its exercises are among them): by the steps the choice names, then any whose tools say the step
+(`stepOf`), then those that only tag the track at the step's level, marked "level match only". A test holds that every step has a block.
 
 ## Stories (`/dev/stories`)
 

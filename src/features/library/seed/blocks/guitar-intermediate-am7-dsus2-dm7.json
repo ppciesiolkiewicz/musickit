@@ -1,0 +1,85 @@
+{
+  "id": "guitar-intermediate-am7-dsus2-dm7",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 6.",
+  "exercise": {
+    "title": "Am7, Dsus2, Dm7",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "sus-add9"
+    ],
+    "why": "Dsus2 and Dm7 share their two lowest notes, so moving from one to the other changes only the top of the chord.",
+    "learnBefore": [
+      "/course/7/sus-add9",
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The three shapes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Dsus2 to Dm7 and back until the fingers on the top two strings move together, then add Am7 in front."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Am7",
+                "Dsus2",
+                "Dm7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "In time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Am7 lasts two bars, then Dsus2 and Dm7 get a bar each. Strum the pattern in the boxes and listen for how Dsus2 opens the way to Dm7."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am7",
+                "Am7",
+                "Dsus2",
+                "Dm7"
+              ],
+              "bpm": 80,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sus-add9:1"
+      ],
+      "minutes": 6
+    }
+  ]
+}

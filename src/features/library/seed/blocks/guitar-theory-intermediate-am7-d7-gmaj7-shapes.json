@@ -1,0 +1,53 @@
+{
+  "id": "guitar-theory-intermediate-am7-d7-gmaj7-shapes",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 4.",
+  "exercise": {
+    "title": "Am7, D7, Gmaj7 shapes",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "The same move in a new key: Am7 is ii, D7 is V, Gmaj7 is I in G.",
+    "learnBefore": [
+      "/course/7/sevenths",
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press a chord box to hear it. Fret each shape and pick the strings to check they ring. Then change from Am7 to D7 to Gmaj7, four strums each."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "chord-shapes",
+          "chords": [
+            "Am7",
+            "D7",
+            "Gmaj7"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "seventh-shapes:3"
+      ],
+      "minutes": 5
+    }
+  ]
+}

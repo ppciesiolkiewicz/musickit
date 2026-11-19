@@ -1,0 +1,148 @@
+{
+  "id": "voice-guitar-advanced-first-week-turns",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 2.",
+  "exercise": {
+    "title": "Turns",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "runs"
+    ],
+    "why": "A turn is the smallest run there is, a note with the neighbour above and the neighbour below, and the runs of soul and R&B are mostly turns joined by steps.",
+    "learnBefore": [
+      "/course/6/vocal-runs",
+      "/theory/singing/runs"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The turn on the 3rd",
+        "minutes": 3,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 56
+            },
+            {
+              "bpm": 63
+            },
+            {
+              "bpm": 70
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the metronome and the mic start together. Sing the turn around {{3}}: {{3}} {{4}} {{3}} {{2}}, four notes in one beat, then hold {{3}} for three beats. Sing it on \"ah\".\nWhen all four notes show as separate steps in your line, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the turn smears into a wobble at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "labels": "degree",
+              "click": true,
+              "bpm": 56
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The turn inside a run",
+        "minutes": 3,
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            },
+            {
+              "key": "e-flat"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the metronome at 60 and the mic. Climb {{1}} {{2}} {{3}}, sing the turn around {{3}} as before, then run down {{3}} {{2}} {{1}}. Sing the climb on \"oo\" and open to \"ah\" on the turn.\nOnce the turn sits inside the run without slowing it, try it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes are new but the turn is the same shape around {{3}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "labels": "degree",
+              "click": true,
+              "bpm": 60
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A pentatonic run",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from La below Do up to the high Do, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" for the high passes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "hard",
+                "stage": "pentatonic-run"
+              },
+              "voice": "baritone"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "runs:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

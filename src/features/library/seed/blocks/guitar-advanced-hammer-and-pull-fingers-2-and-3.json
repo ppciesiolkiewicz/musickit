@@ -1,0 +1,72 @@
+{
+  "id": "guitar-advanced-hammer-and-pull-fingers-2-and-3",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 5.",
+  "exercise": {
+    "title": "Hammer and pull, fingers 2 and 3",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "legato"
+    ],
+    "why": "A pulled-off note is sounded by the finger leaving the string, so a trill is only even when the pull is as firm as the hammer.",
+    "learnBefore": [
+      "/course/4/legato"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One stage at a time",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and follow the tab. Pick once, then hammer finger 3 on and pull it off to finger 2, one note per beat, with no more picking.\nWhen both notes sound equally loud, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf the pulled-off note gets quiet at a new stage, go back one stage and stay there a little longer."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "intermediate",
+              "string": 3,
+              "fret": 6,
+              "bpm": 80
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 80
+            },
+            {
+              "bpm": 92
+            },
+            {
+              "bpm": 104
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "legato:3"
+      ],
+      "minutes": 4
+    }
+  ]
+}

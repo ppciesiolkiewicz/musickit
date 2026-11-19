@@ -1,0 +1,73 @@
+{
+  "id": "guitar-intermediate-hammer-and-pull-fingers-2-and-4",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 3.",
+  "exercise": {
+    "title": "Hammer and pull, fingers 2 and 4",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "legato"
+    ],
+    "why": "Fingers 2 and 4 are the pair that hammers least in everyday playing, so a trill on those two alone is the quickest way to even them out.",
+    "learnBefore": [
+      "/course/4/legato"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One stage at a time",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome and follow the tab. Pick once, then hammer finger 4 on and pull it off to finger 2, one note per beat. Rest your hand when it gets tired, then go again.\nWhen the pulled-off note is as loud as the hammered one, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again.\nIf a note goes missing at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "intermediate",
+              "fingers": "24",
+              "string": 2,
+              "fret": 8,
+              "bpm": 60
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 84
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "legato:3"
+      ],
+      "minutes": 4
+    }
+  ]
+}

@@ -9,8 +9,6 @@
   "note": "Track harmony-line (voice-harmony), step 2: hold Do under a tune that starts on Sol, a 5th above, and steps down to meet it. missing: a tool that plays a tune and listens for a held harmony note (melody-singer marks the tune's own notes, so a held Do reads as off the tune and the text sends the singer to their ears).",
   "exercise": {
     "title": "Hold Do, a 5th under the tune",
-    "minutes": 7,
-    "level": "beginner",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-harmony",
     "concepts": [
       "harmony-line"
-    ],
-    "steps": [
-      "harmony-line:2"
     ],
     "why": "The tune starts on Sol, a 5th above Do, and steps down until it lands on Do, so while you hold Do you hear the gap between the two parts close one step at a time.",
     "learnBefore": [
@@ -115,5 +110,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "harmony-line:2"
+      ],
+      "minutes": 7
+    }
+  ]
 }

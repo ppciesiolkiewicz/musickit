@@ -1,0 +1,66 @@
+{
+  "id": "voice-guitar-advanced-first-week-name-the-interval-you-hear",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 5.",
+  "exercise": {
+    "title": "Name the interval you hear",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "A leap you can name by ear is a leap you can aim your voice at, so hearing the gap first is half of singing it in tune.",
+    "learnBefore": [
+      "/theory/ears",
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two stages",
+        "minutes": 5,
+        "choice": {
+          "options": [
+            {
+              "level": "intermediate"
+            },
+            {
+              "level": "advanced"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below: it plays two notes, one after the other, and you pick the interval's name. The first stage leaves out the 7ths and the tritone.\nWhen the name comes before you have to sing it in your head, try the next stage: it adds the 7ths and the tritone, so all twelve are asked. Use the Stage selector below to change the stage, then press Start in the game again.\nIf a stage turns into guessing, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "level": "intermediate"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "intervals:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

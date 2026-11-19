@@ -9,8 +9,6 @@
   "note": "Track steps-to-leaps (voice-intervals), step 3: up to Fa, by step over a drone, then two tunes of the Fa stage (the book's Fa tunes are all Medium and most hold the skip Re to Fa; these two keep it to one skip).",
   "exercise": {
     "title": "Up to Fa, the small step above Mi",
-    "minutes": 7,
-    "level": "new",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
-    ],
-    "steps": [
-      "steps-to-leaps:3"
     ],
     "why": "The step from Mi to Fa is half the size of the steps under it, so singing the four notes slowly over a drone teaches your voice the small step before a tune asks for it.",
     "learnBefore": [
@@ -119,5 +114,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "steps-to-leaps:3"
+      ],
+      "minutes": 7
+    }
+  ]
 }

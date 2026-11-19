@@ -1,0 +1,53 @@
+{
+  "id": "voice-beginner-skips-falling",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 4.",
+  "exercise": {
+    "title": "Skips, falling",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "In a falling skip the top note comes first, so your ear has to find the lower note with no Do sounding under it.",
+    "learnBefore": [
+      "/course/3/do-mi-sol"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear a note and then a lower one, a 3rd or a 5th below. Hum the lower note back, then answer."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            3,
+            4,
+            7
+          ],
+          "dir": "down"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

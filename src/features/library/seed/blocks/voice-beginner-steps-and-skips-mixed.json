@@ -1,0 +1,56 @@
+{
+  "id": "voice-beginner-steps-and-skips-mixed",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 5.",
+  "exercise": {
+    "title": "Steps and skips, mixed",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "Real tunes mix steps and skips, so hearing them mixed is closer to singing a song than hearing them alone.",
+    "learnBefore": [
+      "/course/3/intervals",
+      "/course/3/do-mi-sol"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear a step, a 3rd, a 5th or a 6th. Hum it back, then answer."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            2,
+            3,
+            4,
+            7,
+            9
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

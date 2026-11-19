@@ -1,0 +1,119 @@
+{
+  "id": "guitar-beginner-double-stops-in-position-1",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 2.",
+  "exercise": {
+    "title": "Double stops in position 1",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "In position 1 the B and high e strings have two notes at the same fret in two places, so the scale you know already holds two double stops, each played with one finger.",
+    "learnBefore": [
+      "/course/5/fifths",
+      "/course/5/pentatonic"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the play-along. Each bar goes from one pair to the other: both notes together, two single notes, then the next pair. Follow the tab until the jump between the pairs feels easy."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "chord-steps",
+            "chords": [
+              {
+                "chord": "Am",
+                "steps": [
+                  {
+                    "grip": [
+                      "5",
+                      "1"
+                    ],
+                    "strings": "21",
+                    "fret": 5
+                  },
+                  "1",
+                  "b3",
+                  {
+                    "grip": [
+                      "b7",
+                      "b3"
+                    ],
+                    "strings": "21",
+                    "fret": 8
+                  }
+                ]
+              },
+              {
+                "chord": "Am",
+                "steps": [
+                  {
+                    "grip": [
+                      "b7",
+                      "b3"
+                    ],
+                    "strings": "21",
+                    "fret": 8
+                  },
+                  "b3",
+                  "b7",
+                  {
+                    "grip": [
+                      "5",
+                      "1"
+                    ],
+                    "strings": "21",
+                    "fret": 5
+                  }
+                ]
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Now find the two pairs in the position, on the B and high e strings: {{5}} with {{1}}, and {{b7}} with {{b3}}. Make up short lines from the whole position that end on one of the pairs."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "scale-neck",
+          "scale": "minor-pentatonic",
+          "key": "a",
+          "boxes": [
+            1
+          ],
+          "highlight": [
+            "1"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

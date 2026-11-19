@@ -9,8 +9,6 @@
   "note": "Track singing-modes (voice-melodies), step 2: Mixolydian over a drone as the major scale with a ♭7, the ♭7 under Do in three keys, then a made-up tune over I ♭VII IV I that lands on the ♭7.",
   "exercise": {
     "title": "Mixolydian over a drone",
-    "minutes": 9,
-    "level": "intermediate",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-melodies",
     "concepts": [
       "singing-modes"
-    ],
-    "steps": [
-      "singing-modes:2"
     ],
     "why": "Mixolydian is the major scale with one note changed, the ♭7, so the mode is in tune when that one note is: sing it against the drone from above and from below, then land on it over the chord built on it.",
     "learnBefore": [
@@ -142,5 +137,15 @@
     "exploreMore": [
       "/theory/scales/mixolydian/g"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "singing-modes:2"
+      ],
+      "minutes": 9
+    }
+  ]
 }

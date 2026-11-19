@@ -1,0 +1,114 @@
+{
+  "id": "guitar-intermediate-three-position-solo",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 3.",
+  "exercise": {
+    "title": "Three-position solo",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "A solo that climbs sounds like it is going somewhere, so moving up a position every few bars gives your phrases a shape.",
+    "learnBefore": [
+      "/course/6/joining",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Low to high",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Start in position 1 and move up a position every few bars, until you are in position 3. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "scale": "minor-pentatonic",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "Dm7",
+                    "target": [
+                      "1"
+                    ],
+                    "approach": "land on D on beat 1"
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 85,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "High to low",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums, bass and keys on Am7 and D7. Start in position 3 and come down a position every few bars. End your last phrase on the lowest ringed {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 85
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:7"
+      ],
+      "minutes": 8
+    }
+  ]
+}

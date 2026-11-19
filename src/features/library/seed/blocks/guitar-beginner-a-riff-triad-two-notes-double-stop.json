@@ -1,0 +1,222 @@
+{
+  "id": "guitar-beginner-a-riff-triad-two-notes-double-stop",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 6.",
+  "exercise": {
+    "title": "A riff: triad, two notes, double stop",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "triads"
+    ],
+    "why": "A triad and its single notes are one hand shape, so a riff that mixes them sounds full and never makes your hand jump.",
+    "learnBefore": [
+      "/course/5/triads",
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "G and C at 60",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the play-along. Each bar is the chord's triad, two of its notes picked on their own, then the triad again. Follow the tab, and keep the shape held down so the single notes are already under your fingers."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      "5",
+                      "3",
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      "5",
+                      "3",
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "G, C, D, G at 70",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now D joins, and the last two bars end on a double stop instead of the triad. Once it flows, make it yours: pick two other notes of the chord in the middle of each bar."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      "5",
+                      "3",
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      "5",
+                      "3",
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      "5",
+                      "3",
+                      {
+                        "grip": [
+                          "1",
+                          "3"
+                        ],
+                        "strings": "21"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      "5",
+                      "3",
+                      {
+                        "grip": [
+                          "5",
+                          "1"
+                        ],
+                        "strings": "21"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "triads:1"
+      ],
+      "minutes": 6
+    }
+  ]
+}

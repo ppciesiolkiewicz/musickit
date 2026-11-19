@@ -1,0 +1,118 @@
+{
+  "id": "voice-guitar-advanced-first-week-the-turnaround-in-g-two-ways",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 6.",
+  "exercise": {
+    "title": "The turnaround in G, two ways",
+    "area": "guitar",
+    "tags": [
+      "rhythm",
+      "song"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "shells-comping"
+    ],
+    "why": "Full 9th chords fill the space and shells leave it open, so choosing between them is how you set how much room your voice gets.",
+    "learnBefore": [
+      "/course/11/comping",
+      "/course/11/shells"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The four chords",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret the four shapes in order. Go round until no change needs a look at the neck."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Gmaj7",
+                "Em7",
+                "Am9",
+                "D9"
+              ],
+              "voicing": "barre"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "In time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome at 90. Strum the pattern in the boxes, one bar per chord, with your hand moving through the dots."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Gmaj7",
+                "Em7",
+                "Am9",
+                "D9"
+              ],
+              "bpm": 90,
+              "pattern": "D . . U . U D U D . . U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Full chords, then shells",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass at 90, with the chord boxes lighting bar by bar. Play one round with the full shapes. On the next round play only a shell of each chord, its root, 3rd and 7th on the A, D and G strings.\nListen for how much space opens up when you change to shells."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "chords": [
+                "Gmaj7",
+                "Em7",
+                "Am9",
+                "D9"
+              ],
+              "key": "g",
+              "style": "pop",
+              "bpm": 90,
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "shells:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

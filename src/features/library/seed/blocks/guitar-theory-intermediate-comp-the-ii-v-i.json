@@ -1,0 +1,86 @@
+{
+  "id": "guitar-theory-intermediate-comp-the-ii-v-i",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 1.",
+  "exercise": {
+    "title": "Comp the ii-V-I",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "shells"
+    ],
+    "why": "Comping means playing the chords in rhythm under a melody, and short, light strums leave room for it.",
+    "learnBefore": [
+      "/course/11/comping"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two strums a bar",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below; the lit block shows the chord. Strum short chords on beats 2 and 4, one bar each."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Dm7",
+                "G7",
+                "Cmaj7",
+                "Cmaj7"
+              ],
+              "bpm": 80,
+              "pattern": ". D . D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Bass and chord",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below and now pick each chord's root on beats 1 and 3. Strum the top strings on beats 2 and 4."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Dm7",
+                "G7",
+                "Cmaj7",
+                "Cmaj7"
+              ],
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "shells:4"
+      ],
+      "minutes": 10
+    }
+  ]
+}

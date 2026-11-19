@@ -9,8 +9,6 @@
   "note": "Advanced singing made musical: a fast run and an octave tune to open the range, then guide tones and a line of the singer's own over a ii-V-I the band plays, read from a staff. The why says what makes guide tones work (each one moves a step or stays), the guide-tone staff shows only those four notes, labelled by degree as the text names them, and the same changes come back in F with the guide tones ringed among the whole scale. The run's range is stated and each block says what to sing on.",
   "exercise": {
     "title": "Guide tones over ii-V-I, then your own line",
-    "minutes": 12,
-    "level": "advanced",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-harmony",
     "concepts": [
       "improvise"
-    ],
-    "steps": [
-      "improvise:2"
     ],
     "why": "The 3rd and the 7th are the notes that tell one chord from the next, and through a ii-V-I each of them moves by a step or stays where it is, so a line made of them lets you hear every change.",
     "learnBefore": [
@@ -170,5 +165,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "improvise:2"
+      ],
+      "minutes": 12
+    }
+  ]
 }

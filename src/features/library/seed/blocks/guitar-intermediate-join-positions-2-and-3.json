@@ -1,0 +1,138 @@
+{
+  "id": "guitar-intermediate-join-positions-2-and-3",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 3.",
+  "exercise": {
+    "title": "Join positions 2 and 3",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Every position ends on the notes the next one starts with, so the slide that joined positions 1 and 2 joins 2 and 3 as well, two notes further up the string.",
+    "learnBefore": [
+      "/course/6/joining",
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Position 3 on its own",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Play position 3 up and back down at your own pace, from the ringed {{1}} on the A string. It is the widest of the five, so let your hand open for the notes on the G and B strings. Keep going until you can start it from any ringed {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                3
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The crossing",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows only the crossing from position 2 to position 3. Climb position 2, then on the G string slide from {{5}} up to {{b7}} and finish the climb in position 3. Come back down the same way."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "cross": {
+                "from": 2,
+                "to": 3
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Three positions in a row",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Play the framed position up and back down, one note per beat.\nWhen it is steady, play the next position the same way. Use the Position selector below to change the position, then press Play to start the metronome again.\nWhen each one is steady, play all three without stopping, sliding across on the G string."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "click": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "position": 1
+            },
+            {
+              "position": 2
+            },
+            {
+              "position": 3
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:5"
+      ],
+      "minutes": 10
+    }
+  ]
+}

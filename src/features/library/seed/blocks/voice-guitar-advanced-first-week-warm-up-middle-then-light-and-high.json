@@ -1,0 +1,81 @@
+{
+  "id": "voice-guitar-advanced-first-week-warm-up-middle-then-light-and-high",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 4.",
+  "exercise": {
+    "title": "Warm-up: middle, then light and high",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "stretch-range"
+    ],
+    "learnBefore": [
+      "/theory/singing/warm-ups",
+      "/course/9/stretching-your-range"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Middle",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the hill below and hold an easy hum in the middle of your voice: the ball rests in the valley between the two marks, and the ring fills while you stay there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "voice-hill",
+              "where": "middle",
+              "sound": "hum",
+              "seconds": 4,
+              "reps": 5,
+              "voice": "baritone"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Light and high",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the hill below and hold a light sound on \"oo\": the ball climbs to the top as your voice goes up into head voice.\n_Keep the high holds quiet, and stop if your throat tightens._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "voice-hill",
+              "where": "high",
+              "sound": "oo",
+              "seconds": 4,
+              "reps": 5,
+              "voice": "baritone"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "range:3"
+      ],
+      "minutes": 5
+    }
+  ]
+}

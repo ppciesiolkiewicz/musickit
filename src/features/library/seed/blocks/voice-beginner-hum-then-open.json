@@ -1,0 +1,56 @@
+{
+  "id": "voice-beginner-hum-then-open",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 2.",
+  "exercise": {
+    "title": "Hum, then open",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-pitch",
+    "concepts": [
+      "pitch"
+    ],
+    "why": "Humming keeps the sound small and easy to tune, so opening to \"oo\" from a hum carries the in-tune note with it.",
+    "learnBefore": [
+      "/course/3/matching-a-pitch"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start exercise below to start the drone and the mic. Hum the low {{1}} with your lips closed, then open it to \"oo\" on the same note.\nThen skip up to {{5}} the same way: hum it first, then open.\n_Don't reach for high notes: {{5}} here is the one just above the low {{1}}._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "staff",
+          "scale": "major-ionian",
+          "key": "d",
+          "voice": "tenor",
+          "labels": "solfege",
+          "notes": [
+            "1",
+            "5"
+          ],
+          "drone": true
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pitch:3"
+      ],
+      "minutes": 3
+    }
+  ]
+}

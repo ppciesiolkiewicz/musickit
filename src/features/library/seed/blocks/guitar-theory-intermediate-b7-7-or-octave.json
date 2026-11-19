@@ -1,0 +1,53 @@
+{
+  "id": "guitar-theory-intermediate-b7-7-or-octave",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 4.",
+  "exercise": {
+    "title": "b7, 7 or octave?",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sevenths-up"
+    ],
+    "why": "The 7th is what separates D7 from Gmaj7, and hearing it alone makes the chords easy to name.",
+    "learnBefore": [
+      "/course/7/hearing-sevenths"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below and the game plays an interval. Pick its name: m7 for a minor 7th (as in D7), M7 for a major 7th (as in Gmaj7), P8 for the octave."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            10,
+            11,
+            12
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sevenths-up:5"
+      ],
+      "minutes": 5
+    }
+  ]
+}

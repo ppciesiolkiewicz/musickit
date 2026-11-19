@@ -9,8 +9,6 @@
   "note": "Track caged (guitar-caged), step 1: the E shape: open E moved up as a barre, then the chord, arpeggio, pentatonic and scale that sit in the same frets, in three keys.",
   "exercise": {
     "title": "CAGED: the E shape",
-    "minutes": 10,
-    "level": "intermediate",
     "area": "guitar",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "guitar-caged",
     "concepts": [
       "caged"
-    ],
-    "steps": [
-      "caged:1"
     ],
     "why": "A barre chord with its root on the low E string is the open E chord moved up the neck, so everything that sits around open E, its arpeggio, its pentatonic and its scale, moves up with it.",
     "learnBefore": [
@@ -166,5 +161,15 @@
     "exploreMore": [
       "/theory/caged"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "caged:1"
+      ],
+      "minutes": 10
+    }
+  ]
 }

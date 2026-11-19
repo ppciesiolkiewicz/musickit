@@ -1,0 +1,106 @@
+{
+  "id": "guitar-theory-intermediate-arpeggios-in-g",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 4.",
+  "exercise": {
+    "title": "Arpeggios in G",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "Moving the arpeggios to G shows they are shapes of degrees, not lists of frets.",
+    "learnBefore": [
+      "/course/7/sevenths",
+      "/course/5/arpeggios"
+    ],
+    "cells": [
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-band",
+          "bpm": 70,
+          "key": "a",
+          "parts": {
+            "click": "on"
+          }
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Am7 and D7",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play above to start the metronome. Play the Am7 arpeggio up and down, one note per beat: {{1}} {{b3}} {{5}} {{b7}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "Am7",
+              "highlight": [
+                "1"
+              ]
+            }
+          },
+          {
+            "type": "text",
+            "text": "Then D7: {{1}} {{3}} {{5}} {{b7}}. Lean on its {{3}} (F♯)."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "D7",
+              "highlight": [
+                "1",
+                "3"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Gmaj7, then all three",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Gmaj7: {{1}} {{3}} {{5}} {{7}}. Then play all three arpeggios in a row, one bar each."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "arpeggio-neck",
+              "chord": "Gmaj7",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "arpeggios:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

@@ -9,8 +9,6 @@
   "note": "Track barre (guitar-barre-chords), steps 1 and 2: the small F on four strings, then the Bm barre with the root on string 5.",
   "exercise": {
     "title": "Small F, then Bm: your first barres",
-    "minutes": 10,
-    "level": "beginner",
     "area": "guitar",
     "tags": [
       "technique",
@@ -20,7 +18,6 @@
     "concepts": [
       "barre"
     ],
-    "steps": ["barre:1", "barre:2"],
     "why": "In the small F finger 1 holds down two strings and in Bm it holds five, so the small F trains the press of a barre on a shape your hand can hold today.",
     "learnBefore": [
       "/course/6/bm-barre"
@@ -162,5 +159,16 @@
     "exploreMore": [
       "/course/6/barres-every-key"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "barre:1",
+        "barre:2"
+      ],
+      "minutes": 10
+    }
+  ]
 }

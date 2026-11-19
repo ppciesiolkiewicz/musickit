@@ -9,8 +9,6 @@
   "note": "Track keys (theory-scales-keys), step 5: moving from C to the keys next to it on the circle, G and F, through a shared chord and the new key's 5 chord.",
   "exercise": {
     "title": "Moving to the key next door",
-    "minutes": 9,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "theory-scales-keys",
     "concepts": [
       "keys"
-    ],
-    "steps": [
-      "keys:5"
     ],
     "why": "Two keys next to each other on the circle share four chords and differ by one note, so a shared chord followed by the new key's 5 chord carries the music from one home to the other.",
     "learnBefore": [
@@ -117,5 +112,15 @@
     "exploreMore": [
       "/theory/circle"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "keys:5"
+      ],
+      "minutes": 9
+    }
+  ]
 }

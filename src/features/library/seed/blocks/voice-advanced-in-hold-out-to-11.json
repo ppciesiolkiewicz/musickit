@@ -1,0 +1,51 @@
+{
+  "id": "voice-advanced-in-hold-out-to-11",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 1.",
+  "exercise": {
+    "title": "In, hold, out to 11",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath"
+    ],
+    "why": "Each round is one count longer than the last, so your breath reaches eleven counts without one hard jump.",
+    "learnBefore": [
+      "/course/3/breath-and-holding-a-note"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the circle below. Breathe in, hold and breathe out as the circle grows, stays and shrinks, each for the count shown. Fill to about 80%, not to the top, so the long holds stay easy."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "breathwork",
+          "drill": "farinelli",
+          "level": "advanced",
+          "from": 6,
+          "to": 11
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "breath:7"
+      ],
+      "minutes": 3
+    }
+  ]
+}

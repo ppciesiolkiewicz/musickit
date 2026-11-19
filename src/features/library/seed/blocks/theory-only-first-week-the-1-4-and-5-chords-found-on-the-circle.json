@@ -1,0 +1,144 @@
+{
+  "id": "theory-only-first-week-the-1-4-and-5-chords-found-on-the-circle",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 4.",
+  "exercise": {
+    "title": "The 1, 4 and 5 chords, found on the circle",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-progressions",
+    "concepts": [
+      "chords-of-a-key"
+    ],
+    "why": "The three major chords of a key are built on its 1st, 4th and 5th notes, and on the circle of fifths they sit side by side, so the circle finds them in any key.",
+    "learnBefore": [
+      "/course/5/one-four-five",
+      "/course/10/circle-map"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Three neighbours",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle below is on C major, and the keys marked on its outer ring are F, C and G: the 4, the 1 and the 5 of the key. Tap F to hear its chord: the circle moves there, so tap C to come back. Do the same with G."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "circle-of-fifths",
+              "key": "c",
+              "scale": "major-ionian"
+            }
+          },
+          {
+            "type": "text",
+            "text": "On the staff below, tap the three ringed notes, {{1}}, {{4}} and {{5}}: each one is the root of one of those chords."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "highlight": [
+                "1",
+                "4",
+                "5"
+              ],
+              "mic": false
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Follow the band",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: C, F, G and back to C, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help.\nKeep going until you hear a change coming before the box lights."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ],
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Guess from the circle",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle below is on G major. Read its 1, 4 and 5 off the marked keys on the outer ring before you listen."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "circle-of-fifths",
+              "key": "g",
+              "scale": "major-ionian"
+            }
+          },
+          {
+            "type": "text",
+            "text": "Press Play below to start the band in G: the same three numbers in a new order. Look away and call them out, then look back at the chord boxes to check.\nThe key is new, so the chords are G, C and D, but each number keeps its sound."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "I",
+                "V",
+                "IV",
+                "V"
+              ],
+              "style": "ballad",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/5/hearing-changes"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "chords-of-a-key:1"
+      ],
+      "minutes": 7
+    }
+  ]
+}

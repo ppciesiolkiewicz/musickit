@@ -1,6 +1,7 @@
 import type { PlanAnswers, Level } from "@/features/plan/model/types";
 import { FILES as BLOCK_FILES } from "./blocks/index.gen";
 import { FILES as PLAN_FILES } from "./plans/index.gen";
+import { exerciseOf, expandPlan } from "./choices";
 
 /*
  * The library seed written by agents (NEW10 in tasks.txt): plans and single exercises written to the library's gaps,
@@ -66,3 +67,18 @@ const sorted = <T>(files: Record<string, unknown>): T[] => Object.keys(files).so
 
 export const SEED_PLANS: SeedPlanFile[] = sorted<SeedPlanFile>(PLAN_FILES);
 export const SEED_BLOCKS: SeedBlockFile[] = sorted<SeedBlockFile>(BLOCK_FILES);
+
+/** Each choice of a block file as the exercise the AI would write (`exerciseOf`), in file order. */
+export const seedExercises = (f: SeedBlockFile): Record<string, unknown>[] => (f.choices ?? []).map((c) => exerciseOf(f, c));
+
+/** A block file's exercise where one is needed: its first choice's (`exerciseOf`). */
+export const seedExercise = (f: SeedBlockFile): Record<string, unknown> => exerciseOf(f, f.choices[0]);
+
+const expanded = new WeakMap<SeedPlanFile, Record<string, unknown>>();
+
+/** A seed plan as the AI returns it: each day's refs filled in with their blocks' exercises from `SEED_BLOCKS` (`expandPlan`). A ref that names no block is left out; `seed check` reports it. */
+export function seedPlan(f: SeedPlanFile): Record<string, unknown> {
+  let plan = expanded.get(f);
+  if (!plan) expanded.set(f, (plan = expandPlan(f, SEED_BLOCKS).plan));
+  return plan;
+}

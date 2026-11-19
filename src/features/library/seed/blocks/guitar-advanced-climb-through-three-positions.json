@@ -1,0 +1,115 @@
+{
+  "id": "guitar-advanced-climb-through-three-positions",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 3.",
+  "exercise": {
+    "title": "Climb through three positions",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "The 6th is in every position, so a solo can move up the neck and still land on it each time D7 comes round.",
+    "learnBefore": [
+      "/course/6/joining",
+      "/course/9/modes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Low to high",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Start in position 1 and move up a position every few bars, crossing on the G string, until you are in position 3. Land on {{f-sharp}} when D7 comes round, wherever you are."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "scale": "dorian",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "target": [
+                      "3"
+                    ],
+                    "approach": "land on F♯ on beat 1"
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 90,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "High to low",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band on Am7 and D7. Start in position 3 and come down a position every few bars. End your last phrase on the lowest ringed {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 95
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "positions": [
+                1,
+                2,
+                3
+              ],
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:3"
+      ],
+      "minutes": 9
+    }
+  ]
+}

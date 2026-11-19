@@ -1,0 +1,181 @@
+{
+  "id": "voice-guitar-advanced-first-week-a-run-into-the-chord",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 2.",
+  "exercise": {
+    "title": "A run into the chord",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "improv"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "fast-runs"
+    ],
+    "why": "A run sounds placed, not just decorative, when its last note belongs to the chord that is arriving, so aim every run at the 3rd of the next chord.",
+    "learnBefore": [
+      "/course/9/fast-runs",
+      "/course/11/guide-tones"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The run into the 3rd",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: Am7, D7, then two bars of Gmaj7. Hold {{4}} on \"oo\" through Am7 and D7. At the end of the D7 bar, sing the run {{1}} {{2}} {{3}} on \"ah\" and land on {{3}} as Gmaj7 arrives.\nThen come from above: sing the run {{5}} {{4}} {{3}} into the same note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 72
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The run in C",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the same changes in C: Dm7, G7, Cmaj7. Sing the run both ways again, on \"ah\".\nWhen you change the key, the notes are new but the run still ends on {{3}} on the first beat of the last chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 72
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A run of your own",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, back in G. Make up a run of your own from the whole scale each time round, and sing it on any vowel. Aim it at a ringed note, {{3}} or {{7}}, as Gmaj7 arrives, and leave the next bar empty."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "under": true,
+              "highlight": [
+                "3",
+                "7"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 72
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "runs:5"
+      ],
+      "minutes": 10
+    }
+  ]
+}

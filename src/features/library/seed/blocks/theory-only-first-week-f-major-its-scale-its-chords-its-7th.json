@@ -1,0 +1,109 @@
+{
+  "id": "theory-only-first-week-f-major-its-scale-its-chords-its-7th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 7.",
+  "exercise": {
+    "title": "F major: its scale, its chords, its 7th",
+    "area": "theory",
+    "tags": [
+      "theory",
+      "ear"
+    ],
+    "topic": "theory-scales-keys",
+    "concepts": [
+      "keys",
+      "scales"
+    ],
+    "why": "A key is one scale and the chords built on it, so the same three moves open any new key: find the scale, find its 1, 4 and 5, then hear them.",
+    "learnBefore": [
+      "/course/10/moving-keys",
+      "/course/5/one-four-five"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The scale and its flat",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The piano below shows F major. Before you tap, say where its two half steps fall. Then tap from {{1}} up to the next {{1}} to check: they sit between {{3}} and {{4}}, and between {{7}} and {{1}}, as in every major scale.\nThe one black key is {{b-flat}}, the 4th note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "piano-keys",
+              "key": "f",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Its three major chords",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The circle below is on F major. Read the 1, 4 and 5 off the marked keys on its outer ring: F, B♭ and C. Tap B♭ to hear the 4, then C to hear the 5, and tap F to come home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "circle-of-fifths",
+              "key": "f",
+              "scale": "major-ionian"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Call the numbers",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band in F: the 1, the 4, the 5 with its 7th, and the 1 again. Look away and call out the numbers, then look back at the chord boxes to check.\nNotice how often your ear gets there before the chord boxes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "f",
+              "numerals": [
+                "I",
+                "IV",
+                "V7",
+                "I"
+              ],
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/circle",
+      "/theory/scales/major-ionian/f"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "keys:1",
+        "scales:3"
+      ],
+      "minutes": 6
+    }
+  ]
+}

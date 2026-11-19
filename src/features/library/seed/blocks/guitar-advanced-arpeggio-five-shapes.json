@@ -9,8 +9,6 @@
   "note": "Track arpeggios (guitar-caged), step 4: the C arpeggio through all five shapes, crossing from each shape to the next on the notes they share, then the same on D with nothing marked. missing: arpeggio-neck numbers a chord's boxes in its own order (not up the neck, and not the same for every chord), and reads only boxes 1 to 5 (G, A, D, E and B have six), so the seams can't follow a key choice and the course's own G can't be used; arpeggio-part can't play one run through five boxes.",
   "exercise": {
     "title": "One arpeggio up the whole neck",
-    "minutes": 12,
-    "level": "advanced",
     "area": "guitar",
     "tags": [
       "technique"
@@ -18,9 +16,6 @@
     "topic": "guitar-caged",
     "concepts": [
       "arpeggios"
-    ],
-    "steps": [
-      "arpeggios:4"
     ],
     "why": "Two neighbouring shapes of one arpeggio share a note or more, so you can leave one shape and enter the next on a note that belongs to both.",
     "learnBefore": [
@@ -141,5 +136,15 @@
     "exploreMore": [
       "/theory/arpeggios"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "arpeggios:4"
+      ],
+      "minutes": 12
+    }
+  ]
 }

@@ -1,0 +1,86 @@
+{
+  "id": "guitar-beginner-position-1-at-80-then-your-own-drill",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 7.",
+  "exercise": {
+    "title": "Position 1 at 80, then your own drill",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Each drill fixes a key, a tempo and a set of notes, so changing just one of them makes a new drill of your own.",
+    "learnBefore": [
+      "/course/5/pentatonic",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome at 80. Play position 1 up and down from the low {{1}}, until your hands find each next note without you thinking about it."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-band",
+          "bpm": 80,
+          "key": "a",
+          "parts": {
+            "click": "on"
+          }
+        }
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "scale-neck",
+          "scale": "minor-pentatonic",
+          "key": "a",
+          "boxes": [
+            1
+          ],
+          "highlight": [
+            "1"
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "text": "Now make up a drill of your own by changing one thing: the direction, the rhythm, which notes you play, or play it in double stops. Play it until it feels easy, then change another. The same shape in E is below if you want a new key."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "scale-neck",
+          "scale": "minor-pentatonic",
+          "key": "e",
+          "placement": {
+            "by": "fret",
+            "fret": 12
+          },
+          "highlight": [
+            "1"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

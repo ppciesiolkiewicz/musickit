@@ -1,0 +1,52 @@
+{
+  "id": "voice-advanced-every-hard-leap-unseen",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 7.",
+  "exercise": {
+    "title": "Every hard leap, unseen",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps",
+      "singing-intervals"
+    ],
+    "why": "With every hard leap, both ways, in any key and no picture of your voice, nothing but your ear can find the landing note, so the leaps you land are the ones your ear has learnt.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear Do. Any hard leap can come, the minor 3rd, the tritone, the minor 6th or a 7th, up or down, in any key, and your voice is not drawn.\nSing the landing note on \"oo\" and hold it until Yes shows. Press Next below for another leap.\nNotice which leaps you land without thinking of a neighbour first."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-singer",
+          "voice": "tenor",
+          "level": "advanced",
+          "dot": false
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "singing-intervals:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

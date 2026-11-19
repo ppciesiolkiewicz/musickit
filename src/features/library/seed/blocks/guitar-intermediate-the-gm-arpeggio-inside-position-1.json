@@ -1,0 +1,75 @@
+{
+  "id": "guitar-intermediate-the-gm-arpeggio-inside-position-1",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 5.",
+  "exercise": {
+    "title": "The Gm arpeggio inside position 1",
+    "area": "guitar",
+    "tags": [
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "The notes of Gm are three of the five notes of G minor pentatonic, so the arpeggio is already inside the position: leave two notes out.",
+    "learnBefore": [
+      "/course/6/arpeggios",
+      "/course/5/arpeggios"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "The ringed notes below are the notes of Gm inside position 1 of G minor pentatonic: {{1}}, {{b3}} and {{5}}. Play only the ringed notes, up and back down, and leave the other two notes of the scale out."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "scale-neck",
+          "scale": "minor-pentatonic",
+          "key": "g",
+          "boxes": [
+            1
+          ],
+          "highlight": [
+            "1",
+            "b3",
+            "5"
+          ]
+        }
+      },
+      {
+        "type": "text",
+        "text": "Now the same arpeggio drawn on its own, with one more note lower down on the A string. Play it up and back down until you can start on any ringed {{1}} and go either way."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "arpeggio-neck",
+          "chord": "Gm",
+          "boxes": [
+            1
+          ],
+          "highlight": [
+            "1"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "arpeggios:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

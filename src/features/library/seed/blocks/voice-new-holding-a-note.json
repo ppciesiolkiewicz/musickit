@@ -9,8 +9,6 @@
   "note": "Track breath (voice-breath-range), step 1: farinelli breathing on counts 2 to 5, then one held note.",
   "exercise": {
     "title": "A steady breath, then one long note",
-    "minutes": 6,
-    "level": "new",
     "area": "voice",
     "tags": [
       "sing"
@@ -19,7 +17,6 @@
     "concepts": [
       "breath"
     ],
-    "steps": ["breath:1"],
     "why": "A held note stays level only while your air flows out evenly, so practise the even breath on its own first, then put one note on top of it.",
     "learnBefore": [
       "/course/3/breath-and-holding-a-note"
@@ -96,5 +93,15 @@
     "exploreMore": [
       "/theory/singing/breathing"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "breath:1"
+      ],
+      "minutes": 6
+    }
+  ]
 }

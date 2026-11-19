@@ -1,0 +1,72 @@
+{
+  "id": "guitar-new-first-week-a-first-tune-on-one-string",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 1.",
+  "exercise": {
+    "title": "A first tune on one string",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "The whole tune sits on one string, three notes that step down to the open string, so your picking hand stays put while the other hand learns to find frets.",
+    "learnBefore": [
+      "/course/4/melodies",
+      "/course/1/tab-and-chord-boxes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Three long notes",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "key": "g"
+            },
+            {
+              "key": "e"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune and see it in the tab: three long notes on one string. Play along from the tab, and let each note ring until the next one.\nOnce you can hum the tune before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the tune moves to another string and the frets stay the same."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 3,
+                "key": "g"
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "guitar-melodies:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

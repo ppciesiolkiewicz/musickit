@@ -1,0 +1,179 @@
+{
+  "id": "voice-guitar-advanced-first-week-five-notes-faster-in-stages",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 1.",
+  "exercise": {
+    "title": "Five notes, faster in stages",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "runs",
+      "fast-runs"
+    ],
+    "why": "A fast run is a slow run you no longer have to think about, so each tempo comes only once the one before is in tune on every note.",
+    "learnBefore": [
+      "/course/6/vocal-runs",
+      "/course/9/fast-runs"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The run",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run goes from Do up to Sol and back down, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" when a pass feels tight.\n_Stop a pass that feels strained and rest until the next one._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "five"
+              },
+              "voice": "baritone"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The run, two notes per beat",
+        "minutes": 3,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 80
+            },
+            {
+              "bpm": 92
+            },
+            {
+              "bpm": 104
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the metronome and the mic start together, and your pitch shows on the staff. From the low {{1}}, sing the run {{1}} {{2}} {{3}} {{4}} {{5}} {{4}} {{3}} {{2}} {{1}}, two notes per beat, then breathe for a bar. Sing it on \"ah\".\nWhen every note has its own clear pitch and none is slid through, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the middle notes blur at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "labels": "degree",
+              "click": true,
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The run, four notes per beat",
+        "minutes": 3,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 54
+            },
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 66
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the metronome and the mic. The same run in sixteenths: four notes per beat, so the way up and back takes two beats and the last {{1}} lands on the third. Sing it on \"ah\", a little quieter than feels natural.\nWhen the last {{1}} lands exactly with the click, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you arrive early or late at a new stage, go back one stage and stay there a little longer."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "labels": "degree",
+              "click": true,
+              "bpm": 54
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The run in D, made your own",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below: the drone is on D, and there is no metronome now. Sing the run on \"oo\" at the fastest speed that stayed clean. Then change it: start from {{5}} and run down, stop on {{3}}, or go up and stay on {{5}}.\nWhen you change the key, the notes are new but the five steps are the same size."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "labels": "degree",
+              "drone": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "runs:1"
+      ],
+      "minutes": 12
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { SEED_PLANS, type SeedPlanFile } from "@/features/library/seed";
+import { SEED_PLANS, seedPlan, type SeedPlanFile } from "@/features/library/seed";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parsePlanConfig } from "@/features/plan/model/config";
 import type { PlanAnswers } from "@/features/plan/model/types";
@@ -26,7 +26,7 @@ export interface LibraryRow {
 export function seedLibraryRows(files: SeedPlanFile[] = SEED_PLANS): LibraryRow[] {
   const entries = catalogue();
   return files.flatMap((f) => {
-    const reply = JSON.stringify(f.plan);
+    const reply = JSON.stringify(seedPlan(f));
     const r = parsePlanConfig(reply, entries);
     if (!r.ok) return [];
     return [{ id: f.id, title: r.config.title, answers: f.answers, model: f.model, reply, promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching, source: "seed" as const, enabledForReuse: true }];

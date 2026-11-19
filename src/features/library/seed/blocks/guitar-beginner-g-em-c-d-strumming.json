@@ -1,0 +1,88 @@
+{
+  "id": "guitar-beginner-g-em-c-d-strumming",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 4.",
+  "exercise": {
+    "title": "G-Em-C-D strumming",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords",
+      "strumming"
+    ],
+    "why": "G Em C D is the loop behind countless songs, so a steady strum through it lets you play along with them.",
+    "learnBefore": [
+      "/course/2/c-d-g",
+      "/course/2/em-and-am"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The shapes",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap a chord box to hear it, then fret each one as shown. Go round the loop slowly, until Em to C stops being the slow change."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "G",
+                "Em",
+                "C",
+                "D"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "In time",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "C",
+                "D"
+              ],
+              "bpm": 70,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "open-chords:7",
+        "strumming:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

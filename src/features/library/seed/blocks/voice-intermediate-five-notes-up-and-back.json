@@ -1,0 +1,52 @@
+{
+  "id": "voice-intermediate-five-notes-up-and-back",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Five notes up and back",
+    "area": "voice",
+    "tags": [
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "runs"
+    ],
+    "why": "A run is in tune when every note in it is, so it starts slow enough to hear each one, and only then gets quicker.",
+    "learnBefore": [
+      "/course/6/vocal-runs"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\": from Do up to Sol and back, two notes per beat. Each pass starts a semitone higher. Change to \"oo\" when the run gets high, and stop where it stops feeling easy."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "run-singer",
+          "pick": {
+            "difficulty": "medium",
+            "stage": "five"
+          },
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "runs:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

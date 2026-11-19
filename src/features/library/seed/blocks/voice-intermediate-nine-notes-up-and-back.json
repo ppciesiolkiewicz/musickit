@@ -1,0 +1,52 @@
+{
+  "id": "voice-intermediate-nine-notes-up-and-back",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 6.",
+  "exercise": {
+    "title": "Nine notes up and back",
+    "area": "voice",
+    "tags": [
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "runs"
+    ],
+    "why": "A nine-note run is the five-note run from Do to Sol carried on up the scale, so what kept five notes even keeps nine even: slow first, then quicker.",
+    "learnBefore": [
+      "/course/6/vocal-runs"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\": from Do up to the Re above the high Do and back, four notes per beat. Each pass starts a semitone higher. Change to \"oo\" for the top of the run, and stop where it stops feeling easy."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "run-singer",
+          "pick": {
+            "difficulty": "medium",
+            "stage": "nine"
+          },
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "runs:6"
+      ],
+      "minutes": 4
+    }
+  ]
+}

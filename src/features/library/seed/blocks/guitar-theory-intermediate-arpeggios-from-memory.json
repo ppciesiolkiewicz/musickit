@@ -1,0 +1,109 @@
+{
+  "id": "guitar-theory-intermediate-arpeggios-from-memory",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 7.",
+  "exercise": {
+    "title": "Arpeggios from memory",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "Playing them without help is the test that the shapes are yours.",
+    "learnBefore": [
+      "/course/7/sevenths",
+      "/course/5/arpeggios"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Without looking",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below and play each arpeggio from memory as its chord comes round: root, 3rd, 5th, 7th, one note per beat. Look away from the tab."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Dm7",
+                    "steps": [
+                      "1",
+                      "b3",
+                      "5",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "G7",
+                    "steps": [
+                      "1",
+                      "3",
+                      "5",
+                      "b7"
+                    ]
+                  },
+                  {
+                    "chord": "Cmaj7",
+                    "steps": [
+                      "1",
+                      "3",
+                      "5",
+                      "7"
+                    ]
+                  },
+                  {
+                    "chord": "Cmaj7",
+                    "steps": [
+                      "7",
+                      "5",
+                      "3",
+                      "1"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 70,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Check and fix",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Switch to the neck view and check every note. Replay any chord you missed."
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "arpeggios:3"
+      ],
+      "minutes": 8
+    }
+  ]
+}

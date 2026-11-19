@@ -9,8 +9,6 @@
   "note": "Track intervals (theory-ear), step 5 (ladder interval-ears:4): every interval up to the minor 2nd and the 6ths, going up, going down and sounded together, three games at \"level\": \"intermediate\". Missing: interval-ears has no \"dir\" that mixes up, down and together from one question to the next, so each direction is its own game.",
   "exercise": {
     "title": "Nine intervals: up, down and together",
-    "minutes": 8,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "ear"
@@ -18,9 +16,6 @@
     "topic": "theory-ear",
     "concepts": [
       "intervals"
-    ],
-    "steps": [
-      "intervals:5"
     ],
     "why": "An interval is the same distance whichever note comes first, so hearing it going down and with both notes at once trains you to know it by its size, not by the order of its notes.",
     "learnBefore": [
@@ -87,5 +82,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "intervals:5"
+      ],
+      "minutes": 8
+    }
+  ]
 }

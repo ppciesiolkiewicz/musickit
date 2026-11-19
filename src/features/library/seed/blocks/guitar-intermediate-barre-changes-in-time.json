@@ -9,8 +9,6 @@
   "note": "Track barre (guitar-barre-chords), step 4: F and Bm reached on beat 1: from Am with a strum on every beat, faster in stages, from G, then F inside a four-chord round with the island strum.",
   "exercise": {
     "title": "Changes to a barre in time",
-    "minutes": 10,
-    "level": "intermediate",
     "area": "guitar",
     "tags": [
       "rhythm",
@@ -19,9 +17,6 @@
     "topic": "guitar-barre-chords",
     "concepts": [
       "barre"
-    ],
-    "steps": [
-      "barre:4"
     ],
     "why": "A change to a barre comes late when your hand stays on the old chord until its last strum, so each block here asks for the barre on beat 1 with less time to get there.",
     "learnBefore": [
@@ -115,5 +110,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "barre:4"
+      ],
+      "minutes": 10
+    }
+  ]
 }

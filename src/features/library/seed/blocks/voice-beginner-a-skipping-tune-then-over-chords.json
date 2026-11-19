@@ -1,0 +1,115 @@
+{
+  "id": "voice-beginner-a-skipping-tune-then-over-chords",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 2.",
+  "exercise": {
+    "title": "A skipping tune, then over chords",
+    "area": "voice",
+    "tags": [
+      "song",
+      "improv"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "A skip lands on a chord note, so a tune that skips is really the chord sung one note at a time.",
+    "learnBefore": [
+      "/course/3/do-mi-sol"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A skipping tune",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce the skips land without a slide, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still skips up the chord and back."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "skips"
+              },
+              "key": "d",
+              "voice": "tenor"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "c"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Over D and A",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. On \"oo\", sing the low {{1}} when D comes round and {{5}} when A does.\nThen use {{3}} over D too, and make up your own order.\nIf you lose the chord, hold {{1}} and wait for D to come round again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "3",
+                "5"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "numerals": [
+                "I",
+                "V"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "tunes:1"
+      ],
+      "minutes": 9
+    }
+  ]
+}

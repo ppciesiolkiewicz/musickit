@@ -1,24 +1,24 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
-import { SEED_PLANS } from "@/features/library/seed";
+import { SEED_PLANS, seedPlan } from "@/features/library/seed";
 import { sanitiseState } from "./model/state";
 import { GivenPlanView } from "./GivenPlan";
 import GivenPlans from "./ui/GivenPlans";
 import { dayWords, isDayTitle } from "./model/today";
 
 /** A state with one given seven-day plan, made from a real seed plan the way a claim makes a copy. */
-const seed = SEED_PLANS.find((p) => (p.plan as { days?: unknown[] }).days?.length === 7)!;
+const seed = seedPlan(SEED_PLANS.find((p) => (seedPlan(p) as { days?: unknown[] }).days?.length === 7)!);
 const state = sanitiseState({
   current: null,
-  given: [{ id: "given-1", startedOn: "2026-11-15", done: {}, from: "s1", config: seed.plan }],
+  given: [{ id: "given-1", startedOn: "2026-11-15", done: {}, from: "s1", config: seed }],
 });
 const plan = state.given[0];
 
 /** A shared plan of one day: a composed day someone shared from `/plan`, claimed. */
 const oneDay = sanitiseState({
   current: null,
-  given: [{ id: "one-1", startedOn: "2026-11-18", done: {}, from: "s2", config: { title: "Wednesday 18 November", days: [{ ...(seed.plan as { days: object[] }).days[0], theme: "Scales and basic chords" }] } }],
+  given: [{ id: "one-1", startedOn: "2026-11-18", done: {}, from: "s2", config: { title: "Wednesday 18 November", days: [{ ...(seed as { days: object[] }).days[0], theme: "Scales and basic chords" }] } }],
 }).given[0];
 
 const draw = (p: typeof plan | undefined, date: string) =>

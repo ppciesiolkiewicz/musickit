@@ -1,0 +1,135 @@
+{
+  "id": "guitar-advanced-a-dorian-find-the-6th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 1.",
+  "exercise": {
+    "title": "A Dorian: find the 6th",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "A Dorian and A natural minor differ by one note, the 6th, so that note is the only place the mode can be heard: find it first, then aim for it.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/9/modes-over-drone"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Hear the switch",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: Am for eight bars, four in A natural minor, then four in A Dorian. Play each scale up and back down along with the neck, and listen for the bar where one note changes.\nThe faded note is the one to leave out: F♯ in the first half, F in the second."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "two-scales",
+                "a": {
+                  "key": "a",
+                  "scale": "natural-minor-aeolian"
+                },
+                "b": {
+                  "key": "a",
+                  "scale": "dorian"
+                },
+                "bars": 8,
+                "backingChord": "Am"
+              },
+              "bpm": 70,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Root on the low E string",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The note that changed is {{6}}: tap it on the neck below to hear it. This is the position with {{1}} on the low E string. Play it up and back down, then make up short phrases that pass through {{6}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 6
+              },
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Against the drone",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on A. This is the same mode in the position with {{1}} on the A string: play it up and back down, and stop for a moment on each ringed {{6}}.\nKeep going until your fingers reach for {{6}} without you looking for it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "a",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "a",
+              "placement": {
+                "by": "root",
+                "string": 5
+              },
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "id": "voice-guitar-advanced-first-week-the-do-to-sol-run-faster",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 7.",
+  "exercise": {
+    "title": "The Do to Sol run, faster",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "fast-runs"
+    ],
+    "why": "The middle notes of a fast run blur first, so raising the tempo a stage at a time shows where they start to go.",
+    "learnBefore": [
+      "/course/9/fast-runs"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The run, a stage further",
+        "minutes": 4,
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 66
+            },
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 80
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the metronome and the mic. Sing the run {{1}} {{2}} {{3}} {{4}} {{5}} {{4}} {{3}} {{2}} {{1}}, four notes per beat, on \"ah\".\nWhen the last {{1}} lands exactly with the click, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf the middle notes blur at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              "labels": "degree",
+              "click": true,
+              "bpm": 66
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The run through your range",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the run with the metronome under it: the mic starts with it. The run goes from Do up to Sol and back, twice, and each pass starts a semitone higher, the last one reaching the top of your range. Sing it on \"ah\", and move to \"oo\" for the top passes."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "run-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "five",
+                "index": 2
+              },
+              "voice": "baritone",
+              "metronome": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "runs:1"
+      ],
+      "minutes": 8
+    }
+  ]
+}

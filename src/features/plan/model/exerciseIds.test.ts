@@ -4,7 +4,7 @@ import { parsePlanConfig } from "./config";
 import { randomId, withBlockIds, withExerciseIds } from "./exerciseIds";
 import { blockIdOf, blockKeyOf, blockOfChoice, choiceIdOf, isCuratedId } from "./blockId";
 import { draftOf, editDay, type DayDraft } from "./editPlan";
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, seedExercises, seedPlan } from "@/features/library/seed";
 import { PLAN_KEY, localPlanStore, sanitiseState } from "../store/localPlanStore";
 import type { PlanConfig, PlanExercise, StoredPlan } from "./types";
 
@@ -195,12 +195,12 @@ test("sanitiseState survives an exercise with concepts: \"x\" and tags: [1, \"a\
 
 const allSeedConfigs = (): PlanConfig[] => [
   ...SEED_BLOCKS.map((x) => {
-    const r = parsePlanConfig(JSON.stringify({ title: "E", progress: "p", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [x.exercise] })) }), []);
+    const r = parsePlanConfig(JSON.stringify({ title: "E", progress: "p", days: Array.from({ length: 7 }, (_, i) => ({ theme: `T${i}`, exercises: [seedExercises(x)[0]] })) }), []);
     assert.ok(r.ok, x.id);
     return r.config;
   }),
   ...SEED_PLANS.map((x) => {
-    const r = parsePlanConfig(JSON.stringify(x.plan), []);
+    const r = parsePlanConfig(JSON.stringify(seedPlan(x)), []);
     assert.ok(r.ok, x.id);
     return r.config;
   }),

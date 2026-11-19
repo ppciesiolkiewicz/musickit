@@ -1,0 +1,158 @@
+{
+  "id": "guitar-intermediate-chord-tones-over-am-f-c-g",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 3.",
+  "exercise": {
+    "title": "Chord tones over Am-F-C-G",
+    "area": "guitar",
+    "tags": [
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "The 3rd is the note that makes a chord major or minor, so landing on it as the chord changes lets a single line say which chord is playing.",
+    "learnBefore": [
+      "/course/5/arpeggios",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Root, 3rd, 5th",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing and play the lit note on the neck, one per beat: each chord's root, 3rd, 5th and 3rd again. Am has a minor 3rd, {{b3}}; F, C and G have a major 3rd, {{3}}. Keep going until you can look away for a bar."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "steps": [
+                      "1",
+                      "b3",
+                      "5",
+                      "b3"
+                    ]
+                  },
+                  {
+                    "chord": "F",
+                    "steps": [
+                      "1",
+                      "3",
+                      "5",
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      "1",
+                      "3",
+                      "5",
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      "1",
+                      "3",
+                      "5",
+                      "3"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Only the 3rds",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Now each bar starts on the chord's 3rd and comes back to it. Listen for how that one note changes the colour of every bar. Then stop following the lit note and make up a line that lands on a 3rd at each change."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "steps": [
+                      "b3",
+                      "b3",
+                      "1",
+                      "b3"
+                    ]
+                  },
+                  {
+                    "chord": "F",
+                    "steps": [
+                      "3",
+                      "3",
+                      "1",
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "C",
+                    "steps": [
+                      "3",
+                      "3",
+                      "1",
+                      "3"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      "3",
+                      "3",
+                      "1",
+                      "3"
+                    ]
+                  }
+                ]
+              },
+              "bpm": 60,
+              "view": "neck"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "arpeggios:1"
+      ],
+      "minutes": 8
+    }
+  ]
+}

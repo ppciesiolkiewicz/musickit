@@ -9,8 +9,6 @@
   "note": "Track home-and-colour (theory-ear), step 4: La as the minor home, heard on one major scale's notes: a tune that rests on Do and one that rests on La, La over its own drone, then a band whose chords come home to Do and then to La.",
   "exercise": {
     "title": "La as home: the minor home",
-    "minutes": 8,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "ear",
@@ -19,9 +17,6 @@
     "topic": "theory-ear",
     "concepts": [
       "home-and-colour"
-    ],
-    "steps": [
-      "home-and-colour:4"
     ],
     "why": "A minor key uses the notes of a major key and comes to rest on La instead of Do, so the same notes sound minor once La is home.",
     "learnBefore": [
@@ -141,5 +136,15 @@
     "exploreMore": [
       "/course/3/major-or-minor"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "home-and-colour:4"
+      ],
+      "minutes": 8
+    }
+  ]
 }

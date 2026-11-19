@@ -1,0 +1,53 @@
+{
+  "id": "voice-advanced-a-pentatonic-riff",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 5.",
+  "exercise": {
+    "title": "A pentatonic riff",
+    "area": "voice",
+    "tags": [
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "runs"
+    ],
+    "why": "The run opens on a held Sol, so you tune one note before the fast ones start, and they leave from it and come back through it.",
+    "learnBefore": [
+      "/course/9/fast-runs"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run holds Sol for a beat, turns up to the high Do and runs down to Do, then dips to the La under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "run-singer",
+          "pick": {
+            "difficulty": "expert",
+            "stage": "pentatonic-run",
+            "index": 1
+          },
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "runs:4"
+      ],
+      "minutes": 4
+    }
+  ]
+}

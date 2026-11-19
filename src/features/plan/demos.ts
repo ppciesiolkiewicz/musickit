@@ -1,4 +1,4 @@
-import { SEED_PLANS } from "@/features/library/seed";
+import { SEED_PLANS, seedPlan } from "@/features/library/seed";
 import { catalogue } from "./model/catalogue";
 import { parsePlanConfig } from "./model/config";
 import type { Level, PlanConfig } from "./model/types";
@@ -18,14 +18,14 @@ export const DEMO_PLANS: Record<string, { plan: string; label: string; level: Le
   "voice-advanced": { plan: "voice-advanced", label: "Voice for an advanced singer", level: "advanced" },
 };
 
-const seedPlan = (id: string) => SEED_PLANS.find((p) => p.id === id);
+const seedFile = (id: string) => SEED_PLANS.find((p) => p.id === id);
 
 /** The demo plan behind a slug, parsed as a pasted reply is (keys as pitch classes, tools checked), or null when there is none. */
 export function demoPlan(slug: string): { label: string; config: PlanConfig } | null {
   const demo = Object.hasOwn(DEMO_PLANS, slug) ? DEMO_PLANS[slug] : null;
-  const file = demo && seedPlan(demo.plan);
+  const file = demo && seedFile(demo.plan);
   if (!demo || !file) return null;
-  const r = parsePlanConfig(JSON.stringify(file.plan), catalogue());
+  const r = parsePlanConfig(JSON.stringify(seedPlan(file)), catalogue());
   return r.ok ? { label: demo.label, config: r.config } : null;
 }
 
@@ -48,9 +48,9 @@ const LEVEL_ORDER: Level[] = ["new", "beginner", "intermediate", "advanced"];
 export function demoCards(): DemoCard[] {
   return Object.entries(DEMO_PLANS)
     .flatMap(([slug, demo]) => {
-      const file = seedPlan(demo.plan);
+      const file = seedFile(demo.plan);
       if (!file) return [];
-      const plan = file.plan as unknown as PlanConfig;
+      const plan = seedPlan(file) as unknown as PlanConfig;
       return [{
         slug,
         label: demo.label,

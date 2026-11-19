@@ -9,8 +9,6 @@
   "note": "Track steps-to-leaps (voice-intervals), step 4: up to Sol, five notes by step over a drone, then two tunes of the Sol stage.",
   "exercise": {
     "title": "Five notes: Do up to Sol",
-    "minutes": 7,
-    "level": "new",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
-    ],
-    "steps": [
-      "steps-to-leaps:4"
     ],
     "why": "Sol blends with the drone almost as well as Do, so it is a second place to check your pitch, and the steps down from it lead straight home.",
     "learnBefore": [
@@ -121,5 +116,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "steps-to-leaps:4"
+      ],
+      "minutes": 7
+    }
+  ]
 }

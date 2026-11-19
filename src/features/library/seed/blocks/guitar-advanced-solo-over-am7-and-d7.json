@@ -1,0 +1,114 @@
+{
+  "id": "guitar-advanced-solo-over-am7-and-d7",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 1.",
+  "exercise": {
+    "title": "Solo over Am7 and D7",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "F♯, the 6th of A Dorian, is the 3rd of D7, so landing on it as the chord changes makes one note say both the mode and the chord.",
+    "learnBefore": [
+      "/course/9/modes",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Land on the 6th",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing, which switches between Am7 and D7. Improvise in A Dorian, in either position from the last exercise. Land on {{a}} when Am7 comes round and on {{f-sharp}} when D7 comes round."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "scale": "dorian",
+                "chords": [
+                  {
+                    "chord": "Am7",
+                    "target": [
+                      "1"
+                    ]
+                  },
+                  {
+                    "chord": "D7",
+                    "target": [
+                      "3"
+                    ],
+                    "approach": "land on F♯ on beat 1"
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 85,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Over the band",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums, bass and keys on Am7 and D7. Play longer phrases now, and put the ringed {{6}} somewhere in each one: on the change, held, or passed through quickly.\nIf you lose the chords, stop on a ringed {{1}} and wait for Am7 to come round."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 90
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "a",
+              "positions": [
+                1,
+                4
+              ],
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:3"
+      ],
+      "minutes": 9
+    }
+  ]
+}

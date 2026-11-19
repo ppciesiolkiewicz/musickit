@@ -12,7 +12,10 @@ blocks/<id>.json   one exercise each, with its choices (SeedBlockFile)
 A block file is the exercise (`title`, `cells`, tags) and a `choices` list: each choice is one way to do it, with its
 `name`, `level`, `steps`, `moves` and `minutes` (`SeedChoice`). A choice's id is `<block id>/<name>`. `choices.ts` makes
 the AI-shape exercise of a choice (`exerciseOf`) and fills a plan's refs in (`expandPlan`), so the parser and the checks
-read the shape they always did.
+read the shape they always did. The code reads the files through them: `seedExercises(file)` (one exercise per choice),
+`seedExercise(file)` (the first choice's, where one is needed) and `seedPlan(file)` (the plan with its refs filled in), all
+in `index.ts`. The exercises once written inline in the plans were moved out to block files by `scripts/seed-split.ts`
+(2026-11-19, a one-off); their `note` says which plan and day they came from.
 
 Besides the database, the code reads them directly: the demos at `/demo` (`plan/demos.ts`, six of the plans),
 `/dev/stories`, `/dev/path` and `/dev/block`.

@@ -1,0 +1,385 @@
+{
+  "id": "voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 2.",
+  "exercise": {
+    "title": "Am, D and G triads on two string sets",
+    "area": "guitar",
+    "tags": [
+      "theory",
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "triads-every-set",
+      "top-string-triads"
+    ],
+    "why": "Three notes high on the neck leave the low register to your voice and the bass, so a small triad often sits better under a singer than a full barre chord.",
+    "learnBefore": [
+      "/course/8/triads-everywhere",
+      "/course/5/triads"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Strings G, B and E",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing and follow the tab: each triad on the top three strings, struck once per beat for a bar. The chords go Am, D and two bars of G. Keep going until the changes take no thought."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "321"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 66,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Strings D, G and B",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing: the same chords one set of strings lower. The shapes are new, so let the tab lead for the first few rounds, then say each chord's name as you strike it.\nThen stop the backing and play each chord on both sets, one after the other."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "chord-steps",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "b3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "D",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      }
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "steps": [
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      },
+                      {
+                        "grip": [
+                          "1",
+                          "3",
+                          "5"
+                        ],
+                        "strings": "432"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "bpm": 66,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "triads:3",
+        "triads:4"
+      ],
+      "minutes": 8
+    }
+  ]
+}

@@ -9,8 +9,6 @@
   "note": "Track major-on-neck (guitar-scales), step 8: the modes together from the root A, in one position over a drone: Lydian, major, Mixolydian and Dorian, then Dorian, natural minor, Phrygian and Locrian, one note lowered at each change, then Mixolydian into Dorian while improvising. missing: a highlight that follows the Scale selector, so the rings are set once per block as the notes that differ from the major (or natural minor) scale.",
   "exercise": {
     "title": "The modes from one root",
-    "minutes": 10,
-    "level": "advanced",
     "area": "guitar",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "guitar-scales",
     "concepts": [
       "major-on-neck"
-    ],
-    "steps": [
-      "major-on-neck:8"
     ],
     "why": "From one root, each mode is the one before it with a single note lowered by a fret, so playing them in that order in the same place on the neck puts the changed note under your finger and against the drone.",
     "learnBefore": [
@@ -176,5 +171,15 @@
     "exploreMore": [
       "/course/9/modes-over-drone"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:8"
+      ],
+      "minutes": 10
+    }
+  ]
 }

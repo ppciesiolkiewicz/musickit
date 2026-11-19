@@ -1,0 +1,57 @@
+{
+  "id": "voice-advanced-two-notes-at-once",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 4.",
+  "exercise": {
+    "title": "Two notes at once",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "When both notes sound at once there is no first note to measure from, so your ear has to pull the pair apart: hum the lower note, then the upper one, and the leap is back.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays two notes at the same time. Hum the lower one, then the upper one, then pick its name: M3, TT, P5, m6, m7 or M7."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "advanced",
+          "set": [
+            4,
+            6,
+            7,
+            8,
+            10,
+            11
+          ],
+          "dir": "together"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "intervals:7"
+      ],
+      "minutes": 5
+    }
+  ]
+}

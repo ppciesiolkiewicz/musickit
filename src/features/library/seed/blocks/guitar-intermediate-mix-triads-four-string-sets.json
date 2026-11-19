@@ -9,8 +9,6 @@
   "note": "Track triads (guitar-caged), step 7: triads on all four string sets together, inside frets 2 to 7 in G: the chord G on each set up and back, G C D G on one set after another, then a new set every bar.",
   "exercise": {
     "title": "One progression on four string sets",
-    "minutes": 10,
-    "level": "intermediate",
     "area": "guitar",
     "tags": [
       "technique",
@@ -19,9 +17,6 @@
     "topic": "guitar-caged",
     "concepts": [
       "triads"
-    ],
-    "steps": [
-      "triads:7"
     ],
     "why": "Inside a few frets, G, C and D each have a triad on every set of three strings, so the same three chords can be played low, in the middle or on top without moving your hand along the neck.",
     "learnBefore": [
@@ -1165,5 +1160,15 @@
     "exploreMore": [
       "/theory/arpeggios"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "triads:7"
+      ],
+      "minutes": 10
+    }
+  ]
 }

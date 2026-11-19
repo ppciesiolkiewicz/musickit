@@ -1,0 +1,139 @@
+{
+  "id": "voice-advanced-ii-v-i-guide-tones-your-way",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 7.",
+  "exercise": {
+    "title": "ii-V-I guide tones, your way",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "improv"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "improvise"
+    ],
+    "why": "Guide tones are the notes your ear checks a chord by, so once you can sing them without the staff, any line you make up has somewhere to start and somewhere to land.",
+    "learnBefore": [
+      "/course/11/ii-v-i",
+      "/course/11/guide-tones"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The two lines, eyes closed",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: Dm7, G7 and Cmaj7. Sing the two guide-tone lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}. Then close your eyes and sing them again.\nNotice how early you hear each change coming."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "degree",
+              "notes": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "style": "ballad",
+              "bpm": 72,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Your line, two keys",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, now as a bossa. Make up your own line, and sing it on any vowel. Start each chord on one of its ringed notes, and put one hard leap, such as a tritone or a 7th, somewhere in each round.\nThen sing over another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the chords are new but the ringed notes are the same numbers."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "degree",
+              "under": true,
+              "highlight": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "style": "bossa",
+              "bpm": 110,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "progression": "ii-v-i"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "f"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "improvise:2"
+      ],
+      "minutes": 10
+    }
+  ]
+}

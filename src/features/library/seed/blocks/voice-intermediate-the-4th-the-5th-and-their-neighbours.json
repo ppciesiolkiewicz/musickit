@@ -1,0 +1,56 @@
+{
+  "id": "voice-intermediate-the-4th-the-5th-and-their-neighbours",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 1.",
+  "exercise": {
+    "title": "The 4th, the 5th and their neighbours",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "Fa and Sol are one step apart, so hearing which one a leap went to is what stops your own leap landing on the wrong one.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays Do and then a note a 3rd, a 4th, a 5th, a 6th or an octave above it. Hum the second note back, then pick its name: P4 for a 4th, P5 for a 5th."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            4,
+            5,
+            7,
+            9,
+            12
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "steps-to-leaps:17"
+      ],
+      "minutes": 5
+    }
+  ]
+}

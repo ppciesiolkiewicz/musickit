@@ -9,8 +9,6 @@
   "note": "Track sevenths-up (theory-building-chords), step 9: 13th chords, the 13 stacked on a 7th chord, seen, compared with the 7 and the 9, and heard on the 5 chord. Missing: interval-ears \"kind\": \"chord\" has no 13th chord answer, so telling a 13 from a 7 by ear is done with the band.",
   "exercise": {
     "title": "13th chords: a 7th chord with the 13",
-    "minutes": 8,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "theory-building-chords",
     "concepts": [
       "sevenths-up"
-    ],
-    "steps": [
-      "sevenths-up:9"
     ],
     "why": "A 13th chord is a 7th chord with the 6th above its root added an octave up, so the 13 is heard as one high note a 7th above the chord's ♭7.",
     "learnBefore": [
@@ -123,5 +118,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "sevenths-up:9"
+      ],
+      "minutes": 8
+    }
+  ]
 }

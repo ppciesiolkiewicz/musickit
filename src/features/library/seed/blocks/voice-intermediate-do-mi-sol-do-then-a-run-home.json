@@ -1,0 +1,115 @@
+{
+  "id": "voice-intermediate-do-mi-sol-do-then-a-run-home",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 2.",
+  "exercise": {
+    "title": "Do Mi Sol Do, then a run home",
+    "area": "voice",
+    "tags": [
+      "song",
+      "improv"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "sight-singing"
+    ],
+    "why": "A run sounds like music when it lands somewhere, so aim its last note at the bar where the home chord comes back.",
+    "learnBefore": [
+      "/course/6/vocal-runs",
+      "/course/6/sight-singing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The chord as a tune",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune climbs the notes of the chord to the high Do.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still climbs the chord to the high Do."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "arpeggio"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "d"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Run home over the band",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: C, G, Am and F, a bar each. On \"ah\", hold {{5}} while the chords go by, then run down through {{4}}, {{3}} and {{2}} to land on {{1}} as C comes round again. Then start the run a bar earlier, and listen for where it lands."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "style": "ballad",
+              "bpm": 70,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "progression": "pop"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sight-singing:2"
+      ],
+      "minutes": 9
+    }
+  ]
+}

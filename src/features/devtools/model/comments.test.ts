@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, seedExercise, seedPlan } from "@/features/library/seed";
 import { exampleHashes, hashKey, quoteOf, repinSectionNotes, sectionHash, sectionText } from "./comments";
 import { stateOf, type CopyNote, type NoteSection } from "./copyNotes";
 
@@ -23,7 +23,7 @@ test("sectionText and quoteOf", () => {
 
 test("exampleHashes: every section of a single exercise and of a plan", () => {
   const ex = SEED_BLOCKS[0], plan = SEED_PLANS[0];
-  const h = exampleHashes([{ id: ex.id, json: JSON.stringify(ex.exercise) }, { id: plan.id, json: JSON.stringify(plan.plan) }], []);
+  const h = exampleHashes([{ id: ex.id, json: JSON.stringify(seedExercise(ex)) }, { id: plan.id, json: JSON.stringify(seedPlan(plan)) }], []);
   assert.ok(h[hashKey(ex.id, "ex", 0)]);
   assert.ok(h[hashKey(plan.id, "d6.e0", 0)]);
   assert.equal(h[hashKey(ex.id, "ex", 999)], undefined);

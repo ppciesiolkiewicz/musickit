@@ -1,0 +1,103 @@
+{
+  "id": "guitar-theory-intermediate-which-numeral",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 5.",
+  "exercise": {
+    "title": "Which numeral?",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-progressions",
+    "concepts": [
+      "chords-of-a-key"
+    ],
+    "why": "I-vi-ii-V adds the vi to the ii-V-I, and it is the loop under countless songs.",
+    "learnBefore": [
+      "/course/5/chords-from-scale",
+      "/course/5/hearing-changes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "With the chart",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below and listen. Say each numeral as it arrives: I (Cmaj7), vi (Am7), ii (Dm7), V (G7)."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "progression",
+                "key": "c",
+                "numerals": [
+                  "Imaj7",
+                  "vi7",
+                  "ii7",
+                  "V7"
+                ],
+                "bars": 4,
+                "backing": [
+                  "fingerstyle"
+                ]
+              },
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "In a new order",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now the same four chords in a new order. Look away and press Play. Write down the numerals you hear, then check."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "progression",
+                "key": "c",
+                "numerals": [
+                  "Imaj7",
+                  "ii7",
+                  "vi7",
+                  "V7"
+                ],
+                "bars": 4,
+                "backing": [
+                  "block"
+                ]
+              },
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "chords-of-a-key:2",
+        "chords-of-a-key:3"
+      ],
+      "minutes": 8
+    }
+  ]
+}

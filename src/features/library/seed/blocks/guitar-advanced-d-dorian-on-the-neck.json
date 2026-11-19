@@ -1,0 +1,144 @@
+{
+  "id": "guitar-advanced-d-dorian-on-the-neck",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 6.",
+  "exercise": {
+    "title": "D Dorian on the neck",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "A mode is a shape counted from its root, so moving the root from A to D moves every position with it, and the 6th keeps its place inside each one.",
+    "learnBefore": [
+      "/course/10/moving-keys",
+      "/course/9/modes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Where it sits in D",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The whole neck is drawn above the position: the framed part is position 1 of D Dorian. Play it up and back down from the low {{1}}, and notice it is the shape you know from A, further up the neck. The ringed {{6}} is where your fingers expect it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "d",
+              "boxes": [
+                1
+              ],
+              "parts": {
+                "positions": "always",
+                "neck": "on"
+              },
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The crossing in D",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The neck below shows only the crossing from position 1 to position 2 of D Dorian. Climb position 1, slide up the G string as you did in A, and finish the climb in position 2. Come back down the same way."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "dorian",
+              "key": "d",
+              "cross": {
+                "from": 1,
+                "to": 2
+              },
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Same frets, new root",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone. Play the position on the neck up and back down, and end on a ringed {{1}}.\nThen try the other variant. Use the Variant selector below to change it, then press Play to start the drone again, now on the new root.\nWhen you change the variant, your hand stays in the same frets: this is position 3 of A Dorian, one note has moved a fret, and the ringed notes are in new places."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "d",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "d",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "label": "variant",
+          "options": [
+            {
+              "key": "d",
+              "position": 1
+            },
+            {
+              "key": "a",
+              "position": 3
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "major-on-neck:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

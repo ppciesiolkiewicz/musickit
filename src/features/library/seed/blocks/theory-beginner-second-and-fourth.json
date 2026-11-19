@@ -9,8 +9,6 @@
   "note": "Track intervals (theory-ear), step 3: the major 2nd and the perfect 4th by ear, added to the 3rds, the 5th and the octave. The last game is set to the game's own level 3, a number, which is exactly this step (the ladder reads the number from the tool). Missing: a level word for interval-ears level 3 (\"beginner\" is 2, \"intermediate\" is 4).",
   "exercise": {
     "title": "The 2nd and the 4th by ear",
-    "minutes": 8,
-    "level": "beginner",
     "area": "theory",
     "tags": [
       "ear"
@@ -18,9 +16,6 @@
     "topic": "theory-ear",
     "concepts": [
       "intervals"
-    ],
-    "steps": [
-      "intervals:3"
     ],
     "why": "A major 2nd is one step of the major scale and a perfect 4th is three, so humming up the scale from the low note to the high one tells you which of them you heard.",
     "learnBefore": [
@@ -93,5 +88,15 @@
     "exploreMore": [
       "/theory/ears"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "intervals:3"
+      ],
+      "minutes": 8
+    }
+  ]
 }

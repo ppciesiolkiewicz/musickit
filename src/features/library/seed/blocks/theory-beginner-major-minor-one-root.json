@@ -9,8 +9,6 @@
   "note": "Track modes (theory-modes), step 1: the major and minor scales from one root over one drone, with the three notes that differ ringed on both staffs; the first block taps the two scales, the second taps a line of the player's own both ways in a second key, which sets up Dorian as minor with one of those notes raised.",
   "exercise": {
     "title": "Major and minor from one root",
-    "minutes": 6,
-    "level": "beginner",
     "area": "theory",
     "tags": [
       "ear",
@@ -19,9 +17,6 @@
     "topic": "theory-modes",
     "concepts": [
       "modes"
-    ],
-    "steps": [
-      "modes:1"
     ],
     "why": "From the same root, the minor scale is the major scale with its 3rd, 6th and 7th a half step lower, so keeping the home note and changing only those three notes turns bright into dark.",
     "learnBefore": [
@@ -148,5 +143,15 @@
       "/theory/scales/natural-minor-aeolian/c",
       "/course/9/modes"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "modes:1"
+      ],
+      "minutes": 6
+    }
+  ]
 }

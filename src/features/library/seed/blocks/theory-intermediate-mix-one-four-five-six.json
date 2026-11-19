@@ -9,8 +9,6 @@
   "note": "Track hearing-changes (theory-ear), step 4: the 1, 4, 5 and 6 mixed, in a new order, then with chords held for two bars, then in three new keys. Missing: backing-track cannot hide its chord boxes (the text asks the player to look away) and plays a fixed order, not a new one each round.",
   "exercise": {
     "title": "1, 4, 5 and 6 in any order",
-    "minutes": 9,
-    "level": "intermediate",
     "area": "theory",
     "tags": [
       "ear"
@@ -18,9 +16,6 @@
     "topic": "theory-ear",
     "concepts": [
       "hearing-changes"
-    ],
-    "steps": [
-      "hearing-changes:4"
     ],
     "why": "Each chord of a key keeps its own distance from home, so the 4, the 5 and the 6 sound the same in any order and in any key once you hear them against the 1.",
     "learnBefore": [
@@ -142,5 +137,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "hearing-changes:4"
+      ],
+      "minutes": 9
+    }
+  ]
 }

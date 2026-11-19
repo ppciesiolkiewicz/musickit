@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
-import { SEED_PLANS } from "@/features/library/seed";
+import { SEED_PLANS, seedPlan } from "@/features/library/seed";
 import { sanitiseState } from "@/features/plan/model/state";
 import type { StudentRow, StudentView, TopicSlider } from "../model/types";
 import { afterMake, madeLine, planInput, upcomingLine, viewOf, waitingLine, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
@@ -14,8 +14,8 @@ const topics: TopicSlider[] = [
   { topic: "guitar-strumming", label: "Strumming", area: "guitar", now: 0.8, atStart: 0.8 },
   { topic: "voice-pitch", label: "Pitch", area: "voice", now: 0, atStart: 0 },
 ];
-const seed = SEED_PLANS.find((p) => (p.plan as { days?: unknown[] }).days?.length === 7)!;
-const week = sanitiseState({ current: null, given: [{ id: "w1", startedOn: "2026-11-16", done: {}, config: seed.plan, teacher: { madeAt: "2026-11-15T10:00:00.000Z" } }] }).given[0];
+const seed = seedPlan(SEED_PLANS.find((p) => (seedPlan(p) as { days?: unknown[] }).days?.length === 7)!);
+const week = sanitiseState({ current: null, given: [{ id: "w1", startedOn: "2026-11-16", done: {}, config: seed, teacher: { madeAt: "2026-11-15T10:00:00.000Z" } }] }).given[0];
 const TODAY = "2026-11-18";
 
 const withWeek: StudentView = { student: ann, plan: week, topics, upcoming: null };

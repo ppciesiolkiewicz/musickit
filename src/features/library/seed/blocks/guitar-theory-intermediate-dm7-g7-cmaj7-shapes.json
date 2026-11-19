@@ -1,0 +1,53 @@
+{
+  "id": "guitar-theory-intermediate-dm7-g7-cmaj7-shapes",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 1.",
+  "exercise": {
+    "title": "Dm7, G7, Cmaj7 shapes",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "These three shapes are the ii-V-I in C, the most common chord move in jazz and many ballads.",
+    "learnBefore": [
+      "/course/7/sevenths",
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press a chord box to hear it. Fret each shape, then pick the strings one at a time to check they ring. Change from Dm7 to G7 to Cmaj7 slowly, four strums each."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "chord-shapes",
+          "chords": [
+            "Dm7",
+            "G7",
+            "Cmaj7"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "seventh-shapes:3"
+      ],
+      "minutes": 5
+    }
+  ]
+}

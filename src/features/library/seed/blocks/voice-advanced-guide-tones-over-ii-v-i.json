@@ -1,0 +1,144 @@
+{
+  "id": "voice-advanced-guide-tones-over-ii-v-i",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 1.",
+  "exercise": {
+    "title": "Guide tones over ii-V-I",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "improv"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "improvise"
+    ],
+    "why": "The 3rd and the 7th tell one chord from the next, and through a ii-V-I each of them moves a step or stays where it is, so a line made of them lets you hear every change.",
+    "learnBefore": [
+      "/course/11/ii-v-i",
+      "/course/11/guide-tones"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "One line, then the other",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: a ii-V-I, with the last chord held for two bars. Sing one long note per chord on \"ah\": {{4}}, {{4}} again, then {{3}}. Then sing the other line: {{1}}, down to {{7}}, then {{7}} again.\nOnce you hear each change before its chord box lights, sing the lines in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the chords are new but each line still stays for one change and moves one step down for the other."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "tenor",
+              "labels": "degree",
+              "notes": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "style": "ballad",
+              "bpm": 72,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "c"
+            },
+            {
+              "key": "f"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Your own line",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the same changes in D: Em7, A7 and Dmaj7. Make up your own line, and sing it on any vowel. Start each chord on one of its ringed notes: {{4}} or {{1}} over Em7, {{7}} or {{4}} over A7, {{3}} or {{7}} over Dmaj7.\nIf you lose the chords, go back to one long ringed note per chord until you hear the changes again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "degree",
+              "under": true,
+              "highlight": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "style": "ballad",
+              "bpm": 72,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "improvise:2"
+      ],
+      "minutes": 10
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "guitar-beginner-end-on-a-different-note",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-beginner.json, day 4.",
+  "exercise": {
+    "title": "End on a different note",
+    "area": "guitar",
+    "tags": [
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "The last note sets the mood of a phrase, so choosing it is the first step to sounding like you mean it.",
+    "learnBefore": [
+      "/course/5/pentatonic",
+      "/course/5/soloing"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the band. Play phrases that end on {{1}}, then phrases that end on {{b3}}, and listen: the first sounds finished, the second stays open. Then pick the ending each phrase wants."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "backing-band",
+          "bpm": 75,
+          "key": "a",
+          "parts": {
+            "drums": "on",
+            "bass": "on"
+          }
+        }
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "scale-neck",
+          "scale": "minor-pentatonic",
+          "key": "a",
+          "boxes": [
+            1
+          ],
+          "highlight": [
+            "1",
+            "b3"
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

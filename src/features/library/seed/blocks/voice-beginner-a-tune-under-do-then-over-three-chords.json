@@ -1,0 +1,119 @@
+{
+  "id": "voice-beginner-a-tune-under-do-then-over-three-chords",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 4.",
+  "exercise": {
+    "title": "A tune under Do, then over three chords",
+    "area": "voice",
+    "tags": [
+      "song",
+      "improv"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "tunes"
+    ],
+    "why": "Tunes often dip below Do and come home, so singing under it makes Do feel like home from both sides.",
+    "learnBefore": [
+      "/course/3/home-note",
+      "/course/3/hearing-do-fa-sol"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A tune under Do",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names.\nOnce the notes under Do feel as sure as Do, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune still dips two steps under Do and comes home."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "easy",
+                "stage": "under"
+              },
+              "key": "f",
+              "voice": "tenor"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "f"
+            },
+            {
+              "key": "g"
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "Over F, B♭ and C",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. On \"oo\", sing the low {{1}} over F, the low {{4}} when B♭ comes round and {{5}} over C.\nThen add {{3}} over F and make up your own line.\nIf you lose your place, hold {{1}} until F comes round again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "f",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "3",
+                "4",
+                "5"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "f",
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 70
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "tunes:1"
+      ],
+      "minutes": 9
+    }
+  ]
+}

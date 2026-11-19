@@ -9,8 +9,6 @@
   "note": "A listening exercise for someone new: tap a note and then Do to hear home, tap the two chords that differ by one note, then name major or minor by ear and try it on a song. One staff per step, each showing only the notes that step names; the staff is explained the first time, and the game's answers are named as the buttons show them (M3, m3).",
   "exercise": {
     "title": "Home, and the note that makes major or minor",
-    "minutes": 6,
-    "level": "new",
     "area": "theory",
     "tags": [
       "ear",
@@ -19,10 +17,6 @@
     "topic": "theory-ear",
     "concepts": [
       "home-and-colour"
-    ],
-    "steps": [
-      "home-and-colour:1",
-      "home-and-colour:2"
     ],
     "why": "Do is the note a tune comes to rest on, and the 3rd above it decides major or minor, so these two sounds are the ones to learn by ear first.",
     "learnBefore": [
@@ -122,5 +116,16 @@
     "exploreMore": [
       "/course/3/intervals"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "home-and-colour:1",
+        "home-and-colour:2"
+      ],
+      "minutes": 6
+    }
+  ]
 }

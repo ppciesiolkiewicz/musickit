@@ -1,0 +1,84 @@
+{
+  "id": "voice-intermediate-read-it-before-you-hear-it",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 4.",
+  "exercise": {
+    "title": "Read it before you hear it",
+    "area": "voice",
+    "tags": [
+      "song"
+    ],
+    "topic": "voice-melodies",
+    "concepts": [
+      "sight-singing"
+    ],
+    "why": "Singing a tune before you hear it makes your ear work out every step, so the check afterwards tells you which leaps you already know.",
+    "learnBefore": [
+      "/course/6/sight-singing"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "From the staff",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Before you press Play, tap the first note of the tune below to hear it. Sing the tune from the staff on the note names, at your own pace. Then press Play on the tune and check what you sang against it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "chords"
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A second one",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The same again with a new tune: tap its first note, sing it from the staff, then press Play on the tune to check. This one ends on the high Do, so sing the top notes on \"oo\"."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "melody-singer",
+              "pick": {
+                "difficulty": "medium",
+                "stage": "chords",
+                "index": 1
+              },
+              "key": "c",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sight-singing:2"
+      ],
+      "minutes": 6
+    }
+  ]
+}

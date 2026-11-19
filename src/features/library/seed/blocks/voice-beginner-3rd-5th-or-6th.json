@@ -1,0 +1,54 @@
+{
+  "id": "voice-beginner-3rd-5th-or-6th",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 3.",
+  "exercise": {
+    "title": "3rd, 5th or 6th?",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps",
+      "singing-intervals"
+    ],
+    "why": "La sits one step above Sol, so hearing the two apart is what lets you sing the step between them.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear Do and then Mi, Sol or La. Hum the second note back, then answer."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            4,
+            7,
+            9
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

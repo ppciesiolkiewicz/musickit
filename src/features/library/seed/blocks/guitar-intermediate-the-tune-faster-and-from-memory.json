@@ -1,0 +1,99 @@
+{
+  "id": "guitar-intermediate-the-tune-faster-and-from-memory",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 6.",
+  "exercise": {
+    "title": "The tune, faster and from memory",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "A tune you can play without the tab is one your ear is leading, so the drone replaces the screen and tells you when you are home.",
+    "learnBefore": [
+      "/course/8/greensleeves",
+      "/course/4/melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Faster in stages",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the tune, and play along from the tab.\nWhen the quick notes in the third bar come out even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf they smear, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 47,
+                "key": "d"
+              },
+              "bpm": 80,
+              "view": "tab"
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 80
+            },
+            {
+              "bpm": 90
+            },
+            {
+              "bpm": 100
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "From memory",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone on D, and look away from the tab. Play the tune from memory at your own pace, and listen for the last note blending into the drone. Then change one thing: the rhythm of the third bar, or the octave you play it in."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "d",
+              "parts": {
+                "drone": "always",
+                "click": "off"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "guitar-melodies:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

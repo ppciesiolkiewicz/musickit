@@ -9,8 +9,6 @@
   "note": "Track double-stops (guitar-caged), step 1: the 5th as a double stop, on the low E and A strings, one string over, then moved along the low E string. missing: a double-stops tool that draws the pairs on a neck with their fingers (the tab shows frets only).",
   "exercise": {
     "title": "5ths on two strings",
-    "minutes": 6,
-    "level": "new",
     "area": "guitar",
     "tags": [
       "technique"
@@ -18,9 +16,6 @@
     "topic": "guitar-caged",
     "concepts": [
       "double-stops"
-    ],
-    "steps": [
-      "double-stops:1"
     ],
     "why": "A root and its 5th make the same shape on any two neighbouring low strings, so once your hand knows the shape, moving it gives you a new 5th each time.",
     "learnBefore": [
@@ -376,5 +371,15 @@
     "exploreMore": [
       "/theory/double-stops"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "double-stops:1"
+      ],
+      "minutes": 6
+    }
+  ]
 }

@@ -1,0 +1,52 @@
+{
+  "id": "voice-intermediate-a-run-with-turns",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 5.",
+  "exercise": {
+    "title": "A run with turns",
+    "area": "voice",
+    "tags": [
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "runs"
+    ],
+    "why": "A turn goes one note past where it is heading and comes back, so it trains your voice to change direction without losing the pitch.",
+    "learnBefore": [
+      "/course/6/vocal-runs"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run: the mic starts with it. Sing along on \"ah\". The run starts on Sol, turns up to La, and comes down to Do with one more turn on the way, four notes per beat. Each pass starts a semitone higher: change to \"oo\" when it gets high, and stop where it stops feeling easy."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "run-singer",
+          "pick": {
+            "difficulty": "medium",
+            "stage": "turns"
+          },
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "runs:3"
+      ],
+      "minutes": 5
+    }
+  ]
+}

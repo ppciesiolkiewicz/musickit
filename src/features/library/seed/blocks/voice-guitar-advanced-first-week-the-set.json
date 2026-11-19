@@ -1,0 +1,176 @@
+{
+  "id": "voice-guitar-advanced-first-week-the-set",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 7.",
+  "exercise": {
+    "title": "The set",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "improv",
+      "song"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "improvise-melody",
+      "harmony-line"
+    ],
+    "why": "A phrase can aim at a guide tone, carry a turn or run into the next chord, so a set is choosing which one each phrase gets.",
+    "learnBefore": [
+      "/course/9/improvising-a-melody",
+      "/course/11/guide-tones",
+      "/course/6/harmony-line"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The ii–V–I in G",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: Am7, D7 and Gmaj7. Sing your own line on any vowel. Start each chord on one of its ringed notes, and join them with turns and runs.\nListen for the next ringed note before its chord arrives."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "under": true,
+              "highlight": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The four chords",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: G, D, Em and C. Sing two harmony lines once each on \"oo\": {{3}} {{2}} {{1}} {{1}}, then {{5}} {{5}} {{6}} {{6}}. Then leave them and make up a tune of your own around the ringed notes, with a run where a line ends."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "highlight": [
+                "1",
+                "2",
+                "3",
+                "5",
+                "6"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "pop",
+              "key": "g",
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 76
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The vamp",
+        "minutes": 6,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band on Am7 and D7. Sing one long solo on any vowel, with all of these in it: a falling run into a ringed {{6}}, a turn on a held note, a bar left empty.\nKeep the one phrase you like best and bring it to your next gig."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "dorian",
+              "key": "a",
+              "voice": "baritone",
+              "highlight": [
+                "1",
+                "6"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "progression": "dorian",
+              "key": "a",
+              "bpm": 88,
+              "parts": {
+                "drums": "on",
+                "bass": "on",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/looper"
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "improvise:2",
+        "harmony-line:4"
+      ],
+      "minutes": 16
+    }
+  ]
+}

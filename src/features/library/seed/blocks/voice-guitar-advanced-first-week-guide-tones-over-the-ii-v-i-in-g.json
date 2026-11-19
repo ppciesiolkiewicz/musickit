@@ -1,0 +1,181 @@
+{
+  "id": "voice-guitar-advanced-first-week-guide-tones-over-the-ii-v-i-in-g",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 1.",
+  "exercise": {
+    "title": "Guide tones over the ii–V–I in G",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "improv"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "improvise-melody"
+    ],
+    "why": "The 3rd and the 7th tell one chord from the next, and through a ii–V–I each of them moves a step or stays, so a line made of them follows the chords you just played.",
+    "learnBefore": [
+      "/course/11/guide-tones",
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two lines in G",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: Am7, D7, then two bars of Gmaj7. On \"ah\", sing one long note per chord: {{4}} over Am7, {{4}} again over D7, then {{3}} over Gmaj7. Then the other line: {{1}} over Am7, {{7}} over D7, {{7}} again over Gmaj7.\nListen for the bar where your note stays and the chord changes under it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 72
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The same lines in C",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the same changes in C: Dm7, G7, Cmaj7. Sing both lines again on \"oo\": {{4}} {{4}} {{3}}, then {{1}} {{7}} {{7}}.\nWhen you change the key, the notes are new but each line still moves by one step or stays."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "c",
+              "voice": "baritone",
+              "notes": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 72
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Your own line",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band, back in G. Make up your own line, and sing it on any vowel you like. Start each chord on one of its ringed notes: {{4}} or {{1}} over Am7, {{4}} or {{7}} over D7, {{3}} or {{7}} over Gmaj7. Leave space between phrases."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "baritone",
+              "under": true,
+              "highlight": [
+                "1",
+                "3",
+                "4",
+                "7"
+              ],
+              "labels": "degree"
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "g",
+              "numerals": [
+                "ii7",
+                "V7",
+                "Imaj7",
+                "Imaj7"
+              ],
+              "style": "ballad",
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "bpm": 72
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "improvise:2"
+      ],
+      "minutes": 12
+    }
+  ]
+}

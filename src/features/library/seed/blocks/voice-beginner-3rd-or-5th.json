@@ -1,0 +1,53 @@
+{
+  "id": "voice-beginner-3rd-or-5th",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 2.",
+  "exercise": {
+    "title": "3rd or 5th?",
+    "area": "voice",
+    "tags": [
+      "ear"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "Mi and Sol are the two notes a skip from Do usually lands on, and a minor 3rd sits a half step under Mi, so telling the three apart is half of singing a skip in tune.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear Do and then a note a 3rd or a 5th above it. Sing the second note back on \"la\", then pick its name: M3 or m3 for a major or minor 3rd, P5 for a 5th."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "set": [
+            3,
+            4,
+            7
+          ],
+          "dir": "up"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:8"
+      ],
+      "minutes": 5
+    }
+  ]
+}

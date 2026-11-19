@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parsePlanConfig } from "@/features/plan/model/config";
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, seedExercise, seedPlan } from "@/features/library/seed";
 import { parsePreview, previewPlanText, whyOf } from "./preview";
 
 const ex = { title: "Play", minutes: 5, cells: [{ type: "text", text: "Play it" }] };
@@ -27,16 +27,16 @@ test("a full plan and anything else pass through", () => {
 });
 
 test("parsePreview: an exercise gives that one exercise, a plan its week", () => {
-  const one = parsePreview(JSON.stringify(SEED_BLOCKS[0].exercise), []);
+  const one = parsePreview(JSON.stringify(seedExercise(SEED_BLOCKS[0])), []);
   assert.ok(one.ok && one.exercise && !one.config);
-  const week = parsePreview(JSON.stringify(SEED_PLANS[0].plan), []);
+  const week = parsePreview(JSON.stringify(seedPlan(SEED_PLANS[0])), []);
   assert.ok(week.ok && week.config?.days.length === 7 && !week.exercise);
   assert.equal(parsePreview("nope", []).ok, false);
 });
 
 test("every seed block and plan previews", () => {
-  for (const e of SEED_BLOCKS) assert.ok(parsePlanConfig(previewPlanText(JSON.stringify(e.exercise)), []).ok, e.id);
-  for (const p of SEED_PLANS) assert.ok(parsePlanConfig(previewPlanText(JSON.stringify(p.plan)), []).ok, p.id);
+  for (const e of SEED_BLOCKS) assert.ok(parsePlanConfig(previewPlanText(JSON.stringify(seedExercise(e))), []).ok, e.id);
+  for (const p of SEED_PLANS) assert.ok(parsePlanConfig(previewPlanText(JSON.stringify(seedPlan(p))), []).ok, p.id);
 });
 
 test("whyOf reads an example part's note", () => {

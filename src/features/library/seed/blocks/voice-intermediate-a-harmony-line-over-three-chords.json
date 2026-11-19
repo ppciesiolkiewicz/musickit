@@ -1,0 +1,139 @@
+{
+  "id": "voice-intermediate-a-harmony-line-over-three-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/voice-intermediate.json, day 4.",
+  "exercise": {
+    "title": "A harmony line over three chords",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-harmony",
+    "concepts": [
+      "harmony-line"
+    ],
+    "why": "A harmony line stays on notes of each chord and moves as little as it can, so it is easy to hold and fits every bar.",
+    "learnBefore": [
+      "/course/6/harmony-line"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The roots first",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band: D, G, A and back to D, a bar each. On \"oo\", sing the root of each chord as it comes round: {{1}}, {{4}}, {{5}}, then {{1}} again. Keep going until you hear each change coming before the chord box lights."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "4",
+                "5"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "style": "ballad",
+              "bpm": 70,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Now the line",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the mic and the band. Over the same chords sing {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar on \"oo\". The line moves one step at a time, and each note belongs to the chord under it.\nThen sing it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes change but the line still moves one step at a time."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "d",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "2",
+                "3",
+                "4"
+              ]
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "style": "ballad",
+              "bpm": 70,
+              "parts": {
+                "drums": "on",
+                "bass": "off",
+                "keys": "always"
+              },
+              "numerals": [
+                "I",
+                "IV",
+                "V",
+                "I"
+              ]
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "f"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "harmony-line:4"
+      ],
+      "minutes": 8
+    }
+  ]
+}

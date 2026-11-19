@@ -1,0 +1,71 @@
+{
+  "id": "guitar-new-first-week-up-three-notes-and-back",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 5.",
+  "exercise": {
+    "title": "Up three notes and back",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "This tune climbs three notes and comes back down the same way, all on one string, so your hand learns to move up a string as well as down it.",
+    "learnBefore": [
+      "/course/4/melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Up, then back down",
+        "minutes": 4,
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "g"
+            }
+          ]
+        },
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune, then play along from the tab, one note per beat. The tune is all on one string.\nOnce you can hum the tune before you play it, try it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the tune starts on another string, and it still climbs two frets at a time and comes back the same way."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 2,
+                "key": "d"
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "guitar-melodies:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

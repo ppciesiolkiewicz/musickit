@@ -1,0 +1,84 @@
+{
+  "id": "guitar-intermediate-d-dsus2-dsus4",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 1.",
+  "exercise": {
+    "title": "D, Dsus2, Dsus4",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "sus-add9"
+    ],
+    "why": "A sus chord swaps the 3rd of the chord for the note next to it, so one finger lifting or landing turns a plain D into a moving part.",
+    "learnBefore": [
+      "/course/7/sus-add9"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The three shapes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from D to Dsus2 and back, then from D to Dsus4 and back, until only the one finger moves."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "D",
+                "Dsus2",
+                "Dsus4"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "As a groove",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord: strum the pattern in the boxes, one bar each. If a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "D",
+                "Dsus4",
+                "D",
+                "Dsus2"
+              ],
+              "bpm": 80,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sus-add9:1"
+      ],
+      "minutes": 7
+    }
+  ]
+}

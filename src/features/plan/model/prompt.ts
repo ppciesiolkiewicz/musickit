@@ -1,4 +1,4 @@
-import { SEED_BLOCKS, type SeedBlockFile } from "@/features/library/seed";
+import { SEED_BLOCKS, seedExercise, type SeedBlockFile } from "@/features/library/seed";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import type { CourseRating } from "@/features/course/ratings";
 import { blockIdOf, blockKeyOf } from "./blockId";
@@ -33,7 +33,7 @@ export function showcaseBlocks(): { feature: string; id: string; title: string }
     const entries = catalogue();
     showcases = SEED_BLOCKS.flatMap((f) => {
       if (!f.showcase) return [];
-      const block = parseExercise(f.exercise, f.id, entries).block;
+      const block = parseExercise(seedExercise(f), f.id, entries).block;
       return block ? [{ feature: SHOWCASE_FEATURE[f.showcase], id: blockIdOf(blockKeyOf(block)), title: block.title }] : [];
     });
   }

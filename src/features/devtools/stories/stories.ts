@@ -1,4 +1,4 @@
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, seedExercises } from "@/features/library/seed";
 import { TOOLS, type ToolName } from "@/features/plan/model/tools";
 import { docOf, type ComponentDoc } from "@/features/exercises/docs";
 
@@ -166,11 +166,8 @@ function fromSeed(): { group: string; story: Story }[] {
     };
     walk(ex.cells ?? [], "");
   };
-  for (const f of SEED_BLOCKS) take(f.id, f.exercise as RawExercise);
-  for (const p of SEED_PLANS) {
-    const days = ((p.plan as { days?: { exercises?: RawExercise[] }[] }).days ?? []);
-    days.forEach((d, i) => (d.exercises ?? []).forEach((ex) => take(p.id, ex, `Day ${i + 1}: `)));
-  }
+  // a plan's days name block files, so the blocks hold every seed tool
+  for (const f of SEED_BLOCKS) for (const ex of seedExercises(f)) take(f.id, ex as RawExercise);
   return out;
 }
 

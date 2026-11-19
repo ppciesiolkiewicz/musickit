@@ -1,0 +1,87 @@
+{
+  "id": "guitar-intermediate-hammer-and-pull-both-finger-pairs",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 7.",
+  "exercise": {
+    "title": "Hammer and pull, both finger pairs",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "legato"
+    ],
+    "why": "Trilling fingers 1 and 3, then 2 and 4, at the same tempo puts the two pairs side by side, so you hear which one hammers weaker and needs the practice.",
+    "learnBefore": [
+      "/course/4/legato"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A stage further",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play on the first tab below to start the metronome. Pick the first note once, then trill fingers 1 and 3 with hammer-ons and pull-offs, one note per beat.\nWhen both notes are even, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the metronome again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "beginner",
+              "string": 3,
+              "fret": 7,
+              "bpm": 72
+            }
+          },
+          {
+            "type": "text",
+            "text": "Then press Play on the second tab and do the same with fingers 2 and 4.\nWhen you change pairs, listen for the one whose hammered note is quieter: that is the pair to practise more."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "legato-trill",
+              "level": "intermediate",
+              "fingers": "24",
+              "string": 2,
+              "fret": 8,
+              "bpm": 72
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 84
+            },
+            {
+              "bpm": 96
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "legato:2"
+      ],
+      "minutes": 4
+    }
+  ]
+}

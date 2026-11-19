@@ -1,0 +1,110 @@
+{
+  "id": "guitar-intermediate-a-tune-to-the-high-do",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 2
+  },
+  "note": "Moved from plans/guitar-intermediate.json, day 4.",
+  "exercise": {
+    "title": "A tune to the high Do",
+    "area": "guitar",
+    "tags": [
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "A tune is a pattern of steps from Do, so once your ear knows it at a slow tempo, a faster tempo or a new key changes the frets but not the tune.",
+    "learnBefore": [
+      "/course/8/greensleeves",
+      "/course/4/melodies"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Learn it in stages",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune, then play along from the tab. The third bar opens with four quick notes, two per beat.\nWhen you can hum the quick notes before you play them, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the tune again.\nIf the quick notes smear at a new stage, go back one stage."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 47,
+                "key": "d"
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ],
+        "choice": {
+          "label": "stage",
+          "options": [
+            {
+              "bpm": 60
+            },
+            {
+              "bpm": 72
+            },
+            {
+              "bpm": 84
+            }
+          ]
+        }
+      },
+      {
+        "type": "section",
+        "heading": "On the neck, then in G",
+        "minutes": 5,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the tune, now shown on the neck. Play it there until your eyes are on your hand and not on the screen.\nThen learn it in another key. Use the Key selector below to change the key, then press Play to start the tune again.\nWhen you change the key, the notes change but the tune keeps its shape."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 47,
+                "key": "d"
+              },
+              "bpm": 72,
+              "view": "neck"
+            }
+          }
+        ],
+        "choice": {
+          "options": [
+            {
+              "key": "d"
+            },
+            {
+              "key": "g"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "guitar-melodies:3"
+      ],
+      "minutes": 10
+    }
+  ]
+}

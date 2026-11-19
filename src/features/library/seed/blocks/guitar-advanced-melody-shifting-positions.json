@@ -9,8 +9,6 @@
   "note": "Track guitar-melodies (guitar-scales), step 4: a tune that leaves one position and shifts to the next, then the same tune in other keys and a tune that comes down the whole neck. missing: the melody shape takes no position, so the tab decides where the shift falls and nothing marks it on the neck.",
   "exercise": {
     "title": "A tune that shifts position",
-    "minutes": 11,
-    "level": "advanced",
     "area": "guitar",
     "tags": [
       "technique",
@@ -19,9 +17,6 @@
     "topic": "guitar-scales",
     "concepts": [
       "guitar-melodies"
-    ],
-    "steps": [
-      "guitar-melodies:4"
     ],
     "why": "A tune that climbs past the top of one position needs the next one, so you move your whole hand on one note and let the fingers fall on new frets.",
     "learnBefore": [
@@ -157,5 +152,15 @@
     "exploreMore": [
       "/course/6/joining"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "guitar-melodies:4"
+      ],
+      "minutes": 11
+    }
+  ]
 }

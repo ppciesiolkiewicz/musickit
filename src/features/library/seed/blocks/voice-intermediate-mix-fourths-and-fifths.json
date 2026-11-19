@@ -9,8 +9,6 @@
   "note": "Track steps-to-leaps (voice-intervals), step 17: mix of 4ths and 5ths, both leaps from one Do up and down over a drone in three keys, a 5ths-stage tune that fills its 5ths with steps and drops under Do (in two keys), then one that starts under Do and holds four 5ths and one 4th. missing: 5ths-stage tunes rated Hard (the stage holds only Medium and Expert tunes, so an intermediate singer gets two Expert ones, both with eighths or a dotted note), and a tune in that stage with as many 4ths as 5ths.",
   "exercise": {
     "title": "4ths and 5ths, side by side",
-    "minutes": 10,
-    "level": "intermediate",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-intervals",
     "concepts": [
       "steps-to-leaps"
-    ],
-    "steps": [
-      "steps-to-leaps:17"
     ],
     "why": "From Do a 4th lands on Fa and a 5th on Sol, one step apart, so singing the two leaps side by side and filling them with steps teaches your ear which one a tune asks for.",
     "learnBefore": [
@@ -135,5 +130,15 @@
     "exploreMore": [
       "/theory/singing/melodies"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "steps-to-leaps:17"
+      ],
+      "minutes": 10
+    }
+  ]
 }

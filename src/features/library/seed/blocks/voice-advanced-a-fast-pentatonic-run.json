@@ -1,0 +1,52 @@
+{
+  "id": "voice-advanced-a-fast-pentatonic-run",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 1.",
+  "exercise": {
+    "title": "A fast pentatonic run",
+    "area": "voice",
+    "tags": [
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "runs"
+    ],
+    "why": "The run leaves out Fa and Ti, the two notes that sit a half step from a neighbour, so every note has room and the run stays clear when it gets fast.",
+    "learnBefore": [
+      "/course/9/fast-runs"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run starts on Mi, climbs to the high Do and comes down to the La under Do, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\", and move to \"oo\" when a pass feels tight."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "run-singer",
+          "pick": {
+            "difficulty": "expert",
+            "stage": "pentatonic-run"
+          },
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "runs:4"
+      ],
+      "minutes": 4
+    }
+  ]
+}

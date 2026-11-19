@@ -9,8 +9,6 @@
   "note": "Track singing-modes (voice-melodies), step 1: Dorian over a drone, built up from the minor pentatonic the singer knows (the 2nd and the 6th added), in three keys, then a made-up tune over the Dorian vamp that lands on the 6th.",
   "exercise": {
     "title": "Dorian over a drone",
-    "minutes": 9,
-    "level": "intermediate",
     "area": "voice",
     "tags": [
       "sing",
@@ -19,9 +17,6 @@
     "topic": "voice-melodies",
     "concepts": [
       "singing-modes"
-    ],
-    "steps": [
-      "singing-modes:1"
     ],
     "why": "Over a drone you hear every note of a mode against its home note, and Dorian is the minor pentatonic with two notes added, so sing the five notes you know first and then add the two new ones.",
     "learnBefore": [
@@ -141,5 +136,15 @@
     "exploreMore": [
       "/theory/scales/dorian/d"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "singing-modes:1"
+      ],
+      "minutes": 9
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { SEED_PLANS } from "@/features/library/seed";
+import { SEED_PLANS, seedPlan } from "@/features/library/seed";
 import { DEMO_PLANS } from "@/features/plan/demos";
 import { seedLibraryRows } from "./library";
 
@@ -12,7 +12,7 @@ test("every demo's plan is a library plan with the same id", () => {
 test("a former plan example is a seed row under its own id, enabled", () => {
   const r = seedLibraryRows().find((x) => x.id === "guitar-beginner")!;
   assert.deepEqual([r.source, r.enabledForReuse], ["seed", true]);
-  assert.deepEqual(JSON.parse(r.reply), SEED_PLANS.find((f) => f.id === "guitar-beginner")!.plan);
+  assert.deepEqual(JSON.parse(r.reply), seedPlan(SEED_PLANS.find((f) => f.id === "guitar-beginner")!));
 });
 
 test("no library id is used twice", () => {

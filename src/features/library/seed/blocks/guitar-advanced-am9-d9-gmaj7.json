@@ -1,0 +1,87 @@
+{
+  "id": "guitar-advanced-am9-d9-gmaj7",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/guitar-advanced.json, day 3.",
+  "exercise": {
+    "title": "Am9, D9, Gmaj7",
+    "area": "guitar",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "shells"
+    ],
+    "why": "A Dorian and G major are the same seven notes, so the two chords of the Dorian vamp are also the ii and the V of G: one more chord takes them home.",
+    "learnBefore": [
+      "/course/11/extended",
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The three shapes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press a chord box below to hear it, then fret each chord as shown. Change from Am9 to D9 first, then from D9 to Gmaj7, until each pair moves without a stop in between."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "Am9",
+                "D9",
+                "Gmaj7"
+              ],
+              "voicing": "barre"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "In time",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum the pattern in the boxes: a bar of Am9, a bar of D9, then two bars of Gmaj7. Listen for the bar where the chords stop wanting to move on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "Am9",
+                "D9",
+                "Gmaj7",
+                "Gmaj7"
+              ],
+              "bpm": 90,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "shells:3",
+        "shells:4"
+      ],
+      "minutes": 7
+    }
+  ]
+}

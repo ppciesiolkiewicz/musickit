@@ -1,0 +1,97 @@
+{
+  "id": "theory-only-first-week-hear-the-moment-the-chord-changes",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/theory-only-first-week.json, day 5.",
+  "exercise": {
+    "title": "Hear the moment the chord changes",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "hearing-changes"
+    ],
+    "why": "When a chord changes, the bass jumps to the new chord's root, so listening to the lowest note tells you the moment the chord moves.",
+    "learnBefore": [
+      "/course/5/hearing-changes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Watch and listen",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band in D. Each chord stays for one, two or three bars, so counting won't find the changes. Watch the chord boxes and tap the table each time the lit box has a new chord name.\nListen for the bass jumping to a new note at that moment."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "d",
+              "numerals": [
+                "I",
+                "I",
+                "IV",
+                "IV",
+                "IV",
+                "I",
+                "V",
+                "V"
+              ],
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Eyes away",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band in A, with the changes in new places. Look away and tap the table when you hear the chord move, then look back to see whether the lit box has a new name.\nIf you miss a change, keep your ear on the bass and catch the next one."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "a",
+              "numerals": [
+                "I",
+                "IV",
+                "IV",
+                "IV",
+                "I",
+                "V",
+                "I",
+                "I"
+              ],
+              "style": "pop",
+              "bpm": 80
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "hearing-changes:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "voice-advanced-the-octave-run",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 4.",
+  "exercise": {
+    "title": "The octave run",
+    "area": "voice",
+    "tags": [
+      "technique"
+    ],
+    "topic": "voice-runs",
+    "concepts": [
+      "runs"
+    ],
+    "why": "The scale has two half steps, Mi to Fa and Ti to Do, and a fast run goes out of tune when they come out too wide, so aim those two pairs and the other steps are all whole ones.",
+    "learnBefore": [
+      "/course/9/fast-runs"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run: two chords set the key, and the mic starts with them. The run climbs the whole scale from Do to the high Do and comes straight back, past Do to the Ti under it, four notes per beat. Each pass starts a semitone higher, and the last one reaches the top of your range.\nSing it lightly on \"ah\". If the notes smear into each other, sing one pass on \"la\", then go back to \"ah\"."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "run-singer",
+          "pick": {
+            "difficulty": "hard",
+            "stage": "octave-run"
+          },
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "runs:7"
+      ],
+      "minutes": 4
+    }
+  ]
+}

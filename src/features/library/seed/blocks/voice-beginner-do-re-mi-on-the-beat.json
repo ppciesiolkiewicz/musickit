@@ -1,0 +1,73 @@
+{
+  "id": "voice-beginner-do-re-mi-on-the-beat",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 6.",
+  "exercise": {
+    "title": "Do Re Mi on the beat",
+    "choice": {
+      "label": "stage",
+      "options": [
+        {
+          "bpm": 60
+        },
+        {
+          "bpm": 76
+        },
+        {
+          "bpm": 92
+        }
+      ]
+    },
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "A step up and back is the shape most tunes start with, and the metronome shows whether your voice gets to each note on time.",
+    "learnBefore": [
+      "/course/3/step-melodies"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start exercise below: the drone, the metronome and the mic start together. Sing {{1}} {{2}} {{3}} {{2}} {{1}} on the note names, one note per beat.\nWhen every note lands on the beat, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise to start the metronome again.\nIf a stage is too fast, go back one and sing it on \"oo\"."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "staff",
+          "scale": "major-ionian",
+          "key": "c",
+          "voice": "tenor",
+          "labels": "solfege",
+          "notes": [
+            "1",
+            "2",
+            "3"
+          ],
+          "drone": true,
+          "click": true,
+          "bpm": 60
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "steps-to-leaps:5"
+      ],
+      "minutes": 3
+    }
+  ]
+}

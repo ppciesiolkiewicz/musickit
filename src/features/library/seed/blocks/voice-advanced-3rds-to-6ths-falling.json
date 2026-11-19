@@ -1,0 +1,57 @@
+{
+  "id": "voice-advanced-3rds-to-6ths-falling",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 3.",
+  "exercise": {
+    "title": "3rds to 6ths, falling",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "intervals"
+    ],
+    "why": "In a falling leap the top note comes first with no Do under it, so your ear has to measure down, and minor is one half step away from major each time.",
+    "learnBefore": [
+      "/course/6/every-interval"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below. The game plays a note and then one a 3rd, a 4th, a 5th or a 6th below it. Hum the lower note back, then pick its name: m3 or M3 for a minor or major 3rd, m6 or M6 for a minor or major 6th."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "level": "intermediate",
+          "set": [
+            3,
+            4,
+            5,
+            7,
+            8,
+            9
+          ],
+          "dir": "down"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "intervals:5"
+      ],
+      "minutes": 5
+    }
+  ]
+}

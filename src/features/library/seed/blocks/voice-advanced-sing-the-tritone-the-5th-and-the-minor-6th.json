@@ -1,0 +1,66 @@
+{
+  "id": "voice-advanced-sing-the-tritone-the-5th-and-the-minor-6th",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-advanced.json, day 1.",
+  "exercise": {
+    "title": "Sing the tritone, the 5th and the minor 6th",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps",
+      "singing-intervals"
+    ],
+    "why": "Sol is a leap you already land, so hearing it first puts the tritone and the minor 6th a half step away instead of a long way from Do.",
+    "learnBefore": [
+      "/course/6/every-interval",
+      "/course/6/singing-leaps"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to hear Do and start the mic. The leap to sing shows by name: TT is the tritone, m6 the minor 6th.\nHear Sol in your head first: the tritone lands a half step under it, the minor 6th a half step above it. Then sing that note on \"oo\" and hold it until Yes shows.\nPress Next below for another leap. If a note won't come, press Show me below to hear it.\nWhen Do moves to a new key, the notes are new but each leap is still a half step from Sol."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-singer",
+          "level": "advanced",
+          "voice": "tenor",
+          "key": "c",
+          "keys": [
+            "c",
+            "d",
+            "e-flat",
+            "f",
+            "g",
+            "a"
+          ],
+          "intervals": [
+            6,
+            7,
+            8
+          ]
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "steps-to-leaps:21",
+        "singing-intervals:4"
+      ],
+      "minutes": 5
+    }
+  ]
+}

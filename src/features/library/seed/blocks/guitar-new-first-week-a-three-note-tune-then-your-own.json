@@ -1,0 +1,85 @@
+{
+  "id": "guitar-new-first-week-a-three-note-tune-then-your-own",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 2,
+    "agents": 2,
+    "teaching": 5
+  },
+  "note": "Moved from plans/guitar-new-first-week.json, day 7.",
+  "exercise": {
+    "title": "A three-note tune, then your own",
+    "area": "guitar",
+    "tags": [
+      "song",
+      "improv"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "A tune sounds finished when it ends on its home note, which in this key is the open G string, so three notes and that one ending are enough to make up tunes of your own.",
+    "learnBefore": [
+      "/course/4/melodies",
+      "/course/3/home-note"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Play the tune",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the tune, then play along from the tab.\nNotice which of its notes your fingers find without the tab."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 5,
+                "key": "g"
+              },
+              "bpm": 76,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Make up a tune",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone, one long G. Make up short tunes from the three notes of the tune above, on the G string, in any order and any rhythm.\nEnd some of them on the open string and some on another note, and listen for which ending sounds finished."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
+              "key": "g",
+              "parts": {
+                "drone": "always"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "guitar-melodies:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

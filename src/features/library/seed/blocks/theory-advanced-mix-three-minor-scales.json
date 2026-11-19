@@ -9,8 +9,6 @@
   "note": "Track minor-colours (theory-modes), step 4: natural, harmonic and melodic minor told apart by the 6th and 7th, the top of the scale tapped in all three on A, harmonic against melodic over an Am chord, then lines that climb in D melodic minor and fall in D natural minor over a drone. Missing: guitar-play-along's two-scales takes two scales, not three, and no game plays a minor scale to name.",
   "exercise": {
     "title": "Natural, harmonic or melodic minor",
-    "minutes": 9,
-    "level": "advanced",
     "area": "theory",
     "tags": [
       "theory",
@@ -19,9 +17,6 @@
     "topic": "theory-modes",
     "concepts": [
       "minor-colours"
-    ],
-    "steps": [
-      "minor-colours:4"
     ],
     "why": "The three minor scales share their first five notes and differ only in the 6th and the 7th, so the top of the scale tells you which one you are hearing.",
     "learnBefore": [
@@ -155,5 +150,15 @@
         ]
       }
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "minor-colours:4"
+      ],
+      "minutes": 9
+    }
+  ]
 }

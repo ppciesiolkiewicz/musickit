@@ -1,0 +1,56 @@
+{
+  "id": "voice-beginner-find-the-smooth-spot",
+  "model": "claude-fable-5",
+  "versions": {
+    "prompt": null,
+    "agents": 1,
+    "teaching": 4
+  },
+  "note": "Moved from plans/voice-beginner.json, day 1.",
+  "exercise": {
+    "title": "Find the smooth spot",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-pitch",
+    "concepts": [
+      "pitch"
+    ],
+    "why": "In tune with the drone sounds smooth and off sounds like a wobble, so the drone lets you check yourself with no one listening.",
+    "learnBefore": [
+      "/course/3/home-note"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start exercise below: the drone and the mic start together. Your pitch shows as a line on the staff, the five lines of music.\nSing the low {{1}} on \"oo\" and slide a little above and below it until the wobble stops. Hold the smooth spot for as long as feels easy.\n_Don't reach for high notes: the low {{1}} is the only note this drill needs._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "staff",
+          "scale": "major-ionian",
+          "key": "c",
+          "voice": "tenor",
+          "labels": "solfege",
+          "enable": [
+            "1"
+          ],
+          "others": "hidden",
+          "drone": true
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pitch:3"
+      ],
+      "minutes": 3
+    }
+  ]
+}

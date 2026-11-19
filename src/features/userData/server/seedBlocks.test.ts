@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise } from "@/features/plan/model/config";
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, seedExercise, seedPlan, type SeedBlockFile } from "@/features/library/seed";
 import { startDay } from "@/features/plan/model/schedule";
 import { EMPTY_STATE, type PlanConfig, type PlanExercise } from "@/features/plan/model/types";
 import { libraryBlocksOf } from "@/features/plan/model/libraryBlocks";
@@ -11,13 +11,13 @@ import { libraryPlanBlocks, planBlockRows, seedBlocks, seedFileBlocks, type Seed
 import { memoryUserDataRepo } from "./repo.memory";
 
 const NOW = new Date(2026, 10, 15, 12);
-const reply = JSON.stringify(SEED_PLANS[0].plan);
+const reply = JSON.stringify(seedPlan(SEED_PLANS[0]));
 const prov = { model: "claude-fable-5-2", promptVersion: 7, docsAgents: 2, docsTeaching: 5 };
 const plan: SeedPlan = { id: "p1", reply, provenance: prov };
 
 test("a seed file's block id is the id a started plan of the same exercise gets", () => {
   const ex = SEED_BLOCKS[0];
-  const block = parseExercise(ex.exercise, "x", catalogue()).block!;
+  const block = parseExercise(seedExercise(ex), "x", catalogue()).block!;
   let n = 0;
   const s = startDay(EMPTY_STATE, { exercises: [block], steps: [], short: false }, { date: "2026-11-15", attempt: 0 }, () => `n${++n}`);
   const id = s.current!.config.days[0].exercises[0].blockId;
@@ -67,7 +67,7 @@ test("a seeded plan's blocks carry the plan's provenance", () => {
 test("a seed file's block carries its file's model and versions", () => {
   // the first seed file is the first block seen, so no other file's provenance wins
   const f = SEED_BLOCKS[0];
-  const block = parseExercise(f.exercise, f.id, catalogue()).block!;
+  const block = parseExercise(seedExercise(f), f.id, catalogue()).block!;
   const config = { title: f.id, days: [{ theme: f.id, exercises: [block] }] } as unknown as PlanConfig;
   const id = libraryBlocksOf([{ id: "s", startedOn: "2026-01-01", done: {}, config } as never])[0].id;
   assert.deepEqual(seedFileBlocks().find((b) => b.id === id)!.provenance, { model: f.model, promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching });
@@ -93,10 +93,11 @@ test("planBlockRows: one row per exercise slot from 0, with minutes and the bloc
 
 test("seedBlocks: sets each plan's blocks, counted, and a second run leaves them the same", async () => {
   const repo = memoryUserDataRepo();
-  const r = await seedBlocks(repo, [plan], NOW);
+  // no block files, so the plan is the first writer of its blocks and their provenance is the plan's
+  const r = await seedBlocks(repo, [plan], NOW, []);
   assert.equal(r.planBlocks, planBlockRows(reply).length);
   assert.deepEqual(repo.peekPlanBlocks("p1"), planBlockRows(reply));
-  await seedBlocks(repo, [plan], NOW);
+  await seedBlocks(repo, [plan], NOW, []);
   assert.deepEqual(repo.peekPlanBlocks("p1"), planBlockRows(reply));
   for (const b of libraryPlanBlocks([plan])) assert.deepEqual(repo.peekBlocks().get(b.id)!.provenance, prov);
 });
@@ -129,8 +130,8 @@ test("a block an earlier run stored as an example's becomes seed, enabled; a see
 
 test("seedFileBlocks: a seed exercise file is a seed block, enabled, with its file's model and versions; a broken one is skipped", () => {
   const ex = SEED_BLOCKS[0];
-  const file = { id: "s1", model: "claude-fable-5-2", versions: { prompt: 1, agents: 2, teaching: 5 }, note: "a gap", exercise: ex.exercise, choices: [] };
-  const list = seedFileBlocks([file, { ...file, id: "s2", exercise: {}, choices: [] }]);
+  const file = { ...ex, id: "s1", model: "claude-fable-5-2", versions: { prompt: 1, agents: 2, teaching: 5 }, note: "a gap" };
+  const list = seedFileBlocks([file, { ...file, id: "s2", exercise: {} }]);
   assert.equal(list.length, 1);
   assert.deepEqual([list[0].source, list[0].enabledForReuse, list[0].provenance], ["seed", true, { model: "claude-fable-5-2", promptVersion: 1, docsAgents: 2, docsTeaching: 5 }]);
   assert.ok(seedFileBlocks().some((b) => b.id === list[0].id), "the same exercise gets the same block id");
@@ -139,7 +140,11 @@ test("seedFileBlocks: a seed exercise file is a seed block, enabled, with its fi
 // a block's default slot: the first writer wins (block files, then plans in id order), and a second run changes nothing
 // a plain exercise, so its minutes change no cell and the same block can be written with any minutes
 const plain = (title: string, over: Record<string, unknown> = {}) => ({ title, minutes: 4, level: "beginner", area: "guitar", tags: ["technique"], cells: [{ type: "text", text: "Play it slowly." }], ...over });
-const slotFile = (id: string, exercise: Record<string, unknown>) => ({ id, model: "m", versions: { prompt: 1, agents: 1, teaching: 1 }, note: "n", exercise, choices: [] });
+/** A block file of one exercise: its level, steps, moves and minutes in its one choice. */
+const slotFile = (id: string, exercise: Record<string, unknown>): SeedBlockFile => {
+  const { level, steps, moves, minutes, ...rest } = exercise;
+  return { id, model: "m", versions: { prompt: 1, agents: 1, teaching: 1 }, note: "n", exercise: rest, choices: [{ name: String(level ?? "main"), ...(level !== undefined ? { level: level as SeedBlockFile["choices"][number]["level"] } : {}), steps: (steps as string[] | undefined) ?? [], ...(moves !== undefined ? { moves } : {}), minutes: Number(minutes) }] };
+};
 const planWith = (id: string, exercise: Record<string, unknown>): SeedPlan => ({ id, reply: JSON.stringify({ title: id, days: Array.from({ length: 7 }, (_, i) => ({ theme: `d${i}`, exercises: [exercise] })) }), provenance: prov });
 
 test("seedFileBlocks: an exercise's minutes, why and lessons are the block's slot", () => {

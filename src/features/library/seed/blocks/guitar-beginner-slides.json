@@ -9,8 +9,6 @@
   "note": "Track bends-slides (guitar-techniques), step 1: slides, inside pentatonic position 1.",
   "exercise": {
     "title": "Slides inside position 1",
-    "minutes": 8,
-    "level": "beginner",
     "area": "guitar",
     "tags": [
       "technique",
@@ -20,7 +18,6 @@
     "concepts": [
       "bends-slides"
     ],
-    "steps": ["bends-slides:1"],
     "why": "A slide is one finger moving along one string, and position 1 has two notes on every string, so every string of the position holds a slide you can use.",
     "learnBefore": [
       "/course/5/bends-and-slides",
@@ -175,5 +172,15 @@
     "exploreMore": [
       "/course/6/joining"
     ]
-  }
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "bends-slides:1"
+      ],
+      "minutes": 8
+    }
+  ]
 }

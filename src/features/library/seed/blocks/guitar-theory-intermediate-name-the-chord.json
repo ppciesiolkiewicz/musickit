@@ -1,0 +1,48 @@
+{
+  "id": "guitar-theory-intermediate-name-the-chord",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": null,
+    "agents": 0,
+    "teaching": 0
+  },
+  "note": "Moved from plans/guitar-theory-intermediate.json, day 1.",
+  "exercise": {
+    "title": "Name the chord",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-building-chords",
+    "concepts": [
+      "sevenths-up"
+    ],
+    "why": "Naming a chord's quality by ear is the skill behind working out songs.",
+    "learnBefore": [
+      "/course/7/hearing-sevenths"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below and the game plays a chord. Pick its name. Listen to the top note: a half step under the octave means maj7, a whole step means 7 or m7. The tally under the answers keeps your score."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "interval-ears",
+          "kind": "chord"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "sevenths-up:5"
+      ],
+      "minutes": 5
+    }
+  ]
+}

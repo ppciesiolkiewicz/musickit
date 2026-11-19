@@ -1,0 +1,78 @@
+{
+  "id": "voice-guitar-advanced-first-week-warm-up-siren-and-low-hum",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 0,
+    "agents": 1,
+    "teaching": 5
+  },
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 2.",
+  "exercise": {
+    "title": "Warm-up: siren and low hum",
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "stretch-range"
+    ],
+    "learnBefore": [
+      "/theory/singing/warm-ups"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Siren",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the lip roll below: a tone slides up and back down, then you make the same slide on your own while the mic draws your line. Sing it on a lip roll, and keep the buzz the same size at the top as at the bottom."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "lip-roll",
+              "shape": "siren",
+              "voice": "baritone",
+              "plays": 4
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Low and easy",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Start the hill below and hold an easy hum: the ball rolls down into the hollow as your voice goes low, and the ring fills while you stay there. Each hold is a semitone lower, with the new note played in the breath between.\nKeep it quiet: a low note pushed for volume goes flat."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "voice-hill",
+              "where": "low",
+              "sound": "hum",
+              "seconds": 4,
+              "reps": 5,
+              "voice": "baritone"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "range:3"
+      ],
+      "minutes": 5
+    }
+  ]
+}
