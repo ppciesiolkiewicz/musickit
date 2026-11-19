@@ -95,3 +95,11 @@ test("sign-in goes straight to an invite, not to setup", () => {
   assert.equal(pathAfterSignIn({ account, next: "/join/abc" }), "/join/abc");
   assert.equal(pathAfterSignIn({ account, next: "/plan" }), "/account/setup?next=%2Fplan");
 });
+
+test("listUsers gives every user, newest first, with their role", async () => {
+  const { deps, person } = setup();
+  const a = await person("a@x.test");
+  const b = await person("b@x.test", null, "owner");
+  const listed = await deps.repo.listUsers();
+  assert.deepEqual(new Set(listed.map((u) => `${u.email}:${u.role}`)), new Set([`${a.email}:student`, `${b.email}:owner`]));
+});

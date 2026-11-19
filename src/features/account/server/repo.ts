@@ -68,6 +68,8 @@ export interface AuthRepo {
   /** Null when the email already has a user. */
   createUser(input: { email: string; name: string; role: Role }, now: Date): Promise<UserRow | null>;
   userById(id: string): Promise<UserRow | null>;
+  /** Every user, newest first: for /admin/users. */
+  listUsers(): Promise<UserRow[]>;
   updateUserName(id: string, name: string, now: Date): Promise<UserRow | null>;
   /** Turns the emails about what we fix and add, and offers on (from `now`) or off. Turning them on again keeps the first time. */
   setEmailUpdates(id: string, on: boolean, now: Date): Promise<UserRow | null>;

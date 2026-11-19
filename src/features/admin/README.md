@@ -9,7 +9,12 @@ Open in development, and in production to a signed-in admin (role `admin`). Rule
 - `AdminShell.tsx`, `AdminNav.tsx`: the page frame and its tabs, with a link over to `/dev`.
 - `messages/MessagesInbox.tsx`: the inbox.
 - `invites/InvitesAdmin.tsx`: teacher invites.
+- `src/app/admin/users/page.tsx`: the users list, a server page over `listUsers` on `AuthRepo`.
 - Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`.
+
+## Users (`/admin/users`)
+
+Every account, newest first: name, email, role and the day it was made, read straight from the database by the page.
 
 ## Messages (`/admin/messages`)
 

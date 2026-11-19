@@ -55,6 +55,9 @@ export function memoryRepo(plans: Plan[] = []) {
     async userById(id) {
       return users.find((u) => u.id === id) ?? null;
     },
+    async listUsers() {
+      return [...users].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    },
     async setUserPlan(id, planId, billing, role) {
       const user = users.find((u) => u.id === id);
       if (!user) return null;

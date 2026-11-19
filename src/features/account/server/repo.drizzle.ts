@@ -86,6 +86,9 @@ export function drizzleRepo(db: Db): AuthRepo {
       const [row] = await db.select(userCols).from(users).where(eq(users.id, id)).limit(1);
       return row ?? null;
     },
+    async listUsers() {
+      return db.select(userCols).from(users).orderBy(desc(users.createdAt));
+    },
     async setUserPlan(id, planId, billing, role, now) {
       const [row] = await db.update(users).set({ planId, billing, role, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
       return row ?? null;
