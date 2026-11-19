@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
+import Icon from "@/components/Icon";
 import { useMicPitch } from "@/components/practice/useMicPitch";
 import { ToolHeadphonesHint, useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
@@ -45,6 +47,8 @@ const useTouch = () => useSyncExternalStore(
   () => false,
 );
 
+const noSubscribe = () => () => {};
+
 const ALL_KEYS = Array.from({ length: 12 }, (_, k) => k);
 
 /** Do in the voice for a key, spelled in it, and the intervals that fit from it */
@@ -65,7 +69,8 @@ const NO_PITCH = { current: null };
  * With `dot` (the default) the voice is drawn as a dot; without it the student sings blind and only hears whether it
  * counted (the harder way); either is a switch on the tool too. `picker` false leaves the Keys switch and key chips out
  * (an exercise does: its keys are set, and a step-choice changes them). A page with a side panel holds the keys, view and dot
- * there and hands them in as `options`, and the tool then leaves those controls out.
+ * there and hands them in as `options`, and the tool then leaves those controls out. Full screen is a page modal (Esc
+ * closes it): the same tool moved over the page, so a question asked carries on, the piano roll grown to the screen's height.
  */
 export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", play = "do", dot: dotProp = true, picker = true, options, hostSettings = false }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; /** "both": Do and then the note sound before the student sings (the easier way); "do": only Do */ play?: "do" | "both"; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean }; /** the page holds accuracy and the volume in its settings panel: no settings button here */ hostSettings?: boolean }) {
   useCoverage({ hints: 7 });
@@ -97,6 +102,25 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   // before the first question Do follows the keys picked; a question asked keeps its own key
   const pc = ask !== null || keys.includes(lastPc) ? lastPc : keys[0];
   const toggleKey = (k: number) => setPicked((ks) => toggleOne(ks, k));
+
+  // full screen: drawn over the page from the body (out of any card's stacking), the page behind kept still, Esc closes it
+  const [full, setFull] = useState(false);
+  const mounted = useSyncExternalStore(noSubscribe, () => true, () => false);
+  useEffect(() => {
+    if (!full) return;
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setFull(false);
+    };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onEsc);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onEsc);
+    };
+  }, [full]);
 
   const placed = useMemo(() => placeIn(pc, range, intervals, dir), [pc, range, intervals, dir]);
 
@@ -273,10 +297,19 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   const doPlays = both ? "Do and the note play" : "Do plays";
   // one width for Start, Restart and Next, so the buttons after it stay put
   const big = "inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 !border-sky-400/80 !bg-sky-500/25 !text-sky-50";
+  const fullButton = (
+    <Hint title="Full screen" description="Enlarges the piano roll or the staff. Esc closes it.">
+      <button type="button" onClick={() => setFull(!full)} title={full ? "Close full screen (Esc)" : "Full screen"} aria-label={full ? "Close full screen (Esc)" : "Full screen"} aria-pressed={full}
+        className={`flex h-8 min-w-8 items-center justify-center rounded-lg border px-1.5 transition ${full ? "border-sky-400/70 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
+        <Icon name={full ? "minimize" : "maximize"} size={15} />
+      </button>
+    </Hint>
+  );
   const settings = standard && !hostSettings && <Hint title="Settings" description="How close counts as on the note, and the volume."><ToolSettings accuracy /></Hint>;
 
-  return (
-    <div ref={keysRef} className="flex flex-col gap-3">
+  const view = (
+    <div ref={keysRef} role={full ? "dialog" : undefined} aria-modal={full || undefined} aria-label={full ? "Sing an interval" : undefined}
+      className={full ? "fixed inset-0 z-[70] flex flex-col gap-3 overflow-hidden bg-slate-950 p-4 sm:p-6" : "flex flex-col gap-3"}>
       <div className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-900/40 p-2">
       <div className="flex flex-wrap items-center gap-2">
         <span data-tour="interval-singer-start" className="inline-flex">
@@ -309,6 +342,7 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
         {/* plain text, not a badge: a badge's capitals would turn m3 into M3 */}
         <span className="rounded-full border border-slate-700 px-2 py-0.5 text-xs text-slate-300">{[...new Set(placed.asks.map(Math.abs))].sort((a, b) => a - b).map(shortName).join(" ")} {dir === "both" ? "up and down" : dir}</span>
         </>}
+        {fullButton}
       </div>
       {!options && <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs text-slate-400">
         {(standard || showKeys || showDot) && <span data-tour="interval-singer-options" className="inline-flex flex-wrap items-center gap-2">
@@ -330,14 +364,14 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
         {ask !== null && <p className="text-sm text-slate-400">{longName(ask)} from Do ({placed.doNote.spelled.name})</p>}
       </div>
       <p className={`min-h-5 text-sm ${phase === "solved" ? "text-emerald-300" : phase === "shown" ? "text-amber-300" : "text-slate-400"}`} aria-live="polite">{message}</p>
-      <div data-tour="interval-singer-view" className="relative">
+      <div data-tour="interval-singer-view" className={full ? "relative flex min-h-0 flex-1 flex-col justify-center" : "relative"}>
       <StartCover show={ask === null} title="Sing an interval" onStart={next} keyCap={keysArmed ? "Space" : undefined} note="The mic starts with it.">
         {both ? "Do plays, then the note. Sing the note back from Do and hold it." : "Do plays and the interval to sing shows above. Sing it from Do and hold the note."}
       </StartCover>
       {look === "roll" ? (
         <IntervalRoll doMidi={doMidi} low={doMidi + Math.min(0, ...placed.asks, ask ?? 0)} high={doMidi + Math.max(0, ...placed.asks, ask ?? 0)} target={targetMidi} found={found} doLabel={`Do · ${placed.doNote.spelled.name}`} targetLabel={target ? `${target.label} · ${target.spelled.name}` : ""} targetHint={ask !== null && target ? `${shortName(ask)} · ${target.label}` : ""}
           doName={`${placed.doNote.spelled.name}${placed.doNote.spelled.octave}`} targetName={target ? `${target.spelled.name}${target.spelled.octave}` : ""}
-          pitch={pitch} cents={cents} dot={dot} live={micOn} onNote={(w) => (w === "do" ? void tap(doMidi, -1) : hearTarget())} />
+          pitch={pitch} cents={cents} dot={dot} live={micOn} fill={full} onNote={(w) => (w === "do" ? void tap(doMidi, -1) : hearTarget())} />
       ) : (
         <SingingStaff ladder={staff.ladder} clef={clef} pitch={dot ? pitch : NO_PITCH} played={tapped === -1 ? (staff.targetAt === 0 ? 1 : 0) : tapped === -2 ? staff.targetAt : null} cents={cents}
           greens={(i) => i !== staff.targetAt} hidden={(i) => !found && i === staff.targetAt} question={(i) => (ask !== null && target && i === staff.targetAt ? [shortName(ask), target.label] : undefined)}
@@ -346,4 +380,5 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
       </div>
     </div>
   );
+  return full && mounted ? createPortal(view, document.body) : view;
 }
