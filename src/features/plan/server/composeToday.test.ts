@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { baseFixture, PLAYER_A, type LibraryData } from "@/features/library/server/fixture";
+import { baseFixture, choice, PLAYER_A, type LibraryData } from "@/features/library/server/fixture";
 import { memoryLibraryRepo } from "@/features/library/server/repo.memory";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
 import { putEntry, writeDoc } from "@/features/userData/server/data";
@@ -23,15 +23,19 @@ const exerciseOf = (name: string): PlanExercise =>
 const bid = (name: string): string => blockIdOf(blockKeyOf(exerciseOf(name)));
 const nameOf = (id: string): string => BLOCKS.find((n) => bid(n) === id) ?? id;
 
-/** Blocks on open-chords:1 (the first step of a fresh guitar player), each with a 5 minute slot. */
+/**
+ * Curated blocks, each with one choice on open-chords:1 (the first step of a fresh guitar player) and a 5 minute slot. `minutes:
+ * null` in `over` gives the blocks no choice. Their ids are the hashes a stored plan works out from the exercise.
+ */
 function lib(ids: string[], over: Partial<LibraryData["blocks"][number]> = {}): LibraryData {
   const d = baseFixture();
   d.blocks = ids.map((id) => ({
-    id: bid(id), content: { title: `Block ${id}`, cells: [{ type: "text", text: "Play it." }] }, area: "guitar", topic: "guitar-basic-chords", concepts: [], level: "beginner", steps: ["open-chords:1"], tags: [],
+    id: bid(id), kind: "curated" as const, content: { title: `Block ${id}`, cells: [{ type: "text", text: "Play it." }] }, area: "guitar", topic: "guitar-basic-chords", concepts: [], level: null, steps: [], tags: [],
     parentId: null, model: null, promptVersion: null, docsAgents: null, docsTeaching: null, createdAt: new Date("2026-01-01T00:00:00Z"),
     minutes: 5, why: null, learnBefore: null, exploreMore: null, ...over,
   }));
-  d.owners = ids.map((id) => ({ userId: null, blockId: bid(id), source: "seed" as const, enabledForReuse: true, createdAt: new Date("2026-01-01T00:00:00Z") }));
+  d.choices = over.minutes === null ? [] : ids.map((id) => choice(bid(id), "beginner", { level: "beginner", steps: ["open-chords:1"] }));
+  d.owners = ids.map((id) => ({ userId: null, blockId: bid(id), source: "seed" as const, createdAt: new Date("2026-01-01T00:00:00Z") }));
   d.progress = [];
   return d;
 }
@@ -55,7 +59,7 @@ test("a date that is not yyyy-mm-dd, not real, or more than a day from today: ba
   for (const date of ["2026-11-17", "2026-11-18", "2026-11-19"]) assert.equal((await composeToday(d, P, { date, another: false })).ok, true, date);
 });
 
-test("no blocks of the areas, or none with a slot or a step: no-blocks", async () => {
+test("no blocks of the areas, or none with a choice: no-blocks", async () => {
   assert.deepEqual(await composeToday(await setup(state(), lib([])), P, { date: "2026-11-18", another: false }), { ok: false, code: "no-blocks" });
   const noSlot = await setup(state(), lib(BLOCKS, { minutes: null, why: null, learnBefore: null, exploreMore: null }));
   assert.deepEqual(await composeToday(noSlot, P, { date: "2026-11-18", another: false }), { ok: false, code: "no-blocks" });
@@ -77,6 +81,7 @@ test("a candidate's exercise has the block id the stored plan computes from it",
   const id = blockIdOf(blockKeyOf(e));
   d.blocks[0].id = id;
   d.owners[0].blockId = id;
+  d.choices[0].blockId = id;
   const r = await composeToday(await setup(state(), d), P, { date: "2026-11-18", another: false });
   assert.ok(r.ok);
   assert.equal(r.day.exercises[0].blockId, id);
@@ -161,8 +166,8 @@ test("ratings that reach beginner in a topic raise its level for the composer: i
   const s = state({ answers: { ...answers, topics: { "guitar-basic-chords": 0 }, minutes: 5 } as PlanState["answers"] });
   // x on open-chords:8 (fresh at beginner's cap of two, only open at new's), y on guitar-melodies:1 (open either way, and first)
   const data = lib(["x", "y"]);
-  data.blocks[0].steps = ["open-chords:8"];
-  data.blocks[1].steps = ["guitar-melodies:1"];
+  data.choices[0].steps = ["open-chords:8"];
+  data.choices[1].steps = ["guitar-melodies:1"];
   const plain = await setup(s, data);
   const titles = (a: Awaited<ReturnType<typeof composeToday>>) => (a.ok ? a.day.exercises.map((e) => e.title) : []);
   assert.deepEqual(titles(await composeToday(plain, P, { date: "2026-11-18", another: false })), ["Block y"], "without ratings: the open steps' order");

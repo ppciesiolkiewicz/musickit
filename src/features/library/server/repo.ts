@@ -7,6 +7,12 @@ import type { BlockDetail, ComposeBlock, BlockFilter, BlockOrder, BlockSummary, 
  * and a tie goes to the lower exercise id. A timer slot counts only when `blocks` maps it to a string block id. A block whose
  * content has no string title has the title "".
  *
+ * A block is visible to the player who owns it. A curated block (the seed's) is visible to everyone while one of its choices is
+ * active, and with `includeNotEnabled` always; a hashed block is its owners' only, and with `includeNotEnabled` also visible when
+ * the app owns it (an old example or AI row). Another player's hashed block is never visible. A curated block lists its active
+ * choices (all, with `includeNotEnabled`); its `level`, `steps`, the `level` and `steps` filters and `coverage` go by the choices
+ * it lists. A plan row's level and steps are its choice's when it names one, else its block's.
+ *
  * Blocks and plans are gated apart. A plan is visible when it is enabled for reuse or the scope has `includeNotEnabled`, and
  * `scope.planIds` narrows plans to those ids. A plan's `schedule` rows, `blocks`, `days`, `minutes`, `topics`, `concepts`, its
  * filters (`levels`, `topics`) and its `hadShare` come from its rows in `practice_plan_blocks` whether or not each block is itself
@@ -30,9 +36,10 @@ export interface LibraryRepo {
   /** by topic then level, by concept and by step, all bytewise; no zero rows */
   coverage(scope: Scope): Promise<{ topics: CoverageRow[]; concepts: ConceptCoverage[]; steps: StepCoverage[] }>;
   /**
-   * The blocks a day's plan can be made from: owned by the app, enabled for reuse, in one of `areas`, naming at least one step and
-   * having a slot (minutes). A block only another player owns is never here. `use` counts every player's timer on the block;
-   * `mine` is `player`'s latest rating (the rule of `mine` above), null when they never rated it. By id, bytewise; no limit.
+   * What a day's plan can be made from: one item per active choice that names at least one step, of a curated block in one of
+   * `areas`. A hashed block is never here. `use` counts every player's timer on the block (all its choices together); `mine` is
+   * `player`'s latest rating (the rule of `mine` above) among the rows with that choice's id, null when there is none. By block id
+   * (bytewise), then the choice's place; no limit.
    */
   composeBlocks(player: string, areas: string[]): Promise<ComposeBlock[]>;
   userExists(id: string): Promise<boolean>;

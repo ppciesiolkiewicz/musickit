@@ -1,3 +1,4 @@
+import type { Moves } from "@/features/plan/model/moves";
 import type { Block } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 
@@ -9,20 +10,26 @@ export interface LibraryData {
   /** only the id: the loader fills the other NOT NULL user columns (email, name, role, ...) */
   users: { id: string }[];
   blocks: {
-    id: string; content: Block; area: string | null; topic: string | null; concepts: string[]; level: string | null; steps: string[]; tags: string[];
+    /** 'curated': a seed block with a fixed id, its level and steps on its choices; 'hashed': the id is the content's hash */
+    id: string; kind: "curated" | "hashed"; content: Block; area: string | null; topic: string | null; concepts: string[]; level: string | null; steps: string[]; tags: string[];
     parentId: string | null; model: string | null; promptVersion: number | null; docsAgents: number | null; docsTeaching: number | null; createdAt: Date;
     /** the default slot: all null for a block stored without one */
     minutes: number | null; why: string | null; learnBefore: string[] | null; exploreMore: string[] | null;
   }[];
+  /** the choices of curated blocks: `id` is `<blockId>/<name>`, `place` orders them within the block */
+  choices: {
+    id: string; blockId: string; name: string; level: string | null; steps: string[]; moves: Moves | null; set: Record<string, unknown>;
+    minutes: number; active: boolean; place: number; createdAt: Date; updatedAt: Date;
+  }[];
   /** `userId` null is the app */
-  owners: { userId: string | null; blockId: string; source: "ai" | "edit" | "seed" | "example"; enabledForReuse: boolean; createdAt: Date }[];
-  progress: { userId: string; exerciseId: string; entry: ProgressEntry; blockId: string | null }[];
+  owners: { userId: string | null; blockId: string; source: "ai" | "edit" | "seed" | "example"; createdAt: Date }[];
+  progress: { userId: string; exerciseId: string; entry: ProgressEntry; blockId: string | null; choiceId: string | null }[];
   dayTimes: { userId: string; planId: string; day: number; elapsed: number; spent: unknown; blocks: unknown }[];
   plans: {
     id: string; title: string; answers: unknown; model: string; reply: string; source: string; promptVersion: number | null;
     docsAgents: number | null; docsTeaching: number | null; enabledForReuse: boolean; createdAt: Date;
   }[];
-  planBlocks: { planId: string; day: number; place: number; blockId: string; minutes: number }[];
+  planBlocks: { planId: string; day: number; place: number; blockId: string; choiceId?: string | null; minutes: number }[];
 }
 
 export const PLAYER_A = "a0000000-0000-4000-8000-00000000000a";
@@ -30,7 +37,7 @@ export const PLAYER_B = "b0000000-0000-4000-8000-00000000000b";
 export const PLAYER_C = "c0000000-0000-4000-8000-00000000000c";
 
 const block = (id: string, createdAt: string, extra: Partial<LibraryData["blocks"][number]> = {}): LibraryData["blocks"][number] => ({
-  id, content: { title: `Block ${id}`, cells: [] }, area: "guitar", topic: "guitar-scales", concepts: [], level: null, steps: [], tags: [], parentId: null,
+  id, kind: "hashed", content: { title: `Block ${id}`, cells: [] }, area: "guitar", topic: "guitar-scales", concepts: [], level: null, steps: [], tags: [], parentId: null,
   model: null, promptVersion: null, docsAgents: null, docsTeaching: null, createdAt: new Date(createdAt),
   minutes: null, why: null, learnBefore: null, exploreMore: null, ...extra,
 });
@@ -38,46 +45,64 @@ const plan = (id: string, extra: Partial<LibraryData["plans"][number]>): Library
   id, title: `Plan ${id}`, answers: null, model: "m1", reply: "", source: "seed", promptVersion: null, docsAgents: null, docsTeaching: null,
   enabledForReuse: false, createdAt: new Date("2026-02-01T00:00:00Z"), ...extra,
 });
-const owner = (userId: string | null, blockId: string, enabledForReuse: boolean, source: LibraryData["owners"][number]["source"]): LibraryData["owners"][number] =>
-  ({ userId, blockId, source, enabledForReuse, createdAt: new Date("2026-01-01T00:00:00Z") });
-const entry = (userId: string, exerciseId: string, blockId: string, stars: ProgressEntry["stars"], at: string): LibraryData["progress"][number] => ({
-  userId, exerciseId, blockId,
+const owner = (userId: string | null, blockId: string, source: LibraryData["owners"][number]["source"]): LibraryData["owners"][number] =>
+  ({ userId, blockId, source, createdAt: new Date("2026-01-01T00:00:00Z") });
+const entry = (userId: string, exerciseId: string, blockId: string, stars: ProgressEntry["stars"], at: string, choiceId: string | null = null): LibraryData["progress"][number] => ({
+  userId, exerciseId, blockId, choiceId,
   entry: { id: `${userId}-${exerciseId}`, planId: "p-1", exerciseId, day: 0, exercise: 0, title: "t", blockId, stars, at },
 });
 
+/** A choice of curated block `blockId`, named `name`; active, 5 minutes, place 0 unless `extra` says otherwise. */
+export const choice = (blockId: string, name: string, extra: Partial<LibraryData["choices"][number]> = {}): LibraryData["choices"][number] => ({
+  id: `${blockId}/${name}`, blockId, name, level: null, steps: [], moves: null, set: {}, minutes: 5, active: true, place: 0,
+  createdAt: new Date("2026-01-01T00:00:00Z"), updatedAt: new Date("2026-01-01T00:00:00Z"), ...extra,
+});
+
+/** A curated block as the seed stores it: no level or steps on the row, `minutes` its first choice's. */
+export const curatedBlock = (id: string, createdAt: string, extra: Partial<LibraryData["blocks"][number]> = {}): LibraryData["blocks"][number] =>
+  block(id, createdAt, { kind: "curated", ...extra, level: null, steps: [] });
+
 /**
- * Two players (A, B) and the app. S1 and S2 are seed blocks enabled for reuse; X is an example block, app-owned and not enabled; PA
- * is A's private edit; R is a block A and B both own and both rated (A 3 stars, then 5 stars later in another slot; B 2 stars), not
- * enabled. PB is B's, enabled for reuse; D has two owner rows (A's not enabled, B's enabled); Zed and alpha are seed blocks with the
- * same created_at. Plans: P1 and P2 enabled, P3 (the app's, X only) not enabled, P4 enabled with no block rows and null answers. P1
- * holds S1 on two days, S2 and X; P2 holds R and D. A also owns S2 and rated it 2 stars. Timer rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
+ * Two players (A, B) and the app. S1, S2, Zed and alpha are curated (seed) blocks, each with one active choice: S1/beginner
+ * (pentatonic:1 and :2, 5 minutes), S2/intermediate (pentatonic:2, 7 minutes), Zed/advanced and alpha/advanced (no steps). X is a
+ * hashed block the app owns (an old example: seen only with `includeNotEnabled`); PA is A's private edit; R is a block A and B both
+ * own and both rated (A 3 stars, then 5 stars later in another slot; B 2 stars). PB is B's; D has two owner rows (A's and B's);
+ * Zed and alpha have the same created_at. Plans: P1 and P2 enabled, P3 (the app's, X only) not enabled, P4 enabled with no block
+ * rows and null answers. P1 holds S1 on two days, S2 and X; P2 holds R and D. A also owns S2 and rated its choice 2 stars. Timer
+ * rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
  */
 export function baseFixture(): LibraryData {
   return {
     users: [{ id: PLAYER_A }, { id: PLAYER_B }, { id: PLAYER_C }],
     blocks: [
-      block("S1", "2026-01-01T00:00:00Z", { level: "beginner", steps: ["pentatonic:1", "pentatonic:2"], concepts: ["major-scale", "pentatonic"], tags: ["warmup", "slow"], model: "m1", promptVersion: 3, docsAgents: 2, docsTeaching: 2, minutes: 5, why: "Warm the hand up.", learnBefore: ["/course/3/x"], exploreMore: ["/course/4/y"] }),
-      block("S2", "2026-01-02T00:00:00Z", { level: "intermediate", steps: ["pentatonic:2"], concepts: ["pentatonic"], tags: ["warmup"], model: "m2", promptVersion: 4, docsAgents: 2, docsTeaching: 3, minutes: 7 }),
+      curatedBlock("S1", "2026-01-01T00:00:00Z", { concepts: ["major-scale", "pentatonic"], tags: ["warmup", "slow"], model: "m1", promptVersion: 3, docsAgents: 2, docsTeaching: 2, minutes: 5, why: "Warm the hand up.", learnBefore: ["/course/3/x"], exploreMore: ["/course/4/y"] }),
+      curatedBlock("S2", "2026-01-02T00:00:00Z", { concepts: ["pentatonic"], tags: ["warmup"], model: "m2", promptVersion: 4, docsAgents: 2, docsTeaching: 3, minutes: 7 }),
       block("X", "2026-01-03T00:00:00Z", { level: "beginner", topic: "ear", area: "ear", concepts: ["intervals"], tags: ["ear"] }),
       block("PA", "2026-01-04T00:00:00Z", { level: "beginner", parentId: "S1", model: "m1" }),
       block("R", "2026-01-05T00:00:00Z", { topic: "rhythm", area: "rhythm", level: "beginner", tags: ["slow"] }),
       block("PB", "2026-01-06T00:00:00Z", { area: "theory", topic: "theory-basics", level: "advanced" }),
       block("D", "2026-01-07T00:00:00Z", { area: "theory", topic: "theory-basics", level: "intermediate" }),
       // same created_at, and ids that sort differently bytewise ("Z" < "a") than by locale
-      block("Zed", "2026-01-08T00:00:00Z", { area: "theory", topic: "naming", level: "advanced" }),
-      block("alpha", "2026-01-08T00:00:00Z", { area: "theory", topic: "naming", level: "advanced" }),
+      curatedBlock("Zed", "2026-01-08T00:00:00Z", { area: "theory", topic: "naming", minutes: 5 }),
+      curatedBlock("alpha", "2026-01-08T00:00:00Z", { area: "theory", topic: "naming", minutes: 5 }),
+    ],
+    choices: [
+      choice("S1", "beginner", { level: "beginner", steps: ["pentatonic:1", "pentatonic:2"], moves: { bpm: { from: 60, to: 90, step: 5 } } }),
+      choice("S2", "intermediate", { level: "intermediate", steps: ["pentatonic:2"], minutes: 7 }),
+      choice("Zed", "advanced", { level: "advanced" }),
+      choice("alpha", "advanced", { level: "advanced" }),
     ],
     owners: [
-      owner(null, "S1", true, "seed"), owner(null, "S2", true, "seed"), owner(null, "X", false, "example"),
-      owner(PLAYER_A, "PA", false, "edit"), owner(PLAYER_A, "R", false, "ai"), owner(PLAYER_B, "R", false, "ai"), owner(PLAYER_A, "S2", false, "ai"),
-      owner(PLAYER_B, "PB", true, "ai"), owner(PLAYER_A, "D", false, "ai"), owner(PLAYER_B, "D", true, "ai"),
-      owner(null, "Zed", true, "seed"), owner(null, "alpha", true, "seed"),
+      owner(null, "S1", "seed"), owner(null, "S2", "seed"), owner(null, "X", "example"),
+      owner(PLAYER_A, "PA", "edit"), owner(PLAYER_A, "R", "ai"), owner(PLAYER_B, "R", "ai"), owner(PLAYER_A, "S2", "ai"),
+      owner(PLAYER_B, "PB", "ai"), owner(PLAYER_A, "D", "ai"), owner(PLAYER_B, "D", "ai"),
+      owner(null, "Zed", "seed"), owner(null, "alpha", "seed"),
     ],
     progress: [
       entry(PLAYER_A, "e-r1", "R", 3, "2026-03-01T10:00:00.000Z"),
       entry(PLAYER_A, "e-r2", "R", 5, "2026-03-05T10:00:00.000Z"),
       entry(PLAYER_B, "e-r1", "R", 2, "2026-03-03T10:00:00.000Z"),
-      entry(PLAYER_A, "e-s2", "S2", 2, "2026-03-02T10:00:00.000Z"),
+      entry(PLAYER_A, "e-s2", "S2", 2, "2026-03-02T10:00:00.000Z", "S2/intermediate"),
     ],
     dayTimes: [
       { userId: PLAYER_A, planId: "p-1", day: 0, elapsed: 600, spent: { e1: 600 }, blocks: { e1: "S1" } },
@@ -100,9 +125,9 @@ export function baseFixture(): LibraryData {
       plan("P4", { answers: null, model: "m3", reply: "reply P4", enabledForReuse: true }),
     ],
     planBlocks: [
-      { planId: "P1", day: 0, place: 0, blockId: "S1", minutes: 10 },
-      { planId: "P1", day: 0, place: 1, blockId: "S2", minutes: 15 },
-      { planId: "P1", day: 1, place: 0, blockId: "S1", minutes: 10 },
+      { planId: "P1", day: 0, place: 0, blockId: "S1", choiceId: "S1/beginner", minutes: 10 },
+      { planId: "P1", day: 0, place: 1, blockId: "S2", choiceId: "S2/intermediate", minutes: 15 },
+      { planId: "P1", day: 1, place: 0, blockId: "S1", choiceId: "S1/beginner", minutes: 10 },
       { planId: "P1", day: 1, place: 1, blockId: "X", minutes: 5 },
       { planId: "P2", day: 0, place: 0, blockId: "R", minutes: 20 },
       { planId: "P2", day: 0, place: 1, blockId: "D", minutes: 10 },

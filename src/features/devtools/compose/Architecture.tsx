@@ -61,7 +61,7 @@ export const C = ({ children }: { children: ReactNode }) => <code className="fon
 const INPUTS: [string, ReactNode, ReactNode][] = [
   ["answers", <>The plan document&apos;s <C>answers</C>, through <C>raisedAnswers</C>: each topic raised level by level as far as the ratings reach (a teacher&apos;s score replaces the answer as the floor).</>, <>Areas, minutes a day, the keys question, and each topic&apos;s line: where its tracks start and how many steps it offers at once.</>],
   ["solid", <>Every progress entry, through <C>solidRatedAt</C>: the steps whose newest rating is Solid or better, with when.</>, <>Solid steps are known (so the next ones come within reach) and are the review list, rated longest ago first.</>],
-  ["blocks", <><C>library.composeBlocks(player, areas)</C>, each through <C>candidateOf</C>: the app&apos;s reusable blocks of the areas that name a step and hold a slot, with everyone&apos;s use and this player&apos;s newest rating.</>, <>The only exercises a day can hold. The composer writes none and changes none.</>],
+  ["blocks", <><C>library.composeBlocks(player, areas)</C>, each through <C>candidateOf</C>: one per active choice of a curated block of the areas that names a step, with its minutes and moves, everyone&apos;s use of the block and this player&apos;s newest rating of the choice.</>, <>The only exercises a day can hold. The composer writes none and changes none.</>],
   ["date", <>Sent by the page (its local date), refused unless within one day of the server&apos;s.</>, <>Rotates which topic opens the day; part of the seed.</>],
   ["yesterday", <>The block ids of the newest own composed day before <C>date</C>. A shared plan is never read.</>, <>Never picked today.</>],
   ["keep", <>With <C>another</C>: today&apos;s exercises that are already rated.</>, <>Stay as they are, first in the day; their minutes come off the budget.</>],
@@ -132,7 +132,7 @@ const FILES: [string, ReactNode][] = [
   ["plan/model/path.ts", <><C>PATH</C>: tracks, steps, what comes first.</>],
   ["plan/model/keys.ts", <>The key ladders and a player&apos;s keys.</>],
   ["plan/model/schedule.ts", <><C>startDay</C>, <C>anotherDay</C>, <C>giveWeek</C>: a composed day into the stored plan.</>],
-  ["library/server/repo.ts", <><C>composeBlocks</C>: the blocks a day can be made from.</>],
+  ["library/server/repo.ts", <><C>composeBlocks</C>: the choices a day can be made from.</>],
   ["devtools/model/composeLab.ts", <>This page&apos;s stand-ins: <C>seedCandidates</C>, <C>simulate</C>.</>],
 ];
 

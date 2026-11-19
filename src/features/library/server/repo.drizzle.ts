@@ -3,7 +3,7 @@ import type { Db } from "@/lib/db/client";
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryRepo } from "./repo";
-import type { BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, ComposeBlock, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
+import type { BlockChoice, BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, ComposeBlock, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
 
 /*
  * Every value from a caller is a bound parameter (`${...}` in `sql`); nothing is spliced into the text. Player ids are compared
@@ -17,12 +17,36 @@ const textArray = (xs: string[]): SQL => sql`array[${sql.join(xs.map((x) => sql`
 /** Rows past the end are dropped as `slice(0, limit)` would. */
 const limitOf = (limit: number) => (Number.isFinite(limit) ? sql`limit ${Math.max(0, Math.floor(limit))}` : limit > 0 ? sql`` : sql`limit 0`);
 
-/** The visibility rule for the block whose id is `id`: an owner row enabled for reuse, the player's own, or the app's with `includeNotEnabled`. */
+/** The choices a scope lists, as a condition on `c`: the active ones, or all with `includeNotEnabled`. */
+const listedChoice = (scope: Scope): SQL => (scope.includeNotEnabled === true ? sql`true` : sql`c.active`);
+
+/**
+ * The visibility rule for the block whose id is `id`: the player owns it; or it is curated with an active choice (any curated
+ * block with `includeNotEnabled`); or, with `includeNotEnabled`, the app owns it. A hashed block is otherwise its owners' only.
+ */
 function blockVisible(scope: Scope, id: SQL): SQL {
-  const own = scope.player !== undefined ? sql` or o.user_id::text = ${scope.player}` : sql``;
-  const app = scope.includeNotEnabled === true ? sql` or o.user_id is null` : sql``;
-  return sql`exists (select 1 from block_owners o where o.block_id = ${id} and (o.enabled_for_reuse${own}${app}))`;
+  const parts: SQL[] = [
+    sql`exists (select 1 from blocks vb where vb.id = ${id} and vb.kind = 'curated' and ${scope.includeNotEnabled === true ? sql`true` : sql`exists (select 1 from choices c where c.block_id = vb.id and c.active)`})`,
+  ];
+  if (scope.player !== undefined) parts.push(sql`exists (select 1 from block_owners o where o.block_id = ${id} and o.user_id::text = ${scope.player})`);
+  if (scope.includeNotEnabled === true) parts.push(sql`exists (select 1 from block_owners o where o.block_id = ${id} and o.user_id is null)`);
+  return sql`(${sql.join(parts, sql` or `)})`;
 }
+
+/** What each block serves, `(block_id, choice_id, level, steps)`: a hashed block its own level and steps, a curated block each listed choice. */
+const units = (scope: Scope): SQL => sql`(
+  select c.block_id, c.id as choice_id, c.level, c.steps from choices c join blocks cb on cb.id = c.block_id where cb.kind = 'curated' and ${listedChoice(scope)}
+  union all
+  select hb.id, null, hb.level, hb.steps from blocks hb where hb.kind <> 'curated'
+)`;
+
+/** The rows of plan `p` with what each serves: its choice's level and steps when it names one, else its block's; and its block's topic and concepts. */
+const planRows = sql`(
+  select r.plan_id, rb.id as block_id, rb.topic, rb.concepts,
+    case when rc.id is not null then rc.level else rb.level end as level,
+    case when rc.id is not null then rc.steps else rb.steps end as steps
+  from practice_plan_blocks r join blocks rb on rb.id = r.block_id left join choices rc on rc.id = r.choice_id
+)`;
 
 /** Whether the player owns the block whose id is `id`. */
 const owns = (player: string, id: SQL): SQL => sql`exists (select 1 from block_owners o where o.block_id = ${id} and o.user_id::text = ${player})`;
@@ -61,6 +85,16 @@ const ratingTotals = sql`(
   from progress_entries where block_id is not null group by block_id
 )`;
 
+/** The player's latest rating per choice id (the rule of `latestRating`), for the choices in `ids`. */
+const latestChoiceRating = (player: string, ids: SQL): SQL => sql`(
+  select distinct on (choice_id) choice_id,
+    case when entry ->> 'stars' in ('1', '2', '3', '4', '5') then (entry ->> 'stars')::int end as stars,
+    case when jsonb_typeof(entry -> 'at') = 'string' then entry ->> 'at' end as at
+  from progress_entries
+  where choice_id is not null and user_id::text = ${player} and choice_id = any(${ids})
+  order by choice_id, (case when jsonb_typeof(entry -> 'at') = 'string' then entry ->> 'at' end) collate "C" desc nulls last, exercise_id collate "C"
+)`;
+
 /** The player's latest rating per block id: latest string `at` (bytewise), an entry without one last, then the lowest exercise id. */
 const latestRating = (player: string, ids?: SQL): SQL => sql`(
   select distinct on (block_id) block_id,
@@ -72,7 +106,7 @@ const latestRating = (player: string, ids?: SQL): SQL => sql`(
 )`;
 
 interface BlockRow {
-  id: string; title: string; area: string | null; topic: string | null; concepts: string[]; level: string | null; steps: string[]; tags: string[];
+  id: string; kind: string; choices: BlockChoice[]; title: string; area: string | null; topic: string | null; concepts: string[]; level: string | null; steps: string[]; tags: string[];
   model: string | null; prompt_version: number | null; docs_agents: number | null; docs_teaching: number | null;
   content: Block; parent_id: string | null;
   minutes: number | null; why: string | null; learn_before: string[] | null; explore_more: string[] | null;
@@ -85,13 +119,13 @@ function blockWhere(scope: Scope, f: BlockFilter): SQL {
   const parts: SQL[] = [blockVisible(scope, sql`b.id`)];
   if (f.area !== undefined) parts.push(sql`b.area = ${f.area}`);
   if (f.topic !== undefined) parts.push(sql`b.topic = ${f.topic}`);
-  if (f.level !== undefined) parts.push(sql`b.level = ${f.level}`);
+  if (f.level !== undefined) parts.push(sql`exists (select 1 from ${units(scope)} u where u.block_id = b.id and u.level = ${f.level})`);
   if (f.model !== undefined) parts.push(sql`b.model = ${f.model}`);
   if (f.promptVersion !== undefined) parts.push(sql`b.prompt_version = ${f.promptVersion}`);
   if (f.docsAgents !== undefined) parts.push(sql`b.docs_agents = ${f.docsAgents}`);
   if (f.docsTeaching !== undefined) parts.push(sql`b.docs_teaching = ${f.docsTeaching}`);
   if (f.concepts?.length) parts.push(sql`b.concepts && ${textArray(f.concepts)}`);
-  if (f.steps?.length) parts.push(sql`b.steps && ${textArray(f.steps)}`);
+  if (f.steps?.length) parts.push(sql`exists (select 1 from ${units(scope)} u where u.block_id = b.id and u.steps && ${textArray(f.steps)})`);
   if (f.tags?.length) parts.push(sql`b.tags @> ${textArray(f.tags)}`);
   if (f.player !== undefined) {
     if (scope.player === undefined) parts.push(sql`false`);
@@ -114,7 +148,10 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
     ? sql`left join ${latestRating(p)} l on l.block_id = b.id left join ${timeTotals(p)} m on m.block_id = b.id`
     : sql``;
   return sql`
-    select b.id, (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, b.area, b.topic, b.concepts, b.level, b.steps, b.tags,
+    select b.id, b.kind,
+      (select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'level', c.level, 'steps', to_jsonb(c.steps), 'minutes', c.minutes, 'active', c.active)
+        order by c.place, c.id collate "C"), '[]'::jsonb) from choices c where c.block_id = b.id and b.kind = 'curated' and ${listedChoice(scope)}) as choices,
+      (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, b.area, b.topic, b.concepts, b.level, b.steps, b.tags,
       b.model, b.prompt_version, b.docs_agents, b.docs_teaching, b.content, b.parent_id, b.minutes, b.why, b.learn_before, b.explore_more,
       coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds,
       coalesce(r.rated, 0) as rated, coalesce(r.s1, 0) as s1, coalesce(r.s2, 0) as s2, coalesce(r.s3, 0) as s3, coalesce(r.s4, 0) as s4, coalesce(r.s5, 0) as s5
@@ -128,8 +165,12 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
 }
 
 function summaryOf(scope: Scope, r: BlockRow): BlockSummary {
+  const curated = r.kind === "curated";
   return {
-    id: r.id, title: r.title, area: r.area, topic: r.topic, concepts: r.concepts, level: r.level, steps: r.steps, tags: r.tags,
+    id: r.id, title: r.title, area: r.area, topic: r.topic, concepts: r.concepts,
+    level: curated ? (r.choices[0]?.level ?? null) : r.level,
+    steps: curated ? [...new Set(r.choices.flatMap((c) => c.steps))] : r.steps,
+    choices: r.choices, tags: r.tags,
     provenance: { model: r.model, promptVersion: r.prompt_version, docsAgents: r.docs_agents, docsTeaching: r.docs_teaching },
     use: { times: r.times, seconds: r.seconds, rated: r.rated, stars: [r.s1, r.s2, r.s3, r.s4, r.s5] },
     ...(scope.player !== undefined ? { mine: { stars: r.my_stars as Stars | null, ratedAt: r.my_at, times: r.my_times, seconds: r.my_seconds } } : {}),
@@ -153,7 +194,7 @@ function planWhere(scope: Scope, f: PlanFilter): SQL {
   if (f.docsAgents !== undefined) parts.push(sql`p.docs_agents = ${f.docsAgents}`);
   if (f.docsTeaching !== undefined) parts.push(sql`p.docs_teaching = ${f.docsTeaching}`);
   if (f.areas?.length) parts.push(sql`(jsonb_typeof(p.answers -> 'areas') = 'array' and (p.answers -> 'areas') ?| ${textArray(f.areas)})`);
-  if (f.levels?.length) parts.push(sql`exists (select 1 from ${planBlocks} x where x.level = any(${textArray(f.levels)}))`);
+  if (f.levels?.length) parts.push(sql`exists (select 1 from ${planRows} x where x.plan_id = p.id and x.level = any(${textArray(f.levels)}))`);
   if (f.topics?.length) parts.push(sql`not exists (select 1 from unnest(${textArray(f.topics)}) want(topic) where not exists (select 1 from ${planBlocks} x where x.topic = want.topic))`);
   return sql.join(parts, sql` and `);
 }
@@ -236,59 +277,72 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
       return { ...planSummaryOf(r), schedule: schedule.map((s) => ({ ...s })), ...(withReply ? { reply: r.reply } : {}) };
     },
     async coverage(scope) {
-      // visible blocks with their totals, and the visible plans (with `scope.planIds`) whose rows are matched against them
-      const vb = sql`(select b.id, b.topic, b.level, b.concepts, b.steps, coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds
-        from blocks b left join ${timeTotals()} u on u.block_id = b.id where ${blockVisible(scope, sql`b.id`)})`;
-      const plansWith = (match: SQL) => sql`(select count(*)::int from practice_plans p where ${planVisible(scope)} and exists (
-        select 1 from practice_plan_blocks ppb join blocks pb on pb.id = ppb.block_id where ppb.plan_id = p.id and ${match}))`;
-      const topics = await rows<CoverageRow>(sql`
-        select v.topic, v.level, count(*)::int as blocks, ${plansWith(sql`pb.topic = v.topic and pb.level = v.level`)} as plans,
-          sum(v.times)::int as times, sum(v.seconds)::float8 as seconds
-        from ${vb} v
-        where v.topic is not null and v.level is not null
-        group by v.topic, v.level
-        order by v.topic collate "C", v.level collate "C"`);
-      const concepts = await rows<ConceptCoverage>(sql`
-        select vc.concept, count(*)::int as blocks, ${plansWith(sql`vc.concept = any(pb.concepts)`)} as plans,
+      // the units of visible blocks with their block's totals, and the rows of visible plans (with `scope.planIds`)
+      const ctes = sql`with
+        vb as (select b.id, b.topic, b.concepts, coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds
+          from blocks b left join ${timeTotals()} u on u.block_id = b.id where ${blockVisible(scope, sql`b.id`)}),
+        vu as (select v.id, v.topic, v.times, v.seconds, un.choice_id, un.level, un.steps from vb v join ${units(scope)} un on un.block_id = v.id),
+        pr as (select x.* from practice_plans p join ${planRows} x on x.plan_id = p.id where ${planVisible(scope)})`;
+      // a block's time once per row, however many of its units match
+      const once = (where: SQL) => sql`(select coalesce(sum(d.times), 0)::int as times, coalesce(sum(d.seconds), 0)::float8 as seconds
+        from (select distinct o.id, o.times, o.seconds from vu o where ${where}) d)`;
+      const topics = await rows<CoverageRow>(sql`${ctes}
+        select x.topic, x.level, count(*)::int as blocks,
+          (select count(distinct pr.plan_id)::int from pr where pr.topic = x.topic and pr.level = x.level) as plans,
+          (select t.times from ${once(sql`o.topic = x.topic and o.level = x.level`)} t) as times,
+          (select t.seconds from ${once(sql`o.topic = x.topic and o.level = x.level`)} t) as seconds
+        from vu x
+        where x.topic is not null and x.level is not null
+        group by x.topic, x.level
+        order by x.topic collate "C", x.level collate "C"`);
+      const concepts = await rows<ConceptCoverage>(sql`${ctes}
+        select vc.concept, count(*)::int as blocks, (select count(distinct pr.plan_id)::int from pr where vc.concept = any(pr.concepts)) as plans,
           sum(vc.times)::int as times, sum(vc.seconds)::float8 as seconds
-        from (select distinct v.id, c.concept, v.times, v.seconds from ${vb} v cross join lateral unnest(v.concepts) c(concept)) vc
+        from (select distinct v.id, c.concept, v.times, v.seconds from vb v cross join lateral unnest(v.concepts) c(concept)) vc
         group by vc.concept
         order by vc.concept collate "C"`);
-      const steps = await rows<StepCoverage>(sql`
-        select vs.step, count(*)::int as blocks, ${plansWith(sql`vs.step = any(pb.steps)`)} as plans,
-          sum(vs.times)::int as times, sum(vs.seconds)::float8 as seconds
-        from (select distinct v.id, s.step, v.times, v.seconds from ${vb} v cross join lateral unnest(v.steps) s(step)) vs
+      const steps = await rows<StepCoverage>(sql`${ctes}
+        select vs.step, count(*)::int as blocks, (select count(distinct pr.plan_id)::int from pr where vs.step = any(pr.steps)) as plans,
+          (select t.times from ${once(sql`vs.step = any(o.steps)`)} t) as times,
+          (select t.seconds from ${once(sql`vs.step = any(o.steps)`)} t) as seconds
+        from (select distinct v.id, v.choice_id, s.step from vu v cross join lateral unnest(v.steps) s(step)) vs
         group by vs.step
         order by vs.step collate "C"`);
       return { topics: topics.map((t) => ({ ...t })), concepts: concepts.map((c) => ({ ...c })), steps: steps.map((s) => ({ ...s })) };
     },
     async composeBlocks(player, areas): Promise<ComposeBlock[]> {
       if (areas.length === 0) return [];
-      // the candidates first, so the time and rating totals are summed for these blocks only
-      const ids = sql`(select id from cand)`;
+      // the candidates first (one per active choice that names a step), so the totals are summed for these only
       const list = await rows<{
-        id: string; content: Block; area: string; topic: string | null; concepts: string[]; steps: string[]; level: string | null; tags: string[];
-        minutes: number; why: string | null; learn_before: string[] | null; explore_more: string[] | null;
+        id: string; choice_id: string; content: Block; area: string; topic: string | null; concepts: string[]; steps: string[]; level: string | null; tags: string[];
+        minutes: number; moves: Block["moves"] | null; why: string | null; learn_before: string[] | null; explore_more: string[] | null;
         times: number; seconds: number; my_stars: number | null; my_at: string | null;
       }>(sql`
         with cand as (
-          select b.* from blocks b
-          where b.area = any(${textArray(areas)}) and b.minutes is not null and cardinality(b.steps) > 0
-            and exists (select 1 from block_owners o where o.block_id = b.id and o.user_id is null and o.enabled_for_reuse)
+          select b.id, b.content, b.area, b.topic, b.concepts, b.tags, b.why, b.learn_before, b.explore_more,
+            c.id as choice_id, c.level, c.steps, c.minutes, c.moves, c.place
+          from blocks b join choices c on c.block_id = b.id
+          where b.kind = 'curated' and b.area = any(${textArray(areas)}) and c.active and cardinality(c.steps) > 0
         )
-        select c.id, c.content, c.area, c.topic, c.concepts, c.steps, c.level, c.tags, c.minutes, c.why, c.learn_before, c.explore_more,
+        select c.id, c.choice_id, c.content, c.area, c.topic, c.concepts, c.steps, c.level, c.tags, c.minutes, c.moves, c.why, c.learn_before, c.explore_more,
           coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds, l.stars as my_stars, l.at as my_at
         from cand c
-        left join ${timeTotals(undefined, ids)} u on u.block_id = c.id
-        left join ${latestRating(player, ids)} l on l.block_id = c.id
-        order by c.id collate "C"`);
-      return list.map((r) => ({
-        id: r.id, content: r.content, area: r.area, topic: r.topic, concepts: r.concepts, steps: r.steps, level: r.level, tags: r.tags,
-        slot: slotOf({ minutes: r.minutes, why: r.why, learn_before: r.learn_before, explore_more: r.explore_more } as BlockRow)!,
-        use: { times: r.times, seconds: r.seconds },
-        // a rating row whose stars are not 1 to 5 reads as never rated
-        mine: r.my_stars !== null ? { stars: r.my_stars as Stars, ratedAt: r.my_at ?? "" } : null,
-      }));
+        left join ${timeTotals(undefined, sql`(select id from cand)`)} u on u.block_id = c.id
+        left join ${latestChoiceRating(player, sql`(select choice_id from cand)`)} l on l.choice_id = c.choice_id
+        order by c.id collate "C", c.place, c.choice_id collate "C"`);
+      return list.map((r) => {
+        // the block's content carries the choice's moves (a curated block's content has none of its own)
+        const content: Block = { ...r.content };
+        delete content.moves;
+        if (r.moves) content.moves = r.moves;
+        return {
+          id: r.id, choiceId: r.choice_id, content, area: r.area, topic: r.topic, concepts: r.concepts, steps: r.steps, level: r.level, tags: r.tags,
+          slot: slotOf({ minutes: r.minutes, why: r.why, learn_before: r.learn_before, explore_more: r.explore_more } as BlockRow)!,
+          use: { times: r.times, seconds: r.seconds },
+          // a rating row whose stars are not 1 to 5 reads as never rated
+          mine: r.my_stars !== null ? { stars: r.my_stars as Stars, ratedAt: r.my_at ?? "" } : null,
+        };
+      });
     },
     async userExists(id) {
       const found = await rows<{ one: number }>(sql`select 1 as one from users where id::text = ${id} limit 1`);

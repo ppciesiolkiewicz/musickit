@@ -29,16 +29,19 @@ const SPECS: Record<string, Spec> = {
   find_blocks: {
     description:
       "List exercise blocks (one exercise: a title and its tools), with how much they have been used by all players together. " +
+      "A library block is served through its choices: each choice is one way to play the block, with its own level, path steps and minutes. " +
+      "choices lists a library block's active choices by place; a player's own block has none ([]) and its own level and steps. " +
+      "A library block's level is its first choice's and its steps are all its choices' steps together. " +
       "Use it to find blocks to reuse or to see what the library holds on a topic. Stars say how the player is doing with a block, not how good the block is. " +
-      "mine: 'unused' is reusable blocks the player does not have yet, 'had' is blocks the player has had, 'repeat' is blocks the player had and last rated 1 to 3 stars. " +
+      "mine: 'unused' is library blocks the player does not have yet, 'had' is blocks the player has had, 'repeat' is blocks the player had and last rated 1 to 3 stars. " +
       "order: 'least-used' (default) is the fewest seconds practised first, 'random-least-used' picks at random from the least used fifth, 'newest' is the newest first. " +
       `The answer is capped: ${BLOCK_LIMIT.default} blocks by default, at most ${BLOCK_LIMIT.max}. A full page may mean there are more.`,
     args: {
       area: str("An area id: guitar, voice or theory."),
       topic: str("A topic id."),
       concepts: list("Concept ids; a block with any of them matches."),
-      level: str("A level: new, beginner, intermediate or advanced. Blocks written before steps have only a level."),
-      steps: list("Path step refs, \"trackId:n\" (n from 1, as in library_coverage); a block that names any of them matches."),
+      level: str("A level: new, beginner, intermediate or advanced. A library block matches when one of its choices has it. Blocks written before steps have only a level."),
+      steps: list("Path step refs, \"trackId:n\" (n from 1, as in library_coverage); a block matches when it, or one of its choices, names any of them."),
       tags: list("Tags; a block with all of them matches."),
       ...VERSIONS,
       mine: oneOf(["unused", "had", "repeat"], "Only blocks by the player's history with them. Needs a player."),
@@ -48,7 +51,7 @@ const SPECS: Record<string, Spec> = {
   },
   get_block: {
     description:
-      "One block with its full content, its parent block id, its tags and its use by all players together. " +
+      "One block with its full content, its parent block id, its tags, its choices (level, path steps and minutes of each; [] for a player's own block) and its use by all players together (all its choices together). " +
       "With a player in scope it also returns mine: that player's own history with the block (their latest stars and their timer totals).",
     args: { id: str("The block id.") },
     required: ["id"],
@@ -60,7 +63,7 @@ const SPECS: Record<string, Spec> = {
       `The answer is capped: ${PLAN_LIMIT.default} plans by default, at most ${PLAN_LIMIT.max}. A full page may mean there are more.`,
     args: {
       areas: list("Area ids; a plan whose answers name any of them matches."),
-      levels: list("Levels; a plan with a block at any of them matches."),
+      levels: list("Levels; a plan with a block (or a block's choice) at any of them matches."),
       topics: list("Topic ids; a plan with blocks for every one of them matches."),
       ...VERSIONS,
       limit: int(`How many plans, 1 to ${PLAN_LIMIT.max}. Default ${PLAN_LIMIT.default}.`),
@@ -75,8 +78,9 @@ const SPECS: Record<string, Spec> = {
     description:
       "How much the library holds for every topic at every level, for every concept and for every path step: blocks, plans, times practised and seconds. " +
       "Steps are \"trackId:n\", in path order (easiest first); a block counts for a step only when it names it. " +
+      "blocks counts choices: a library block counts once for each of its choices at that level or naming that step; times and seconds count each block once. " +
       "Read this first to see which steps are thin. A zero row means nothing there yet. " +
-      "Without a player in scope the counts are the reusable library; with one they also include that player's own private blocks.",
+      "Without a player in scope the counts are the library; with one they also include that player's own private blocks.",
     args: {},
   },
   player_progress: {

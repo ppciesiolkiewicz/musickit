@@ -28,7 +28,6 @@ interface OwnerRow {
   userId: string | null;
   blockId: string;
   source: BlockSource;
-  enabledForReuse: boolean;
 }
 
 /**
@@ -135,7 +134,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
       for (const b of list) if (!blocks.has(b.id)) blocks.set(b.id, { kind: "hashed", key: structuredClone(b.key), parentId: b.parentId, provenance: { ...NO_PROVENANCE } });
       for (const b of list) {
         const k = pair(userId ?? "", b.id);
-        if (!owners.has(k)) owners.set(k, { userId, blockId: b.id, source: b.source, enabledForReuse: b.enabledForReuse });
+        if (!owners.has(k)) owners.set(k, { userId, blockId: b.id, source: b.source });
       }
       // provenance is filled once, only where all four columns are null
       for (const b of list) {
@@ -161,7 +160,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
         const slot: BlockSlot | undefined = b.choices.length ? { minutes: b.choices[0].minutes, ...structuredClone(b.slot) } : undefined;
         blocks.set(b.id, { kind: "curated", key, parentId: null, provenance: { ...b.provenance }, ...(slot ? { slot } : {}) });
         const k = pair("", b.id);
-        if (!owners.has(k)) owners.set(k, { userId: null, blockId: b.id, source: "seed", enabledForReuse: true });
+        if (!owners.has(k)) owners.set(k, { userId: null, blockId: b.id, source: "seed" });
         for (const c of b.choices) {
           listed.add(c.id);
           const row: StoredChoice = { ...structuredClone(c), blockId: b.id, updatedAt: now };

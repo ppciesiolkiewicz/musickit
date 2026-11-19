@@ -62,6 +62,7 @@ async function load(data: LibraryData) {
   const s = schema;
   if (data.users.length) await db.insert(s.users).values(data.users.map((u) => ({ id: u.id, email: `${u.id}@test.local`, name: "Test", role: "student" as const })));
   if (data.blocks.length) await db.insert(s.blocks).values(data.blocks);
+  if (data.choices.length) await db.insert(s.choices).values(data.choices);
   if (data.owners.length) await db.insert(s.blockOwners).values(data.owners);
   if (data.progress.length) await db.insert(s.progressEntries).values(data.progress);
   if (data.dayTimes.length) await db.insert(s.planDayTimes).values(data.dayTimes.map((t) => ({ ...t, spent: t.spent ?? sql`'null'::jsonb` })));
@@ -78,7 +79,7 @@ libraryRepoContract(async (data) => {
 describe("user data repo on Postgres: block provenance", () => {
   const NOW = new Date(2026, 10, 15, 12);
   const key = (title: string): BlockKey => ({ content: { title, cells: [] } }) as unknown as BlockKey;
-  const block = (id: string, extra: Partial<NewBlock> = {}): NewBlock => ({ id, key: key(id), parentId: null, source: "ai", enabledForReuse: false, ...extra });
+  const block = (id: string, extra: Partial<NewBlock> = {}): NewBlock => ({ id, key: key(id), parentId: null, source: "ai", ...extra });
   const prov = (p: Partial<Provenance>): Provenance => ({ model: null, promptVersion: null, docsAgents: null, docsTeaching: null, ...p });
   const full = prov({ model: "m1", promptVersion: 3, docsAgents: 2, docsTeaching: 2 });
   const repo = drizzleUserDataRepo(db);
@@ -162,8 +163,8 @@ describe("user data repo on Postgres: block provenance", () => {
     assert.deepEqual(await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW), { blocks: 1, choices: 2, deactivated: 0 });
     const [b] = await db.select().from(schema.blocks);
     assert.deepEqual([b.kind, b.level, b.steps, b.tags, b.why, b.minutes, b.model], ["curated", null, [], ["technique"], "w", 4, "m1"]);
-    const owners = await db.select({ userId: schema.blockOwners.userId, source: schema.blockOwners.source, enabled: schema.blockOwners.enabledForReuse }).from(schema.blockOwners);
-    assert.deepEqual(owners, [{ userId: null, source: "seed", enabled: true }]);
+    const owners = await db.select({ userId: schema.blockOwners.userId, source: schema.blockOwners.source }).from(schema.blockOwners);
+    assert.deepEqual(owners, [{ userId: null, source: "seed" }]);
     const [c] = await db.select().from(schema.choices).where(eq(schema.choices.id, "guitar-a-b/new"));
     assert.deepEqual([c.blockId, c.name, c.level, c.steps, c.moves, c.minutes, c.active, c.place], ["guitar-a-b", "new", "beginner", ["picking:1"], null, 5, true, 1]);
   });

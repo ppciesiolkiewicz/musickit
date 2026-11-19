@@ -1,21 +1,45 @@
+import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
 import type {
-  BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, BlockUse, ComposeBlock, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope, StepCoverage,
+  BlockChoice, BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, BlockUse, ComposeBlock, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope, StepCoverage,
 } from "./types";
 
 type Row = LibraryData["blocks"][number];
+type Choice = LibraryData["choices"][number];
+
+/** What a block serves: a hashed block its own level and steps, a curated block each of its listed choices. */
+interface Unit { level: string | null; steps: string[] }
 
 const isMap = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 
 /** The library over plain rows: the readable statement of the rules the Postgres implementation must keep. */
 export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
-  /** A block is visible when an owner row is enabled, or the player owns it, or the app owns it and the scope includes the not enabled. */
-  const visible = (scope: Scope, b: Row): boolean =>
-    data.owners.some((o) =>
-      o.blockId === b.id &&
-      (o.enabledForReuse || (scope.player !== undefined && o.userId === scope.player) || (o.userId === null && scope.includeNotEnabled === true)));
+  const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+
+  /** A curated block's choices by place: the active ones, or all with `includeNotEnabled`. */
+  const listed = (scope: Scope, id: string): Choice[] =>
+    data.choices.filter((c) => c.blockId === id && (c.active || scope.includeNotEnabled === true)).sort((a, b) => a.place - b.place || byId(a, b));
+
+  /**
+   * A block is visible when the player owns it; a curated block also when it has an active choice (any block of the app's with
+   * `includeNotEnabled`); a hashed block only to its owners, and with `includeNotEnabled` when the app owns it.
+   */
+  const visible = (scope: Scope, b: Row): boolean => {
+    if (scope.player !== undefined && data.owners.some((o) => o.blockId === b.id && o.userId === scope.player)) return true;
+    if (b.kind === "curated") return scope.includeNotEnabled === true || data.choices.some((c) => c.blockId === b.id && c.active);
+    return scope.includeNotEnabled === true && data.owners.some((o) => o.blockId === b.id && o.userId === null);
+  };
+
+  const units = (scope: Scope, b: Row): Unit[] => (b.kind === "curated" ? listed(scope, b.id) : [b]);
+
+  /** A plan row's level and steps: its choice's when it names one, else its block's. */
+  const rowUnit = (r: LibraryData["planBlocks"][number]): Unit | null => {
+    const c = r.choiceId ? data.choices.find((x) => x.id === r.choiceId) : undefined;
+    if (c) return c;
+    return data.blocks.find((b) => b.id === r.blockId) ?? null;
+  };
 
   const had = (player: string, id: string) => data.owners.some((o) => o.userId === player && o.blockId === id);
 
@@ -35,6 +59,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
   const ratings = (id: string, player?: string) => data.progress.filter((p) => p.blockId === id && (player === undefined || p.userId === player));
+  const choiceRatings = (choiceId: string, player: string) => data.progress.filter((p) => p.choiceId === choiceId && p.userId === player);
 
   const totals = (id: string): BlockUse => {
     const rows = ratings(id);
@@ -48,15 +73,17 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   const atOf = (r: LibraryData["progress"][number]): string | null => (typeof r.entry.at === "string" ? r.entry.at : null);
   const cmp = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0);
 
-  /** The player's latest rating of the block: latest `at` (bytewise), an entry without one last, then the lowest exercise id. */
-  const latest = (id: string, player: string): { stars: Stars; at: string | null } | null => {
-    const rows = ratings(id, player).sort((a, b) => {
+  /** The latest of these ratings: latest `at` (bytewise), an entry without one last, then the lowest exercise id. */
+  const newest = (list: LibraryData["progress"]): { stars: Stars; at: string | null } | null => {
+    const rows = [...list].sort((a, b) => {
       const x = atOf(a), y = atOf(b);
       if (x !== y) return x === null ? 1 : y === null ? -1 : cmp(y, x);
       return cmp(a.exerciseId, b.exerciseId);
     });
     return rows[0] ? { stars: rows[0].entry.stars, at: atOf(rows[0]) } : null;
   };
+  /** The player's latest rating of the block (any of its choices, or none). */
+  const latest = (id: string, player: string) => newest(ratings(id, player));
 
   const mine = (id: string, player: string): PlayerBlock => {
     const l = latest(id, player), t = timed(id, player);
@@ -78,23 +105,33 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
     return b && visible(scope, b) ? titleOf(b) : "";
   };
 
-  const summary = (scope: Scope, b: Row): BlockSummary => ({
-    id: b.id, title: titleOf(b), area: b.area, topic: b.topic, concepts: [...b.concepts], level: b.level, steps: [...b.steps], tags: [...b.tags],
+  const choicesOf = (scope: Scope, b: Row): BlockChoice[] =>
+    b.kind === "curated" ? listed(scope, b.id).map((c) => ({ id: c.id, name: c.name, level: c.level, steps: [...c.steps], minutes: c.minutes, active: c.active })) : [];
+
+  const summary = (scope: Scope, b: Row): BlockSummary => {
+    const choices = choicesOf(scope, b);
+    const curated = b.kind === "curated";
+    return {
+    id: b.id, title: titleOf(b), area: b.area, topic: b.topic, concepts: [...b.concepts],
+    level: curated ? (choices[0]?.level ?? null) : b.level,
+    steps: curated ? [...new Set(choices.flatMap((c) => c.steps))] : [...b.steps],
+    choices, tags: [...b.tags],
     provenance: { model: b.model, promptVersion: b.promptVersion, docsAgents: b.docsAgents, docsTeaching: b.docsTeaching },
     use: totals(b.id),
     ...(scope.player !== undefined ? { mine: mine(b.id, scope.player) } : {}),
-  });
+    };
+  };
 
   const matches = (scope: Scope, f: BlockFilter, b: Row): boolean => {
     if (f.area !== undefined && b.area !== f.area) return false;
     if (f.topic !== undefined && b.topic !== f.topic) return false;
-    if (f.level !== undefined && b.level !== f.level) return false;
+    if (f.level !== undefined && !units(scope, b).some((u) => u.level === f.level)) return false;
     if (f.model !== undefined && b.model !== f.model) return false;
     if (f.promptVersion !== undefined && b.promptVersion !== f.promptVersion) return false;
     if (f.docsAgents !== undefined && b.docsAgents !== f.docsAgents) return false;
     if (f.docsTeaching !== undefined && b.docsTeaching !== f.docsTeaching) return false;
     if (f.concepts?.length && !f.concepts.some((c) => b.concepts.includes(c))) return false;
-    if (f.steps?.length && !f.steps.some((s) => b.steps.includes(s))) return false;
+    if (f.steps?.length && !units(scope, b).some((u) => f.steps!.some((s) => u.steps.includes(s)))) return false;
     if (f.tags?.length && !f.tags.every((t) => b.tags.includes(t))) return false;
     if (f.player !== undefined) {
       if (scope.player === undefined) return false;
@@ -110,7 +147,6 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   };
 
   const found = (scope: Scope, f: BlockFilter) => data.blocks.filter((b) => visible(scope, b) && matches(scope, f, b));
-  const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
   type Plan = LibraryData["plans"][number];
 
@@ -156,7 +192,8 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
       if (!f.areas.some((a) => areas.includes(a))) return false;
     }
     const blocks = planBlockRows(p.id);
-    if (f.levels?.length && !blocks.some((b) => b.level !== null && f.levels!.includes(b.level))) return false;
+    const rows = data.planBlocks.filter((r) => r.planId === p.id).map(rowUnit);
+    if (f.levels?.length && !rows.some((u) => u !== null && u.level !== null && f.levels!.includes(u.level))) return false;
     if (f.topics?.length && !f.topics.every((t) => blocks.some((b) => b.topic === t))) return false;
     return true;
   };
@@ -190,39 +227,65 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
     },
     async coverage(scope) {
       const blocks = data.blocks.filter((b) => visible(scope, b));
-      const plans = data.plans.filter((p) => planVisible(scope, p)).map((p) => planBlockRows(p.id));
-      const rows = (match: (b: Row) => boolean) => {
-        const own = blocks.filter(match);
-        const t = own.map((b) => totals(b.id));
+      // every unit of a visible block: a hashed block once, a curated block once per listed choice
+      const all = blocks.flatMap((b) => units(scope, b).map((u) => ({ b, u })));
+      // the visible plans, each as its rows' (block, level and steps)
+      const plans = data.plans.filter((p) => planVisible(scope, p))
+        .map((p) => data.planBlocks.filter((r) => r.planId === p.id).flatMap((r) => {
+          const b = data.blocks.find((x) => x.id === r.blockId), u = rowUnit(r);
+          return b && u ? [{ b, u }] : [];
+        }));
+      type Pair = { b: Row; u: Unit };
+      const rows = (match: (x: Pair) => boolean) => {
+        const own = all.filter(match);
+        // a block's time once, however many of its choices match
+        const t = [...new Set(own.map((x) => x.b.id))].map((id) => totals(id));
         return {
           blocks: own.length, plans: plans.filter((pb) => pb.some(match)).length,
           times: sum(t.map((u) => u.times)), seconds: sum(t.map((u) => u.seconds)),
         };
       };
       const pairs = new Map<string, { topic: string; level: string }>();
-      for (const b of blocks) if (b.topic !== null && b.level !== null) pairs.set(`${b.topic}\u0000${b.level}`, { topic: b.topic, level: b.level });
+      for (const { b, u } of all) if (b.topic !== null && u.level !== null) pairs.set(`${b.topic}\u0000${u.level}`, { topic: b.topic, level: u.level });
       const topics: CoverageRow[] = [...pairs.values()]
         .sort((a, b) => (a.topic < b.topic ? -1 : a.topic > b.topic ? 1 : a.level < b.level ? -1 : a.level > b.level ? 1 : 0))
-        .map(({ topic, level }) => ({ topic, level, ...rows((b) => b.topic === topic && b.level === level) }));
+        .map(({ topic, level }) => ({ topic, level, ...rows((x) => x.b.topic === topic && x.u.level === level) }));
+      // concepts are the block's: a block counts once
+      const conceptRows = (concept: string) => {
+        const own = blocks.filter((b) => b.concepts.includes(concept));
+        const t = own.map((b) => totals(b.id));
+        return {
+          blocks: own.length, plans: plans.filter((pb) => pb.some((x) => x.b.concepts.includes(concept))).length,
+          times: sum(t.map((u) => u.times)), seconds: sum(t.map((u) => u.seconds)),
+        };
+      };
       const concepts: ConceptCoverage[] = [...new Set(blocks.flatMap((b) => b.concepts))].sort()
-        .map((concept) => ({ concept, ...rows((b) => b.concepts.includes(concept)) }));
-      const steps: StepCoverage[] = [...new Set(blocks.flatMap((b) => b.steps))].sort()
-        .map((step) => ({ step, ...rows((b) => b.steps.includes(step)) }));
+        .map((concept) => ({ concept, ...conceptRows(concept) }));
+      const steps: StepCoverage[] = [...new Set(all.flatMap((x) => x.u.steps))].sort()
+        .map((step) => ({ step, ...rows((x) => x.u.steps.includes(step)) }));
       return { topics, concepts, steps };
     },
     async composeBlocks(player, areas): Promise<ComposeBlock[]> {
       const list: ComposeBlock[] = [];
-      for (const b of data.blocks) {
-        const slot = slotOf(b);
-        if (slot === null || b.area === null || !areas.includes(b.area) || b.steps.length === 0) continue;
-        if (!data.owners.some((o) => o.blockId === b.id && o.userId === null && o.enabledForReuse)) continue;
-        const t = timed(b.id), l = latest(b.id, player);
-        list.push({
-          id: b.id, content: b.content, area: b.area, topic: b.topic, concepts: [...b.concepts], steps: [...b.steps], level: b.level, tags: [...b.tags],
-          slot, use: { times: t.length, seconds: sum(t) }, mine: l ? { stars: l.stars, ratedAt: l.at ?? "" } : null,
-        });
+      for (const b of [...data.blocks].sort(byId)) {
+        if (b.kind !== "curated" || b.area === null || !areas.includes(b.area)) continue;
+        const t = timed(b.id);
+        for (const c of listed({}, b.id)) {
+          if (c.steps.length === 0) continue;
+          const l = newest(choiceRatings(c.id, player));
+          // the block's content carries the choice's moves (a curated block's content has none of its own)
+          const content: Block = { ...b.content };
+          delete content.moves;
+          if (c.moves) content.moves = c.moves;
+          list.push({
+            id: b.id, choiceId: c.id, content,
+            area: b.area, topic: b.topic, concepts: [...b.concepts], steps: [...c.steps], level: c.level, tags: [...b.tags],
+            slot: slotOf({ ...b, minutes: c.minutes })!,
+            use: { times: t.length, seconds: sum(t) }, mine: l ? { stars: l.stars, ratedAt: l.at ?? "" } : null,
+          });
+        }
       }
-      return list.sort(byId);
+      return list;
     },
     async userExists(id) {
       return data.users.some((u) => u.id === id);

@@ -60,7 +60,6 @@ export interface NewBlock {
   key: BlockKey;
   parentId: string | null;
   source: BlockSource;
-  enabledForReuse: boolean;
   /** Filled once, where the stored block has none (all four columns null); a block with a parent and none takes the parent's. */
   provenance?: Provenance;
   /** Filled once, while the stored block has no `minutes`. */

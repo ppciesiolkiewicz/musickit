@@ -156,7 +156,7 @@ export async function storePlanBlocks(repo: UserDataRepo, userId: string, state:
   if (!fresh.length) return 0;
   await repo.addBlocks(
     userId,
-    fresh.map((b) => ({ id: b.id, key: b.key, parentId: b.parentId && (owned.has(b.parentId) || inDoc.has(b.parentId)) ? b.parentId : null, source: b.source, enabledForReuse: false })),
+    fresh.map((b) => ({ id: b.id, key: b.key, parentId: b.parentId && (owned.has(b.parentId) || inDoc.has(b.parentId)) ? b.parentId : null, source: b.source })),
     now,
   );
   return fresh.length;

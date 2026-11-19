@@ -3,7 +3,7 @@ import type { Scope } from "./types";
 import { LIBRARY_TOOLS, callTool, type ToolDef } from "./tools";
 
 /** The two arguments only the local dev endpoint reads. The scope of a tool call is built from them here, nowhere else. */
-export const DEV_ARGS = { player: "a user id (dev only)", include_not_enabled: "also show examples and plans not enabled for reuse (dev only)" };
+export const DEV_ARGS = { player: "a user id (dev only)", include_not_enabled: "also show inactive choices, library blocks with no active choice, the app's old example and AI blocks, and plans not enabled for reuse (dev only)" };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const FALLBACK_PROTOCOL = "2025-06-18";

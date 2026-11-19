@@ -282,8 +282,8 @@ export const blockSource = pgEnum("block_source", ["ai", "edit", "seed", "exampl
  * content and tags (`features/plan/model/blockId.ts`), so the same block is one row. Insert-only for content and tags: a row
  * is never deleted, not even when its last owner deletes their account, and its provenance is filled once, only while all
  * four provenance columns are null. A curated block (`kind` 'curated': the seed's, with a fixed readable id) is the exception:
- * the seed updates it in place, and its content, steps and level are empty (they live on its choices). Who has a block, and whether it may be reused, is in
- * `block_owners`; a block is private to its owners until one of their rows is `enabled_for_reuse`.
+ * the seed updates it in place, and its steps and level are empty (they live on its choices). Who has a block is in
+ * `block_owners`. A hashed block is private to its owners; a curated block is in the library while one of its choices is active.
  */
 export const blocks = pgTable(
   "blocks",
@@ -364,7 +364,7 @@ export const practicePlanBlocks = pgTable(
 /**
  * Who has a block: one row per owner and block. `user_id` null is the app (seeded and example blocks); the unique pair
  * treats nulls as equal, so the app owns a block once. Deleting an account drops its rows here, never the block.
- * Insert-only from a plan save (`on conflict do nothing`); `enabled_for_reuse` is turned on by hand.
+ * Insert-only from a plan save (`on conflict do nothing`).
  */
 export const blockOwners = pgTable(
   "block_owners",
@@ -372,7 +372,6 @@ export const blockOwners = pgTable(
     userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
     blockId: text("block_id").notNull().references(() => blocks.id),
     source: blockSource("source").notNull(),
-    enabledForReuse: boolean("enabled_for_reuse").notNull().default(false),
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [unique("block_owners_user_block").on(t.userId, t.blockId).nullsNotDistinct(), index("block_owners_block").on(t.blockId)],

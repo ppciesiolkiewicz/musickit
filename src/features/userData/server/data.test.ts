@@ -88,7 +88,7 @@ const planDoc = (exercises: object[], history: object[] = []) => ({
 test("writing a plan puts its blocks in the library, owned by the player as ai", async () => {
   const repo = memoryUserDataRepo();
   await writeDoc(repo, "u1", "plan", planDoc([ex, ex2]), now);
-  assert.deepEqual(new Set(repo.peekOwners().map((o) => [o.userId, o.source, o.enabledForReuse].join())), new Set(["u1,ai,false"]));
+  assert.deepEqual(new Set(repo.peekOwners().map((o) => [o.userId, o.source].join())), new Set(["u1,ai"]));
   assert.equal(repo.peekOwners().length, 2);
   assert.equal(repo.peekBlocks().size, 2);
   assert.deepEqual(repo.peekBlocks().get(idOf(ex)), { kind: "hashed", key: blockKeyOf(ex), parentId: null, provenance: { model: null, promptVersion: null, docsAgents: null, docsTeaching: null } });
@@ -160,7 +160,7 @@ test("deleting an account drops its owner rows, not the blocks", async () => {
 
 test("the app owns a block once: null-user owner rows are one", async () => {
   const repo = memoryUserDataRepo();
-  const block = { id: idOf(ex), key: blockKeyOf(ex), parentId: null, source: "seed" as const, enabledForReuse: true };
+  const block = { id: idOf(ex), key: blockKeyOf(ex), parentId: null, source: "seed" as const };
   await repo.addBlocks(null, [block], now);
   await repo.addBlocks(null, [block], now);
   assert.equal(repo.peekOwners().length, 1);

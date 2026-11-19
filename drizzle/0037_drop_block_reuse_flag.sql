@@ -1,0 +1,1 @@
+ALTER TABLE "block_owners" DROP COLUMN "enabled_for_reuse";

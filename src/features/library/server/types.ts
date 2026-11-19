@@ -10,7 +10,10 @@ export interface Scope {
   player?: string;
   /** when set, plan queries see only these plan ids */
   planIds?: string[];
-  /** also the app's blocks and plans that are not enabled for reuse (never another player's private block) */
+  /**
+   * Dev only. Also: inactive choices (and a curated block with no active choice), the hashed blocks the app owns (old examples
+   * and AI rows), and plans not enabled for reuse. Never another player's private block.
+   */
   includeNotEnabled?: boolean;
 }
 
@@ -26,15 +29,21 @@ export interface BlockUse {
 /** The player in scope with one block: their latest rating, and their own timer totals. */
 export interface PlayerBlock { stars: Stars | null; ratedAt: string | null; times: number; seconds: number }
 
+/** One choice of a curated block: one way to play it, on its own level, steps and minutes. */
+export interface BlockChoice { id: string; name: string; level: string | null; steps: string[]; minutes: number; active: boolean }
+
 export interface BlockSummary {
   id: string;
   title: string;
   area: string | null;
   topic: string | null;
   concepts: string[];
+  /** a hashed block's own; a curated block's first listed choice's (by place), null when none is listed */
   level: string | null;
-  /** the path steps it practises ("trackId:n"); empty for a block written before steps */
+  /** the path steps it practises ("trackId:n"): a hashed block's own (empty when written before steps), a curated block's listed choices' together */
   steps: string[];
+  /** a curated block's choices by place: the active ones (with `includeNotEnabled`, the inactive ones too); [] for a hashed block */
+  choices: BlockChoice[];
   tags: string[];
   provenance: Provenance;
   use: BlockUse;
@@ -49,9 +58,13 @@ export interface BlockDetail extends BlockSummary {
   slot: BlockSlot | null;
 }
 
-/** A block the composer may pick: owned by the app, enabled for reuse, with a slot. */
+/** One active choice of a curated block, as the composer may pick it: the block's content and fields with the choice's level, steps, minutes and moves. */
 export interface ComposeBlock {
+  /** the block's id */
   id: string;
+  /** the choice's id, `<blockId>/<name>` */
+  choiceId: string;
+  /** the block's content, with the choice's `moves` (absent when the choice has none) */
   content: Block;
   area: string;
   topic: string | null;
@@ -61,17 +74,20 @@ export interface ComposeBlock {
   level: string | null;
   tags: string[];
   slot: BlockSlot;
-  /** all players together, counted for these blocks only */
+  /** all players together, on the block (every choice of it), counted for these blocks only */
   use: { times: number; seconds: number };
-  /** this player's newest rating of the block (by `at`); null when never rated. `ratedAt` is "" for an entry with no `at`. */
+  /** this player's newest rating of this choice (by `at`, from the rows with its `choice_id`); null when never rated. `ratedAt` is "" for an entry with no `at`. */
   mine: { stars: Stars; ratedAt: string } | null;
 }
 
-/** `unused`: reusable and not owned by the player. `had`: owned. `repeat`: owned and last rated 1 to 3 stars. */
+/** `unused`: visible and not owned by the player. `had`: owned. `repeat`: owned and last rated 1 to 3 stars. */
 export type PlayerMode = "unused" | "had" | "repeat";
 export type BlockOrder = "least-used" | "newest";
 
-/** `concepts` and `steps` match a block with any of them, `tags` a block with all of them, the rest are equal. */
+/**
+ * `concepts` and `steps` match a block with any of them, `tags` a block with all of them, the rest are equal. `level` and `steps`
+ * match a curated block through its listed choices (one choice with that level, or naming any of the steps).
+ */
 export interface BlockFilter {
   area?: string;
   topic?: string;
@@ -125,9 +141,13 @@ export interface PlanFilter {
   docsTeaching?: number;
 }
 
-/** Only pairs with at least one visible block. `plans`: visible plans with a block of that topic and level. */
+/**
+ * Only pairs with at least one visible block. `blocks` counts a hashed block once and a curated block once per listed choice at that
+ * level; `times` and `seconds` add each block once. `plans`: visible plans with a row of that topic and level (a row's level is its
+ * choice's when it names one, else its block's).
+ */
 export interface CoverageRow { topic: string; level: string; blocks: number; plans: number; times: number; seconds: number }
 /** Only concepts with at least one visible block. `plans`: visible plans with a block of that concept. */
 export interface ConceptCoverage { concept: string; blocks: number; plans: number; times: number; seconds: number }
-/** Only steps with at least one visible block. `plans`: visible plans with a block of that step. */
+/** Only steps with at least one visible block. `blocks` counts as in `CoverageRow` (a curated block once per listed choice naming the step). `plans`: visible plans with a row of that step (its choice's steps, else its block's). */
 export interface StepCoverage { step: string; blocks: number; plans: number; times: number; seconds: number }

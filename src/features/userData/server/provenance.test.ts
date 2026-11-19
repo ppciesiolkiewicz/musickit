@@ -6,7 +6,7 @@ import { memoryUserDataRepo } from "./repo.memory";
 
 const NOW = new Date(2026, 10, 15, 12);
 const key = (title: string): BlockKey => ({ content: { title, cells: [] } }) as unknown as BlockKey;
-const block = (id: string, extra: Partial<NewBlock> = {}): NewBlock => ({ id, key: key(id), parentId: null, source: "ai", enabledForReuse: false, ...extra });
+const block = (id: string, extra: Partial<NewBlock> = {}): NewBlock => ({ id, key: key(id), parentId: null, source: "ai", ...extra });
 const prov = (p: Partial<Provenance>): Provenance => ({ model: null, promptVersion: null, docsAgents: null, docsTeaching: null, ...p });
 const full = prov({ model: "m1", promptVersion: 3, docsAgents: 2, docsTeaching: 2 });
 

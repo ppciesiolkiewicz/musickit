@@ -16,13 +16,14 @@ test("limits clamp to 1..max and a missing one is the default", async () => {
   const d = deps();
   assert.ok((await findBlocks(d, { includeNotEnabled: true, player: PLAYER_A }, {}, undefined, 10000)).length <= 50);
   assert.equal((await findBlocks(d, {}, {}, undefined, 0)).length, 1);
-  assert.equal((await findBlocks(d, {}, {})).length, 6);
+  assert.equal((await findBlocks(d, {}, {})).length, 4);
   assert.equal((await findPlans(d, {}, {}, 0)).length, 1);
   assert.equal((await findPlans(d, {}, {}, 1000)).length, 3);
 });
 
 test("random-least-used takes from the least used fifth, and rand changes the pick", async () => {
-  const scope = {};
+  // seven blocks: the fifth is two
+  const scope = { player: PLAYER_A };
   const least = (await findBlocks(deps(), scope, {}, "least-used", 2)).map((b) => b.id);
   const a = await findBlocks(deps({ rand: () => 0 }), scope, {}, "random-least-used", 1);
   const b = await findBlocks(deps({ rand: () => 0.99 }), scope, {}, "random-least-used", 1);
@@ -101,7 +102,7 @@ test("playerProgress caps the blocks at the max and gives the total beside them"
   for (let i = 0; i < 55; i++) {
     const id = `M${String(i).padStart(2, "0")}`;
     data.blocks.push({ ...data.blocks[0], id });
-    data.owners.push({ userId: PLAYER_A, blockId: id, source: "ai", enabledForReuse: false, createdAt: new Date("2026-01-01T00:00:00Z") });
+    data.owners.push({ userId: PLAYER_A, blockId: id, source: "ai", createdAt: new Date("2026-01-01T00:00:00Z") });
   }
   const r = await playerProgress(deps({ library: memoryLibraryRepo(data) }), { player: PLAYER_A });
   assert.ok(r);

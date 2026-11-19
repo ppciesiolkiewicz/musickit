@@ -128,7 +128,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
         // the unique (user_id, block_id) is nulls not distinct, so the app (null) owns a block once
         await tx
           .insert(blockOwners)
-          .values(list.map((b) => ({ userId, blockId: b.id, source: b.source, enabledForReuse: b.enabledForReuse, createdAt: now })))
+          .values(list.map((b) => ({ userId, blockId: b.id, source: b.source, createdAt: now })))
           .onConflictDoNothing();
         // the slot is written on insert and filled once after: only where minutes is still null
         for (const b of list) {
@@ -222,7 +222,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
             });
           await tx
             .insert(blockOwners)
-            .values(list.map((b) => ({ userId: null, blockId: b.id, source: "seed" as const, enabledForReuse: true, createdAt: now })))
+            .values(list.map((b) => ({ userId: null, blockId: b.id, source: "seed" as const, createdAt: now })))
             .onConflictDoNothing();
         }
         const rows = list.flatMap((b) => b.choices.map((c) => ({ id: c.id, blockId: b.id, name: c.name, level: c.level, steps: c.steps, moves: c.moves, minutes: c.minutes, active: c.active, place: c.place, createdAt: now, updatedAt: now })));

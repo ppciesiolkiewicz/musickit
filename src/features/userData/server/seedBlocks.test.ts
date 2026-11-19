@@ -56,7 +56,7 @@ test("seeding stores curated blocks, their choices and the app's owner row", asy
   assert.deepEqual(r, { blocks: 1, choices: 1, deactivated: 0, planBlocks: 0, skipped: [], unknownRefs: [] });
   const b = repo.peekBlocks().get("guitar-a-b")!;
   assert.equal(b.kind, "curated");
-  assert.deepEqual(repo.peekOwners(), [{ userId: null, blockId: "guitar-a-b", source: "seed", enabledForReuse: true }]);
+  assert.deepEqual(repo.peekOwners(), [{ userId: null, blockId: "guitar-a-b", source: "seed" }]);
   assert.deepEqual(repo.peekChoices().get("guitar-a-b/beginner"), { id: "guitar-a-b/beginner", blockId: "guitar-a-b", name: "beginner", level: "beginner", steps: [], moves: null, minutes: 4, active: true, place: 0, updatedAt: NOW });
 });
 

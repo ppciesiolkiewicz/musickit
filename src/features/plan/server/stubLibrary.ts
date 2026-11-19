@@ -9,13 +9,17 @@ import { candidateOf } from "./composeToday";
  * by the app.
  */
 
-/** A block on one path step: topic and level from the step, 5 minutes, its own title (the step and `n`), and the id the library would give it (the stored exercise's block id) unless `over` names one. */
+/**
+ * A block on one path step: topic and level from the step, 5 minutes, its own title (the step and `n`), and the id the library
+ * would give it (the stored exercise's block id) unless `over` names one. Its choice id is `<id>/<level>` unless `over` names one.
+ */
 export function stubBlock(step: string, n = 0, over: Partial<ComposeBlock> = {}): ComposeBlock {
   const at = stepAt(step);
   if (!at) throw new Error(`no step ${step}`);
   const title = `${step} #${n}`;
   const block: ComposeBlock = {
     id: "",
+    choiceId: "",
     content: { title, cells: [{ type: "text", text: `Play ${title}.` }] } as ComposeBlock["content"],
     area: at.track.area,
     topic: at.track.topic,
@@ -28,7 +32,8 @@ export function stubBlock(step: string, n = 0, over: Partial<ComposeBlock> = {})
     mine: null,
     ...over,
   };
-  return over.id ? block : { ...block, id: blockIdOf(blockKeyOf(candidateOf(block).exercise)) };
+  const id = over.id ?? blockIdOf(blockKeyOf(candidateOf(block).exercise));
+  return { ...block, id, choiceId: over.choiceId ?? `${id}/${at.step.level}` };
 }
 
 /** `per` blocks on every step of every track of the topic. */
