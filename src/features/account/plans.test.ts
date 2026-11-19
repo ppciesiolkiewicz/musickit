@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { allowanceLabel, bestSavingLabel, bothPricesLabel, canChoose, choosablePlans, TAUGHT_PLAN_ID, modelLabel, priceLabel, pricedWithYou, savingLabel, studentsLabel, trialLabel, yearlyCents, type Plan } from "./plans";
+import { allowanceLabel, bestSavingLabel, bothPricesLabel, canChoose, choosablePlans, TAUGHT_PLAN_ID, modelLabel, priceLabel, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, yearlyCents, type Plan } from "./plans";
 
 test("a plan with any number of students is priced with the person", () => {
   assert.equal(pricedWithYou({ students: null }), true);
@@ -48,4 +48,14 @@ test("the taught plan is never offered to someone who is not on it", () => {
   assert.deepEqual(choosablePlans(all, "student").map((p) => p.id), ["student"]);
   assert.deepEqual(choosablePlans(all, null).map((p) => p.id), ["student"]);
   assert.deepEqual(choosablePlans(all, TAUGHT_PLAN_ID).map((p) => p.id), ["student", "taught"]);
+});
+
+test("a plan gives its role, but an owner and an admin keep theirs", () => {
+  const teacher = { role: "teacher" } as Plan;
+  const student = { role: "student" } as Plan;
+  assert.equal(roleOnPlan("student", teacher), "teacher");
+  assert.equal(roleOnPlan("teacher", student), "student");
+  assert.equal(roleOnPlan("owner", student), "owner");
+  assert.equal(roleOnPlan("admin", student), "admin");
+  assert.equal(roleOnPlan("admin", teacher), "admin");
 });

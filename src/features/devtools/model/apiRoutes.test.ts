@@ -37,6 +37,7 @@ test("parseRoute reads each method and the doc above it", () => {
 
 test("parseRoute marks dev-only and open routes", () => {
   assert.equal(parseRoute("src/app/api/dev/x/route.ts", "devGate(); signedIn(").guard, "dev only");
+  assert.equal(parseRoute("src/app/api/admin/x/route.ts", "await devOrAdminGate(req);").guard, "dev or admin");
   assert.equal(parseRoute("src/app/api/x/route.ts", "").guard, null);
 });
 

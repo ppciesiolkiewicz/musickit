@@ -25,6 +25,7 @@ enum user_role {
   student
   teacher
   owner
+  admin
 }
 
 table auth_tokens {
@@ -270,6 +271,20 @@ table shares {
   }
 }
 
+table teacher_invites {
+  id uuid [pk, not null, default: `gen_random_uuid()`]
+  token_hash text [not null, unique]
+  plan_id text [not null]
+  note text [not null, default: '']
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  claimed_by uuid
+  claimed_at "timestamp with time zone"
+
+  indexes {
+    created_at [name: 'teacher_invites_created']
+  }
+}
+
 table teacher_students {
   teacher_id uuid [not null]
   student_id uuid [not null, unique]
@@ -292,6 +307,14 @@ table user_documents {
   indexes {
     (user_id, kind) [name: 'user_documents_user_kind', unique]
   }
+}
+
+table user_voices {
+  user_id uuid [pk, not null]
+  type text
+  low integer
+  high integer
+  updated_at "timestamp with time zone" [not null, default: `now()`]
 }
 
 table users {
@@ -359,11 +382,17 @@ ref share_videos_video_id_videos_id_fk: share_videos.video_id > videos.id [delet
 
 ref shares_user_id_users_id_fk: shares.user_id > users.id [delete: cascade, update: no action]
 
+ref teacher_invites_plan_id_plans_id_fk: teacher_invites.plan_id > plans.id [delete: no action, update: no action]
+
+ref teacher_invites_claimed_by_users_id_fk: teacher_invites.claimed_by > users.id [delete: set null, update: no action]
+
 ref teacher_students_teacher_id_users_id_fk: teacher_students.teacher_id > users.id [delete: cascade, update: no action]
 
 ref teacher_students_student_id_users_id_fk: teacher_students.student_id > users.id [delete: cascade, update: no action]
 
 ref user_documents_user_id_users_id_fk: user_documents.user_id > users.id [delete: cascade, update: no action]
+
+ref user_voices_user_id_users_id_fk: user_voices.user_id > users.id [delete: cascade, update: no action]
 
 ref users_plan_id_plans_id_fk: users.plan_id > plans.id [delete: no action, update: no action]
 

@@ -5,8 +5,10 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
 
 ## Rules
 
-- **Dev only.** `src/app/dev/layout.tsx` calls `notFound()` in production, for everyone, logged in or not; every
-  `src/app/api/dev/*` handler starts with `devGate()` (`gate.ts`). In development no login is needed: `/dev` is a public
+- **Development, or an admin.** `src/app/dev/layout.tsx` calls `notFound()` unless `devOrAdminPage()`
+  (`server/access.ts`): in production only a signed-in account with role `admin` gets in. Every `src/app/api/dev/*`
+  handler starts with `await devOrAdminGate(req)`, except `mcp`, a local MCP server for agents, which stays on `devGate()`
+  (`gate.ts`). The dev overlays on real pages (`devUi`, `DevOnly`) stay development only. In development no login is needed: `/dev` is a public
   path (`src/lib/publicPaths.ts`). `/dev` is not in the sitemap and robots.txt disallows it.
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
   `src/app/dev` and `src/app/api/dev` imports dev tools, except `gate.ts`, which any file may import.
@@ -61,7 +63,7 @@ Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab
 
 Every `route.ts` under `src/app/api`, read from disk on each load (`server/apiRoutes.ts`, parsed by `model/apiRoutes.ts`):
 the URL, each exported method with the `/** */` comment just above it (a method without one is marked), *signed in* when
-the file calls `signedIn(` and *dev only* when it calls `devGate(`, and the file as a `vscode://` link. A route's docs are
+the file calls `signedIn(` and *dev only* when it calls `devGate(`, *dev or admin* when it calls `devOrAdminGate(`, and the file as a `vscode://` link. A route's docs are
 its handler comments, so keep them saying what it takes and returns. There is no OpenAPI spec.
 
 ## Compare AI models for autoplan (`npm run compare-models`)
@@ -263,6 +265,7 @@ returns one.
 
 ## Code map
 
+- `server/access.ts`: `devOrAdmin`, `devOrAdminPage` (a layout), `devOrAdminGate(req)` (a route): development, or a signed-in admin (`isAdmin` in `features/account/model.ts`); a non-GET in production must come from this site (`sameOrigin`).
 - `gate.ts`: `devOnly`, `devGate`, `devUi`: the one dev flag. No file reads `NODE_ENV` to ask "is this development?" on its own; it calls `devOnly()` (anything, a route included), `devGate()` (an `/api/dev` handler) or `devUi()` (something drawn on a real page). A dev-only control on a real page goes inside `DevOnly` (`src/components/DevOnly.tsx`), which gates on `devUi()` and draws the fuchsia `dev` tag and a dashed outline; `DevName` is the same mark for a component's name. `src/app/dev/layout.tsx`: the page gate (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
 - `registry.ts`: the tools listed on `/dev`.
 - `model/models.ts`: the Claude models a run can use: the CLI aliases and the pinned `DEMO_MODELS`.

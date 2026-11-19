@@ -16,7 +16,7 @@ const SHARED = ["/notes/shared"];
 /**
  * Public but not for reading: APIs, Next's and Vercel's own paths, the folders of `public/` (the pitch model's weight files
  * have no extension), the page the video render script opens with no session, and the dev tools and admin pages (no login in
- * development; a production build answers 404 for every /dev and /admin page).
+ * development; in production they answer 404 to anyone but a signed-in admin, `features/devtools/server/access.ts`).
  */
 const OTHER = ["/api", "/dev", "/admin", "/_next", "/_vercel", "/images", "/instruments", "/intro", "/models", "/videos", "/teachers/video/render"];
 

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FEATURES, ROLES, can, cleanAccounts, homePage, type Account, type Feature } from "./model";
+import { FEATURES, ROLES, can, cleanAccounts, homePage, isAdmin, type Account, type Feature } from "./model";
 
 const acc = (over: Partial<Account> = {}): Account => ({ id: "a1", name: "Ann", email: "ann@school.test", role: "student", createdAt: "2026-11-11T10:00:00.000Z", needsSetup: false, emailUpdates: false, taught: false, ...over });
 
@@ -16,6 +16,14 @@ test("every role can use every feature but sharePlan and students: a teacher get
   assert.equal(can(acc({ role: "student" }), "sharePlan"), false);
   assert.equal(can(acc({ role: "teacher" }), "sharePlan"), true);
   assert.equal(can(acc({ role: "owner" }), "sharePlan"), true);
+  assert.equal(can(acc({ role: "admin" }), "sharePlan"), true);
+  assert.equal(can(acc({ role: "admin" }), "students"), true);
+});
+
+test("only an admin is an admin", () => {
+  assert.equal(isAdmin(acc({ role: "admin" })), true);
+  for (const role of ["student", "teacher", "owner"] as const) assert.equal(isAdmin(acc({ role })), false, role);
+  assert.equal(isAdmin(null), false);
 });
 
 test("an owner can use everything a teacher can", () => {
@@ -29,13 +37,14 @@ test("a teacher or owner's home page is the music-school page; a student's is th
   assert.equal(homePage(acc({ role: "student" })), "/players");
   assert.equal(homePage(acc({ role: "teacher" })), "/");
   assert.equal(homePage(acc({ role: "owner" })), "/");
+  assert.equal(homePage(acc({ role: "admin" })), "/");
 });
 
 test("cleanAccounts drops broken rows and repeats", () => {
   assert.deepEqual(cleanAccounts(null), []);
   assert.deepEqual(cleanAccounts("x"), []);
   const good = acc();
-  const list = cleanAccounts([good, { ...good, id: "a2" }, { ...good, email: "b@b.co" }, { ...good, id: "a3", email: "c@b.co", role: "admin" }, null, { id: "a4" }]);
+  const list = cleanAccounts([good, { ...good, id: "a2" }, { ...good, email: "b@b.co" }, { ...good, id: "a3", email: "c@b.co", role: "superuser" }, null, { id: "a4" }]);
   assert.deepEqual(list, [good]);
 });
 

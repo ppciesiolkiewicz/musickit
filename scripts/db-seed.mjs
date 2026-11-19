@@ -1,14 +1,16 @@
 /**
- * Adds accounts to the database at DATABASE_URL. An email that already has an account is left as it is.
+ * Adds accounts to the database at DATABASE_URL. An email that already has an account is left as it is, except that
+ * seeding it as admin makes it an admin.
  *
  *   npm run db:seed -- you+student@example.com:student you+teacher@example.com:owner
+ *   npm run db:seed-admin
  *
- * Each argument is email:role (student, teacher or owner) with an optional :Name after it. The person logs in with an
+ * Each argument is email:role (student, teacher, owner or admin) with an optional :Name after it. The person logs in with an
  * emailed link or Google as usual; seeding only makes the account exist with that role.
  */
 import postgres from "postgres";
 
-const ROLES = ["student", "teacher", "owner"];
+const ROLES = ["student", "teacher", "owner", "admin"];
 
 const url = process.env.DATABASE_URL?.trim();
 if (!url) {
@@ -36,7 +38,14 @@ try {
     const added = await sql`
       insert into users (email, name, role) values (${p.email}, ${p.name}, ${p.role})
       on conflict (email) do nothing returning id`;
-    console.log(`${added.length ? "added  " : "exists "} ${p.email} (${p.role})`);
+    if (added.length) {
+      console.log(`added    ${p.email} (${p.role})`);
+    } else if (p.role === "admin") {
+      await sql`update users set role = 'admin', updated_at = now() where email = ${p.email}`;
+      console.log(`admin    ${p.email} (was there; now admin)`);
+    } else {
+      console.log(`exists   ${p.email} (${p.role})`);
+    }
   }
 } finally {
   await sql.end();

@@ -239,6 +239,13 @@
       "when": 1795006525975,
       "tag": "0033_user_voices",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1795066812864,
+      "tag": "0034_admin_role",
+      "breakpoints": true
     }
   ]
 }

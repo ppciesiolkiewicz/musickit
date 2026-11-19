@@ -1,5 +1,5 @@
 import path from "node:path";
-import { devGate } from "@/features/devtools/gate";
+import { devOrAdminGate } from "@/features/devtools/server/access";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ interface Frame {
  * "src/…/X.tsx:74:19", or null where it can't tell (another bundler, an internal file).
  */
 export async function POST(req: Request) {
-  const gate = devGate();
+  const gate = await devOrAdminGate(req);
   if (gate) return gate;
   const body = (await req.json().catch(() => null)) as { frames?: Frame[] } | null;
   const frames = (body?.frames ?? []).filter((f) => typeof f?.file === "string" && f.file.startsWith("/_next/static/") && Number.isInteger(f.line1) && Number.isInteger(f.column1)).slice(0, 20);

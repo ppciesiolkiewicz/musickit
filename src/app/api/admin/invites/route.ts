@@ -1,4 +1,4 @@
-import { devGate } from "@/features/devtools/gate";
+import { devOrAdminGate } from "@/features/devtools/server/access";
 import { joinHref } from "@/features/account/loginGuard";
 import { auth, json, readJson, sameOrigin } from "@/features/account/server/http";
 import { SITE_URL } from "@/lib/site";
@@ -25,9 +25,9 @@ const linkBase = (req: Request): string => {
   return host === "localhost" || host === "127.0.0.1" ? new URL(req.url).origin : SITE_URL;
 };
 
-/** /admin/invites (dev only for now): every teacher invite, newest first. The links themselves are never stored. */
-export async function GET() {
-  const gate = devGate();
+/** /admin/invites (development, or an admin): every teacher invite, newest first. The links themselves are never stored. */
+export async function GET(req: Request) {
+  const gate = await devOrAdminGate(req);
   if (gate) return gate;
   const deps = auth();
   if (!deps) return json({ error: NO_DB }, 503);
@@ -36,7 +36,7 @@ export async function GET() {
 
 /** A new invite onto the Teacher Demo plan: JSON `{ note }`. Answers `{ invite, link }`; the link is shown this once. */
 export async function POST(req: Request) {
-  const gate = devGate();
+  const gate = await devOrAdminGate(req);
   if (gate) return gate;
   if (!sameOrigin(req)) return json({ error: "Bad request." }, 403);
   const deps = auth();
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
 /** Deletes an invite: `?id=<id>`. A teacher who joined with it keeps their plan. */
 export async function DELETE(req: Request) {
-  const gate = devGate();
+  const gate = await devOrAdminGate(req);
   if (gate) return gate;
   if (!sameOrigin(req)) return json({ error: "Bad request." }, 403);
   const deps = auth();

@@ -1,15 +1,15 @@
 # Account
 
-Who is using the app, and what their role lets them use: students, teachers and owners. People log in with a link or a
+Who is using the app, and what their role lets them use: students, teachers, owners and admins. People log in with a link or a
 6-digit code we email them, or with Google. There are no passwords and no separate register form: `/login` is the one way in, and a
 person with no account yet gets one straight away, with no plan, and is held on `/account/setup` until they give their
 name (Google's is filled in) and choose a plan, with no payment; the three main sections send them there until then. Both are changed later on `/account`.
 
 ## Parts
 
-- `model.ts`: `Role` (student, teacher, owner; an owner runs a school and can do all a teacher can), `NEW_ACCOUNT_ROLE`
-  (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role, `taught`: on the `taught` plan, a student a teacher made), `FEATURES` (the parts
-  of the app with the roles that may use them; every role gets every feature except `sharePlan` and `students` (having students, see `features/students`), for teachers and owners), `can(account, feature)` and
+- `model.ts`: `Role` (student, teacher, owner, admin; an owner runs a school and can do all a teacher can; an admin is one of us, can do all an owner can, and opens /dev and /admin in production: `isAdmin`, checked by `features/devtools/server/access.ts`), `NEW_ACCOUNT_ROLE`
+  (student: every account a person makes for themself starts as one; a teacher, owner or admin is made one by us), `Account` (id, name, email, role, `taught`: on the `taught` plan, a student a teacher made), `FEATURES` (the parts
+  of the app with the roles that may use them; every role gets every feature except `sharePlan` and `students` (having students, see `features/students`), for teachers, owners and admins), `can(account, feature)` and
   `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
 - `plans.ts`: `Plan` (a row of the `plans` table: name, the role it gives, a price in US cents a month (`monthCents`, paid monthly) and one a year (`yearCents`, paid yearly), a free trial (`trialDays`), students and `extraStudents` (extra active students a month, free: Solo 2, Music school 3, `0030_active_students`; see `features/students/model/places.ts`),
   AI autoplans a month, Batch, `enabled`, `sort`; every plan's autoplans and notes are written by one model, `SUBSCRIPTION_MODEL`, Haiku 5.5), `choosablePlans`
@@ -155,7 +155,7 @@ Things that are on purpose:
 - **Two cookies.** `mk_session` (hidden from scripts) is the session. `mk_in` only tells the page that a session
   exists, so a visitor's page never asks the server who they are. The server never trusts `mk_in`.
 - **The answer to "email me a link" never says whether the email has an account.**
-- **A role comes with a plan.** A new account is a student with no plan until it chooses one on `/account/setup`. Choosing a Teacher plan there or on `/account` makes a student a teacher, and choosing Student makes a teacher a student again; an owner is set by us and stays an owner on any plan. A plan turned off (`enabled = false`) can't be chosen, but whoever is on it keeps it. Logging in again, by link or
+- **A role comes with a plan.** A new account is a student with no plan until it chooses one on `/account/setup`. Choosing a Teacher plan there or on `/account` makes a student a teacher, and choosing Student makes a teacher a student again; an owner or an admin is set by us and keeps that role on any plan. A plan turned off (`enabled = false`) can't be chosen, but whoever is on it keeps it. Logging in again, by link or
   Google, never changes the name or role of an account.
 - **The old addresses still work.** `/register` and `/register/teacher` go to `/login`, `/register/finish` to
   `/login` (`next.config.ts`).

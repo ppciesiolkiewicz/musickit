@@ -10,7 +10,7 @@ import { bigint, boolean, check, date, index, integer, jsonb, pgEnum, pgTable, p
 const at = (name: string) => timestamp(name, { withTimezone: true, mode: "date" });
 
 /** Same values as `ROLES` in features/account/model.ts. */
-export const userRole = pgEnum("user_role", ["student", "teacher", "owner"]);
+export const userRole = pgEnum("user_role", ["student", "teacher", "owner", "admin"]);
 
 /** How often a person pays for their plan: every month or once a year. */
 export const planPeriod = pgEnum("plan_period", ["month", "year"]);

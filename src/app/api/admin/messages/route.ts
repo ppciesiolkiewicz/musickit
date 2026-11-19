@@ -1,4 +1,4 @@
-import { devGate } from "@/features/devtools/gate";
+import { devOrAdminGate } from "@/features/devtools/server/access";
 import { isUnread } from "@/features/messages/model/message";
 import { adminReply, setStatus } from "@/features/messages/server/messages";
 import { messagesStore } from "@/features/messages/server/store";
@@ -10,11 +10,11 @@ const json = (body: unknown, status = 200) => Response.json(body, { status, head
 const NO_DB = "No database: set DATABASE_URL.";
 
 /**
- * /admin/messages (dev only for now): `?status=open|closed|all` lists threads, `?thread=<id>` one thread with every message's
+ * /admin/messages (development, or an admin): `?status=open|closed|all` lists threads, `?thread=<id>` one thread with every message's
  * context, marking it read on our side.
  */
 export async function GET(req: Request) {
-  const gate = devGate();
+  const gate = await devOrAdminGate(req);
   if (gate) return gate;
   const store = messagesStore();
   if (!store) return json({ error: NO_DB }, 503);
@@ -34,7 +34,7 @@ export async function GET(req: Request) {
 
 /** Our reply: JSON `{ threadId, body }`. */
 export async function POST(req: Request) {
-  const gate = devGate();
+  const gate = await devOrAdminGate(req);
   if (gate) return gate;
   const store = messagesStore();
   if (!store) return json({ error: NO_DB }, 503);
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
 
 /** Close or reopen: JSON `{ threadId, status }`. */
 export async function PATCH(req: Request) {
-  const gate = devGate();
+  const gate = await devOrAdminGate(req);
   if (gate) return gate;
   const store = messagesStore();
   if (!store) return json({ error: NO_DB }, 503);

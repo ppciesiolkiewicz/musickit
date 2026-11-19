@@ -91,8 +91,8 @@ export function canChoose(plans: Plan[], current: { planId: string | null; billi
   return plan.enabled ? plan : null;
 }
 
-/** The role a person has after choosing `plan`. An owner runs a school and stays an owner on any plan. */
-export const roleOnPlan = (role: Role, plan: Plan): Role => (role === "owner" ? "owner" : plan.role);
+/** The role a person has after choosing `plan`. An owner runs a school and stays an owner on any plan; an admin stays an admin. */
+export const roleOnPlan = (role: Role, plan: Plan): Role => (role === "owner" || role === "admin" ? role : plan.role);
 
 /** "$27", "$12.50". */
 export const dollars = (cents: number): string => {

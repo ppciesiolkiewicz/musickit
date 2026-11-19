@@ -1,10 +1,13 @@
-/** What a person is in the app. An owner runs a school and can do everything a teacher can. */
-export const ROLES = ["student", "teacher", "owner"] as const;
+/**
+ * What a person is in the app. An owner runs a school and can do everything a teacher can. An admin is one of us: they
+ * can do everything an owner can, and open the /dev and /admin pages in production too (`isAdmin`).
+ */
+export const ROLES = ["student", "teacher", "owner", "admin"] as const;
 export type Role = (typeof ROLES)[number];
 
-export const ROLE_LABEL: Record<Role, string> = { student: "Student", teacher: "Teacher", owner: "Owner" };
+export const ROLE_LABEL: Record<Role, string> = { student: "Student", teacher: "Teacher", owner: "Owner", admin: "Admin" };
 
-/** Every account a person makes for themself starts as this. A teacher or an owner is made one by us. */
+/** Every account a person makes for themself starts as this. A teacher, an owner or an admin is made one by us. */
 export const NEW_ACCOUNT_ROLE: Role = "student";
 
 export interface Account {
@@ -29,15 +32,18 @@ export interface Account {
  */
 export const FEATURES = {
   /** The notes creator (/creator, the studio's preset notes). */
-  notesCreator: ["student", "teacher", "owner"],
+  notesCreator: ["student", "teacher", "owner", "admin"],
   /** Having the AI write a plan. */
-  aiPlan: ["student", "teacher", "owner"],
+  aiPlan: ["student", "teacher", "owner", "admin"],
   /** Sharing a plan as an invite (Share plan). Signing in is needed too: with no database there are no accounts and no sharing. */
-  sharePlan: ["teacher", "owner"],
+  sharePlan: ["teacher", "owner", "admin"],
   /** Having students: making their accounts and reading and writing their plans. */
-  students: ["teacher", "owner"],
+  students: ["teacher", "owner", "admin"],
 } as const satisfies Record<string, readonly Role[]>;
 export type Feature = keyof typeof FEATURES;
+
+/** One of us: may open /dev and /admin in production (`devOrAdmin` in features/devtools/server/access.ts). */
+export const isAdmin = (account: Account | null): boolean => account?.role === "admin";
 
 /**
  * May this person use the feature? `null` is nobody signed in: the one local person of this browser, who can use

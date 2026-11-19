@@ -1,5 +1,5 @@
 import { catalogue } from "@/features/plan/model/catalogue";
-import { devGate } from "@/features/devtools/gate";
+import { devOrAdminGate } from "@/features/devtools/server/access";
 import { describeReply, newRunId, readRunInput, type RunRecord } from "@/features/devtools/model/history";
 import { listRuns, saveRun } from "@/features/devtools/server/history";
 
@@ -9,13 +9,13 @@ export const dynamic = "force-dynamic";
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { "cache-control": "no-store" } });
 
 /** Every run, newest first. */
-export async function GET() {
-  return devGate() ?? json({ runs: await listRuns() });
+export async function GET(req: Request) {
+  return (await devOrAdminGate(req)) ?? json({ runs: await listRuns() });
 }
 
 /** Keep a reply pasted from another AI: the run's inputs plus its `reply`, recorded as model "pasted". */
 export async function POST(req: Request) {
-  const gate = devGate();
+  const gate = await devOrAdminGate(req);
   if (gate) return gate;
   const raw = await req.json().catch(() => null);
   const input = readRunInput(raw);
