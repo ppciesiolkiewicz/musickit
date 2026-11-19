@@ -11,7 +11,8 @@ through the library tools as the models to write like, so a flaw here shows up i
 - **A why is a mechanism**, one sentence the learner could build the next drill from. "This is the base of everything" is not one.
 - **Done is a feel, never a count.** Each block says loosely what to reach.
 - **Pick tools from the prompt's "Which tool for what"** (`plan/model/prompt.ts`), not from the file being copied.
-- **A rewrite keeps the file**: same `id`, area, topic, concepts, steps and minutes; set `model` and `versions` (the
+- **A block file is the exercise plus its `choices`**: `level`, `steps`, `moves` and `minutes` sit in a choice, never in `exercise`. A plan's days name a block and one of its choices (`{ "block", "choice", "minutes"? }`), never a copy of an exercise.
+- **A rewrite keeps the file**: same `id`, area, topic, concepts, choice names, steps and minutes; set `model` and `versions` (the
   versions of the prompt, AGENTS.md and the teaching skills it is now written to, from `PROMPT_VERSION` and
   `DOC_VERSIONS` in `versions.ts`), and rewrite `note`.
 - **`versions` is never raised by hand.** It says which rules the text was written to; it changes only with a rewrite.

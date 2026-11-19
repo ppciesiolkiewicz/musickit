@@ -129,8 +129,8 @@ test("a block an earlier run stored as an example's becomes seed, enabled; a see
 
 test("seedFileBlocks: a seed exercise file is a seed block, enabled, with its file's model and versions; a broken one is skipped", () => {
   const ex = SEED_BLOCKS[0];
-  const file = { id: "s1", model: "claude-fable-5-2", versions: { prompt: 1, agents: 2, teaching: 5 }, note: "a gap", exercise: ex.exercise };
-  const list = seedFileBlocks([file, { ...file, id: "s2", exercise: {} }]);
+  const file = { id: "s1", model: "claude-fable-5-2", versions: { prompt: 1, agents: 2, teaching: 5 }, note: "a gap", exercise: ex.exercise, choices: [] };
+  const list = seedFileBlocks([file, { ...file, id: "s2", exercise: {}, choices: [] }]);
   assert.equal(list.length, 1);
   assert.deepEqual([list[0].source, list[0].enabledForReuse, list[0].provenance], ["seed", true, { model: "claude-fable-5-2", promptVersion: 1, docsAgents: 2, docsTeaching: 5 }]);
   assert.ok(seedFileBlocks().some((b) => b.id === list[0].id), "the same exercise gets the same block id");
@@ -139,7 +139,7 @@ test("seedFileBlocks: a seed exercise file is a seed block, enabled, with its fi
 // a block's default slot: the first writer wins (block files, then plans in id order), and a second run changes nothing
 // a plain exercise, so its minutes change no cell and the same block can be written with any minutes
 const plain = (title: string, over: Record<string, unknown> = {}) => ({ title, minutes: 4, level: "beginner", area: "guitar", tags: ["technique"], cells: [{ type: "text", text: "Play it slowly." }], ...over });
-const slotFile = (id: string, exercise: Record<string, unknown>) => ({ id, model: "m", versions: { prompt: 1, agents: 1, teaching: 1 }, note: "n", exercise });
+const slotFile = (id: string, exercise: Record<string, unknown>) => ({ id, model: "m", versions: { prompt: 1, agents: 1, teaching: 1 }, note: "n", exercise, choices: [] });
 const planWith = (id: string, exercise: Record<string, unknown>): SeedPlan => ({ id, reply: JSON.stringify({ title: id, days: Array.from({ length: 7 }, (_, i) => ({ theme: `d${i}`, exercises: [exercise] })) }), provenance: prov });
 
 test("seedFileBlocks: an exercise's minutes, why and lessons are the block's slot", () => {

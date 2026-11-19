@@ -7,10 +7,12 @@
  *
  * `check` exits 1 when a file has a problem. A parser warning is a problem: a seed file must read with none.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { composePrompt } from "../src/features/devtools/model/compose";
 import { PERSONAS } from "../src/features/devtools/model/personas";
+import { expandPlan, exerciseOf, isChoiceName } from "../src/features/library/seed/choices";
+import type { SeedBlockFile, SeedPlanFile } from "../src/features/library/seed";
 import { dayRefs } from "../src/features/library/seed/dayRefs";
 import { movesProblems } from "../src/features/library/seed/movesCheck";
 import { DOC_VERSIONS } from "../src/features/library/seed/versions";
@@ -20,6 +22,7 @@ import { parseExercise, parsePlanConfig } from "../src/features/plan/model/confi
 import { LADDERS } from "../src/features/plan/model/ladders";
 import { stepAt, stepOf } from "../src/features/plan/model/path";
 import { PROMPT_VERSION, promptParts } from "../src/features/plan/model/prompt";
+import { isCuratedId } from "../src/features/plan/model/blockId";
 import { toolsOf } from "../src/features/plan/model/tools";
 import type { PlanAnswers, PlanExercise } from "../src/features/plan/model/types";
 
@@ -64,6 +67,10 @@ function exerciseProblems(e: PlanExercise, where: string): string[] {
   return out;
 }
 
+const BLOCKS_DIR = path.join(__dirname, "../src/features/library/seed/blocks");
+const blockFiles = (): SeedBlockFile[] =>
+  readdirSync(BLOCKS_DIR).filter((f) => f.endsWith(".json")).map((f) => JSON.parse(readFileSync(path.join(BLOCKS_DIR, f), "utf8")) as SeedBlockFile);
+
 function check(file: string): string[] {
   const raw = JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
   const problems: string[] = [];
@@ -79,14 +86,26 @@ function check(file: string): string[] {
   const entries = catalogue();
   if ("plan" in raw) {
     if (!raw.answers) problems.push("no answers: say which player the plan is for.");
-    const r = parsePlanConfig(JSON.stringify(raw.plan), entries);
+    const expanded = expandPlan(raw as unknown as SeedPlanFile, blockFiles());
+    if (expanded.errors.length) return [...problems, ...expanded.errors];
+    const r = parsePlanConfig(JSON.stringify(expanded.plan), entries);
     if (!r.ok) return [...problems, `the plan does not parse: ${r.error}`];
     problems.push(...r.warnings);
     r.config.days.forEach((d, i) => d.exercises.forEach((e, j) => problems.push(...exerciseProblems(e, `Day ${i + 1}, exercise ${j + 1}`), ...newRules(e, `Day ${i + 1}, exercise ${j + 1}`))));
   } else if ("exercise" in raw) {
-    const { block, warnings } = parseExercise(raw.exercise, id, entries);
-    if (!block) return [...problems, "the exercise does not parse."];
-    problems.push(...warnings, ...exerciseProblems(block, id), ...newRules(block, id));
+    if (!isCuratedId(raw.id)) problems.push(`id "${String(raw.id)}" is not a curated id: two or more lowercase words joined by hyphens.`);
+    const file_ = raw as unknown as SeedBlockFile;
+    if (!Array.isArray(file_.choices) || !file_.choices.length) return [...problems, 'no "choices": a block lists at least one.'];
+    const seen = new Set<string>();
+    for (const c of file_.choices) {
+      const where = `${id}/${String(c.name)}`;
+      if (!isChoiceName(c.name)) problems.push(`${where}: the choice name is not lowercase words joined by hyphens.`);
+      if (seen.has(c.name)) problems.push(`${where}: a second choice with this name.`);
+      seen.add(c.name);
+      const { block, warnings } = parseExercise(exerciseOf(file_, c), where, entries);
+      if (!block) problems.push(`${where}: the exercise does not parse.`);
+      else problems.push(...warnings, ...exerciseProblems(block, where), ...newRules(block, where));
+    }
   } else problems.push('neither "plan" nor "exercise".');
   return problems;
 }

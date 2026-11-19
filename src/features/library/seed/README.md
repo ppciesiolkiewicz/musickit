@@ -5,9 +5,14 @@ exercise, so an agent writing one reads nothing else here. `index.ts` loads them
 each folder.
 
 ```
-plans/<id>.json    one 7-day plan each (SeedPlanFile)
-blocks/<id>.json   one exercise each, for a step no plan reaches yet (SeedBlockFile)
+plans/<id>.json    one 7-day plan each (SeedPlanFile); its days name blocks and a choice of each
+blocks/<id>.json   one exercise each, with its choices (SeedBlockFile)
 ```
+
+A block file is the exercise (`title`, `cells`, tags) and a `choices` list: each choice is one way to do it, with its
+`name`, `level`, `steps`, `moves` and `minutes` (`SeedChoice`). A choice's id is `<block id>/<name>`. `choices.ts` makes
+the AI-shape exercise of a choice (`exerciseOf`) and fills a plan's refs in (`expandPlan`), so the parser and the checks
+read the shape they always did.
 
 Besides the database, the code reads them directly: the demos at `/demo` (`plan/demos.ts`, six of the plans),
 `/dev/stories`, `/dev/path` and `/dev/block`.
@@ -22,16 +27,20 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
    (personas: `devtools/model/personas.ts`), and write the plan that prompt asks for.
    Write the file. The id is the file name: `<area>-<level>-<what>`, for example `theory-new-steady-beat`.
    - A plan: `{ "id", "answers", "model", "versions": { "prompt", "agents", "teaching" }, "note", "plan" }`. `answers`
-     is the player the plan is for, as the questionnaire records them (`PlanAnswers`); `plan` is exactly what the AI
-     returns (`title`, `summary`, `progress`, `days`).
-   - An exercise: `{ "id", "model", "versions", "note", "exercise" }`, the exercise as it would sit in a plan's day.
-     Its `steps` names the path steps it practises (`["barre:2"]`, `PATH` in `plan/model/path.ts`), each in a track
-     of its `concepts`; its level is the highest of their levels (the parser sets it), and the library finds it by
-     step.
+     is the player the plan is for, as the questionnaire records them (`PlanAnswers`); `plan` is what the AI returns
+     (`title`, `summary`, `progress`, `days`), except that a day's `exercises` are refs,
+     `{ "block": "<block id>", "choice": "<choice name>", "minutes"? }`, to blocks of `blocks/`. `minutes` on a ref
+     replaces the choice's.
+   - An exercise: `{ "id", "model", "versions", "note", "exercise", "choices" }`. The `id` is the file name, two or
+     more lowercase words joined by hyphens. `exercise` is the exercise as it would sit in a plan's day, without
+     `level`, `steps`, `moves` and `minutes`. Each choice (`name`: lowercase words joined by hyphens, unique in the
+     file) holds `level`?, `steps`, `moves`?, `minutes`, `draft`?. `steps` names the path steps it practises
+     (`["barre:2"]`, `PATH` in `plan/model/path.ts`), each in a track of the exercise's `concepts`; the library finds it
+     by step.
    - `versions` are `PROMPT_VERSION` (`plan/model/prompt.ts`) and `DOC_VERSIONS` (`versions.ts`) as they
      are when the file is written. `model` is the API id of the model that wrote it. `note` says which gap, in one line.
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the
-   current ones (`npm run -s seed -- versions`), every exercise names a concept and at least one step (each in a track of
+   current ones (`npm run -s seed -- versions`), the id is a curated id, choice names are unique, every plan ref names a block and a choice of it, every choice (read as `exerciseOf` makes it) names a concept and at least one step (each in a track of
    its concepts), no choice sets a key or a tempo and no exercise with `moves` mentions a selector (`movesCheck.ts`), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
    level or stage, and no exercise names another day or week.
    Then `npm run -s gen:json-index`, so the folder's `index.gen.ts` imports the new file.
