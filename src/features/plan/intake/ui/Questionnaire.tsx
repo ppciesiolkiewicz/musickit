@@ -4,7 +4,7 @@ import Icon from "@/components/Icon";
 import { Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
 import { AREAS, type Area } from "../../model/concepts";
 import { keyName } from "@/features/theory/keySlug";
-import { KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
+import { KEY_LADDERS, KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
 import { MINUTES, levelOf, type PlanAnswers } from "../answers";
 import { topicsFor } from "../topics";
 import YourVoice, { VoiceField } from "./YourVoice";
@@ -107,12 +107,35 @@ const listed = (keys: number[]): string => {
  * so under the lines each chosen area says which keys that is there. Not sure leaves it to each area's level.
  */
 function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: QuestionOpts = {}): ModalStep {
-  const row = (on: boolean, pick: () => void, name: string, line: string, i: number) => (
-    <button key={name} type="button" role="radio" aria-checked={on} onClick={pick} className={`flex cursor-pointer flex-col items-start rounded-xl border px-3 py-2 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hueAt(i), on)}`}>
-      <span className="text-sm font-medium">{name}</span>
-      <span className="text-xs opacity-70">{line}</span>
-    </button>
-  );
+  const chosen = AREAS.filter((ar) => a.areas.includes(ar.id));
+  /** The keys a rung means, every key up to it, grouped by the chosen areas that share them (all 12 on the last rung). */
+  const keyGroups = (r: KeyRung): { label: string; keys: string[] }[] => {
+    const groups: { label: string; keys: string[] }[] = [];
+    for (const ar of chosen.length ? chosen : AREAS.filter((x) => x.id === "guitar")) {
+      const keys = r === KEY_RUNGS[KEY_RUNGS.length - 1] ? ["All 12"] : KEY_LADDERS[ar.id].slice(0, r + 1).flat().map((k) => keyName(k));
+      const same = groups.find((g) => g.keys.join() === keys.join());
+      if (same) same.label += ` · ${ar.label}`;
+      else groups.push({ label: ar.label, keys });
+    }
+    return groups;
+  };
+  const row = (on: boolean, pick: () => void, name: string, line: string, i: number, r?: KeyRung) => {
+    const groups = r === undefined ? [] : keyGroups(r);
+    return (
+      <button key={name} type="button" role="radio" aria-checked={on} onClick={pick} className={`flex cursor-pointer flex-col items-start rounded-xl border px-3 py-2 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hueAt(i), on)}`}>
+        <span className="text-sm font-medium">{name}</span>
+        <span className="text-xs opacity-70">{line}</span>
+        {groups.map((g) => (
+          <span key={g.label} className="mt-1 flex flex-wrap items-center gap-1 text-[11px]">
+            {groups.length > 1 && <span className="opacity-60">{g.label}</span>}
+            {g.keys.map((k) => (
+              <span key={k} className="rounded border border-current/30 px-1.5 leading-4 opacity-80">{k}</span>
+            ))}
+          </span>
+        ))}
+      </button>
+    );
+  };
   return {
     title: forStudent ? "How many keys is your student at home in?" : "How many keys are you at home in?",
     hint: forStudent
@@ -121,7 +144,7 @@ function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Questi
     body: (
       <div className="flex flex-col gap-4">
         <div role="radiogroup" className="grid gap-2 desk:grid-cols-2">
-          {KEY_RUNGS.map((r, i) => row(a.keys === r, () => set("keys", r), KEY_LINES[r].name, KEY_LINES[r].line, i))}
+          {KEY_RUNGS.map((r, i) => row(a.keys === r, () => set("keys", r), KEY_LINES[r].name, KEY_LINES[r].line, i, r))}
           {row(a.keys === undefined, () => set("keys", undefined), "Not sure", forStudent ? "The plan picks the keys from their other answers." : "The plan picks the keys from your other answers.", KEY_RUNGS.length)}
         </div>
         <ul className="flex flex-col gap-1 text-xs text-slate-400">
