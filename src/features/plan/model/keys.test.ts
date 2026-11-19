@@ -5,7 +5,7 @@ import { KEY_LADDERS, KEY_RUNGS, MAX_BACK, MAX_NOW, cleanKeys, exerciseKeys, has
 import type { Cell, PlanTool } from "./tools";
 import type { Block } from "./types";
 
-const E = 4, G = 7, A = 9, C = 0, D = 2;
+const E = 4, G = 7, A = 9, B = 11, C = 0, D = 2;
 
 test("every area's ladder has five rungs and holds each of the twelve keys once", () => {
   for (const { id } of AREAS) {
@@ -14,17 +14,17 @@ test("every area's ladder has five rungs and holds each of the twelve keys once"
   }
 });
 
-test("the first keys: E on guitar, C for the voice and for theory", () => {
-  assert.deepEqual(KEY_LADDERS.guitar[0], [E]);
+test("the first keys: A on guitar, C for the voice and for theory", () => {
+  assert.deepEqual(KEY_LADDERS.guitar[0], [A]);
   assert.deepEqual(KEY_LADDERS.voice[0], [C]);
   assert.deepEqual(KEY_LADDERS.theory[0], [C]);
 });
 
 test("keysAt: the rung's keys now, the rungs below to go back to, nearest first", () => {
-  assert.deepEqual(keysAt("guitar", 0), { now: [E], back: [] });
-  assert.deepEqual(keysAt("guitar", 1), { now: [A, G], back: [E] });
+  assert.deepEqual(keysAt("guitar", 0), { now: [A], back: [] });
+  assert.deepEqual(keysAt("guitar", 1), { now: [G, E], back: [A] });
   assert.deepEqual(keysAt("voice", 2), { now: [A, G], back: [E, C] }, "a singer on A and G still has E and C");
-  assert.deepEqual(keysAt("guitar", 2), { now: [C, D], back: [A, G, E] });
+  assert.deepEqual(keysAt("guitar", 2), { now: [B, C], back: [G, E, A] });
 });
 
 test("keyRung: the answer when there is one, else from the area's level", () => {
@@ -42,11 +42,11 @@ test("exerciseKeys: a short row; a rung with many keys takes a different few by 
     const k = exerciseKeys("guitar", 4, turn);
     assert.equal(k.now.length, MAX_NOW);
     assert.equal(k.back.length, MAX_BACK);
-    assert.deepEqual(k.back, [5, 11, C], "the nearest keys below");
+    assert.deepEqual(k.back, [D, 5, B], "the nearest keys below");
     k.now.forEach((x) => seen.add(x));
   }
   assert.deepEqual([...seen].sort((a, b) => a - b), [...KEY_LADDERS.guitar[4]].sort((a, b) => a - b));
-  assert.deepEqual(exerciseKeys("guitar", 1, 7), { now: [A, G], back: [E] }, "a small rung is the same every turn");
+  assert.deepEqual(exerciseKeys("guitar", 1, 7), { now: [G, E], back: [A] }, "a small rung is the same every turn");
 });
 
 test("cleanKeys: pitch classes, each once, at least one now", () => {

@@ -17,13 +17,13 @@ export const isKeyRung = (v: unknown): v is KeyRung => v === 0 || v === 1 || v =
 
 /**
  * The key ladders, as pitch classes (C = 0), every key on exactly one rung.
- * - Guitar, by how many of the key's main chords are open chords: E (Em G Am C D are open), then A and G, then C and D
- *   (they need F and Bm), then F and B (the home chord is a barre), then the keys with no open chord.
- * - Voice follows the guitar's order with C first, the key singers are taught in.
+ * - Guitar, by where pentatonic position 1 sits on the neck (user, 2026-11-19): A (frets 5 to 8), then G and E, then B
+ *   and C, then D and F, then the rest. The same order as the pentatonic positions track (`Track.keys`, path.ts).
+ * - Voice: C first, the key singers are taught in, then E, A and G, D and F, the rest (the guitar's old order).
  * - Theory & ear by sharps and flats, outward on the circle of fifths: C, then G and F, D and B♭, A and E♭, the rest.
  */
 export const KEY_LADDERS: Record<Area, number[][]> = {
-  guitar: [[4], [9, 7], [0, 2], [5, 11], [6, 10, 3, 8, 1]],
+  guitar: [[9], [7, 4], [11, 0], [2, 5], [6, 10, 8, 1, 3]],
   voice: [[0], [4], [9, 7], [2, 5], [10, 3, 11, 6, 8, 1]],
   theory: [[0], [7, 5], [2, 10], [9, 3], [4, 8, 11, 1, 6]],
 };
