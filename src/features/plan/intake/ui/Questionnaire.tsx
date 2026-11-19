@@ -4,7 +4,7 @@ import Icon from "@/components/Icon";
 import { Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
 import { AREAS, type Area } from "../../model/concepts";
 import { keyName } from "@/features/theory/keySlug";
-import { KEY_LADDERS, KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
+import { KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
 import { MINUTES, levelOf, type PlanAnswers } from "../answers";
 import { topicsFor } from "../topics";
 import YourVoice, { VoiceField } from "./YourVoice";
@@ -96,6 +96,16 @@ const KEY_LINES: Record<KeyRung, { name: string; line: string }> = {
   4: { name: "Any key", line: "Every key feels the same." },
 };
 
+/** The keys shown under each answer: the same short list for every area. The first two answers name the easy keys. */
+const EASY_KEYS = [0, 7, 2, 4, 9, 5].map((k) => keyName(k));
+const KEY_EXAMPLES: Record<KeyRung, string[]> = {
+  0: EASY_KEYS,
+  1: EASY_KEYS,
+  2: [...EASY_KEYS, ...[10, 3].map((k) => keyName(k))],
+  3: [...EASY_KEYS, ...[10, 3, 8, 11].map((k) => keyName(k))],
+  4: ["All 12"],
+};
+
 /** "A", "A and G", "A, G and C". */
 const listed = (keys: number[]): string => {
   const names = keys.map((k) => keyName(k));
@@ -104,60 +114,27 @@ const listed = (keys: number[]): string => {
 
 /**
  * One question for the whole plan: how many keys they are at home in. The answer is a rung of every area's key ladder,
- * so under the lines each chosen area says which keys that is there. Not sure leaves it to each area's level.
+ * so the cards list example keys and, under them, each chosen area says the keys its exercises start in. Not sure leaves it to each area's level.
  */
 function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: QuestionOpts = {}): ModalStep {
-  const chosen = AREAS.filter((ar) => a.areas.includes(ar.id));
-  /** The keys a rung means, every key up to it, grouped by the chosen areas that share them (all 12 on the last rung). */
-  const keyGroups = (r: KeyRung): { label: string; keys: string[] }[] => {
-    const groups: { label: string; keys: string[] }[] = [];
-    for (const ar of chosen.length ? chosen : AREAS.filter((x) => x.id === "guitar")) {
-      const keys = r === KEY_RUNGS[KEY_RUNGS.length - 1] ? ["All 12"] : KEY_LADDERS[ar.id].slice(0, r + 1).flat().map((k) => keyName(k));
-      const same = groups.find((g) => g.keys.join() === keys.join());
-      if (same) same.label += ` · ${ar.label}`;
-      else groups.push({ label: ar.label, keys });
-    }
-    return groups;
-  };
-  // "One key" is any one of the first keys of an area: the first, then the second rung's in letter order (guitar A, E, G)
-  const oneKey = (area: Area): string[] => {
-    const [first, second = []] = KEY_LADDERS[area];
-    return [...first.map((k) => keyName(k)), ...second.map((k) => keyName(k)).sort()];
-  };
   const tag = "inline-flex min-w-7 justify-center rounded-md border border-current/40 px-1.5 py-0.5 text-xs font-medium";
   const row = (on: boolean, pick: () => void, name: string, line: string, i: number, r?: KeyRung) => (
-    <div key={name} className={`flex flex-col rounded-xl border transition ${hueClass(hueAt(i), on)}`}>
-      <button type="button" role="radio" aria-checked={on} onClick={pick} className="flex w-full cursor-pointer flex-col items-start rounded-xl px-3 pt-2 pb-1 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400">
-        <span className="text-sm font-medium">{name}</span>
-        <span className="text-xs opacity-80">{line}</span>
-      </button>
-      {r === 0 ? (
-        <div className="flex flex-col gap-1 px-3 pb-2">
-          {(chosen.length ? chosen : AREAS.filter((x) => x.id === "guitar")).map((ar, _, all) => (
-            <span key={ar.id} className="flex flex-wrap items-center gap-1 text-xs">
-              {all.length > 1 && <span className="mr-0.5 opacity-80">{ar.label}</span>}
-              {oneKey(ar.id).map((k, i) => (
-                <span key={k} className="flex items-center gap-1">
-                  {i > 0 && <span className="opacity-80">or</span>}
-                  <span className={tag}>{k}</span>
-                </span>
-              ))}
-            </span>
-          ))}
-        </div>
-      ) : r !== undefined ? (
-        <div className="flex flex-col gap-1 px-3 pb-2">
-          {keyGroups(r).map((g, _, all) => (
-            <span key={g.label} className="flex flex-wrap items-center gap-1">
-              {all.length > 1 && <span className="mr-0.5 text-xs opacity-80">{g.label}</span>}
-              {g.keys.map((k) => <span key={k} className={tag}>{k}</span>)}
-            </span>
-          ))}
-        </div>
-      ) : (
-        <div className="pb-1" />
+    <button
+      key={name}
+      type="button"
+      role="radio"
+      aria-checked={on}
+      onClick={pick}
+      className={`flex w-full cursor-pointer flex-col items-start gap-1 rounded-xl border px-3 pt-2 pb-2 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${hueClass(hueAt(i), on)}`}
+    >
+      <span className="text-sm font-medium">{name}</span>
+      <span className="text-xs opacity-80">{line}</span>
+      {r !== undefined && (
+        <span className="flex flex-wrap gap-1">
+          {KEY_EXAMPLES[r].map((k) => <span key={k} className={tag}>{k}</span>)}
+        </span>
       )}
-    </div>
+    </button>
   );
   return {
     title: forStudent ? "How many keys is your student at home in?" : "How many keys are you at home in?",
