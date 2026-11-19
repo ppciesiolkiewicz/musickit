@@ -127,6 +127,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   - `publicPlans.ts`: the plans anyone can choose, for a public page. The Pricing section of `/` and `/players` reads it (rebuilt at most once an hour), so the home pages show the same rows as `/dev/kickstarter/teachers` and `/dev/costs`. Null with no database or no answer in 8 seconds: the section then shows no number and says so.
   - `http.ts`: cookies, the same-site check, `auth()` (null when there is no database), `requestAccount(req)`.
   - `google.ts`: the Google code flow with PKCE. `mail.ts`: the email with the link and the code, sent through Resend.
+- `emailHtml.ts`: the look every email shares (`emailPage`, `row`), with no server code, and the teacher invite email (`inviteEmail`), which /admin/invites copies for us to send by hand.
 
 The tables are in `src/lib/db/schema.ts` and the migrations in `/drizzle`.
 

@@ -31,9 +31,11 @@ In production an admin answers them on the live site; in development, against wh
 
 Links we send a teacher so they can try the app on the Teacher Demo plan (`teacher-demo`: a teacher plan with 2
 students, free, `enabled` false, so no one can choose it). Type who it is for and press Make invite link; the link,
-`/join/<token>`, is shown with Copy link. The list shows each invite, its Copy link (the token is kept beside its hash;
-invites made before that say "Link not saved") and who joined with
+`/join/<token>`, is shown with Copy link and Copy email. The list shows each invite, its Copy link and Copy email (the
+token is kept beside its hash; invites made before that say "Link not saved") and who joined with
 it; Delete removes an invite (a teacher who joined keeps the plan). One link, one account. The rules are
 `features/account/server/invites.ts`; the teacher's side is `/join/<token>` (`features/account/ui/JoinForm.tsx`).
 The link points at this server when the database is local, else at the public site (`SITE_URL`), so a link made in
 development against the release database works for the teacher.
+Copy email copies the invite email (`inviteEmail` in `features/account/emailHtml.ts`, the same look as the log-in
+email) as HTML, so it pastes drawn into a mail program, and as its HTML source for a plain-text box. Nothing sends it.

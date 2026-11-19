@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { inviteEmail } from "@/features/account/emailHtml";
 
 type Invite = {
   id: string;
@@ -29,13 +30,15 @@ const errorIn = (r: { body: Record<string, unknown> }) => (typeof r.body.error =
 
 /**
  * /admin/invites: make a teacher invite onto the Teacher Demo plan (2 students, free, never offered), copy its link, and
- * see who joined with each. Each row's Copy link copies its link again (not for invites made before links were kept).
+ * see who joined with each. Each row's Copy link copies its link again (not for invites made before links were kept), and
+ * Copy email copies the invite email (`inviteEmail`) to paste into a mail program: as HTML, so it pastes drawn, and as its
+ * source for a plain-text box.
  */
 export default function InvitesAdmin() {
   const [invites, setInvites] = useState<Invite[] | null>(null);
   const [note, setNote] = useState("");
   const [made, setMade] = useState<{ link: string; note: string } | null>(null);
-  /** What was copied last: "made" for the new link, else an invite's id. */
+  /** What was copied last: the new invite ("made") or an invite's id, then ":link" or ":email". */
   const [copied, setCopied] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,11 +72,30 @@ export default function InvitesAdmin() {
     setError(null);
     try {
       await navigator.clipboard.writeText(link);
-      setCopied(which);
+      setCopied(`${which}:link`);
     } catch {
       setError("Couldn't copy. Select the link and copy it by hand.");
     }
   };
+
+  const copyEmail = async (link: string, which: string) => {
+    setError(null);
+    const { html } = inviteEmail(link);
+    try {
+      if (typeof ClipboardItem === "undefined") await navigator.clipboard.writeText(html);
+      else await navigator.clipboard.write([new ClipboardItem({ "text/html": new Blob([html], { type: "text/html" }), "text/plain": new Blob([html], { type: "text/plain" }) })]);
+      setCopied(`${which}:email`);
+    } catch {
+      setError("Couldn't copy the email. Copy the link instead and write the email by hand.");
+    }
+  };
+
+  const copyButtons = (link: string, which: string) => (
+    <>
+      <button type="button" onClick={() => void copy(link, which)} className={BTN}>{copied === `${which}:link` ? "Copied" : "Copy link"}</button>
+      <button type="button" onClick={() => void copyEmail(link, which)} className={BTN} title="The invite email, to paste into your mail program">{copied === `${which}:email` ? "Copied" : "Copy email"}</button>
+    </>
+  );
 
   const remove = async (id: string) => {
     setError(null);
@@ -109,7 +131,7 @@ export default function InvitesAdmin() {
             <span className="text-emerald-100">Link for {made.note || "a teacher"}. You can copy it again from the list below.</span>
             <div className="flex flex-wrap items-center gap-2">
               <input readOnly value={made.link} onFocus={(e) => e.target.select()} className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-1.5 font-mono text-xs text-slate-100" />
-              <button type="button" onClick={() => void copy(made.link, "made")} className={BTN}>{copied === "made" ? "Copied" : "Copy link"}</button>
+              {copyButtons(made.link, "made")}
             </div>
           </div>
         )}
@@ -134,7 +156,7 @@ export default function InvitesAdmin() {
                   <span className="text-xs text-amber-300">Not used yet</span>
                 )}
                 {i.link ? (
-                  <button type="button" onClick={() => void copy(i.link!, i.id)} className={BTN}>{copied === i.id ? "Copied" : "Copy link"}</button>
+                  copyButtons(i.link, i.id)
                 ) : (
                   <span className="text-xs text-slate-500" title="Made before links were saved">Link not saved</span>
                 )}
