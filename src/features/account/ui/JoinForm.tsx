@@ -24,8 +24,8 @@ type View = {
 /** Where a teacher goes once they joined. */
 const AFTER_JOIN = "/students";
 
-/** How long "You're in" and its confetti stay before /students opens. */
-const CELEBRATE_MS = 1600;
+/** How many seconds "You're in!" stays, counting down, before /students opens by itself (Open Students skips it). */
+const CELEBRATE_SECONDS = 8;
 
 const NOTICES = {
   used: { title: "This invite has already been used", text: "Someone already joined with this link. Send us a message and we'll get you a fresh one." },
@@ -47,8 +47,8 @@ export function JoinTitle() {
  * up sees what the plan gives and joins with Join as a teacher, since joining moves it off its plan. Either way
  * `POST /api/join/<token>`, then /students loads afresh, since the role changed. A used or unknown link, or a student of
  * a teacher, gets a notice instead. Warmer and more excited than the rest of the app on purpose (user, 2026-11-19):
- * confetti when a usable invite opens and again on joining, with "You're in!" shown for `CELEBRATE_MS` before /students
- * opens.
+ * confetti when a usable invite opens and again on joining, with "You're in!" counting down `CELEBRATE_SECONDS` before
+ * /students opens by itself (user, 2026-11-19: long enough to read), and Open Students to go now.
  */
 export default function JoinForm({ token, google }: { token: string; google: boolean }) {
   const api = `/api/join/${encodeURIComponent(token)}`;
@@ -58,6 +58,7 @@ export default function JoinForm({ token, google }: { token: string; google: boo
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [joined, setJoined] = useState(false);
+  const [left, setLeft] = useState(CELEBRATE_SECONDS);
   const cheered = useRef(false);
   const autoJoined = useRef(false);
 
@@ -97,7 +98,6 @@ export default function JoinForm({ token, google }: { token: string; google: boo
     if (r.ok) {
       setJoined(true);
       confetti({ count: 180, origin: { x: 0.5, y: 0.45 } });
-      window.setTimeout(() => window.location.replace(AFTER_JOIN), CELEBRATE_MS);
       return;
     }
     setBusy(false);
@@ -112,6 +112,14 @@ export default function JoinForm({ token, google }: { token: string; google: boo
     autoJoined.current = true;
     void setUp();
   }, [settingUp, setupName, setUp]);
+
+  // "You're in!" counts down, then /students opens by itself
+  useEffect(() => {
+    if (!joined) return;
+    if (left <= 0) return window.location.replace(AFTER_JOIN);
+    const t = window.setTimeout(() => setLeft((s) => s - 1), 1000);
+    return () => window.clearTimeout(t);
+  }, [joined, left]);
 
   const join = (e: FormEvent) => {
     e.preventDefault();
@@ -159,8 +167,10 @@ export default function JoinForm({ token, google }: { token: string; google: boo
         <div role="status" className="flex flex-col items-center gap-4 py-4 text-center">
           <Badge icon="sparkles" />
           <h2 className="text-2xl font-semibold text-slate-100">You&apos;re in!</h2>
-          <p className="text-sm leading-relaxed text-slate-300">Welcome to attunr. Taking you to your students…</p>
+          <p className="text-sm leading-relaxed text-slate-300">Welcome to attunr. Thank you for joining us.</p>
+          <p aria-live="off" className="text-xs text-slate-500">Opening Students in {left}…</p>
         </div>
+        <button type="button" onClick={() => window.location.replace(AFTER_JOIN)} className={`${PRIMARY} btn-metal`}>Open Students now<Icon name="chevron-right" size={16} /></button>
       </Card>
     );
   }
