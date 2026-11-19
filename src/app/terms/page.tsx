@@ -169,7 +169,7 @@ const SECTIONS: Section[] = [
       <>
         <p>We store what the app needs: your email, your name, your role, and the plans, notes, ratings and settings you make. The tuner and the singing drills listen in your browser to find the pitch; the sound is never sent to us.</p>
         <p>The site runs on Vercel, with its database and file storage. Log-in emails go through Resend. Google sign-in uses Google. When paid plans open, a payment provider handles your card. Each of them sees only what its job needs.</p>
-        <p>We don&apos;t sell your data and we don&apos;t run advertising. We email you about your account and about changes to attunr; a newsletter is only ever opt-in. To see, export or delete your data, use <A href="/account">Your profile</A> or email <Mail />.</p>
+        <p>We don&apos;t sell your data and we don&apos;t run advertising. We email you about your account and about changes to attunr; emails with news and offers are only ever opt-in. To see, export or delete your data, use <A href="/account">Your profile</A> or email <Mail />.</p>
       </>
     ),
   },

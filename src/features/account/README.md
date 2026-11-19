@@ -73,7 +73,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 - `?for=teachers` (`TEACHER_SIGNUP` in `loginGuard.ts`, `/account?for=teachers`): where every "Become a founding
   partner" on /kickstarter goes. Signed out, the login page says "Create your teacher account"; a new account's setup
   and `/account` open their plans on the Teachers side (`startAudience`'s `wanted`).
-- `ui/EmailUpdates.tsx`: the marketing consent, "Email me news about the app". Unticked until the person ticks
+- `ui/EmailUpdates.tsx`: the marketing consent, "Email me news and offers". Unticked until the person ticks
   it: on setup (sent as `emailUpdates` with the rest) and in the Profile card on /account (saved as it changes, `PATCH
   /api/account` with `{ emailUpdates }`). Kept as `users.email_updates_at` (migration `0022_email_updates`), the time of
   the first yes, null when off; `Account.emailUpdates` is whether it is set. Nothing sends these emails yet.

@@ -15,7 +15,7 @@ import { Card, ErrorLine, FIELD, LABEL, LINK, PRIMARY, SECONDARY, errorOf, send 
 const go = (path: string) => window.location.assign(path);
 
 /**
- * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, their plan, feedback and, under
+ * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, and offers, their plan, feedback and, under
  * everything, Log out. Delete account shows in development only (`DevOnly`; the route is closed in production too). Logged out, it points to Log in.
  */
 export default function AccountPanel({ start }: { /** the plans' side asked for in the address (`?for=teachers`) */ start?: Audience | null }) {

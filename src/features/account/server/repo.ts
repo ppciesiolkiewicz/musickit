@@ -11,7 +11,7 @@ export interface UserRow {
   planId: string | null;
   /** How they pay for the plan: monthly or yearly. */
   billing: Billing;
-  /** When they agreed to emails about what we fix and add; null when they haven't. */
+  /** When they agreed to emails about what we fix and add, and offers; null when they haven't. */
   emailUpdatesAt: Date | null;
   /** When they agreed to the terms of use, and which (`TERMS_UPDATED`); null until they have. */
   termsAcceptedAt: Date | null;
@@ -69,7 +69,7 @@ export interface AuthRepo {
   createUser(input: { email: string; name: string; role: Role }, now: Date): Promise<UserRow | null>;
   userById(id: string): Promise<UserRow | null>;
   updateUserName(id: string, name: string, now: Date): Promise<UserRow | null>;
-  /** Turns the emails about what we fix and add on (from `now`) or off. Turning them on again keeps the first time. */
+  /** Turns the emails about what we fix and add, and offers on (from `now`) or off. Turning them on again keeps the first time. */
   setEmailUpdates(id: string, on: boolean, now: Date): Promise<UserRow | null>;
   /** Records that they agreed to the terms of use `version`, at `now`. */
   acceptTerms(id: string, version: string, now: Date): Promise<UserRow | null>;

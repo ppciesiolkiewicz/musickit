@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Change the signed-in account's name, JSON { name }, or the emails about what we fix and add, JSON { emailUpdates }. Like every changing route it goes through `signedIn`: 503 without
+ * Change the signed-in account's name, JSON { name }, or the emails about what we fix and add, and offers, JSON { emailUpdates }. Like every changing route it goes through `signedIn`: 503 without
  * accounts, 403 from another site, 401 logged out, 409 `account-changed` when `X-Account-Id` names another account.
  */
 export async function PATCH(req: Request) {

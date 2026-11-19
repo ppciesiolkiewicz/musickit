@@ -5,7 +5,7 @@ import type { Account } from "../model";
 import { ErrorLine, errorOf, send } from "./parts";
 
 /**
- * The marketing consent box: emails with news about the app (`users.email_updates_at`). Never ticked for someone:
+ * The marketing consent box: emails with news about the app and offers (`users.email_updates_at`). Never ticked for someone:
  * setup starts it unticked, and /account shows what they chose. `where` ends the hint with where to turn it off.
  */
 export function EmailUpdatesBox({ checked, onChange, disabled = false, where }: {
@@ -18,9 +18,9 @@ export function EmailUpdatesBox({ checked, onChange, disabled = false, where }: 
     <label className="flex items-start gap-3 text-sm">
       <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-sky-400" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
       <span className="flex flex-col gap-0.5">
-        <span className="text-slate-200">Email me news about the app</span>
+        <span className="text-slate-200">Email me news and offers</span>
         <span className="text-xs text-slate-500">
-          Now and then: new lessons and tools, and what we changed.{" "}
+          Now and then: new lessons and tools, what we changed, and offers such as early prices.{" "}
           {where === "here" ? "You can turn it off here at any time." : "You can turn it off on your account page at any time."}
         </span>
       </span>

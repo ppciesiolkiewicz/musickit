@@ -217,7 +217,7 @@ export async function rename(deps: AuthDeps, userId: string, name: unknown): Pro
   return user ? toAccount(user) : null;
 }
 
-/** Turns the emails about what we fix and add on or off. Null when `on` isn't true or false, or the account is gone. */
+/** Turns the emails about what we fix and add, and offers on or off. Null when `on` isn't true or false, or the account is gone. */
 export async function setEmailUpdates(deps: AuthDeps, userId: string, on: unknown): Promise<Account | null> {
   if (typeof on !== "boolean") return null;
   const user = await deps.repo.setEmailUpdates(userId, on, deps.now());

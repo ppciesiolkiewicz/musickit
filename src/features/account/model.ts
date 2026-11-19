@@ -17,7 +17,7 @@ export interface Account {
   createdAt: string;
   /** No plan chosen yet: a new account, held on /account/setup until it chooses one. */
   needsSetup: boolean;
-  /** Agreed to emails about what we fix and add (`email_updates_at`). */
+  /** Agreed to emails about what we fix and add, and offers (`email_updates_at`). */
   emailUpdates: boolean;
   /** On the `taught` plan: a student a teacher made an account for. Accounts stored before this have no field. */
   taught: boolean;
