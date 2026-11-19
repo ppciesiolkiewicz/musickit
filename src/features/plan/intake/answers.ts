@@ -15,11 +15,6 @@ export interface PlanAnswers {
    * key ladder (`KEY_LADDERS` in model/keys.ts). Left out: not answered, and each area's level decides.
    */
   keys?: 0 | 1 | 2 | 3 | 4;
-  /**
-   * With "One key", the key they picked as theirs (a pitch class, C = 0), put first in each area's ladder where it is
-   * one of the first two rungs (`homeLadder` in model/keys.ts). Left out: each ladder's own first key.
-   */
-  homeKey?: number;
   /** minutes a day they can practise */
   minutes: number;
   /** styles they love, free text ("blues, indie") */
@@ -75,7 +70,6 @@ export function migrateAnswers(raw: unknown): PlanAnswers {
     topics,
     ...(voice ? { voice } : {}),
     ...(raw.keys === 0 || raw.keys === 1 || raw.keys === 2 || raw.keys === 3 || raw.keys === 4 ? { keys: raw.keys } : {}),
-    ...(typeof raw.homeKey === "number" && Number.isInteger(raw.homeKey) && raw.homeKey >= 0 && raw.homeKey < 12 ? { homeKey: raw.homeKey } : {}),
     minutes: typeof raw.minutes === "number" && raw.minutes > 0 ? raw.minutes : DEFAULT_ANSWERS.minutes,
     styles: typeof raw.styles === "string" ? raw.styles : "",
     notes: typeof raw.notes === "string" ? raw.notes : "",

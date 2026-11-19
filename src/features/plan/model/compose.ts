@@ -4,7 +4,7 @@ import type { Stars } from "@/features/progress/stars";
 import type { Area } from "./concepts";
 import { daySteps, type DaySteps } from "./daySteps";
 import { levelOf } from "../intake/answers";
-import { exerciseKeys, hasKeySelector, homeKeyOf, keyRung, type PlayerKeys } from "./keys";
+import { exerciseKeys, hasKeySelector, keyRung, type PlayerKeys } from "./keys";
 import { keyTrackOf, playerKeys } from "./keyStages";
 import { shownTitle, written, type Given } from "./moves";
 import { SOLID_STARS } from "./outcome";
@@ -233,7 +233,7 @@ function fill(steps: { fresh: string[]; open: string[]; review: string[] }, revi
 function keysFor(e: PlanExercise, answers: PlanAnswers, turn: number): PlayerKeys | null {
   const area = e.area as Area | undefined;
   if (!area || !hasKeySelector(e)) return null;
-  return exerciseKeys(area, keyRung(answers.keys, levelOf(answers, area)), turn, homeKeyOf(answers));
+  return exerciseKeys(area, keyRung(answers.keys, levelOf(answers, area)), turn);
 }
 
 /** What a block's version is rolled from: the player, the block, and their newest rated play of it. A new rating is a new roll; nothing else is. */
@@ -256,7 +256,7 @@ export function versionFor(e: PlanExercise, input: { answers: PlanAnswers; seed:
   const log = input.history ?? [];
   const history = log.filter((r) => !!e.blockId && r.blockId === e.blockId).sort((a, b) => at(b) - at(a));
   const on = keyTrackOf(e.steps, tracks);
-  const keys = on ? playerKeys(on.track, on.step, log, input.answers.keys ?? 0, homeKeyOf(input.answers)) : null;
+  const keys = on ? playerKeys(on.track, on.step, log, input.answers.keys ?? 0) : null;
   const player = input.player ?? input.seed.split(":")[0];
   const { given, trace } = rollVersion({ moves: e.moves, written: written(e), keys, history }, mulberry32(hash(rollSeed(player, e.blockId ?? "", history[0]?.id))));
   return given.keys || given.bpm ? { given, roll: trace } : null;

@@ -1,5 +1,5 @@
 import type { ProgressEntry } from "@/features/progress/log";
-import { KEY_LADDERS, homeLadder } from "./keys";
+import { KEY_LADDERS } from "./keys";
 import { PATH, stepAt, type Track } from "./path";
 
 /*
@@ -12,8 +12,8 @@ import { PATH, stepAt, type Track } from "./path";
 /** A rating that opens the next key stage and earns its key: "Easy now" or the star below it. */
 const EARNS = 4;
 
-/** The track's key order in groups: its own, else its area's key ladder, with the player's home key first (`homeLadder`). */
-export const trackKeys = (track: Track, home?: number): number[][] => homeLadder(track.keys ?? KEY_LADDERS[track.area], home);
+/** The track's key order in groups: its own, else its area's key ladder. */
+export const trackKeys = (track: Track): number[][] => track.keys ?? KEY_LADDERS[track.area];
 
 /** The track whose key order an exercise follows: that of the first step it names (and that step). Null when it names none on the path. */
 export function keyTrackOf(steps: readonly string[] | undefined, tracks: Track[] = PATH): { track: Track; step: string } | null {
@@ -43,10 +43,10 @@ function opened(row: ProgressEntry): number | null {
 /**
  * The keys of `step` for a player: `start` is the stage their answer to the keys question starts them on (0: the
  * first), `rows` their whole progress log. A stage above `start` opens when a play of this step, rated 4 or 5, opened
- * in a key of the stage before it. `home`: the key they picked under "One key" (`homeKeyOf`), first in the order.
+ * in a key of the stage before it.
  */
-export function playerKeys(track: Track, step: string, rows: ProgressEntry[], start: number, home?: number): TrackKeys {
-  const groups = trackKeys(track, home);
+export function playerKeys(track: Track, step: string, rows: ProgressEntry[], start: number): TrackKeys {
+  const groups = trackKeys(track);
   const last = groups.length - 1;
   const from = Math.min(last, Math.max(0, Math.trunc(start) || 0));
   const here = new Set(rows.filter((r) => r.steps?.includes(step)).flatMap((r) => opened(r) ?? []));

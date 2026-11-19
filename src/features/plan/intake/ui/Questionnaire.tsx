@@ -4,7 +4,7 @@ import Icon from "@/components/Icon";
 import { Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
 import { AREAS, type Area } from "../../model/concepts";
 import { keyName } from "@/features/theory/keySlug";
-import { KEY_LADDERS, KEY_RUNGS, homeChoices, homeKeyOf, keyRung, keysAt, type KeyRung } from "../../model/keys";
+import { KEY_LADDERS, KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
 import { MINUTES, levelOf, type PlanAnswers } from "../answers";
 import { topicsFor } from "../topics";
 import YourVoice, { VoiceField } from "./YourVoice";
@@ -119,13 +119,10 @@ function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Questi
     }
     return groups;
   };
-  // "One key": the player picks which one, from the first keys of their areas (guitar A, G, E)
-  const choices = [...new Set(chosen.flatMap((ar) => homeChoices(ar.id)))];
-  const firstKey = chosen.length ? KEY_LADDERS[chosen[0].id][0][0] : choices[0];
-  const home = a.keys === 0 ? (a.homeKey ?? firstKey) : undefined;
-  const pickHome = (k: number) => {
-    set("keys", 0);
-    set("homeKey", k);
+  // "One key" is any one of the first keys of an area: the first, then the second rung's in letter order (guitar A, E, G)
+  const oneKey = (area: Area): string[] => {
+    const [first, second = []] = KEY_LADDERS[area];
+    return [...first.map((k) => keyName(k)), ...second.map((k) => keyName(k)).sort()];
   };
   const tag = "inline-flex min-w-7 justify-center rounded-md border border-current/40 px-1.5 py-0.5 text-xs font-medium";
   const row = (on: boolean, pick: () => void, name: string, line: string, i: number, r?: KeyRung) => (
@@ -135,12 +132,18 @@ function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Questi
         <span className="text-xs opacity-80">{line}</span>
       </button>
       {r === 0 ? (
-        <div className="flex flex-wrap items-center gap-1.5 px-3 pb-2" role="group" aria-label={forStudent ? "Their key" : "Your key"}>
-          <span className="text-xs opacity-80">{forStudent ? "Their key:" : "Your key:"}</span>
-          {choices.map((k) => (
-            <button key={k} type="button" aria-pressed={home === k} onClick={() => pickHome(k)} className={`${tag} cursor-pointer text-sm ${home === k ? "border-sky-300 bg-sky-500 text-white" : "opacity-80 hover:opacity-100"}`}>
-              {keyName(k)}
-            </button>
+        <div className="flex flex-col gap-1 px-3 pb-2">
+          {(chosen.length ? chosen : AREAS.filter((x) => x.id === "guitar")).map((ar, _, all) => (
+            <span key={ar.id} className="flex flex-wrap items-center gap-1 text-xs">
+              {all.length > 1 && <span className="mr-0.5 opacity-80">{ar.label}</span>}
+              <span className="opacity-80">e.g.</span>
+              {oneKey(ar.id).map((k, i) => (
+                <span key={k} className="flex items-center gap-1">
+                  {i > 0 && <span className="opacity-80">or</span>}
+                  <span className={tag}>{k}</span>
+                </span>
+              ))}
+            </span>
           ))}
         </div>
       ) : r !== undefined ? (
@@ -170,7 +173,7 @@ function keysStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Questi
         </div>
         <ul className="flex flex-col gap-1 text-xs text-slate-400">
           {AREAS.filter((ar) => a.areas.includes(ar.id)).map((ar) => {
-            const { now, back } = keysAt(ar.id, keyRung(a.keys, levelOf(a, ar.id)), homeKeyOf(a));
+            const { now, back } = keysAt(ar.id, keyRung(a.keys, levelOf(a, ar.id)));
             return (
               <li key={ar.id}>
                 <span className="font-medium text-slate-200">{ar.label}:</span> {forStudent ? "their" : "your"} exercises start in {listed(now)}.

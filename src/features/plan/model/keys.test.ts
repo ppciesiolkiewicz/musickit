@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { AREAS } from "./concepts";
-import { KEY_LADDERS, KEY_RUNGS, MAX_BACK, MAX_NOW, cleanKeys, exerciseKeys, hasKeySelector, homeChoices, homeKeyOf, homeLadder, keyRung, keysAt, withKeys } from "./keys";
+import { KEY_LADDERS, KEY_RUNGS, MAX_BACK, MAX_NOW, cleanKeys, exerciseKeys, hasKeySelector, keyRung, keysAt, withKeys } from "./keys";
 import type { Cell, PlanTool } from "./tools";
 import type { Block } from "./types";
 
@@ -102,15 +102,4 @@ test("withKeys: a block with no Key selector, an open choice, or no keys is left
   assert.equal(withKeys(keyed, undefined), keyed);
   assert.equal(hasKeySelector(plain), false);
   assert.equal(hasKeySelector(keyed), true);
-});
-
-test("a home key picked under One key swaps places with the first key", () => {
-  assert.deepEqual(homeChoices("guitar"), [A, G, E]);
-  assert.deepEqual(keysAt("guitar", 0, E), { now: [E], back: [] });
-  assert.deepEqual(keysAt("guitar", 1, E), { now: [G, A], back: [E] });
-  assert.deepEqual(homeLadder(KEY_LADDERS.guitar, A), KEY_LADDERS.guitar);
-  // a key further up the ladder is not a home key: the ladder stays
-  assert.deepEqual(homeLadder(KEY_LADDERS.guitar, D), KEY_LADDERS.guitar);
-  assert.equal(homeKeyOf({ keys: 0, homeKey: E }), E);
-  assert.equal(homeKeyOf({ keys: 1, homeKey: E }), undefined);
 });
