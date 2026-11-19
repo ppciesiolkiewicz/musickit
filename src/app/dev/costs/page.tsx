@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { devTitle } from "@/features/devtools/registry";
 import { drizzleRepo } from "@/features/account/server/repo.drizzle";
 import DevShell from "@/features/devtools/DevShell";
 import CostsPage from "@/features/devtools/costs/CostsPage";
@@ -20,6 +22,8 @@ async function reuseInfo(db: Db): Promise<ReuseInfo> {
   ]);
   return { newPlanPercent: Object.fromEntries(chances.map((c) => [c.id, c.pct])), library: { total: total.n, enabled: enabled.n } };
 }
+
+export const metadata: Metadata = { title: devTitle("/dev/costs") };
 
 export default async function Costs() {
   const db = getDb();

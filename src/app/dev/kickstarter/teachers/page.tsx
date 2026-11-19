@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { devTitle } from "@/features/devtools/registry";
 import { drizzleRepo } from "@/features/account/server/repo.drizzle";
 import DevShell from "@/features/devtools/DevShell";
 import KickstarterNav from "@/features/devtools/kickstarter/KickstarterNav";
@@ -6,6 +8,8 @@ import { TEACHER_DEMOS } from "@/features/devtools/kickstarter/demos";
 import { getDb } from "@/lib/db/client";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { title: devTitle("/dev/kickstarter", "Teachers") };
 
 /** /dev/kickstarter/teachers: the brief for a founding-partner email to a teacher or a school. */
 export default async function KickstarterTeachers() {

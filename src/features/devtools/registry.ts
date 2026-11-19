@@ -96,3 +96,12 @@ export const DEV_GROUPS: DevGroup[] = [
     ],
   },
 ];
+
+/**
+ * A /dev page's tab title, most specific first so tabs can be told apart when cut short: "<detail> · <tool> · Dev".
+ * `page` is a tool's href (its label is used) or a name for a page not on the index.
+ */
+export function devTitle(page: string, detail?: string): string {
+  const tool = DEV_GROUPS.flatMap((g) => g.tools).find((t) => t.href === page);
+  return [detail, tool?.label ?? page, "Dev"].filter(Boolean).join(" · ");
+}

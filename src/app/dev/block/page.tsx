@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import DevShell from "@/features/devtools/DevShell";
 import BlockPage from "@/features/devtools/block/BlockPage";
 import { blocksByStep } from "@/features/devtools/model/stepBlocks";
+import { devTitle } from "@/features/devtools/registry";
 import { stepAt } from "@/features/plan/model/path";
+
+/** The step's name, or the block id, leads the tab title. */
+export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
+  const { step, id } = await searchParams;
+  const detail = typeof step === "string" ? (stepAt(step)?.step.name ?? step) : typeof id === "string" ? id : undefined;
+  return { title: devTitle("Block", detail) };
+}
 
 // `?step=<trackId:n>`: every block in the code for that path step; `?id=<block id>`: that one block. /dev/path opens it in
 // a new tab. Built on the server so the seed files and examples stay out of the path page's bundle.
