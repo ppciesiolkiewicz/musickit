@@ -88,7 +88,7 @@ export async function startSession(deps: AuthDeps, user: UserRow, next: string |
 /**
  * Where the browser goes after signing in: `next`, or first /account/setup for an account with no plan yet (a new one,
  * or one that left setup before finishing), which then goes on to `next`. A teacher invite (`/join/<token>`) skips setup:
- * a new account gives its name and agrees to the terms on that page.
+ * a new account is set up on that page, joining by itself (it agreed to the terms under the log-in form there).
  */
 export const pathAfterSignIn = (result: Pick<SignedIn, "next" | "account">): string =>
   result.account.needsSetup && !isJoinPath(result.next) ? setupHref(result.next) : result.next;

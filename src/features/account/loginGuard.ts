@@ -60,7 +60,7 @@ export const sendToLogin = (signedIn: boolean, hintLeft: boolean): boolean => !s
 /** Where a teacher invite opens (`/join/<token>`, made on /admin/invites); the login page words itself for it. */
 export const JOIN_PATH = "/join/";
 export const joinHref = (token: string): string => `${JOIN_PATH}${encodeURIComponent(token)}`;
-/** A teacher invite's page: a new account gives its name there, so sign-in goes straight to it and not to setup. */
+/** A teacher invite's page: a new account is set up there (it joins by itself), so sign-in goes straight to it and not to setup. */
 export const isJoinPath = (next: string | null): boolean => !!next?.startsWith(JOIN_PATH);
 
 /** Where a plan invite opens (`/plan/invite/<id>`); the login page words itself for it. */

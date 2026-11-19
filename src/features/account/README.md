@@ -98,8 +98,9 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   its token's hash, and the token is kept too, so /admin/invites can copy the link again. The page is public (`SHARED` in
   `src/lib/publicPaths.ts`) and stands in for /login: a visitor who isn't logged in sees the invite and logs in on it
   (`LinkForm` with `bare`, email and code or Google), and `pathAfterSignIn` sends a new account straight back to the
-  invite, not to setup: `ui/JoinForm.tsx` asks its name (filled in from the invite's note, which also greets them) and
-  the terms (and the email box) there, as setup would. A student of a teacher (the
+  invite, not to setup: `ui/JoinForm.tsx` joins it by itself, titled "Setting up your teacher account" with the plan
+  shown, named from the invite's note (else its own name), terms agreed by logging in under the line saying so, email
+  updates off. An account that is already set up presses Join as a teacher, since it leaves its plan. A student of a teacher (the
   `taught` plan) can't join. Routes: `GET/POST /api/join/<token>`; the admin's are `/api/admin/invites`.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
 - `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout), which also keeps an account with no plan out of the three main sections until `/account/setup`. The server half
