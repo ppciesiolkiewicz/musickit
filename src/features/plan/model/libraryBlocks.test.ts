@@ -40,6 +40,20 @@ describe("libraryBlocksOf", () => {
   });
 });
 
+describe("libraryBlocksOf curated", () => {
+  it("libraryBlocksOf marks curated exercises", () => {
+    const cur = ex("s1", "C", { blockId: "guitar-x", choiceId: "guitar-x/beginner" });
+    const got = libraryBlocksOf([plan("p", [[cur]])]);
+    assert.deepEqual(got.map((x) => [x.id, x.curated]), [["guitar-x", true]]);
+  });
+  it("keeps a curated parentId for an edited one", () => {
+    const edited = ex("s2", "E", { parentBlockId: "guitar-x" });
+    const got = libraryBlocksOf([plan("p", [[edited]])]);
+    assert.equal(got[0].parentId, "guitar-x");
+    assert.equal(got[0].source, "edit");
+  });
+});
+
 describe("slotBlocks", () => {
   it("slotBlocks maps every slot id of every plan to its block id", () => {
     const a = ex("s1", "A");

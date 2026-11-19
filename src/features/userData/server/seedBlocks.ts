@@ -30,7 +30,7 @@ function toNew(config: PlanConfig, provenance: Provenance): NewBlock[] {
     const id = blockIdOf(blockKeyOf(e));
     if (!slots.has(id)) slots.set(id, { minutes: e.minutes, ...(e.why ? { why: e.why } : {}), ...(e.learnBefore?.length ? { learnBefore: [...e.learnBefore] } : {}), ...(e.exploreMore?.length ? { exploreMore: [...e.exploreMore] } : {}) });
   }
-  return libraryBlocksOf(stored).map((b) => ({ id: b.id, key: b.key, parentId: null, source: "seed" as const, enabledForReuse: true, provenance: { ...provenance }, slot: slots.get(b.id) }));
+  return libraryBlocksOf(stored).filter((b) => !b.curated).map((b) => ({ id: b.id, key: b.key, parentId: null, source: "seed" as const, enabledForReuse: true, provenance: { ...provenance }, slot: slots.get(b.id) }));
 }
 
 /** The blocks of the `practice_plans` replies, owned by the app and enabled for reuse, each with its plan's provenance (a block in two plans keeps the first's). A reply that doesn't parse is left out; see `unparsedReplies`. */

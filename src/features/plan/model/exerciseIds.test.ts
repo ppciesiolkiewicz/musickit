@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parsePlanConfig } from "./config";
 import { randomId, withBlockIds, withExerciseIds } from "./exerciseIds";
-import { blockIdOf, blockKeyOf } from "./blockId";
+import { blockIdOf, blockKeyOf, blockOfChoice, choiceIdOf, isCuratedId } from "./blockId";
 import { draftOf, editDay, type DayDraft } from "./editPlan";
 import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
 import { PLAN_KEY, localPlanStore, sanitiseState } from "../store/localPlanStore";
@@ -247,4 +247,31 @@ test("a load stores the block id a reload keeps, also for cells the stored plan'
     const loaded = sanitiseState(JSON.parse(JSON.stringify(started)));
     assert.deepEqual(blockIdsOf(loaded.current!), blockIdsOf(started.current!), JSON.stringify(cells));
   }
+});
+
+const curBase = { title: "T", minutes: 5, cells: [{ type: "text", text: "x" }] } as unknown as PlanExercise;
+const curCfg = (e: PlanExercise) => ({ title: "W", days: [{ theme: "A", exercises: [e] }] }) as unknown as PlanConfig;
+
+test("withBlockIds keeps a curated id with its choice", () => {
+  const e = { ...curBase, blockId: "guitar-x", choiceId: "guitar-x/beginner" };
+  assert.equal(withBlockIds(curCfg(e)).days[0].exercises[0], e);
+});
+
+test("withBlockIds recomputes a curated-looking id without its choice", () => {
+  for (const e of [{ ...curBase, blockId: "guitar-x" }, { ...curBase, blockId: "guitar-x", choiceId: "other/beginner" }]) {
+    const got = withBlockIds(curCfg(e)).days[0].exercises[0];
+    assert.equal(got.blockId, blockIdOf(blockKeyOf(e)));
+    assert.equal("choiceId" in got, false);
+  }
+});
+
+test("isCuratedId", () => {
+  assert.equal(isCuratedId("guitar-beginner-down-up-picking"), true);
+  for (const v of ["a".repeat(32), "Guitar", "a--b", ""]) assert.equal(isCuratedId(v), false);
+});
+
+test("choiceIdOf and blockOfChoice", () => {
+  assert.equal(choiceIdOf("guitar-x", "beginner"), "guitar-x/beginner");
+  assert.equal(blockOfChoice("guitar-x/beginner"), "guitar-x");
+  assert.equal(blockOfChoice("nope"), null);
 });

@@ -68,4 +68,26 @@ export function blockKeyOf(e: PlanExercise): BlockKey {
 /** 128 bits of the key's SHA-256, lowercase hex. The browser and the server compute the same one. */
 export const blockIdOf = (key: BlockKey): string => sha256Hex(canonicalJson(key)).slice(0, 32);
 
+/** A curated block's id: the seed file's `id`, readable lowercase words joined by single hyphens, at least two words (never 32 hex). */
+export const isCuratedId = (v: unknown): v is string => typeof v === "string" && /^[a-z0-9]+(-[a-z0-9]+)+$/.test(v) && !isBlockId(v);
+
+/** Either kind of block id: curated or hashed. */
+export const isAnyBlockId = (v: unknown): v is string => isCuratedId(v) || isBlockId(v);
+
+/** A choice's id: its block's id and the choice's name. */
+export const choiceIdOf = (blockId: string, name: string): string => `${blockId}/${name}`;
+
+/** The curated block a choice id belongs to, or null when it is not one. */
+export function blockOfChoice(choiceId: string): string | null {
+  const i = typeof choiceId === "string" ? choiceId.indexOf("/") : -1;
+  if (i < 1) return null;
+  const block = choiceId.slice(0, i);
+  const name = choiceId.slice(i + 1);
+  return isCuratedId(block) && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(name) ? block : null;
+}
+
+/** True when the exercise names a curated block and one of its choices (the pair `withBlockIds` keeps as sent). */
+export const isCuratedExercise = (e: { blockId?: unknown; choiceId?: unknown }): boolean =>
+  isCuratedId(e.blockId) && typeof e.choiceId === "string" && blockOfChoice(e.choiceId) === e.blockId;
+
 export const isBlockId = (v: unknown): v is string => typeof v === "string" && /^[0-9a-f]{32}$/.test(v);

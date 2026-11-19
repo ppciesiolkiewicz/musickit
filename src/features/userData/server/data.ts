@@ -146,7 +146,8 @@ export async function writeDoc(
  * another player's private one. Returns how many blocks the player newly owns.
  */
 export async function storePlanBlocks(repo: UserDataRepo, userId: string, state: PlanState, now: Date): Promise<number> {
-  const found = libraryBlocksOf([state.current, ...state.history, ...state.given].filter((p): p is StoredPlan => !!p));
+  // a curated block is not new content: no block row (Task 8 writes only its owner row)
+  const found = libraryBlocksOf([state.current, ...state.history, ...state.given].filter((p): p is StoredPlan => !!p)).filter((b) => !b.curated);
   if (!found.length) return 0;
   const inDoc = new Set(found.map((b) => b.id));
   const parents = found.flatMap((b) => (b.parentId && !inDoc.has(b.parentId) ? [b.parentId] : []));

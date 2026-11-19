@@ -53,9 +53,9 @@ export interface ExerciseMeta {
 /** One exercise of a day, as the AI wrote it. `id` is set by the app when the plan starts, never by the AI; ratings in the progress log point at it. */
 /**
  * `id` is the slot's id in this plan run; `blockId` is the hash of the block's content and tags (`withBlockIds`, always
- * recomputed); `parentBlockId` is the block this one was edited from in the day editor.
+ * recomputed), or a curated block's fixed readable id when `choiceId` (`<blockId>/<name>`) names one of its choices; `parentBlockId` is the block this one was edited from in the day editor.
  */
-export type PlanExercise = Block & ExerciseMeta & { id?: string; blockId?: string; parentBlockId?: string };
+export type PlanExercise = Block & ExerciseMeta & { id?: string; blockId?: string; choiceId?: string; parentBlockId?: string };
 
 export interface PlanDay {
   theme: string;

@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { draftOf, draftWarnings, editDay, exerciseFromDraft, metaOf, sameExercise, type DayDraft } from "./editPlan";
-import { blockIdOf, blockKeyOf } from "./blockId";
+import { blockIdOf, blockKeyOf, isBlockId } from "./blockId";
 import { withBlockIds } from "./exerciseIds";
 import type { PlanExercise, StoredPlan } from "./types";
 
@@ -167,5 +167,21 @@ describe("editDay block ids, old exercises", () => {
     const e = (editDay(p, 1, d, id) as StoredPlan).config.days[1].exercises[2];
     assert.equal(e.blockId, old.blockId);
     assert.equal("parentBlockId" in e, false);
+  });
+});
+
+describe("editPlan of a curated exercise", () => {
+  it("gets a hashed id, no choice, the curated parent and the same steps", () => {
+    const cur = { ...ex("c1"), blockId: "guitar-x", choiceId: "guitar-x/beginner", steps: ["s1", "s2"] } as PlanExercise;
+    const p = plan();
+    p.config.days[0].exercises = [cur, ex("y")];
+    const d = draftOf(p, 0);
+    d.exercises[0] = { from: 0, exercise: { ...cur, title: "Edited" } };
+    const out = editDay(p, 0, d, id) as StoredPlan;
+    const e = out.config.days[0].exercises[0];
+    assert.equal(isBlockId(e.blockId), true);
+    assert.equal("choiceId" in e, false);
+    assert.equal(e.parentBlockId, "guitar-x");
+    assert.deepEqual(e.steps, ["s1", "s2"]);
   });
 });

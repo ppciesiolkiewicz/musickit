@@ -1,4 +1,4 @@
-import { blockIdOf, blockKeyOf, isBlockId, withoutCellIds } from "./blockId";
+import { blockIdOf, blockKeyOf, isAnyBlockId, withoutCellIds } from "./blockId";
 import { mixesSingAndPlay, tempoWithoutMetronome } from "./checks";
 import { choiceWarnings } from "./choice";
 import { cleanExercise } from "./cleanExercise";
@@ -56,11 +56,12 @@ export function editDay(plan: StoredPlan, day: number, draft: DayDraft, newId: (
     }
     // a new slot id; the block id is of the new content as it will be stored (cleaned as a reload cleans it, so the id
     // never changes on a save and reload), and the old block (when it differs) is its parent
-    const { parentBlockId: _p, ...rest } = cleanExercise(exercise);
+    const { parentBlockId: _p, choiceId: _c, ...rest } = cleanExercise(exercise);
     void _p;
+    void _c;
     const blockId = blockIdOf(blockKeyOf(rest));
-    const parent = old ? (isBlockId(old.blockId) ? old.blockId : blockIdOf(blockKeyOf(old))) : undefined;
-    const keep = old ? (parent !== blockId ? parent : isBlockId(old.parentBlockId) ? old.parentBlockId : undefined) : undefined;
+    const parent = old ? (isAnyBlockId(old.blockId) ? old.blockId : blockIdOf(blockKeyOf(old))) : undefined;
+    const keep = old ? (parent !== blockId ? parent : isAnyBlockId(old.parentBlockId) ? old.parentBlockId : undefined) : undefined;
     return { ...rest, id: newId(), blockId, ...(keep && keep !== blockId ? { parentBlockId: keep } : {}) };
   });
   const untouched = exercises.length === before.length && exercises.every((e, i) => e === before[i]);
