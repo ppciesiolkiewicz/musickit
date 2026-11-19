@@ -106,7 +106,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   };
 
   const choicesOf = (scope: Scope, b: Row): BlockChoice[] =>
-    b.kind === "curated" ? listed(scope, b.id).map((c) => ({ id: c.id, name: c.name, level: c.level, steps: [...c.steps], minutes: c.minutes, active: c.active })) : [];
+    b.kind === "curated" ? listed(scope, b.id).map((c) => ({ id: c.id, name: c.name, level: c.level, steps: [...c.steps], moves: c.moves ?? null, minutes: c.minutes, active: c.active })) : [];
 
   const summary = (scope: Scope, b: Row): BlockSummary => {
     const choices = choicesOf(scope, b);

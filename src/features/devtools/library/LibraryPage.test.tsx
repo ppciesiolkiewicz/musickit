@@ -28,8 +28,8 @@ test("a seed plan gets a Seed tag and an older version is marked behind", () => 
 
 test("a block's choices are listed with level, steps, minutes and active; the drawn one is marked, the others link to themselves", () => {
   const choices = [
-    { id: "a-block/easy", name: "easy", level: "beginner", steps: ["picking:1"], minutes: 5, active: true },
-    { id: "a-block/hard", name: "hard", level: null, steps: [], minutes: 8, active: false },
+    { id: "a-block/easy", name: "easy", level: "beginner", steps: ["picking:1"], moves: null, minutes: 5, active: true },
+    { id: "a-block/hard", name: "hard", level: null, steps: [], moves: null, minutes: 8, active: false },
   ];
   const html = renderToStaticMarkup(<ChoicesTable choices={choices} drawn="a-block/easy" params={{ includeNotEnabled: false, item: "a-block" }} />);
   assert.match(html, /<span class="font-semibold text-slate-100">easy<\/span>/);

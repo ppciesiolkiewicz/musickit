@@ -191,7 +191,7 @@ level, steps, minutes, active or inactive; a seed `draft` is inactive) and draws
 (`<block id>/<name>`) draws that choice, its level, steps, moves and minutes on the exercise. From the seed file when
 there is one (an older hashed id is matched by `blockIdOf(blockKeyOf(parseExercise(...).block))` of each choice), else
 from the database block's content and choices (`getBlock`, under the page's scope; a choice the scope does not list,
-such as an inactive one without `?include_not_enabled=1`, is not found; a database choice draws without its moves). With
+such as an inactive one without `?include_not_enabled=1`, is not found; a database choice draws with its moves, as the seed copy does). With
 neither, a line says it was not found. Seed items draw without the database. The head shows the versions it was written
 to as pills against the current ones (`teaching`, `agents` against `DOC_VERSIONS`, `prompt` against `PROMPT_VERSION`;
 `v—` when not recorded, amber when older), the model, a showcase's feature, the note, and the tools it uses. Under it,

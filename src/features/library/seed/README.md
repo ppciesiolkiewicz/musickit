@@ -77,8 +77,8 @@ set a key and a position). The prompt names each of the five by its block id (`s
   title may end with hashtags (`#guitar #beginner #technique`) that stand for the fields.
 - One block per exercise. The same drill at another level or over another range (another path step, other keys or
   tempos in `moves`, more minutes) is another choice in the same file, never a copy. Every choice shows the same words:
-  when the text, a heading, the why or a tool must differ by level, write separate blocks. A change to what the block
-  is (another tool, another drill) is a new block or a new choice, never an edit. A choice that isn't ready is
+  when the text, a heading, the why or a tool must differ by level, write separate blocks. Another tool or another
+  drill is a new block: never edit one block into another. A choice that isn't ready is
   `"draft": true`, kept inactive.
 - A drill that works in other keys or at other tempos states `moves` on its choice: `"key": "any"`
   when it can be played in any key (left out when the key is the lesson, as with open chord shapes), and

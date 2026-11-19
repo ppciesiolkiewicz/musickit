@@ -4,6 +4,7 @@ import type { BlockChoice, BlockDetail } from "@/features/library/server/types";
 import { blockIdOf, blockKeyOf, blockOfChoice, choiceIdOf } from "@/features/plan/model/blockId";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise } from "@/features/plan/model/config";
+import type { Moves } from "@/features/plan/model/moves";
 import { levelOfSteps } from "@/features/plan/model/path";
 import { SHOWCASE_FEATURE } from "@/features/plan/model/prompt";
 
@@ -56,7 +57,7 @@ export function seedBlocksById(): Map<string, SeedBlockFile> {
 
 /** A seed file's choices as the library lists them: level the choice's, else its steps' highest; a `draft` inactive. */
 const seedChoices = (f: SeedBlockFile): BlockChoice[] =>
-  f.choices.map((c) => ({ id: choiceIdOf(f.id, c.name), name: c.name, level: c.level ?? levelOfSteps(c.steps) ?? null, steps: c.steps, minutes: c.minutes, active: !c.draft }));
+  f.choices.map((c) => ({ id: choiceIdOf(f.id, c.name), name: c.name, level: c.level ?? levelOfSteps(c.steps) ?? null, steps: c.steps, moves: (c.moves as Moves | undefined) ?? null, minutes: c.minutes, active: !c.draft }));
 
 /** A seed block file drawn under `id`: the choice that `id` names (a choice id), else the first; null when `id` names a choice the file lacks. */
 export function blockFileItem(f: SeedBlockFile, id: string): DrawnItem | null {
@@ -82,7 +83,7 @@ export function seedItem(id: string): DrawnItem | null {
 
 /**
  * A block with no seed file, drawn from what the database holds: its content with its tags as exercise fields. A curated
- * block draws the choice `choiceId` names (else its first listed one), with that choice's level, steps and minutes.
+ * block draws the choice `choiceId` names (else its first listed one), with that choice's level, steps, moves and minutes.
  */
 export function databaseItem(b: BlockDetail, choiceId?: string): DrawnItem {
   const { provenance: p } = b;
@@ -97,6 +98,7 @@ export function databaseItem(b: BlockDetail, choiceId?: string): DrawnItem {
     ...(b.concepts.length ? { concepts: b.concepts } : {}),
     ...(steps.length ? { steps } : {}),
     ...(b.tags.length ? { tags: b.tags } : {}),
+    ...(choice?.moves ? { moves: choice.moves } : {}),
     ...(choice ? { minutes: choice.minutes, blockId: b.id, choiceId: choice.id } : {}),
   };
   return {

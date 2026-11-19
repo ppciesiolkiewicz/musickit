@@ -29,7 +29,7 @@ const SPECS: Record<string, Spec> = {
   find_blocks: {
     description:
       "List exercise blocks (one exercise: a title and its tools), with how much they have been used by all players together. " +
-      "A library block is served through its choices: each choice is one way to play the block, with its own level, path steps and minutes. " +
+      "A library block is served through its choices: each choice is one way to play the block, with its own level, path steps, moves (the keys and tempos it may be played in; null when none) and minutes. " +
       "choices lists a library block's active choices by place; a player's own block has none ([]) and its own level and steps. " +
       "A library block's level is its first choice's and its steps are all its choices' steps together. " +
       "Use it to find blocks to reuse or to see what the library holds on a topic. Stars say how the player is doing with a block, not how good the block is. " +
@@ -51,7 +51,7 @@ const SPECS: Record<string, Spec> = {
   },
   get_block: {
     description:
-      "One block with its full content, its parent block id, its tags, its choices (level, path steps and minutes of each; [] for a player's own block) and its use by all players together (all its choices together). " +
+      "One block with its full content, its parent block id, its tags, its choices (level, path steps, moves and minutes of each; [] for a player's own block) and its use by all players together (all its choices together). " +
       "With a player in scope it also returns mine: that player's own history with the block (their latest stars and their timer totals).",
     args: { id: str("The block id.") },
     required: ["id"],

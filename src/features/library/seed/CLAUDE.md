@@ -13,8 +13,8 @@ through the library tools as the models to write like, so a flaw here shows up i
 - **Pick tools from the prompt's "Which tool for what"** (`plan/model/prompt.ts`), not from the file being copied.
 - **A block file is the exercise plus its `choices`**: `level`, `steps`, `moves` and `minutes` sit in a choice, never in `exercise`. A plan's days name a block and one of its choices (`{ "block", "choice", "minutes"? }`), never a copy of an exercise.
 - **One block per exercise.** Another level or range of the same drill is a choice in its file, not a copy. Words that
-  must differ by level are separate blocks. A change to what the block is (another tool, another drill) is a new block
-  or choice, never an edit.
+  must differ by level are separate blocks. Another tool or another drill is a new block: never edit one block into
+  another.
 - **A rewrite keeps the file**: same `id`, area, topic, concepts, choice names, steps and minutes; set `model` and `versions` (the
   versions of the prompt, AGENTS.md and the teaching skills it is now written to, from `PROMPT_VERSION` and
   `DOC_VERSIONS` in `versions.ts`), and rewrite `note`.

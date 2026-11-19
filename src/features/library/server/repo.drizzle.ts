@@ -149,7 +149,7 @@ function blockQuery(scope: Scope, where: SQL, tail: SQL): SQL {
     : sql``;
   return sql`
     select b.id, b.kind,
-      (select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'level', c.level, 'steps', to_jsonb(c.steps), 'minutes', c.minutes, 'active', c.active)
+      (select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'level', c.level, 'steps', to_jsonb(c.steps), 'moves', c.moves, 'minutes', c.minutes, 'active', c.active)
         order by c.place, c.id collate "C"), '[]'::jsonb) from choices c where c.block_id = b.id and b.kind = 'curated' and ${listedChoice(scope)}) as choices,
       (case when jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, b.area, b.topic, b.concepts, b.level, b.steps, b.tags,
       b.model, b.prompt_version, b.docs_agents, b.docs_teaching, b.content, b.parent_id, b.minutes, b.why, b.learn_before, b.explore_more,

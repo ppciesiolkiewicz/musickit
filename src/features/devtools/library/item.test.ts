@@ -31,7 +31,7 @@ test("a curated block id draws its first choice and lists every choice, active o
   const item = seedItem("guitar-beginner-down-up-picking");
   assert.equal(item?.kind, "block");
   assert.equal(item?.choiceId, "guitar-beginner-down-up-picking/beginner");
-  assert.deepEqual(item?.choices, [{ id: "guitar-beginner-down-up-picking/beginner", name: "beginner", level: "beginner", steps: ["picking:2"], minutes: 6, active: true }]);
+  assert.deepEqual(item?.choices, [{ id: "guitar-beginner-down-up-picking/beginner", name: "beginner", level: "beginner", steps: ["picking:2"], moves: { bpm: { from: 60, to: 100, step: 10 } }, minutes: 6, active: true }]);
   assert.equal(JSON.parse(item!.json).choiceId, "guitar-beginner-down-up-picking/beginner");
 });
 
@@ -51,8 +51,8 @@ test("a choice id draws that choice of its block; a draft choice is listed inact
 
 test("a database block lists its choices and draws the one named, else the first", () => {
   const choices = [
-    { id: "a-block/easy", name: "easy", level: "beginner", steps: ["picking:1"], minutes: 5, active: true },
-    { id: "a-block/hard", name: "hard", level: "advanced", steps: ["picking:4"], minutes: 8, active: false },
+    { id: "a-block/easy", name: "easy", level: "beginner", steps: ["picking:1"], moves: null, minutes: 5, active: true },
+    { id: "a-block/hard", name: "hard", level: "advanced", steps: ["picking:4"], moves: null, minutes: 8, active: false },
   ];
   const b = { id: "a-block", title: "T", area: "guitar", topic: null, concepts: [], level: "beginner", steps: ["picking:1", "picking:4"], choices, tags: [], provenance: { model: null, promptVersion: null, docsAgents: null, docsTeaching: null }, use: { times: 0, seconds: 0, stars: [0, 0, 0, 0, 0] }, content: { title: "T", cells: [] }, parentId: null, slot: null } as unknown as BlockDetail;
   const first = databaseItem(b);
@@ -60,4 +60,13 @@ test("a database block lists its choices and draws the one named, else the first
   const hard = databaseItem(b, "a-block/hard");
   assert.equal(hard.choiceId, "a-block/hard");
   assert.deepEqual([JSON.parse(hard.json).level, JSON.parse(hard.json).steps, JSON.parse(hard.json).minutes], ["advanced", ["picking:4"], 8]);
+});
+
+test("a database choice with moves draws with them", () => {
+  const moves = { key: "any", bpm: { from: 60, to: 90, step: 10 } };
+  const choices = [{ id: "m-block/one", name: "one", level: "beginner", steps: ["picking:1"], moves, minutes: 5, active: true }];
+  const b = { id: "m-block", title: "T", area: "guitar", topic: null, concepts: [], level: "beginner", steps: ["picking:1"], choices, tags: [], provenance: { model: null, promptVersion: null, docsAgents: null, docsTeaching: null }, use: { times: 0, seconds: 0, stars: [0, 0, 0, 0, 0] }, content: { title: "T", cells: [] }, parentId: null, slot: null } as unknown as BlockDetail;
+  assert.deepEqual(JSON.parse(databaseItem(b).json).moves, moves);
+  const none = { ...b, choices: [{ ...choices[0], moves: null }] } as unknown as BlockDetail;
+  assert.equal("moves" in JSON.parse(databaseItem(none).json), false);
 });

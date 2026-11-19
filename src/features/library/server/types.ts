@@ -1,3 +1,4 @@
+import type { Moves } from "@/features/plan/model/moves";
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
 import type { BlockSlot, Provenance } from "@/features/userData/server/repo";
@@ -29,8 +30,8 @@ export interface BlockUse {
 /** The player in scope with one block: their latest rating, and their own timer totals. */
 export interface PlayerBlock { stars: Stars | null; ratedAt: string | null; times: number; seconds: number }
 
-/** One choice of a curated block: one way to play it, on its own level, steps and minutes. */
-export interface BlockChoice { id: string; name: string; level: string | null; steps: string[]; minutes: number; active: boolean }
+/** One choice of a curated block: one way to play it, on its own level, steps, moves (null: none) and minutes. */
+export interface BlockChoice { id: string; name: string; level: string | null; steps: string[]; moves: Moves | null; minutes: number; active: boolean }
 
 export interface BlockSummary {
   id: string;

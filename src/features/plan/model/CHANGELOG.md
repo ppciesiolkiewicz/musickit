@@ -61,7 +61,7 @@ Everything before the prompt had a version.
 
 ### 8 (2026-11-19)
 
-- Choices: `exercise-example` has "The file: one block and its choices". `exercise` holds what every way of playing a drill shares; each choice in `choices` has its `name`, `level`, `steps`, `moves` and `minutes`. One block per exercise: another level or range of the same drill is a choice, not a copy. Words that must differ by level are separate blocks. A change to what the block is (another tool, another drill) is a new block or choice, never an edit. A choice that isn't ready is `draft`.
+- Choices: `exercise-example` has "The file: one block and its choices". `exercise` holds what every way of playing a drill shares; each choice in `choices` has its `name`, `level`, `steps`, `moves` and `minutes`. One block per exercise: another level or range of the same drill is a choice, not a copy. Words that must differ by level are separate blocks. Another tool or another drill is a new block: never edit one block into another. A choice that isn't ready is `draft`.
 - `exercise-example`: `moves` and `minutes` sit on the choice, not on the exercise; a rewrite keeps the choices' names.
 - The seed README's writing rules and `seed/CLAUDE.md` say the same. `teaching-voice`, `course-article` and `review-teaching-text` change only their version.
 

@@ -61,7 +61,7 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
         assert.equal(await r.countBlocks(scope, { steps: ["picking:1"] }), 0);
       }
       const off = await r.getBlock({ includeNotEnabled: true }, "Off");
-      assert.deepEqual(off?.choices, [{ id: "Off/beginner", name: "beginner", level: "beginner", steps: ["picking:1"], minutes: 5, active: false }]);
+      assert.deepEqual(off?.choices, [{ id: "Off/beginner", name: "beginner", level: "beginner", steps: ["picking:1"], moves: null, minutes: 5, active: false }]);
       assert.deepEqual([off?.level, off?.steps], ["beginner", ["picking:1"]]);
     });
     test("a block with two owner rows is listed once", async () => {
@@ -109,7 +109,7 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.equal("mine" in n, false);
       const d = await r.getBlock({ player: A }, "S1");
       assert.deepEqual(keys(d!), ["area", "choices", "concepts", "content", "id", "level", "mine", "parentId", "provenance", "slot", "steps", "tags", "title", "topic", "use"]);
-      assert.deepEqual(keys(d!.choices[0]), ["active", "id", "level", "minutes", "name", "steps"]);
+      assert.deepEqual(keys(d!.choices[0]), ["active", "id", "level", "minutes", "moves", "name", "steps"]);
     });
     test("userExists", async () => {
       const r = await repo();
@@ -152,8 +152,14 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.deepEqual(s1.steps, ["pentatonic:1", "pentatonic:2"]);
       assert.deepEqual(s1.tags, ["warmup", "slow"]);
       assert.deepEqual(s1.provenance, { model: "m1", promptVersion: 3, docsAgents: 2, docsTeaching: 2 });
-      assert.deepEqual(s1.choices, [{ id: "S1/beginner", name: "beginner", level: "beginner", steps: ["pentatonic:1", "pentatonic:2"], minutes: 5, active: true }]);
+      const moves = { bpm: { from: 60, to: 90, step: 5 } };
+      assert.deepEqual(s1.choices, [{ id: "S1/beginner", name: "beginner", level: "beginner", steps: ["pentatonic:1", "pentatonic:2"], moves, minutes: 5, active: true }]);
       assert.deepEqual((await (await repo()).getBlock(all, "R"))?.choices, []);
+    });
+    test("getBlock returns each choice's moves, null when it has none", async () => {
+      const r = await repo();
+      assert.deepEqual((await r.getBlock({}, "S1"))?.choices.map((c) => c.moves), [{ bpm: { from: 60, to: 90, step: 5 } }]);
+      assert.deepEqual((await r.getBlock({}, "S2"))?.choices.map((c) => c.moves), [null]);
     });
     test("a curated block shows its active choices by place; its steps are theirs together, its level the first one's", async () => {
       const r = await make(multi());

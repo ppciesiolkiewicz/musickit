@@ -26,7 +26,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
    - A block file is one exercise. `exercise` holds what every way of playing it shares: the title, the why, the tags and the cells. `choices` lists the ways to play it, each with a `name` and its own `level`, `steps`, `moves` and `minutes`, so those four never sit in `exercise`. A choice's id is `<block id>/<name>`, and a plan's day names a block and one of its choices.
    - One block per exercise. The same drill at another level or over another range (another path step, other keys or tempos in `moves`, more minutes) is another choice in the same file, never a copy of the file.
    - Every choice shows the same words. When the text, a heading, the why or a tool must differ by level, write separate blocks.
-   - Never edit a block into something else. A change to what the block is (another tool, another drill) is a new block, or a new choice when only the level or the range changes. An edit keeps what the block is: a clearer step, a fixed fact, a better-lit note.
+   - Another tool or another drill is a new block. Never edit one block into another. An edit keeps what the block is: a clearer step, a fixed fact, a better-lit note.
    - A choice that isn't ready gets `"draft": true`: the library keeps it inactive, so no plan gets it.
    - A block's `choices` and a section's `choice` are different things. The app picks one of the block's choices for a plan; a section's `choice` draws a selector inside the exercise (*Stages and variants*, below).
 
@@ -82,7 +82,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
 
 ## Rewriting a seed file that exists
 
-A rewrite keeps the file, its `id`, `area`, `topic`, `concepts`, and its choices' names, `steps` and minutes, so nothing that points at it breaks. A rewrite that would change what the block is makes a new block or choice instead (*The file*, above). Do it in this order:
+A rewrite keeps the file, its `id`, `area`, `topic`, `concepts`, and its choices' names, `steps` and minutes, so nothing that points at it breaks. A rewrite that would change the tool or the drill makes a new block instead (*The file*, above). Do it in this order:
 
 1. Read the old file against the list below and write down what fails, one line each. If nothing fails, leave it alone.
 2. Fix the tools first (a better tool, a missing `labels`, `pattern`, `choice` or `"always"`), then the text around them.
