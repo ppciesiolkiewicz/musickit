@@ -1,7 +1,9 @@
 /**
  * Fills a local database with made-up accounts to click around with: an owner, teachers with students, and students on
- * their own. Names come from @faker-js/faker, the same ones every run (`--seed`). Every email ends in
- * `@seed.musickit.test`, so `--wipe` finds and deletes exactly these accounts and nothing else.
+ * their own. Names come from @faker-js/faker, the same ones every run (`--seed`). The first three teachers and the
+ * first three solo students after setup log in at real inboxes, `ppciesiolkiewicz+teacher1@gmail.com` to `+teacher3` and
+ * `+student1` to `+student3`, so a login link reaches someone on the release database too. Every other email ends in
+ * `@seed.musickit.test`. `--wipe` finds and deletes exactly these accounts and nothing else.
  *
  *   npm run -s db:seed-fake                         4 teachers with 2 to 6 students each, 6 solo students, 1 owner
  *   npm run -s db:seed-fake -- --teachers 8 --solo 20 --seed 7
@@ -20,7 +22,7 @@
  * `--allow-remote` to seed one anyway.
  */
 import { faker } from "@faker-js/faker";
-import { like } from "drizzle-orm";
+import { inArray, like, or } from "drizzle-orm";
 import { toAccount } from "../src/features/account/server/auth";
 import { auth as authOf } from "../src/features/account/server/http";
 import type { UserRow } from "../src/features/account/server/repo";
@@ -42,6 +44,9 @@ import { databaseUrl, getDb } from "../src/lib/db/client";
 import { users } from "../src/lib/db/schema";
 
 const DOMAIN = "seed.musickit.test";
+/** The seeded accounts that log in at a real inbox: teacher 1 to 3 and solo student 1 to 3. */
+const inbox = (role: "teacher" | "student", n: number) => `ppciesiolkiewicz+${role}${n}@gmail.com`;
+const INBOXES = [1, 2, 3].flatMap((n) => [inbox("teacher", n), inbox("student", n)]);
 const DAY = 24 * 60 * 60 * 1000;
 
 function args() {
@@ -177,7 +182,7 @@ async function main() {
   if (!isLocal(url) && !opts.allowRemote) throw new Error(`DATABASE_URL is not on this machine (${new URL(url).hostname}). Point it at the local database, or pass --allow-remote.`);
   const db = getDb()!;
 
-  const gone = await db.delete(users).where(like(users.email, `%@${DOMAIN}`)).returning({ id: users.id });
+  const gone = await db.delete(users).where(or(like(users.email, `%@${DOMAIN}`), inArray(users.email, INBOXES))).returning({ id: users.id });
   if (gone.length) console.log(`deleted ${gone.length} seeded account${gone.length === 1 ? "" : "s"}`);
   if (opts.wipe) return;
 
@@ -201,15 +206,16 @@ async function main() {
   const rows: { email: string; role: string; plan: string; note: string }[] = [];
 
   /** An account that has been through setup: a plan, the terms, maybe the email updates. */
-  async function person(role: Role, planId: string | null, opts2: { since: Date } = { since: faker.date.recent({ days: 90 }) }): Promise<UserRow> {
+  async function person(role: Role, planId: string | null, opts2: { since?: Date; email?: string } = {}): Promise<UserRow> {
+    const since = opts2.since ?? faker.date.recent({ days: 90 });
     const first = faker.person.firstName();
     const last = faker.person.lastName();
-    const made = await repo.createUser({ email: email(first, last), name: `${first} ${last}`, role }, opts2.since);
+    const made = await repo.createUser({ email: opts2.email ?? email(first, last), name: `${first} ${last}`, role }, since);
     if (!made) throw new Error("A seeded email already has an account.");
     if (!planId) return made;
-    await repo.setUserPlan(made.id, planId, faker.helpers.arrayElement(["month", "year"] as const), role, opts2.since);
-    await repo.acceptTerms(made.id, TERMS_UPDATED, opts2.since);
-    if (faker.datatype.boolean()) await repo.setEmailUpdates(made.id, true, opts2.since);
+    await repo.setUserPlan(made.id, planId, faker.helpers.arrayElement(["month", "year"] as const), role, since);
+    await repo.acceptTerms(made.id, TERMS_UPDATED, since);
+    if (faker.datatype.boolean()) await repo.setEmailUpdates(made.id, true, since);
     return (await repo.userById(made.id))!;
   }
 
@@ -220,7 +226,7 @@ async function main() {
 
   for (let t = 0; t < opts.teachers; t++) {
     const plan = teacherPlans[t % teacherPlans.length];
-    const teacher = await person("teacher", plan.id, { since: faker.date.recent({ days: 120 }) });
+    const teacher = await person("teacher", plan.id, { since: faker.date.recent({ days: 120 }), email: t < 3 ? inbox("teacher", t + 1) : undefined });
     const account = toAccount(teacher);
     const want = Math.min(faker.number.int({ min: 2, max: 6 }), plan.students ?? Infinity);
     let made = 0;
@@ -266,7 +272,7 @@ async function main() {
 
   for (let s = 0; s < opts.solo; s++) {
     const beforeSetup = s === 0;
-    const student = await person("student", beforeSetup ? null : studentPlan.id);
+    const student = await person("student", beforeSetup ? null : studentPlan.id, { email: s >= 1 && s <= 3 ? inbox("student", s) : undefined });
     rows.push({ email: student.email, role: "student", plan: beforeSetup ? "(none)" : studentPlan.id, note: beforeSetup ? "before setup" : "" });
   }
 

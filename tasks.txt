@@ -120,8 +120,8 @@ choices and a rating keeps its choice; /dev/library lists a block's choices, /de
 rules at teaching 8, prompt 9 (every seed file reports older versions until ChoiceSplit3). Checked: tests, types, the
 Drizzle repos on a local Postgres 17 (Homebrew; 14 removed), reset and reseed on that database. Not checked: any page
 in a browser.
-Left: Task 10 (user's go): db:migrate on Supabase (pushed code already needs 0036), db:reset-library, db:wipe-plans,
-db:seed-plans, db:seed-blocks, then a signed-in walk of /plan and a text fix + reseed that keeps a rating. Can wait:
+Task 10 on Supabase 2026-11-19: migrated (user), library reset, plans wiped, 10 plans and 412 blocks with 412 choices
+seeded. Left: a signed-in walk of /plan and a text fix + reseed that keeps a rating. Can wait:
 a player can get an owner row on a draft-only curated block; outcome.ts and planTime.ts resolve a slot by block id
 (Part 2); liveInput.test.ts fails on its own (another session's voice-range work).
 ChoiceSplit3: [NEW 2026-11-19] Clean up and rewrite the seed exercises for the new shape (after ChoiceSplit2 Part 1;
