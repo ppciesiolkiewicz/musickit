@@ -1,7 +1,6 @@
 import { SEED_BLOCKS, seedExercise, type SeedBlockFile } from "@/features/library/seed";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import type { CourseRating } from "@/features/course/ratings";
-import { blockIdOf, blockKeyOf } from "./blockId";
 import { catalogue, type CatalogueEntry } from "./catalogue";
 import { parseExercise } from "./config";
 import { promptPartsWith, type PromptPart } from "./promptCore";
@@ -25,8 +24,9 @@ export const SHOWCASE_FEATURE: Record<Showcase, string> = {
 let showcases: { feature: string; id: string; title: string }[] | null = null;
 
 /**
- * The seed blocks that each show one tool feature, with their block ids computed from the seed files, so the ids never go stale.
- * They are read against the full catalogue, not the entries a prompt is built with: a block's id must not change with them.
+ * The seed blocks that each show one tool feature, named by their seed file ids: the ids they are stored under in the
+ * library, so `get_block` finds them. A file whose exercise doesn't parse (against the full catalogue, not the entries a
+ * prompt is built with) is left out.
  */
 export function showcaseBlocks(): { feature: string; id: string; title: string }[] {
   if (!showcases) {
@@ -34,7 +34,7 @@ export function showcaseBlocks(): { feature: string; id: string; title: string }
     showcases = SEED_BLOCKS.flatMap((f) => {
       if (!f.showcase) return [];
       const block = parseExercise(seedExercise(f), f.id, entries).block;
-      return block ? [{ feature: SHOWCASE_FEATURE[f.showcase], id: blockIdOf(blockKeyOf(block)), title: block.title }] : [];
+      return block ? [{ feature: SHOWCASE_FEATURE[f.showcase], id: f.id, title: block.title }] : [];
     });
   }
   return showcases;
@@ -48,7 +48,7 @@ function libraryPart(): PromptPart {
     "- Call player_progress first: where the student stands in each topic and concept, and the blocks they have had. With no player in scope it says so; then plan from The student above.",
     `- The current teaching rules are version ${DOC_VERSIONS.teaching}. Search with "docs_teaching": ${DOC_VERSIONS.teaching} first, so you find what is written to them. When that finds too few, search again without it: from an older block or plan take only how the tools are used and the shape, and write the text to the rules in this prompt.`,
     "- For each concept the week works on, call find_blocks with \"steps\" set to the student's current step and the next one (\"trackId:n\", from the list under Answer format). Add \"area\" or \"level\" when the list is long. Then call get_block on the two or three closest and write like them: the same kind of text, the tools used the same way.",
-    "- A block that fits the student as it is can go in the plan as it is: copy its exercise whole and unchanged, with its area, topic, concepts, steps and tags. The same content and tags are the same block, so the library counts its use.",
+    "- A block that fits the student as it is can go in the plan as it is: copy its exercise whole and unchanged, with its area, topic, concepts, steps and tags. An exercise you write or copy is stored by its content and tags, so the same content and tags are one block. A library block keeps its own fixed id, the one get_block takes.",
     "- Call find_plans with \"areas\" and \"levels\" set to the student's, then get_plan on one of them, for the shape of a whole week: the day themes, the exercise lengths, where the key skill comes back. Copy its shape, not its exercises.",
     "- library_coverage shows which steps no block practises yet. For those, write a new block from the rules below.",
     "Each of these blocks shows one tool feature. Before you use the feature, call get_block with its id and use the feature the same way. Some are written to older teaching rules, so write the text to the rules in this prompt, not like theirs:",

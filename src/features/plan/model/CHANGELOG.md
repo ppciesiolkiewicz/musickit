@@ -10,6 +10,11 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 9 (2026-11-19)
+
+- The showcase blocks are named by their library ids (the seed file's id), the ids `get_block` finds, no longer by a content hash.
+- Copying a library block: an exercise written or copied is one block by its content and tags; a library block keeps its own fixed id. It no longer says the library counts the use of a copied block.
+
 ### 8 (2026-11-19)
 
 - Moves (ChoiceSplit): an exercise that works in other keys or at other tempos states `moves` (`"key": "any"`, `"bpm": { from, to, step }`), with its tools written at the starting key and tempo. The app gives each player a version and writes the selector's line itself.

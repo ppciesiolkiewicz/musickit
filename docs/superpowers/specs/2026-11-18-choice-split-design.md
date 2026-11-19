@@ -36,11 +36,12 @@ tools moved, text params filled, chips for the values kept from before.
 - No neural network, decision-tree library or training data. The rules are a hand-written table of weights, kept as
   data behind one function, so a learned picker can replace it later (call; the user offered "just have an algorithm").
 - No connector table between blocks and plans (ChoiceSplit2 is not built). Nobody hand-picks a version for a plan, so
-  the values live on the slot. `practice_plan_blocks` stays block id + minutes (call).
+  the values live on the slot. `practice_plan_blocks` stays block id + minutes (call). Replaced by `2026-11-19-block-ids-and-choices-design.md` (a `choices` table;
+  `practice_plan_blocks` names a choice).
 - No values set by hand by a teacher. Teachers' weeks get the composer's roll. Later a teacher may adjust per level,
   still through the composer (user); out of scope, but the weights being data leaves room for it.
 - No moves of `level` or `scale`: they change which path step a block practises, and picking steps is the composer's
-  other job (call).
+  other job (call). Replaced by `2026-11-19-block-ids-and-choices-design.md` (a level is a choice row).
 - No backfill script. Prelaunch: stored plan data may be reset, with the user's go each time.
 
 ## Anti-goals

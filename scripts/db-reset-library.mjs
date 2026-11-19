@@ -1,7 +1,8 @@
 /**
  * Empties the app's part of the block library at DATABASE_URL, so the seed can write it again from the files in
  * src/features/library/seed: the library plans (practice_plans), their block rows (practice_plan_blocks), the app's
- * ownership of blocks, and every block no player owns. A block a player owns stays, with that player's row.
+ * ownership of blocks, and every block no player owns, with its choices (choices). A block a player owns stays, with
+ * that player's row and its choices.
  * A plan review keeps its row and loses its link to the library plan.
  *
  *   npm run db:reset-library
@@ -30,6 +31,7 @@ const counts = async (q) => {
     (select count(*)::int from practice_plans) as plans,
     (select count(*)::int from practice_plan_blocks) as plan_blocks,
     (select count(*)::int from blocks) as blocks,
+    (select count(*)::int from choices) as choices,
     (select count(*)::int from block_owners where user_id is null) as app_owned,
     (select count(*)::int from block_owners where user_id is not null) as player_owned`;
   return JSON.stringify(r);
@@ -40,6 +42,7 @@ try {
   await sql.begin(async (tx) => {
     await tx`delete from practice_plan_blocks`;
     await tx`delete from block_owners where user_id is null`;
+    await tx`delete from choices c where not exists (select 1 from block_owners o where o.block_id = c.block_id)`;
     await tx`delete from blocks b where not exists (select 1 from block_owners o where o.block_id = b.id)`;
     await tx`delete from practice_plans`;
   });

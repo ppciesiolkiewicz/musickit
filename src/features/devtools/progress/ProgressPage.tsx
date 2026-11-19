@@ -85,8 +85,8 @@ export default function ProgressPage() {
       </Block>
       <Block title="Inputs: entries" about="The progress log, one row per rated exercise.">
         <Table
-          head={["At", "Title", "Block", "Topic", "Concepts", "Stars"]}
-          rows={entries.map((e) => [e.at, e.title, e.blockId ?? "—", e.topic ?? "—", e.concepts?.join(", ") || "—", e.stars])}
+          head={["At", "Title", "Block", "Choice", "Topic", "Concepts", "Stars"]}
+          rows={entries.map((e) => [e.at, e.title, e.blockId ?? "—", e.choiceId ?? "—", e.topic ?? "—", e.concepts?.join(", ") || "—", e.stars])}
         />
       </Block>
       <Block title="Inputs: day records" about="Dates come from the timer's own dates, else the plan's start plus the day.">

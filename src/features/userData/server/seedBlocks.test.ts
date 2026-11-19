@@ -50,6 +50,20 @@ test("a block file that doesn't parse is skipped and named", () => {
   assert.deepEqual(r.skipped, ["guitar-broken"]);
 });
 
+test("a block file that doesn't parse is reported, and nothing is written or made inactive", async () => {
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, NOW, { files: [one("guitar-a-b"), one("guitar-c-d")], plans: [] });
+  const before = { blocks: repo.peekBlocks(), choices: repo.peekChoices() };
+  const broken = fileOf("guitar-c-d", {}, [{ name: "beginner", steps: [], minutes: 4 }]);
+  const lines: string[] = [];
+  const r = await seedBlocks(repo, LATER, { files: [one("guitar-a-b"), broken], plans: [planFile("p1", [[{ block: "guitar-a-b", choice: "beginner" }]])], log: (l) => lines.push(l) });
+  assert.deepEqual(r, { blocks: 0, choices: 0, deactivated: 0, planBlocks: 0, skipped: ["guitar-c-d"], unknownRefs: [] });
+  assert.ok(lines.some((l) => l.includes("guitar-c-d")));
+  assert.deepEqual({ blocks: repo.peekBlocks(), choices: repo.peekChoices() }, before);
+  assert.equal(repo.peekChoices().get("guitar-c-d/beginner")!.active, true);
+  assert.deepEqual(repo.peekPlanBlocks("p1"), []);
+});
+
 test("seeding stores curated blocks, their choices and the app's owner row", async () => {
   const repo = memoryUserDataRepo();
   const r = await seedBlocks(repo, NOW, { files: [one("guitar-a-b")], plans: [] });

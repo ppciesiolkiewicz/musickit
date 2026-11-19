@@ -82,6 +82,8 @@ function secs(since: number): string {
  * of truth, so a second run with the same files changes nothing, and a choice no longer in a file is made inactive), then
  * each seed plan's rows in `practice_plan_blocks` from its refs. `plans` must already be in `practice_plans` (the script
  * passes the ones `db:seed-plans` stored). Returns the counts, the skipped block files and the refs that name nothing.
+ * When a block file doesn't parse it writes nothing and returns that file in `skipped` with every count 0: storing the
+ * rest would make the skipped block's choices inactive (and an empty list every choice).
  */
 export async function seedBlocks(
   repo: UserDataRepo,
@@ -90,6 +92,10 @@ export async function seedBlocks(
 ): Promise<{ blocks: number; choices: number; deactivated: number; planBlocks: number; skipped: string[]; unknownRefs: string[] }> {
   const { blocks, skipped } = curatedBlocks(files);
   for (const id of skipped) log(`skipped  ${id}  (exercise does not parse)`);
+  if (skipped.length) {
+    log(`${skipped.length} block file${skipped.length === 1 ? "" : "s"} did not parse; nothing written`);
+    return { blocks: 0, choices: 0, deactivated: 0, planBlocks: 0, skipped, unknownRefs: [] };
+  }
   for (const b of blocks) log(`block  ${b.id}  ${b.choices.map((c) => `${c.name}${c.active ? "" : " (draft)"}`).join(", ")}`);
   log(`${blocks.length} curated blocks, ${blocks.reduce((n, b) => n + b.choices.length, 0)} choices from ${files.length} block files; storing in one transaction…`);
   let t = Date.now();

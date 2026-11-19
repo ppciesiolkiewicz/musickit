@@ -4,7 +4,8 @@
  * file is the source of truth: a block's content, tags, slot and provenance are overwritten, a choice is upserted by id,
  * and a choice no longer in its file (or of a file removed) is made inactive, never deleted. Then each seed plan file
  * that is in practice_plans gets its practice_plan_blocks rows from its refs (block, choice, minutes). Running it again
- * changes nothing.
+ * changes nothing. If a block file doesn't parse it writes nothing, names the file and exits 1: seeding without it would
+ * make its choices inactive.
  *
  *   npm run -s db:seed-blocks
  *
@@ -29,9 +30,13 @@ async function main() {
   for (const p of SEED_PLANS) if (!ids.has(p.id)) console.log(`skipped  plan ${p.id}  (not in practice_plans; run db:seed-plans first)`);
   console.log(`${ids.size} plans read, ${plans.length} of ${SEED_PLANS.length} seed plans among them`);
   const r = await seedBlocks(drizzleUserDataRepo(db), new Date(), { plans, log: (line) => console.log(line) });
+  if (r.skipped.length) {
+    console.error(`Nothing written: ${s(r.skipped.length, "block file")} did not parse (${r.skipped.join(", ")}). Fix ${r.skipped.length === 1 ? "it" : "them"} and run again.`);
+    process.exit(1);
+  }
   console.log(
     `${s(r.blocks, "curated block")}, ${s(r.choices, "choice")}, ${s(r.deactivated, "choice")} made inactive, ${s(r.planBlocks, "plan block row")}` +
-      `${r.skipped.length ? `, ${s(r.skipped.length, "block file")} skipped` : ""}${r.unknownRefs.length ? `, ${s(r.unknownRefs.length, "plan ref")} naming nothing` : ""}.`,
+      `${r.unknownRefs.length ? `, ${s(r.unknownRefs.length, "plan ref")} naming nothing` : ""}.`,
   );
 }
 

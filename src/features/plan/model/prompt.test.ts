@@ -4,10 +4,8 @@ import { catalogue } from "./catalogue";
 import { buildPrompt, promptParts, settingsOf, showcaseBlocks, weekByTopic, weekReport } from "./prompt";
 import { TOPICS } from "../intake/topics";
 import { DEFAULT_ANSWERS } from "../intake/answers";
-import { SEED_BLOCKS, seedExercise } from "@/features/library/seed";
+import { SEED_BLOCKS } from "@/features/library/seed";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
-import { blockIdOf, blockKeyOf } from "./blockId";
-import { parseExercise } from "./config";
 import { PROMPT_HIDDEN, TOOLS } from "./tools";
 import type { PlanAnswers, StoredPlan } from "./types";
 
@@ -75,12 +73,13 @@ test("the library part asks for blocks and plans written to the current teaching
   assert.match(text, /with its area, topic, concepts, steps and tags/);
 });
 
-test("each showcase is named by its current block id", () => {
+test("each showcase is named by its seed file id, the id it is stored under", () => {
   const showcases = SEED_BLOCKS.filter((f) => f.showcase);
   assert.equal(showcases.length, 5);
   assert.equal(showcaseBlocks().length, 5);
   const p = buildPrompt(DEFAULT_ANSWERS, catalogue());
-  for (const f of showcases) assert.ok(p.includes(blockIdOf(blockKeyOf(parseExercise(seedExercise(f), f.id, catalogue()).block!))), f.id);
+  for (const f of showcases) assert.ok(p.includes(`: ${f.id} ("`), f.id);
+  assert.deepEqual(showcaseBlocks().map((b) => b.id), showcases.map((f) => f.id));
 });
 
 const rated: PlanAnswers = {
