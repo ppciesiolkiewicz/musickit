@@ -132,7 +132,7 @@ export interface UserDataRepo {
   /** Which of these block ids the user owns (has a `block_owners` row for). */
   ownedBlockIds(userId: string, ids: string[]): Promise<Set<string>>;
   /**
-   * The player's owner rows (source `ai`) for these curated block ids, only for an id `blocks` already has and a row the player
+   * The player's owner rows (source `seed`) for these curated block ids, only for an id `blocks` already has and a row the player
    * lacks. It never writes a block: a curated block's row is the seed's. An id `blocks` doesn't have is skipped.
    */
   ownCurated(userId: string, ids: string[], now: Date): Promise<void>;

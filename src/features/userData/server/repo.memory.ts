@@ -134,7 +134,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
     async ownCurated(userId, ids) {
       for (const id of ids) {
         const k = pair(userId, id);
-        if (blocks.has(id) && !owners.has(k)) owners.set(k, { userId, blockId: id, source: "ai" });
+        if (blocks.has(id) && !owners.has(k)) owners.set(k, { userId, blockId: id, source: "seed" });
       }
     },
     async addBlocks(userId, list) {

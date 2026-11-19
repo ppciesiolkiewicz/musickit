@@ -429,7 +429,7 @@ test("a save with a curated id writes no block row, and the player's owner row w
   await writeDoc(repo, "u1", "plan", planDoc([curatedEx, ex]), now);
   assert.deepEqual([...repo.peekBlocks().keys()].sort(), [idOf(ex), "guitar-spider-walk"].sort());
   assert.deepEqual(repo.peekBlocks().get("guitar-spider-walk"), before);
-  assert.ok(repo.peekOwners().some((o) => o.userId === "u1" && o.blockId === "guitar-spider-walk"));
+  assert.equal(repo.peekOwners().find((o) => o.userId === "u1" && o.blockId === "guitar-spider-walk")?.source, "seed");
 });
 
 test("a save with an unknown curated id adds no block row and no owner row", async () => {

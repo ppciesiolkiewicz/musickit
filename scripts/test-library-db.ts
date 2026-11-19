@@ -222,6 +222,6 @@ describe("user data repo on Postgres: block provenance", () => {
     await repo.ownCurated(PLAYER_A, ["guitar-a-b"], NOW);
     assert.deepEqual(await db.select().from(schema.blocks), blocksBefore);
     const owners = await db.select().from(schema.blockOwners).where(eq(schema.blockOwners.userId, PLAYER_A));
-    assert.deepEqual(owners.map((o) => o.blockId), ["guitar-a-b"]);
+    assert.deepEqual(owners.map((o) => [o.blockId, o.source]), [["guitar-a-b", "seed"]]);
   });
 });

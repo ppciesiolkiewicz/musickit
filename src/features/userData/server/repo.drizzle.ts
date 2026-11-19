@@ -111,7 +111,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
       // only a block that is stored: its row is the seed's, never written here
       const stored = await db.select({ id: blocks.id }).from(blocks).where(inArray(blocks.id, ids));
       if (!stored.length) return;
-      await db.insert(blockOwners).values(stored.map((b) => ({ userId, blockId: b.id, source: "ai" as const, createdAt: now }))).onConflictDoNothing();
+      await db.insert(blockOwners).values(stored.map((b) => ({ userId, blockId: b.id, source: "seed" as const, createdAt: now }))).onConflictDoNothing();
     },
     async addBlocks(userId, list, now) {
       if (!list.length) return;
