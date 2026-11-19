@@ -126,7 +126,7 @@ it, a closed list has the ladder steps in the code that no step of the path stan
 **Slope** (`path/SlopeView.tsx`; design in `docs/superpowers/specs/2026-11-16-path-slope-design.md`). Every step of the
 area placed by its level and its depth (`depthOf`/`slope` in `plan/model/path.ts`: how deep its chain of steps to learn
 first runs), one column per depth inside a level, rows sorted by where a track's first step falls. *As it is* draws
-`PATH`; *Proposed* draws `model/slopeProposal.ts` (today the links three agents proposed, not yet in `PATH`), with new links
+`PATH`; *Proposed* draws `model/slopeProposal.ts` (empty today: the agents' links moved into `PATH` on 2026-11-19), with new links
 dashed orange and each step that moved marked +N. Hovering or picking a step lights its whole chain both ways; the
 detail below counts the chain under it. The picture zooms and pans (drag or scroll to move, ctrl/⌘ + scroll or pinch
 to zoom, *Fit* shows the whole area); the track names follow the zoom and the vertical pan. Once the proposal is settled it moves into `PATH` and the file goes.

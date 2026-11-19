@@ -13,8 +13,9 @@ test("every step gets one mark", () => {
 test("a new player: one step per topic, the lowest on the path; the others with nothing to learn first are open", () => {
   const r = reach({ topics: {} });
   assert.deepEqual(marks(r, "open-chords:1"), ["reach", false]);
-  assert.deepEqual(marks(r, "strumming:1"), ["ahead", true]);
-  assert.deepEqual(marks(r, "power-chords:1"), ["ahead", true]);
+  assert.deepEqual(marks(r, "strumming:1"), ["ahead", false]);
+  assert.deepEqual(marks(r, "power-chords:1"), ["ahead", false]);
+  assert.deepEqual(marks(r, "fingerpicking:1"), ["ahead", true]);
   assert.deepEqual(marks(r, "double-stops:1"), ["reach", false]);
   assert.deepEqual(marks(r, "triads:1"), ["ahead", false]);
   assert.deepEqual(marks(r, "open-chords:2"), ["ahead", false]);
@@ -48,9 +49,9 @@ test("a practised step that isn't solid stays within reach, so it comes back; on
   assert.equal(m(reach({ topics: {} }), "open-chords:1").mark, "reach");
   const r = reach({ topics: {}, solid: ["open-chords:1"] });
   assert.equal(m(r, "open-chords:1").mark, "known");
-  // the topic's one place now goes to the lowest step on the path: the first strum, then E, A, D
-  assert.equal(m(r, "strumming:1").mark, "reach");
-  assert.deepEqual(marks(r, "open-chords:2"), ["ahead", true]);
+  // the topic's one place now goes to the lowest step on the path: E, A, D, then the first strum
+  assert.equal(m(r, "open-chords:2").mark, "reach");
+  assert.deepEqual(marks(r, "strumming:1"), ["ahead", true]);
 });
 
 test("a done track opens what follows it", () => {
