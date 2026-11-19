@@ -10,9 +10,9 @@ Spec: `docs/superpowers/specs/2026-11-10-plan-topics-progress-design.md`.
 
 Which areas the student plays (guitar, voice, theory & ear), then six **topics** per area. Each topic has four lines,
 from "Not yet" to solid, and the student taps the one that sounds like them (a `Rung`, 0 to 3). A topic may be left
-unanswered. The topics come one at a time in a panel whose four lines never move (`ui/TopicStep.tsx`), so a student
-who knows their level taps the same spot without moving the pointer; the area's topics are listed under it with
-their answers. Then the voice (if they sing), minutes a day, the keys, and anything else.
+unanswered. Each area is one screen listing its topics (`ui/TopicStep.tsx`); every topic shows its four lines at once,
+small and side by side in one row, so nothing opens, closes or moves while the student answers, and the screen is
+the summary of the answers. Then the voice (if they sing), minutes a day, the keys, and anything else.
 
 The keys question is one question for every area: how many keys they are at home in, from "One key" to "Any key" (`PlanAnswers.keys`, 0 to 4), or Not sure. Each answer is one card, all of it the button, with a short list of example keys, the same for every area (`KEY_EXAMPLES`): C, G, D, E, A and F for "One key" and "Two or three keys", B♭ and E♭ added for "The common keys", A♭ and B for "Most keys", "All 12" for "Any key". The plan still starts "One key" in the ladder's first key. The answer is a rung of each area's key ladder (`KEY_LADDERS` in `../model/keys.ts`: guitar starts in A, voice and theory in C), and the screen says under the lines which keys that is in each chosen area. With no answer each area's level decides (`keyRung`): a new player and a beginner have the first key only, an intermediate one adds the second rung, an advanced one the third; the last two rungs come only from the answer. The composer gives every exercise with a Key selector those keys, and the earlier ones to go back to.
 
