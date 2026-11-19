@@ -10,10 +10,10 @@ Spec: `docs/superpowers/specs/2026-11-10-plan-topics-progress-design.md`.
 
 Which areas the student plays (guitar, voice, theory & ear), then six **topics** per area. Each topic has four lines,
 from "Not yet" to solid, and the student taps the one that sounds like them (a `Rung`, 0 to 3). A topic may be left
-unanswered. Each area is one screen listing its topics (`ui/TopicStep.tsx`). The open topic lists its four lines in a
-column; every closed one, answered or not, shows them small, side by side in one row of fixed height, so a topic
-takes the same room before and after its answer and the list doesn't jump. A pick opens the next topic without an
-answer; a small line can be pressed to change an answer without opening its topic. Then the voice (if they sing), minutes a day, the keys, and anything else.
+unanswered. Each area is one screen (`ui/TopicStep.tsx`): the topics still without an answer are rows, and the open
+one lists its four lines in a column. A pick folds the topic into a small card (its name and the line picked) in a grid
+at the top, four to a row on a wide screen, and opens the next topic without an answer; a press on a card opens it
+again to change the answer. Then the voice (if they sing), minutes a day, the keys, and anything else.
 
 The keys question is one question for every area: how many keys they are at home in, from "One key" to "Any key" (`PlanAnswers.keys`, 0 to 4), or Not sure. Each answer is one card, all of it the button, with a short list of example keys, the same for every area (`KEY_EXAMPLES`): C, G, D, E, A and F for "One key" and "Two or three keys", B♭ and E♭ added for "The common keys", A♭ and B for "Most keys", "All 12" for "Any key". The plan still starts "One key" in the ladder's first key. The answer is a rung of each area's key ladder (`KEY_LADDERS` in `../model/keys.ts`: guitar starts in A, voice and theory in C), and the screen says under the lines which keys that is in each chosen area. With no answer each area's level decides (`keyRung`): a new player and a beginner have the first key only, an intermediate one adds the second rung, an advanced one the third; the last two rungs come only from the answer. The composer gives every exercise with a Key selector those keys, and the earlier ones to go back to.
 
