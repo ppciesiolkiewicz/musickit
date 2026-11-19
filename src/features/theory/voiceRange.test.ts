@@ -12,6 +12,17 @@ test("steadyNote: a jump inside the window is not steady", () => {
   assert.equal(steadyNote(frames, 30), null);
 });
 
+test("steadyNote: a wide vibrato round a held note still counts", () => {
+  // ±90 cents at 5.5 Hz, read 30 times a second: the top of a range often shakes this much
+  const frames = Array.from({ length: 15 }, (_, i) => 79 + 0.9 * Math.sin((2 * Math.PI * 5.5 * i) / 30));
+  assert.equal(steadyNote(frames, 15), 79);
+});
+
+test("steadyNote: a slide is not a held note", () => {
+  const frames = Array.from({ length: 15 }, (_, i) => 60 + (i * 1.5) / 14);
+  assert.equal(steadyNote(frames, 15), null);
+});
+
 test("steadyNote: a gap or too few frames is not steady", () => {
   const frames: (number | null)[] = Array(30).fill(48.2);
   frames[10] = null;

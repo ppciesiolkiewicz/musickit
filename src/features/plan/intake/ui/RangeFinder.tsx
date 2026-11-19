@@ -38,6 +38,8 @@ export default function RangeFinder({ current = null, onRange }: { current?: Ran
   const [high, setHigh] = useState<number | null>(null);
   /** no note held yet, a while into the step */
   const [quiet, setQuiet] = useState(false);
+  /** how far into a hold the note now heard is, 0 to 1: at 1 it counts (`HELD_FRAMES` steady readings) */
+  const [hold, setHold] = useState(0);
   const alive = useRef(true);
   const starting = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -116,6 +118,7 @@ export default function RangeFinder({ current = null, onRange }: { current?: Ran
   useEffect(() => {
     if (!listening) return;
     history.current = [...history.current, hz === null ? null : hzToMidi(hz)].slice(-HELD_FRAMES * 2);
+    setHold(holdShare(history.current));
     const note = steadyNote(history.current, HELD_FRAMES);
     if (note === null) return;
     if (step === "low") setLow((n) => furthest(n, note, "low"));
@@ -130,7 +133,7 @@ export default function RangeFinder({ current = null, onRange }: { current?: Ran
     return () => { window.clearTimeout(id); setQuiet(false); };
   }, [listening, step, held]);
 
-  const next = () => { history.current = []; setStep("high"); };
+  const next = () => { history.current = []; setHold(0); setStep("high"); };
   const finish = () => {
     if (low === null || high === null) return;
     stop();
@@ -143,6 +146,8 @@ export default function RangeFinder({ current = null, onRange }: { current?: Ran
   const used = shown ? rangeOf({ range: shown }) : null;
   const nearest = shown ? nearestVoice(shown) : null;
   const liveMidi = listening && hz !== null ? hzToMidi(hz) : null;
+  /** on the second step, the lowest note that counts as the top of the range */
+  const lowestHigh = step === "high" && low !== null ? low + MIN_HIGH_GAP : null;
   return (
     <div className="flex w-full flex-col items-start gap-2" aria-live="polite">
       {!listening && !shown && <p className="text-sm text-slate-300">Sing your lowest and your highest easy note, and the singing exercises fit your own voice. It takes under a minute.</p>}
@@ -169,8 +174,8 @@ export default function RangeFinder({ current = null, onRange }: { current?: Ran
           </div>
           <p className="text-slate-200">
             {step === "low"
-              ? "Slide down on \"ah\" to the lowest note that still feels easy, and hold it. Then press That's my lowest above."
-              : "Now slide up on \"oo\" to the highest note that still feels easy, and hold it. Then press That's my highest above."}
+              ? "Slide down on \"ah\" to the lowest note that still feels easy, and hold it until the bar below fills. Then press That's my lowest above."
+              : "Now slide up on \"oo\" to the highest note that still feels easy, and hold it until the bar below fills. Then press That's my highest above."}
           </p>
           <p className="text-xs">
             {/* a care line, drawn as the plan's are (`CareLine` in plan/ui/reader/NoteText.tsx) */}
@@ -180,14 +185,14 @@ export default function RangeFinder({ current = null, onRange }: { current?: Ran
           </p>
           <p className="text-xs text-slate-300">
             {held !== null
-              ? <>{step === "low" ? "Lowest" : "Highest"} so far: <b className="text-slate-100">{noteName(held)}</b>. Go further if it still feels easy.</>
+              ? <>{step === "low" ? "Lowest" : "Highest"} so far: <b key={held} className="dot-pop inline-block rounded bg-emerald-500/20 px-1 text-emerald-200">{noteName(held)}</b>. Go further if it still feels easy.</>
               : quiet
                 ? "The microphone hears no held note yet. Check the input above, then sing a little louder and hold the note."
                 : step === "high" && low !== null ? `Your lowest is ${noteName(low)}. The microphone is listening for a higher note.` : "The microphone is listening."}
           </p>
         </div>
       )}
-      {(listening || found) && <RangeChart live={liveMidi} low={low} high={high} voice={found ? nearest : null} />}
+      {(listening || found) && <RangeChart live={liveMidi} low={low} high={high} voice={found ? nearest : null} hold={listening ? hold : 0} lowestHigh={lowestHigh} />}
       {message && <p role="alert" className="text-xs text-rose-300">{message}</p>}
     </div>
   );
@@ -201,8 +206,27 @@ const VOICE_STYLE: Record<Voice, { bar: string; text: string }> = {
   baritone: { bar: "bg-emerald-400", text: "text-emerald-300" },
   bass: { bar: "bg-amber-400", text: "text-amber-300" },
 };
+/** The top of a range sits at least this far above its bottom (`isHighEnough`). */
+const MIN_HIGH_GAP = 3;
+
+/** How far into a hold the last readings are, 0 to 1: the longest run of them that is still one held note, over `HELD_FRAMES`. */
+function holdShare(history: (number | null)[]): number {
+  for (let k = HELD_FRAMES; k >= 2; k--) if (steadyNote(history, k) !== null) return k / HELD_FRAMES;
+  return 0;
+}
+
 const CHART_LOW = 38, CHART_HIGH = 86;
 const pct = (m: number) => `${(Math.min(Math.max(m, CHART_LOW), CHART_HIGH) - CHART_LOW) / (CHART_HIGH - CHART_LOW) * 100}%`;
+
+/** A counted end of the range on the chart; it ripples out once each time it moves to a new note. */
+function Mark({ at }: { at: number }) {
+  return (
+    <div aria-hidden className="absolute inset-y-[-4px] w-0.5" style={{ left: pct(at) }}>
+      <span className="absolute inset-0 rounded bg-emerald-300" />
+      <span key={at} className="wheel-ripple absolute top-1/2 left-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-emerald-300" />
+    </div>
+  );
+}
 
 function StepDot({ n, on, done, label }: { n: number; on: boolean; done: boolean; label: string }) {
   return (
@@ -214,7 +238,14 @@ function StepDot({ n, on, done, label }: { n: number; on: boolean; done: boolean
 }
 
 /** Each voice type's range as a coloured bar on one note axis, with the range found so far and the note heard now drawn over them. */
-function RangeChart({ live, low, high, voice }: { live: number | null; low: number | null; high: number | null; voice: Voice | null }) {
+function RangeChart({ live, low, high, voice, hold, lowestHigh }: {
+  live: number | null; low: number | null; high: number | null; voice: Voice | null;
+  /** how far into a hold the note heard now is, 0 to 1 */
+  hold: number;
+  /** on the second step, the lowest note that counts as the top of the range */
+  lowestHigh: number | null;
+}) {
+  const tooLow = live !== null && lowestHigh !== null && Math.round(live) < lowestHigh;
   const voices = Object.keys(VOICES) as Voice[];
   return (
     <div className="w-full rounded-xl border border-slate-800 bg-slate-950/50 p-3">
@@ -222,7 +253,8 @@ function RangeChart({ live, low, high, voice }: { live: number | null; low: numb
         {low !== null && high !== null && (
           <div aria-hidden className="absolute inset-y-[-4px] rounded-md border border-slate-200/70 bg-slate-100/10" style={{ left: pct(low), width: `calc(${pct(high)} - ${pct(low)})` }} />
         )}
-        {low !== null && high === null && <div aria-hidden className="absolute inset-y-[-4px] w-0.5 rounded bg-emerald-300" style={{ left: pct(low) }} />}
+        {low !== null && high === null && <Mark at={low} />}
+        {high !== null && <Mark at={high} />}
         {live !== null && <div aria-hidden className="absolute inset-y-[-6px] w-0.5 rounded bg-white shadow-[0_0_8px_white] transition-[left] duration-100" style={{ left: pct(live) }} />}
         {voices.map((v) => (
           <div key={v} className="relative h-3">
@@ -234,7 +266,18 @@ function RangeChart({ live, low, high, voice }: { live: number | null; low: numb
       <div className="relative mt-2 h-3 text-[10px] text-slate-500">
         {[40, 48, 60, 72, 84].map((m) => <span key={m} className="absolute -translate-x-1/2" style={{ left: pct(m) }}>{noteName(m)}</span>)}
       </div>
-      {live !== null && <p className="mt-1 text-xs text-slate-300">Hearing <b className="text-slate-100">{noteName(Math.round(live))}</b></p>}
+      {live !== null && (
+        <div className="mt-1 flex items-center gap-2 text-xs text-slate-300">
+          <span className="shrink-0">Hearing <b className="text-slate-100">{noteName(Math.round(live))}</b></span>
+          {tooLow
+            ? <span>Only notes from {noteName(lowestHigh!)} up count here.</span>
+            : (
+              <span aria-hidden className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-800">
+                <span className={`block h-full rounded-full transition-[width] duration-100 ${hold >= 1 ? "bg-emerald-400" : "bg-sky-400"}`} style={{ width: `${Math.round(hold * 100)}%` }} />
+              </span>
+            )}
+        </div>
+      )}
     </div>
   );
 }

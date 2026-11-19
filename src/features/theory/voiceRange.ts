@@ -5,17 +5,27 @@ const NAMES = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A�
 /** A MIDI note's name with octave, C4 = 60. */
 export const noteName = (midi: number): string => `${NAMES[((midi % 12) + 12) % 12]}${Math.floor(midi / 12) - 1}`;
 
+/** How far a held note's readings may swing from their centre, in semitones: a wide vibrato, as at the top of a range. */
+const HELD_SWING = 1;
+/** How far the centres of a hold's first and second halves may sit apart, in semitones: more is a slide, not a held note. */
+const HELD_DRIFT = 0.5;
+
+const meanOf = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+
 /**
  * The note held over the last `minFrames` readings, as a rounded MIDI number, or null when there are too few readings, any is
- * missing (no pitch heard), or they wander more than half a semitone from their mean.
+ * missing (no pitch heard), they swing more than a semitone from their centre, or the centre moves (a slide or a jump: the
+ * window's two halves centre more than half a semitone apart). Vibrato up to a semitone each way still counts as held.
  */
 export function steadyNote(midis: (number | null)[], minFrames: number): number | null {
-  if (midis.length < minFrames || minFrames < 1) return null;
+  if (midis.length < minFrames || minFrames < 2) return null;
   const tail = midis.slice(-minFrames);
   if (tail.some((m) => m === null)) return null;
   const notes = tail as number[];
-  const mean = notes.reduce((a, b) => a + b, 0) / notes.length;
-  return notes.every((m) => Math.abs(m - mean) <= 0.5) ? Math.round(mean) : null;
+  const mean = meanOf(notes);
+  if (!notes.every((m) => Math.abs(m - mean) <= HELD_SWING)) return null;
+  const half = Math.floor(notes.length / 2);
+  return Math.abs(meanOf(notes.slice(0, half)) - meanOf(notes.slice(half))) <= HELD_DRIFT ? Math.round(mean) : null;
 }
 
 /** Two sung notes as a range, lowest first. */
