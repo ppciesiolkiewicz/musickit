@@ -65,6 +65,7 @@ table block_owners {
 
 table blocks {
   id text [pk, not null]
+  kind text [not null, default: 'hashed']
   content jsonb [not null]
   area text
   topic text
@@ -86,6 +87,27 @@ table blocks {
   indexes {
     area [name: 'blocks_area']
     topic [name: 'blocks_topic']
+  }
+}
+
+table choices {
+  id text [pk, not null]
+  block_id text [not null]
+  name text [not null]
+  level text
+  steps text[] [not null, default: `'{}'::text[]`]
+  moves jsonb
+  set jsonb [not null, default: `'{}'::jsonb`]
+  minutes integer [not null]
+  active boolean [not null, default: true]
+  place integer [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (block_id, name) [name: 'choices_block_name', unique]
+    block_id [name: 'choices_block']
+    active [name: 'choices_active']
   }
 }
 
@@ -193,6 +215,7 @@ table practice_plan_blocks {
   day integer [not null]
   place integer [not null]
   block_id text [not null]
+  choice_id text
   minutes integer [not null]
 
   indexes {
@@ -224,11 +247,13 @@ table progress_entries {
   exercise_id text [not null]
   entry jsonb [not null]
   block_id text
+  choice_id text
   updated_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
     (user_id, exercise_id) [name: 'progress_entries_user_exercise', unique]
     block_id [name: 'progress_entries_block']
+    choice_id [name: 'progress_entries_choice']
   }
 }
 
@@ -274,6 +299,7 @@ table shares {
 table teacher_invites {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   token_hash text [not null, unique]
+  token text
   plan_id text [not null]
   note text [not null, default: '']
   created_at "timestamp with time zone" [not null, default: `now()`]
@@ -352,6 +378,8 @@ ref block_owners_user_id_users_id_fk: block_owners.user_id > users.id [delete: c
 
 ref block_owners_block_id_blocks_id_fk: block_owners.block_id > blocks.id [delete: no action, update: no action]
 
+ref choices_block_id_blocks_id_fk: choices.block_id > blocks.id [delete: no action, update: no action]
+
 ref identities_user_id_users_id_fk: identities.user_id > users.id [delete: cascade, update: no action]
 
 ref message_threads_user_id_users_id_fk: message_threads.user_id > users.id [delete: cascade, update: no action]
@@ -371,6 +399,8 @@ ref plan_requests_plan_id_plans_id_fk: plan_requests.plan_id > plans.id [delete:
 ref practice_plan_blocks_plan_id_practice_plans_id_fk: practice_plan_blocks.plan_id > practice_plans.id [delete: cascade, update: no action]
 
 ref practice_plan_blocks_block_id_blocks_id_fk: practice_plan_blocks.block_id > blocks.id [delete: no action, update: no action]
+
+ref practice_plan_blocks_choice_id_choices_id_fk: practice_plan_blocks.choice_id > choices.id [delete: no action, update: no action]
 
 ref progress_entries_user_id_users_id_fk: progress_entries.user_id > users.id [delete: cascade, update: no action]
 

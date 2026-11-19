@@ -246,9 +246,11 @@ export const progressEntries = pgTable(
     entry: jsonb("entry").notNull(),
     /** The rated exercise's block (`blocks.id`, not a foreign key); null for a row from before blocks or whose plan is gone. */
     blockId: text("block_id"),
+    /** The rated exercise's choice (`choices.id`, not a foreign key); null for a hashed block, a row from before choices or whose plan is gone. */
+    choiceId: text("choice_id"),
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
-  (t) => [uniqueIndex("progress_entries_user_exercise").on(t.userId, t.exerciseId), index("progress_entries_block").on(t.blockId)],
+  (t) => [uniqueIndex("progress_entries_user_exercise").on(t.userId, t.exerciseId), index("progress_entries_block").on(t.blockId), index("progress_entries_choice").on(t.choiceId)],
 );
 
 /**
@@ -279,21 +281,24 @@ export const blockSource = pgEnum("block_source", ["ai", "edit", "seed", "exampl
  * The shared library of exercise blocks: one row per distinct block, whoever has it. The id is the hash of the block's
  * content and tags (`features/plan/model/blockId.ts`), so the same block is one row. Insert-only for content and tags: a row
  * is never deleted, not even when its last owner deletes their account, and its provenance is filled once, only while all
- * four provenance columns are null. Who has a block, and whether it may be reused, is in
+ * four provenance columns are null. A curated block (`kind` 'curated': the seed's, with a fixed readable id) is the exception:
+ * the seed updates it in place, and its content, steps and level are empty (they live on its choices). Who has a block, and whether it may be reused, is in
  * `block_owners`; a block is private to its owners until one of their rows is `enabled_for_reuse`.
  */
 export const blocks = pgTable(
   "blocks",
   {
     id: text("id").primaryKey(),
+    /** 'hashed': the id is the hash of the content, insert-only. 'curated': a seed block with a fixed readable id, updated in place by the seed. */
+    kind: text("kind").notNull().default("hashed"),
     /** The block: `{ title, choice?, cells }`, cells without the editor's ids. */
     content: jsonb("content").notNull(),
     area: text("area"),
     topic: text("topic"),
     concepts: text("concepts").array().notNull().default(sql`'{}'::text[]`),
-    /** The level: the highest level of `steps` when it has any, else the level the writer typed. */
+    /** The level: the highest level of `steps` when it has any, else the level the writer typed. Null on a curated block (see its choices). */
     level: text("level"),
-    /** The path steps it practises, "trackId:n" (`features/plan/model/path.ts`); empty for a block written before steps. */
+    /** The path steps it practises, "trackId:n" (`features/plan/model/path.ts`); empty for a block written before steps and for a curated block (see its choices). */
     steps: text("steps").array().notNull().default(sql`'{}'::text[]`),
     tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
     /** The block this one was edited from. Not a foreign key; written only when the first saver owned that block or saved it in the same document. */
@@ -314,6 +319,30 @@ export const blocks = pgTable(
 );
 
 /**
+ * A choice of a curated block: one way to play it, with its own name, level, steps, moves, settings and minutes. The seed
+ * writes them (`kind` 'curated' blocks only). A choice is never deleted: one that leaves the seed gets `active` false, so
+ * progress and plan rows that name it keep a row to point at. `name` is unique within a block; `place` orders them.
+ */
+export const choices = pgTable(
+  "choices",
+  {
+    id: text("id").primaryKey(),
+    blockId: text("block_id").notNull().references(() => blocks.id),
+    name: text("name").notNull(),
+    level: text("level"),
+    steps: text("steps").array().notNull().default(sql`'{}'::text[]`),
+    moves: jsonb("moves"),
+    set: jsonb("set").notNull().default(sql`'{}'::jsonb`),
+    minutes: integer("minutes").notNull(),
+    active: boolean("active").notNull().default(true),
+    place: integer("place").notNull(),
+    createdAt: at("created_at").notNull().defaultNow(),
+    updatedAt: at("updated_at").notNull().defaultNow(),
+  },
+  (t) => [unique("choices_block_name").on(t.blockId, t.name), index("choices_block").on(t.blockId), index("choices_active").on(t.active)],
+);
+
+/**
  * The blocks of a library plan (never a player's plan), in order: one row per plan, day and place. Replaced as a whole for a
  * plan (`setPlanBlocks`). Deleting the plan drops its rows; a block is never deleted. The rows name only blocks the app owns:
  * the library shows the plan to callers who may not see a player's private block.
@@ -325,6 +354,8 @@ export const practicePlanBlocks = pgTable(
     day: integer("day").notNull(),
     place: integer("place").notNull(),
     blockId: text("block_id").notNull().references(() => blocks.id),
+    /** The choice of a curated block this slot uses (`choices.id`); null for a hashed block. */
+    choiceId: text("choice_id").references(() => choices.id),
     minutes: integer("minutes").notNull(),
   },
   (t) => [primaryKey({ columns: [t.planId, t.day, t.place] }), index("practice_plan_blocks_block").on(t.blockId)],

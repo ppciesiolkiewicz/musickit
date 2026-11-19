@@ -253,6 +253,13 @@
       "when": 1795068037531,
       "tag": "0035_teacher_invite_token",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1795073040528,
+      "tag": "0036_rich_mach_iv",
+      "breakpoints": true
     }
   ]
 }
