@@ -91,7 +91,7 @@ pushed). A block states `moves` (key any, a tempo range; model/moves.ts); the co
 once per rating (model/roll.ts, numbers in `ROLL`) and stores it on the slot as `given`; the card draws it (tools
 moved, `{{=key}}` and `{{=bpm}}` filled, Key and Tempo chips with the app's line under them); a rating keeps its
 version; a low rating on a moved version doesn't lower the step. Key order on the path: pentatonic positions A | G E |
-B C | D F♯ | the rest (model/keyStages.ts; user to read the later groups). /dev/compose stage 6 shows every roll and
+B C | D F | the rest (model/keyStages.ts; user approved, 2026-11-19: F before F♯). /dev/compose stage 6 shows every roll and
 the next roll for 1, 3 and 5 stars; /dev/path shows key stages under the Path view. Rules: teaching 7, prompt 8
 (every older seed file now fails `seed check` on its versions, as after any raise). Three blocks rewritten:
 guitar-beginner-pentatonic-box1, guitar-beginner-down-up-picking, guitar-new-em-am-changes.

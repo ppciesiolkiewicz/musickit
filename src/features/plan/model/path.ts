@@ -160,8 +160,8 @@ export const PATH: Track[] = [
     s(A, "Across three positions", "runs that move along the neck"),
     s(A, "The whole neck in one key", ""),
     // position 1 by where it sits on the neck (`npm run theory -- positions <key> minor pentatonic`): A at frets 5 to 8
-    // first, then G (3 to 6) and E (the open strings), B and C (7 to 10, 8 to 11), D and F♯ (10 to 13, 2 to 5), the rest
-  ], [[9], [7, 4], [11, 0], [2, 6], [5, 10, 8, 1, 3]]),
+    // first, then G (3 to 6) and E (the open strings), B and C (7 to 10, 8 to 11), D and F (10 to 13, 1 to 4; user: F before F♯), the rest
+  ], [[9], [7, 4], [11, 0], [2, 5], [6, 10, 8, 1, 3]]),
   g("scales", "major-on-neck", "Major scale & modes on the neck", ["modes-on-neck"], [
     s(I, "Major scale, root on 6", "one position", { after: ["pentatonic-positions:1"] }),
     s(I, "Major scale, root on 5", ""),

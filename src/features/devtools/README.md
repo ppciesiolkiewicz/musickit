@@ -35,7 +35,7 @@ Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answ
 `path/KeysView.tsx`: the key ladders of the plan model (`KEY_LADDERS`, `RUNG_OF_LEVEL` in `plan/model/keys.ts`) against the levels: areas down, levels across, each cell the keys that level adds (bright) and the earlier ones it keeps (faint), then the two rungs only the keys question reaches, and under it what each answer opens in.
 
 `path/KeyStages.tsx` (under the Path view): the key stages of each track of the area that states its own key order
-(`Track.keys`; today pentatonic positions: A, then G and E, then B and C, D and F♯, the rest), from
+(`Track.keys`; today pentatonic positions: A, then G and E, then B and C, D and F, the rest), from
 `plan/model/keyStages.ts`. With "Me" chosen, each step shows the keys open on it and the keys earned on the track are
 ringed; a track picked on the path is shown alone.
 
