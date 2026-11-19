@@ -73,6 +73,7 @@ export default function LinkForm({ google, next, error, bare = false }: {
       }
       return setState({ kind: "error", message: errorOf(r) });
     }
+    if (typeof r.body.redirect === "string") return window.location.assign(r.body.redirect);
     resend.start(String(r.body.email ?? email), r.body.resendIn);
     const text = (v: unknown) => (typeof v === "string" ? v : null);
     setState({ kind: "sent", email: String(r.body.email ?? email), lasts: text(r.body.lasts) ?? "1 hour", devLink: text(r.body.devLink), devCode: text(r.body.devCode), devError: text(r.body.devError) });

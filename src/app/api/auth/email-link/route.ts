@@ -1,6 +1,6 @@
 import { after } from "next/server";
-import { LINK_DAY_LIMIT, LINK_LIMIT, LINK_WINDOW, RESEND_WAIT, requestEmailLink, type LinkError } from "@/features/account/server/auth";
-import { NO_ACCOUNTS, auth, baseUrl, json, readJson, sameOrigin } from "@/features/account/server/http";
+import { LINK_DAY_LIMIT, LINK_LIMIT, LINK_WINDOW, RESEND_WAIT, instantSignIn, requestEmailLink, type LinkError } from "@/features/account/server/auth";
+import { NO_ACCOUNTS, auth, baseUrl, json, readJson, resultCookies, resultPath, sameOrigin } from "@/features/account/server/http";
 import { devOnly } from "@/features/devtools/gate";
 import { LINK_LIFE, confirmUrl, linkEmail, sendMail } from "@/features/account/server/mail";
 
@@ -29,6 +29,10 @@ export async function POST(req: Request) {
   if (!sameOrigin(req)) return json({ error: "Bad request." }, 403);
   const body = await readJson(req);
   if (!body) return json({ error: "Bad request." }, 400);
+
+  // UNSAFE PLAY HACK: see INSTANT_LOGIN in server/auth.ts.
+  const instant = await instantSignIn(deps, { email: body.email, next: body.next }, req.headers.get("user-agent"));
+  if (instant) return json({ ok: true, redirect: resultPath(instant) }, 200, resultCookies(instant));
 
   const r = await requestEmailLink(deps, { email: body.email, next: body.next });
   if (!r.ok) {
