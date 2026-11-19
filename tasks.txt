@@ -105,6 +105,18 @@ reused many ways without a new block for each. After ChoiceSplit1 settles the sh
 (today block id + minutes only), the player's plan, the step read (block + choice), coverage and find_blocks by step,
 and ratings (per block or per block + choice).
 
+[2026-11-19, designed] Reshaped (user): blocks get fixed, readable ids from their seed files, so a text edit keeps
+every player's progress; a block's alternatives are rows in a new `choices` table (level, steps, moves, later `set` and
+text params per level); the composer picks choices; ratings count per choice; `enabled_for_reuse` is dropped (a choice is
+active or not, from the seed). Design: docs/superpowers/specs/2026-11-19-block-ids-and-choices-design.md (approved
+2026-11-19). Part 1 before launch: ids, the inline plan exercises moved to block files, the choices table with one row
+per block, choiceId on plans and progress, wipe and reseed. Part 2 after: several choices per block, folding near-copies.
+ChoiceSplit3: [NEW 2026-11-19] Clean up and rewrite the seed exercises for the new shape (after ChoiceSplit2 Part 1;
+user: "seed exercises can be also cleaned up if needed"). With exercise-example, then review-teaching-text: fold
+near-copy blocks into one block with choices; drop or merge blocks that say the same thing; give the ~266 exercises moved
+out of the plan files proper titles and text of their own; the SeedWording1-2 fixes ride along. The user reads a first
+batch before agents do the rest. Reseed after.
+
 TaskSeries PricingFaq: what the pricing, FAQ and terms promise, kept true to how plans are made (from NEW7, 2026-11-17)
 PricingFaq1: [NEW 2026-11-17] Drop the plan allowance. With NEW7, plans are composed from library blocks by our own code,
 with no AI, so daily plans are unlimited on any subscription (user, 2026-11-17). Today the texts promise an allowance:
@@ -457,7 +469,60 @@ Reminders4: [NEW 2026-11-18] Ask for the reminder in account setup and when clai
 - /account/setup and /claim (a teacher's student) each get a step: the time, and which ways (email, browser).
 - Always changeable on /plan: "Remind me at" grows the same choices (email, browser), one control on every page.
 - [2026-11-18, user] On by default at setup. Open: the default time (today 18:00).
+Reminders5: [NEW 2026-11-19] Build Reminders1-4 from the plan, docs/superpowers/plans/2026-11-18-reminders.md
+- The plan has 9 tasks: due rules (in the player's time zone, and the words); database (`reminders` and
+  `push_subscriptions` tables, the send claimed before it goes out so two runs at once send one reminder); the email
+  (unsubscribe link and one-click unsubscribe); the run (a failed send is undone so the next run retries, a dead browser
+  subscription is deleted); routes (POST /api/cron/reminders, the settings API, the unsubscribe page); browser push
+  (web-push, a service worker, a web app manifest); /plan (the new control replaces the old one; the open-tab
+  notification and the document's `reminder` go); setup, join and claim (on by default, 18:00, email ticked); docs,
+  tasks.txt, and what to hand the user (the Vercel secrets and the scheduler's curl line).
+- Decisions for the user to check before building:
+  - "In this browser" starts unticked at setup: the permission prompt needs a press. Email starts ticked.
+  - "In this browser" is per device, "By email" per account (the task text had one browser switch per account).
+  - A reminder is sent only in the hour after its time; a scheduler down longer means no reminder that day, not a late one.
+  - Times are a list of quarter hours, not a free time box, so every time falls on a run.
+  - A teacher's student was never reminded (today's rule needs questionnaire answers they don't have); the plan fixes
+    and tests this.
+  - /join (invite) asks for the reminder too, besides setup and claim.
+- Open: how to run it. Native (every task built in one session, one fresh reviewer at the end; cheaper, suggested, best
+  in a fresh session) or subagent-driven (an agent builds each task, another reviews it before the next).
+- Neither the plan nor these tasks are committed yet.
 Deferred1 (WhatsApp and text message reminders) would be one more channel on the same run.
+
+TaskSeries E2E: an end-to-end suite that walks the app's main flows in a real browser (user, 2026-11-19)
+Today there are only unit tests (`npm test`, node --test) and throwaway Playwright scripts in a scratchpad. Nothing
+checks that the pages work together, signed in, against a real database. Tool: Playwright Test (@playwright/test),
+recommended over Cypress (user asked, 2026-11-19): teacher and student each get their own browser context in one test,
+WebKit for iPhone Safari, a fake mic and a controllable clock. Cypress's watch-and-step view is Playwright's UI mode
+(`--ui`) and its trace viewer. If the user picks Cypress, only E2E1 changes.
+E2E1: [NEW 2026-11-19] Set up: @playwright/test, playwright.config.ts, e2e/ folder, `npm run e2e` and `npm run e2e:ui`.
+- A server just for the tests (webServer in the config) on 127.0.0.1 with its own port and its own database, never
+  localhost (shared cookies with the user's real profile) and never Supabase. Docker musickit-db hangs (Leftover1):
+  a scratch Postgres or a fixed Docker container; db:migrate and seed the library before the run, wipe player rows after.
+- Projects: desktop Chromium, phone (390 px Chromium, and WebKit iPhone for the Safari-only checks).
+- Out of `npm test`; runs on demand, later in CI (E2E6).
+E2E2: [NEW 2026-11-19] Signing in for tests. Auth is our own (src/app/api/auth: email-code, email-link, google). Pick
+one: a test-only sign-in route switched on only by an env var and refused in production (a test holds that), or read
+the email code from the test database / a mail stub instead of Resend. No mocking /api/auth/session: the point is the
+real session. Helpers: `asNewPlayer()`, `asTeacher()`, `asStudentOf(teacher)`.
+E2E3: [NEW 2026-11-19] Player flows (after E2E1-2):
+- New account: /account/setup with the plan cards (Leftover1's unseen check: early price on Monthly only, no "Save 50%"
+  on Yearly), the questionnaire, then /plan composes today's plan.
+- /plan: open an exercise, rate it, reload (the rating and the given version stay), Get another plan, past days,
+  Change my answers, "Remind me at".
+- Share a plan: the second player opens /plan/given/<id>, sees "shared by", removes it and puts it back.
+- Notes: make a note, share it, open the link signed out; a stopped link gives the notice.
+E2E4: [NEW 2026-11-19] Teacher flows (two contexts in one test):
+- Add a student, the student claims (/claim, /welcome), the teacher sees them on /students.
+- The teacher makes a week; the student rates; the teacher sees "How it went for <name>" and the stars on /students/<id>.
+- Make next week's plan: nothing said twice (Leftover1's unseen check); the active-students limit refuses a week past
+  the grace, with Change your plan and Send feedback.
+- One teacher per student: adding another teacher's student is refused.
+E2E5: [NEW 2026-11-19] Phone and public pages: home pages, /pricing, /faq, /terms, /intro, /demo load with no console
+errors and no horizontal scroll at 320 and 390 px; the /students top bar and "Remind me at" fit at 320 px.
+E2E6: [NEW 2026-11-19] Run it before each release, and later in CI (GitHub Actions with a Postgres service). Not
+covered, checked by hand on production (NEW5): Vercel Blob uploads and video playback, real email delivery.
 
 TaskSeries Leftover: small things left after the launch copy and phone fixes (2026-11-18)
 Leftover1: [NEW 2026-11-18] What the pricing, terms and phone-fix session (af59a23c, 8929010e, 09194114) left unseen
@@ -732,99 +797,6 @@ solidSteps(outcome) is the input for reach({ solid }); nothing calls it yet (NEW
 tracker still shows concepts and levels, not steps.
 
 TaskSeries NEW:
-NEW7: [NEW 2026-11-15] Autoplans on the server: reuse first, then the right model
-[2026-11-17, user, brainstorm in progress; replaces the reuse/assess/model flow below] Every plan is composed from library
-blocks by our own code. No AI anywhere, and no whole library plan used as is (tricky to get right; later, maybe).
-- Self-serve players: one day's plan, made only when they open the plan page that day; the reminder email points to it
-  (a day never opened gets no plan: Claude's guess). Each day mixes things up a bit from the day before. Past days stay
-  visible, at least the last N; no auto-cleanup for now. Missed days are not made up: only today's fresh plan.
-- No allowance: daily plans are unlimited on any subscription (texts: PricingFaq1).
-- Teachers' students: the same composer makes seven days, from answers and slider values
-  (docs/superpowers/specs/2026-11-17-teacher-students-design.md, built after this).
-- Needs NEW17 part 2 first (steps on the seed exercises), so the composer can pick by step (user, 2026-11-17).
-Still to brainstorm: how the composer picks (next unsolid steps, solid ones mixed back, minutes, least-used first),
-how "a bit of mixing" is measured, then the design doc.
-[2026-11-18] Design: docs/superpowers/specs/2026-11-18-plan-composer-design.md (waiting for approval). User: not rating
-is different from a low rating (an unrated exercise doesn't come back); a player can ask for another plan the same day;
-the timer is motivational, a longer day never shortens the next; an assigned plan is at another URL than the player's
-own. The picking rule is Claude's ("you decide"): mostly within-reach steps, one or two review blocks, one step per
-topic first. Needs first: a block's default minutes, why and lessons in the library; a one-day plan; own and assigned
-plans apart in the stored state. Approved 2026-11-18. Build plan: docs/superpowers/plans/2026-11-18-plan-composer.md
-(9 tasks).
-[2026-11-18] Built (1227521f..2b6b7f09 on main, not pushed; 2959 tests pass). /plan shows today's plan, composed by
-`composeDay` (plan/model/compose.ts) through POST /api/me/plan/compose; Get another plan; Change my answers; past days
-(last 14 shown, 60 kept); a plan shared with a player opens at /plan/given/<id>. The page is called "Practice plan"
-(user). Ratings raise the level that paces new steps, one level at a time (user). Supabase: 0025 migrated (user),
-plan data wiped, library reseeded (411 blocks, all with minutes). New: npm run db:reset-library, npm run db:wipe-plans.
-Checked: tests, types, the Drizzle queries on the local test database, the composer on the real library for the eight
-personas (read-only), the pages in a browser with the API mocked. Not checked: /plan signed in on the real server.
-Left:
-- 13 seed exercises are titled after another day of their week ("Day 2's run, twice as fast") and about 77 text lines
-  in seed plans refer to other days; the composer can hand one out alone. Rewrite them or keep them out of composed days.
-- /intro still says "AI practice plan" and tells players to send a prompt to their own AI (recorded narration).
-- FAQ "Where is my practice saved? In this browser" is false for signed-in players; /plan's meta title and the footer
-  tagline still say "AI" (PricingFaq1).
-- theory-modes has no beginner concept, so its level can't be raised from new by ratings.
-- Who shared a plan is not shown (not stored). `reviewPlan` has no caller. No removing a shared plan from the list.
-- Teacher screens (NEW12/NEW18), the six steps with no block (NEW10).
-[2026-11-18 done] Signed-in check on a scratch server against the local database (API, not the browser: Chrome would not
-open 127.0.0.1): no answers → 409 no-answers; answers saved → today's plan (6 exercises, 33 min); stored with startDay,
-survives a reload; Get another plan → attempt 1, five new exercises, same plan id, the first six declined. Shared plans
-can be removed from "Plans shared with you" and put back (b4e656e4, `hidden`: ratings still count). Left: who shared a
-plan (needs a decision: note links never show the owner's name); `reviewPlan` has no caller (kept: plan_reviews reads
-stored reviews); theory-modes has no beginner concept.
-[2026-11-18 done] Supabase library reset and reseeded with the standalone exercises (user's go): 10 plans, 411 blocks,
-268 plan block rows. Who shared a plan: "shared by Ann" on the list and the page (d0cbcc2d, `sharedBy`, user: yes).
-theory-modes: `modes` starts at beginner, "Major and minor from one root" (32b1b6c2, PROMPT_VERSION 7), with a seed
-block (theory-beginner-major-minor-one-root) and a planned course section (stage 3, major-and-minor-scales). Left:
-reseed Supabase again for it (the new block, and modes:N refs moved up one); read the block on /dev/library;
-`reviewPlan`: whole-plan reviews removed (user, 31c00ec0): plan_reviews dropped by migration 0031, not yet run on
-Supabase or the local DB (Docker was stuck).
-[2026-11-16, user] The autoplan route composes a plan from library blocks by the player's steps (the next steps
-not yet solid, a few solid ones mixed back in), with no AI. Claude writes a new plan only by a small chance
-(new_plan_percent), and more likely when the player adds their own words to the request. Brainstorm the composer and
-that chance with NEW13's `steps` field, which it needs. Goal for the NEW series: all done, then release.
-[2026-11-16, user] Plan length: players get a daily plan (one day, composed from their steps each day); teachers
-get weekly plans (seven days) for their students (NEW12). Today every plan is seven days, so the composer, the
-prompt, the plan view and the allowance (does a daily plan spend a credit?) need a one-day plan.
-[2026-11-16, user] Skip the spontaneous AI plan for now: the autoplan route only composes from the library, and
-new_plan_percent stays unused. A request with the player's own words is composed the same way for now (user,
-2026-11-16); their words can steer which steps are picked later.
-Steps inside a concept (NEW13, see /dev/path) change what a new plan is written from:
-- The writer gets one line per concept: the step the player is on, its state and newest rating, and the next step.
-  This takes the place of part of the list of rated blocks.
-- The shortlist (step 0, no AI) can ask the library for "the next step this player hasn't made solid", once blocks
-  can be found by step. A whole plan fits when its exercises are at the player's steps or one above.
-- A plan written by the AI sets a tool's `level` or stage for every concept that has a ladder, so its step can be read.
-- A teacher's note (NEW12) skips the reuse step: that plan is always written by the AI.
-From NEW8, before the server calls the library per player: the use totals are whole-table sums on every call (narrow
-them to the candidate blocks); coverage with a player in scope also counts that player's private blocks; nothing writes
-plan_reviews.library_plan_id yet, so library plans show no reviews; a plan's rows must name only blocks the app owns.
-Builds on NEW8 (the query and the tools). Decided there: a fitting whole plan the player hasn't had is used whole;
-otherwise the AI writes one, searching blocks through tools (unused blocks for new things, the blocks they had for the
-same again); the examples leave the writer's prompt and the player's progress and used blocks go in; least-used blocks
-first.
-Use brainstorming first (the brainstorming skill), before any spec or code.
-The flow:
-0. Match the request against the seed library in our own code (no AI): a shortlist of library plans that fit the
-   player's answers.
-1. Assess with a cheap model: it can query only that shortlist, through a tool (MCP), and says whether one plan fits.
-   The server sets what "matches" means; the model can't widen the search.
-2. Decide, in the same call: if nothing fits, which writer a new plan needs (cheap writer, or a dearer one for hard plans).
-3. Dispatch to that model to write the plan; store it in the library for the next player.
-To settle in brainstorming:
-- MCP server or plain tool definitions in the API request (MCP pays off if the dev tools and the browser's AI use the
-  same query). Or no tool at all: shortlist summaries in the prompt, plus get_plan(id) only when a summary isn't enough.
-- Each tool call is a round trip that sends the conversation again: cap the calls, and use prompt caching.
-- Which models: the Assess / Write / Hard plans picks on /dev/costs (Other models on OpenRouter) are from price only.
-  Check which support tool calling on OpenRouter, then run the shortlist on our prompts (npm run compare-models).
-- The writer prompt is about 108k tokens, over Haiku 5.5's 100k line, so every plan costs 5x. Getting it under 100k
-  (the library no longer in the prompt) cuts that without changing model.
-- Keep new_plan_percent as the share written new, and record per autoplan what happened (reused, which model wrote it,
-  tokens) so /dev/costs can use real numbers instead of PICK_TOKENS and the chance.
-- Allowances, Batch (half price, results within the hour, up to 24 hours) and what the player sees while a plan is written.
-Then: /dev/costs models assess as one request; add tool calls per assess once the design is set.
-
 NEW5: [NEW 2026-11-15] Account data on the server: what's left after the move (commit 5ca5a409)
 Spec: docs/superpowers/specs/2026-11-15-account-data-on-server-design.md
 Plan: docs/superpowers/plans/2026-11-15-account-data-on-server.md
@@ -1001,6 +973,101 @@ review-teaching-text): 13 retitled, ids, steps, tools, minutes and versions kept
 Plan summaries, progress and day themes keep their day words. `seed check` fails a day word (seed/dayRefs.ts); the rule is
 in exercise-example and review-teaching-text, teaching version 6. Local DB reseeded and the composer checked on it.
 Left: reseed Supabase (db:seed-plans, db:seed-blocks; block ids of the changed exercises change). Not read on /dev/library.
+
+NEW7: [DONE 2026-11-19] Autoplans on the server: reuse first, then the right model
+[2026-11-17, user, brainstorm in progress; replaces the reuse/assess/model flow below] Every plan is composed from library
+blocks by our own code. No AI anywhere, and no whole library plan used as is (tricky to get right; later, maybe).
+- Self-serve players: one day's plan, made only when they open the plan page that day; the reminder email points to it
+  (a day never opened gets no plan: Claude's guess). Each day mixes things up a bit from the day before. Past days stay
+  visible, at least the last N; no auto-cleanup for now. Missed days are not made up: only today's fresh plan.
+- No allowance: daily plans are unlimited on any subscription (texts: PricingFaq1).
+- Teachers' students: the same composer makes seven days, from answers and slider values
+  (docs/superpowers/specs/2026-11-17-teacher-students-design.md, built after this).
+- Needs NEW17 part 2 first (steps on the seed exercises), so the composer can pick by step (user, 2026-11-17).
+Still to brainstorm: how the composer picks (next unsolid steps, solid ones mixed back, minutes, least-used first),
+how "a bit of mixing" is measured, then the design doc.
+[2026-11-18] Design: docs/superpowers/specs/2026-11-18-plan-composer-design.md (waiting for approval). User: not rating
+is different from a low rating (an unrated exercise doesn't come back); a player can ask for another plan the same day;
+the timer is motivational, a longer day never shortens the next; an assigned plan is at another URL than the player's
+own. The picking rule is Claude's ("you decide"): mostly within-reach steps, one or two review blocks, one step per
+topic first. Needs first: a block's default minutes, why and lessons in the library; a one-day plan; own and assigned
+plans apart in the stored state. Approved 2026-11-18. Build plan: docs/superpowers/plans/2026-11-18-plan-composer.md
+(9 tasks).
+[2026-11-18] Built (1227521f..2b6b7f09 on main, not pushed; 2959 tests pass). /plan shows today's plan, composed by
+`composeDay` (plan/model/compose.ts) through POST /api/me/plan/compose; Get another plan; Change my answers; past days
+(last 14 shown, 60 kept); a plan shared with a player opens at /plan/given/<id>. The page is called "Practice plan"
+(user). Ratings raise the level that paces new steps, one level at a time (user). Supabase: 0025 migrated (user),
+plan data wiped, library reseeded (411 blocks, all with minutes). New: npm run db:reset-library, npm run db:wipe-plans.
+Checked: tests, types, the Drizzle queries on the local test database, the composer on the real library for the eight
+personas (read-only), the pages in a browser with the API mocked. Not checked: /plan signed in on the real server.
+Left:
+- 13 seed exercises are titled after another day of their week ("Day 2's run, twice as fast") and about 77 text lines
+  in seed plans refer to other days; the composer can hand one out alone. Rewrite them or keep them out of composed days.
+- /intro still says "AI practice plan" and tells players to send a prompt to their own AI (recorded narration).
+- FAQ "Where is my practice saved? In this browser" is false for signed-in players; /plan's meta title and the footer
+  tagline still say "AI" (PricingFaq1).
+- theory-modes has no beginner concept, so its level can't be raised from new by ratings.
+- Who shared a plan is not shown (not stored). `reviewPlan` has no caller. No removing a shared plan from the list.
+- Teacher screens (NEW12/NEW18), the six steps with no block (NEW10).
+[2026-11-18 done] Signed-in check on a scratch server against the local database (API, not the browser: Chrome would not
+open 127.0.0.1): no answers → 409 no-answers; answers saved → today's plan (6 exercises, 33 min); stored with startDay,
+survives a reload; Get another plan → attempt 1, five new exercises, same plan id, the first six declined. Shared plans
+can be removed from "Plans shared with you" and put back (b4e656e4, `hidden`: ratings still count). Left: who shared a
+plan (needs a decision: note links never show the owner's name); `reviewPlan` has no caller (kept: plan_reviews reads
+stored reviews); theory-modes has no beginner concept.
+[2026-11-18 done] Supabase library reset and reseeded with the standalone exercises (user's go): 10 plans, 411 blocks,
+268 plan block rows. Who shared a plan: "shared by Ann" on the list and the page (d0cbcc2d, `sharedBy`, user: yes).
+theory-modes: `modes` starts at beginner, "Major and minor from one root" (32b1b6c2, PROMPT_VERSION 7), with a seed
+block (theory-beginner-major-minor-one-root) and a planned course section (stage 3, major-and-minor-scales). Left:
+reseed Supabase again for it (the new block, and modes:N refs moved up one); read the block on /dev/library;
+`reviewPlan`: whole-plan reviews removed (user, 31c00ec0): plan_reviews dropped by migration 0031, not yet run on
+Supabase or the local DB (Docker was stuck).
+[2026-11-16, user] The autoplan route composes a plan from library blocks by the player's steps (the next steps
+not yet solid, a few solid ones mixed back in), with no AI. Claude writes a new plan only by a small chance
+(new_plan_percent), and more likely when the player adds their own words to the request. Brainstorm the composer and
+that chance with NEW13's `steps` field, which it needs. Goal for the NEW series: all done, then release.
+[2026-11-16, user] Plan length: players get a daily plan (one day, composed from their steps each day); teachers
+get weekly plans (seven days) for their students (NEW12). Today every plan is seven days, so the composer, the
+prompt, the plan view and the allowance (does a daily plan spend a credit?) need a one-day plan.
+[2026-11-16, user] Skip the spontaneous AI plan for now: the autoplan route only composes from the library, and
+new_plan_percent stays unused. A request with the player's own words is composed the same way for now (user,
+2026-11-16); their words can steer which steps are picked later.
+Steps inside a concept (NEW13, see /dev/path) change what a new plan is written from:
+- The writer gets one line per concept: the step the player is on, its state and newest rating, and the next step.
+  This takes the place of part of the list of rated blocks.
+- The shortlist (step 0, no AI) can ask the library for "the next step this player hasn't made solid", once blocks
+  can be found by step. A whole plan fits when its exercises are at the player's steps or one above.
+- A plan written by the AI sets a tool's `level` or stage for every concept that has a ladder, so its step can be read.
+- A teacher's note (NEW12) skips the reuse step: that plan is always written by the AI.
+From NEW8, before the server calls the library per player: the use totals are whole-table sums on every call (narrow
+them to the candidate blocks); coverage with a player in scope also counts that player's private blocks; nothing writes
+plan_reviews.library_plan_id yet, so library plans show no reviews; a plan's rows must name only blocks the app owns.
+Builds on NEW8 (the query and the tools). Decided there: a fitting whole plan the player hasn't had is used whole;
+otherwise the AI writes one, searching blocks through tools (unused blocks for new things, the blocks they had for the
+same again); the examples leave the writer's prompt and the player's progress and used blocks go in; least-used blocks
+first.
+Use brainstorming first (the brainstorming skill), before any spec or code.
+The flow:
+0. Match the request against the seed library in our own code (no AI): a shortlist of library plans that fit the
+   player's answers.
+1. Assess with a cheap model: it can query only that shortlist, through a tool (MCP), and says whether one plan fits.
+   The server sets what "matches" means; the model can't widen the search.
+2. Decide, in the same call: if nothing fits, which writer a new plan needs (cheap writer, or a dearer one for hard plans).
+3. Dispatch to that model to write the plan; store it in the library for the next player.
+To settle in brainstorming:
+- MCP server or plain tool definitions in the API request (MCP pays off if the dev tools and the browser's AI use the
+  same query). Or no tool at all: shortlist summaries in the prompt, plus get_plan(id) only when a summary isn't enough.
+- Each tool call is a round trip that sends the conversation again: cap the calls, and use prompt caching.
+- Which models: the Assess / Write / Hard plans picks on /dev/costs (Other models on OpenRouter) are from price only.
+  Check which support tool calling on OpenRouter, then run the shortlist on our prompts (npm run compare-models).
+- The writer prompt is about 108k tokens, over Haiku 5.5's 100k line, so every plan costs 5x. Getting it under 100k
+  (the library no longer in the prompt) cuts that without changing model.
+- Keep new_plan_percent as the share written new, and record per autoplan what happened (reused, which model wrote it,
+  tokens) so /dev/costs can use real numbers instead of PICK_TOKENS and the chance.
+- Allowances, Batch (half price, results within the hour, up to 24 hours) and what the player sees while a plan is written.
+Then: /dev/costs models assess as one request; add tool calls per assess once the design is set.
+[2026-11-19 done, user] Reseeded and migrated on Supabase (theory-modes block, 0031). Left with the user: walk /plan
+signed in on production.
 
 NEW15: [DONE 2026-11-18] Rework /dev/examples
 [2026-11-16, user, replaces "examples from DB on /dev page"] NEW15 is about the prompt and the data it reads from the DB
