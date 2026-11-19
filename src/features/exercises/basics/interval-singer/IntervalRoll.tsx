@@ -18,7 +18,7 @@ const BLACK = new Set([1, 3, 6, 8, 10]);
 
 /**
  * Do and the note to sing as a piano roll: a row a semitone (black keys darker), Do's bar on the left, the target's on
- * the right, shown as an empty "?" box with the interval and its solfège until it is found; tap either to hear it. With `dot` the
+ * the right, a dashed guide at each one's pitch from the middle to the right edge, the target shown as an empty "?" box with the interval and its solfège until it is found; tap either to hear it. With `dot` the
  * voice is a dot at the right edge with a line of the last few seconds behind it, green on Do and on the target; without it nothing of the voice shows (the harder way).
  */
 export default function IntervalRoll({ doMidi, low, high, target, found, doLabel, targetLabel, targetHint, doName, targetName, pitch, cents, dot, live, onNote, hold, fill = false }: {
@@ -149,6 +149,10 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
           </g>
         );
       })}
+      {/* guides at both notes' pitch, from the middle to the voice's edge, so the dot can be lined up with either */}
+      {[doMidi, ...(target !== null ? [target] : [])].map((g, i) => (
+        <line key={i} x1={mid} x2={W} y1={yOf(g)} y2={yOf(g)} stroke={i === 0 ? "var(--color-sky-300)" : "var(--color-slate-400)"} strokeOpacity={0.55} strokeWidth={1.5} strokeDasharray="5 4" pointerEvents="none" />
+      ))}
       {bar(doMidi, DO_X, doLabel, "do", true)}
       {target !== null && bar(target, TARGET_X, targetLabel, "target", found)}
       {d && <path d={d} fill="none" stroke="var(--color-sky-300)" strokeOpacity={0.8} strokeWidth={2} strokeLinejoin="round" />}
