@@ -11,7 +11,7 @@ import { candidateOf } from "./composeToday";
  * Seven days for a teacher's student from `start`, from the same inputs as `composeToday`: the library's blocks of the
  * student's areas, the steps their ratings made solid, and each topic paced by the answer, the teacher's score and the
  * ratings (`raisedAnswers` with `state.teacherScores`), as of the later of `start` and `today` (a rotated week starts in
- * the past; a slider moved today and the ratings since its start still count). `yesterday`: the block ids of the day
+ * the past; a slider moved today and the ratings since its start still count). `yesterday`: the choice ids of the day
  * before `start`, never picked on its first day. Writes nothing. Every day kept, empty ones too, so day numbers match
  * dates; `short` when any day is short or empty, `no-blocks` only when every day is empty.
  */

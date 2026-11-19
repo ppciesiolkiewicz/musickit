@@ -25,6 +25,10 @@ const ids = (prefix = "n") => {
   return () => `${prefix}${++n}`;
 };
 const bid = (title: string) => blockIdOf(blockKeyOf(exOf(title)));
+/** A composed exercise: curated block `blk-<title>`, its choice `blk-<title>/one`. */
+const chosen = (title: string, choice = "one"): PlanExercise => ({ ...exOf(title), blockId: `blk-${title.toLowerCase()}`, choiceId: `blk-${title.toLowerCase()}/${choice}` });
+/** A composed day of `chosen` exercises. */
+const cday = (...titles: string[]): ComposedDay => ({ exercises: titles.map((t) => chosen(t)), steps: [], short: false });
 
 test("startDay puts a composed one-day plan in as current", () => {
   const s = startDay(EMPTY_STATE, { ...dayOf("A", "B"), short: true }, { date: "2026-11-18", attempt: 0, title: "Tuesday", theme: "Scales" }, ids());
@@ -66,54 +70,69 @@ test("the history keeps 60 plans (was 20)", () => {
 });
 
 test("anotherDay keeps the rated exercise with its slot id and rating at its new place, and declines the rest", () => {
-  let s = startDay(EMPTY_STATE, dayOf("A", "B", "C"), { date: "2026-11-18", attempt: 0 }, ids("a"));
+  let s = startDay(EMPTY_STATE, cday("A", "B", "C"), { date: "2026-11-18", attempt: 0 }, ids("a"));
   const [a] = s.current!.config.days[0].exercises;
   s = { ...s, current: ratePlan(s.current!, 0, 0, 4, "2026-11-18T10:00:00Z") };
   const before = s.current!;
-  const next = anotherDay(s, dayOf("D", "A", "E"), { date: "2026-11-18", attempt: 1 }, ids("b"));
+  const next = anotherDay(s, cday("D", "A", "E"), { date: "2026-11-18", attempt: 1 }, ids("b"));
   const p = next.current!;
   assert.equal(p.id, before.id);
   assert.equal(p.startedOn, "2026-11-18");
-  assert.deepEqual(p.config.days[0].exercises.map((e) => e.blockId), [bid("D"), bid("A"), bid("E")]);
+  assert.deepEqual(p.config.days[0].exercises.map((e) => e.blockId), ["blk-d", "blk-a", "blk-e"]);
   assert.equal(p.config.days[0].exercises[1].id, a.id);
   assert.notEqual(p.config.days[0].exercises[0].id, a.id);
   assert.deepEqual(p.rated, { "0:1": before.rated!["0:0"] });
   assert.deepEqual(p.done, { "0:1": true });
-  assert.deepEqual(p.composed, { attempt: 1, declined: [bid("B"), bid("C")], short: false });
+  assert.deepEqual(p.composed, { attempt: 1, declined: ["blk-b/one", "blk-c/one"], short: false });
   assert.deepEqual(next.history, s.history);
   // the answer arriving twice changes nothing
-  assert.equal(anotherDay(next, dayOf("F"), { date: "2026-11-18", attempt: 1 }, ids("c")), next);
+  assert.equal(anotherDay(next, cday("F"), { date: "2026-11-18", attempt: 1 }, ids("c")), next);
   // a third try adds its own declined blocks to the ones already there, once each
-  const third = anotherDay(next, dayOf("A", "B"), { date: "2026-11-18", attempt: 2 }, ids("d")).current!;
-  assert.deepEqual(third.composed?.declined, [bid("B"), bid("C"), bid("D"), bid("E")]);
+  const third = anotherDay(next, cday("A", "B"), { date: "2026-11-18", attempt: 2 }, ids("d")).current!;
+  assert.deepEqual(third.composed?.declined, ["blk-b/one", "blk-c/one", "blk-d/one", "blk-e/one"]);
   assert.deepEqual(third.rated, { "0:0": before.rated!["0:0"] });
 });
 
 test("the spec's case: A (rated 4), B, C, then [A, D, E]", () => {
-  let s = startDay(EMPTY_STATE, dayOf("A", "B", "C"), { date: "2026-11-18", attempt: 0 }, ids("a"));
+  let s = startDay(EMPTY_STATE, cday("A", "B", "C"), { date: "2026-11-18", attempt: 0 }, ids("a"));
   const aId = s.current!.config.days[0].exercises[0].id;
   s = { ...s, current: ratePlan(s.current!, 0, 0, 4, "2026-11-18T10:00:00Z") };
-  const p = anotherDay(s, dayOf("A", "D", "E"), { date: "2026-11-18", attempt: 1 }, ids("b")).current!;
+  const p = anotherDay(s, cday("A", "D", "E"), { date: "2026-11-18", attempt: 1 }, ids("b")).current!;
   assert.deepEqual(Object.keys(p.rated ?? {}), ["0:0"]);
   assert.equal(p.rated!["0:0"].stars, 4);
   assert.equal(p.config.days[0].exercises[0].id, aId);
-  assert.deepEqual(p.composed?.declined, [bid("B"), bid("C")]);
+  assert.deepEqual(p.composed?.declined, ["blk-b/one", "blk-c/one"]);
   assert.equal(p.composed?.attempt, 1);
 });
 
 test("anotherDay keeps a rating given while the request was out: A (rated 4), B (rated 5 after the request), C; answer [A, D, E]", () => {
-  let s = startDay(EMPTY_STATE, dayOf("A", "B", "C"), { date: "2026-11-18", attempt: 0 }, ids("a"));
+  let s = startDay(EMPTY_STATE, cday("A", "B", "C"), { date: "2026-11-18", attempt: 0 }, ids("a"));
   const [a, b] = s.current!.config.days[0].exercises;
   s = { ...s, current: ratePlan(s.current!, 0, 0, 4, "2026-11-18T10:00:00Z") };
   // the request goes out here; B is rated before the answer lands
   s = { ...s, current: ratePlan(s.current!, 0, 1, 5, "2026-11-18T10:01:00Z") };
-  const p = anotherDay(s, dayOf("A", "D", "E"), { date: "2026-11-18", attempt: 1 }, ids("b")).current!;
-  assert.deepEqual(p.config.days[0].exercises.map((e) => e.blockId), [bid("A"), bid("B"), bid("D"), bid("E")]);
+  const p = anotherDay(s, cday("A", "D", "E"), { date: "2026-11-18", attempt: 1 }, ids("b")).current!;
+  assert.deepEqual(p.config.days[0].exercises.map((e) => e.blockId), ["blk-a", "blk-b", "blk-d", "blk-e"]);
   assert.equal(p.config.days[0].exercises[0].id, a.id);
   assert.equal(p.config.days[0].exercises[1].id, b.id);
   assert.deepEqual(Object.fromEntries(Object.entries(p.rated ?? {}).map(([k, r]) => [k, r.stars])), { "0:0": 4, "0:1": 5 });
   assert.deepEqual(p.done, { "0:0": true, "0:1": true });
-  assert.deepEqual(p.composed?.declined, [bid("C")]);
+  assert.deepEqual(p.composed?.declined, ["blk-c/one"]);
+});
+
+test("anotherDay declines choice ids; another choice of a declined block is a new slot", () => {
+  const day = (...es: PlanExercise[]): ComposedDay => ({ exercises: es, steps: [], short: false });
+  let s = startDay(EMPTY_STATE, day(chosen("A"), chosen("B")), { date: "2026-11-18", attempt: 0 }, ids("a"));
+  const [, b] = s.current!.config.days[0].exercises;
+  s = { ...s, current: { ...s.current!, done: { "0:1": true } } };
+  const p = anotherDay(s, day(chosen("B", "two"), chosen("C")), { date: "2026-11-18", attempt: 1 }, ids("b")).current!;
+  assert.deepEqual(p.composed?.declined, ["blk-a/one", "blk-b/one"]);
+  assert.deepEqual(p.config.days[0].exercises.map((e) => e.choiceId), ["blk-b/two", "blk-c/one"]);
+  assert.notEqual(p.config.days[0].exercises[0].id, b.id, "B's other choice does not take B/one's slot");
+  assert.deepEqual(p.done, {});
+  // a hashed exercise (no choice) declines nothing
+  const h = startDay(EMPTY_STATE, dayOf("H"), { date: "2026-11-18", attempt: 0 }, ids("h"));
+  assert.deepEqual(anotherDay(h, day(chosen("C")), { date: "2026-11-18", attempt: 1 }, ids("i")).current!.composed?.declined, []);
 });
 
 test("anotherDay without today's own plan changes nothing", () => {
@@ -301,10 +320,10 @@ test("upcomingTeacherWeek: a teacher's week that starts after the date; dayBefor
   assert.equal(upcomingTeacherWeek(s, "2026-11-12")?.id, "next");
   assert.equal(upcomingTeacherWeek(s, "2026-11-17"), null, "started today is not upcoming");
   assert.equal(upcomingTeacherWeek(s, "2026-11-20"), null, "a shared plan is not a teacher's week");
-  assert.deepEqual(dayBeforeWeek(s, "2026-11-17"), [], "exercises without block ids give none");
-  const withIds: PlanState = { ...s, given: s.given.map((p) => p.id === "run" ? { ...p, config: { ...p.config, days: p.config.days.map((d, i) => ({ ...d, exercises: [{ ...d.exercises[0], blockId: `b${i}` }] })) } } : p) };
-  assert.deepEqual(dayBeforeWeek(withIds, "2026-11-17"), ["b6"]);
+  assert.deepEqual(dayBeforeWeek(s, "2026-11-17"), [], "exercises without choice ids give none");
+  const withIds: PlanState = { ...s, given: s.given.map((p) => p.id === "run" ? { ...p, config: { ...p.config, days: p.config.days.map((d, i) => ({ ...d, exercises: [{ ...d.exercises[0], blockId: `blk-b${i}`, choiceId: `blk-b${i}/c` }] })) } } : p) };
+  assert.deepEqual(dayBeforeWeek(withIds, "2026-11-17"), ["blk-b6/c"], "choice ids, the composer's yesterday");
   assert.deepEqual(dayBeforeWeek(withIds, "2026-11-18"), []);
   const hist: PlanState = { ...EMPTY_STATE, history: [{ ...t("old", "2026-11-03"), config: withIds.given[2].config }] };
-  assert.deepEqual(dayBeforeWeek(hist, "2026-11-10"), ["b6"], "read from the history too");
+  assert.deepEqual(dayBeforeWeek(hist, "2026-11-10"), ["blk-b6/c"], "read from the history too");
 });

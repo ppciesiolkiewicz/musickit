@@ -63,10 +63,12 @@ const INPUTS: [string, ReactNode, ReactNode][] = [
   ["solid", <>Every progress entry, through <C>solidRatedAt</C>: the steps whose newest rating is Solid or better, with when.</>, <>Solid steps are known (so the next ones come within reach) and are the review list, rated longest ago first.</>],
   ["blocks", <><C>library.composeBlocks(player, areas)</C>, each through <C>candidateOf</C>: one per active choice of a curated block of the areas that names a step, with its minutes and moves, everyone&apos;s use of the block and this player&apos;s newest rating of the choice.</>, <>The only exercises a day can hold. The composer writes none and changes none.</>],
   ["date", <>Sent by the page (its local date), refused unless within one day of the server&apos;s.</>, <>Rotates which topic opens the day; part of the seed.</>],
-  ["yesterday", <>The block ids of the newest own composed day before <C>date</C>. A shared plan is never read.</>, <>Never picked today.</>],
+  ["yesterday", <>The choice ids of the newest own composed day before <C>date</C>. A shared plan is never read.</>, <>Those choices are never picked today; another choice of the same block may be.</>],
   ["keep", <>With <C>another</C>: today&apos;s exercises that are already rated.</>, <>Stay as they are, first in the day; their minutes come off the budget.</>],
-  ["declined", <>With <C>another</C>: every block turned down earlier today, and today&apos;s unrated ones.</>, <>Never picked again today.</>],
-  ["seed", <><C>{"`${player}:${date}:${attempt}`"}</C>; the attempt goes up with each <C>another</C>.</>, <>The only randomness (which unrated block, which three keys). The same input gives the same day.</>],
+  ["declined", <>With <C>another</C>: the choice ids turned down earlier today, and today&apos;s unrated ones.</>, <>Never picked again today.</>],
+  ["seed", <><C>{"`${player}:${date}:${attempt}`"}</C>; the attempt goes up with each <C>another</C>.</>, <>The only randomness of the picks (which unrated choice, which three keys). The same input gives the same day.</>],
+  ["history", <>Every progress entry of the player.</>, <>Each choice&apos;s version is rolled from the player&apos;s rows with that <C>choiceId</C> (a row with none is no choice&apos;s), seeded by player, choice id and the newest of those rows; earned keys are per track.</>],
+  ["player", <>The signed-in player (the student, for a week).</>, <>Who the versions are rolled for.</>],
 ];
 
 /** The calls inside `composeDay`, in order, with the stage of the "One day" view that shows each. */
@@ -82,16 +84,16 @@ const INSIDE: { n: string; name: string; file: string; text: ReactNode; calls?: 
   },
   {
     n: "3", name: "withinReach", file: "plan/model/compose.ts",
-    text: <>Drops every block that names a step beyond reach. <C>used</C> starts as yesterday&apos;s, the declined and the kept blocks.</>,
+    text: <>Drops every block that names a step beyond reach. <C>used</C> starts as yesterday&apos;s, the declined and the kept choices, and the kept choices&apos; blocks.</>,
     calls: [{ name: "reach", file: "plan/model/reach.ts", text: <>The same marks as for the day&apos;s steps.</> }],
   },
   {
     n: "4", name: "fill", file: "plan/model/compose.ts",
     text: <>Fills the budget in five stages: planned review (1 block, 2 from 30 minutes, each within a third of the day), one block per fresh step, one per open step, rounds over the day&apos;s steps, more review. It stops when the minutes are full or a pass adds nothing.</>,
     calls: [
-      { name: "pickFor", file: "plan/model/compose.ts", text: <>A block for one step; with none usable, the nearest earlier step of the same track.</> },
+      { name: "pickFor", file: "plan/model/compose.ts", text: <>A choice for one step, never one of a block already in the day; with none usable, the nearest earlier step of the same track.</> },
       { name: "fits", file: "plan/model/compose.ts", text: <>A block fits a step when it names it and no later step of that track.</> },
-      { name: "choose", file: "plan/model/compose.ts", text: <>Among a step&apos;s blocks: rated under Solid (newest) first, else unrated (random among the least used), else solid (rated longest ago).</> },
+      { name: "choose", file: "plan/model/compose.ts", text: <>Among a step&apos;s choices: rated under Solid (newest) first, else unrated (random among the least used), else solid (rated longest ago); ties go by choice id.</> },
     ],
   },
   {
@@ -109,7 +111,7 @@ const HOLDS: ReactNode[] = [
   <>A player&apos;s day is never written by the server. The route answers with the day and the page stores it (<C>startDay</C>, <C>anotherDay</C>), both safe to call twice. A teacher&apos;s week is the one the server writes.</>,
   <>Nothing blocks a player. A step ahead is only ranked later; a step with no block falls back down its track.</>,
   <>A block is stored as written. Minutes, why and links are the slot&apos;s; the keys ride on the exercise in the plan.</>,
-  <>A block never comes two days running, and never twice in a day.</>,
+  <>A choice never comes two days running, and a block never comes twice in a day (not even as two of its choices).</>,
   <>A day more than 5 minutes under its budget is <C>short</C>: the library has no more for these steps. Left over time of 5 minutes or less after the kept exercises asks for a whole new day&apos;s minutes.</>,
   <>A teacher&apos;s student is never composed for here: the route answers <C>409 taught</C> before reading anything.</>,
 ];
@@ -185,7 +187,7 @@ export default function Architecture() {
         </div>
       </Panel>
 
-      <Panel title="What goes in" note={<>The eight fields of <C>ComposeInput</C>, as <C>composeToday</C> builds them. It reads three things: the player&apos;s plan document, their progress entries and the library.</>}>
+      <Panel title="What goes in" note={<>The ten fields of <C>ComposeInput</C>, as <C>composeToday</C> builds them. It reads three things: the player&apos;s plan document, their progress entries and the library.</>}>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300">
             <thead className="text-slate-500"><tr>{["Field", "Where the server gets it", "What the composer does with it"].map((h) => <th key={h} className="py-1 pr-4 font-medium">{h}</th>)}</tr></thead>

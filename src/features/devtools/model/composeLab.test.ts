@@ -10,6 +10,7 @@ test("seedCandidates: only the areas asked for, each with its steps and an id", 
   const voice = seedCandidates(["voice"]);
   assert.ok(voice.length > 10);
   assert.ok(voice.every((c) => c.exercise.area === "voice" && c.blockId && c.steps.length > 0 && c.minutes > 0));
+  assert.ok(voice.every((c) => c.choiceId.startsWith(`${c.blockId}/`) && c.exercise.blockId === c.blockId && c.exercise.choiceId === c.choiceId));
 });
 
 test("simulate: day 1 is what composeDay makes of the same input", () => {
@@ -21,12 +22,12 @@ test("simulate: day 1 is what composeDay makes of the same input", () => {
   assert.ok(first.day.exercises.length > 0);
 });
 
-test("simulate: no day repeats a block of the day before, and Solid ratings make steps solid and bring review", () => {
+test("simulate: no day repeats a choice of the day before, and Solid ratings make steps solid and bring review", () => {
   const answers = persona("voice-beginner");
   const days = simulate({ answers, date: "2026-11-18", days: 5, seed: "lab", rating: "solid" });
   for (let i = 1; i < days.length; i++) {
-    const before = new Set(days[i - 1].day.exercises.map((e) => e.blockId));
-    assert.ok(days[i].day.exercises.every((e) => !before.has(e.blockId)), `day ${i + 1}`);
+    const before = new Set(days[i - 1].day.exercises.map((e) => e.choiceId));
+    assert.ok(days[i].day.exercises.every((e) => e.choiceId && !before.has(e.choiceId)), `day ${i + 1}`);
   }
   assert.equal(days[0].solid, 0);
   assert.ok(days[4].solid > 0);
@@ -42,7 +43,7 @@ test("simulate: an exercise with a Key selector carries the player's keys", () =
 
 test("nextVersion: the composer's own next roll for a rating of the version an exercise has now", () => {
   const e = {
-    title: "Run", minutes: 5, area: "guitar", steps: ["pentatonic-positions:1"], blockId: "b", moves: { key: "any", bpm: { from: 60, to: 90, step: 10 } }, given: { keys: { now: [9], back: [] }, bpm: { now: 60, back: [] } },
+    title: "Run", minutes: 5, area: "guitar", steps: ["pentatonic-positions:1"], blockId: "b", choiceId: "b/one", moves: { key: "any", bpm: { from: 60, to: 90, step: 10 } }, given: { keys: { now: [9], back: [] }, bpm: { now: 60, back: [] } },
     cells: [{ type: "tool", tool: { type: "backing-band", bpm: 60, key: 9, parts: { click: "on" } } }, { type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key: 9, boxes: [1] } }],
   } as never;
   const d = { answers: persona("guitar-new"), history: [], date: "2026-11-19" };
@@ -52,5 +53,6 @@ test("nextVersion: the composer's own next roll for a rating of the version an e
   const outcomes = Array.from({ length: 30 }, (_, i) => nextVersion(e, d, `p${i}`, 5)!.roll!.outcome);
   assert.ok(outcomes.includes("move") && outcomes.every((o) => o === "move" || o === "same"));
   assert.deepEqual(nextVersion(e, d, "lab", 5), nextVersion(e, d, "lab", 5), "the same player, block and rating roll the same");
-  assert.equal(nextVersion({ title: "Plain", minutes: 5, cells: [], blockId: "x" } as never, d, "lab", 5), null);
+  assert.equal(nextVersion({ title: "Plain", minutes: 5, cells: [], blockId: "x", choiceId: "x/one" } as never, d, "lab", 5), null);
+  assert.equal(nextVersion({ ...(e as object), choiceId: undefined } as never, d, "lab", 5), null, "no choice: nothing to roll for");
 });

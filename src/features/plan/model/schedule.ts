@@ -1,7 +1,7 @@
 import { cleanCells } from "./cleanExercise";
 import { withBlockIds, withExerciseIds } from "./exerciseIds";
 import { HISTORY_CAP } from "./state";
-import { planDays, type PlanConfig, type PlanState, type StoredPlan } from "./types";
+import { planDays, type PlanConfig, type PlanExercise, type PlanState, type StoredPlan } from "./types";
 import type { ComposedDay } from "./compose";
 import type { StarRating, Stars } from "@/features/progress/stars";
 
@@ -58,11 +58,11 @@ export function startDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId: (
 }
 
 /**
- * Today's plan replaced by another try (`meta.attempt`). An exercise of today's plan that is in the new day (by block id)
- * keeps its slot id, its tick and its rating, re-keyed to its new place; the day timer's seconds follow it by slot id. An
+ * Today's plan replaced by another try (`meta.attempt`). An exercise of today's plan that is in the new day (by choice
+ * id; one with no choice, by block id) keeps its slot id, its tick and its rating, re-keyed to its new place; the day timer's seconds follow it by slot id. An
  * exercise rated in `s` that the answer left out (rated while the request was out, so the server didn't know) is kept
- * anyway, as it is: then the kept ones go first in their old order, before the new picks. Every block id of today's plan
- * that is not in the new day joins `composed.declined`. The plan keeps its id and `startedOn`. Without today's own plan,
+ * anyway, as it is: then the kept ones go first in their old order, before the new picks. Every choice id of today's plan
+ * that is not in the new day joins `composed.declined` (an exercise with no choice id declines nothing). The plan keeps its id and `startedOn`. Without today's own plan,
  * or for the try it already holds or an earlier one (a late answer), `s` comes back as it is.
  */
 export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId: () => string): PlanState {
@@ -72,8 +72,10 @@ export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId:
   const config = dayConfig(day, meta, newId);
   const used = new Set<number>();
   // each exercise of the answer, with the index in today's plan it was kept from (-1: a new pick)
+  // the same exercise: the same choice (another choice of the same block is a new slot); one with no choice, the same block
+  const same = (old: PlanExercise, e: PlanExercise) => (old.choiceId || e.choiceId ? old.choiceId === e.choiceId : !!old.blockId && old.blockId === e.blockId);
   const placed = config.days[0].exercises.map((e) => {
-    const j = before.findIndex((old, k) => !used.has(k) && !!old.blockId && old.blockId === e.blockId);
+    const j = before.findIndex((old, k) => !used.has(k) && same(old, e));
     if (j < 0) return { e, from: -1 };
     used.add(j);
     return { e: before[j].id ? { ...e, id: before[j].id } : e, from: j };
@@ -92,9 +94,9 @@ export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId:
     if (r) rated[to] = r;
   });
   const exercises = order.map((x) => x.e);
-  const now = new Set(exercises.map((e) => e.blockId));
+  const now = new Set(exercises.map((e) => e.choiceId));
   const declined = [...today.composed.declined];
-  for (const e of before) if (e.blockId && !now.has(e.blockId) && !declined.includes(e.blockId)) declined.push(e.blockId);
+  for (const e of before) if (e.choiceId && !now.has(e.choiceId) && !declined.includes(e.choiceId)) declined.push(e.choiceId);
   const plan: StoredPlan = {
     ...today,
     config: { ...config, days: [{ ...config.days[0], exercises }] },
@@ -131,10 +133,10 @@ const touched = (p: StoredPlan): boolean => Object.keys(p.done).length > 0 || Ob
 export const upcomingTeacherWeek = (s: PlanState, date: string): StoredPlan | null =>
   s.given.filter((p) => p.teacher && p.startedOn > date).sort((a, b) => (a.startedOn < b.startedOn ? 1 : a.startedOn > b.startedOn ? -1 : 0))[0] ?? null;
 
-/** The block ids of the last day of a week a teacher made that ends the day before `start` (given or history), else []. */
+/** The choice ids of the last day of a week a teacher made that ends the day before `start` (given or history), else []: the composer's `yesterday`. */
 export function dayBeforeWeek(s: PlanState, start: string): string[] {
   const before = [...s.given, ...s.history].find((p) => p.teacher && addDays(p.startedOn, planDays(p)) === start);
-  return (before?.config.days[planDays(before) - 1]?.exercises ?? []).flatMap((e) => (e.blockId ? [e.blockId] : []));
+  return (before?.config.days[planDays(before) - 1]?.exercises ?? []).flatMap((e) => (e.choiceId ? [e.choiceId] : []));
 }
 
 /** The one order of a teacher's weeks, newest first: by start, then by when the teacher made it. */

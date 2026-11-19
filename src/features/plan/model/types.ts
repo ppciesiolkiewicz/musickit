@@ -89,7 +89,7 @@ export interface StoredPlan {
   /** a shared plan the player took off "Plans shared with you"; kept, so its ratings still count for progress */
   hidden?: true;
   /**
-   * Set on a composed one-day plan only (the player's own, `startDay`): which try of the day it is (from 0), the block ids
+   * Set on a composed one-day plan only (the player's own, `startDay`): which try of the day it is (from 0), the choice ids
    * turned down today (never picked again that day) and whether the library had too little to fill the minutes.
    */
   composed?: { attempt: number; declined: string[]; short: boolean };

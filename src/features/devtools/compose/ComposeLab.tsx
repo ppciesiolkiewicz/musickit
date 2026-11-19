@@ -203,9 +203,9 @@ export default function ComposeLab() {
           <p className="mt-2 text-xs text-slate-500">Hover a step for its name.</p>
         </Stage>
 
-        <Stage n={3} title="The library" rule="Every block of the player's areas. A block is out when one of its steps is beyond reach, or when it was in yesterday's plan (or kept or turned down today).">
+        <Stage n={3} title="The library" rule="Every choice of every block of the player's areas. A choice is out when one of its steps is beyond reach, or when it was in yesterday's plan (or kept or turned down today), or its block was kept today.">
           <div className="flex flex-col gap-1.5">
-            <Bar label="Blocks of these areas" n={trace.library.all} of={trace.library.all} tone="bg-slate-500" />
+            <Bar label="Choices of these areas" n={trace.library.all} of={trace.library.all} tone="bg-slate-500" />
             <Bar label="Every step within reach" n={trace.library.inReach} of={trace.library.all} tone="bg-sky-500" />
             <Bar label="Not in yesterday's plan" n={trace.library.usable} of={trace.library.all} tone="bg-emerald-500" />
           </div>
@@ -221,7 +221,7 @@ export default function ComposeLab() {
                 <span><StepChip refId={p.asked} /> <span className="text-slate-400">{stepName(p.asked)}</span></span>
                 {p.step !== p.asked && <span className="text-amber-300">no block there: took <StepChip refId={p.step} tone="border-amber-500/50 text-amber-200" /></span>}
               </span>,
-              <span key="b" className="text-slate-100">{p.title}<span className="block font-mono text-[10px] text-slate-500">{p.blockId}</span></span>,
+              <span key="b" className="text-slate-100">{p.title}<span className="block font-mono text-[10px] text-slate-500">{p.blockId}</span><span className="block font-mono text-[10px] text-slate-500">{p.choiceId}</span></span>,
               <span key="w">{REASON[p.reason]} <span className="text-slate-500">(of {p.among})</span></span>,
               p.minutes,
               <span key="f" className="flex w-28 items-center gap-2">
@@ -260,7 +260,7 @@ export default function ComposeLab() {
             <Table
               head={["Block", "Area", "Written with", "Starts in", "Earlier"]}
               rows={keyed.map((p) => {
-                const e = day.exercises.find((x) => x.blockId === p.blockId);
+                const e = day.exercises.find((x) => x.choiceId === p.choiceId);
                 const written = e?.choice && "options" in e.choice ? e.choice.options.flatMap((o) => (o.key === undefined ? [] : [o.key])) : [];
                 return [<span key="t" className="text-slate-100">{p.title}</span>, e?.area ?? "", keys(written), <b key="n" className="text-sky-100">{keys(p.given!.keys!.now)}</b>, keys(p.given!.keys!.back) || "–"];
               })}
@@ -269,16 +269,16 @@ export default function ComposeLab() {
           <p className="mt-2 text-xs text-slate-500">{keyed.length} of this day&apos;s {trace.picks.length} picks have a Key selector; {withSelector} of the {blocks.length} blocks in these areas do.</p>
         </Stage>
 
-        <Stage n={6} title="The versions" rule={<>Also last, and it changes no pick: a block with <C>moves</C> is played in a version (<C>plan/model/roll.ts</C>). A first play opens in the first key of its track and at its starting tempo. After that the newest rating of the block tilts the dice: {Math.round(ROLL.low.back * 100)}% the version before after 1 or 2 stars, {Math.round(ROLL.mid.move * 100)}% a move after 3, {Math.round(ROLL.high.move * 100)}% a move after 4 or 5, else the same again. A move is one part, by weight (tempo {ROLL.weights.bpm}, key {ROLL.weights.key}), and keeps the earlier values as chips. The dice are seeded by the player, the block and that rating, so a version changes only when the block is rated again.</>}>
+        <Stage n={6} title="The versions" rule={<>Also last, and it changes no pick: a block with <C>moves</C> is played in a version (<C>plan/model/roll.ts</C>). A first play opens in the first key of its track and at its starting tempo. After that the newest rating of the choice tilts the dice: {Math.round(ROLL.low.back * 100)}% the version before after 1 or 2 stars, {Math.round(ROLL.mid.move * 100)}% a move after 3, {Math.round(ROLL.high.move * 100)}% a move after 4 or 5, else the same again. A move is one part, by weight (tempo {ROLL.weights.bpm}, key {ROLL.weights.key}), and keeps the earlier values as chips. The dice are seeded by the player, the choice and that rating, so a version changes only when the choice is rated again; the rows read are the player&apos;s ratings of this choice.</>}>
           {rolled.length ? (
             <Table
               head={["Block", "Last play", "Odds: back / same / move", "Dice", "Moves in", "Outcome", "Given", "If rated 1", "If rated 2", "If rated 3", "If rated 4", "If rated 5"]}
               rows={rolled.map((p) => {
                 const r = p.roll!;
-                const e = day.exercises.find((x) => x.blockId === p.blockId);
+                const e = day.exercises.find((x) => x.choiceId === p.choiceId);
                 const next = (stars: 1 | 2 | 3 | 4 | 5) => { const v = e ? nextVersion(e, d, seed, stars) : null; return v ? <span key={stars}>{version(v.given)}<span className="block text-[10px] text-slate-500">{v.roll?.outcome}{v.roll?.moved ? `: ${PART_NAME[v.roll.moved]}` : ""}</span></span> : "–"; };
                 return [
-                  <span key="t" className="text-slate-100">{p.title}<span className="block font-mono text-[10px] text-slate-500">{p.blockId}</span></span>,
+                  <span key="t" className="text-slate-100">{p.title}<span className="block font-mono text-[10px] text-slate-500">{p.blockId}</span><span className="block font-mono text-[10px] text-slate-500">{p.choiceId}</span></span>,
                   r.last ? <span key="l">{version(r.last.given)} <span className="text-amber-200">{r.last.stars}★</span></span> : "first play",
                   r.last ? `${pct(r.odds.back)} / ${pct(r.odds.same)} / ${pct(r.odds.move)}` : "–",
                   r.draws.length ? r.draws.map((x) => x.toFixed(2)).join(", ") : "–",
@@ -296,7 +296,7 @@ export default function ComposeLab() {
         <Stage n={7} title="The day" rule="As it is stored: the day's steps in pick order, review last. Short means the library ran out more than 5 minutes under the budget.">
           <ol className="flex flex-col gap-1 text-xs text-slate-300">
             {day.exercises.map((e, i) => (
-              <li key={e.blockId ?? i} className="flex flex-wrap items-baseline gap-2">
+              <li key={e.choiceId ?? i} className="flex flex-wrap items-baseline gap-2">
                 <span className="w-5 tabular-nums text-slate-500">{i + 1}</span>
                 <span className="text-slate-100">{shownTitle(e)}</span>
                 <span className="text-slate-500">{e.minutes} min</span>

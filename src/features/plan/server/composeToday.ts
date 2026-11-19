@@ -12,7 +12,7 @@ export type ComposeAnswer =
   | { ok: true; day: ComposedDay; date: string; attempt: number }
   | { ok: false; code: "no-answers" | "bad-date" | "no-blocks" };
 
-/** A library block as a plan stores it: its content with the slot and the tags that say what it practises. */
+/** One choice of a library block as a plan stores it: the block's content with the choice's moves, the slot (the choice's minutes), the tags that say what it practises (the choice's steps and level), `blockId` and `choiceId`. */
 export function candidateOf(b: ComposeBlock): Candidate {
   const exercise: PlanExercise = {
     ...b.content,
@@ -27,8 +27,9 @@ export function candidateOf(b: ComposeBlock): Candidate {
     ...(b.level ? { level: b.level as PlanExercise["level"] } : {}),
     tags: b.tags,
     blockId: b.id,
+    choiceId: b.choiceId,
   };
-  return { blockId: b.id, steps: b.steps, minutes: b.slot.minutes, use: b.use, mine: b.mine, exercise };
+  return { blockId: b.id, choiceId: b.choiceId, steps: b.steps, minutes: b.slot.minutes, use: b.use, mine: b.mine, exercise };
 }
 
 export const isRealDate = (s: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`)) && new Date(`${s}T00:00:00Z`).toISOString().slice(0, 10) === s;
@@ -37,14 +38,14 @@ export const isRealDate = (s: string): boolean => /^\d{4}-\d{2}-\d{2}$/.test(s) 
 export const isNearToday = (date: unknown, today: string): date is string =>
   typeof date === "string" && isRealDate(date) && (date === today || date === addDays(today, 1) || date === addDays(today, -1));
 
-const blockIds = (p: StoredPlan | undefined): string[] =>
-  (p?.config.days[0]?.exercises ?? []).flatMap((e) => (e.blockId ? [e.blockId] : []));
+const choiceIds = (p: StoredPlan | undefined): string[] =>
+  (p?.config.days[0]?.exercises ?? []).flatMap((e) => (e.choiceId ? [e.choiceId] : []));
 
-/** The block ids of the newest own composed day before `date`. A given plan is never read. */
+/** The choice ids of the newest own composed day before `date`. A given plan is never read. */
 function yesterdayOf(state: PlanState, date: string): string[] {
   const days = [state.current, ...state.history].filter((p): p is StoredPlan => !!p?.composed && p.startedOn < date);
   const newest = days.reduce<StoredPlan | undefined>((best, p) => (!best || p.startedOn > best.startedOn ? p : best), undefined);
-  return blockIds(newest);
+  return choiceIds(newest);
 }
 
 /**
@@ -71,7 +72,8 @@ export async function composeToday(
   const keep = own ? before.filter((_, i) => own.rated?.[doneKey(0, i)]) : [];
   const unrated = own ? before.filter((_, i) => !own.rated?.[doneKey(0, i)]) : [];
   const attempt = own?.composed ? own.composed.attempt + 1 : 0;
-  const declined = own?.composed ? [...own.composed.declined, ...unrated.flatMap((e) => (e.blockId ? [e.blockId] : []))] : [];
+  // choice ids (a stored day's `declined` is read as choice ids too)
+  const declined = own?.composed ? [...own.composed.declined, ...unrated.flatMap((e) => (e.choiceId ? [e.choiceId] : []))] : [];
   const entries = await readEntries(d.userData, player);
   const solid = solidRatedAt(entries);
   // each topic paced by the higher of the answer (or a teacher's score) and the level its ratings reach (the progress tracker's rule)

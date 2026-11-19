@@ -27,10 +27,10 @@ test("seven days from the start, from the student's blocks of their areas", asyn
   assert.equal(r.short, false);
   assert.ok(r.days.every((d) => d.exercises.length > 0));
   assert.deepEqual(library.calls, [{ player: S, areas: ["guitar"] }]);
-  // no block twice on two days running
+  // no choice twice on two days running
   for (let i = 1; i < 7; i++) {
-    const before = new Set(r.days[i - 1].exercises.map((e) => e.blockId));
-    for (const e of r.days[i].exercises) assert.ok(!before.has(e.blockId), `day ${i}`);
+    const before = new Set(r.days[i - 1].exercises.map((e) => e.choiceId));
+    for (const e of r.days[i].exercises) assert.ok(e.choiceId && !before.has(e.choiceId), `day ${i}`);
   }
 });
 
@@ -54,14 +54,14 @@ test("a teacher's score paces the week: set to 2, the topic gets intermediate st
   assert.ok(levels(raised).has("intermediate"), [...levels(raised)].join());
 });
 
-test("yesterday: the day before the week is barred on its first day", async () => {
+test("yesterday: the choices of the day before the week are barred on its first day", async () => {
   const two = [stubBlock("notes-on-neck:1", 0), stubBlock("notes-on-neck:1", 1)];
   const one = { ...answers, minutes: 5 };
   const st = state({ answers: one as PlanState["answers"] });
-  for (const barred of [two[0].id, two[1].id]) {
+  for (const barred of [two[0].choiceId, two[1].choiceId]) {
     const r = await composeStudentWeek({ library: stubLibrary(two), userData: memoryUserDataRepo() }, S, { start: "2026-11-18", seed: "x", yesterday: [barred] }, st);
     assert.ok(r.ok);
-    assert.deepEqual(r.days[0].exercises.map((e) => e.blockId), [two.find((b) => b.id !== barred)!.id]);
+    assert.deepEqual(r.days[0].exercises.map((e) => e.choiceId), [two.find((b) => b.choiceId !== barred)!.choiceId]);
   }
 });
 

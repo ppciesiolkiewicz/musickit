@@ -4,11 +4,10 @@ import { baseFixture, choice, PLAYER_A, type LibraryData } from "@/features/libr
 import { memoryLibraryRepo } from "@/features/library/server/repo.memory";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
 import { putEntry, writeDoc } from "@/features/userData/server/data";
-import { blockIdOf, blockKeyOf } from "../model/blockId";
 import { startDay } from "../model/schedule";
 import { ratePlan } from "../model/schedule";
 import { EMPTY_STATE, type PlanExercise, type PlanState } from "../model/types";
-import { composeToday } from "./composeToday";
+import { candidateOf, composeToday } from "./composeToday";
 
 const P = PLAYER_A;
 const now = new Date("2026-11-18T10:00:00Z");
@@ -16,16 +15,17 @@ const answers = { areas: ["guitar"], topics: {}, minutes: 10, styles: "", notes:
 const state = (over: Partial<PlanState> = {}): PlanState => ({ ...EMPTY_STATE, answers: answers as PlanState["answers"], ...over });
 
 const BLOCKS = ["b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8"];
+/** The curated id of block `name` and of its one choice. */
+const bid = (name: string): string => `block-${name}`;
+const cid = (name: string): string => `${bid(name)}/beginner`;
 /** What the composer makes of a library block named `name` (see `lib`), without its slot ids. */
 const exerciseOf = (name: string): PlanExercise =>
-  ({ title: `Block ${name}`, cells: [{ type: "text", text: "Play it." }], minutes: 5, area: "guitar", topic: "guitar-basic-chords", concepts: [], steps: ["open-chords:1"], level: "beginner", tags: [] });
-/** The library id of block `name`: the stored plan works the same one out from the exercise. */
-const bid = (name: string): string => blockIdOf(blockKeyOf(exerciseOf(name)));
+  ({ title: `Block ${name}`, cells: [{ type: "text", text: "Play it." }], minutes: 5, area: "guitar", topic: "guitar-basic-chords", concepts: [], steps: ["open-chords:1"], level: "beginner", tags: [], blockId: bid(name), choiceId: cid(name) });
 const nameOf = (id: string): string => BLOCKS.find((n) => bid(n) === id) ?? id;
 
 /**
  * Curated blocks, each with one choice on open-chords:1 (the first step of a fresh guitar player) and a 5 minute slot. `minutes:
- * null` in `over` gives the blocks no choice. Their ids are the hashes a stored plan works out from the exercise.
+ * null` in `over` gives the blocks no choice.
  */
 function lib(ids: string[], over: Partial<LibraryData["blocks"][number]> = {}): LibraryData {
   const d = baseFixture();
@@ -67,25 +67,35 @@ test("no blocks of the areas, or none with a choice: no-blocks", async () => {
   assert.deepEqual(await composeToday(ear, P, { date: "2026-11-18", another: false }), { ok: false, code: "no-blocks" });
 });
 
-test("a candidate's exercise has the block id the stored plan computes from it", async () => {
+test("a composed exercise carries blockId and choiceId, and the stored plan keeps both", async () => {
   const extra = { why: "Warm up.", learnBefore: ["/course/3/x"], exploreMore: ["/course/4/y"], tags: ["slow"], concepts: ["pentatonic"] };
-  const d = lib(["x"], extra);
-  const probe = await composeToday(await setup(state(), d), P, { date: "2026-11-18", another: false });
-  assert.ok(probe.ok);
-  const e = probe.day.exercises[0];
+  const r = await composeToday(await setup(state(), lib(["x"], extra)), P, { date: "2026-11-18", another: false });
+  assert.ok(r.ok);
+  const e = r.day.exercises[0];
   assert.equal(e.minutes, 5);
   assert.equal(e.why, "Warm up.");
   assert.deepEqual([e.area, e.topic, e.level, e.steps, e.tags, e.concepts], ["guitar", "guitar-basic-chords", "beginner", ["open-chords:1"], ["slow"], ["pentatonic"]]);
   assert.deepEqual([e.learnBefore, e.exploreMore], [["/course/3/x"], ["/course/4/y"]]);
-  // the library's id for this block is the hash of the exercise as stored; with that id the exercise comes back with it
-  const id = blockIdOf(blockKeyOf(e));
-  d.blocks[0].id = id;
-  d.owners[0].blockId = id;
-  d.choices[0].blockId = id;
-  const r = await composeToday(await setup(state(), d), P, { date: "2026-11-18", another: false });
-  assert.ok(r.ok);
-  assert.equal(r.day.exercises[0].blockId, id);
-  assert.equal(blockIdOf(blockKeyOf(r.day.exercises[0])), id);
+  assert.deepEqual([e.blockId, e.choiceId], ["block-x", "block-x/beginner"]);
+  const stored = startDay(state(), r.day, { date: "2026-11-18", attempt: 0 }, () => "slot").current!.config.days[0].exercises[0];
+  assert.deepEqual([stored.blockId, stored.choiceId], ["block-x", "block-x/beginner"]);
+});
+
+test("two choices of one block are two candidates, each with the choice's steps, level, minutes and moves", async () => {
+  const data = lib(["x"]);
+  const moves = { key: "any" as const, bpm: { from: 60, to: 90, step: 10 } };
+  data.choices = [
+    choice(bid("x"), "beginner", { level: "beginner", steps: ["open-chords:1"], minutes: 5 }),
+    choice(bid("x"), "intermediate", { level: "intermediate", steps: ["open-chords:2"], minutes: 8, moves, place: 1 }),
+  ];
+  const cands = (await memoryLibraryRepo(data).composeBlocks(P, ["guitar"])).map(candidateOf);
+  assert.deepEqual(cands.map((c) => [c.blockId, c.choiceId, c.steps, c.minutes]), [
+    ["block-x", "block-x/beginner", ["open-chords:1"], 5],
+    ["block-x", "block-x/intermediate", ["open-chords:2"], 8],
+  ]);
+  const [a, b] = cands.map((c) => c.exercise);
+  assert.deepEqual([a.blockId, a.choiceId, a.level, a.steps, a.minutes, a.moves], ["block-x", "block-x/beginner", "beginner", ["open-chords:1"], 5, undefined]);
+  assert.deepEqual([b.blockId, b.choiceId, b.level, b.steps, b.minutes, b.moves], ["block-x", "block-x/intermediate", "intermediate", ["open-chords:2"], 8, moves]);
 });
 
 /** A composed day of `date` holding the blocks `ids`, as the page stores it. */
@@ -124,7 +134,7 @@ test("yesterday is read from history when current is an older composed day than 
 
 test("another: attempt + 1, rated exercises kept as stored, unrated ones declined with the stored declined ids", async () => {
   let s = dayOf(state(), "2026-11-18", ["b1", "b2", "b3"], 1);
-  s = { ...s, current: { ...s.current!, composed: { attempt: 1, declined: [bid("b8")], short: false } } };
+  s = { ...s, current: { ...s.current!, composed: { attempt: 1, declined: [cid("b8")], short: false } } };
   s = { ...s, current: ratePlan(s.current!, 0, 1, 4, "2026-11-18T09:00:00Z") };
   const kept = s.current!.config.days[0].exercises[1];
   const d = await setup(s, lib(["b1", "b2", "b3", "b4", "b8"]));

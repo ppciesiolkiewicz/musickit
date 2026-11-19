@@ -17,10 +17,17 @@ const mk = (id: string, topic: string, n: number): Track => ({
 // chords and scales: one fresh step each at the start (a:1, b:1)
 const AB = [mk("a", "guitar-basic-chords", 3), mk("b", "guitar-scales", 3)];
 
+/** A block with one choice; the choice's id is the block's id, so a test can name either. */
 function cand(id: string, steps: string[], minutes = 5, mine: { stars: Stars; ratedAt: string } | null = null, use = { times: 0, seconds: 0 }): Candidate {
-  const exercise: PlanExercise = { title: id, cells: [], minutes, steps, blockId: id };
-  return { blockId: id, steps, minutes, use, mine, exercise };
+  const exercise: PlanExercise = { title: id, cells: [], minutes, steps, blockId: id, choiceId: id };
+  return { blockId: id, choiceId: id, steps, minutes, use, mine, exercise };
 }
+/** Choice `name` of block `block`: its own choice id, `<block>/<name>`. */
+const choiceOf = (block: string, name: string, steps: string[], minutes = 5): Candidate => {
+  const c = cand(`${block}/${name}`, steps, minutes);
+  return { ...c, blockId: block, exercise: { ...c.exercise, blockId: block } };
+};
+const choiceIds = (d: { exercises: PlanExercise[] }) => d.exercises.map((e) => e.choiceId!);
 
 const none = new Map<string, string>();
 const base = (over: Partial<ComposeInput> = {}): ComposeInput => ({
@@ -161,6 +168,37 @@ test("reach: a block naming a step that is not on the path is never picked", () 
   }
 });
 
+// --- choices: the composer picks choices, a block is where they come from
+
+test("a choice used yesterday is not picked, another choice of the same block may be", () => {
+  const blocks = [choiceOf("blk", "one", ["a:1"]), choiceOf("blk", "two", ["a:1"])];
+  const d = composeDay(base({ answers: one, blocks, yesterday: ["blk/one"] }), A);
+  assert.deepEqual(choiceIds(d), ["blk/two"]);
+  assert.deepEqual(ids(d), ["blk"]);
+  // a block id is not a choice id: naming the block bars none of its choices
+  assert.equal(composeDay(base({ answers: one, blocks, yesterday: ["blk"] }), A).exercises.length, 1);
+  // declined reads choice ids the same way
+  assert.deepEqual(choiceIds(composeDay(base({ answers: one, blocks, declined: ["blk/two"] }), A)), ["blk/one"]);
+});
+
+test("two choices of one block are never in the same day", () => {
+  const blocks = [choiceOf("blk", "one", ["a:1"]), choiceOf("blk", "two", ["b:1"]), choiceOf("blk", "three", ["a:1"])];
+  for (let s = 0; s < 10; s++) {
+    const { day, trace } = explainDay(base({ blocks, seed: `p${s}:2026-11-18:0` }), AB);
+    assert.equal(day.exercises.length, 1, `seed ${s}: ${choiceIds(day).join()}`);
+    assert.equal(trace.library.usable, 3);
+  }
+  // nor beside a kept exercise of the block
+  const keep = [{ ...choiceOf("blk", "one", ["a:1"]).exercise, id: "slot-1" }];
+  const d = composeDay(base({ blocks, keep }), AB);
+  assert.deepEqual(choiceIds(d), ["blk/one"]);
+});
+
+test("the trace names the choice of each pick", () => {
+  const { trace } = explainDay(base({ answers: one, blocks: [choiceOf("blk", "one", ["a:1"])] }), A);
+  assert.deepEqual(trace.picks.map((p) => [p.blockId, p.choiceId]), [["blk", "blk/one"]]);
+});
+
 // --- yesterday, declined, a step with no block
 
 test("yesterday and declined: never picked, also when they are the only blocks on a step", () => {
@@ -255,7 +293,7 @@ test("not short when the day ends 5 or fewer minutes under", () => {
 
 // --- keep (asking for another plan)
 
-const kept = (id: string, minutes: number): PlanExercise => ({ title: `kept ${id}`, cells: [], minutes, steps: ["a:1"], blockId: id, id: `slot-${id}` });
+const kept = (id: string, minutes: number): PlanExercise => ({ title: `kept ${id}`, cells: [], minutes, steps: ["a:1"], blockId: id, choiceId: id, id: `slot-${id}` });
 
 test("keep: kept exercises come first and unchanged, and the new picks fill the rest", () => {
   const keep = [kept("k1", 4), kept("k2", 4)];
@@ -291,7 +329,7 @@ test("review focus 1: a new guitar player with a block on every first step gets 
 test("review focus 5: every block declined and no earlier step: only the kept ones, short, and it returns", () => {
   const keep = [kept("k1", 5)];
   const blocks = [...many("a:1", 3), ...many("b:1", 3)];
-  const d = composeDay(base({ keep, blocks, declined: blocks.map((b) => b.blockId) }), AB);
+  const d = composeDay(base({ keep, blocks, declined: blocks.map((b) => b.choiceId) }), AB);
   assert.deepEqual(d.exercises, keep);
   assert.equal(d.short, true);
 });
@@ -459,7 +497,7 @@ const mover = (id: string, step: string): Candidate => {
 };
 const FIRST_PLAY = { keys: { now: [9], back: [] }, bpm: { now: 60, back: [] } };
 const playedRow = (id: string, blockId: string, step: string, stars: number, at: string, given?: ProgressEntry["given"]): ProgressEntry =>
-  ({ id, planId: "p", exerciseId: `e-${id}`, day: 0, exercise: 0, title: blockId, steps: [step], blockId, stars, at, ...(given ? { given } : {}) }) as ProgressEntry;
+  ({ id, planId: "p", exerciseId: `e-${id}`, day: 0, exercise: 0, title: blockId, steps: [step], blockId, choiceId: blockId, stars, at, ...(given ? { given } : {}) }) as ProgressEntry;
 const givenOf = (d: { exercises: PlanExercise[] }, id: string) => d.exercises.find((e) => e.blockId === id)!.given;
 
 test("versions: a first play opens in the track's first key and the block's starting tempo, whatever the player's rung", () => {
@@ -509,6 +547,23 @@ test("versions: a week gives a block the same version on every day it comes up; 
   const kept = { ...mover("m", "b:1").exercise, given: { bpm: { now: 80, back: [70] }, moved: 2 } };
   const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks, keep: [kept] }), KEYED);
   assert.deepEqual(d.exercises[0].given, { bpm: { now: 80, back: [70] }, moved: 2 });
+});
+
+test("the roll reads only this choice's ratings", () => {
+  const top = { keys: { now: [0, 4, 7], back: [9] }, bpm: { now: 90, back: [80, 70] }, moved: 6 };
+  const m = mover("m", "b:1");
+  const mine = { ...m, choiceId: "m/one", exercise: { ...m.exercise, choiceId: "m/one" } };
+  const row = (id: string, choiceId: string | undefined, given: ProgressEntry["given"], at: string) => {
+    const r = playedRow(id, "m", "b:1", 5, at, given);
+    delete r.choiceId;
+    return (choiceId ? { ...r, choiceId } : r) as ProgressEntry;
+  };
+  const day = (history: ProgressEntry[]) => givenOf(composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks: [mine], history }), KEYED), "m");
+  // another choice of the same block, and a row of the block with no choice, are not this choice's plays: a first play
+  assert.deepEqual(day([row("r1", "m/two", top, "2026-11-17T10:00:00.000Z"), row("r2", undefined, top, "2026-11-17T11:00:00.000Z")]), FIRST_PLAY);
+  // its own row is
+  assert.deepEqual(day([row("r1", "m/one", top, "2026-11-10T10:00:00.000Z"), row("r2", "m/two", FIRST_PLAY, "2026-11-17T10:00:00.000Z")]), top);
+  assert.equal(rollSeed("p1", "m/one", "r1"), "p1:m/one:r1");
 });
 
 test("versions: the first step a block names on the path decides its keys", () => {

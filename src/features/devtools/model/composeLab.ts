@@ -18,13 +18,14 @@ import type { Stars } from "@/features/progress/stars";
  * seed files, not the database) and the ratings (one rule for every exercise) are stood in. Pure.
  */
 
-/** The seed blocks as the composer's candidates, for these areas: never used and never rated. The block id is the file's id. */
+/** Every choice of the seed blocks as the composer's candidates, for these areas: never used and never rated. The block id is the file's id, the choice id `<file id>/<choice name>`. */
 export function seedCandidates(areas: Area[], entries: CatalogueEntry[] = catalogue()): Candidate[] {
   return SEED_BLOCKS.flatMap((f) => seedExercises(f).flatMap((e): Candidate[] => {
     const { block } = parseExercise(e, f.id, entries);
     if (!block || !block.area || !areas.includes(block.area as Area)) return [];
     const steps = block.steps ?? [];
-    return [{ blockId: f.id, steps, minutes: block.minutes, use: { times: 0, seconds: 0 }, mine: null, exercise: { ...block, blockId: f.id } }];
+    const choiceId = String(e.choiceId);
+    return [{ blockId: f.id, choiceId, steps, minutes: block.minutes, use: { times: 0, seconds: 0 }, mine: null, exercise: { ...block, blockId: f.id, choiceId } }];
   }));
 }
 
@@ -49,14 +50,14 @@ export interface LabDay {
  * own roll (`versionFor`) over the day's history plus that one rating. Null for an exercise with no moves.
  */
 export function nextVersion(e: PlanExercise, d: Pick<LabDay, "answers" | "history" | "date">, player: string, stars: Stars): { given: Given; roll?: RollTrace } | null {
-  if (!e.moves || !e.blockId) return null;
-  const row: ProgressEntry = { id: `if-${stars}`, planId: "lab", exerciseId: `if-${e.blockId}`, day: 0, exercise: 0, title: e.title, steps: e.steps, blockId: e.blockId, ...(e.given ? { given: e.given } : {}), stars, at: `${d.date}T23:59:59.000Z` };
+  if (!e.moves || !e.choiceId) return null;
+  const row: ProgressEntry = { id: `if-${stars}`, planId: "lab", exerciseId: `if-${e.choiceId}`, day: 0, exercise: 0, title: e.title, steps: e.steps, ...(e.blockId ? { blockId: e.blockId } : {}), choiceId: e.choiceId, ...(e.given ? { given: e.given } : {}), stars, at: `${d.date}T23:59:59.000Z` };
   return versionFor(e, { answers: d.answers, history: [...d.history, row], player, seed: player });
 }
 
 /**
  * `days` days in a row, as `composeToday` makes them: each day gets the day before as `yesterday`, the ratings made so
- * far as solid steps and as each block's own rating, and the topics raised by them. `seed` stands for the player.
+ * far as solid steps and as each choice's own rating, and the topics raised by them. `seed` stands for the player.
  */
 export function simulate(opts: { answers: PlanAnswers; date: string; days: number; seed: string; rating: LabRating }, blocks: Candidate[] = seedCandidates(opts.answers.areas)): LabDay[] {
   const out: LabDay[] = [];
@@ -66,8 +67,8 @@ export function simulate(opts: { answers: PlanAnswers; date: string; days: numbe
     const date = addDays(opts.date, i);
     const solid = solidRatedAt(entries);
     const answers = raisedAnswers(opts.answers, entries, date);
-    const yesterday = i ? out[i - 1].day.exercises.flatMap((e) => (e.blockId ? [e.blockId] : [])) : [];
-    const rated = blocks.map((b) => ({ ...b, mine: mine.get(b.blockId) ?? null }));
+    const yesterday = i ? out[i - 1].day.exercises.flatMap((e) => (e.choiceId ? [e.choiceId] : [])) : [];
+    const rated = blocks.map((b) => ({ ...b, mine: mine.get(b.choiceId) ?? null }));
     const { day, trace } = explainDay({ answers, solid, blocks: rated, date, yesterday, keep: [], declined: [], seed: `${opts.seed}:${date}:0`, history: [...entries], player: opts.seed });
     const history = [...entries];
     out.push({ date, day, trace, answers, solid: solid.size, history });
@@ -75,8 +76,8 @@ export function simulate(opts: { answers: PlanAnswers; date: string; days: numbe
     const stars = STARS[opts.rating];
     const at = `${date}T18:00:00.000Z`;
     day.exercises.forEach((e, j) => {
-      entries.push({ id: `${date}:${j}`, planId: date, exerciseId: `${date}:${j}`, day: 0, exercise: j, title: e.title, area: e.area, level: e.level, topic: e.topic, concepts: e.concepts, steps: e.steps, blockId: e.blockId, ...(e.given ? { given: e.given } : {}), stars, at });
-      if (e.blockId) mine.set(e.blockId, { stars, ratedAt: at });
+      entries.push({ id: `${date}:${j}`, planId: date, exerciseId: `${date}:${j}`, day: 0, exercise: j, title: e.title, area: e.area, level: e.level, topic: e.topic, concepts: e.concepts, steps: e.steps, blockId: e.blockId, choiceId: e.choiceId, ...(e.given ? { given: e.given } : {}), stars, at });
+      if (e.choiceId) mine.set(e.choiceId, { stars, ratedAt: at });
     });
   }
   return out;
