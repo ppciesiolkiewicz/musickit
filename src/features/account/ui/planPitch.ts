@@ -58,6 +58,7 @@ export const PLAN_PITCH: Record<string, Pitch> = {
     points: [
       "Share a practice plan with each student as a link",
       "Send lesson notes when a lesson ends",
+      "Your school's name and logo on your students' pages",
       "We'll set it up together",
     ],
   },
