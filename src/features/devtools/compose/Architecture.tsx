@@ -202,7 +202,7 @@ export default function Architecture() {
         </div>
       </Panel>
 
-      <Panel title="Inside composeDay" note={<>Four calls in order, each with what it calls in turn. The number is the stage of the One day view that shows the call&apos;s result for a real day (stage 1 is the input, stage 6 the day that comes out).</>}>
+      <Panel title="Inside composeDay" note={<>Four calls in order, each with what it calls in turn. The number is the stage of the One day view that shows the call&apos;s result for a real day (stage 1 is the input, stage 7 the day that comes out).</>}>
         <ol className="flex flex-col">
           {INSIDE.map((s, i) => (
             <li key={s.name}>

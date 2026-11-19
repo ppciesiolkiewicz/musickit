@@ -272,11 +272,11 @@ export default function ComposeLab() {
         <Stage n={6} title="The versions" rule={<>Also last, and it changes no pick: a block with <C>moves</C> is played in a version (<C>plan/model/roll.ts</C>). A first play opens in the first key of its track and at its starting tempo. After that the newest rating of the block tilts the dice: {Math.round(ROLL.low.back * 100)}% the version before after 1 or 2 stars, {Math.round(ROLL.mid.move * 100)}% a move after 3, {Math.round(ROLL.high.move * 100)}% a move after 4 or 5, else the same again. A move is one part, by weight (tempo {ROLL.weights.bpm}, key {ROLL.weights.key}), and keeps the earlier values as chips. The dice are seeded by the player, the block and that rating, so a version changes only when the block is rated again.</>}>
           {rolled.length ? (
             <Table
-              head={["Block", "Last play", "Odds: back / same / move", "Dice", "Moves in", "Outcome", "Given", "If rated 1", "If rated 3", "If rated 5"]}
+              head={["Block", "Last play", "Odds: back / same / move", "Dice", "Moves in", "Outcome", "Given", "If rated 1", "If rated 2", "If rated 3", "If rated 4", "If rated 5"]}
               rows={rolled.map((p) => {
                 const r = p.roll!;
                 const e = day.exercises.find((x) => x.blockId === p.blockId);
-                const next = (stars: 1 | 3 | 5) => { const v = e ? nextVersion(e, d, seed, stars) : null; return v ? <span key={stars}>{version(v.given)}<span className="block text-[10px] text-slate-500">{v.roll?.outcome}{v.roll?.moved ? `: ${PART_NAME[v.roll.moved]}` : ""}</span></span> : "–"; };
+                const next = (stars: 1 | 2 | 3 | 4 | 5) => { const v = e ? nextVersion(e, d, seed, stars) : null; return v ? <span key={stars}>{version(v.given)}<span className="block text-[10px] text-slate-500">{v.roll?.outcome}{v.roll?.moved ? `: ${PART_NAME[v.roll.moved]}` : ""}</span></span> : "–"; };
                 return [
                   <span key="t" className="text-slate-100">{p.title}<span className="block font-mono text-[10px] text-slate-500">{p.blockId}</span></span>,
                   r.last ? <span key="l">{version(r.last.given)} <span className="text-amber-200">{r.last.stars}★</span></span> : "first play",
@@ -285,12 +285,12 @@ export default function ComposeLab() {
                   r.movesIn.length ? r.movesIn.map((m) => `${PART_NAME[m.part]} ${m.weight} (to ${m.part === "key" ? keyName(m.to) : m.to})`).join(" · ") : "–",
                   <b key="o" className="text-sky-100">{r.outcome}{r.moved ? `: ${PART_NAME[r.moved]}` : ""}</b>,
                   p.given ? version(p.given) : "–",
-                  next(1), next(3), next(5),
+                  next(1), next(2), next(3), next(4), next(5),
                 ];
               })}
             />
           ) : <p className="text-xs text-slate-500">No exercise of this day has moves.</p>}
-          <p className="mt-2 text-xs text-slate-500">{rolled.length} of this day&apos;s {trace.picks.length} picks have moves; {withMoves} of the {blocks.length} blocks in these areas do. The last three columns are the roll the composer would make next for each rating of the version shown.</p>
+          <p className="mt-2 text-xs text-slate-500">{rolled.length} of this day&apos;s {trace.picks.length} picks have moves; {withMoves} of the {blocks.length} blocks in these areas do. The last five columns are the roll the composer would make next for each rating of the version shown.</p>
         </Stage>
 
         <Stage n={7} title="The day" rule="As it is stored: the day's steps in pick order, review last. Short means the library ran out more than 5 minutes under the budget.">
