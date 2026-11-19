@@ -21,7 +21,7 @@ const BLACK = new Set([1, 3, 6, 8, 10]);
  * the right, shown as an empty "?" box with the interval and its solfège until it is found; tap either to hear it. With `dot` the
  * voice is a dot at the right edge with a line of the last few seconds behind it, green on Do and on the target; without it nothing of the voice shows (the harder way).
  */
-export default function IntervalRoll({ doMidi, low, high, target, found, doLabel, targetLabel, targetHint, doName, targetName, pitch, cents, dot, live, onNote, fill = false }: {
+export default function IntervalRoll({ doMidi, low, high, target, found, doLabel, targetLabel, targetHint, doName, targetName, pitch, cents, dot, live, onNote, hold, fill = false }: {
   doMidi: number;
   /** the lowest and highest note any interval of the set reaches, so the roll keeps its size whichever is asked (its height gives nothing away) */
   low: number;
@@ -43,6 +43,8 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
   live: boolean;
   /** tapped: "do" or "target" */
   onNote: (which: "do" | "target") => void;
+  /** how long the voice has held the target, 0 to 1, read every frame: it fills the "?" box from the left (with `dot` only) */
+  hold?: RefObject<number>;
   /** full screen: the rows grow to fill the box's height (the box needs one), the text with them */
   fill?: boolean;
 }) {
@@ -76,21 +78,21 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
   const rows = Array.from({ length: hi - lo + 1 }, (_, k) => hi - k);
 
   // the voice: the readings of the last few seconds, redrawn every frame while the mic is on
-  const [frame, setFrame] = useState<{ now: number; trail: { t: number; midi: number | null }[] }>({ now: 0, trail: [] });
+  const [frame, setFrame] = useState<{ now: number; held: number; trail: { t: number; midi: number | null }[] }>({ now: 0, held: 0, trail: [] });
   useEffect(() => {
     if (!live || !dot) return;
     let id = 0;
     const step = () => {
       const t = performance.now();
-      setFrame((f) => ({ now: t, trail: [...f.trail.filter((p) => t - p.t <= TRAIL_MS), { t, midi: pitch.current }] }));
+      setFrame((f) => ({ now: t, held: hold?.current ?? 0, trail: [...f.trail.filter((p) => t - p.t <= TRAIL_MS), { t, midi: pitch.current }] }));
       id = requestAnimationFrame(step);
     };
     id = requestAnimationFrame(step);
     return () => {
       cancelAnimationFrame(id);
-      setFrame({ now: 0, trail: [] });
+      setFrame({ now: 0, held: 0, trail: [] });
     };
-  }, [live, dot, pitch]);
+  }, [live, dot, pitch, hold]);
 
   let d = "";
   let pen = false;
@@ -125,6 +127,8 @@ export default function IntervalRoll({ doMidi, low, high, target, found, doLabel
           transition: onDo ? "fill 100ms, stroke 100ms" : "fill 900ms ease-out, stroke 900ms ease-out",
         }}
         fillOpacity={shown ? 0.55 : 0} strokeDasharray={shown ? undefined : "4 3"} />
+      {/* the hold so far, filling the "?" box from the left */}
+      {!shown && frame.held > 0 && <rect x={x0} y={yOf(midi) - ROW_H / 2 + 1} width={(x1 - x0) * frame.held} height={ROW_H - 2} rx={3} fill="var(--color-emerald-500)" fillOpacity={0.45} pointerEvents="none" />}
       <text x={x0 + 8 * k} y={yOf(midi) + 4 * k} fontSize={11 * k} fontWeight={600} fill={shown ? "var(--color-slate-50)" : "var(--color-slate-400)"}>{shown ? label : `? ${targetHint}`}</text>
     </g>
   );

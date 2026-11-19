@@ -39,10 +39,12 @@ const PLAYED = "var(--color-sky-300)";
 const DOT: Record<Fit, string> = { in: "var(--color-emerald-400)", out: "var(--color-rose-400)", between: "var(--color-amber-300)" };
 
 interface Point { x: number; step: number; t: number }
-interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number }
-const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1 };
+interface View { dot: Point | null; cam: number; tail: Point[]; lastHeard: number; now: number; fit: Fit; nearest: number; held: number }
+const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0, fit: "between", nearest: -1, held: 0 };
+/** the ring round a "?" that fills as the voice holds the note */
+const HOLD_R = 15;
 
-export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden, question, greens, labels }: {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden, question, greens, labels, hold }: {
   ladder: Ladder;
   clef: Clef;
   pitch: RefObject<number | null>;
@@ -64,6 +66,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   greens?: (i: number) => boolean;
   /** labels the notes in this system instead of the user's setting */
   labels?: LabelSystem;
+  /** how long the voice has held the note at `at`, 0 to 1, read every frame: a ring filling round its "?" */
+  hold?: { at: number; ref: RefObject<number> };
 }) {
   const [setting] = useLabelSystem();
   const system = labels ?? setting;
@@ -98,6 +102,10 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
 
   // the moving parts live in a ref, and a copy of them is drawn once a frame
   const anim = useRef<View>({ ...STILL });
+  const holdRef = useRef(hold?.ref);
+  useEffect(() => {
+    holdRef.current = hold?.ref;
+  }, [hold?.ref]);
   const playedRef = useRef(played);
   useEffect(() => {
     playedRef.current = played;
@@ -109,6 +117,7 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
       const a = anim.current;
       const now = performance.now();
       a.now = now;
+      a.held = holdRef.current?.current ?? 0;
       const m = pitch.current;
       if (m !== null) {
         const at = locate(midis, steps, m);
@@ -180,6 +189,9 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
                     <rect x={x - slot / 2} y={0} width={slot} height={H} fill="transparent" />
                     <circle cx={x} cy={yOf(4)} r={11} fill="var(--color-slate-950)" stroke={ink.degree} strokeDasharray="4 3" />
                     <text x={x} y={yOf(4) + 5} textAnchor="middle" fontSize={14} fontWeight={700} fill={ink.name}>?</text>
+                    {hold?.at === i && a.held > 0 && (
+                      <circle cx={x} cy={yOf(4)} r={HOLD_R} fill="none" stroke={DOT.in} strokeWidth={3} strokeLinecap="round" pathLength={1} strokeDasharray={`${a.held} 1`} transform={`rotate(-90 ${x} ${yOf(4)})`} pointerEvents="none" />
+                    )}
                     {lines.map((l, k) => <text key={k} x={x} y={labelsY + 12 + k * 15} textAnchor="middle" fontSize={11} fontWeight={700} fill={ink.name}>{l}</text>)}
                   </g>
                 );

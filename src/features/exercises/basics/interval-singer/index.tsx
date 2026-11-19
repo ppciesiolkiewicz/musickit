@@ -248,7 +248,8 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
     sound([doMidi, targetMidi]);
   };
 
-  // while listening, the voice held on the target long enough answers it
+  // while listening, the voice held on the target long enough answers it; `hold` is how far along it is (0 to 1), drawn on the note
+  const hold = useRef(0);
   const solve = useRef(reveal);
   useEffect(() => {
     solve.current = reveal;
@@ -261,9 +262,13 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
       const now = performance.now();
       if (m === null || Math.abs(m - targetMidi) * 100 > cents) since = null;
       else if (since === null) since = now;
-      else if (now - since >= HOLD_MS) solve.current(true);
+      hold.current = since === null ? 0 : Math.min(1, (now - since) / HOLD_MS);
+      if (since !== null && now - since >= HOLD_MS) solve.current(true);
     }, 30);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+      hold.current = 0;
+    };
   }, [phase, targetMidi, micOn, cents]);
 
   const found = phase === "solved" || phase === "shown";
@@ -371,9 +376,9 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
       {look === "roll" ? (
         <IntervalRoll doMidi={doMidi} low={doMidi + Math.min(0, ...placed.asks, ask ?? 0)} high={doMidi + Math.max(0, ...placed.asks, ask ?? 0)} target={targetMidi} found={found} doLabel={`Do · ${placed.doNote.spelled.name}`} targetLabel={target ? `${target.label} · ${target.spelled.name}` : ""} targetHint={ask !== null && target ? `${shortName(ask)} · ${target.label}` : ""}
           doName={`${placed.doNote.spelled.name}${placed.doNote.spelled.octave}`} targetName={target ? `${target.spelled.name}${target.spelled.octave}` : ""}
-          pitch={pitch} cents={cents} dot={dot} live={micOn} fill={full} onNote={(w) => (w === "do" ? void tap(doMidi, -1) : hearTarget())} />
+          pitch={pitch} cents={cents} dot={dot} live={micOn} fill={full} hold={hold} onNote={(w) => (w === "do" ? void tap(doMidi, -1) : hearTarget())} />
       ) : (
-        <SingingStaff ladder={staff.ladder} clef={clef} pitch={dot ? pitch : NO_PITCH} played={tapped === -1 ? (staff.targetAt === 0 ? 1 : 0) : tapped === -2 ? staff.targetAt : null} cents={cents}
+        <SingingStaff ladder={staff.ladder} clef={clef} pitch={dot ? pitch : NO_PITCH} hold={dot ? { at: staff.targetAt, ref: hold } : undefined} played={tapped === -1 ? (staff.targetAt === 0 ? 1 : 0) : tapped === -2 ? staff.targetAt : null} cents={cents}
           greens={(i) => i !== staff.targetAt} hidden={(i) => !found && i === staff.targetAt} question={(i) => (ask !== null && target && i === staff.targetAt ? [shortName(ask), target.label] : undefined)}
           onNote={(i) => (i === staff.targetAt ? hearTarget() : void tap(doMidi, -1))} />
       )}
