@@ -69,6 +69,10 @@ export function unparsedReplies(replies: string[]): number[] {
   return replies.flatMap((r, i) => (parsePlanConfig(r, entries).ok ? [] : [i]));
 }
 
+function secs(since: number): string {
+  return `${((Date.now() - since) / 1000).toFixed(1)}s`;
+}
+
 function dedupe(list: NewBlock[]): NewBlock[] {
   const seen = new Map<string, NewBlock>();
   for (const b of list) if (!seen.has(b.id)) seen.set(b.id, b);
@@ -82,17 +86,34 @@ function dedupe(list: NewBlock[]): NewBlock[] {
  * and a plan whose reply doesn't parse is left with none. A library block an earlier run stored as an example's (not
  * enabled) is promoted to `seed`, enabled; `promoted` counts those.
  */
-export async function seedBlocks(repo: UserDataRepo, plans: SeedPlan[], now: Date, files: SeedBlockFile[] = SEED_BLOCKS): Promise<{ library: number; planBlocks: number; promoted: number }> {
+export async function seedBlocks(
+  repo: UserDataRepo,
+  plans: SeedPlan[],
+  now: Date,
+  files: SeedBlockFile[] = SEED_BLOCKS,
+  log: (line: string) => void = () => {},
+): Promise<{ library: number; planBlocks: number; promoted: number }> {
   // the first writer of a block keeps its slot and provenance: block files first, then the plans in the order given (by id)
-  const library = dedupe([...seedFileBlocks(files), ...libraryPlanBlocks(plans)]);
+  const fileBlocks = seedFileBlocks(files);
+  const planLibrary = libraryPlanBlocks(plans);
+  const library = dedupe([...fileBlocks, ...planLibrary]);
+  log(`${library.length} distinct blocks (${fileBlocks.length} from ${files.length} seed files, ${planLibrary.length} from ${plans.length} plans)`);
+  log(`storing blocks: one transaction, one slot update per block…`);
+  let t = Date.now();
   await repo.addBlocks(null, library, now);
+  log(`stored blocks in ${secs(t)}`);
+  t = Date.now();
   const promoted = await repo.promoteExampleBlocks(library.map((b) => b.id));
+  log(`promoted ${promoted} example blocks in ${secs(t)}`);
   let planBlocks = 0;
-  for (const p of plans) {
+  t = Date.now();
+  for (const [i, p] of plans.entries()) {
     // a reply that no longer parses clears the plan's rows, so none point at blocks it doesn't hold
     const rows = planBlockRows(p.reply);
     await repo.setPlanBlocks(p.id, rows);
     planBlocks += rows.length;
+    log(`plan ${i + 1}/${plans.length}  ${p.id}  ${rows.length} rows`);
   }
+  if (plans.length) log(`plan block rows written in ${secs(t)}`);
   return { library: library.length, planBlocks, promoted };
 }

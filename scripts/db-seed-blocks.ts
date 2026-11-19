@@ -19,14 +19,16 @@ async function main() {
   const db = getDb();
   if (!url || !db) throw new Error("DATABASE_URL is not set.");
   console.log(`Writing to ${new URL(url).host}`);
+  console.log("reading practice_plans…");
   const rows = await db
     .select({ id: practicePlans.id, reply: practicePlans.reply, model: practicePlans.model, promptVersion: practicePlans.promptVersion, docsAgents: practicePlans.docsAgents, docsTeaching: practicePlans.docsTeaching })
     .from(practicePlans)
     .orderBy(practicePlans.id);
   const plans: SeedPlan[] = rows.map((r) => ({ id: r.id, reply: r.reply, provenance: { model: r.model, promptVersion: r.promptVersion, docsAgents: r.docsAgents, docsTeaching: r.docsTeaching } }));
+  console.log(`${rows.length} plans read; parsing replies and seed files…`);
   const replies = plans.map((p) => p.reply);
   for (const i of unparsedReplies(replies)) console.log(`skipped  ${rows[i].id}  (reply does not parse)`);
-  const { library, planBlocks, promoted } = await seedBlocks(drizzleUserDataRepo(db), plans, new Date());
+  const { library, planBlocks, promoted } = await seedBlocks(drizzleUserDataRepo(db), plans, new Date(), undefined, (line) => console.log(line));
   console.log(`${library} library block${library === 1 ? "" : "s"} from ${rows.length} plan${rows.length === 1 ? "" : "s"} and the seed block files, ${planBlocks} plan block row${planBlocks === 1 ? "" : "s"}, ${promoted} example block${promoted === 1 ? "" : "s"} promoted to seed.`);
 }
 
