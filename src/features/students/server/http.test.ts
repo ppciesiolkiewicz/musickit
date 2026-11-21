@@ -106,6 +106,7 @@ test("POST /api/students adds, makes the first week, mails the link", async () =
   const list = await (await listRoute(s.h, call(`/api/students?today=${TODAY}`, "GET", s.teacher.cookie))).json();
   assert.equal(list.students.length, 1);
   assert.deepEqual([list.limit, list.extra, list.active], [5, 0, 1], "the first week makes the student active this month");
+  assert.deepEqual(list.activeIds, [list.students[0].id], "and lists them as active");
   assert.equal((await listRoute(s.h, call("/api/students?today=2026-02-31", "GET", s.teacher.cookie))).status, 400);
 });
 

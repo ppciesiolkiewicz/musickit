@@ -9,8 +9,8 @@ const row = { id: "a1", name: "Ann", email: "ann@school.com", addedAt: "2026-11-
 const input = { name: "Ann", email: "ann@school.com", answers: migrateAnswers(null), today: "2026-11-18" };
 
 test("fetchStudents: the list and the limit; an answer of another shape is a failure", async () => {
-  assert.deepEqual(await fetchStudents("2026-11-18", answer(200, { students: [row], limit: 3, extra: 2, active: 1 })), { ok: true, students: [row], limit: 3, extra: 2, active: 1 });
-  assert.deepEqual(await fetchStudents("2026-11-18", answer(200, { students: [row], limit: null, extra: 0, active: 0 })), { ok: true, students: [row], limit: null, extra: 0, active: 0 });
+  assert.deepEqual(await fetchStudents("2026-11-18", answer(200, { students: [row], limit: 3, extra: 2, active: 1, activeIds: ["a1"] })), { ok: true, students: [row], limit: 3, extra: 2, active: 1, activeIds: ["a1"] });
+  assert.deepEqual(await fetchStudents("2026-11-18", answer(200, { students: [row], limit: null, extra: 0, active: 0 })), { ok: true, students: [row], limit: null, extra: 0, active: 0, activeIds: [] }, "an answer without activeIds reads as none");
   assert.equal((await fetchStudents("2026-11-18", answer(200, { students: [row], limit: 3 }))).ok, false, "no extras or count is a failure");
   assert.deepEqual(await fetchStudents("2026-11-18", answer(200, { students: [{ id: 1 }], limit: null })), { ok: false, code: "failed", error: CLIENT_WORDS.failed });
 });

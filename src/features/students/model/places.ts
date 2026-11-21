@@ -45,6 +45,9 @@ const students = (n: number): string => `${n} student${n === 1 ? "" : "s"}`;
 /** The count beside Add a student: "12 of 15 active students". */
 export const countLine = (limit: number, active: number): string => `${active} of ${limit} active students`;
 
+/** The tag on a student's row in the list when they count as active this month. */
+export const ACTIVE_TAG = "Active this month";
+
 /** What the count counts, in the (i) beside it. */
 export const COUNT_HELP =
   "Students you gave a training plan this month: you added them, made their next week or rotated their week. Everyone else stays on your list for free. The count starts again on the 1st.";

@@ -10,7 +10,7 @@ import { localDate } from "@/features/plan/model/schedule";
 import { dateLabel } from "@/features/plan/model/today";
 import { loginHref } from "@/lib/publicPaths";
 import { fetchStudents, postClaimLink } from "../client";
-import { COUNT_HELP, countLine, placesLine, placesState } from "../model/places";
+import { ACTIVE_TAG, COUNT_HELP, countLine, placesLine, placesState } from "../model/places";
 import type { AddedStudent, StudentList, StudentRow } from "../model/types";
 import AddStudent, { savedAdd } from "./AddStudent";
 import PlanWays from "./PlanWays";
@@ -59,11 +59,14 @@ const warn = <Icon name="alert-triangle" size={14} />;
 /** When the student first opened their link, or that they haven't yet. */
 const opened = (s: StudentRow): string => (s.claimedAt ? `Opened the link on ${dateLabel(localDate(new Date(s.claimedAt)))}` : "Not opened yet");
 
-function StudentItem({ s, link, onSendLink }: { s: StudentRow; link: LinkState | undefined; onSendLink: (id: string) => void }) {
+function StudentItem({ s, active, link, onSendLink }: { s: StudentRow; active: boolean; link: LinkState | undefined; onSendLink: (id: string) => void }) {
   return (
     <li className="flex flex-col gap-2 border-t border-slate-800 px-4 py-3 first:border-t-0 sm:flex-row sm:items-center sm:gap-4">
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <Link href={studentHref(s.id)} className="truncate text-sm font-medium text-sky-200 hover:underline">{s.name}</Link>
+        <span className="flex min-w-0 items-center gap-2">
+          <Link href={studentHref(s.id)} className="truncate text-sm font-medium text-sky-200 hover:underline">{s.name}</Link>
+          {active && <span className="shrink-0 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-200">{ACTIVE_TAG}</span>}
+        </span>
         <span className="truncate text-sm text-slate-400">{s.email}</span>
         <span className={`text-xs ${s.claimedAt ? "text-slate-500" : "text-amber-300/80"}`}>{opened(s)}</span>
         {link && !link.busy && <span role="status" className={`text-xs ${link.ok ? "text-slate-300" : "text-rose-300"}`}>{link.text}</span>}
@@ -119,6 +122,7 @@ export function StudentsView({ access, list, added, links, onRetry, onAdd, onSen
   }
 
   const { students, limit } = list;
+  const activeIds = new Set(list.activeIds);
   const places = placesState(list);
   const full = places.kind === "full";
   const line = placesLine(places);
@@ -146,7 +150,7 @@ export function StudentsView({ access, list, added, links, onRetry, onAdd, onSen
         <p className="text-sm text-slate-400">No students yet. Add one, and attunr makes their account and a plan for their first week.</p>
       ) : (
         <ul className={panel}>
-          {students.map((s) => <StudentItem key={s.id} s={s} link={links[s.id]} onSendLink={onSendLink} />)}
+          {students.map((s) => <StudentItem key={s.id} s={s} active={limit !== null && activeIds.has(s.id)} link={links[s.id]} onSendLink={onSendLink} />)}
         </ul>
       )}
     </div>
@@ -176,7 +180,7 @@ export default function StudentsApp() {
     if (access !== "teacher") return;
     let live = true;
     fetchStudents(localDate()).then((r) => {
-      if (live) setList(r.ok ? { kind: "list", students: r.students, limit: r.limit, extra: r.extra, active: r.active } : { kind: "error", error: r.error });
+      if (live) setList(r.ok ? { kind: "list", students: r.students, limit: r.limit, extra: r.extra, active: r.active, activeIds: r.activeIds } : { kind: "error", error: r.error });
     });
     return () => {
       live = false;
@@ -191,7 +195,16 @@ export default function StudentsApp() {
     setAdding(false);
     setAdded(a);
     // a student given a first week is active this month
-    setList((l) => (l.kind === "list" ? { ...l, students: [a.student, ...l.students.filter((s) => s.id !== a.student.id)], active: l.active + (a.plan === "none" ? 0 : 1) } : l));
+    setList((l) => {
+      if (l.kind !== "list") return l;
+      const given = a.plan !== "none";
+      return {
+        ...l,
+        students: [a.student, ...l.students.filter((s) => s.id !== a.student.id)],
+        active: l.active + (given ? 1 : 0),
+        activeIds: given ? [...l.activeIds, a.student.id] : l.activeIds,
+      };
+    });
   };
 
   const onSendLink = async (id: string) => {

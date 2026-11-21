@@ -123,11 +123,11 @@ export async function addStudent(
   }
 }
 
-/** The teacher's students, newest first, with the plan's limit (null: any number), its extras and the active count on `today`. */
+/** The teacher's students, newest first, with the plan's limit (null: any number), its extras and who is active on `today` (how many, and which). */
 export async function listStudents(deps: StudentsDeps, teacher: Account, today: string): Promise<StudentList> {
   const rows = await deps.auth.repo.studentsOf(teacher.id);
-  const { limit, extra, active } = await placesOf(deps.auth, teacher, today);
-  return { students: rows.map((r) => studentRow(r.user, r.createdAt, r.claimedAt)), limit, extra, active };
+  const { limit, extra, active, activeIds } = await placesOf(deps.auth, teacher, today);
+  return { students: rows.map((r) => studentRow(r.user, r.createdAt, r.claimedAt)), limit, extra, active, activeIds: [...activeIds] };
 }
 
 export type NewClaimError = "not-found" | "claimed" | "wait" | "daily";

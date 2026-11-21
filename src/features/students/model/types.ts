@@ -25,6 +25,8 @@ export interface StudentList {
   limit: number | null;
   extra: number;
   active: number;
+  /** the students active this month (given a week since the 1st), by id; `active` is how many */
+  activeIds: string[];
 }
 
 /** What happened to the first week when a student was added. */
