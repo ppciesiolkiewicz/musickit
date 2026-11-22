@@ -83,7 +83,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the same song. On paper, write one number for each bar: 1, 4, 5 or 6. Write the bars you are sure of first, then fill the gaps as the song comes round.\nPress Show chords on the chart to check. Under each chord's name the chart writes its number: I for 1, IV for 4, V for 5 and vi for 6.\nIf a bar is wrong, press Hide chords and listen to that bar again."
+            "text": "Press Play below to start the same song. On paper, write one number for each bar: 1, 4, 5 or 6. Write the bars you are sure of first, then fill the gaps as the song comes round.\nPress Show chords on the chart below to check. Under each chord's name the chart writes its number: I for 1, IV for 4, V for 5 and vi for 6.\nIf a bar is wrong, press Hide chords and listen to that bar again."
           },
           {
             "type": "tool",
@@ -136,7 +136,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start a new song: a Verse, a Chorus and a Bridge, and the name above the boxes says which one is playing. Write a number for every bar again, then press Show chords on the chart to check.\nIn another key the chord names are new, and each bar of this song keeps its number."
+            "text": "Press Play below to start a new song: a Verse, a Chorus and a Bridge, and the name above the boxes says which one is playing. Write a number for every bar again, then press Show chords on the chart below to check.\nIn another key the chord names are new, and each bar of this song keeps its number."
           },
           {
             "type": "tool",
