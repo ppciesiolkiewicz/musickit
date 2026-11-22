@@ -2,11 +2,12 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { COMPONENT_DOCS, docOf } from "../docs";
 import { PATTERNS, isPatternId } from "@/features/rhythm/patterns";
-import { CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, STAFF_READING_LEVELS, TOOL_LEVELS } from "./levels";
+import { CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, STAFF_READING_LEVELS, TOOL_LEVELS, VOWEL_GUIDE_LEVELS } from "./levels";
+import { VOWELS, VOWEL_CLIMBS, isVowelClimb } from "./vowel-guide/vowels";
 import { READING_CLEFS, READING_SETS } from "./staff-reading/reading";
 import { DYAD_DEFAULT_STRINGS, DYAD_NAMES, LIMITS, dyadStrings } from "./double-stops-neck/walk";
 
-const NAMES = ["scale-neck", "chord-shapes", "staff", "backing-band", "note-finder", "interval-ears", "strum-along", "clap-along", "double-stops-neck", "song-chart", "staff-reading"];
+const NAMES = ["scale-neck", "chord-shapes", "staff", "backing-band", "note-finder", "interval-ears", "strum-along", "clap-along", "double-stops-neck", "song-chart", "staff-reading", "vowel-guide"];
 
 describe("basics docs", () => {
   it("lists every basic", () => {
@@ -44,6 +45,19 @@ describe("basics docs", () => {
     assert.deepEqual(union("clef"), [...READING_CLEFS]);
     const level = props.find((x) => x.name === "level")!.description;
     for (const l of TOOL_LEVELS) assert.ok(level.includes(`"${l}" ${STAFF_READING_LEVELS[l]}`), l);
+  });
+  it("vowel-guide: the props list every climb and vowel, and the level prop says each level's climb", () => {
+    const props = docOf("vowel-guide")!.props;
+    const union = (name: string) => props.find((x) => x.name === name)!.type.replace(/[()[\]]/g, "").split(" | ").map((x) => x.replace(/"/g, ""));
+    assert.deepEqual(union("climb"), [...VOWEL_CLIMBS]);
+    assert.deepEqual(union("vowels"), [...VOWELS]);
+    const level = props.find((x) => x.name === "level")!.description;
+    for (const l of TOOL_LEVELS) {
+      assert.ok(isVowelClimb(VOWEL_GUIDE_LEVELS[l]), l);
+      assert.ok(new RegExp(`"${l}"[^.]*: ${VOWEL_GUIDE_LEVELS[l]}`).test(level), l);
+    }
+    // a new or beginner singer stays on the one easy note
+    assert.deepEqual([VOWEL_GUIDE_LEVELS.new, VOWEL_GUIDE_LEVELS.beginner], ["one-note", "one-note"]);
   });
   it("clap-along: every level is a pattern of the rhythm game, and the pattern prop lists them all", () => {
     for (const l of TOOL_LEVELS) assert.ok(isPatternId(CLAP_ALONG_LEVELS[l]), l);

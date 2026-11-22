@@ -83,6 +83,9 @@ describe("transposeTool", () => {
     const reading = tool({ type: "staff-reading", level: "new" });
     assert.equal(canTranspose(reading), false);
     assert.equal(transposeTool(reading, 5), reading);
+    const vowels = tool({ type: "vowel-guide", level: "intermediate" });
+    assert.equal(canTranspose(vowels), false);
+    assert.equal(transposeTool(vowels, 5), vowels);
     assert.equal(canTranspose(t), true);
   });
 });

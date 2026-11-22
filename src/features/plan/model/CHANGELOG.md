@@ -10,6 +10,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 15 (2026-11-22)
+
+- A new tool, `vowel-guide` (MissingTools14): a drawn mouth shows the vowel to sing ("ah", "eh", "ee", "oh", "oo") and how its shape opens a little as the note climbs; the note plays, the student holds it on that vowel, and a ring fills while the mic hears the voice on the note. Then the next vowel, and after the last vowel the next note up. Props `level`, `climb`, `vowels`, `seconds`, `voice`.
+- "Which tool for what" names it in the singing line: keeping a note steady while the vowel changes is vowel-guide. Its mic checks the note only, so the text never says the app hears or checks the vowel, and says to copy the mouth.
+- It is in the list of tools that take a `level` (one easy note for new and beginner, up to the first break, across the break) and in the list of mic tools that make an exercise a singing one.
+- The list of each concept's steps has a new track, `vowels` ("Vowels", in the Breath & range topic): Five vowels on one note (beginner), Vowels up to the break (intermediate), Vowels across the break (advanced).
+
 ### 14 (2026-11-22)
 
 - A new tool, `staff-reading` (MissingTools15): a game that draws one note on the staff for the student to name, by pressing its letter or, with the mic switched on, by singing or playing it in any octave. It says the note and where it sits and asks the next one; no score, no round. Natural notes only. Props `level`, `notes`, `clef`, `mic`.

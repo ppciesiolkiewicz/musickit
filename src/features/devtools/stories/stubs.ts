@@ -7,7 +7,7 @@ import type { Props, Story } from "./stories";
  * what the tool is for, which blocks wait on it, what is still open, and the props it might take, so the shape can be
  * argued over here before it is built. Building one means a real tool in TOOLS and deleting its stub.
  *
- * Only the new tools are here. A missing prop or bug on a tool that exists (MissingTools4-7, 9-13) is that tool's work.
+ * Only the new tools are here; with all six built (2026-11-22) the list is empty until the next one is asked for. A missing prop or bug on a tool that exists (MissingTools4-7, 9-13) is that tool's work.
  */
 
 export interface StubSpec {
@@ -24,28 +24,9 @@ export interface StubSpec {
   stories: Story[];
 }
 
-const hand = (name: string, props: Props): Story => ({ name, props, from: "hand" });
-const p = (name: string, type: string, description: string, required = false): PropDoc => ({ name, type, required, description });
+/** A hand-written story of a stub. */
+export const hand = (name: string, props: Props): Story => ({ name, props, from: "hand" });
+/** A planned prop of a stub. */
+export const p = (name: string, type: string, description: string, required = false): PropDoc => ({ name, type, required, description });
 
-export const STUBS: StubSpec[] = [
-  {
-    id: "vowel-guide",
-    title: "vowel-guide",
-    task: "MissingTools14",
-    what: "An animated mouth shows each vowel (ah, eh, ee, oh, oo) and how it narrows or opens as the note climbs, and the player sings along with it.",
-    waits: "voice-intermediate-slides-across-the-break, voice-advanced-guide-tones",
-    open: "What the tool expects back: a pitch held on each vowel, read by the mic like the other voice tools, or only a guide to copy with no check?",
-    keywords: ["vowel", "vowels", "mouth", "modification", "sing", "voice", "vocal", "break", "mic"],
-    props: [
-      p("vowels", `("ah" | "eh" | "ee" | "oh" | "oo")[]`, "The vowels, in order."),
-      p("from", "string", "The low note, as the voice tools name it (\"C3\")."),
-      p("to", "string", "The high note."),
-      p("voice", `"bass" | "baritone" | "tenor" | "alto" | "mezzo" | "soprano"`, "Picks the range when from and to are left out."),
-      p("check", `"mic" | "none"`, "Whether the mic reads the held pitch (open, see above)."),
-    ],
-    stories: [
-      hand("All five, tenor", { vowels: ["ah", "eh", "ee", "oh", "oo"], voice: "tenor" }),
-      hand("ah to oo up through the break", { vowels: ["ah", "oo"], from: "A3", to: "E4", check: "mic" }),
-    ],
-  },
-];
+export const STUBS: StubSpec[] = [];

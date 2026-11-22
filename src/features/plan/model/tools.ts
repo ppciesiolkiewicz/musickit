@@ -15,12 +15,13 @@ import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/feat
 import { HILL_SOUNDS, HILL_WHERE, LIMITS as HILL_LIMITS, type HillSound, type HillWhere } from "@/features/exercises/basics/voice-hill/hill";
 import { LIP_ROLL_PLAYS, LIP_ROLL_SHAPES, LIP_ROLL_SPEEDS, LIMITS as LIP_ROLL_LIMITS, type LipRollPlay, type LipRollShape, type LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
 import { earKindOf, isQuality } from "@/lib/practice/earGame";
-import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STAFF_READING_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
+import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STAFF_READING_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, VOWEL_GUIDE_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { MAX_BARS as CLAP_MAX_BARS, MAX_BPM as CLAP_MAX_BPM, MIN_BPM as CLAP_MIN_BPM, PATTERNS as CLAP_PATTERNS, isPatternId } from "@/features/rhythm/patterns";
 import { LIMITS as SONG_LIMITS, barChords, chordNumeral, type ChartSection } from "@/features/exercises/basics/song-chart/chart";
 import { DYAD_DEFAULT_STRINGS, DYAD_NAMES, LIMITS as DYAD_LIMITS, dyadStrings, isDyadName, type DyadName } from "@/features/exercises/basics/double-stops-neck/walk";
 import { READING_CLEFS, READING_SETS, isReadingClef, isReadingSet, type ReadingClef, type ReadingSet } from "@/features/exercises/basics/staff-reading/reading";
+import { LIMITS as VOWEL_LIMITS, VOWELS, VOWEL_CLIMBS, isVowel, isVowelClimb, type Vowel, type VowelClimb } from "@/features/exercises/basics/vowel-guide/vowels";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
@@ -127,6 +128,8 @@ type PlanToolProps =
   | { type: "breathwork"; drill?: BreathDrill; level?: ToolLevel; from?: number; to?: number; seconds?: number; rounds?: number }
   | { type: "voice-hill"; where?: HillWhere; sound?: HillSound; seconds?: number; reps?: number; voice?: Voice }
   | { type: "lip-roll"; shape?: LipRollShape; /** not for "hold" */ speed?: LipRollSpeed; play?: LipRollPlay; /** "hold" only */ seconds?: number; plays?: number; voice?: Voice }
+  /** the vowel guide (`vowel-guide/vowels.ts`): `climb` is how far its notes climb; `vowels` absent: all five; `seconds` absent: 3 */
+  | { type: "vowel-guide"; climb: VowelClimb; level?: ToolLevel; vowels?: Vowel[]; seconds?: number; voice?: Voice }
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; /** Do and then the note sound before the student sings; absent: only Do */ play?: "both"; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
@@ -592,6 +595,20 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       return { type: "lip-roll", ...(shape !== "down" ? { shape } : {}), ...speed, ...play, ...(seconds !== null ? { seconds } : {}), ...(plays !== null ? { plays } : {}), ...(voice ? { voice } : {}) };
     },
   },
+  "vowel-guide": {
+    parse(t, d) {
+      // the climb is optional (one easy note): only a wrong one is noted; a vowel it can't read is left out and said
+      const climb = isVowelClimb(t.climb) ? t.climb : "one-note";
+      if (climb !== t.climb) defaulted(d, "climb", t.climb, `it is ${VOWEL_CLIMBS.map((c) => `"${c}"`).join(", ")}`, "one-note", true);
+      lost(d, "vowels", t.vowels, (e) => (isVowel(e) ? e : null));
+      const vowels = t.vowels == null ? [] : list(t.vowels).filter(isVowel).filter((v, i, all) => all.indexOf(v) === i);
+      const seconds = int(t.seconds, ...VOWEL_LIMITS.seconds);
+      const voice = voiceOf(t.voice);
+      // all five in their own order is the default, so only another set is kept
+      const own = vowels.length && vowels.join() !== VOWELS.join() ? { vowels } : {};
+      return { type: "vowel-guide", climb, ...own, ...(seconds !== null ? { seconds } : {}), ...(voice ? { voice } : {}) };
+    },
+  },
   "string-singer": {
     parse(t) {
       // "strings" is the default, so only another drill is kept
@@ -790,7 +807,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
 };
 
 /** The tools that take a `level`: a short way to write the settings in `levels.ts` (exercises). */
-const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "double-stops-neck", "staff-reading"] as const;
+const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "double-stops-neck", "staff-reading", "vowel-guide"] as const;
 type LeveledName = (typeof LEVELED)[number];
 /** Whether a tool can be set to a level (`setLevel`). */
 export const hasLevel = (tool: PlanTool): tool is Extract<PlanTool, { type: LeveledName }> => (LEVELED as readonly string[]).includes(tool.type);
@@ -816,6 +833,7 @@ function levelProps(type: LeveledName, level: ToolLevel, t: Record<string, unkno
     case "clap-along": return { pattern: CLAP_ALONG_LEVELS[level] };
     case "double-stops-neck": return { ...DOUBLE_STOPS_NECK_LEVELS[level] };
     case "staff-reading": return { notes: STAFF_READING_LEVELS[level] };
+    case "vowel-guide": return { climb: VOWEL_GUIDE_LEVELS[level] };
   }
 }
 

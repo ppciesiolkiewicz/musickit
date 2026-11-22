@@ -80,5 +80,12 @@ export const DOUBLE_STOPS_NECK_LEVELS: Ladder<{ from: number; to: number }> = {
 /** staff-reading: the set of notes asked, a `ReadingSet` of `staff-reading/reading.ts` (a test holds each to a set there). The lines, the spaces, the notes outside the staff, then all of them. */
 export const STAFF_READING_LEVELS: Ladder<"lines" | "spaces" | "ledger" | "all"> = { new: "lines", beginner: "spaces", intermediate: "ledger", advanced: "all" };
 
+/**
+ * vowel-guide: how far its notes climb, a `VowelClimb` of `vowel-guide/vowels.ts` (a test holds each to one there). One
+ * easy note low in the voice, then from it up to the first break, then from the first break up to the second. A new or
+ * beginner singer stays on the one easy note.
+ */
+export const VOWEL_GUIDE_LEVELS: Ladder<"one-note" | "to-break" | "across-break"> = { new: "one-note", beginner: "one-note", intermediate: "to-break", advanced: "across-break" };
+
 /** legato-trill: the two fingers, the strong pair first and the weak pair last. */
 export const LEGATO_TRILL_LEVELS: Ladder<string> = { new: "12", beginner: "13", intermediate: "23", advanced: "34" };

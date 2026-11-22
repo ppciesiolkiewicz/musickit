@@ -1,4 +1,4 @@
-import { CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STAFF_READING_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, type ToolLevel } from "@/features/exercises/basics/levels";
+import { CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STAFF_READING_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, VOWEL_GUIDE_LEVELS, type ToolLevel } from "@/features/exercises/basics/levels";
 import { intervalName } from "@/features/theory/singingIntervals";
 import { BOOK, DIFFICULTIES, RUNS, RUN_STAGES, STAGES } from "@/features/theory/singingMelodies";
 import { CHANGE_LEVELS, EAR_LEVELS, TOP_EAR_LEVEL, earKindOf, parseEarSettings } from "@/lib/practice/earGame";
@@ -7,6 +7,7 @@ import { DYAD_DEFAULT_STRINGS } from "@/features/exercises/basics/double-stops-n
 import { DYAD_MAX_FRET } from "@/lib/chordKit/scaleChords";
 import { OPEN_CHORDS, chartStep } from "@/features/exercises/basics/song-chart/chart";
 import { notesOf, type ReadingSet } from "@/features/exercises/basics/staff-reading/reading";
+import { VOWEL_CLIMBS, type VowelClimb } from "@/features/exercises/basics/vowel-guide/vowels";
 import type { PlanTool } from "./tools";
 
 /*
@@ -51,6 +52,14 @@ const LOW_LEVELS = TOOL_LEVELS.filter((l) => DOUBLE_STOPS_NECK_LEVELS[l].to === 
 
 /** staff-reading: a set's notes in the treble clef, low to high, as letters. */
 const trebleNotes = (set: ReadingSet) => notesOf("treble", set).map((n) => n.letter).join(" ");
+
+/** vowel-guide: what each climb holds, and the levels that stand for it. */
+const CLIMB_HOLDS: Record<VowelClimb, string> = {
+  "one-note": "every vowel on one easy note low in the voice",
+  "to-break": "every vowel on four notes, from the easy note up to the first break",
+  "across-break": "every vowel on four notes, from the first break up to the second",
+};
+const levelsOf = (c: VowelClimb) => TOOL_LEVELS.filter((l) => VOWEL_GUIDE_LEVELS[l] === c).join(", ");
 
 /** Every ladder in the code that says what a level holds. */
 export const LADDERS: Ladder[] = [
@@ -124,6 +133,14 @@ export const LADDERS: Ladder[] = [
       { key: "bass", name: "bass clef", holds: "the bass clef at any level: its lines, spaces, ledger lines or all" },
     ],
     read: (tool) => (tool.type !== "staff-reading" || !tool.level || tool.notes !== STAFF_READING_LEVELS[tool.level] ? null : tool.clef === "bass" ? "bass" : tool.notes),
+  },
+  // the vowels track's ladder: vowel-guide. Its step is how far the notes climb, and two levels (new, beginner) stand for
+  // the first. As on staff-reading, the step is read only while the tool still climbs as its level says: another
+  // `climb` beside the level, or no level, says no step
+  {
+    id: "vowel-guide", label: "vowel-guide levels", file: LEVELS_FILE,
+    steps: VOWEL_CLIMBS.map((c) => ({ key: c, name: `${c} (level ${levelsOf(c)})`, holds: CLIMB_HOLDS[c] })),
+    read: (tool) => (tool.type !== "vowel-guide" || !tool.level || tool.climb !== VOWEL_GUIDE_LEVELS[tool.level] ? null : tool.climb),
   },
   // song-chart has no levels: its step is read from the chart itself (`chartStep`). A song of open chords to play
   // through is the last step of the open-chords track; a chart whose chord names start hidden is the last step of

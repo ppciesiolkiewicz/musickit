@@ -222,6 +222,26 @@ test("reading the staff: a new theory track in the Basics topic, right after not
   assert.equal(stepOf("note-names", [read({ level: "beginner" })]), null);
 });
 
+test("vowels: a new voice track in the Breath & range topic, after stretching your range; a vowel-guide's level is its step", () => {
+  const i = PATH.findIndex((t) => t.id === "vowels");
+  assert.equal(PATH[i - 1].id, "range");
+  const t = PATH[i];
+  // nothing for someone new: the first step is a beginner's, on one easy note
+  assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["voice", "voice-breath-range", [], ["beginner", "intermediate", "advanced"]]);
+  assert.deepEqual(t.steps.map((s) => s.ladder ?? null), ["vowel-guide:one-note", "vowel-guide:to-break", "vowel-guide:across-break"]);
+  assert.deepEqual(t.steps.map((s) => s.after), [["pitch:3"], ["range:1"], ["range:2"]]);
+  const vowels = (props: Record<string, unknown>) => parseTool({ type: "vowel-guide", ...props })!;
+  // new and beginner are the same climb, so both read as the first step
+  assert.equal(stepOf("vowels", [vowels({ level: "new" })]), 0);
+  assert.equal(stepOf("vowels", [vowels({ level: "beginner", vowels: ["ee", "oo"] })]), 0);
+  assert.equal(stepOf("vowels", [vowels({ level: "intermediate" })]), 1);
+  assert.equal(stepOf("vowels", [vowels({ level: "beginner" }), vowels({ level: "advanced" })]), 2);
+  // a raw climb, or another climb written beside a level, says no step
+  assert.equal(stepOf("vowels", [vowels({ climb: "to-break" })]), null);
+  assert.equal(stepOf("vowels", [vowels({ level: "beginner", climb: "across-break" })]), null);
+  assert.equal(stepOf("range", [vowels({ level: "intermediate" })]), null);
+});
+
 test("levelOfSteps: the highest level of the steps, unknown refs skipped", () => {
   const top = PATH.find((t) => t.steps.length > 1 && t.steps[0].level !== t.steps[t.steps.length - 1].level)!;
   const last = `${top.id}:${top.steps.length}`;

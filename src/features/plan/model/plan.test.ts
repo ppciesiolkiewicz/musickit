@@ -331,6 +331,31 @@ describe("tools", () => {
     assert.equal(canFollowPart(stored, "key"), false);
     assert.equal(canFollowPart(stored, "bpm"), false);
   });
+  it("a vowel-guide: a level picks the climb, a written climb wins, all five vowels and 3 seconds are the defaults", () => {
+    assert.deepEqual(parseTool({ type: "vowel-guide" }), { type: "vowel-guide", climb: "one-note" });
+    assert.deepEqual(parseToolDiag({ type: "vowel-guide" }).notes, []);
+    assert.deepEqual(parseTool({ type: "vowel-guide", level: "new" }), { type: "vowel-guide", climb: "one-note", level: "new" });
+    assert.deepEqual(parseTool({ type: "vowel-guide", level: "beginner" }), { type: "vowel-guide", climb: "one-note", level: "beginner" });
+    assert.deepEqual(parseTool({ type: "vowel-guide", level: "intermediate", voice: "alto", seconds: 4 }), { type: "vowel-guide", climb: "to-break", seconds: 4, voice: "alto", level: "intermediate" });
+    assert.deepEqual(parseTool({ type: "vowel-guide", level: "advanced", vowels: ["ah", "oo"] }), { type: "vowel-guide", climb: "across-break", vowels: ["ah", "oo"], level: "advanced" });
+    assert.deepEqual(parseTool({ type: "vowel-guide", level: "advanced", climb: "to-break" }), { type: "vowel-guide", climb: "to-break", level: "advanced" });
+    // all five in their own order is the default and is not stored; another order is; a vowel twice is once
+    assert.deepEqual(parseTool({ type: "vowel-guide", vowels: ["ah", "eh", "ee", "oh", "oo"] }), { type: "vowel-guide", climb: "one-note" });
+    assert.deepEqual(parseTool({ type: "vowel-guide", vowels: ["oo", "ee", "oo"] }), { type: "vowel-guide", climb: "one-note", vowels: ["oo", "ee"] });
+    // the seconds are held to 2-6; what it can't read is defaulted or left out, and said
+    assert.deepEqual(parseTool({ type: "vowel-guide", seconds: 30 }), { type: "vowel-guide", climb: "one-note", seconds: 6 });
+    const p = parseToolDiag({ type: "vowel-guide", climb: "top", vowels: ["ah", "uh"], voice: "robot" });
+    assert.deepEqual(p.tool, { type: "vowel-guide", climb: "one-note", vowels: ["ah"] });
+    assert.equal(p.notes.length, 2);
+    // stored, it reads back the same
+    const stored = parseTool({ type: "vowel-guide", level: "intermediate", vowels: ["ee", "oo"], voice: "bass" })!;
+    assert.deepEqual(parseTool(stored, { stored: true }), stored);
+    // a level choice moves the climb and keeps the rest; it has no key and no tempo
+    assert.deepEqual(setLevel(stored, "advanced"), { type: "vowel-guide", climb: "across-break", vowels: ["ee", "oo"], voice: "bass", level: "advanced" });
+    assert.equal(canFollowPart(stored, "level"), true);
+    assert.equal(canFollowPart(stored, "key"), false);
+    assert.equal(canFollowPart(stored, "bpm"), false);
+  });
   it("a double-stops-neck: the interval is asked for, the scale and strings have defaults, a level sets the frets", () => {
     assert.deepEqual(parseTool({ type: "double-stops-neck", key: "g", interval: "3rds" }), { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "3rds", strings: "32" });
     assert.deepEqual(parseToolDiag({ type: "double-stops-neck", key: "g", interval: "3rds" }).notes, []);
