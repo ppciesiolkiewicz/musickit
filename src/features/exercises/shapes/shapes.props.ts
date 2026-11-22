@@ -136,7 +136,8 @@ export interface ArpeggioPartShape extends ShapeCommon {
 }
 
 /**
- * A tune from the singing book, by number, in a key. `bpm` goes on the play-along.
+ * A tune from the singing book, by number, in a key. `bpm` goes on the play-along. `octave` plays the same tune an octave
+ * higher, further up the neck: for a tune the student already plays where it is first written.
  *
  * Example: `{ "shape": "melody", "tune": 3, "key": "d" }`
  * @component melody shape
@@ -147,6 +148,43 @@ export interface MelodyShape extends ShapeCommon {
   tune: number;
   /** key as a note: "c", "f-sharp" */
   key: string;
+  /** 1: every note an octave higher. Only in a key where the higher tune still fits on the neck (up to fret 17 on the high e string): a tune that stays within an octave of Do fits in "f-sharp", "g", "a-flat" and "a" */
+  octave?: 1;
+}
+
+/**
+ * An interval as a shape on the neck: its two notes played one after the other, one note a beat, in a major key. Use it
+ * to drill what an interval looks like under the fingers before tunes and riffs use it: an octave two strings over, a
+ * 5th on the next string, a 3rd along one string. `strings` says where the two notes sit: the lower note's string, then
+ * the upper note's (guitar numbers, 6 the low E). The app finds every fret. On two strings the two notes stay within 4
+ * frets, so not every interval sits on every pair: 2nds, 3rds, 4ths, 5ths and 6ths on the next string ("65", "54", "43",
+ * "21"; across the G and B strings, "32", the shape shifts a fret and a 6th no longer fits), 5ths, 6ths, 7ths and octaves two strings over ("64",
+ * "53", "42", "31"; 4ths too on "42" and "31"), an octave three strings over as well ("63", "52", "41"), and every interval along one string ("66" to "11").
+ * `walk` "scale" (default) plays the interval from every note of the scale along those strings, so its size follows the
+ * scale (one 5th of a major key is a fret smaller). `walk` "note" plays it from the key note alone: the note above on
+ * the second string, the note below the same number of strings the other way. With several `intervals` each starts on a
+ * new bar. `bpm` goes on the play-along.
+ *
+ * Example: `{ "shape": "interval", "key": "g", "intervals": ["octave"], "strings": "64" }` is the octaves of G major, the
+ * lower note on the low E string and the upper on the D string, up the neck low note first and back down high note first.
+ * @component interval shape
+ */
+export interface IntervalShape extends ShapeCommon {
+  shape: "interval";
+  /** the major key as a note: "g", "f-sharp", "b-flat" */
+  key: string;
+  /** the intervals, each played in turn: "2nd", "3rd", "4th", "5th", "6th", "7th", "octave" */
+  intervals: ("2nd" | "3rd" | "4th" | "5th" | "6th" | "7th" | "octave")[];
+  /** two guitar numbers: the lower note's string, then the upper note's. "64" two strings over, "65" the next string, "66" along one string */
+  strings: string;
+  /** which note comes first. "up": the low note, then the high one, climbing the neck. "down": the high note, then the low one, coming back down the neck. "both" (default): up the neck, then back down. With `walk` "note": "up" the note above, "down" the note below, "both" one then the other */
+  direction?: "up" | "down" | "both";
+  /** "scale" (default): from every note of the scale along the strings. "note": from the key note only, the same interval above it and below it; the first string is the key note's, and "down" or "both" needs a string that far below it ("64" has none: use "42") */
+  walk?: "scale" | "note";
+  /** the lowest fret of the lower note, 0-17; default 0 */
+  from?: number;
+  /** the highest fret of the lower note, up to 17; default 12. The upper note sits where the interval puts it, never past fret 17 */
+  to?: number;
 }
 
 /**
@@ -175,4 +213,4 @@ export interface SoloOverShape extends ShapeCommon {
   backing?: CompPattern;
 }
 
-export type Shape = ProgressionShape | TwoScalesShape | ChordStepsShape | ArpeggioPartShape | MelodyShape | SoloOverShape;
+export type Shape = ProgressionShape | TwoScalesShape | ChordStepsShape | ArpeggioPartShape | MelodyShape | SoloOverShape | IntervalShape;

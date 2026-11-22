@@ -8,11 +8,12 @@ export interface Place { box: number; part?: BoxPart }
 /**
  * One beat: the voiced chord strummed, a single note, or a grip: several notes struck together on chosen strings (a
  * triad on three strings, a double stop on two). `strings` are guitar numbers (1 the high e ... 6 the low E), low to
- * high, one per note; `fret` steers the grip near that fret.
+ * high, one per note; `fret` steers the grip near that fret. A melody note may name its `string` (the interval shape:
+ * its notes sit where chordKit put the interval, not where the line before it was).
  */
 export type Step =
   | { kind: "strum" }
-  | { kind: "note"; semis: number; from: DegreesFrom }
+  | { kind: "note"; semis: number; from: DegreesFrom; /** a melody step only: the string it is played on, as a guitar number; the fret follows from the pitch */ string?: number }
   | { kind: "grip"; semis: number[]; strings: number[]; from: DegreesFrom; fret?: number };
 
 /** `at` and `beats` are in beats from the start; `highlight` is semitones above the chord root. */

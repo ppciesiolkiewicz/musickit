@@ -151,14 +151,14 @@ export const PATH: Track[] = [
     s(A, "Every string, frets 0 to 15", "", { ladder: "note-finder:advanced" }),
   ]),
   // intervals as shapes: the same interval on one string, on the next string and two strings over, played up and down
-  // (user, 2026-11-22). No tool has a level for these yet, so every step is "not implemented".
+  // (user, 2026-11-22). Each step is a guitar-play-along `interval` shape, read from the shape itself (ladders.ts).
   g("scales", "intervals-on-neck", "Intervals on the neck", [], [
-    s(B, "Octaves", "two strings over, up and down", { after: ["notes-on-neck:2"] }),
-    s(B, "5ths and 4ths", "on one string and on the next string"),
-    s(I, "3rds and 6ths", "on one string, the next string and two strings over"),
-    s(I, "Up and down from one note", "each interval above the note and below it"),
+    s(B, "Octaves", "two strings over, up and down", { ladder: "intervals-on-neck:octaves", after: ["notes-on-neck:2"] }),
+    s(B, "5ths and 4ths", "on one string and on the next string", { ladder: "intervals-on-neck:fifths-fourths" }),
+    s(I, "3rds and 6ths", "on one string, the next string and two strings over", { ladder: "intervals-on-neck:thirds-sixths" }),
+    s(I, "Up and down from one note", "each interval above the note and below it", { ladder: "intervals-on-neck:one-note" }),
     m(I, "every interval so far", "on any pair of strings"),
-    s(A, "Every interval, every pair of strings", "2nds to 7ths, up and down, strings 3 and 2 too"),
+    s(A, "Every interval, every pair of strings", "2nds to 7ths, up and down, strings 3 and 2 too", { ladder: "intervals-on-neck:every" }),
   ]),
   g("scales", "pentatonic-positions", "Pentatonic positions", ["pentatonic-box-1", "five-pentatonic-boxes", "joining-positions"], [
     s(B, "Position 1, minor", "from the root on string 6"),
@@ -188,7 +188,7 @@ export const PATH: Track[] = [
     s(I, "Up the neck", "eighths and dotted notes"),
     s(A, "Shifting positions", ""),
     s(A, "Modal tunes", "", { after: ["major-on-neck:3"] }),
-    s(A, "Octave jumps", "a leap of an octave in the tune, then the tune an octave higher", { after: ["intervals-on-neck:1"] }),
+    s(A, "Octave jumps", "a leap of an octave in the tune, then the tune an octave higher", { ladder: "guitar-tunes:octave-leap", after: ["intervals-on-neck:1"] }),
   ]),
   g("techniques", "spider", "The spider", ["spider"], [
     s(N, "Fingers 1 2 3 4 from fret 5", "", { ladder: "finger-pattern:new" }),

@@ -1,0 +1,134 @@
+{
+  "id": "guitar-beginner-octaves-two-strings-over",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track intervals-on-neck (guitar-scales), step 1, on guitar-play-along's interval shape: the octaves of a major key, the low note on the low E string and the high note on the D string. Low note first up the neck, then high note first back down, then both ways on the A and G strings; the last tool is the one that sits on the step (two strings over, up and down). The text names the strings and which note comes first, never a fret. It states its moves (any key, tempo 60 to 90) and mentions no selector.",
+  "exercise": {
+    "title": "Octaves two strings over in {{=key}} major",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "intervals-on-neck"
+    ],
+    "why": "From the low E string and from the A string, the octave of a note is always two strings over and two frets up, so one shape finds the same note again wherever you are on those strings.",
+    "learnBefore": [
+      "/course/8/every-note"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Low note first",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: each pair is a note on the low E string, then the same note an octave higher on the D string.\nHold the two notes as one shape and move it up the neck, until your hand keeps the shape without you looking."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "octave"
+                ],
+                "strings": "64",
+                "direction": "up",
+                "to": 7
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "High note first",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Now the tab starts high on the neck and comes back down, and each pair starts on its high note on the D string.\nIf the low note comes late, stop the backing and play that pair alone a few times, then start again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "octave"
+                ],
+                "strings": "64",
+                "direction": "down",
+                "to": 7
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Both ways, new strings",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. The same octaves now sit on the A and G strings: up the neck low note first, then back down high note first.\nIn another key the pairs sit on other frets, and the octave is still two strings over and two frets up."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "octave"
+                ],
+                "strings": "53",
+                "to": 7
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/notes"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "intervals-on-neck:1"
+      ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 6
+    }
+  ]
+}

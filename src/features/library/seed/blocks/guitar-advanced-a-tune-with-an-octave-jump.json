@@ -1,0 +1,163 @@
+{
+  "id": "guitar-advanced-a-tune-with-an-octave-jump",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track guitar-melodies (guitar-scales), step 6, on guitar-play-along: the jump alone first (an interval shape, Do on the D string and the Do an octave above it on the high E string, the two notes the first tune opens with), then two tunes of the book that leap an octave between two notes (a drop from the high Do, a jump up from the low Sol), then the first tune an octave higher with the melody shape's `octave`. It states a tempo move (60 to 90) and no key move: the higher tune only fits on the neck in a few keys, so the block stays in G.",
+  "exercise": {
+    "title": "A tune with an octave jump",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "song"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "A tune that jumps an octave lands on the same note name on another string, so the octave shape your hand already knows takes you there without counting frets.",
+    "learnBefore": [
+      "/course/8/every-note",
+      "/course/8/greensleeves"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The jump alone",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: {{1}} on the D string, then the {{1}} an octave above it on the high E string.\nPlay until the jump lands without a look at your hand."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "octave"
+                ],
+                "strings": "41",
+                "walk": "note",
+                "direction": "up"
+              },
+              "bpm": 60,
+              "view": "tab",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A drop of an octave",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing, and play the tune from the tab. It opens with the same two notes the other way round: the high {{1}}, then a drop of an octave to the low {{1}}.\nIf the low note comes late, play only those two notes a few times, then the whole tune."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 100,
+                "key": "g"
+              },
+              "bpm": 60,
+              "view": "tab",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A jump up",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. This tune opens with a jump up, from the low {{5}} to the {{5}} an octave above it.\nLook at the fret you are jumping to before you leave the first note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 102,
+                "key": "g"
+              },
+              "bpm": 60,
+              "view": "tab",
+              "highlight": [
+                "5"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "An octave higher",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. This is the first tune again with every note an octave higher, so it sits further up the neck.\nThe tune keeps its shape, and the jump is still an octave."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "melody",
+                "tune": 100,
+                "key": "g",
+                "octave": 1
+              },
+              "bpm": 60,
+              "view": "tab",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/8/string-skipping"
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "guitar-melodies:6"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 10
+    }
+  ]
+}

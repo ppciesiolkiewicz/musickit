@@ -1005,6 +1005,56 @@ the new track (`keys`, none given: the area's ladder).
 go into melodies from intervals and riffs so can use some specialisation". Read as: no new tool. An existing one is
 taught intervals, the one the tunes already play on (guitar-play-along, a new `interval` shape beside `melody`), so
 the same tool carries a player from intervals into riffs and melodies. Not confirmed by the user in those words.
+[2026-11-22, user] "Specialisation in tool can be either re-composition or prop triggering slightly different behavior":
+an existing tool is taught intervals either by putting its parts together another way or by a prop that switches it to
+slightly different behaviour. No new standalone tool.
+[2026-11-22 done] Built inside guitar-play-along, no new tool (branch claude/intervals-on-neck): a new composition, the
+shape `interval` beside `melody`, and one prop on `melody` (`octave`).
+- The shape: one interval, or a few in turn, as a shape on the neck, its two notes one after the other, one note a
+  beat, in a major key, on the tool's own player, tab, staff and neck. Props: `key`, `intervals` ("2nd" to "7th",
+  "octave"), `strings` (two guitar numbers, the lower note's string first: "64" two strings over, "65" the next string,
+  "66" along one string), `direction` ("up" low note first climbing the neck, "down" high note first coming back, "both"
+  the default), `walk` ("scale": from every note of the scale along the strings; "note": the note above the key note
+  and the note below it, the same number of strings either side), `from` and `to` (the lower note's frets, 0 to 12
+  unless written). A line above the tab says what is playing ("5ths up", "A 5th down"). Several intervals each start on
+  a new bar.
+- The frets: none is worked out in the shape. lib/chordKit/scaleChords.ts got intervalPairs, intervalWalk and
+  intervalFits beside the double stops, on one shared loop (diatonicDyads is as it was), with 2nds, 7ths, octaves and
+  two notes along one string added. Two notes on two strings stay within 4 frets, so 3rds sit on the next string, octaves two
+  or three strings over, and on strings 3 and 2 a 6th does not fit; a shape that does not fit is refused and the
+  parser says why. A step may name its string (Step.string), so the tab draws the note where chordKit put it. The
+  calculator answers the same code: `npm run -s theory -- intervals G --interval 8 --strings 64`.
+- `melody` with `octave`: 1 plays a tune an octave higher; refused in a key where a note would pass fret 17 (a tune
+  within an octave of Do fits in F sharp, G, A flat and A).
+- Wiring: shapes/interval.ts, shapes/index.ts, shapes.props.ts and play-along.props.ts (docs regenerated), tools.ts
+  (the reason for a refused shape), eight stories on /dev/stories, the prompt (PROMPT_VERSION 16, changelog), the
+  READMEs and CLAUDE.md of exercises and plan. No level word: like song-chart the step is read from the shape itself,
+  so guitar-play-along is not in the list of tools that take a `level`. No change was needed in transpose.ts (the key
+  moves, the strings and frets stay; tested), checks.ts, ui/Tool.tsx or toolTours (same tool, same view).
+- Path: an `intervals-on-neck` ladder in ladders.ts, read by intervalStep: intervals-on-neck:1 is only octaves two
+  strings over, up and down; :2 is 5ths or 4ths on one string or the next; :3 is 3rds or 6ths on any strings that hold
+  them; :4 is walk "note" above and below; :6 is a 2nd or a 7th among the intervals, up and down. :5, the mix, takes no
+  ladder. A `guitar-tunes` ladder with one step for guitar-melodies:6 (Octave jumps): a melody whose tune leaps an
+  octave between two notes, read from the tune book (tunes 99 to 105, the octave stage), as written or with `octave`.
+- Blocks: guitar-beginner-octaves-two-strings-over (intervals-on-neck:1), guitar-beginner-fifths-and-fourths-on-the-
+  next-string (:2), guitar-intermediate-a-5th-and-a-4th-up-and-down-from-one-note (:4), each in G with `moves` key any
+  and tempo 60 to 90; guitar-advanced-a-tune-with-an-octave-jump (guitar-melodies:6: the jump alone, tune 100, tune
+  102, tune 100 an octave higher; tempo move only, it stays in G). All ✔ on seed check. stepBlocks.test.ts keeps
+  intervals-on-neck:3, :5 and :6 as known gaps.
+Checked in the Vercel sandbox: G major octaves on 64, 53 and 42, 5ths and 4ths on 65, 54 and 43, and the octave from G on 41 and from D on 52, against `theory -- intervals` (the frets the tab
+plays, and the two shapes and the odd pair the blocks name); a test holds the new pairs to the double stops' frets on
+every pair of strings; the tests of lib/chordKit, exercises, plan/model,
+devtools and library/seed; the full npm test (3378 of 3379 pass; only the known guide/coverage failure); tsc clean;
+eslint clean on the 23 changed files; docs:exercises and gen:json-index leave no change; the four blocks ✔ on seed
+check. Not read on screen and not heard: no browser here, so the tab of an octave along one string (frets 3 and 15 side
+by side), the neck view with a whole walk on it, the line above the tab and the sound are unchecked.
+Left: read and hear it on /dev/stories and /dev/library. No block for intervals-on-neck:3 (3rds and 6ths), :5 (the mix)
+or :6. Major keys only (no `scale` prop); no fingering under the notes; a walk is one pair of strings (every pair of
+strings is several tools or several blocks). From one note, "down" and "both" need a string that far below, so not
+from the low E string, and an octave above and below on one string has no place. The octave-jump block has no key
+move. The other guitar-melodies steps (1 to 5) still have no ladder. The guitar key order for the new track is still
+the area's ladder. Raising PROMPT_VERSION puts every older seed file behind on versions, as after each tool. Not seeded
+to the database (db:seed-blocks).
 
 TaskSeries Intake: the first questionnaire and the steps players don't see (moved out of NEW, 2026-11-18)
 Intake1: (was NEW9) [NEW 2026-11-15] Rework the first questionnaire (after NEW8)

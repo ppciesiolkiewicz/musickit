@@ -39,26 +39,65 @@ export function dyadPairs(interval: DyadInterval): [number, number][] {
 }
 
 /**
- * Every double stop of the key's scale on one pair of strings: for each degree, the degree `interval` up the scale above it
- * (a diatonic 3rd, 4th, 5th or 6th, so its size follows the scale), within 4 frets, frets 0-17. Sorted by degree, then fret.
+ * The scale's pairs of notes `steps` scale steps apart, the lower note on string `lo` and the upper on string `hi` (the
+ * same string for an interval along one string), frets 0-17. Two notes on different strings lie within `maxSpan` frets.
+ * Seven steps is the octave: the same degree, 12 semitones up.
  */
-export function diatonicDyads(ctx: KeyContext, interval: DyadInterval, strings: [number, number]): Dyad[] {
-  const steps = DYAD_STEPS[interval];
-  const [lo, hi] = strings;
+function scalePairs(ctx: KeyContext, steps: number, [lo, hi]: [number, number], maxSpan: number): Dyad[] {
   const out: Dyad[] = [];
   for (let d = 0; d < 7; d++) {
     const upper = (d + steps) % 7;
     const pc = (ctx.tonic.pc + ctx.steps[d]) % 12;
-    const semis = (ctx.steps[upper] - ctx.steps[d] + 12) % 12;
+    const semis = steps === 7 ? 12 : (ctx.steps[upper] - ctx.steps[d] + 12) % 12;
     for (let fa = 0; fa <= MAX_FRET; fa++) {
       const a = OPEN_MIDI[lo] + fa;
       if (a % 12 !== pc) continue;
       const fb = a + semis - OPEN_MIDI[hi];
-      if (fb < 0 || fb > MAX_FRET || Math.abs(fb - fa) > MAX_SPAN) continue;
+      if (fb < 0 || fb > MAX_FRET || Math.abs(fb - fa) > maxSpan) continue;
       out.push({ degree: d, upper, strings: [lo, hi], frets: [fa, fb], midi: [a, a + semis], semis, lowestFret: Math.min(fa, fb) });
     }
   }
-  return out.sort((x, y) => x.degree - y.degree || x.lowestFret - y.lowestFret);
+  return out;
+}
+
+/**
+ * Every double stop of the key's scale on one pair of strings: for each degree, the degree `interval` up the scale above it
+ * (a diatonic 3rd, 4th, 5th or 6th, so its size follows the scale), within 4 frets, frets 0-17. Sorted by degree, then fret.
+ */
+export function diatonicDyads(ctx: KeyContext, interval: DyadInterval, strings: [number, number]): Dyad[] {
+  return scalePairs(ctx, DYAD_STEPS[interval], strings, MAX_SPAN).sort((x, y) => x.degree - y.degree || x.lowestFret - y.lowestFret);
+}
+
+/** An interval played one note after the other, by its number: a 2nd is one step up the scale, 8 is the octave. */
+export const INTERVAL_STEPS = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6, 8: 7 } as const;
+export type IntervalSize = keyof typeof INTERVAL_STEPS;
+
+/**
+ * Whether an interval of the scale has a shape on these strings (indices, the lower note's string first): always along
+ * one string; on two strings, when every size the interval takes in the scale keeps its two notes within 4 frets (a 3rd
+ * on neighbouring strings, an octave two strings over), and the second string is the higher one.
+ */
+export function intervalFits(ctx: KeyContext, size: IntervalSize, [lo, hi]: [number, number]): boolean {
+  if (lo === hi) return true;
+  if (hi < lo) return false;
+  const steps = INTERVAL_STEPS[size];
+  const gap = OPEN_MIDI[hi] - OPEN_MIDI[lo];
+  return ctx.steps.every((s, d) => Math.abs((steps === 7 ? 12 : (ctx.steps[(d + steps) % 7] - s + 12) % 12) - gap) <= MAX_SPAN);
+}
+
+/**
+ * An interval of the key's scale as a shape on the neck, from every note of the scale: the lower note on the first
+ * string, the note `size` up the scale on the second (the same string: both along it), frets 0-17, low to high. Its size
+ * follows the scale, as in `diatonicDyads`: the same code finds the frets. Empty when the strings don't hold the interval.
+ */
+export function intervalPairs(ctx: KeyContext, size: IntervalSize, strings: [number, number]): Dyad[] {
+  if (!intervalFits(ctx, size, strings)) return [];
+  return scalePairs(ctx, INTERVAL_STEPS[size], strings, strings[0] === strings[1] ? MAX_FRET : MAX_SPAN).sort((x, y) => x.midi[0] - y.midi[0]);
+}
+
+/** The part of `intervalPairs` whose lower note sits from fret `from` to fret `to`, low to high. */
+export function intervalWalk(ctx: KeyContext, size: IntervalSize, strings: [number, number], from = 0, to = MAX_FRET): Dyad[] {
+  return intervalPairs(ctx, size, strings).filter((d) => d.frets[0] >= from && d.frets[0] <= to);
 }
 
 /**

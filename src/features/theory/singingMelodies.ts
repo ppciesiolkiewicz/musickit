@@ -152,6 +152,9 @@ export function parseTune(tune: string): MelodyNote[] {
 /** Bars in a tune (the final Do included). */
 export const barsOf = (tune: MelodyNote[]) => Math.round((tune.at(-1)!.at + tune.at(-1)!.beats) / BEATS_PER_BAR);
 
+/** Whether a tune leaps an octave from one note to the next, up or down (Do to the high Do, the Sol under Do up to Sol). */
+export const octaveLeap = (tune: MelodyNote[]): boolean => tune.some((n, i) => i > 0 && Math.abs(n.step - tune[i - 1].step) === 7);
+
 /** The chords a broken-chord leap can outline, as scale degrees 0 to 6: home (Do Mi Sol) first, then Fa La Do and Sol Ti Re. */
 const CHORDS = [[0, 2, 4], [3, 5, 0], [4, 6, 1]];
 /** What a leap costs by its size in scale steps (a 3rd is 2), up to the octave; wider costs LEAP_WIDE. */

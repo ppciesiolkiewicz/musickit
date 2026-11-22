@@ -357,6 +357,17 @@ describe("tools", () => {
     assert.equal(canFollowPart(stored, "key"), false);
     assert.equal(canFollowPart(stored, "bpm"), false);
   });
+  it("a guitar-play-along interval shape: kept as written, refused with the reason when it can't be played", () => {
+    const shape = { shape: "interval", key: "g", intervals: ["octave"], strings: "64" };
+    assert.deepEqual(parseTool({ type: "guitar-play-along", shape, bpm: 60 }), { type: "guitar-play-along", bpm: 60, shape });
+    assert.deepEqual(parseToolDiag({ type: "guitar-play-along", shape, bpm: 60 }).notes, []);
+    const bad = parseToolDiag({ type: "guitar-play-along", shape: { ...shape, strings: "65" }, bpm: 60 });
+    assert.equal(bad.tool, null);
+    assert.match(bad.dropped ?? "", /its interval shape can't be played: strings 65 don't hold octaves within 4 frets/);
+    // a melody an octave higher is kept in a key where it fits, refused where it leaves the neck
+    assert.ok(parseTool({ type: "guitar-play-along", shape: { shape: "melody", tune: 100, key: "g", octave: 1 }, bpm: 60 }));
+    assert.equal(parseTool({ type: "guitar-play-along", shape: { shape: "melody", tune: 100, key: "c", octave: 1 }, bpm: 60 }), null);
+  });
   it("a double-stops-neck: the interval is asked for, the scale and strings have defaults, a level sets the frets", () => {
     assert.deepEqual(parseTool({ type: "double-stops-neck", key: "g", interval: "3rds" }), { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "3rds", strings: "32" });
     assert.deepEqual(parseToolDiag({ type: "double-stops-neck", key: "g", interval: "3rds" }).notes, []);

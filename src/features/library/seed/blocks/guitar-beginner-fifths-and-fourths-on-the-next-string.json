@@ -1,0 +1,131 @@
+{
+  "id": "guitar-beginner-fifths-and-fourths-on-the-next-string",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track intervals-on-neck (guitar-scales), step 2, on guitar-play-along's interval shape: the 5ths of a major key on the low E and A strings, then its 4ths on the same strings, then both in turn on the A and D strings. Each walk runs up the neck low note first and back down high note first. The why gives the two shapes and says one pair of each is a fret off, so the odd one is expected; the tab shows the frets. It states its moves (any key, tempo 60 to 90) and mentions no selector.",
+  "exercise": {
+    "title": "5ths and 4ths on the next string in {{=key}} major",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "intervals-on-neck"
+    ],
+    "why": "On the next string a 4th sits in the same fret and a 5th two frets higher, so the two shapes are one finger apart; in every key one pair of each is a fret off, and knowing that keeps your hand from guessing.",
+    "learnBefore": [
+      "/course/5/fifths",
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "5ths up and back",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: a note on the low E string, then the note a 5th above it on the A string. The pairs climb the neck low note first, then come back down high note first.\nMost of the 5ths have one shape and one is a fret narrower: play until your hand goes to that one without stopping."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "5th"
+                ],
+                "strings": "65"
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "4ths up and back",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Now each pair is a 4th: most sit in one fret across the two strings, and one is a fret wider.\nIf a pair sounds wrong, stop the backing and find it in the tab before you start again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "4th"
+                ],
+                "strings": "65"
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Both, on new strings",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. The 5ths come first and the 4ths start on a new bar, now on the A and D strings. The line above the tab says which is playing.\nIn another key the pairs sit on other frets, and the two shapes stay as they were."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "5th",
+                  "4th"
+                ],
+                "strings": "54"
+              },
+              "bpm": 60,
+              "view": "tab"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/double-stops"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "intervals-on-neck:2"
+      ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 7
+    }
+  ]
+}

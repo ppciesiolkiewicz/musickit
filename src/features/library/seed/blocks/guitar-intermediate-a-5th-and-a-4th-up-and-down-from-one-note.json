@@ -1,0 +1,144 @@
+{
+  "id": "guitar-intermediate-a-5th-and-a-4th-up-and-down-from-one-note",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track intervals-on-neck (guitar-scales), step 4, on guitar-play-along's interval shape with walk \"note\": from Do on the D string, a 5th up and a 5th down, then a 4th up and a 4th down, then both intervals in turn from Do on the A string. Every note the text names is in the line and Do is ringed. The why says what the two intervals share, so the learner can try the same with a 3rd and a 6th. It states its moves (any key, tempo 60 to 90) and mentions no selector.",
+  "exercise": {
+    "title": "A 5th and a 4th, up and down from one note",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "intervals-on-neck"
+    ],
+    "why": "A 5th up and a 4th down from one note land on the same note name, an octave apart, so learning both from one place gives you two ways to reach the next note of a tune.",
+    "learnBefore": [
+      "/course/3/intervals",
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A 5th up, a 5th down",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab. Every pair starts on {{1}} on the D string: first up a 5th to {{5}} on the G string, then down a 5th to {{4}} on the A string.\nPlay until your hand goes to both notes without hunting for them."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "5th"
+                ],
+                "strings": "43",
+                "walk": "note"
+              },
+              "bpm": 60,
+              "view": "tab",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A 4th up, a 4th down",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. From the same {{1}}, a 4th up is {{4}} on the G string and a 4th down is {{5}} on the A string.\nThey are the two notes from before, each an octave away from where you found it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "4th"
+                ],
+                "strings": "43",
+                "walk": "note"
+              },
+              "bpm": 60,
+              "view": "tab",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From the A string",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing. Now {{1}} is on the A string and both intervals come in turn: the 5th up and down, then from a new bar the 4th up and down.\nIn another key {{1}} moves to another fret, and the other notes keep their places around it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "interval",
+                "key": "g",
+                "intervals": [
+                  "5th",
+                  "4th"
+                ],
+                "strings": "54",
+                "walk": "note"
+              },
+              "bpm": 60,
+              "view": "tab",
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/notes"
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "intervals-on-neck:4"
+      ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 7
+    }
+  ]
+}
