@@ -63,6 +63,39 @@ with the tool. No pattern has rests or changes inside the bar, so "and rests" of
 tool yet; nothing sounds the click on 2 and 4 only (beat:7). Not seeded to the database (db:seed-blocks).
 MissingTools3: the chord ear quiz answers diminished, augmented, sus, add9, 9, 13 and dim7 (dim-aug, sus, sevenths-up
 6-7, minor-colours by ear), and a chord-change quiz (hearing-changes; NEW11 item 2).
+[2026-11-22 done] Built inside interval-ears, no new tool (branch claude/chord-change-quiz), as LibraryGrowth3 item 2 planned.
+- The quiz: a third `kind` of the ear game, "change" (src/lib/practice/earGame.ts, components/practice/EarGame.tsx). The I
+  chord plays, then one other chord of a major key, both as root-position triads struck whole one after the other, in a
+  new key each question; the answer buttons are numerals. Levels (CHANGE_LEVELS): 1 IV and V, 2 + vi, 3 + ii, 4 + iii,
+  5 + vii°. EarQuestion got `chords` (chords in sequence; `midi` stays the flat list) and play() strikes them in turn.
+  After an answer the line reads "It was IV, the 4 chord." and the piano lights both chords. /theory/ears has it as
+  "Chord changes" beside Intervals and Chord quality, with a Level row.
+- The chord-quality answers: CHORD_QUALITIES also has dim, aug, sus2, sus4, add9, 9, 13 and dim7. The quiz still asks
+  its five (major, minor, 7, maj7, m7) unless a tool names a set with the new prop `qualities`, so no block of today
+  changes. /theory/ears has no control for the set yet (the query `qualities=dim,aug` works).
+- Wiring: interval-ears props and docs regenerated, CHORD_CHANGE_LEVELS in levels.ts (new and beginner 1, intermediate
+  2, advanced 5; the number reaches each level), tools.ts (kind checked, qualities, the level word by kind), six stories
+  on /dev/stories in place of the stub, the prompt (PROMPT_VERSION 11, changelog), the page tour's words. No change was
+  needed in ui/Tool.tsx, transpose.ts (interval-ears has no key), checks.ts (listening only) or toolTours (same tool).
+- Path: a `chord-changes` ladder in ladders.ts, read from the tool's query; hearing-changes:2 (1, 4 or 5) is its level
+  1 and hearing-changes:3 (The 6 too) its level 2. hearing-changes:1 (When the chord changes), :4 (the mix) and :5 (a
+  song's chords) stay "not implemented". A chord-change game is no longer read as a step of the intervals track.
+- Blocks: theory-intermediate-name-the-4-or-the-5-chord (hearing-changes:2) and
+  theory-intermediate-the-6-chord-among-the-4-and-the-5 (hearing-changes:3), each the band in C first, then the game;
+  both ✔ on seed check.
+Checked in the Vercel sandbox: the tests of lib/practice, plan/model, exercises, devtools, guide, library/seed and
+stage/model, the full npm test (3310 of 3311 pass; only the known guide/coverage failure), tsc clean, eslint clean on
+the 16 changed files (EarGame takes the tool keys' ref by name, for the refs lint rule), docs:exercises leaves no
+change, both blocks ✔ on seed check. Not read on screen and not heard: no browser here, so the
+three-way "What to train" row, the piano after an answer, and how the two chords sound one after the other (1.2 s apart)
+are unchecked.
+Left: read and hear it on /dev/stories, /theory/ears?kind=change and /dev/library. Every question is in a new key and
+there is no `key` prop, so "in a new key" of hearing-changes:4 has no setting of its own; levels 3 to 5 (ii, iii, vii°)
+have no step on the track. Nothing asks whether the chord changed at all (hearing-changes:1) or a progression longer
+than two chords, as the stub had sketched (chords, bars, bpm): that is the song tool's side (MissingTools8). The
+older block on hearing-changes:2 (theory-intermediate-hearing-changes) runs on backing-track, so seed check now also
+says no tool of its sits on the step; it was already behind on versions. No seed block uses `qualities` yet (dim-aug,
+sus, sevenths-up 6-7, minor-colours). Not seeded to the database (db:seed-blocks).
 MissingTools4: [bug] backing-track drops chords it can't voice without a word: Caug, Dsus2, Am(maj7), V7/V. It should
 play them or say which it skipped (AGENTS: always surface errors).
 MissingTools5: chord-shapes: add9 only for C; no small F (draws the full barre); no fingering override; no `shape` prop
