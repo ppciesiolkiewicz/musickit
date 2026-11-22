@@ -2,26 +2,13 @@
   "id": "voice-advanced-an-octave-slide-a-little-higher",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/voice-advanced.json, day 2.",
+  "note": "Track range (voice-breath-range), step 3: an octave slide over a drone with the top note held, in G, then A, then B flat. Rewritten from the plan exercise (ChoiceSplit3): its Key selector was a ladder, each key putting the top note higher, so the keys are the lesson and not a move. A choice no longer sets a key, so each key is a short step with its own staff, and the text says when to stay where you are. One care line, on the top note.",
   "exercise": {
     "title": "An octave slide, a little higher",
-    "choice": {
-      "options": [
-        {
-          "key": "g"
-        },
-        {
-          "key": "a"
-        },
-        {
-          "key": "b-flat"
-        }
-      ]
-    },
     "area": "voice",
     "tags": [
       "sing"
@@ -30,29 +17,85 @@
     "concepts": [
       "range"
     ],
-    "why": "A slide passes through every pitch on the way up, so your voice arrives at the top note already moving instead of jumping at it, and each key puts that top note one step higher.",
+    "why": "A slide passes through every pitch on the way up, so your voice arrives at the top note already moving instead of jumping at it, and each key here puts that top note a little higher.",
     "learnBefore": [
       "/course/9/stretching-your-range"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to the high {{1}} and back, like a siren. Then slide up once more and hold the high {{1}} quietly for one breath.\nOnce the held note stays steady, take the slide higher. Use the Key selector below to change the key, then press Start exercise again.\n_Don't push for the top note: go only as high as stays easy today._"
+        "type": "section",
+        "heading": "The slide in G",
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below to start the drone and the mic. Slide slowly from the low {{1}} up to the high {{1}} and back, like a siren, passing {{5}} on the way. Sing it on \"oo\".\nThen slide up once more and hold the high {{1}} quietly for one breath.\n_Don't push for the top note: go only as high as stays easy today._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "g",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "5"
+              ],
+              "drone": true
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "staff",
-          "scale": "major-ionian",
-          "key": "g",
-          "voice": "tenor",
-          "labels": "solfege",
-          "notes": [
-            "1",
-            "5"
-          ],
-          "drone": true
-        }
+        "type": "section",
+        "heading": "A tone higher",
+        "cells": [
+          {
+            "type": "text",
+            "text": "Once the held note stays steady, press Start exercise below to start the drone and the mic a tone higher. Slide up and back, then hold the high {{1}} for one breath.\nWhen you change the key, the top note is higher and the slide is still one octave."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "a",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "5"
+              ],
+              "drone": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A semitone higher still",
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start exercise below for the last key, a semitone higher again. Slide up and back, and hold the high {{1}} only if it comes without pushing.\nIf the top note wavers, go back to the key before and stay there."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff",
+              "scale": "major-ionian",
+              "key": "b-flat",
+              "voice": "tenor",
+              "labels": "solfege",
+              "notes": [
+                "1",
+                "5"
+              ],
+              "drone": true
+            }
+          }
+        ]
       }
     ]
   },

@@ -2,11 +2,11 @@
   "id": "guitar-advanced-d-dorian-on-the-neck",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/guitar-advanced.json, day 6.",
+  "note": "Track major-on-neck (guitar-scales), step 3 (Dorian): position 1 of D Dorian seen on the whole neck, the crossing into position 2, the position over a D drone, then the same frets as position 3 of A Dorian over an A drone. Rewritten from the plan exercise (ChoiceSplit3): its Variant selector set a key and a position together, which a choice no longer does, so the two variants are two short sections, each with its own drone and neck. D is the lesson, so the block states no moves.",
   "exercise": {
     "title": "D Dorian on the neck",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The whole neck is drawn above the position: the framed part is position 1 of D Dorian. Play it up and back down from the low {{1}}, and notice it is the shape you know from A, further up the neck. The ringed {{6}} is where your fingers expect it."
+            "text": "The whole neck is drawn above the position, with position 1 of D Dorian framed on it. Play the position up and back down from the low {{1}}.\nThe ringed {{6}} is the note that makes the scale Dorian. Stay with the position until your fingers go to each {{6}} without a look."
           },
           {
             "type": "tool",
@@ -60,7 +60,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows only the crossing from position 1 to position 2 of D Dorian. Climb position 1, slide up the G string as you did in A, and finish the climb in position 2. Come back down the same way."
+            "text": "The neck below shows only the crossing from position 1 to position 2 of D Dorian. Climb position 1 from the low {{1}}, and on the G string slide from {{4}} up to {{5}}: the rest of the climb is in position 2. Come back down the same way.\nIf the slide lands short, play only its two notes until your finger knows the distance."
           },
           {
             "type": "tool",
@@ -81,12 +81,12 @@
       },
       {
         "type": "section",
-        "heading": "Same frets, new root",
-        "minutes": 4,
+        "heading": "Over a D drone",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone. Play the position on the neck up and back down, and end on a ringed {{1}}.\nThen try the other variant. Use the Variant selector below to change it, then press Play to start the drone again, now on the new root.\nWhen you change the variant, your hand stays in the same frets: this is position 3 of A Dorian, one note has moved a fret, and the ringed notes are in new places."
+            "text": "Press Play below to start the drone on D. Play position 1 up and back down over it, and end on a ringed {{1}}.\nStop on a ringed {{6}} now and then, and listen to it against the drone."
           },
           {
             "type": "tool",
@@ -114,20 +114,44 @@
               ]
             }
           }
-        ],
-        "choice": {
-          "label": "variant",
-          "options": [
-            {
-              "key": "d",
-              "position": 1
-            },
-            {
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The same frets in A",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the drone, now on A. Your hand stays in the same frets: this is position 3 of A Dorian, where one note of the scale sits a fret higher. Play it up and back down, and end on a ringed {{1}}.\nWhen you change the root, the frets under your hand stay and the ringed notes are in new places."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 60,
               "key": "a",
-              "position": 3
+              "parts": {
+                "drone": "always"
+              }
             }
-          ]
-        }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "dorian",
+              "key": "a",
+              "boxes": [
+                3
+              ],
+              "highlight": [
+                "1",
+                "6"
+              ]
+            }
+          }
+        ]
       }
     ]
   },

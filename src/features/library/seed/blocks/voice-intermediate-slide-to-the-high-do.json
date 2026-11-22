@@ -2,11 +2,11 @@
   "id": "voice-intermediate-slide-to-the-high-do",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/voice-intermediate.json, day 3.",
+  "note": "Track pitch (voice-pitch), step 5: a slow slide from the low Do to the high Do and back over a drone, then the same two notes as one leap. Rewritten from the plan exercise (ChoiceSplit3): what to sing on has its own sentence, the leap has a feel to reach (it lands where the slide ended), the octave comes back in other keys as a move (any key) with a line on what stays the same, and the top note has a care line.",
   "exercise": {
     "title": "Slide to the high Do",
     "area": "voice",
@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below to start the drone and the mic. On \"oo\", slide slowly from the low {{1}} up to the high {{1}} and back, like a siren, and watch your line pass {{5}} on the way. Then sing the two as one clean leap."
+        "text": "Press Start exercise below to start the drone and the mic. Slide slowly from the low {{1}} up to the high {{1}} and back, like a siren, and watch your line pass {{5}} on the way. Sing it on \"oo\".\nThen sing the two notes as one clean leap, until the high {{1}} lands where the slide ended.\nIn another key the slide starts on a new Do, and it is still one octave.\n_Don't push for the high Do: keep it quiet, and turn the slide round where it gets tight._"
       },
       {
         "type": "tool",
@@ -51,6 +51,9 @@
       "steps": [
         "pitch:5"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 3
     }
   ]

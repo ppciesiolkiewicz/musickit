@@ -2,16 +2,17 @@
   "id": "guitar-intermediate-join-positions-1-and-2",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 1.",
+  "note": "Track pentatonic-positions (guitar-scales), step 4. Position 2 alone, then only the crossing (position-neck's cross: the slide on the G string), the same crossing on the B string, then phrases across both over a band. Two files held this drill and are folded here (ChoiceSplit3): the plan exercise, whose last section was a Key selector, and guitar-intermediate-joining-boxes. The keys are a move now (any key, tempo 70 to 100), so the text names the key and tempo as params, says what stays the same in another key, and names the notes of each slide while the neck shows the frets.",
   "exercise": {
     "title": "Join positions 1 and 2",
     "area": "guitar",
     "tags": [
-      "technique"
+      "technique",
+      "improv"
     ],
     "topic": "guitar-scales",
     "concepts": [
@@ -30,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Play position 2 of A minor pentatonic up and back down, one note per beat, and notice where its ringed {{1}} notes sit. Keep going until the shape feels as familiar as position 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Play position 2 of {{=key}} minor pentatonic up and back down, one note per beat.\nStay with it until your fingers find the ringed {{1}} notes as easily as they do in position 1."
           },
           {
             "type": "tool",
@@ -62,11 +63,11 @@
       {
         "type": "section",
         "heading": "The crossing",
-        "minutes": 4,
+        "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows only the crossing from position 1 to position 2. Climb position 1 from the low {{1}}. On the G string, slide from {{4}} up to {{5}} and finish the climb in position 2. Come back down the same way, sliding from {{5}} to {{4}}."
+            "text": "The neck below shows only the crossing from position 1 to position 2. Climb position 1 from the low {{1}}, and on the G string slide from {{4}} up to {{5}}: the rest of the climb is in position 2. Come back down the same way, with the slide from {{5}} to {{4}}.\nIn another key the crossing sits on other frets, and the slide on the G string is still {{4}} to {{5}}."
           },
           {
             "type": "tool",
@@ -87,12 +88,12 @@
       },
       {
         "type": "section",
-        "heading": "The same in G and C",
-        "minutes": 3,
+        "heading": "Cross on the B string",
+        "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Play the same crossing in other keys. Use the Key selector below to change the key.\nWhen you change the key, the notes change but the slide on the G string is still {{4}} to {{5}}. Stay in each key until the slide lands without you looking for it."
+            "text": "Now the crossing is on the B string. Climb position 1 as before, and on the B string slide from {{b7}} up to {{1}} into position 2.\nIf your hand goes back to the G string, play only the slide on the B string a few times, then the whole crossing."
           },
           {
             "type": "tool",
@@ -102,27 +103,53 @@
               "key": "a",
               "cross": {
                 "from": 1,
-                "to": 2
+                "to": 2,
+                "string": 2
               },
               "highlight": [
                 "1"
               ]
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "a"
-            },
-            {
-              "key": "g"
-            },
-            {
-              "key": "c"
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Phrases across both",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: drums and bass. Make up phrases that start in position 1 and slide into position 2 partway through, and end each one on a ringed {{1}}."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
             }
-          ]
-        }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "position-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "positions": [
+                1,
+                2
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -133,6 +160,14 @@
       "steps": [
         "pentatonic-positions:4"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]
