@@ -38,6 +38,29 @@ Each says which steps wait on it. Continues NEW11 (rhythm tool, chord-change qui
 MissingTools1: a double-stops neck tool: 3rds and 6ths as pairs on two strings, in one key, up the neck
 (double-stops:2-4; today drawn with scale-neck and tab).
 MissingTools2: a rhythm or clap tool in the plan (beat:1-6; NEW11 item 1 has the plan for wiring src/features/rhythm).
+[2026-11-22 done] Built as the plan tool `clap-along` (branch claude/clap-along).
+- The tool: RhythmGame (src/features/rhythm) takes `bare` with `pattern`, `bpm`, `bars` and `input`: no picker and no
+  setup panel, the four never saved; the player can nudge the tempo and switch Space / tap or the mic for that view, and
+  Click, Offset and Sensitivity sit under the sliders button (still saved, they are the device's). Space and Escape go
+  through useToolKeys (components/practice/toolKeys.ts), no listener of its own on `window`, so two on one page do not
+  both fire. One new pattern, `sixteenths` (16 even hits); notes are drawn smaller where they sit close. The mic chip
+  now reads "Clap or strum (mic)", on /theory/rhythm too; the page is otherwise as it was.
+- Wiring: exercises/basics/clap-along (props file, View), docs regenerated, CLAP_ALONG_LEVELS in levels.ts (new
+  quarters, beginner eighths, intermediate sixteenths, advanced push), tools.ts (union, parser, LEVELED, levelProps,
+  follows a tempo), ui/Tool.tsx, transpose.ts (no key), checks.ts (sounds the beat), a tour of four steps, five stories
+  on /dev/stories in place of the stub, the prompt (PROMPT_VERSION 10, changelog).
+- Path: a `clap-along` ladder in ladders.ts; beat:1, 3, 4 and 6 name its four levels. beat:2 (Count 1 2 3 4), beat:5
+  (the mix) and beat:7 (metronome on 2 and 4) stay "not implemented": no level stands for them.
+- Blocks: theory-new-clap-along-the-beat (beat:1), theory-beginner-clap-along-eighths (beat:3),
+  theory-intermediate-clap-along-sixteenths (beat:4), each with a tempo move, all ✔ on seed check.
+Checked: the tests of rhythm, plan/model, guide, exercises, devtools/stories and library/seed, the full npm test (only
+the known guide/coverage failure), tsc, eslint on the changed files. Not read on screen and not heard: no browser here,
+so the bare layout, the tour, and whether the mic hears a clap as well as a strum are unchecked.
+Left: read it on /dev/stories and /dev/library. The four older blocks on beat:1, 3, 4 and 6 (theory-new-steady-beat,
+theory-beginner-eighths, theory-intermediate-sixteenths-and-rests, theory-advanced-syncopation) run on backing-band, so
+seed check now also says no tool of theirs sits on the step; they were already behind on versions and want a rewrite
+with the tool. No pattern has rests or changes inside the bar, so "and rests" of beat:4 and the mix of beat:5 have no
+tool yet; nothing sounds the click on 2 and 4 only (beat:7). Not seeded to the database (db:seed-blocks).
 MissingTools3: the chord ear quiz answers diminished, augmented, sus, add9, 9, 13 and dim7 (dim-aug, sus, sevenths-up
 6-7, minor-colours by ear), and a chord-change quiz (hearing-changes; NEW11 item 2).
 MissingTools4: [bug] backing-track drops chords it can't voice without a word: Caug, Dsus2, Am(maj7), V7/V. It should

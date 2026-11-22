@@ -4,6 +4,7 @@ export interface Pattern { id: string; name: string; hint: string; beats: number
 export const PATTERNS: Pattern[] = [
   { id: "quarters", name: "Quarters", hint: "1 2 3 4", beats: [0, 1, 2, 3] },
   { id: "eighths", name: "Eighths", hint: "1 & 2 & 3 & 4 &", beats: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5] },
+  { id: "sixteenths", name: "Sixteenths", hint: "1 e & a 2 e & a 3 e & a 4 e & a", beats: Array.from({ length: 16 }, (_, i) => i / 4) },
   { id: "offbeats", name: "Offbeats", hint: "& & & &", beats: [0.5, 1.5, 2.5, 3.5] },
   { id: "folk", name: "Folk strum", hint: "1 2 & & 4 &", beats: [0, 1, 1.5, 2.5, 3, 3.5] },
   { id: "push", name: "Push", hint: "1 & & 4", beats: [0, 1.5, 2.5, 3] },
@@ -13,6 +14,11 @@ export const BEATS_PER_BAR = 4;
 export const MIN_BPM = 40;
 export const MAX_BPM = 200;
 
+/** The longest round a host may ask for, in bars. */
+export const MAX_BARS = 16;
+
+/** Whether an id names a pattern. */
+export const isPatternId = (id: unknown): id is string => typeof id === "string" && PATTERNS.some((p) => p.id === id);
 export const patternById = (id: string): Pattern => PATTERNS.find((p) => p.id === id) ?? PATTERNS[0];
 
 /** A round: one bar of count-in clicks, then `bars` bars of the pattern. Times are seconds on the audio clock, from `start`. */

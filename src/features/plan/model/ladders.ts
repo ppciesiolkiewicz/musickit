@@ -1,7 +1,8 @@
-import { FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS } from "@/features/exercises/basics/levels";
+import { CLAP_ALONG_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS } from "@/features/exercises/basics/levels";
 import { intervalName } from "@/features/theory/singingIntervals";
 import { BOOK, DIFFICULTIES, RUNS, RUN_STAGES, STAGES } from "@/features/theory/singingMelodies";
 import { EAR_LEVELS, TOP_EAR_LEVEL } from "@/lib/practice/earGame";
+import { patternById } from "@/features/rhythm/patterns";
 import type { PlanTool } from "./tools";
 
 /*
@@ -69,6 +70,12 @@ export const LADDERS: Ladder[] = [
     return `strokes ${strokes}; ${notesPerString} notes a string${skip ? "; skips a string" : ""}`;
   }),
   byLevel("legato-trill", "legato-trill", "legato-trill levels", (l) => `fingers ${LEGATO_TRILL_LEVELS[l].split("").join(" and ")}`),
+  // the beat track's ladder. The step is the level only while the tool still plays the level's own rhythm: a clap-along
+  // written with another `pattern` beside its level says no step
+  byLevel("clap-along", "clap-along", "clap-along levels", (l) => {
+    const p = patternById(CLAP_ALONG_LEVELS[l]);
+    return `${p.name.toLowerCase()}: ${p.hint}`;
+  }, (t) => t.type === "clap-along" && !!t.level && t.pattern === CLAP_ALONG_LEVELS[t.level]),
   stages("melody-stages", "melody-singer stages", STAGES, (t) => (t.type === "melody-singer" ? BOOK.find((b) => b.n === t.tune)?.stage.id ?? null : null)),
   stages("run-stages", "run-singer stages", RUN_STAGES, (t) => (t.type === "run-singer" ? RUNS.find((b) => b.n === t.run)?.stage.id ?? null : null)),
   { id: "melody-difficulty", label: "melody difficulties", file: "src/features/theory/singingMelodies.ts", steps: DIFFICULTIES.map((d) => ({ key: d.title, name: d.title, holds: d.hint })) },

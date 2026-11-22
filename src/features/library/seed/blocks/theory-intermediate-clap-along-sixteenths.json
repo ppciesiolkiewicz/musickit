@@ -1,0 +1,106 @@
+{
+  "id": "theory-intermediate-clap-along-sixteenths",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 10,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track beat (theory-basics), step 4, on the clap-along tool at level intermediate (sixteenths): counted \"1 e & a\" and tapped over two bars, held over four, then eight bars with the count kept in the head. The tool has no pattern with rests yet, so the rests of this step stay with theory-intermediate-sixteenths-and-rests. It states its moves (tempo 50 to 80) and mentions no selector.",
+  "exercise": {
+    "title": "Sixteenths on the lane: 1 e & a",
+    "area": "theory",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "beat"
+    ],
+    "why": "Four taps to a beat are easy to rush, and the lane marks each tap against its own note, so you can see which of the four drifts.",
+    "learnBefore": [
+      "/course/1/steady-beat"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Count 1 e & a",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin a short round of sixteenths at {{=bpm}}: four notes to every beat. Count \"1 e & a, 2 e & a\" aloud, saying \"and\" for each &, and tap on every word with Space or on the lane.\nIf the four taps bunch up, say the count louder and let each word carry one tap."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "clap-along",
+              "level": "intermediate",
+              "bpm": 50,
+              "bars": 2
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Four bars, even",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin a longer round. Keep the four taps of each beat the same distance apart, all the way through.\nWhen the round ends, read the line under the numbers: it says whether your taps came early or late on average. Early means the taps are bunching up towards the next beat."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "clap-along",
+              "level": "intermediate",
+              "bpm": 50
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The count in your head",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin a long round, and this time don't count aloud: hear \"1 e & a\" in your head and tap along with it.\nKeep going until the numbers still land on the click when you stop saying them."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "clap-along",
+              "level": "intermediate",
+              "bpm": 50,
+              "bars": 8
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/rhythm"
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "beat:4"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 50,
+          "to": 80,
+          "step": 10
+        }
+      },
+      "minutes": 6
+    }
+  ]
+}

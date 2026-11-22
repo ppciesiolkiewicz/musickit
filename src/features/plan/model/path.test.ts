@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { TOPICS } from "@/features/plan/intake/topics";
 import { PATH, depthOf, levelIndex, levelOfSteps, pathStats, predecessorsOf, slope, slopeIndex, spanOf, stepAt, stepOf } from "./path";
 import { LADDERS } from "./ladders";
-import type { PlanTool } from "./tools";
+import { parseTool, type PlanTool } from "./tools";
 
 /** The 67 concepts from before the path (2026-11-16): every one went into exactly one track. */
 const OLD = 67;
@@ -66,6 +66,18 @@ test("stepOf reads the hardest ladder step the tools say; none without a ladder 
   assert.equal(stepOf("notes-on-neck", [{ type: "note-finder" } as unknown as PlanTool]), null);
   assert.equal(stepOf("triads", [nf("new")]), null);
   assert.equal(stepOf("nope", [nf("new")]), null);
+});
+
+test("the beat track: a clap-along's level is its step, while it plays the level's own rhythm", () => {
+  const clap = (props: Record<string, unknown>) => parseTool({ type: "clap-along", ...props })!;
+  const beat = PATH.find((t) => t.id === "beat")!;
+  assert.deepEqual(beat.steps.map((s) => s.ladder ?? null), ["clap-along:new", null, "clap-along:beginner", "clap-along:intermediate", null, "clap-along:advanced", null]);
+  assert.equal(stepOf("beat", [clap({ level: "new" })]), 0);
+  assert.equal(stepOf("beat", [clap({ level: "new", bars: 8, input: "mic" }), clap({ level: "intermediate", bpm: 50 })]), 3);
+  assert.equal(stepOf("beat", [clap({ level: "advanced" })]), 5);
+  // raw settings, or a level with another rhythm written beside it, say no step
+  assert.equal(stepOf("beat", [clap({ pattern: "eighths" })]), null);
+  assert.equal(stepOf("beat", [clap({ level: "beginner", pattern: "folk" })]), null);
 });
 
 test("predecessorsOf: the step before it, then its `after` steps", () => {

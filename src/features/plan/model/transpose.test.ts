@@ -77,6 +77,9 @@ describe("transposeTool", () => {
     assert.equal(transposeTool(t, 0), t);
     assert.equal(transposeTool(t, 12), t);
     assert.equal(canTranspose(tool({ type: "interval-ears", level: 1 })), false);
+    const clap = tool({ type: "clap-along", level: "new" });
+    assert.equal(canTranspose(clap), false);
+    assert.equal(transposeTool(clap, 5), clap);
     assert.equal(canTranspose(t), true);
   });
 });

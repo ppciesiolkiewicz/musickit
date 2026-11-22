@@ -1,0 +1,106 @@
+{
+  "id": "theory-new-clap-along-the-beat",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 10,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track beat (theory-basics), step 1, on the clap-along tool at level new (quarters): taps marked against the click, a longer round with the early or late line read after it, then claps into the mic with the click only counting in. It states its moves (tempo 70 to 110), names the tempo once as a param and mentions no selector.",
+  "exercise": {
+    "title": "Tap the beat, then clap it",
+    "area": "theory",
+    "tags": [
+      "rhythm"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "beat"
+    ],
+    "why": "The lane marks every tap by how far from the click it landed, so you can see a tap that comes early or late, which is hard to hear in your own playing.",
+    "learnBefore": [
+      "/course/1/steady-beat"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Tap on every note",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin a round at {{=bpm}}: the metronome counts one bar in, then a note comes on every beat. Press Space, or tap the lane, as each note reaches the line.\nA note turns green when your tap lands on the beat. When the round ends, press Play again below for another, and keep going until most notes turn green without you having to try hard."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "clap-along",
+              "level": "new",
+              "bpm": 70
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A longer round",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin a longer round, and keep your taps even all the way to the end.\nWhen the round ends, read the line under the numbers: it says whether your taps came early or late on average. Early means you are rushing, so wait for the click."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "clap-along",
+              "level": "new",
+              "bpm": 70,
+              "bars": 8
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Clap without the click",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Now clap. Press Start below to open the mic: the metronome counts one bar in and then stops, so the mic hears only your claps. Clap as each note reaches the line, and keep the beat going yourself.\nIf a clap leaves no mark under its note, clap closer to the mic."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "clap-along",
+              "level": "new",
+              "bpm": 70,
+              "input": "mic"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/rhythm"
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "beat:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 6
+    }
+  ]
+}

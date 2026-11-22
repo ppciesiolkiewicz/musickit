@@ -12,7 +12,7 @@ import { COMPONENT_DOCS } from "@/features/exercises/docs";
 import { BOOK, STAGES } from "@/features/theory/singingMelodies";
 import { pickTune } from "@/features/theory/melodyPick";
 import { PROGRESSIONS, STYLES } from "@/features/backing/model";
-import { KEY_PANELS, PROMPT_HIDDEN, canFollowPart, cellInterface, cellsOf, degreeSemis, linkResources, parseCellDiag, parseTool, parseToolDiag, toolInterface, toolsOf, type Cell } from "./tools";
+import { KEY_PANELS, PROMPT_HIDDEN, canFollowPart, cellInterface, cellsOf, degreeSemis, linkResources, parseCellDiag, parseTool, parseToolDiag, setLevel, toolInterface, toolsOf, type Cell } from "./tools";
 import { transposeTool } from "./transpose";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
@@ -253,6 +253,26 @@ describe("tools", () => {
     assert.deepEqual(t, { type: "guitar-play-along", bpm: 70, shape });
     assert.deepEqual(parseTool(t), t);
     assert.equal(parseTool({ type: "guitar-play-along", bpm: 70, shape: { ...shape, shape: "nonsense" } }), null);
+  });
+  it("a clap-along: a level picks the rhythm, a written pattern wins, the rest has defaults", () => {
+    assert.deepEqual(parseTool({ type: "clap-along" }), { type: "clap-along", pattern: "quarters", bpm: 80 });
+    assert.deepEqual(parseToolDiag({ type: "clap-along" }).notes, []);
+    assert.deepEqual(parseTool({ type: "clap-along", level: "beginner", bpm: 70 }), { type: "clap-along", pattern: "eighths", bpm: 70, level: "beginner" });
+    assert.deepEqual(parseTool({ type: "clap-along", level: "intermediate" }), { type: "clap-along", pattern: "sixteenths", bpm: 80, level: "intermediate" });
+    assert.deepEqual(parseTool({ type: "clap-along", level: "new", pattern: "folk", bars: 8, input: "mic" }), { type: "clap-along", pattern: "folk", bpm: 80, bars: 8, input: "mic", level: "new" });
+    // what it can't read is defaulted and said
+    const p = parseToolDiag({ type: "clap-along", pattern: "waltz", bpm: 400, bars: 99, input: "feet" });
+    assert.deepEqual(p.tool, { type: "clap-along", pattern: "quarters", bpm: 80 });
+    assert.equal(p.notes.length, 4);
+    // stored, it reads back the same
+    const stored = parseTool({ type: "clap-along", level: "advanced", bpm: 90, bars: 8 })!;
+    assert.deepEqual(stored, { type: "clap-along", pattern: "push", bpm: 90, bars: 8, level: "advanced" });
+    assert.deepEqual(parseTool(stored, { stored: true }), stored);
+    // a level choice moves the rhythm and keeps the tempo; a tempo choice moves it; it has no key
+    assert.deepEqual(setLevel(stored, "beginner"), { type: "clap-along", pattern: "eighths", bpm: 90, bars: 8, level: "beginner" });
+    assert.equal(canFollowPart(stored, "bpm"), true);
+    assert.equal(canFollowPart(stored, "level"), true);
+    assert.equal(canFollowPart(stored, "key"), false);
   });
   it("ears stay inside an octave unless wide", () => {
     assert.deepEqual(parseTool({ type: "interval-ears", set: [3, 4, 7, 10], dir: "down" }), { type: "interval-ears", query: "set=3%2C4%2C7%2C10&dir=down" });

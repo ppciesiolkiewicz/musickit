@@ -317,12 +317,12 @@ export const PATH: Track[] = [
 
   // ---- Theory & ear
   t("basics", "beat", "Steady beat & rhythm", ["steady-beat"], [
-    s(N, "Clap on the beat", ""),
+    s(N, "Clap on the beat", "", { ladder: "clap-along:new" }),
     s(N, "Count 1 2 3 4", ""),
-    s(B, "Eighths", ""),
-    s(I, "Sixteenths and rests", ""),
+    s(B, "Eighths", "", { ladder: "clap-along:beginner" }),
+    s(I, "Sixteenths and rests", "", { ladder: "clap-along:intermediate" }),
     m(I, "quarters to sixteenths", "switching inside one bar"),
-    s(A, "Syncopation", ""),
+    s(A, "Syncopation", "", { ladder: "clap-along:advanced" }),
     s(A, "Metronome on 2 and 4", ""),
   ]),
   t("basics", "note-names", "Note names", ["note-names"], [

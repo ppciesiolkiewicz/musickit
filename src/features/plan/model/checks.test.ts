@@ -53,6 +53,7 @@ describe("tempoWithoutMetronome", () => {
   it("passes with a tool that sounds the beat", () => {
     assert.equal(tempoWithoutMetronome([text("Play it at 80"), drone]), false);
     assert.equal(tempoWithoutMetronome([text("Play it at 80"), tool({ type: "strum-along", chords: ["Em"], bpm: 80 })]), false);
+    assert.equal(tempoWithoutMetronome([text("Clap it at 80"), tool({ type: "clap-along", pattern: "quarters", bpm: 80 })]), false);
   });
   it("a staff with its click sounds the beat; with only its drone it doesn't", () => {
     assert.equal(tempoWithoutMetronome([text("Sing at 80 bpm"), tool({ type: "staff", scale: "major-ionian", key: 0, voice: "tenor", click: true, bpm: 80 })]), false);

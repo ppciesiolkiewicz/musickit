@@ -10,7 +10,7 @@ export const RHYTHM_TOUR: TourStep[] = [
   {
     target: "rhythm-setup",
     title: "Set up",
-    text: "Play with Space or a tap, or strum your guitar into the mic. Pick a slow tempo to begin.",
+    text: "Play with Space or a tap, or clap or strum your guitar into the mic. Pick a slow tempo to begin.",
   },
   {
     target: "rhythm-start",
