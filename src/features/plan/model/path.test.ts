@@ -106,7 +106,7 @@ test("the prerequisites the user named (2026-11-16)", () => {
 
 test("mixing steps: never first, never a ladder step, never pointed at by `after`, named Mix", () => {
   const mixes = PATH.flatMap((t) => t.steps.map((st, i) => ({ t, st, i }))).filter((x) => x.st.mix);
-  assert.equal(mixes.length, 33);
+  assert.equal(mixes.length, 34);
   for (const { t, st, i } of mixes) {
     assert.ok(i > 0 && !t.steps[i - 1].mix, `${t.id}:${i + 1} follows a new step`);
     assert.ok(!st.ladder && st.name.startsWith("Mix: "), `${t.id}:${i + 1}`);
@@ -120,6 +120,16 @@ test("double stops: a new guitar track in the CAGED topic, right before triads",
   assert.equal(PATH[i + 1].id, "triads");
   const t = PATH[i];
   assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["guitar", "guitar-caged", [], ["beginner", "beginner", "beginner", "beginner", "intermediate"]]);
+});
+
+test("intervals on the neck: a new guitar track in the Scales topic, and octave jumps last in Melodies", () => {
+  const t = PATH.find((x) => x.id === "intervals-on-neck")!;
+  assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["guitar", "guitar-scales", [], ["beginner", "beginner", "intermediate", "intermediate", "intermediate", "advanced"]]);
+  assert.ok(t.steps.every((x) => !x.ladder), "no tool stands for these steps yet");
+  const tunes = PATH.find((x) => x.id === "guitar-melodies")!;
+  // appended, so the steps blocks already name (guitar-melodies:1 to :5) keep their numbers
+  assert.equal(tunes.steps[4].name, "Modal tunes");
+  assert.deepEqual([tunes.steps[5].name, tunes.steps[5].after], ["Octave jumps", ["intervals-on-neck:1"]]);
 });
 
 test("levelOfSteps: the highest level of the steps, unknown refs skipped", () => {

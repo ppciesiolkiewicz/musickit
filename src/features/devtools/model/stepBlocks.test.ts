@@ -18,7 +18,10 @@ test("every step a seed block names is a real step, and the block is listed unde
  * Steps no seed block practises yet. They were covered only by level matches until NEW17 gave the moved seed exercises
  * their real steps (2026-11-17); a new block for each is seed work (NEW10). Take a step off when a block names it.
  */
-const KNOWN_GAPS = ["seventh-shapes:4", "sus-add9:4", "notes-on-neck:3", "notes-on-neck:4", "range:4", "runs:8"];
+const KNOWN_GAPS = ["seventh-shapes:4", "sus-add9:4", "notes-on-neck:3", "notes-on-neck:4",
+  // intervals on the neck (2026-11-22): on the path before any tool or block stands for it
+  "intervals-on-neck:1", "intervals-on-neck:2", "intervals-on-neck:3", "intervals-on-neck:4", "intervals-on-neck:5", "intervals-on-neck:6",
+  "range:4", "runs:8"];
 
 test("every step on the path has at least one block, but the known gaps", () => {
   const empty = PATH.flatMap((t) => t.steps.map((_, i) => `${t.id}:${i + 1}`)).filter((ref) => !by.get(ref)?.length);
