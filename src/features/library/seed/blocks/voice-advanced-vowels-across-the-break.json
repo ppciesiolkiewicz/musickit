@@ -1,0 +1,108 @@
+{
+  "id": "voice-advanced-vowels-across-the-break",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 15,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track vowels (voice-breath-range), step 3, on the vowel-guide at level advanced (four notes from the first break up to the second): a lip roll across the break first, then \"oo\" and \"ee\" on those notes, then from round to open, \"oo\", \"oh\", \"ah\". The open \"ah\" comes last and only after the easier vowels; the text says the mic hears the note and not the vowel, and carries the care line where the notes cross the break.",
+  "exercise": {
+    "title": "Vowels across the break",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "vowels"
+    ],
+    "why": "The notes between your two breaks are where your voice wants to flip, so they are where it helps most to let each vowel open a little, one note at a time, as the mouth shows.",
+    "learnBefore": [
+      "/course/9/stretching-your-range"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "A lip roll first",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin the lip roll: a tone slides up and back down, then you make the same slide on your own while the mic draws your line. Keep the buzz loose and quiet through the place where your voice wants to flip."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "lip-roll",
+              "shape": "siren",
+              "voice": "tenor",
+              "plays": 4
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "\"oo\" and \"ee\" across",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear the first note: the mic starts after it. Sing the note on \"oo\", then on \"ee\", and hold each one until the ring round the mouth fills. A higher note then plays in the breath, and the two vowels come again.\nThe four notes cross your break. Let each vowel open a little more on each higher note, as the mouth does, and let the sound get lighter, not louder.\n_Don't reach for high notes: keep every vowel quiet, and stop if your throat tightens._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "vowel-guide",
+              "level": "advanced",
+              "vowels": [
+                "oo",
+                "ee"
+              ],
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From round to open",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin again from the first note. Sing each note on \"oo\", then on \"oh\", then on \"ah\": your lips stay round for the first two and your jaw drops for the last.\nThe mic hears your note, not your vowel. Stay with it until \"ah\" on the top note feels as easy as \"oo\" did."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "vowel-guide",
+              "level": "advanced",
+              "vowels": [
+                "oo",
+                "oh",
+                "ah"
+              ],
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/warm-ups"
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "vowels:3"
+      ],
+      "minutes": 8
+    }
+  ]
+}

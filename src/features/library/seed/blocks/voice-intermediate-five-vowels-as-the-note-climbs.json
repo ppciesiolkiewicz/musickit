@@ -1,0 +1,80 @@
+{
+  "id": "voice-intermediate-five-vowels-as-the-note-climbs",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 15,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track vowels (voice-breath-range), step 2, on the vowel-guide at level intermediate (four notes from the easy note up to the first break): first only \"oo\" and \"ee\", the easy vowels higher up, then all five on every note. The text points at what the drawn mouth does as the note climbs and never says the app checks the vowel; the care line sits where the notes first climb.",
+  "exercise": {
+    "title": "Five vowels as the note climbs",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "vowels"
+    ],
+    "why": "Singers usually open a vowel a little as the note gets higher, and singing the same vowels one note higher each time lets you make that change a little at a time.",
+    "learnBefore": [
+      "/course/9/stretching-your-range"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Two vowels, climbing",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear the first note: the mic starts after it. Sing the note on \"oo\", then on \"ee\", and hold each one until the ring round the mouth fills. A higher note then plays in the breath, and the same two vowels come again.\nWatch the mouth on each higher note: it opens a little more. Open yours with it, and keep the sound as quiet as it was on the first note.\n_Don't reach for high notes: when a note feels tight, stop there and stay on the notes under it._"
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "vowel-guide",
+              "level": "intermediate",
+              "vowels": [
+                "oo",
+                "ee"
+              ],
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "All five, climbing",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin again from the first note. Each note now gets all five vowels: sing it on \"ah\", then follow the mouth through \"eh\", \"ee\", \"oh\" and \"oo\".\nThe mic checks your note only. If a vowel makes the ring drain, press Skip below to move on to the next vowel."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "vowel-guide",
+              "level": "intermediate",
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "vowels:2"
+      ],
+      "minutes": 7
+    }
+  ]
+}
