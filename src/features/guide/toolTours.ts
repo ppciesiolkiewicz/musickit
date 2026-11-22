@@ -120,6 +120,12 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "rhythm-input", title: "Play with", text: "Press Space or tap the lane. Or pick the mic, and clap or strum muted strings." },
     { target: "rhythm-tempo", title: "Tempo", text: "Make it slower with − until you hit every note, then speed it up." },
   ],
+  "staff-reading": [
+    { target: "staff-reading-start", title: "Start", text: "Press Start. The game draws one note on the staff, with a ? under it." },
+    { target: "staff-reading-staff", title: "The staff", text: "Read where the note sits: on a line or in a space. Lines and spaces are counted from the bottom. A note you have named keeps its place with its name under it. Tap it to hear it again." },
+    { target: "staff-reading-answers", title: "The note's name", text: "Press the note's letter. The game says the note and where it sits, then asks the next one." },
+    { target: "staff-reading-mic", title: "Also answer by", text: "Switch on the mic to sing the note or play it on your instrument. Any octave counts." },
+  ],
   "finger-pattern": drill("Under it, the finger to use for each note."),
   "picking-drill": drill("Under it, the pick stroke for each note: ↓ down, ↑ up."),
   "legato-trill": drill("Pick only the first note. Hammer on and pull off the rest."),

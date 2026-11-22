@@ -21,7 +21,9 @@ test("every step a seed block names is a real step, and the block is listed unde
 const KNOWN_GAPS = ["seventh-shapes:4", "sus-add9:4", "notes-on-neck:3", "notes-on-neck:4",
   // intervals on the neck (2026-11-22): on the path before any tool or block stands for it
   "intervals-on-neck:1", "intervals-on-neck:2", "intervals-on-neck:3", "intervals-on-neck:4", "intervals-on-neck:5", "intervals-on-neck:6",
-  "range:4", "runs:8"];
+  "range:4", "runs:8",
+  // reading the staff (2026-11-22): the first blocks are for the lines, the spaces and the ledger lines
+  "reading-staff:3", "reading-staff:5", "reading-staff:6"];
 
 test("every step on the path has at least one block, but the known gaps", () => {
   const empty = PATH.flatMap((t) => t.steps.map((_, i) => `${t.id}:${i + 1}`)).filter((ref) => !by.get(ref)?.length);

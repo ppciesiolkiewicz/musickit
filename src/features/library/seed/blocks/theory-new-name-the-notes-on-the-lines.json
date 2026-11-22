@@ -1,0 +1,73 @@
+{
+  "id": "theory-new-name-the-notes-on-the-lines",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 14,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track reading-staff (theory-basics), step 1, on the staff-reading game at level new (the five lines of the treble clef): first the lines counted from the bottom, then the same game read from the G line the clef marks. The letters are written plain, as the game's buttons show them, not as note dots; no key and no tempo, so no moves.",
+  "exercise": {
+    "title": "Name the notes on the five lines",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "reading-staff"
+    ],
+    "why": "A line of the staff is always the same letter, and the game asks the lines in no order, so you learn to read each line by itself and not by its place in a list.",
+    "learnBefore": [
+      "/course/3/staff"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Count from the bottom line",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin the game: one note shows on the staff with a ? under it. Count its line from the bottom line, then press its letter under the staff.\nFrom the bottom line up, the five lines are E, G, B, D and F. After each answer the game says the note and its line, and the note stays on the staff with its name under it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff-reading",
+              "level": "new"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Read from the G line",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "The curl of the clef wraps round the second line, and that line is G. Press Start below to begin the game again, and this time read each note from the G line: every line up is two letters on, so the line above G is B.\nKeep going until a line gives you its letter before you have counted anything."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff-reading",
+              "level": "new"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "reading-staff:1"
+      ],
+      "minutes": 5
+    }
+  ]
+}

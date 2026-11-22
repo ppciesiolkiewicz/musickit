@@ -310,6 +310,27 @@ describe("tools", () => {
     assert.equal(canFollowPart(stored, "level"), true);
     assert.equal(canFollowPart(stored, "key"), false);
   });
+  it("a staff-reading: a level picks the notes, written notes win, the clef and the notes have defaults", () => {
+    assert.deepEqual(parseTool({ type: "staff-reading" }), { type: "staff-reading", clef: "treble", notes: "lines" });
+    assert.deepEqual(parseToolDiag({ type: "staff-reading" }).notes, []);
+    assert.deepEqual(parseTool({ type: "staff-reading", level: "beginner" }), { type: "staff-reading", clef: "treble", notes: "spaces", level: "beginner" });
+    assert.deepEqual(parseTool({ type: "staff-reading", level: "intermediate", clef: "bass", mic: true }), { type: "staff-reading", clef: "bass", notes: "ledger", mic: true, level: "intermediate" });
+    assert.deepEqual(parseTool({ type: "staff-reading", level: "beginner", notes: "staff" }), { type: "staff-reading", clef: "treble", notes: "staff", level: "beginner" });
+    assert.deepEqual(parseTool({ type: "staff-reading", notes: "all", mic: false }), { type: "staff-reading", clef: "treble", notes: "all" });
+    // what it can't read is defaulted and said
+    const p = parseToolDiag({ type: "staff-reading", clef: "alto", notes: "sharps" });
+    assert.deepEqual(p.tool, { type: "staff-reading", clef: "treble", notes: "lines" });
+    assert.equal(p.notes.length, 2);
+    // stored, it reads back the same
+    const stored = parseTool({ type: "staff-reading", level: "advanced", clef: "bass" })!;
+    assert.deepEqual(stored, { type: "staff-reading", clef: "bass", notes: "all", level: "advanced" });
+    assert.deepEqual(parseTool(stored, { stored: true }), stored);
+    // a level choice moves the notes and keeps the clef; it has no key and no tempo
+    assert.deepEqual(setLevel(stored, "new"), { type: "staff-reading", clef: "bass", notes: "lines", level: "new" });
+    assert.equal(canFollowPart(stored, "level"), true);
+    assert.equal(canFollowPart(stored, "key"), false);
+    assert.equal(canFollowPart(stored, "bpm"), false);
+  });
   it("a double-stops-neck: the interval is asked for, the scale and strings have defaults, a level sets the frets", () => {
     assert.deepEqual(parseTool({ type: "double-stops-neck", key: "g", interval: "3rds" }), { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "3rds", strings: "32" });
     assert.deepEqual(parseToolDiag({ type: "double-stops-neck", key: "g", interval: "3rds" }).notes, []);
