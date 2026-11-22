@@ -197,6 +197,55 @@ the other voice tools, or only a guide to copy with no check? Some voice blocks 
 (voice-intermediate-slides-across-the-break, voice-advanced-guide-tones). Those are the first ones to use the tool.
 [2026-11-22 decided, user] It checks pitch by mic: the singer holds a target note on each vowel and the mic reads it,
 like the other voice tools. The mouth is the guide; the check is the pitch.
+[2026-11-22 done] Built as the plan tool `vowel-guide` (branch claude/vowel-guide).
+- The tool: a plain mouth drawn in code (lips, the dark of the mouth, top teeth, tongue; no face) shows the vowel to
+  sing. The note plays, the singer holds it on that vowel, and a ring round the mouth fills while the mic hears the
+  voice on the note (within the singing accuracy); off the note it drains slowly and a breath waits, as on the hill.
+  A full ring moves on: the next vowel after a short breath, and after the last vowel the next note up, played in the
+  breath. Start / Stop, Restart, Skip and Play note as on the warm-ups. No score, no bell, nothing at the end but
+  "That was the last vowel". Props: `level`, `climb` ("one-note", "to-break", "across-break"), `vowels` (absent: all
+  five), `seconds` (2-6, absent 3), `voice`.
+- It hears a pitch, never a vowel, and says so: a line under the mouth ("The mic hears the note, not the vowel."), the
+  start cover, the tour, the props, the prompt and exercises/CLAUDE.md.
+- The notes: one easy note (the hill's middle note, a 5th over the bottom of the range; a tenor's G3), or four notes
+  from it up to the first break (G3 A3 C4 D4), or four from the first break up to the second (D4 E4 F4 G4). The range is
+  the player's own when the app has it, else the `voice` prop, through useVoice, useVoiceRange, voiceMapIn and the
+  hill's zoneFor; no note sits nearer the top of the range than three semitones, and new and beginner never climb.
+- The mouth is three numbers (open, wide, round) per vowel, and as the note climbs every vowel opens a little and its
+  width moves towards the middle: "eh" and "ee" narrow, "oh" and "oo" open out. The pure model is
+  exercises/basics/vowel-guide/vowels.ts, tested (the notes for every voice type and for short own ranges, the holds,
+  what counts as on the note, the mouth).
+- Wiring: the props file, View, docs regenerated, VOWEL_GUIDE_LEVELS in levels.ts (new and beginner one-note,
+  intermediate to-break, advanced across-break), tools.ts (union, parser, LEVELED, levelProps), ui/Tool.tsx,
+  transpose.ts (no key), checks.ts (a singing tool), a tour of four steps, six stories on /dev/stories in place of the
+  stub (stubs.ts is empty now: all six are built), the prompt (PROMPT_VERSION 15, changelog).
+- Path: a new voice track in the Breath & range topic after Stretching your range, `vowels` ("Vowels"): Five vowels on
+  one note (beginner, after pitch:3) | Vowels up to the break (intermediate, after range:1) | Vowels across the break
+  (advanced, after range:2). Nothing for someone new. A `vowel-guide` ladder in ladders.ts: the step is the climb while
+  the tool climbs as its level says. The topic has three tracks now, where it had two: its beginner, intermediate and
+  advanced levels are reached only with the vowels step solid too, and the part of a level counts thirds, not halves.
+- Blocks: voice-beginner-five-vowels-on-one-easy-note (vowels:1), voice-intermediate-five-vowels-as-the-note-climbs
+  (vowels:2), voice-advanced-vowels-across-the-break (vowels:3, a lip roll first). All ✔ on seed check.
+- What the tool and the blocks say about the voice, for the user to read (no calculator covers it): each vowel's mouth
+  in the course's own words ("ah" open tall, "oo" lips round, "ee" lips a little wide; "eh" half open, "oh" round and
+  open are new); higher up, the jaw drops a little more for "ah", "eh" and "ee" open a little and the corners come
+  in, "oh" and "oo" open a little and stay round; singers usually open a vowel a little as the note gets higher; keep
+  it quiet, no need to push, stop where a note feels tight and don't reach for it; between the two breaks is where the
+  voice wants to flip; lighter, not louder. No medical or anatomical claim. The breaks are the typical ones of
+  theory/registers.ts.
+Checked in the Vercel sandbox: the tests of exercises, plan/model, guide, devtools and library/seed; the full npm test
+(3358 of 3359 pass; only the known guide/coverage failure, which names interval-singer); tsc clean; eslint clean on the
+changed files; docs:exercises and gen:json-index leave no change; the three blocks ✔ on seed check. Not read on screen
+and not heard: no browser here, so the mouth itself (whether the five shapes read as their vowels, and whether the
+change as the note climbs can be seen at all: it is small up to the first break), the ring, the two rows under it, the
+tour, and whether the mic holds a sung vowel within the accuracy are unchecked.
+Left: read and hear it on /dev/stories and /dev/library. The two blocks that waited
+(voice-intermediate-slides-across-the-break, voice-advanced-guide-tones) were not rewritten to use the tool. No sung
+slide between two notes on a vowel (the first of them asked for one): the tool holds notes. The notes are not in a key
+and no drone or chord sounds under them; a climb is four notes at most and its size is not a prop; the singer cannot
+move the first note. The questionnaire's line for Breath & range still reads "Holding a note, stretching your range".
+Raising PROMPT_VERSION puts every older seed file behind on versions, as after each tool. Not seeded to the database
+(db:seed-blocks).
 MissingTools15: [NEW 2026-11-18] a staff-reading tool: learning the notes on the staff (user). A note shows on the
 staff and the player names it (answer buttons, like note-finder on the neck), in levels: lines, then spaces, then ledger
 lines; treble first, bass later. Open: whether a guitar player's version also plays it on the neck, and whether it
