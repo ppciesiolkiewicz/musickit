@@ -332,7 +332,7 @@ export default function RhythmGame({ bare = false, pattern: fixedPattern, bpm: f
 
   // Space hits in keys mode; Escape stops a round. Through the shared tool keys, not a listener of its own on the window:
   // with two games on one page (two exercises of a day) only the one last touched, or most on screen, takes the key.
-  const keys = useToolKeys((e, onControl) => {
+  const { ref: keysRef } = useToolKeys((e, onControl) => {
     if (e.key === "Escape") {
       if (!live.current) return;
       stop();
@@ -405,7 +405,7 @@ export default function RhythmGame({ bare = false, pattern: fixedPattern, bpm: f
     <Slider aria-label="Sensitivity" value={20 - s.riseDb} min={4} max={16} step={0.5} onChange={(v) => update({ riseDb: 20 - v })} className="w-48 max-w-full" />);
 
   return (
-    <div ref={keys.ref} className="flex flex-col gap-4">
+    <div ref={keysRef} className="flex flex-col gap-4">
       {!bare && <div data-tour="rhythm-pick"><GameChoice label="Rhythm" options={PATTERNS.map((p) => ({ id: p.id, title: p.name, about: p.hint }))} value={s.pattern} onChange={(pattern) => update({ pattern })} tone="violet" disabled={playing} /></div>}
       {!bare && (
       <aside data-tour="rhythm-setup" aria-label="Setup" className="flex flex-col gap-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
