@@ -18,11 +18,12 @@ import { earKindOf, isQuality } from "@/lib/practice/earGame";
 import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { MAX_BARS as CLAP_MAX_BARS, MAX_BPM as CLAP_MAX_BPM, MIN_BPM as CLAP_MIN_BPM, PATTERNS as CLAP_PATTERNS, isPatternId } from "@/features/rhythm/patterns";
+import { LIMITS as SONG_LIMITS, barChords, type ChartSection } from "@/features/exercises/basics/song-chart/chart";
 import { DYAD_DEFAULT_STRINGS, DYAD_NAMES, LIMITS as DYAD_LIMITS, dyadStrings, isDyadName, type DyadName } from "@/features/exercises/basics/double-stops-neck/walk";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
-import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM, MAX_NUMERALS, PARTS, PROGRESSIONS, STYLES, TONICS, cleanNumerals, numeralOfChord, type Part as BackingPart } from "@/features/backing/model";
+import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM, MAX_NUMERALS, PARTS, PROGRESSIONS, STYLES, TONICS, cleanNumerals, findStyle, numeralOfChord, type Part as BackingPart } from "@/features/backing/model";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import { isSingingLabels, type SingingLabels } from "@/features/theory/labels";
 import type { Degree, Voicing } from "@/features/exercises/timeline/types";
@@ -137,6 +138,12 @@ type PlanToolProps =
   | { type: "video"; video: string; ref?: undefined }
   | { type: "video"; video?: undefined; ref: Exclude<VideoRef, { source: "library" }> }
   | { type: "backing-track"; /** a backing tracks progression id; absent: `numerals` */ progression?: string; /** the lesson's own chords as numerals in `key` (pasted chords are read into numerals at parse) */ numerals?: string[]; key: number; /** a backing tracks style id; none: the progression's own, ballad for numerals */ style?: string; /** none: the style's tempo */ bpm?: number; /** the parts offered and how; absent: drums, bass and keys all "on" */ parts?: BackingParts }
+  /**
+   * a song's chart played by the backing band: `sections` each written once, a bar one chord or two with a space between
+   * ("C G"), as chord names (they move with the key); `form` the section names in playing order (absent: as written);
+   * `style` a backing tracks style id; `repeat` absent: round until stopped; `hide`: the chord names start hidden
+   */
+  | { type: "song-chart"; key: number; sections: ChartSection[]; form?: string[]; style: string; bpm: number; repeat?: number; parts?: BackingParts; hide?: true }
   /* stubs: a placeholder view until the real components exist; strings are numbered 1-6, 6 = low E */
   | { type: "finger-pattern"; fingers: string; level?: ToolLevel; fret: number; strings?: number[]; show?: "finger" | "pick"; bpm: number }
   | { type: "picking-drill"; strokes: string; level?: ToolLevel; notesPerString: number; strings?: number[]; skip?: boolean; bpm: number }
@@ -655,6 +662,56 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       };
     },
   },
+  "song-chart": {
+    parse(t, d) {
+      const raw = list(t.sections).filter((s): s is Record<string, unknown> => !!s && typeof s === "object" && !Array.isArray(s));
+      if (!raw.length) return no(d, "no sections");
+      if (raw.length > SONG_LIMITS.sections) d.notes.push(`had more than ${SONG_LIMITS.sections} sections; kept the first ${SONG_LIMITS.sections}.`);
+      const sections: ChartSection[] = [];
+      for (const [i, s] of raw.slice(0, SONG_LIMITS.sections).entries()) {
+        const name = typeof s.name === "string" && s.name.trim() ? s.name.trim().slice(0, SONG_LIMITS.name) : `Part ${i + 1}`;
+        if (name !== s.name) defaulted(d, `name for section ${i + 1}`, s.name, `a name of up to ${SONG_LIMITS.name} letters`, JSON.stringify(name));
+        const bars = list(s.bars);
+        if (!bars.length) return no(d, `section ${JSON.stringify(name)} has no bars`);
+        if (bars.length > SONG_LIMITS.bars) return no(d, `section ${JSON.stringify(name)} has ${bars.length} bars (${SONG_LIMITS.bars} at most: split it in two sections)`);
+        const read: string[] = [];
+        // a bar it can't read would move every bar after it off its bar line, so the chart is refused, never shortened
+        for (const [j, bar] of bars.entries()) {
+          const chords = typeof bar === "string" ? barChords(bar) : [];
+          if (!chords.length || chords.length > SONG_LIMITS.chords || !chords.every(isChord)) return no(d, `bar ${j + 1} of ${JSON.stringify(name)} is ${JSON.stringify(bar)?.slice(0, 30)}: a bar is one chord ("G"), or two with a space between ("C G")`);
+          read.push(chords.join(" "));
+        }
+        sections.push({ name, bars: read });
+      }
+      // the form: section names in playing order; a name no section has is said and left out
+      const asked = list(t.form).map((n) => (typeof n === "string" ? n.trim() : n));
+      const form = asked.filter((n): n is string => typeof n === "string" && sections.some((s) => s.name === n)).slice(0, SONG_LIMITS.form);
+      lost(d, "form", asked.slice(0, SONG_LIMITS.form), (n) => (form.includes(n as string) ? n : null));
+      if (asked.length > SONG_LIMITS.form) d.notes.push(`had more than ${SONG_LIMITS.form} sections in its form; kept the first ${SONG_LIMITS.form}.`);
+      const played = form.length ? form.map((n) => sections.find((s) => s.name === n)!) : sections;
+      const total = played.reduce((n, s) => n + s.bars.length, 0);
+      if (total > SONG_LIMITS.total) return no(d, `its form is ${total} bars long (${SONG_LIMITS.total} at most)`);
+      const first = barChords(played[0].bars[0])[0];
+      const key = keyOf(t.key) ?? parseChordQuery(first)!.rootPc;
+      if (t.key != null && keyOf(t.key) === null) defaulted(d, "key", t.key, "not a key", `the first chord's root, ${TONICS[key]}`);
+      // a chord the band has no voicing for stays on the chart: the band rests in its bar, and the tool says which
+      const unvoiced = [...new Set(played.flatMap((s) => s.bars.flatMap(barChords)))].filter((c) => !numeralOfChord(c, TONICS[key]));
+      if (unvoiced.length && !d.stored) d.notes.push(`has chords the band can't voice (${unvoiced.slice(0, 5).join(", ")}${unvoiced.length > 5 ? ", …" : ""}); they stay on the chart, marked, and the band rests in their bars.`);
+      const style = typeof t.style === "string" && STYLES.some((x) => x.id === t.style) ? t.style : "pop";
+      if (t.style != null && style !== t.style) defaulted(d, "style", t.style, `it is ${STYLES.map((x) => `"${x.id}"`).join(", ")}`, `"pop"`);
+      const n = Number(t.bpm);
+      const bpm = t.bpm != null && Number.isFinite(n) ? Math.min(BACKING_MAX_BPM, Math.max(BACKING_MIN_BPM, Math.round(n))) : findStyle(style).bpm;
+      if (t.bpm != null && bpm !== t.bpm) defaulted(d, "bpm", t.bpm, `a number ${BACKING_MIN_BPM}-${BACKING_MAX_BPM}`, bpm);
+      const [lo, hi] = SONG_LIMITS.repeat;
+      const repeat = t.repeat == null ? null : int(t.repeat, lo, hi);
+      if (t.repeat != null && repeat === null) d.notes.push(`had repeat ${JSON.stringify(t.repeat)?.slice(0, 20)} (not a whole number ${lo}-${hi}); left it out, so the form goes round until stopped.`);
+      const parts = backingParts(t.parts, undefined, d);
+      return {
+        type: "song-chart", key, sections, ...(form.length ? { form } : {}), style, bpm,
+        ...(repeat !== null ? { repeat } : {}), ...(parts ? { parts } : {}), ...(t.hide === true ? { hide: true as const } : {}),
+      };
+    },
+  },
   "strum-along": {
     parse(t, d) {
       const chords = chordList(t.chords, 16, d);
@@ -822,7 +879,7 @@ export function canFollowPart(tool: PlanTool, part: PartName): boolean {
   switch (part) {
     case "key": return canTranspose(tool);
     case "scale": return "scale" in tool && typeof tool.scale === "string";
-    case "bpm": return tool.type === "staff" ? tool.click === true : ["backing-band", "backing-track", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill", "clap-along"].includes(tool.type);
+    case "bpm": return tool.type === "staff" ? tool.click === true : ["backing-band", "backing-track", "song-chart", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill", "clap-along"].includes(tool.type);
     case "position": return tool.type === "scale-neck" || (tool.type === "position-neck" && !tool.cross);
     case "level": return hasLevel(tool);
   }

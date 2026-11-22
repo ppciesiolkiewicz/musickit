@@ -46,7 +46,7 @@ const PARTS: Record<PartName, Part> = {
     say: (v) => String(v),
   },
   bpm: {
-    apply: (tool, value) => (tool.type === "backing-track" ? { ...tool, bpm: Math.min(BACKING_MAX_BPM, Math.max(BACKING_MIN_BPM, num(value))) } : canFollowPart(tool, "bpm") ? ({ ...tool, bpm: num(value) } as PlanTool) : tool),
+    apply: (tool, value) => (tool.type === "backing-track" || tool.type === "song-chart" ? { ...tool, bpm: Math.min(BACKING_MAX_BPM, Math.max(BACKING_MIN_BPM, num(value))) } : canFollowPart(tool, "bpm") ? ({ ...tool, bpm: num(value) } as PlanTool) : tool),
     written: (t) => ("bpm" in t && typeof t.bpm === "number" ? t.bpm : null),
     none: "no tool with a tempo",
     say: (v) => `${v} bpm`,

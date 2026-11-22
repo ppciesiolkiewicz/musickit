@@ -63,6 +63,7 @@ function rootOf(s: PlainCell): number | null {
     case "position-neck":
     case "staff":
     case "backing-track":
+    case "song-chart":
       return keyRoot(t.key);
     case "arpeggio-neck":
       return chordRoot(t.chord);

@@ -103,6 +103,12 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "backing-choose", title: "What the band plays", text: "Pick another progression, key or style. A change comes in on the next bar.", minLevel: "standard" },
     { target: "backing-band", title: "The band", text: "Turn a part down, or mute it to play that part yourself. A part this exercise always plays has no mute." },
   ],
+  "song-chart": [
+    { target: "song-chart-play", title: "Play", text: "Press Play. A bar of clicks counts you in, then the band plays the song from the top." },
+    { target: "song-chart-chart", title: "The chart", text: "Each box is one bar, and a chord changes where a new box begins. The lit box is the bar playing now, under the name of its section." },
+    { target: "song-chart-tempo", title: "Tempo", text: "Make it slower with − until every change lands on beat 1." },
+    { target: "backing-band", title: "The band", text: "Turn a part down, or mute it to play that part yourself. A part this exercise always plays has no mute." },
+  ],
   "strum-along": [
     { target: "strum-along-play", title: "Play", text: "Play starts the metronome with a short count-in. Strum along with it." },
     { target: "strum-along-bars", title: "The strums", text: "Arrows show the strums: down or up. The one to play now is lit." },
