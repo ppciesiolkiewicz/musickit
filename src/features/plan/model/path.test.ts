@@ -191,11 +191,38 @@ test("double stops: a new guitar track in the CAGED topic, right before triads",
 test("intervals on the neck: a new guitar track in the Scales topic, and octave jumps last in Melodies", () => {
   const t = PATH.find((x) => x.id === "intervals-on-neck")!;
   assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["guitar", "guitar-scales", [], ["beginner", "beginner", "intermediate", "intermediate", "intermediate", "advanced"]]);
-  assert.ok(t.steps.every((x) => !x.ladder), "no tool stands for these steps yet");
+  // an interval shape of guitar-play-along stands for each step but the mix
+  assert.deepEqual(t.steps.map((x) => x.ladder ?? null), ["intervals-on-neck:octaves", "intervals-on-neck:fifths-fourths", "intervals-on-neck:thirds-sixths", "intervals-on-neck:one-note", null, "intervals-on-neck:every"]);
   const tunes = PATH.find((x) => x.id === "guitar-melodies")!;
   // appended, so the steps blocks already name (guitar-melodies:1 to :5) keep their numbers
   assert.equal(tunes.steps[4].name, "Modal tunes");
-  assert.deepEqual([tunes.steps[5].name, tunes.steps[5].after], ["Octave jumps", ["intervals-on-neck:1"]]);
+  assert.deepEqual([tunes.steps[5].name, tunes.steps[5].after, tunes.steps[5].ladder], ["Octave jumps", ["intervals-on-neck:1"], "guitar-tunes:octave-leap"]);
+  assert.ok(tunes.steps.slice(0, 5).every((x) => !x.ladder));
+});
+
+test("the intervals-on-neck track: an interval shape says its step by its intervals, its strings and its walk", () => {
+  const iv = (shape: Record<string, unknown>) => parseTool({ type: "guitar-play-along", bpm: 60, shape: { shape: "interval", key: "g", ...shape } })!;
+  assert.equal(stepOf("intervals-on-neck", [iv({ intervals: ["octave"], strings: "64" })]), 0);
+  assert.equal(stepOf("intervals-on-neck", [iv({ intervals: ["5th"], strings: "65" }), iv({ intervals: ["4th"], strings: "55" })]), 1);
+  assert.equal(stepOf("intervals-on-neck", [iv({ intervals: ["3rd", "6th"], strings: "43" })]), 2);
+  assert.equal(stepOf("intervals-on-neck", [iv({ intervals: ["5th"], strings: "43", walk: "note" })]), 3);
+  assert.equal(stepOf("intervals-on-neck", [iv({ intervals: ["2nd", "7th"], strings: "33" })]), 5);
+  // the hardest step the tools say
+  assert.equal(stepOf("intervals-on-neck", [iv({ intervals: ["octave"], strings: "64" }), iv({ intervals: ["5th"], strings: "43", walk: "note" })]), 3);
+  // a set-up that is no step's own, another shape and another tool say no step
+  assert.equal(stepOf("intervals-on-neck", [iv({ intervals: ["octave"], strings: "66" })]), null);
+  assert.equal(stepOf("intervals-on-neck", [parseTool({ type: "guitar-play-along", bpm: 60, shape: { shape: "melody", tune: 100, key: "g" } })!]), null);
+  assert.equal(stepOf("intervals-on-neck", [parseTool({ type: "double-stops-neck", key: "g", interval: "3rds", level: "beginner" })!]), null);
+});
+
+test("octave jumps in Melodies: a tune of the book that leaps an octave, as written or an octave higher", () => {
+  const tune = (shape: Record<string, unknown>) => parseTool({ type: "guitar-play-along", bpm: 60, shape: { shape: "melody", key: "g", ...shape } })!;
+  assert.equal(stepOf("guitar-melodies", [tune({ tune: 100 })]), 5);
+  assert.equal(stepOf("guitar-melodies", [tune({ tune: 100, octave: 1 })]), 5);
+  // a tune with no octave leap says no step, also an octave higher; so does an interval shape
+  assert.equal(stepOf("guitar-melodies", [tune({ tune: 1 })]), null);
+  assert.equal(stepOf("guitar-melodies", [tune({ tune: 1, octave: 1 })]), null);
+  assert.equal(stepOf("guitar-melodies", [parseTool({ type: "guitar-play-along", bpm: 60, shape: { shape: "interval", key: "g", intervals: ["octave"], strings: "64" } })!]), null);
 });
 
 test("reading the staff: a new theory track in the Basics topic, right after note names; a staff-reading's level is its step", () => {

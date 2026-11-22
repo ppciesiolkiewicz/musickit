@@ -10,6 +10,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 16 (2026-11-22)
+
+- A new shape of `guitar-play-along`, `interval` (LibraryGrowth4): one interval, or a few in turn, as a shape on the neck, its two notes played one after the other, one note a beat, in a major key. Props `key`, `intervals` ("2nd" to "7th", "octave"), `strings` (the lower note's string, then the upper note's: "64" two strings over, "65" the next string, "66" along one string), `direction` ("up", "down", "both"), `walk` ("scale": from every note of the scale along the strings; "note": above and below the key note), `from`, `to`. The app finds every fret; an interval that does not fit its strings within 4 frets is refused with the reason.
+- The `melody` shape has a new prop, `octave`: 1 plays the tune an octave higher, and is refused in a key where a note would pass fret 17.
+- "Which tool for what": the line for playing a line on the guitar names the interval shape and the melody's `octave`, and says the text names the strings and which note comes first, never the frets.
+- The list of each concept's steps is unchanged; `intervals-on-neck:1` to `:4` and `:6` now have an interval shape standing for them, and `guitar-melodies:6` a tune of the book that leaps an octave.
+
 ### 15 (2026-11-22)
 
 - A new tool, `vowel-guide` (MissingTools14): a drawn mouth shows the vowel to sing ("ah", "eh", "ee", "oh", "oo") and how its shape opens a little as the note climbs; the note plays, the student holds it on that vowel, and a ring fills while the mic hears the voice on the note. Then the next vowel, and after the last vowel the next note up. Props `level`, `climb`, `vowels`, `seconds`, `voice`.

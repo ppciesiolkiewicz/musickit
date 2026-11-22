@@ -1,7 +1,14 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { arpeggioPart, chordSteps, expandShape, melody, numeralChord, progression, soloOver, twoScales } from "./index";
+import { arpeggioPart, chordSteps, expandShape, interval, melody, numeralChord, progression, soloOver, twoScales } from "./index";
 import type { Timeline, TimelineEvent } from "../timeline/types";
+import { makeKeyContext } from "@/features/theory/theory";
+import { intervalWalk } from "@/lib/chordKit/scaleChords";
+import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
+import { BOOK, octaveLeap } from "@/features/theory/singingMelodies";
+import { cuesOf } from "../cues/cues";
+import { melodyTonic } from "../timeline/degrees";
+import { INTERVAL_NAMES, intervalLine, intervalStep } from "./interval";
 
 const of = <T extends TimelineEvent["type"]>(t: Timeline, type: T) => t.events.filter((e) => e.type === type) as Extract<TimelineEvent, { type: T }>[];
 
@@ -109,5 +116,120 @@ describe("melody", () => {
     assert.ok(steps.length > 0);
     assert.deepEqual(steps[steps.length - 1].step, { kind: "note", semis: 0, from: "key" });
     assert.equal(melody({ shape: "melody", bpm: 80, tune: 99999, key: "c" }), null);
+  });
+});
+
+describe("melody an octave higher", () => {
+  it("every note 12 semitones up, on the neck", () => {
+    const low = of(melody({ shape: "melody", bpm: 80, tune: 100, key: "g" })!, "step");
+    const high = of(melody({ shape: "melody", bpm: 80, tune: 100, key: "g", octave: 1 })!, "step");
+    assert.deepEqual(high.map((s) => (s.step.kind === "note" ? s.step.semis : null)), low.map((s) => (s.step.kind === "note" ? s.step.semis + 12 : null)));
+    const cues = cuesOf(melody({ shape: "melody", bpm: 80, tune: 100, key: "g", octave: 1 })!);
+    assert.ok(cues.length === high.length && cues.every((c) => c.frets.length === 1 && c.frets[0].fret <= 17));
+  });
+  it("refused where a note would leave the neck, or for another octave", () => {
+    assert.equal(melody({ shape: "melody", bpm: 80, tune: 100, key: "c", octave: 1 }), null);
+    assert.equal(melody({ shape: "melody", bpm: 80, tune: 100, key: "g", octave: 2 }), null);
+    for (const key of ["f-sharp", "g", "a-flat", "a"]) assert.ok(melody({ shape: "melody", bpm: 80, tune: 100, key, octave: 1 }), key);
+  });
+  it("the tunes that leap an octave are the octave stage's", () => {
+    assert.deepEqual(BOOK.filter((b) => octaveLeap(b.notes)).map((b) => b.stage.id).filter((s, i, all) => all.indexOf(s) === i), ["octave"]);
+    assert.ok(octaveLeap(BOOK.find((b) => b.n === 100)!.notes));
+    assert.ok(!octaveLeap(BOOK[0].notes));
+  });
+});
+
+describe("interval", () => {
+  const G = makeKeyContext(7, 0, 0);
+  const shape = (props: Record<string, unknown>) => ({ shape: "interval", bpm: 80, key: "g", ...props });
+  /** each cue of the timeline as [string index, fret] */
+  const cells = (props: Record<string, unknown>) => cuesOf(expandShape(shape(props))!).map((c) => [c.frets[0].string, c.frets[0].fret]);
+
+  it("through the scale, up: each pair low note first, climbing; every fret is chordKit's", () => {
+    const pairs = intervalWalk(G, 8, [0, 2], 0, 7);
+    assert.deepEqual(cells({ intervals: ["octave"], strings: "64", direction: "up", to: 7 }), pairs.flatMap((d) => [[0, d.frets[0]], [2, d.frets[1]]]));
+    // G on the low E string, then its octave on the D string
+    assert.deepEqual(cells({ intervals: ["octave"], strings: "64", direction: "up", from: 3, to: 3 }), [[0, 3], [2, 5]]);
+  });
+  it("down: each pair high note first, coming back down; both: there and back", () => {
+    const pairs = intervalWalk(G, 5, [1, 2], 0, 5);
+    const up = pairs.flatMap((d) => [[1, d.frets[0]], [2, d.frets[1]]]);
+    const down = [...pairs].reverse().flatMap((d) => [[2, d.frets[1]], [1, d.frets[0]]]);
+    assert.deepEqual(cells({ intervals: ["5th"], strings: "54", direction: "down", to: 5 }), down);
+    assert.deepEqual(cells({ intervals: ["5th"], strings: "54", to: 5 }), [...up, ...down]);
+  });
+  it("along one string and across strings 3 and 2 the frets follow the same code", () => {
+    assert.deepEqual(cells({ intervals: ["3rd"], strings: "33", direction: "up", to: 4 }), intervalWalk(G, 3, [3, 3], 0, 4).flatMap((d) => [[3, d.frets[0]], [3, d.frets[1]]]));
+    assert.deepEqual(cells({ intervals: ["4th"], strings: "32", direction: "up", to: 5 }), intervalWalk(G, 4, [3, 4], 0, 5).flatMap((d) => [[3, d.frets[0]], [4, d.frets[1]]]));
+  });
+  it("a note sounds where it is drawn, one note a beat, each interval from a new bar, with a cue where the way turns", () => {
+    const t = interval(shape({ intervals: ["5th", "4th"], strings: "65", to: 3 }))!;
+    const steps = of(t, "step");
+    const cues = cuesOf(t);
+    for (const c of cues) assert.equal(c.midi[0], OPEN_MIDI[c.frets[0].string] + c.frets[0].fret);
+    assert.ok(steps.every((s) => s.beats === 1 && s.chord === ""));
+    const second = steps.findIndex((s) => s.cue === "4ths up");
+    assert.ok(second > 0 && steps[second].at % 4 === 0);
+    assert.deepEqual(steps.filter((s) => s.cue).map((s) => s.cue), ["5ths up", "5ths down", "4ths up", "4ths down"]);
+    assert.equal(t.bars, Math.ceil((steps[steps.length - 1].at + 1) / 4));
+    assert.deepEqual(of(t, "scale").map((s) => [s.key, s.scale]), [[7, "major-ionian"]]);
+    assert.equal(melodyTonic(7), 55);
+  });
+  it("from one note: the key note, the note above on the second string, the note below the same way down", () => {
+    // G on the D string (fret 5): a 5th up is D on the G string, a 5th down is C on the A string
+    assert.deepEqual(cells({ intervals: ["5th"], strings: "43", walk: "note" }), [[2, 5], [3, 7], [2, 5], [1, 3]]);
+    assert.deepEqual(cells({ intervals: ["5th"], strings: "43", walk: "note", direction: "up" }), [[2, 5], [3, 7]]);
+    assert.deepEqual(cells({ intervals: ["5th"], strings: "43", walk: "note", direction: "down" }), [[2, 5], [1, 3]]);
+    const t = interval(shape({ intervals: ["5th", "octave"], strings: "42", walk: "note" }))!;
+    assert.deepEqual(of(t, "step").filter((s) => s.cue).map((s) => s.cue), ["A 5th up", "A 5th down", "An octave up", "An octave down"]);
+    // one place for the key note through every interval
+    const home = cuesOf(t).filter((_, i) => i % 2 === 0).map((c) => `${c.frets[0].string}:${c.frets[0].fret}`);
+    assert.equal(new Set(home).size, 1);
+  });
+  it("in every key each interval has a line on the strings that hold it, and every line is on the neck", () => {
+    for (let key = 0; key < 12; key++) for (const name of INTERVAL_NAMES) for (const strings of ["66", "65", "64", "32", "42", "11"]) {
+      const line = intervalLine({ shape: "interval", key: String(key), intervals: [name], strings });
+      if ("error" in line) { assert.match(line.error, /don't hold/, `${key} ${name} ${strings}: ${line.error}`); continue; }
+      const t = expandShape({ shape: "interval", bpm: 80, key: String(key), intervals: [name], strings })!;
+      assert.ok(t, `${key} ${name} ${strings}`);
+      for (const c of cuesOf(t)) assert.ok(c.frets.length === 1 && c.frets[0].fret >= 0 && c.frets[0].fret <= 17);
+    }
+  });
+  it("says why a shape can't be played", () => {
+    const why = (props: Record<string, unknown>) => { const l = intervalLine(shape(props)); return "error" in l ? l.error : null; };
+    assert.equal(why({ intervals: ["octave"], strings: "64" }), null);
+    assert.match(why({ intervals: ["octave"], strings: "65" })!, /strings 65 don't hold octaves within 4 frets/);
+    assert.match(why({ intervals: ["9th"], strings: "65" })!, /"intervals" is a list/);
+    assert.match(why({ intervals: [], strings: "65" })!, /"intervals" is a list/);
+    assert.match(why({ intervals: ["5th"], strings: "56" })!, /"strings" is two guitar numbers/);
+    assert.match(why({ intervals: ["5th"], strings: "65", direction: "sideways" })!, /"direction"/);
+    assert.match(why({ intervals: ["5th"], strings: "65", walk: "run" })!, /"walk"/);
+    assert.match(why({ intervals: ["5th"], strings: "65", from: 9, to: 4 })!, /"from" and "to"/);
+    assert.match(why({ intervals: ["octave"], strings: "64", walk: "note" })!, /no string two strings lower/);
+    assert.match(why({ intervals: ["octave"], strings: "66", walk: "note" })!, /no place on string 6/);
+    assert.equal(interval(shape({ intervals: ["octave"], strings: "65" })), null);
+    assert.equal(expandShape(shape({ intervals: ["octave"], strings: "64", walk: "note" })), null);
+    assert.ok(expandShape(shape({ intervals: ["octave"], strings: "64", walk: "note", direction: "up" })));
+  });
+  it("the step of the intervals-on-neck track a shape stands for", () => {
+    const step = (props: Record<string, unknown>) => intervalStep({ shape: "interval", key: "g", ...props });
+    assert.equal(step({ intervals: ["octave"], strings: "64" }), "octaves");
+    assert.equal(step({ intervals: ["octave"], strings: "31", to: 7 }), "octaves");
+    assert.equal(step({ intervals: ["octave"], strings: "64", direction: "up" }), null);
+    assert.equal(step({ intervals: ["octave"], strings: "66" }), null);
+    assert.equal(step({ intervals: ["5th", "4th"], strings: "65" }), "fifths-fourths");
+    assert.equal(step({ intervals: ["4th"], strings: "55", direction: "up" }), "fifths-fourths");
+    assert.equal(step({ intervals: ["5th"], strings: "64" }), null);
+    assert.equal(step({ intervals: ["3rd"], strings: "32" }), "thirds-sixths");
+    assert.equal(step({ intervals: ["3rd", "6th"], strings: "43" }), "thirds-sixths");
+    assert.equal(step({ intervals: ["6th"], strings: "31" }), "thirds-sixths");
+    assert.equal(step({ intervals: ["5th"], strings: "43", walk: "note" }), "one-note");
+    assert.equal(step({ intervals: ["5th"], strings: "43", walk: "note", direction: "up" }), null);
+    assert.equal(step({ intervals: ["2nd", "3rd", "4th", "5th"], strings: "32" }), "every");
+    assert.equal(step({ intervals: ["7th"], strings: "42" }), "every");
+    assert.equal(step({ intervals: ["7th"], strings: "42", direction: "down" }), null);
+    assert.equal(step({ intervals: ["5th", "3rd"], strings: "65" }), null);
+    assert.equal(step({ intervals: ["octave"], strings: "65" }), null);
+    assert.equal(step({ shape: "melody", tune: 1 }), null);
   });
 });

@@ -10,6 +10,9 @@ export function degreeSemis(v: unknown): number | null {
   return s in DEGREE_SEMIS ? DEGREE_SEMIS[s] : null;
 }
 
+/** Where a tune's Do sounds: the key note nearest middle C (midi 60), F♯ and up an octave lower. A melody step's semitones count from it. */
+export const melodyTonic = (key: number): number => 60 + ((((key - 60 + 6) % 12) + 12) % 12) - 6;
+
 /** Unique, sorted semitones for a list of degree strings; invalid entries are dropped. */
 export function parseDegrees(v: unknown): number[] {
   const arr = Array.isArray(v) ? v : [];

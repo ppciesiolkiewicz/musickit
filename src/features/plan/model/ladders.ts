@@ -5,6 +5,8 @@ import { CHANGE_LEVELS, EAR_LEVELS, TOP_EAR_LEVEL, earKindOf, parseEarSettings }
 import { patternById } from "@/features/rhythm/patterns";
 import { DYAD_DEFAULT_STRINGS } from "@/features/exercises/basics/double-stops-neck/walk";
 import { DYAD_MAX_FRET } from "@/lib/chordKit/scaleChords";
+import { INTERVAL_STEPS_HELD, intervalStep } from "@/features/exercises/shapes/interval";
+import { octaveLeap } from "@/features/theory/singingMelodies";
 import { OPEN_CHORDS, chartStep } from "@/features/exercises/basics/song-chart/chart";
 import { notesOf, type ReadingSet } from "@/features/exercises/basics/staff-reading/reading";
 import { VOWEL_CLIMBS, type VowelClimb } from "@/features/exercises/basics/vowel-guide/vowels";
@@ -152,6 +154,25 @@ export const LADDERS: Ladder[] = [
       { key: "by-ear", name: "By ear", holds: "the chord names start hidden (hide), shown by the student to check" },
     ],
     read: (tool) => (tool.type === "song-chart" ? chartStep(tool.sections, tool.form, tool.hide === true) : null),
+  },
+  // the intervals-on-neck track's ladder: guitar-play-along with an `interval` shape. Like song-chart it has no levels:
+  // the step is read from the shape itself (`intervalStep`): which intervals, on which strings, through the scale or from
+  // one note. A set-up that is no step's own (5ths with 3rds, octaves along one string) says no step
+  {
+    id: "intervals-on-neck", label: "guitar-play-along interval shapes", file: "src/features/exercises/shapes/interval.ts",
+    steps: INTERVAL_STEPS_HELD.map((s) => ({ ...s })),
+    read: (tool) => (tool.type === "guitar-play-along" ? intervalStep(tool.shape) : null),
+  },
+  // the last step of the guitar Melodies track: guitar-play-along with a `melody` shape whose tune leaps an octave from
+  // one note to the next (read from the tune book, `octaveLeap`), as written or an octave higher (`octave`)
+  {
+    id: "guitar-tunes", label: "guitar-play-along tunes", file: "src/features/theory/singingMelodies.ts",
+    steps: [{ key: "octave-leap", name: "A tune with an octave leap", holds: `a tune of the book that leaps an octave between two notes (tunes ${BOOK.filter((b) => octaveLeap(b.notes)).map((b) => b.n).join(", ")}), where it is written or an octave higher ("octave": 1)` }],
+    read: (tool) => {
+      if (tool.type !== "guitar-play-along" || tool.shape.shape !== "melody") return null;
+      const { tune } = tool.shape;
+      return BOOK.some((b) => b.n === tune && octaveLeap(b.notes)) ? "octave-leap" : null;
+    },
   },
   stages("melody-stages", "melody-singer stages", STAGES, (t) => (t.type === "melody-singer" ? BOOK.find((b) => b.n === t.tune)?.stage.id ?? null : null)),
   stages("run-stages", "run-singer stages", RUN_STAGES, (t) => (t.type === "run-singer" ? RUNS.find((b) => b.n === t.run)?.stage.id ?? null : null)),

@@ -57,6 +57,11 @@ describe("transposeTool", () => {
     assert.ok(s.type === "strum-along");
     assert.deepEqual(s.chords, ["A", "D", "E"]);
   });
+  it("an interval shape moves its key; its strings and its frets stay", () => {
+    const p = transposeTool(tool({ type: "guitar-play-along", bpm: 60, shape: { shape: "interval", key: "g", intervals: ["octave"], strings: "64", from: 0, to: 7 } }), 2);
+    assert.ok(p.type === "guitar-play-along");
+    assert.deepEqual(p.shape, { shape: "interval", key: "a", intervals: ["octave"], strings: "64", from: 0, to: 7 });
+  });
   it("moves a play-along shape's key and chords at any depth", () => {
     const p = transposeTool(tool({ type: "guitar-play-along", bpm: 70, shape: { shape: "solo-over", key: "a", scale: "minor-pentatonic", chords: [{ chord: "Am7", target: ["1"] }, { chord: "D7", target: ["3"] }] } }), 2);
     assert.ok(p.type === "guitar-play-along");

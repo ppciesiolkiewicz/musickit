@@ -25,6 +25,7 @@ import { LIMITS as VOWEL_LIMITS, VOWELS, VOWEL_CLIMBS, isVowel, isVowelClimb, ty
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
+import { intervalLine } from "@/features/exercises/shapes/interval";
 import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM, MAX_NUMERALS, PARTS, PROGRESSIONS, STYLES, TONICS, cleanNumerals, findStyle, numeralOfChord, type Part as BackingPart } from "@/features/backing/model";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import { isSingingLabels, type SingingLabels } from "@/features/theory/labels";
@@ -649,6 +650,9 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       if (repeats === null && t.repeats != null) d.notes.push(`had repeats ${JSON.stringify(t.repeats)?.slice(0, 20)} (not a whole number 1-50); left it out.`);
       delete shape.bpm;
       delete shape.repeats;
+      // an interval shape says what is wrong with it: strings that don't hold the interval, no place for the key note
+      const line = shape.shape === "interval" ? intervalLine(shape) : null;
+      if (line && "error" in line) return no(d, `its interval shape can't be played: ${line.error}`);
       if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return no(d, `its shape ${JSON.stringify(shape.shape) ?? "(no shape field)"} does not expand (a field is missing or out of range)`);
       return {
         type: "guitar-play-along", bpm, shape: shape as unknown as PlayAlongShape,

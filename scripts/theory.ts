@@ -13,7 +13,7 @@ import { CAGED_LETTERS, boxCells, boxChords, boxScaleChords, cagedBoxes, type Ca
 import { neighbours, ruleLetter } from "../src/lib/chordKit/neighbours";
 import { positionsFor, type PositionKind, type ScaleCell } from "../src/lib/chordKit/scalePositions";
 import { INVERSIONS, STRING_GROUPS, TRIAD_QUALITIES, triadVoicings, type TriadQuality } from "../src/lib/chordKit/triads";
-import { DYAD_STEPS, diatonicDyads, dyadPairs, type DyadInterval } from "../src/lib/chordKit/scaleChords";
+import { DYAD_STEPS, INTERVAL_STEPS, diatonicDyads, dyadPairs, intervalFits, intervalPairs, type DyadInterval, type IntervalSize } from "../src/lib/chordKit/scaleChords";
 
 const HELP = `theory <command> [args] [--flags]       keys: C F# Bb f♯ …   modes: major minor dorian "harmonic minor" "phrygian dominant" …
 
@@ -31,6 +31,11 @@ const HELP = `theory <command> [args] [--flags]       keys: C F# Bb f♯ …   m
         [--interval 3|4|5|6]                 … 3rds (default), 4ths, 5ths, or 6ths (one string between)
         [--strings 21,32]                    … only these string pairs (guitar numbers, 1 = high e)
         [--box C|A|G|E|D] [--frets 5-8] [--slack 1]   … as for triads
+  intervals <key> [mode]                   one interval of the scale as a shape, played one note after the other: where both notes sit
+        [--interval 2|3|4|5|6|7|8]           … 2nds to 7ths, 8 the octave (default 8)
+        [--strings 64,65,66]                 … the lower note's string, then the upper note's (guitar numbers; 66 = along one string).
+                                               Left out: every pair of strings that holds the interval within 4 frets, and each string alone
+        [--frets 0-12]                       … only where the lower note sits in these frets
   neighbours <key> <C|A|G|E|D>             I IV V ii vi iii: the shape of each that sits in the I chord's box
   positions <key> [mode] [pentatonic|scale|3nps]
                                            the scale positions the app draws, with notes per string
@@ -281,6 +286,42 @@ function dyads(pos: string[], flags: Record<string, string>) {
   };
 }
 
+function intervals(pos: string[], flags: Record<string, string>) {
+  const { familyIndex, modeIndex } = parseMode(pos[1]);
+  const ctx = makeKeyContext(parseKey(pos[0]), familyIndex, modeIndex);
+  const size = Number(flags.interval ?? 8);
+  if (!(size in INTERVAL_STEPS)) fail(`--interval is 2 to 8 (8 the octave), not ${flags.interval}`);
+  const iv = size as IntervalSize;
+  const name = iv === 8 ? "octave" : iv === 2 ? "2nd" : iv === 3 ? "3rd" : `${iv}th`;
+  const all: [number, number][] = [];
+  for (let lo = 0; lo < 6; lo++) for (let hi = lo; hi < 6; hi++) if (intervalFits(ctx, iv, [lo, hi])) all.push([lo, hi]);
+  const pairs = flags.strings
+    ? flags.strings.split(",").map((id): [number, number] => {
+        const m = /^([1-6])([1-6])$/.exec(id.trim());
+        if (!m) fail(`--strings is two guitar numbers, the lower note's string first (64, 65, 66), not ${id}`);
+        const p: [number, number] = [6 - Number(m[1]), 6 - Number(m[2])];
+        if (!intervalFits(ctx, iv, p)) fail(`strings ${id} don't hold every ${name} of ${keyName(ctx)} within 4 frets`);
+        return p;
+      })
+    : all;
+  const f = flags.frets ? /^(\d+)-(\d+)$/.exec(flags.frets) : null;
+  if (flags.frets && !f) fail(`--frets is a range like 0-12, not ${flags.frets}`);
+  const [from, to] = f ? [Number(f[1]), Number(f[2])] : [0, 17];
+  const sizes: Record<number, string> = { 1: "m2", 2: "M2", 3: "m3", 4: "M3", 5: "P4", 6: "tritone", 7: "P5", 8: "m6", 9: "M6", 10: "m7", 11: "M7", 12: "P8" };
+  return {
+    key: keyName(ctx),
+    interval: `${name}s (scale notes ${INTERVAL_STEPS[iv]} steps apart)`,
+    window: f ? `lower note at frets ${from}-${to}` : "whole neck 0-17",
+    legend: "strings (1 = high e), the lower note's first · frets, the lower note's first · lower + upper note (scale degree) · size",
+    pairs: pairs.map(([lo, hi]) => ({
+      strings: `${GUITAR_NUMBER(lo)}${GUITAR_NUMBER(hi)} (${STRING_NAMES[lo]} ${STRING_NAMES[hi]})`,
+      shapes: intervalPairs(ctx, iv, [lo, hi])
+        .filter((d) => d.frets[0] >= from && d.frets[0] <= to)
+        .map((d) => `${d.frets.join("-").padEnd(6)} ${ctx.names[d.degree]}(${d.degree + 1}) + ${ctx.names[d.upper]}(${d.upper + 1})  ${sizes[d.semis] ?? d.semis}`),
+    })),
+  };
+}
+
 function neighbourCmd(pos: string[]) {
   const rootPc = parseKey(pos[0]);
   const letter = parseLetter(pos[1]);
@@ -356,6 +397,7 @@ const COMMANDS: Record<string, () => unknown> = {
   box: () => box(args, flags),
   triads: () => triads(args, flags),
   dyads: () => dyads(args, flags),
+  intervals: () => intervals(args, flags),
   neighbours: () => neighbourCmd(args),
   neighbors: () => neighbourCmd(args),
   positions: () => positions(args),

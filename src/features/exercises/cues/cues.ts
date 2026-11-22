@@ -3,6 +3,7 @@ import { arpPositions, buildArpeggio, neckCells, type ArpPosition } from "@/lib/
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { OPEN_MIDI, shapeFingers } from "@/lib/chordKit/shapeTools";
 import { compEvents } from "@/lib/practice/comping";
+import { melodyTonic } from "../timeline/degrees";
 import type { Place, Timeline, TimelineEvent } from "../timeline/types";
 import { chordShapeFor, type VoicedShape } from "./voicing";
 
@@ -142,7 +143,7 @@ export function gripCells(pcs: number[], strings: number[], near: number): Cell[
  *   the last grip (else the last note), else the chord's voiced shape. The note steps after it (until a strum) take the
  *   pitch nearest the previous note within 3 frets of the grip, closest to the grip's frets on a tie.
  * - A melody step (chord "") is the tonic (the key nearest midi 60) plus `semis` exactly (semis carry the octave);
- *   it sits on the neck near the previous fret.
+ *   it sits on the neck near the previous fret, or on the step's own `string` when it names one (the interval shape).
  * - `enabled` is whether opts `enable` (absent: every note) and `highlighted` whether opts/chord `highlight` (absent: none)
  *   holds the note's semitones above the root (any note, for chords).
  * - A chord with `backing` adds `backing` cues from `compEvents`; with the timeline's `pad`, a chord without one adds
@@ -215,10 +216,11 @@ export function cuesOf(t: Timeline, opts: Marks = {}): Cue[] {
     const pc = mod12(rootPc + e.step.semis);
     let cell: Cell | undefined;
     if (!cell && !e.chord) {
-      const tonic = 60 + mod12(key - 60 + 6) - 6;
-      const midi = tonic + e.step.semis; // semis already carry the octave
+      const midi = melodyTonic(key) + e.step.semis; // semis already carry the octave
       const refFret: number = prev?.fret ?? 5;
-      cell = [...neckOf(pc)].filter((x) => x.midi === midi).sort((a, b) => Math.abs(a.fret - refFret) - Math.abs(b.fret - refFret) || a.fret - b.fret)[0] ?? { string: -1, fret: -1, midi };
+      // a step that names its string sits there, whatever came before it
+      const on = e.step.string === undefined ? undefined : 6 - e.step.string;
+      cell = (on === undefined ? undefined : neckOf(pc).find((x) => x.midi === midi && x.string === on)) ?? [...neckOf(pc)].filter((x) => x.midi === midi).sort((a, b) => Math.abs(a.fret - refFret) - Math.abs(b.fret - refFret) || a.fret - b.fret)[0] ?? { string: -1, fret: -1, midi };
     }
     if (!cell && e.place) {
       const part = partNotes(e.chord, e.place);
