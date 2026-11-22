@@ -185,7 +185,7 @@ function baseRect(s: Subject): FrameRect {
       return { x: 0.02, y: 0.66, w: 0.34, h: 0.3 };
     case "tool":
       // the necks that run the whole fretboard are wide; the theory panels are half the frame; the rest are boxes
-      if (["scale-neck", "position-neck", "caged-neck"].includes(s.tool.type)) return { x: 0.05, y: 0.08, w: 0.6, h: 0.5 };
+      if (["scale-neck", "position-neck", "caged-neck", "double-stops-neck"].includes(s.tool.type)) return { x: 0.05, y: 0.08, w: 0.6, h: 0.5 };
       if (["relative-modes", "mode-intervals", "key-chords", "triads", "progressions", "chord-circle", "circle-of-fifths", "piano-keys", "improvisation", "tunings"].includes(s.tool.type)) return { x: 0.05, y: 0.08, w: 0.5, h: 0.5 };
       return { x: 0.05, y: 0.08, w: 0.4, h: 0.4 };
     case "key":

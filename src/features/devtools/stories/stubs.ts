@@ -29,26 +29,6 @@ const p = (name: string, type: string, description: string, required = false): P
 
 export const STUBS: StubSpec[] = [
   {
-    id: "double-stops-neck",
-    title: "double-stops-neck",
-    task: "MissingTools1",
-    what: "3rds and 6ths of one key as pairs on two strings, walked up the neck. Today these blocks draw them with scale-neck and tab.",
-    waits: "double-stops:2-4",
-    keywords: ["double stop", "double stops", "thirds", "sixths", "pairs", "harmony", "fretboard", "neck", "guitar"],
-    props: [
-      p("key", "string", "The key, as scale-neck takes it.", true),
-      p("scale", "string", "The scale the pairs come from (major-ionian by default)."),
-      p("interval", `"3rds" | "6ths"`, "Which pairs.", true),
-      p("strings", `"21" | "32" | "43" | "54" | "65" | "31" | "42" | "53" | "64"`, "The string pair, high string first: 3rds sit on neighbours, 6ths skip one."),
-      p("from", "number", "The fret the walk starts at."),
-      p("to", "number", "The fret it ends at."),
-    ],
-    stories: [
-      hand("G major 3rds on B and G", { key: "g", interval: "3rds", strings: "32" }),
-      hand("C major 6ths on G and high E", { key: "c", interval: "6ths", strings: "31" }),
-    ],
-  },
-  {
     id: "song-chart",
     title: "song-chart",
     task: "MissingTools8",

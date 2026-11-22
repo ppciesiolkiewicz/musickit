@@ -15,9 +15,10 @@ import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/feat
 import { HILL_SOUNDS, HILL_WHERE, LIMITS as HILL_LIMITS, type HillSound, type HillWhere } from "@/features/exercises/basics/voice-hill/hill";
 import { LIP_ROLL_PLAYS, LIP_ROLL_SHAPES, LIP_ROLL_SPEEDS, LIMITS as LIP_ROLL_LIMITS, type LipRollPlay, type LipRollShape, type LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
 import { earKindOf, isQuality } from "@/lib/practice/earGame";
-import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
+import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { MAX_BARS as CLAP_MAX_BARS, MAX_BPM as CLAP_MAX_BPM, MIN_BPM as CLAP_MIN_BPM, PATTERNS as CLAP_PATTERNS, isPatternId } from "@/features/rhythm/patterns";
+import { DYAD_DEFAULT_STRINGS, DYAD_NAMES, LIMITS as DYAD_LIMITS, dyadStrings, isDyadName, type DyadName } from "@/features/exercises/basics/double-stops-neck/walk";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
@@ -110,6 +111,8 @@ type PlanToolProps =
   | { type: "chord-circle"; key: number; scale: string; degree: number }
   /** the CAGED shapes of the key's major or minor chord: `shapes` stacked in CAGED order; absent: all five on the whole neck */
   | { type: "caged-neck"; key: number; scale: string; shapes?: CagedLetter[] }
+  /** the key's 3rds or 6ths on one pair of strings (`strings`: guitar numbers, the lower string first), from fret `from` (absent: 0) to fret `to` (absent: the last fret drawn, 17) */
+  | { type: "double-stops-neck"; key: number; scale: string; interval: DyadName; strings: string; level?: ToolLevel; from?: number; to?: number }
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
   | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
   | { type: "backing-band"; bpm: number; key: number; /** the parts offered and how; never empty */ parts: BandParts }
@@ -468,6 +471,27 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       return sk && { type: "caged-neck", ...sk, ...opt("shapes", shapesOf(t.shapes, d)) };
     },
   },
+  "double-stops-neck": {
+    parse(t, d) {
+      // the scale is optional: the major scale
+      const sk = scaleKey({ ...t, scale: t.scale ?? "major-ionian" }, d);
+      if (!sk) return null;
+      const interval = t.interval;
+      if (!isDyadName(interval)) return no(d, interval == null ? "no interval" : `${bad("interval", interval)}; it is ${DYAD_NAMES.map((n) => `"${n}"`).join(" or ")}`);
+      const fits = dyadStrings(interval);
+      const strings = typeof t.strings === "string" && fits.includes(t.strings) ? t.strings : DYAD_DEFAULT_STRINGS[interval];
+      if (t.strings != null && strings !== t.strings) d.notes.push(`had strings ${JSON.stringify(t.strings)?.slice(0, 20)} (${interval} sit on ${fits.map((x) => `"${x}"`).join(", ")}); used "${strings}".`);
+      const { minFret, maxFret, minSpan } = DYAD_LIMITS;
+      let from = t.from == null ? minFret : intOr(d, "from", t.from, minFret, maxFret - minSpan, minFret);
+      let to = t.to == null ? maxFret : intOr(d, "to", t.to, minFret + minSpan, maxFret, maxFret);
+      if (to - from < minSpan) {
+        d.notes.push(`had frets ${from} to ${to} (a double stop needs ${minSpan} frets of room); used the whole neck.`);
+        from = minFret;
+        to = maxFret;
+      }
+      return { type: "double-stops-neck", ...sk, interval, strings, ...(from !== minFret ? { from } : {}), ...(to !== maxFret ? { to } : {}) };
+    },
+  },
   "scale-neck": { parse: scaleNeck },
   "position-neck": { parse: positionNeck },
   "chord-shapes": {
@@ -696,7 +720,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
 };
 
 /** The tools that take a `level`: a short way to write the settings in `levels.ts` (exercises). */
-const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill", "clap-along"] as const;
+const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "double-stops-neck"] as const;
 type LeveledName = (typeof LEVELED)[number];
 /** Whether a tool can be set to a level (`setLevel`). */
 export const hasLevel = (tool: PlanTool): tool is Extract<PlanTool, { type: LeveledName }> => (LEVELED as readonly string[]).includes(tool.type);
@@ -720,6 +744,7 @@ function levelProps(type: LeveledName, level: ToolLevel, t: Record<string, unkno
     case "picking-drill": return { ...PICKING_DRILL_LEVELS[level] };
     case "legato-trill": return { fingers: LEGATO_TRILL_LEVELS[level] };
     case "clap-along": return { pattern: CLAP_ALONG_LEVELS[level] };
+    case "double-stops-neck": return { ...DOUBLE_STOPS_NECK_LEVELS[level] };
   }
 }
 

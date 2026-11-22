@@ -1,8 +1,10 @@
-import { CLAP_ALONG_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS } from "@/features/exercises/basics/levels";
+import { CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, type ToolLevel } from "@/features/exercises/basics/levels";
 import { intervalName } from "@/features/theory/singingIntervals";
 import { BOOK, DIFFICULTIES, RUNS, RUN_STAGES, STAGES } from "@/features/theory/singingMelodies";
 import { CHANGE_LEVELS, EAR_LEVELS, TOP_EAR_LEVEL, earKindOf, parseEarSettings } from "@/lib/practice/earGame";
 import { patternById } from "@/features/rhythm/patterns";
+import { DYAD_DEFAULT_STRINGS } from "@/features/exercises/basics/double-stops-neck/walk";
+import { DYAD_MAX_FRET } from "@/lib/chordKit/scaleChords";
 import type { PlanTool } from "./tools";
 
 /*
@@ -40,6 +42,10 @@ const byLevel = (id: string, type: PlanTool["type"], label: string, holds: (leve
 /** A book's ladder: the step is the stage of the tune or run the tool plays. */
 const stages = (id: string, label: string, list: { id: string; title: string; hint: string }[], read: Ladder["read"]): Ladder =>
   ({ id, label, file: "src/features/theory/singingMelodies.ts", steps: list.map((s) => ({ key: s.id, name: s.title, holds: s.hint })), read });
+
+/** double-stops-neck: a level's frets in words, and the levels that stay low on the neck (the same frets as "new"). */
+const fretsOf = (l: ToolLevel) => `frets ${DOUBLE_STOPS_NECK_LEVELS[l].from} to ${DOUBLE_STOPS_NECK_LEVELS[l].to}`;
+const LOW_LEVELS = TOOL_LEVELS.filter((l) => DOUBLE_STOPS_NECK_LEVELS[l].to === DOUBLE_STOPS_NECK_LEVELS.new.to);
 
 /** Every ladder in the code that says what a level holds. */
 export const LADDERS: Ladder[] = [
@@ -84,6 +90,25 @@ export const LADDERS: Ladder[] = [
     const p = patternById(CLAP_ALONG_LEVELS[l]);
     return `${p.name.toLowerCase()}: ${p.hint}`;
   }, (t) => t.type === "clap-along" && !!t.level && t.pattern === CLAP_ALONG_LEVELS[t.level]),
+  // the double-stops track's ladder: double-stops-neck. Its level says how far up the neck (low, or up it); the interval
+  // and the strings are the tool's own. Low on the neck the step is the interval on its home strings (3rds on 3 and 2,
+  // 6ths on 3 and 1); up the neck it is one step for either, on any pair. As on clap-along, the step is read only while
+  // the tool still holds its level's own frets: raw `from` and `to` say no step
+  {
+    id: "double-stops-neck", label: "double-stops-neck levels", file: LEVELS_FILE,
+    steps: [
+      { key: "3rds", name: "3rds, low", holds: `3rds on strings ${DYAD_DEFAULT_STRINGS["3rds"].split("").join(" and ")}, ${fretsOf("beginner")} (levels new and beginner)` },
+      { key: "6ths", name: "6ths, low", holds: `6ths on strings ${DYAD_DEFAULT_STRINGS["6ths"].split("").join(" and ")}, ${fretsOf("beginner")} (levels new and beginner)` },
+      { key: "up", name: "Up the neck", holds: `3rds or 6ths on any pair of strings, ${fretsOf("intermediate")} (level intermediate) or ${fretsOf("advanced")} (advanced)` },
+    ],
+    read: (tool) => {
+      if (tool.type !== "double-stops-neck" || !tool.level) return null;
+      const { from, to } = DOUBLE_STOPS_NECK_LEVELS[tool.level];
+      if ((tool.from ?? 0) !== from || (tool.to ?? DYAD_MAX_FRET) !== to) return null;
+      if (!LOW_LEVELS.includes(tool.level)) return "up";
+      return tool.strings === DYAD_DEFAULT_STRINGS[tool.interval] ? tool.interval : null;
+    },
+  },
   stages("melody-stages", "melody-singer stages", STAGES, (t) => (t.type === "melody-singer" ? BOOK.find((b) => b.n === t.tune)?.stage.id ?? null : null)),
   stages("run-stages", "run-singer stages", RUN_STAGES, (t) => (t.type === "run-singer" ? RUNS.find((b) => b.n === t.run)?.stage.id ?? null : null)),
   { id: "melody-difficulty", label: "melody difficulties", file: "src/features/theory/singingMelodies.ts", steps: DIFFICULTIES.map((d) => ({ key: d.title, name: d.title, holds: d.hint })) },

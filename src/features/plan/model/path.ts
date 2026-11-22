@@ -110,10 +110,10 @@ export const PATH: Track[] = [
   ]),
   g("caged", "double-stops", "Double stops", [], [
     s(B, "5ths on two strings", "root and 5th, the smallest power chord"),
-    s(B, "3rds on strings 3 and 2", "in one key"),
-    s(B, "6ths on strings 3 and 1", "in one key, string 2 skipped"),
+    s(B, "3rds on strings 3 and 2", "in one key", { ladder: "double-stops-neck:3rds" }),
+    s(B, "6ths on strings 3 and 1", "in one key, string 2 skipped", { ladder: "double-stops-neck:6ths" }),
     m(B, "3rds and 6ths", "low on the neck, in one key"),
-    s(I, "Up the neck in one key", "3rds and 6ths"),
+    s(I, "Up the neck in one key", "3rds and 6ths", { ladder: "double-stops-neck:up" }),
   ]),
   g("caged", "triads", "Triads", ["top-string-triads", "triads-every-set"], [
     s(B, "Strings 3 2 1", "major triads", { after: ["double-stops:2"] }),

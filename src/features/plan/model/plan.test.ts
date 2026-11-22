@@ -274,6 +274,34 @@ describe("tools", () => {
     assert.equal(canFollowPart(stored, "level"), true);
     assert.equal(canFollowPart(stored, "key"), false);
   });
+  it("a double-stops-neck: the interval is asked for, the scale and strings have defaults, a level sets the frets", () => {
+    assert.deepEqual(parseTool({ type: "double-stops-neck", key: "g", interval: "3rds" }), { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "3rds", strings: "32" });
+    assert.deepEqual(parseToolDiag({ type: "double-stops-neck", key: "g", interval: "3rds" }).notes, []);
+    assert.deepEqual(parseTool({ type: "double-stops-neck", key: "c", interval: "6ths", level: "beginner" }), { type: "double-stops-neck", scale: "major-ionian", key: 0, interval: "6ths", strings: "31", to: 7, level: "beginner" });
+    assert.deepEqual(parseTool({ type: "double-stops-neck", key: "a", scale: "natural-minor-aeolian", interval: "3rds", strings: "21", level: "intermediate" }), { type: "double-stops-neck", scale: "natural-minor-aeolian", key: 9, interval: "3rds", strings: "21", to: 12, level: "intermediate" });
+    // frets written beside a level win; the whole neck stores no frets
+    assert.deepEqual(parseTool({ type: "double-stops-neck", key: "g", interval: "3rds", level: "beginner", from: 5, to: 12 }), { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "3rds", strings: "32", from: 5, to: 12, level: "beginner" });
+    assert.deepEqual(parseTool({ type: "double-stops-neck", key: "g", interval: "3rds", level: "advanced" }), { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "3rds", strings: "32", level: "advanced" });
+    // no interval, or one it does not draw: dropped, and said
+    assert.equal(parseTool({ type: "double-stops-neck", key: "g" }), null);
+    assert.match(parseToolDiag({ type: "double-stops-neck", key: "g", interval: "5ths" }).dropped!, /interval/);
+    assert.equal(parseTool({ type: "double-stops-neck", interval: "3rds" }), null);
+    // strings that can't hold the interval, and frets with no room, are defaulted and said
+    const p = parseToolDiag({ type: "double-stops-neck", key: "g", interval: "6ths", strings: "32", from: 9, to: 11 });
+    assert.deepEqual(p.tool, { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "6ths", strings: "31" });
+    assert.equal(p.notes.length, 2);
+    // stored, it reads back the same
+    const stored = parseTool({ type: "double-stops-neck", key: "g", interval: "3rds", level: "beginner" })!;
+    assert.deepEqual(parseTool(stored, { stored: true }), stored);
+    // a level choice moves the frets and keeps the rest; a key and a scale choice move it; it has no tempo
+    assert.deepEqual(setLevel(stored, "intermediate"), { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "3rds", strings: "32", to: 12, level: "intermediate" });
+    assert.deepEqual(setLevel(stored, "advanced"), { type: "double-stops-neck", scale: "major-ionian", key: 7, interval: "3rds", strings: "32", level: "advanced" });
+    assert.equal(canFollowPart(stored, "level"), true);
+    assert.equal(canFollowPart(stored, "key"), true);
+    assert.equal(canFollowPart(stored, "scale"), true);
+    assert.equal(canFollowPart(stored, "bpm"), false);
+    assert.equal((transposeTool(stored, 5) as { key: number }).key, 0);
+  });
   it("ears stay inside an octave unless wide", () => {
     assert.deepEqual(parseTool({ type: "interval-ears", set: [3, 4, 7, 10], dir: "down" }), { type: "interval-ears", query: "set=3%2C4%2C7%2C10&dir=down" });
     assert.deepEqual(parseTool({ type: "interval-ears", level: 2, wide: true }), { type: "interval-ears", query: "level=2&wide=1", wide: true });

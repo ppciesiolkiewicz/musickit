@@ -10,6 +10,9 @@ import { STRING_GROUPS, TRIAD_QUALITIES, triadVoicings, type StringGroup, type T
 
 const MAX_FRET = 17;
 const MAX_SPAN = 4;
+/** The highest fret a double stop is found at, and the most frets its two notes may lie apart. */
+export const DYAD_MAX_FRET = MAX_FRET;
+export const DYAD_MAX_SPAN = MAX_SPAN;
 
 /** A double stop's interval, as scale steps above its lower note: a 3rd is two steps up the scale, a 5th four. */
 export const DYAD_STEPS = { 3: 2, 4: 3, 5: 4, 6: 5 } as const;
@@ -57,6 +60,33 @@ export function diatonicDyads(ctx: KeyContext, interval: DyadInterval, strings: 
   }
   return out.sort((x, y) => x.degree - y.degree || x.lowestFret - y.lowestFret);
 }
+
+/**
+ * The scale's double stops on one pair of strings, low to high along the whole neck: from the lowest one, each next
+ * scale note's pair the nearest one above the last, until the neck runs out.
+ */
+export function dyadLadder(ctx: KeyContext, interval: DyadInterval, strings: [number, number]): Dyad[] {
+  const all = diatonicDyads(ctx, interval, strings);
+  const start = [...all].sort((a, b) => a.midi[0] - b.midi[0])[0];
+  if (!start) return [];
+  const out = [start];
+  for (;;) {
+    const last = out[out.length - 1];
+    const next = all.filter((d) => d.degree === (last.degree + 1) % 7 && d.midi[0] > last.midi[0]).sort((a, b) => a.midi[0] - b.midi[0])[0];
+    if (!next) return out;
+    out.push(next);
+  }
+}
+
+/** The part of `dyadLadder` between two frets: the double stops whose two notes both sit from fret `from` to fret `to`, low to high. */
+export function dyadWalk(ctx: KeyContext, interval: DyadInterval, strings: [number, number], from = 0, to = MAX_FRET): Dyad[] {
+  return dyadLadder(ctx, interval, strings).filter((d) => Math.min(...d.frets) >= from && Math.max(...d.frets) <= to);
+}
+
+/** A string pair by its guitar numbers, low string first ("32": the G and B strings, 6 the low E). */
+export const dyadPairId = ([lo, hi]: [number, number]): string => `${6 - lo}${6 - hi}`;
+/** The pair of strings a double stop of this interval can sit on, from its guitar numbers; null when it can't ("32" holds no 6th). */
+export const dyadPairOf = (id: string, interval: DyadInterval): [number, number] | null => dyadPairs(interval).find((p) => dyadPairId(p) === id) ?? null;
 
 const ROMAN_INDEX: Record<string, number> = { i: 0, ii: 1, iii: 2, iv: 3, v: 4, vi: 5, vii: 6 };
 

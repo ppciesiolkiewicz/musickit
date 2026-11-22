@@ -10,6 +10,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 12 (2026-11-22)
+
+- A new tool, `double-stops-neck` (MissingTools1): the 3rds or 6ths of one key as pairs on two strings, walked up the neck, each pair with its chord named and that chord's root ringed; a pair sounds when tapped, and Play runs the walk up and back down. Props `key`, `scale`, `interval`, `strings`, `level`, `from`, `to`.
+- "Which tool for what": the line for seeing notes on the guitar names it, and says that double stops in time or mixed into a riff stay guitar-play-along grips.
+- It is in the list of tools that take a `level`: new and beginner frets 0 to 7, intermediate frets 0 to 12, advanced frets 0 to 17. The interval and the strings are written beside the level.
+- The list of each concept's steps is unchanged; `double-stops:2`, `double-stops:3` and `double-stops:5` now have a tool level standing for them.
+
 ### 11 (2026-11-22)
 
 - `interval-ears` has a third `kind`, `"change"` (MissingTools3): the I chord plays, then one other chord of a major key, and the student picks the second chord's numeral. Its `level` is the game's own number 1-5 (1 IV and V, 2 adds vi, 3 ii, 4 iii, 5 vii°) or a word (new and beginner 1, intermediate 2, advanced 5).

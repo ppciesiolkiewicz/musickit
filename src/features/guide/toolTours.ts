@@ -153,6 +153,10 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
   "caged-neck": [
     { target: "caged-neck-panel", title: "The shapes", text: "The CAGED shapes of the chord, joined up the neck. Tap a dot to hear its note." },
   ],
+  "double-stops-neck": [
+    { target: "double-stops-neck-neck", title: "The double stops", text: "Each joined pair is two notes to play together. The chord they belong to is named above, and its root is ringed. Tap a pair to hear it." },
+    { target: "double-stops-neck-play", title: "Play", text: "Press Play to hear the double stops up the neck and back down, one after another." },
+  ],
 };
 
 /** The page id a tool type's tour seen flag is stored under (`useTourSeen`). */
