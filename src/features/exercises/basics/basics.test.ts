@@ -5,7 +5,7 @@ import { PATTERNS, isPatternId } from "@/features/rhythm/patterns";
 import { CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, TOOL_LEVELS } from "./levels";
 import { DYAD_DEFAULT_STRINGS, DYAD_NAMES, LIMITS, dyadStrings } from "./double-stops-neck/walk";
 
-const NAMES = ["scale-neck", "chord-shapes", "staff", "backing-band", "note-finder", "interval-ears", "strum-along", "clap-along", "double-stops-neck"];
+const NAMES = ["scale-neck", "chord-shapes", "staff", "backing-band", "note-finder", "interval-ears", "strum-along", "clap-along", "double-stops-neck", "song-chart"];
 
 describe("basics docs", () => {
   it("lists every basic", () => {

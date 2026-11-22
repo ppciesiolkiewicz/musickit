@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { chordFromNumeral, chordsFromNumerals, numeralOfChord } from "./numerals";
-import { DEFAULT_SETTINGS, bandMode, clampSettings, cleanNumerals, playedNumerals } from "./settings";
+import { REST, chordFromNumeral, chordsFromNumerals, numeralOfChord } from "./numerals";
+import { DEFAULT_SETTINGS, MAX_BAND_NUMERALS, bandMode, clampSettings, cleanNumerals, playedNumerals } from "./settings";
 import { PROGRESSIONS, layOut, splitLength } from "./progressions";
 import { STYLES, checkStyle, findStyle } from "./styles";
 import { arrange, bassNote, bassRoot, chordAt, eventsBetween, stepBeat, voiceLead } from "./arrange";
@@ -220,4 +220,44 @@ test("settings: the band's own numerals play instead of the progression until cl
   assert.deepEqual(clampSettings({}, own).numerals, own.numerals);
   assert.equal(cleanNumerals(["nope"]), null);
   assert.equal(cleanNumerals(Array(30).fill("I"))!.length, 16);
+});
+
+test("a rest keeps its bar: the drums play through it, the bass and the keys wait, and the chords after it stay in place", () => {
+  const style = findStyle("pop");
+  const arr = arrange(["I", REST, "IV", "V"], "C", style);
+  assert.equal(arr.beats, 16);
+  assert.deepEqual(arr.chords.map((c) => [c.symbol, c.beat, c.rest ?? false]), [["C", 0, false], ["", 4, true], ["F", 8, false], ["G", 12, false]]);
+  const inRest = arr.events.filter((e) => e.beat >= 4 - 1e-9 && e.beat < 8 - 1e-9);
+  assert.ok(inRest.length > 0 && inRest.every((e) => e.part === "drums"), "only drums in the rest's bar");
+  assert.ok(arr.events.some((e) => e.part === "keys" && e.beat >= 8 && e.beat < 12));
+  // nothing rings over the rest from the chord before it
+  for (const e of arr.events) if (e.part !== "drums" && e.beat < 4) assert.ok(e.beat + e.beats <= 4 + 1e-9);
+  // half a bar of rest, and every style arranges a rest without a note of its own in it
+  assert.deepEqual(layOut(["I:0.5", `${REST}:0.5`, "V"], "G", 4).chords.map((c) => [c.symbol, c.beat, c.beats]), [["G", 0, 2], ["", 2, 2], ["D", 4, 4]]);
+  for (const s of STYLES) {
+    const a = arrange([REST, "ii7", REST, "V7"], "C", s);
+    assert.equal(a.chords.length, 4, s.id);
+    const bpb = s.beatsPerBar;
+    assert.ok(a.events.every((e) => e.part === "drums" || (e.midi !== undefined && Number.isFinite(e.midi) && chordAt(a.chords, e.beat) % 2 === 1)), s.id);
+    assert.equal(a.beats, 4 * bpb);
+  }
+  assert.deepEqual(voiceLead(arr.chords, "close")[1], []);
+});
+
+test("settings: rests are kept only where asked, and the band takes a whole song's bars", () => {
+  assert.deepEqual(cleanNumerals(["I", REST, "V"]), ["I", "V"]);
+  assert.deepEqual(cleanNumerals(["I", REST, `${REST}:0.5`, "V"], 16, true), ["I", REST, `${REST}:0.5`, "V"]);
+  assert.equal(cleanNumerals([REST, REST], 16, true), null);
+  assert.equal(cleanNumerals(Array(300).fill("I"), MAX_BAND_NUMERALS)!.length, MAX_BAND_NUMERALS);
+  const song = clampSettings({ ...DEFAULT_SETTINGS, numerals: [...Array(40).fill("I"), REST, "V"] });
+  assert.equal(song.numerals!.length, 42);
+  assert.equal(arrange(playedNumerals(song), "C", findStyle("pop")).beats, 42 * 4);
+});
+
+test("song: the position says how many times the arrangement has gone round", () => {
+  const song = new Song(arrange(["I", "V"], "C", findStyle("pop")));
+  assert.equal(song.position(0)!.round, 0);
+  assert.equal(song.position(7.9)!.round, 0);
+  assert.equal(song.position(8)!.round, 1);
+  assert.deepEqual([song.position(20)!.round, song.position(20)!.chord], [2, 1]);
 });

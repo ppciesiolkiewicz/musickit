@@ -254,6 +254,42 @@ describe("tools", () => {
     assert.deepEqual(parseTool(t), t);
     assert.equal(parseTool({ type: "guitar-play-along", bpm: 70, shape: { ...shape, shape: "nonsense" } }), null);
   });
+  it("a song-chart: sections and a form, the band's style and tempo, and nothing dropped without a word", () => {
+    const sections = [{ name: "Verse", bars: ["G", "G", "C", "G"] }, { name: "Chorus", bars: ["C", "D", "G", " Em  D "] }];
+    const plain = parseToolDiag({ type: "song-chart", key: "g", sections });
+    assert.deepEqual(plain.tool, { type: "song-chart", key: 7, sections: [sections[0], { name: "Chorus", bars: ["C", "D", "G", "Em D"] }], style: "pop", bpm: STYLES.find((s) => s.id === "pop")!.bpm });
+    assert.deepEqual(plain.notes, []);
+    const full = parseTool({ type: "song-chart", sections, form: ["Verse", "Chorus", "Verse"], style: "rock", bpm: 96, repeat: 2, parts: { drums: "always", bass: "on" }, hide: true })!;
+    assert.deepEqual(full, { type: "song-chart", key: 7, sections: [sections[0], { name: "Chorus", bars: ["C", "D", "G", "Em D"] }], form: ["Verse", "Chorus", "Verse"], style: "rock", bpm: 96, repeat: 2, parts: { drums: "always", bass: "on" }, hide: true });
+    // stored, it reads back the same
+    assert.deepEqual(parseTool(full, { stored: true }), full);
+    // what it can't read is defaulted and said
+    const p = parseToolDiag({ type: "song-chart", key: "h", sections, form: ["Verse", "Solo"], style: "polka", bpm: 400, repeat: 99 });
+    assert.deepEqual(p.tool, { type: "song-chart", key: 7, sections: [sections[0], { name: "Chorus", bars: ["C", "D", "G", "Em D"] }], form: ["Verse"], style: "pop", bpm: 220 });
+    assert.equal(p.notes.length, 5, p.notes.join(" | "));
+    // a bar it can't read is never dropped (the bars after it would move off their bar lines): the chart is refused, and says which bar
+    const bad = parseToolDiag({ type: "song-chart", key: "g", sections: [{ name: "Verse", bars: ["G", "V7/V", "C"] }] });
+    assert.equal(bad.tool, null);
+    assert.match(bad.dropped!, /bar 2 of "Verse" is "V7\/V"/);
+    assert.match(parseToolDiag({ type: "song-chart", key: "g", sections: [{ name: "Verse", bars: ["G C D"] }] }).dropped!, /bar 1 of "Verse"/);
+    assert.match(parseToolDiag({ type: "song-chart", key: "g", sections: [] }).dropped!, /no sections/);
+    assert.match(parseToolDiag({ type: "song-chart", key: "g", sections: [{ name: "Verse", bars: [] }] }).dropped!, /has no bars/);
+    assert.match(parseToolDiag({ type: "song-chart", key: "g", sections: [{ name: "Verse", bars: Array(16).fill("G") }], form: Array(7).fill("Verse") }).dropped!, /112 bars long/);
+    // chords over another bass note and a bracketed major 7th are read, kept as written, and say nothing: the band voices them
+    const slash = parseToolDiag({ type: "song-chart", key: "c", sections: [{ name: "Verse", bars: ["C", "G/B", "Am", "Am(maj7)"] }] });
+    assert.deepEqual(slash.tool && slash.tool.type === "song-chart" && slash.tool.sections[0].bars, ["C", "G/B", "Am", "Am(maj7)"]);
+    assert.deepEqual(slash.notes, []);
+    // a tempo choice and a key choice move it: the key and every chord, the names and the form stay
+    assert.equal(canFollowPart(full, "bpm"), true);
+    assert.equal(canFollowPart(full, "key"), true);
+    assert.equal(canFollowPart(full, "level"), false);
+    const up = transposeTool(full, 2);
+    assert.ok(up.type === "song-chart");
+    assert.equal(up.key, 9);
+    assert.deepEqual(up.sections, [{ name: "Verse", bars: ["A", "A", "D", "A"] }, { name: "Chorus", bars: ["D", "E", "A", "F#m E"] }]);
+    assert.deepEqual(up.form, full.form);
+    assert.deepEqual(parseTool(up, { stored: true }), up);
+  });
   it("a clap-along: a level picks the rhythm, a written pattern wins, the rest has defaults", () => {
     assert.deepEqual(parseTool({ type: "clap-along" }), { type: "clap-along", pattern: "quarters", bpm: 80 });
     assert.deepEqual(parseToolDiag({ type: "clap-along" }).notes, []);

@@ -196,7 +196,7 @@ export const isPage = (s: Subject): boolean => s.kind === "tool" && s.tool.type 
 
 /** In a note's article: a widget that takes the whole column (a neck, a tune to sing, a backing track, a video), unless set narrower by hand. */
 export const fillsColumn = (s: Subject): boolean =>
-  s.kind === "video" || hasNeck(s) || (s.kind === "tool" && ["melody-singer", "run-singer", "backing-track"].includes(s.tool.type));
+  s.kind === "video" || hasNeck(s) || (s.kind === "tool" && ["melody-singer", "run-singer", "backing-track", "song-chart"].includes(s.tool.type));
 
 /** Whether the widget is mainly a guitar neck, so it reads better wide. A page may hold necks too, but it has its own size. */
 export function hasNeck(s: Subject): boolean {
@@ -258,7 +258,7 @@ export function subjectName(s: Subject): string {
     case "tool": {
       // its family's name and main props ("Major pentatonic · positions 1, 2"); a tool no family offers goes by its type (a run or a backing track, only in preset notes, by a word)
       const p = describeParts(s);
-      return p ? [p.name, p.detail].filter(Boolean).join(" · ") : s.tool.type === "run-singer" ? "Run" : s.tool.type === "backing-track" ? "Backing track" : s.tool.type;
+      return p ? [p.name, p.detail].filter(Boolean).join(" · ") : s.tool.type === "run-singer" ? "Run" : s.tool.type === "backing-track" ? "Backing track" : s.tool.type === "song-chart" ? "Song chart" : s.tool.type;
     }
     case "key":
       return "Key & scale";

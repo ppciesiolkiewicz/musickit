@@ -35,6 +35,7 @@ const TOOL_TOUR_SOURCES: Record<ToolName, string[]> = (() => {
     "interval-singer": [basics("interval-singer")],
     "guitar-play-along": ["src/features/exercises/play-along"],
     "backing-track": [basics("backing-track"), "src/features/backing/ui/BackingTrack.tsx"],
+    "song-chart": [basics("song-chart"), "src/features/backing/ui/BackingTrack.tsx"],
     "strum-along": [basics("strum-along")],
     "clap-along": [basics("clap-along"), "src/features/rhythm/RhythmGame.tsx"],
     "finger-pattern": [basics("finger-pattern"), drills],

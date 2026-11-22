@@ -1,0 +1,210 @@
+{
+  "id": "guitar-intermediate-a-verse-and-a-chorus-with-four-open-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 13,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track open-chords (guitar-basic-chords), step 8, on the song-chart tool: a made-up song of a Verse and a Chorus on G, Em, C and D, one chord a bar. Followed by eye with the keys playing, then one strum a bar with the keys left out, then a strum on every beat. The text names no frets or shapes, names the sections as the chart does, and states a tempo move with {{=bpm}}; the key is the lesson, so no key move.",
+  "exercise": {
+    "title": "A verse and a chorus with G, Em, C and D",
+    "area": "guitar",
+    "tags": [
+      "song",
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords"
+    ],
+    "why": "Every chord in this song lasts one bar or two, so every change falls on beat 1, and the chart shows the next chord before you have to play it.",
+    "learnBefore": [
+      "/course/2/c-d-g",
+      "/course/2/em-and-am"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Follow the chart",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band at {{=bpm}}. After a bar of count-in clicks, the lit box shows the bar playing, under the name of its section.\nLeave the guitar for now. Follow the lit box through the Verse and the Chorus, and say each chord's name on beat 1 of its box.\nKeep going until you can say the next chord before its box lights."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "g",
+              "bpm": 70,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "G",
+                    "G",
+                    "Em",
+                    "Em",
+                    "C",
+                    "C",
+                    "D",
+                    "D"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "C",
+                    "D",
+                    "G",
+                    "Em",
+                    "C",
+                    "D",
+                    "G",
+                    "G"
+                  ]
+                }
+              ],
+              "form": [
+                "Verse",
+                "Chorus"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "One strum a bar",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band without the keys: the chords are yours now. Strum each chord once, down, on beat 1 of its box, and use the rest of the bar to move to the next shape.\nIf a change comes late, leave that bar out and come back in on the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "g",
+              "bpm": 70,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "G",
+                    "G",
+                    "Em",
+                    "Em",
+                    "C",
+                    "C",
+                    "D",
+                    "D"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "C",
+                    "D",
+                    "G",
+                    "Em",
+                    "C",
+                    "D",
+                    "G",
+                    "G"
+                  ]
+                }
+              ],
+              "form": [
+                "Verse",
+                "Chorus"
+              ],
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A strum on every beat",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band again. Strum down on every beat, through the Verse and the Chorus, and change chord where a new box begins.\nKeep going round until every change lands on beat 1 while your eyes stay on the chart."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "g",
+              "bpm": 70,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "G",
+                    "G",
+                    "Em",
+                    "Em",
+                    "C",
+                    "C",
+                    "D",
+                    "D"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "C",
+                    "D",
+                    "G",
+                    "Em",
+                    "C",
+                    "D",
+                    "G",
+                    "G"
+                  ]
+                }
+              ],
+              "form": [
+                "Verse",
+                "Chorus"
+              ],
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/backing"
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "open-chords:8"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 8
+    }
+  ]
+}

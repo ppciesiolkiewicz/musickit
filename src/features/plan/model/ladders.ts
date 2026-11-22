@@ -5,6 +5,7 @@ import { CHANGE_LEVELS, EAR_LEVELS, TOP_EAR_LEVEL, earKindOf, parseEarSettings }
 import { patternById } from "@/features/rhythm/patterns";
 import { DYAD_DEFAULT_STRINGS } from "@/features/exercises/basics/double-stops-neck/walk";
 import { DYAD_MAX_FRET } from "@/lib/chordKit/scaleChords";
+import { OPEN_CHORDS, chartStep } from "@/features/exercises/basics/song-chart/chart";
 import type { PlanTool } from "./tools";
 
 /*
@@ -108,6 +109,17 @@ export const LADDERS: Ladder[] = [
       if (!LOW_LEVELS.includes(tool.level)) return "up";
       return tool.strings === DYAD_DEFAULT_STRINGS[tool.interval] ? tool.interval : null;
     },
+  },
+  // song-chart has no levels: its step is read from the chart itself (`chartStep`). A song of open chords to play
+  // through is the last step of the open-chords track; a chart whose chord names start hidden is the last step of
+  // hearing-changes. Any other chart (five chords, a bar of two chords, one section) says no step
+  {
+    id: "song-chart", label: "song-chart charts", file: "src/features/exercises/basics/song-chart/chart.ts",
+    steps: [
+      { key: "four-chords", name: "Four open chords", holds: `the chords shown; two different sections or more, one chord a bar, four different chords at most, each one of ${OPEN_CHORDS.join(", ")}` },
+      { key: "by-ear", name: "By ear", holds: "the chord names start hidden (hide), shown by the student to check" },
+    ],
+    read: (tool) => (tool.type === "song-chart" ? chartStep(tool.sections, tool.form, tool.hide === true) : null),
   },
   stages("melody-stages", "melody-singer stages", STAGES, (t) => (t.type === "melody-singer" ? BOOK.find((b) => b.n === t.tune)?.stage.id ?? null : null)),
   stages("run-stages", "run-singer stages", RUN_STAGES, (t) => (t.type === "run-singer" ? RUNS.find((b) => b.n === t.run)?.stage.id ?? null : null)),

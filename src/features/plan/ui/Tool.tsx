@@ -44,6 +44,7 @@ const loading = () => <p className="p-3 text-sm text-slate-500">Loading…</p>;
 const PlayAlong = dynamic(() => import("@/features/exercises/play-along/PlayAlong"), { ssr: false, loading });
 // so does the backing track (drums, bass and sampled keys)
 const BackingTrack = dynamic(() => import("@/features/exercises/basics/backing-track").then((m) => m.View), { ssr: false, loading });
+const SongChart = dynamic(() => import("@/features/exercises/basics/song-chart").then((m) => m.View), { ssr: false, loading });
 
 /**
  * One tool as the AI set it up, without the plan store: the plan page and the studio stage both render it. `voice` is the student's
@@ -100,6 +101,8 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <BackingTrack progression={tool.progression} numerals={tool.numerals} keyPc={tool.key} style={tool.style} bpm={tool.bpm} parts={tool.parts} />;
     case "video":
       return <Video video={tool.video} videoRef={tool.ref} />;
+    case "song-chart":
+      return <SongChart keyPc={tool.key} sections={tool.sections} form={tool.form} style={tool.style} bpm={tool.bpm} repeat={tool.repeat} parts={tool.parts} hide={tool.hide} />;
     case "strum-along":
       return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} pattern={tool.pattern} />;
     case "clap-along":

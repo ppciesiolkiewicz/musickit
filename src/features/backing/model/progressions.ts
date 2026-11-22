@@ -1,4 +1,4 @@
-import { chordFromNumeral, type ChordInKey } from "./numerals";
+import { REST, chordFromNumeral, restChord, type ChordInKey } from "./numerals";
 
 /**
  * The curated progressions. Each is written once in Roman numerals and played in any key at run time.
@@ -65,13 +65,13 @@ export function splitLength(token: string): [string, number] {
   return [numeral, len !== undefined && Number.isFinite(bars) && bars > 0 ? bars : 1];
 }
 
-/** The progression laid out in beats in `tonic`, `beatsPerBar` to the bar. Numerals that do not parse are dropped. */
+/** The progression laid out in beats in `tonic`, `beatsPerBar` to the bar. A `REST` keeps its length with no chord. Numerals that do not parse are dropped. */
 export function layOut(numerals: readonly string[], tonic: string, beatsPerBar: number): { chords: PlacedChord[]; beats: number } {
   let beat = 0;
   const chords: PlacedChord[] = [];
   for (const token of numerals) {
     const [numeral, bars] = splitLength(token);
-    const chord = chordFromNumeral(numeral, tonic);
+    const chord = numeral.trim() === REST ? restChord() : chordFromNumeral(numeral, tonic);
     if (!chord) continue;
     const beats = bars * beatsPerBar;
     chords.push({ ...chord, beat, beats });

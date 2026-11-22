@@ -10,6 +10,14 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 13 (2026-11-22)
+
+- A new tool, `song-chart` (MissingTools8): a whole song's chords and form as a chart, each section's bars under its name with every change on a bar line, played by the backing band after a bar of count-in, the bar playing lit. Props `key`, `sections`, `form`, `repeat`, `style`, `bpm`, `parts`, `hide`.
+- "Which tool for what" has a line for it: a whole song where the form is the lesson is song-chart, each section written once and the order in `form`; `hide` with the keys always on for working a song's chords out by ear. The song is the writer's own progression, never a real song's title, words, or its chords named as that song, and the text names the sections as the chart does.
+- It is in the tools whose chords the text may name, in the tools allowed in a singing or a playing exercise alike, and in the tools that sound the beat for a tempo the text names. A song-chart with no `repeat` has no length of its own.
+- A chord the band has no voicing for stays on the chart, marked, and the band rests in its bar; a bar that is not a chord at all refuses the chart with the bar named.
+- The list of each concept's steps is unchanged; `open-chords:8` and `hearing-changes:5` now have a tool standing for them.
+
 ### 12 (2026-11-22)
 
 - A new tool, `double-stops-neck` (MissingTools1): the 3rds or 6ths of one key as pairs on two strings, walked up the neck, each pair with its chord named and that chord's root ringed; a pair sounds when tapped, and Play runs the walk up and back down. Props `key`, `scale`, `interval`, `strings`, `level`, `from`, `to`.

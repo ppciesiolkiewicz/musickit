@@ -139,6 +139,50 @@ MissingTools6: arpeggio-neck numbers its boxes by the arpeggio, not by CAGED let
 (arpeggios:1-4).
 MissingTools7: modal tunes in the tune book (guitar-melodies:5, singing-modes).
 MissingTools8: a song tool: a whole song's chords and form with changes on the bar line (open-chords:6, hearing-changes:4).
+[2026-11-22 done] Built as the plan tool `song-chart` (branch claude/song-chart).
+- The tool: a song's form as a chart, each section under its name, a box a bar, four to a row, a bar of two chords
+  split in two, each chord with its numeral under it. The backing band plays it (the same Band, arranger and voices as
+  backing-track, no second band): one bar of count-in clicks, then the bar playing is lit under its section and the
+  line beside Play says the section, the bar and the time round. Props: `key`, `sections` (each written once: `name`,
+  `bars`), `form` (the section names in playing order; absent: as written), `repeat` (1-8, the band then stops by
+  itself; absent: round until stopped), `style`, `bpm`, `parts` (as on backing-track), `hide` (the chord names start
+  hidden, each box shows its bar number, Show chords / Hide chords on the tool). Limits: 8 sections, 16 bars a section,
+  24 sections and 96 bars in the form.
+- In the band (src/features/backing): a numeral may be a rest ("-"), drums on, bass and keys waiting, the bars after
+  it in place; Band.setForm gives a count-in bar and a number of rounds; the position says the round; the band takes
+  256 numerals (a lesson's backing-track still 16); BandMixer is the mixer on its own. /theory/backing and
+  backing-track are as they were.
+- Chords not dropped (MissingTools4, for this tool only): a bar that is no chord ("V7/V") refuses the whole chart and
+  names the bar, since leaving it out would move every bar after it. A chord over another bass note (G/B) is played
+  as the chord, and Am(maj7) is read. A chord the band still cannot voice goes to it as a rest: the chart marks it
+  "band rests", a notice under the chart names it, and the parse notes it. No chord was found that the parser reads and
+  the band cannot voice (16 tried), so this last path is tested in chart.ts with a made-up name, not seen in use.
+- Wiring: exercises/basics/song-chart (props file, View, chart.ts, its test), docs regenerated, tools.ts (union,
+  parser; no `level`: nothing a level word could set), ui/Tool.tsx, transpose.ts (the key and every chord move),
+  checks.ts (it sounds the beat), a tempo choice or move, noteText, a tour of four steps, six stories on /dev/stories
+  in place of the stub, the stage's names, the prompt (PROMPT_VERSION 13, changelog).
+- Path: a `song-chart` ladder in ladders.ts, read from the chart itself (chartStep). open-chords:8 (Songs with four
+  chords) is a chart with the chords shown, two different sections or more, one chord a bar, four chords at most, all
+  of Em, Am, E, A, D, G, C. hearing-changes:5 (A song's chords by ear) is a chart with `hide`. The two steps the stub
+  named, open-chords:6 and hearing-changes:4, are mixing steps today, which never take a ladder: they stay as they
+  were.
+- Blocks: guitar-intermediate-a-verse-and-a-chorus-with-four-open-chords and
+  guitar-intermediate-a-song-with-a-bridge-start-to-finish (open-chords:8, each with a tempo move, no key move: the
+  open shapes are the lesson), theory-advanced-name-the-chords-of-a-hidden-chart (hearing-changes:5, `moves` key any).
+  The songs are made up. All ✔ on seed check.
+Checked in the Vercel sandbox: `theory -- fit` for the three songs' chords (G Em C D in G major, Am C G Em in A minor,
+C Am F G in C major); the tests of backing, exercises, plan/model, guide, devtools, library/seed and stage/model; the
+full npm test (3330 of 3331 pass; only the known guide/coverage failure); tsc clean; eslint clean on the changed files; docs:exercises and gen:json-index leave no
+change; the three blocks ✔ on seed check. Not read on screen and not heard: no browser here, so the chart's layout
+(four boxes a row, two on a phone, long chord names in a split bar), the count-in's sound and level (a hi-hat), the
+band stopping at the end, the tour and the notice are unchecked.
+Left: read and hear it on /dev/stories and /dev/library. MissingTools4 for backing-track itself is not done (its
+parser still filters chords without a word; G/B is one it loses). Three older blocks now also get "no tool of theirs
+sits on the step" from seed check: guitar-theory-intermediate-major-or-minor-song and showcase-progression-four-ways
+(open-chords:8), theory-advanced-song-chords-by-ear (hearing-changes:5); not rewritten. The chart does not scroll to
+the lit bar, shows no strums, has no rest or repeat signs to write, and `hide` gives nothing to answer in (the player
+writes on paper and checks). In a waltz a bar of two chords is cut in halves of a beat and a half. A tool in a plan
+that gets a new key or tempo from a choice restarts from the top. Not seeded to the database (db:seed-blocks).
 MissingTools9: tab marks: palm mute, bends, slides, fingerpicking (thumb and fingers) (power-chords:3, bends-slides,
 strumming:6; NEW11 item 3 for bends).
 MissingTools10: run-singer has no range cap, so a run can go past a beginner's range (runs).

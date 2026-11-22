@@ -29,23 +29,6 @@ const p = (name: string, type: string, description: string, required = false): P
 
 export const STUBS: StubSpec[] = [
   {
-    id: "song-chart",
-    title: "song-chart",
-    task: "MissingTools8",
-    what: "A whole song's chords and form (verse, chorus, bridge), bar by bar, with the changes on the bar line, played with the backing band.",
-    waits: "open-chords:6, hearing-changes:4",
-    keywords: ["song", "form", "chart", "verse", "chorus", "bridge", "chords", "changes", "play along", "guitar"],
-    props: [
-      p("key", "string", "The key.", true),
-      p("bpm", "number", "Tempo."),
-      p("sections", "{ name: string, bars: string[] }[]", "The form in order: each section's bars, one chord (or \"C G\" for two) per bar.", true),
-      p("repeat", "number", "Times through the whole form."),
-    ],
-    stories: [
-      hand("Verse and chorus in G", { key: "g", bpm: 90, sections: [{ name: "Verse", bars: ["G", "G", "C", "D"] }, { name: "Chorus", bars: ["C", "D", "G", "Em"] }] }),
-    ],
-  },
-  {
     id: "vowel-guide",
     title: "vowel-guide",
     task: "MissingTools14",

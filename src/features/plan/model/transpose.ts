@@ -2,6 +2,7 @@ import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { keySlug, parseKeySlug } from "@/features/theory/keySlug";
 import { TONICS } from "@/features/theory/theory";
 import { pcName } from "@/lib/practice/noteGame";
+import { barChords } from "@/features/exercises/basics/song-chart/chart";
 import type { PlanTool } from "./tools";
 
 /**
@@ -77,6 +78,9 @@ export function transposeTool(tool: PlanTool, by: number): PlanTool {
     case "chord-shapes":
     case "strum-along":
       return { ...tool, chords: tool.chords.map((c) => transposeChord(c, d)) };
+    case "song-chart":
+      // the key and every chord of every bar; the section names and the form stay
+      return { ...tool, key: pc(tool.key + d), sections: tool.sections.map((s) => ({ ...s, bars: s.bars.map((bar) => barChords(bar).map((c) => transposeChord(c, d)).join(" ")) })) };
     case "arpeggio-neck":
       return { ...tool, chord: transposeChord(tool.chord, d) };
     case "guitar-play-along":

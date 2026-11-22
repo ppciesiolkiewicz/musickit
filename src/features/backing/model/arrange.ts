@@ -122,8 +122,18 @@ export function voiceLead(chords: readonly PlacedChord[], voicing: Voicing): num
   const pick = (prev: number[] | null, c: PlacedChord) => inversions(voicingPcs(c, voicing)).reduce((best, v) => (moveCost(v, prev) < moveCost(best, prev) ? v : best));
   // go round twice, so the first chord is voiced coming from the last one, as it is heard when the loop repeats
   let prev: number[] | null = null;
-  for (const c of chords) prev = pick(prev, c);
-  return chords.map((c) => (prev = pick(prev, c)));
+  for (const c of chords) if (!c.rest) prev = pick(prev, c);
+  // a rest has no voicing, and the chord after it is led from the one before it
+  return chords.map((c) => (c.rest ? [] : (prev = pick(prev, c))));
+}
+
+/** The chord the bass walks towards from chord `i`: the next one that is not a rest (itself when there is no other). */
+function nextChord(chords: readonly PlacedChord[], i: number): PlacedChord {
+  for (let k = 1; k <= chords.length; k++) {
+    const c = chords[(i + k) % chords.length];
+    if (!c.rest) return c;
+  }
+  return chords[i];
 }
 
 /** A voicing's `i`th note for an arpeggio: past the top it goes on an octave up. */
@@ -135,6 +145,7 @@ export function arrange(numerals: readonly string[], tonic: string, style: Style
   const { chords, beats } = layOut(numerals, tonic, bpb);
   const events: NoteEvent[] = [];
   if (!chords.length) return { beats: 0, beatsPerBar: bpb, chords, events };
+
   const voicings = voiceLead(chords, style.voicing);
   const stepsPerBar = bpb * STEPS_PER_BEAT;
   const bars = Math.ceil(beats / bpb - EPS);
@@ -160,15 +171,17 @@ export function arrange(numerals: readonly string[], tonic: string, style: Style
       if (beat >= beats - EPS) continue;
       const i = chordAt(chords, beat);
       const chord = chords[i];
+      if (chord.rest) continue;
       const role = Math.abs(beat - chord.beat) < EPS ? "R" : h.note;
       const len = Math.min(h.len / STEPS_PER_BEAT, endOf(i) - beat);
-      events.push({ part: "bass", beat, beats: len, vel: h.vel ?? 0.8, midi: bassNote(role, chord, chords[(i + 1) % chords.length]) });
+      events.push({ part: "bass", beat, beats: len, vel: h.vel ?? 0.8, midi: bassNote(role, chord, nextChord(chords, i)) });
     }
 
     for (const h of style.comp) {
       const beat = top + stepBeat(h.at, style.swing);
       if (beat >= beats - EPS) continue;
       const i = chordAt(chords, beat);
+      if (chords[i].rest) continue;
       const len = Math.min(h.len / STEPS_PER_BEAT, endOf(i) - beat);
       const notes = h.voice === undefined ? voicings[i] : [arpNote(voicings[i], h.voice)];
       for (const midi of notes) events.push({ part: "keys", beat, beats: len, vel: h.vel ?? 0.6, midi });
@@ -177,6 +190,7 @@ export function arrange(numerals: readonly string[], tonic: string, style: Style
 
   // a chord that starts between the style's hits (half-bar chords) still gets heard: the keys play it as it comes in
   chords.forEach((c, i) => {
+    if (c.rest) return;
     if (events.some((e) => e.part === "keys" && Math.abs(e.beat - c.beat) < EPS)) return;
     for (const midi of voicings[i]) events.push({ part: "keys", beat: c.beat, beats: Math.min(2, c.beats), vel: 0.55, midi });
   });

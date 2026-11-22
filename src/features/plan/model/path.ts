@@ -65,7 +65,7 @@ export const PATH: Track[] = [
     s(B, "G, C", ""),
     m(B, "all seven open chords", "changes between any of them"),
     s(B, "Changes in time", "on the beat at 60", { after: ["strumming:1"] }),
-    s(I, "Songs with four chords", "changes on the bar line, no gaps"),
+    s(I, "Songs with four chords", "changes on the bar line, no gaps", { ladder: "song-chart:four-chords" }),
   ]),
   g("basic-chords", "strumming", "Strumming", ["strumming-patterns"], [
     s(N, "Down strums on the beat", "", { after: ["open-chords:1"] }),
@@ -353,7 +353,7 @@ export const PATH: Track[] = [
     s(I, "1, 4 or 5", "", { ladder: "chord-changes:1", after: ["chords-of-a-key:1"] }),
     s(I, "The 6 too", "", { ladder: "chord-changes:2", after: ["chords-of-a-key:2"] }),
     m(I, "1, 4, 5 and 6", "in any order, in a new key"),
-    s(A, "A song's chords by ear", ""),
+    s(A, "A song's chords by ear", "", { ladder: "song-chart:by-ear" }),
   ]),
   t("scales-keys", "scales", "Scales", ["pentatonic", "major-scale", "natural-minor", "relative-major-minor"], [
     s(B, "Minor pentatonic", "1 b3 4 5 b7"),

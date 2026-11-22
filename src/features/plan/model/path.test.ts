@@ -100,7 +100,7 @@ test("the double-stops track: a double-stops-neck says its step by its interval 
 test("hearing changes: an interval-ears asked for chord changes says its step by the game's level; the other kinds say none", () => {
   const ears = (props: Record<string, unknown>) => parseTool({ type: "interval-ears", ...props })!;
   const track = PATH.find((t) => t.id === "hearing-changes")!;
-  assert.deepEqual(track.steps.map((s) => s.ladder ?? null), [null, "chord-changes:1", "chord-changes:2", null, null]);
+  assert.deepEqual(track.steps.map((s) => s.ladder ?? null), [null, "chord-changes:1", "chord-changes:2", null, "song-chart:by-ear"]);
   assert.equal(stepOf("hearing-changes", [ears({ kind: "change", level: 1 })]), 1);
   assert.equal(stepOf("hearing-changes", [ears({ kind: "change" })]), 1);
   assert.equal(stepOf("hearing-changes", [ears({ kind: "change", level: 1 }), ears({ kind: "change", level: 2 })]), 2);
@@ -112,6 +112,26 @@ test("hearing changes: an interval-ears asked for chord changes says its step by
   // and a chord-change game is no step of the intervals track
   assert.equal(stepOf("intervals", [ears({ kind: "change", level: 2 })]), null);
   assert.equal(stepOf("intervals", [ears({ level: 2 })]), 1);
+});
+
+test("a song-chart says its step by the chart itself: four open chords to play, or the chords hidden to hear", () => {
+  const verse = { name: "Verse", bars: ["G", "G", "C", "G"] };
+  const chorus = { name: "Chorus", bars: ["C", "D", "G", "Em"] };
+  const song = (props: Record<string, unknown>) => parseTool({ type: "song-chart", key: "g", sections: [verse, chorus], ...props })!;
+  const open = PATH.find((t) => t.id === "open-chords")!;
+  assert.deepEqual(open.steps.map((s) => s.ladder ?? null), [null, null, null, null, null, null, null, "song-chart:four-chords"]);
+  assert.equal(stepOf("open-chords", [song({})]), 7);
+  assert.equal(stepOf("open-chords", [song({ form: ["Verse", "Chorus", "Verse"], repeat: 2, bpm: 70, parts: { drums: "on", bass: "on" } })]), 7);
+  // one section only, a fifth chord, a chord that is not an open chord, or two chords in a bar: no step
+  assert.equal(stepOf("open-chords", [song({ form: ["Verse", "Verse"] })]), null);
+  assert.equal(stepOf("open-chords", [song({ sections: [verse, { name: "Chorus", bars: ["C", "D", "Am", "Em"] }] })]), null);
+  assert.equal(stepOf("open-chords", [song({ sections: [verse, { name: "Chorus", bars: ["C", "D", "G", "Bm"] }] })]), null);
+  assert.equal(stepOf("open-chords", [song({ sections: [verse, { name: "Chorus", bars: ["C", "D", "G", "C G"] }] })]), null);
+  // hidden, it is the ear's step and no longer the hands'
+  assert.equal(stepOf("hearing-changes", [song({ hide: true })]), 4);
+  assert.equal(stepOf("open-chords", [song({ hide: true })]), null);
+  assert.equal(stepOf("hearing-changes", [song({})]), null);
+  assert.equal(stepOf("hearing-changes", [parseTool({ type: "interval-ears", kind: "change", level: 2 })!, song({ hide: true })]), 4);
 });
 
 test("predecessorsOf: the step before it, then its `after` steps", () => {
