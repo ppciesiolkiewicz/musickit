@@ -83,11 +83,15 @@ MissingTools14: [NEW 2026-11-18] a vowel modification tool for singers: an anima
 tool expects back (the request ended at "and expect"). Is it a pitch target held on each vowel, read by the mic like
 the other voice tools, or only a guide to copy with no check? Some voice blocks already mention vowels in their text
 (voice-intermediate-slides-across-the-break, voice-advanced-guide-tones). Those are the first ones to use the tool.
+[2026-11-22 decided, user] It checks pitch by mic: the singer holds a target note on each vowel and the mic reads it,
+like the other voice tools. The mouth is the guide; the check is the pitch.
 MissingTools15: [NEW 2026-11-18] a staff-reading tool: learning the notes on the staff (user). A note shows on the
 staff and the player names it (answer buttons, like note-finder on the neck), in levels: lines, then spaces, then ledger
 lines; treble first, bass later. Open: whether a guitar player's version also plays it on the neck, and whether it
 listens for the note sung or played (mic) as well as tapped. Ties to MissingTools12 (staff can't label its notes),
 sight-singing:1 and note-names:3, whose blocks have no reading drill today.
+[2026-11-22 decided, user] Answered by tapping the note-name buttons, and the player can also sing or play the note
+for the mic to hear ("Tap, plus mic"). No version on the guitar neck for now.
 [2026-11-18 done] Stubs on /dev/stories, section "Missing tools (stubs)", for the new tools: double-stops-neck (1),
 clap-along (2, with today's RhythmGame under it), chord-change-quiz (3), song-chart (8), vowel-guide (14), staff-reading
 (15). Each: what it does, what waits on it, what is open, planned props. In src/features/devtools/stories/stubs.ts; not in
@@ -216,6 +220,8 @@ the composer doesn't know a warm-up and places them like any block. Guessed, not
 only, and count toward the day's minutes. Open: a guitar warm-up too (spider, stretches?); how many minutes; one
 warm-up a day or a short sequence; how they are marked (`kind` on blocks, a tag, a choice). Write them with
 exercise-example. With DayShape1.
+[2026-11-22 decided, user] The thresholds stay: one section under 30 minutes, two from 30 to 49, three from 50. Even
+minutes between sections and one section per area stand as proposed until the user says otherwise.
 
 TaskSeries PricingFaq: what the pricing, FAQ and terms promise, kept true to how plans are made (from NEW7, 2026-11-17)
 PricingFaq1: [NEW 2026-11-17] Drop the plan allowance. With NEW7, plans are composed from library blocks by our own code,
@@ -793,6 +799,10 @@ steps so they get a ladder (scale-neck or position-neck with two notes lit, guit
 or a new interval tool on the neck with levels: a MissingTools task if so); whether "Octave jumps" in Melodies should
 sit lower than advanced (it can't without renumbering, or as a step of the new track only); the guitar key order for
 the new track (`keys`, none given: the area's ladder).
+[2026-11-22, user] The tool for these steps: "I'm not sure, I think would be nice to reuse because I feel than we also
+go into melodies from intervals and riffs so can use some specialisation". Read as: no new tool. An existing one is
+taught intervals, the one the tunes already play on (guitar-play-along, a new `interval` shape beside `melody`), so
+the same tool carries a player from intervals into riffs and melodies. Not confirmed by the user in those words.
 
 TaskSeries Intake: the first questionnaire and the steps players don't see (moved out of NEW, 2026-11-18)
 Intake1: (was NEW9) [NEW 2026-11-15] Rework the first questionnaire (after NEW8)
