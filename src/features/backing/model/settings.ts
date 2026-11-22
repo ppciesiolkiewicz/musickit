@@ -1,6 +1,6 @@
 import { PARTS, type Part } from "./arrange";
 import { clampBpm } from "./clock";
-import { chordFromNumeral } from "./numerals";
+import { REST, chordFromNumeral } from "./numerals";
 import { PROGRESSIONS, findProgression, splitLength, type ModeId } from "./progressions";
 import { STYLES } from "./styles";
 
@@ -46,7 +46,7 @@ export function clampSettings(raw: unknown, base: BandSettings = DEFAULT_SETTING
   const levels = (o.levels && typeof o.levels === "object" ? o.levels : {}) as Partial<Record<Part, unknown>>;
   return {
     progression: pick(o.progression, PROGRESSIONS.map((p) => p.id), base.progression),
-    numerals: o.numerals === undefined ? base.numerals : cleanNumerals(o.numerals),
+    numerals: o.numerals === undefined ? base.numerals : cleanNumerals(o.numerals, MAX_BAND_NUMERALS, true),
     tonic: pick(o.tonic, TONICS, base.tonic),
     style: pick(o.style, STYLES.map((s) => s.id), base.style),
     bpm: o.bpm === undefined ? base.bpm : clampBpm(Number(o.bpm), base.bpm),
@@ -54,13 +54,19 @@ export function clampSettings(raw: unknown, base: BandSettings = DEFAULT_SETTING
   };
 }
 
-/** At most this many chords in a progression of its own. */
+/** At most this many chords in a progression of its own, as a lesson writes one for the backing track. */
 export const MAX_NUMERALS = 16;
+/** At most this many chords the band itself takes: a whole song's bars (a song chart lays its form out bar by bar). */
+export const MAX_BAND_NUMERALS = 256;
 
-/** The numerals that read as chords ("V7", "bVII:2"), at most `MAX_NUMERALS`; null when none do. */
-export function cleanNumerals(v: unknown): string[] | null {
-  const ok = (Array.isArray(v) ? v : []).filter((n): n is string => typeof n === "string" && !!chordFromNumeral(splitLength(n)[0], "C")).slice(0, MAX_NUMERALS);
-  return ok.length ? ok : null;
+/**
+ * The numerals that read as chords ("V7", "bVII:2"), at most `max`; null when none do. With `rests`, a `REST` ("-",
+ * "-:0.5") is kept too, though rests alone are no progression.
+ */
+export function cleanNumerals(v: unknown, max: number = MAX_NUMERALS, rests = false): string[] | null {
+  const chord = (n: string) => !!chordFromNumeral(splitLength(n)[0], "C");
+  const ok = (Array.isArray(v) ? v : []).filter((n): n is string => typeof n === "string" && (chord(n) || (rests && splitLength(n)[0].trim() === REST))).slice(0, max);
+  return ok.some(chord) ? ok : null;
 }
 
 /** What the band plays: its own numerals, else the curated progression's. */

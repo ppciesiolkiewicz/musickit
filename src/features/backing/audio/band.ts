@@ -12,7 +12,18 @@ import { bassVoice, drumVoice, keysVoice, type Voices } from "./voices";
  * and the sound from the injected voices; so each piece is tested or swapped on its own. Every change goes through `set`,
  * which works the same stopped or playing: the tempo follows from the next unscheduled note, a new progression, key or
  * style takes over on the next bar line. No React: hosts read `getSnapshot` through `subscribe` (useSyncExternalStore).
+ *
+ * A host that plays a piece with a start and an end (a song chart) sets its `form`: a bar of count-in clicks before
+ * beat 0, and how many times round before the band stops by itself. Without one it starts on beat 0 and loops.
  */
+
+/** How a run starts and ends (`Band.setForm`). */
+export interface BandForm {
+  /** one bar of clicks, a click a beat, before the first chord */
+  countIn: boolean;
+  /** stop by itself after this many times round the arrangement; null: loop until stopped */
+  rounds: number | null;
+}
 
 export interface BandDeps {
   context: () => AudioContext;
@@ -35,6 +46,9 @@ const LOOKAHEAD = 0.15;
 const TICK_MS = 25;
 /** a little room before the first note so it is never late */
 const START_DELAY = 0.08;
+/** the count-in's drum and how loud it is against the band's parts */
+const COUNT_LANE = "hat";
+const COUNT_LEVEL = 0.9;
 
 const defaultVoices: NonNullable<BandDeps["voices"]> = (ctx, outs, keys) => ({ drums: drumVoice(ctx, outs.drums), bass: bassVoice(ctx, outs.bass), keys: keysVoice(outs.keys, keys) });
 
@@ -45,6 +59,10 @@ interface Run {
   out: GainNode;
   parts: Record<Part, GainNode>;
   voices: Voices;
+  /** the count-in's own drum, straight into the output, so it sounds with the drums muted */
+  count: Voices["drums"];
+  /** the beats of count-in before beat 0 */
+  countBeats: number;
   clock: TempoClock;
   timer: ReturnType<typeof setInterval>;
   /** the song beat scheduled up to */
@@ -58,6 +76,7 @@ export class Band {
   /** bumps on every start and stop, so a start still loading samples is dropped if stopped meanwhile */
   private generation = 0;
   private listeners = new Set<() => void>();
+  private form: BandForm = { countIn: false, rounds: null };
 
   constructor(private deps: BandDeps, settings: BandSettings = DEFAULT_SETTINGS) {
     const s = clampSettings(settings);
@@ -99,6 +118,12 @@ export class Band {
     return this.snap.playing;
   }
 
+  /** How the next run starts and ends: a count-in bar, a number of times round. A run already playing keeps its count-in and takes the new `rounds`. */
+  setForm(form: Partial<BandForm>): void {
+    const rounds = form.rounds === undefined ? this.form.rounds : form.rounds !== null && Number.isFinite(form.rounds) && form.rounds >= 1 ? Math.floor(form.rounds) : null;
+    this.form = { countIn: form.countIn ?? this.form.countIn, rounds };
+  }
+
   async start(): Promise<void> {
     if (this.run || this.snap.playing) return;
     const gen = ++this.generation;
@@ -112,14 +137,23 @@ export class Band {
       g.connect(out);
       return [p, g];
     })) as Record<Part, GainNode>;
-    const voices = (this.deps.voices ?? defaultVoices)(ctx, parts, () => findStyle(this.snap.settings.style).keys);
+    const factory = this.deps.voices ?? defaultVoices;
+    const keys = () => findStyle(this.snap.settings.style).keys;
+    const voices = factory(ctx, parts, keys);
+    const countOut = ctx.createGain();
+    countOut.gain.value = COUNT_LEVEL;
+    countOut.connect(out);
+    const count = factory(ctx, { drums: countOut, bass: countOut, keys: countOut }, keys).drums;
     await Promise.all(PARTS.map((p) => voices[p].prepare?.().catch(() => undefined)));
     if (gen !== this.generation) {
       out.disconnect();
       return;
     }
     this.song.reset(this.snap.arrangement);
-    const run: Run = { out, parts, voices, clock: new TempoClock(this.snap.settings.bpm, ctx.currentTime + START_DELAY), timer: setInterval(() => this.tick(), TICK_MS), scheduled: 0 };
+    // with a count-in the clock starts a bar before beat 0: the clicks fall on the negative beats
+    const countBeats = this.form.countIn ? this.snap.arrangement.beatsPerBar : 0;
+    const first = ctx.currentTime + START_DELAY + countBeats * (60 / this.snap.settings.bpm);
+    const run: Run = { out, parts, voices, count, countBeats, clock: new TempoClock(this.snap.settings.bpm, first), timer: setInterval(() => this.tick(), TICK_MS), scheduled: -countBeats };
     this.applyLevels(run, this.snap.settings);
     this.run = run;
     this.tick();
@@ -154,6 +188,14 @@ export class Band {
     return beat < 0 ? null : this.song.position(beat);
   }
 
+  /** The click of the count-in sounding now, from 1, and how many there are; null once the first chord has come, or stopped. */
+  countIn(): { count: number; of: number } | null {
+    const run = this.run;
+    if (!run || !run.countBeats) return null;
+    const beat = run.clock.beatAt(this.deps.context().currentTime);
+    return beat >= 0 ? null : { count: Math.min(run.countBeats, Math.max(1, Math.floor(beat + run.countBeats) + 1)), of: run.countBeats };
+  }
+
   dispose(): void {
     this.stop();
     this.listeners.clear();
@@ -171,9 +213,21 @@ export class Band {
     const run = this.run;
     if (!run) return;
     const ctx = this.deps.context();
-    const until = run.clock.beatAt(ctx.currentTime + LOOKAHEAD);
+    // the end of a run with a number of rounds: nothing is scheduled past it, and the band stops when the clock gets there
+    const round = this.song.arrangement.beats;
+    const end = this.form.rounds && round > 0 ? this.form.rounds * round : Infinity;
+    if (run.clock.beatAt(ctx.currentTime) >= end) {
+      this.stop();
+      return;
+    }
+    const until = Math.min(run.clock.beatAt(ctx.currentTime + LOOKAHEAD), end);
     if (until <= run.scheduled) return;
-    for (const { at, ev } of this.song.take(run.scheduled, until)) {
+    // the count-in: a click on each beat before beat 0, the first one louder
+    for (let b = Math.ceil(run.scheduled - 1e-9); b < Math.min(until, 0); b++) {
+      const when = run.clock.timeAt(b);
+      if (when >= ctx.currentTime - 0.01) run.count.play({ part: "drums", beat: b, beats: 0.25, vel: b === -run.countBeats ? 1 : 0.7, lane: COUNT_LANE }, Math.max(when, ctx.currentTime), 0.25 * run.clock.beatSeconds);
+    }
+    for (const { at, ev } of this.song.take(Math.max(0, run.scheduled), until)) {
       const when = run.clock.timeAt(at);
       if (when < ctx.currentTime - 0.01) continue; // the tab slept: skip what is already past rather than play it in a heap
       run.voices[ev.part].play(ev, Math.max(when, ctx.currentTime), ev.beats * run.clock.beatSeconds);

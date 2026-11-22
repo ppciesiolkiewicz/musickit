@@ -78,3 +78,41 @@ test("band: muting a part lowers its gain without stopping it", async () => {
   assert.equal(band.getSnapshot().settings.levels.bass.volume, 1);
   band.stop();
 });
+
+test("band: a form counts a bar in before the first chord and stops by itself after its rounds", async () => {
+  const { band, played, advance } = setup();
+  band.set({ numerals: ["I", "V"] });
+  band.setForm({ countIn: true, rounds: 2 });
+  await band.start();
+  advance(1);
+  // 120 bpm: four clicks half a second apart, the first louder, and no chord yet
+  assert.deepEqual(band.countIn(), { count: 2, of: 4 });
+  assert.equal(band.position(), null);
+  advance(1.2);
+  assert.equal(band.countIn(), null);
+  assert.equal(band.position()!.chord, 0);
+  const before = played.filter((p) => p.when < 2.08 - 1e-9);
+  assert.deepEqual(before.map((p) => [p.ev.lane, Math.round((p.when - 0.08) * 1000) / 1000 + 0, p.ev.vel]), [["hat", 0, 1], ["hat", 0.5, 0.7], ["hat", 1, 0.7], ["hat", 1.5, 0.7]]);
+  assert.equal(Math.min(...played.filter((p) => p.part !== "drums").map((p) => p.when)).toFixed(3), "2.080");
+  // two bars a round, two rounds: 8 seconds of music after the 2 of count-in, then it has stopped and nothing more is scheduled
+  advance(4);
+  assert.equal(band.position()!.round, 1);
+  assert.equal(band.playing, true);
+  advance(4.2);
+  assert.equal(band.playing, false);
+  assert.ok(played.every((p) => p.when < 2.08 + 8 - 1e-9), "nothing at or past the end");
+  const n = played.length;
+  advance(1);
+  assert.equal(played.length, n);
+});
+
+test("band: without a form nothing counts in and it loops", async () => {
+  const { band, played, advance } = setup();
+  await band.start();
+  assert.equal(band.countIn(), null);
+  advance(9);
+  assert.equal(band.playing, true);
+  assert.equal(band.position()!.round, 1);
+  assert.ok(played.every((p) => p.when >= 0.08));
+  band.stop();
+});

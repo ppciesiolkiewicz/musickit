@@ -10,7 +10,7 @@ import type { Band, BandSnapshot } from "../audio/band";
 import type { Part } from "../model/arrange";
 import { MAX_BPM, MIN_BPM } from "../model/clock";
 import { MODES, PROGRESSIONS, findProgression } from "../model/progressions";
-import { TONICS, bandMode } from "../model/settings";
+import { TONICS, bandMode, type BandSettings } from "../model/settings";
 import { STYLES, findStyle } from "../model/styles";
 import { useBand } from "./useBand";
 
@@ -117,7 +117,6 @@ export function BackingPlayer({ band, snap, group, scale: showScale = true, part
   );
   const scale = useMemo(() => Scale.get(`${settings.tonic} ${mode.scale}`).notes.map(pretty), [settings.tonic, mode.scale]);
   const bpb = arrangement.beatsPerBar;
-  const shown = (Object.keys(PART_INFO) as Part[]).filter((p) => !parts || parts[p]);
 
   return (
     <div ref={spaceRef} className="flex min-w-0 flex-col gap-4">
@@ -185,28 +184,40 @@ export function BackingPlayer({ band, snap, group, scale: showScale = true, part
         </div>}
       </section>
 
-      {shown.length > 0 && <section data-tour="backing-band" aria-label="Band" className={`grid gap-3 ${MIXER_COLS[shown.length]}`}>
-        {shown.map((p) => {
-          const { volume, muted } = settings.levels[p];
-          const { label, icon, hue } = PART_INFO[p];
-          const fixed = parts?.[p] === "always";
-          return (
-            <div key={p} className={`flex min-w-0 items-center gap-3 rounded-2xl border bg-slate-900/60 p-3 transition ${muted ? "border-slate-800" : BAND_BORDER[hue]}`}>
-              {fixed ? (
-                <span className="grid h-7 w-7 shrink-0 place-items-center" title={`The ${p} always plays in this exercise`}>
-                  <Icon name={icon} size={15} className={HUE_TONES[hue].ink} />
-                </span>
-              ) : (
-              <Button size="icon-md" pressed={muted} aria-label={muted ? `Unmute the ${p}` : `Mute the ${p}`} title={muted ? "Unmute" : "Mute"} onClick={() => band.set({ levels: { [p]: { muted: !muted } } })}>
-                <Icon name={muted ? "volume-x" : icon} size={15} className={muted ? "" : HUE_TONES[hue].ink} />
-              </Button>
-              )}
-              <span className={`w-12 text-sm font-medium ${muted ? "text-slate-500 line-through decoration-slate-600" : "text-slate-200"}`}>{label}</span>
-              <Slider value={volume} hue={hue} min={0} max={1} step={0.01} onChange={(v) => band.set({ levels: { [p]: { volume: v } } })} title={`${label} volume`} aria-label={`${label} volume`} className={`min-w-0 flex-1 transition-opacity ${muted ? "opacity-40" : ""}`} />
-            </div>
-          );
-        })}
-      </section>}
+      <BandMixer band={band} settings={settings} parts={parts} />
     </div>
+  );
+}
+
+/**
+ * The band's mixer: a row per part with its mute button and volume. `parts` as on `BackingPlayer`: the rows shown, a part
+ * set "always" without a mute button, a part left out without a row; absent: every part. Nothing when no part is shown.
+ */
+export function BandMixer({ band, settings, parts }: { band: Band; settings: BandSettings; parts?: Partial<Record<Part, "on" | "off" | "always">> }) {
+  const shown = (Object.keys(PART_INFO) as Part[]).filter((p) => !parts || parts[p]);
+  if (!shown.length) return null;
+  return (
+    <section data-tour="backing-band" aria-label="Band" className={`grid gap-3 ${MIXER_COLS[shown.length]}`}>
+      {shown.map((p) => {
+        const { volume, muted } = settings.levels[p];
+        const { label, icon, hue } = PART_INFO[p];
+        const fixed = parts?.[p] === "always";
+        return (
+          <div key={p} className={`flex min-w-0 items-center gap-3 rounded-2xl border bg-slate-900/60 p-3 transition ${muted ? "border-slate-800" : BAND_BORDER[hue]}`}>
+            {fixed ? (
+              <span className="grid h-7 w-7 shrink-0 place-items-center" title={`The ${p} always plays in this exercise`}>
+                <Icon name={icon} size={15} className={HUE_TONES[hue].ink} />
+              </span>
+            ) : (
+            <Button size="icon-md" pressed={muted} aria-label={muted ? `Unmute the ${p}` : `Mute the ${p}`} title={muted ? "Unmute" : "Mute"} onClick={() => band.set({ levels: { [p]: { muted: !muted } } })}>
+              <Icon name={muted ? "volume-x" : icon} size={15} className={muted ? "" : HUE_TONES[hue].ink} />
+            </Button>
+            )}
+            <span className={`w-12 text-sm font-medium ${muted ? "text-slate-500 line-through decoration-slate-600" : "text-slate-200"}`}>{label}</span>
+            <Slider value={volume} hue={hue} min={0} max={1} step={0.01} onChange={(v) => band.set({ levels: { [p]: { volume: v } } })} title={`${label} volume`} aria-label={`${label} volume`} className={`min-w-0 flex-1 transition-opacity ${muted ? "opacity-40" : ""}`} />
+          </div>
+        );
+      })}
+    </section>
   );
 }

@@ -20,6 +20,8 @@ export interface SongPosition {
   /** 0-based beat in the bar */
   beat: number;
   beatsPerBar: number;
+  /** how many times the arrangement has gone round before this one, 0 the first time through */
+  round: number;
   arr: Arrangement;
 }
 
@@ -87,6 +89,7 @@ export class Song {
     if (arr.beats <= 0 || !arr.chords.length) return null;
     const inLoop = (((beat - seg.origin) % arr.beats) + arr.beats) % arr.beats;
     const bpb = arr.beatsPerBar;
-    return { chord: chordAt(arr.chords, inLoop), beat: Math.floor((((inLoop % bpb) + bpb) % bpb) + EPS) % bpb, beatsPerBar: bpb, arr };
+    const round = Math.max(0, Math.floor((beat - seg.origin) / arr.beats + EPS));
+    return { round, chord: chordAt(arr.chords, inLoop), beat: Math.floor((((inLoop % bpb) + bpb) % bpb) + EPS) % bpb, beatsPerBar: bpb, arr };
   }
 }

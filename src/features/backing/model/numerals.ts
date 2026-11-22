@@ -17,7 +17,14 @@ export interface ChordInKey {
   rootPc: number;
   /** the chord's pitch classes from the root up (root first) */
   pcs: number[];
+  /** a bar with no chord (`REST`): the drums carry on, the bass and the keys wait */
+  rest?: true;
 }
+
+/** In place of a numeral: no chord for that length ("-", "-:0.5"). A host writes it for a chord the band cannot voice, so the bars after it keep their place. */
+export const REST = "-";
+/** The chord a rest stands for: no notes. */
+export const restChord = (): ChordInKey => ({ numeral: REST, symbol: "", rootPc: 0, pcs: [], rest: true });
 
 const NUMERALS = ["I", "II", "III", "IV", "V", "VI", "VII"];
 /** the major scale's interval for each degree: a numeral is counted from the tonic on the major scale, flats and sharps move it */
