@@ -108,10 +108,10 @@ test("outcome: no rung but a solid concept starts from that concept's level", ()
   assert.equal(caged(outcome({ ...IN, entries: e.slice(0, 1), answersHistory: [] }, "2026-11-15")).reached, 0);
 });
 test("outcome: no rung and one rating starts from new (0) plus the share of beginner", () => {
-  // beginner in the scales topic: notes on the neck, pentatonic positions, melodies
+  // beginner in the scales topic: notes on the neck, intervals on the neck, pentatonic positions, melodies
   const solid = outcome({ ...IN, entries: [entry({ concepts: ["pentatonic-box-1"], stars: 4 })], answersHistory: [] }, "2026-11-15");
   assert.equal(topic(solid, "guitar-scales").reached, 0);
-  assert.equal(topic(solid, "guitar-scales").score, 1 / 3);
+  assert.equal(topic(solid, "guitar-scales").score, 1 / 4);
   const working = outcome({ ...IN, entries: [entry({ concepts: ["pentatonic-box-1"], stars: 3 })], answersHistory: [] }, "2026-11-15");
   assert.equal(concept(working, "pentatonic-positions").state, "working");
   assert.equal(topic(working, "guitar-scales").score, 0);

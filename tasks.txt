@@ -80,6 +80,15 @@ Decided (user, 2026-11-19): no enable/disable switch for tools or blocks. An unf
 no seed block uses it until it works, so no plan can include it ("there should be no plan with these tools"; "it's
 just me"). Its steps stay missing on the path until then.
 Open: whether "factor into path" means tagging the existing steps, writing the new tracks, or both.
+[2026-11-21, order, user] The tools are next, ahead of DayShape1-2 ("I don't want to add more plans, just tools"). Build
+the six tools first, one at a time; putting them on the path comes after ("we can also just build tools first and add
+them to path later"), which turns round the path-first order of 2026-11-19. Each finished tool gets a few main blocks,
+not a block for every step ("we want to work on few main blocks - maybe demo blocks"). No new seed plans for now
+(LibraryGrowth2 stays waiting). ChoiceSplit3 still waits on DayShape1-2 and on this.
+[2026-11-21, user] "We can add to path": a tool goes on the path as soon as it is built (its ladder, and the steps that
+waited on it), before the next tool is started, so its main blocks are seed blocks that count for a step and the
+composer can pick them. No pass over the path before any tool is built.
+Open: which blocks are the main ones for each tool.
 
 TaskSeries ChoiceSplit: take the choice (stages, variants, pick-a-step) out of blocks (from NEW15, 2026-11-17)
 ChoiceSplit1: [NEW 2026-11-17] Brainstorm a choice that lives apart from its block, so new alternatives of a block (other
@@ -154,6 +163,22 @@ ChoiceSplit1), or say they get versions and cleanup only.
 
 TaskSeries DayShape: how a day's plan is laid out by its minutes, and warm-ups (user, 2026-11-19)
 Before MissingTools16 and ChoiceSplit3: it changes what every player gets tomorrow.
+[2026-11-21, order, user] Now after the six tools of MissingTools16 are built; still before ChoiceSplit3.
+[2026-11-22, user] Not to be dropped: "clear sections and changing shape of exercise is important" (this series and
+ChoiceSplit3). LibraryGrowth is what can be skipped.
+[2026-11-22 proposal, not decided] DayShape1, read against compose.ts and daySteps.ts:
+- A section is one area. A day under 30 minutes has one section, 30 to 49 has two, 50 and over has three, never more
+  than the areas the player picked. A player with one area gets one section whatever the minutes.
+- Which areas a day gets turns with the date (as the opening topic does today, `dayNumber`), so a 20-minute
+  guitar-and-voice player gets guitar one day and voice the next. Theory is an area like the others.
+- Order in a day: voice first (its warm-up opens the day, DayShape2), then guitar, then theory. Minutes are split
+  evenly between the sections; a section the library can't fill gives its minutes to the next.
+- Review stays inside the section of its area, last in it, with today's cap (a third of the day).
+- Code: `daySteps` takes the day's areas, not all of `answers.areas`; `fill` runs once a section with that section's
+  budget; `ComposedDay` gets `sections` (area, minutes, exercises) and `ComposeTrace` the same, so /dev/compose shows
+  each section and why it got its area. A kept exercise stays in the section of its area.
+Open (user): the thresholds 30 and 50; even minutes or more for the first section; whether one area can have several
+sections (by topic).
 DayShape1: [NEW 2026-11-19] Split a day by its minutes. 20 minutes: concentrated training in one area, guitar or
 voice. 40 and 60 minutes: more sections. Today the composer takes the day's steps from every area the player picked
 (src/features/plan/model/daySteps.ts) and goes round them one block at a time (compose.ts `fill`), so a 20-minute day
@@ -592,6 +617,11 @@ or undone:
 - /terms promises cancelling a subscription on Your profile. Not built: there is no payment yet (Selling1).
 
 TaskSeries LibraryGrowth: keys, more seed plans and exercises, new exercise tools (moved out of NEW, 2026-11-18)
+[2026-11-22, user] Skipped for now ("you can skip library growth"): the tools (MissingTools), the day's sections
+(DayShape) and the shape of exercises (ChoiceSplit3) come first. LibraryGrowth4 below was asked for the same day and
+is filed here, so it waits too unless the user says otherwise.
+[2026-11-22 later, user] "You can include library growth if it fits but also add to paths": a LibraryGrowth task
+may be worked on when it fits the tools work, and what it adds goes on the path. LibraryGrowth4 is the first.
 LibraryGrowth1: (was NEW19) [NEW 2026-11-18] Keys in the questionnaire and in every plan
 The key the player picks should set the key of every task in the plan, not only the theory ones.
 Today the questionnaire asks no key (src/features/plan/intake); keys show up only as a theory topic (theory-scales-keys).
@@ -710,6 +740,36 @@ LibraryGrowth3: (was NEW11) [NEW 2026-11-15] New exercise components to weigh (a
    legato-trill shows no h/p. Needs a model field, tab drawing, bent-pitch playback; a bend-to-pitch check would be a
    new tool on useMicPitch.
 Also: src/features/exercises/CLAUDE.md says the view goes in ui/ExerciseTool.tsx; the switch is in ui/Tool.tsx.
+
+LibraryGrowth4: [NEW 2026-11-22] Octave jumps in guitar melodies (user: "we also need to add octave jumps to melodies on
+guitar"). The guitar Melodies track (path.ts, `guitar-melodies`) has five steps: One string, Open position, Up the
+neck, Shifting positions, Modal tunes. None has an octave jump, and none has a ladder (all "not implemented"). The
+guitar tune blocks play on guitar-play-along (blocks/guitar-*-tune-*.json, guitar-advanced-melody-shifting-positions).
+Open: which is meant: (a) a tune with a leap of an octave inside it, (b) the same tune played again an octave up or
+down, or (c) the octave shapes on the neck as a drill before the tunes; whether it is a new step on the track (and at
+which level) or a few blocks under the steps there now; whether the tune book has tunes with such a leap or they get
+written. A few main blocks first, as for the tools (MissingTools16, 2026-11-21).
+[2026-11-22, user] Wider than octaves: "different intervals on different strings and different directions as
+exercise". So the drill is an interval as a shape: the same interval on one string, on the next string and two
+strings over, played up and down. The octave jump is one of them.
+[2026-11-22 done, the path only] path.ts: a new guitar track in the Scales topic, `intervals-on-neck` ("Intervals on
+the neck"), after Notes on the neck: Octaves | 5ths and 4ths | 3rds and 6ths | Up and down from one note | Mix: every
+interval so far | Every interval, every pair of strings (beginner 2, intermediate 3, advanced 1; the first after
+notes-on-neck:2). Melodies got a sixth step, "Octave jumps" (advanced, after intervals-on-neck:1), put last so
+guitar-melodies:1 to :5 keep their numbers in the blocks that name them. All seven steps are "not implemented": no
+tool has a level for them. path.test.ts holds both (and the Mix count, 33 to 34).
+Checked 2026-11-22 in a Vercel sandbox (musickit-dev, node 24, `npm ci`): `npm test` 3295 of 3296 pass; the one
+failing, guide/coverage.test.ts "each file that draws Hints declares how many with useCoverage" (7, expected 8), fails
+on main without this change too. `npx tsc --noEmit` clean, eslint clean on the four changed files. Two tests were
+changed for the new track: stepBlocks.test.ts (KNOWN_GAPS gets intervals-on-neck:1 to :6) and outcome.test.ts (one
+solid beginner track of Scales is now 1/4 of the level, was 1/3). Not read: /dev/path.
+Side effect to weigh: the Scales topic's score counts one more track at beginner, intermediate and advanced
+(outcome.ts), and that track has no block yet, so nothing can make it solid until blocks are written.
+Left: the blocks (a few main ones; needs `npm run theory` for the shapes and `seed check`); which tool stands for the
+steps so they get a ladder (scale-neck or position-neck with two notes lit, guitar-play-along with a written line,
+or a new interval tool on the neck with levels: a MissingTools task if so); whether "Octave jumps" in Melodies should
+sit lower than advanced (it can't without renumbering, or as a step of the new track only); the guitar key order for
+the new track (`keys`, none given: the area's ladder).
 
 TaskSeries Intake: the first questionnaire and the steps players don't see (moved out of NEW, 2026-11-18)
 Intake1: (was NEW9) [NEW 2026-11-15] Rework the first questionnaire (after NEW8)
