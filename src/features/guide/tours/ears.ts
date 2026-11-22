@@ -5,12 +5,12 @@ export const EARS_TOUR: TourStep[] = [
   {
     target: "ears-setup",
     title: "What to train",
-    text: "Intervals or chord quality.",
+    text: "Intervals, chord quality or chord changes.",
   },
   {
     target: "ears-settings",
     title: "Level",
-    text: "Each level adds intervals. Start at level 1 and stay there until it feels easy.",
+    text: "Each level adds intervals, or chords for chord changes. Start at level 1 and stay there until it feels easy.",
   },
   {
     target: "interval-ears-play",

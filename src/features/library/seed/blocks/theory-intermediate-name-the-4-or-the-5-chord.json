@@ -1,0 +1,90 @@
+{
+  "id": "theory-intermediate-name-the-4-or-the-5-chord",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 11,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track hearing-changes (theory-ear), step 2, on the ear game asked for chord changes (interval-ears, kind change) at its level 1, a number, which is exactly this step: the band plays the two changes in C with the chord boxes to check against, then the game plays the 1 chord and the 4 or the 5 in a new key each time and checks the answer. The answers are named as the buttons show them, with the plain word beside each.",
+  "exercise": {
+    "title": "Name the second chord: the 4 or the 5",
+    "area": "theory",
+    "tags": [
+      "ear"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "hearing-changes"
+    ],
+    "why": "The game plays the 1 chord first every time, so you hear the second chord as a move away from home, and that move sounds the same in every key.",
+    "learnBefore": [
+      "/course/5/one-four-five"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Both changes in C",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band in C: C and F take turns, then C and G. Watch the lit chord box, and call out 4 on every F and 5 on every G.\nListen for how F moves away from C, and how G pulls back to it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-track",
+              "key": "c",
+              "numerals": [
+                "I",
+                "IV",
+                "I",
+                "IV",
+                "I",
+                "V",
+                "I",
+                "V"
+              ],
+              "style": "pop",
+              "bpm": 70
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Pick IV or V",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start in the game below to hear two chords: the 1 chord, then the 4 or the 5, in a new key each time. Pick IV for the 4 chord or V for the 5 chord.\nPress Replay below to hear the two chords again before you pick. Press Next for two new chords.\nKeep going until you know the answer before the second chord has faded."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "interval-ears",
+              "kind": "change",
+              "level": 1
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/course/5/hearing-changes",
+      "/theory/ears"
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "hearing-changes:2"
+      ],
+      "minutes": 5
+    }
+  ]
+}

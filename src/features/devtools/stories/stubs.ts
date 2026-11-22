@@ -49,24 +49,6 @@ export const STUBS: StubSpec[] = [
     ],
   },
   {
-    id: "chord-change-quiz",
-    title: "chord-change-quiz",
-    task: "MissingTools3",
-    what: "A short progression plays and the player names where the chord changes and to what (I, IV, V, then vi and ii). The other half of MissingTools3, more chord qualities in the chord ear quiz, is a change to that quiz, not a new tool.",
-    waits: "hearing-changes; NEW11 item 2",
-    keywords: ["ear training", "chord changes", "progression", "hear", "listen", "numerals", "quiz", "harmony"],
-    props: [
-      p("key", "string", "The key the progressions play in, or \"random\"."),
-      p("chords", "string[]", "The numerals a progression may use.", true),
-      p("bars", "number", "How long a progression is."),
-      p("bpm", "number", "Tempo."),
-    ],
-    stories: [
-      hand("I IV V in G", { key: "g", chords: ["I", "IV", "V"], bars: 4 }),
-      hand("With vi and ii, random key", { key: "random", chords: ["I", "ii", "IV", "V", "vi"], bars: 8 }),
-    ],
-  },
-  {
     id: "song-chart",
     title: "song-chart",
     task: "MissingTools8",

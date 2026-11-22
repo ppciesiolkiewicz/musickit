@@ -278,6 +278,26 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "interval-ears", set: [3, 4, 7, 10], dir: "down" }), { type: "interval-ears", query: "set=3%2C4%2C7%2C10&dir=down" });
     assert.deepEqual(parseTool({ type: "interval-ears", level: 2, wide: true }), { type: "interval-ears", query: "level=2&wide=1", wide: true });
   });
+  it("ears: a chord change has its own levels, as a number or a word, and a stage moves it by them", () => {
+    assert.deepEqual(parseTool({ type: "interval-ears", kind: "change", level: 2 }), { type: "interval-ears", query: "level=2&kind=change" });
+    assert.deepEqual(parseTool({ type: "interval-ears", kind: "change" }), { type: "interval-ears", query: "kind=change" });
+    const word = parseTool({ type: "interval-ears", kind: "change", level: "intermediate" })!;
+    assert.deepEqual(word, { type: "interval-ears", query: "level=2&kind=change", level: "intermediate" });
+    assert.deepEqual(parseTool({ type: "interval-ears", kind: "change", level: "new" }), { type: "interval-ears", query: "level=1&kind=change", level: "new" });
+    // stored: the query is kept as it is
+    assert.deepEqual(parseTool(word, { stored: true }), word);
+    assert.deepEqual(setLevel(word, "advanced"), { type: "interval-ears", query: "level=5&kind=change", level: "advanced" });
+    // the interval game keeps its own ladder
+    assert.deepEqual(parseTool({ type: "interval-ears", level: "intermediate" }), { type: "interval-ears", query: "level=4", level: "intermediate" });
+    assert.deepEqual(parseToolDiag({ type: "interval-ears", kind: "changes" }).notes, ['interval-ears had kind "changes" (it is "interval", "chord" or "change"); used "interval".']);
+  });
+  it("ears: the chord quiz takes the chord kinds to ask, and names the ones it does not know", () => {
+    assert.deepEqual(parseTool({ type: "interval-ears", kind: "chord", qualities: ["maj", "min", "dim", "aug"] }), { type: "interval-ears", query: "kind=chord&qualities=maj%2Cmin%2Cdim%2Caug" });
+    assert.deepEqual(parseTool({ type: "interval-ears", kind: "chord" }), { type: "interval-ears", query: "kind=chord" });
+    const p = parseToolDiag({ type: "interval-ears", kind: "chord", qualities: ["sus4", "m6", "maj"] });
+    assert.deepEqual(p.tool, { type: "interval-ears", query: "kind=chord&qualities=sus4%2Cmaj" });
+    assert.deepEqual(p.notes, ['interval-ears "qualities" had entries it could not read ("m6"); left them out.']);
+  });
   it("refuses what it can't show", () => {
     assert.equal(parseTool({ type: "scale-neck", scale: "nope", key: "a" }), null);
     assert.equal(parseTool({ type: "scale-neck", scale: "dorian", key: "zz" }), null);

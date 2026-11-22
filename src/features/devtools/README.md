@@ -137,7 +137,7 @@ to zoom, *Fit* shows the whole area); the track names follow the zoom and the ve
 
 **Steps inside a skill** (`model/steps.ts`, read from `plan/model/path.ts`). The lines in a skill are its
 track's steps, easiest first, each with its own level. Blue ones are read from a ladder the code already has
-(`plan/model/ladders.ts`: the tools' levels in `exercises/basics/levels.ts`, the ear game's levels, the tune and run
+(`plan/model/ladders.ts`: the tools' levels in `exercises/basics/levels.ts`, the ear game's interval and chord-change levels, the tune and run
 stages), named on the step as `ladder: "ladderId:key"`. Amber ones are "not implemented" until a tool has a level for
 them.
 

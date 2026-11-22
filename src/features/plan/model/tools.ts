@@ -14,7 +14,8 @@ import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/str
 import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/features/exercises/basics/breathwork/breaths";
 import { HILL_SOUNDS, HILL_WHERE, LIMITS as HILL_LIMITS, type HillSound, type HillWhere } from "@/features/exercises/basics/voice-hill/hill";
 import { LIP_ROLL_PLAYS, LIP_ROLL_SHAPES, LIP_ROLL_SPEEDS, LIMITS as LIP_ROLL_LIMITS, type LipRollPlay, type LipRollShape, type LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
-import { CLAP_ALONG_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
+import { earKindOf, isQuality } from "@/lib/practice/earGame";
+import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { MAX_BARS as CLAP_MAX_BARS, MAX_BPM as CLAP_MAX_BPM, MIN_BPM as CLAP_MIN_BPM, PATTERNS as CLAP_PATTERNS, isPatternId } from "@/features/rhythm/patterns";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
@@ -498,9 +499,13 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
   },
   "note-finder": { parse: (t) => ({ type: "note-finder", query: query(t, ["mode", "strings", "from", "to", "naturals"]) }) },
   "interval-ears": {
-    parse(t) {
+    parse(t, d) {
       const wide = t.wide === true || (typeof t.query === "string" && /(^|&)wide=1/.test(t.query));
-      const q = query({ ...t, wide: undefined }, ["level", "set", "dir", "kind"]);
+      if (t.kind != null && t.kind !== "interval" && t.kind !== "chord" && t.kind !== "change" && !d.stored) d.notes.push(`had kind ${JSON.stringify(t.kind)?.slice(0, 20)} (it is "interval", "chord" or "change"); used "interval".`);
+      // the chord kinds to ask: only the ones the game has
+      const qualities = t.qualities == null ? undefined : list(t.qualities).filter(isQuality);
+      lost(d, "qualities", t.qualities, (e) => (isQuality(e) ? e : null));
+      const q = query({ ...t, wide: undefined, qualities: qualities?.length ? qualities : undefined }, ["level", "set", "dir", "kind", "qualities"]);
       const full = wide && !/(^|&)wide=1/.test(q) ? (q ? `${q}&wide=1` : "wide=1") : q;
       return { type: "interval-ears", query: full, ...(wide ? { wide } : {}) };
     },
@@ -703,7 +708,8 @@ function levelProps(type: LeveledName, level: ToolLevel, t: Record<string, unkno
       const l = INTERVAL_SINGER_LEVELS[level];
       return { intervals: l.intervals, dir: l.dir, ...(l.random ? { keys: "random" } : {}) };
     }
-    case "interval-ears": return { level: INTERVAL_EARS_LEVELS[level] };
+    // a chord-change game has its own levels; the kind is the tool's prop, or in a stored game's query
+    case "interval-ears": return { level: (t.kind === "change" || (typeof t.query === "string" && earKindOf(t.query) === "change") ? CHORD_CHANGE_LEVELS : INTERVAL_EARS_LEVELS)[level] };
     case "note-finder": {
       const l = NOTE_FINDER_LEVELS[level];
       return { strings: l.strings, from: l.from, to: l.to, naturals: l.naturals ? 1 : 0 };
