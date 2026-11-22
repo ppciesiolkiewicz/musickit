@@ -18,7 +18,7 @@ import { earKindOf, isQuality } from "@/lib/practice/earGame";
 import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { MAX_BARS as CLAP_MAX_BARS, MAX_BPM as CLAP_MAX_BPM, MIN_BPM as CLAP_MIN_BPM, PATTERNS as CLAP_PATTERNS, isPatternId } from "@/features/rhythm/patterns";
-import { LIMITS as SONG_LIMITS, barChords, type ChartSection } from "@/features/exercises/basics/song-chart/chart";
+import { LIMITS as SONG_LIMITS, barChords, chordNumeral, type ChartSection } from "@/features/exercises/basics/song-chart/chart";
 import { DYAD_DEFAULT_STRINGS, DYAD_NAMES, LIMITS as DYAD_LIMITS, dyadStrings, isDyadName, type DyadName } from "@/features/exercises/basics/double-stops-neck/walk";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
@@ -695,7 +695,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       const key = keyOf(t.key) ?? parseChordQuery(first)!.rootPc;
       if (t.key != null && keyOf(t.key) === null) defaulted(d, "key", t.key, "not a key", `the first chord's root, ${TONICS[key]}`);
       // a chord the band has no voicing for stays on the chart: the band rests in its bar, and the tool says which
-      const unvoiced = [...new Set(played.flatMap((s) => s.bars.flatMap(barChords)))].filter((c) => !numeralOfChord(c, TONICS[key]));
+      const unvoiced = [...new Set(played.flatMap((s) => s.bars.flatMap(barChords)))].filter((c) => !chordNumeral(c, TONICS[key]));
       if (unvoiced.length && !d.stored) d.notes.push(`has chords the band can't voice (${unvoiced.slice(0, 5).join(", ")}${unvoiced.length > 5 ? ", …" : ""}); they stay on the chart, marked, and the band rests in their bars.`);
       const style = typeof t.style === "string" && STYLES.some((x) => x.id === t.style) ? t.style : "pop";
       if (t.style != null && style !== t.style) defaulted(d, "style", t.style, `it is ${STYLES.map((x) => `"${x.id}"`).join(", ")}`, `"pop"`);

@@ -64,6 +64,20 @@ export function layChart(sections: readonly ChartSection[], form?: readonly stri
   return { parts, bars: index };
 }
 
+/**
+ * A chord as the band's numeral in `tonic`, or null when the band has no voicing for it. A chord over another bass note
+ * ("G/B") is voiced as the chord itself, and a quality in brackets ("Am(maj7)") is read without them.
+ */
+export function chordNumeral(chord: string, tonic: string): string | null {
+  const plain = chord.replace(/\/[A-Ga-g][#b♯♭]?\s*$/, "");
+  const open = plain.replace(/\((maj7|Maj7|M7)\)/, "Maj7").replace(/[()]/g, "");
+  for (const c of [chord, plain, open]) {
+    const n = numeralOfChord(c, tonic);
+    if (n) return n;
+  }
+  return null;
+}
+
 /** Where one of the band's chords sits on the chart: the bar, and which of the bar's chords. */
 export interface ChartSlot {
   bar: number;
@@ -72,7 +86,7 @@ export interface ChartSlot {
 
 /**
  * The laid-out form as the band's numerals in `tonic` ("G", "Bb"), one entry per chord: a bar of one chord is one bar
- * long, a bar of two is two halves. A chord the band has no voicing for becomes a rest of the same length, so every bar
+ * long, a bar of two is two halves (`chordNumeral`). A chord the band has no voicing for becomes a rest of the same length, so every bar
  * after it stays on its bar line, and is named in `unplayed` (each such chord once, in order of first showing).
  * `slots[i]` says where the band's `i`th chord sits on the chart.
  */
@@ -83,7 +97,7 @@ export function chartNumerals(parts: readonly ChartPart[], tonic: string): { num
   for (const part of parts)
     for (const bar of part.bars)
       bar.chords.forEach((chord, i) => {
-        const numeral = numeralOfChord(chord, tonic);
+        const numeral = chordNumeral(chord, tonic);
         if (!numeral && !unplayed.includes(chord)) unplayed.push(chord);
         numerals.push(`${numeral ?? REST}${bar.chords.length > 1 ? `:${1 / bar.chords.length}` : ""}`);
         slots.push({ bar: bar.index, chord: i });
