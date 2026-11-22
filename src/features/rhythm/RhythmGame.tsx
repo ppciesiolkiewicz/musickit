@@ -1,19 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
-import { Button, Chip, ChipRow, NumberField, Slider } from "@/components/ui";
-import { MAX_BPM, MIN_BPM, PATTERNS, buildRound, patternById, type Round } from "./patterns";
+import { Button, Chip, ChipRow, DropdownSection, NumberField, Slider } from "@/components/ui";
+import { ToolSettings } from "@/features/settings";
+import { useToolKeys } from "@/components/practice/toolKeys";
+import { MAX_BARS, MAX_BPM, MIN_BPM, PATTERNS, buildRound, patternById, type Round } from "./patterns";
 import { createJudge, type Grade, type Judge, type Judged, type Summary } from "./judge";
 import { DEFAULT_RISE_DB } from "./onset";
 import { heardAt, heardNow } from "./clock";
 import { listenForStrums, type StrumListener } from "./mic";
-import { GameChoice, Stage, Stat, btnBig } from "@/components/practice/shared";
+import { GameChoice, SetupTag, Stage, Stat, btnBig } from "@/components/practice/shared";
 import Icon from "@/components/Icon";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
+import { TempoControl } from "@/features/exercises/play-along/PlayerParts";
 import type { MicStatus } from "@/components/practice/useMicPitch";
 
-type Input = "keys" | "mic";
+/** What a round listens to: Space or a tap, or the microphone. */
+export type RhythmInput = "keys" | "mic";
+type Input = RhythmInput;
 type Click = "on" | "count-in";
 
 interface Settings { bpm: number; pattern: string; bars: number; input: Input; click: Record<Input, Click>; offset: Record<Input, number>; riseDb: number }
@@ -133,7 +138,10 @@ function draw(canvas: HTMLCanvasElement, pal: Palette, round: Round, now: number
 
   // notes: coloured by how they went once judged
   const results = live?.judge.results() ?? [];
-  const r = clamp(h * 0.12, 7, 14);
+  // smaller where the notes sit close (sixteenths on a narrow lane), so two never run into one
+  let gap = Infinity;
+  for (let i = 1; i < Math.min(round.targets.length, 17); i++) gap = Math.min(gap, round.targets[i] - round.targets[i - 1]);
+  const r = Math.min(clamp(h * 0.12, 7, 14), Math.max(3, gap * pps * 0.42));
   round.targets.forEach((t, i) => {
     const cx = x(t);
     if (cx < -r || cx > w + r) return;
@@ -179,14 +187,39 @@ function draw(canvas: HTMLCanvasElement, pal: Palette, round: Round, now: number
   }
 }
 
+/** What a host sets on the game it draws (an exercise in the plan, `clap-along`). */
+export interface RhythmGameProps {
+  /** the host fixes the rhythm, the tempo it starts at and the bars: no picker and no setup panel, and none of the three is saved */
+  bare?: boolean;
+  /** a pattern id (patterns.ts); with `bare` */
+  pattern?: string;
+  /** with `bare`; the player can still nudge it for this view */
+  bpm?: number;
+  /** with `bare`: bars in a round, 1 to `MAX_BARS` */
+  bars?: number;
+  /** with `bare`: what the round listens to at first; the player can switch, for this view only */
+  input?: Input;
+}
+
 /**
  * The rhythm game: a metronome counts in one bar, then notes scroll into the hit line and the player hits each one as it gets
- * there, with Space (or a tap on the lane) or by strumming a guitar into the microphone. Each hit is graded by how far it lands
+ * there, with Space (or a tap on the lane) or by clapping or strumming a guitar into the microphone. Each hit is graded by how far it lands
  * from the beat; a round ends with a score and the average early/late, which can be kept as the player's offset (taking out the
  * delay of their speakers, keyboard or microphone).
+ *
+ * On its own page it keeps every setting in localStorage. `bare` (a plan's exercise) takes the rhythm, tempo and bars from
+ * the host and saves none of them; the click, the offset and the sensitivity are the device's, so they stay saved and shared.
+ * Space and Escape come through `useToolKeys`, so with two games on one page only one of them takes the key.
  */
-export default function RhythmGame() {
-  const [s, setS] = useState<Settings>(DEFAULTS);
+export default function RhythmGame({ bare = false, pattern: fixedPattern, bpm: fixedBpm, bars: fixedBars, input: fixedInput }: RhythmGameProps = {}) {
+  const [saved, setS] = useState<Settings>(DEFAULTS);
+  // what the player changed on a bare game, for this view only: the input, and the tempo (which goes back to the host's when the host's changes)
+  const [picked, setPicked] = useState<Input | null>(null);
+  const hostBpm = Math.round(clamp(fixedBpm ?? DEFAULTS.bpm, MIN_BPM, MAX_BPM));
+  const [nudged, setNudged] = useState<{ from: number; bpm: number } | null>(null);
+  const s: Settings = bare
+    ? { ...saved, pattern: patternById(fixedPattern ?? "").id, bpm: nudged?.from === hostBpm ? nudged.bpm : hostBpm, bars: Math.round(clamp(fixedBars ?? 4, 1, MAX_BARS)), input: picked ?? fixedInput ?? "keys" }
+    : saved;
   const [phase, setPhase] = useState<"idle" | "playing" | "done">("idle");
   const [summary, setSummary] = useState<Summary | null>(null);
   const [streak, setStreak] = useState(0);
@@ -209,11 +242,22 @@ export default function RhythmGame() {
     settings.current = s;
   });
 
-  const update = (patch: Partial<Settings>) => setS((prev) => {
-    const next = { ...prev, ...patch };
-    try { window.localStorage.setItem(STORE, JSON.stringify(next)); } catch { /* storage blocked */ }
-    return next;
-  });
+  const update = (patch: Partial<Settings>) => {
+    let keep = patch;
+    if (bare) {
+      // the host's rhythm, tempo and bars and this view's input are never saved
+      if (patch.input) setPicked(patch.input);
+      if (patch.bpm !== undefined) setNudged({ from: hostBpm, bpm: patch.bpm });
+      keep = { ...patch };
+      for (const k of ["input", "bpm", "pattern", "bars"] as const) delete keep[k];
+      if (!Object.keys(keep).length) return;
+    }
+    setS((prev) => {
+      const next = { ...prev, ...keep };
+      try { window.localStorage.setItem(STORE, JSON.stringify(next)); } catch { /* storage blocked */ }
+      return next;
+    });
+  };
 
   const pattern = patternById(s.pattern);
 
@@ -286,22 +330,22 @@ export default function RhythmGame() {
     mic.current?.setOptions({ riseDb: s.riseDb });
   }, [s.riseDb, micOn]);
 
-  // Space hits in keys mode; Escape stops a round
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && live.current) { stop(); return; }
-      if (e.code !== "Space" || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
-      const el = e.target as HTMLElement | null;
-      if (el?.closest("input, textarea, [contenteditable=true]")) return;
-      // between rounds Space belongs to whatever control has focus. Not the Start button: a player still tapping as a round ends must not start another
-      if (!live.current && el?.closest("button, a, summary") && !el.closest("[data-round-button]")) return;
-      e.preventDefault();
-      if (settings.current.input !== "keys") return;
-      hit(heardAt(getAudioContext(), e.timeStamp));
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [hit, stop]);
+  // Space hits in keys mode; Escape stops a round. Through the shared tool keys, not a listener of its own on the window:
+  // with two games on one page (two exercises of a day) only the one last touched, or most on screen, takes the key.
+  const keys = useToolKeys((e, onControl) => {
+    if (e.key === "Escape") {
+      if (!live.current) return;
+      stop();
+      return true;
+    }
+    if (e.code !== "Space") return;
+    const el = e.target instanceof Element ? e.target : null;
+    if (el?.closest("input")) return;
+    // between rounds Space belongs to whatever control has focus. Not the Start button: a player still tapping as a round ends must not start another
+    if (!live.current && onControl && !el?.closest("[data-round-button]")) return;
+    if (settings.current.input === "keys") hit(heardAt(getAudioContext(), e.timeStamp));
+    return true;
+  });
 
   // the lane: animated during a round, a still preview of the pattern otherwise
   useEffect(() => {
@@ -337,17 +381,38 @@ export default function RhythmGame() {
   const offset = s.offset[s.input];
   const canKeep = summary && summary.meanOffset !== null && summary.perfect + summary.good + summary.ok >= 4 && Math.abs(summary.meanOffset) >= 0.005;
 
+  const micHint = "Space or a tap is the quickest way to learn a rhythm. With the mic you clap, or you strum your guitar and practise with your real strumming hand.";
+  const playWith = (
+    <ChipRow label="Play with" info={micHint}>
+      <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); setError(null); update({ input: "keys" }); } }}>Space / tap</Chip>
+      <Chip on={s.input === "mic"} onClick={() => !playing && update({ input: "mic" })}>Clap or strum (mic)</Chip>
+    </ChipRow>
+  );
+  // the device's rows: a row of the setup panel on the page, a section under the sliders button on a bare game
+  const row = (label: string, info: string | undefined, controls: ReactNode) => bare
+    ? <DropdownSection title={label} info={info}><div className="flex flex-wrap items-center gap-1.5">{controls}</div></DropdownSection>
+    : <ChipRow label={label} info={info}>{controls}</ChipRow>;
+  const clickRow = row("Click", s.input === "mic" ? "The microphone can hear the click from your speakers and take it for a hit. With headphones, keep the click on; on speakers, let it count you in and keep time yourself." : undefined, <>
+    <Chip on={s.click[s.input] === "on"} onClick={() => update({ click: { ...s.click, [s.input]: "on" } })}>All the way</Chip>
+    <Chip on={s.click[s.input] === "count-in"} onClick={() => update({ click: { ...s.click, [s.input]: "count-in" } })}>Count-in only</Chip>
+  </>);
+  const offsetRow = row("Offset", "Speakers, keyboards and microphones add a little delay, so a hit that feels on time can show as late. Play a round as steadily as you can and press Use as my offset, or set it here. Each input keeps its own.", <>
+    <Slider aria-label="Offset" value={Math.round(offset * 1000)} min={-OFFSET_LIMIT * 1000} max={OFFSET_LIMIT * 1000} step={1} onChange={(v) => update({ offset: { ...s.offset, [s.input]: v / 1000 } })} className="w-48 max-w-full" />
+    <span className="w-16 text-xs tabular-nums text-slate-300">{Math.round(offset * 1000)} ms</span>
+    {offset !== 0 && <Button size="sm" onClick={() => update({ offset: { ...s.offset, [s.input]: 0 } })}>Reset</Button>}
+  </>);
+  const sensitivityRow = s.input === "mic" && row("Sensitivity", "How loud a clap or strum has to be, against what was ringing just before, to count. Raise it if you get hits you did not play; lower it if soft ones are missed.",
+    <Slider aria-label="Sensitivity" value={20 - s.riseDb} min={4} max={16} step={0.5} onChange={(v) => update({ riseDb: 20 - v })} className="w-48 max-w-full" />);
+
   return (
-    <div className="flex flex-col gap-4">
-      <div data-tour="rhythm-pick"><GameChoice label="Rhythm" options={PATTERNS.map((p) => ({ id: p.id, title: p.name, about: p.hint }))} value={s.pattern} onChange={(pattern) => update({ pattern })} tone="violet" disabled={playing} /></div>
+    <div ref={keys.ref} className="flex flex-col gap-4">
+      {!bare && <div data-tour="rhythm-pick"><GameChoice label="Rhythm" options={PATTERNS.map((p) => ({ id: p.id, title: p.name, about: p.hint }))} value={s.pattern} onChange={(pattern) => update({ pattern })} tone="violet" disabled={playing} /></div>}
+      {!bare && (
       <aside data-tour="rhythm-setup" aria-label="Setup" className="flex flex-col gap-3 metal-panel rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
         <h2 className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">Set up the round</h2>
         {playing && <p className="text-xs text-slate-400">These stay as they are until the round ends. Offset and sensitivity still change as you play.</p>}
         <div inert={playing} className={`flex flex-col gap-3 transition-opacity ${playing ? "opacity-50" : ""}`}>
-        <ChipRow label="Play with" info="Space or a tap is the quickest way to learn a rhythm. Strum listens to your guitar through the mic, so you practise with your real strumming hand.">
-          <Chip on={s.input === "keys"} onClick={() => { if (!playing) { closeMic(); setError(null); update({ input: "keys" }); } }}>Space / tap</Chip>
-          <Chip on={s.input === "mic"} onClick={() => !playing && update({ input: "mic" })}>Strum (mic)</Chip>
-        </ChipRow>
+        {playWith}
         <ChipRow label="Tempo" info="How fast the beat goes, in beats per minute. Start slow enough to hit every note, then raise it a little.">
           <Slider aria-label="Tempo" value={s.bpm} min={MIN_BPM} max={MAX_BPM} step={1} disabled={playing} onChange={(bpm) => update({ bpm })} className="w-48 max-w-full" />
           <span className="flex w-20 items-baseline gap-1 whitespace-nowrap text-xs text-slate-300"><NumberField value={s.bpm} min={MIN_BPM} max={MAX_BPM} disabled={playing} onCommit={(bpm) => update({ bpm })} aria-label="Tempo in beats per minute" className="w-10 py-0.5" />BPM</span>
@@ -355,27 +420,22 @@ export default function RhythmGame() {
         <ChipRow label="Bars" info="How long a round lasts. Short rounds suit a new rhythm. Long rounds show whether you can keep it steady.">
           {BAR_CHOICES.map((b) => <Chip key={b} on={b === s.bars} onClick={() => !playing && update({ bars: b })}>{b}</Chip>)}
         </ChipRow>
-        <ChipRow label="Click" info={s.input === "mic" ? "The microphone can hear the click from your speakers and take it for a strum. With headphones, keep the click on; on speakers, let it count you in and keep time yourself." : undefined}>
-          <Chip on={s.click[s.input] === "on"} onClick={() => update({ click: { ...s.click, [s.input]: "on" } })}>All the way</Chip>
-          <Chip on={s.click[s.input] === "count-in"} onClick={() => update({ click: { ...s.click, [s.input]: "count-in" } })}>Count-in only</Chip>
-        </ChipRow>
+        {clickRow}
         </div>
         <div className="flex flex-col gap-3 border-t border-slate-800 pt-3">
-        <ChipRow label="Offset" info="Speakers, keyboards and microphones add a little delay, so a hit that feels on time can show as late. Play a round as steadily as you can and press Use as my offset, or set it here. Each input keeps its own.">
-          <Slider aria-label="Offset" value={Math.round(offset * 1000)} min={-OFFSET_LIMIT * 1000} max={OFFSET_LIMIT * 1000} step={1} onChange={(v) => update({ offset: { ...s.offset, [s.input]: v / 1000 } })} className="w-48 max-w-full" />
-          <span className="w-16 text-xs tabular-nums text-slate-300">{Math.round(offset * 1000)} ms</span>
-          {offset !== 0 && <Button size="sm" onClick={() => update({ offset: { ...s.offset, [s.input]: 0 } })}>Reset</Button>}
-        </ChipRow>
-        {s.input === "mic" && (
-          <ChipRow label="Sensitivity" info="How loud a strum has to be, against what was ringing just before, to count. Raise it if you get hits you did not play; lower it if soft strums are missed.">
-            <Slider aria-label="Sensitivity" value={20 - s.riseDb} min={4} max={16} step={0.5} onChange={(v) => update({ riseDb: 20 - v })} className="w-48 max-w-full" />
-          </ChipRow>
-        )}
+        {offsetRow}
+        {sensitivityRow}
         </div>
       </aside>
+      )}
       <Stage tone="violet">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
+            {bare && (
+              <div className="mb-2 flex flex-wrap items-center gap-1.5" aria-label="Set up as">
+                <SetupTag tone="violet">{s.bars} {s.bars === 1 ? "bar" : "bars"}</SetupTag>
+              </div>
+            )}
             <p className="text-2xl leading-snug text-slate-50 sm:text-3xl" style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{pattern.name}</p>
             <p className="mt-1 text-sm text-slate-400">{pattern.hint}</p>
           </div>
@@ -391,15 +451,24 @@ export default function RhythmGame() {
           </button>
           {s.input === "mic" && <InputChip status={micStatus} />}
           <span className="text-xs text-slate-400">
-            {s.input === "keys" ? "Press Space (or tap the lane) as each note reaches the line." : micOn ? "Listening. Strum as each note reaches the line." : "Strum as each note reaches the line. The mic opens on Start."}
+            {s.input === "keys" ? "Press Space (or tap the lane) as each note reaches the line." : micOn ? "Listening. Clap or strum as each note reaches the line." : "Clap or strum as each note reaches the line. The mic opens on Start."}
           </span>
         </div>
+        {bare && (
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+            <div data-tour="rhythm-input" inert={playing} className={`min-w-0 transition-opacity ${playing ? "opacity-50" : ""}`}>{playWith}</div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+              <span inert={playing} className={`transition-opacity ${playing ? "opacity-50" : ""}`}><TempoControl bpm={s.bpm} min={MIN_BPM} max={MAX_BPM} step={5} onChange={(bpm) => update({ bpm })} data-tour="rhythm-tempo" /></span>
+              <ToolSettings more={<>{clickRow}{offsetRow}{sensitivityRow}</>} />
+            </div>
+          </div>
+        )}
         {error && <p role="alert" className="text-xs text-rose-300">{error}</p>}
         <canvas
           data-tour="rhythm-lane"
           ref={canvas}
           role="img"
-          aria-label={s.input === "keys" ? "Rhythm lane: press Space or tap here on each note" : "Rhythm lane: strum on each note"}
+          aria-label={s.input === "keys" ? "Rhythm lane: press Space or tap here on each note" : "Rhythm lane: clap or strum on each note"}
           onPointerDown={(e) => { if (settings.current.input === "keys") hit(heardAt(getAudioContext(), e.timeStamp)); }}
           className="h-40 w-full touch-none select-none rounded-2xl border border-slate-800 bg-slate-950/60 sm:h-48"
         />

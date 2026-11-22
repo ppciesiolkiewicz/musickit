@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildRound, patternById } from "./patterns";
+import { PATTERNS, buildRound, isPatternId, patternById } from "./patterns";
 import { createJudge, gradeFor } from "./judge";
 import { createOnsetDetector } from "./onset";
 
@@ -12,6 +12,28 @@ test("a round: a bar of count-in, then the pattern from beat 1 of the next bar",
   assert.deepEqual(r.clicks.filter((c) => c.accent).map((c) => c.time), [10, 12, 14]);
   assert.deepEqual(r.targets, [12.25, 12.75, 13.25, 13.75, 14.25, 14.75, 15.25, 15.75]);
   assert.equal(r.end, 16);
+});
+
+test("sixteenths: four even hits on every beat of the bar", () => {
+  const p = patternById("sixteenths");
+  assert.equal(p.id, "sixteenths");
+  assert.equal(p.beats.length, 16);
+  assert.deepEqual(p.beats.slice(0, 5), [0, 0.25, 0.5, 0.75, 1]);
+  const r = buildRound(p, 60, 1, 0);
+  assert.equal(r.targets.length, 16);
+  assert.deepEqual(r.targets.slice(0, 3), [4, 4.25, 4.5]);
+  assert.equal(r.targets[15], 7.75);
+});
+
+test("every pattern has its own id, sits inside one bar and runs forwards", () => {
+  assert.equal(new Set(PATTERNS.map((p) => p.id)).size, PATTERNS.length);
+  for (const p of PATTERNS) {
+    assert.ok(p.beats.length > 0, p.id);
+    p.beats.forEach((b, i) => assert.ok(b >= 0 && b < 4 && (i === 0 || b > p.beats[i - 1]), `${p.id}: ${b}`));
+  }
+  assert.ok(isPatternId("push"));
+  assert.ok(!isPatternId("waltz"));
+  assert.equal(patternById("waltz").id, "quarters");
 });
 
 test("grades by distance from the beat, early or late alike", () => {
