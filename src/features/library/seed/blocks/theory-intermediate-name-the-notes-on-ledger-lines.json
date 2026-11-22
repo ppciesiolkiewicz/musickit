@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "A note too high or too low for the staff sits on a ledger line, a short line of its own, or in the space beside one. Press Start below to begin the game, and count each note on from the nearest line of the staff: up from F on the top line, or down from E on the bottom line. Then press its letter under the staff.\nAfter each answer the game says the note and where it sits, so check your count against it."
+            "text": "A note too high or too low for the staff sits just outside it: on a ledger line, a short line of its own, or in the space next to one. Press Start below to begin the game, and count each note on from the nearest line of the staff: up from F on the top line, or down from E on the bottom line. Then press its letter under the staff.\nAfter each answer the game says the note and where it sits, so check your count against it."
           },
           {
             "type": "tool",
