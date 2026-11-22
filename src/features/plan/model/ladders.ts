@@ -1,7 +1,7 @@
 import { CLAP_ALONG_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS } from "@/features/exercises/basics/levels";
 import { intervalName } from "@/features/theory/singingIntervals";
 import { BOOK, DIFFICULTIES, RUNS, RUN_STAGES, STAGES } from "@/features/theory/singingMelodies";
-import { EAR_LEVELS, TOP_EAR_LEVEL } from "@/lib/practice/earGame";
+import { CHANGE_LEVELS, EAR_LEVELS, TOP_EAR_LEVEL, earKindOf, parseEarSettings } from "@/lib/practice/earGame";
 import { patternById } from "@/features/rhythm/patterns";
 import type { PlanTool } from "./tools";
 
@@ -53,10 +53,18 @@ export const LADDERS: Ladder[] = [
     // the word a plan writes stands for one of the game's own levels; one over the top is the top. A level written as the
     // game's own number has no word: it is read from the tool's query (`level=3`)
     read: (tool) => {
-      if (tool.type !== "interval-ears") return null;
+      // a chord-change game is the chord-changes ladder's
+      if (tool.type !== "interval-ears" || earKindOf(tool.query) === "change") return null;
       const n = tool.level ? INTERVAL_EARS_LEVELS[tool.level] : Number(/(?:^|&)level=(\d+)(?:&|$)/.exec(tool.query)?.[1]);
       return Number.isInteger(n) && n >= 1 ? String(Math.min(TOP_EAR_LEVEL, n)) : null;
     },
+  },
+  // the hearing-changes track's ladder: interval-ears asked for chord changes (kind "change"). The step is the game's own
+  // level, read from the tool's query as the game reads it (a level word is already written there as its number)
+  {
+    id: "chord-changes", label: "interval-ears chord-change levels", file: "src/lib/practice/earGame.ts",
+    steps: CHANGE_LEVELS.map((l) => ({ key: String(l.n), name: `Level ${l.n}`, holds: l.label })),
+    read: (tool) => (tool.type === "interval-ears" && earKindOf(tool.query) === "change" ? String(parseEarSettings(new URLSearchParams(tool.query)).level) : null),
   },
   byLevel("note-finder", "note-finder", "note-finder levels", (l) => {
     const { strings, from, to, naturals } = NOTE_FINDER_LEVELS[l];

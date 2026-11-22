@@ -3,19 +3,19 @@
 import type { ReactNode } from "react";
 import { Chip, DropdownSection, SettingsRow } from "@/components/ui";
 import { INTERVALS } from "@/lib/chordKit/intervals";
-import { EAR_LEVELS, activeAnswers, levelSemis, type Direction, type EarSettings } from "@/lib/practice/earGame";
+import { CHANGE_LEVELS, EAR_LEVELS, activeAnswers, levelSemis, type Direction, type EarSettings } from "@/lib/practice/earGame";
 import { DirectionChips } from "./DirectionChips";
 
 const DIRS: Direction[] = ["up", "down", "together"];
 const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
 
 /**
- * The ear game's own settings for intervals (Level, Intervals, Span, Direction); chord quality has none. Controlled:
+ * The ear game's own settings: for intervals Level, Intervals, Span and Direction, for chord changes Level; chord quality has none. Controlled:
  * `settings` and `onChange(patch)` are the host's. `look`: "bar" rows of a page's `SettingsPanel`, "menu" sections of a
  * sliders button.
  */
 export function EarGameSettings({ settings: s, onChange, look = "bar" }: { settings: EarSettings; onChange: (patch: Partial<EarSettings>) => void; look?: "bar" | "menu" }) {
-  if (s.kind !== "interval") return null;
+  if (s.kind === "chord") return null;
   const answers = activeAnswers(s);
   const toggleCustom = (semis: number) => {
     const cur = s.custom ?? levelSemis(s.level);
@@ -29,6 +29,8 @@ export function EarGameSettings({ settings: s, onChange, look = "bar" }: { setti
   const row = (label: string, info: string, chips: ReactNode) => look === "bar"
     ? <SettingsRow label={label} info={info}>{chips}</SettingsRow>
     : <DropdownSection title={label} info={info}><div className="flex flex-wrap gap-1.5">{chips}</div></DropdownSection>;
+  if (s.kind === "change") return row("Level", "Each level adds chords to the ones before. Start with IV and V, the 4 and 5 chords, then add vi, the 6 chord. A capital numeral is a major chord and a small one is minor.",
+    CHANGE_LEVELS.map((l) => <Chip key={l.n} on={s.level === l.n} onClick={() => onChange({ level: l.n })} title={l.label}>{l.n}</Chip>));
   return (
     <>
       {row("Level", "Each level adds intervals to the ones before. Start with the 5th and octave, the most open sounds, then the 3rds that make chords major or minor. Custom lets you pick your own.", <>

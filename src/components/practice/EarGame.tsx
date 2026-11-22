@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import MiniPiano from "@/components/theory/MiniPiano";
 import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
-import { playMelody, strum } from "@/features/sound";
-import { CHORD_QUALITIES, activeAnswers, nextEarQuestion, recordScore, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
+import { playMelody, playSequence, strum } from "@/features/sound";
+import { CHORD_QUALITIES, KEY_CHORDS, activeAnswers, nextEarQuestion, recordScore, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import Icon from "@/components/Icon";
 import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, writeQuery } from "./shared";
 import { useToolKeys } from "./toolKeys";
@@ -18,21 +18,43 @@ import { EarGameSettings } from "./EarGameSettings";
 const KINDS: { id: EarSettings["kind"]; title: string; about: string }[] = [
   { id: "interval", title: "Intervals", about: "Hear two notes and name the gap between them." },
   { id: "chord", title: "Chord quality", about: "Hear a chord and name its kind." },
+  { id: "change", title: "Chord changes", about: "Hear the 1 chord, then another chord of the key, and name the second one." },
 ];
 
 /** The keys that pick an answer, in the order the answers are drawn. */
 const ANSWER_KEYS = "1234567890-=";
 
 const settingsQuery = (s: EarSettings) =>
-  new URLSearchParams({ kind: s.kind, level: String(s.level), dir: s.direction, ...(s.custom ? { set: s.custom.join(",") } : {}), ...(s.wide ? { wide: "1" } : {}) }).toString();
-const labelOf = (answer: string) => CHORD_QUALITIES.find((c) => c.id === answer)?.label ?? INTERVALS.find((i) => i.short === answer)?.name ?? answer;
+  new URLSearchParams({ kind: s.kind, level: String(s.level), dir: s.direction, ...(s.custom ? { set: s.custom.join(",") } : {}), ...(s.wide ? { wide: "1" } : {}), ...(s.qualities ? { qualities: s.qualities.join(",") } : {}) }).toString();
+const chordOf = (answer: string) => KEY_CHORDS.find((c) => c.numeral === answer);
+/** An answer in words: a chord's kind, an interval's name, or a numeral with its number ("IV, the 4 chord"). */
+const labelOf = (answer: string) => CHORD_QUALITIES.find((c) => c.id === answer)?.label ?? INTERVALS.find((i) => i.short === answer)?.name ?? (chordOf(answer) ? `${answer}, the ${chordOf(answer)!.degree} chord` : answer);
+
+/** How long each chord of a change rings before the next, and how long the last one rings. */
+const CHANGE_MS = 1200, CHANGE_LAST_MS = 1800;
 
 function play(q: EarQuestion) {
-  if (q.together) strum(q.midi, { gapMs: 0, holdMs: 1600 });
+  // a chord change: each chord struck whole, one after another
+  if (q.chords) playSequence(q.chords.flatMap((chord, i, all) => chord.map((note) => ({ note, at: i * CHANGE_MS, hold: i === all.length - 1 ? CHANGE_LAST_MS : CHANGE_MS * 0.92 }))));
+  else if (q.together) strum(q.midi, { gapMs: 0, holdMs: 1600 });
   else playMelody(q.midi, 650);
 }
 
-/** Interval and chord-quality ear training. Settings live in the URL so a teacher can share a set-up. */
+/**
+ * The keys lit once a question is answered. An interval or a chord: its notes, the first one white and marked "1st". A
+ * chord change: the second chord in amber, its root marked with the chord's number, and the rest of the 1 chord in white,
+ * its root marked 1.
+ */
+function litKeys(q: EarQuestion) {
+  if (!q.chords) return q.midi.map((m, i) => ({ midi: m, label: i === 0 ? "1st" : "", colour: i === 0 ? "#f8fafc" : "#f59e0b" }));
+  const [home, second] = q.chords;
+  return [
+    ...second.map((m, i) => ({ midi: m, label: i === 0 ? String(chordOf(q.answer)?.degree ?? "") : "", colour: "#f59e0b" })),
+    ...home.filter((m) => !second.includes(m)).map((m) => ({ midi: m, label: m === home[0] ? "1" : "", colour: "#f8fafc" })),
+  ];
+}
+
+/** Interval, chord-quality and chord-change ear training. Settings live in the URL so a teacher can share a set-up. */
 export default function EarGame({ initial, syncUrl = true, bare = false }: { initial: EarSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: no settings panel */ bare?: boolean }) {
   useCoverage({ hints: 4 });
   const [s, setS] = useState(initial);
@@ -96,9 +118,9 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
 
   const total = Object.values(score).reduce((n, v) => n + v.total, 0);
   const right = Object.values(score).reduce((n, v) => n + v.right, 0);
-  const prompt = !q ? (s.kind === "chord" ? "A chord plays. Name its kind." : "Two notes play. Name the gap between them.")
+  const prompt = !q ? (s.kind === "chord" ? "A chord plays. Name its kind." : s.kind === "change" ? "Two chords play: the 1 chord, then another chord of the key. Name the second one." : "Two notes play. Name the gap between them.")
     : "Replay it as often as you like, then pick an answer.";
-  const question = !q ? "Press Start and listen." : answered ? (answered.ok ? "Right!" : "Not quite.") : s.kind === "chord" ? "What kind of chord?" : "Which interval?";
+  const question = !q ? "Press Start and listen." : answered ? (answered.ok ? "Right!" : "Not quite.") : s.kind === "chord" ? "What kind of chord?" : s.kind === "change" ? "Which chord came second?" : "Which interval?";
 
   /** Key caps only where the keys work: on the tool that has them, not on touch screens. */
   const cap = (key: string) => keys.armed && <KeyCap className="hidden md:inline">{key}</KeyCap>;
@@ -121,7 +143,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
           <div className="min-w-0">
             {bare && (
               <div className="mb-2 flex flex-wrap items-center gap-1.5" aria-label="Set up as">
-                {s.kind === "chord" ? <SetupTag tone="violet">Chord quality</SetupTag> : (() => {
+                {s.kind === "chord" ? <SetupTag tone="violet">Chord quality</SetupTag> : s.kind === "change" ? <SetupTag tone="violet">Chord changes</SetupTag> : (() => {
                   const d = DIRECTIONS[s.direction];
                   return <>
                     <SetupTag tone="amber"><span aria-hidden className="text-sm leading-none">{d.mark}</span>{d.label}</SetupTag>
@@ -160,7 +182,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
         {laid && (
           <div aria-hidden={!answered || undefined} className={`flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300 ${answered ? "" : "invisible"}`}>
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}
-            <div className="max-w-md"><MiniPiano from={pianoFrom(laid.midi)} octaves={Math.max(...laid.midi) - pianoFrom(laid.midi) >= 24 ? 3 : 2} lit={laid.midi.map((m, i) => ({ midi: m, label: i === 0 ? "1st" : "", colour: i === 0 ? "#f8fafc" : "#f59e0b" }))} /></div>
+            <div className="max-w-md"><MiniPiano from={pianoFrom(laid.midi)} octaves={Math.max(...laid.midi) - pianoFrom(laid.midi) >= 24 ? 3 : 2} lit={litKeys(laid)} /></div>
           </div>
         )}
       </Stage>

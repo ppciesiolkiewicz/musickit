@@ -17,7 +17,7 @@ import { PLAN_DAYS, type PlanAnswers, type PlanExercise, type StoredPlan } from 
 
 
 /** The version of the prompt, its authoring guide and the page's tools for the browser's AI: raised with an entry in `CHANGELOG.md` beside this file (see "Version" in AGENTS.md). */
-export const PROMPT_VERSION = 10;
+export const PROMPT_VERSION = 11;
 
 /** The student section's lines: per area a rough level and the line they picked for each topic, then voice, time, notes, styles. */
 function studentLines(a: PlanAnswers): string[] {
@@ -196,7 +196,7 @@ export function promptPartsWith(answers: PlanAnswers | null, entries: CatalogueE
       "- Playing a line on the guitar: guitar-play-along with melody (a tune from the book), arpeggio-part (part of each chord's arpeggio), chord-steps (degrees, grips and strums per chord, a riff) or two-scales (one scale, then the other). Improvising with a chord struck on beat 1: solo-over with a \"stab\" grip on each chord.",
       "- Technique for the hands: finger-pattern (fingers on frets, dexterity), picking-drill (alternate picking, string skipping), legato-trill (hammer-ons and pull-offs).",
       "- Singing: staff with the mic for notes of a scale or chord; melody-singer for a tune; run-singer for a run that climbs a semitone each pass; interval-singer for a named interval from Do; string-singer for the guitar's open strings. Breathing before or apart from singing: breathwork (no mic). Warming up the voice: lip-roll (a slide from head voice to chest voice, a siren or one note, heard and then lip rolled back) and voice-hill (one easy sound held low, in the middle or light and high); a singer's warm-up can take one of each before the first tune, a new singer the low places first.",
-      "- Ears, listening only: interval-ears to name intervals or chords.",
+      "- Ears, listening only: interval-ears. Its \"kind\" says what the student names: an interval (the default), a chord's kind (\"chord\"; \"qualities\" picks which kinds are asked, for diminished, augmented, sus, add9, 9, 13 and dim7 chords), or a chord change (\"change\"): the I chord plays, then one other chord of the key, and the student picks the second chord's numeral. Hearing chord changes with the answer checked is interval-ears with \"kind\": \"change\", its \"level\" written as the game's own number (1 asks IV and V, 2 adds vi); a backing-track is for following the changes inside a whole progression, with no check. The text names the game's answers as its buttons show them, with the plain word beside each the first time (\"pick IV for the 4 chord or V for the 5 chord\").",
       "- Rhythm with no notes: clap-along, a one-bar rhythm the student claps, taps or strums on muted strings while the tool marks how close to the beat each hit lands. Its \"level\" picks the rhythm (quarters, eighths, sixteenths, then hits off the beat). The text counts the rhythm aloud the way the tool writes it (\"1 & 2 &\").",
       "- The same drill again faster or in another key: \"moves\" on the exercise, never a choice. The app brings the next key or tempo when the student is ready.",
       "- The same drill again in another position, another scale or at the next level: a section with a \"choice\" of options in its header; the tools inside follow the chip the student picks.",

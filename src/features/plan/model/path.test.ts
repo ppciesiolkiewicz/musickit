@@ -80,6 +80,23 @@ test("the beat track: a clap-along's level is its step, while it plays the level
   assert.equal(stepOf("beat", [clap({ level: "beginner", pattern: "folk" })]), null);
 });
 
+test("hearing changes: an interval-ears asked for chord changes says its step by the game's level; the other kinds say none", () => {
+  const ears = (props: Record<string, unknown>) => parseTool({ type: "interval-ears", ...props })!;
+  const track = PATH.find((t) => t.id === "hearing-changes")!;
+  assert.deepEqual(track.steps.map((s) => s.ladder ?? null), [null, "chord-changes:1", "chord-changes:2", null, null]);
+  assert.equal(stepOf("hearing-changes", [ears({ kind: "change", level: 1 })]), 1);
+  assert.equal(stepOf("hearing-changes", [ears({ kind: "change" })]), 1);
+  assert.equal(stepOf("hearing-changes", [ears({ kind: "change", level: 1 }), ears({ kind: "change", level: 2 })]), 2);
+  assert.equal(stepOf("hearing-changes", [ears({ kind: "change", level: "intermediate" })]), 2);
+  // levels 3 to 5 (ii, iii, vii°) have no step on the track yet
+  assert.equal(stepOf("hearing-changes", [ears({ kind: "change", level: 4 })]), null);
+  assert.equal(stepOf("hearing-changes", [ears({ level: 2 })]), null);
+  assert.equal(stepOf("hearing-changes", [ears({ kind: "chord" })]), null);
+  // and a chord-change game is no step of the intervals track
+  assert.equal(stepOf("intervals", [ears({ kind: "change", level: 2 })]), null);
+  assert.equal(stepOf("intervals", [ears({ level: 2 })]), 1);
+});
+
 test("predecessorsOf: the step before it, then its `after` steps", () => {
   assert.deepEqual(predecessorsOf("open-chords:1"), []);
   assert.deepEqual(predecessorsOf("open-chords:2"), ["open-chords:1"]);

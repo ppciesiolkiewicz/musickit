@@ -350,8 +350,8 @@ export const PATH: Track[] = [
   ]),
   t("ear", "hearing-changes", "Hearing chord changes", ["hearing-changes"], [
     s(B, "When the chord changes", ""),
-    s(I, "1, 4 or 5", "", { after: ["chords-of-a-key:1"] }),
-    s(I, "The 6 too", "", { after: ["chords-of-a-key:2"] }),
+    s(I, "1, 4 or 5", "", { ladder: "chord-changes:1", after: ["chords-of-a-key:1"] }),
+    s(I, "The 6 too", "", { ladder: "chord-changes:2", after: ["chords-of-a-key:2"] }),
     m(I, "1, 4, 5 and 6", "in any order, in a new key"),
     s(A, "A song's chords by ear", ""),
   ]),

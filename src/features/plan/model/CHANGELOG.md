@@ -10,6 +10,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 11 (2026-11-22)
+
+- `interval-ears` has a third `kind`, `"change"` (MissingTools3): the I chord plays, then one other chord of a major key, and the student picks the second chord's numeral. Its `level` is the game's own number 1-5 (1 IV and V, 2 adds vi, 3 ii, 4 iii, 5 vii°) or a word (new and beginner 1, intermediate 2, advanced 5).
+- `interval-ears` with `kind` `"chord"` takes `qualities`, the chord kinds to ask: the five it had, and now `dim`, `aug`, `sus2`, `sus4`, `add9`, `9`, `13` and `dim7`. Left out, it asks the first five as before.
+- "Which tool for what": the ears line says what each kind is for, that a chord change with the answer checked is interval-ears and not a backing-track, and that the text names the game's answers as its buttons show them.
+- The list of each concept's steps is unchanged; `hearing-changes:2` and `hearing-changes:3` now have a tool level standing for them.
+
 ### 10 (2026-11-22)
 
 - A new tool, `clap-along` (MissingTools2): a one-bar rhythm to clap, tap or strum on muted strings, each hit marked by how close to the beat it lands. Props `level`, `pattern`, `bpm`, `bars`, `input`.

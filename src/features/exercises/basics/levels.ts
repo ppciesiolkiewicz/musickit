@@ -25,6 +25,9 @@ export const INTERVAL_SINGER_LEVELS: Ladder<{ intervals: number[]; dir: "up" | "
 /** interval-ears: the game's own level 1-6 (`EAR_LEVELS`, each adds intervals to the ones before). */
 export const INTERVAL_EARS_LEVELS: Ladder<number> = { new: 1, beginner: 2, intermediate: 4, advanced: 6 };
 
+/** interval-ears with kind "change": the game's own chord-change level 1-5 (`CHANGE_LEVELS`, each adds chords to the ones before): IV and V, with vi, then every chord of the key. */
+export const CHORD_CHANGE_LEVELS: Ladder<number> = { new: 1, beginner: 1, intermediate: 2, advanced: 5 };
+
 /** note-finder: the strings (as the game's letters, low E first), the frets, and whether only natural notes are asked. */
 export const NOTE_FINDER_LEVELS: Ladder<{ strings: string; from: number; to: number; naturals: boolean }> = {
   new: { strings: "E,A", from: 0, to: 5, naturals: true },
