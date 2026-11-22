@@ -28,3 +28,27 @@ test("the later lines say what to do: check this device's date and time", () => 
   assert.match(status, /Check this device&#x27;s date and time/);
   assert.doesNotMatch(status, /<button/);
 });
+
+// --- section headings (DayShape1)
+
+const laidOut = (sections: ("voice" | "guitar")[] | undefined) => {
+  const d = plan.config.days[0];
+  const areas = ["voice", "guitar"] as const;
+  const exercises = d.exercises.map((e, i) => ({ ...e, area: areas[i < 1 ? 0 : 1] }));
+  const day = { ...d, exercises, ...(sections ? { sections } : {}) };
+  return renderToStaticMarkup(
+    <DayPlan plan={{ ...plan, config: { ...plan.config, days: [day] } }} streak={null} controls={null} onAnother={() => {}} asking={false} none={false} anotherFailed={null} onRate={() => {}} times={[]} onTime={() => {}} onEdit={() => {}} onEditing={() => {}} corner={null} />,
+  );
+};
+
+test("a day laid out in two sections has each area's name above its exercises", () => {
+  const html = laidOut(["voice", "guitar"]);
+  assert.equal(html.match(/<h3[^>]*>Voice<\/h3>/g)?.length, 1);
+  assert.equal(html.match(/<h3[^>]*>Guitar<\/h3>/g)?.length, 1);
+  assert.ok(html.indexOf(">Voice</h3>") < html.indexOf(">Guitar</h3>"));
+});
+
+test("a day stored before sections, and a day of one section, draw with no area heading", () => {
+  assert.doesNotMatch(laidOut(undefined), /<h3[^>]*>(Voice|Guitar)<\/h3>/);
+  assert.doesNotMatch(laidOut(["guitar"]), /<h3[^>]*>(Voice|Guitar)<\/h3>/);
+});

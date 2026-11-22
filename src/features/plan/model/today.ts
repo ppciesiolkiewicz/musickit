@@ -1,8 +1,8 @@
 import { topicById } from "../intake/topics";
-import { conceptById } from "./concepts";
+import { AREAS, conceptById, type Area } from "./concepts";
 import type { ComposedDay } from "./compose";
 import { anotherDay, doneKey, newestWeekFirst, ownDay, startDay, teacherWeek, teacherWeekOn, teacherWeeks, upcomingTeacherWeek } from "./schedule";
-import type { PlanExercise, PlanState, StoredPlan } from "./types";
+import type { PlanDay, PlanExercise, PlanState, StoredPlan } from "./types";
 import type { ComposeResult } from "../store/composeClient";
 
 /*
@@ -49,6 +49,28 @@ export function dayWords(date: string, exercises: PlanExercise[]): { title: stri
   const labels = [...new Set(exercises.map(topicOf).filter((t): t is string => !!t))].map((id) => topicById(id)!.label);
   const words = labels.map((l, i) => (i === 0 ? l : inSentence(l)));
   return { title, theme: joined(words) };
+}
+
+const AREA_LABEL = new Map<Area, string>(AREAS.map((a) => [a.id, a.label]));
+
+/**
+ * The heading above each exercise of a day, by its place: the name of its area (`AREAS`: "Voice", "Guitar", "Theory &
+ * ear") where a run of exercises of one area starts, else null. Only a day the composer laid out in sections
+ * (`PlanDay.sections`) with exercises of two or more areas has any: a day of one area, a pasted plan and a day stored
+ * before sections get none and draw as they always did. An exercise with no area (one written in the day editor) stays
+ * under the heading before it.
+ */
+export function sectionHeads(day: Pick<PlanDay, "exercises" | "sections">): (string | null)[] {
+  const none = day.exercises.map(() => null);
+  if (!day.sections?.length) return none;
+  const areas = day.exercises.map((e) => (e.area && AREA_LABEL.has(e.area) ? e.area : null));
+  if (new Set(areas.filter((a) => a !== null)).size < 2) return none;
+  let under: Area | null = null;
+  return areas.map((a) => {
+    if (a === null || a === under) return null;
+    under = a;
+    return AREA_LABEL.get(a)!;
+  });
 }
 
 /** Whether a title is a composed day's date title (`dayWords`: "Wednesday 18 November"), which names the sharer's day once shared. */

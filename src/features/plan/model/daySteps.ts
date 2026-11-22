@@ -1,5 +1,6 @@
 import type { ProgressEntry } from "@/features/progress/log";
 import type { PlanAnswers } from "../intake/answers";
+import type { Area } from "./concepts";
 import { topicsFor } from "../intake/topics";
 import { scoringRows } from "./moves";
 import { SOLID_STARS, reachIndex } from "./outcome";
@@ -7,7 +8,8 @@ import { PATH, stepAt, type Track } from "./path";
 import { reach } from "./reach";
 
 /*
- * Which steps of the path one day's plan works on (NEW7). Pure: the composer picks library blocks for these.
+ * Which areas a day works on (DayShape1) and which steps of the path in them (NEW7). Pure: the composer picks library
+ * blocks for these, one section an area.
  * Nothing here blocks a player; `open` steps are only ahead because a topic's cap is full.
  */
 
@@ -44,12 +46,50 @@ export function solidRatedAt(entries: ProgressEntry[]): Map<string, string> {
 
 const dayNumber = (date: string) => { const n = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000); return Number.isNaN(n) ? 0 : n; };
 
-export function daySteps(input: { answers: PlanAnswers; solid: Map<string, string>; date: string }, tracks: Track[] = PATH): DaySteps {
+/** The order of a day's sections (DayShape1): voice first, then guitar, then theory. */
+export const DAY_ORDER: Area[] = ["voice", "guitar", "theory"];
+
+/** How many sections a day of these minutes has: one under 30 minutes, two from 30 to 49, three from 50. */
+export const sectionCount = (minutes: number): number => (minutes < 30 ? 1 : minutes < 50 ? 2 : 3);
+
+/** Which areas a day works on, and how the turn came out. */
+export interface DayAreas {
+  /** the day's areas, one section each, in `DAY_ORDER` */
+  areas: Area[];
+  /** the player's other areas, in the order the turn reaches them next */
+  rest: Area[];
+  /** the player's areas in `DAY_ORDER` */
+  picked: Area[];
+  /** how many sections the minutes give (`sectionCount`), never more than the areas picked */
+  count: number;
+  /** where in `picked` the day's turn starts: the day number modulo the areas picked */
+  turn: number;
+}
+
+/**
+ * The areas of one day (DayShape1): as many as the minutes give sections, never more than the player picked, and the
+ * turn moves one area on with each date, so a player with more areas than sections gets every area in turn.
+ */
+export function dayAreas(input: { answers: Pick<PlanAnswers, "areas" | "minutes">; date: string }): DayAreas {
+  const picked = DAY_ORDER.filter((a) => input.answers.areas.includes(a));
+  const count = Math.min(picked.length, sectionCount(input.answers.minutes));
+  const turn = picked.length ? dayNumber(input.date) % picked.length : 0;
+  const turned = [...picked.slice(turn), ...picked.slice(0, turn)];
+  const inDay = new Set(turned.slice(0, count));
+  return { areas: picked.filter((a) => inDay.has(a)), rest: turned.slice(count), picked, count, turn };
+}
+
+/**
+ * The steps of the path a day works on, in `areas`: one section's area for the composer (`dayAreas`), every area the
+ * player picked when left out.
+ */
+export function daySteps(input: { answers: PlanAnswers; solid: Map<string, string>; date: string; areas?: Area[] }, tracks: Track[] = PATH): DaySteps {
   const { answers, solid, date } = input;
-  const areas = new Set<string>(answers.areas);
+  const inAreas = input.areas ?? answers.areas;
+  const areas = new Set<string>(inAreas);
   const mine = (ref: string) => { const at = stepAt(ref, tracks); return at && areas.has(at.track.area) ? at.track.topic : null; };
   const marks = reach({ topics: answers.topics, solid: solid.keys() }, tracks);
-  const known = answers.areas.flatMap((a) => topicsFor(a).map((t) => t.id));
+  const known = inAreas.flatMap((a) => topicsFor(a).map((t) => t.id));
 
   const inReach = [...marks.values()].filter((s) => mine(s.ref) !== null);
   const freshRefs = inReach.filter((s) => s.mark === "reach").map((s) => s.ref);

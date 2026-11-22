@@ -60,6 +60,12 @@ export type PlanExercise = Block & ExerciseMeta & { id?: string; blockId?: strin
 export interface PlanDay {
   theme: string;
   exercises: PlanExercise[];
+  /**
+   * Set on a day the composer laid out in sections (DayShape1): the areas of its sections, in order. The page heads each
+   * run of exercises of one area with the area's name when there are two or more (`sectionHeads`, model/today.ts); the
+   * exercises themselves stay one flat list. Absent on a pasted plan and on a day stored before sections.
+   */
+  sections?: Area[];
 }
 
 /** The config the AI returns and the player pastes: always seven days. A composed plan (`startDay`) has one. */

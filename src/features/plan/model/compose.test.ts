@@ -6,6 +6,7 @@ import { composeDay, composeWeek, explainDay, rollSeed, type Candidate, type Com
 import { daySteps, solidRatedAt } from "./daySteps";
 import type { ProgressEntry } from "@/features/progress/log";
 import { PATH, type Track } from "./path";
+import type { Area } from "./concepts";
 import type { PlanExercise } from "./types";
 
 const guitar = PERSONAS.find((p) => p.id === "guitar-new")!.answers;
@@ -456,7 +457,8 @@ test("keys: with no answer the area's level decides, and the answer changes no p
 
 test("keys: the same answer is a different key in each area", () => {
   const voiceTrack: Track = { ...mk("v", "voice-pitch", 2), area: "voice" };
-  const answers = { ...guitar, areas: ["guitar", "voice"] as ("guitar" | "voice")[], minutes: 10, keys: 0 as const };
+  // 30 minutes: two sections, so guitar and voice are both in the day (DayShape1)
+  const answers = { ...guitar, areas: ["guitar", "voice"] as ("guitar" | "voice")[], minutes: 30, keys: 0 as const };
   const d = composeDay(base({ answers, blocks: [keyed("g", "a:1", "guitar"), keyed("s", "v:1", "voice")] }), [...AB, voiceTrack]);
   assert.deepEqual(d.exercises.find((e) => e.blockId === "g")!.given?.keys, { now: [9], back: [] }, "A on guitar");
   assert.deepEqual(d.exercises.find((e) => e.blockId === "s")!.given?.keys, { now: [0], back: [] }, "C for the voice");
@@ -570,4 +572,165 @@ test("versions: the first step a block names on the path decides its keys", () =
   const off = mover("m", "b:1");
   const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks: [{ ...off, exercise: { ...off.exercise, steps: ["nowhere:1", "b:1"] } }] }), KEYED);
   assert.deepEqual(givenOf(d, "m"), FIRST_PLAY, "the first step it names on the path decides");
+});
+
+// --- sections (DayShape1): a day is laid out by its minutes, one area a section
+
+const inArea = (area: Area, id: string, topic: string): Track => ({ ...mk(id, topic, 3), area });
+// one fresh step in each area at the start: v:1, g:1, t:1
+const VGT = [inArea("guitar", "g", "guitar-scales"), inArea("voice", "v", "voice-pitch"), inArea("theory", "t", "theory-basics")];
+const two = { ...guitar, areas: ["guitar", "voice"] as Area[] };
+const three = { ...guitar, areas: ["guitar", "voice", "theory"] as Area[] };
+const areaOfStep = (step: string): Area => VGT.find((t) => step.startsWith(`${t.id}:`))!.area;
+const areasOf = (d: { exercises: PlanExercise[] }) => d.exercises.map((e) => areaOfStep(e.steps![0]));
+const shape = (d: ReturnType<typeof composeDay>) => d.sections!.map((s) => [s.area, s.minutes, s.exercises.reduce((n, e) => n + e.minutes, 0)]);
+const lots = [...many("g:1", 12), ...many("v:1", 12), ...many("t:1", 12)];
+
+test("sections: 20 minutes with two areas is one area, and it turns from one date to the next", () => {
+  const on = (date: string) => composeDay(base({ answers: { ...two, minutes: 20 }, blocks: lots, date, seed: `p1:${date}:0` }), VGT);
+  const [a, b, c] = ["2026-11-18", "2026-11-19", "2026-11-20"].map(on);
+  assert.deepEqual(shape(a), [["guitar", 20, 20]]);
+  assert.deepEqual(shape(b), [["voice", 20, 20]]);
+  assert.deepEqual(shape(c), [["guitar", 20, 20]]);
+  assert.deepEqual(new Set(areasOf(a)), new Set(["guitar"]));
+  assert.deepEqual(new Set(areasOf(b)), new Set(["voice"]));
+  assert.equal(a.short, false);
+});
+
+test("sections: 40 minutes with two areas is two sections, voice then guitar, the minutes split evenly", () => {
+  const d = composeDay(base({ answers: { ...two, minutes: 40 }, blocks: lots }), VGT);
+  assert.deepEqual(shape(d), [["voice", 20, 20], ["guitar", 20, 20]]);
+  assert.deepEqual(areasOf(d), ["voice", "voice", "voice", "voice", "guitar", "guitar", "guitar", "guitar"]);
+  assert.deepEqual(d.exercises, d.sections!.flatMap((s) => s.exercises), "the flat list is the sections in order");
+  assert.equal(d.short, false);
+});
+
+test("sections: 60 minutes with three areas is three sections, voice, guitar, theory", () => {
+  const d = composeDay(base({ answers: { ...three, minutes: 60 }, blocks: lots }), VGT);
+  assert.deepEqual(shape(d), [["voice", 20, 20], ["guitar", 20, 20], ["theory", 20, 20]]);
+});
+
+test("sections: the thresholds are 30 and 50, and minutes that do not divide go to the first sections", () => {
+  const at = (minutes: number) => shape(composeDay(base({ answers: { ...three, minutes }, blocks: lots }), VGT)).map(([area, asked]) => [area, asked]);
+  // 2026-11-18 is day 20775: the turn of three areas starts at voice
+  assert.deepEqual(at(29), [["voice", 29]]);
+  assert.deepEqual(at(30), [["voice", 15], ["guitar", 15]]);
+  assert.deepEqual(at(45), [["voice", 23], ["guitar", 22]]);
+  assert.deepEqual(at(49), [["voice", 25], ["guitar", 24]]);
+  assert.deepEqual(at(50), [["voice", 17], ["guitar", 17], ["theory", 16]]);
+});
+
+test("sections: with more areas than sections every area gets its turn, always in the order voice, guitar, theory", () => {
+  const on = (date: string) => composeDay(base({ answers: { ...three, minutes: 45 }, blocks: lots, date }), VGT).sections!.map((s) => s.area);
+  assert.deepEqual(on("2026-11-18"), ["voice", "guitar"]);
+  assert.deepEqual(on("2026-11-19"), ["guitar", "theory"]);
+  assert.deepEqual(on("2026-11-20"), ["voice", "theory"]);
+});
+
+test("sections: one area is one section whatever the minutes", () => {
+  for (const minutes of [10, 15, 20, 30, 45, 60]) {
+    const d = composeDay(base({ answers: { ...guitar, minutes }, blocks: [...many("a:1", 8), ...many("b:1", 8)] }), AB);
+    assert.deepEqual(shape(d), [["guitar", minutes, d.exercises.length * 5]], String(minutes));
+    assert.equal(d.short, false, String(minutes));
+  }
+});
+
+test("sections: a section the library cannot fill gives its unused minutes to the next", () => {
+  const blocks = [...many("v:1", 2), ...many("g:1", 12)];
+  const { day, trace } = explainDay(base({ answers: { ...two, minutes: 40 }, blocks }), VGT);
+  assert.deepEqual(shape(day), [["voice", 20, 10], ["guitar", 20, 30]]);
+  assert.deepEqual(trace.sections.map((s) => [s.area, s.why, s.filled, s.unused]), [["voice", "turn", 10, 10], ["guitar", "turn", 30, 0]]);
+  assert.equal(day.short, false);
+});
+
+test("sections: minutes the last section cannot fill go back to the earlier ones", () => {
+  const blocks = [...many("v:1", 12), ...many("g:1", 2)];
+  const { day, trace } = explainDay(base({ answers: { ...two, minutes: 40 }, blocks }), VGT);
+  assert.deepEqual(shape(day), [["voice", 20, 30], ["guitar", 20, 10]]);
+  assert.deepEqual(areasOf(day), ["voice", "voice", "voice", "voice", "voice", "voice", "guitar", "guitar"]);
+  assert.deepEqual(trace.sections.map((s) => [s.filled, s.unused]), [[30, 0], [10, 10]]);
+  assert.equal(day.short, false);
+});
+
+test("sections: a day its area cannot fill gets a section for the player's next area, never an empty day", () => {
+  // 2026-11-18 is a guitar day for guitar and voice at 20 minutes
+  const { day, trace } = explainDay(base({ answers: { ...two, minutes: 20 }, blocks: many("v:1", 12) }), VGT);
+  assert.deepEqual(shape(day), [["voice", 0, 20]]);
+  assert.deepEqual(trace.sections.map((s) => [s.area, s.why, s.filled]), [["voice", "added", 20], ["guitar", "turn", 0]]);
+  assert.equal(day.short, false);
+  // 5 minutes under is not short: the day stays one area
+  const near = composeDay(base({ answers: { ...two, minutes: 20 }, blocks: [...many("g:1", 3), ...many("v:1", 12)] }), VGT);
+  assert.deepEqual(shape(near), [["guitar", 20, 15]]);
+});
+
+test("sections: review sits last in the section of its area", () => {
+  const solid = new Map([["g:1", "2026-11-01T10:00:00Z"], ["v:1", "2026-11-02T10:00:00Z"]]);
+  const blocks = [...many("g:1", 3), ...many("g:2", 6), ...many("v:1", 3), ...many("v:2", 6)];
+  const { day, trace } = explainDay(base({ answers: { ...two, minutes: 40 }, solid, blocks }), VGT);
+  assert.deepEqual(day.exercises.map((e) => e.steps![0]), ["v:2", "v:2", "v:2", "v:1", "g:2", "g:2", "g:2", "g:1"]);
+  assert.deepEqual(trace.sections.map((s) => [s.area, s.reviewCount, s.steps.review]), [["voice", 1, ["v:1"]], ["guitar", 1, ["g:1"]]]);
+  assert.equal(trace.minutes.reviewCount, 2);
+  assert.deepEqual(trace.picks.map((p) => p.section), ["voice", "voice", "voice", "voice", "guitar", "guitar", "guitar", "guitar"]);
+});
+
+test("sections: a planned review block still fits a third of the whole day", () => {
+  const solid = new Map([["v:1", "2026-11-02T10:00:00Z"]]);
+  // a third of 30 minutes is 10: the 10-minute review block fits the 15-minute voice section
+  const d = composeDay(base({ answers: { ...two, minutes: 30 }, solid, blocks: [cand("R10", ["v:1"], 10), ...many("v:2", 4), ...many("g:1", 4)] }), VGT);
+  assert.equal(ids(d.sections![0]).at(-1), "R10");
+});
+
+const keptIn = (area: Area, id: string, minutes: number): PlanExercise => ({ ...kept(id, minutes), area, steps: [`${area[0]}:1`] });
+
+test("sections: a kept exercise stays first in the section of its area and counts toward its minutes", () => {
+  const keep = [keptIn("guitar", "kg", 10)];
+  const d = composeDay(base({ answers: { ...two, minutes: 40 }, keep, blocks: lots }), VGT);
+  assert.deepEqual(shape(d), [["voice", 20, 20], ["guitar", 20, 20]]);
+  assert.equal(d.sections![1].exercises[0], keep[0]);
+  assert.equal(d.exercises[4], keep[0]);
+  assert.equal(d.exercises.length, 7);
+});
+
+test("sections: a kept exercise of an area with no section today stays in the day, ahead of the sections", () => {
+  const keep = [keptIn("theory", "kt", 5), keptIn("guitar", "kg", 10)];
+  const d = composeDay(base({ answers: { ...two, minutes: 40 }, keep, blocks: lots }), VGT);
+  assert.equal(d.exercises[0], keep[0]);
+  assert.deepEqual(d.sections!.map((s) => s.area), ["voice", "guitar"]);
+  assert.ok(d.sections!.every((s) => !s.exercises.includes(keep[0])));
+  assert.equal(d.sections![1].exercises[0], keep[1]);
+  // 40 minutes, 15 kept: 25 new, the voice section's 20 and 5 in the guitar section
+  assert.equal(total(d), 40);
+  assert.deepEqual(shape(d), [["voice", 20, 20], ["guitar", 20, 15]]);
+});
+
+test("sections: with every exercise rated, a fresh set for the whole minutes keeps the sections", () => {
+  const keep = [keptIn("voice", "kv", 20), keptIn("guitar", "kg", 20)];
+  const d = composeDay(base({ answers: { ...two, minutes: 40 }, keep, blocks: lots }), VGT);
+  assert.deepEqual(shape(d), [["voice", 20, 40], ["guitar", 20, 40]]);
+  assert.equal(d.sections![0].exercises[0], keep[0]);
+  assert.equal(d.sections![1].exercises[0], keep[1]);
+});
+
+test("sections: the same input gives the same sections", () => {
+  const input = base({ answers: { ...three, minutes: 60 }, blocks: lots });
+  assert.deepEqual(composeDay(input, VGT), composeDay(input, VGT));
+  assert.deepEqual(explainDay(input, VGT).trace, explainDay(input, VGT).trace);
+});
+
+test("sections: the trace says which areas the day got and why", () => {
+  const { trace } = explainDay(base({ answers: { ...two, minutes: 20 }, blocks: lots }), VGT);
+  assert.deepEqual(trace.areas, { picked: ["voice", "guitar"], count: 1, turn: 1 });
+  assert.deepEqual(trace.sections.map((s) => [s.area, s.why, s.asked, s.kept, s.filled, s.unused]), [["guitar", "turn", 20, 0, 20, 0]]);
+  assert.deepEqual(trace.sections[0].steps.fresh, ["g:1"]);
+});
+
+test("composeWeek: a 20-minute guitar-and-voice week turns the area day by day", () => {
+  const week = composeWeek({ answers: { ...two, minutes: 20 }, solid: none, blocks: lots, date: "2026-11-18", seed: "t" }, 4, VGT);
+  assert.deepEqual(week.map((d) => d.sections!.map((s) => s.area)), [["guitar"], ["voice"], ["guitar"], ["voice"]]);
+  assert.ok(week.every((d) => total(d) === 20));
+});
+
+test("composeWeek: a 40-minute week has both sections every day, voice first", () => {
+  const week = composeWeek({ answers: { ...two, minutes: 40 }, solid: none, blocks: [...many("g:1", 24), ...many("v:1", 24)], date: "2026-11-18", seed: "t" }, 3, VGT);
+  for (const d of week) assert.deepEqual(shape(d), [["voice", 20, 20], ["guitar", 20, 20]]);
 });

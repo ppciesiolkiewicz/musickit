@@ -1,5 +1,6 @@
 import { migrateAnswers } from "../intake/answers";
-import { EMPTY_STATE, type PlanState, type StoredPlan } from "./types";
+import { AREAS, type Area } from "./concepts";
+import { EMPTY_STATE, type PlanConfig, type PlanState, type StoredPlan } from "./types";
 import { cleanRating, type StarRating } from "@/features/progress/stars";
 import { withBlockIds, withExerciseIds } from "./exerciseIds";
 import { cleanAnswersHistory, movedOver } from "./answersHistory";
@@ -38,9 +39,25 @@ function cleanComposed(raw: unknown): StoredPlan["composed"] | null {
   return { attempt: c.attempt as number, declined: c.declined.filter((d): d is string => typeof d === "string"), short: c.short };
 }
 
-/** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, `hidden` only when true, `sharedBy` only when it is text (trimmed, at most `MAX_SHARER_NAME`), the timer's old `elapsed` and `spent` and an old whole-plan `review` dropped. */
+const AREA_IDS = new Set<string>(AREAS.map((a) => a.id));
+
+/** The plan's days with a stored `sections` made safe: its area ids kept, each once; dropped when it is no list or none is left. The same config when nothing changed. */
+function cleanSections(config: PlanConfig): PlanConfig {
+  let changed = false;
+  const days = config.days.map((d) => {
+    if (!d || !("sections" in d)) return d;
+    const { sections, ...rest } = d;
+    const areas = Array.isArray(sections) ? [...new Set(sections.filter((a): a is Area => typeof a === "string" && AREA_IDS.has(a)))] : [];
+    if (Array.isArray(sections) && areas.length > 0 && areas.length === sections.length) return d;
+    changed = true;
+    return areas.length ? { ...rest, sections: areas } : rest;
+  });
+  return changed ? { ...config, days } : config;
+}
+
+/** A plan with an id on every exercise (plans stored before ids get them here), its cells parsed again (`cleanExercise`), its ratings made safe (broken ones are dropped one by one), `from` kept only when it is text, `hidden` only when true, `sharedBy` only when it is text (trimmed, at most `MAX_SHARER_NAME`), the timer's old `elapsed` and `spent` and an old whole-plan `review` dropped, a day's `sections` kept only as area ids (`cleanSections`). */
 function cleanPlan(stored: StoredPlan): StoredPlan {
-  let p: StoredPlan = { ...stored, config: withBlockIds(cleanCells(withExerciseIds(stored.config))) };
+  let p: StoredPlan = { ...stored, config: cleanSections(withBlockIds(cleanCells(withExerciseIds(stored.config)))) };
   // the day timer's seconds were kept in the plan before they got their own store (`planTime.ts`); they are not read
   if ("elapsed" in p || "spent" in p) {
     p = { ...p };

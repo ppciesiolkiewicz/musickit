@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PAST_DAYS, applyAnother, applyFirst, dateLabel, dayWords, daysLabel, hasNewPicks, pageDate, pastDays, shouldAsk, taughtView, todayView } from "./today";
+import { PAST_DAYS, applyAnother, applyFirst, dateLabel, dayWords, daysLabel, hasNewPicks, pageDate, pastDays, sectionHeads, shouldAsk, taughtView, todayView } from "./today";
 import { ownDay, ratePlan, startDay } from "./schedule";
 import { EMPTY_STATE, type PlanState } from "./types";
 import type { ComposedDay } from "./compose";
@@ -222,4 +222,28 @@ test("taughtView: a week the teacher replaced (now in the history) is listed, ma
   const v = taughtView(s, "2026-11-18");
   assert.equal(v.kind === "week" && v.plan.id, "now", "the newer of two weeks on the same dates is drawn");
   assert.deepEqual(v.older.map((w) => [w.plan.id, w.replaced]), [["rotated", true], ["old", false]], "a composed day in the history is not a week");
+});
+
+// --- section headings (DayShape1)
+
+const inArea = (title: string, area?: PlanExercise["area"]) => ex(title, area ? { area } : {});
+
+test("sectionHeads: a day laid out in two sections has the area's name above the first exercise of each", () => {
+  assert.deepEqual(sectionHeads({ sections: ["voice", "guitar"], exercises: [inArea("a", "voice"), inArea("b", "voice"), inArea("c", "guitar"), inArea("d", "guitar")] }), ["Voice", null, "Guitar", null]);
+  assert.deepEqual(sectionHeads({ sections: ["guitar", "theory"], exercises: [inArea("a", "guitar"), inArea("b", "theory")] }), ["Guitar", "Theory & ear"]);
+});
+
+test("sectionHeads: none on a day stored before sections, on a pasted plan, or on a day of one area", () => {
+  const mixed = [inArea("a", "voice"), inArea("b", "guitar"), inArea("c", "voice")];
+  assert.deepEqual(sectionHeads({ exercises: mixed }), [null, null, null]);
+  assert.deepEqual(sectionHeads({ sections: [], exercises: mixed }), [null, null, null]);
+  assert.deepEqual(sectionHeads({ sections: ["guitar"], exercises: [inArea("a", "guitar"), inArea("b", "guitar")] }), [null, null]);
+  // two sections were asked for, but only one area has exercises
+  assert.deepEqual(sectionHeads({ sections: ["voice", "guitar"], exercises: [inArea("a", "guitar"), inArea("b", "guitar")] }), [null, null]);
+  assert.deepEqual(sectionHeads({ sections: ["voice", "guitar"], exercises: [] }), []);
+});
+
+test("sectionHeads: a kept exercise of another area and a run after an edit are headed too; one with no area stays under the heading before it", () => {
+  const day = { sections: ["voice", "guitar"] as ("voice" | "guitar")[], exercises: [inArea("k", "theory"), inArea("a", "voice"), inArea("own"), inArea("b", "voice"), inArea("c", "guitar"), inArea("d", "voice")] };
+  assert.deepEqual(sectionHeads(day), ["Theory & ear", "Voice", null, null, "Guitar", "Voice"]);
 });
