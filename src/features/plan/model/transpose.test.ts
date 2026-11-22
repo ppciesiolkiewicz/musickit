@@ -80,6 +80,9 @@ describe("transposeTool", () => {
     const clap = tool({ type: "clap-along", level: "new" });
     assert.equal(canTranspose(clap), false);
     assert.equal(transposeTool(clap, 5), clap);
+    const reading = tool({ type: "staff-reading", level: "new" });
+    assert.equal(canTranspose(reading), false);
+    assert.equal(transposeTool(reading, 5), reading);
     assert.equal(canTranspose(t), true);
   });
 });

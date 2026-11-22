@@ -77,5 +77,8 @@ export const DOUBLE_STOPS_NECK_LEVELS: Ladder<{ from: number; to: number }> = {
   advanced: { from: 0, to: 17 },
 };
 
+/** staff-reading: the set of notes asked, a `ReadingSet` of `staff-reading/reading.ts` (a test holds each to a set there). The lines, the spaces, the notes outside the staff, then all of them. */
+export const STAFF_READING_LEVELS: Ladder<"lines" | "spaces" | "ledger" | "all"> = { new: "lines", beginner: "spaces", intermediate: "ledger", advanced: "all" };
+
 /** legato-trill: the two fingers, the strong pair first and the weak pair last. */
 export const LEGATO_TRILL_LEVELS: Ladder<string> = { new: "12", beginner: "13", intermediate: "23", advanced: "34" };

@@ -1,0 +1,73 @@
+{
+  "id": "theory-intermediate-name-the-notes-on-ledger-lines",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 14,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track reading-staff (theory-basics), step 4, on the staff-reading game at level intermediate (the notes outside the treble staff, on and beside two ledger lines each way): first counted on from the staff's top and bottom lines, then read from two landmarks, middle C under the staff and A above it. It explains a ledger line in the text, since the word is not an explained word yet; the letters are written plain, as the buttons show them.",
+  "exercise": {
+    "title": "Name the notes above and under the staff",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "reading-staff"
+    ],
+    "why": "The letters carry on past the staff in the same order, line then space then line, so a note on a ledger line is read by counting on from the nearest line of the staff.",
+    "learnBefore": [
+      "/course/3/staff"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Count on from the staff",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "A note too high or too low for the staff sits just outside it: on a ledger line, a short line of its own, or in the space next to one. Press Start below to begin the game, and count each note on from the nearest line of the staff: up from F on the top line, or down from E on the bottom line. Then press its letter under the staff.\nAfter each answer the game says the note and where it sits, so check your count against it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff-reading",
+              "level": "intermediate"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Read from middle C",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Two notes are worth knowing on sight. The first ledger line under the staff is middle C, and the first ledger line above the staff is A. Press Start below to begin the game again, and read each note as a step from one of these two.\nKeep going until middle C and the high A need no counting, and their neighbours come one step behind them."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff-reading",
+              "level": "intermediate"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "reading-staff:4"
+      ],
+      "minutes": 6
+    }
+  ]
+}

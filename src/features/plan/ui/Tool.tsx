@@ -18,6 +18,7 @@ import { View as LipRoll } from "@/features/exercises/basics/lip-roll";
 import { View as Staff } from "@/features/exercises/basics/staff";
 import { View as StrumAlong } from "@/features/exercises/basics/strum-along";
 import { View as ClapAlong } from "@/features/exercises/basics/clap-along";
+import { View as StaffReading } from "@/features/exercises/basics/staff-reading";
 import { View as FingerPattern } from "@/features/exercises/basics/finger-pattern";
 import { View as LegatoTrill } from "@/features/exercises/basics/legato-trill";
 import { View as PickingDrill } from "@/features/exercises/basics/picking-drill";
@@ -107,6 +108,8 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <StrumAlong chords={tool.chords} bpm={tool.bpm} per={tool.per} beats={tool.beats} pattern={tool.pattern} />;
     case "clap-along":
       return <ClapAlong pattern={tool.pattern} bpm={tool.bpm} bars={tool.bars} input={tool.input} />;
+    case "staff-reading":
+      return <StaffReading clef={tool.clef} notes={tool.notes} mic={tool.mic} />;
     case "finger-pattern":
       return <FingerPattern fingers={tool.fingers} fret={tool.fret} strings={tool.strings} show={tool.show} bpm={tool.bpm} />;
     case "picking-drill":

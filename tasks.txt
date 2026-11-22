@@ -204,6 +204,47 @@ listens for the note sung or played (mic) as well as tapped. Ties to MissingTool
 sight-singing:1 and note-names:3, whose blocks have no reading drill today.
 [2026-11-22 decided, user] Answered by tapping the note-name buttons, and the player can also sing or play the note
 for the mic to hear ("Tap, plus mic"). No version on the guitar neck for now.
+[2026-11-22 done] Built as the plan tool `staff-reading` (branch claude/staff-reading).
+- The tool: one note at a time on the staff with "?" under it. The player presses its letter (seven buttons, C to B, or
+  the letter key), or switches on "Singing or playing it (mic)" and sings or plays the note. Every answer, right or
+  wrong, and Skip too, says the note and where it sits ("Yes, G, on the second line.", "Not A. It was G, on the second
+  line."), sounds it, leaves it on the staff with its name under it and asks the next one to its right; the last six
+  stay on the staff, and a named note sounds again on a tap. No score, no round, no end: it asks until the player
+  stops. Props: `level`, `notes` ("lines", "spaces", "staff" for both together, "ledger", "all"), `clef` ("treble",
+  "bass"), `mic` (the mic answer starts switched on). Natural notes only, no key signature.
+- The mic: a note of the right name in any octave counts, since a voice or a guitar sits an octave or two from the
+  written note. A wrong pitch is not a wrong answer (the mic hears stray sounds); only the right one answers. While
+  the tool itself sounds a note (1.5 s) the mic is not read, so the tool cannot answer itself.
+- No second staff: it draws on SingingStaff, which got one prop, `unnamed` (a note drawn where it sits with "?" in
+  place of its name). The pure game is exercises/basics/staff-reading/reading.ts, tested: the sets, the next note, the
+  answer, the words for a note's place; each note's place comes from the staff's own `place`.
+- Wiring: the props file, View, docs regenerated, STAFF_READING_LEVELS in levels.ts (new lines, beginner spaces,
+  intermediate ledger, advanced all), tools.ts (union, parser, LEVELED, levelProps), ui/Tool.tsx, transpose.ts (no
+  key), a tour of four steps, seven stories on /dev/stories in place of the stub, the prompt (PROMPT_VERSION 14,
+  changelog). No change in checks.ts: it sounds no beat and is no singing tool.
+- Path: a new theory track in the Basics topic after Note names, `reading-staff` ("Reading the staff"): Notes on the
+  lines (new) | Notes in the spaces (beginner) | Mix: lines and spaces | Ledger lines (intermediate) | Every note,
+  ledger lines too (advanced) | The bass clef (advanced). A `staff-reading` ladder in ladders.ts: in the treble clef
+  the step is the level's own notes, in the bass clef it is one step at any level; other `notes` beside a level say no
+  step. reading-staff:1 comes after note-names:1; note-names:3 now comes after reading-staff:2 and sight-singing:1
+  after reading-staff:1. The Basics topic has three tracks now, where it had two.
+- Blocks: theory-new-name-the-notes-on-the-lines (reading-staff:1), theory-beginner-name-the-notes-in-the-spaces
+  (reading-staff:2, its second section with the mic on), theory-intermediate-name-the-notes-on-ledger-lines
+  (reading-staff:4). All ✔ on seed check. The letters are written plain, as the buttons show them, not as note dots.
+Checked in the Vercel sandbox: the tests of exercises, plan/model, plan/intake, guide, devtools, library/seed,
+stage/model and theory; the full npm test (3343 of 3344 pass; only the known guide/coverage failure); tsc clean;
+eslint clean on the changed files; docs:exercises and gen:json-index leave no change; the three blocks ✔ on seed
+check. The lines and spaces of both clefs are held by the tool's own test (the theory calculator has no staff
+question). Not read on screen and not heard: no browser here, so the staff with one to six notes on it (the first
+note sits close to the clef), the "?" under a note, the tour, and whether the mic hears a sung or a played note are
+unchecked.
+Left: read and hear it on /dev/stories and /dev/library. MissingTools12 is not done: the plain `staff` tool is as it
+was. No block for the mix (reading-staff:3), every note (5) or the bass clef (6). No sharps or flats, no key
+signature, and no way to ask a hand-picked set of notes. A singer gets no starting note from the tool before the
+first answer. No version on the guitar neck (decided). The older blocks on note-names:3 and sight-singing:1 were
+not rewritten to use the tool. The questionnaire's line for Basics still reads "Steady beat, note names". Raising
+PROMPT_VERSION puts every older seed file behind on versions, as after each tool. Not seeded to the database
+(db:seed-blocks).
 [2026-11-18 done] Stubs on /dev/stories, section "Missing tools (stubs)", for the new tools: double-stops-neck (1),
 clap-along (2, with today's RhythmGame under it), chord-change-quiz (3), song-chart (8), vowel-guide (14), staff-reading
 (15). Each: what it does, what waits on it, what is open, planned props. In src/features/devtools/stories/stubs.ts; not in

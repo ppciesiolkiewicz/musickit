@@ -10,6 +10,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 14 (2026-11-22)
+
+- A new tool, `staff-reading` (MissingTools15): a game that draws one note on the staff for the student to name, by pressing its letter or, with the mic switched on, by singing or playing it in any octave. It says the note and where it sits and asks the next one; no score, no round. Natural notes only. Props `level`, `notes`, `clef`, `mic`.
+- "Which tool for what" has a line for it: reading notes from the staff is staff-reading; the text counts lines and spaces from the bottom as the game does and names the buttons by their letters; a staff never asks for a note's name.
+- It is in the list of tools that take a `level` (the lines, the spaces, the notes on ledger lines, then all of them) and in the tools allowed in a singing or a playing exercise alike.
+- The list of each concept's steps has a new track, `reading-staff` ("Reading the staff", in the Basics topic): Notes on the lines, Notes in the spaces, Mix: lines and spaces, Ledger lines, Every note, The bass clef. `note-names:3` now comes after `reading-staff:2` and `sight-singing:1` after `reading-staff:1`.
+
 ### 13 (2026-11-22)
 
 - A new tool, `song-chart` (MissingTools8): a whole song's chords and form as a chart, each section's bars under its name with every change on a bar line, played by the backing band after a bar of count-in, the bar playing lit. Props `key`, `sections`, `form`, `repeat`, `style`, `bpm`, `parts`, `hide`.

@@ -263,7 +263,7 @@ export const PATH: Track[] = [
     m(A, "every difficulty", "chords off"),
   ]),
   v("melodies", "sight-singing", "Sight-singing", ["sight-singing"], [
-    s(B, "Steps from the staff", "", { after: ["tunes:1"] }),
+    s(B, "Steps from the staff", "", { after: ["tunes:1", "reading-staff:1"] }),
     s(I, "Skips from the staff", "", { after: ["note-names:3"] }),
     s(I, "Rhythm from the staff", "eighths and rests"),
     s(A, "A new tune from the staff", ""),
@@ -328,8 +328,16 @@ export const PATH: Track[] = [
   t("basics", "note-names", "Note names", ["note-names"], [
     s(N, "A to G", "the seven letters"),
     s(B, "Sharps and flats", ""),
-    s(B, "Notes on the staff", "treble clef"),
+    s(B, "Notes on the staff", "treble clef", { after: ["reading-staff:2"] }),
     s(A, "Name notes quickly", ""),
+  ]),
+  t("basics", "reading-staff", "Reading the staff", [], [
+    s(N, "Notes on the lines", "treble clef: E G B D F", { ladder: "staff-reading:lines", after: ["note-names:1"] }),
+    s(B, "Notes in the spaces", "treble clef: F A C E", { ladder: "staff-reading:spaces" }),
+    m(B, "lines and spaces", "the whole staff, in any order"),
+    s(I, "Ledger lines", "under and above the staff, middle C among them", { ladder: "staff-reading:ledger" }),
+    s(A, "Every note, ledger lines too", "in any order", { ladder: "staff-reading:all" }),
+    s(A, "The bass clef", "its lines, spaces and ledger lines", { ladder: "staff-reading:bass" }),
   ]),
   t("ear", "home-and-colour", "Home note & major/minor", ["do-as-home", "major-vs-minor"], [
     s(N, "Do as home", ""),

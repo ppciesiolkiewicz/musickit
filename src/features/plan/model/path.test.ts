@@ -172,7 +172,7 @@ test("the prerequisites the user named (2026-11-16)", () => {
 
 test("mixing steps: never first, never a ladder step, never pointed at by `after`, named Mix", () => {
   const mixes = PATH.flatMap((t) => t.steps.map((st, i) => ({ t, st, i }))).filter((x) => x.st.mix);
-  assert.equal(mixes.length, 34);
+  assert.equal(mixes.length, 35);
   for (const { t, st, i } of mixes) {
     assert.ok(i > 0 && !t.steps[i - 1].mix, `${t.id}:${i + 1} follows a new step`);
     assert.ok(!st.ladder && st.name.startsWith("Mix: "), `${t.id}:${i + 1}`);
@@ -196,6 +196,30 @@ test("intervals on the neck: a new guitar track in the Scales topic, and octave 
   // appended, so the steps blocks already name (guitar-melodies:1 to :5) keep their numbers
   assert.equal(tunes.steps[4].name, "Modal tunes");
   assert.deepEqual([tunes.steps[5].name, tunes.steps[5].after], ["Octave jumps", ["intervals-on-neck:1"]]);
+});
+
+test("reading the staff: a new theory track in the Basics topic, right after note names; a staff-reading's level is its step", () => {
+  const i = PATH.findIndex((t) => t.id === "reading-staff");
+  assert.equal(PATH[i - 1].id, "note-names");
+  const t = PATH[i];
+  assert.deepEqual([t.area, t.topic, t.merges, t.steps.map((x) => x.level)], ["theory", "theory-basics", [], ["new", "beginner", "beginner", "intermediate", "advanced", "advanced"]]);
+  assert.deepEqual(t.steps.map((s) => s.ladder ?? null), ["staff-reading:lines", "staff-reading:spaces", null, "staff-reading:ledger", "staff-reading:all", "staff-reading:bass"]);
+  // the letters first; then the steps that waited on the tool come after its first steps
+  assert.deepEqual(t.steps[0].after, ["note-names:1"]);
+  assert.deepEqual(stepAt("note-names:3")!.step.after, ["reading-staff:2"]);
+  assert.ok(stepAt("sight-singing:1")!.step.after!.includes("reading-staff:1"));
+  const read = (props: Record<string, unknown>) => parseTool({ type: "staff-reading", ...props })!;
+  assert.equal(stepOf("reading-staff", [read({ level: "new" })]), 0);
+  assert.equal(stepOf("reading-staff", [read({ level: "beginner", mic: true })]), 1);
+  assert.equal(stepOf("reading-staff", [read({ level: "new" }), read({ level: "intermediate" })]), 3);
+  assert.equal(stepOf("reading-staff", [read({ level: "advanced" })]), 4);
+  // the bass clef is one step, at any level
+  assert.equal(stepOf("reading-staff", [read({ level: "new", clef: "bass" })]), 5);
+  assert.equal(stepOf("reading-staff", [read({ level: "advanced", clef: "bass" })]), 5);
+  // raw notes, or other notes written beside a level (the mix of lines and spaces), say no step
+  assert.equal(stepOf("reading-staff", [read({ notes: "spaces" })]), null);
+  assert.equal(stepOf("reading-staff", [read({ level: "beginner", notes: "staff" })]), null);
+  assert.equal(stepOf("note-names", [read({ level: "beginner" })]), null);
 });
 
 test("levelOfSteps: the highest level of the steps, unknown refs skipped", () => {

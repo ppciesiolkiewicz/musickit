@@ -18,6 +18,7 @@ import { useLabelSystem } from "@/features/theory/useLabelSystem";
  * counted from the ladder's root. A ladder may repeat a note (a line of cues); `marks` puts text (a chord name) above
  * a note. A note has three looks: highlighted (`highlight`: ringed, bold labels), plain, and muted (`muted`: faint);
  * `hidden` leaves a note's slot empty (a note still to be found by ear), or with `question` a tappable "?" and those lines under it.
+ * `unnamed` keeps a note where it sits and writes "?" under it in place of its name and label (a note to name by reading it).
  */
 
 const HALF = 5; // px per staff step
@@ -44,7 +45,7 @@ const STILL: View = { dot: null, cam: 0, tail: [], lastHeard: -Infinity, now: 0,
 /** the ring round a "?" that fills as the voice holds the note */
 const HOLD_R = 15;
 
-export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden, question, greens, labels, hold }: {
+export default function SingingStaff({ ladder, clef, pitch, played, onNote, cents = IN_TUNE_CENTS, highlight, marks, muted, hidden, question, greens, unnamed, labels, hold }: {
   ladder: Ladder;
   clef: Clef;
   pitch: RefObject<number | null>;
@@ -64,6 +65,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
   question?: (i: number) => string[] | undefined;
   /** this note turns green at once while the voice is on it, and fades back when it leaves */
   greens?: (i: number) => boolean;
+  /** the note at this index is drawn where it sits with "?" under it, its name and label left out: a note to read */
+  unnamed?: (i: number) => boolean;
   /** labels the notes in this system instead of the user's setting */
   labels?: LabelSystem;
   /** how long the voice has held the note at `at`, 0 to 1, read every frame: a ring filling round its "?" */
@@ -204,11 +207,12 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
               const faint = muted?.(i) ?? false;
               const ringed = !faint && (highlight?.has(n.midi % 12) ?? false);
               const bold = lit || on || ringed ? 700 : 400;
+              const asked = unnamed?.(i) ?? false;
               return (
                 <g
                   key={i}
                   role="button"
-                  aria-label={`Play ${n.spelled.name}`}
+                  aria-label={asked ? "The note to name" : `Play ${n.spelled.name}`}
                   className="cursor-pointer"
                   opacity={faint ? 0.3 : 1}
                   onClick={() => onNote(i)}
@@ -222,8 +226,8 @@ export default function SingingStaff({ ladder, clef, pitch, played, onNote, cent
                   {lit && <circle cx={x} cy={y} r={12} fill={c} fillOpacity={0.18} stroke={c} strokeOpacity={0.7} />}
                   <ellipse cx={x} cy={y} rx={6.5} ry={5} fill={c} transform={`rotate(-20 ${x} ${y})`}
                     style={greens?.(i) ? { fill: lit ? DOT.in : c, transition: lit ? "fill 100ms" : "fill 900ms ease-out" } : undefined} />
-                  <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={11} fontWeight={bold} fill={on ? PLAYED : ink.name}>{n.spelled.name}</text>
-                  {system !== "note" && <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={bold} fill={lit ? c : on ? PLAYED : ink.degree}>{noteLabel(system, { name: n.spelled.name, semi: labelSemi(n.label), degreeText: n.label })}</text>}
+                  <text x={x} y={labelsY + 12} textAnchor="middle" fontSize={asked ? 14 : 11} fontWeight={asked ? 700 : bold} fill={on ? PLAYED : ink.name}>{asked ? "?" : n.spelled.name}</text>
+                  {system !== "note" && !asked && <text x={x} y={labelsY + 27} textAnchor="middle" fontSize={11} fontWeight={bold} fill={lit ? c : on ? PLAYED : ink.degree}>{noteLabel(system, { name: n.spelled.name, semi: labelSemi(n.label), degreeText: n.label })}</text>}
                   {marks?.[i] && <text x={x} y={12} textAnchor="middle" fontSize={11} fontWeight={600} fill={ink.name}>{marks[i]}</text>}
                 </g>
               );

@@ -38,6 +38,7 @@ const TOOL_TOUR_SOURCES: Record<ToolName, string[]> = (() => {
     "song-chart": [basics("song-chart"), "src/features/backing/ui/BackingTrack.tsx"],
     "strum-along": [basics("strum-along")],
     "clap-along": [basics("clap-along"), "src/features/rhythm/RhythmGame.tsx"],
+    "staff-reading": [basics("staff-reading")],
     "finger-pattern": [basics("finger-pattern"), drills],
     "picking-drill": [basics("picking-drill"), drills],
     "legato-trill": [basics("legato-trill"), drills],

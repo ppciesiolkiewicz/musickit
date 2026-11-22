@@ -15,11 +15,12 @@ import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/feat
 import { HILL_SOUNDS, HILL_WHERE, LIMITS as HILL_LIMITS, type HillSound, type HillWhere } from "@/features/exercises/basics/voice-hill/hill";
 import { LIP_ROLL_PLAYS, LIP_ROLL_SHAPES, LIP_ROLL_SPEEDS, LIMITS as LIP_ROLL_LIMITS, type LipRollPlay, type LipRollShape, type LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
 import { earKindOf, isQuality } from "@/lib/practice/earGame";
-import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
+import { CHORD_CHANGE_LEVELS, CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STAFF_READING_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
 import { MAX_BARS as CLAP_MAX_BARS, MAX_BPM as CLAP_MAX_BPM, MIN_BPM as CLAP_MIN_BPM, PATTERNS as CLAP_PATTERNS, isPatternId } from "@/features/rhythm/patterns";
 import { LIMITS as SONG_LIMITS, barChords, chordNumeral, type ChartSection } from "@/features/exercises/basics/song-chart/chart";
 import { DYAD_DEFAULT_STRINGS, DYAD_NAMES, LIMITS as DYAD_LIMITS, dyadStrings, isDyadName, type DyadName } from "@/features/exercises/basics/double-stops-neck/walk";
+import { READING_CLEFS, READING_SETS, isReadingClef, isReadingSet, type ReadingClef, type ReadingSet } from "@/features/exercises/basics/staff-reading/reading";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
@@ -131,6 +132,8 @@ type PlanToolProps =
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
   /** the rhythm game (`@/features/rhythm`): `pattern` is a pattern id there; `bars` absent: 4; `input` absent: Space or a tap */
   | { type: "clap-along"; pattern: string; level?: ToolLevel; bpm: number; bars?: number; input?: "mic" }
+  /** the staff-reading game (`staff-reading/reading.ts`): `notes` is the set asked; `mic`: the mic answer starts switched on */
+  | { type: "staff-reading"; clef: ReadingClef; notes: ReadingSet; level?: ToolLevel; mic?: true }
   /**
    * a published video of the library (`@/features/videos/library`), by its id; or, in a note, `ref`: a teacher's recording
    * kept in their browser, or a placeholder for a video to make later (the AI plan is not offered videos)
@@ -737,6 +740,16 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       return { type: "clap-along", pattern, bpm: intOr(d, "bpm", t.bpm, CLAP_MIN_BPM, CLAP_MAX_BPM, 80, true), ...(bars !== 4 ? { bars } : {}), ...(t.input === "mic" ? { input: "mic" as const } : {}) };
     },
   },
+  "staff-reading": {
+    parse(t, d) {
+      // both are optional (the treble clef's lines): only a wrong one is noted
+      const clef = isReadingClef(t.clef) ? t.clef : "treble";
+      if (clef !== t.clef) defaulted(d, "clef", t.clef, `it is ${READING_CLEFS.map((c) => `"${c}"`).join(" or ")}`, "treble", true);
+      const notes = isReadingSet(t.notes) ? t.notes : "lines";
+      if (notes !== t.notes) defaulted(d, "notes", t.notes, `it is ${READING_SETS.map((c) => `"${c}"`).join(", ")}`, "lines", true);
+      return { type: "staff-reading", clef, notes, ...(t.mic === true ? { mic: true as const } : {}) };
+    },
+  },
   video: {
     parse(t, d) {
       if (t.ref !== undefined) {
@@ -777,7 +790,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
 };
 
 /** The tools that take a `level`: a short way to write the settings in `levels.ts` (exercises). */
-const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "double-stops-neck"] as const;
+const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "double-stops-neck", "staff-reading"] as const;
 type LeveledName = (typeof LEVELED)[number];
 /** Whether a tool can be set to a level (`setLevel`). */
 export const hasLevel = (tool: PlanTool): tool is Extract<PlanTool, { type: LeveledName }> => (LEVELED as readonly string[]).includes(tool.type);
@@ -802,6 +815,7 @@ function levelProps(type: LeveledName, level: ToolLevel, t: Record<string, unkno
     case "legato-trill": return { fingers: LEGATO_TRILL_LEVELS[level] };
     case "clap-along": return { pattern: CLAP_ALONG_LEVELS[level] };
     case "double-stops-neck": return { ...DOUBLE_STOPS_NECK_LEVELS[level] };
+    case "staff-reading": return { notes: STAFF_READING_LEVELS[level] };
   }
 }
 

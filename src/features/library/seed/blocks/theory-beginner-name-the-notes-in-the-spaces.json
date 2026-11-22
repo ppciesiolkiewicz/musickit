@@ -1,0 +1,74 @@
+{
+  "id": "theory-beginner-name-the-notes-in-the-spaces",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 14,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track reading-staff (theory-basics), step 2, on the staff-reading game at level beginner (the four spaces of the treble clef): the spaces named by letter button, then the same notes answered by sound with the game's mic switched on (`mic`), any octave. The text asks for a sound from the voice or the instrument without telling the student to do both; the letters are written plain, as the buttons show them.",
+  "exercise": {
+    "title": "Name the notes in the four spaces",
+    "area": "theory",
+    "tags": [
+      "theory"
+    ],
+    "topic": "theory-basics",
+    "concepts": [
+      "reading-staff"
+    ],
+    "why": "A note in a space is the letter between the two lines round it, so the four spaces fill in the letters the five lines leave out.",
+    "learnBefore": [
+      "/course/3/staff"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The four spaces",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to begin the game: one note shows in a space of the staff with a ? under it. Count its space from the bottom space, then press its letter under the staff.\nFrom the bottom space up, the four spaces are F, A, C and E. If a space will not come, name the line under it and go one letter on."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff-reading",
+              "level": "beginner"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Answer with a sound",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "In the game below, Singing or playing it (mic) is already switched on, so you can answer with a sound: your voice or your instrument, in any octave. Press Start below to begin the game, find each note and let it ring until the game names it.\nThe letters under the staff still work when a note will not come. Keep going until you see a space and your hand or your voice is already on the note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "staff-reading",
+              "level": "beginner",
+              "mic": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "reading-staff:2"
+      ],
+      "minutes": 5
+    }
+  ]
+}

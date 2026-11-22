@@ -48,24 +48,4 @@ export const STUBS: StubSpec[] = [
       hand("ah to oo up through the break", { vowels: ["ah", "oo"], from: "A3", to: "E4", check: "mic" }),
     ],
   },
-  {
-    id: "staff-reading",
-    title: "staff-reading",
-    task: "MissingTools15",
-    what: "A note shows on the staff and the player names it with answer buttons, like note-finder on the neck. Levels: lines, then spaces, then ledger lines; treble first, bass later.",
-    waits: "sight-singing:1, note-names:3 (and MissingTools12: staff can't label its notes)",
-    open: "Whether a guitar player's version also plays the note on the neck, and whether it listens for the note sung or played (mic) as well as tapped.",
-    keywords: ["staff", "reading", "notation", "note names", "treble", "bass", "clef", "ledger", "quiz", "sight reading"],
-    props: [
-      p("clef", `"treble" | "bass"`, "Which staff (treble by default)."),
-      p("level", `"lines" | "spaces" | "ledger" | "all"`, "Which notes it asks.", true),
-      p("answer", `"buttons" | "mic" | "neck"`, "How the player answers (open, see above)."),
-      p("count", "number", "Notes in a round."),
-    ],
-    stories: [
-      hand("Treble lines", { clef: "treble", level: "lines" }),
-      hand("Treble spaces", { clef: "treble", level: "spaces" }),
-      hand("Bass, ledger lines", { clef: "bass", level: "ledger" }),
-    ],
-  },
 ];

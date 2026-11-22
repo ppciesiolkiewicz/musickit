@@ -2,10 +2,11 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { COMPONENT_DOCS, docOf } from "../docs";
 import { PATTERNS, isPatternId } from "@/features/rhythm/patterns";
-import { CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, TOOL_LEVELS } from "./levels";
+import { CLAP_ALONG_LEVELS, DOUBLE_STOPS_NECK_LEVELS, STAFF_READING_LEVELS, TOOL_LEVELS } from "./levels";
+import { READING_CLEFS, READING_SETS } from "./staff-reading/reading";
 import { DYAD_DEFAULT_STRINGS, DYAD_NAMES, LIMITS, dyadStrings } from "./double-stops-neck/walk";
 
-const NAMES = ["scale-neck", "chord-shapes", "staff", "backing-band", "note-finder", "interval-ears", "strum-along", "clap-along", "double-stops-neck", "song-chart"];
+const NAMES = ["scale-neck", "chord-shapes", "staff", "backing-band", "note-finder", "interval-ears", "strum-along", "clap-along", "double-stops-neck", "song-chart", "staff-reading"];
 
 describe("basics docs", () => {
   it("lists every basic", () => {
@@ -35,6 +36,14 @@ describe("basics docs", () => {
       assert.ok(level.includes(`frets ${from} to ${to}`), l);
       assert.ok(from >= LIMITS.minFret && to <= LIMITS.maxFret && to - from >= LIMITS.minSpan, l);
     }
+  });
+  it("staff-reading: the props list every set and clef, and the level prop says each level's set", () => {
+    const props = docOf("staff-reading")!.props;
+    const union = (name: string) => props.find((x) => x.name === name)!.type.split(" | ").map((x) => x.replace(/"/g, ""));
+    assert.deepEqual(union("notes"), [...READING_SETS]);
+    assert.deepEqual(union("clef"), [...READING_CLEFS]);
+    const level = props.find((x) => x.name === "level")!.description;
+    for (const l of TOOL_LEVELS) assert.ok(level.includes(`"${l}" ${STAFF_READING_LEVELS[l]}`), l);
   });
   it("clap-along: every level is a pattern of the rhythm game, and the pattern prop lists them all", () => {
     for (const l of TOOL_LEVELS) assert.ok(isPatternId(CLAP_ALONG_LEVELS[l]), l);
