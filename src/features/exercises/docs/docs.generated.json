@@ -1493,6 +1493,37 @@
     ]
   },
   {
+    "name": "staff-reading",
+    "kind": "basic",
+    "description": "A game for learning to read notes from the staff. One note is drawn on the staff with \"?\" under it and the student\nnames it: by pressing its letter (C D E F G A B, on the screen or the keyboard), or, with the mic switched on, by\nsinging it or playing it on an instrument, in any octave. The game then says the note and where it sits (\"G, on the\nsecond line.\"), the note keeps its place with its name under it, and the next note is asked to its right. A wrong\nletter gets the same line and the game moves on. There is no score and no round: it asks until the student stops.\nNatural notes only, no key signature. Use it whenever reading the staff is the exercise; a `staff` is for singing a\nscale with the mic, not for naming notes.\n\nExample: `{ \"type\": \"staff-reading\", \"level\": \"new\" }` asks the five lines of the treble clef, E G B D F.",
+    "props": [
+      {
+        "name": "level",
+        "type": "\"new\" | \"beginner\" | \"intermediate\" | \"advanced\"",
+        "required": false,
+        "description": "how hard, in one word; it sets `notes` where you leave it out: \"new\" lines, \"beginner\" spaces, \"intermediate\" ledger, \"advanced\" all. The next step inside a level: the other `clef`"
+      },
+      {
+        "name": "notes",
+        "type": "\"lines\" | \"spaces\" | \"staff\" | \"ledger\" | \"all\"",
+        "required": false,
+        "description": "which notes are asked: \"lines\" (the five lines), \"spaces\" (the four spaces), \"staff\" (lines and spaces together), \"ledger\" (the notes outside the staff: just under and just above it, and on or beside the first two ledger lines each way, middle C among them), \"all\" (every one of these); default \"lines\""
+      },
+      {
+        "name": "clef",
+        "type": "\"treble\" | \"bass\"",
+        "required": false,
+        "description": "the clef: \"treble\" (default; its lines are E G B D F from the bottom, its spaces F A C E) or \"bass\" (lines G B D F A, spaces A C E G)"
+      },
+      {
+        "name": "mic",
+        "type": "boolean",
+        "required": false,
+        "description": "the mic answer starts switched on: the student sings or plays each note and the letter buttons still work. The student can switch it on or off on the tool either way; default false"
+      }
+    ]
+  },
+  {
     "name": "string-singer",
     "kind": "basic",
     "description": "Sing the guitar's open strings to learn their pitches for tuning by ear, on a staff with the microphone, at the\nguitar's own pitch (E2 to E4): play it to hear the notes, tap one, then sing along a bar. Three drills: the strings one by one,\nneighbouring pairs (the intervals a guitar is tuned by), and the 5th-fret unisons (the lower string's 5th fret, the\n4th on G, is the next open string).",
