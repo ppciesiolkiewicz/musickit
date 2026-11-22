@@ -342,8 +342,9 @@ describe("tools", () => {
     // all five in their own order is the default and is not stored; another order is; a vowel twice is once
     assert.deepEqual(parseTool({ type: "vowel-guide", vowels: ["ah", "eh", "ee", "oh", "oo"] }), { type: "vowel-guide", climb: "one-note" });
     assert.deepEqual(parseTool({ type: "vowel-guide", vowels: ["oo", "ee", "oo"] }), { type: "vowel-guide", climb: "one-note", vowels: ["oo", "ee"] });
-    // the seconds are held to 2-6; what it can't read is defaulted or left out, and said
-    assert.deepEqual(parseTool({ type: "vowel-guide", seconds: 30 }), { type: "vowel-guide", climb: "one-note", seconds: 6 });
+    // seconds out of 2-6 are left out (the tool's 3); what it can't read is defaulted or left out, and said
+    assert.deepEqual(parseTool({ type: "vowel-guide", seconds: 30 }), { type: "vowel-guide", climb: "one-note" });
+    assert.deepEqual(parseTool({ type: "vowel-guide", seconds: 6 }), { type: "vowel-guide", climb: "one-note", seconds: 6 });
     const p = parseToolDiag({ type: "vowel-guide", climb: "top", vowels: ["ah", "uh"], voice: "robot" });
     assert.deepEqual(p.tool, { type: "vowel-guide", climb: "one-note", vowels: ["ah"] });
     assert.equal(p.notes.length, 2);
