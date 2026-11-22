@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { REST, STYLES, findStyle } from "@/features/backing/model";
 import { arrange } from "@/features/backing/model/arrange";
 import { docOf } from "../../docs";
-import { LIMITS, OPEN_CHORDS, barChords, chartChords, chartNumerals, chartStep, layChart } from "./chart";
+import { LIMITS, OPEN_CHORDS, barChords, chartChords, chartNumerals, chartStep, chordNumeral, layChart } from "./chart";
 
 const verse = { name: "Verse", bars: ["G", "G", "C", "G"] };
 const chorus = { name: "Chorus", bars: ["C", "D", "G", "Em D"] };
@@ -42,6 +42,18 @@ describe("song-chart: the chart", () => {
     }
     // a minor key counts from the major scale of its root
     assert.deepEqual(chartNumerals(layChart([{ name: "A", bars: ["Am", "G", "F", "E7"] }]).parts, "A").numerals, ["i", "bVII", "bVI", "V7"]);
+  });
+
+  it("voices a chord over another bass note as the chord, and a major 7th in brackets without them", () => {
+    assert.equal(chordNumeral("G/B", "C"), "V");
+    assert.equal(chordNumeral("C/E", "C"), "I");
+    assert.equal(chordNumeral("Am(maj7)", "C"), "viMaj7");
+    assert.equal(chordNumeral("Dm7", "C"), "ii7");
+    assert.equal(chordNumeral("Xyz", "C"), null);
+    const { numerals, unplayed } = chartNumerals(layChart([{ name: "Verse", bars: ["C", "G/B", "Am", "Am(maj7)"] }]).parts, "C");
+    assert.deepEqual(numerals, ["I", "V", "vi", "viMaj7"]);
+    assert.deepEqual(unplayed, []);
+    assert.equal(arrange(numerals, "C", findStyle("pop")).chords.length, 4);
   });
 
   it("a chord the band cannot voice keeps its bar as a rest and is named, once", () => {

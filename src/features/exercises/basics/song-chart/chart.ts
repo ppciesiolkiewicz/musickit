@@ -66,11 +66,11 @@ export function layChart(sections: readonly ChartSection[], form?: readonly stri
 
 /**
  * A chord as the band's numeral in `tonic`, or null when the band has no voicing for it. A chord over another bass note
- * ("G/B") is voiced as the chord itself, and a quality in brackets ("Am(maj7)") is read without them.
+ * ("G/B") is voiced as the chord itself, and a major 7th in brackets ("Am(maj7)") is read without them.
  */
 export function chordNumeral(chord: string, tonic: string): string | null {
   const plain = chord.replace(/\/[A-Ga-g][#b♯♭]?\s*$/, "");
-  const open = plain.replace(/\((maj7|Maj7|M7)\)/, "Maj7").replace(/[()]/g, "");
+  const open = plain.replace(/\((maj7|Maj7|M7)\)/, "Maj7");
   for (const c of [chord, plain, open]) {
     const n = numeralOfChord(c, tonic);
     if (n) return n;

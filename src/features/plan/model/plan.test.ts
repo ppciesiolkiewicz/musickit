@@ -275,6 +275,10 @@ describe("tools", () => {
     assert.match(parseToolDiag({ type: "song-chart", key: "g", sections: [] }).dropped!, /no sections/);
     assert.match(parseToolDiag({ type: "song-chart", key: "g", sections: [{ name: "Verse", bars: [] }] }).dropped!, /has no bars/);
     assert.match(parseToolDiag({ type: "song-chart", key: "g", sections: [{ name: "Verse", bars: Array(16).fill("G") }], form: Array(7).fill("Verse") }).dropped!, /112 bars long/);
+    // chords over another bass note and a bracketed major 7th are read, kept as written, and say nothing: the band voices them
+    const slash = parseToolDiag({ type: "song-chart", key: "c", sections: [{ name: "Verse", bars: ["C", "G/B", "Am", "Am(maj7)"] }] });
+    assert.deepEqual(slash.tool && slash.tool.type === "song-chart" && slash.tool.sections[0].bars, ["C", "G/B", "Am", "Am(maj7)"]);
+    assert.deepEqual(slash.notes, []);
     // a tempo choice and a key choice move it: the key and every chord, the names and the form stay
     assert.equal(canFollowPart(full, "bpm"), true);
     assert.equal(canFollowPart(full, "key"), true);
