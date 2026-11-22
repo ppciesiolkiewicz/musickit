@@ -52,6 +52,7 @@ const TOOL_TOUR_SOURCES: Record<ToolName, string[]> = (() => {
     "tunings": [basics("tunings")],
     "chord-circle": [basics("chord-circle")],
     "caged-neck": [basics("caged-neck")],
+    "double-stops-neck": [basics("double-stops-neck")],
   };
 })();
 

@@ -1,0 +1,103 @@
+{
+  "id": "guitar-beginner-thirds-up-two-strings",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 12,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track double-stops (guitar-caged), step 2, on the double-stops-neck tool at level beginner: 3rds on the G and B strings, frets 0 to 7. Tapped and copied one at a time, then up and back after Play, then with each chord's name said aloud. The text carries no frets: the neck shows them. It states its moves (any key) and mentions no selector.",
+  "exercise": {
+    "title": "{{=key}} major in 3rds on the G and B strings",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "double-stops"
+    ],
+    "why": "A 3rd on the G and B strings has only two shapes, both notes in one fret or the B string one fret lower, so a whole key is those two shapes moved along the two strings.",
+    "learnBefore": [
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Tap and copy",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the lowest double stop on the neck below to hear it, then play it: the G and B strings struck together.\nGo up the neck one double stop at a time, tapping it and then playing it, until your hand finds each one after a single look."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "double-stops-neck",
+              "key": "g",
+              "interval": "3rds",
+              "level": "beginner"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Up and back",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the 3rds up the neck and back down. Then play them yourself the same way, one double stop per slow beat.\nIf one sounds wrong, tap it on the neck and match what you hear."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "double-stops-neck",
+              "key": "g",
+              "interval": "3rds",
+              "level": "beginner"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Name the chords",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Each double stop is the lowest two notes of the chord named above it, and the ringed note, on the G string, is that chord's root. Play the 3rds up and back again, and say each chord's name as you play it.\nIn another key the frets and the names are new, and the 3rd of a major chord still has both notes in one fret."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "double-stops-neck",
+              "key": "g",
+              "interval": "3rds",
+              "level": "beginner"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/double-stops"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "double-stops:2"
+      ],
+      "moves": {
+        "key": "any"
+      },
+      "minutes": 6
+    }
+  ]
+}

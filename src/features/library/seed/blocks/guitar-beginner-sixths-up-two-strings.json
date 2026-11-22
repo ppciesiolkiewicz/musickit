@@ -1,0 +1,103 @@
+{
+  "id": "guitar-beginner-sixths-up-two-strings",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 12,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track double-stops (guitar-caged), step 3, on the double-stops-neck tool at level beginner: 6ths on the G and high e strings, frets 0 to 7. The B string kept silent first, then up and back after Play, then the root found on top. The text carries no frets: the neck shows them. It states its moves (any key) and mentions no selector.",
+  "exercise": {
+    "title": "{{=key}} major in 6ths on the G and high e strings",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "double-stops"
+    ],
+    "why": "A 6th is a 3rd turned over, with the chord's root moved to the top, and on the G and high e strings it has only two shapes: both notes in one fret, or the high e string one fret lower.",
+    "learnBefore": [
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Skip the B string",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Tap the lowest double stop on the neck below to hear it, then play it on the G and high e strings.\nThe B string between them stays silent: pick the G string and pluck the high e string with your middle finger at the same moment.\nGo up the neck one double stop at a time, until the B string stays quiet on every one."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "double-stops-neck",
+              "key": "g",
+              "interval": "6ths",
+              "level": "beginner"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Up and back",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to hear the 6ths up the neck and back down. Then play them yourself the same way, one double stop per slow beat.\nIf your hand loses its place, tap that double stop on the neck and start again from it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "double-stops-neck",
+              "key": "g",
+              "interval": "6ths",
+              "level": "beginner"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The root on top",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "In a 6th the ringed note, the root of the chord named above it, is the higher one, on the high e string. Play the 6ths up and back again, and say each chord's name as you play it.\nIn another key the frets and the names are new, and the root is still the note on the high e string."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "double-stops-neck",
+              "key": "g",
+              "interval": "6ths",
+              "level": "beginner"
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/double-stops"
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "double-stops:3"
+      ],
+      "moves": {
+        "key": "any"
+      },
+      "minutes": 6
+    }
+  ]
+}

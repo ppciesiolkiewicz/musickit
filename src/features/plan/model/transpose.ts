@@ -67,6 +67,7 @@ export function transposeTool(tool: PlanTool, by: number): PlanTool {
     case "tunings":
     case "chord-circle":
     case "caged-neck":
+    case "double-stops-neck":
     case "backing-band":
     case "backing-track":
     case "melody-singer":

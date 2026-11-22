@@ -80,6 +80,23 @@ test("the beat track: a clap-along's level is its step, while it plays the level
   assert.equal(stepOf("beat", [clap({ level: "beginner", pattern: "folk" })]), null);
 });
 
+test("the double-stops track: a double-stops-neck says its step by its interval low on the neck, one step up the neck", () => {
+  const ds = (props: Record<string, unknown>) => parseTool({ type: "double-stops-neck", key: "g", ...props })!;
+  const track = PATH.find((t) => t.id === "double-stops")!;
+  assert.deepEqual(track.steps.map((s) => s.ladder ?? null), [null, "double-stops-neck:3rds", "double-stops-neck:6ths", null, "double-stops-neck:up"]);
+  assert.equal(stepOf("double-stops", [ds({ interval: "3rds", level: "beginner" })]), 1);
+  assert.equal(stepOf("double-stops", [ds({ interval: "3rds", level: "new", scale: "natural-minor-aeolian" })]), 1);
+  assert.equal(stepOf("double-stops", [ds({ interval: "6ths", level: "beginner" })]), 2);
+  assert.equal(stepOf("double-stops", [ds({ interval: "3rds", level: "beginner" }), ds({ interval: "6ths", level: "beginner" })]), 2);
+  // up the neck is one step for either interval, on any pair of strings
+  assert.equal(stepOf("double-stops", [ds({ interval: "3rds", level: "intermediate" })]), 4);
+  assert.equal(stepOf("double-stops", [ds({ interval: "6ths", level: "advanced", strings: "42" })]), 4);
+  // low on the neck another pair of strings is no step; nor are raw frets, or frets written beside a level
+  assert.equal(stepOf("double-stops", [ds({ interval: "3rds", level: "beginner", strings: "21" })]), null);
+  assert.equal(stepOf("double-stops", [ds({ interval: "3rds", from: 0, to: 7 })]), null);
+  assert.equal(stepOf("double-stops", [ds({ interval: "3rds", level: "beginner", to: 12 })]), null);
+});
+
 test("hearing changes: an interval-ears asked for chord changes says its step by the game's level; the other kinds say none", () => {
   const ears = (props: Record<string, unknown>) => parseTool({ type: "interval-ears", ...props })!;
   const track = PATH.find((t) => t.id === "hearing-changes")!;

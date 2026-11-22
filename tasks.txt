@@ -37,6 +37,41 @@ TaskSeries MissingTools: tools and props the seed blocks needed and didn't have 
 Each says which steps wait on it. Continues NEW11 (rhythm tool, chord-change quiz, bends are weighed there).
 MissingTools1: a double-stops neck tool: 3rds and 6ths as pairs on two strings, in one key, up the neck
 (double-stops:2-4; today drawn with scale-neck and tab).
+[2026-11-22 done] Built as the plan tool `double-stops-neck` (branch claude/double-stops-neck).
+- The tool: the 3rds or 6ths of one key on one pair of strings, from one fret to another, on the double stops page's
+  neck with no settings. Each pair is joined by a line, its chord is named above it and that chord's root is ringed; a
+  tap sounds a pair and Play runs the walk up and back down (600 ms a pair, no metronome). Props: `key`, `scale`
+  (absent: the major scale), `interval` ("3rds" or "6ths"), `strings` (guitar numbers, the lower string first; absent:
+  "32" for 3rds, "31" for 6ths), `level`, `from`, `to`. The page's code is shared, not copied: OctaveNeck is exported
+  and its player is now the hook useDyadPlayer (components/chordKit/DoubleStopsExplorer.tsx); dyadLadder moved to
+  lib/chordKit/scaleChords.ts beside the new dyadWalk (the ladder between two frets), so no fret is worked out in the
+  view. /theory/double-stops is as it was.
+- Wiring: exercises/basics/double-stops-neck (props file, View, walk.ts for what the props may hold), docs
+  regenerated, DOUBLE_STOPS_NECK_LEVELS in levels.ts (new and beginner frets 0 to 7, intermediate 0 to 12, advanced
+  0 to 17: the level is how far up the neck, the interval and the strings are written beside it), tools.ts (union,
+  parser, LEVELED, levelProps; it follows a key, a scale and a level choice), ui/Tool.tsx, transpose.ts (its key
+  moves), a tour of two steps, six stories on /dev/stories in place of the stub, the stage's neck lists, the prompt
+  (PROMPT_VERSION 12, changelog). No change in checks.ts: it sounds no beat, so a tempo in the text still needs
+  another tool.
+- Path: a `double-stops-neck` ladder in ladders.ts with three steps, read from the tool while it holds its level's own
+  frets: double-stops:2 is 3rds on strings 3 and 2 low on the neck, double-stops:3 is 6ths on strings 3 and 1 low on
+  the neck, double-stops:5 (Up the neck in one key) is either interval on any pair at intermediate or advanced.
+  double-stops:1 (5ths) stays "not implemented"; double-stops:4 is a mixing step, which never names a ladder (a
+  mixing block uses the tool at the level of the steps before it).
+- Blocks: guitar-beginner-thirds-up-two-strings (double-stops:2), guitar-beginner-sixths-up-two-strings
+  (double-stops:3), guitar-intermediate-thirds-and-sixths-to-fret-12 (double-stops:5), each written in G with
+  `moves` key any, all ✔ on seed check.
+Checked in the Vercel sandbox: G major 3rds on 32 and 6ths on 31 against `npm run -s theory -- dyads G --interval 3
+--strings 32` and `--interval 6 --strings 31` (the walk's frets and the two shapes the blocks name); the tests of
+lib/chordKit, exercises, plan/model, guide, devtools, library/seed and stage/model; the full npm test (3316 of 3317 pass; only the known guide/coverage failure);
+tsc clean; eslint clean on the 20 changed files; docs:exercises and gen:json-index leave no change; the three blocks
+✔ on seed check. Not read on screen and not heard: no browser here, so the neck with 11 pairs on it (the chord names
+above sit in two rows and may crowd past fret 12), the tour and the sound of Play are unchecked.
+Left: read and hear it on /dev/stories and /dev/library. The three older blocks on double-stops:2, 3 and 5
+(guitar-beginner-thirds-on-strings-3-2, guitar-beginner-sixths-on-strings-3-1,
+guitar-intermediate-thirds-sixths-up-the-neck) run on guitar-play-along and scale-neck, so seed check now also says no tool of theirs sits on the step; they were already behind on versions and
+were not rewritten. No block for the mixing step with the new tool. The tool draws no 5ths or 4ths (the page does),
+has no tempo of its own and no fingering; Play has no Space key. Not seeded to the database (db:seed-blocks).
 MissingTools2: a rhythm or clap tool in the plan (beat:1-6; NEW11 item 1 has the plan for wiring src/features/rhythm).
 [2026-11-22 done] Built as the plan tool `clap-along` (branch claude/clap-along).
 - The tool: RhythmGame (src/features/rhythm) takes `bare` with `pattern`, `bpm`, `bars` and `input`: no picker and no

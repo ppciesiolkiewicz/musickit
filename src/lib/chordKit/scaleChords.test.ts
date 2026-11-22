@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { makeKeyContext } from "@/features/theory/theory";
 import { positionsFor } from "./scalePositions";
-import { degreeOfNumeral, diatonicDyads, dyadPairs, positionTriads, stringGroupOf, voicingKeys } from "./scaleChords";
+import { degreeOfNumeral, diatonicDyads, dyadLadder, dyadPairId, dyadPairOf, dyadPairs, dyadWalk, positionTriads, stringGroupOf, voicingKeys } from "./scaleChords";
 import { STRING_GROUPS } from "./triads";
 
 const C_MAJOR = makeKeyContext(0, 0, 0);
@@ -28,6 +28,37 @@ describe("diatonic double stops", () => {
   });
   it("every pair stays within 4 frets", () => {
     for (const [lo, hi] of dyadPairs(6)) for (const x of diatonicDyads(A_MINOR, 6, [lo, hi])) assert.ok(Math.abs(x.frets[0] - x.frets[1]) <= 4);
+  });
+});
+
+describe("double stops walked up two strings", () => {
+  const G_MAJOR = makeKeyContext(7, 0, 0);
+  it("the ladder climbs the scale one note at a time, each pair above the last", () => {
+    const l = dyadLadder(G_MAJOR, 3, [3, 4]);
+    assert.deepEqual(l[0].frets, [0, 0]);
+    l.slice(1).forEach((d, i) => {
+      assert.equal(d.degree, (l[i].degree + 1) % 7);
+      assert.ok(d.midi[0] > l[i].midi[0]);
+    });
+    // every pair is one `diatonicDyads` found
+    const all = diatonicDyads(G_MAJOR, 3, [3, 4]).map((d) => d.frets.join("-"));
+    assert.ok(l.every((d) => all.includes(d.frets.join("-"))));
+  });
+  it("a walk is the ladder between two frets: G major 3rds on the G and B strings, frets 0 to 7", () => {
+    assert.deepEqual(dyadWalk(G_MAJOR, 3, [3, 4], 0, 7).map((d) => d.frets), [[0, 0], [2, 1], [4, 3], [5, 5], [7, 7]]);
+    assert.deepEqual(dyadWalk(G_MAJOR, 3, [3, 4]), dyadLadder(G_MAJOR, 3, [3, 4]));
+    const mid = dyadWalk(G_MAJOR, 3, [3, 4], 5, 12);
+    assert.ok(mid.length > 0 && mid.every((d) => Math.min(...d.frets) >= 5 && Math.max(...d.frets) <= 12));
+    assert.deepEqual(dyadWalk(C_MAJOR, 6, [3, 5], 0, 7).map((d) => d.frets), dyadLadder(C_MAJOR, 6, [3, 5]).filter((d) => Math.max(...d.frets) <= 7).map((d) => d.frets));
+  });
+  it("a string pair by its guitar numbers, the lower string first", () => {
+    assert.equal(dyadPairId([3, 4]), "32");
+    assert.deepEqual(dyadPairOf("32", 3), [3, 4]);
+    assert.deepEqual(dyadPairOf("31", 6), [3, 5]);
+    assert.equal(dyadPairOf("32", 6), null);
+    assert.equal(dyadPairOf("31", 3), null);
+    assert.deepEqual(dyadPairs(3).map(dyadPairId), ["65", "54", "43", "32", "21"]);
+    assert.deepEqual(dyadPairs(6).map(dyadPairId), ["64", "53", "42", "31"]);
   });
 });
 

@@ -202,7 +202,7 @@ export const fillsColumn = (s: Subject): boolean =>
 export function hasNeck(s: Subject): boolean {
   switch (s.kind) {
     case "tool":
-      return ["scale-neck", "position-neck", "arpeggio-neck", "caged-neck"].includes(s.tool.type);
+      return ["scale-neck", "position-neck", "arpeggio-neck", "caged-neck", "double-stops-neck"].includes(s.tool.type);
     default:
       return false;
   }

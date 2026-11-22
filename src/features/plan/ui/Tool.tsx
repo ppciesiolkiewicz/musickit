@@ -33,6 +33,7 @@ import { View as Improvisation } from "@/features/exercises/basics/improvisation
 import { View as Tunings } from "@/features/exercises/basics/tunings";
 import { View as ChordCircle } from "@/features/exercises/basics/chord-circle";
 import { View as CagedNeck } from "@/features/exercises/basics/caged-neck";
+import { View as DoubleStopsNeck } from "@/features/exercises/basics/double-stops-neck";
 import type { PlanTool } from "../model/tools";
 import type { Voice } from "@/features/theory/singing";
 import type { ExternalInput } from "@/features/tuner";
@@ -129,6 +130,8 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
       return <ChordCircle pc={tool.key} scale={tool.scale} degree={tool.degree} />;
     case "caged-neck":
       return <CagedNeck pc={tool.key} scale={tool.scale} shapes={tool.shapes} />;
+    case "double-stops-neck":
+      return <DoubleStopsNeck pc={tool.key} scale={tool.scale} interval={tool.interval} strings={tool.strings} from={tool.from} to={tool.to} />;
     case "legato-trill":
       return <LegatoTrill fingers={tool.fingers} string={tool.string} fret={tool.fret} bpm={tool.bpm} />;
   }

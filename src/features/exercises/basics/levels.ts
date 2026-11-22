@@ -66,5 +66,16 @@ export const PICKING_DRILL_LEVELS: Ladder<{ strokes: string; notesPerString: num
 /** clap-along: the one-bar rhythm, a pattern id of `src/features/rhythm/patterns.ts` (a test holds each to a pattern there). The beat, two hits a beat, four a beat, then hits off the beat. */
 export const CLAP_ALONG_LEVELS: Ladder<string> = { new: "quarters", beginner: "eighths", intermediate: "sixteenths", advanced: "push" };
 
+/**
+ * double-stops-neck: how far up the neck the walk runs, as its first and last fret. Low on the neck, then one octave up
+ * the two strings, then as far as the neck is drawn. The interval and the string pair are the tool's own, not the level's.
+ */
+export const DOUBLE_STOPS_NECK_LEVELS: Ladder<{ from: number; to: number }> = {
+  new: { from: 0, to: 7 },
+  beginner: { from: 0, to: 7 },
+  intermediate: { from: 0, to: 12 },
+  advanced: { from: 0, to: 17 },
+};
+
 /** legato-trill: the two fingers, the strong pair first and the weak pair last. */
 export const LEGATO_TRILL_LEVELS: Ladder<string> = { new: "12", beginner: "13", intermediate: "23", advanced: "34" };

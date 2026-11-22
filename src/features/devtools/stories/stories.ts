@@ -73,6 +73,7 @@ export const KEYWORDS: Record<string, string[]> = {
   "tunings": ["tunings", "open tuning", "drop d", "strings", "guitar"],
   "chord-circle": ["sus", "extensions", "add9", "chord", "bubble", "harmony"],
   "caged-neck": ["caged", "shapes", "neck", "chords", "arpeggio", "guitar"],
+  "double-stops-neck": ["double stop", "double stops", "thirds", "sixths", "pairs", "harmony", "fretboard", "neck", "guitar"],
 };
 
 /** Every word of the query is somewhere in the text: "sing interval" finds interval-singer. */
@@ -153,6 +154,12 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "chord-circle", name: "C major, the V chord", props: {"key": "c", "scale": "major-ionian", "degree": 5} },
   { tool: "caged-neck", name: "G major, the whole neck", props: {"key": "g", "scale": "major-ionian"} },
   { tool: "caged-neck", name: "A minor, E and C shapes", props: { key: "a", scale: "natural-minor-aeolian", shapes: ["C", "E"] } },
+  { tool: "double-stops-neck", name: "Level beginner: G major 3rds on G and B, frets 0 to 7", props: { key: "g", interval: "3rds", level: "beginner" } },
+  { tool: "double-stops-neck", name: "Level beginner: C major 6ths on G and high e", props: { key: "c", interval: "6ths", level: "beginner" } },
+  { tool: "double-stops-neck", name: "Level intermediate: G major 3rds to fret 12", props: { key: "g", interval: "3rds", level: "intermediate" } },
+  { tool: "double-stops-neck", name: "Level advanced: A minor 6ths on D and B, the whole neck", props: { key: "a", scale: "natural-minor-aeolian", interval: "6ths", strings: "42", level: "advanced" } },
+  { tool: "double-stops-neck", name: "E major 3rds on B and high e, frets 5 to 12", props: { key: "e", interval: "3rds", strings: "21", from: 5, to: 12 } },
+  { tool: "double-stops-neck", name: "D dorian 3rds on the low E and A strings", props: { key: "d", scale: "dorian", interval: "3rds", strings: "65" } },
 ];
 
 const groupId = (tool: string, props: Props): string => {

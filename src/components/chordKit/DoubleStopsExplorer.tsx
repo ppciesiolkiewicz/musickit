@@ -5,7 +5,7 @@ import { SettingsPanel, SettingsRow, SettingsSection } from "@/components/ui";
 import { KeyRow, LabelsRow, PocketSection, ScaleFacts, keyAndScaleName, usePocketStatus } from "@/features/settings";
 import { useHeardNote } from "./heardNote";
 import { strum } from "@/lib/chordKit/playback";
-import { DYAD_STEPS, diatonicDyads, type Dyad, type DyadInterval } from "@/lib/chordKit/scaleChords";
+import { DYAD_STEPS, dyadLadder, type Dyad, type DyadInterval } from "@/lib/chordKit/scaleChords";
 import { SCALE_NECK_FRETS, scaleCells, type ScaleCell } from "@/lib/chordKit/scalePositions";
 import { DEFAULT_KEY_PC, makeKeyContext, type KeyContext } from "@/features/theory/theory";
 import { degreeColour, DOT_INK } from "@/features/theory/scales";
@@ -27,7 +27,7 @@ const INTERVALS: { id: DyadInterval; label: string }[] = [
   { id: 4, label: "4ths" },
 ];
 
-const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
+export const STRING_NAMES = ["E", "A", "D", "G", "B", "e"];
 /** the pair of strings for a root on string `s` (0 the low E): `s` and the string above it (two above for 6ths), or below it on the top strings */
 const pairFor = (s: number, interval: DyadInterval): [number, number] => {
   const gap = interval === 6 ? 2 : 1;
@@ -40,27 +40,10 @@ const STEP_COLOUR = [0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6];
 const HEARD = "#38bdf8";
 
 /**
- * The scale's double stops on one pair of strings, low to high along the whole neck: from the lowest one, each next
- * scale note's pair the nearest one above the last, until the neck runs out.
- */
-export function dyadLadder(ctx: KeyContext, interval: DyadInterval, strings: [number, number]): Dyad[] {
-  const all = diatonicDyads(ctx, interval, strings);
-  const start = [...all].sort((a, b) => a.midi[0] - b.midi[0])[0];
-  if (!start) return [];
-  const out = [start];
-  for (;;) {
-    const last = out[out.length - 1];
-    const next = all.filter((d) => d.degree === (last.degree + 1) % 7 && d.midi[0] > last.midi[0]).sort((a, b) => a.midi[0] - b.midi[0])[0];
-    if (!next) return out;
-    out.push(next);
-  }
-}
-
-/**
- * The whole neck lying down, low E at the bottom, with one octave of double stops on it. Each is two notes of the key's chord named above it, joined by a line in that chord's colour, and the chord's root is ringed: the lower note in 3rds and 5ths, the upper one in 6ths and 4ths.
+ * The whole neck lying down, low E at the bottom, with a run of double stops on it (one octave on the double stops page, a stretch of the neck in the double-stops-neck tool; `label` names it for a screen reader). Each is two notes of the key's chord named above it, joined by a line in that chord's colour, and the chord's root is ringed: the lower note in 3rds and 5ths, the upper one in 6ths and 4ths.
  * The two strings played are drawn bright, the rest faint; tap a double stop to hear it.
  */
-function OctaveNeck({ ctx, interval, strings, octave, lit, onPlay }: { ctx: KeyContext; interval: DyadInterval; strings: [number, number]; octave: Dyad[]; lit: number | null; onPlay: (i: number) => void }) {
+export function OctaveNeck({ ctx, interval, strings, octave, lit, onPlay, label = "One octave of double stops" }: { ctx: KeyContext; interval: DyadInterval; strings: [number, number]; octave: Dyad[]; lit: number | null; onPlay: (i: number) => void; label?: string }) {
   const [system] = useLabelSystem();
   // "Count from: Chord root" labels and colours each double stop's notes from its own chord's root
   const [from] = useLabelRoot();
@@ -74,7 +57,7 @@ function OctaveNeck({ ctx, interval, strings, octave, lit, onPlay }: { ctx: KeyC
   const cellOf = (s: number, f: number) => cells.get(`${s}-${f}`) as ScaleCell;
   return (
     <div className="overflow-x-auto">
-      <svg viewBox={`0 0 ${W} ${H}`} className="min-w-[640px]" width="100%" role="img" aria-label={`One octave of double stops on the ${STRING_NAMES[strings[0]]} and ${STRING_NAMES[strings[1]]} strings`}>
+      <svg viewBox={`0 0 ${W} ${H}`} className="min-w-[640px]" width="100%" role="img" aria-label={`${label} on the ${STRING_NAMES[strings[0]]} and ${STRING_NAMES[strings[1]]} strings`}>
         {Array.from({ length: SCALE_NECK_FRETS + 1 }, (_, f) => (
           <line key={f} x1={left + f * fretW} x2={left + f * fretW} y1={sy(5)} y2={sy(0)} stroke="var(--color-slate-700)" strokeWidth={f === 0 ? 3 : 1} />
         ))}
@@ -127,6 +110,40 @@ function OctaveNeck({ ctx, interval, strings, octave, lit, onPlay }: { ctx: KeyC
   );
 }
 
+/**
+ * Sounds a run of double stops: `tap` one, or `run` them all up and back down, one every 600 ms. `lit` is the one sounding,
+ * by its place in the run. `stop` before the run changes.
+ */
+export function useDyadPlayer(dyads: Dyad[]) {
+  // the double stop sounding, by its place in the run
+  const [lit, setLit] = useState<number | null>(null);
+  const [running, setRunning] = useState(false);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const stop = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    setRunning(false);
+    setLit(null);
+  };
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const sound = (d: Dyad) => strum([...d.midi], { gapMs: 12, holdMs: 700 });
+  const tap = (i: number) => {
+    stop();
+    sound(dyads[i]);
+    setLit(i);
+    timers.current.push(setTimeout(() => setLit((l) => (l === i ? null : l)), 600));
+  };
+  /** the run up and back down, one double stop every 600 ms */
+  const run = () => {
+    stop();
+    const seq = [...dyads.keys(), ...[...dyads.keys()].reverse().slice(1)];
+    setRunning(true);
+    seq.forEach((i, k) => timers.current.push(setTimeout(() => { sound(dyads[i]); setLit(i); }, k * 600)));
+    timers.current.push(setTimeout(() => { setRunning(false); setLit(null); }, seq.length * 600));
+  };
+  return { lit, running, tap, run, stop };
+}
+
 /** The double stops page: the key's scale in 3rds, 6ths or 4ths on one pair of strings, one octave from a root picked on the neck. */
 export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: { initialTonic?: number } = {}) {
   const [tonicPc, setTonicPc] = useState(initialTonic);
@@ -134,11 +151,6 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
   const [interval, setInterval_] = useState<DyadInterval>(3);
   // the string the key's root is on where the octave starts (0 the low E); the pair of strings follows from it
   const [rootString, setRootString] = useState(4);
-  // the double stop sounding, by its place in the octave
-  const [lit, setLit] = useState<number | null>(null);
-  const [running, setRunning] = useState(false);
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-
   const mode = MODES.find((m) => m.id === modeId)!;
   const ctx = useMemo(() => makeKeyContext(tonicPc, 0, mode.modeIndex), [tonicPc, mode.modeIndex]);
   const strings = pairFor(rootString, interval);
@@ -150,29 +162,7 @@ export default function DoubleStopsExplorer({ initialTonic = DEFAULT_KEY_PC }: {
   const start = Math.max(0, Math.min(from, ladder.length - 8));
   const octave = ladder.slice(start, start + 8);
 
-  const stop = () => {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
-    setRunning(false);
-    setLit(null);
-  };
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
-
-  const sound = (d: Dyad) => strum([...d.midi], { gapMs: 12, holdMs: 700 });
-  const tap = (i: number) => {
-    stop();
-    sound(octave[i]);
-    setLit(i);
-    timers.current.push(setTimeout(() => setLit((l) => (l === i ? null : l)), 600));
-  };
-  /** the octave up and back down, one double stop every 600 ms */
-  const run = () => {
-    stop();
-    const seq = [...octave.keys(), ...[...octave.keys()].reverse().slice(1)];
-    setRunning(true);
-    seq.forEach((i, k) => timers.current.push(setTimeout(() => { sound(octave[i]); setLit(i); }, k * 600)));
-    timers.current.push(setTimeout(() => { setRunning(false); setLit(null); }, seq.length * 600));
-  };
+  const { lit, running, tap, run, stop } = useDyadPlayer(octave);
 
   const pickInterval = (iv: DyadInterval) => {
     stop();
