@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 8
   },
-  "note": "Track guitar-melodies (guitar-scales), step 6, on guitar-play-along: the jump alone first (an interval shape, an octave above and below Do), then two tunes of the book that leap an octave between two notes (a drop from the high Do, a jump up from the low Sol), then the first tune an octave higher with the melody shape's `octave`. It states a tempo move (60 to 90) and no key move: the higher tune only fits on the neck in a few keys, so the block stays in G.",
+  "note": "Track guitar-melodies (guitar-scales), step 6, on guitar-play-along: the jump alone first (an interval shape, Do on the D string and the Do an octave above it on the high E string, the two notes the first tune opens with), then two tunes of the book that leap an octave between two notes (a drop from the high Do, a jump up from the low Sol), then the first tune an octave higher with the melody shape's `octave`. It states a tempo move (60 to 90) and no key move: the higher tune only fits on the neck in a few keys, so the block stays in G.",
   "exercise": {
     "title": "A tune with an octave jump",
     "area": "guitar",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: {{1}}, then the {{1}} an octave above it, then back and down to the {{1}} an octave below it.\nPlay until both jumps land without a look at your hand."
+            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: {{1}} on the D string, then the {{1}} an octave above it on the high E string.\nPlay until the jump lands without a look at your hand."
           },
           {
             "type": "tool",
@@ -43,8 +43,9 @@
                 "intervals": [
                   "octave"
                 ],
-                "strings": "42",
-                "walk": "note"
+                "strings": "41",
+                "walk": "note",
+                "direction": "up"
               },
               "bpm": 60,
               "view": "tab",
@@ -62,7 +63,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, and play the tune from the tab. It opens on the high {{1}} and drops an octave to the low {{1}} on the next note.\nIf the low note comes late, play only those two notes a few times, then the whole tune."
+            "text": "Press Play below to start the backing, and play the tune from the tab. It opens with the same two notes the other way round: the high {{1}}, then a drop of an octave to the low {{1}}.\nIf the low note comes late, play only those two notes a few times, then the whole tune."
           },
           {
             "type": "tool",

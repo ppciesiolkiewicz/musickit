@@ -363,7 +363,7 @@ describe("tools", () => {
     assert.deepEqual(parseToolDiag({ type: "guitar-play-along", shape, bpm: 60 }).notes, []);
     const bad = parseToolDiag({ type: "guitar-play-along", shape: { ...shape, strings: "65" }, bpm: 60 });
     assert.equal(bad.tool, null);
-    assert.match(bad.notes.join(" "), /its interval shape can't be played: strings 65 don't hold octaves within 4 frets/);
+    assert.match(bad.dropped ?? "", /its interval shape can't be played: strings 65 don't hold octaves within 4 frets/);
     // a melody an octave higher is kept in a key where it fits, refused where it leaves the neck
     assert.ok(parseTool({ type: "guitar-play-along", shape: { shape: "melody", tune: 100, key: "g", octave: 1 }, bpm: 60 }));
     assert.equal(parseTool({ type: "guitar-play-along", shape: { shape: "melody", tune: 100, key: "c", octave: 1 }, bpm: 60 }), null);
