@@ -32,6 +32,7 @@ const TOOL_TOUR_SOURCES: Record<ToolName, string[]> = (() => {
     breathwork: [basics("breathwork")],
     "voice-hill": [basics("voice-hill")],
     "lip-roll": [basics("lip-roll")],
+    "vowel-guide": [basics("vowel-guide")],
     "interval-singer": [basics("interval-singer")],
     "guitar-play-along": ["src/features/exercises/play-along"],
     "backing-track": [basics("backing-track"), "src/features/backing/ui/BackingTrack.tsx"],

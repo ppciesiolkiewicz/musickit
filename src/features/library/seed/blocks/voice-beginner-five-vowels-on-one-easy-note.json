@@ -1,0 +1,81 @@
+{
+  "id": "voice-beginner-five-vowels-on-one-easy-note",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 15,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track vowels (voice-breath-range), step 1, on the vowel-guide at level beginner: all five vowels on one easy note low in the voice, then only \"ee\" and \"oo\" with longer holds, so one thing changes (which vowels, how long). The text says the mic hears the note and not the vowel, names Start and Play note as the tool shows them, and asks for no note above the one the tool plays.",
+  "exercise": {
+    "title": "Five vowels on one easy note",
+    "area": "voice",
+    "tags": [
+      "sing",
+      "technique"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "vowels"
+    ],
+    "why": "The note stays where it is while your mouth changes shape, so you practise moving from one vowel to the next without your pitch moving with it.",
+    "learnBefore": [
+      "/course/3/matching-a-pitch"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "All five vowels",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear the note: the mic starts after it. Sing the note on \"ah\" and hold it until the ring round the mouth fills. The mouth then moves to the next vowel: copy its shape and hold the same note again.\nThe mic hears your note, not your vowel, so the shape of your mouth is yours to copy from the picture.\nIf the ring drains, press Play note below to hear the note again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "vowel-guide",
+              "level": "beginner",
+              "voice": "tenor"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "From wide to round",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Start below to hear the same note: the mic starts after it. Sing it on \"ee\", then on \"oo\" when the mouth changes.\nEach hold is now longer. Stay with the two vowels until your lips go from wide to round and the note stays level."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "vowel-guide",
+              "level": "beginner",
+              "vowels": [
+                "ee",
+                "oo"
+              ],
+              "seconds": 5,
+              "voice": "tenor"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "vowels:1"
+      ],
+      "minutes": 4
+    }
+  ]
+}

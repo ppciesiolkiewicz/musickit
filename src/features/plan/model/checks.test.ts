@@ -16,6 +16,11 @@ describe("mixesSingAndPlay", () => {
     const s = [tool({ type: "staff", scale: "major", key: 0, voice: "baritone" }), tool({ type: "scale-neck", scale: "major", key: 0 })];
     assert.equal(mixesSingAndPlay(s), false);
   });
+  it("a vowel-guide is a singing tool: text beside it that asks to play is flagged", () => {
+    const vowels = tool({ type: "vowel-guide", climb: "one-note" });
+    assert.equal(mixesSingAndPlay([text("Hold the note on the vowel the mouth shows."), vowels]), false);
+    assert.equal(mixesSingAndPlay([text("Strum an A chord first."), vowels]), true);
+  });
   it("flags sing then find it on the guitar", () => assert.equal(mixesSingAndPlay([text("Sing it, then find it on the guitar")]), true));
   it("ignores 'pick' a key", () => assert.equal(mixesSingAndPlay([tool({ type: "melody-singer", tune: 0, key: 0 }), text("Pick a comfortable key and sing the root")]), false));
   it("ignores 'fret' as a question", () => assert.equal(mixesSingAndPlay([text("Which fret is Do on? Sing it")]), false));

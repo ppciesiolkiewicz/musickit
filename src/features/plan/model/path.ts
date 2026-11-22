@@ -293,6 +293,11 @@ export const PATH: Track[] = [
     s(I, "A few notes higher and lower", ""),
     s(A, "Top and bottom with ease", ""),
   ]),
+  v("breath-range", "vowels", "Vowels", [], [
+    s(B, "Five vowels on one note", "ah, eh, ee, oh, oo on one easy note", { ladder: "vowel-guide:one-note", after: ["pitch:3"] }),
+    s(I, "Vowels up to the break", "the same vowels as the note climbs to the first break", { ladder: "vowel-guide:to-break", after: ["range:1"] }),
+    s(A, "Vowels across the break", "from the first break up to the second", { ladder: "vowel-guide:across-break", after: ["range:2"] }),
+  ]),
   v("runs", "runs", "Runs", ["runs", "fast-runs"], [
     s(B, "Do to Sol and back", "eighths, then sixteenths", { ladder: "run-stages:five", after: ["steps-to-leaps:4"] }),
     s(I, "The home chord, quick", "", { ladder: "run-stages:arpeggio-run", after: ["steps-to-leaps:11"] }),

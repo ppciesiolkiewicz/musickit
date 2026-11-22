@@ -176,7 +176,7 @@ name blocks, so its exercises are among them): by the steps the choice names, th
 Every learning component in many set-ups (`stories/`). The sidebar has three sections: *AI Autoplan Tools* (every tool in
 `TOOLS`, with hand-written stories in `stories.ts` and every tool cell of the seed), *Components* (`uiStories.tsx`, React
 components that are not AI tools) and *Missing tools (stubs)*: the new tools of tasks.txt's MissingTools series, not built
-yet. A stub (`stubs.ts`, drawn by `stubStories.tsx`) is a card with what the tool is for, which seed steps wait on it, what
+yet (none today: the six of 2026-11-18 are built, so the section is not drawn until `stubs.ts` has one again). A stub (`stubs.ts`, drawn by `stubStories.tsx`) is a card with what the tool is for, which seed steps wait on it, what
 is still open and its planned props; it is not in `TOOLS`, so the prompt never offers it and no seed file can use it (a
 test holds this). Building the tool means adding it to `TOOLS` and deleting its stub.
 

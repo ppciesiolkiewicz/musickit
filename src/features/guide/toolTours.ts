@@ -79,6 +79,12 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "hill-note", title: "Play note", text: "Plays the note at the edge of the green part, to find it again." },
     { target: "hill-mic", title: "Audio input", text: "This is the input the mic uses: amber until Start switches it on, green while it listens. Press it to pick another input or see its level." },
   ],
+  "vowel-guide": [
+    { target: "vowel-start", title: "Start", text: "Start plays the note, then the mic listens. Restart starts again from the first vowel, and Skip moves on to the next vowel." },
+    { target: "vowel-view", title: "The mouth", text: "The mouth shows the vowel to sing. Copy its shape and hold the note until the ring round the mouth fills. The mic hears the note, not the vowel." },
+    { target: "vowel-note", title: "Play note", text: "Plays the note to hold, to find it again." },
+    { target: "vowel-mic", title: "Audio input", text: "This is the input the mic uses: amber until Start switches it on, green while it listens. Press it to pick another input or see its level." },
+  ],
   "lip-roll": [
     { target: "lip-roll-start", title: "Start", text: "Start begins the rounds and the mic. Restart starts again from round 1, and Skip moves on to the next round." },
     { target: "lip-roll-start", title: "Tone and speed", text: "Press the sliders button at the end of this row to choose when the tone plays and how fast it slides. A change starts the round again with it." },
