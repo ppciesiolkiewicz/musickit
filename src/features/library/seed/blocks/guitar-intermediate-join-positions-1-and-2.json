@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}}. Play position 2 of {{=key}} minor pentatonic up and back down, one note per beat.\nStay with it until your fingers find the ringed {{1}} notes as easily as they do in position 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Play position 2 of {{=key}} minor pentatonic up and back down, one note per beat.\nPlay it until your fingers find the ringed {{1}} notes as easily as they do in position 1."
           },
           {
             "type": "tool",
@@ -120,7 +120,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass. Make up phrases that start in position 1 and slide into position 2 partway through, and end each one on a ringed {{1}}."
+            "text": "Press Play below to start the band: drums and bass. Make up phrases that start in position 1 and slide into position 2 partway through, and end each one on a ringed {{1}}.\nIt's working when a slide comes in the middle of a phrase without a stop."
           },
           {
             "type": "tool",

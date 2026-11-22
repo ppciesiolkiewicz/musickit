@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band, at {{=bpm}}. Sing the two guide-tone lines, one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}. Sing them on \"ah\".\nStay with them until each note is ready before its chord arrives.\nIn another key the notes are new, and each line still has one drop of a half step."
+            "text": "Press Start exercise below to start the mic and the band, at {{=bpm}}. Sing the two guide-tone lines, one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}. Sing them on \"ah\".\nGo round the chords until each note is ready before its chord arrives.\nIn another key the notes are new, and each line still has one drop of a half step."
           },
           {
             "type": "tool",

@@ -389,6 +389,93 @@ folds: "Down-up picking in stages", "The octave run", "Join positions 1 and 2", 
 /plan walk and the text-fix reseed that keeps a rating (ChoiceSplit2 Task 10), and decide what moves voice and theory
 blocks get (today only key and tempo; position moves, other tracks' key orders and a voice block are open in
 ChoiceSplit1), or say they get versions and cleanup only.
+[2026-11-22 decided, user] Rewrite the demo blocks (the 168 blocks of the six plans on /demo) to the new shape, a first
+batch of about 12 first, which the user reads before agents do the rest.
+[2026-11-22 done, first batch of 12] Branch claude/demo-blocks-batch-1, a pull request, not merged: the user reads it
+first. Two blocks from each demo plan, each at prompt 16, agents 2, teaching 8, each ✔ on seed check.
+- guitar-beginner-spider-from-the-1st-fret (guitar-beginner): tempo as a move (60 to 90); "Keep going until the
+  stretch feels as easy as it did at the 5th fret" is now a feel, "Take as many breaks as you need" and one care line;
+  the why no longer names "today's" position.
+- guitar-beginner-pentatonic-box1 (guitar-beginner): took the current versions; its last section got a neck of its own.
+  The plan exercise "Position 1, then your own phrases" was the same drill and is folded into it.
+- guitar-intermediate-join-positions-1-and-2 (guitar-intermediate): the Key selector section is a move (any key, tempo
+  70 to 100); folded with guitar-intermediate-joining-boxes, from which it takes the crossing on a second string and
+  phrases across both positions.
+- guitar-intermediate-sus-groove-in-d (guitar-intermediate): "Press a chord box below to see the new shapes" is gone
+  (the boxes show them; pressing one sounds the chord); the first section shows its shapes too; tempo as a move (70 to
+  90), no key move: the open shapes are the lesson.
+- guitar-intermediate-down-up-picking-in-stages (guitar-intermediate and guitar-advanced): the tempo ladder is a move;
+  two choices, intermediate (80 to 104) and advanced (80 to 128). New title, "Down-up picking across all six strings".
+- guitar-advanced-d-dorian-on-the-neck (guitar-advanced): the Variant selector that set a key and a position together
+  became two short sections, each with its drone and neck. No moves: D is the lesson.
+- voice-beginner-do-re-mi-on-the-beat (voice-beginner): the Stage selector on the block (tempo) is a move (60 to 92),
+  with any key; "from the low Do" said.
+- voice-beginner-do-mi-sol-in-three-keys (voice-beginner): the Key selector on the block is a move (any key); new title,
+  "Do Mi Sol from any Do"; a care line with "reach for high notes".
+- voice-intermediate-a-tune-that-drops-an-octave (voice-intermediate): the Key selector section is a move (any key)
+  that reaches both tools; a care line on the made-up tune's high note.
+- voice-intermediate-slide-to-the-high-do (voice-intermediate): what to sing on in its own sentence, a feel for the
+  leap, any key as a move, a care line on the top note.
+- voice-advanced-your-line-over-ii-v-i-faster (voice-advanced): the tempo ladder is a move (72 to 104), with any key;
+  the bossa of the second section keeps its own tempo ("pinned"); new title, "Your line over ii-V-I"; the why no longer
+  leans on "a faster band".
+- voice-advanced-an-octave-slide-a-little-higher (voice-advanced): its Key selector was a ladder (G, A, B flat, each a
+  little higher), so the keys are the lesson: three short steps, each with its own staff, and no moves.
+Folds, three, each one block now: guitar-advanced-down-up-picking-in-stages into
+guitar-intermediate-down-up-picking-in-stages (deleted; plans/guitar-advanced.json day 3 now names the intermediate
+file with choice "advanced"); guitar-intermediate-joining-boxes into guitar-intermediate-join-positions-1-and-2
+(deleted; no plan named it); guitar-beginner-position-1-then-your-own-phrases into guitar-beginner-pentatonic-box1
+(deleted; plans/guitar-beginner.json day 1 now names box1, choice "beginner", the same 10 minutes). 430 block files,
+where there were 433. No choice was renamed. No test, code, tool, prompt or skill was changed.
+Not folded: "The octave run". voice-advanced-the-octave-run is one run of 4 minutes;
+voice-guitar-advanced-first-week-the-octave-run is three sections of 10 minutes for a baritone. They share a title,
+not a drill, and choices of one file show the same cells. One of them wants another title.
+Checked in the Vercel sandbox (see the pull request for the last numbers): `theory` for the pentatonic crossing in A
+(G string 4 to 5, B string ♭7 to 1), D Dorian position 1 and its crossing, A Dorian position 3 (the same frets 9 to
+13, F is F♯), the guide tones of ii-V-I in E flat (4 4 3 and 1 7 7); the tune a pick gives (medium, octave: tune 100,
+which starts on the high Do and drops an octave); a tenor's notes in every key (Do Mi Sol from the low Do never passes
+F♯4); each block read through parseExercise and applyGiven with a made-up key and tempo (every tool moved, the bossa
+stayed at 110, zero warnings); the six demo plans still parse with the same minutes a day; seed check on the 12 blocks
+and on the two plan files, which fail only on their own old versions, as on main. Not read on screen and not heard: no
+browser there.
+For the agents who do the other ~156:
+- All 168 demo blocks are "Moved from plans/...": none had a title or text checked alone. Most need little: the why
+  (no "today's"), a feel in place of "Keep going until", and the selector turned into a move.
+- A tempo ladder (a "stage" choice with three bpm) is `moves.bpm` with the old first tempo as `from`, the old top as
+  `to` and the old gap as `step`. The roll stops at the last step that fits under `to`, so pick a `to` that is on the grid.
+- A Key selector is `"key": "any"` only when the keys were equals. Where the keys were a ladder (a slide a little
+  higher each time) or were chosen for the range or for open strings, the key is the lesson: write sections, or no move.
+- One block with moves moves every tool. A later, faster tool keeps its distance, which can run away at the top
+  tempo: pin it (`"pinned": ["bpm"]`) when its own tempo is the point.
+- A variant that set key and position together is two sections. Six tools is the limit, so count them first.
+- A text with a key move needs "from the low Do" on a singing drill: the staff shows every octave in the range.
+- seed check says ✔ to a block whose every sentence starts "Stay with it until". Read the batch side by side.
+Rules that were hard to meet, and gaps (nothing changed for them):
+- A choice has no `set` (Part 2 of the block ids design), and `moves.bpm.from` must be the tools' tempo. So two choices
+  of one file cannot start at different tempos: the advanced choice of the picking fold starts at 80, where its plan
+  exercise started at 100. The same stops "A long breath out" (voice-intermediate and voice-advanced: the tool's
+  seconds and rounds differ) and the three skip-a-string blocks from folding as they should.
+- The parser sets an exercise's level from its steps, so both choices of the picking fold read as beginner (picking:2)
+  whatever `level` the choice states, as they did before the fold.
+- "At most one extra line in a block" meets "say what stays the same in another key" and "a feel to reach": a short
+  block with a key move ends up with three lines after the doing, four with a care line.
+- No demo block sits on a step a new tool stands for (beat, double-stops:2-5, hearing-changes, open-chords:8,
+  intervals-on-neck, vowels, reading-staff), so none of the 12 moved onto a new tool. Nearest:
+  guitar-beginner-double-stops-in-position-1 (pairs inside the pentatonic, which double-stops-neck does not draw).
+- A key move on a voice block opens in C (the voice ladder), whatever key the block was written in for the range.
+Questions for the user:
+- Voice blocks got key moves here (ChoiceSplit3 left it open). Is "any key" right for a beginner's Do Mi Sol, given
+  "from the low Do" and the care line, or should beginners' singing keep to a few keys?
+- Is the picking fold's id right? guitar-intermediate-down-up-picking-in-stages now serves two levels and has no
+  stages. A rename would break the rule that an id stays.
+- Should guitar-beginner-down-up-picking (60 to 100, three sections) and the folded block (one section, 80 and up)
+  be one block? Their words differ, so they stayed two.
+- The joined block drops the two-chord backing of joining-boxes (Cm7 and Fm7, named in the text): a chord named in the
+  text cannot follow a key move. A band on one key took its place. Wanted back as a block of its own?
+- Other near-copies seen in the demo plans, not touched: the three ii-V-I guide-tone blocks of voice-advanced, the
+  hammer-and-pull ladders, "Position 1 at 80, then your own drill" beside box1.
+Left: the user reads the 12 on /demo and /dev/library; the other ~156; reseed (db:seed-blocks, the user's go: three
+block ids are gone and one plan ref names a new choice).
 
 TaskSeries DayShape: how a day's plan is laid out by its minutes, and warm-ups (user, 2026-11-19)
 Before MissingTools16 and ChoiceSplit3: it changes what every player gets tomorrow.
