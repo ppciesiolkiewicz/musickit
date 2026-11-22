@@ -93,7 +93,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   // Space and Enter press the big button: Start or Next, or Replay while a question waits. Skip has no key, so Space
   // never throws a question away. R replays, the number keys answer; on a page of several
   // tools, the one last tapped or most on screen takes them
-  const keys = useToolKeys((e, onControl) => {
+  const { ref: keysRef, armed } = useToolKeys((e, onControl) => {
     if (e.key === " " || e.key === "Enter") {
       if (onControl) return;
       if (q && !answered) replay();
@@ -123,7 +123,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   const question = !q ? "Press Start and listen." : answered ? (answered.ok ? "Right!" : "Not quite.") : s.kind === "chord" ? "What kind of chord?" : s.kind === "change" ? "Which chord came second?" : "Which interval?";
 
   /** Key caps only where the keys work: on the tool that has them, not on touch screens. */
-  const cap = (key: string) => keys.armed && <KeyCap className="hidden md:inline">{key}</KeyCap>;
+  const cap = (key: string) => armed && <KeyCap className="hidden md:inline">{key}</KeyCap>;
 
   const settings = (
     <SettingsSection first>
@@ -136,7 +136,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   );
 
   const game = (
-    <div ref={keys.ref} className="flex flex-col gap-4">
+    <div ref={keysRef} className="flex flex-col gap-4">
       {!bare && <div data-tour="ears-setup"><GameChoice label="What to train" options={KINDS} value={s.kind} onChange={(kind) => update({ kind })} tone="sky" /></div>}
       <Stage tone="sky">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -173,12 +173,12 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
               <button key={a} type="button" onClick={() => pick(a)} disabled={!q}
                 className={`relative cursor-pointer rounded-xl border-2 px-3 py-3 text-lg font-semibold shadow-md shadow-black/30 transition active:scale-[0.96] disabled:cursor-default disabled:opacity-50 ${isRight ? "border-emerald-400 bg-emerald-500/25 text-emerald-50" : wrong ? "border-rose-400 bg-rose-500/25 text-rose-50" : "border-sky-300/50 bg-sky-500/15 text-sky-50 hover:border-sky-300 hover:bg-sky-500/30"}`}>
                 {s.kind === "chord" ? labelOf(a) : a}
-                {keys.armed && ANSWER_KEYS[i] && <KeyCap className="absolute right-1 top-1 hidden md:block">{ANSWER_KEYS[i]}</KeyCap>}
+                {armed && ANSWER_KEYS[i] && <KeyCap className="absolute right-1 top-1 hidden md:block">{ANSWER_KEYS[i]}</KeyCap>}
               </button>
             );
           })}
         </div>
-        {keys.armed && <p className="hidden text-xs text-slate-400 md:block">Keys: Space presses the big button, R replays, numbers answer</p>}
+        {armed && <p className="hidden text-xs text-slate-400 md:block">Keys: Space presses the big button, R replays, numbers answer</p>}
         {laid && (
           <div aria-hidden={!answered || undefined} className={`flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300 ${answered ? "" : "invisible"}`}>
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}
