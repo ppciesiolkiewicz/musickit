@@ -14,8 +14,9 @@ import { STRING_DRILLS, type StringDrill } from "@/features/exercises/basics/str
 import { BREATH_DRILLS, LIMITS as BREATH_LIMITS, type BreathDrill } from "@/features/exercises/basics/breathwork/breaths";
 import { HILL_SOUNDS, HILL_WHERE, LIMITS as HILL_LIMITS, type HillSound, type HillWhere } from "@/features/exercises/basics/voice-hill/hill";
 import { LIP_ROLL_PLAYS, LIP_ROLL_SHAPES, LIP_ROLL_SPEEDS, LIMITS as LIP_ROLL_LIMITS, type LipRollPlay, type LipRollShape, type LipRollSpeed } from "@/features/exercises/basics/lip-roll/glide";
-import { FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
+import { CLAP_ALONG_LEVELS, FARINELLI_LEVELS, FINGER_PATTERN_LEVELS, INTERVAL_EARS_LEVELS, INTERVAL_SINGER_LEVELS, LEGATO_TRILL_LEVELS, NOTE_FINDER_LEVELS, PICKING_DRILL_LEVELS, STRING_SINGER_LEVELS, TOOL_LEVELS, isToolLevel, type ToolLevel } from "@/features/exercises/basics/levels";
 import { strumPattern } from "@/features/exercises/basics/strum-along/blocks";
+import { MAX_BARS as CLAP_MAX_BARS, MAX_BPM as CLAP_MAX_BPM, MIN_BPM as CLAP_MIN_BPM, PATTERNS as CLAP_PATTERNS, isPatternId } from "@/features/rhythm/patterns";
 import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercises/docs";
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
@@ -37,7 +38,7 @@ import { canTranspose } from "./transpose";
  * The one file that says what an exercise is made of. Think of it as an MCP server for the plan: every block and every
  * tool has a name, a description and an input schema. The tools are the learning components of src/features/exercises:
  * their description and props come from `COMPONENT_DOCS` (the components' JSDoc), `TOOLS` only parses. To add a tool:
- * the component with its `@component` doc, its entry in `TOOLS`, a view in ui/ExerciseTool.tsx, a test.
+ * the component with its `@component` doc, its entry in `TOOLS`, a view in ui/Tool.tsx, a test.
  *
  * An exercise is a linear list of sections, shown in order:
  *   heading  a small title            text  a paragraph       list  numbered steps
@@ -123,6 +124,8 @@ type PlanToolProps =
   | { type: "interval-singer"; level?: ToolLevel; /** the Keys switch and key chips on the tool; absent: left out, the exercise sets the keys */ picker?: true; key: number; /** more keys to pick Do from, the first `key`; absent: only `key` */ keys?: number[]; voice?: Voice; /** semitones from Do, 1-12 */ intervals?: number[]; dir?: IntervalDir; /** Do and then the note sound before the student sings; absent: only Do */ play?: "both"; dot?: false }
   | { type: "guitar-play-along"; shape: PlayAlongShape; bpm: number; repeats?: number; view?: View; enable?: Degree[]; highlight?: Degree[]; others?: "muted" | "hidden"; under?: Under }
   | { type: "strum-along"; chords: string[]; bpm: number; per?: "bar" | "beat"; beats?: number; pattern?: string }
+  /** the rhythm game (`@/features/rhythm`): `pattern` is a pattern id there; `bars` absent: 4; `input` absent: Space or a tap */
+  | { type: "clap-along"; pattern: string; level?: ToolLevel; bpm: number; bars?: number; input?: "mic" }
   /**
    * a published video of the library (`@/features/videos/library`), by its id; or, in a note, `ref`: a teacher's recording
    * kept in their browser, or a placeholder for a video to make later (the AI plan is not offered videos)
@@ -638,6 +641,16 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       };
     },
   },
+  "clap-along": {
+    parse(t, d) {
+      // the rhythm is optional (default quarters): only a wrong one is noted
+      const pattern = isPatternId(t.pattern) ? t.pattern : "quarters";
+      if (pattern !== t.pattern) defaulted(d, "pattern", t.pattern, `it is ${CLAP_PATTERNS.map((p) => `"${p.id}"`).join(", ")}`, "quarters", true);
+      const bars = t.bars == null ? 4 : intOr(d, "bars", t.bars, 1, CLAP_MAX_BARS, 4);
+      if (t.input != null && t.input !== "keys" && t.input !== "mic") d.notes.push(`had input ${JSON.stringify(t.input)?.slice(0, 20)} (it is "keys" or "mic"); left it out.`);
+      return { type: "clap-along", pattern, bpm: intOr(d, "bpm", t.bpm, CLAP_MIN_BPM, CLAP_MAX_BPM, 80, true), ...(bars !== 4 ? { bars } : {}), ...(t.input === "mic" ? { input: "mic" as const } : {}) };
+    },
+  },
   video: {
     parse(t, d) {
       if (t.ref !== undefined) {
@@ -678,7 +691,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
 };
 
 /** The tools that take a `level`: a short way to write the settings in `levels.ts` (exercises). */
-const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill"] as const;
+const LEVELED = ["interval-singer", "interval-ears", "note-finder", "string-singer", "breathwork", "finger-pattern", "picking-drill", "legato-trill", "clap-along"] as const;
 type LeveledName = (typeof LEVELED)[number];
 /** Whether a tool can be set to a level (`setLevel`). */
 export const hasLevel = (tool: PlanTool): tool is Extract<PlanTool, { type: LeveledName }> => (LEVELED as readonly string[]).includes(tool.type);
@@ -700,6 +713,7 @@ function levelProps(type: LeveledName, level: ToolLevel, t: Record<string, unkno
     case "finger-pattern": return { ...FINGER_PATTERN_LEVELS[level] };
     case "picking-drill": return { ...PICKING_DRILL_LEVELS[level] };
     case "legato-trill": return { fingers: LEGATO_TRILL_LEVELS[level] };
+    case "clap-along": return { pattern: CLAP_ALONG_LEVELS[level] };
   }
 }
 
@@ -777,7 +791,7 @@ export function canFollowPart(tool: PlanTool, part: PartName): boolean {
   switch (part) {
     case "key": return canTranspose(tool);
     case "scale": return "scale" in tool && typeof tool.scale === "string";
-    case "bpm": return tool.type === "staff" ? tool.click === true : ["backing-band", "backing-track", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill"].includes(tool.type);
+    case "bpm": return tool.type === "staff" ? tool.click === true : ["backing-band", "backing-track", "guitar-play-along", "strum-along", "finger-pattern", "picking-drill", "legato-trill", "clap-along"].includes(tool.type);
     case "position": return tool.type === "scale-neck" || (tool.type === "position-neck" && !tool.cross);
     case "level": return hasLevel(tool);
   }

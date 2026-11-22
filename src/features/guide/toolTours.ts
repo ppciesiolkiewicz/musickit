@@ -108,6 +108,12 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "strum-along-bars", title: "The strums", text: "Arrows show the strums: down or up. The one to play now is lit." },
     { target: "strum-along-tempo", title: "Tempo", text: "Make it slower with − until the changes feel easy." },
   ],
+  "clap-along": [
+    { target: "rhythm-start", title: "Start", text: "Press Start. A bar of clicks counts you in, then the notes begin." },
+    { target: "rhythm-lane", title: "The lane", text: "Notes move towards the line. Hit each one as it reaches the line. The colour of a note shows how close you were." },
+    { target: "rhythm-input", title: "Play with", text: "Press Space or tap the lane. Or pick the mic, and clap or strum muted strings." },
+    { target: "rhythm-tempo", title: "Tempo", text: "Make it slower with − until you hit every note, then speed it up." },
+  ],
   "finger-pattern": drill("Under it, the finger to use for each note."),
   "picking-drill": drill("Under it, the pick stroke for each note: ↓ down, ↑ up."),
   "legato-trill": drill("Pick only the first note. Hammer on and pull off the rest."),

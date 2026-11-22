@@ -1,13 +1,10 @@
 "use client";
 
-import { RhythmGame } from "@/features/rhythm";
 import type { Props } from "./stories";
 import { STUBS, type StubSpec } from "./stubs";
 import type { UiGroup } from "./uiStories";
 
-/* The stubs of stubs.ts as stories: a card in place of the tool, and what exists today under it. */
-
-const TODAY = { "rhythm-game": () => <RhythmGame /> };
+/* The stubs of stubs.ts as stories: a card in place of the tool. */
 
 /** The card a stub draws in place of a tool: what it would do, who waits on it, and the props this story gives it. */
 function StubCard({ spec, props }: { spec: StubSpec; props: Props }) {
@@ -21,12 +18,6 @@ function StubCard({ spec, props }: { spec: StubSpec; props: Props }) {
         <p className="text-xs text-slate-500">tasks.txt · {spec.task}</p>
         <pre className="overflow-x-auto rounded bg-slate-950/60 p-2 text-[11px] text-slate-400">{JSON.stringify({ type: spec.id, ...props }, null, 2)}</pre>
       </div>
-      {spec.today && (
-        <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">What exists today</p>
-          {TODAY[spec.today]()}
-        </div>
-      )}
     </div>
   );
 }

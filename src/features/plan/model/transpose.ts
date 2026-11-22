@@ -42,9 +42,9 @@ function transposeShape(v: unknown, by: number): unknown {
   return out;
 }
 
-/** Whether a tool has a key to move: the ones that don't (a note finder, an ear game, a run over the voice) stay as they are. */
+/** Whether a tool has a key to move: the ones that don't (a note finder, an ear game, a run over the voice, a rhythm to clap) stay as they are. */
 export function canTranspose(tool: PlanTool): boolean {
-  return !["note-finder", "interval-ears", "run-singer", "string-singer", "breathwork", "voice-hill", "lip-roll", "finger-pattern", "picking-drill", "legato-trill", "video"].includes(tool.type);
+  return !["note-finder", "interval-ears", "run-singer", "string-singer", "breathwork", "voice-hill", "lip-roll", "finger-pattern", "picking-drill", "legato-trill", "clap-along", "video"].includes(tool.type);
 }
 
 /** A tool moved up by `by` semitones (0: the same tool). */

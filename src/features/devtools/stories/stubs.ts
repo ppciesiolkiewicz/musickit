@@ -22,8 +22,6 @@ export interface StubSpec {
   keywords: string[];
   props: PropDoc[];
   stories: Story[];
-  /** what exists today, drawn under the card */
-  today?: "rhythm-game";
 }
 
 const hand = (name: string, props: Props): Story => ({ name, props, from: "hand" });
@@ -49,22 +47,6 @@ export const STUBS: StubSpec[] = [
       hand("G major 3rds on B and G", { key: "g", interval: "3rds", strings: "32" }),
       hand("C major 6ths on G and high E", { key: "c", interval: "6ths", strings: "31" }),
     ],
-  },
-  {
-    id: "clap-along",
-    title: "clap-along",
-    task: "MissingTools2",
-    what: "A rhythm to clap, tap or play on one muted string, judged against the click. The game exists (src/features/rhythm, drawn below) but isn't a plan tool; NEW11 item 1 has the plan for wiring it in.",
-    waits: "beat:1-6",
-    keywords: ["rhythm", "clap", "beat", "timing", "pulse", "tap", "subdivision", "metronome", "mic"],
-    props: [
-      p("pattern", "string", "A pattern id from src/features/rhythm/patterns.ts.", true),
-      p("bpm", "number", "Tempo."),
-      p("bars", "number", "How many bars a round lasts."),
-      p("input", `"keys" | "mic"`, "What the game hears: a key or touch, or a clap or muted string through the mic."),
-    ],
-    stories: [hand("Quarter notes at 70", { pattern: "quarters", bpm: 70, bars: 4, input: "mic" })],
-    today: "rhythm-game",
   },
   {
     id: "chord-change-quiz",

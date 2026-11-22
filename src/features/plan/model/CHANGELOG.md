@@ -10,6 +10,13 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 10 (2026-11-22)
+
+- A new tool, `clap-along` (MissingTools2): a one-bar rhythm to clap, tap or strum on muted strings, each hit marked by how close to the beat it lands. Props `level`, `pattern`, `bpm`, `bars`, `input`.
+- "Which tool for what" has a line for it: rhythm with no notes is clap-along, and the text counts the rhythm aloud the way the tool writes it.
+- It is in the list of tools that take a `level` (quarters, eighths, sixteenths, then hits off the beat), in the tools allowed in a singing or a playing exercise alike, and in the tools that sound the beat for a tempo the text names.
+- The list of each concept's steps is unchanged; `beat:1`, `beat:3`, `beat:4` and `beat:6` now have a tool level standing for them.
+
 ### 9 (2026-11-19)
 
 - The showcase blocks are named by their library ids (the seed file's id), the ids `get_block` finds, no longer by a content hash.

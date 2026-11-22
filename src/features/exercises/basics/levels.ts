@@ -60,5 +60,8 @@ export const PICKING_DRILL_LEVELS: Ladder<{ strokes: string; notesPerString: num
   advanced: { strokes: "DU", notesPerString: 2, skip: true },
 };
 
+/** clap-along: the one-bar rhythm, a pattern id of `src/features/rhythm/patterns.ts` (a test holds each to a pattern there). The beat, two hits a beat, four a beat, then hits off the beat. */
+export const CLAP_ALONG_LEVELS: Ladder<string> = { new: "quarters", beginner: "eighths", intermediate: "sixteenths", advanced: "push" };
+
 /** legato-trill: the two fingers, the strong pair first and the weak pair last. */
 export const LEGATO_TRILL_LEVELS: Ladder<string> = { new: "12", beginner: "13", intermediate: "23", advanced: "34" };
