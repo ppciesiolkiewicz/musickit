@@ -426,7 +426,11 @@ guitar-intermediate-down-up-picking-in-stages (deleted; plans/guitar-advanced.js
 file with choice "advanced"); guitar-intermediate-joining-boxes into guitar-intermediate-join-positions-1-and-2
 (deleted; no plan named it); guitar-beginner-position-1-then-your-own-phrases into guitar-beginner-pentatonic-box1
 (deleted; plans/guitar-beginner.json day 1 now names box1, choice "beginner", the same 10 minutes). 430 block files,
-where there were 433. No choice was renamed. No test, code, tool, prompt or skill was changed.
+where there were 433. No choice was renamed. No code, tool, prompt or skill was changed.
+Two tests changed, both because the picking fold is the first seed file with two choices and each test held that a
+file has one: devtools/library/item.test.ts (seedBlocksById has one id per choice whose content differs, so it now
+counts the files found, not the ids) and devtools/model/stepBlocks.test.ts (a file with more than one choice is listed
+under a step by its choice ids, as stepBlocks.ts says, so the test looks for those).
 Not folded: "The octave run". voice-advanced-the-octave-run is one run of 4 minutes;
 voice-guitar-advanced-first-week-the-octave-run is three sections of 10 minutes for a baritone. They share a title,
 not a drill, and choices of one file show the same cells. One of them wants another title.
@@ -437,7 +441,7 @@ which starts on the high Do and drops an octave); a tenor's notes in every key (
 F♯4); each block read through parseExercise and applyGiven with a made-up key and tempo (every tool moved, the bossa
 stayed at 110, zero warnings); the six demo plans still parse with the same minutes a day; seed check on the 12 blocks
 and on the two plan files, which fail only on their own old versions, as on main. Not read on screen and not heard: no
-browser there.
+browser there. db:seed-blocks was not run: the first file with two choices has not been through it.
 For the agents who do the other ~156:
 - All 168 demo blocks are "Moved from plans/...": none had a title or text checked alone. Most need little: the why
   (no "today's"), a feel in place of "Keep going until", and the selector turned into a move.
