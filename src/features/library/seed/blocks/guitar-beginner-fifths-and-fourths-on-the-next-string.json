@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: a note on the low E string, then the note a 5th above it on the A string. The pairs climb the neck low note first, then come back down high note first.\nMost of the 5ths have one shape and one is a fret narrower: play until that one no longer surprises your hand."
+            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: a note on the low E string, then the note a 5th above it on the A string. The pairs climb the neck low note first, then come back down high note first.\nMost of the 5ths have one shape and one is a fret narrower: play until your hand goes to that one without stopping."
           },
           {
             "type": "tool",
