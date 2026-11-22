@@ -6,6 +6,7 @@ import { MINUTES, levelOf } from "@/features/plan/intake/answers";
 import { topicById } from "@/features/plan/intake/topics";
 import { AREAS } from "@/features/plan/model/concepts";
 import type { PickReason, PickStage } from "@/features/plan/model/compose";
+import { sectionCount } from "@/features/plan/model/daySteps";
 import { shownTitle, type Given } from "@/features/plan/model/moves";
 import { ROLL } from "@/features/plan/model/roll";
 import { KEY_LADDERS, KEY_RUNGS, hasKeySelector, keyRung, keysAt, type KeyRung } from "@/features/plan/model/keys";
@@ -31,17 +32,18 @@ const STAGE_STYLE: Record<PickStage, string> = {
   "more review": "border-emerald-500/30 text-emerald-300/80",
 };
 const STAGE_NOTE: Record<PickStage, string> = {
-  review: "1. planned review: a solid step, rated longest ago, in a block short enough (placed last in the day)",
-  fresh: "2. one block for each fresh step",
-  open: "3. one block for each open step",
-  more: "4. round after round over the day's steps, until the minutes are full",
-  "more review": "5. more review, when the day's steps have no block left",
+  review: "1. planned review: a solid step of the section's area, rated longest ago, in a block short enough (placed last in its section)",
+  fresh: "2. one block for each fresh step of the section",
+  open: "3. one block for each open step of the section",
+  more: "4. round after round over the section's steps, until its minutes are full",
+  "more review": "5. more review, when the section's steps have no block left",
 };
 const REASON: Record<PickReason, string> = {
   low: "rated under Solid: the newest such block comes back",
   unrated: "not rated yet: a random one of the least used",
   solid: "every block is solid: the one rated longest ago",
 };
+const areaName = (id: string) => AREAS.find((a) => a.id === id)?.label ?? id;
 const keys = (list: number[]) => list.map((k) => keyName(k)).join(" ");
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const PART_NAME = { key: "key", bpm: "tempo" } as const;
@@ -188,15 +190,32 @@ export default function ComposeLab() {
           <p className="mt-2 text-xs text-slate-500">{d.solid} steps solid before this day · {d.answers.minutes} minutes a day</p>
         </Stage>
 
-        <Stage n={2} title="The steps of the day" rule={<><C>daySteps</C>: fresh steps are within reach and not solid, one per topic before any topic&apos;s second, and the topic that opens the day rotates with the date. Open steps are ahead only because their topic already offers its share. Review is every solid step, rated longest ago first. A filled chip is a step the day picked a block for.</>}>
-          <div className="flex flex-col gap-2 text-xs">
-            {([["Fresh", trace.steps.fresh, STAGE_STYLE.fresh], ["Open", trace.steps.open, STAGE_STYLE.open], ["Review", trace.steps.review, STAGE_STYLE.review]] as const).map(([name, refs, tone]) => (
-              <div key={name} className="flex gap-3">
-                <span className="w-16 shrink-0 pt-0.5 font-medium text-slate-300">{name} <span className="text-slate-500">{refs.length}</span></span>
-                <span className="flex flex-wrap gap-1">
-                  {refs.length ? refs.slice(0, 60).map((r) => <StepChip key={r} refId={r} tone={picked.has(r) ? tone : "border-slate-800 text-slate-500"} />) : <span className="text-slate-500">none</span>}
-                  {refs.length > 60 && <span className="text-slate-500">+{refs.length - 60} more</span>}
-                </span>
+        <Stage n={2} title="The sections and their steps" rule={<><C>dayAreas</C>: a day has one section under 30 minutes, two from 30 to 49, three from 50, never more than the areas the player picked. A section is one area; which areas a day gets turns with the date, and they come voice first, then guitar, then theory. <C>daySteps</C>, once a section: fresh steps are within reach and not solid, one per topic before any topic&apos;s second, and the topic that opens the section rotates with the date. Open steps are ahead only because their topic already offers its share. Review is every solid step of the area, rated longest ago first. A filled chip is a step the day picked a block for.</>}>
+          <p className="mb-3 text-xs text-slate-300">
+            {trace.minutes.asked} minutes give {sectionCount(trace.minutes.asked)} section{sectionCount(trace.minutes.asked) > 1 ? "s" : ""}; the player picked {trace.areas.picked.length} area{trace.areas.picked.length > 1 ? "s" : ""} ({trace.areas.picked.map(areaName).join(", ")}), so the day has {trace.areas.count}.{" "}
+            {trace.areas.count < trace.areas.picked.length
+              ? <>The turn starts at <b className="text-slate-100">{areaName(trace.areas.picked[trace.areas.turn])}</b> on {d.date} and moves one area on each day.</>
+              : <>Every area the player picked is in the day, so nothing turns.</>}
+          </p>
+          <div className="flex flex-col gap-3">
+            {trace.sections.map((sec) => (
+              <div key={sec.area} className="rounded-lg border border-slate-800 p-3">
+                <p className="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs">
+                  <b className="text-sm text-slate-100">{areaName(sec.area)}</b>
+                  <span className={sec.why === "added" ? "text-amber-300" : "text-slate-400"}>{sec.why === "added" ? "added: the day's own sections left it more than 5 minutes short" : "its turn today"}</span>
+                  <span className="tabular-nums text-slate-400">asked {sec.asked} min · kept {sec.kept} · new picks {sec.filled}{sec.unused > 0 ? ` · ${sec.unused} unused, handed on` : ""} · planned review {sec.reviewCount}</span>
+                </p>
+                <div className="flex flex-col gap-2 text-xs">
+                  {([["Fresh", sec.steps.fresh, STAGE_STYLE.fresh], ["Open", sec.steps.open, STAGE_STYLE.open], ["Review", sec.steps.review, STAGE_STYLE.review]] as const).map(([name, refs, tone]) => (
+                    <div key={name} className="flex gap-3">
+                      <span className="w-16 shrink-0 pt-0.5 font-medium text-slate-300">{name} <span className="text-slate-500">{refs.length}</span></span>
+                      <span className="flex flex-wrap gap-1">
+                        {refs.length ? refs.slice(0, 60).map((r) => <StepChip key={r} refId={r} tone={picked.has(r) ? tone : "border-slate-800 text-slate-500"} />) : <span className="text-slate-500">none</span>}
+                        {refs.length > 60 && <span className="text-slate-500">+{refs.length - 60} more</span>}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -211,11 +230,12 @@ export default function ComposeLab() {
           </div>
         </Stage>
 
-        <Stage n={4} title="Filling the minutes" rule={`Budget ${trace.minutes.budget} minutes. Planned review first (${trace.minutes.reviewCount} block${trace.minutes.reviewCount > 1 ? "s" : ""}, each at most ${Math.round(trace.minutes.reviewCap)} minutes), then one block per fresh step, per open step, then rounds over the day's steps, then more review. A step with no usable block takes the nearest earlier step of its track. Among a step's blocks: one rated under Solid first, else an unrated one, else the solid one rated longest ago.`}>
+        <Stage n={4} title="Filling the minutes" rule={`Budget ${trace.minutes.budget} minutes, split evenly between the sections. One section at a time, in day order, each until the day's minutes reach the shares so far: planned review first (1 block a section, 2 when its share is 30 minutes or more; ${trace.minutes.reviewCount} today, each at most ${Math.round(trace.minutes.reviewCap)} minutes, a third of the day), then one block per fresh step, per open step, then rounds over the section's steps, then more review. A section that runs out hands its unused minutes to the next; what the last one cannot fill goes back to the earlier ones, and a day still more than 5 minutes short gets a section for the player's next area. A step with no usable block takes the nearest earlier step of its track. Among a step's blocks: one rated under Solid first, else an unrated one, else the solid one rated longest ago.`}>
           <Table
-            head={["#", "Stage", "Step asked", "Block", "Why this block", "Min", "Filled"]}
+            head={["#", "Section", "Stage", "Step asked", "Block", "Why this block", "Min", "Filled"]}
             rows={trace.picks.map((p, i) => [
               i + 1,
+              <span key="sec" className="whitespace-nowrap text-slate-200">{areaName(p.section)}</span>,
               <span key="s" title={STAGE_NOTE[p.stage]} className={`whitespace-nowrap rounded border px-1.5 py-0.5 text-[11px] ${STAGE_STYLE[p.stage]}`}>{p.stage}</span>,
               <span key="a" className="flex flex-col gap-0.5">
                 <span><StepChip refId={p.asked} /> <span className="text-slate-400">{stepName(p.asked)}</span></span>
@@ -293,11 +313,15 @@ export default function ComposeLab() {
           <p className="mt-2 text-xs text-slate-500">{rolled.length} of this day&apos;s {trace.picks.length} picks have moves; {withMoves} of the {blocks.length} blocks in these areas do. The last five columns are the roll the composer would make next for each rating of the version shown.</p>
         </Stage>
 
-        <Stage n={7} title="The day" rule="As it is stored: the day's steps in pick order, review last. Short means the library ran out more than 5 minutes under the budget.">
+        <Stage n={7} title="The day" rule="As it is stored: one flat list in section order (the stored day keeps the section areas, and the Practice plan page heads each section with its area's name when there are two or more). In a section: kept exercises, then the new picks in pick order, review last. A kept exercise of an area with no section today comes before the sections. Short means the library ran out more than 5 minutes under the budget.">
+          <p className="mb-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300">
+            {(day.sections ?? []).map((sec) => <span key={sec.area}><b className="text-slate-100">{areaName(sec.area)}</b> {sec.exercises.length} exercise{sec.exercises.length === 1 ? "" : "s"} · {sec.exercises.reduce((n, e) => n + e.minutes, 0)} of {sec.minutes} min</span>)}
+          </p>
           <ol className="flex flex-col gap-1 text-xs text-slate-300">
             {day.exercises.map((e, i) => (
               <li key={e.choiceId ?? i} className="flex flex-wrap items-baseline gap-2">
                 <span className="w-5 tabular-nums text-slate-500">{i + 1}</span>
+                <span className="w-24 shrink-0 text-slate-400">{e.area ? areaName(e.area) : ""}</span>
                 <span className="text-slate-100">{shownTitle(e)}</span>
                 <span className="text-slate-500">{e.minutes} min</span>
                 {(e.steps ?? []).map((r) => <StepChip key={r} refId={r} />)}
