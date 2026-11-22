@@ -54,14 +54,46 @@ path-slope design says.
 
 - Most of the day goes to within-reach steps that are not solid yet.
 - One block is review, from a step the player has made solid; two when the day is 30 minutes or more. The review step
-  is the solid one rated longest ago. A player with nothing solid yet gets no review block.
+  is the solid one rated longest ago. A player with nothing solid yet gets no review block. (Since DayShape1 this is
+  counted by the section, see "Sections".)
 - Counted in blocks, not as a share of minutes: blocks are 3 to 10 minutes, so a share would round badly on a short day.
+
+### Sections (DayShape1, decided by the user 2026-11-19 and 2026-11-22; built 2026-11-22)
+
+A day is laid out in sections by its minutes. A section is one area (voice, guitar, or theory & ear).
+
+- Under 30 minutes: one section. 30 to 49: two. 50 and over: three. Never more sections than the areas the player
+  picked: a player with one area gets one section whatever the minutes.
+- Which areas a day gets turns with the date (`dayAreas` in `daySteps.ts`): the turn starts one area further on each
+  day, so a 20-minute guitar-and-voice player gets guitar one day and voice the next, and a player with three areas
+  and 40 minutes gets each area two days in three. Theory is an area like the others.
+- Order in a day: voice first, then guitar, then theory.
+- The minutes are split evenly between the sections (a minute that does not divide goes to the first ones). A section
+  is filled until the day's minutes reach the shares so far, so a section the library cannot fill gives its unused
+  minutes to the next, and a block that runs over a share comes off the next one: the day as a whole still runs over
+  by less than its last block.
+- Review stays inside the section of its area, last in it.
+- A kept exercise (another plan the same day) stays first in the section of its area and counts toward its minutes.
+  One of an area with no section today stays in the day, ahead of the sections.
+- The stored day keeps only the areas of its sections (`PlanDay.sections`); the exercises stay one flat list in
+  section order. The page heads each section with its area's name when the day has two or more.
+
+Builder's calls, each changeable without the rest:
+
+- Minutes the last section cannot fill go back to the earlier sections, which go on where they stopped. Without
+  this a thin last area would shorten a day the library could fill.
+- A day still more than 5 minutes short after that gets a section for the player's next area in the turn, so an
+  area with nothing to offer never gives "No plan today" to a player who has another area. This is the one case
+  where a day has more sections than its minutes say.
+- Planned review is counted by the section: one block, two when the section's share is 30 minutes or more (so a
+  one-area player keeps today's one or two). Each still fits a third of the whole day.
 
 ### Spread
 
-One step per topic before any topic gets a second, so a guitar and voice player gets both every day. The topic that
-opens the day rotates from day to day. Inside a topic, steps go lowest on the path first (`slope`), starting steps
-before the rest, as `reach()` orders them.
+Inside a section: one step per topic before any topic gets a second. The topic that opens the section rotates from
+day to day. Inside a topic, steps go lowest on the path first (`slope`), starting steps before the rest, as `reach()`
+orders them. (Before DayShape1 the spread ran over every area at once, so a short day could jump between guitar,
+voice and theory.)
 
 ### Which block for a step
 
@@ -86,7 +118,8 @@ Blocks are added until the player's minutes a day are filled. The day may run ov
 minutes, never under by more than 5.
 
 A new player has few steps within reach (`REACH_CAP`: one a topic at new, two at beginner) and may have 45 or 60
-minutes, so the steps often run out first. Then, in this order:
+minutes, so the steps often run out first. Then, in this order (inside each section since DayShape1; a section that
+still runs out hands its minutes on, see "Sections"):
 
 1. The `open` steps: ahead only because their topic's cap is full, everything they need already known.
 2. A second block on a step already in today's plan.
