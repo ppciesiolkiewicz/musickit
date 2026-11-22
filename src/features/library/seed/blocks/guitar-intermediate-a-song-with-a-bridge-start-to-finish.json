@@ -1,0 +1,167 @@
+{
+  "id": "guitar-intermediate-a-song-with-a-bridge-start-to-finish",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 13,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track open-chords (guitar-basic-chords), step 8, on the song-chart tool: a made-up song with a Verse, a Chorus and a Bridge on Am, C, G and Em. The first section loops the Bridge into the Chorus (a form of two sections); the second plays the whole form once, so the band stops at the end. Shows `form` and `repeat`, the keys left out for the student, and a tempo move with {{=bpm}}.",
+  "exercise": {
+    "title": "A song with a bridge, from the top to the end",
+    "area": "guitar",
+    "tags": [
+      "song",
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "open-chords"
+    ],
+    "why": "A song is a few short sections played in an order, so once each section's four bars are in your hands, playing the whole song is knowing which section comes next.",
+    "learnBefore": [
+      "/course/2/c-d-g",
+      "/course/2/em-and-am"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "The Bridge into the Chorus",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band at {{=bpm}}: the Bridge, then the Chorus, round and round. The chords are yours, so strum down on every beat and change chord where a new box begins.\nWatch the last box of the Bridge, and have the first chord of the Chorus ready before it ends.\nKeep going until you get from the Bridge into the Chorus without a gap."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "a",
+              "bpm": 80,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "Am",
+                    "Am",
+                    "C",
+                    "G"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "C",
+                    "G",
+                    "Am",
+                    "Am"
+                  ]
+                },
+                {
+                  "name": "Bridge",
+                  "bars": [
+                    "Em",
+                    "Em",
+                    "G",
+                    "G"
+                  ]
+                }
+              ],
+              "form": [
+                "Bridge",
+                "Chorus"
+              ],
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The whole song, once",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the whole song at {{=bpm}}: the band plays it once and stops after the last Chorus. Strum down on every beat, and read the names above the boxes to know which section is next.\nIf you lose your place, stop strumming, find the lit box and come back in on the next beat 1.\nPress Play again to play the song from the top, until you reach the end without stopping."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "a",
+              "bpm": 80,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "Am",
+                    "Am",
+                    "C",
+                    "G"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "C",
+                    "G",
+                    "Am",
+                    "Am"
+                  ]
+                },
+                {
+                  "name": "Bridge",
+                  "bars": [
+                    "Em",
+                    "Em",
+                    "G",
+                    "G"
+                  ]
+                }
+              ],
+              "form": [
+                "Verse",
+                "Verse",
+                "Chorus",
+                "Verse",
+                "Chorus",
+                "Bridge",
+                "Chorus"
+              ],
+              "repeat": 1,
+              "parts": {
+                "drums": "always",
+                "bass": "on"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/backing"
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "open-chords:8"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 7
+    }
+  ]
+}

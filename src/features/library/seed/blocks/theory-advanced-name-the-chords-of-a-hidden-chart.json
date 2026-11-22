@@ -1,0 +1,212 @@
+{
+  "id": "theory-advanced-name-the-chords-of-a-hidden-chart",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 13,
+    "agents": 2,
+    "teaching": 8
+  },
+  "note": "Track hearing-changes (theory-ear), step 5, on the song-chart tool with `hide`: the band plays a made-up song while the chart shows its bars with the chord names hidden. First only where the chord changes, then a number for every bar, checked with Show chords, then a new song with a Bridge. No instrument is named, the controls carry the tool's labels, and it states its moves (any key) with no selector in the text.",
+  "exercise": {
+    "title": "Name the chords of a song with the chart hidden",
+    "area": "theory",
+    "tags": [
+      "ear",
+      "song"
+    ],
+    "topic": "theory-ear",
+    "concepts": [
+      "hearing-changes"
+    ],
+    "why": "The chart hides the chord names and keeps the bar lines, so there is one thing to hear in each box: which chord of the key it is.",
+    "learnBefore": [
+      "/course/5/hearing-changes"
+    ],
+    "cells": [
+      {
+        "type": "section",
+        "heading": "Where the chord changes",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the band: a song with a Verse and a Chorus, with the chord names hidden. Each box is one bar, and the lit box is the bar playing.\nListen to the bass, which starts every bar on the root of its chord. Say \"change\" each time a new box brings a new chord.\nKeep going until you know which boxes hold the same chord as the box before them."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "c",
+              "bpm": 80,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "C",
+                    "C",
+                    "F",
+                    "C",
+                    "Am",
+                    "F",
+                    "G",
+                    "G"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "F",
+                    "G",
+                    "C",
+                    "Am",
+                    "F",
+                    "G",
+                    "C",
+                    "C"
+                  ]
+                }
+              ],
+              "hide": true,
+              "parts": {
+                "drums": "on",
+                "bass": "always",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A number for every bar",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the same song. On paper, write one number for each bar: 1, 4, 5 or 6. Write the bars you are sure of first, then fill the gaps as the song comes round.\nPress Show chords on the chart to check. Under each chord's name the chart writes its number: I for 1, IV for 4, V for 5 and vi for 6.\nIf a bar is wrong, press Hide chords and listen to that bar again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "c",
+              "bpm": 80,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "C",
+                    "C",
+                    "F",
+                    "C",
+                    "Am",
+                    "F",
+                    "G",
+                    "G"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "F",
+                    "G",
+                    "C",
+                    "Am",
+                    "F",
+                    "G",
+                    "C",
+                    "C"
+                  ]
+                }
+              ],
+              "hide": true,
+              "parts": {
+                "drums": "on",
+                "bass": "always",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A song with a bridge",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start a new song: a Verse, a Chorus and a Bridge, and the name above the boxes says which one is playing. Write a number for every bar again, then press Show chords on the chart to check.\nIn another key the chord names are new, and each bar of this song keeps its number."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "song-chart",
+              "key": "c",
+              "bpm": 80,
+              "sections": [
+                {
+                  "name": "Verse",
+                  "bars": [
+                    "C",
+                    "Am",
+                    "F",
+                    "G"
+                  ]
+                },
+                {
+                  "name": "Chorus",
+                  "bars": [
+                    "F",
+                    "C",
+                    "G",
+                    "C"
+                  ]
+                },
+                {
+                  "name": "Bridge",
+                  "bars": [
+                    "Am",
+                    "Am",
+                    "F",
+                    "G"
+                  ]
+                }
+              ],
+              "form": [
+                "Verse",
+                "Chorus",
+                "Verse",
+                "Chorus",
+                "Bridge",
+                "Chorus"
+              ],
+              "hide": true,
+              "parts": {
+                "drums": "on",
+                "bass": "always",
+                "keys": "always"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "exploreMore": [
+      "/theory/ears"
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "hearing-changes:5"
+      ],
+      "moves": {
+        "key": "any"
+      },
+      "minutes": 10
+    }
+  ]
+}
