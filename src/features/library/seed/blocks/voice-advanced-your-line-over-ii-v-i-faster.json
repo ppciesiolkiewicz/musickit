@@ -2,13 +2,13 @@
   "id": "voice-advanced-your-line-over-ii-v-i-faster",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/voice-advanced.json, day 5.",
+  "note": "Track improvise (voice-harmony), step 2: the two guide-tone lines over ii-V-I with a slow band, then a made-up line that lands on the 3rd or the 7th over a bossa. Rewritten from the plan exercise (ChoiceSplit3): the Stage selector that set the tempo is a move now (72 to 104), with any key beside it; the bossa keeps its own tempo (pinned), so it stays the faster of the two. The why says what holds a line together, so it no longer leans on the tempo, and the title lost its \"faster\".",
   "exercise": {
-    "title": "Your line over ii-V-I, faster",
+    "title": "Your line over ii-V-I",
     "area": "voice",
     "tags": [
       "improv"
@@ -17,7 +17,7 @@
     "concepts": [
       "improvise"
     ],
-    "why": "A faster band leaves less time to find each note, so a line holds together when you know where it lands: on the 3rd or the 7th as the last chord arrives.",
+    "why": "A made-up line holds together when you know where it lands, so fix the landing first, the 3rd or the 7th as the last chord arrives, and make up only the way there.",
     "learnBefore": [
       "/course/11/ii-v-i",
       "/course/11/guide-tones"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The two lines, in stages",
+        "heading": "The two guide-tone lines",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. Sing the two guide-tone lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
+            "text": "Press Start exercise below to start the mic and the band, at {{=bpm}}. Sing the two guide-tone lines, one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}. Sing them on \"ah\".\nGo round the chords until each note is ready before its chord arrives.\nIn another key the notes are new, and each line still has one drop of a half step."
           },
           {
             "type": "tool",
@@ -68,21 +68,7 @@
               ]
             }
           }
-        ],
-        "choice": {
-          "label": "stage",
-          "options": [
-            {
-              "bpm": 72
-            },
-            {
-              "bpm": 88
-            },
-            {
-              "bpm": 104
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
@@ -91,7 +77,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band, now as a bossa. Make up a line over the first two chords, and sing it on any vowel. Whatever you sing, land on {{3}} as the last chord arrives, and hold it.\nThen aim for {{7}} instead.\nOnce both landings come easily, sing whatever you hear and leave a bar empty now and then."
+            "text": "Press Start exercise below to start the mic and the band, now a bossa and faster. Make up a line over the first two chords, and land on {{3}} as the last chord arrives. Sing it on any vowel.\nThen aim for {{7}} instead.\nOnce both landings come easily, leave a bar empty now and then."
           },
           {
             "type": "tool",
@@ -121,7 +107,10 @@
                 "bass": "off",
                 "keys": "always"
               },
-              "progression": "ii-v-i"
+              "progression": "ii-v-i",
+              "pinned": [
+                "bpm"
+              ]
             }
           }
         ]
@@ -135,6 +124,14 @@
       "steps": [
         "improvise:2"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 72,
+          "to": 104,
+          "step": 16
+        }
+      },
       "minutes": 10
     }
   ]

@@ -2,11 +2,11 @@
   "id": "voice-intermediate-a-tune-that-drops-an-octave",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/voice-intermediate.json, day 3.",
+  "note": "Track sight-singing (voice-melodies), step 2: a tune from the book that starts on the high Do and drops an octave, then a tune of the singer's own with the same leap going up. Rewritten from the plan exercise (ChoiceSplit3): the Key selector of the first section is a move now (any key), reaching both tools, so the text names no selector and says what stays the same in another key. The high note of the made-up tune has a care line.",
   "exercise": {
     "title": "A tune that drops an octave",
     "area": "voice",
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The tune, in two keys",
+        "heading": "The tune",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to hear the tune: the mic starts with it. Sing along on the note names. The tune starts on the high Do and drops an octave.\nThen sing it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the drop is still an octave."
+            "text": "Press Play below to hear the tune: the mic starts with it. The tune starts on the high Do and drops an octave. Sing along on the note names.\nSing it a few times, until you hear the low Do in your head before you leave the high one.\nIn another key the notes are new, and the drop is still an octave."
           },
           {
             "type": "tool",
@@ -44,17 +44,7 @@
               "voice": "tenor"
             }
           }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "d"
-            },
-            {
-              "key": "f"
-            }
-          ]
-        }
+        ]
       },
       {
         "type": "section",
@@ -63,7 +53,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the drone and the mic. Make up a short tune on \"la\" that starts on the low {{1}}, leaps up to the next {{1}} somewhere in the middle and comes home through {{5}} and {{3}}. Sing the high note on \"oo\" if \"la\" feels tight."
+            "text": "Press Start exercise below to start the drone and the mic. Make up a short tune that starts on the low {{1}}, leaps up to the next {{1}} and comes home through {{5}} and {{3}}. Sing it on \"la\", and take the high note on \"oo\" if \"la\" feels tight there.\n_Don't push for the high note: sing it quietly, and come down if it feels tight._"
           },
           {
             "type": "tool",
@@ -92,6 +82,9 @@
       "steps": [
         "sight-singing:2"
       ],
+      "moves": {
+        "key": "any"
+      },
       "minutes": 9
     }
   ]

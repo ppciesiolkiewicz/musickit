@@ -14,7 +14,8 @@ test("a plan row draws from the seed plan with its id", () => {
 
 test("a block row draws from the seed block whose computed id matches, keyed by the file id", () => {
   const ids = seedBlocksById();
-  assert.equal(ids.size, SEED_BLOCKS.length);
+  // one id per choice whose content differs (its moves are part of it), so a file with two choices has two ids: every file is found
+  assert.equal(new Set(ids.values()).size, SEED_BLOCKS.length);
   const [blockId, file] = [...ids].find(([, f]) => f.showcase)!;
   const item = seedItem(blockId);
   assert.equal(item?.kind, "block");

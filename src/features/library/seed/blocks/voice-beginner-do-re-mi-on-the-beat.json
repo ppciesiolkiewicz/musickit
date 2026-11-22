@@ -1,28 +1,14 @@
 {
   "id": "voice-beginner-do-re-mi-on-the-beat",
-  "model": "claude-fable-5",
+  "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/voice-beginner.json, day 6.",
+  "note": "Track steps-to-leaps (voice-intervals), step 5: Do Re Mi Re Do over a drone and a metronome, one note per beat, on one staff. Rewritten from the plan exercise (ChoiceSplit3): the Stage selector that set the tempo is a move now (60 to 92), with any key beside it, so the text names the tempo as a param, says what stays the same in another key and mentions no selector. It says to start from the low Do, since the staff shows more notes than the drill uses.",
   "exercise": {
     "title": "Do Re Mi on the beat",
-    "choice": {
-      "label": "stage",
-      "options": [
-        {
-          "bpm": 60
-        },
-        {
-          "bpm": 76
-        },
-        {
-          "bpm": 92
-        }
-      ]
-    },
     "area": "voice",
     "tags": [
       "sing"
@@ -31,14 +17,14 @@
     "concepts": [
       "steps-to-leaps"
     ],
-    "why": "A step up and back is the shape most tunes start with, and the metronome shows whether your voice gets to each note on time.",
+    "why": "The metronome marks where each note starts, so with one note per beat you can hear whether your voice is on Re and Mi in time or still sliding up to them.",
     "learnBefore": [
       "/course/3/step-melodies"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below: the drone, the metronome and the mic start together. Sing {{1}} {{2}} {{3}} {{2}} {{1}} on the note names, one note per beat.\nWhen every note lands on the beat, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise to start the metronome again.\nIf a stage is too fast, go back one and sing it on \"oo\"."
+        "text": "Press Start exercise below: the drone, the metronome and the mic start together, with the metronome at {{=bpm}}. Sing {{1}} {{2}} {{3}} {{2}} {{1}} from the low {{1}}, one note per beat. Sing it on the note names.\nStay with it until every note starts on its beat. If the notes come late, sing it on \"oo\" for a while.\nIn another key Do is a new note, and Re and Mi are still the next two steps up."
       },
       {
         "type": "tool",
@@ -67,6 +53,14 @@
       "steps": [
         "steps-to-leaps:5"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 92,
+          "step": 16
+        }
+      },
       "minutes": 3
     }
   ]

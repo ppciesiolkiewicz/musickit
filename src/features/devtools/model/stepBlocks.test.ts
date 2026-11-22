@@ -8,9 +8,11 @@ import { blockHref } from "./stepHref";
 const by = blocksByStep();
 
 test("every step a seed block names is a real step, and the block is listed under it", () => {
-  for (const f of SEED_BLOCKS) for (const ref of f.choices.flatMap((c) => c.steps)) {
-    assert.ok(stepAt(ref), `${f.id} names ${ref}, which is no step`);
-    assert.ok(by.get(ref)?.some((b) => b.id === f.id), `${f.id} is not listed under ${ref}`);
+  for (const f of SEED_BLOCKS) for (const c of f.choices) for (const ref of c.steps) {
+    // a file with one choice is listed by its id, one with more by each choice's id (stepBlocks.ts)
+    const id = f.choices.length > 1 ? `${f.id}/${c.name}` : f.id;
+    assert.ok(stepAt(ref), `${id} names ${ref}, which is no step`);
+    assert.ok(by.get(ref)?.some((b) => b.id === id), `${id} is not listed under ${ref}`);
   }
 });
 

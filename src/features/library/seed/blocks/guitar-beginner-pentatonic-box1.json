@@ -2,11 +2,11 @@
   "id": "guitar-beginner-pentatonic-box1",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 8,
+    "prompt": 16,
     "agents": 2,
-    "teaching": 7
+    "teaching": 8
   },
-  "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone on the whole neck, over a band, then free phrases that end on a root. It states its moves (any key, tempo 60 to 90), so the title and the first step name the key and the tempo as params and no step mentions a selector: the app brings the next key or a faster tempo. The why says what the roots are for, so the learner knows where to end a phrase in any scale.",
+  "note": "Track pentatonic-positions (guitar-scales), step 1. One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone on the whole neck, over a band, then free phrases that end on a root. It states its moves (any key, tempo 60 to 90), so the title and the first step name the key and the tempo as params and no step mentions a selector. The plan exercise \"Position 1, then your own phrases\" was the same drill and is folded into this file (ChoiceSplit3); the last section got a neck of its own.",
   "exercise": {
     "title": "{{=key}} minor pentatonic, position 1",
     "area": "guitar",
@@ -133,7 +133,21 @@
         "cells": [
           {
             "type": "text",
-            "text": "Keep the band going and make up short phrases from the position, with a gap after each. End each phrase on {{1}} and hear how it sounds finished. Every note in the position fits this backing, so try anything."
+            "text": "Leave the band above playing and make up short phrases from the position below, with a gap after each. End each phrase on a ringed {{1}}, where it sounds finished.\nEvery note in the position fits this backing, so try anything."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
           }
         ]
       }

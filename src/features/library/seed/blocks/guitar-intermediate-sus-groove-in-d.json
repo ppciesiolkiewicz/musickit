@@ -2,11 +2,11 @@
   "id": "guitar-intermediate-sus-groove-in-d",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/guitar-intermediate.json, day 4.",
+  "note": "Track sus-add9 (guitar-extended-chords), step 1: D, Dsus4 and Dsus2 in a sixteenth strum, then Dsus4 placed before D at the end of a four-bar round. Rewritten from the plan exercise (ChoiceSplit3): the shapes of the first section are shown too, \"Press a chord box below to see the new shapes\" is gone (the boxes already show them; pressing one sounds the chord), and the tempo is a move (70 to 90) with the second section staying 10 above. The open shapes are the lesson, so there is no key move.",
   "exercise": {
     "title": "Sus groove in D",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "sus-add9"
     ],
-    "why": "A sus chord wants to go back to the plain chord, so placing it just before a change makes the change sound like an arrival.",
+    "why": "Dsus4 and Dsus2 are D with one note moved, so one finger makes each change, and a sus chord played just before D makes the D sound like an arrival.",
     "learnBefore": [
       "/course/7/sus-add9",
       "/course/2/sixteenths"
@@ -30,7 +30,18 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum the pattern in the boxes: your hand goes down and up four times a beat and misses the strings where the box shows a dot. Change only the one finger between the chords."
+            "text": "Press a chord box below to hear its chord. Then press Play under them to start the metronome at {{=bpm}}.\nStrum the pattern in the boxes: your hand goes down and up four times a beat and misses the strings where a box shows a dot. Only one finger moves between the chords, so keep the others down.\nIf the pattern falls apart, strum only on the beats until your hand swings evenly again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "chord-shapes",
+              "chords": [
+                "D",
+                "Dsus4",
+                "Dsus2"
+              ]
+            }
           },
           {
             "type": "tool",
@@ -55,7 +66,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to see the new shapes. Then press Play under them to start the metronome. After G and A, Dsus4 lasts one bar and falls back to D in the next. Listen for how the bar of Dsus4 leans towards D."
+            "text": "The shapes for this round are in the chord boxes below. Press Play under them to start the metronome, a little faster now and with a simpler strum.\nAfter G and A, Dsus4 lasts one bar and falls back to D in the next. Listen for the one note that changes between those two bars."
           },
           {
             "type": "tool",
@@ -94,6 +105,13 @@
       "steps": [
         "sus-add9:1"
       ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 8
     }
   ]

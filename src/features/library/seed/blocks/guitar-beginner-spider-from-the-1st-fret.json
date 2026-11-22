@@ -2,11 +2,11 @@
   "id": "guitar-beginner-spider-from-the-1st-fret",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 16,
+    "agents": 2,
+    "teaching": 8
   },
-  "note": "Moved from plans/guitar-beginner.json, day 5.",
+  "note": "Track spider (guitar-techniques), step 2, on finger-pattern at level beginner: the spider from the 1st fret, one short block. Rewritten from the plan exercise (ChoiceSplit3): the why says what the 1st fret changes (the widest frets), the tempo is a move (60 to 90) named as a param, and the ending says a feel to reach and that breaks are fine, with one care line for the hand, in place of \"Keep going until\".",
   "exercise": {
     "title": "Spider from the 1st fret",
     "area": "guitar",
@@ -17,14 +17,14 @@
     "concepts": [
       "spider"
     ],
-    "why": "Low on the neck the frets are widest, so the spider there builds the stretch that today's open position needs.",
+    "why": "The frets are widest at the 1st fret, so one finger per fret there is the widest stretch your hand makes anywhere on the neck.",
     "learnBefore": [
       "/course/1/spider"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab: frets 1 to 4 with fingers 1, 2, 3 and 4 on every string, up and back. Keep going until the stretch feels as easy as it did at the 5th fret."
+        "text": "Press Play below to start the metronome at {{=bpm}} and follow the tab: frets 1 to 4 with fingers 1, 2, 3 and 4 on every string, up and back, one note per beat.\nStay with it until each finger lands on its fret without your hand shifting along the neck. Take as many breaks as you need.\n_Stop and shake your hand out when the stretch starts to hurt._"
       },
       {
         "type": "tool",
@@ -44,6 +44,13 @@
       "steps": [
         "spider:2"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 4
     }
   ]
