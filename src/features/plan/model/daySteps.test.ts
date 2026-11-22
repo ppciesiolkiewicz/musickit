@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { ProgressEntry } from "@/features/progress/log";
 import { PERSONAS } from "@/features/devtools/model/personas";
-import { daySteps, solidRatedAt } from "./daySteps";
+import { dayAreas, daySteps, sectionCount, solidRatedAt } from "./daySteps";
 import { PATH, stepAt, type Track } from "./path";
 
 const guitar = PERSONAS.find((p) => p.id === "guitar-new")!.answers;
@@ -90,4 +90,50 @@ test("a topic outside the chosen areas' topics still ends the call, its step kep
 test("a broken date does not break the call", () => {
   const d = daySteps({ answers: guitar, solid: none, date: "nope" }, [mk("a", "guitar-basic-chords", 1)]);
   assert.deepEqual(d.fresh, ["a:1"]);
+});
+
+// --- the day's areas (DayShape1)
+
+const areasOn = (areas: ("guitar" | "voice" | "theory")[], minutes: number, date: string) => dayAreas({ answers: { areas, minutes }, date }).areas;
+
+test("sectionCount: one section under 30 minutes, two from 30 to 49, three from 50", () => {
+  assert.deepEqual([10, 15, 20, 29, 30, 45, 49, 50, 60].map(sectionCount), [1, 1, 1, 1, 2, 2, 2, 3, 3]);
+});
+
+test("dayAreas: 20 minutes with guitar and voice is one area, the other one the next day", () => {
+  assert.deepEqual(areasOn(["guitar", "voice"], 20, "2026-11-18"), ["guitar"]);
+  assert.deepEqual(areasOn(["guitar", "voice"], 20, "2026-11-19"), ["voice"]);
+  assert.deepEqual(areasOn(["guitar", "voice"], 20, "2026-11-20"), ["guitar"]);
+});
+
+test("dayAreas: the day's areas come voice first, then guitar, then theory, however the player listed them", () => {
+  assert.deepEqual(areasOn(["guitar", "voice"], 40, "2026-11-18"), ["voice", "guitar"]);
+  assert.deepEqual(areasOn(["theory", "guitar", "voice"], 60, "2026-11-18"), ["voice", "guitar", "theory"]);
+});
+
+test("dayAreas: never more sections than areas, and one area is one section at any minutes", () => {
+  for (const minutes of [10, 20, 30, 45, 60]) assert.deepEqual(areasOn(["guitar"], minutes, "2026-11-18"), ["guitar"]);
+  assert.deepEqual(areasOn(["guitar", "theory"], 60, "2026-11-19"), ["guitar", "theory"]);
+});
+
+test("dayAreas: three areas at 40 minutes get two a day, each area two days in three", () => {
+  const days = ["2026-11-18", "2026-11-19", "2026-11-20"].map((d) => areasOn(["guitar", "voice", "theory"], 40, d));
+  assert.deepEqual(days, [["voice", "guitar"], ["guitar", "theory"], ["voice", "theory"]]);
+});
+
+test("dayAreas: the turn is told, with the areas left for a short day in the order the turn reaches them", () => {
+  assert.deepEqual(dayAreas({ answers: { areas: ["guitar", "voice", "theory"], minutes: 20 }, date: "2026-11-19" }), { areas: ["guitar"], rest: ["theory", "voice"], picked: ["voice", "guitar", "theory"], count: 1, turn: 1 });
+  assert.deepEqual(dayAreas({ answers: { areas: ["guitar"], minutes: 20 }, date: "nope" }).areas, ["guitar"]);
+});
+
+test("daySteps: with the day's areas, only their steps; without, every area the player picked", () => {
+  const both = { ...guitar, areas: ["guitar", "voice"] as ("guitar" | "voice")[] };
+  const solid = new Map([["open-chords:1", "2026-11-01T10:00:00Z"], ["breath:1", "2026-11-02T10:00:00Z"]]);
+  const all = daySteps({ answers: both, solid, date: "2026-11-18" });
+  assert.deepEqual(new Set([...all.fresh, ...all.review].map(areaOf)), new Set(["guitar", "voice"]));
+  const voice = daySteps({ answers: both, solid, date: "2026-11-18", areas: ["voice"] });
+  assert.ok(voice.fresh.length > 0);
+  for (const r of [...voice.fresh, ...voice.open, ...voice.review]) assert.equal(areaOf(r), "voice", r);
+  assert.deepEqual(voice.review, ["breath:1"]);
+  assert.deepEqual([...voice.fresh].sort(), all.fresh.filter((r) => areaOf(r) === "voice").sort(), "the same steps as the whole day's has for the area");
 });

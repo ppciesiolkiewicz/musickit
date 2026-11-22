@@ -327,3 +327,25 @@ test("upcomingTeacherWeek: a teacher's week that starts after the date; dayBefor
   const hist: PlanState = { ...EMPTY_STATE, history: [{ ...t("old", "2026-11-03"), config: withIds.given[2].config }] };
   assert.deepEqual(dayBeforeWeek(hist, "2026-11-10"), ["blk-b6/c"], "read from the history too");
 });
+
+// --- a composed day's sections on the stored day (DayShape1)
+
+const sectioned = (): ComposedDay => {
+  const [a, b, c] = ["A", "B", "C"].map((t) => chosen(t));
+  return { exercises: [a, b, c], sections: [{ area: "voice", minutes: 20, exercises: [a, b] }, { area: "guitar", minutes: 20, exercises: [c] }], steps: [], short: false };
+};
+
+test("startDay and anotherDay store the areas of the day's sections on the day; a day with none stores nothing", () => {
+  const s1 = startDay(EMPTY_STATE, sectioned(), { date: "2026-11-18", attempt: 0 }, ids());
+  assert.deepEqual(s1.current!.config.days[0].sections, ["voice", "guitar"]);
+  assert.equal("sections" in startDay(EMPTY_STATE, dayOf("A"), { date: "2026-11-18", attempt: 0 }, ids()).current!.config.days[0], false);
+  const next: ComposedDay = { ...sectioned(), sections: [{ area: "guitar", minutes: 40, exercises: [] }] };
+  const s2 = anotherDay(s1, next, { date: "2026-11-18", attempt: 1 }, ids("m"));
+  assert.deepEqual(s2.current!.config.days[0].sections, ["guitar"]);
+  assert.deepEqual(s2.current!.config.days[0].exercises.map((e) => e.title), ["A", "B", "C"]);
+});
+
+test("giveWeek stores each day's section areas", () => {
+  const s = giveWeek(EMPTY_STATE, [sectioned(), dayOf("X"), ...sevenDays("w").slice(2)], { start: "2026-11-16", madeAt: "2026-11-15T10:00:00.000Z", title: "" }, ids());
+  assert.deepEqual(s.given[0].config.days.map((d) => d.sections), [["voice", "guitar"], undefined, undefined, undefined, undefined, undefined, undefined]);
+});

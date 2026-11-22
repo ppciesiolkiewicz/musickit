@@ -1,7 +1,7 @@
 import { cleanCells } from "./cleanExercise";
 import { withBlockIds, withExerciseIds } from "./exerciseIds";
 import { HISTORY_CAP } from "./state";
-import { planDays, type PlanConfig, type PlanExercise, type PlanState, type StoredPlan } from "./types";
+import { planDays, type PlanConfig, type PlanDay, type PlanExercise, type PlanState, type StoredPlan } from "./types";
 import type { ComposedDay } from "./compose";
 import type { StarRating, Stars } from "@/features/progress/stars";
 
@@ -37,8 +37,11 @@ export interface DayMeta {
   theme?: string;
 }
 
+/** A composed day's section areas as a stored day keeps them (`PlanDay.sections`); nothing for a day with none. */
+const sectionsOf = (day: ComposedDay): Pick<PlanDay, "sections"> => (day.sections?.length ? { sections: day.sections.map((s) => s.area) } : {});
+
 const dayConfig = (day: ComposedDay, meta: DayMeta, newId: () => string): PlanConfig =>
-  storedConfig({ title: meta.title ?? "", days: [{ theme: meta.theme ?? "", exercises: day.exercises }] }, newId);
+  storedConfig({ title: meta.title ?? "", days: [{ theme: meta.theme ?? "", exercises: day.exercises, ...sectionsOf(day) }] }, newId);
 
 /** Today's own plan when `current` is a composed day started on `date`, else null. A given plan is never `current`. */
 export function ownDay(s: PlanState, date: string): StoredPlan | null {
@@ -46,7 +49,7 @@ export function ownDay(s: PlanState, date: string): StoredPlan | null {
 }
 
 /**
- * Puts a composed day in as `current`; the plan before it moves to the front of `history` (which keeps `HISTORY_CAP`).
+ * Puts a composed day in as `current` (its section areas on the stored day, `PlanDay.sections`); the plan before it moves to the front of `history` (which keeps `HISTORY_CAP`).
  * When today already has its own plan, `s` comes back as it is: the same try asked twice (two tabs, an answer arriving
  * twice) must not replace or double it, and another try is `anotherDay`'s. A date before the running composed day's (a
  * stale answer) also changes nothing.
@@ -117,7 +120,7 @@ export function anotherDay(s: PlanState, day: ComposedDay, meta: DayMeta, newId:
  */
 export function giveWeek(s: PlanState, days: ComposedDay[], meta: { start: string; madeAt: string; title: string; replace?: string; dropUntouched?: boolean }, newId: () => string): PlanState {
   const id = newId();
-  const config = storedConfig({ title: meta.title, days: days.map((d) => ({ theme: "", exercises: d.exercises })) }, newId);
+  const config = storedConfig({ title: meta.title, days: days.map((d) => ({ theme: "", exercises: d.exercises, ...sectionsOf(d) })) }, newId);
   const plan: StoredPlan = { id, config, startedOn: meta.start, done: {}, teacher: { madeAt: meta.madeAt } };
   const old = meta.replace === undefined ? undefined : givenPlan(s, meta.replace);
   if (!old) return { ...s, given: [plan, ...s.given] };

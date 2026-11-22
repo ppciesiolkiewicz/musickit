@@ -107,3 +107,14 @@ test("sanitiseState keeps a curated exercise's block id and choice id as stored"
   const again = sanitiseState(JSON.parse(JSON.stringify(once)));
   assert.equal(again.current?.config.days[0].exercises[0].choiceId, "guitar-spider-walk/beginner");
 });
+
+test("sanitiseState keeps a day's sections as area ids and drops a broken list", () => {
+  const plan = (sections: unknown) => ({ id: "p", startedOn: "2026-11-18", done: {}, config: { title: "t", days: [{ theme: "", exercises: [], sections }] } });
+  const day = (sections: unknown) => sanitiseState({ current: plan(sections) }).current!.config.days[0];
+  assert.deepEqual(day(["voice", "guitar"]).sections, ["voice", "guitar"]);
+  assert.deepEqual(day(["voice", "drums", 3, "voice", "theory"]).sections, ["voice", "theory"]);
+  for (const bad of ["voice", [], ["drums"], null, { 0: "voice" }]) assert.equal("sections" in day(bad), false, JSON.stringify(bad));
+  // a day stored before sections is left as it is
+  const old = sanitiseState({ current: { id: "p", startedOn: "2026-11-18", done: {}, config: { title: "t", days: [{ theme: "", exercises: [] }] } } }).current!;
+  assert.deepEqual(old.config.days[0], { theme: "", exercises: [] });
+});

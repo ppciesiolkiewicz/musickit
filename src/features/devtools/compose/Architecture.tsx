@@ -59,12 +59,12 @@ export const C = ({ children }: { children: ReactNode }) => <code className="fon
 
 /** What `composeDay` takes: the field, where the server gets it, what the composer does with it. */
 const INPUTS: [string, ReactNode, ReactNode][] = [
-  ["answers", <>The plan document&apos;s <C>answers</C>, through <C>raisedAnswers</C>: each topic raised level by level as far as the ratings reach (a teacher&apos;s score replaces the answer as the floor).</>, <>Areas, minutes a day, the keys question, and each topic&apos;s line: where its tracks start and how many steps it offers at once.</>],
+  ["answers", <>The plan document&apos;s <C>answers</C>, through <C>raisedAnswers</C>: each topic raised level by level as far as the ratings reach (a teacher&apos;s score replaces the answer as the floor).</>, <>Areas and minutes a day (how many sections the day has, and which areas they are), the keys question, and each topic&apos;s line: where its tracks start and how many steps it offers at once.</>],
   ["solid", <>Every progress entry, through <C>solidRatedAt</C>: the steps whose newest rating is Solid or better, with when.</>, <>Solid steps are known (so the next ones come within reach) and are the review list, rated longest ago first.</>],
   ["blocks", <><C>library.composeBlocks(player, areas)</C>, each through <C>candidateOf</C>: one per active choice of a curated block of the areas that names a step, with its minutes and moves, everyone&apos;s use of the block and this player&apos;s newest rating of the choice.</>, <>The only exercises a day can hold. The composer writes none and changes none.</>],
-  ["date", <>Sent by the page (its local date), refused unless within one day of the server&apos;s.</>, <>Rotates which topic opens the day; part of the seed.</>],
+  ["date", <>Sent by the page (its local date), refused unless within one day of the server&apos;s.</>, <>Turns which areas the day gets (when the player has more areas than the day has sections) and rotates which topic opens each section; part of the seed.</>],
   ["yesterday", <>The choice ids of the newest own composed day before <C>date</C>. A shared plan is never read.</>, <>Those choices are never picked today; another choice of the same block may be.</>],
-  ["keep", <>With <C>another</C>: today&apos;s exercises that are already rated.</>, <>Stay as they are, first in the day; their minutes come off the budget.</>],
+  ["keep", <>With <C>another</C>: today&apos;s exercises that are already rated.</>, <>Stay as they are, first in the section of their area, and count toward its minutes; one of an area with no section today stays ahead of the sections.</>],
   ["declined", <>With <C>another</C>: the choice ids turned down earlier today, and today&apos;s unrated ones.</>, <>Never picked again today.</>],
   ["seed", <><C>{"`${player}:${date}:${attempt}`"}</C>; the attempt goes up with each <C>another</C>.</>, <>The only randomness of the picks (which unrated choice, which three keys). The same input gives the same day.</>],
   ["history", <>Every progress entry of the player.</>, <>Each choice&apos;s version is rolled from the player&apos;s rows with that <C>choiceId</C> (a row with none is no choice&apos;s), seeded by player, choice id and the newest of those rows; earned keys are per track.</>],
@@ -74,8 +74,12 @@ const INPUTS: [string, ReactNode, ReactNode][] = [
 /** The calls inside `composeDay`, in order, with the stage of the "One day" view that shows each. */
 const INSIDE: { n: string; name: string; file: string; text: ReactNode; calls?: { name: string; file: string; text: ReactNode }[] }[] = [
   {
+    n: "2", name: "dayAreas", file: "plan/model/daySteps.ts",
+    text: <>Which areas the day works on, one section each: one section under 30 minutes, two from 30 to 49, three from 50 (<C>sectionCount</C>), never more than the player picked. The turn starts one area further on each date, and the day&apos;s areas come in <C>DAY_ORDER</C>: voice, guitar, theory.</>,
+  },
+  {
     n: "2", name: "daySteps", file: "plan/model/daySteps.ts",
-    text: <>Which steps of the path the day works on: <C>fresh</C> (within reach, not solid, one per topic before any topic&apos;s second), <C>open</C> (ready, but over the topic&apos;s share) and <C>review</C> (solid, rated longest ago first).</>,
+    text: <>Called once a section, for its area. Which steps of the path the section works on: <C>fresh</C> (within reach, not solid, one per topic before any topic&apos;s second), <C>open</C> (ready, but over the topic&apos;s share) and <C>review</C> (solid, rated longest ago first).</>,
     calls: [
       { name: "reach", file: "plan/model/reach.ts", text: <>Marks every step known, within reach or ahead. Known comes from the questionnaire and from solid ratings, and carries back through what a step needs first.</> },
       { name: "placement", file: "plan/intake/placement.ts", text: <>Where a topic&apos;s line starts each of its tracks.</> },
@@ -88,8 +92,8 @@ const INSIDE: { n: string; name: string; file: string; text: ReactNode; calls?: 
     calls: [{ name: "reach", file: "plan/model/reach.ts", text: <>The same marks as for the day&apos;s steps.</> }],
   },
   {
-    n: "4", name: "fill", file: "plan/model/compose.ts",
-    text: <>Fills the budget in five stages: planned review (1 block, 2 from 30 minutes, each within a third of the day), one block per fresh step, one per open step, rounds over the day&apos;s steps, more review. It stops when the minutes are full or a pass adds nothing.</>,
+    n: "4", name: "sectionFill", file: "plan/model/compose.ts",
+    text: <>One for each section, run in day order. The minutes are split evenly between the sections, and a section picks until the day&apos;s minutes reach the shares so far, so one the library cannot fill hands its unused minutes to the next. Five stages: planned review (1 block, 2 when the section&apos;s share is 30 minutes or more, each within a third of the day, placed last in the section), one block per fresh step, one per open step, rounds over the section&apos;s steps, more review. It can stop and go on: minutes the last section cannot fill go back to the earlier ones, and a day still more than 5 minutes short gets a section for the player&apos;s next area.</>,
     calls: [
       { name: "pickFor", file: "plan/model/compose.ts", text: <>A choice for one step, never one of a block already in the day; with none usable, the nearest earlier step of the same track.</> },
       { name: "fits", file: "plan/model/compose.ts", text: <>A block fits a step when it names it and no later step of that track.</> },
@@ -111,6 +115,7 @@ const HOLDS: ReactNode[] = [
   <>A player&apos;s day is never written by the server. The route answers with the day and the page stores it (<C>startDay</C>, <C>anotherDay</C>), both safe to call twice. A teacher&apos;s week is the one the server writes.</>,
   <>Nothing blocks a player. A step ahead is only ranked later; a step with no block falls back down its track.</>,
   <>A block is stored as written. Minutes, why and links are the slot&apos;s; the keys ride on the exercise in the plan.</>,
+  <>A day is laid out in sections, one area each, by its minutes alone; <C>exercises</C> is the same day as one flat list in section order, and the stored day keeps only the section areas (<C>PlanDay.sections</C>).</>,
   <>A choice never comes two days running, and a block never comes twice in a day (not even as two of its choices).</>,
   <>A day more than 5 minutes under its budget is <C>short</C>: the library has no more for these steps. Left over time of 5 minutes or less after the kept exercises asks for a whole new day&apos;s minutes.</>,
   <>A teacher&apos;s student is never composed for here: the route answers <C>409 taught</C> before reading anything.</>,
@@ -129,7 +134,7 @@ const FILES: [string, ReactNode][] = [
   ["plan/server/composeStudentWeek.ts", <>The same inputs for a teacher&apos;s student, seven days through <C>composeWeek</C>.</>],
   ["plan/model/topicLevels.ts", <><C>raisedAnswers</C>: the topic levels the day is paced by.</>],
   ["plan/model/compose.ts", <><C>composeDay</C>, <C>explainDay</C> (the same day with its trace), <C>composeWeek</C>.</>],
-  ["plan/model/daySteps.ts", <><C>daySteps</C> and <C>solidRatedAt</C>.</>],
+  ["plan/model/daySteps.ts", <><C>dayAreas</C>, <C>daySteps</C> and <C>solidRatedAt</C>.</>],
   ["plan/model/reach.ts", <><C>reach</C>: known, within reach, ahead.</>],
   ["plan/model/path.ts", <><C>PATH</C>: tracks, steps, what comes first.</>],
   ["plan/model/keys.ts", <>The key ladders and a player&apos;s keys.</>],
@@ -179,9 +184,9 @@ export default function Architecture() {
         </div>
         <Arrow><C>ComposeInput</C></Arrow>
         <Node layer="pure" name="composeDay(input): ComposedDay" file="plan/model/compose.ts">One day from its input. <C>explainDay</C> is the same call that also returns every decision (<C>ComposeTrace</C>); the One day view draws that trace.</Node>
-        <Arrow><C>{"ComposedDay { exercises, steps, short }"}</C></Arrow>
+        <Arrow><C>{"ComposedDay { exercises, sections, steps, short }"}</C></Arrow>
         <div className="grid gap-4 desk:grid-cols-3">
-          <Node layer="data" name="startDay / anotherDay" file="plan/model/schedule.ts">The page stores the day as the player&apos;s current plan, through <C>PlanStore</C>. A rated exercise is never lost to another try.</Node>
+          <Node layer="data" name="startDay / anotherDay" file="plan/model/schedule.ts">The page stores the day as the player&apos;s current plan, through <C>PlanStore</C>, with the areas of its sections on the stored day. A rated exercise is never lost to another try.</Node>
           <Node layer="data" name="giveWeek" file="plan/model/schedule.ts"><C>makeWeek</C> writes the week into the student&apos;s plan document, with a version check, and the route answers <C>{"{ planId, start, short, comment }"}</C>.</Node>
           <Node layer="browser" name="One day view">Drawn, never stored.</Node>
         </div>
@@ -204,7 +209,7 @@ export default function Architecture() {
         </div>
       </Panel>
 
-      <Panel title="Inside composeDay" note={<>Four calls in order, each with what it calls in turn. The number is the stage of the One day view that shows the call&apos;s result for a real day (stage 1 is the input, stage 7 the day that comes out).</>}>
+      <Panel title="Inside composeDay" note={<>Five calls in order, each with what it calls in turn. The number is the stage of the One day view that shows the call&apos;s result for a real day (stage 1 is the input, stage 7 the day that comes out).</>}>
         <ol className="flex flex-col">
           {INSIDE.map((s, i) => (
             <li key={s.name}>

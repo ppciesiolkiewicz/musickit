@@ -414,6 +414,28 @@ voice. 40 and 60 minutes: more sections. Today the composer takes the day's step
 can jump between guitar, voice and theory. Open: what a section is (one area each, or several in one area); the order
 of a 40-minute guitar-and-voice day (voice warm-up, voice, then guitar?); which area a 20-minute day gets, and whether
 it turns from day to day; where theory sits. Show it on /dev/compose.
+[2026-11-22, built, branch claude/day-sections, not merged] The composer lays a day out in sections as decided.
+`dayAreas` (src/features/plan/model/daySteps.ts) gives the day's areas: one under 30 minutes, two from 30 to 49, three
+from 50, never more than the player picked, the turn one area further on each date, in the order voice, guitar,
+theory. `explainDay` (compose.ts) fills one section at a time (`sectionFill`), the minutes split evenly; a section the
+library can't fill hands its minutes to the next; review is last in its section; a kept exercise is first in the
+section of its area. `ComposedDay.sections` beside the flat `exercises` (section order); `ComposeTrace` has the areas,
+the turn and each section. The stored day keeps the section areas (`PlanDay.sections`, optional, no migration), and
+the day view (`DayPanel`) heads each section with the area's name ("Voice", "Guitar", "Theory & ear") when a day has
+two or more; a day stored before this draws as before. A teacher's week uses the same rule day by day.
+/dev/compose: stage 2 shows the sections and why, stage 4 the section of each pick, Architecture kept true.
+Builder's calls, not asked of the user: minutes the last section can't fill go back to the earlier sections; a day
+still more than 5 minutes short gets a section for the player's next area (so a 20-minute day can have a second area
+when its own has nothing); planned review is one block a section, two when the section has 30 minutes or more, each
+within a third of the day; a kept exercise of an area with no section today comes before the sections.
+Checked in the sandbox: npm test 3412 tests, one failure, the known one (guide/coverage.test.ts); tsc and eslint
+clean. Seven days run over the seed blocks for made-up new players: guitar and voice at 20 minutes get guitar, voice,
+guitar, ...; three areas at 40 get two areas a day in turn; one area at 60 is one section.
+Not checked: nothing was read on the screen (/plan headings, /dev/compose), no signed-in walk, not on the database's
+library. Seen in the run: a new player who rates nothing has about 30 minutes of voice blocks within reach, so their
+voice section is often short and hands minutes to guitar (the library, not this change).
+Left: read /plan and /dev/compose on the screen; DayShape2; the open points above (more for the first section,
+several sections in one area).
 DayShape2: [NEW 2026-11-19] Warm-ups: a kind of block that opens the day, not a step on the path. Voice warm-ups
 (user): breathwork; lip rolls down; lip rolls down and up; lip rolls up and down; singing scales; each interval out
 from do and back (do re do, do mi do, do fa do, ...), then the same going down. Today 12 seed blocks mention a warm-up

@@ -9,6 +9,7 @@ import DayEditor from "./DayEditor";
 import ExerciseCard from "./ExerciseCard";
 import { dayTime, elapsedOn, spentOn, type DayTime } from "../model/planTime";
 import { dayProgress, doneKey } from "../model/schedule";
+import { sectionHeads } from "../model/today";
 import { planDays, type StoredPlan } from "../model/types";
 import type { Stars } from "@/features/progress/stars";
 
@@ -99,7 +100,8 @@ export default function WeekView({ plan, today, ended = false, day, onDay, onRat
  * floating timer that counts down the whole day (`DayTimer`), its used time saved apart from the plan (`times`, `onTime`). The
  * card in view (the one across the middle of the screen, or the last one once the page is scrolled to the end) is the exercise
  * the timer names and counts time for, and it is lifted a little. With `onEdit` the day has Edit (`DayEditor`). Without `onRate`
- * the cards have no stars (a past day, read-only). The week's strip and today's plan (`DayPlan`) both draw a day with it.
+ * the cards have no stars (a past day, read-only). A day the composer laid out in two or more sections has the area's name
+ * above each section's first card (`sectionHeads`). The week's strip and today's plan (`DayPlan`) both draw a day with it.
  */
 export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ratedBy, times = [], onTime, onEdit, editLocked = false, onEditing, corner, readOnly = false }: {
   plan: StoredPlan; day: number; heading: ReactNode;
@@ -127,6 +129,8 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
   const [now, setNow] = useState<number | null>(null);
   const [auto, setAuto] = useState(autoStart);
   const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
+  // a day laid out in sections: the area's name above the first exercise of each (none on a day of one area)
+  const heads = sectionHeads(d);
   const cards = useRef<(HTMLLIElement | null)[]>([]);
   const focused = useInView(cards, day);
   // the day timer is counting (not paused, day not over): the card it counts for shows its time ticking, rated or not,
@@ -166,6 +170,7 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
             const isNow = now === i && !done;
             return (
               <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
+                {heads[i] && <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">{heads[i]}</h3>}
                 <ExerciseCard exercise={e} index={i} done={done} now={isNow} ticking={running && focused === i} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} ratedBy={ratedBy} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} />
               </li>
             );
