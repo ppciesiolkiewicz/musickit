@@ -73,7 +73,7 @@ const NO_PITCH = { current: null };
  * closes it): the same tool moved over the page, so a question asked carries on, the piano roll grown to the screen's height.
  */
 export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", play = "do", dot: dotProp = true, picker = true, options, hostSettings = false }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; /** "both": Do and then the note sound before the student sings (the easier way); "do": only Do */ play?: "do" | "both"; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean }; /** the page holds accuracy and the volume in its settings panel: no settings button here */ hostSettings?: boolean }) {
-  useCoverage({ hints: 7 });
+  useCoverage({ hints: 8 });
   const voice = useVoice(own);
   const range = useVoiceRange(voice);
   const clef = clefFor(range);
