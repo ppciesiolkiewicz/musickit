@@ -57,7 +57,7 @@ test("a block file that doesn't parse is reported, and nothing is written or mad
   const broken = fileOf("guitar-c-d", {}, [{ name: "beginner", steps: [], minutes: 4 }]);
   const lines: string[] = [];
   const r = await seedBlocks(repo, LATER, { files: [one("guitar-a-b"), broken], plans: [planFile("p1", [[{ block: "guitar-a-b", choice: "beginner" }]])], log: (l) => lines.push(l) });
-  assert.deepEqual(r, { blocks: 0, choices: 0, deactivated: 0, planBlocks: 0, skipped: ["guitar-c-d"], unknownRefs: [] });
+  assert.deepEqual(r, { blocks: 0, choices: 0, deactivated: 0, revised: 0, planBlocks: 0, skipped: ["guitar-c-d"], unknownRefs: [] });
   assert.ok(lines.some((l) => l.includes("guitar-c-d")));
   assert.deepEqual({ blocks: repo.peekBlocks(), choices: repo.peekChoices() }, before);
   assert.equal(repo.peekChoices().get("guitar-c-d/beginner")!.active, true);
@@ -67,9 +67,10 @@ test("a block file that doesn't parse is reported, and nothing is written or mad
 test("seeding stores curated blocks, their choices and the app's owner row", async () => {
   const repo = memoryUserDataRepo();
   const r = await seedBlocks(repo, NOW, { files: [one("guitar-a-b")], plans: [] });
-  assert.deepEqual(r, { blocks: 1, choices: 1, deactivated: 0, planBlocks: 0, skipped: [], unknownRefs: [] });
+  assert.deepEqual(r, { blocks: 1, choices: 1, deactivated: 0, revised: 0, planBlocks: 0, skipped: [], unknownRefs: [] });
   const b = repo.peekBlocks().get("guitar-a-b")!;
   assert.equal(b.kind, "curated");
+  assert.equal(b.revision, 1);
   assert.deepEqual(repo.peekOwners(), [{ userId: null, blockId: "guitar-a-b", source: "seed" }]);
   assert.deepEqual(repo.peekChoices().get("guitar-a-b/beginner"), { id: "guitar-a-b/beginner", blockId: "guitar-a-b", name: "beginner", level: "beginner", steps: [], moves: null, minutes: 4, active: true, place: 0, updatedAt: NOW });
 });
@@ -82,7 +83,40 @@ test("seeding twice changes nothing", async () => {
   const first = snap();
   const r = await seedBlocks(repo, LATER, { plans });
   assert.equal(r.deactivated, 0);
+  assert.equal(r.revised, 0);
   assert.deepEqual(snap(), first);
+  assert.ok([...repo.peekBlocks().values()].every((b) => b.revision === 1));
+});
+
+test("a block's revision goes up by one each time its file is seeded changed, and only then", async () => {
+  const repo = memoryUserDataRepo();
+  const two = fileOf("guitar-a-b", plain("T"), [{ name: "beginner", level: "beginner", steps: [], minutes: 4 }, { name: "new", level: "new", steps: [], minutes: 5 }]);
+  const rev = (id: string) => repo.peekBlocks().get(id)!.revision;
+  const seed = async (...files: SeedBlockFile[]) => (await seedBlocks(repo, LATER, { files, plans: [] })).revised;
+  const other = one("guitar-c-d");
+  assert.equal(await seed(two, other), 0);
+  assert.deepEqual([rev("guitar-a-b"), rev("guitar-c-d")], [1, 1]);
+  // the text: the changed block only, and once however much of it changed
+  const text = { ...two, exercise: plain("T", { cells: [{ type: "text", text: "Play it slower." }], tags: ["rhythm"], why: "another why" }), model: "m2" };
+  assert.equal(await seed(text, other), 1);
+  assert.deepEqual([rev("guitar-a-b"), rev("guitar-c-d")], [2, 1]);
+  // the same files again: nothing
+  assert.equal(await seed(text, other), 0);
+  assert.equal(rev("guitar-a-b"), 2);
+  // a choice changed
+  const longer = { ...text, choices: [{ ...text.choices[0], minutes: 6 }, text.choices[1]] };
+  assert.equal(await seed(longer, other), 1);
+  assert.equal(rev("guitar-a-b"), 3);
+  // a choice added, and the text with it: still one
+  const three = { ...longer, exercise: plain("T2"), choices: [...longer.choices, { name: "advanced", level: "advanced" as const, steps: [], minutes: 7 }] };
+  assert.equal(await seed(three, other), 1);
+  assert.equal(rev("guitar-a-b"), 4);
+  // a choice dropped (made inactive), and a file removed (all its choices made inactive)
+  assert.equal(await seed({ ...three, choices: three.choices.slice(0, 2) }), 2);
+  assert.deepEqual([rev("guitar-a-b"), rev("guitar-c-d")], [5, 2]);
+  // the note is not stored, so it is no change
+  assert.equal(await seed({ ...three, choices: three.choices.slice(0, 2), note: "another note" }), 0);
+  assert.deepEqual([rev("guitar-a-b"), rev("guitar-c-d")], [5, 2]);
 });
 
 test("a text edit keeps the id and updates the content, tags and provenance", async () => {

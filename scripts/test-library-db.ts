@@ -160,9 +160,9 @@ describe("user data repo on Postgres: block provenance", () => {
     (await db.select().from(schema.choices).orderBy(schema.choices.id)).map((c) => ({ id: c.id, active: c.active, minutes: c.minutes, place: c.place, updatedAt: c.updatedAt.getTime() }));
   test("upsertCurated stores curated blocks with no level or steps, their choices and the app's owner row", async () => {
     await fresh();
-    assert.deepEqual(await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW), { blocks: 1, choices: 2, deactivated: 0 });
+    assert.deepEqual(await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW), { blocks: 1, choices: 2, deactivated: 0, revised: 0 });
     const [b] = await db.select().from(schema.blocks);
-    assert.deepEqual([b.kind, b.level, b.steps, b.tags, b.why, b.minutes, b.model], ["curated", null, [], ["technique"], "w", 4, "m1"]);
+    assert.deepEqual([b.kind, b.level, b.steps, b.tags, b.why, b.minutes, b.model, b.revision], ["curated", null, [], ["technique"], "w", 4, "m1", 1]);
     const owners = await db.select({ userId: schema.blockOwners.userId, source: schema.blockOwners.source }).from(schema.blockOwners);
     assert.deepEqual(owners, [{ userId: null, source: "seed" }]);
     const [c] = await db.select().from(schema.choices).where(eq(schema.choices.id, "guitar-a-b/new"));
@@ -193,6 +193,34 @@ describe("user data repo on Postgres: block provenance", () => {
       { id: "guitar-c-d/beginner", active: false, minutes: 4, place: 0, updatedAt: later.getTime() },
     ]);
     assert.equal((await repo.upsertCurated([curated("guitar-a-b", ["beginner"], { choices: [{ ...curated("guitar-a-b", ["beginner"]).choices[0], minutes: 9 }] })], later)).deactivated, 0);
+  });
+  test("upsertCurated raises a stored block's revision by one in each call that changes it or a choice of it, and in no other", async () => {
+    await fresh();
+    const revs = async () => Object.fromEntries((await db.select({ id: schema.blocks.id, revision: schema.blocks.revision }).from(schema.blocks)).map((r) => [r.id, r.revision]));
+    const ab = (over: Partial<CuratedBlock> = {}) => curated("guitar-a-b", ["beginner", "new"], over);
+    const cd = curated("guitar-c-d", ["beginner"]);
+    const later = new Date(NOW.getTime() + 60_000);
+    assert.equal((await repo.upsertCurated([ab(), cd], NOW)).revised, 0);
+    // a hashed block is never revised
+    await repo.addBlocks(null, [block("a")], NOW);
+    assert.deepEqual(await revs(), { "guitar-a-b": 1, "guitar-c-d": 1, [block("a").id]: 1 });
+    // the same again: nothing
+    assert.equal((await repo.upsertCurated([ab(), cd], later)).revised, 0);
+    assert.deepEqual(await revs(), { "guitar-a-b": 1, "guitar-c-d": 1, [block("a").id]: 1 });
+    // content, tags, slot and provenance in one call: one revision, the other block untouched
+    const text = { content: { title: "New title", cells: [] } as unknown as CuratedBlock["content"], tags: ["rhythm"], slot: { why: "w2" }, provenance: { ...full, model: "m2" } };
+    assert.equal((await repo.upsertCurated([ab(text), cd], later)).revised, 1);
+    assert.deepEqual([(await revs())["guitar-a-b"], (await revs())["guitar-c-d"]], [2, 1]);
+    assert.equal((await repo.upsertCurated([ab(text), cd], later)).revised, 0);
+    // a choice changed; a choice added; both with a text edit are still one
+    const longer = ab(text).choices.map((c, i) => (i ? c : { ...c, minutes: 9 }));
+    assert.equal((await repo.upsertCurated([ab({ ...text, choices: longer }), cd], later)).revised, 1);
+    const more = [...longer, { ...longer[0], id: "guitar-a-b/advanced", name: "advanced", place: 2 }];
+    assert.equal((await repo.upsertCurated([ab({ ...text, tags: ["technique"], choices: more }), cd], later)).revised, 1);
+    assert.deepEqual([(await revs())["guitar-a-b"], (await revs())["guitar-c-d"]], [4, 1]);
+    // a choice dropped, and a block no longer listed: both revised, once each
+    assert.deepEqual(await repo.upsertCurated([ab({ ...text, tags: ["technique"], choices: more.slice(0, 2) })], later), { blocks: 1, choices: 2, deactivated: 2, revised: 2 });
+    assert.deepEqual(await revs(), { "guitar-a-b": 5, "guitar-c-d": 2, [block("a").id]: 1 });
   });
   test("setPlanBlocks writes a curated slot's choice id", async () => {
     await fresh();

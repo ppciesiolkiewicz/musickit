@@ -4,7 +4,8 @@
  * file is the source of truth: a block's content, tags, slot and provenance are overwritten, a choice is upserted by id,
  * and a choice no longer in its file (or of a file removed) is made inactive, never deleted. Then each seed plan file
  * that is in practice_plans gets its practice_plan_blocks rows from its refs (block, choice, minutes). Running it again
- * changes nothing. If a block file doesn't parse it writes nothing, names the file and exits 1: seeding without it would
+ * changes nothing. A block already stored whose file changed (its exercise or any choice) gets `blocks.revision` one
+ * higher; a new block starts at 1 and an unchanged one keeps its revision. If a block file doesn't parse it writes nothing, names the file and exits 1: seeding without it would
  * make its choices inactive.
  *
  *   npm run -s db:seed-blocks
@@ -35,7 +36,7 @@ async function main() {
     process.exit(1);
   }
   console.log(
-    `${s(r.blocks, "curated block")}, ${s(r.choices, "choice")}, ${s(r.deactivated, "choice")} made inactive, ${s(r.planBlocks, "plan block row")}` +
+    `${s(r.blocks, "curated block")} (${r.revised} changed since the last run and given a new revision), ${s(r.choices, "choice")}, ${s(r.deactivated, "choice")} made inactive, ${s(r.planBlocks, "plan block row")}` +
       `${r.unknownRefs.length ? `, ${s(r.unknownRefs.length, "plan ref")} naming nothing` : ""}.`,
   );
 }

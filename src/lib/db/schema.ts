@@ -313,6 +313,12 @@ export const blocks = pgTable(
     why: text("why"),
     learnBefore: text("learn_before").array(),
     exploreMore: text("explore_more").array(),
+    /**
+     * How many times the seed has written this block: 1 when it is first stored, one more each time `db:seed-blocks`
+     * finds its file changed (the block's own columns, or any of its choices). A run that changes nothing leaves it.
+     * A hashed block is never rewritten, so it stays 1.
+     */
+    revision: integer("revision").notNull().default(1),
     createdAt: at("created_at").notNull().defaultNow(),
   },
   (t) => [index("blocks_area").on(t.area), index("blocks_topic").on(t.topic)],

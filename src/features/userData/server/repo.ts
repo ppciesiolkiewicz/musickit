@@ -149,8 +149,13 @@ export interface UserDataRepo {
    * each choice upserted by id (written only when a field differs, so `updated_at` moves only on a change), then every
    * active choice of a curated block that isn't listed set inactive: one dropped from its file, or every choice of a file
    * removed. Nothing is deleted. `deactivated` counts the choices this call turned off.
+   *
+   * A block's `revision` starts at 1 and goes up by one in every call that changes what is stored for it: one of the
+   * block's own columns (content, area, topic, concepts, tags, slot, provenance), or any of its choices (one changed,
+   * added or made inactive). One call raises it once, however much changed; a call that changes nothing leaves it.
+   * `revised` counts the blocks already stored whose revision this call raised (a new block is not one).
    */
-  upsertCurated(blocks: CuratedBlock[], now: Date): Promise<{ blocks: number; choices: number; deactivated: number }>;
+  upsertCurated(blocks: CuratedBlock[], now: Date): Promise<{ blocks: number; choices: number; deactivated: number; revised: number }>;
   /**
    * Replaces the plan's `practice_plan_blocks` rows with these, in one transaction. A library plan's rows name only blocks the app
    * owns: the library shows a plan to callers who may not see a player's private block (a schedule row on one has no title).

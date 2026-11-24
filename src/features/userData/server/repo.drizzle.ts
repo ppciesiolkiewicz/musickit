@@ -182,9 +182,33 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
     async upsertCurated(list, now) {
       const listed = list.flatMap((b) => b.choices.map((c) => c.id));
       return db.transaction(async (tx) => {
+        // the blocks stored before this call: only one of them can be revised (a new block starts at revision 1)
+        const before = new Set(list.length ? (await tx.select({ id: blocks.id }).from(blocks).where(inArray(blocks.id, list.map((b) => b.id)))).map((r) => r.id) : []);
+        // the stored blocks this call changes, by their own columns or by a choice: each one's revision goes up once
+        const changed = new Set<string>();
         if (list.length) {
-          // a curated block is the seed file's: everything but its id and created_at is overwritten
-          await tx
+          // a curated block is the seed file's: everything but its id, created_at and revision is overwritten.
+          // Written only when a column differs, so the rows that come back are the new and the changed ones.
+          const differs = or(
+            sql`${blocks.kind} is distinct from excluded.kind`,
+            sql`${blocks.content} is distinct from excluded.content`,
+            sql`${blocks.area} is distinct from excluded.area`,
+            sql`${blocks.topic} is distinct from excluded.topic`,
+            sql`${blocks.concepts} is distinct from excluded.concepts`,
+            sql`${blocks.level} is distinct from excluded.level`,
+            sql`${blocks.steps} is distinct from excluded.steps`,
+            sql`${blocks.tags} is distinct from excluded.tags`,
+            sql`${blocks.parentId} is distinct from excluded.parent_id`,
+            sql`${blocks.model} is distinct from excluded.model`,
+            sql`${blocks.promptVersion} is distinct from excluded.prompt_version`,
+            sql`${blocks.docsAgents} is distinct from excluded.docs_agents`,
+            sql`${blocks.docsTeaching} is distinct from excluded.docs_teaching`,
+            sql`${blocks.minutes} is distinct from excluded.minutes`,
+            sql`${blocks.why} is distinct from excluded.why`,
+            sql`${blocks.learnBefore} is distinct from excluded.learn_before`,
+            sql`${blocks.exploreMore} is distinct from excluded.explore_more`,
+          );
+          const written = await tx
             .insert(blocks)
             .values(
               list.map((b) => ({
@@ -204,6 +228,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
                 why: b.slot.why ?? null,
                 learnBefore: b.slot.learnBefore ?? null,
                 exploreMore: b.slot.exploreMore ?? null,
+                revision: 1,
                 createdAt: now,
               })),
             )
@@ -228,7 +253,10 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
                 learnBefore: sql`excluded.learn_before`,
                 exploreMore: sql`excluded.explore_more`,
               },
-            });
+              setWhere: differs,
+            })
+            .returning({ id: blocks.id });
+          for (const r of written) if (before.has(r.id)) changed.add(r.id);
           await tx
             .insert(blockOwners)
             .values(list.map((b) => ({ userId: null, blockId: b.id, source: "seed" as const, createdAt: now })))
@@ -237,7 +265,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
         const rows = list.flatMap((b) => b.choices.map((c) => ({ id: c.id, blockId: b.id, name: c.name, level: c.level, steps: c.steps, moves: c.moves, minutes: c.minutes, active: c.active, place: c.place, createdAt: now, updatedAt: now })));
         if (rows.length) {
           // written only when a field differs, so updated_at says when the seed last changed the choice
-          const changed = or(
+          const differs = or(
             sql`${choices.blockId} is distinct from excluded.block_id`,
             sql`${choices.name} is distinct from excluded.name`,
             sql`${choices.level} is distinct from excluded.level`,
@@ -247,14 +275,17 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
             sql`${choices.active} is distinct from excluded.active`,
             sql`${choices.place} is distinct from excluded.place`,
           );
-          await tx
+          const written = await tx
             .insert(choices)
             .values(rows)
             .onConflictDoUpdate({
               target: choices.id,
               set: { blockId: sql`excluded.block_id`, name: sql`excluded.name`, level: sql`excluded.level`, steps: sql`excluded.steps`, moves: sql`excluded.moves`, minutes: sql`excluded.minutes`, active: sql`excluded.active`, place: sql`excluded.place`, updatedAt: now },
-              setWhere: changed,
-            });
+              setWhere: differs,
+            })
+            .returning({ blockId: choices.blockId });
+          // a new or changed choice changes its block, unless the block is new too
+          for (const r of written) if (before.has(r.blockId)) changed.add(r.blockId);
         }
         // every other active choice of a curated block is no longer in the seed: off, never deleted
         const curated = tx.select({ id: blocks.id }).from(blocks).where(eq(blocks.kind, "curated"));
@@ -262,8 +293,10 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
           .update(choices)
           .set({ active: false, updatedAt: now })
           .where(and(eq(choices.active, true), inArray(choices.blockId, curated), ...(listed.length ? [notInArray(choices.id, listed)] : [])))
-          .returning({ id: choices.id });
-        return { blocks: list.length, choices: listed.length, deactivated: off.length };
+          .returning({ id: choices.id, blockId: choices.blockId });
+        for (const r of off) changed.add(r.blockId);
+        if (changed.size) await tx.update(blocks).set({ revision: sql`${blocks.revision} + 1` }).where(inArray(blocks.id, [...changed]));
+        return { blocks: list.length, choices: listed.length, deactivated: off.length, revised: changed.size };
       });
     },
     async setPlanBlocks(planId, rows) {

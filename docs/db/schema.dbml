@@ -54,7 +54,6 @@ table block_owners {
   user_id uuid
   block_id text [not null]
   source block_source [not null]
-  enabled_for_reuse boolean [not null, default: false]
   created_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
@@ -82,6 +81,7 @@ table blocks {
   why text
   learn_before text[]
   explore_more text[]
+  revision integer [not null, default: 1]
   created_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {

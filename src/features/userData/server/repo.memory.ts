@@ -12,9 +12,13 @@ interface StoredBlock {
   provenance: Provenance;
   /** only once a slot has been written */
   slot?: BlockSlot;
+  /** `blocks.revision`: 1 when first stored, one more each time the seed changes the block or its choices */
+  revision: number;
 }
 
 const NO_PROVENANCE: Provenance = { model: null, promptVersion: null, docsAgents: null, docsTeaching: null };
+/** Two block rows that store the same, their `revision` aside. */
+const sameRow = (a: StoredBlock, b: StoredBlock) => JSON.stringify({ ...a, revision: 0 }) === JSON.stringify({ ...b, revision: 0 });
 const isBare = (p: Provenance) => p.model === null && p.promptVersion === null && p.docsAgents === null && p.docsTeaching === null;
 
 /** A `choices` row, as the memory repo keeps it. */
@@ -138,7 +142,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
       }
     },
     async addBlocks(userId, list) {
-      for (const b of list) if (!blocks.has(b.id)) blocks.set(b.id, { kind: "hashed", key: structuredClone(b.key), parentId: b.parentId, provenance: { ...NO_PROVENANCE } });
+      for (const b of list) if (!blocks.has(b.id)) blocks.set(b.id, { kind: "hashed", key: structuredClone(b.key), parentId: b.parentId, provenance: { ...NO_PROVENANCE }, revision: 1 });
       for (const b of list) {
         const k = pair(userId ?? "", b.id);
         if (!owners.has(k)) owners.set(k, { userId, blockId: b.id, source: b.source });
@@ -161,29 +165,40 @@ export function memoryUserDataRepo(): UserDataRepo & {
     },
     async upsertCurated(list, now) {
       const listed = new Set<string>();
+      // the stored blocks this call changed: each one's revision goes up once, at the end
+      const changed = new Set<string>();
       for (const b of list) {
         const key: BlockKey = { content: structuredClone(b.content), ...(b.area ? { area: b.area } : {}), ...(b.topic ? { topic: b.topic } : {}), concepts: [...b.concepts], tags: [...b.tags] };
         // the block's default minutes are its first choice's, as in Postgres
         const slot: BlockSlot | undefined = b.choices.length ? { minutes: b.choices[0].minutes, ...structuredClone(b.slot) } : undefined;
-        blocks.set(b.id, { kind: "curated", key, parentId: null, provenance: { ...b.provenance }, ...(slot ? { slot } : {}) });
+        const was = blocks.get(b.id);
+        const row: StoredBlock = { kind: "curated", key, parentId: null, provenance: { ...b.provenance }, ...(slot ? { slot } : {}), revision: was?.revision ?? 1 };
+        // like the `is distinct from` guard in Postgres: an unchanged block is not written
+        if (was && !sameRow(was, row)) changed.add(b.id);
+        blocks.set(b.id, row);
         const k = pair("", b.id);
         if (!owners.has(k)) owners.set(k, { userId: null, blockId: b.id, source: "seed" });
         for (const c of b.choices) {
           listed.add(c.id);
-          const row: StoredChoice = { ...structuredClone(c), blockId: b.id, updatedAt: now };
+          const next: StoredChoice = { ...structuredClone(c), blockId: b.id, updatedAt: now };
           const old = choices.get(c.id);
-          // like the `is distinct from` guard in Postgres: an unchanged choice keeps its updated_at
+          // an unchanged choice keeps its updated_at
           const same = (x: StoredChoice) => JSON.stringify({ ...x, updatedAt: null });
-          if (!old || same(old) !== same(row)) choices.set(c.id, row);
+          if (!old || same(old) !== same(next)) {
+            choices.set(c.id, next);
+            if (was) changed.add(b.id);
+          }
         }
       }
       let deactivated = 0;
       for (const [id, c] of choices) {
         if (listed.has(id) || !c.active || blocks.get(c.blockId)?.kind !== "curated") continue;
         choices.set(id, { ...c, active: false, updatedAt: now });
+        changed.add(c.blockId);
         deactivated++;
       }
-      return { blocks: list.length, choices: listed.size, deactivated };
+      for (const id of changed) blocks.get(id)!.revision += 1;
+      return { blocks: list.length, choices: listed.size, deactivated, revised: changed.size };
     },
     async setPlanBlocks(planId, rows) {
       planBlocks.set(planId, structuredClone(rows));

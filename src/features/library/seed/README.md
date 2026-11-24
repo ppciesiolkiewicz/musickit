@@ -47,7 +47,8 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
    its concepts; a warm-up needs neither, and says its `warmUpPart`), no choice sets a key or a tempo and no exercise with `moves` mentions a selector (`movesCheck.ts`), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
    level or stage, and no exercise names another day or week.
    Then `npm run -s gen:json-index`, so the folder's `index.gen.ts` imports the new file.
-4. `npm run -s db:seed-plans`, then `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first).
+4. `npm run -s db:seed-plans`, then `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first). A block
+   already in the database whose file changed gets its `revision` raised by one; an unchanged file changes nothing.
 
 A tool whose concept has steps sets `level` (or picks the tune or run by stage), never raw settings, so the step can
 be read back. Every file meets the writing rules below.

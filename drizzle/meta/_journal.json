@@ -274,6 +274,13 @@
       "when": 1795491826199,
       "tag": "0038_personal_demo_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1795519740572,
+      "tag": "0039_block_revision",
+      "breakpoints": true
     }
   ]
 }
