@@ -70,3 +70,5 @@ tasks.txt
 /test-results/
 /playwright-report/
 /playwright/.cache/
+/.next-e2e/
+!.env.e2e
