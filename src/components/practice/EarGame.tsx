@@ -5,7 +5,7 @@ import { useState } from "react";
 import MiniPiano from "@/components/theory/MiniPiano";
 import { INTERVALS, pianoFrom } from "@/lib/chordKit/intervals";
 import { playMelody, playSequence, strum } from "@/features/sound";
-import { CHORD_QUALITIES, KEY_CHORDS, activeAnswers, nextEarQuestion, recordScore, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
+import { CHORD_QUALITIES, KEY_CHORDS, activeAnswers, nextEarQuestion, recordScore, soundOfAnswer, type EarQuestion, type EarSettings, type Score } from "@/lib/practice/earGame";
 import Icon from "@/components/Icon";
 import { GameChoice, SetupTag, Stage, Stat, btn, btnBig, panel, writeQuery } from "./shared";
 import { useToolKeys } from "./toolKeys";
@@ -82,8 +82,15 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   const replay = () => {
     if (q) play(q);
   };
+  /** An answer's own sound on the question's first note, to set beside the question. */
+  const hear = (a: string) => {
+    if (q) play(soundOfAnswer(q, a));
+  };
+  // the first press answers, and plays what was picked; every press after it only plays
   const pick = (a: string) => {
-    if (!q || answered) return;
+    if (!q) return;
+    hear(a);
+    if (answered) return;
     const ok = a === q.answer;
     setAnswered({ pick: a, ok });
     setShown(q);
@@ -104,7 +111,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
       replay();
       return true;
     }
-    if (q && !answered && e.key.length === 1) {
+    if (q && e.key.length === 1) {
       const a = answers[ANSWER_KEYS.indexOf(e.key)];
       if (a) {
         pick(a);
@@ -153,7 +160,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
               </div>
             )}
             <p className={`text-2xl leading-snug sm:text-3xl ${answered ? (answered.ok ? "text-emerald-300" : "text-rose-300") : "text-slate-50"}`} style={{ fontFamily: "var(--font-display), serif", fontVariationSettings: '"SOFT" 100, "opsz" 96' }}>{question}</p>
-            <p role="status" className="mt-1 min-h-6 text-slate-400">{answered && q ? <span className="text-slate-300">It was <b className="text-slate-50">{labelOf(q.answer)}</b>.</span> : prompt}</p>
+            <p role="status" className="mt-1 min-h-6 text-slate-400">{answered && q ? <span className="text-slate-300">It was <b className="text-slate-50">{labelOf(q.answer)}</b>. Press any answer to hear it.</span> : prompt}</p>
           </div>
           {total > 0 && <div className="flex gap-2"><Stat label="right" value={right} tone="text-emerald-300" /><Stat label="asked" value={total} /></div>}
         </div>
@@ -178,7 +185,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             );
           })}
         </div>
-        {armed && <p className="hidden text-xs text-slate-400 md:block">Keys: Space presses the big button, R replays, numbers answer</p>}
+        {armed && <p className="hidden text-xs text-slate-400 md:block">Keys: Space presses the big button, R replays, numbers press the answers</p>}
         {laid && (
           <div aria-hidden={!answered || undefined} className={`flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-950/40 p-3 text-sm text-slate-300 ${answered ? "" : "invisible"}`}>
             {info && <p>Memory hook: the start of <i>{info.song}</i>. <Link className="text-sky-300 hover:underline" href={`/theory/basics?interval=${info.semis}#intervals`}>See it on the guitar →</Link></p>}

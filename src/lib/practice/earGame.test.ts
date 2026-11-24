@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { CHANGE_LEVELS, CHORD_QUALITIES, DEFAULT_QUALITIES, EAR_LEVELS, KEY_CHORDS, activeAnswers, earKindOf, levelChords, nextEarQuestion, parseEarSettings, recordScore, type EarQuestion } from "./earGame";
+import { CHANGE_LEVELS, CHORD_QUALITIES, DEFAULT_QUALITIES, EAR_LEVELS, KEY_CHORDS, activeAnswers, earKindOf, levelChords, nextEarQuestion, parseEarSettings, recordScore, soundOfAnswer, type EarQuestion } from "./earGame";
 import { analyseDegree } from "@/features/theory/theory";
 import { INTERVALS } from "@/lib/chordKit/intervals";
 
@@ -177,5 +177,42 @@ describe("ear game span", () => {
       spans.add(d > 12 ? 1 : 0);
     }
     assert.equal(spans.size, 2);
+  });
+});
+
+describe("soundOfAnswer", () => {
+  it("an interval starts on the question's first note and keeps its direction", () => {
+    for (const dir of ["up", "down", "together"]) {
+      for (let i = 0; i < 50; i++) {
+        const n = nextEarQuestion(q(`set=2,4,7&dir=${dir}`), seeded(i + 1));
+        const other = soundOfAnswer(n, "M3");
+        assert.equal(other.answer, "M3");
+        assert.equal(other.midi[0], n.midi[0]);
+        assert.equal(other.midi[1] - other.midi[0], dir === "down" ? -4 : 4);
+        assert.equal(other.together, dir === "together");
+      }
+    }
+  });
+  it("the question's own answer is the question", () => {
+    const n = nextEarQuestion(q("level=3"), seeded(4));
+    assert.equal(soundOfAnswer(n, n.answer), n);
+  });
+  it("an interval over an octave keeps its extra octave", () => {
+    const wide: EarQuestion = { answer: "M2", midi: [60, 74], together: false };
+    assert.deepEqual(soundOfAnswer(wide, "P5").midi, [60, 79]);
+    assert.deepEqual(soundOfAnswer(wide, "P8").midi, [60, 72]);
+  });
+  it("a chord kind is built on the question's root", () => {
+    const n = nextEarQuestion(q("kind=chord"), seeded(2));
+    const other = soundOfAnswer(n, n.answer === "m7" ? "maj" : "m7");
+    assert.equal(other.midi[0], n.midi[0]);
+    assert.ok(other.together);
+  });
+  it("a chord change keeps the 1 chord and the key", () => {
+    const n = nextEarQuestion(q("kind=change&level=5"), seeded(3));
+    const other = soundOfAnswer(n, n.answer === "V" ? "IV" : "V");
+    assert.deepEqual(other.chords![0], n.chords![0]);
+    assert.equal(other.chords![1][0] - n.chords![0][0], other.answer === "V" ? 7 : 5);
+    assert.deepEqual(other.midi, other.chords!.flat());
   });
 });

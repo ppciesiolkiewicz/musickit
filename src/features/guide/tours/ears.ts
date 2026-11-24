@@ -20,6 +20,6 @@ export const EARS_TOUR: TourStep[] = [
   {
     target: "interval-ears-answers",
     title: "Answer",
-    text: "Tap the name you heard. The right answer lights green. For an interval you also get a song that starts with the same jump.",
+    text: "Tap the name you heard. The right answer lights green. For an interval you also get a song that starts with the same jump. After that, press any answer to hear it.",
   },
 ];

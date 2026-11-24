@@ -165,6 +165,29 @@ export function nextEarQuestion(s: EarSettings, rand: () => number, prev?: EarQu
   return { answer, midi: s.direction === "down" ? [low + semis, low] : [low, low + semis], together: s.direction === "together" };
 }
 
+/**
+ * The sound of another answer, set beside a question: the same first note (an interval), root (a chord) or key (a chord
+ * change), played the same way, so the two can be compared by ear. An interval keeps the question's direction and its
+ * extra octave. An answer that is no interval, chord kind or numeral gives the question back.
+ */
+export function soundOfAnswer(q: EarQuestion, answer: string): EarQuestion {
+  if (answer === q.answer) return q;
+  if (q.chords) {
+    const c = KEY_CHORDS.find((x) => x.numeral === answer);
+    if (!c) return q;
+    const home = q.chords[0][0];
+    const chords = [q.chords[0], c.triad.map((v) => home + c.semis + v)];
+    return { answer, midi: chords.flat(), together: true, chords };
+  }
+  const quality = CHORD_QUALITIES.find((x) => x.id === answer);
+  if (quality) return { answer, midi: quality.semis.map((v) => q.midi[0] + v), together: true };
+  const simple = INTERVALS.find((i) => i.short === answer)?.semis;
+  if (simple === undefined || q.midi.length !== 2) return q;
+  const [first, second] = q.midi;
+  const semis = Math.abs(second - first) > 12 && simple < 12 ? simple + 12 : simple;
+  return { answer, midi: [first, second < first ? first - semis : first + semis], together: q.together };
+}
+
 export interface Score {
   [answer: string]: { right: number; total: number };
 }
