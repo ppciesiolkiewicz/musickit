@@ -85,10 +85,10 @@ export function breathPlan(drill: BreathDrill, o: BreathOptions = {}): Breath[] 
       );
       break;
     case "sss-zzz":
-      each(() => [{ kind: "sss", label: "sss", seconds: s }, { kind: "zzz", label: "zzz", seconds: s }, { kind: "sss", label: "sss", seconds: s }, IN(2)]);
+      each(() => [IN(2), { kind: "sss", label: "sss", seconds: s }, { kind: "zzz", label: "zzz", seconds: s }, { kind: "sss", label: "sss", seconds: s }]);
       break;
     case "zzz-sss":
-      each(() => [{ kind: "zzz", label: "zzz", seconds: s }, { kind: "sss", label: "sss", seconds: s }, { kind: "zzz", label: "zzz", seconds: s }, IN(2)]);
+      each(() => [IN(2), { kind: "zzz", label: "zzz", seconds: s }, { kind: "sss", label: "sss", seconds: s }, { kind: "zzz", label: "zzz", seconds: s }]);
       break;
     case "cycles":
       each(() => [IN(s), { kind: "hold", label: "Hold", seconds: s }, { kind: "out", label: "Breathe out", seconds: s }, { kind: "rest", label: "Rest", seconds: 2 }]);

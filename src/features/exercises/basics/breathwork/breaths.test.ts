@@ -19,9 +19,9 @@ test("farinelli counts: defaults 4 to 8, clamped, never down", () => {
 
 test("cue drills repeat their round", () => {
   const sz = breathPlan("sss-zzz", { seconds: 5, rounds: 2 });
-  assert.deepEqual(sz.slice(1).map((b) => b.kind), ["sss", "zzz", "sss", "in", "sss", "zzz", "sss", "in"]);
-  assert.equal(sz[1].seconds, 5);
-  assert.deepEqual(breathPlan("zzz-sss", { rounds: 1 }).slice(1).map((b) => b.kind), ["zzz", "sss", "zzz", "in"]);
+  assert.deepEqual(sz.slice(1).map((b) => b.kind), ["in", "sss", "zzz", "sss", "in", "sss", "zzz", "sss"]);
+  assert.equal(sz[2].seconds, 5);
+  assert.deepEqual(breathPlan("zzz-sss", { rounds: 1 }).slice(1).map((b) => b.kind), ["in", "zzz", "sss", "zzz"]);
   const le = breathPlan("long-exhale", { seconds: 10, rounds: 1 }).slice(1);
   assert.deepEqual(le.map((b) => `${b.kind}${b.seconds}`), ["in4", "out10"]);
   assert.equal(breathPlan("body-scan").filter((b) => b.kind === "body").length, 8);
