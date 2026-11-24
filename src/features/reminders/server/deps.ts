@@ -14,12 +14,12 @@ export function reminderRepo(): ReminderRepo | null {
   return db ? drizzleReminderRepo(db) : null;
 }
 
-/** The run's real deps, or null without a database, accounts or REMINDER_UNSUBSCRIBE_SECRET. */
+/** The run's real deps, or null without a database, accounts or SERVER_SIGNING_KEY. */
 export function runDeps(req: Request): RunDeps | null {
   const repo = reminderRepo();
   const a = auth();
   const store = userData();
-  const offSecret = process.env.REMINDER_UNSUBSCRIBE_SECRET?.trim();
+  const offSecret = process.env.SERVER_SIGNING_KEY?.trim();
   if (!repo || !a || !store || !offSecret) return null;
   return {
     repo,

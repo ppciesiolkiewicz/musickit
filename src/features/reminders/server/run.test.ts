@@ -89,8 +89,8 @@ test("cron route: 503 without the secret, 401 with a wrong bearer, 200 with the 
 test("off route: a good token turns the reminder off; a bad one answers 400", async () => {
   const { repo } = await setup();
   const at = (t: string) => new Request(`https://x.app/api/reminders/off?token=${encodeURIComponent(t)}`, { method: "POST" });
-  assert.equal((await offRoute(repo, at("u1.nope"), { REMINDER_UNSUBSCRIBE_SECRET: "s" }, NOW)).status, 400);
-  assert.equal((await offRoute(repo, at(offToken("u1", "s")), { REMINDER_UNSUBSCRIBE_SECRET: "s" }, NOW)).status, 200);
+  assert.equal((await offRoute(repo, at("u1.nope"), { SERVER_SIGNING_KEY: "s" }, NOW)).status, 400);
+  assert.equal((await offRoute(repo, at(offToken("u1", "s")), { SERVER_SIGNING_KEY: "s" }, NOW)).status, 200);
   assert.equal((await repo.get("u1"))?.enabled, false);
 });
 
