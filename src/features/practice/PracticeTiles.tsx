@@ -116,8 +116,11 @@ export default function PracticeTiles() {
                   <li key={t.href} className={t.wide ? "col-span-3 md:col-span-2" : ""}>
                     <Link
                       href={t.href}
-                      className={`group flex h-full flex-col justify-end p-2.5 text-white metal-tile focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 sm:p-3 ${t.wide ? "aspect-[5/2] md:aspect-[2/1]" : "aspect-square"} ${TILE[t.tone]}`}
+                      className={`group relative flex h-full flex-col justify-end p-2.5 text-white metal-tile focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 sm:p-3 ${t.wide ? "aspect-[5/2] md:aspect-[2/1]" : "aspect-square"} ${TILE[t.tone]}`}
                     >
+                      {t.isNew && (
+                        <span className="absolute right-1.5 top-1.5 rounded-full bg-white px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none tracking-wide text-slate-900 shadow">New</span>
+                      )}
                       <Icon name={t.icon} size={t.wide ? 28 : 24} className="mb-auto opacity-95 drop-shadow-[0_1px_1px_rgb(0_0_0/0.3)]" />
                       <span className="text-sm font-semibold leading-tight sm:text-[15px]">{t.label}</span>
                       {t.wide ? (

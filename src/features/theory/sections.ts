@@ -19,6 +19,8 @@ export interface TheorySection {
   wide?: boolean;
   /** other menu columns that list this page too, at their top (the AI plan heads Tools, the circle of fifths sits with the theory tools) */
   alsoIn?: { group: SectionGroup; sub?: string }[];
+  /** a page added lately: its Practice tile carries a "New" badge */
+  isNew?: boolean;
 }
 
 export const GROUP_LABEL: Record<SectionGroup, string> = { learn: "Learn", guitar: "Guitar", singing: "Singing", tools: "Tools" };
@@ -43,6 +45,7 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "learn", href: "/plan", tone: "violet", label: "Practice plan", desc: "A continuous daily plan for your practice", icon: "sparkles", alsoIn: [{ group: "tools", sub: "Plan & notes" }] },
   { group: "learn", href: "/theory/circle", tone: "sky", label: "Circle of fifths", desc: "Keys, relatives, neighbours", icon: "circle-dot", alsoIn: [{ group: "tools", sub: "Tuning & theory" }] },
   { group: "learn", href: "/theory/basics", tone: "emerald", label: "Guitar basics", desc: "Strings, frets, notes and intervals", icon: "guitar" },
+  { group: "learn", href: "/theory/staff-reading", tone: "rose", label: "Read the staff", desc: "Name the note on the staff, or play or sing it", icon: "book-open", isNew: true },
   { group: "guitar", sub: "Explore", href: "/theory/chords", tone: "sky", label: "Chords", desc: "Open chords and every movable shape", icon: "grid-3x3", wide: true },
   { group: "guitar", sub: "Explore", href: "/theory/triads", tone: "violet", label: "Triads", desc: "Three-note shapes on string sets", icon: "triangle" },
   { group: "guitar", sub: "Explore", href: "/theory/double-stops", tone: "amber", label: "Double stops", desc: "Two scale notes at once, up the neck", icon: "double-stop" },
@@ -52,11 +55,13 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "guitar", sub: "Explore", href: "/theory/arpeggios", tone: "red", label: "Arpeggios", desc: "Chord tones across the neck", icon: "spline" },
   { group: "guitar", sub: "Practice", href: "/theory/notes", tone: "teal", label: "Fretboard notes", desc: "Find the note, tap or play it", icon: "target" },
   { group: "guitar", sub: "Practice", href: "/theory/rhythm", tone: "amber", label: "Rhythm", desc: "Tap or strum on the beat", icon: "metronome" },
+  { group: "guitar", sub: "Practice", href: "/theory/drills", tone: "violet", label: "Technique drills", desc: "Finger patterns, picking and legato to the metronome", icon: "zap", isNew: true },
   { group: "singing", href: "/theory/singing/warm-ups", tone: "rose", label: "Voice warm-ups", desc: "Lip rolls and easy holds, low to high", icon: "activity" },
   { group: "singing", href: "/theory/singing", tone: "emerald", label: "Sing a scale", desc: "Sing a scale and watch your voice on the staff", icon: "mic" },
   { group: "singing", href: "/theory/singing/melodies", tone: "sky", label: "Sing melodies", desc: "Short tunes that end on Do, easiest first", icon: "music" },
   { group: "singing", href: "/theory/singing/runs", tone: "amber", label: "Sing runs", desc: "Warm-up runs across your whole voice", icon: "waves" },
   { group: "singing", href: "/theory/singing/breathing", tone: "teal", label: "Farinelli breathing", desc: "Breathe in, hold and out, one count longer each time", icon: "wind" },
+  { group: "singing", sub: "Voice", href: "/theory/singing/vowels", tone: "rose", label: "Vowels", desc: "Hold a note and change the vowel on it", icon: "mic", isNew: true },
   { group: "singing", href: "/theory/singing/intervals", tone: "violet", label: "Sing an interval", desc: "See its name, hear Do, sing the other note", icon: "target" },
   { group: "singing", href: "/theory/ears", tone: "pink", label: "Ear training", desc: "Name the interval you hear", icon: "ear" },
   { group: "singing", href: "/theory/tune-by-ear", tone: "red", label: "Tune by ear", desc: "Sing the open strings, hear a string out of tune", icon: "guitar", alsoIn: [{ group: "guitar", sub: "Practice" }] },
@@ -64,6 +69,8 @@ export const THEORY_SECTIONS: TheorySection[] = [
   { group: "tools", sub: "Tuning & theory", href: "/tuner", tone: "rose", label: "Tuner", desc: "Tune your guitar with the mic", icon: "gauge", wide: true },
   { group: "tools", sub: "Play along", href: "/theory/metronome-drone", tone: "violet", label: "Metronome & drone", desc: "Keep time to a click, hear each degree over a root", icon: "audio-lines" },
   { group: "tools", sub: "Play along", href: "/theory/backing", tone: "pink", label: "Backing tracks", desc: "Drums, bass and chords from a progression, any key and style", icon: "drum" },
+  { group: "tools", sub: "Play along", href: "/theory/song-chart", tone: "sky", label: "Song charts", desc: "A song's chords and form with the backing track", icon: "file-text", isNew: true },
+  { group: "tools", sub: "Play along", href: "/theory/play-along", tone: "amber", label: "Guitar play-along", desc: "Intervals, tunes and arpeggios in time", icon: "guitar", isNew: true },
   { group: "tools", sub: "Tuning & theory", href: "/theory/piano", tone: "red", label: "Piano", desc: "Play and see notes, intervals and chords on the staff", icon: "piano" },
   { group: "tools", sub: "Tuning & theory", href: "/theory/tunings", tone: "amber", label: "Tunings", desc: "Alternate tunings", icon: "sliders-horizontal" },
   { group: "tools", sub: "Play along", href: "/looper", tone: "teal", label: "Looper", desc: "Record loops and stack takes over drums", icon: "repeat", wide: true },
