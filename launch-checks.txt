@@ -91,6 +91,8 @@ Email4: Sending to the US adds a postal address in the email (CAN-SPAM). Sending
 
 ======================== Paid plans ========================
 Paid1: A lawyer reads /terms and /privacy.
+  [2026-11-24 decided] Not for the first paid test: a sole-trader test with a full refund on request costs less than a
+  lawyer. A lawyer reads both pages before paid plans grow past the test.
 
 Paid2: /privacy names the payment provider ("We will name it here before then").
 
@@ -99,11 +101,19 @@ Paid3: What /terms promises about a subscription is built: cancel on /account wi
   Australia: the Unfair Trading Practices Act (subscription traps, drip pricing) starts 1 July 2027; its notice rules
   were not published when last checked. California: clear consent to renewal, a yearly reminder, cancel online.
   [2026-11-23 checked] Nothing to build during the beta: nothing is charged. Re-check the Australian regulations then.
+  [2026-11-24 decided] For the paid test, cut /terms down to what the app already does instead of building the
+  emails: cancel in the Stripe portal from /account, and a full refund on request. The renewal and price-change emails
+  come back before paid plans grow past the test. Task: Selling2 in tasks.txt.
 
 Paid4: The renewal price and period are shown beside the button that starts the subscription, not only in /terms.
 
 Paid5: Prices are in US dollars and the business is in Australia: GST, and whether tax is collected for buyers
   abroad. /terms says "Taxes are included in the price where we must collect them". Ask an accountant.
+  [2026-11-24 decided] Sole trader, already registered for GST. Australian buyers: the price includes 10% GST, worked
+  out on the AUD value; Stripe receipts show the ABN and the GST so they work as tax invoices. Buyers abroad: a digital
+  service to a non-resident is usually GST-free; the buyer's country comes from Stripe's billing address. EU and UK
+  VAT can be owed from the first sale (no threshold for sellers outside them): accepted as a small risk during the
+  test; Stripe Tax if sales there grow. Still to ask the accountant once: USD pricing and the GST-free sales abroad.
 
 Paid6: Is yearly turnover still under AUD 3 million? Above it the Privacy Act applies in full, with the breach
   notification scheme and the children's code (see Dated1).

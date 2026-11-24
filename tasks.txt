@@ -1326,6 +1326,13 @@ Each line below is a thing the words now say that the code doesn't do. A changed
 - Age: under-16 only through a school or a parent; nothing checks this yet.
 - A lawyer reads /terms once before paid plans open (currency USD vs AUD, GST, the liability cap, governing state).
 
+Selling2: [NEW 2026-11-24] /terms for the paid test: promise only what the app does (launch-checks Paid3)
+For a sole-trader paid test, /terms promises what the app already does instead of building more: cancel in the Stripe
+portal from Manage billing on /account, and a full refund on request. Take out the email before a yearly renewal and the
+email 30 days before a price change until they are built (launch-checks Paid12). Raise UPDATED on /terms. Also, from
+the same checks: /privacy names Stripe (Paid2), and the renewal price and period sit beside the button that starts the
+subscription (Paid4). Write the words with teaching-voice ("Words about the app") and design:ux-copy.
+
 47. Identify which pages should have guided tour, e.g. runs / melodies 
 and add to these pages. Rank pages and provide me your understanding which pages need it first.
 - Guided tour should always include:
