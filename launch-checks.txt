@@ -145,6 +145,41 @@ Paid12: Not built yet, decide before launch:
     (Beta8), could send one. Paid3's renewal and price-change emails are not built either.
   - A subscriber who picks Teacher Unlimited (priced with you) is sent to the portal rather than moved.
 
+Paid13: End-to-end tests for payments pass before STRIPE_ENABLED is turned on (task E2E7 in tasks.txt). Paid10 is the
+  same walk by hand; these make it repeatable. Yes, it can run in Stripe's sandbox (test mode): it needs only a
+  sk_test_ key, no live key and no real card.
+  Two kinds, both on the test server (playwright.config.ts: 127.0.0.1:3210, database musickit_e2e):
+  - Without Stripe: the test signs its own webhook events (the stripe package's webhooks.generateTestHeaderString,
+    with the test server's STRIPE_WEBHOOK_SECRET) and posts them to /api/stripe/webhook. A new account picks Student
+    and is held on /account/setup with Continue to payment; customer.subscription.created (trialing) lets it into
+    /plan; customer.subscription.deleted sends it back to pay; a bad signature answers 400; an older cancelled
+    subscription doesn't undo a newer live one. No key needed, so it can run on every release.
+  - In the sandbox, with a sk_test_ key: the real Checkout page paid with 4242 4242 4242 4242, back through
+    /api/account/checkout/done to status trialing; Manage billing opens the portal; the trial ended from the API
+    (trial_end "now") charges the card, and the real invoice.paid event writes a row in payments with the plan's
+    price; a failing card (4000 0000 0000 0341) gives past_due, then canceled. Stripe can't reach 127.0.0.1, so the
+    test reads the new events from Stripe's API and posts them to the webhook itself, or `stripe listen` runs beside it.
+  To set up first:
+  - The test server runs with payments off today, and the two can't share a run (payments on changes /account/setup
+    for every other test). A second command, `npm run e2e:stripe`, starts it with STRIPE_ENABLED=true.
+  - The sandbox key lives in an env file git ignores (.env.e2e.local), and the config refuses a key that doesn't
+    start with sk_test_ or rk_test_.
+  - Signing in for tests (E2E2) comes first: the code from /api/auth/email-link's development answer (devCode) works
+    when the test server has no RESEND_API_KEY.
+  - The Stripe CLI is not installed on this machine (`brew install stripe/stripe-cli/stripe`), needed for Paid10.
+  [2026-11-24] Not built. Read the Stripe code instead, without running it against Stripe (no keys here). Found, each
+  to confirm in the sandbox run:
+  - /account/setup still shows the "Open beta: free while we build it with you" box with payments on, above a
+    Continue to payment button (SetupForm.tsx; only the No charge line is hidden). Paid11 says the page hides its
+    beta lines: it hides one of two.
+  - The webhook fetches a paid invoice with expand "lines.data.pricing.price_details.price", five levels deep. Stripe
+    allows four, so invoice.paid may answer 500 and no payment would be stored. Not confirmed.
+  - A trial's first invoice is for 0 and is paid, so payments gets a 0 row at sign-up, before any charge.
+  - The stripe package (23.2.0) speaks API version 2026-11-18.endive. Make the dashboard's webhook with that version,
+    or the invoice fields recordInvoice reads (parent, pricing) may be missing.
+  - The webhook is reachable signed out (/api is public in publicPaths.ts) and the checkout and portal routes check
+    the origin through signedIn(). Nothing to fix there.
+
 
 ======================== Marketing to the EU or the UK ========================
 Merely being reachable from Europe is not this launch. Prices in euros or pounds, another language, or adverts aimed

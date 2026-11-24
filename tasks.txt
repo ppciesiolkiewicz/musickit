@@ -878,6 +878,9 @@ E2E5: [NEW 2026-11-19] Phone and public pages: home pages, /pricing, /faq, /term
 errors and no horizontal scroll at 320 and 390 px; the /students top bar and "Remind me at" fit at 320 px.
 E2E6: [NEW 2026-11-19] Run it before each release, and later in CI (GitHub Actions with a Postgres service). Not
 covered, checked by hand on production (NEW5): Vercel Blob uploads and video playback, real email delivery.
+E2E7: [NEW 2026-11-24] Payments (Stripe), after E2E2: `npm run e2e:stripe` with STRIPE_ENABLED=true on the test server.
+One spec with webhook events the test signs itself (no key), one against Stripe's sandbox with a sk_test_ key. What
+each covers, the setup and what reading the code found: Paid13 in launch-checks.txt.
 
 TaskSeries Leftover: small things left after the launch copy and phone fixes (2026-11-18)
 Leftover1: [NEW 2026-11-18] What the pricing, terms and phone-fix session (af59a23c, 8929010e, 09194114) left unseen
