@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
+import { PERSONAL_DEMO_PLAN_ID, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
 import { TERMS_UPDATED } from "../terms";
 import { hashToken, pathAfterSignIn, toAccount, type AuthDeps } from "./auth";
 import { joinWithInvite, listInvites, makeInvite, viewInvite } from "./invites";
@@ -10,6 +10,7 @@ const BASE = { monthCents: 0, yearCents: 0, trialDays: 0, extraStudents: 0, auto
 const PLANS: Plan[] = [
   { ...BASE, id: "student", name: "Student", role: "student", students: 0, enabled: true },
   { ...BASE, id: TEACHER_DEMO_PLAN_ID, name: "Teacher Demo", role: "teacher", students: 2, enabled: false },
+  { ...BASE, id: PERSONAL_DEMO_PLAN_ID, name: "Personal Demo", role: "student", students: 0, enabled: false },
   { ...BASE, id: TAUGHT_PLAN_ID, name: "Student of a teacher", role: "student", students: 0, enabled: false },
 ];
 
@@ -46,7 +47,7 @@ test("a student joins: becomes a teacher on Teacher Demo, and the invite is thei
   assert.ok(r.ok);
   assert.equal(r.account.role, "teacher");
   assert.equal((await deps.repo.userById(ann.id))?.planId, TEACHER_DEMO_PLAN_ID);
-  assert.deepEqual(await viewInvite(deps, ann, token), { state: "yours", plan: { name: "Teacher Demo", students: 2 }, name: "Ann" });
+  assert.deepEqual(await viewInvite(deps, ann, token), { state: "yours", kind: "teacher", plan: { name: "Teacher Demo", students: 2 }, name: "Ann" });
   assert.ok((await joinWithInvite(deps, ann, token, {})).ok, "joining again changes nothing");
   const [listed] = await listInvites(deps);
   assert.equal(listed.claimedBy?.email, "ann@school.com");
@@ -104,4 +105,35 @@ test("listUsers gives every user, newest first, with their role", async () => {
   const b = await person("b@x.test", null, "owner");
   const listed = await deps.repo.listUsers();
   assert.deepEqual(new Set(listed.map((u) => `${u.email}:${u.role}`)), new Set([`${a.email}:student`, `${b.email}:owner`]));
+});
+
+test("a personal invite: a new account gives its name and agrees to the terms, then is a student on Personal Demo", async () => {
+  const { deps, person } = setup();
+  const { token, invite } = await makeInvite(deps, "Cat", "personal");
+  assert.equal(invite.planId, PERSONAL_DEMO_PLAN_ID);
+  const cat = await person("cat@mail.com");
+  assert.equal((await viewInvite(deps, cat, token)).kind, "personal");
+  assert.deepEqual(await joinWithInvite(deps, cat, token, { name: "Cat" }), { ok: false, error: "terms" });
+  const r = await joinWithInvite(deps, cat, token, { name: "Cat", acceptTerms: true });
+  assert.ok(r.ok);
+  assert.equal(r.account.role, "student");
+  assert.equal(r.account.needsSetup, false);
+  assert.equal((await deps.repo.userById(cat.id))?.planId, PERSONAL_DEMO_PLAN_ID);
+});
+
+test("a teacher who joins with a personal invite becomes a student; an owner stays an owner", async () => {
+  const { deps, person } = setup();
+  const t = await makeInvite(deps, "", "personal");
+  const r = await joinWithInvite(deps, await person("tom@school.com", TEACHER_DEMO_PLAN_ID, "teacher"), t.token, {});
+  assert.ok(r.ok);
+  assert.equal(r.account.role, "student");
+  const o = await makeInvite(deps, "", "personal");
+  const r2 = await joinWithInvite(deps, await person("own@school.com", "student", "owner"), o.token, {});
+  assert.ok(r2.ok);
+  assert.equal(r2.account.role, "owner");
+});
+
+test("an unknown kind makes a teacher invite", async () => {
+  const { deps } = setup();
+  assert.equal((await makeInvite(deps, "", "school")).invite.planId, TEACHER_DEMO_PLAN_ID);
 });

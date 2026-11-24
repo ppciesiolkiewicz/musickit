@@ -27,10 +27,11 @@ In production an admin answers them on the live site; in development, against wh
 
 `/dev/messages`, where the inbox used to be, redirects here and keeps `?thread=`.
 
-## Teacher invites (`/admin/invites`)
+## Invites (`/admin/invites`)
 
 Links we send a teacher so they can try the app on the Teacher Demo plan (`teacher-demo`: a teacher plan with 2
-students, free, `enabled` false, so no one can choose it). Type who it is for and press Make invite link; the link,
+students, free, `enabled` false, so no one can choose it), or a player on the Personal Demo plan (`personal-demo`: a
+player's own plan, free, `enabled` false). Pick Teacher or Personal under Invite for, type who it is for and press Make invite link; the link,
 `/join/<token>`, is shown with Copy link and Copy email. The list shows each invite, its Copy link and Copy email (the
 token is kept beside its hash; invites made before that say "Link not saved") and who joined with
 it; Delete removes an invite (a teacher who joined keeps the plan). One link, one account. The rules are

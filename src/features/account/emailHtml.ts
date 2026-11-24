@@ -67,24 +67,43 @@ export function emailPage(p: { title: string; preheader: string; origin: string;
 `;
 }
 
+/** Who an invite is for: a teacher, or a player on their own plan. */
+export type InviteKind = "teacher" | "personal";
+
+const INVITE_WORDS: Record<InviteKind, { subject: string; preheader: string; heading: string; lead: string; what: string; how: string }> = {
+  teacher: {
+    subject: "Your invite to a free attunr teacher account",
+    preheader: "A teacher account on attunr, free for a year.",
+    heading: "Your attunr teacher account",
+    lead: "You're invited to a teacher account on attunr, free for a year. No card needed.",
+    what: "Every student you add gets an account and a plan for their first week.",
+    how: "Open the invite and log in with your email or Google. If you're new, this also creates your account, and you join straight away.",
+  },
+  personal: {
+    subject: "Your invite to a free attunr account",
+    preheader: "An attunr account of your own, free for a year.",
+    heading: "Your attunr account",
+    lead: "You're invited to an attunr account of your own, free for a year. No card needed.",
+    what: "attunr puts together a practice plan for you: a few short exercises each day for your instrument or your voice.",
+    how: "Open the invite and log in with your email or Google. If you're new, this also creates your account. Then set it up and start your plan.",
+  },
+};
+
 /**
- * The teacher invite, to paste into an email by hand (/admin/invites, Copy email): its subject, a plain-text part and
- * the HTML part. Nothing sends it; we send it ourselves.
+ * An invite, teacher or personal, to paste into an email by hand (/admin/invites, Copy email): its subject, a plain-text
+ * part and the HTML part. Nothing sends it; we send it ourselves.
  */
-export function inviteEmail(link: string): { subject: string; text: string; html: string } {
-  const subject = "Your invite to a free attunr teacher account";
-  const lead = "You're invited to a teacher account on attunr, free for a year. No card needed.";
-  const what = "Every student you add gets an account and a plan for their first week.";
-  const how = "Open the invite and log in with your email or Google. If you're new, this also creates your account, and you join straight away.";
+export function inviteEmail(link: string, kind: InviteKind = "teacher"): { subject: string; text: string; html: string } {
+  const { subject, preheader, heading, lead, what, how } = INVITE_WORDS[kind];
   const once = "The link works for one account, so keep it to yourself.";
   return {
     subject,
     text: `${lead}\n\n${what}\n\n${how}\n\n${link}\n\n${once}\n`,
     html: emailPage({
       title: subject,
-      preheader: "A teacher account on attunr, free for a year.",
+      preheader,
       origin: new URL(link).origin,
-      rows: [row.heading("Your attunr teacher account"), row.text(lead), row.text(what), row.text(how), row.button("Open invite", link), row.small(once), row.link("If Open invite doesn't work, copy this link into your browser:", link)],
+      rows: [row.heading(heading), row.text(lead), row.text(what), row.text(how), row.button("Open invite", link), row.small(once), row.link("If Open invite doesn't work, copy this link into your browser:", link)],
       footer: "You got this email because someone at attunr invited you. If it's not for you, ignore it.",
     }),
   };

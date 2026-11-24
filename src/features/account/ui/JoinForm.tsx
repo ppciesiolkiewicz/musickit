@@ -7,11 +7,14 @@ import { confetti } from "@/components/confetti";
 import { studentsLabel } from "../plans";
 import { joinHref } from "../loginGuard";
 import { useAccount } from "../useAccount";
+import JoinSetup from "./JoinSetup";
 import LinkForm from "./LinkForm";
+import type { InviteKind } from "../emailHtml";
 import { Card, ErrorLine, LINK, PRIMARY, SECONDARY, errorOf, send, type Posted } from "./parts";
 
 type View = {
   state: "open" | "yours" | "used" | "not-found";
+  kind: InviteKind | null;
   plan: { name: string; students: number | null } | null;
   /** Who we made the invite for (its note on /admin/invites), if we said. */
   name: string | null;
@@ -21,8 +24,11 @@ type View = {
   taught: boolean;
 };
 
-/** Where a teacher goes once they joined. */
-const AFTER_JOIN = "/students";
+/** Where each kind of invite goes once joined, and the button that goes there now. */
+const AFTER: Record<InviteKind, { href: string; open: string; opening: string }> = {
+  teacher: { href: "/students", open: "Open Students", opening: "Opening Students" },
+  personal: { href: "/plan", open: "Open your plan", opening: "Opening your plan" },
+};
 
 /** How many seconds "You're in!" stays, counting down, before /students opens by itself (Open Students skips it). */
 const CELEBRATE_SECONDS = 8;
@@ -30,16 +36,19 @@ const CELEBRATE_SECONDS = 8;
 const NOTICES = {
   used: { title: "This invite has already been used", text: "Someone already joined with this link. Send us a message and we'll get you a fresh one." },
   "not-found": { title: "Hmm, this invite link doesn't work", text: "It may be mistyped or cut short. Check the link, or send us a message and we'll get you a new one." },
-  taught: { title: "This account can't join as a teacher", text: "It belongs to a teacher's class. Log out, then open the link again and log in with another email." },
+  taught: { title: "This account can't use this invite", text: "It belongs to a teacher's class. Log out, then open the link again and log in with another email." },
 } as const;
 
 /** The page title: a new account that just logged in here is being set up, not invited any more. */
 export function JoinTitle() {
   const { account } = useAccount();
-  return <>{account?.needsSetup ? "Setting up your teacher account" : "You've been invited to a free attunr teacher account"}</>;
+  return <>{account?.needsSetup ? "Setting up your account" : "You've been invited to a free attunr account"}</>;
 }
 
 /**
+ * A personal invite works the same up to logging in, then: a new account sets itself up here (`JoinSetup`: name, email
+ * updates, the voice-care box) instead of joining by itself, and everyone lands on /plan, not /students.
+ *
  * A teacher invite (`/join/<token>`, made on /admin/invites). A visitor who isn't logged in sees the invite and logs in
  * on the page (the /login form, `LinkForm`), agreeing to the terms by doing so, and comes back here. A new account (no
  * plan yet, so /account/setup is skipped) then joins by itself (user, 2026-11-19): named from the invite's note, else
@@ -75,9 +84,12 @@ export default function JoinForm({ token, google }: { token: string; google: boo
     return () => void (live = false);
   }, [api, show]);
 
+  const kind: InviteKind = view?.kind ?? "teacher";
+  const after = AFTER[kind];
   const usable = view?.state === "open" && !view.taught;
-  // a new account that just logged in here: it joins by itself, no second step
+  // a new account that just logged in here: on a teacher invite it joins by itself, no second step; on a personal one it sets up first
   const settingUp = usable && view.signedIn && view.needsSetup;
+  const personalSetup = settingUp && kind === "personal";
   // one burst when an invite that can be used opens: it's good news (the one on joining follows soon for a new account)
   const inviting = usable && !settingUp;
   useEffect(() => {
@@ -108,18 +120,18 @@ export default function JoinForm({ token, google }: { token: string; google: boo
   const setUp = useCallback(() => post({ name: setupName, acceptTerms: true, emailUpdates: false }), [post, setupName]);
 
   useEffect(() => {
-    if (!settingUp || autoJoined.current || !setupName) return;
+    if (!settingUp || personalSetup || autoJoined.current || !setupName) return;
     autoJoined.current = true;
     void setUp();
-  }, [settingUp, setupName, setUp]);
+  }, [settingUp, personalSetup, setupName, setUp]);
 
   // "You're in!" counts down, then /students opens by itself
   useEffect(() => {
     if (!joined) return;
-    if (left <= 0) return window.location.replace(AFTER_JOIN);
+    if (left <= 0) return window.location.replace(after.href);
     const t = window.setTimeout(() => setLeft((s) => s - 1), 1000);
     return () => window.clearTimeout(t);
-  }, [joined, left]);
+  }, [joined, left, after.href]);
 
   const join = (e: FormEvent) => {
     e.preventDefault();
@@ -154,9 +166,9 @@ export default function JoinForm({ token, google }: { token: string; google: boo
         <Badge icon="check" />
         <div className="flex flex-col gap-1.5 text-center">
           <h2 className="text-xl font-semibold text-slate-100">You&apos;re already in</h2>
-          <p className="text-sm leading-relaxed text-slate-400">Your account is on the {view.plan?.name} plan. Your students are waiting.</p>
+          <p className="text-sm leading-relaxed text-slate-400">Your account is on the {view.plan?.name} plan.{kind === "teacher" ? " Your students are waiting." : ""}</p>
         </div>
-        <Link href={AFTER_JOIN} className={PRIMARY}>Open Students<Icon name="chevron-right" size={16} /></Link>
+        <Link href={after.href} className={PRIMARY}>{after.open}<Icon name="chevron-right" size={16} /></Link>
       </Card>
     );
   }
@@ -168,9 +180,9 @@ export default function JoinForm({ token, google }: { token: string; google: boo
           <Badge icon="sparkles" />
           <h2 className="text-2xl font-semibold text-slate-100">You&apos;re in!</h2>
           <p className="text-sm leading-relaxed text-slate-300">Welcome to attunr. Thank you for joining us.</p>
-          <p aria-live="off" className="text-xs text-slate-500">Opening Students in {left}…</p>
+          <p aria-live="off" className="text-xs text-slate-500">{after.opening} in {left}…</p>
         </div>
-        <button type="button" onClick={() => window.location.replace(AFTER_JOIN)} className={PRIMARY}>Open Students now<Icon name="chevron-right" size={16} /></button>
+        <button type="button" onClick={() => window.location.replace(after.href)} className={PRIMARY}>{after.open} now<Icon name="chevron-right" size={16} /></button>
       </Card>
     );
   }
@@ -181,11 +193,18 @@ export default function JoinForm({ token, google }: { token: string; google: boo
   const greetName = (view?.name ?? (signedOut ? "" : account?.name) ?? "").trim();
   const hello = greetName ? `Hello, ${greetName}` : "Hello there";
   const students = view?.plan ? studentsLabel(view.plan) : null;
-  const perks = [
-    { icon: "graduation-cap" as const, text: view ? (students ? `${students}, on the ${view.plan?.name} plan` : null) : undefined },
-    { icon: "sparkles" as const, text: "Every student you add gets an account and a plan for their first week" },
-    { icon: "check" as const, text: "Free for a year with this invite. No card needed" },
-  ].filter((p) => p.text !== null);
+  const perks = (kind === "personal"
+    ? [
+        { icon: "sparkles" as const, text: view ? `A practice plan made for you, on the ${view.plan?.name} plan` : undefined },
+        { icon: "graduation-cap" as const, text: "A few short exercises each day, for your instrument or your voice" },
+        { icon: "check" as const, text: "Free for a year with this invite. No card needed" },
+      ]
+    : [
+        { icon: "graduation-cap" as const, text: view ? (students ? `${students}, on the ${view.plan?.name} plan` : null) : undefined },
+        { icon: "sparkles" as const, text: "Every student you add gets an account and a plan for their first week" },
+        { icon: "check" as const, text: "Free for a year with this invite. No card needed" },
+      ]
+  ).filter((p) => p.text !== null);
   const perkList = (
     <ul className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
       {perks.map((p) => (
@@ -202,6 +221,22 @@ export default function JoinForm({ token, google }: { token: string; google: boo
       ))}
     </ul>
   );
+
+  if (personalSetup) {
+    return (
+      <Card className="mx-auto">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <Badge icon="sparkles" />
+            <h2 className="text-xl font-semibold text-slate-100">{hello}</h2>
+            <p className="text-sm leading-relaxed text-slate-400">Tell us your name, then your plan opens.</p>
+          </div>
+          {perkList}
+          <JoinSetup startName={setupName} busy={busy} error={error} onSave={(input) => void post({ ...input, acceptTerms: true })} />
+        </div>
+      </Card>
+    );
+  }
 
   if (settingUp || (!view && loaded && account?.needsSetup)) {
     return (
@@ -226,7 +261,9 @@ export default function JoinForm({ token, google }: { token: string; google: boo
         <Badge icon="sparkles" />
         <h2 className="text-2xl font-semibold leading-tight text-slate-100 sm:text-[1.7rem]">{hello}</h2>
         <p className="text-sm leading-relaxed text-slate-300">
-          We&apos;d love to have you teaching here. Join, add your students, and attunr gets each of them practising from day one.
+          {kind === "personal"
+            ? <>We&apos;d love to have you practising here. Join, and attunr puts together a plan for you from day one.</>
+            : <>We&apos;d love to have you teaching here. Join, add your students, and attunr gets each of them practising from day one.</>}
         </p>
       </div>
 
@@ -242,7 +279,11 @@ export default function JoinForm({ token, google }: { token: string; google: boo
           <div className="flex flex-col gap-4 border-t border-slate-800 pt-5 metal-rule">
             <div className="flex flex-col gap-1">
               <h3 className="text-base font-semibold text-slate-100">First, log in</h3>
-              <p className="text-sm leading-relaxed text-slate-400">Use your email or Google. If you&apos;re new, this also creates your account, and you join straight away.</p>
+              <p className="text-sm leading-relaxed text-slate-400">
+                {kind === "personal"
+                  ? "Use your email or Google. If you're new, this also creates your account, and you set it up next."
+                  : "Use your email or Google. If you're new, this also creates your account, and you join straight away."}
+              </p>
             </div>
             <LinkForm google={google} next={joinHref(token)} bare />
             <p className="text-xs leading-relaxed text-slate-500">
@@ -266,7 +307,7 @@ export default function JoinForm({ token, google }: { token: string; google: boo
         </p>
 
         <ErrorLine>{error}</ErrorLine>
-        <button type="submit" disabled={busy || !view} className={PRIMARY}>{busy ? "Joining…" : <>Join as a teacher<Icon name="chevron-right" size={16} /></>}</button>
+        <button type="submit" disabled={busy || !view} className={PRIMARY}>{busy ? "Joining…" : <>{kind === "personal" ? "Join" : "Join as a teacher"}<Icon name="chevron-right" size={16} /></>}</button>
       </form>
     </Card>
   );

@@ -1,12 +1,14 @@
 import { cleanName, type Account } from "../model";
-import { roleOnPlan, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
+import { PERSONAL_DEMO_PLAN_ID, roleOnPlan, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
 import { TERMS_UPDATED } from "../terms";
 import { hashToken, toAccount, type AuthDeps } from "./auth";
+import type { InviteKind } from "../emailHtml";
 import type { InviteRow } from "./repo";
 
 /**
- * Teacher invites: a link we make on /admin/invites and send a teacher, so they can try the app as a teacher on a plan no
- * one can choose (the Teacher Demo: 2 students, free). The link is `/join/<token>`; the token is kept beside its hash
+ * Invites: a link we make on /admin/invites and send someone, so they can try the app on a plan no one can choose. A
+ * teacher invite gives the Teacher Demo (2 students, free); a personal invite gives the Personal Demo (a player's own
+ * plan, free). The link is `/join/<token>`; the token is kept beside its hash
  * (the hash finds it), so /admin/invites can copy the link again. One invite, one account: the first signed-in person to join with it keeps it.
  *
  * Rules only, like auth.ts: no Request and no SQL.
@@ -17,10 +19,22 @@ export type InviteListing = Omit<InviteRow, "createdAt" | "claimedAt"> & { creat
 
 const listing = (i: InviteRow): InviteListing => ({ ...i, createdAt: i.createdAt.toISOString(), claimedAt: i.claimedAt?.toISOString() ?? null });
 
-/** A new invite onto the Teacher Demo plan. `note` says who it is for. The token is kept so the link can be copied again. */
-export async function makeInvite(deps: AuthDeps, note: unknown): Promise<{ token: string; invite: InviteListing }> {
+/** Who an invite is for: a teacher (Teacher Demo) or a player on their own (Personal Demo). */
+export type { InviteKind };
+
+const PLAN_OF: Record<InviteKind, string> = { teacher: TEACHER_DEMO_PLAN_ID, personal: PERSONAL_DEMO_PLAN_ID };
+
+/** The invite kind a plan gives: a teacher plan makes a teacher invite. */
+export const kindOf = (plan: Pick<Plan, "role">): InviteKind => (plan.role === "teacher" ? "teacher" : "personal");
+
+/**
+ * A new invite: onto the Teacher Demo plan, or the Personal Demo with `kind` "personal" (anything else is a teacher
+ * invite, as before kinds). `note` says who it is for. The token is kept so the link can be copied again.
+ */
+export async function makeInvite(deps: AuthDeps, note: unknown, kind: unknown = "teacher"): Promise<{ token: string; invite: InviteListing }> {
   const token = deps.token();
-  const invite = await deps.repo.createInvite({ token, tokenHash: hashToken(token), planId: TEACHER_DEMO_PLAN_ID, note: cleanName(note) }, deps.now());
+  const planId = PLAN_OF[kind === "personal" ? "personal" : "teacher"];
+  const invite = await deps.repo.createInvite({ token, tokenHash: hashToken(token), planId, note: cleanName(note) }, deps.now());
   return { token, invite: listing(invite) };
 }
 
@@ -32,6 +46,8 @@ export type InviteState = "open" | "yours" | "used" | "not-found";
 /** What `/join/<token>` shows: the invite's state, its plan (name and students) and who it is for (its note), if we said. */
 export interface InviteView {
   state: InviteState;
+  /** null when the invite isn't found */
+  kind: InviteKind | null;
   plan: Pick<Plan, "name" | "students"> | null;
   name: string | null;
 }
@@ -48,10 +64,10 @@ const stateFor = (invite: InviteRow | null, userId: string | null): InviteState 
 export async function viewInvite(deps: AuthDeps, account: Account | null, token: unknown): Promise<InviteView> {
   const invite = await find(deps, hashOf(token));
   const plan = invite && (await deps.repo.listPlans()).find((p) => p.id === invite.planId);
-  if (!invite || !plan) return { state: "not-found", plan: null, name: null };
+  if (!invite || !plan) return { state: "not-found", kind: null, plan: null, name: null };
   const state = stateFor(invite, account?.id ?? null);
   // the name is for the person it was made for: not shown to someone else on a used link
-  return { state, plan: { name: plan.name, students: plan.students }, name: state === "used" ? null : invite.note || null };
+  return { state, kind: kindOf(plan), plan: { name: plan.name, students: plan.students }, name: state === "used" ? null : invite.note || null };
 }
 
 export type JoinError = "not-found" | "used" | "taught" | "name" | "terms";

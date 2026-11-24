@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ token: string }> };
 
 /**
- * `/join/<token>`, a teacher invite: `{ state, plan, name, signedIn, needsSetup, taught }`. Open to a visitor who isn't
+ * `/join/<token>`, a teacher or personal invite: `{ state, kind, plan, name, signedIn, needsSetup, taught }`. Open to a visitor who isn't
  * logged in (`signedIn` false): the page shows them the invite and logs them in there.
  */
 export async function GET(req: Request, { params }: Ctx) {
@@ -22,7 +22,7 @@ export async function GET(req: Request, { params }: Ctx) {
 const ERRORS: Record<JoinError, { status: number; error: string; field?: string }> = {
   "not-found": { status: 404, error: "This invite link doesn't work. Check the link, or ask us for a new one." },
   used: { status: 410, error: "This invite was already used by another account. Ask us for a new one." },
-  taught: { status: 409, error: "This account belongs to a teacher's class, so it can't join as a teacher. Log in with another email." },
+  taught: { status: 409, error: "This account belongs to a teacher's class, so it can't join with this invite. Log in with another email." },
   name: { status: 400, error: "Please type your name.", field: "name" },
   terms: { status: 400, error: "Please agree to the terms of use.", field: "terms" },
 };

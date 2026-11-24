@@ -25,7 +25,7 @@ const linkBase = (req: Request): string => {
   return host === "localhost" || host === "127.0.0.1" ? new URL(req.url).origin : SITE_URL;
 };
 
-/** /admin/invites (development, or an admin): every teacher invite, newest first, with its `link` (null when it was made before tokens were kept). */
+/** /admin/invites (development, or an admin): every invite, newest first, with its `link` (null when it was made before tokens were kept). */
 export async function GET(req: Request) {
   const gate = await devOrAdminGate(req);
   if (gate) return gate;
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
   return json({ invites });
 }
 
-/** A new invite onto the Teacher Demo plan: JSON `{ note }`. Answers `{ invite, link }`. */
+/** A new invite: JSON `{ note, kind }`, kind "teacher" (Teacher Demo, the default) or "personal" (Personal Demo). Answers `{ invite, link }`. */
 export async function POST(req: Request) {
   const gate = await devOrAdminGate(req);
   if (gate) return gate;
@@ -44,11 +44,11 @@ export async function POST(req: Request) {
   const deps = auth();
   if (!deps) return json({ error: NO_DB }, 503);
   const body = await readJson(req);
-  const { token, invite } = await makeInvite(deps, body?.note);
+  const { token, invite } = await makeInvite(deps, body?.note, body?.kind);
   return json({ invite, link: `${linkBase(req)}${joinHref(token)}` });
 }
 
-/** Deletes an invite: `?id=<id>`. A teacher who joined with it keeps their plan. */
+/** Deletes an invite: `?id=<id>`. Whoever joined with it keeps their plan. */
 export async function DELETE(req: Request) {
   const gate = await devOrAdminGate(req);
   if (gate) return gate;

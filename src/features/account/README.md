@@ -104,6 +104,12 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   shown, named from the invite's note (else its own name), terms agreed by logging in under the line saying so, email
   updates off. An account that is already set up presses Join as a teacher, since it leaves its plan. A student of a teacher (the
   `taught` plan) can't join. Routes: `GET/POST /api/join/<token>`; the admin's are `/api/admin/invites`.
+- Personal invites: the same table, link and page, onto the Personal Demo plan (`PERSONAL_DEMO_PLAN_ID`, migration
+  `0038_personal_demo_plan`: student, free, `enabled` false). `makeInvite(deps, note, "personal")`; the invite's kind is
+  read from its plan's role (`kindOf`), and the GET says it (`kind`). A new account doesn't join by itself: it sets up on
+  the page (`ui/JoinSetup.tsx`: name, email updates, the voice-care box; terms agreed by logging in), then joins and
+  goes to /plan. A set-up account presses Join. A teacher who joins becomes a student (an owner stays an owner).
+  `inviteEmail(link, kind)` has the words for each.
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
 - `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout), which also keeps an account with no plan out of the three main sections until `/account/setup`. The server half
   is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's

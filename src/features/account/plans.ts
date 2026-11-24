@@ -52,6 +52,12 @@ export const TAUGHT_PLAN_ID = "taught";
  */
 export const TEACHER_DEMO_PLAN_ID = "teacher-demo";
 
+/**
+ * Personal Demo: a player's own plan, free and never offered (`enabled` false). A player gets it only through a personal
+ * invite link we make on /admin/invites. The row is written by migration 0038.
+ */
+export const PERSONAL_DEMO_PLAN_ID = "personal-demo";
+
 /** How a person pays for their plan: every month, or once a year. */
 export type Billing = "month" | "year";
 export const isBilling = (x: unknown): x is Billing => x === "month" || x === "year";

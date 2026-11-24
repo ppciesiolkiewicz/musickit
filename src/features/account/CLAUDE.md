@@ -26,10 +26,11 @@
   chooses it; `Account.taught`), linked by a `teacher_students` row (`addStudent`, `studentsOf`, `studentLink`,
   `teacherOf`, `markClaimed` on `AuthRepo`). A student has one teacher. `startSession` marks a taught account's link claimed on any sign-in (a failure there is logged, never stops the sign-in). Anything that reaches a student's data checks the
   link on the server first; never trust a student id from a request. `students` in `FEATURES` is for teachers, owners and admins.
-- **The Teacher Demo plan comes only from an invite.** `teacher-demo` is `enabled` false; `joinWithInvite`
+- **The Teacher Demo and Personal Demo plans come only from an invite.** `teacher-demo` and `personal-demo` are `enabled` false; `joinWithInvite`
   (`server/invites.ts`) is the one way onto it, never `canChoose`. A teacher invite's page (`/join/<token>`) is public: it logs a
   visitor in itself (the terms line sits under its log-in form) and sets a new account up itself, joining with no second
-  step (name from the invite's note, terms agreed), so `pathAfterSignIn` doesn't send it to `/account/setup`.
+  step (name from the invite's note, terms agreed), so `pathAfterSignIn` doesn't send it to `/account/setup`. A personal
+  invite sets a new account up on the page instead (`JoinSetup`), never on `/account/setup`, which would make it pick a plan.
   Its GET shows the invite's note (who it is for) to anyone with the link, except once someone else has used it.
 - **A token is stored as its hash, used once, and never logged** (exceptions: the development log-in link is logged;
   a teacher invite also keeps its token, so /admin/invites can copy the link again: it only puts someone on the free

@@ -267,6 +267,13 @@
       "when": 1795074115932,
       "tag": "0037_drop_block_reuse_flag",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1795491826199,
+      "tag": "0038_personal_demo_plan",
+      "breakpoints": true
     }
   ]
 }
