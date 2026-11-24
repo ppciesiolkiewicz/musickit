@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getAudioContext, readDeviceChoice } from "@/features/sound";
+import { getAudioContext, getOutputBus, readDeviceChoice, wakeAudio } from "@/features/sound";
 import { clockTime } from "@/features/recorder/recorder";
 import { pickVideoType, videoFileName } from "@/features/videos/recording";
 import { asciiTab, type RiffNote } from "./riff";
@@ -15,6 +15,37 @@ type Stored = "saving" | "saved" | "failed";
 /** A take stops itself here, so a forgotten one doesn't fill the disk. */
 const MAX_SECONDS = 180;
 const btn = "rounded bg-slate-800 px-3 py-1 text-sm disabled:opacity-40";
+/**
+ * A click at `bpm` on the AudioContext clock, louder on beat 1 of each 4/4 bar, to the speakers only: the take records the input
+ * stream, so the click is heard and never recorded (unless a microphone picks it up from the room). Returns a stop function.
+ */
+function startClick(bpm: number): () => void {
+  const ctx = getAudioContext();
+  const out = ctx.createGain();
+  out.gain.value = 0.6;
+  out.connect(getOutputBus());
+  const period = 60 / bpm;
+  const anchor = ctx.currentTime + 0.1;
+  let next = 0;
+  const tick = () => {
+    while (anchor + next * period < ctx.currentTime + 0.12) {
+      const t = anchor + next * period, accent = next % 4 === 0;
+      const osc = ctx.createOscillator(), env = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.value = accent ? 1760 : 1175;
+      env.gain.setValueAtTime(accent ? 0.5 : 0.3, t);
+      env.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+      osc.connect(env).connect(out);
+      osc.start(t);
+      osc.stop(t + 0.045);
+      next++;
+    }
+  };
+  tick();
+  const id = window.setInterval(tick, 25);
+  return () => { window.clearInterval(id); try { out.disconnect(); } catch { /* already gone */ } };
+}
+
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 /**
@@ -37,6 +68,9 @@ export default function RiffTake({ riff, name, bpm, pos, onNotes }: { riff: stri
   const stream = useRef<MediaStream | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement>(null);
+  const [click, setClick] = useState(true);
+  const stopClick = useRef<(() => void) | null>(null);
+  const endClick = () => { stopClick.current?.(); stopClick.current = null; };
 
   /** Put a take (or none) on screen, letting go of the last one's address. */
   const show = (t: Take | null) => {
@@ -53,7 +87,7 @@ export default function RiffTake({ riff, name, bpm, pos, onNotes }: { riff: stri
     return () => { gone = true; if (shownUrl.current) URL.revokeObjectURL(shownUrl.current); shownUrl.current = ""; };
   }, [riff]);
   // let go of the camera when the panel closes
-  useEffect(() => () => { if (recorder.current?.state === "recording") { recorder.current.onstop = null; recorder.current.stop(); } stopCamera(); }, []);
+  useEffect(() => () => { endClick(); if (recorder.current?.state === "recording") { recorder.current.onstop = null; recorder.current.stop(); } stopCamera(); }, []);
   useEffect(() => { if (live.current && (phase === "ready" || phase === "recording")) live.current.srcObject = stream.current; }, [phase]);
   useEffect(() => {
     if (phase !== "recording") return;
@@ -100,6 +134,7 @@ export default function RiffTake({ riff, name, bpm, pos, onNotes }: { riff: stri
     r.ondataavailable = (e) => e.data.size && chunks.push(e.data);
     r.onerror = () => setProblem("The recording stopped with an error. Record the take again.");
     r.onstop = () => {
+      endClick();
       const recorded = r.mimeType || type || "video/webm";
       const t: Take = { id: riff, blob: new Blob(chunks, { type: recorded }), type: recorded, seconds: Math.round((performance.now() - from) / 1000), at: Date.now() };
       stopCamera();
@@ -110,6 +145,7 @@ export default function RiffTake({ riff, name, bpm, pos, onNotes }: { riff: stri
     };
     recorder.current = r;
     r.start(1000);
+    if (click) void wakeAudio().then(() => { if (r.state === "recording") stopClick.current = startClick(bpm); });
     setSeconds(0);
     setProblem("");
     setPhase("recording");
@@ -153,6 +189,11 @@ export default function RiffTake({ riff, name, bpm, pos, onNotes }: { riff: stri
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}
         {phase === "ready" && <button onClick={record} className="rounded bg-rose-700 px-3 py-1 text-sm">{take ? "Record again" : "Record"}</button>}
         {phase === "ready" && <button onClick={() => { stopCamera(); setPhase("off"); }} className={btn}>Close camera</button>}
+        {(phase === "off" || phase === "ready") && (
+          <label className="flex items-center gap-1.5 text-slate-300" title="Clicks through the speakers while you record. Only the input is recorded: use headphones if you record with a microphone.">
+            <input type="checkbox" checked={click} onChange={(e) => setClick(e.target.checked)} /> Click at {bpm} bpm
+          </label>
+        )}
         {phase === "recording" && <button onClick={() => recorder.current?.stop()} className="rounded bg-rose-700 px-3 py-1 text-sm">Stop</button>}
         {phase === "recording" && <span className="font-mono text-rose-300">{clockTime(seconds)} / {clockTime(MAX_SECONDS)}</span>}
         {phase === "ready" && take && <span className="text-slate-400">A new recording replaces this riff&apos;s take.</span>}
