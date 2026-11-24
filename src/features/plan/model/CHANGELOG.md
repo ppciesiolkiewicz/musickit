@@ -128,6 +128,11 @@ Everything before the prompt had a version.
 
 ## Teaching
 
+### 11 (2026-11-24)
+
+- Warm-ups (DayShape2): `exercise-example`, "The file: one block and its choices", has the one exception to "every exercise names a concept and a path step". A warm-up block (`"kind": "warm-up"`) names no step (`"steps": []` on its choices) and needs no concept, and says its `warmUpPart` (1 to 3: its place in the run that opens the voice or the guitar part of a day). It is 1 to 2 minutes, its choice's `level` is the lowest level that gets it, and its title names the drill, never "Warm-up". Every other rule holds for it.
+- `exercise-example` says what `seed check` passes for a warm-up. The seed README's writing rules and `seed/CLAUDE.md` have said the same since the warm-ups were added. `teaching-voice`, `course-article` and `review-teaching-text` change only their version.
+
 ### 10 (2026-11-24)
 
 - `teaching-voice`, "Words about the app": "the backing track" is the one name for whatever the app plays under the learner. It replaces "the band" (a backing-band's drums and bass, a backing-track) and "the backing" (a guitar-play-along). Every seed block, the tool tours, the backing tracks page tour, the teachers' preset notes and the song chart's notice say it.

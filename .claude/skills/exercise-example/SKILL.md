@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 10
+version: 11
 description: Write or fix a seed exercise (block) or 7-day plan file in src/features/library/seed - what agents find in the library and copy - so it meets every writing rule and reads well against its tools. Use when asked to add, write, improve or fix a seed exercise or plan, or a showcase.
 ---
 
@@ -28,6 +28,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
    - Every choice shows the same words. When the text, a heading, the why or a tool must differ by level, write separate blocks.
    - Another tool or another drill is a new block. Never edit one block into another. An edit keeps what the block is: a clearer step, a fixed fact, a better-lit note.
    - A choice that isn't ready gets `"draft": true`: the library keeps it inactive, so no plan gets it.
+   - A warm-up is the one block that names no step. Its `exercise` has `"kind": "warm-up"` and `"warmUpPart"`: 1, 2 or 3, its place in the short run that opens the voice or the guitar part of a day (voice: 1 breath, 2 lip rolls, 3 scales and intervals; guitar: 1 loose hands, 2 the spider and picking, 3 finger work). Its choices have `"steps": []`, and it needs no `concepts`: it is no step on the path, the app picks it by its kind and a rating of it moves no step. It is 1 to 2 minutes long, a choice's `level` is the lowest level that gets it (`new` for everyone), and the title names the drill, never "Warm-up". Every other rule holds: the why, the `learnBefore` lesson, the tags, the controls by their labels. One that works in any key states `"key": "any"` in `moves` like any block; the app opens it in a key of the exercises that follow it, or a key a fifth away. The path's own block of the same drill (the spider) stays a separate file: `kind` is the block's, not a choice's.
    - A block's `choices` and a section's `choice` are different things. The app picks one of the block's choices for a plan; a section's `choice` draws a selector inside the exercise (*Stages and variants*, below).
 
    *The why, the title, the headings*
@@ -77,7 +78,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
    npm run -s seed -- check <file>
    npm run -s gen:json-index
    ```
-   `check` says ✔ when the file reads with no parser warning, its `versions` are the current ones, every exercise names a concept and a path step, and a tool of a concept with steps sets its level or stage. `gen:json-index` makes the folder's `index.gen.ts` import the new file. Run the tests of what you touched too (`$TSX --test src/features/library/seed/*.test.ts src/features/plan/model/*.test.ts`, with `TSX=$(ls ~/.npm/_npx/*/node_modules/.bin/tsx | head -1)`).
+   `check` says ✔ when the file reads with no parser warning, its `versions` are the current ones, every exercise names a concept and a path step (a warm-up needs neither, and says its `warmUpPart`), and a tool of a concept with steps sets its level or stage. `gen:json-index` makes the folder's `index.gen.ts` import the new file. Run the tests of what you touched too (`$TSX --test src/features/library/seed/*.test.ts src/features/plan/model/*.test.ts`, with `TSX=$(ls ~/.npm/_npx/*/node_modules/.bin/tsx | head -1)`).
 6. **Read it in the app.** Open `/dev/library?item=<id>` on the dev server: it draws the plan or block with its real tools and touches no stored plan. Read every step against the tool under it: are the notes it names lit, does the tempo match, is the control where the text says, is the timer what the text says? A test passing is not the same as a good exercise. Then run the **review-teaching-text** skill on it. If the dev server won't build because of another session's work, say so in your report: don't claim the file was read in the app.
 
 ## Rewriting a seed file that exists
