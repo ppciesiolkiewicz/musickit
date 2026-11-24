@@ -267,7 +267,10 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
         <StartCover show={status === "idle" && index === 0} title={title} onStart={() => void start()} keyCap={armed ? "Space" : undefined} note="The note plays first, then the mic starts.">
           Hold the note on the vowel the mouth shows until the ring fills. The mic checks the note only, so the vowel is yours to shape: copy the mouth.
         </StartCover>
-        <Mouth shape={running ? frame.mouth : target} vowel={at.vowel} progress={frame.progress} inside={inside} resting={status === "rest"} />
+        <div className="flex w-full max-w-sm items-center justify-center gap-3">
+          <Mouth shape={running ? frame.mouth : target} vowel={at.vowel} progress={frame.progress} inside={inside} resting={status === "rest"} />
+          <PitchBar heard={heard} midi={at.midi} cents={cents} inside={inside} />
+        </div>
         <p className="min-h-10 max-w-md whitespace-pre-line text-center text-sm leading-snug text-slate-200">{high ? HIGHER[at.vowel] : SHAPE[at.vowel]}</p>
         <Row label="Vowels" items={vowels.map((v) => SAY[v])} at={done ? -1 : vowelAt} past={done ? vowels.length : vowelAt} progress={frame.progress} />
         {notes.length > 1 && <Row label="Notes" items={notes.map(noteLabel)} at={done ? -1 : noteAt} past={done ? notes.length : noteAt} />}
@@ -295,6 +298,29 @@ function Row({ label, items, at, past, progress }: { label: string; items: strin
           <span className="relative">{item}</span>
         </span>
       ))}
+    </div>
+  );
+}
+
+/** how far the pitch bar reaches above and below the note, in semitones */
+const BAR_SPAN = 3;
+
+/**
+ * The pitch bar beside the mouth: the note to hold is the band in the middle, as wide as the accuracy allows, and the
+ * dot is the note the mic hears, higher up the bar the higher you sing. Past the ends the dot rests on the end.
+ */
+function PitchBar({ heard, midi, cents, inside }: { heard: number | null; midi: number; cents: number; inside: boolean }) {
+  const toY = (semis: number) => 50 - (Math.max(-BAR_SPAN, Math.min(BAR_SPAN, semis)) / BAR_SPAN) * 50;
+  const band = Math.min(50, (cents / 100 / BAR_SPAN) * 50);
+  const y = heard === null ? null : toY(heard - midi);
+  return (
+    <div className="relative h-48 w-4 shrink-0 rounded-full bg-slate-800" role="img"
+      aria-label={heard === null ? `Pitch bar: ${noteLabel(midi)} in the middle` : `Pitch bar: you are on ${noteLabel(heard)}, the note is ${noteLabel(midi)}`}>
+      <div className={`absolute inset-x-0 rounded-sm transition-colors duration-300 ${inside ? "bg-emerald-400/60" : "bg-sky-300/35"}`} style={{ top: `${50 - band}%`, height: `${band * 2}%` }} />
+      <div className="absolute -left-1 -right-1 top-1/2 h-px bg-slate-300/70" />
+      {y !== null && (
+        <div className={`absolute left-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-slate-900 ${inside ? "bg-emerald-300" : "bg-amber-200"}`} style={{ top: `${y}%` }} />
+      )}
     </div>
   );
 }
