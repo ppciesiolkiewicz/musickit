@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function SongChartPage() {
   return (
-    <PageShell active="/theory/song-chart" full title="Song charts" intro="A song's chords, bar by bar, in the order the song plays them. Play the chords along with the backing track, and keep your strumming hand going when a change comes late. Once a chart feels easy, try one with the chords hidden and find them by ear.">
+    <PageShell active="/theory/song-chart" title="Song charts" intro="A song's chords, bar by bar, in the order the song plays them. Play the chords along with the backing track, and keep your strumming hand going when a change comes late. Once a chart feels easy, try one with the chords hidden and find them by ear.">
       <ToolPresets
         type="song-chart"
         presets={[

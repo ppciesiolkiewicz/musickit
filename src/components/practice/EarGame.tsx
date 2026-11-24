@@ -13,6 +13,7 @@ import { Hint, KeyCap, SettingsPanel, SettingsSection } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { Volume, VolumeRow } from "@/features/settings";
 import { DIRECTIONS } from "./DirectionChips";
+import { solfegeOfSemis } from "@/features/theory/labels";
 import { EarGameSettings } from "./EarGameSettings";
 
 const KINDS: { id: EarSettings["kind"]; title: string; about: string }[] = [
@@ -180,6 +181,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
               <button key={a} type="button" onClick={() => pick(a)} disabled={!q}
                 className={`relative cursor-pointer rounded-xl border-2 px-3 py-3 text-lg font-semibold shadow-md shadow-black/30 transition active:scale-[0.96] disabled:cursor-default disabled:opacity-50 ${isRight ? "border-emerald-400 bg-emerald-500/25 text-emerald-50" : wrong ? "border-rose-400 bg-rose-500/25 text-rose-50" : "border-sky-300/50 bg-sky-500/15 text-sky-50 hover:border-sky-300 hover:bg-sky-500/30"}`}>
                 {s.kind === "chord" ? labelOf(a) : a}
+                {s.kind === "interval" && (() => { const iv = INTERVALS.find((x) => x.short === a); return iv && <span className="block text-xs font-normal opacity-70">Do–{solfegeOfSemis(iv.semis)}</span>; })()}
                 {armed && ANSWER_KEYS[i] && <KeyCap className="absolute right-1 top-1 hidden md:block">{ANSWER_KEYS[i]}</KeyCap>}
               </button>
             );

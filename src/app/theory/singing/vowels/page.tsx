@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function VowelsPage() {
   return (
-    <PageShell active="/theory/singing/vowels" full mic title="Vowels" intro="Hold one note and change the vowel on it, with the mic on. The drawn mouth shows the shape for each vowel. Start on one easy note, and climb only once each vowel stays on the note.">
+    <PageShell active="/theory/singing/vowels" mic title="Vowels" intro="Hold one note and change the vowel on it, with the mic on. The drawn mouth shows the shape for each vowel. Start on one easy note, and climb only once each vowel stays on the note.">
       <ToolPresets
         type="vowel-guide"
         presets={[

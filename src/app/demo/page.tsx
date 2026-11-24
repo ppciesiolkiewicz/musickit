@@ -256,10 +256,10 @@ export default function DemoIndex() {
       <div className="flex flex-col gap-12 pb-10">
         {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
         {/* NOTES-HIDDEN: without the notes panel the plans panel takes the full width */}
-        <div className={SHOW_NOTES ? "grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]" : "grid gap-5"}>
+        <div className={SHOW_NOTES ? "grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]" : "grid grid-cols-[minmax(0,1fr)] gap-5"}>
           <section aria-labelledby="plans-h" className={`${PANEL} border-sky-400/30 bg-linear-to-br from-sky-500/30 via-indigo-500/15 to-violet-600/30 shadow-2xl shadow-sky-950/40`}>
             <PanelHead id="plans-h" badge="Practice plan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="A week of practice, one day at a time" text="Each card is one student's week: a few minutes of exercises a day, with the tools to play them on the page. Open a week and try any day." />
-            <div className="grid gap-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+            <div className="grid grid-cols-[minmax(0,1fr)] gap-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
               {AREAS.map(({ area, name, icon, tile, card }) => {
                 const group = cards.filter((c) => c.area === area);
                 if (!group.length) return null;

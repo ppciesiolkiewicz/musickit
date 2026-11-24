@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function StaffReadingPage() {
   return (
-    <PageShell active="/theory/staff-reading" full mic title="Read the staff" intro="A note appears on the staff, the five lines of music. Name it by its letter, or play or sing it with the mic on. Start with the lines, then add the spaces, and move on once the names come without thinking.">
+    <PageShell active="/theory/staff-reading" mic title="Read the staff" intro="A note appears on the staff, the five lines of music. Name it by its letter, or play or sing it with the mic on. Start with the lines, then add the spaces, and move on once the names come without thinking.">
       <ToolPresets
         type="staff-reading"
         presets={[

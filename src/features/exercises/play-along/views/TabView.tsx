@@ -5,13 +5,16 @@ import { BEATS_PER_BAR } from "../../timeline/timeline";
 import { isNow, rowsOf, shade, useWidth, zoomFor, type ViewProps } from "./common";
 
 const NAMES = ["e", "B", "G", "D", "A", "E"];
-const LEFT = 24, TOP = 14, ROW = 18, PAD = 14;
+const LEFT = 24, ROW = 18, PAD = 14;
 
 /** Six-line tab (high e on top), one column per strum or note, spaced by beat, with a playhead; wrapped into rows of whole bars that fill the width. */
 export default function TabView({ cues, pos, length }: ViewProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const shown = cues.filter((c) => c.frets.length);
   const cols = tabOf(shown);
+  // a chord name over the tab where each chord starts; room for it on top only when there are chords
+  const changes = cues.filter((c, i) => c.chord && c.chord !== cues[i - 1]?.chord);
+  const TOP = changes.length ? 32 : 14;
   const zoom = zoomFor(width);
   const W = width / zoom;
   const { rows, unit } = rowsOf(length, W - 6, LEFT + PAD, 26, 80);
@@ -35,6 +38,9 @@ export default function TabView({ cues, pos, length }: ViewProps) {
               const bx = b === 0 ? LEFT : x(start + b * BEATS_PER_BAR) - bar;
               return <line key={b} x1={bx} x2={bx} y1={TOP} y2={TOP + 5 * ROW} stroke="var(--color-slate-600)" />;
             })}
+            {changes.map((c) => c.at >= start && c.at < end && (
+              <text key={`ch${c.at}`} x={x(c.at) - 4} y={12} fontSize={12} fontWeight={700} fill={isNow(c, pos) || (pos >= c.at && pos < (changes.find((n) => n.at > c.at)?.at ?? end)) ? "var(--color-sky-300)" : "var(--color-slate-200)"} className="font-sans">{c.chord}</text>
+            ))}
             {cols.map((col, i) => {
               if (col.at < start || col.at >= end) return null;
               const now = isNow(shown[i], pos);

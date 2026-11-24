@@ -37,6 +37,9 @@ const SOLFEGE_SHARP: (string | null)[] = ["Di", "Ri", null, "Fi", "Si", "Li", nu
 const SOLFEGE_CHROMATIC = ["Do", "Ra", "Re", "Me", "Mi", "Fa", "Fi", "Sol", "Le", "La", "Te", "Ti"];
 
 /** Movable-do solfège (Do = the root) for a degree such as "R", "♭3", "♯4", "9": Do, Me, Fi, Re. Odd spellings fall back to the chromatic syllable. */
+/** The syllable of the note this many semitones above Do (movable Do, raised and lowered names as in the chromatic scale up). */
+export const solfegeOfSemis = (semis: number): string => SOLFEGE_CHROMATIC[((semis % 12) + 12) % 12];
+
 export function solfege(degree: string): string {
   if (degree === "R") return "Do";
   const m = /^([♭♯b#]*)(\d+)$/.exec(degree);

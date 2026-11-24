@@ -14,7 +14,7 @@ const levels = (extra: Record<string, unknown>) => LEVELS.map((level) => ({ labe
 
 export default function DrillsPage() {
   return (
-    <PageShell active="/theory/drills" full title="Technique drills" intro="Short drills for your hands, played to the metronome. Start slow enough to play every note clean, and raise the tempo once your fingers move without thinking.">
+    <PageShell active="/theory/drills" title="Technique drills" intro="Short drills for your hands, played to the metronome. Start slow enough to play every note clean, and raise the tempo once your fingers move without thinking.">
       <div className="flex flex-col gap-10">
         <ToolPresets heading="Finger patterns" type="finger-pattern" presets={levels({ bpm: 60 })} />
         <ToolPresets heading="Picking" type="picking-drill" presets={levels({ bpm: 70 })} />

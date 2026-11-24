@@ -32,6 +32,10 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
   const [emails, setEmails] = useState<boolean | null>(null);
   const [terms, setTerms] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
+  // the voice-care box: asked here, not stored; the same words are in the terms they agree to
+  const [care, setCare] = useState(false);
+  const [careError, setCareError] = useState<string | null>(null);
+  const careRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const nameRef = useRef<HTMLInputElement>(null);
   const plansRef = useRef<HTMLFieldSetElement>(null);
@@ -71,7 +75,9 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
     setError(null);
     if (noName) return showName();
     if (noPlan) return showPlans();
+    setCareError(care ? null : "Please tick the box about looking after your voice.");
     if (!terms) return showTerms();
+    if (!care) return careRef.current?.focus();
     if (!chosenPlan) return;
     setBusy(true);
     const r = await send("/api/account/setup", "POST", { name: shown, planId: chosenPlan.id, billing: shownBilling, emailUpdates: shownEmails, acceptTerms: terms });
@@ -185,6 +191,23 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
               </span>
             </label>
             <ErrorLine id="setup-terms-error">{termsError}</ErrorLine>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="flex items-start gap-3 text-sm">
+              <input
+                ref={careRef}
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 shrink-0 scroll-mt-24 accent-sky-400"
+                checked={care}
+                onChange={(e) => { setCare(e.target.checked); setCareError(null); }}
+                aria-invalid={!!careError}
+                aria-describedby={careError ? "setup-care-error" : undefined}
+              />
+              <span className="text-slate-200">
+                I&apos;ll be gentle with my voice. Singing doesn&apos;t need much force. I&apos;ll stop if I feel pain, discomfort or dizziness, and see a voice teacher or a doctor if I&apos;m worried.
+              </span>
+            </label>
+            <ErrorLine id="setup-care-error">{careError}</ErrorLine>
           </div>
         </div>
 

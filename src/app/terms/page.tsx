@@ -132,6 +132,16 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
+    title: "Your voice and your body",
+    body: (
+      <>
+        <p>Singing takes good technique, and an app can&apos;t always teach all of it. Some of it needs a teacher who can see and hear you and tell you what to change.</p>
+        <p>Singing doesn&apos;t need much force. Aim for good technique with a gentle effort, and be gentle with yourself.</p>
+        <p>Stop if you feel any pain or discomfort in your throat, or if you feel dizzy or light-headed. Rest until it passes. If it doesn&apos;t pass, or you are worried about your voice, see a voice teacher or a doctor.</p>
+      </>
+    ),
+  },
+  {
     title: "Your notes, plans and videos",
     body: (
       <>
