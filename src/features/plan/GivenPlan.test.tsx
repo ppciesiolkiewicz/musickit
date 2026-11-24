@@ -35,7 +35,7 @@ test("a given plan's page draws its week: the seven days, today marked, the day'
   assert.doesNotMatch(html, /2026-11-15/, "the date reads as words, not as stored");
   assert.equal(html.match(/>Today</g)?.length, 1);
   assert.ok(html.includes(plan.config.title.replace(/&/g, "&amp;").replace(/'/g, "&#x27;")), "the plan's title");
-  assert.match(html, /Day 3: /);
+  assert.match(html, /Tuesday 17 Nov 2026: /);
   assert.doesNotMatch(html, /isn&#x27;t in your plans/);
 });
 
@@ -46,7 +46,7 @@ test("past its last day, every day is open and the page says no day count", () =
   assert.doesNotMatch(html, />Today</, "no day is today once the days are over");
   assert.doesNotMatch(html, /Day \d of 7/);
   assert.match(html, /7 days · started 15 November/);
-  assert.match(html, /Day 7: /);
+  assert.match(html, /Saturday 21 Nov 2026: /);
 });
 
 test("an id not in the given plans draws the not-found state, with a link back to /plan", () => {
@@ -123,7 +123,7 @@ test("without onRate, onTime and onEdit (a teacher looking): the week as the pla
   const html = renderToStaticMarkup(<GivenPlanView plan={plan} date="2026-11-17" day={null} onDay={() => {}} controls={null} corner={null} />);
   assert.equal(html.match(/role="tab"/g)?.length, 7, "the days can still be opened");
   assert.match(html, /Day 3 of 7 · started 15 November/);
-  assert.match(html, /Day 3: /);
+  assert.match(html, /Tuesday 17 Nov 2026: /);
   assert.doesNotMatch(html, /How did it go\?/);
   assert.doesNotMatch(html, /Reset the day&#x27;s timer/);
   assert.doesNotMatch(html, />\s*Edit\s*</);
@@ -137,10 +137,11 @@ test("a week with rest days shows its practice days only, numbered in order; a r
   assert.equal(onPractice.match(/role="tab"/g)?.length, 3);
   assert.match(onPractice, /Day 2 of 3 · started 15 November/);
   assert.equal(onPractice.match(/>Today</g)?.length, 1);
-  assert.match(onPractice, /Day 2: /);
+  assert.match(onPractice, /Tuesday 17 Nov 2026: /);
+  assert.match(onPractice, />Sunday<[\s\S]*>15 Nov<[\s\S]*>Tuesday<[\s\S]*>17 Nov<[\s\S]*>Thursday<[\s\S]*>19 Nov</, "each practice day by its weekday and date");
   const onRest = draw(rest, "2026-11-18");
   assert.match(onRest, /3 days · no practice planned today · started 15 November/);
   assert.doesNotMatch(onRest, />Today</, "no day is today's on a rest day");
-  assert.match(onRest, /Day 2: /, "the practice day before it is open");
+  assert.match(onRest, /Tuesday 17 Nov 2026: /, "the practice day before it is open");
   assert.match(draw(rest, "2026-11-30"), /3 days · started/, "over: the week counts its practice days");
 });

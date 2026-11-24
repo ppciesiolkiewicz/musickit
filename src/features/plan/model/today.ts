@@ -39,6 +39,18 @@ export function dateLabel(date: string): string {
 }
 
 /**
+ * A local `yyyy-mm-dd` as a plan's day is named on the screen: its weekday ("Sunday", and "Sun" where there is little
+ * room), its date without the year ("11 Nov") and with it ("11 Nov 2026").
+ */
+export function dayName(date: string): { weekday: string; short: string; date: string; full: string } {
+  const [y, m, d] = date.split("-").map(Number);
+  const at = new Date(y, m - 1, d);
+  const weekday = WEEKDAYS[at.getDay()];
+  const day = `${at.getDate()} ${MONTHS[at.getMonth()].slice(0, 3)}`;
+  return { weekday, short: weekday.slice(0, 3), date: day, full: `${day} ${at.getFullYear()}` };
+}
+
+/**
  * The words a composed day is stored with: the title is its date ("Wednesday 18 November"), the theme the questionnaire
  * topics its exercises practise, each once, in the order they come ("Scales, basic chords and pitch"); "" with none.
  */

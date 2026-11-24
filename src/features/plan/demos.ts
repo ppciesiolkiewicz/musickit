@@ -26,7 +26,20 @@ export function demoPlan(slug: string): { label: string; config: PlanConfig } | 
   const file = demo && seedFile(demo.plan);
   if (!demo || !file) return null;
   const r = parsePlanConfig(JSON.stringify(seedPlan(file)), catalogue());
-  return r.ok ? { label: demo.label, config: r.config } : null;
+  return r.ok ? { label: demo.label, config: spreadOverWeek(r.config) } : null;
+}
+
+/**
+ * A plan of fewer than seven days laid over a week, the way a teacher's week of fewer practice days is stored: its days
+ * at equal steps from the first day to the seventh (three days: today, in 3 days, in 6 days), the days between them
+ * empty, so the demo shows practice days with their real dates. Seven days, or one, come back as they are.
+ */
+export function spreadOverWeek(config: PlanConfig): PlanConfig {
+  const n = config.days.length;
+  if (n < 2 || n >= 7) return config;
+  const days = Array.from({ length: 7 }, () => ({ theme: "", exercises: [] as PlanConfig["days"][number]["exercises"] }));
+  config.days.forEach((d, k) => { days[Math.round((k * 6) / (n - 1))] = d; });
+  return { ...config, days };
 }
 
 /** What the /demo index shows of one demo plan: who it is for, its week's title and summary, and each day's theme. */

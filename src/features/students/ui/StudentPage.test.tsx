@@ -209,7 +209,8 @@ test("a next plan already made: one line with its start, and that Make next week
 test("practice days: a chip per weekday, the chosen ones pressed; the days go with every plan made", () => {
   const html = draw({ days: [0, 2, 4] });
   assert.match(html, />Practice days</);
-  const chips = buttons(html).filter((b) => /Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday/.test(b));
+  // the week's own day buttons name weekdays too: the chips are the ones that are not tabs
+  const chips = buttons(html).filter((b) => !/role="tab"/.test(b) && /Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday/.test(b));
   assert.equal(chips.length, 7);
   assert.deepEqual(chips.map((b) => /aria-pressed="true"/.test(b)), [true, false, true, false, true, false, false]);
   assert.deepEqual(planInput(TODAY, false, { ...form(opening), days: [0, 2, 4] }, true).days, [0, 2, 4]);
