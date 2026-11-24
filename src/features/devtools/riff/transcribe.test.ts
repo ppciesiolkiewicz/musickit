@@ -55,3 +55,9 @@ test("two notes on one grid step keep the first", () => {
   const riff = toRiff([{ start: 0, end: 0.05, midi: 45 }, { start: 0.05, end: 0.5, midi: 47 }, { start: 0.5, end: 1, midi: 48 }], 120, 5);
   assert.deepEqual(riff.map(midiOf), [45, 48]);
 });
+
+test("toRiff counts from beat 1 after the count-in and fills the expected length", () => {
+  // 120 bpm: a beat is 0.5 s; beat 1 at 2 s; a picked note on beat 2 and a count-in pluck before beat 1
+  const riff = toRiff([{ start: 1.5, end: 1.7, midi: 45 }, { start: 2.5, end: 3, midi: 45 }, { start: 4.1, end: 4.4, midi: 48 }], 120, 5, 0.25, { from: 2, beats: 4 });
+  assert.deepEqual(riff.map((n) => [n.string === null ? "rest" : midiOf(n), n.beats]), [["rest", 1], [45, 1], ["rest", 2]]);
+});

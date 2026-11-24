@@ -60,27 +60,34 @@ export function hearNotes(samples: Float32Array, sampleRate: number): Heard[] {
 }
 
 /**
- * Heard notes as riff notes at `bpm`, on a grid of `grid` beats counted from the first note, each placed nearest the middle of the
- * hand position at fret `pos`. Two notes that land on one grid step keep the first. Silence of two grid steps or more after a note
- * becomes a rest; less, and the note rings up to the next one.
+ * Heard notes as riff notes at `bpm`, on a grid of `grid` beats, each placed nearest the middle of the hand position at fret `pos`.
+ * The grid counts from `from` (seconds into the take: beat 1 after a count-in) or, without it, from the first note; a note before
+ * `from` is dropped, and silence from `from` to the first note becomes a rest. With `beats` (the expected length), notes from that
+ * beat on are dropped and the last note or rest fills up to it. Two notes that land on one grid step keep the first. Silence of
+ * two grid steps or more after a note becomes a rest; less, and the note rings up to the next one.
  */
-export function toRiff(heard: Heard[], bpm: number, pos: number, grid = 0.25): RiffNote[] {
-  if (!heard.length) return [];
+export function toRiff(heard: Heard[], bpm: number, pos: number, grid = 0.25, opts: { from?: number; beats?: number } = {}): RiffNote[] {
+  const origin = opts.from ?? heard[0]?.start;
+  if (origin === undefined) return [];
   const beat = 60 / bpm;
   const snap = (seconds: number) => Math.round(seconds / beat / grid) * grid;
+  const end = opts.beats ?? Infinity;
   const slots: { at: number; len: number; midi: number }[] = [];
   for (const h of heard) {
-    const at = snap(h.start - heard[0].start);
+    const at = snap(h.start - origin);
+    if (at < 0 || at >= end) continue;
     const last = slots[slots.length - 1];
     // the note kept sounds for as long as the one dropped did
-    if (last && at <= last.at) { last.len = Math.max(last.len, snap(h.end - heard[0].start) - last.at); continue; }
-    slots.push({ at, len: Math.max(grid, snap(h.end - h.start)), midi: h.midi });
+    if (last && at <= last.at) { last.len = Math.max(last.len, snap(h.end - origin) - last.at); continue; }
+    slots.push({ at, len: Math.min(end - at, Math.max(grid, snap(h.end - h.start))), midi: h.midi });
   }
+  if (!slots.length) return opts.beats ? [{ string: null, fret: null, beats: opts.beats }] : [];
   const notes: RiffNote[] = [];
+  if (slots[0].at > 0) notes.push({ string: null, fret: null, beats: slots[0].at });
   slots.forEach((s, i) => {
     const place = placeNear(s.midi, pos + 2);
     if (!place) return;
-    const gap = i + 1 < slots.length ? slots[i + 1].at - s.at : s.len;
+    const gap = i + 1 < slots.length ? slots[i + 1].at - s.at : Number.isFinite(end) ? end - s.at : s.len;
     const beats = gap - s.len >= 2 * grid ? s.len : gap;
     notes.push({ ...place, beats });
     if (gap > beats) notes.push({ string: null, fret: null, beats: gap - beats });

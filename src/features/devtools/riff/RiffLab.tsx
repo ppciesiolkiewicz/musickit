@@ -508,7 +508,7 @@ export default function RiffLab() {
         </section>
       )}
 
-      <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} pos={state.pos}
+      <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} pos={state.pos} bars={Math.max(1, Math.ceil(total / 4 - 1e-6))} player={player}
         onNotes={(heard, replace) => { setNotes((ns) => (replace ? heard : [...ns, ...heard])); setSel(null); setOpen(false); }} />
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">

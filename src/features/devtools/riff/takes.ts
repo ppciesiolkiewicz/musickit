@@ -1,7 +1,11 @@
 "use client";
 
 /** The riff maker's video takes, one per riff, kept in this browser (IndexedDB) under the riff's id. */
-export interface RiffTake { id: string; blob: Blob; type: string; seconds: number; at: number }
+export interface RiffTake {
+  id: string; blob: Blob; type: string; seconds: number; at: number;
+  /** recorded to the click: seconds into the take where beat 1 fell (after the count-in, latency allowed for), the tempo and the expected bars */
+  downbeat?: number; bpm?: number; bars?: number;
+}
 
 const DB = "musickit-dev-riff-takes";
 const STORE = "takes";
