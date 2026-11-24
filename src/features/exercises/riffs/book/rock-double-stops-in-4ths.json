@@ -1,0 +1,13 @@
+{
+  "id": "rock-double-stops-in-4ths",
+  "name": "Double stops in 4ths",
+  "genre": "rock",
+  "steps": [
+    "intervals-on-neck:2"
+  ],
+  "tonic": 9,
+  "scale": "Aeolian",
+  "bpm": 100,
+  "pos": 5,
+  "notes": []
+}

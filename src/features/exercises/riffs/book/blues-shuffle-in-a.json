@@ -1,0 +1,13 @@
+{
+  "id": "blues-shuffle-in-a",
+  "name": "Shuffle in A",
+  "genre": "blues",
+  "steps": [
+    "double-stops:1"
+  ],
+  "tonic": 9,
+  "scale": "Mixolydian",
+  "bpm": 80,
+  "pos": 0,
+  "notes": []
+}

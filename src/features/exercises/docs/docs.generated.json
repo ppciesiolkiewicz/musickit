@@ -1231,6 +1231,25 @@
     ]
   },
   {
+    "name": "riff",
+    "kind": "shape",
+    "description": "A riff from the riff book, by id: written by hand note by note, with its own key, strings and frets, so the shape takes\nnothing else. `bpm` goes on the play-along; left out, the riff's own tempo. Riffs are not written into a plan: a\nblock that plays one comes from the library.\n\nExample: `{ \"shape\": \"riff\", \"riff\": \"rock-power-chords-on-two-roots\" }`",
+    "props": [
+      {
+        "name": "shape",
+        "type": "\"riff\"",
+        "required": true,
+        "description": ""
+      },
+      {
+        "name": "riff",
+        "type": "string",
+        "required": true,
+        "description": "the riff's id in the riff book"
+      }
+    ]
+  },
+  {
     "name": "run-singer",
     "kind": "basic",
     "description": "A run from the singing page's runs book on a staff, moving up a semitone each pass, across a voice: its last pass tops\nout on the voice's highest note, so the keys come from the voice, not picked. Play it, then sing it with the microphone. Pick the run from `runChoices()` (one per stage).",

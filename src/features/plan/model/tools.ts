@@ -1262,7 +1262,9 @@ const propLine = (indent: string) => (p: OfferedParam) => `${indent}${p.name}${p
 /** Tools the parser reads but the AI plan is not offered (the user, 2026-11-13: no videos in the plan for now). */
 export const PROMPT_HIDDEN: ToolName[] = ["video"];
 const TOOL_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind !== "shape" && Object.hasOwn(PARSERS, d.name) && !PROMPT_HIDDEN.includes(d.name as ToolName));
-const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape");
+/** Shapes the parser reads but the AI plan is not offered: a riff is written by hand in the riff maker, and a block that plays one comes from the library. */
+export const PROMPT_HIDDEN_SHAPES = ["riff"];
+const SHAPE_DOCS = () => COMPONENT_DOCS.filter((d) => d.kind === "shape" && !PROMPT_HIDDEN_SHAPES.includes(d.name));
 
 /** The tools, as an MCP server would list them: name, description, props; guitar-play-along's shapes listed under it. */
 export function toolInterface(): string[] {

@@ -1,0 +1,13 @@
+{
+  "id": "blues-minor-pentatonic-lick-in-a",
+  "name": "Minor pentatonic lick in A",
+  "genre": "blues",
+  "steps": [
+    "pentatonic-positions:1"
+  ],
+  "tonic": 9,
+  "scale": "Aeolian",
+  "bpm": 80,
+  "pos": 5,
+  "notes": []
+}

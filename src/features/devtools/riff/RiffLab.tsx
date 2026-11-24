@@ -11,6 +11,7 @@ import { Note } from "@tonaljs/tonal";
 import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNear, inScale, midiOf, placeNear, placesOf, riffTimeline, scaleStep, type RiffNote } from "./riff";
 import { PlayAlongTimeline } from "@/features/exercises/play-along/PlayAlong";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
+import { GENRES, type BookRiff } from "@/features/exercises/riffs/book";
 
 const STORE = "musickit.dev.riffs";
 const OLD_STORE = "musickit.dev.riff";
@@ -44,10 +45,11 @@ function NoteSign({ beats, x = 0, y = 0, color = "currentColor" }: { beats: numb
 const noteIcon = (beats: number) => <svg width={16} height={22} viewBox="-1 0 16 22" className="inline-block align-middle" aria-hidden><NoteSign beats={beats} /></svg>;
 const toggleDot = (beats: number) => (isDotted(beats) ? beats / 1.5 : beats * 1.5);
 
-interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number; /** the sound it plays with, and the NAM model (an id in this browser's library, 0 none) */ sound?: RiffSound; model?: number }
+interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number; /** the sound it plays with, and the NAM model (an id in this browser's library, 0 none) */ sound?: RiffSound; model?: number; /** the riff book file it was opened from and saves to (an id of `exercises/riffs/book`) */ seed?: string }
 interface Library { riffs: Saved[]; cur: string }
+const AEOLIAN = MODE_LIST.findIndex((m) => m.name === "Aeolian");
 const newId = () => Math.random().toString(36).slice(2, 10);
-const blank = (name: string): Saved => ({ id: newId(), name, tonic: 9, mode: MODE_LIST.findIndex((m) => m.name === "Minor"), notes: [], bpm: 90, pos: 5 });
+const blank = (name: string): Saved => ({ id: newId(), name, tonic: 9, mode: AEOLIAN, notes: [], bpm: 90, pos: 5 });
 const FIRST = blank("Riff 1");
 const EMPTY_LIB: Library = { riffs: [FIRST], cur: FIRST.id };
 
@@ -62,6 +64,15 @@ const load = (): Library => {
   // a copy, so the first riff is saved with its id: its take is kept under it
   return { ...EMPTY_LIB };
 };
+
+/** A riff of the book as one of this browser's riffs, tied to its file. A scale the list doesn't have opens as Aeolian. */
+const fromBook = (r: BookRiff): Saved => {
+  const mode = MODE_LIST.findIndex((m) => m.name === r.scale);
+  return { id: newId(), name: r.name, tonic: r.tonic, mode: mode < 0 ? AEOLIAN : mode, notes: r.notes, bpm: r.bpm, pos: r.pos, seed: r.id };
+};
+/** What a riff's file holds of it, to tell whether the editor has changes the file doesn't. */
+const fileFields = (r: { tonic: number; scale: string; bpm: number; pos: number; notes: RiffNote[] }) =>
+  JSON.stringify([r.tonic, r.scale, r.bpm, r.pos, r.notes.map((n) => [n.string, n.fret, n.beats, !!n.with])]);
 
 const scaleName = (r: Saved) => `${TONICS.find((t) => t.pc === r.tonic)?.name ?? "?"} ${MODE_LIST[r.mode]?.name ?? "?"}`;
 const cell = (n: RiffNote) => ({ string: 6 - n.string!, fret: n.fret, note: Note.fromMidiSharps(midiOf(n)!), beats: n.beats });
@@ -109,6 +120,8 @@ export default function RiffLab() {
   const [copied, setCopied] = useState("");
   const [shapeIdx, setShapeIdx] = useState(0);
   const [notice, setNotice] = useState("");
+  const [book, setBook] = useState<BookRiff[]>([]);
+  const [bookState, setBookState] = useState("");
   const [models, setModels] = useState<{ id: number; name: string }[]>([]);
   const [ampState, setAmpState] = useState("");
   const player = useCallback(() => playerFor(sound), [sound]);
@@ -168,6 +181,23 @@ export default function RiffLab() {
       try { const r = await getModelLibrary().addFile(f); setModel(r.id); } catch (e) { setNotice(e instanceof Error ? e.message : String(e)); }
     }
   };
+  /** The riff book as its files are now; null when it can't be read (the reason goes under the list). */
+  const readBook = useCallback(async (): Promise<BookRiff[] | null> => {
+    try {
+      const res = await fetch("/api/dev/riffs", { cache: "no-store", signal: AbortSignal.timeout(10000) });
+      const body = (await res.json().catch(() => null)) as { riffs?: BookRiff[]; problems?: string[]; error?: string } | null;
+      if (!res.ok || !body?.riffs) throw new Error(body?.error ?? `Riff book: ${res.status}`);
+      setBook(body.riffs);
+      setBookState(body.problems?.length ? `Left out: ${body.problems.join(" · ")}` : "");
+      return body.riffs;
+    } catch (e) {
+      setBookState(`Error: ${e instanceof Error ? e.message : String(e)}`);
+      return null;
+    }
+  }, []);
+  // read once the page is up: every setState in readBook comes after its fetch
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { void readBook(); }, [readBook]);
   const shape = SHAPES[shapeIdx];
   /** a step is being built, so the next note joins it until Space */
   const [open, setOpen] = useState(false);
@@ -331,6 +361,43 @@ export default function RiffLab() {
   const pick = (id: string) => { history.current = []; setSel(null); setLib((l) => ({ ...l, cur: id })); };
   const add = () => { const r = { ...blank(`Riff ${lib.riffs.length + 1}`), tonic: state.tonic, mode: state.mode, bpm: state.bpm, pos: state.pos, sound: state.sound, model: state.model }; history.current = []; setSel(null); setLib((l) => ({ riffs: [...l.riffs, r], cur: r.id })); };
   const remove = (id: string) => { void deleteTake(id).catch(() => { /* the take stays in the browser, unused */ }); setLib((l) => { const riffs = l.riffs.filter((r) => r.id !== id); if (!riffs.length) return EMPTY_LIB; return { riffs, cur: l.cur === id ? riffs[0].id : l.cur }; }); };
+  const seedRiff = state.seed ? book.find((b) => b.id === state.seed) : undefined;
+  const seedScale = MODE_LIST[state.mode]?.name ?? "Aeolian";
+  const seedDirty = !!seedRiff && fileFields(seedRiff) !== fileFields({ ...state, scale: seedScale });
+  /** Open a riff of the book: this browser's copy when there is one (it may hold unsaved changes), else the file's. */
+  const openSeed = (r: BookRiff) => {
+    history.current = [];
+    setSel(null);
+    setLib((l) => {
+      const have = l.riffs.find((x) => x.seed === r.id);
+      if (have) return { ...l, cur: have.id };
+      const made = fromBook(r);
+      return { riffs: [...l.riffs, made], cur: made.id };
+    });
+  };
+  /** Write the riff in the editor into its file. */
+  const saveSeed = async () => {
+    if (!state.seed) return;
+    setBookState("Saving…");
+    try {
+      const res = await fetch("/api/dev/riffs", { method: "PUT", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(10000), body: JSON.stringify({ id: state.seed, tonic: state.tonic, scale: seedScale, bpm: state.bpm, pos: state.pos, notes: state.notes }) });
+      const body = (await res.json().catch(() => null)) as { riff?: BookRiff; error?: string } | null;
+      if (!res.ok || !body?.riff) throw new Error(body?.error ?? `Something went wrong (${res.status}).`);
+      const saved = body.riff;
+      setBook((b) => b.map((x) => (x.id === saved.id ? saved : x)));
+      setBookState(`Saved to ${saved.id}.json`);
+    } catch (e) {
+      setBookState(`Error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
+  /** Throw away the editor's changes: the riff as its file has it now. */
+  const reloadSeed = async () => {
+    const id = state.seed;
+    const from = (await readBook())?.find((b) => b.id === id);
+    if (!from) return;
+    setSel(null);
+    setState((s) => { history.current.push(s.notes); return { ...fromBook(from), id: s.id, sound: s.sound, model: s.model }; });
+  };
   const copy = (what: string, text: string) => { navigator.clipboard.writeText(text).then(() => { setCopied(what); setTimeout(() => setCopied(""), 1200); }, () => setCopied("Copy failed")); };
 
   const sn = sel === null ? null : notes[sel];
@@ -359,9 +426,38 @@ export default function RiffLab() {
             </li>
           ))}
         </ul>
+        <h2 className="mt-3 text-xs uppercase tracking-wide text-slate-500">Riff book</h2>
+        {GENRES.filter((g) => book.some((b) => b.genre === g)).map((g) => (
+          <div key={g} className="flex flex-col gap-1">
+            <h3 className="text-xs capitalize text-slate-400">{g}</h3>
+            <ul className="flex flex-col gap-1">
+              {book.filter((b) => b.genre === g).map((b) => (
+                <li key={b.id}>
+                  <button onClick={() => openSeed(b)} title={`${b.id}.json · ${b.steps.join(", ")}`} className={`w-full rounded px-2 py-1 text-left text-sm ${state.seed === b.id ? "bg-sky-900/50" : "hover:bg-slate-800"}`}>
+                    <span className="block">{b.name}</span>
+                    <span className={`block text-xs ${b.notes.length ? "text-slate-500" : "text-amber-400"}`}>{b.notes.length ? `${b.notes.length} notes` : "empty"} · {b.steps.join(", ")}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        {bookState && <p role={bookState.startsWith("Error") ? "alert" : "status"} className={`text-xs ${bookState.startsWith("Error") ? "text-rose-400" : "text-slate-400"}`}>{bookState}</p>}
       </aside>
     <div className="flex min-w-0 flex-1 flex-col gap-5">
       <input aria-label="Riff name" value={state.name} onChange={(e) => setState((s) => ({ ...s, name: e.target.value }))} className="rounded bg-transparent text-lg font-semibold outline-none focus:bg-slate-900" />
+      {state.seed && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-slate-400">Riff book: <span className="font-mono text-slate-200">{state.seed}.json</span></span>
+          {!seedRiff ? <span className="text-amber-300">The riff book has no file with this id.</span> : (
+            <>
+              <button onClick={() => void saveSeed()} disabled={!seedDirty} className="rounded bg-sky-700 px-3 py-1 text-white disabled:bg-slate-800 disabled:text-slate-500">Save to riff book</button>
+              <button onClick={() => void reloadSeed()} disabled={!seedDirty} className="rounded bg-slate-800 px-3 py-1 disabled:opacity-40">Reload from riff book</button>
+              <span className="text-slate-500">{seedDirty ? "Changes not in the file yet" : "Same as the file"}</span>
+            </>
+          )}
+        </div>
+      )}
       <div className="flex flex-wrap items-end gap-4">
         <label className="flex flex-col text-xs text-slate-400">Key
           <select className="rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={state.tonic} onChange={(e) => setState((s) => ({ ...s, tonic: Number(e.target.value) }))}>

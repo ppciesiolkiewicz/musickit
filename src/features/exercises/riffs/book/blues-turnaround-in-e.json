@@ -1,0 +1,13 @@
+{
+  "id": "blues-turnaround-in-e",
+  "name": "Turnaround in E",
+  "genre": "blues",
+  "steps": [
+    "seventh-shapes:1"
+  ],
+  "tonic": 4,
+  "scale": "Mixolydian",
+  "bpm": 70,
+  "pos": 0,
+  "notes": []
+}

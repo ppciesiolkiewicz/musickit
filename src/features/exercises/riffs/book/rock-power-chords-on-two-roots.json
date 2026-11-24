@@ -1,0 +1,30 @@
+{
+  "id": "rock-power-chords-on-two-roots",
+  "name": "Power chords on two roots",
+  "genre": "rock",
+  "steps": [
+    "power-chords:2"
+  ],
+  "tonic": 9,
+  "scale": "Aeolian",
+  "bpm": 90,
+  "pos": 5,
+  "notes": [
+    {"string":0,"fret":5,"beats":1},
+    {"string":1,"fret":7,"beats":1,"with":true},
+    {"string":0,"fret":5,"beats":0.75},
+    {"string":1,"fret":7,"beats":0.75,"with":true},
+    {"string":2,"fret":7,"beats":0.5},
+    {"string":2,"fret":10,"beats":0.5},
+    {"string":2,"fret":5,"beats":0.5},
+    {"string":2,"fret":7,"beats":0.75},
+    {"string":1,"fret":5,"beats":1},
+    {"string":2,"fret":7,"beats":1,"with":true},
+    {"string":1,"fret":5,"beats":0.75},
+    {"string":2,"fret":7,"beats":0.75,"with":true},
+    {"string":2,"fret":7,"beats":0.5},
+    {"string":2,"fret":10,"beats":0.5},
+    {"string":2,"fret":5,"beats":0.5},
+    {"string":2,"fret":7,"beats":0.75}
+  ]
+}

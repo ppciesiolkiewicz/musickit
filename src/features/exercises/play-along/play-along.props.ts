@@ -1,11 +1,11 @@
-import type { ArpeggioPartShape, ChordStepsShape, IntervalShape, MelodyShape, ProgressionShape, SoloOverShape, TwoScalesShape } from "../shapes/shapes.props";
+import type { ArpeggioPartShape, ChordStepsShape, IntervalShape, MelodyShape, ProgressionShape, RiffShape, SoloOverShape, TwoScalesShape } from "../shapes/shapes.props";
 import type { Degree } from "../timeline/types";
 
 type NoTempo<S> = Omit<S, "bpm" | "repeats">;
 /** One of the play-along shapes, without `bpm` (that sits on the play-along itself). */
 export type PlayAlongShape =
   | NoTempo<ProgressionShape> | NoTempo<TwoScalesShape> | NoTempo<ChordStepsShape>
-  | NoTempo<ArpeggioPartShape> | NoTempo<MelodyShape> | NoTempo<SoloOverShape> | NoTempo<IntervalShape>;
+  | NoTempo<ArpeggioPartShape> | NoTempo<MelodyShape> | NoTempo<SoloOverShape> | NoTempo<IntervalShape> | NoTempo<RiffShape>;
 
 /**
  * Play along on the guitar with a click and piano: the music shown as tab, as note names or on the neck, all following

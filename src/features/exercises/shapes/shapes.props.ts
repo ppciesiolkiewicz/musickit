@@ -213,4 +213,18 @@ export interface SoloOverShape extends ShapeCommon {
   backing?: CompPattern;
 }
 
-export type Shape = ProgressionShape | TwoScalesShape | ChordStepsShape | ArpeggioPartShape | MelodyShape | SoloOverShape | IntervalShape;
+/**
+ * A riff from the riff book, by id: written by hand note by note, with its own key, strings and frets, so the shape takes
+ * nothing else. `bpm` goes on the play-along; left out, the riff's own tempo. Riffs are not written into a plan: a
+ * block that plays one comes from the library.
+ *
+ * Example: `{ "shape": "riff", "riff": "rock-power-chords-on-two-roots" }`
+ * @component riff shape
+ */
+export interface RiffShape extends ShapeCommon {
+  shape: "riff";
+  /** the riff's id in the riff book */
+  riff: string;
+}
+
+export type Shape = ProgressionShape | TwoScalesShape | ChordStepsShape | ArpeggioPartShape | MelodyShape | SoloOverShape | IntervalShape | RiffShape;
