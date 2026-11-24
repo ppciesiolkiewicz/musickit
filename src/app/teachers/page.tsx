@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SHOW_NOTES } from "@/lib/notesHidden";
 import PageShell from "@/components/PageShell";
 
 export const metadata: Metadata = {
@@ -15,9 +16,10 @@ export default function TeachersPage() {
         <Link href="/teachers/studio" className="inline-flex rounded-xl border border-slate-700 px-4 py-3 text-slate-100 hover:border-slate-500">
           Studio: record a lesson with chords, scales and a drone on screen →
         </Link>
-        <Link href="/teachers/studio?notes=1" className="mt-3 inline-flex rounded-xl border border-slate-700 px-4 py-3 text-slate-100 hover:border-slate-500">
+        {/* NOTES-HIDDEN */}
+        {SHOW_NOTES && <Link href="/teachers/studio?notes=1" className="mt-3 inline-flex rounded-xl border border-slate-700 px-4 py-3 text-slate-100 hover:border-slate-500">
           Notes creator: build a page of notes and share it as a link →
-        </Link>
+        </Link>}
       </div>
     </PageShell>
   );

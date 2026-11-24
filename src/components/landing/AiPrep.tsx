@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Icon, { type IconName } from "@/components/Icon";
 import { BetaBadge, DISPLAY, Eyebrow, H2 } from "@/components/landing/Display";
+import { SHOW_NOTES } from "@/lib/notesHidden";
 
 /*
  * The first section of the founding-partner page (/kickstarter), right under the hero: the two things a teacher does in
@@ -52,8 +53,9 @@ export default function AiPrep() {
       <Eyebrow tone="text-violet-300">In every lesson<BetaBadge /></Eyebrow>
       <H2 id="ai-h">Next week&apos;s practice, <span className="ls-accent italic text-violet-300">ready in minutes.</span></H2>
 
-      <ul className="mt-10 grid gap-4 lg:grid-cols-2">
-        {TOOLS.map((t) => (
+      <ul className={`mt-10 grid gap-4 ${SHOW_NOTES ? "lg:grid-cols-2" : "mx-auto max-w-xl"}`}>
+        {/* NOTES-HIDDEN: the lesson-notes card shows only while SHOW_NOTES is on */}
+        {TOOLS.filter((t) => SHOW_NOTES || t.title !== "Interactive lesson notes").map((t) => (
           <li key={t.title} className={CARD}>
             <div className="flex items-center gap-3">
               <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${t.tone}`}><Icon name={t.icon} size={20} /></span>

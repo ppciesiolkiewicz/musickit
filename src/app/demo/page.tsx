@@ -10,6 +10,7 @@ import Founder from "@/components/landing/Founder";
 import GlassShapes from "@/components/landing/GlassShapes";
 import { PageHeading, PageIntro, pageBar } from "@/components/PageHeading";
 import TourCard from "@/features/intro/TourCard";
+import { SHOW_NOTES } from "@/lib/notesHidden";
 
 export const metadata: Metadata = {
   title: "Demos: ready-made practice plans and teacher notes · attunr",
@@ -253,7 +254,8 @@ export default function DemoIndex() {
     >
       <div className="flex flex-col gap-12 pb-10">
         {/* two panels in their tools' colours; on wide screens a shared subgrid lines up their heads, so the cards start level */}
-        <div className="grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]">
+        {/* NOTES-HIDDEN: without the notes panel the plans panel takes the full width */}
+        <div className={SHOW_NOTES ? "grid gap-5 lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]" : "grid gap-5"}>
           <section aria-labelledby="plans-h" className={`${PANEL} border-sky-400/30 bg-linear-to-br from-sky-500/30 via-indigo-500/15 to-violet-600/30 shadow-2xl shadow-sky-950/40`}>
             <PanelHead id="plans-h" badge="Practice plan" icon="sparkles" tone="border-sky-400/40 bg-sky-400/10 text-sky-200" title="A week of practice, one day at a time" text="Each card is one student's week: a few minutes of exercises a day, with the tools to play them on the page. Open a week and try any day." />
             <div className="grid gap-8 sm:grid-cols-2 sm:gap-4">
@@ -272,7 +274,8 @@ export default function DemoIndex() {
             </div>
           </section>
 
-          <section aria-labelledby="notes-h" className={`${PANEL} border-teal-400/30 bg-linear-to-br from-teal-500/30 via-emerald-500/15 to-cyan-600/25 shadow-2xl shadow-teal-950/40`}>
+          {/* NOTES-HIDDEN */}
+          {SHOW_NOTES && <section aria-labelledby="notes-h" className={`${PANEL} border-teal-400/30 bg-linear-to-br from-teal-500/30 via-emerald-500/15 to-cyan-600/25 shadow-2xl shadow-teal-950/40`}>
             <PanelHead id="notes-h" badge="Notes creator" icon="file-text" tone="border-teal-400/40 bg-teal-400/10 text-teal-200" title="A lesson note that plays" text="Today's material on one page: scales, chords and exercises the student can play. It goes to the student as a link." />
             <div>
               <ColumnHead icon="file-text" tile="bg-teal-500/15 text-teal-300" name="Teacher notes" />
@@ -296,15 +299,16 @@ export default function DemoIndex() {
                 </li>
               </ul>
             </div>
-          </section>
+          </section>}
         </div>
 
-        <Divider label="Made with two simple tools" />
+        {/* NOTES-HIDDEN: the divider names two tools, so it goes with the Notes creator */}
+        {SHOW_NOTES && <Divider label="Made with two simple tools" />}
 
         <div>
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className={SHOW_NOTES ? "grid gap-4 lg:grid-cols-2" : "grid gap-4"}>
             <Autoplan />
-            <NotesCreator />
+            {SHOW_NOTES && <NotesCreator />}
           </div>
           <p className="mt-4 flex gap-2 rounded-xl border border-slate-700/70 bg-slate-950/40 p-3 text-sm text-slate-400 backdrop-blur-xl">
             <Icon name="info" size={16} className="mt-0.5 shrink-0 text-sky-300" />

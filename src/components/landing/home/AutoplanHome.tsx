@@ -18,6 +18,7 @@ import TourCard from "@/features/intro/TourCard";
 import type { VideoId } from "@/features/intro/data";
 import { FOUNDING_OFFER, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
 import { FIRST_STUDENTS, FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
+import { SHOW_NOTES } from "@/lib/notesHidden";
 
 /*
  * The two home pages, / (music schools) and /players (solo musicians), in one shape: the Practice plan first, then
@@ -40,7 +41,8 @@ const PILLARS: Record<Audience, Card[]> = {
   ],
   schools: [
     { icon: "sparkles", title: "A week of practice for each student", text: "Seven days of short exercises, put together from attunr's library to fit where that student is. You steer it with one slider for each topic before each new week." },
-    { icon: "file-text", title: "Lesson notes that play", text: "One page with today's scales, chords and exercises, sent to the student as a link. They open it at home and practise with it." },
+    // NOTES-HIDDEN: shown only while SHOW_NOTES is on
+    ...(SHOW_NOTES ? [{ icon: "file-text" as IconName, title: "Lesson notes that play", text: "One page with today's scales, chords and exercises, sent to the student as a link. They open it at home and practise with it." }] : []),
     { icon: "guitar", title: "The exact material at home", text: "This scale, in this key, in this position, in front of the student. There is nothing to transpose in their head, so the minutes they practise count for more." },
   ],
 };
@@ -254,8 +256,8 @@ export default function AutoplanHome({ audience, plans, ending }: { audience: Au
           <div className="flex justify-center"><PlanButtons /></div>
         </section>
 
-        {/* Notes, the second tool */}
-        <section id="notes" aria-labelledby="notes-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
+        {/* Notes, the second tool. NOTES-HIDDEN */}
+        {SHOW_NOTES && <section id="notes" aria-labelledby="notes-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">
           <div className="grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
             <div className="order-2 lg:order-1">
               <LessonNoteMock startOn="imp" />
@@ -272,7 +274,7 @@ export default function AutoplanHome({ audience, plans, ending }: { audience: Au
               </Link>
             </div>
           </div>
-        </section>
+        </section>}
 
         {/* Other teaching resources, in one strip */}
         <section id="resources" aria-labelledby="resources-h" className="scroll-mt-6 sect-rule py-12 sm:py-16">

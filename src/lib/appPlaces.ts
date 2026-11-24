@@ -8,7 +8,7 @@ export type AppPlace = { href: string; label: string; /** the paths that count a
 
 export const APP_PLACES: AppPlace[] = [
   { href: "/plan", label: "Practice plan", under: ["/plan"] },
-  { href: "/teachers/studio?notes=1", label: "Interactive notes", under: ["/teachers/studio", "/note", "/creator"], hidden: true },
+  { href: "/teachers/studio?notes=1", label: "Interactive notes", under: ["/teachers/studio", "/note", "/creator"], hidden: true }, // NOTES-HIDDEN
   { href: "/practice", label: "Practice", under: ["/practice", "/theory", "/course", "/tuner", "/looper", "/cheatsheet"] },
 ];
 
