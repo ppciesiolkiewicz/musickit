@@ -12,21 +12,21 @@
       "voice-pitch": 2,
       "voice-harmony": 2
     },
-    "minutes": 22,
+    "minutes": 30,
     "styles": "",
     "notes": ""
   },
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "An intermediate voice week at 22 minutes a day, built from every singing tool so no two days look alike: leaps are the key skill and return daily in new forms (heard in the ear game, sung from Do in interval-singer with and without the picture, inside melody-singer tunes in two keys by a choice Key selector, and in lines over a backing track-track), with breathwork to open, runs from run-singer, sight-singing, and a harmony line that comes back faster in choice stages.",
+  "note": "A demo week for an intermediate singer: three practice days of about 30 minutes, built to show many tools in a short week. Leaps are the key skill and return on all three days in new forms: heard in the ear game and sung from Do, heard falling and sung inside a tune, then heard two at once and sung as a harmony line. Around them sit breathwork, the vowel guide, a run past each edge of the range, and from theory a clap-along and a staff-reading block; each day ends with a tune or a line the singer makes up.",
   "plan": {
     "title": "Week 1: leaps, runs and a line of your own",
-    "summary": "Sing 4ths, 5ths and octaves in tune, first from Do, then inside tunes and over chords. Each day opens with breath, has an ear game or a run in the middle, and ends with a tune in two keys and a line you make up.",
-    "progress": "Breath & range: in, hold and out from 4 counts up to 10, a hiss into a buzz, a long even breath out. Next: counts up to 12, and holding the high Do.\nPitch: slides and then leaps cleanly from Do to the high Do over an A drone. Next: the same without the slide first.\nIntervals & leaps: hears 3rds, 4ths, 5ths, 6ths and octaves rising, falling and together, sings the 3rd, 4th, 5th and octave up from Do in six keys from C to A, also without seeing the voice. Falling leaps are sung only inside tunes so far. Next: sing them down from Do, and sing the 6th.\nRuns: five-note run in eighths and sixteenths, a run with turns, a nine-note run, each up by semitones. Next: the octave run, slowly.\nMelodies: medium tunes with a 4th, a 5th and an octave in D and F, four short tunes read from the staff before hearing them. Next: longer tunes to read.\nHarmony & improvising: holds roots and a Mi Fa Re Mi line over I-IV-V-I in D and F up to 90, makes up lines from Do Mi Sol over four chords. Next: a line a 3rd above a tune.",
+    "summary": "Three practice days of about 30 minutes. Day 1 is the 4th and the 5th: heard, sung from Do and found inside a tune. Day 2 hears leaps falling, sings five vowels as the note climbs and ends with a run home over chords. Day 3 stretches your range a few notes each way, holds a harmony line over three chords and ends with a line you make up.",
+    "progress": "Breath & range: in, hold and out with the count one longer each round; a hiss into a buzz; five vowels as the note climbs to the break; a few notes past each edge of the range. Next: slides across the break.\nIntervals & leaps: hears the 4th and the 5th beside their neighbours, and leaps falling; sings the 3rd, the 4th and the 5th up from Do. Next: the octave.\nMelodies: a tune that falls a 4th; Do Mi Sol Do as a tune, then a run home over chords. Next: a tune that drops an octave.\nHarmony & improvising: hears two notes at once, holds a harmony line over three chords, makes up a line from Do, Mi and Sol over four chords. Next: the harmony line, then one of their own.\nBasics: sixteenths tapped on the lane; names the notes on ledger lines. Next: quarters to sixteenths mixed.",
     "days": [
       {
         "theme": "The 4th and the 5th",
@@ -44,13 +44,17 @@
             "choice": "intermediate"
           },
           {
+            "block": "theory-intermediate-clap-along-sixteenths",
+            "choice": "intermediate"
+          },
+          {
             "block": "voice-intermediate-a-tune-that-falls-a-4th",
             "choice": "intermediate"
           }
         ]
       },
       {
-        "theme": "Five-note runs",
+        "theme": "Falling leaps, vowels and a run home",
         "exercises": [
           {
             "block": "voice-intermediate-hiss-then-buzz",
@@ -61,7 +65,11 @@
             "choice": "intermediate"
           },
           {
-            "block": "voice-intermediate-five-notes-up-and-back",
+            "block": "voice-intermediate-five-vowels-as-the-note-climbs",
+            "choice": "intermediate"
+          },
+          {
+            "block": "theory-intermediate-name-the-notes-on-ledger-lines",
             "choice": "intermediate"
           },
           {
@@ -71,31 +79,10 @@
         ]
       },
       {
-        "theme": "The octave",
+        "theme": "Your range, a harmony line and your own line",
         "exercises": [
           {
-            "block": "voice-intermediate-slide-to-the-high-do",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-from-the-4th-up-to-the-octave",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-sing-the-4th-the-5th-and-the-octave",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-a-tune-that-drops-an-octave",
-            "choice": "intermediate"
-          }
-        ]
-      },
-      {
-        "theme": "A harmony line",
-        "exercises": [
-          {
-            "block": "voice-intermediate-in-hold-out-filled-to-80",
+            "block": "voice-intermediate-a-few-notes-higher-and-lower",
             "choice": "intermediate"
           },
           {
@@ -107,70 +94,7 @@
             "choice": "intermediate"
           },
           {
-            "block": "voice-intermediate-read-it-before-you-hear-it",
-            "choice": "intermediate"
-          }
-        ]
-      },
-      {
-        "theme": "A run with a turn",
-        "exercises": [
-          {
-            "block": "voice-intermediate-a-long-breath-out",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-six-leaps-to-tell-apart",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-a-run-with-turns",
-            "choice": "intermediate"
-          },
-          {
             "block": "voice-intermediate-a-tune-with-a-5th-then-your-own-line",
-            "choice": "intermediate"
-          }
-        ]
-      },
-      {
-        "theme": "Leaps without the picture",
-        "exercises": [
-          {
-            "block": "voice-intermediate-leaps-you-cant-see",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-nine-notes-up-and-back",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-read-two-tunes-with-a-5th",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-the-harmony-line-then-your-own",
-            "choice": "intermediate"
-          }
-        ]
-      },
-      {
-        "theme": "Then and now",
-        "exercises": [
-          {
-            "block": "voice-intermediate-in-hold-out-the-long-rounds",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-six-falling-leaps-sung-back",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-the-do-to-sol-run-four-notes-a-beat",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-intermediate-an-octave-tune-then-every-leap",
             "choice": "intermediate"
           }
         ]

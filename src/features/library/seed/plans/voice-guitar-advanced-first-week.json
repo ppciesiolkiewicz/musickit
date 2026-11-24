@@ -28,15 +28,15 @@
   },
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 0,
-    "agents": 1,
-    "teaching": 5
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "A first week for an advanced singer who plays guitar, from a compare-models Fable 5.2 run of 2026-11-15 (written before the prompt had a version).",
+  "note": "A demo week for an advanced singer who plays guitar: three practice days of about 45 minutes, taken from the first week of a compare-models Fable 5.2 run of 2026-11-15, with the vowel guide added. Runs are the key skill and return on all three days: a five-note run faster in stages, a run aimed at the chord that is arriving, pentatonic runs at speed and runs over a soul vamp. On guitar, 9th chords, the 3rd and 7th of each chord, sus and add9 chords and a two-chord vamp sit under the voice, and each day ends with singing over the backing track.",
   "plan": {
     "title": "Week 1: fast runs, rich chords",
-    "summary": "Your runs go from slow and clean to sixteenths, one stage at a time: five notes, turns, the octave, pentatonic runs, then runs aimed at the chords. On guitar, 9th chords and shells on a ii–V–I in G and C give your voice a richer bed, and most days end with you singing over a backing track.",
-    "progress": "Runs: started from clean slow runs. This week: five-note, nine-note, octave and pentatonic runs (hard days 1-3, expert from day 4), sixteenths on the click from 54 up to 80, turns on the 3rd, falling minor pentatonic run, runs aimed at the 3rd of the next chord. Check ratings for where sixteenths blur. Next: longer runs across the break, triplet runs, runs in a real song.\nExtended chords: knew 7th, sus, add9. This week: Am9, D9, Gmaj7, Dm9, G9, Cmaj7, shells on the A-D-G strings, turnaround in C and G, sixteenth strumming with misses up to 112, comping over drums and bass. Next: 13ths, shells with the root on the low E, chord-melody fills between vocal lines.\nCAGED: plays one chord in five shapes. This week: Am, D, G triads on the top two string sets only. Next: the other two sets, inversions along one set.\nIntervals & leaps: had 4ths, 5ths, octaves. This week: 7ths, tritone, minor 6th from a neighbour note, one session; tunes with 7ths, octave, tenths. Next: the leaps down, no dot.\nHarmony & improvising: sang a harmony line already. This week: guide tones over ii–V–I in G, C, F, two harmony lines over I-V-vi-IV, Dorian vamp aiming for the 6th. Next: harmony a 3rd above a melody, minor ii–V.\nBreath & range: strong; short warm-ups only (farinelli to 10, lip rolls, hills). Keep as warm-up.\nPitch, Melodies: strong, not drilled alone.\nScales, Barre chords, Basic chords, Techniques: strong, only used inside solos and comping. Next week a little Dorian soloing with bends.\nEar (not answered): tested gently with 7th chords by ear and intervals in two stages; read the ratings before building on it.",
+    "summary": "Three practice days of about 45 minutes, voice and guitar in turn. Day 1 takes a five-note run faster in stages, plays Am9, D9 and Gmaj7 and sings guide tones over the same ii–V–I in G. Day 2 takes five vowels across the break, finds the 3rd and 7th of each chord on guitar, sings the hard leaps and aims a run at the next chord. Day 3 is pentatonic runs at speed and a soul vamp: you comp it on guitar, then sing runs over it.",
+    "progress": "Runs: a five-note run faster in stages, pentatonic runs at speed, runs aimed at the 3rd of the next chord, runs over a soul vamp. Next: turns, then the octave run.\nExtended chords: Am9, D9 and Gmaj7; the 3rd and 7th of each chord; sus and add9 on top; a two-chord soul vamp comped. Next: Dm9, G9 and Cmaj7, then a turnaround over the backing track.\nIntervals & leaps: the 7ths, the tritone and the minor 6th, each found from a neighbour note. Next: tunes with wide leaps.\nHarmony & improvising: guide tones over the ii–V–I in G. Next: a line of their own over the ii–V–I in C.\nBreath & range: short warm-ups (breath and a lip roll; the middle, then light and high) and five vowels across the break. Keep as warm-up.\nBuilding chords: names minor 7, dominant 7 and major 7 chords by ear. Next: the same, faster.\nEar: names intervals by ear. Next: read the ratings before building on it.",
     "days": [
       {
         "theme": "A ii–V–I in G, and where your runs stand",
@@ -64,10 +64,10 @@
         ]
       },
       {
-        "theme": "Turns and shells",
+        "theme": "Vowels, the 3rd and 7th, and the hard leaps",
         "exercises": [
           {
-            "block": "voice-guitar-advanced-first-week-warm-up-siren-and-low-hum",
+            "block": "voice-advanced-vowels-across-the-break",
             "choice": "advanced"
           },
           {
@@ -75,40 +75,15 @@
             "choice": "advanced"
           },
           {
-            "block": "voice-guitar-advanced-first-week-turns",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-a-run-into-the-chord",
-            "choice": "advanced"
-          }
-        ]
-      },
-      {
-        "theme": "The hard leaps, and the same colours in C",
-        "exercises": [
-          {
-            "block": "voice-guitar-advanced-first-week-warm-up-long-breath-out-lip-roll-up",
-            "choice": "advanced"
-          },
-          {
             "block": "voice-guitar-advanced-first-week-the-hard-leaps-7ths-tritone-minor-6th",
             "choice": "advanced"
           },
           {
-            "block": "voice-guitar-advanced-first-week-dm9-g9-and-cmaj7",
+            "block": "voice-guitar-advanced-first-week-sus-and-add9-on-top",
             "choice": "advanced"
           },
           {
-            "block": "voice-guitar-advanced-first-week-nine-notes-and-the-octave",
-            "choice": "intermediate"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-a-turnaround-with-the-band",
+            "block": "voice-guitar-advanced-first-week-a-run-into-the-chord",
             "choice": "advanced"
           }
         ]
@@ -121,36 +96,11 @@
             "choice": "advanced"
           },
           {
-            "block": "voice-guitar-advanced-first-week-pentatonic-runs-at-speed",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-sus-and-add9-on-top",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between",
-            "choice": "advanced"
-          },
-          {
             "block": "voice-guitar-advanced-first-week-comp-a-soul-vamp",
             "choice": "advanced"
-          }
-        ]
-      },
-      {
-        "theme": "The ii–V–I in C: comp it, then sing it",
-        "exercises": [
-          {
-            "block": "voice-guitar-advanced-first-week-warm-up-hiss-to-voice-fast-siren",
-            "choice": "advanced"
           },
           {
-            "block": "voice-guitar-advanced-first-week-shells-and-guide-tones-in-c",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-the-octave-run",
+            "block": "voice-guitar-advanced-first-week-pentatonic-runs-at-speed",
             "choice": "advanced"
           },
           {
@@ -158,57 +108,7 @@
             "choice": "intermediate"
           },
           {
-            "block": "voice-guitar-advanced-first-week-your-own-line-over-the-ii-v-i-in-c",
-            "choice": "advanced"
-          }
-        ]
-      },
-      {
-        "theme": "Put the run in a song",
-        "exercises": [
-          {
-            "block": "voice-guitar-advanced-first-week-warm-up-longer-breath-light-top",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-fast-runs-rising-and-falling",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-the-turnaround-in-g-two-ways",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-tunes-with-wide-leaps",
-            "choice": "advanced"
-          },
-          {
             "block": "voice-guitar-advanced-first-week-runs-over-a-soul-vamp",
-            "choice": "advanced"
-          }
-        ]
-      },
-      {
-        "theme": "Day 1 again, then the set",
-        "exercises": [
-          {
-            "block": "voice-guitar-advanced-first-week-warm-up-siren-and-middle",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-the-do-to-sol-run-faster",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-comp-the-ii-v-i-in-g-faster",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-the-3rd-and-7th-eyes-off-the-tab",
-            "choice": "advanced"
-          },
-          {
-            "block": "voice-guitar-advanced-first-week-the-set",
             "choice": "advanced"
           }
         ]

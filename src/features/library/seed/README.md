@@ -17,7 +17,7 @@ read the shape they always did. The code reads the files through them: `seedExer
 in `index.ts`. The exercises once written inline in the plans were moved out to block files by `scripts/seed-split.ts`
 (2026-11-19, a one-off); their `note` says which plan and day they came from.
 
-Besides the database, the code reads them directly: the demos at `/demo` (`plan/demos.ts`, six of the plans),
+Besides the database, the code reads them directly: the demos at `/demo` (`plan/demos.ts`, nine of the plans, each three or four practice days),
 `/dev/stories`, `/dev/path` and `/dev/block`.
 
 ## Adding one

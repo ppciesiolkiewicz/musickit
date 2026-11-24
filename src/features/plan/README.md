@@ -4,7 +4,7 @@
 `/plan/given/<planId>` (`GivenPlan.tsx`), beside it: neither replaces the other. Each day the page is opened, the server composes that day's plan from
 library blocks (NEW7, no AI: `model/compose.ts`, `server/composeToday.ts`, the route `api/me/plan/compose`) and the page
 stores it. Players have no outside-AI route to a plan (NEW15: no prompt to copy into an AI chat, no AI extension writing
-it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used by agents and the devtools only.
+it). The nine demo plans, each three or four practice days, are at `/demo`. The prompt (`model/prompt.ts`) is used by agents and the devtools only.
 
 ## The player's path
 
@@ -373,7 +373,7 @@ AI to use them by name without defining them.
 
 ## Seed library
 
-The hand-tuned exercises and 7-day plans live in `src/features/library/seed` (its README: files, `versions`, writing rules, `npm run -s seed -- check`). `plan/demos.ts` reads six of the plans for `/demo`; `/dev/library?item=<id>` draws any of them.
+The hand-tuned exercises and plans (3 to 7 days) live in `src/features/library/seed` (its README: files, `versions`, writing rules, `npm run -s seed -- check`). `plan/demos.ts` reads nine of the plans (each three or four days) for `/demo`; `/dev/library?item=<id>` draws any of them.
 
 ## Concepts
 

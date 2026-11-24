@@ -8,26 +8,27 @@
       "voice-pitch": 1,
       "voice-intervals": 1,
       "voice-melodies": 1,
-      "voice-breath-range": 1
+      "voice-breath-range": 1,
+      "voice-runs": 1
     },
-    "minutes": 17,
+    "minutes": 28,
     "styles": "",
     "notes": ""
   },
-  "model": "claude-fable-5",
+  "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "A beginner voice week at 17 minutes a day: a warm-up, an ear game and one longer musical piece that ends in a tune or line the student makes up. Every tune comes back in a second key through a Key selector, Do Mi Sol moves through three keys, one warm-up climbs a tempo ladder of stages and one opens with breathwork. Every note asked for is low in the voice, and where the singer could wander up the staff (the first staff, a slide, a skip up to Sol, a made-up line) one underlined care line says not to reach for high notes.",
+  "note": "A demo week for a beginner singer: three practice days of about 28 minutes, built to show many tools in a short week. Each day opens with a short warm-up and ends with a tune that turns into a line the singer makes up; between them sit an ear game, a voice technique block (the vowel guide, lip rolls, a run) and a short block from theory (clapping the beat, reading the staff). Steps and skips are the key skill and return on all three days: told apart by ear, sung as a skipping tune, then as Do Mi Sol in three keys and a run from Do to Sol.",
   "plan": {
     "title": "Week 1: Do Mi Sol, in tune, your way",
-    "summary": "Sing in tune over a drone and skip through Do Mi Sol, one idea a day: each day a short warm-up, an ear game, and a longer musical piece that ends with a tune or line you make up.",
-    "progress": "Pitch: finds the low Do over a drone in C, D and F and hears when it settles; slides and hums into Sol. Next: find Do without the hum first.\nBreath & range: paced breath 3 to 6 counts, holds the low Do in G and D on \"oo\". All notes stayed in the low part of the range, with a line not to reach for high notes. Next: hold Sol, breath 3 to 7.\nIntervals & leaps: tells steps, minor and major 3rds, 5ths and 6ths apart by ear, rising and falling, sings Do Mi Sol in A, C and D and Do Re Mi on the beat up to 92 bpm. Falling skips are less sure. Next: sing a 4th.\nMelodies: easy step and skip tunes, each in two keys (C, D, G, A, F), one medium tune in A and D, own lines over two and three chords. Next: medium tunes in two keys.",
+    "summary": "Three practice days of about 28 minutes. Day 1 finds Do over a drone, holds one note through five vowels and sings step tunes. Day 2 is lip rolls and the skip from Do up to Sol, with the notes on the lines of the staff. Day 3 sings Do Mi Sol in three keys, turns Do to Sol into a run and ends with a line you make up.",
+    "progress": "Pitch: finds Do over a drone and hears when the note settles. Next: find Do without the drone first.\nBreath & range: paced breath, then one held Do; five vowels on one easy note; lip rolls through the middle of the voice. Next: the vowels as the note climbs.\nIntervals & leaps: tells steps from skips, and a 3rd from a 5th, by ear; sings Do Mi Sol in three keys. Next: falling skips.\nRuns: Do to Sol and back as a run, one note a beat, then two and four. Next: the home chord as a run.\nMelodies: step tunes, a skipping tune and a tune down from Sol, each followed by a line of their own. Next: a longer skipping tune.\nBasics: taps and claps the beat with the metronome; names the notes on the lines and in the spaces of the staff. Next: lines and spaces mixed.",
     "days": [
       {
-        "theme": "Home over a drone",
+        "theme": "Do over a drone, five vowels and step tunes",
         "exercises": [
           {
             "block": "voice-beginner-find-the-smooth-spot",
@@ -38,21 +39,37 @@
             "choice": "beginner"
           },
           {
+            "block": "voice-beginner-five-vowels-on-one-easy-note",
+            "choice": "beginner"
+          },
+          {
+            "block": "theory-new-clap-along-the-beat",
+            "choice": "new"
+          },
+          {
             "block": "voice-beginner-step-tunes-then-your-own",
             "choice": "beginner"
           }
         ]
       },
       {
-        "theme": "Skips: Do to Sol",
+        "theme": "Lip rolls, and the skip from Do to Sol",
         "exercises": [
           {
-            "block": "voice-beginner-hum-then-open",
+            "block": "voice-beginner-breathe-then-hold-do",
             "choice": "beginner"
           },
           {
             "block": "voice-beginner-3rd-or-5th",
             "choice": "beginner"
+          },
+          {
+            "block": "voice-beginner-lip-rolls-middle",
+            "choice": "beginner"
+          },
+          {
+            "block": "theory-new-name-the-notes-on-the-lines",
+            "choice": "new"
           },
           {
             "block": "voice-beginner-a-skipping-tune-then-over-chords",
@@ -61,82 +78,22 @@
         ]
       },
       {
-        "theme": "Sol and La",
-        "exercises": [
-          {
-            "block": "voice-beginner-breathe-then-hold-do",
-            "choice": "beginner"
-          },
-          {
-            "block": "voice-beginner-3rd-5th-or-6th",
-            "choice": "beginner"
-          },
-          {
-            "block": "voice-beginner-sol-la-sol-then-over-chords",
-            "choice": "beginner"
-          }
-        ]
-      },
-      {
-        "theme": "Under Do",
-        "exercises": [
-          {
-            "block": "voice-beginner-siren-to-sol",
-            "choice": "beginner"
-          },
-          {
-            "block": "voice-beginner-skips-falling",
-            "choice": "beginner"
-          },
-          {
-            "block": "voice-beginner-a-tune-under-do-then-over-three-chords",
-            "choice": "beginner"
-          }
-        ]
-      },
-      {
-        "theme": "Do Mi Sol in new keys",
+        "theme": "Do Mi Sol in three keys, a run and your own line",
         "exercises": [
           {
             "block": "voice-beginner-do-mi-sol-in-three-keys",
             "choice": "beginner"
           },
           {
+            "block": "theory-beginner-name-the-notes-in-the-spaces",
+            "choice": "beginner"
+          },
+          {
+            "block": "voice-beginner-five-note-run",
+            "choice": "beginner"
+          },
+          {
             "block": "voice-beginner-steps-and-skips-mixed",
-            "choice": "beginner"
-          },
-          {
-            "block": "voice-beginner-a-longer-skipping-tune-then-your-own",
-            "choice": "beginner"
-          }
-        ]
-      },
-      {
-        "theme": "Steps and skips together",
-        "exercises": [
-          {
-            "block": "voice-beginner-do-re-mi-on-the-beat",
-            "choice": "beginner"
-          },
-          {
-            "block": "voice-beginner-hear-and-sing-back",
-            "choice": "beginner"
-          },
-          {
-            "block": "voice-beginner-steps-then-3rds",
-            "choice": "beginner"
-          }
-        ]
-      },
-      {
-        "theme": "Your own line",
-        "exercises": [
-          {
-            "block": "voice-beginner-a-long-steady-do",
-            "choice": "beginner"
-          },
-          {
-            "block": "voice-beginner-five-intervals-sung-back",
             "choice": "beginner"
           },
           {

@@ -6,6 +6,14 @@ test("every demo slug names a seed plan that parses", () => {
   for (const slug of Object.keys(DEMO_PLANS)) assert.ok(demoPlan(slug), slug);
 });
 
+test("every demo is three or four practice days, each of two to five exercises", () => {
+  for (const slug of Object.keys(DEMO_PLANS)) {
+    const days = demoPlan(slug)!.config.days.filter((d) => d.exercises.length > 0);
+    assert.ok(days.length === 3 || days.length === 4, `${slug}: ${days.length} days`);
+    for (const d of days) assert.ok(d.exercises.length >= 2 && d.exercises.length <= 5, `${slug}: ${d.theme}`);
+  }
+});
+
 test("cards are easiest first, one per slug", () => {
   const cards = demoCards();
   assert.equal(cards.length, Object.keys(DEMO_PLANS).length);

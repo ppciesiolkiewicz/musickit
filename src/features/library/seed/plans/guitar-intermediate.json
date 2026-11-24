@@ -8,7 +8,8 @@
       "guitar-techniques": 2,
       "guitar-extended-chords": 2,
       "guitar-scales": 2,
-      "guitar-caged": 2
+      "guitar-caged": 2,
+      "guitar-basic-chords": 2
     },
     "minutes": 30,
     "styles": "",
@@ -16,18 +17,18 @@
   },
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "The guitar-intermediate week in the current teaching style, built from many tools so no two days look alike: joining positions is the key skill and returns on five days in new forms (position-neck crossings in three keys, a Position selector, a new key, with a bend, from memory and in the same frets as another key), warm-ups and tempos climb in choice stages, and each day ends in music over a play-along, drums and bass or a backing track-track.",
+  "note": "A demo week for an intermediate guitarist: four practice days of about 30 minutes, built so no two days look alike. Each day opens with a short technique warm-up and ends in music: a solo, a slow blues, a song from a chart, three strums in one song. Between them sit sus chords, two positions joined on a position neck, bends, 3rds and 6ths on the double-stops neck, the E shape on the CAGED neck, and from theory a clap-along and a chord-change game. Day 4 holds the mix exercise for strumming.",
   "plan": {
-    "title": "Week 1: beyond position 1",
-    "summary": "Join the minor pentatonic positions 1 to 3 with a slide, bend in tune at the joins, and keep it musical with sus chords, chord notes and a tune up the neck. Warm-ups and tempos go up in stages you choose.",
-    "progress": "Techniques: legato trills with fingers 1-3 and 2-4 up to 96, alternate picking to 104, string skipping to 90, whole-step bends matched to a target note and held over a drone. Next: bends inside faster phrases, a half-step bend.\nExtended chords: Dsus2, Dsus4 and Cadd9 in eighth and sixteenth strumming up to 80, an Am7-Dsus2-Dm7 part over drums and bass. Next: 7th chords in the same progressions.\nScales: minor pentatonic positions 1 to 3 joined by slides on the G string in A, G and C, used in solos over Am7-Dm7 and a minor blues; a tune with eighth notes in D and G. Next: positions 4 and 5.\nCAGED: root, 3rd and 5th over Am-F-C-G, the Gm arpeggio inside position 1. Next: the arpeggio of each chord of a progression in one position.",
+    "title": "Week 1: two positions joined, bends and a song",
+    "summary": "Four practice days of about 30 minutes. Day 1 joins the first two positions of the minor pentatonic scale and solos across the join. Day 2 is bends that reach the note, then a slow blues. Day 3 plays 3rds and 6ths up the neck, names a chord change by ear and plays a song from a chart. Day 4 moves the E chord shape up the neck and puts three strumming patterns into one song.",
+    "progress": "Techniques: hammer-ons and pull-offs in stages, then with fingers 2 and 4; down-up picking in stages; the finger order 1, 3, 2, 4; bends matched to the note two frets up. Next: a slide into a note and a bend out of it.\nExtended chords: D, Dsus2 and Dsus4; Cadd9, G, Dsus4 and Em. Next: the sus groove in D.\nScales: the first two positions of the minor pentatonic scale joined with a slide, a solo across the join, a slow blues with one bend a phrase, notes named up the neck. Next: position 3.\nCAGED: the 3rds and 6ths of one key up to fret 12; the E shape as a barre chord. Next: the A shape.\nBasic chords: a verse and a chorus with G, Em, C and D from a chart; three strumming patterns in one song. Next: a song with a bridge.\nBasics: sixteenths tapped on the lane. Next: quarters to sixteenths mixed.\nEar: names the second chord as the 4 or the 5. Next: the 6 chord among them.",
     "days": [
       {
-        "theme": "Position 2 and the way across",
+        "theme": "Two positions and the crossing",
         "exercises": [
           {
             "block": "guitar-intermediate-hammer-and-pull-in-stages",
@@ -55,7 +56,7 @@
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-cadd9-g-dsus4-em",
+            "block": "theory-intermediate-clap-along-sixteenths",
             "choice": "intermediate"
           },
           {
@@ -69,110 +70,47 @@
         ]
       },
       {
-        "theme": "Position 3 and the chords inside",
-        "exercises": [
-          {
-            "block": "guitar-intermediate-hammer-and-pull-fingers-2-and-4",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-chord-tones-over-am-f-c-g",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-join-positions-2-and-3",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-three-position-solo",
-            "choice": "intermediate"
-          }
-        ]
-      },
-      {
-        "theme": "A tune up the neck",
-        "exercises": [
-          {
-            "block": "guitar-intermediate-name-the-notes-up-the-neck",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-sus-groove-in-d",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-legato-inside-position-2",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-a-tune-to-the-high-do",
-            "choice": "intermediate"
-          }
-        ]
-      },
-      {
-        "theme": "The positions in G",
+        "theme": "3rds and 6ths, a chord change by ear and a song",
         "exercises": [
           {
             "block": "guitar-intermediate-fingers-1-3-2-4",
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-em-cadd9-g-dsus4-in-sixteenths",
+            "block": "theory-intermediate-name-the-4-or-the-5-chord",
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-g-minor-pentatonic-positions-1-to-3",
+            "block": "guitar-intermediate-thirds-and-sixths-to-fret-12",
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-the-gm-arpeggio-inside-position-1",
+            "block": "guitar-intermediate-name-the-notes-up-the-neck",
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-solo-in-g",
+            "block": "guitar-intermediate-a-verse-and-a-chorus-with-four-open-chords",
             "choice": "intermediate"
           }
         ]
       },
       {
-        "theme": "Slide in, bend out",
+        "theme": "The E shape up the neck, and three strums in one song",
         "exercises": [
           {
-            "block": "guitar-intermediate-skip-a-string",
+            "block": "guitar-intermediate-hammer-and-pull-fingers-2-and-4",
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-am7-dsus2-dm7",
+            "block": "guitar-intermediate-cadd9-g-dsus4-em",
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-slide-in-bend-out",
+            "block": "guitar-intermediate-caged-e-shape",
             "choice": "intermediate"
           },
           {
-            "block": "guitar-intermediate-the-tune-faster-and-from-memory",
-            "choice": "intermediate"
-          }
-        ]
-      },
-      {
-        "theme": "Day 1 again, then the jam",
-        "exercises": [
-          {
-            "block": "guitar-intermediate-hammer-and-pull-both-finger-pairs",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-comp-for-the-jam",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-three-positions-two-keys-no-looking",
-            "choice": "intermediate"
-          },
-          {
-            "block": "guitar-intermediate-the-jam",
+            "block": "guitar-intermediate-mix-strumming-one-song",
             "choice": "intermediate"
           }
         ]

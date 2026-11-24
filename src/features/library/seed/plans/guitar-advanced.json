@@ -16,15 +16,15 @@
   },
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 4
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "The guitar-advanced week: a mode is drilled by the one note that sets it apart, and that method is the key skill on all seven days in new forms (Dorian's 6th against natural minor, as the 3rd of D7, in three joined positions, Mixolydian's ♭7 by the same method, the two modes one note apart in the same frets, Dorian moved to D, then the jam). Triads on every string set, 9th chords and comping over drums and bass feed the solos, warm-ups climb in choice stages, and each why is a fact the student can build the next drill from.",
+  "note": "A demo week for an advanced guitarist: four practice days of about 30 minutes. A mode is drilled by the one note that sets it apart, and that method is the key skill on all four days in new forms: Dorian's 6th found and aimed for over D7, triad notes as targets in a Dorian solo, a Dorian tune made up on the improvisation tool, then Mixolydian's ♭7 and the modes from one root (the mix exercise). Triads on four string sets, the five CAGED shapes of one chord, 9th chords and comping over the backing track feed the solos, and each day opens with a short technique warm-up.",
   "plan": {
     "title": "Week 1: one note makes the mode",
-    "summary": "Find the one note that sets a mode apart, then aim for it: the 6th in Dorian, the ♭7 in Mixolydian, in A and then in D. Triads on every string set and 9th chords give your solos places to land, and each day ends over a backing track.",
-    "progress": "Techniques: string skipping with two and three notes per string up to 120, alternate picking to 124, legato trills with fingers 3-4 and 2-3 up to 104, finger pattern 1-4-2-3. Next: string skips inside scale positions, legato lines across strings.\nExtended chords: Am7, Am9, D9, Gmaj7, Dm9 and G9 in sixteenth strumming up to 100, comping Am9-D9 and the turn to Gmaj7 over drums and bass. Next: 13th chords, shell voicings on a ii–V–I.\nScales: A Dorian in positions 1 to 3 joined on the G string, aiming for the 6th over D7; A Mixolydian aiming for the ♭7 over the G chord; the two compared in the same frets; D Dorian over Dm7-G7; notes named up to fret 15. Next: Phrygian and Lydian by the same method, positions 4 and 5.\nCAGED: Am and D triads on all four string sets, A-G-D triads on three sets, triad notes as targets in a Dorian solo. Next: the inversions of one triad along one string set.",
+    "summary": "Four practice days of about 30 minutes. Day 1 finds the 6th that makes A Dorian and aims for it over Am7 and D7. Day 2 plays Am and D as triads on four sets of strings and lands a solo on their notes. Day 3 joins the five shapes of one chord and makes up a Dorian tune. Day 4 finds the ♭7 that makes A Mixolydian, then plays the modes from one root.",
+    "progress": "Techniques: string skipping and down-up picking in stages, hammer-ons and pull-offs with fingers 3 and 4, the finger order 1, 4, 2, 3. Next: string skipping with three notes a string.\nExtended chords: Am7 and D9; Am9, D9 and Gmaj7; the Dorian vamp comped over the backing track. Next: Dm9 and G9.\nScales: A Dorian by its 6th, aimed for over Am7 and D7; triad notes as landing places in a Dorian solo; a Dorian tune of their own; A Mixolydian by its ♭7; the modes from one root; notes named over the whole neck. Next: the Dorian positions joined, then Dorian in D.\nCAGED: Am and D triads on four sets of strings; one chord in five shapes up the neck. Next: A, G and D triads.",
     "days": [
       {
         "theme": "The note that makes Dorian",
@@ -69,10 +69,10 @@
         ]
       },
       {
-        "theme": "Dorian up the neck",
+        "theme": "One chord in five shapes, and a Dorian tune",
         "exercises": [
           {
-            "block": "guitar-advanced-down-up-picking-in-stages",
+            "block": "guitar-advanced-fingers-1-4-2-3",
             "choice": "advanced"
           },
           {
@@ -80,41 +80,20 @@
             "choice": "advanced"
           },
           {
-            "block": "guitar-advanced-join-the-dorian-positions",
+            "block": "guitar-advanced-caged-five-shapes-one-chord",
             "choice": "advanced"
           },
           {
-            "block": "guitar-advanced-climb-through-three-positions",
+            "block": "guitar-advanced-dorian-tune",
             "choice": "advanced"
           }
         ]
       },
       {
-        "theme": "Mixolydian: the ♭7",
+        "theme": "Mixolydian: the ♭7, and the modes from one root",
         "exercises": [
           {
-            "block": "guitar-advanced-fingers-1-4-2-3",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-a-g-and-d-triads",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-a-mixolydian-find-the-flat-7",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-mixolydian-over-a-g-and-d",
-            "choice": "advanced"
-          }
-        ]
-      },
-      {
-        "theme": "One root, two modes",
-        "exercises": [
-          {
-            "block": "guitar-advanced-hammer-and-pull-fingers-2-and-3",
+            "block": "guitar-advanced-down-up-picking-in-stages",
             "choice": "advanced"
           },
           {
@@ -122,53 +101,11 @@
             "choice": "advanced"
           },
           {
-            "block": "guitar-advanced-dorian-or-mixolydian-the-3rd",
+            "block": "guitar-advanced-a-mixolydian-find-the-flat-7",
             "choice": "advanced"
           },
           {
-            "block": "guitar-advanced-two-bands-two-modes",
-            "choice": "advanced"
-          }
-        ]
-      },
-      {
-        "theme": "The same in D",
-        "exercises": [
-          {
-            "block": "guitar-advanced-skip-a-string-three-notes",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-dm9-and-g9",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-d-dorian-on-the-neck",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-solo-over-dm7-and-g7",
-            "choice": "advanced"
-          }
-        ]
-      },
-      {
-        "theme": "Day 1 again, then the jam",
-        "exercises": [
-          {
-            "block": "guitar-advanced-skip-a-string-faster-stages",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-comp-for-the-jam",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-triads-with-your-eyes-off-the-tab",
-            "choice": "advanced"
-          },
-          {
-            "block": "guitar-advanced-the-jam",
+            "block": "guitar-advanced-mix-modes-one-root",
             "choice": "advanced"
           }
         ]
