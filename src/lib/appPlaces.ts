@@ -4,13 +4,16 @@
  * plan out of them until it has chosen one (features/account/ui/LoginGuard).
  */
 
-export type AppPlace = { href: string; label: string; /** the paths that count as being there */ under: string[] };
+export type AppPlace = { href: string; label: string; /** the paths that count as being there */ under: string[]; /** kept out of the nav for now; its pages still open by URL */ hidden?: boolean };
 
 export const APP_PLACES: AppPlace[] = [
   { href: "/plan", label: "Practice plan", under: ["/plan"] },
-  { href: "/teachers/studio?notes=1", label: "Interactive notes", under: ["/teachers/studio", "/note", "/creator"] },
+  { href: "/teachers/studio?notes=1", label: "Interactive notes", under: ["/teachers/studio", "/note", "/creator"], hidden: true },
   { href: "/practice", label: "Practice", under: ["/practice", "/theory", "/course", "/tuner", "/looper", "/cheatsheet"] },
 ];
+
+/** The places the top nav and footer show. */
+export const NAV_PLACES: AppPlace[] = APP_PLACES.filter((p) => !p.hidden);
 
 /** Whether a path (its query and hash ignored) is one of `paths` or under one ("/note" covers "/note/x", not "/notes"). */
 export const isUnder = (pathAndQuery: string, paths: string[]): boolean => {

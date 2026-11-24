@@ -43,9 +43,9 @@ describe("section colours", () => {
 });
 
 describe("tools menu", () => {
-  it("starts with the Practice plan, then Interactive notes", () => {
+  it("starts with the Practice plan", () => {
     const tools = sectionsIn("tools");
-    assert.deepEqual(tools.filter((s) => s.sub === tools[0].sub).map((s) => s.href), ["/plan", "/teachers/studio?notes=1"]);
+    assert.deepEqual(tools.filter((s) => s.sub === tools[0].sub).map((s) => s.href), ["/plan"]);
   });
   it("the AI plan and the circle of fifths stay in Learn and show in Tools", () => {
     for (const href of ["/plan", "/theory/circle"]) {

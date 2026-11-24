@@ -6,7 +6,7 @@ import ThemeSwitcher from "./ThemeSwitcher";
 import Icon, { type IconName } from "./Icon";
 import Wordmark from "./Wordmark";
 import { SpotlightButton } from "@/features/search/Spotlight";
-import { APP_PLACES, isUnder } from "@/lib/appPlaces";
+import { NAV_PLACES, isUnder } from "@/lib/appPlaces";
 import { isMarketingPath } from "@/lib/publicPaths";
 import TeacherOnly from "@/features/students/ui/TeacherOnly";
 
@@ -73,7 +73,7 @@ export default function SiteNav({ active, devices = false }: { active: string; d
           its icon (nav-fold), so the row fits at 320 px. Narrower still, the row scrolls sideways (no scrollbar) instead of wrapping a label or widening the page; the
           -my-1 py-1 pair leaves room for the focus ring inside the scroll box without moving anything */}
       <div className="nav-fold order-last -my-1 -ml-2.5 flex w-[calc(100%+0.625rem)] justify-between overflow-x-auto py-1 [scrollbar-width:none] sm:order-none sm:ml-0 sm:w-auto sm:justify-start sm:gap-1">
-        {APP_PLACES.map((l) => (
+        {NAV_PLACES.map((l) => (
           <NavLink key={l.href} href={l.href} label={l.label} current={isUnder(active, l.under)} foldIcon={l.href === NOTES_HREF ? "file-text" : undefined} />
         ))}
         {/* a teacher's fourth place, once the account is known to have students */}
