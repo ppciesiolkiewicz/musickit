@@ -1585,3 +1585,19 @@ I want to generate animation intro that will explain:
 - that there's "Open any page" hotkey and other hotkeys in apps
 - could this be rendered animation using components?
 - use elevenlabs to generate audio for this
+
+NEW18: Riff maker: read the neck and the fretting hand from the take video
+Today Transcribe hears pitch from the take's audio only (RiffTake.tsx, transcribe.ts hearNotes); the video is not
+looked at, so string and position are guessed. Add:
+1. Markers on the neck: 2-4 printed ArUco tags (2-3 cm) on a flat side of the neck, e.g. near the nut and the 12th fret.
+   Measure once where they sit against the nut and strings. Each frame: tags -> homography -> fret/string grid,
+   drawn on a canvas over the <video>. Hold the last good grid a few frames when a tag is covered or blurred.
+   Print markers (dictionary ARUCO_MIP_36h12, ids 0-3, the one js-aruco2 reads):
+   https://damianofalcioni.github.io/js-aruco2/samples/marker-creator/marker-creator.html?dictionary=ARUCO_MIP_36h12
+   Detector in the browser (MIT): https://github.com/damianofalcioni/js-aruco2
+   Started: "Read the neck" checkbox in the Take panel (riff/NeckView.tsx) draws the markers seen and the fingertips
+   over the take. Not done: the fret grid from the markers, and joining it with the audio.
+2. Fretting hand: MediaPipe Hand Landmarker (Apache 2.0, @mediapipe/tasks-vision), fingertips onto the grid.
+   https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
+3. Join with audio: the pitch from hearNotes picks the (string, fret) under a fingertip.
+Start on a saved take, not live. Later, maybe: neck found without markers (YOLO on a Roboflow fretboard set, SAM 2).

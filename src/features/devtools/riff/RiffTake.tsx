@@ -7,6 +7,7 @@ import { pickVideoType, videoFileName } from "@/features/videos/recording";
 import { asciiTab, midiOf, type RiffNote } from "./riff";
 import { deleteTake, getTake, saveTake, type RiffTake as Take } from "./takes";
 import { hearNotes, toRiff } from "./transcribe";
+import NeckView, { MARKER_PAGE } from "./NeckView";
 
 type Phase = "off" | "starting" | "ready" | "recording";
 /** where the take on screen stands in this browser's storage */
@@ -89,6 +90,9 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement>(null);
   const [click, setClick] = useState(true);
+  // optional: markers and hands drawn over the take (NeckView)
+  const [readNeck, setReadNeck] = useState(false);
+  const [takeVideo, setTakeVideo] = useState<HTMLVideoElement | null>(null);
   const [countIn, setCountIn] = useState(1);
   // the expected length follows the riff's until it is typed in
   const [typedLength, setLength] = useState<number | null>(null);
@@ -303,6 +307,10 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
             <button onClick={() => void store(take)} disabled={stored !== "failed"} className={btn}>Save</button>
             <button onClick={download} className={btn}>Save file</button>
             <button onClick={() => void remove()} className={btn}>Delete take</button>
+            <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers and your fingertips over the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the neck.">
+              <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} /> Read the neck
+            </label>
+            {readNeck && <a href={MARKER_PAGE} target="_blank" rel="noreferrer" className="text-sky-400 underline">Print markers</a>}
             <span className={stored === "failed" ? "text-rose-400" : "text-slate-400"}>
               {clockTime(take.seconds)} · {stored === "saved" ? "Saved in this browser" : stored === "saving" ? "Saving…" : "Not saved"}
             </span>
@@ -315,7 +323,12 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
       {/* the take to review, and beside it the camera, ready for the next one; while recording the camera alone */}
       {(camera || (take && url)) && (
         <div className="flex flex-wrap items-start gap-3">
-          {phase !== "recording" && take && url && <video key={url} src={url} controls playsInline className="max-h-80 w-full max-w-xl rounded bg-black" />}
+          {phase !== "recording" && take && url && (
+            <div className="relative w-full max-w-xl">
+              <video key={url} ref={setTakeVideo} src={url} controls playsInline className="max-h-80 w-full rounded bg-black" />
+              {readNeck && <NeckView key={url} video={takeVideo} />}
+            </div>
+          )}
           {camera && (
             <div className="relative">
               <video ref={live} autoPlay muted playsInline className={`rounded bg-black ${phase === "recording" || !take ? "max-h-80 w-full max-w-xl" : "max-h-40 w-56"}`} />
