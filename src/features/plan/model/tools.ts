@@ -720,7 +720,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       if (t.key != null && keyOf(t.key) === null) defaulted(d, "key", t.key, "not a key", `the first chord's root, ${TONICS[key]}`);
       // a chord the band has no voicing for stays on the chart: the band rests in its bar, and the tool says which
       const unvoiced = [...new Set(played.flatMap((s) => s.bars.flatMap(barChords)))].filter((c) => !chordNumeral(c, TONICS[key]));
-      if (unvoiced.length && !d.stored) d.notes.push(`has chords the band can't voice (${unvoiced.slice(0, 5).join(", ")}${unvoiced.length > 5 ? ", …" : ""}); they stay on the chart, marked, and the band rests in their bars.`);
+      if (unvoiced.length && !d.stored) d.notes.push(`has chords the backing track can't voice (${unvoiced.slice(0, 5).join(", ")}${unvoiced.length > 5 ? ", …" : ""}); they stay on the chart, marked, and the backing track rests in their bars.`);
       const style = typeof t.style === "string" && STYLES.some((x) => x.id === t.style) ? t.style : "pop";
       if (t.style != null && style !== t.style) defaulted(d, "style", t.style, `it is ${STYLES.map((x) => `"${x.id}"`).join(", ")}`, `"pop"`);
       const n = Number(t.bpm);

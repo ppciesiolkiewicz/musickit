@@ -17,7 +17,7 @@
     "concepts": [
       "improvise"
     ],
-    "why": "A faster band leaves less time to find each note, so a line holds together when you know where it lands: on the 3rd or the 7th as the last chord arrives.",
+    "why": "A faster backing track leaves less time to find each note, so a line holds together when you know where it lands: on the 3rd or the 7th as the last chord arrives.",
     "learnBefore": [
       "/course/11/ii-v-i",
       "/course/11/guide-tones"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. Sing the two guide-tone lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
+            "text": "Press Start exercise below to start the mic and the backing track. Sing the two guide-tone lines on \"ah\", one note per chord: {{4}}, {{4}}, {{3}}, then {{1}}, {{7}}, {{7}}.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
           },
           {
             "type": "tool",
@@ -91,7 +91,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band, now as a bossa. Make up a line over the first two chords, and sing it on any vowel. Whatever you sing, land on {{3}} as the last chord arrives, and hold it.\nThen aim for {{7}} instead.\nOnce both landings come easily, sing whatever you hear and leave a bar empty now and then."
+            "text": "Press Start exercise below to start the mic and the backing track, now as a bossa. Make up a line over the first two chords, and sing it on any vowel. Whatever you sing, land on {{3}} as the last chord arrives, and hold it.\nThen aim for {{7}} instead.\nOnce both landings come easily, sing whatever you hear and leave a bar empty now and then."
           },
           {
             "type": "tool",

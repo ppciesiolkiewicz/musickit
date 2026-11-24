@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track pentatonic-positions (guitar-scales), step 6: all five positions together in A minor, in neck order: each one up and down in turn, the same five as C major pentatonic with the root moved, then a phrase in each position over a band. The app numbers the major pentatonic's positions from its own root (the minor position 1 is major position 5), so the major block names no position numbers and hides the picker.",
+  "note": "Track pentatonic-positions (guitar-scales), step 6: all five positions together in A minor, in neck order: each one up and down in turn, the same five as C major pentatonic with the root moved, then a phrase in each position over a backing track. The app numbers the major pentatonic's positions from its own root (the minor position 1 is major position 5), so the major block names no position numbers and hides the picker.",
   "exercise": {
     "title": "Five pentatonic positions in neck order",
     "area": "guitar",
@@ -100,7 +100,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band, four chords in A minor. Improvise a short phrase in position 1, answer it in position 2, and carry on up the neck and back down.\nKeep going until your hand moves to the next position without you stopping to find it."
+            "text": "Press Play below to start the backing track, four chords in A minor. Improvise a short phrase in position 1, answer it in position 2, and carry on up the neck and back down.\nKeep going until your hand moves to the next position without you stopping to find it."
           },
           {
             "type": "tool",

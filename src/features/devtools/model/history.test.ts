@@ -40,7 +40,7 @@ test("describeReply: a plan gives its title and warning count", () => {
 
 test("describeReply: a reply that isn't a plan gives nothing", () => {
   assert.deepEqual(describeReply("Sure! Here is your plan.", []), {});
-  assert.deepEqual(describeReply(week(3), []), {});
+  assert.deepEqual(describeReply(week(0), []), {}, "a plan with no days is not a plan");
   assert.deepEqual(describeReply(undefined, []), {});
 });
 

@@ -59,12 +59,12 @@
       },
       {
         "type": "section",
-        "heading": "Your line over the band",
+        "heading": "Your line over the backing track",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band: D, Bm, G and A, a bar each. Make up a line from {{1}}, {{3}} and {{5}} on \"ah\", and start each phrase with a leap. When a leap misses, sing only that leap again slowly, then put it back in the line."
+            "text": "Press Start exercise below to start the mic and the backing track: D, Bm, G and A, a bar each. Make up a line from {{1}}, {{3}} and {{5}} on \"ah\", and start each phrase with a leap. When a leap misses, sing only that leap again slowly, then put it back in the line."
           },
           {
             "type": "tool",

@@ -2,13 +2,13 @@
   "id": "guitar-beginner-a5-d5-e5",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 2.",
+  "note": "Power chords for a beginner in three sections: what the shape is and how to keep the other strings quiet, the three chords in time, then each chord split into its two notes, with every beat of the bar said. The backing under the play-along is named the backing track.",
   "exercise": {
-    "title": "A5, D5, E5",
+    "title": "A5, D5 and E5: power chords",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -17,7 +17,7 @@
     "concepts": [
       "power-chords"
     ],
-    "why": "A power chord is a root and its 5th, so once your hand knows the one shape, every chord is just a new place for it.",
+    "why": "A power chord is a root and its 5th, so once your hand knows the one shape, every other power chord is the same shape in a new place.",
     "learnBefore": [
       "/course/5/power-chords"
     ],
@@ -25,11 +25,11 @@
       {
         "type": "section",
         "heading": "One shape, three places",
-        "minutes": 2,
+        "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Tap a chord box to hear it. All three are the same shape, moved to a new string or fret. Strum only the strings with dots, and let the side of your picking hand rest on the others to keep them quiet."
+            "text": "Press a chord box below to hear the chord. A power chord has two notes, a root and its 5th, with the root often played again on top. The three boxes show the same shape of the fingers, moved to other strings or another fret.\nStrum only the strings with dots, and rest the side of your picking hand on the other strings to keep them quiet.\nKeep going until each chord sounds clean, with no other string ringing."
           },
           {
             "type": "tool",
@@ -46,12 +46,12 @@
       },
       {
         "type": "section",
-        "heading": "In time",
-        "minutes": 2,
+        "heading": "Three chords in time",
+        "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, until the shape moves without your hand opening up."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play. Strum down on every beat, one bar for each chord.\nKeep going until the shape moves to the next chord without your hand opening up."
           },
           {
             "type": "tool",
@@ -71,12 +71,12 @@
       },
       {
         "type": "section",
-        "heading": "Split it",
+        "heading": "The chord, then its notes",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the play-along. Each bar is the whole chord, two of its notes picked on their own, then the chord again: the tab shows every note. Keep the shape held down the whole bar, so the single notes are already under your fingers."
+            "text": "Press Play below to start the backing track, and follow the tab. Each bar is one chord: the whole chord on beat 1, its root alone on beat 2, its 5th alone on beat 3, and the whole chord again on beat 4.\nKeep the shape held down for the whole bar, so the single notes are already under your fingers."
           },
           {
             "type": "tool",
@@ -195,7 +195,14 @@
         "power-chords:1",
         "power-chords:2"
       ],
-      "minutes": 7
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 9
     }
   ]
 }

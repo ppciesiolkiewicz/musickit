@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, which switches between Am7 and D7. Improvise in A Dorian and end each phrase on a ringed note: a note of the Am triad over Am7, a note of the D triad over D7."
+            "text": "Press Play below to start the backing track, which switches between Am7 and D7. Improvise in A Dorian and end each phrase on a ringed note: a note of the Am triad over Am7, a note of the D triad over D7."
           },
           {
             "type": "tool",
@@ -73,7 +73,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing again. Now the ringed note is the 3rd of each chord: {{c}} over Am7 and {{f-sharp}} over D7. Aim every phrase at it.\nThe 3rd of D7 is also the 6th of A Dorian, the note that sets the mode apart, so landing on it says both the chord and the mode."
+            "text": "Press Play below to start the backing track again. Now the ringed note is the 3rd of each chord: {{c}} over Am7 and {{f-sharp}} over D7. Aim every phrase at it.\nThe 3rd of D7 is also the 6th of A Dorian, the note that sets the mode apart, so landing on it says both the chord and the mode."
           },
           {
             "type": "tool",
@@ -108,12 +108,12 @@
       },
       {
         "type": "section",
-        "heading": "Over the band",
+        "heading": "Over the backing track",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band on Am7 and D7. Open a phrase with the Am or the D triad, carry on with the scale, and end on a note of the chord playing.\nIf a phrase ends on a note that sounds unfinished, move it one step up or down the scale."
+            "text": "Press Play below to start the backing track on Am7 and D7. Open a phrase with the Am or the D triad, carry on with the scale, and end on a note of the chord playing.\nIf a phrase ends on a note that sounds unfinished, move it one step up or down the scale."
           },
           {
             "type": "tool",

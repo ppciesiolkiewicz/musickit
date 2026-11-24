@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band, in swing. Bars 1 to 3 are a ii–V–I in G major, bar 4 is the 4 chord, and bars 5 to 7 are a ii–V–i in E minor, the relative minor.\nCall out \"major\" or \"minor\" each time the band lands on a home chord.\nOnce you hear each landing coming a bar early, look away from the chord boxes and call them again."
+            "text": "Press Play below to start the backing track, in swing. Bars 1 to 3 are a ii–V–I in G major, bar 4 is the 4 chord, and bars 5 to 7 are a ii–V–i in E minor, the relative minor.\nCall out \"major\" or \"minor\" each time the backing track lands on a home chord.\nOnce you hear each landing coming a bar early, look away from the chord boxes and call them again."
           },
           {
             "type": "tool",
@@ -61,7 +61,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: four chords that end a chorus and lead back to its top. The last two are a ii and a V, so the home chord at the top of the next round is the I they point to.\nCall out 1, 6, 2 or 5 on each change until the numbers come without looking."
+            "text": "Press Play below to start the backing track: four chords that end a chorus and lead back to its top. The last two are a ii and a V, so the home chord at the top of the next round is the I they point to.\nCall out 1, 6, 2 or 5 on each change until the numbers come without looking."
           },
           {
             "type": "tool",
@@ -95,7 +95,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: the eight bars of the first block again. Look away from the chord boxes and call out \"major\" or \"minor\" on each home chord.\nOnce both landings are easy to hear, listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the chain is the same: a ii–V–I in major, then a ii–V–i in its relative minor."
+            "text": "Press Play below to start the backing track: the eight bars of the first block again. Look away from the chord boxes and call out \"major\" or \"minor\" on each home chord.\nOnce both landings are easy to hear, listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the chain is the same: a ii–V–I in major, then a ii–V–i in its relative minor."
           },
           {
             "type": "tool",

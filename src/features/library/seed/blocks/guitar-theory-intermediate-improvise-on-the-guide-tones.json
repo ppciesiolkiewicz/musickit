@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing and improvise in C major. Land on a lit target when each chord comes round."
+            "text": "Press Play below to start the backing track and improvise in C major. Land on a lit target when each chord comes round."
           },
           {
             "type": "tool",
@@ -79,7 +79,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Same backing. Now use only three or four notes per chord. Include its guide tone each time."
+            "text": "Same backing track. Now use only three or four notes per chord. Include its guide tone each time."
           }
         ]
       }

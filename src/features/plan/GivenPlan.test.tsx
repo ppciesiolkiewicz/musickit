@@ -128,3 +128,19 @@ test("without onRate, onTime and onEdit (a teacher looking): the week as the pla
   assert.doesNotMatch(html, /Reset the day&#x27;s timer/);
   assert.doesNotMatch(html, />\s*Edit\s*</);
 });
+
+test("a week with rest days shows its practice days only, numbered in order; a rest day opens the practice day before it", () => {
+  // exercises on days 0, 2 and 4 of the week (Sunday 15, Tuesday 17 and Thursday 19 November); the other days are empty
+  const days = (seed as { days: { theme: string; exercises: unknown[] }[] }).days.map((d, i) => (i === 0 || i === 2 || i === 4 ? d : { ...d, exercises: [] }));
+  const rest = sanitiseState({ current: null, given: [{ id: "rest-1", startedOn: "2026-11-15", done: {}, from: "s3", config: { ...(seed as object), days } }] }).given[0];
+  const onPractice = draw(rest, "2026-11-17");
+  assert.equal(onPractice.match(/role="tab"/g)?.length, 3);
+  assert.match(onPractice, /Day 2 of 3 · started 15 November/);
+  assert.equal(onPractice.match(/>Today</g)?.length, 1);
+  assert.match(onPractice, /Day 2: /);
+  const onRest = draw(rest, "2026-11-18");
+  assert.match(onRest, /3 days · no practice planned today · started 15 November/);
+  assert.doesNotMatch(onRest, />Today</, "no day is today's on a rest day");
+  assert.match(onRest, /Day 2: /, "the practice day before it is open");
+  assert.match(draw(rest, "2026-11-30"), /3 days · started/, "over: the week counts its practice days");
+});

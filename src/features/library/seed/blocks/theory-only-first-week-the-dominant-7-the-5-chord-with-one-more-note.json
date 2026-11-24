@@ -62,7 +62,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: the 5 chord for a bar, the same chord with its 7th for a bar, then two bars of the 1 chord. Listen for the bar where one note joins the 5 chord, and call out \"seven\" when you hear it.\nOnce you hear the 7th before the box lights, try it in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the 7th still arrives in the second bar and leans to the 1 chord."
+            "text": "Press Play below to start the backing track: the 5 chord for a bar, the same chord with its 7th for a bar, then two bars of the 1 chord. Listen for the bar where one note joins the 5 chord, and call out \"seven\" when you hear it.\nOnce you hear the 7th before the box lights, try it in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the 7th still arrives in the second bar and leans to the 1 chord."
           },
           {
             "type": "tool",

@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: the 1, 4, 5 and 6 of one key, in a new order. Look away from the chord boxes and call out the number on each change, then look at the lit box to check.\nIf you lose your place, wait for the 1 and start again from there."
+            "text": "Press Play below to start the backing track: the 1, 4, 5 and 6 of one key, in a new order. Look away from the chord boxes and call out the number on each change, then look at the lit box to check.\nIf you lose your place, wait for the 1 and start again from there."
           },
           {
             "type": "tool",
@@ -62,7 +62,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: a longer round, and some chords stay for two bars, so you can't count your way to the next change. Look away and call out the number only when you hear the chord move, then look to check.\nKeep going until you can name a chord before its bar is over."
+            "text": "Press Play below to start the backing track: a longer round, and some chords stay for two bars, so you can't count your way to the next change. Look away and call out the number only when you hear the chord move, then look to check.\nKeep going until you can name a chord before its bar is over."
           },
           {
             "type": "tool",
@@ -113,7 +113,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band, in a new key. Listen to the first chord, the 1, then look away and call out the numbers.\nOnce the number comes as each chord starts, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but each number sits at the same distance from home."
+            "text": "Press Play below to start the backing track, in a new key. Listen to the first chord, the 1, then look away and call out the numbers.\nOnce the number comes as each chord starts, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but each number sits at the same distance from home."
           },
           {
             "type": "tool",

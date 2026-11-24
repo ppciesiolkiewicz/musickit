@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track guitar-melodies (guitar-scales), step 5: a tune in D Dorian made from a four-note motive, ended on the root over a drone, then played over a Dm7 to G7 band. missing: the tune book behind the melody shape is major only, so there is no written modal tune to play from tab; the player makes one up.",
+  "note": "Track guitar-melodies (guitar-scales), step 5: a tune in D Dorian made from a four-note motive, ended on the root over a drone, then played over a Dm7 to G7 backing track. missing: the tune book behind the melody shape is major only, so there is no written modal tune to play from tab; the player makes one up.",
   "exercise": {
     "title": "Make up a Dorian tune",
     "area": "guitar",
@@ -99,12 +99,12 @@
       },
       {
         "type": "section",
-        "heading": "The tune over the band",
+        "heading": "The tune over the backing track",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band, which moves between Dm7 and G7. Play your tune over it, then answer it with a second tune that starts on another note.\nWhen G7 comes round, try holding the ringed {{6}}: it is the 3rd of G7, so the Dorian note is the chord's own note there."
+            "text": "Press Play below to start the backing track, which moves between Dm7 and G7. Play your tune over it, then answer it with a second tune that starts on another note.\nWhen G7 comes round, try holding the ringed {{6}}: it is the 3rd of G7, so the Dorian note is the chord's own note there."
           },
           {
             "type": "tool",

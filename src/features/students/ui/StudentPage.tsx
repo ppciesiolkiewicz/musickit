@@ -16,6 +16,7 @@ import { tenth } from "../model/sliders";
 import type { StudentView } from "../model/types";
 import type { Access } from "./StudentsApp";
 import PlanWays from "./PlanWays";
+import PracticeDays from "./PracticeDays";
 import TopicSliders from "./TopicSliders";
 
 const primary = "!border-sky-500 !bg-sky-500 !font-semibold !text-slate-950 hover:!bg-sky-400";
@@ -72,7 +73,7 @@ const backLink = (
  * without one), and "Next plan": the sliders, "Anything else about this week?" (only with a week), Make next week's plan,
  * and Rotate this week's plan while a week runs, which asks once before replacing it.
  */
-export function StudentPageView({ access, id, state, today, values, onValue, comment, onComment, sent, onMake, confirming, onConfirm, onRetry, day, onDay }: {
+export function StudentPageView({ access, id, state, today, values, onValue, days, onDays, comment, onComment, sent, onMake, confirming, onConfirm, onRetry, day, onDay }: {
   access: Access;
   id: string;
   state: ViewState;
@@ -81,6 +82,9 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
   /** where each slider is now */
   values: Record<string, number>;
   onValue: (topic: string, value: number) => void;
+  /** the practice days chosen for the next plan: weekdays, Monday 0 to Sunday 6 */
+  days: number[];
+  onDays: (days: number[]) => void;
   comment: string;
   onComment: (text: string) => void;
   sent: Sent;
@@ -155,6 +159,12 @@ export function StudentPageView({ access, id, state, today, values, onValue, com
 
         <TopicSliders topics={topics} values={values} onChange={onValue} disabled={busy} />
 
+        <div className="flex flex-col gap-1.5">
+          <h4 id="practice-days" className="text-sm font-medium text-slate-200">Practice days</h4>
+          <p className="text-sm leading-relaxed text-slate-400">The next plan has exercises on these days only. {student.name} sees one day for each of them, and no day in between.</p>
+          <PracticeDays days={days} onDays={onDays} disabled={busy} labelledBy="practice-days" />
+        </div>
+
         {plan && (
           <div className="flex flex-col gap-1.5">
             <label htmlFor="teacher-comment" className="text-sm font-medium text-slate-200">Anything else about this week?</label>
@@ -200,7 +210,7 @@ export default function StudentPage({ id }: { id: string }) {
   const access: Access = !loaded ? "loading" : !account ? (accountsOpen() ? "logged-out" : "no-accounts") : can("students") ? "teacher" : "not-teacher";
   const [today] = useState(() => localDate());
   const [state, setState] = useState<ViewState>({ kind: "loading" });
-  const [form, setForm] = useState<MakeForm>({ start: {}, values: {}, comment: "", savedComment: "" });
+  const [form, setForm] = useState<MakeForm>({ start: {}, values: {}, comment: "", savedComment: "", days: [0, 1, 2, 3, 4, 5, 6] });
   const [sent, setSent] = useState<Sent>({ kind: "idle" });
   const [confirming, setConfirming] = useState(false);
   const [day, setDay] = useState<number | null>(null);
@@ -213,7 +223,8 @@ export default function StudentPage({ id }: { id: string }) {
     if (next.opening) {
       const opening = next.opening;
       const saved = next.comment ?? "";
-      setForm({ start: opening, values: opening, comment: saved, savedComment: saved });
+      const days = next.state.kind === "view" ? next.state.view.practiceDays : [0, 1, 2, 3, 4, 5, 6];
+      setForm({ start: opening, values: opening, comment: saved, savedComment: saved, days });
       setDay(null);
     }
   }, []);
@@ -258,6 +269,8 @@ export default function StudentPage({ id }: { id: string }) {
         // the line about the last plan made reads as stale once a slider moves again
         setSent((x) => (x.kind === "made" ? { kind: "idle" } : x));
       }}
+      days={form.days}
+      onDays={(days) => setForm((f) => ({ ...f, days }))}
       comment={form.comment}
       onComment={(comment) => setForm((f) => ({ ...f, comment }))}
       sent={sent}

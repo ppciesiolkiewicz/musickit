@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing and follow the tab: two strings struck together, once per beat. The lower note is the root and the higher one is its 5th.\nStrum only those two strings, and keep going until both notes sound at once and nothing else rings."
+            "text": "Press Play below to start the backing track and follow the tab: two strings struck together, once per beat. The lower note is the root and the higher one is its 5th.\nStrum only those two strings, and keep going until both notes sound at once and nothing else rings."
           },
           {
             "type": "tool",
@@ -90,7 +90,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. The 5th now takes turns between two pairs of strings, a bar each.\nWhen you move over one string, the shape stays the same and the root is a new note."
+            "text": "Press Play below to start the backing track. The 5th now takes turns between two pairs of strings, a bar each.\nWhen you move over one string, the shape stays the same and the root is a new note."
           },
           {
             "type": "tool",
@@ -202,7 +202,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. The 5th now moves along the neck: keep your two fingers in their shape and slide the whole hand to each new place.\nWhen every change lands on beat 1, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the backing again.\nIf a change comes late at a new stage, go back one stage and stay there a little longer."
+            "text": "Press Play below to start the backing track. The 5th now moves along the neck: keep your two fingers in their shape and slide the whole hand to each new place.\nWhen every change lands on beat 1, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the backing track again.\nIf a change comes late at a new stage, go back one stage and stay there a little longer."
           },
           {
             "type": "tool",

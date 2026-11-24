@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 8
   },
-  "note": "Track hearing-changes (theory-ear), step 2, on the ear game asked for chord changes (interval-ears, kind change) at its level 1, a number, which is exactly this step: the band plays the two changes in C with the chord boxes to check against, then the game plays the 1 chord and the 4 or the 5 in a new key each time and checks the answer. The answers are named as the buttons show them, with the plain word beside each.",
+  "note": "Track hearing-changes (theory-ear), step 2, on the ear game asked for chord changes (interval-ears, kind change) at its level 1, a number, which is exactly this step: the backing track plays the two changes in C with the chord boxes to check against, then the game plays the 1 chord and the 4 or the 5 in a new key each time and checks the answer. The answers are named as the buttons show them, with the plain word beside each.",
   "exercise": {
     "title": "Name the second chord: the 4 or the 5",
     "area": "theory",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band in C: C and F take turns, then C and G. Watch the lit chord box, and call out 4 on every F and 5 on every G.\nListen for how F moves away from C, and how G pulls back to it."
+            "text": "Press Play below to start the backing track in C: C and F take turns, then C and G. Watch the lit chord box, and call out 4 on every F and 5 on every G.\nListen for how F moves away from C, and how G pulls back to it."
           },
           {
             "type": "tool",

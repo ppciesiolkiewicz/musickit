@@ -2,13 +2,13 @@
   "id": "guitar-beginner-sol-la-sol-in-two-keys",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 3.",
+  "note": "A five-note tune from the book played from tab, with the tune's shape said in doing words (one step up and back, two skips down, a long last note) and the feel to reach before playing it from memory. It moves to other keys, so the line about another key says what stays the same and names no selector.",
   "exercise": {
-    "title": "Sol La Sol, in two keys",
+    "title": "A five-note tune",
     "area": "guitar",
     "tags": [
       "song"
@@ -17,43 +17,26 @@
     "concepts": [
       "guitar-melodies"
     ],
-    "why": "A tune keeps its shape when the key changes, so playing it in two keys teaches your fingers the pattern, not a list of frets.",
+    "why": "A tune keeps its shape when the key changes, so learning its steps and skips teaches your fingers the tune and not a list of frets.",
     "learnBefore": [
       "/course/4/melodies"
     ],
     "cells": [
       {
-        "type": "section",
-        "heading": "The tune",
-        "minutes": 5,
-        "cells": [
-          {
-            "type": "text",
-            "text": "Press Play below to hear the tune, then play along from the tab.\nOnce you can hum it before you play it, learn it in another key. Use the Key selector below to change the key, then press Play to hear the tune there.\nWhen you change the key, the notes change but the tune keeps its shape."
+        "type": "text",
+        "text": "Press Play below to hear the tune over the backing track, and follow the tab under it. The tune has five notes: it goes up one step and back, then skips down twice and ends on a long note, the home note of the key.\nPlay along from the tab, one note per beat, and hold the last note for its whole bar.\nOnce you can hum the tune before you play it, play it without looking at the tab.\nIn another key the frets are new, and the tune keeps its shape: one step up and back, then two skips down to the home note."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "melody",
+            "tune": 36,
+            "key": "g"
           },
-          {
-            "type": "tool",
-            "tool": {
-              "type": "guitar-play-along",
-              "shape": {
-                "shape": "melody",
-                "tune": 36,
-                "key": "g"
-              },
-              "bpm": 70,
-              "view": "tab"
-            }
-          }
-        ],
-        "choice": {
-          "options": [
-            {
-              "key": "g"
-            },
-            {
-              "key": "c"
-            }
-          ]
+          "bpm": 70,
+          "view": "tab"
         }
       }
     ]
@@ -65,6 +48,14 @@
       "steps": [
         "guitar-melodies:2"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 5
     }
   ]

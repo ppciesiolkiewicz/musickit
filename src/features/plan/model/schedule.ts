@@ -26,6 +26,25 @@ export const addDays = (iso: string, n: number): string => {
 /** Which day of the plan today is, from 0. Past the last day it keeps counting, so callers can tell the week is over. */
 export const dayIndex = (startedOn: string, today: string): number => Math.max(0, dayNumber(today) - dayNumber(startedOn));
 
+/** The weekday of a local yyyy-mm-dd: Monday 0 to Sunday 6. */
+export const weekdayOf = (iso: string): number => (((dayNumber(iso) + 3) % 7) + 7) % 7;
+
+/**
+ * The days of a plan that hold exercises, as day indexes: a week made for fewer practice days keeps its other days
+ * empty, so day numbers still match dates, and the screen shows only these. A plan with no exercises at all: every day.
+ */
+export function practiceDays(plan: StoredPlan): number[] {
+  const all = plan.config.days.map((_, i) => i);
+  const held = all.filter((i) => plan.config.days[i].exercises.length > 0);
+  return held.length ? held : all;
+}
+
+/** The day a given plan opens on: `today` when it is a practice day, else the practice day before it, else the first one. */
+export function openDay(plan: StoredPlan, today: number): number {
+  const days = practiceDays(plan);
+  return [...days].reverse().find((i) => i <= today) ?? days[0];
+}
+
 /** A config as a started plan stores it: a new id on every exercise, cells cleaned, then the block ids worked out. */
 const storedConfig = (config: PlanConfig, newId: () => string): PlanConfig => withBlockIds(cleanCells(withExerciseIds(config, newId, true)));
 
@@ -136,7 +155,8 @@ export const upcomingTeacherWeek = (s: PlanState, date: string): StoredPlan | nu
 /** The choice ids of the last day of a week a teacher made that ends the day before `start` (given or history), else []: the composer's `yesterday`. */
 export function dayBeforeWeek(s: PlanState, start: string): string[] {
   const before = [...s.given, ...s.history].find((p) => p.teacher && addDays(p.startedOn, planDays(p)) === start);
-  return (before?.config.days[planDays(before) - 1]?.exercises ?? []).flatMap((e) => (e.choiceId ? [e.choiceId] : []));
+  // the week's last practice day: a rest day between it and `start` changes nothing about what was played last
+  return (before ? before.config.days[practiceDays(before).at(-1)!]?.exercises ?? [] : []).flatMap((e) => (e.choiceId ? [e.choiceId] : []));
 }
 
 /** The one order of a teacher's weeks, newest first: by start, then by when the teacher made it. */

@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: a note on the low E string, then the note a 5th above it on the A string. The pairs climb the neck low note first, then come back down high note first.\nMost of the 5ths have one shape and one is a fret narrower: play until your hand goes to that one without stopping."
+            "text": "Press Play below to start the backing track at {{=bpm}}, and play along from the tab: a note on the low E string, then the note a 5th above it on the A string. The pairs climb the neck low note first, then come back down high note first.\nMost of the 5ths have one shape and one is a fret narrower: play until your hand goes to that one without stopping."
           },
           {
             "type": "tool",
@@ -57,7 +57,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. Now each pair is a 4th: most sit in one fret across the two strings, and one is a fret wider.\nIf a pair sounds wrong, stop the backing and find it in the tab before you start again."
+            "text": "Press Play below to start the backing track. Now each pair is a 4th: most sit in one fret across the two strings, and one is a fret wider.\nIf a pair sounds wrong, stop the backing track and find it in the tab before you start again."
           },
           {
             "type": "tool",
@@ -84,7 +84,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. The 5ths come first and the 4ths start on a new bar, now on the A and D strings. The line above the tab says which is playing.\nIn another key the pairs sit on other frets, and the two shapes stay as they were."
+            "text": "Press Play below to start the backing track. The 5ths come first and the 4ths start on a new bar, now on the A and D strings. The line above the tab says which is playing.\nIn another key the pairs sit on other frets, and the two shapes stay as they were."
           },
           {
             "type": "tool",

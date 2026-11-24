@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track home-and-colour (theory-ear), step 4: La as the minor home, heard on one major scale's notes: a tune that rests on Do and one that rests on La, La over its own drone, then a band whose chords come home to Do and then to La.",
+  "note": "Track home-and-colour (theory-ear), step 4: La as the minor home, heard on one major scale's notes: a tune that rests on Do and one that rests on La, La over its own drone, then a backing track whose chords come home to Do and then to La.",
   "exercise": {
     "title": "La as home: the minor home",
     "area": "theory",
@@ -93,7 +93,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play under the staff below to start the band: four bars that come home to Do, then four that come home to La, round and round. Hum the home note of each half, then tap {{1}} or {{6}} on the staff to check.\nKeep going until you can say \"Do\" or \"La\" as each half begins."
+            "text": "Press Play under the staff below to start the backing track: four bars that come home to Do, then four that come home to La, round and round. Hum the home note of each half, then tap {{1}} or {{6}} on the staff to check.\nKeep going until you can say \"Do\" or \"La\" as each half begins."
           },
           {
             "type": "tool",

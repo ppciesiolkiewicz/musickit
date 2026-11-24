@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing and follow the tab. On each note of the G string you play a 3rd, then a 6th: the low note stays, and the upper note moves from the B string to the high E string.\nFor the 6th, play the G string with the pick and the high E string with your middle finger, so the B string stays silent."
+            "text": "Press Play below to start the backing track and follow the tab. On each note of the G string you play a 3rd, then a 6th: the low note stays, and the upper note moves from the B string to the high E string.\nFor the 6th, play the G string with the pick and the high E string with your middle finger, so the B string stays silent."
           },
           {
             "type": "tool",
@@ -125,7 +125,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. Climb the key in 3rds, then come back down in 6ths, one pair per beat.\nKeep going until your picking hand changes from two neighbouring strings to a skipped string without a gap."
+            "text": "Press Play below to start the backing track. Climb the key in 3rds, then come back down in 6ths, one pair per beat.\nKeep going until your picking hand changes from two neighbouring strings to a skipped string without a gap."
           },
           {
             "type": "tool",
@@ -221,7 +221,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing: G, C and D, a bar each. On each chord, play a 3rd on beats 1 and 2 and a 6th on beats 3 and 4, both made of the chord's own notes.\nWhen the 3rd changes to a 6th, the chord under it stays: listen for the moment the pair gets wider."
+            "text": "Press Play below to start the backing track: G, C and D, a bar each. On each chord, play a 3rd on beats 1 and 2 and a 6th on beats 3 and 4, both made of the chord's own notes.\nWhen the 3rd changes to a 6th, the chord under it stays: listen for the moment the pair gets wider."
           },
           {
             "type": "tool",

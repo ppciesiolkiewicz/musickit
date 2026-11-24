@@ -19,7 +19,7 @@
     "concepts": [
       "fast-runs"
     ],
-    "why": "Over Am7 and D7 the 6th of the scale is the 3rd of D7, so a run that lands on it as the chord changes sounds like it belongs to the band.",
+    "why": "Over Am7 and D7 the 6th of the scale is the 3rd of D7, so a run that lands on it as the chord changes sounds like it belongs to the backing track.",
     "learnBefore": [
       "/course/9/improvising-a-melody",
       "/course/9/modes"
@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band, which switches between Am7 and D7. On \"oo\", sing {{5}} over Am7 and step up to {{6}} over D7. Then try {{b7}} over Am7 and step down to {{6}} over D7.\nTap {{6}} on the staff to hear it: it is the note to aim for in the next block."
+            "text": "Press Start exercise below to start the mic and the backing track, which switches between Am7 and D7. On \"oo\", sing {{5}} over Am7 and step up to {{6}} over D7. Then try {{b7}} over Am7 and step down to {{6}} over D7.\nTap {{6}} on the staff to hear it: it is the note to aim for in the next block."
           },
           {
             "type": "tool",
@@ -74,7 +74,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. Start high and sing a run down by step, on \"ah\", so that you land on a ringed {{6}} as D7 arrives. Then run down again and land on a ringed {{1}} when Am7 comes back.\nIf you land early, start the run later, not slower."
+            "text": "Press Start exercise below to start the mic and the backing track. Start high and sing a run down by step, on \"ah\", so that you land on a ringed {{6}} as D7 arrives. Then run down again and land on a ringed {{1}} when Am7 comes back.\nIf you land early, start the run later, not slower."
           },
           {
             "type": "tool",
@@ -113,7 +113,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. Sing whole phrases now, on any vowel: a long note, a turn, the falling run from earlier today, a run of your own. Leave a bar empty after each phrase, as you would between lines of a song."
+            "text": "Press Start exercise below to start the mic and the backing track. Sing whole phrases now, on any vowel: a long note, a turn, the falling run from earlier today, a run of your own. Leave a bar empty after each phrase, as you would between lines of a song."
           },
           {
             "type": "tool",

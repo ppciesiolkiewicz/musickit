@@ -13,7 +13,7 @@ import TourCard from "@/features/intro/TourCard";
 
 export const metadata: Metadata = {
   title: "Demos: ready-made practice plans and teacher notes · attunr",
-  description: "Try a week of daily practice from attunr's library, and a lesson note a student can play. No account needed.",
+  description: "Try a week of practice from attunr's library, and a lesson note a student can play. No account needed.",
   alternates: { canonical: "/plan" },
   robots: { index: false },
 };
@@ -78,7 +78,7 @@ function PlanCard({ demo, accent }: { demo: DemoCard; accent: string }) {
       <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-400">{demo.summary}</p>
       <div className="mt-auto pt-5">
         {/* the week, one bar a day, each with its theme on hover */}
-        <ol className="flex gap-1" aria-label="7 days">
+        <ol className="flex gap-1" aria-label={`${demo.themes.length} days`}>
           {demo.themes.map((theme, i) => (
             <li key={i} title={`Day ${i + 1}: ${theme}`} className={`h-1.5 flex-1 rounded-full ${i === 0 ? level.day : "bg-slate-700/70"}`} />
           ))}

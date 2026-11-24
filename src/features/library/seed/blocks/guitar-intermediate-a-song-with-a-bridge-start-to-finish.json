@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 8
   },
-  "note": "Track open-chords (guitar-basic-chords), step 8, on the song-chart tool: a made-up song with a Verse, a Chorus and a Bridge on Am, C, G and Em. The first section loops the Bridge into the Chorus (a form of two sections); the second plays the whole form once, so the band stops at the end. Shows `form` and `repeat`, the keys left out for the student, and a tempo move with {{=bpm}}.",
+  "note": "Track open-chords (guitar-basic-chords), step 8, on the song-chart tool: a made-up song with a Verse, a Chorus and a Bridge on Am, C, G and Em. The first section loops the Bridge into the Chorus (a form of two sections); the second plays the whole form once, so the backing track stops at the end. Shows `form` and `repeat`, the keys left out for the student, and a tempo move with {{=bpm}}.",
   "exercise": {
     "title": "A song with a bridge, from the top to the end",
     "area": "guitar",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band at {{=bpm}}: the Bridge, then the Chorus, round and round. The chords are yours, so strum down on every beat and change chord where a new box begins.\nWatch the last box of the Bridge, and have the first chord of the Chorus ready before it ends.\nKeep going until you get from the Bridge into the Chorus without a gap."
+            "text": "Press Play below to start the backing track at {{=bpm}}: the Bridge, then the Chorus, round and round. The chords are yours, so strum down on every beat and change chord where a new box begins.\nWatch the last box of the Bridge, and have the first chord of the Chorus ready before it ends.\nKeep going until you get from the Bridge into the Chorus without a gap."
           },
           {
             "type": "tool",
@@ -87,7 +87,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the whole song at {{=bpm}}: the band plays it once and stops after the last Chorus. Strum down on every beat, and read the names above the boxes to know which section is next.\nIf you lose your place, stop strumming, find the lit box and come back in on the next beat 1.\nPress Play again to play the song from the top, until you reach the end without stopping."
+            "text": "Press Play below to start the whole song at {{=bpm}}: the backing track plays it once and stops after the last Chorus. Strum down on every beat, and read the names above the boxes to know which section is next.\nIf you lose your place, stop strumming, find the lit box and come back in on the next beat 1.\nPress Play again to play the song from the top, until you reach the end without stopping."
           },
           {
             "type": "tool",

@@ -2,11 +2,11 @@
   "id": "guitar-beginner-g-c-and-d-as-triads",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 4.",
+  "note": "Major triads on the top three strings in two sections that change one thing: one shape slid to three places, then three shapes in one place. The first step says what a triad is and which strings it is on; each section says what to watch and the feel to reach.",
   "exercise": {
     "title": "G, C and D as triads",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "triads"
     ],
-    "why": "A triad is the three notes that make a chord, so the same chord can come from one shape slid along the neck or from a new shape right where your hand is.",
+    "why": "A triad is the three notes that make a chord, so the same chord can come from one shape slid along the neck or from another shape right where your hand already is.",
     "learnBefore": [
       "/course/5/triads"
     ],
@@ -25,11 +25,11 @@
       {
         "type": "section",
         "heading": "One shape, three chords",
-        "minutes": 3,
+        "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the play-along. One small shape on the top three strings is G, and the same shape further up the neck is C, then D, just as a power chord shape moves to a new root. Strike the three strings on every beat and follow the tab, until the slide lands on beat 1."
+            "text": "Press Play below to start the backing track, and follow the tab. A triad is a chord played as three notes, here on the G, B and high e strings. One small shape is G. The same shape slid up the neck is C, slid further up it is D, and then it comes back down to G.\nStrike the three strings together on every beat, four times for each chord.\nKeep going until the slide to the next chord lands on beat 1."
           },
           {
             "type": "tool",
@@ -105,11 +105,11 @@
       {
         "type": "section",
         "heading": "Three shapes, one place",
-        "minutes": 3,
+        "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Now your hand stays where it is and the shape changes: the same three chords, all within a few frets. Press Play below and follow the tab. Notice which fingers barely move from one chord to the next."
+            "text": "Press Play below to start the backing track, and follow the tab. The same three chords now sit close together, so your hand stays where it is and the shape of the fingers changes. Strike each chord on every beat, as before.\nWatch for the fingers that barely move from one chord to the next.\nKeep going until the three chords change without your hand moving along the neck."
           },
           {
             "type": "tool",
@@ -187,7 +187,14 @@
       "steps": [
         "triads:1"
       ],
-      "minutes": 6
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 8
     }
   ]
 }

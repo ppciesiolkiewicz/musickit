@@ -56,7 +56,7 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "staff-notes", title: "The notes", text: "Tap a note to hear it, then sing it back." },
     { target: "staff-settings", title: "Settings", text: "How the notes are named and how close counts as on the note.", minLevel: "standard" },
   ],
-  "backing-band": band("the band"),
+  "backing-band": band("the backing track"),
   "note-finder": [
     { target: "note-finder-start", title: "Start", text: "Press Start and read what to find. Skip moves on to the next one." },
     { target: "note-finder-neck", title: "Answer", text: "Tap the note on the neck, or pick its name when the game lights a note for you to name." },
@@ -100,22 +100,22 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "interval-singer-options", title: "Options", text: "Switch the view, pick the keys Do comes from, or hide your voice to make it harder.", minLevel: "standard" },
   ],
   "guitar-play-along": [
-    { target: "play-along-play", title: "Play", text: "Play starts the backing and the part to play along with. It loops until you stop it." },
+    { target: "play-along-play", title: "Play", text: "Play starts the backing track and the part to play along with. It loops until you stop it." },
     { target: "play-along-music", title: "What to play", text: "The note to play now is lit as the music moves." },
     { target: "play-along-tempo", title: "Tempo", text: "Make it slower with − until you can play along, then speed it up." },
     { target: "play-along-view", title: "View", text: "Show the part as tab, as notes or on the neck.", minLevel: "standard" },
   ],
   "backing-track": [
-    { target: "backing-play", title: "Play and tempo", text: "Press Play to start the band. Change the tempo while it plays." },
+    { target: "backing-play", title: "Play and tempo", text: "Press Play to start the backing track. Change the tempo while it plays." },
     { target: "backing-chords", title: "The chords", text: "The chord playing now lights up." },
-    { target: "backing-choose", title: "What the band plays", text: "Pick another progression, key or style. A change comes in on the next bar.", minLevel: "standard" },
-    { target: "backing-band", title: "The band", text: "Turn a part down, or mute it to play that part yourself. A part this exercise always plays has no mute." },
+    { target: "backing-choose", title: "What the backing track plays", text: "Pick another progression, key or style. A change comes in on the next bar.", minLevel: "standard" },
+    { target: "backing-band", title: "The backing track", text: "Turn a part down, or mute it to play that part yourself. A part this exercise always plays has no mute." },
   ],
   "song-chart": [
-    { target: "song-chart-play", title: "Play", text: "Press Play. A bar of clicks counts you in, then the band plays the song from the top." },
+    { target: "song-chart-play", title: "Play", text: "Press Play. A bar of clicks counts you in, then the backing track plays the song from the top." },
     { target: "song-chart-chart", title: "The chart", text: "Each box is one bar, and a chord changes where a new box begins. The lit box is the bar playing now, under the name of its section." },
     { target: "song-chart-tempo", title: "Tempo", text: "Make it slower with − until every change lands on beat 1." },
-    { target: "backing-band", title: "The band", text: "Turn a part down, or mute it to play that part yourself. A part this exercise always plays has no mute." },
+    { target: "backing-band", title: "The backing track", text: "Turn a part down, or mute it to play that part yourself. A part this exercise always plays has no mute." },
   ],
   "strum-along": [
     { target: "strum-along-play", title: "Play", text: "Play starts the metronome with a short count-in. Strum along with it." },

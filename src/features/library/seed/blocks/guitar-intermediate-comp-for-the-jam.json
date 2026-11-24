@@ -17,7 +17,7 @@
     "concepts": [
       "sus-add9"
     ],
-    "why": "With no keyboard in the band your guitar is the only thing playing the chords, so the drums and bass show at once whether your changes land on beat 1.",
+    "why": "With no keyboard in the backing track your guitar is the only thing playing the chords, so the drums and bass show at once whether your changes land on beat 1.",
     "learnBefore": [
       "/course/7/sus-add9",
       "/course/7/sevenths"
@@ -50,12 +50,12 @@
       },
       {
         "type": "section",
-        "heading": "With the band",
+        "heading": "With the backing track",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Play Dsus2 in the first bar of Dm7 if you like the sound, and leave it out if you don't."
+            "text": "Press Play below to start the backing track: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Play Dsus2 in the first bar of Dm7 if you like the sound, and leave it out if you don't."
           },
           {
             "type": "tool",

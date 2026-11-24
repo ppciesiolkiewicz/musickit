@@ -6,6 +6,8 @@ export interface AddDraft {
   name: string;
   email: string;
   answers: PlanAnswers;
+  /** the practice days of the first week: weekdays, Monday 0 to Sunday 6; all seven is every day */
+  days: number[];
 }
 
 /** A failed add: `field` puts the line under that field on the first screen; without it the line is on the last screen. */

@@ -2,11 +2,11 @@
   "id": "guitar-beginner-jam-over-am-and-g",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 7.",
+  "note": "A first solo over two chords: the step says what the backing track plays, what the neck shows and which note is ringed for the chord playing now. Three sections change one thing each: land on the root, land on the root or the 5th, then a question over one chord and its answer over the next.",
   "exercise": {
     "title": "Jam over Am and G",
     "area": "guitar",
@@ -17,7 +17,7 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "Landing on a note of the chord as it changes is the simplest way to make a solo follow the chords.",
+    "why": "A phrase that ends on a note of the chord playing sounds settled, so aiming for the ringed note at each change makes a solo follow the chords.",
     "learnBefore": [
       "/course/5/pentatonic",
       "/course/5/soloing",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. Improvise from position 1 and land on the ringed note as each chord comes round: {{1}} for Am."
+            "text": "Press Play below to start the backing track: two bars of Am, then two bars of G, round and round. The neck under it shows the notes of the A minor pentatonic scale along the whole neck, and the ringed note is the root of the chord playing now: {{a}} over Am and {{g}} over G. The line above the neck names the note to land on.\nMake up short phrases from the dots between fret 5 and fret 8, and end a phrase on a ringed note each time the chord changes.\nIf you miss a change, stop, wait for the next chord and start a new phrase there."
           },
           {
             "type": "tool",
@@ -65,12 +65,53 @@
       },
       {
         "type": "section",
-        "heading": "Land on a double stop",
+        "heading": "The root or the 5th",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the same backing. This time end your phrases on one of the two double stops in position 1 on the B and high e strings, and listen for which one suits Am and which suits G."
+            "text": "Press Play below to start the backing track again. Two notes are ringed for each chord now, its root and its 5th.\nEnd each phrase on either of the two ringed notes.\nListen for the phrase sounding settled on both, and a little more finished on the root."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "guitar-play-along",
+              "shape": {
+                "shape": "solo-over",
+                "key": "a",
+                "chords": [
+                  {
+                    "chord": "Am",
+                    "scale": "minor-pentatonic",
+                    "target": [
+                      "1",
+                      "5"
+                    ]
+                  },
+                  {
+                    "chord": "G",
+                    "target": [
+                      "1",
+                      "5"
+                    ]
+                  }
+                ],
+                "bars": 2
+              },
+              "bpm": 80,
+              "view": "neck"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A question and its answer",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track again. Over Am, play a short phrase that stops on a dot that is not ringed: that is the question. Over G, answer it with a phrase that ends on a ringed note.\nLeave a gap after each phrase.\nKeep going until the answers come without you planning them."
           },
           {
             "type": "tool",
@@ -111,7 +152,14 @@
       "steps": [
         "pentatonic-positions:1"
       ],
-      "minutes": 6
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 9
     }
   ]
 }

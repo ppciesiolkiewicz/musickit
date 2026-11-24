@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track sevenths-up (theory-building-chords), step 8: 9th chords, the 9 stacked on a 7th chord, seen, compared with the 7 and heard in three chords of a key. Missing: interval-ears \"kind\": \"chord\" has no 9th chord answer, so telling a 9 from a 7 by ear is done with the band.",
+  "note": "Track sevenths-up (theory-building-chords), step 8: 9th chords, the 9 stacked on a 7th chord, seen, compared with the 7 and heard in three chords of a key. Missing: interval-ears \"kind\": \"chord\" has no 9th chord answer, so telling a 9 from a 7 by ear is done with the backing track.",
   "exercise": {
     "title": "9th chords: a 7th chord with the 9",
     "area": "theory",
@@ -94,7 +94,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: three 7th chords of the key for four bars, then the same three as 9th chords for four bars.\nOnce you hear the extra note come in, look away from the chord boxes and call out \"9\" when it does.\nThen listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the 9th is still the 2nd of each chord, an octave up."
+            "text": "Press Play below to start the backing track: three 7th chords of the key for four bars, then the same three as 9th chords for four bars.\nOnce you hear the extra note come in, look away from the chord boxes and call out \"9\" when it does.\nThen listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the 9th is still the 2nd of each chord, an octave up."
           },
           {
             "type": "tool",

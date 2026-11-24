@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab. Every pair starts on {{1}} on the D string: first up a 5th to {{5}} on the G string, then down a 5th to {{4}} on the A string.\nPlay until your hand goes to both notes without hunting for them."
+            "text": "Press Play below to start the backing track at {{=bpm}}, and play along from the tab. Every pair starts on {{1}} on the D string: first up a 5th to {{5}} on the G string, then down a 5th to {{4}} on the A string.\nPlay until your hand goes to both notes without hunting for them."
           },
           {
             "type": "tool",
@@ -62,7 +62,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. From the same {{1}}, a 4th up is {{4}} on the G string and a 4th down is {{5}} on the A string.\nThey are the two notes from before, each an octave away from where you found it."
+            "text": "Press Play below to start the backing track. From the same {{1}}, a 4th up is {{4}} on the G string and a 4th down is {{5}} on the A string.\nThey are the two notes from before, each an octave away from where you found it."
           },
           {
             "type": "tool",
@@ -93,7 +93,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. Now {{1}} is on the A string and both intervals come in turn: the 5th up and down, then from a new bar the 4th up and down.\nIn another key {{1}} moves to another fret, and the other notes keep their places around it."
+            "text": "Press Play below to start the backing track. Now {{1}} is on the A string and both intervals come in turn: the 5th up and down, then from a new bar the 4th up and down.\nIn another key {{1}} moves to another fret, and the other notes keep their places around it."
           },
           {
             "type": "tool",

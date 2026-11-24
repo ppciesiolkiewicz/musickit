@@ -64,12 +64,12 @@
       },
       {
         "type": "section",
-        "heading": "Follow the band",
+        "heading": "Follow the backing track",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: C, F, G and back to C, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help.\nKeep going until you hear a change coming before the box lights."
+            "text": "Press Play below to start the backing track: C, F, G and back to C, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help.\nKeep going until you hear a change coming before the box lights."
           },
           {
             "type": "tool",
@@ -107,7 +107,7 @@
           },
           {
             "type": "text",
-            "text": "Press Play below to start the band in G: the same three numbers in a new order. Look away and call them out, then look back at the chord boxes to check.\nThe key is new, so the chords are G, C and D, but each number keeps its sound."
+            "text": "Press Play below to start the backing track in G: the same three numbers in a new order. Look away and call them out, then look back at the chord boxes to check.\nThe key is new, so the chords are G, C and D, but each number keeps its sound."
           },
           {
             "type": "tool",

@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track modes (theory-modes), step 1: Dorian, built from the minor pentatonic the player knows by adding the 2nd and the major 6th, with the 6th heard over a drone and then over a Dorian band in three keys.",
+  "note": "Track modes (theory-modes), step 1: Dorian, built from the minor pentatonic the player knows by adding the 2nd and the major 6th, with the 6th heard over a drone and then over a Dorian backing track in three keys.",
   "exercise": {
     "title": "Dorian: the minor pentatonic plus two notes",
     "area": "theory",
@@ -87,7 +87,7 @@
       },
       {
         "type": "section",
-        "heading": "Over a Dorian band",
+        "heading": "Over a Dorian backing track",
         "minutes": 3,
         "choice": {
           "options": [
@@ -105,7 +105,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: two chords, the 1 and the 4, round and round. Tap lines of your own on the staff over it, and land on the ringed {{6}} when the second chord comes: it is that chord's 3rd.\nOnce the {{6}} lands with the chord, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the notes are new but the ringed note is still the {{6}}."
+            "text": "Press Play below to start the backing track: two chords, the 1 and the 4, round and round. Tap lines of your own on the staff over it, and land on the ringed {{6}} when the second chord comes: it is that chord's 3rd.\nOnce the {{6}} lands with the chord, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the notes are new but the ringed note is still the {{6}}."
           },
           {
             "type": "tool",

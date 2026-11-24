@@ -18,7 +18,7 @@
     "concepts": [
       "harmony-line"
     ],
-    "why": "A faster band gives you less time to find each note, so the line has to be in your ear before the chord arrives.",
+    "why": "A faster backing track gives you less time to find each note, so the line has to be in your ear before the chord arrives.",
     "learnBefore": [
       "/course/6/harmony-line"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. Sing the harmony line on \"oo\": {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
+            "text": "Press Start exercise below to start the mic and the backing track. Sing the harmony line on \"oo\": {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar.\nWhen each note is ready before its chord arrives, try a faster stage. Use the Stage selector below to change the tempo, then press Start exercise again.\nIf you start arriving late, go back one stage."
           },
           {
             "type": "tool",
@@ -90,7 +90,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. Now choose your own note for each chord from {{1}} up to {{5}}, one a bar, and move by step where you can. When you find a line you like, sing it again until you can start it from any bar."
+            "text": "Press Start exercise below to start the mic and the backing track. Now choose your own note for each chord from {{1}} up to {{5}}, one a bar, and move by step where you can. When you find a line you like, sing it again until you can start it from any bar."
           },
           {
             "type": "tool",

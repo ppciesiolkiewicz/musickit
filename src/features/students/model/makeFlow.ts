@@ -13,12 +13,13 @@ export type ViewState = { kind: "loading" } | { kind: "error"; code: string; err
 /** Making a plan: nothing asked yet, going out (and the page loading again after), what was made, or why not. */
 export type Sent = { kind: "idle" } | { kind: "busy" } | { kind: "made"; line: string; /** a next week was made (not a rotation): the line already says when it starts */ next: boolean } | { kind: "failed"; error: string; code: string };
 
-/** What the teacher has set: where each slider opened (`start`), where it is now (`values`), the comment, and the comment already saved on this week (what the box opened with). */
+/** What the teacher has set: where each slider opened (`start`), where it is now (`values`), the comment, the comment already saved on this week (what the box opened with), and the practice days (weekdays, Monday 0). */
 export interface MakeForm {
   start: Record<string, number>;
   values: Record<string, number>;
   comment: string;
   savedComment: string;
+  days: number[];
 }
 
 type Failure = { ok: false; code: string; error: string };
@@ -46,18 +47,24 @@ export function waitingLine(name: string, start: string): string {
   return `${name}'s next plan is made. It starts on ${dayName(start)}.`;
 }
 
+/** A press on a weekday under "Practice days": on becomes off and off on, kept in order; the last day left on stays on (a week needs a day). */
+export function toggleDay(days: number[], day: number): number[] {
+  if (!days.includes(day)) return [...days, day].sort((a, b) => a - b);
+  return days.length > 1 ? days.filter((d) => d !== day) : days;
+}
+
 /** The same line under "Next plan", with what pressing Make next week's plan does to the waiting week. */
 export function upcomingLine(name: string, start: string): string {
   return `${waitingLine(name, start)} Press Make next week's plan below to make a new one in its place.`;
 }
 
 /**
- * What the page sends to make a plan: only the sliders the teacher moved, and the comment only when there is a week to
+ * What the page sends to make a plan: only the sliders the teacher moved, the practice days as they stand, and the comment only when there is a week to
  * put it on and the teacher changed it (the box opens with the saved one; sending it again changes nothing).
  */
 export function planInput(today: string, rotate: boolean, form: MakeForm, hasWeek: boolean) {
   const changed = form.comment.trim() !== form.savedComment.trim();
-  return { today, rotate, scores: moved(form.start, form.values), comment: hasWeek && changed ? form.comment : "" };
+  return { today, rotate, scores: moved(form.start, form.values), comment: hasWeek && changed ? form.comment : "", days: form.days };
 }
 
 /**
@@ -67,7 +74,7 @@ export function planInput(today: string, rotate: boolean, form: MakeForm, hasWee
  */
 export function afterMake(result: ({ ok: true } & MadePlan) | Failure, form: MakeForm, name: string, rotate: boolean, today: string): { form: MakeForm; sent: Sent; reload: boolean } {
   if (!result.ok) return { form, sent: { kind: "failed", error: result.error, code: result.code }, reload: false };
-  return { form: { start: form.values, values: form.values, comment: "", savedComment: "" }, sent: { kind: "made", line: madeLine(name, result, rotate, today), next: !rotate }, reload: true };
+  return { form: { start: form.values, values: form.values, comment: "", savedComment: "", days: form.days }, sent: { kind: "made", line: madeLine(name, result, rotate, today), next: !rotate }, reload: true };
 }
 
 /**
@@ -76,6 +83,6 @@ export function afterMake(result: ({ ok: true } & MadePlan) | Failure, form: Mak
  */
 export function viewOf(r: ({ ok: true } & StudentView) | Failure): { state: ViewState; opening: Record<string, number> | null; comment: string | null } {
   if (!r.ok) return { state: { kind: "error", code: r.code, error: r.error }, opening: null, comment: null };
-  const view: StudentView = { student: r.student, plan: r.plan, topics: r.topics, upcoming: r.upcoming };
+  const view: StudentView = { student: r.student, plan: r.plan, topics: r.topics, upcoming: r.upcoming, practiceDays: r.practiceDays };
   return { state: { kind: "view", view }, opening: Object.fromEntries(view.topics.map((t) => [t.topic, tenth(t.now)])), comment: view.plan?.teacher?.comment ?? "" };
 }

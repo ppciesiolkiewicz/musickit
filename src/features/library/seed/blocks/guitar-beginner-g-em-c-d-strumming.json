@@ -2,13 +2,13 @@
   "id": "guitar-beginner-g-em-c-d-strumming",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 4.",
+  "note": "Four open chords as a loop, in three sections: the shapes in the order of the loop, down strums on every beat, then the same strums with beat 1 a little harder. The why says what a loop does for the hand; each step names the beat to move on and what to do when a change is late.",
   "exercise": {
-    "title": "G-Em-C-D strumming",
+    "title": "G, Em, C and D as a loop",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -18,7 +18,7 @@
       "open-chords",
       "strumming"
     ],
-    "why": "G Em C D is the loop behind countless songs, so a steady strum through it lets you play along with them.",
+    "why": "G, Em, C and D go round as a loop, so each chord always changes to the same next chord and your hand has four changes to learn, the same four every time round.",
     "learnBefore": [
       "/course/2/c-d-g",
       "/course/2/em-and-am"
@@ -26,12 +26,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The shapes",
-        "minutes": 2,
+        "heading": "Four shapes in order",
+        "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Tap a chord box to hear it, then fret each one as shown. Go round the loop slowly, until Em to C stops being the slow change."
+            "text": "Press a chord box below to hear the chord. The boxes are in the order of the loop: G, Em, C, then D, and after D the loop starts again on G.\nFret each chord in turn and strum it once, slowly.\nGo round until the change from Em to C is as quick as the other three."
           },
           {
             "type": "tool",
@@ -49,12 +49,37 @@
       },
       {
         "type": "section",
-        "heading": "In time",
+        "heading": "The loop in time",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play. Strum down on every beat, one bar for each chord, and start moving your fingers to the next chord on beat 4.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "C",
+                "D"
+              ],
+              "bpm": 70,
+              "pattern": "D D D D"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "Beat 1 a little harder",
+        "minutes": 2,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Play the same loop with the same strums, and strum beat 1 of every bar a little harder than beats 2, 3 and 4.\nListen for the start of each bar standing out, so you can hear where each chord begins."
           },
           {
             "type": "tool",
@@ -82,7 +107,14 @@
         "open-chords:7",
         "strumming:1"
       ],
-      "minutes": 5
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 8
     }
   ]
 }

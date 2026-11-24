@@ -2,13 +2,13 @@
   "id": "guitar-beginner-position-1-with-down-up-picking",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 3.",
+  "note": "Down-up picking taken from open strings into the minor pentatonic scale, with no position number: the run is spelled out string by string and the picking stroke by stroke. Three sections change one thing each: open strings, the scale, the scale a little faster. It moves to other keys and tempos.",
   "exercise": {
-    "title": "Position 1 with down-up picking",
+    "title": "{{=key}} minor pentatonic with down-up picking",
     "area": "guitar",
     "tags": [
       "technique"
@@ -17,7 +17,7 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "Picking down then up plays two notes with one swing of the hand, so the position can speed up without the hand working harder.",
+    "why": "Picking down and then up plays two notes with one swing of the hand, so the scale can get faster without the hand working harder.",
     "learnBefore": [
       "/course/1/spider",
       "/course/5/pentatonic"
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Pick each open string down, up, down, up, and follow the arrows under the tab. Keep going until your hand swings evenly, with no stop between the strokes."
+            "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows each open string four times, from the low E string up to the high e string and back down. Pick down, up, down, up on each string: the arrows under the tab show the stroke for each note.\nKeep going until your hand swings evenly, with no stop between the strokes."
           },
           {
             "type": "tool",
@@ -45,12 +45,12 @@
       },
       {
         "type": "section",
-        "heading": "Position 1 at 70",
+        "heading": "The scale, down and up",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at 70. Start on the ringed {{1}} on the low E string and play both dots on each string up to the high e string, then come back down the same way. Play one note per beat, picking down, up all the way."
+            "text": "Press Play below to start the metronome. Under it is the neck with the notes of the {{=key}} minor pentatonic scale: each dot is a note to play.\nStart on the ringed {{1}} on the low E string and play both dots on each string up to the high e string, then come back down the same way, one note per beat. Pick the first note down, the next note up, and carry on down, up without a break."
           },
           {
             "type": "tool",
@@ -81,12 +81,12 @@
       },
       {
         "type": "section",
-        "heading": "Position 1 at 80",
+        "heading": "A little faster",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at 80. Same position, same picking. If it feels rushed, go back to 70 for a round."
+            "text": "Press Play below to start the metronome, which is a little faster now. Play the same notes with the same picking: down, up, all the way.\nIf it feels rushed, play only the three lowest strings until the strokes are even again."
           },
           {
             "type": "tool",
@@ -124,6 +124,14 @@
       "steps": [
         "pentatonic-positions:1"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
       "minutes": 6
     }
   ]

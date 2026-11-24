@@ -59,12 +59,12 @@
       },
       {
         "type": "section",
-        "heading": "Run home over the band",
+        "heading": "Run home over the backing track",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band: C, G, Am and F, a bar each. On \"ah\", hold {{5}} while the chords go by, then run down through {{4}}, {{3}} and {{2}} to land on {{1}} as C comes round again. Then start the run a bar earlier, and listen for where it lands."
+            "text": "Press Start exercise below to start the mic and the backing track: C, G, Am and F, a bar each. On \"ah\", hold {{5}} while the chords go by, then run down through {{4}}, {{3}} and {{2}} to land on {{1}} as C comes round again. Then start the run a bar earlier, and listen for where it lands."
           },
           {
             "type": "tool",

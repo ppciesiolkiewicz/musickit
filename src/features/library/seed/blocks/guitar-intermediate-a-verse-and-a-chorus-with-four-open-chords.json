@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band at {{=bpm}}. After a bar of count-in clicks, the lit box shows the bar playing, under the name of its section.\nLeave the guitar for now. Follow the lit box through the Verse and the Chorus, and say each chord's name on beat 1 of its box.\nKeep going until you can say the next chord before its box lights."
+            "text": "Press Play below to start the backing track at {{=bpm}}. After a bar of count-in clicks, the lit box shows the bar playing, under the name of its section.\nLeave the guitar for now. Follow the lit box through the Verse and the Chorus, and say each chord's name on beat 1 of its box.\nKeep going until you can say the next chord before its box lights."
           },
           {
             "type": "tool",
@@ -82,7 +82,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band without the keys: the chords are yours now. Strum each chord once, down, on beat 1 of its box, and use the rest of the bar to move to the next shape.\nIf a change comes late, leave that bar out and come back in on the next beat 1."
+            "text": "Press Play below to start the backing track without the keys: the chords are yours now. Strum each chord once, down, on beat 1 of its box, and use the rest of the bar to move to the next shape.\nIf a change comes late, leave that bar out and come back in on the next beat 1."
           },
           {
             "type": "tool",
@@ -137,7 +137,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band again. Strum down on every beat, through the Verse and the Chorus, and change chord where a new box begins.\nKeep going round until every change lands on beat 1 while your eyes stay on the chart."
+            "text": "Press Play below to start the backing track again. Strum down on every beat, through the Verse and the Chorus, and change chord where a new box begins.\nKeep going round until every change lands on beat 1 while your eyes stay on the chart."
           },
           {
             "type": "tool",

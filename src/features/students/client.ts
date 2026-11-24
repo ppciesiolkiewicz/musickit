@@ -1,3 +1,4 @@
+import { cleanPracticeDays } from "@/features/plan/model/practiceDays";
 import { accountHeaders, isAccountChanged } from "@/features/userData/client/accountHeader";
 import type { PlanAnswers } from "@/features/plan/intake/answers";
 import { AREAS } from "@/features/plan/model/concepts";
@@ -66,7 +67,7 @@ export async function fetchStudents(today: string, fetcher: typeof fetch = fetch
 }
 
 /** `POST /api/students`: adds a student with the answers given for them; `today` is the device's date (`localDate()`). */
-export async function postStudent(input: { name: string; email: string; answers: PlanAnswers; today: string }, fetcher: typeof fetch = fetch): Promise<({ ok: true } & AddedStudent) | Failure> {
+export async function postStudent(input: { name: string; email: string; answers: PlanAnswers; today: string; days?: number[] }, fetcher: typeof fetch = fetch): Promise<({ ok: true } & AddedStudent) | Failure> {
   const r = await send("/api/students", { method: "POST", body: JSON.stringify(input) }, fetcher);
   if ("ok" in r) return r;
   const { student, plan, mail } = r.body ?? {};
@@ -103,9 +104,10 @@ const isUpcoming = (u: unknown): u is NonNullable<StudentView["upcoming"]> => {
 export async function fetchStudent(id: string, today: string, fetcher: typeof fetch = fetch): Promise<({ ok: true } & StudentView) | Failure> {
   const r = await send(`/api/students/${encodeURIComponent(id)}?today=${encodeURIComponent(today)}`, { method: "GET" }, fetcher);
   if ("ok" in r) return r;
-  const { student, plan, topics, upcoming = null } = r.body ?? {};
+  const { student, plan, topics, upcoming = null, practiceDays } = r.body ?? {};
   if (!isRow(student) || !(plan === null || isWeek(plan)) || !Array.isArray(topics) || !topics.every(isSlider) || !(upcoming === null || isUpcoming(upcoming))) return failure("failed");
-  return { ok: true, student, plan, topics, upcoming };
+  // an answer with no practice days reads as every day
+  return { ok: true, student, plan, topics, upcoming, practiceDays: cleanPracticeDays(practiceDays) ?? [0, 1, 2, 3, 4, 5, 6] };
 }
 
 /**
@@ -114,7 +116,7 @@ export async function fetchStudent(id: string, today: string, fetcher: typeof fe
  */
 export async function postStudentPlan(
   id: string,
-  input: { today: string; rotate: boolean; scores: Record<string, number>; comment: string },
+  input: { today: string; rotate: boolean; scores: Record<string, number>; comment: string; days: number[] },
   fetcher: typeof fetch = fetch,
 ): Promise<({ ok: true } & MadePlan) | Failure> {
   const r = await send(`/api/students/${encodeURIComponent(id)}/plan`, { method: "POST", body: JSON.stringify(input) }, fetcher);

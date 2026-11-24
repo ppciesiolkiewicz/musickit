@@ -6,7 +6,7 @@
     "agents": 1,
     "teaching": 2
   },
-  "note": "Do Mi Sol goes from a bare drill (3 minutes, the cap) to a tune that skips to singing chord notes over a band, so the longer singing time is musical. The drill goes through D, A and C from one Key selector, keys that keep a beginner's Do Mi Sol low on the staff. Both staffs label their notes Do Re Mi, as the text names them, the band's chords can't be muted under the singer, and each step says what starts, what to sing on and what to do when an entry comes late.",
+  "note": "Do Mi Sol goes from a bare drill (3 minutes, the cap) to a tune that skips to singing chord notes over a backing track, so the longer singing time is musical. The drill goes through D, A and C from one Key selector, keys that keep a beginner's Do Mi Sol low on the staff. Both staffs label their notes Do Re Mi, as the text names them, the backing track's chords can't be muted under the singer, and each step says what starts, what to sing on and what to do when an entry comes late.",
   "exercise": {
     "title": "Do Mi Sol: skip, sing a tune, sing over chords",
     "area": "voice",
@@ -93,7 +93,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band: D and A take turns, one bar each. On \"oo\", sing {{1}} while the D box is lit and {{5}} while the A box is lit. If you come in late, hold your note and catch the next change. Then try {{3}} over D instead."
+            "text": "Press Start exercise below to start the mic and the backing track: D and A take turns, one bar each. On \"oo\", sing {{1}} while the D box is lit and {{5}} while the A box is lit. If you come in late, hold your note and catch the next change. Then try {{3}} over D instead."
           },
           {
             "type": "tool",

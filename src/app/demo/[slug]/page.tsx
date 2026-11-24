@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const demo = demoPlan((await params).slug);
   return {
     title: `${demo?.label ?? "Demo"}: a ready-made practice plan · attunr`,
-    description: "A week of daily guitar and voice exercises from attunr's library: open any day and try its tools.",
+    description: "A week of guitar and voice practice from attunr's library: open any day and try its tools.",
     // the same page as /plan, so search sends people there
     alternates: { canonical: "/plan" },
     robots: { index: false },
@@ -26,7 +26,7 @@ export default async function DemoPage({ params }: { params: Promise<Params> }) 
   const demo = demoPlan((await params).slug);
   if (!demo) notFound();
   return (
-    <PageShell active="/plan" column devices pageId="plan" tour={PLAN_TOUR} title={`Demo: ${demo.label}`} intro="A week of daily exercises from attunr's library. Open any day and play with its tools. Nothing here is saved.">
+    <PageShell active="/plan" column devices pageId="plan" tour={PLAN_TOUR} title={`Demo: ${demo.label}`} intro="A week of practice from attunr's library. Open any day and play with its tools. Nothing here is saved.">
       {/* HintProvider under the shell, so the title row shows no "?" */}
       <HintProvider>
         <DemoPlan config={demo.config} />

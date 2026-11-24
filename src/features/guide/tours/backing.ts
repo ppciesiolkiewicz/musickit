@@ -5,11 +5,11 @@ export const BACKING_TOUR: TourStep[] = [
   {
     target: "backing-play",
     title: "Play and tempo",
-    text: "Press play, or Space, to start the band. Change the tempo while it plays.",
+    text: "Press play, or Space, to start the backing track. Change the tempo while it plays.",
   },
   {
     target: "backing-choose",
-    title: "What the band plays",
+    title: "What the backing track plays",
     text: "Pick a progression, a key and a style. A change comes in on the next bar.",
   },
   {
@@ -19,7 +19,7 @@ export const BACKING_TOUR: TourStep[] = [
   },
   {
     target: "backing-band",
-    title: "The band",
+    title: "The backing track",
     text: "Turn the drums, bass or keys down, or mute one to play that part yourself.",
   },
 ];

@@ -6,7 +6,7 @@
     "agents": 1,
     "teaching": 2
   },
-  "note": "Advanced singing made musical: a fast run and an octave tune to open the range, then guide tones and a line of the singer's own over a ii-V-I the band plays, read from a staff. The why says what makes guide tones work (each one moves a step or stays), the guide-tone staff shows only those four notes, labelled by degree as the text names them, and the same changes come back in F with the guide tones ringed among the whole scale. The run's range is stated and each block says what to sing on.",
+  "note": "Advanced singing made musical: a fast run and an octave tune to open the range, then guide tones and a line of the singer's own over a ii-V-I the backing track plays, read from a staff. The why says what makes guide tones work (each one moves a step or stays), the guide-tone staff shows only those four notes, labelled by degree as the text names them, and the same changes come back in F with the guide tones ringed among the whole scale. The run's range is stated and each block says what to sing on.",
   "exercise": {
     "title": "Guide tones over ii-V-I, then your own line",
     "area": "voice",
@@ -76,7 +76,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. On \"ah\", sing one long note per chord: {{4}} over Dm7, {{4}} again over G7, then {{3}} over Cmaj7. Then the other line: {{1}} over Dm7, {{7}} over G7, {{7}} again over Cmaj7. Listen for the bar where your note stays and the chord changes under it."
+            "text": "Press Start exercise below to start the mic and the backing track. On \"ah\", sing one long note per chord: {{4}} over Dm7, {{4}} again over G7, then {{3}} over Cmaj7. Then the other line: {{1}} over Dm7, {{7}} over G7, {{7}} again over Cmaj7. Listen for the bar where your note stays and the chord changes under it."
           },
           {
             "type": "tool",

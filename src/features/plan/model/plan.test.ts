@@ -16,9 +16,10 @@ import { KEY_PANELS, PROMPT_HIDDEN, canFollowPart, cellInterface, cellsOf, degre
 import { transposeTool } from "./transpose";
 import { linkLabel } from "./catalogue";
 import { DEFAULT_ANSWERS } from "../intake/answers";
-import { addDays, dayIndex, dayOf, dayProgress, localDate } from "./schedule";
+import { addDays, dayIndex, dayOf, dayProgress, localDate, openDay, practiceDays, weekdayOf } from "./schedule";
+import { cleanPracticeDays, practiceDaysWords } from "./practiceDays";
 import { sanitiseState } from "./state";
-import type { StoredPlan } from "./types";
+import type { PlanExercise, StoredPlan } from "./types";
 
 const entries = catalogue();
 const day = (n: number, link?: string) => ({ theme: `T${n}`, exercises: [{ title: `Ex ${n}`, minutes: 10, cells: [{ type: "text", text: "do it" }], ...(link ? { exploreMore: [link] } : {}) }] });
@@ -604,8 +605,9 @@ describe("parsePlanConfig", () => {
     assert.deepEqual(r.config.days[1].exercises[0].exploreMore, ["/theory/ears"]);
     assert.equal(real(r.warnings).length, 1);
   });
-  it("refuses short plans, empty days and bad JSON", () => {
-    assert.equal(parsePlanConfig(JSON.stringify({ days: [day(1)] }), entries).ok, false);
+  it("refuses a plan with no days, empty days and bad JSON; a plan of fewer than seven days is read", () => {
+    assert.equal(parsePlanConfig(JSON.stringify({ days: [] }), entries).ok, false);
+    assert.equal(parsePlanConfig(JSON.stringify({ days: [day(1)] }), entries).ok, true);
     const empty = JSON.parse(week());
     empty.days[3].exercises = [];
     assert.equal(parsePlanConfig(JSON.stringify(empty), entries).ok, false);
@@ -874,5 +876,39 @@ describe("dates and the moved-over answers history", () => {
     assert.deepEqual(sanitiseState({ answers: { areas: ["guitar"], topics: { "guitar-caged": 1 } } }).answersHistory, []);
     const kept = [{ at: "2026-11-02T10:00:00.000Z", topics: { "guitar-caged": 3 } }];
     assert.deepEqual(sanitiseState({ answers: { areas: ["guitar"], topics: { "guitar-caged": 1 } }, current: stored("2026-11-08"), answersHistory: kept }).answersHistory, kept);
+  });
+});
+
+describe("practice days", () => {
+  const stored = (lengths: number[]): StoredPlan => ({ id: "w", startedOn: "2026-11-16", done: {}, config: { title: "", days: lengths.map((n) => ({ theme: "", exercises: Array.from({ length: n }, () => ({ title: "x", minutes: 5, cells: [] }) as unknown as PlanExercise) })) } });
+  it("weekdayOf counts from Monday", () => {
+    assert.equal(weekdayOf("2026-11-16"), 0);
+    assert.equal(weekdayOf("2026-11-18"), 2);
+    assert.equal(weekdayOf("2026-11-22"), 6);
+  });
+  it("cleanPracticeDays keeps whole weekdays once, in order; none or all seven is not set", () => {
+    assert.deepEqual(cleanPracticeDays([4, 0, 2, 2, 9, 1.5, "3"]), [0, 2, 4]);
+    assert.equal(cleanPracticeDays([]), undefined);
+    assert.equal(cleanPracticeDays([0, 1, 2, 3, 4, 5, 6]), undefined);
+    assert.equal(cleanPracticeDays("mon"), undefined);
+    assert.equal(practiceDaysWords([0, 2, 4]), "Monday, Wednesday and Friday");
+    assert.equal(practiceDaysWords(undefined), "every day");
+  });
+  it("a week shows the days that hold exercises, and opens on today or the practice day before it", () => {
+    const w = stored([2, 0, 2, 0, 2, 0, 0]);
+    assert.deepEqual(practiceDays(w), [0, 2, 4]);
+    assert.equal(openDay(w, 2), 2);
+    assert.equal(openDay(w, 3), 2, "a rest day: the practice day before it");
+    assert.equal(openDay(stored([0, 2, 2]), 0), 1, "before the first practice day: the first one");
+    assert.deepEqual(practiceDays(stored([0, 0])), [0, 1], "nothing anywhere: every day");
+  });
+  it("a parsed plan may have fewer than seven days, never none", () => {
+    const three = parsePlanConfig(JSON.stringify({ title: "W", days: [1, 2, 3].map((n) => ({ theme: `D${n}`, exercises: [{ title: "E", minutes: 5, cells: [{ type: "text", text: "Play." }] }] })) }), catalogue());
+    assert.ok(three.ok && three.config.days.length === 3);
+    assert.equal(parsePlanConfig(JSON.stringify({ title: "W", days: [] }), catalogue()).ok, false);
+  });
+  it("sanitiseState keeps clean practice days and drops the rest", () => {
+    assert.deepEqual(sanitiseState({ practiceDays: [5, 1, 1] }).practiceDays, [1, 5]);
+    assert.equal("practiceDays" in sanitiseState({ practiceDays: [0, 1, 2, 3, 4, 5, 6] }), false);
   });
 });

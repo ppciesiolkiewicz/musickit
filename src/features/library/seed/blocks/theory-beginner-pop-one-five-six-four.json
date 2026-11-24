@@ -49,7 +49,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: the same four chords, one bar each, round and round. Call out 1, 5, 6 or 4 as each chord arrives, with the chord boxes to help.\nKeep going until you hear the minor chord coming before its box lights."
+            "text": "Press Play below to start the backing track: the same four chords, one bar each, round and round. Call out 1, 5, 6 or 4 as each chord arrives, with the chord boxes to help.\nKeep going until you hear the minor chord coming before its box lights."
           },
           {
             "type": "tool",
@@ -83,7 +83,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band, then look away from the screen and call out the numbers.\nOnce the numbers come without looking, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the 6 is still the one minor chord."
+            "text": "Press Play below to start the backing track, then look away from the screen and call out the numbers.\nOnce the numbers come without looking, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the 6 is still the one minor chord."
           },
           {
             "type": "tool",

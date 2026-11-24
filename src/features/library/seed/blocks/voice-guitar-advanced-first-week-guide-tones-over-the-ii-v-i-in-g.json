@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band: Am7, D7, then two bars of Gmaj7. On \"ah\", sing one long note per chord: {{4}} over Am7, {{4}} again over D7, then {{3}} over Gmaj7. Then the other line: {{1}} over Am7, {{7}} over D7, {{7}} again over Gmaj7.\nListen for the bar where your note stays and the chord changes under it."
+            "text": "Press Start exercise below to start the mic and the backing track: Am7, D7, then two bars of Gmaj7. On \"ah\", sing one long note per chord: {{4}} over Am7, {{4}} again over D7, then {{3}} over Gmaj7. Then the other line: {{1}} over Am7, {{7}} over D7, {{7}} again over Gmaj7.\nListen for the bar where your note stays and the chord changes under it."
           },
           {
             "type": "tool",
@@ -125,7 +125,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band, back in G. Make up your own line, and sing it on any vowel you like. Start each chord on one of its ringed notes: {{4}} or {{1}} over Am7, {{4}} or {{7}} over D7, {{3}} or {{7}} over Gmaj7. Leave space between phrases."
+            "text": "Press Start exercise below to start the mic and the backing track, back in G. Make up your own line, and sing it on any vowel you like. Start each chord on one of its ringed notes: {{4}} or {{1}} over Am7, {{4}} or {{7}} over D7, {{3}} or {{7}} over Gmaj7. Leave space between phrases."
           },
           {
             "type": "tool",

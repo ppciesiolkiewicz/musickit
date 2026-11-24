@@ -8,7 +8,7 @@
   },
   "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 3.",
   "exercise": {
-    "title": "A turnaround with the band",
+    "title": "A turnaround with the backing track",
     "area": "guitar",
     "tags": [
       "rhythm",
@@ -75,7 +75,7 @@
       },
       {
         "type": "section",
-        "heading": "With the band, in two keys",
+        "heading": "With the backing track, in two keys",
         "minutes": 4,
         "choice": {
           "options": [
@@ -90,7 +90,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass, with the chord boxes lighting bar by bar. The boxes show 7th chords: play your 9th shapes on the third and fourth chords, and leave strums out so there is room for a voice.\nOnce the chords go round without you checking the boxes, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the shapes move along the neck but the colours come in the same order: major 7, minor 7, minor 9, dominant 9."
+            "text": "Press Play below to start the backing track: drums and bass, with the chord boxes lighting bar by bar. The boxes show 7th chords: play your 9th shapes on the third and fourth chords, and leave strums out so there is room for a voice.\nOnce the chords go round without you checking the boxes, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the shapes move along the neck but the colours come in the same order: major 7, minor 7, minor 9, dominant 9."
           },
           {
             "type": "tool",

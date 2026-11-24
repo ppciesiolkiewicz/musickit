@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing: Dm for eight bars, four in D natural minor, then four in D Dorian. Play each scale up and back down along with the neck, and listen for the bar where one note changes. The faded note is the one to leave out: B in the first half, B♭ in the second."
+            "text": "Press Play below to start the backing track: Dm for eight bars, four in D natural minor, then four in D Dorian. Play each scale up and back down along with the neck, and listen for the bar where one note changes. The faded note is the one to leave out: B in the first half, B♭ in the second."
           },
           {
             "type": "tool",
@@ -116,7 +116,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, which switches between Dm7 and G7. Improvise in either position. Land on {{d}} when Dm7 comes round and on {{b}} when G7 comes round: B is the 3rd of G7, which is why the Dorian note fits this change."
+            "text": "Press Play below to start the backing track, which switches between Dm7 and G7. Improvise in either position. Land on {{d}} when Dm7 comes round and on {{b}} when G7 comes round: B is the 3rd of G7, which is why the Dorian note fits this change."
           },
           {
             "type": "tool",

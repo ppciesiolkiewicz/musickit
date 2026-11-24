@@ -6,10 +6,12 @@ import { Notice, StepModal, type ModalStep } from "@/components/ui";
 import { cleanEmail, cleanName, isEmail } from "@/features/account/model";
 import { migrateAnswers } from "@/features/plan/intake/answers";
 import { questionSteps, type SetAnswer } from "@/features/plan/intake/ui/Questionnaire";
+import { cleanPracticeDays } from "@/features/plan/model/practiceDays";
 import { localDate } from "@/features/plan/model/schedule";
 import { postStudent } from "../client";
 import { afterAdd, type AddDraft, type AddError } from "../model/addFlow";
 import type { AddedStudent } from "../model/types";
+import PracticeDays from "./PracticeDays";
 
 export { placeError, type AddDraft, type AddError } from "../model/addFlow";
 
@@ -17,14 +19,14 @@ export { placeError, type AddDraft, type AddError } from "../model/addFlow";
 export const ADD_KEY = "musickit.students.add";
 type Saved = { draft: AddDraft; step: number };
 
-export const emptyDraft = (): AddDraft => ({ name: "", email: "", answers: migrateAnswers(null) });
+export const emptyDraft = (): AddDraft => ({ name: "", email: "", answers: migrateAnswers(null), days: [0, 1, 2, 3, 4, 5, 6] });
 
 /** The saved flow, if any (sessionStorage can be blocked). */
 export function savedAdd(): Saved | null {
   try {
     const s = JSON.parse(window.sessionStorage.getItem(ADD_KEY) ?? "null") as Saved | null;
     return s && s.draft && typeof s.draft.name === "string" && typeof s.draft.email === "string"
-      ? { draft: { ...s.draft, answers: migrateAnswers(s.draft.answers) }, step: typeof s.step === "number" ? s.step : 0 }
+      ? { draft: { ...s.draft, answers: migrateAnswers(s.draft.answers), days: cleanPracticeDays(s.draft.days) ?? [0, 1, 2, 3, 4, 5, 6] }, step: typeof s.step === "number" ? s.step : 0 }
       : null;
   } catch {
     return null;
@@ -71,7 +73,7 @@ export function WhoStep({ draft, onName, onEmail, error }: { draft: AddDraft; on
 
 /**
  * Every screen of adding a student: name and email, then the player's questionnaire worded for a student
- * (`questionSteps(…, { forStudent: true })`), then what Add student does, with the error of a failed try. Every edit
+ * (`questionSteps(…, { forStudent: true })`), then the practice days of the first week, then what Add student does, with the error of a failed try. Every edit
  * goes through `setDraft`, which the flow uses to clear the error too.
  */
 export function addSteps(draft: AddDraft, setDraft: (change: (d: AddDraft) => AddDraft) => void, error: AddError | null, busy: boolean): ModalStep[] {
@@ -90,6 +92,17 @@ export function addSteps(draft: AddDraft, setDraft: (change: (d: AddDraft) => Ad
     ),
   };
   const name = cleanName(draft.name) || "your student";
+  const when: ModalStep = {
+    title: "Which days does your student practise?",
+    hint: `${name}'s plan has exercises on these days only. You can change them with every new plan.`,
+    canNext: draft.days.length > 0,
+    body: (
+      <div className="flex flex-col gap-3">
+        <h3 id="add-practice-days" className="text-sm font-medium text-slate-200">Practice days</h3>
+        <PracticeDays days={draft.days} onDays={(days) => setDraft((d) => ({ ...d, days }))} labelledBy="add-practice-days" />
+      </div>
+    ),
+  };
   const last: ModalStep = {
     title: `Add ${name}`,
     hint: busy ? "Adding your student…" : undefined,
@@ -102,7 +115,7 @@ export function addSteps(draft: AddDraft, setDraft: (change: (d: AddDraft) => Ad
       </div>
     ),
   };
-  return [who, ...questionSteps(draft.answers, set, { forStudent: true }), last];
+  return [who, ...questionSteps(draft.answers, set, { forStudent: true }), when, last];
 }
 
 /**
@@ -137,7 +150,7 @@ export default function AddStudent({ onAdded, onClose }: { onAdded: (added: Adde
     if (busy) return;
     setBusy(true);
     setError(null);
-    const r = await postStudent({ name: cleanName(draft.name), email: cleanEmail(draft.email), answers: draft.answers, today: localDate() });
+    const r = await postStudent({ name: cleanName(draft.name), email: cleanEmail(draft.email), answers: draft.answers, today: localDate(), days: draft.days });
     setBusy(false);
     const next = afterAdd(r, draft, steps.length - 1);
     if (next.added) {

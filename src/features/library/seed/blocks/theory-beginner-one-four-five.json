@@ -67,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: G, C, D and back to G, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help. Keep going until you hear a change coming before the box lights."
+            "text": "Press Play below to start the backing track: G, C, D and back to G, one bar each. Call out 1, 4 or 5 as each chord arrives, with the chord boxes to help. Keep going until you hear a change coming before the box lights."
           },
           {
             "type": "tool",
@@ -93,7 +93,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check.\nThen do it in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the numbers sound the same."
+            "text": "Press Play below to start the backing track: the same three chords in a new order. Look away from the screen and call out the number of each chord, then look back to check.\nThen do it in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the numbers sound the same."
           },
           {
             "type": "tool",

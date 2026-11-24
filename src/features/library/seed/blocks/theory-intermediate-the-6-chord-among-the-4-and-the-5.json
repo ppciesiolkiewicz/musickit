@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 8
   },
-  "note": "Track hearing-changes (theory-ear), step 3, on the ear game asked for chord changes (interval-ears, kind change) at its level 2, which adds vi to IV and V: the band plays the three changes in C, the minor one first, then the game asks all three in a new key each time. The why gives the method (the 6 is the only minor chord of the four), and the game's text says what to do when the 4 and the 6 get mixed up.",
+  "note": "Track hearing-changes (theory-ear), step 3, on the ear game asked for chord changes (interval-ears, kind change) at its level 2, which adds vi to IV and V: the backing track plays the three changes in C, the minor one first, then the game asks all three in a new key each time. The why gives the method (the 6 is the only minor chord of the four), and the game's text says what to do when the 4 and the 6 get mixed up.",
   "exercise": {
     "title": "The 6 chord among the 4 and the 5",
     "area": "theory",
@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band in C: C and Am take turns, then C and F, then C and G. Watch the lit chord box, and call out 6 on every Am, 4 on every F and 5 on every G.\nAm is the only minor chord of the four, so listen for the change where the sound turns minor."
+            "text": "Press Play below to start the backing track in C: C and Am take turns, then C and F, then C and G. Watch the lit chord box, and call out 6 on every Am, 4 on every F and 5 on every G.\nAm is the only minor chord of the four, so listen for the change where the sound turns minor."
           },
           {
             "type": "tool",

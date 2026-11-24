@@ -6,7 +6,7 @@
     "agents": 1,
     "teaching": 2
   },
-  "note": "The why names the two sounds to listen for (IV moves away, V pulls back), so the learner can use it on any song. Each block turns the same listening drill a new way: two chords at a time, all three with the answer hidden (and again in D by the Key selector), then chords that stay two bars so counting no longer works. The band is named the same way in every step.",
+  "note": "The why names the two sounds to listen for (IV moves away, V pulls back), so the learner can use it on any song. Each block turns the same listening drill a new way: two chords at a time, all three with the answer hidden (and again in D by the Key selector), then chords that stay two bars so counting no longer works. The backing track is named the same way in every step.",
   "exercise": {
     "title": "Hear the 4 and the 5 coming",
     "area": "theory",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: G and C take turns, then G and D. Watch the lit chord box and listen for how C moves away from G and how D pulls back to it. Call out 4 on every C and 5 on every D."
+            "text": "Press Play below to start the backing track: G and C take turns, then G and D. Watch the lit chord box and listen for how C moves away from G and how D pulls back to it. Call out 4 on every C and 5 on every D."
           },
           {
             "type": "tool",
@@ -60,7 +60,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: all three chords now, in a new order. Look away from the chord boxes and call out 1, 4 or 5 on each change, then look to check.\nWhen you hear it before you think it, guess again in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords change but the pull doesn't."
+            "text": "Press Play below to start the backing track: all three chords now, in a new order. Look away from the chord boxes and call out 1, 4 or 5 on each change, then look to check.\nWhen you hear it before you think it, guess again in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords change but the pull doesn't."
           },
           {
             "type": "tool",
@@ -100,7 +100,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band, now in A. Some chords stay for two bars, so you can't count your way to the next change: look away and call out the number only when you hear the chord move. Then put on a song you know and listen for the 4 and the 5."
+            "text": "Press Play below to start the backing track, now in A. Some chords stay for two bars, so you can't count your way to the next change: look away and call out the number only when you hear the chord move. Then put on a song you know and listen for the 4 and the 5."
           },
           {
             "type": "tool",

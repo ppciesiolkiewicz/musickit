@@ -8,13 +8,14 @@ import DayTimer, { Corner } from "./DayTimer";
 import DayEditor from "./DayEditor";
 import ExerciseCard from "./ExerciseCard";
 import { dayTime, elapsedOn, spentOn, type DayTime } from "../model/planTime";
-import { dayProgress, doneKey } from "../model/schedule";
-import { planDays, type StoredPlan } from "../model/types";
+import { dayProgress, doneKey, practiceDays } from "../model/schedule";
+import type { StoredPlan } from "../model/types";
 import type { Stars } from "@/features/progress/stars";
 
 /**
- * The week: a strip of seven days (every day can be opened; days ahead are dashed and marked "coming up") and the chosen day,
- * drawn by `DayPanel`. Only the day shown when the page opened starts its timer by itself. With `ended` (the plan's days are
+ * The week: a strip of its practice days (`practiceDays`: the days that hold exercises, so a week of three practice days
+ * shows three, numbered 1 to 3; every one can be opened; days ahead are dashed and marked "coming up") and the chosen day,
+ * drawn by `DayPanel`. `today` and `day` are day indexes of the plan, counted from its start, rest days included. Only the day shown when the page opened starts its timer by itself. With `ended` (the plan's days are
  * over; `today` is then its last day, so every day is open) no day is marked "Today" and no timer starts by itself.
  */
 export default function WeekView({ plan, today, ended = false, day, onDay, onRate, ratedBy, times = [], onTime, onEdit, onEditing, corner }: {
@@ -41,14 +42,17 @@ export default function WeekView({ plan, today, ended = false, day, onDay, onRat
   // only the day shown when the page opened starts its timer by itself
   const [autoDay, setAutoDay] = useState<number | null>(!ended && day <= today ? day : null);
   const d = plan.config.days[day];
+  // the days shown, and each one's number on the screen: its place among them
+  const shown = practiceDays(plan);
+  const numberOf = (i: number) => shown.indexOf(i) + 1;
   const openDay = (i: number) => {
     setAutoDay(null);
     onDay(i);
   };
   return (
     <div className="flex flex-col gap-5">
-      <div data-tour="plan-week" className="grid grid-cols-7 gap-1.5" role="tablist" aria-label="Days">
-        {Array.from({ length: planDays(plan) }, (_, i) => {
+      <div data-tour="plan-week" className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${shown.length}, minmax(0, 1fr))` }} role="tablist" aria-label="Days">
+        {shown.map((i) => {
           const ahead = i > today;
           const p = dayProgress(plan, i);
           const on = i === day;
@@ -64,7 +68,7 @@ export default function WeekView({ plan, today, ended = false, day, onDay, onRat
               className={`relative flex cursor-pointer flex-col items-center gap-0.5 overflow-hidden rounded-xl border px-1 py-2 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "border-sky-400 bg-sky-500/25 text-sky-50 shadow-md shadow-sky-500/20" : ahead ? "border-dashed border-slate-700 bg-transparent text-slate-500 hover:border-slate-500 hover:text-slate-300" : p === 1 ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-100 hover:border-emerald-400" : "border-slate-600 bg-slate-800/60 text-slate-200 hover:border-sky-500/60 hover:bg-slate-800"}`}
             >
               <span className={`text-[10px] font-medium uppercase tracking-wider ${i === today && !ended ? "text-amber-300" : on ? "text-sky-200" : "text-slate-500"}`}>{i === today && !ended ? "Today" : "Day"}</span>
-              <span className="text-lg font-semibold tabular-nums">{i + 1}</span>
+              <span className="text-lg font-semibold tabular-nums">{numberOf(i)}</span>
               {p === 1 ? <Icon name="check" size={12} className="text-emerald-300" /> : <span className="h-3" />}
               <span aria-hidden className="absolute inset-x-0 bottom-0 h-1 bg-emerald-400/80" style={{ width: `${p * 100}%` }} />
             </button>
@@ -77,10 +81,10 @@ export default function WeekView({ plan, today, ended = false, day, onDay, onRat
         plan={plan}
         day={day}
         heading={<>
-          <h2 className="text-2xl text-slate-50" style={DISPLAY}>Day {day + 1}: {d.theme}</h2>
+          <h2 className="text-2xl text-slate-50" style={DISPLAY}>Day {numberOf(day)}{d.theme ? `: ${d.theme}` : ""}</h2>
           {day > today && <span className="rounded-full border border-dashed border-slate-600 px-2 py-0.5 text-[11px] text-slate-400">Coming up in {day - today} day{day - today > 1 ? "s" : ""}</span>}
         </>}
-        timerLabel={`Day ${day + 1}`}
+        timerLabel={`Day ${numberOf(day)}`}
         autoStart={autoDay === day}
         onRate={onRate}
         ratedBy={ratedBy}

@@ -1,6 +1,6 @@
 ---
 name: exercise-example
-version: 9
+version: 10
 description: Write or fix a seed exercise (block) or 7-day plan file in src/features/library/seed - what agents find in the library and copy - so it meets every writing rule and reads well against its tools. Use when asked to add, write, improve or fix a seed exercise or plan, or a showcase.
 ---
 
@@ -57,7 +57,7 @@ Agents look these up in the library (`find_blocks`, `get_block`, `find_plans`, `
    *Moves: other keys, other tempos*
    - A drill that works in other keys or at other tempos states `moves` on its choice: `"moves": { "key": "any", "bpm": { "from": 60, "to": 90, "step": 10 } }`. `"key": "any"` when it can be played in any key; leave it out when the key is the lesson (open chord shapes, a song in its key). `bpm` is the range of tempos the drill makes sense in, `from` the tempo its first tool is written at. Write the tools at the start: the key the drill is first learned in (check where it sits with `npm run -s theory`) and the `from` tempo; a later, faster section keeps its distance. A tool that must not follow lists the part in `"pinned"`.
    - The app gives each player a version of the exercise (a key of theirs, a faster tempo once they found it easy, the earlier ones kept as chips) and draws the selector and the line about it itself. So an exercise with `moves` has no `choice` that sets a key or a tempo, and its text never mentions a selector.
-   - Where the title, a heading or the text names the key or the tempo, write the param, never the value: `"{{=key}} minor pentatonic, then your own phrases"`, `"Press Play below to start the metronome at {{=bpm}}."` A heading names the task, not the tempo ("Over the band", not "Over a band at 80"). The note dots are unchanged (`{{1}}`, `{{c-sharp}}`).
+   - Where the title, a heading or the text names the key or the tempo, write the param, never the value: `"{{=key}} minor pentatonic, then your own phrases"`, `"Press Play below to start the metronome at {{=bpm}}."` A heading names the task, not the tempo ("Over the backing track", not "Over a backing track at 80"). The note dots are unchanged (`{{1}}`, `{{c-sharp}}`).
    - Say what stays the same in another key as a plain line, with no selector in it: "In another key the position sits on other frets, and the roots keep their places inside it."
 
    *A second key*

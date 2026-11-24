@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track dim-aug (theory-building-chords), step 4: the diminished 7 chord, built, told from half-diminished and heard leading home. Missing: interval-ears \"kind\": \"chord\" has no diminished 7 (or half-diminished) answer, so naming it by ear is done with the band; the staff cannot spell a ♭♭7, so the top note is drawn as the 6.",
+  "note": "Track dim-aug (theory-building-chords), step 4: the diminished 7 chord, built, told from half-diminished and heard leading home. Missing: interval-ears \"kind\": \"chord\" has no diminished 7 (or half-diminished) answer, so naming it by ear is done with the backing track; the staff cannot spell a ♭♭7, so the top note is drawn as the 6.",
   "exercise": {
     "title": "The diminished 7 chord",
     "area": "theory",
@@ -60,7 +60,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: two bars of Bm7♭5, the half-diminished chord, then two bars of Bdim7. Only the top note differs, a half step lower in Bdim7.\nOnce you hear the note drop, look away from the chord boxes and call out the bar where the chord changes."
+            "text": "Press Play below to start the backing track: two bars of Bm7♭5, the half-diminished chord, then two bars of Bdim7. Only the top note differs, a half step lower in Bdim7.\nOnce you hear the note drop, look away from the chord boxes and call out the bar where the chord changes."
           },
           {
             "type": "tool",
@@ -103,7 +103,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: a diminished 7 chord, then the major home chord, then the same diminished 7 chord and the minor home chord. The root of the diminished 7 chord sits a half step under home both times.\nOnce you can hear home coming a bar early, listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the diminished 7 chord still sits a half step under home."
+            "text": "Press Play below to start the backing track: a diminished 7 chord, then the major home chord, then the same diminished 7 chord and the minor home chord. The root of the diminished 7 chord sits a half step under home both times.\nOnce you can hear home coming a bar early, listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the diminished 7 chord still sits a half step under home."
           },
           {
             "type": "tool",

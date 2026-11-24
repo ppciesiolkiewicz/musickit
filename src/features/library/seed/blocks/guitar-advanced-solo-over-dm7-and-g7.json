@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, which switches between Dm7 and G7. Improvise in D Dorian. Land on {{d}} when Dm7 comes round and on {{b}} when G7 comes round."
+            "text": "Press Play below to start the backing track, which switches between Dm7 and G7. Improvise in D Dorian. Land on {{d}} when Dm7 comes round and on {{b}} when G7 comes round."
           },
           {
             "type": "tool",
@@ -65,12 +65,12 @@
       },
       {
         "type": "section",
-        "heading": "Over the band",
+        "heading": "Over the backing track",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band on Dm7 and G7. Play a phrase you like from A Dorian, moved to D, then carry on from it.\nWhen you change the key, the notes are new but the ringed {{6}} still lands on the second chord."
+            "text": "Press Play below to start the backing track on Dm7 and G7. Play a phrase you like from A Dorian, moved to D, then carry on from it.\nWhen you change the key, the notes are new but the ringed {{6}} still lands on the second chord."
           },
           {
             "type": "tool",

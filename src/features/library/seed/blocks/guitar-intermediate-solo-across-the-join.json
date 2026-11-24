@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, which switches between Am7 and Dm7. Improvise in positions 1 and 2 and slide from one to the other in the middle of a phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
+            "text": "Press Play below to start the backing track, which switches between Am7 and Dm7. Improvise in positions 1 and 2 and slide from one to the other in the middle of a phrase. Land on {{a}} when Am7 comes round and on {{d}} when Dm7 comes round."
           },
           {
             "type": "tool",
@@ -70,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass in A, with no chords to follow. Start each phrase in position 2 and end it on a ringed {{1}} in position 1. Then turn it round: start low and end high."
+            "text": "Press Play below to start the backing track: drums and bass in A, with no chords to follow. Start each phrase in position 2 and end it on a ringed {{1}} in position 1. Then turn it round: start low and end high."
           },
           {
             "type": "tool",

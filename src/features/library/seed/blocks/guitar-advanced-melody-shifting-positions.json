@@ -70,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, and play the tune from the tab. Most of it sits in the lower position: where the tab climbs the high e string, move your whole hand up and keep one finger to a fret.\nOnce the shift lands on the beat, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the backing again.\nIf the shift comes late, go back a stage and play the tune there."
+            "text": "Press Play below to start the backing track, and play the tune from the tab. Most of it sits in the lower position: where the tab climbs the high e string, move your whole hand up and keep one finger to a fret.\nOnce the shift lands on the beat, try a faster stage. Use the Stage selector below to change the tempo, then press Play to start the backing track again.\nIf the shift comes late, go back a stage and play the tune there."
           },
           {
             "type": "tool",
@@ -107,7 +107,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, and play the same tune again.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the backing again.\nWhen you change the key, the tune keeps its shape, but the shift can fall on another note: find it in the tab before you play."
+            "text": "Press Play below to start the backing track, and play the same tune again.\nThen play it in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the tune keeps its shape, but the shift can fall on another note: find it in the tab before you play."
           },
           {
             "type": "tool",
@@ -131,7 +131,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. This tune starts high and comes down the neck, so your hand shifts more than once.\nBefore each shift, look at the fret you are going to and not at your hand."
+            "text": "Press Play below to start the backing track. This tune starts high and comes down the neck, so your hand shifts more than once.\nBefore each shift, look at the fret you are going to and not at your hand."
           },
           {
             "type": "tool",

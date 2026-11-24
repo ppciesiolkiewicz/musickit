@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track modes (theory-modes), step 2: Mixolydian, the major scale with a b7, heard against major, over a drone and then over a Mixolydian band in three keys.",
+  "note": "Track modes (theory-modes), step 2: Mixolydian, the major scale with a b7, heard against major, over a drone and then over a Mixolydian backing track in three keys.",
   "exercise": {
     "title": "Mixolydian: major with a lowered 7th",
     "area": "theory",
@@ -103,7 +103,7 @@
       },
       {
         "type": "section",
-        "heading": "Over a Mixolydian band",
+        "heading": "Over a Mixolydian backing track",
         "minutes": 3,
         "choice": {
           "options": [
@@ -121,7 +121,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: four bars, with the 1 chord first and last. Tap lines of your own on the staff over it, and land on the ringed {{b7}} when the second chord comes: it is that chord's root.\nOnce the {{b7}} lands with the chord, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the notes are new but the ringed note is still the {{b7}}."
+            "text": "Press Play below to start the backing track: four bars, with the 1 chord first and last. Tap lines of your own on the staff over it, and land on the ringed {{b7}} when the second chord comes: it is that chord's root.\nOnce the {{b7}} lands with the chord, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the notes are new but the ringed note is still the {{b7}}."
           },
           {
             "type": "tool",

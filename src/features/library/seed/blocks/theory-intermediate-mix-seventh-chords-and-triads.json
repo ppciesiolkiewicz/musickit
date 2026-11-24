@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track sevenths-up (theory-building-chords), step 7: the four 7th chords and the two triads, as six chords on G, then named by ear, then the four 7th chords on G in a band. Missing: interval-ears \"kind\": \"chord\" has no half-diminished answer, so that chord is heard in the chord boxes and the band only.",
+  "note": "Track sevenths-up (theory-building-chords), step 7: the four 7th chords and the two triads, as six chords on G, then named by ear, then the four 7th chords on G in a backing track. Missing: interval-ears \"kind\": \"chord\" has no half-diminished answer, so that chord is heard in the chord boxes and the backing track only.",
   "exercise": {
     "title": "Four 7th chords and two triads",
     "area": "theory",
@@ -58,7 +58,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays a chord from any root, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7 (Dominant 7 is the chord written 7, as in G7).\nListen to the three notes underneath first, major or minor, then for a 7th on top.\nThe game does not ask the half-diminished chord: the band in the next block plays it."
+            "text": "Press Start in the game below: it plays a chord from any root, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7 (Dominant 7 is the chord written 7, as in G7).\nListen to the three notes underneath first, major or minor, then for a 7th on top.\nThe game does not ask the half-diminished chord: the backing track in the next block plays it."
           },
           {
             "type": "tool",
@@ -71,12 +71,12 @@
       },
       {
         "type": "section",
-        "heading": "Four 7th chords, one band",
+        "heading": "Four 7th chords, one backing track",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: the four 7th chords on G, a bar each, in two orders. Look away from the chord boxes and call out the chord on each change, then look to check.\nListen for the bar where the 5th drops: that is Gm7♭5, the half-diminished chord."
+            "text": "Press Play below to start the backing track: the four 7th chords on G, a bar each, in two orders. Look away from the chord boxes and call out the chord on each change, then look to check.\nListen for the bar where the 5th drops: that is Gm7♭5, the half-diminished chord."
           },
           {
             "type": "tool",

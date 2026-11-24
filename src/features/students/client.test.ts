@@ -51,7 +51,7 @@ test("fetchStudent: asks with today, reads the student, the week and the sliders
     url = u;
     return new Response(JSON.stringify({ ok: true, student: row, plan: null, topics: [topic], upcoming: null }), { status: 200 });
   }) as unknown as typeof fetch;
-  assert.deepEqual(await fetchStudent("a1", "2026-11-18", fetcher), { ok: true, student: row, plan: null, topics: [topic], upcoming: null });
+  assert.deepEqual(await fetchStudent("a1", "2026-11-18", fetcher), { ok: true, student: row, plan: null, topics: [topic], upcoming: null, practiceDays: [0, 1, 2, 3, 4, 5, 6] });
   assert.equal(url, "/api/students/a1?today=2026-11-18");
   assert.equal((await fetchStudent("a1", "2026-11-18", answer(200, { student: row, plan: null, topics: [{ topic: "x" }] })) as { code: string }).code, "failed");
   assert.equal((await fetchStudent("a1", "2026-11-18", answer(200, { student: row, plan: "x", topics: [] })) as { code: string }).code, "failed");
@@ -67,7 +67,7 @@ test("postStudentPlan: sends what it is given, reads the new week; a 409 keeps i
     sent = init;
     return new Response(JSON.stringify({ planId: "p1", start: "2026-11-23", short: true, comment: "no-week" }), { status: 200 });
   }) as unknown as typeof fetch;
-  const body = { today: "2026-11-18", rotate: false, scores: { "guitar-chords": 1.7 }, comment: "Busy week" };
+  const body = { today: "2026-11-18", rotate: false, scores: { "guitar-chords": 1.7 }, comment: "Busy week", days: [0, 2, 4] };
   assert.deepEqual(await postStudentPlan("a1", body, fetcher), { ok: true, planId: "p1", start: "2026-11-23", short: true, comment: "no-week" });
   assert.equal(url, "/api/students/a1/plan");
   assert.equal(sent?.method, "POST");
@@ -112,8 +112,9 @@ test("postClaim: posts the token and answers where to go, only a path on this si
 
 test("fetchStudent reads the upcoming week's start; an older answer without it is null; a broken one is a failure", async () => {
   const body = { student: row, plan: null, topics: [topic] };
-  assert.deepEqual(await fetchStudent("a1", "2026-11-18", answer(200, { ...body, upcoming: { start: "2026-11-23" } })), { ok: true, ...body, upcoming: { start: "2026-11-23" } });
-  assert.deepEqual(await fetchStudent("a1", "2026-11-18", answer(200, body)), { ok: true, ...body, upcoming: null });
+  assert.deepEqual(await fetchStudent("a1", "2026-11-18", answer(200, { ...body, upcoming: { start: "2026-11-23" } })), { ok: true, ...body, upcoming: { start: "2026-11-23" }, practiceDays: [0, 1, 2, 3, 4, 5, 6] });
+  assert.deepEqual(await fetchStudent("a1", "2026-11-18", answer(200, body)), { ok: true, ...body, upcoming: null, practiceDays: [0, 1, 2, 3, 4, 5, 6] });
+  assert.deepEqual(((await fetchStudent("a1", "2026-11-18", answer(200, { ...body, practiceDays: [0, 2, 4] }))) as { practiceDays: number[] }).practiceDays, [0, 2, 4], "the practice days the teacher set");
   assert.equal((await fetchStudent("a1", "2026-11-18", answer(200, { ...body, upcoming: { start: "soon" } })) as { code: string }).code, "failed");
 });
 

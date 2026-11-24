@@ -10,6 +10,11 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 18 (2026-11-24)
+
+- Writing rules: whatever the app plays under the student (the drums and bass of a backing-band, a backing-track, a song-chart, the chords under a guitar-play-along) is "the backing track" in the text, never "the band" or "the backing". "Which tool for what" says "backing track" where it said "band".
+- Writing rules: no mental shortcuts. The short name a teacher would say is written out the first time ("play position 1 of the A minor pentatonic scale", not "play position 1"; where a run starts, which way it goes and where it turns, not "up and down").
+
 ### 17 (2026-11-24)
 
 - Writing rules: a position's number is not a description. No bare "position 1": the first time a text names a position it says the scale and what is on the screen; an exercise with one position on the screen names no number, in its title and headings too; a number comes in only where there are two or more positions to tell apart, with its scale the first time.
@@ -118,6 +123,12 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 Everything before the prompt had a version.
 
 ## Teaching
+
+### 10 (2026-11-24)
+
+- `teaching-voice`, "Words about the app": "the backing track" is the one name for whatever the app plays under the learner. It replaces "the band" (a backing-band's drums and bass, a backing-track) and "the backing" (a guitar-play-along). Every seed block, the tool tours, the backing tracks page tour, the teachers' preset notes and the song chart's notice say it.
+- `teaching-voice`, "Sentences": no mental shortcuts. The short name a teacher or a player would say is written out the first time a text uses it.
+- `review-teaching-text` lists both among what fails; `exercise-example`'s heading example says "Over the backing track". The seed README's writing rules say the same. `course-article` changes only its version.
 
 ### 9 (2026-11-24)
 

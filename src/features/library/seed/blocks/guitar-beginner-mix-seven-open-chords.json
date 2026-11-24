@@ -2,16 +2,15 @@
   "id": "guitar-beginner-mix-seven-open-chords",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 4,
+    "prompt": 18,
     "agents": 2,
-    "teaching": 5
+    "teaching": 10
   },
-  "note": "Track open-chords (guitar-basic-chords), step 6: all seven open chords together: the shapes from memory, three rounds of seven bars that between them meet every pair of the seven once, then a counted change the player picks. strum-along holds 16 chords at most, so the 21 changes are three rounds, not one.",
+  "note": "The mix step of open chords: seven chords in three orders that between them meet every pair once, then the slowest change alone. Each round says which beats to strum on and which to move on; the last section spells out the back-and-forth drill instead of naming it.",
   "exercise": {
     "title": "Seven open chords, any change",
     "area": "guitar",
     "tags": [
-      "technique",
       "rhythm"
     ],
     "topic": "guitar-basic-chords",
@@ -31,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear it. Fret each of the seven chords in turn, and look at its chord box only after your fingers are down.\nKeep going until every shape lands without a look."
+            "text": "Press a chord box below to hear the chord. Fret each of the seven chords in turn, and look at its chord box only after your fingers are down.\nKeep going until every shape lands without a look."
           },
           {
             "type": "tool",
@@ -57,7 +56,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. After a bar of count-in, the lit box shows the chord to play: strum down on beats 1 and 2, then use the rest of the bar to move to the next chord.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down on beats 1 and 2, then use beats 3 and 4 to move your fingers to the next chord.\nIf a change comes late, keep your strumming hand going and catch the next beat 1."
           },
           {
             "type": "tool",
@@ -85,7 +84,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. The seven chords come in a new order, so every change in this round is one you have not played yet.\nNotice which change makes you look at your hand."
+            "text": "Press Play below to start the metronome. The seven chords come in a new order, so every change in this round is one you have not played yet. Strum on beats 1 and 2 and move on beats 3 and 4, as before.\nNotice which change makes you look at your hand."
           },
           {
             "type": "tool",
@@ -113,7 +112,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. This third order holds the changes the first two rounds left out, so after it every chord has met each of the others once.\nKeep going until no change in the round comes later than the rest."
+            "text": "Press Play below to start the metronome. This third order holds the changes the first two rounds left out, so after it every chord has met each of the other six once.\nKeep going until no change in the round comes later than the rest."
           },
           {
             "type": "tool",
@@ -136,12 +135,12 @@
       },
       {
         "type": "section",
-        "heading": "Count one slow change",
+        "heading": "The slowest change alone",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Pick the change that came late most often in the three rounds. Change back and forth between its two chords with one strum each, as in one-minute changes, and count the changes for about a minute.\nPress a chord box below when you want to check a shape."
+            "text": "Pick the change that came late most often in the three rounds. Fret its first chord and strum once, change to its second chord and strum once, and go back and forth between the two.\nPress a chord box below when you want to check a shape.\nKeep going until this change is as quick as the others."
           },
           {
             "type": "tool",
@@ -169,6 +168,13 @@
       "steps": [
         "open-chords:6"
       ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

@@ -2,13 +2,13 @@
   "id": "guitar-beginner-call-and-response",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 3.",
+  "note": "A first improvising drill that says what a question and an answer are in notes: a phrase that stops on a dot that is not ringed, then one that stops on a ringed root. The second section changes one thing, the rhythm of the answer. It moves to other keys and tempos.",
   "exercise": {
-    "title": "Call and response",
+    "title": "Question and answer phrases",
     "area": "guitar",
     "tags": [
       "improv"
@@ -17,41 +17,85 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "A phrase that asks and one that answers is how solos talk, so this turns notes into sentences.",
+    "why": "A phrase that stops on the root sounds finished and one that stops on any other note sounds unfinished, so two phrases in a row can sound like a question and its answer.",
     "learnBefore": [
       "/course/5/pentatonic",
       "/course/5/soloing"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Play below to start the backing track. Play a short phrase that ends anywhere (the question), then answer it with one that ends on {{1}}. Keep the answer close to the question, as if replying."
-      },
-      {
-        "type": "tool",
-        "tool": {
-          "type": "backing-band",
-          "bpm": 80,
-          "key": "a",
-          "parts": {
-            "drums": "on",
-            "bass": "on"
+        "type": "section",
+        "heading": "A question, then an answer",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track. Under it is the neck with the notes of the {{=key}} minor pentatonic scale, with the three {{1}} notes ringed.\nPlay a short phrase of three or four notes that stops on a dot that is not ringed: that is the question. Leave a gap, then play a second phrase that stops on a ringed {{1}}: that is the answer.\nListen for the question sounding unfinished and the answer sounding finished."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
           }
-        }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "scale-neck",
-          "scale": "minor-pentatonic",
-          "key": "a",
-          "boxes": [
-            1
-          ],
-          "highlight": [
-            "1"
-          ]
-        }
+        "type": "section",
+        "heading": "Answer in the same rhythm",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track again. This time the answer copies the rhythm of the question: as many notes, as long or as short, but other dots, and the last one a ringed {{1}}.\nIf you lose the rhythm, clap the question once, then play the answer.\nKeep going until an answer comes without you planning it."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 70,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -62,7 +106,15 @@
       "steps": [
         "pentatonic-positions:1"
       ],
-      "minutes": 5
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 8
     }
   ]
 }

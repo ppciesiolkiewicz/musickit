@@ -2,11 +2,11 @@
   "id": "guitar-beginner-g-c-and-d-in-time",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 1.",
+  "note": "Three open chords put in time in three sections that change one thing each: the shapes alone, one strum a bar with three beats to move, then a strum on every beat. Each step says the control, what it starts, the beat to strum on and the beat to move on.",
   "exercise": {
     "title": "G, C and D in time",
     "area": "guitar",
@@ -18,7 +18,7 @@
       "open-chords",
       "strumming"
     ],
-    "why": "G, C and D are the 1, 4 and 5 chords of G major, the three chords most songs lean on, so a clean change between them opens up more music than any new chord.",
+    "why": "A change is in time when the new chord sounds on beat 1, so your fingers have to start moving one beat earlier, on beat 4.",
     "learnBefore": [
       "/course/2/c-d-g",
       "/course/2/all-downstrums"
@@ -26,12 +26,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The shapes",
+        "heading": "The three shapes",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Tap a chord box to hear the chord, then fret it as shown. Change between two shapes slowly without looking, then look to check that every string rings."
+            "text": "Press a chord box below to hear the chord. Each box shows where the fingers go, and the number on a dot is the finger to use.\nFret G and strum it once, then C, then D, then G again, slowly.\nKeep going until every string rings in each chord."
           },
           {
             "type": "tool",
@@ -48,12 +48,37 @@
       },
       {
         "type": "section",
-        "heading": "In time",
+        "heading": "One strum a bar",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome; the lit box shows the chord. Strum down on every beat, one bar per chord, and start moving on beat 4. It's working when the new chord lands on beat 1 without a gap."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play: strum down once on beat 1, then use beats 2, 3 and 4 to move your fingers to the next chord.\nIf a change comes late, keep counting and catch the next beat 1."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "C",
+                "D",
+                "G"
+              ],
+              "bpm": 60,
+              "pattern": "D . . ."
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "A strum on every beat",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. Strum down on every beat, one bar for each chord, and start moving your fingers to the next chord on beat 4.\nKeep going until the new chord sounds on beat 1 with no gap before it."
           },
           {
             "type": "tool",
@@ -81,7 +106,14 @@
         "open-chords:7",
         "strumming:1"
       ],
-      "minutes": 6
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 9
     }
   ]
 }

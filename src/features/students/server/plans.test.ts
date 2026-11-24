@@ -389,3 +389,25 @@ test("studentView: the upcoming week's start when the teacher made one, else nul
   assert.deepEqual(v.upcoming, { start: "2026-11-23" });
   assert.equal(v.plan?.startedOn, "2026-11-16", "the running week is still the plan shown");
 });
+
+test("practice days: the week has exercises on those weekdays only, the days are kept for the next week, and all seven clears them", async () => {
+  const t = await setup();
+  // 2026-11-18 is a Wednesday: Monday, Wednesday and Friday are days 0, 2 and 5 of a week starting then
+  const made = ok(await makeWeek(t.d, t.teacher, t.studentId, { today: TODAY, rotate: true, days: [4, 0, 2, 2] }, NOW, t.newId));
+  let s = (await t.doc()).data;
+  assert.deepEqual(s.practiceDays, [0, 2, 4]);
+  const held = week(s, made.planId)!.config.days.map((d) => d.exercises.length > 0);
+  assert.deepEqual(held, [true, false, true, false, false, true, false]);
+  assert.equal(made.short, false, "a rest day is not a short day");
+  assert.deepEqual(ok(await studentView(t.d, t.teacher, t.studentId, TODAY)).practiceDays, [0, 2, 4]);
+
+  // the next week, with no days sent, keeps them: it starts on a Wednesday again
+  const next = ok(await makeWeek(t.d, t.teacher, t.studentId, { today: TODAY, rotate: false }, NOW, t.newId));
+  s = (await t.doc()).data;
+  assert.deepEqual(week(s, next.planId)!.config.days.map((d) => d.exercises.length > 0), [true, false, true, false, false, true, false]);
+
+  ok(await makeWeek(t.d, t.teacher, t.studentId, { today: TODAY, rotate: true, days: [0, 1, 2, 3, 4, 5, 6] }, NOW, t.newId));
+  s = (await t.doc()).data;
+  assert.equal(s.practiceDays, undefined);
+  assert.deepEqual(ok(await studentView(t.d, t.teacher, t.studentId, TODAY)).practiceDays, [0, 1, 2, 3, 4, 5, 6]);
+});

@@ -10,7 +10,7 @@ import { FixedLabelRoot } from "@/features/theory/useLabelSystem";
 import type { Stars } from "@/features/progress/stars";
 import { useProgress } from "@/features/progress/useProgress";
 import type { DayTime } from "./model/planTime";
-import { givenPlan, givenToday, hideGiven, localDate, updateGiven } from "./model/schedule";
+import { givenPlan, givenToday, hideGiven, localDate, openDay, practiceDays, updateGiven } from "./model/schedule";
 import { dateLabel, daysLabel } from "./model/today";
 import { planDays, type StoredPlan } from "./model/types";
 import { usePlan, usePlanTimes } from "./store/usePlan";
@@ -142,7 +142,10 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, ratedBy, times =
   const { today, over } = givenToday(plan, date);
   // a plan of one day (a day someone shared from /plan) is drawn as one day: no day strip, no "Day 1 of 1"
   const one = planDays(plan) === 1;
-  const length = daysLabel(planDays(plan));
+  // a week made for fewer practice days counts and shows those days only; on a day between them it opens the last one
+  const shown = practiceDays(plan);
+  const length = daysLabel(shown.length);
+  const place = shown.indexOf(today);
   return (
     <FixedLabelRoot value="scale">
       {/* necks keep the page's margins rather than bleeding to the window's edge */}
@@ -150,7 +153,7 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, ratedBy, times =
         <div className="mt-4 mb-2 flex flex-col gap-5 sm:mt-6">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wider text-amber-300/90">
-              {over || one ? length : `Day ${today + 1} of ${planDays(plan)}`} · started {dateLabel(plan.startedOn)}{sharedByLabel(plan) && ` · ${sharedByLabel(plan)}`}
+              {over || one ? length : place < 0 ? `${length} · no practice planned today` : `Day ${place + 1} of ${shown.length}`} · started {dateLabel(plan.startedOn)}{sharedByLabel(plan) && ` · ${sharedByLabel(plan)}`}
             </p>
             {givenTitle(plan) && <h2 className="mt-2 text-3xl text-slate-50" style={DISPLAY}>{givenTitle(plan)}</h2>}
             {(plan.config.summary || (one && plan.config.days[0]?.theme)) && <p className="mt-3 max-w-3xl text-sm leading-relaxed text-slate-400">{plan.config.summary || plan.config.days[0].theme}</p>}
@@ -160,7 +163,7 @@ export function GivenPlanView({ plan, date, day, onDay, onRate, ratedBy, times =
         {one
           // the timer starts by itself only while the day runs
           ? <DayPanel plan={plan} day={0} heading={null} timerLabel={over ? "Shared plan" : "Today"} autoStart={!over} onRate={onRate} ratedBy={ratedBy} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />
-          : <WeekView plan={plan} today={today} ended={over} day={day ?? today} onDay={onDay} onRate={onRate as WeekRate} ratedBy={ratedBy} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />}
+          : <WeekView plan={plan} today={today} ended={over} day={day ?? openDay(plan, today)} onDay={onDay} onRate={onRate as WeekRate} ratedBy={ratedBy} times={times} onTime={onTime} onEdit={onEdit} corner={corner} />}
       </div>
     </FixedLabelRoot>
   );

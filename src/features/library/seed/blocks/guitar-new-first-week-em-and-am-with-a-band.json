@@ -8,7 +8,7 @@
   },
   "note": "Moved from plans/guitar-new-first-week.json, day 4.",
   "exercise": {
-    "title": "Em and Am with a band",
+    "title": "Em and Am with a backing track",
     "area": "guitar",
     "tags": [
       "song"
@@ -18,7 +18,7 @@
       "open-chords",
       "strumming"
     ],
-    "why": "A band keeps going whether your change is ready or not, so playing with one teaches you to keep the strumming hand moving and let the chord catch up.",
+    "why": "A backing track keeps going whether your change is ready or not, so playing with one teaches you to keep the strumming hand moving and let the chord catch up.",
     "learnBefore": [
       "/course/2/first-songs",
       "/course/2/all-downstrums"
@@ -26,7 +26,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the band: drums and bass, two bars of Em and then two bars of Am. The lit chord box shows the chord to play. Strum down on every beat.\nIf a change comes late, keep your strumming hand going and join in on the next beat 1."
+        "text": "Press Play below to start the backing track: drums and bass, two bars of Em and then two bars of Am. The lit chord box shows the chord to play. Strum down on every beat.\nIf a change comes late, keep your strumming hand going and join in on the next beat 1."
       },
       {
         "type": "tool",

@@ -101,6 +101,7 @@ test("the add flow: name and email first, required before the questions; then th
   assert.equal(steps[1].title, "What does your student play?");
   assert.equal(steps[2].title, "Guitar: where is your student now?");
   assert.equal(steps[2].canNext, false, "a topic screen needs one answer for a student");
+  assert.equal(steps[steps.length - 2].title, "Which days does your student practise?", "the practice days come before Add");
   const last = steps[steps.length - 1];
   const errorText = "Your plan has no places left for students.";
   const failed = addSteps({ ...emptyDraft(), name: "Ann", email: "ann@school.com" }, () => {}, placeError("limit", errorText), false);

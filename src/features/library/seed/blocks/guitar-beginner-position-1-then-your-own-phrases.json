@@ -2,13 +2,13 @@
   "id": "guitar-beginner-position-1-then-your-own-phrases",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 17,
+    "prompt": 18,
     "agents": 2,
-    "teaching": 9
+    "teaching": 10
   },
-  "note": "A beginner's first scale with no position number in it: the first step says what is on the neck (the notes of the A minor pentatonic scale, each dot a note to play). Three sections change one thing each: every note, only the roots, then phrases that end on a root.",
+  "note": "A beginner's first scale with no position number in it: the first step says what is on the neck (the notes of the minor pentatonic scale, each dot a note to play) and spells the run out string by string. Three sections change one thing each: every note, only the roots, then phrases that end on a root. It moves to other keys and tempos, so the key and tempo are written as params.",
   "exercise": {
-    "title": "A minor pentatonic, then your own phrases",
+    "title": "{{=key}} minor pentatonic, then your own phrases",
     "area": "guitar",
     "tags": [
       "technique",
@@ -18,7 +18,7 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "A phrase made from the A minor pentatonic scale sounds finished when it lands on A, so knowing where the three A's are lets you make music from the start.",
+    "why": "A phrase made from a minor pentatonic scale sounds finished when it lands on the root, so knowing where the three roots sit among the dots lets you make music from the start.",
     "learnBefore": [
       "/course/5/pentatonic",
       "/course/5/soloing"
@@ -26,12 +26,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "Up and down at 60",
+        "heading": "Every note, low to high",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Under it is the neck with the notes of the A minor pentatonic scale: each dot is a note to play.\nStart on the ringed {{1}} on the low E string and play both dots on that string. Then play both dots on each next string up to the high e string, and come back down the same way, one note per beat."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Under it is the neck with the notes of the {{=key}} minor pentatonic scale: each dot is a note to play.\nStart on the ringed {{1}} on the low E string and play both dots on that string. Then play both dots on each next string up to the high e string, and come back down the same way, one note per beat.\nStay with it until your fingers find the next dot without you looking."
           },
           {
             "type": "tool",
@@ -67,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Now only the three {{1}} notes are in play. Hop between them in any order until you can find each one without looking."
+            "text": "Now only the three {{1}} notes are in play, and the other dots are faded. Tap a {{1}} on the neck below to hear it, then play it on your guitar.\nHop between the three in any order until you can find each one without looking.\nIn another key the dots sit on other frets, and the three roots keep their places among them."
           },
           {
             "type": "tool",
@@ -92,7 +92,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band. Make up short phrases from any of the dots and end each one on one of the {{1}} notes. Leave a gap after each phrase.\nThen end one phrase on another note and listen for how it sounds unfinished."
+            "text": "Press Play below to start the backing track: drums and bass, a little faster than the metronome was. Make up short phrases from any of the dots and end each one on one of the ringed {{1}} notes. Leave a gap after each phrase.\nThen end one phrase on another note and listen for how it sounds unfinished."
           },
           {
             "type": "tool",
@@ -131,6 +131,14 @@
       "steps": [
         "pentatonic-positions:1"
       ],
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
       "minutes": 10
     }
   ]

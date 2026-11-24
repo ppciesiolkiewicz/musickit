@@ -5,6 +5,7 @@ import { withBlockIds, withExerciseIds } from "./exerciseIds";
 import { cleanAnswersHistory, movedOver } from "./answersHistory";
 import { cleanCells } from "./cleanExercise";
 import { cleanTeacherScores } from "./teacherScores";
+import { cleanPracticeDays } from "./practiceDays";
 
 /** The longest teacher comment kept. */
 export const MAX_TEACHER_COMMENT = 2000;
@@ -101,6 +102,7 @@ export function sanitiseState(raw: unknown): PlanState {
     history,
     given,
     teacherScores: cleanTeacherScores(s.teacherScores),
+    ...(cleanPracticeDays(s.practiceDays) ? { practiceDays: cleanPracticeDays(s.practiceDays) } : {}),
     reminder: {
       enabled: !!r?.enabled,
       time: typeof r?.time === "string" && /^\d\d:\d\d$/.test(r.time) ? r.time : EMPTY_STATE.reminder.time,

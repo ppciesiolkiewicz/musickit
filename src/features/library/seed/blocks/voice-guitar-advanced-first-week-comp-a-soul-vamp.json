@@ -65,12 +65,12 @@
       },
       {
         "type": "section",
-        "heading": "With the band",
+        "heading": "With the backing track",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass at 92, with the chord boxes lighting bar by bar. You are the only one playing the chords. Leave some strums out, and keep your hand moving through the gaps."
+            "text": "Press Play below to start the backing track: drums and bass at 92, with the chord boxes lighting bar by bar. You are the only one playing the chords. Leave some strums out, and keep your hand moving through the gaps."
           },
           {
             "type": "tool",
@@ -100,7 +100,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: Am9 and D9 three times round, a bar each, then two bars of Gmaj7. Leave strums out in the vamp, then play every strum when Gmaj7 arrives.\nListen for how the two vamp chords turn into a ii–V–I in G the moment Gmaj7 follows them."
+            "text": "Press Play below to start the backing track: Am9 and D9 three times round, a bar each, then two bars of Gmaj7. Leave strums out in the vamp, then play every strum when Gmaj7 arrives.\nListen for how the two vamp chords turn into a ii–V–I in G the moment Gmaj7 follows them."
           },
           {
             "type": "tool",

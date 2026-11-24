@@ -8,7 +8,7 @@
   },
   "note": "Moved from plans/guitar-advanced.json, day 5.",
   "exercise": {
-    "title": "Two bands, two modes",
+    "title": "Two backing tracks, two modes",
     "area": "guitar",
     "tags": [
       "improv"
@@ -17,7 +17,7 @@
     "concepts": [
       "major-on-neck"
     ],
-    "why": "A band's chords choose the mode for you: Am7 holds C and the A chord holds C♯, so the same position needs its 3rd moved when the band changes.",
+    "why": "A backing track's chords choose the mode for you: Am7 holds C and the A chord holds C♯, so the same position needs its 3rd moved when the backing track changes.",
     "learnBefore": [
       "/course/9/modes",
       "/course/5/soloing"
@@ -25,12 +25,12 @@
     "cells": [
       {
         "type": "section",
-        "heading": "The Dorian band",
+        "heading": "The Dorian backing track",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band on Am7 and D7. Improvise in A Dorian and lean on the two ringed notes, {{b3}} and {{6}}: the 3rd makes it minor and the 6th makes it Dorian."
+            "text": "Press Play below to start the backing track on Am7 and D7. Improvise in A Dorian and lean on the two ringed notes, {{b3}} and {{6}}: the 3rd makes it minor and the 6th makes it Dorian."
           },
           {
             "type": "tool",
@@ -61,12 +61,12 @@
       },
       {
         "type": "section",
-        "heading": "The Mixolydian band",
+        "heading": "The Mixolydian backing track",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band on A, G and D. Stay in the same frets and improvise in A Mixolydian, leaning on {{3}} and {{b7}}.\nWhen you change the band, the root stays on A and one note under your fingers moves a fret: the 3rd."
+            "text": "Press Play below to start the backing track on A, G and D. Stay in the same frets and improvise in A Mixolydian, leaning on {{3}} and {{b7}}.\nWhen you change the backing track, the root stays on A and one note under your fingers moves a fret: the 3rd."
           },
           {
             "type": "tool",

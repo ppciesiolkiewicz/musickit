@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 7
   },
-  "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone on the whole neck, over a band, then free phrases that end on a root. It states its moves (any key, tempo 60 to 90), so the title and the first step name the key and the tempo as params and no step mentions a selector: the app brings the next key or a faster tempo. The why says what the roots are for, so the learner knows where to end a phrase in any scale.",
+  "note": "One position, four jobs, each the same shape turned a new way: over a slow metronome, its roots alone on the whole neck, over a backing track, then free phrases that end on a root. It states its moves (any key, tempo 60 to 90), so the title and the first step name the key and the tempo as params and no step mentions a selector: the app brings the next key or a faster tempo. The why says what the roots are for, so the learner knows where to end a phrase in any scale.",
   "exercise": {
     "title": "{{=key}} minor pentatonic, position 1",
     "area": "guitar",
@@ -91,12 +91,12 @@
       },
       {
         "type": "section",
-        "heading": "Over the band",
+        "heading": "Over the backing track",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass, faster than the metronome was. Play the whole position again, starting from a different {{1}} each time."
+            "text": "Press Play below to start the backing track: drums and bass, faster than the metronome was. Play the whole position again, starting from a different {{1}} each time."
           },
           {
             "type": "tool",
@@ -133,7 +133,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Keep the band going and make up short phrases from the position, with a gap after each. End each phrase on {{1}} and hear how it sounds finished. Every note in the position fits this backing, so try anything."
+            "text": "Keep the backing track going and make up short phrases from the position, with a gap after each. End each phrase on {{1}} and hear how it sounds finished. Every note in the position fits this backing, so try anything."
           }
         ]
       }

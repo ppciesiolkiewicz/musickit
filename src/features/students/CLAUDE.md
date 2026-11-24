@@ -12,3 +12,4 @@
 - The page words a failure by the route's own `error` line, or `CLIENT_WORDS` for the page's codes; every call has a timeout.
 - **Only a slider the teacher moved is sent** (`moved` in `model/sliders.ts`): the server records a teacher's score for every topic it is sent, and that score holds the topic from then on.
 - **A student's week on the teacher's page is read-only**: `GivenPlanView` without `onRate`, `onTime` or `onEdit`, so nothing runs or saves there; `ratedBy` shows the student's stars, still. Replacing a running week (Rotate) asks first, in the app's `Modal`, never a browser dialog.
+- **Practice days are the teacher's, set with a plan** (`makeWeek`'s `days`, kept as `PlanState.practiceDays`): a week always spans seven dates, and only the practice days hold exercises. A rest day is never counted short, and the student's screen never shows it.

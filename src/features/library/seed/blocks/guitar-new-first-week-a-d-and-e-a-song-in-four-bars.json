@@ -77,12 +77,12 @@
       },
       {
         "type": "section",
-        "heading": "With the band",
+        "heading": "With the backing track",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass play the same four bars, and the lit chord box shows the chord. Strum down on every beat, and try a down and up strum on the A bars.\nKeep going until you can look away from your fretting hand on the A bars."
+            "text": "Press Play below to start the backing track: drums and bass play the same four bars, and the lit chord box shows the chord. Strum down on every beat, and try a down and up strum on the A bars.\nKeep going until you can look away from your fretting hand on the A bars."
           },
           {
             "type": "tool",

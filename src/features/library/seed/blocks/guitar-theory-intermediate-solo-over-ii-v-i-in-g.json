@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. Play only the targets, one long note per chord. Pick either line."
+            "text": "Press Play below to start the backing track. Play only the targets, one long note per chord. Pick either line."
           },
           {
             "type": "tool",
@@ -77,7 +77,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Same backing. Now improvise in G major. Still land on a target at each change. Record the last two minutes."
+            "text": "Same backing track. Now improvise in G major. Still land on a target at each change. Record the last two minutes."
           }
         ]
       }

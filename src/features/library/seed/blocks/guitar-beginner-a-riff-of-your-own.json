@@ -2,11 +2,11 @@
   "id": "guitar-beginner-a-riff-of-your-own",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 2.",
+  "note": "A first riff from two notes: the step says what is on the neck, which two notes are in play and what a riff is in doing words (a short phrase played again and again). The second section opens every note and changes one thing at a time. It moves to other keys and tempos.",
   "exercise": {
     "title": "A riff of your own",
     "area": "guitar",
@@ -17,45 +17,89 @@
     "concepts": [
       "pentatonic-positions"
     ],
-    "why": "A riff is a short phrase repeated, so two notes and a rhythm are all you need to make one up.",
+    "why": "A riff is a short phrase played again and again, so two notes and one rhythm are enough to make one.",
     "learnBefore": [
       "/course/5/power-chords",
       "/course/5/fifths"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Play below to start the backing track. Only {{1}} and {{5}} are in play, the two notes of today's power chords. Make up a short riff from them, one at a time or both together, and repeat it until it grooves. Then change one thing: the rhythm, the order or the octave."
-      },
-      {
-        "type": "tool",
-        "tool": {
-          "type": "backing-band",
-          "bpm": 80,
-          "key": "a",
-          "parts": {
-            "drums": "on",
-            "bass": "on"
+        "type": "section",
+        "heading": "Two notes, one rhythm",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track. Under it is the neck with the notes of the {{=key}} minor pentatonic scale. Only {{1}} and {{5}} are in play, the two notes of a power chord, and the other dots are faded.\nMake up a short riff from {{1}} and {{5}}: play them one after the other or both together, in a rhythm you can repeat. Then play the same riff again and again.\nKeep going until you can repeat it without thinking about the next note."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "enable": [
+                "1",
+                "5"
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
           }
-        }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "scale-neck",
-          "scale": "minor-pentatonic",
-          "key": "a",
-          "boxes": [
-            1
-          ],
-          "enable": [
-            "1",
-            "5"
-          ],
-          "highlight": [
-            "1"
-          ]
-        }
+        "type": "section",
+        "heading": "Change one thing",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the backing track again. Every dot is in play now, with the {{1}} notes ringed.\nKeep your riff and change one thing each time round: the rhythm, the order of the notes, or one note swapped for the dot next to it.\nIf the riff falls apart, go back to {{1}} and {{5}} alone for a few rounds."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "backing-band",
+              "bpm": 80,
+              "key": "a",
+              "parts": {
+                "drums": "on",
+                "bass": "on"
+              }
+            }
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "scale-neck",
+              "scale": "minor-pentatonic",
+              "key": "a",
+              "boxes": [
+                1
+              ],
+              "highlight": [
+                "1"
+              ]
+            }
+          }
+        ]
       }
     ]
   },
@@ -66,7 +110,15 @@
       "steps": [
         "pentatonic-positions:1"
       ],
-      "minutes": 4
+      "moves": {
+        "key": "any",
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 8
     }
   ]
 }

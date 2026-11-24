@@ -154,7 +154,7 @@ export async function addRoute(h: StudentsHttpDeps, req: Request): Promise<Respo
 
   let plan: "made" | "short" | "none" = "none";
   try {
-    const made = await makeWeek(h, me.account, added.studentId, { today, rotate: false }, now, h.newId);
+    const made = await makeWeek(h, me.account, added.studentId, { today, rotate: false, ...(Array.isArray(body.days) ? { days: body.days as number[] } : {}) }, now, h.newId);
     if (made.ok) plan = made.short ? "short" : "made";
   } catch (error) {
     console.error("[students] the first week failed", error);
@@ -194,7 +194,7 @@ export async function claimLinkRoute(h: StudentsHttpDeps, req: Request, id: stri
   }
 }
 
-/** POST /api/students/<id>/plan { today, rotate, scores, comment } */
+/** POST /api/students/<id>/plan { today, rotate, scores, comment, days } */
 export async function planRoute(h: StudentsHttpDeps, req: Request, id: string): Promise<Response> {
   const me = await teacher(h, req);
   if (me instanceof Response) return me;
@@ -204,7 +204,7 @@ export async function planRoute(h: StudentsHttpDeps, req: Request, id: string): 
   if (!isNearToday(body.today, serverToday(h))) return fail("bad-date", 400, me.cookies);
   const scores = body.scores && typeof body.scores === "object" && !Array.isArray(body.scores) ? (body.scores as Record<string, number>) : undefined;
   try {
-    const made = await makeWeek(h, me.account, id, { today: body.today, rotate: body.rotate === true, scores, comment: typeof body.comment === "string" ? body.comment : undefined }, h.auth.now(), h.newId);
+    const made = await makeWeek(h, me.account, id, { today: body.today, rotate: body.rotate === true, scores, comment: typeof body.comment === "string" ? body.comment : undefined, ...(Array.isArray(body.days) ? { days: body.days as number[] } : {}) }, h.auth.now(), h.newId);
     if (made.ok) return json({ planId: made.planId, start: made.start, short: made.short, comment: made.comment }, 200, me.cookies);
     if (made.error === "limit") return full(made, me.cookies);
     if (made.error === "busy" && body.rotate === true) return json({ error: MESSAGES["busy-rotate"], code: "busy" }, 409, me.cookies);

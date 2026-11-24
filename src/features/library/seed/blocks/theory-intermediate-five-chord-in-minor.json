@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track minor-colours (theory-modes), step 2: the 5 chord in minor, minor in natural minor and major with the raised 7th, heard as two chords, then in a band that plays one and then the other, then with its 7th in two more keys.",
+  "note": "Track minor-colours (theory-modes), step 2: the 5 chord in minor, minor in natural minor and major with the raised 7th, heard as two chords, then in a backing track that plays one and then the other, then with its 7th in two more keys.",
   "exercise": {
     "title": "The 5 chord in minor",
     "area": "theory",
@@ -75,7 +75,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: four bars with the minor 5 chord, then four with the major one, round and round. Listen to the bar before home in each half.\nKeep going until you can say which 5 chord is playing without the chord boxes."
+            "text": "Press Play below to start the backing track: four bars with the minor 5 chord, then four with the major one, round and round. Listen to the bar before home in each half.\nKeep going until you can say which 5 chord is playing without the chord boxes."
           },
           {
             "type": "tool",
@@ -118,7 +118,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: the 1, the 4, the major 5 with its 7th, and home. Call out \"five\" when the 5 chord arrives and \"one\" when the band comes home.\nOnce you hear the 5 chord coming before its box lights, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the major 5 still leads to the 1."
+            "text": "Press Play below to start the backing track: the 1, the 4, the major 5 with its 7th, and home. Call out \"five\" when the 5 chord arrives and \"one\" when the backing track comes home.\nOnce you hear the 5 chord coming before its box lights, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the major 5 still leads to the 1."
           },
           {
             "type": "tool",

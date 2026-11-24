@@ -143,7 +143,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. Improvise in A Mixolydian for four bars, then in A Dorian for four, and play the note that changes as soon as the scale does.\nWhen the scale changes, only {{3}} moves, down to {{b3}}."
+            "text": "Press Play below to start the backing track. Improvise in A Mixolydian for four bars, then in A Dorian for four, and play the note that changes as soon as the scale does.\nWhen the scale changes, only {{3}} moves, down to {{b3}}."
           },
           {
             "type": "tool",

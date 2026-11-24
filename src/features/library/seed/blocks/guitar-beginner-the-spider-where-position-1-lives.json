@@ -2,13 +2,13 @@
   "id": "guitar-beginner-the-spider-where-position-1-lives",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 1.",
+  "note": "A beginner's warm-up with every part of the run said: which frets, which fingers, which string it starts on, which way it goes and where it turns. The why ties the frets to the scale learned there. The tempo moves, so the text names it only as {{=bpm}}.",
   "exercise": {
-    "title": "The spider where position 1 lives",
+    "title": "The spider at frets 5 to 8",
     "area": "guitar",
     "tags": [
       "technique"
@@ -17,14 +17,14 @@
     "concepts": [
       "spider"
     ],
-    "why": "Position 1 sits at frets 5 to 8, one finger per fret, so warming up right there trains the exact stretch the scale needs.",
+    "why": "The A minor pentatonic scale is first learned at frets 5 to 8 with one finger for each fret, so a spider on those four frets trains the stretch that scale needs.",
     "learnBefore": [
       "/course/1/spider"
     ],
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the metronome and follow the tab: frets 5 to 8 with fingers 1, 2, 3 and 4, one note per beat, on every string and back. The row under the tab shows the finger for each note. Keep going until your hand stays still and only the fingers move."
+        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows the spider: on each string, frets 5, 6, 7 and 8 with fingers 1, 2, 3 and 4, one note per beat.\nStart on the low E string and play the four notes on every string up to the high e string. Then come back down, one string at a time, with the same four notes on each. The row under the tab shows the finger for each note, and the note playing is lit.\nKeep going until your hand stays still and only the fingers move."
       },
       {
         "type": "tool",
@@ -44,7 +44,14 @@
       "steps": [
         "spider:1"
       ],
-      "minutes": 4
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 5
     }
   ]
 }

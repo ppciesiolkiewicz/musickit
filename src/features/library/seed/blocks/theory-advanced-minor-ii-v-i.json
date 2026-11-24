@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play on the first band below to hear the ii–V–I in C major. Then stop it and press Play on the second band below to hear the ii–V–i in A minor, the relative minor.\nListen for the two chords that changed colour: the ii is half-diminished now and the home chord is minor. The V is a dominant 7 in both."
+            "text": "Press Play on the first backing track below to hear the ii–V–I in C major. Then stop it and press Play on the second backing track below to hear the ii–V–i in A minor, the relative minor.\nListen for the two chords that changed colour: the ii is half-diminished now and the home chord is minor. The V is a dominant 7 in both."
           },
           {
             "type": "tool",
@@ -61,7 +61,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band again. Tap the root of each chord on the staff under it as its box lights: {{2}}, then {{5}}, then {{1}}.\nThen tap {{7}} in the E7 bar and {{1}} in the Am7 bar. {{7}} is the raised 7th of harmonic minor and the 3rd of E7, a half step under home."
+            "text": "Press Play below to start the backing track again. Tap the root of each chord on the staff under it as its box lights: {{2}}, then {{5}}, then {{1}}.\nThen tap {{7}} in the E7 bar and {{1}} in the Am7 bar. {{7}} is the raised 7th of harmonic minor and the 3rd of E7, a half step under home."
           },
           {
             "type": "tool",
@@ -111,7 +111,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band. Look away from the chord boxes and call out 2, 5 or 1 on each change, then look to check.\nOnce the home chord arrives where you expect it, listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the order of colours is the same: half-diminished, dominant 7, minor."
+            "text": "Press Play below to start the backing track. Look away from the chord boxes and call out 2, 5 or 1 on each change, then look to check.\nOnce the home chord arrives where you expect it, listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the order of colours is the same: half-diminished, dominant 7, minor."
           },
           {
             "type": "tool",

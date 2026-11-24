@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track ii-v-i (theory-progressions), step 4: guide tones, the two lines of 3rds and 7ths through a ii–V–I, tapped on the staff over the band, then in other keys.",
+  "note": "Track ii-v-i (theory-progressions), step 4: guide tones, the two lines of 3rds and 7ths through a ii–V–I, tapped on the staff over the backing track, then in other keys.",
   "exercise": {
     "title": "Guide tones through a ii–V–I",
     "area": "theory",
@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: Dm7, G7, then two bars of Cmaj7. Tap one note per chord on the staff under the band: {{4}} over Dm7, {{4}} again over G7, then {{3}} over Cmaj7.\n{{4}} is the 3rd of Dm7 and stays as the 7th of G7, then falls a half step to the 3rd of Cmaj7.\nKeep going until you tap each note as its chord arrives."
+            "text": "Press Play below to start the backing track: Dm7, G7, then two bars of Cmaj7. Tap one note per chord on the staff under the backing track: {{4}} over Dm7, {{4}} again over G7, then {{3}} over Cmaj7.\n{{4}} is the 3rd of Dm7 and stays as the 7th of G7, then falls a half step to the 3rd of Cmaj7.\nKeep going until you tap each note as its chord arrives."
           },
           {
             "type": "tool",
@@ -71,7 +71,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band again. Tap the other line on the staff under it: {{1}} over Dm7, {{7}} over G7, then {{7}} again over Cmaj7.\n{{1}} is the 7th of Dm7 and falls a half step to the 3rd of G7, which stays as the 7th of Cmaj7.\nListen for the bar where your note stays and the chord changes under it."
+            "text": "Press Play below to start the backing track again. Tap the other line on the staff under it: {{1}} over Dm7, {{7}} over G7, then {{7}} again over Cmaj7.\n{{1}} is the 7th of Dm7 and falls a half step to the 3rd of G7, which stays as the 7th of Cmaj7.\nListen for the bar where your note stays and the chord changes under it."
           },
           {
             "type": "tool",
@@ -124,7 +124,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band. Tap one line through the three chords, then the other line the next time round. The staff rings the four notes the two lines use.\nOnce your hand goes to each note without reading it, try another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the notes are new but each line still stays or falls by one step."
+            "text": "Press Play below to start the backing track. Tap one line through the three chords, then the other line the next time round. The staff rings the four notes the two lines use.\nOnce your hand goes to each note without reading it, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the notes are new but each line still stays or falls by one step."
           },
           {
             "type": "tool",

@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing: a G chord for eight bars, four in G major, then four in G Mixolydian. Follow the notes view and listen for the bar where one note changes. The faded note is the one left out: F in the first half, F♯ in the second."
+            "text": "Press Play below to start the backing track: a G chord for eight bars, four in G major, then four in G Mixolydian. Follow the notes view and listen for the bar where one note changes. The faded note is the one left out: F in the first half, F♯ in the second."
           },
           {
             "type": "tool",
@@ -80,7 +80,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing: D natural minor, then D Dorian, over Dm. This time the note that changes is {{6}} (B)."
+            "text": "Press Play below to start the backing track: D natural minor, then D Dorian, over Dm. This time the note that changes is {{6}} (B)."
           },
           {
             "type": "tool",

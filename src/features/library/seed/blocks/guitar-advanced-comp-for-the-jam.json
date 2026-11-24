@@ -54,12 +54,12 @@
       },
       {
         "type": "section",
-        "heading": "With the band",
+        "heading": "With the backing track",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Leave strums out in the vamp, then play every strum when Gmaj7 arrives."
+            "text": "Press Play below to start the backing track: drums and bass, and the chord boxes light as the bars go by. You are the only one playing the chords. Leave strums out in the vamp, then play every strum when Gmaj7 arrives."
           },
           {
             "type": "tool",

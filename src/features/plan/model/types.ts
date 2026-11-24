@@ -62,7 +62,7 @@ export interface PlanDay {
   exercises: PlanExercise[];
 }
 
-/** The config the AI returns and the player pastes: always seven days. A composed plan (`startDay`) has one. */
+/** A plan's days: seven as the AI prompt asks, fewer for a week of fewer practice days (a seed plan of three), one for a composed plan (`startDay`). */
 export interface PlanConfig {
   title: string;
   summary?: string;
@@ -132,13 +132,18 @@ export interface PlanState {
   given: StoredPlan[];
   /** the scores a teacher set, oldest first (`teacherScores.ts`); `[]` when none */
   teacherScores: TeacherScore[];
+  /**
+   * The weekdays a teacher's student practises (Monday 0 to Sunday 6, in order), as the teacher last set them: a week made
+   * for the student has exercises on these days only (`cleanPracticeDays` in `practiceDays.ts`). Absent: every day.
+   */
+  practiceDays?: number[];
   reminder: ReminderSettings;
 }
 
-/** How many days a parsed plan has (`parsePlanConfig`, the prompt). A stored plan's own length is `planDays`. */
+/** The most days a parsed plan has (`parsePlanConfig` keeps the first seven), and how many the prompt asks for. A stored plan's own length is `planDays`. */
 export const PLAN_DAYS = 7;
 
-/** How many days this plan has: one for a composed day, seven for a parsed or given plan. */
+/** How many days this plan has: one for a composed day, up to seven for a parsed or given plan. */
 export const planDays = (p: StoredPlan): number => p.config.days.length;
 
 export const EMPTY_STATE: PlanState = { answers: null, answersHistory: [], current: null, history: [], given: [], teacherScores: [], reminder: { enabled: false, time: "18:00" } };

@@ -8,6 +8,7 @@ import { MAX_TEACHER_COMMENT, fitPlanState } from "@/features/plan/model/state";
 import { setScores } from "@/features/plan/model/teacherScores";
 import { planDays, type PlanState, type StoredPlan } from "@/features/plan/model/types";
 import { composeStudentWeek } from "@/features/plan/server/composeStudentWeek";
+import { cleanPracticeDays } from "@/features/plan/model/practiceDays";
 import { MAX_PLAN_BYTES } from "@/features/userData/model";
 import { readAllPlanTimes, readDocVersioned, readEntries, writeDoc } from "@/features/userData/server/data";
 import type { CommentKept, TopicSlider } from "../model/types";
@@ -52,6 +53,9 @@ async function scoresOf(d: StudentsDeps, studentId: string, s: PlanState, dates:
   );
 }
 
+/** Every weekday, Monday 0 to Sunday 6: the practice days of a student none were set for. */
+const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+
 /** The week a teacher made that is current on `today`: the one running, else the newest that has started. */
 const currentWeek = (s: PlanState, today: string): StoredPlan | null => teacherWeekOn(s, today) ?? teacherWeek(s, today);
 
@@ -65,7 +69,7 @@ export async function studentView(
   teacher: Account,
   studentId: string,
   today: string,
-): Promise<{ ok: true; student: StudentRow; plan: StoredPlan | null; topics: TopicSlider[]; upcoming: { start: string } | null } | { ok: false; error: "not-found" }> {
+): Promise<{ ok: true; student: StudentRow; plan: StoredPlan | null; topics: TopicSlider[]; upcoming: { start: string } | null; practiceDays: number[] } | { ok: false; error: "not-found" }> {
   const student = await studentOf(d, teacher, studentId);
   if (!student) return { ok: false, error: "not-found" };
   const s = (await readDocVersioned(d.userData, studentId, "plan")).data as PlanState;
@@ -73,7 +77,7 @@ export async function studentView(
   const dates = plan ? [today, addDays(plan.startedOn, -1)] : [today];
   const topics = (await scoresOf(d, studentId, s, dates)).map(({ scores, ...t }) => ({ ...t, now: scores[0] ?? 0, atStart: plan ? scores[1] ?? 0 : null }));
   const next = upcomingTeacherWeek(s, today);
-  return { ok: true, student, plan, topics, upcoming: next ? { start: next.startedOn } : null };
+  return { ok: true, student, plan, topics, upcoming: next ? { start: next.startedOn } : null, practiceDays: s.practiceDays ?? ALL_DAYS };
 }
 
 /**
@@ -86,8 +90,9 @@ export async function studentView(
  *    not started) on its own start, so there is never more than one, else starts the day after the running week's last
  *    day; with no running week either starts today. A replaced upcoming week nobody touched is dropped, any other
  *    replaced week goes to the history;
- * 4. seven days are composed (paced as of today at the earliest, the last day of the week before barred on day one)
- *    and put first in `given`; the document is fitted to its size cap (`fitPlanState`) as the browser's saves are.
+ * 4. the practice days (`days`, weekdays Monday 0 to Sunday 6; left out: as last set, every day when never set) are kept
+ *    on the document for the next week too, and seven days are composed, with exercises on the practice days only (paced
+ *    as of today at the earliest, the last practice day of the week before barred on the first one) and put first in `given`; the document is fitted to its size cap (`fitPlanState`) as the browser's saves are.
  * The write expects the version read; when the student saved in between, it all starts again from a fresh read, up to
  * three tries, then `busy`. When no week could be made nothing is written, not the scores and not the comment.
  */
@@ -95,7 +100,7 @@ export async function makeWeek(
   d: PlansDeps,
   teacher: Account,
   studentId: string,
-  input: { today: string; rotate: boolean; scores?: Record<string, number>; comment?: string },
+  input: { today: string; rotate: boolean; scores?: Record<string, number>; comment?: string; days?: number[] },
   now: Date,
   newId: () => string,
 ): Promise<
@@ -122,6 +127,14 @@ export async function makeWeek(
       if (shown.has(topic) && typeof value === "number" && Number.isFinite(value)) moved[topic] = Math.min(3, Math.max(0, value));
     }
     s = setScores(s, moved, madeAt, Object.fromEntries(shown), today);
+
+    if (input.days !== undefined) {
+      // all seven, or nothing usable, is every day: the field goes
+      const days = cleanPracticeDays(input.days);
+      s = { ...s };
+      delete s.practiceDays;
+      if (days) s.practiceDays = days;
+    }
 
     const current = currentWeek(s, today);
     if (current && comment) s = updateGiven(s, current.id, (p) => ({ ...p, teacher: { ...p.teacher!, comment } }));

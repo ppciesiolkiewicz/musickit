@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. Play one guide tone per chord: start on the 3rd or the 7th of Dm7, and move to the nearest target at each change."
+            "text": "Press Play below to start the backing track. Play one guide tone per chord: start on the 3rd or the 7th of Dm7, and move to the nearest target at each change."
           },
           {
             "type": "tool",
@@ -80,7 +80,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Same backing. Start each chord with a run up its arpeggio. Then leave space."
+            "text": "Same backing track. Start each chord with a run up its arpeggio. Then leave space."
           }
         ]
       },

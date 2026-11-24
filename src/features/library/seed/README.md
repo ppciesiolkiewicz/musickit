@@ -5,7 +5,7 @@ exercise, so an agent writing one reads nothing else here. `index.ts` loads them
 each folder.
 
 ```
-plans/<id>.json    one 7-day plan each (SeedPlanFile); its days name blocks and a choice of each
+plans/<id>.json    one plan each, 3 to 7 days (SeedPlanFile); its days name blocks and a choice of each
 blocks/<id>.json   one exercise each, with its choices (SeedBlockFile)
 ```
 
@@ -91,7 +91,7 @@ set a key and a position). The prompt names each of the five by its file id, the
   keep its own key or tempo lists the part in `pinned`.
 - Over 5 minutes: at least two sections with `minutes`, of 2 to 5 minutes each, adding up to the exercise's
   minutes; consecutive blocks change something real (tempo, key, position, which note is lit, the task).
-- Singing or playing, never both. Singing exercises never mention the instrument (drones, the backing and a backing-track
+- Singing or playing, never both. Singing exercises never mention the instrument (drones, the backing track and a backing-track
   are fine); playing exercises never ask to sing. A bare singing drill is one block of at most 3 minutes.
 - Every note a step names (`{{3}}`, `{{c-sharp}}`) is lit in the tool after it; the root is never muted; a fresh tool
   after a step whenever the focus changes. Staffs in non-singing exercises set `"mic": false`.
@@ -116,6 +116,9 @@ set a key and a position). The prompt names each of the five by its file id, the
   push, stop when it hurts): one short sentence on a line of its own, at most one in an exercise. A beginner's singing
   exercise has one where the singer could wander up the staff, with the words "reach for high notes", which the app explains.
 - A tool that takes a `level` is set to the exercise's level or to its own harder settings, never left at an easier default. To let the student step up, a choice with `level` options (easiest first, option 1 the level the tool is written at) sits before the tool; its chips are stages, so the text names "the Stage selector" and says what the next stage adds, not the level's name.
+- No mental shortcuts: the short name a teacher would say is written out the first time ("play position 1 of the A minor
+  pentatonic scale", not "play position 1"; where a run starts, which way it goes and where it turns, not "up and down").
+- Whatever the app plays under the learner is "the backing track", never "the band" or "the backing".
 - A position's number is not a description: no bare "position 1". The first time a text names a position it says the
   scale and what is on the screen ("the neck with the notes of the A minor pentatonic scale: each dot is a note to
   play"). One position on the screen: no number, in the title and headings too. Two or more to tell apart: the number,
@@ -124,5 +127,7 @@ set a key and a position). The prompt names each of the five by its file id, the
 - The text names a control by the label on the screen, one control to a sentence, and says what it starts and where it is; it never carries frets,
   fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.
 - No guitar-play-along `repeats` (it loops; the exercise's minutes are the timer). Styles are at most one sentence of colour.
-- Plans: 7 days, each adding up to the answers' `minutes` (±2), 2 to 5 exercises, warm-up first and something musical
+- Plans: 3 to 7 days (7 for a week of daily practice, fewer for a week of fewer, longer practice days), each adding up to the answers' `minutes` (±2), 2 to 5 exercises, warm-up first and something musical
   last, no two exercises with the same tag side by side, the week's key skill on at least three days in new forms.
+  A plan of three or more exercises a day from day 2 on holds a mix exercise (a block on a `Mix:` step of the path)
+  where the week's material has one.

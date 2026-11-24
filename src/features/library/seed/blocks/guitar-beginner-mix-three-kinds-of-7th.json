@@ -102,12 +102,12 @@
       },
       {
         "type": "section",
-        "heading": "Over the band",
+        "heading": "Over the backing track",
         "minutes": 2,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums and bass on Cmaj7, Am7, Dm7 and G7, a bar each. Strum each chord once on beat 1 and let it ring over the bass.\nKeep going until you know the kind of the next chord before you play it."
+            "text": "Press Play below to start the backing track: drums and bass on Cmaj7, Am7, Dm7 and G7, a bar each. Strum each chord once on beat 1 and let it ring over the bass.\nKeep going until you know the kind of the next chord before you play it."
           },
           {
             "type": "tool",

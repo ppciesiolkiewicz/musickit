@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 9
+version: 10
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -40,6 +40,7 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 
 - Plain, natural English. Short sentences. Two steps that belong together share one sentence ("Find it on the A string, then on the B string, and hop between the two."). Never chain more than two steps. Never write a string of two-word orders.
 - Say exactly what to do: "play {{6}}, then {{1}}", not "resolve it to Do". A target says when: "land on C when Cm7 comes round".
+- **No mental shortcuts.** The short name a teacher or a player would say is written out the first time a text uses it. "Play position 1" is "play position 1 of the A minor pentatonic scale"; "the pentatonic" is "the A minor pentatonic scale"; "play the shape up and down" says where it starts, which way it goes and where it turns ("start on the ringed {{1}} on the low E string, play both dots on each string up to the high e string, then come back down the same way"). After that the short form is enough in the same exercise. Test each step by asking what a learner who has never heard the short name would do.
 - **No shorthand the learner must unpack.** A name the learner hasn't been shown is shorthand too: say what they see or do, not the label a teacher would use for it ("the neck with the notes of the A minor pentatonic scale", not "position 1"). What to sing on gets its own clause with its own verb: "Sing along on the note names.", "then sing it on \"la\"" — never hung inside another instruction ("Make up a tune from {{1}}, {{2}} and {{3}} on \"la\""). The moment to move on is the feel itself, spelled out: "once the names come without thinking", never "once you know it".
 - One sentence of why, at most, before the doing. No paragraphs of rationale. No "a-ha" moments for the learner to discover.
 - No poetic lines ("Re rubs against it"). No hype ("amazing", "powerful", "unlock"). No hedging ("you might want to").
@@ -82,9 +83,9 @@ A step is also interface copy: the learner has to find a control with one hand o
 - **Say what to do when it goes wrong**, inside the step, calmly and as an action: "If a change comes late, keep your strumming hand going and catch the next beat 1." No blame, no "don't worry", no "try again".
 - **One name for each thing on the screen**, the same in every step:
   - "ringed" for a highlighted note, "faded" for a muted one, "lit" for the box or note playing now.
-  - "the metronome" (a click), "the drone", "the band" (drums and bass, or a backing-track), "the backing" (a guitar-play-along), "the game" (note-finder, interval-ears).
+  - "the metronome" (a click), "the drone", "the backing track" (whatever the app plays under the learner: the drums and bass of a backing-band, a backing-track, a song-chart, the chords under a guitar-play-along; never "the band" or "the backing"), "the game" (note-finder, interval-ears).
   - "your line" for the singer's pitch on the staff, "the chord boxes" for chord diagrams.
-- **Name who does it, never a bare "it".** When the one acting is not the learner (an AI extension, the metronome, the game, the band), name it in that sentence: "The AI extension reads your note and rewrites the second section", not "It reads your note". Use the same name in every step, card and button of one flow: "AI extension" throughout, never "the extension" in one step and "the AI in your browser" in the next.
+- **Name who does it, never a bare "it".** When the one acting is not the learner (an AI extension, the metronome, the game, the backing track), name it in that sentence: "The AI extension reads your note and rewrites the second section", not "It reads your note". Use the same name in every step, card and button of one flow: "AI extension" throughout, never "the extension" in one step and "the AI in your browser" in the next.
 - **Titles and headings are labels, not sentences.** A title names what is practised in the learner's words ("Em to Am, clean and in time"). A block heading names that block's task in five words or fewer ("Only the roots", "A new order"): never "Step 1", "Warm-up" or "Exercise". If two headings in one exercise could swap places, they say too little.
 - **Say what to listen for, not how it sounds.** "Listen for the bar where one note changes" tells the learner what to do; "hear how bright it sounds" tells them what to feel.
 

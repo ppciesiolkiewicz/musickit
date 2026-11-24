@@ -2,6 +2,7 @@ import Link from "next/link";
 import Icon from "@/components/Icon";
 import { dateLabel, daysLabel, isDayTitle, type EarlierWeek } from "../model/today";
 import { planDays, type StoredPlan } from "../model/types";
+import { practiceDays } from "../model/schedule";
 
 /** One name for a plan someone shared with the player, on every screen that names it. */
 export const SHARED_PLAN = "Shared plan";
@@ -58,12 +59,12 @@ function PlanLinks({ id, heading, rows }: { id: string; heading: string; rows: E
             {replaced ? (
               <div className={ROW}>
                 <span className="min-w-0 flex-1 text-sm text-slate-300">{givenTitle(p)}</span>
-                <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)} · {REPLACED}</span>
+                <span className="text-xs text-slate-500">{daysLabel(practiceDays(p).length)} · started {dateLabel(p.startedOn)} · {REPLACED}</span>
               </div>
             ) : (
               <Link href={givenHref(p.id)} className={`${ROW} transition hover:border-sky-500/60 hover:bg-slate-800/60`}>
                 <span className="min-w-0 flex-1 text-sm text-slate-100">{givenTitle(p)}</span>
-                <span className="text-xs text-slate-500">{daysLabel(planDays(p))} · started {dateLabel(p.startedOn)}{sharedByLabel(p) && ` · ${sharedByLabel(p)}`}</span>
+                <span className="text-xs text-slate-500">{daysLabel(practiceDays(p).length)} · started {dateLabel(p.startedOn)}{sharedByLabel(p) && ` · ${sharedByLabel(p)}`}</span>
                 <Icon name="chevron-right" size={14} className="text-slate-500" />
               </Link>
             )}

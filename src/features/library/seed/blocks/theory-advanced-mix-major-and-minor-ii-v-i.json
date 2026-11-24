@@ -33,7 +33,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: a ii–V–I to C major, then a ii–V–i to A minor, round and round. Call out \"major\" or \"minor\" as each home chord arrives.\nThen listen two bars earlier, to each ii chord: Dm7 before the major home, Bm7♭5 before the minor one."
+            "text": "Press Play below to start the backing track: a ii–V–I to C major, then a ii–V–i to A minor, round and round. Call out \"major\" or \"minor\" as each home chord arrives.\nThen listen two bars earlier, to each ii chord: Dm7 before the major home, Bm7♭5 before the minor one."
           },
           {
             "type": "tool",
@@ -63,7 +63,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band again, slower. Tap the root of each chord on the staff under the band as its box lights: {{2}}, {{5}}, {{1}}, then {{7}}, {{3}}, {{6}}.\nBoth lines move by the same leaps, and they end on the two ringed homes, {{1}} and {{6}}."
+            "text": "Press Play below to start the backing track again, slower. Tap the root of each chord on the staff under the backing track as its box lights: {{2}}, {{5}}, {{1}}, then {{7}}, {{3}}, {{6}}.\nBoth lines move by the same leaps, and they end on the two ringed homes, {{1}} and {{6}}."
           },
           {
             "type": "tool",
@@ -121,7 +121,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band. Look away from the chord boxes and call out 2, 5 or 1 on each change, and \"major\" or \"minor\" on each home chord, then look to check.\nOnce the ii chord tells you which home is coming, listen in another key. Use the Key selector below to change the key, then press Play to start the band again.\nWhen you change the key, the chords are new but the minor home is still the 6 of the major one."
+            "text": "Press Play below to start the backing track. Look away from the chord boxes and call out 2, 5 or 1 on each change, and \"major\" or \"minor\" on each home chord, then look to check.\nOnce the ii chord tells you which home is coming, listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the minor home is still the 6 of the major one."
           },
           {
             "type": "tool",

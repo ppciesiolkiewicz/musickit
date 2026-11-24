@@ -1,5 +1,4 @@
-import { dayProgress, givenToday, localDate, ownDay, teacherWeekOn } from "./model/schedule";
-import { planDays } from "./model/types";
+import { dayProgress, givenToday, localDate, ownDay, practiceDays, teacherWeekOn } from "./model/schedule";
 import type { PlanState } from "./model/types";
 
 export const notificationsSupported = (): boolean => typeof window !== "undefined" && "Notification" in window;
@@ -15,7 +14,10 @@ export async function askNotifications(): Promise<boolean> {
 /** Today's day of the teacher's week that covers today, for a teacher's student; else null. */
 function weekDay(state: PlanState, today: string) {
   const week = teacherWeekOn(state, today);
-  return week ? { week, day: givenToday(week, today).today } : null;
+  if (!week) return null;
+  // a rest day of the week (no exercises on it) has nothing to remind about
+  const day = givenToday(week, today).today;
+  return practiceDays(week).includes(day) ? { week, day } : null;
 }
 
 /**
@@ -46,7 +48,7 @@ export function reminderDue(state: PlanState, now: Date, taught: boolean): boole
  */
 export function reminderBody(state: PlanState, now: Date, taught: boolean): string {
   const w = taught ? weekDay(state, localDate(now)) : null;
-  if (w) return `Today is day ${w.day + 1} of ${planDays(w.week)} of your plan.`;
+  if (w) return `Today is day ${practiceDays(w.week).indexOf(w.day) + 1} of ${practiceDays(w.week).length} of your plan.`;
   const own = ownDay(state, localDate(now));
   if (!own) return "Open the Practice plan page, and attunr puts today's plan together.";
   const theme = own.config.days[0]?.theme;

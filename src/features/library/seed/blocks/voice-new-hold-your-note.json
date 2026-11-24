@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track harmony-line (voice-harmony), step 1: hold Sol, then Mi, while the drone sounds Do, then hold Sol while the band changes chord. missing: a tool that sounds a second note or a moving line against the singer's held note (the staff's drone can only sound Do).",
+  "note": "Track harmony-line (voice-harmony), step 1: hold Sol, then Mi, while the drone sounds Do, then hold Sol while the backing track changes chord. missing: a tool that sounds a second note or a moving line against the singer's held note (the staff's drone can only sound Do).",
   "exercise": {
     "title": "Hold your note against another one",
     "area": "voice",
@@ -98,7 +98,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. The band moves between two chords, and {{5}} belongs to both. Sing the low {{5}} on \"oo\" and hold it through each change.\nListen for the moment the chord box changes while your line stays level."
+            "text": "Press Start exercise below to start the mic and the backing track. The backing track moves between two chords, and {{5}} belongs to both. Sing the low {{5}} on \"oo\" and hold it through each change.\nListen for the moment the chord box changes while your line stays level."
           },
           {
             "type": "tool",

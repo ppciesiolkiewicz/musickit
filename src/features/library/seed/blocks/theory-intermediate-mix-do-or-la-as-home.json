@@ -6,7 +6,7 @@
     "agents": 2,
     "teaching": 5
   },
-  "note": "Track home-and-colour (theory-ear), step 5: Do or La as home, mixed: the major chord on Do against the minor chord on La, tunes that end on either in three keys, then a band whose four lines rest on Do or La out of turn, in a new key. Missing: backing-track plays a fixed order, so the homes can't come at random.",
+  "note": "Track home-and-colour (theory-ear), step 5: Do or La as home, mixed: the major chord on Do against the minor chord on La, tunes that end on either in three keys, then a backing track whose four lines rest on Do or La out of turn, in a new key. Missing: backing-track plays a fixed order, so the homes can't come at random.",
   "exercise": {
     "title": "Do or La: which note is home",
     "area": "theory",
@@ -89,12 +89,12 @@
       },
       {
         "type": "section",
-        "heading": "Where the band rests",
+        "heading": "Where the backing track rests",
         "minutes": 3,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play under the staff below to start the band, in a new key: sixteen bars in four lines, and each line comes to rest on Do or on La, not in turn. Hum the note each line rests on, then tap {{1}} or {{6}} on the staff to check.\nKeep going until you can call out \"major\" or \"minor\" as each line ends."
+            "text": "Press Play under the staff below to start the backing track, in a new key: sixteen bars in four lines, and each line comes to rest on Do or on La, not in turn. Hum the note each line rests on, then tap {{1}} or {{6}} on the staff to check.\nKeep going until you can call out \"major\" or \"minor\" as each line ends."
           },
           {
             "type": "tool",

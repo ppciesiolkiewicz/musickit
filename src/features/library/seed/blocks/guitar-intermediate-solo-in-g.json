@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, which switches between Gm7 and Cm7. Improvise in any of the three positions and end each phrase on a ringed note: the root or the 3rd of the chord playing."
+            "text": "Press Play below to start the backing track, which switches between Gm7 and Cm7. Improvise in any of the three positions and end each phrase on a ringed note: the root or the 3rd of the chord playing."
           },
           {
             "type": "tool",
@@ -71,7 +71,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the same backing. Over Gm7, start each phrase with the three notes of the Gm arpeggio, then carry on with the scale. Over Cm7, answer with a phrase that ends on {{c}}."
+            "text": "Press Play below to start the same backing track. Over Gm7, start each phrase with the three notes of the Gm arpeggio, then carry on with the scale. Over Cm7, answer with a phrase that ends on {{c}}."
           },
           {
             "type": "tool",

@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band: D, G, A and back to D, a bar each. On \"oo\", sing the root of each chord as it comes round: {{1}}, {{4}}, {{5}}, then {{1}} again. Keep going until you hear each change coming before the chord box lights."
+            "text": "Press Start exercise below to start the mic and the backing track: D, G, A and back to D, a bar each. On \"oo\", sing the root of each chord as it comes round: {{1}}, {{4}}, {{5}}, then {{1}} again. Keep going until you hear each change coming before the chord box lights."
           },
           {
             "type": "tool",
@@ -75,7 +75,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the band. Over the same chords sing {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar on \"oo\". The line moves one step at a time, and each note belongs to the chord under it.\nThen sing it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes change but the line still moves one step at a time."
+            "text": "Press Start exercise below to start the mic and the backing track. Over the same chords sing {{3}}, {{4}}, {{2}}, then {{3}} again, one note a bar on \"oo\". The line moves one step at a time, and each note belongs to the chord under it.\nThen sing it in another key. Use the Key selector below to change the key, then press Start exercise again.\nWhen you change the key, the notes change but the line still moves one step at a time."
           },
           {
             "type": "tool",

@@ -61,6 +61,8 @@ export interface StudentView {
   topics: TopicSlider[];
   /** the week the teacher made that hasn't started yet (at most one), by its first day; null when there is none */
   upcoming: { start: string } | null;
+  /** the weekdays the student practises (Monday 0 to Sunday 6, in order), as last set; all seven when never set */
+  practiceDays: number[];
 }
 
 /** What happened to the teacher's comment: kept on the current week, none was sent, or there was no week to keep it on. */

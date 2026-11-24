@@ -121,7 +121,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. On each chord, strum the shape on beat 1, then pick three of its notes, one per beat.\nWhen you change the chord, the whole shape moves and the notes keep their places inside it."
+            "text": "Press Play below to start the backing track. On each chord, strum the shape on beat 1, then pick three of its notes, one per beat.\nWhen you change the chord, the whole shape moves and the notes keep their places inside it."
           },
           {
             "type": "tool",

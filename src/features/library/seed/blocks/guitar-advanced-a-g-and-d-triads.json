@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing and follow the tab: each triad on the top three strings, struck once per beat for a bar. The chords go A, G, D and back to A."
+            "text": "Press Play below to start the backing track and follow the tab: each triad on the top three strings, struck once per beat for a bar. The chords go A, G, D and back to A."
           },
           {
             "type": "tool",
@@ -202,7 +202,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing: the same chords one set of strings lower. Keep going until you can look away from the tab for a whole round."
+            "text": "Press Play below to start the backing track: the same chords one set of strings lower. Keep going until you can look away from the tab for a whole round."
           },
           {
             "type": "tool",

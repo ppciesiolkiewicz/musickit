@@ -321,12 +321,20 @@ export const composeDay = (input: ComposeInput, tracks: Track[] = PATH): Compose
 /**
  * Seven days for a teacher's student: each day gets the days before it as its history; no ratings arrive in between.
  * `yesterday` holds the choice ids of the day before the first one (the last day of the week before), `[]` when left out.
+ * With `rest` (which days, from 0, have no practice) those days come back empty and never short, and the day after one
+ * is kept apart from the last day that was composed, as if it were its yesterday.
  */
-export function composeWeek(input: Omit<ComposeInput, "keep" | "declined" | "yesterday"> & { yesterday?: string[] }, days = 7, tracks: Track[] = PATH): ComposedDay[] {
+export function composeWeek(input: Omit<ComposeInput, "keep" | "declined" | "yesterday"> & { yesterday?: string[] }, days = 7, tracks: Track[] = PATH, rest: (day: number) => boolean = () => false): ComposedDay[] {
   const out: ComposedDay[] = [];
+  let last = input.yesterday ?? [];
   for (let i = 0; i < days; i++) {
-    const yesterday = i ? out[i - 1].exercises.flatMap((e) => (e.choiceId ? [e.choiceId] : [])) : (input.yesterday ?? []);
+    if (rest(i)) {
+      out.push({ exercises: [], steps: [], short: false });
+      continue;
+    }
+    const yesterday = last;
     out.push(composeDay({ ...input, date: addDays(input.date, i), seed: `${input.seed}:${i}`, yesterday, keep: [], declined: [] }, tracks));
+    last = out[i].exercises.flatMap((e) => (e.choiceId ? [e.choiceId] : []));
   }
   return out;
 }

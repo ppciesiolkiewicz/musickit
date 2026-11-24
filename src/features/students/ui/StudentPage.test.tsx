@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { SEED_PLANS, seedPlan } from "@/features/library/seed";
 import { sanitiseState } from "@/features/plan/model/state";
 import type { StudentRow, StudentView, TopicSlider } from "../model/types";
-import { afterMake, madeLine, planInput, upcomingLine, viewOf, waitingLine, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
+import { toggleDay, afterMake, madeLine, planInput, upcomingLine, viewOf, waitingLine, type MakeForm, type Sent, type ViewState } from "../model/makeFlow";
 import { ROTATE_TITLE, RotateQuestion, StudentPageView } from "./StudentPage";
 import type { Access } from "./StudentsApp";
 
@@ -17,26 +17,27 @@ const topics: TopicSlider[] = [
 const seed = seedPlan(SEED_PLANS.find((p) => (seedPlan(p) as { days?: unknown[] }).days?.length === 7)!);
 const week = sanitiseState({ current: null, given: [{ id: "w1", startedOn: "2026-11-16", done: {}, config: seed, teacher: { madeAt: "2026-11-15T10:00:00.000Z" } }] }).given[0];
 const TODAY = "2026-11-18";
+const ALL = [0, 1, 2, 3, 4, 5, 6];
 
-const withWeek: StudentView = { student: ann, plan: week, topics, upcoming: null };
-const noWeek: StudentView = { student: ann, plan: null, topics: topics.map((t) => ({ ...t, atStart: null })), upcoming: null };
+const withWeek: StudentView = { student: ann, plan: week, topics, upcoming: null, practiceDays: ALL };
+const noWeek: StudentView = { student: ann, plan: null, topics: topics.map((t) => ({ ...t, atStart: null })), upcoming: null, practiceDays: ALL };
 const opening = { "guitar-chords": 1.3, "guitar-strumming": 0.8, "voice-pitch": 0 };
 
-const draw = ({ access = "teacher", state = { kind: "view", view: withWeek }, values = opening, sent = { kind: "idle" }, confirming = false, comment = "" }: { access?: Access; state?: ViewState; values?: Record<string, number>; sent?: Sent; confirming?: boolean; comment?: string } = {}) =>
+const draw = ({ access = "teacher", state = { kind: "view", view: withWeek }, values = opening, sent = { kind: "idle" }, confirming = false, comment = "", days = ALL }: { days?: number[]; access?: Access; state?: ViewState; values?: Record<string, number>; sent?: Sent; confirming?: boolean; comment?: string } = {}) =>
   renderToStaticMarkup(
-    <StudentPageView access={access} id="a1" state={state} today={TODAY} values={values} onValue={() => {}} comment={comment} onComment={() => {}} sent={sent} onMake={() => {}} confirming={confirming} onConfirm={() => {}} onRetry={() => {}} day={null} onDay={() => {}} />,
+    <StudentPageView access={access} id="a1" state={state} today={TODAY} values={values} onValue={() => {}} days={days} onDays={() => {}} comment={comment} onComment={() => {}} sent={sent} onMake={() => {}} confirming={confirming} onConfirm={() => {}} onRetry={() => {}} day={null} onDay={() => {}} />,
   );
 
 const buttons = (html: string) => [...html.matchAll(/<button[^>]*>.*?<\/button>/g)].map((m) => m[0]);
 /** The `Slider` atom's thumb for a topic, found by its accessible name. */
 const slider = (html: string, label: string) => html.match(new RegExp(`<span[^>]*role="slider"[^>]*aria-label="${label}"[^>]*>`))?.[0] ?? "";
 
-const form = (values: Record<string, number>, comment = "", savedComment = ""): MakeForm => ({ start: opening, values, comment, savedComment });
+const form = (values: Record<string, number>, comment = "", savedComment = ""): MakeForm => ({ start: opening, values, comment, savedComment, days: ALL });
 
 test("the page sends only the sliders the teacher moved, and the comment only with a week", () => {
-  assert.deepEqual(planInput(TODAY, false, form(opening), true), { today: TODAY, rotate: false, scores: {}, comment: "" });
+  assert.deepEqual(planInput(TODAY, false, form(opening), true), { today: TODAY, rotate: false, scores: {}, comment: "", days: ALL });
   const values = { ...opening, "guitar-chords": 1.7 };
-  assert.deepEqual(planInput(TODAY, true, form(values, "Busy week"), true), { today: TODAY, rotate: true, scores: { "guitar-chords": 1.7 }, comment: "Busy week" });
+  assert.deepEqual(planInput(TODAY, true, form(values, "Busy week"), true), { today: TODAY, rotate: true, scores: { "guitar-chords": 1.7 }, comment: "Busy week", days: ALL });
   assert.equal(planInput(TODAY, false, form(values, "Busy week"), false).comment, "", "no week: no comment");
 });
 
@@ -45,14 +46,14 @@ test("afterMake: a failed make keeps the sliders and the comment; a made one emp
   const failed = afterMake({ ok: false, code: "no-blocks", error: "The library has no exercises yet." }, before, "Ann", false, TODAY);
   assert.deepEqual(failed, { form: before, sent: { kind: "failed", error: "The library has no exercises yet.", code: "no-blocks" }, reload: false });
   const made = afterMake({ ok: true, planId: "p1", start: "2026-11-23", short: false, comment: "stored" }, before, "Ann", false, TODAY);
-  assert.deepEqual(made.form, { start: before.values, values: before.values, comment: "", savedComment: "" });
+  assert.deepEqual(made.form, { start: before.values, values: before.values, comment: "", savedComment: "", days: ALL });
   assert.equal(made.reload, true);
   assert.deepEqual(made.sent, { kind: "made", line: "attunr made Ann's next plan. It starts on Monday 23 November. Your words about this week are saved.", next: true });
   assert.deepEqual(planInput(TODAY, false, made.form, true).scores, {}, "nothing is sent twice before the reload");
 });
 
 test("viewOf: the student with every slider opening at the score today, at a tenth; a failure as the error state", () => {
-  const loaded = viewOf({ ok: true, student: ann, plan: null, topics: [{ ...topics[0], now: 1.3333 }], upcoming: null });
+  const loaded = viewOf({ ok: true, student: ann, plan: null, topics: [{ ...topics[0], now: 1.3333 }], upcoming: null, practiceDays: ALL });
   assert.deepEqual(loaded.opening, { "guitar-chords": 1.3 });
   assert.equal(loaded.state.kind, "view");
   assert.equal(loaded.comment, "", "no week: an empty box");
@@ -102,7 +103,7 @@ test("the student's stars show on their read-only week, under their name, with n
 
 test("a week that has ended: no Rotate (Make next week's plan starts today)", () => {
   const html = renderToStaticMarkup(
-    <StudentPageView access="teacher" id="a1" state={{ kind: "view", view: withWeek }} today="2026-12-01" values={opening} onValue={() => {}} comment="" onComment={() => {}} sent={{ kind: "idle" }} onMake={() => {}} confirming={false} onConfirm={() => {}} onRetry={() => {}} day={null} onDay={() => {}} />,
+    <StudentPageView access="teacher" id="a1" state={{ kind: "view", view: withWeek }} today="2026-12-01" values={opening} onValue={() => {}} days={ALL} onDays={() => {}} comment="" onComment={() => {}} sent={{ kind: "idle" }} onMake={() => {}} confirming={false} onConfirm={() => {}} onRetry={() => {}} day={null} onDay={() => {}} />,
   );
   assert.ok(!buttons(html).some((b) => b.includes("Rotate")));
   assert.match(html, />Last plan</);
@@ -179,7 +180,7 @@ test("signed out or not a teacher: the Students page's lines, Log in coming back
 
 test("the comment box opens with the comment already saved on this week; an unchanged comment is not sent", () => {
   const saved = { ...week, teacher: { madeAt: "2026-11-15T10:00:00.000Z", comment: "Slow down on the changes." } };
-  const v = viewOf({ ok: true, student: ann, plan: saved, topics, upcoming: null });
+  const v = viewOf({ ok: true, student: ann, plan: saved, topics, upcoming: null, practiceDays: ALL });
   assert.equal(v.comment, "Slow down on the changes.");
   assert.match(draw({ comment: "Slow down on the changes." }), /<textarea[^>]*>Slow down on the changes\.<\/textarea>/);
   assert.equal(planInput(TODAY, false, form(opening, "Slow down on the changes.", "Slow down on the changes."), true).comment, "", "unchanged: nothing to send");
@@ -203,4 +204,21 @@ test("a next plan already made: one line with its start, and that Make next week
   const waiting = { kind: "view", view: { ...withWeek, upcoming: { start: "2026-11-23" } } } as const;
   assert.doesNotMatch(draw({ state: waiting, sent: { kind: "made", line: "attunr made Ann's next plan.", next: true } }), /next plan is made/, "just made: the notice says it, not both");
   assert.match(draw({ state: waiting, sent: { kind: "made", line: "attunr rotated Ann's plan for this week.", next: false } }), /next plan is made/, "after a rotation the waiting week is still named");
+});
+
+test("practice days: a chip per weekday, the chosen ones pressed; the days go with every plan made", () => {
+  const html = draw({ days: [0, 2, 4] });
+  assert.match(html, />Practice days</);
+  const chips = buttons(html).filter((b) => /Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday/.test(b));
+  assert.equal(chips.length, 7);
+  assert.deepEqual(chips.map((b) => /aria-pressed="true"/.test(b)), [true, false, true, false, true, false, false]);
+  assert.deepEqual(planInput(TODAY, false, { ...form(opening), days: [0, 2, 4] }, true).days, [0, 2, 4]);
+  const loaded = viewOf({ ok: true, student: ann, plan: null, topics, upcoming: null, practiceDays: [1, 3] });
+  assert.deepEqual(loaded.state.kind === "view" && loaded.state.view.practiceDays, [1, 3]);
+});
+
+test("toggleDay: a press switches a weekday on or off in order, and the last day left stays on", () => {
+  assert.deepEqual(toggleDay([0, 4], 2), [0, 2, 4]);
+  assert.deepEqual(toggleDay([0, 2, 4], 2), [0, 4]);
+  assert.deepEqual(toggleDay([3], 3), [3]);
 });

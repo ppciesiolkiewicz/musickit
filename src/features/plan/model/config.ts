@@ -243,11 +243,12 @@ export function parsePlanConfig(text: string, entries: CatalogueEntry[]): ParseR
   }
   const obj = raw as { title?: unknown; summary?: unknown; progress?: unknown; days?: unknown };
   if (!obj || typeof obj !== "object" || !Array.isArray(obj.days)) return { ok: false, error: "The plan needs a \"days\" list." };
-  if (obj.days.length < PLAN_DAYS) return { ok: false, error: `The plan has ${obj.days.length} days; it needs ${PLAN_DAYS}.` };
+  // a week may plan fewer days than seven (three practice days, say), never none
+  if (!obj.days.length) return { ok: false, error: `The plan has no days; it needs 1 to ${PLAN_DAYS}.` };
   const warnings: string[] = [];
   if (obj.days.length > PLAN_DAYS) warnings.push(`Kept the first ${PLAN_DAYS} of ${obj.days.length} days.`);
   const days: PlanDay[] = [];
-  for (let d = 0; d < PLAN_DAYS; d++) {
+  for (let d = 0; d < Math.min(obj.days.length, PLAN_DAYS); d++) {
     const day = obj.days[d] as { theme?: unknown; exercises?: unknown };
     const list = Array.isArray(day?.exercises) ? day.exercises : [];
     if (list.length > MAX_EXERCISES) warnings.push(`Day ${d + 1}: kept the first ${MAX_EXERCISES} of ${list.length} exercises.`);

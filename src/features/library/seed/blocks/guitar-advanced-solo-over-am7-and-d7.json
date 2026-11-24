@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, which switches between Am7 and D7. Improvise in A Dorian, in either position from the last exercise. Land on {{a}} when Am7 comes round and on {{f-sharp}} when D7 comes round."
+            "text": "Press Play below to start the backing track, which switches between Am7 and D7. Improvise in A Dorian, in either position from the last exercise. Land on {{a}} when Am7 comes round and on {{f-sharp}} when D7 comes round."
           },
           {
             "type": "tool",
@@ -65,12 +65,12 @@
       },
       {
         "type": "section",
-        "heading": "Over the band",
+        "heading": "Over the backing track",
         "minutes": 4,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: drums, bass and keys on Am7 and D7. Play longer phrases now, and put the ringed {{6}} somewhere in each one: on the change, held, or passed through quickly.\nIf you lose the chords, stop on a ringed {{1}} and wait for Am7 to come round."
+            "text": "Press Play below to start the backing track: drums, bass and keys on Am7 and D7. Play longer phrases now, and put the ringed {{6}} somewhere in each one: on the change, held, or passed through quickly.\nIf you lose the chords, stop on a ringed {{1}} and wait for Am7 to come round."
           },
           {
             "type": "tool",

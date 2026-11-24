@@ -2,11 +2,11 @@
   "id": "guitar-beginner-mix-triads-major-minor-one-key",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 4,
+    "prompt": 18,
     "agents": 2,
-    "teaching": 5
+    "teaching": 10
   },
-  "note": "Track triads (guitar-caged), step 3: major and minor triads on strings 3 2 1 together as the chords of G major: the six triads inside one position, each major next to the minor that shares two of its notes, a round in G, then the same round in C.",
+  "note": "The mix step of triads on the top three strings: the six chords of G major found in one place, each major triad turned into a minor one by moving one note, then a round in G and the same round in C. Each step says which strings, what is struck on which beat and what stays the same in the second key.",
   "exercise": {
     "title": "Major and minor triads in one key",
     "area": "guitar",
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord in the Chords row below to ring its notes on the neck and hear it. Play that chord as a triad on the G, B and high E strings.\nGo through all six until you can say major or minor as each one lands."
+            "text": "Press a chord in the Chords row below to ring its three notes on the neck and hear the chord. Play those three notes together on your guitar, on the G, B and high e strings: that is the chord as a triad.\nGo through all six chords until you can say major or minor as each one sounds."
           },
           {
             "type": "tool",
@@ -65,7 +65,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing and follow the tab: G then Em, C then Am, D then Bm, a bar each, the triad struck on every beat.\nIn each pair two notes stay and one moves. Keep going until only that one note changes under your hand."
+            "text": "Press Play below to start the backing track, and follow the tab: G then Em, C then Am, D then Bm, one bar for each chord, the triad struck on every beat.\nIn each pair two notes stay where they are and one note moves.\nKeep going until only that one note changes under your hand."
           },
           {
             "type": "tool",
@@ -335,7 +335,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing: G, Em, C and D, a bar each. Strike the triad on beat 1, then pick its three notes one at a time, lowest first.\nIf a change comes late, leave out the picked notes and have the next triad ready for beat 1."
+            "text": "Press Play below to start the backing track: G, Em, C and D, one bar for each chord. Strike the triad on beat 1, then pick its three notes one at a time on beats 2, 3 and 4, from the high e string down to the G string.\nIf a change comes late, leave out the picked notes and have the next triad ready for beat 1."
           },
           {
             "type": "tool",
@@ -356,27 +356,9 @@
                         "strings": "321",
                         "fret": 3
                       },
-                      {
-                        "grip": [
-                          "3"
-                        ],
-                        "strings": "3",
-                        "fret": 3
-                      },
-                      {
-                        "grip": [
-                          "5"
-                        ],
-                        "strings": "2",
-                        "fret": 3
-                      },
-                      {
-                        "grip": [
-                          "1"
-                        ],
-                        "strings": "1",
-                        "fret": 3
-                      }
+                      "1",
+                      "5",
+                      "3"
                     ]
                   },
                   {
@@ -391,27 +373,9 @@
                         "strings": "321",
                         "fret": 4
                       },
-                      {
-                        "grip": [
-                          "5"
-                        ],
-                        "strings": "3",
-                        "fret": 4
-                      },
-                      {
-                        "grip": [
-                          "1"
-                        ],
-                        "strings": "2",
-                        "fret": 4
-                      },
-                      {
-                        "grip": [
-                          "b3"
-                        ],
-                        "strings": "1",
-                        "fret": 4
-                      }
+                      "b3",
+                      "1",
+                      "5"
                     ]
                   },
                   {
@@ -426,27 +390,9 @@
                         "strings": "321",
                         "fret": 5
                       },
-                      {
-                        "grip": [
-                          "1"
-                        ],
-                        "strings": "3",
-                        "fret": 5
-                      },
-                      {
-                        "grip": [
-                          "3"
-                        ],
-                        "strings": "2",
-                        "fret": 5
-                      },
-                      {
-                        "grip": [
-                          "5"
-                        ],
-                        "strings": "1",
-                        "fret": 5
-                      }
+                      "5",
+                      "3",
+                      "1"
                     ]
                   },
                   {
@@ -461,27 +407,9 @@
                         "strings": "321",
                         "fret": 2
                       },
-                      {
-                        "grip": [
-                          "5"
-                        ],
-                        "strings": "3",
-                        "fret": 2
-                      },
-                      {
-                        "grip": [
-                          "1"
-                        ],
-                        "strings": "2",
-                        "fret": 2
-                      },
-                      {
-                        "grip": [
-                          "3"
-                        ],
-                        "strings": "1",
-                        "fret": 2
-                      }
+                      "3",
+                      "1",
+                      "5"
                     ]
                   }
                 ]
@@ -499,7 +427,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing: the same round in C, with C, Am, F and G.\nWhen you change the key, the chords are new, but each triad is a shape you played in G, some of them moved along the neck."
+            "text": "Press Play below to start the backing track: the same round in the key of C, with C, Am, F and G.\nWhen you change the key, the chords are new, but each triad is a shape you played in G, some of them moved along the neck."
           },
           {
             "type": "tool",
@@ -520,27 +448,9 @@
                         "strings": "321",
                         "fret": 5
                       },
-                      {
-                        "grip": [
-                          "1"
-                        ],
-                        "strings": "3",
-                        "fret": 5
-                      },
-                      {
-                        "grip": [
-                          "3"
-                        ],
-                        "strings": "2",
-                        "fret": 5
-                      },
-                      {
-                        "grip": [
-                          "5"
-                        ],
-                        "strings": "1",
-                        "fret": 5
-                      }
+                      "5",
+                      "3",
+                      "1"
                     ]
                   },
                   {
@@ -555,27 +465,9 @@
                         "strings": "321",
                         "fret": 5
                       },
-                      {
-                        "grip": [
-                          "b3"
-                        ],
-                        "strings": "3",
-                        "fret": 5
-                      },
-                      {
-                        "grip": [
-                          "5"
-                        ],
-                        "strings": "2",
-                        "fret": 5
-                      },
-                      {
-                        "grip": [
-                          "1"
-                        ],
-                        "strings": "1",
-                        "fret": 5
-                      }
+                      "1",
+                      "5",
+                      "b3"
                     ]
                   },
                   {
@@ -590,27 +482,9 @@
                         "strings": "321",
                         "fret": 5
                       },
-                      {
-                        "grip": [
-                          "5"
-                        ],
-                        "strings": "3",
-                        "fret": 5
-                      },
-                      {
-                        "grip": [
-                          "1"
-                        ],
-                        "strings": "2",
-                        "fret": 5
-                      },
-                      {
-                        "grip": [
-                          "3"
-                        ],
-                        "strings": "1",
-                        "fret": 5
-                      }
+                      "3",
+                      "1",
+                      "5"
                     ]
                   },
                   {
@@ -625,27 +499,9 @@
                         "strings": "321",
                         "fret": 3
                       },
-                      {
-                        "grip": [
-                          "3"
-                        ],
-                        "strings": "3",
-                        "fret": 3
-                      },
-                      {
-                        "grip": [
-                          "5"
-                        ],
-                        "strings": "2",
-                        "fret": 3
-                      },
-                      {
-                        "grip": [
-                          "1"
-                        ],
-                        "strings": "1",
-                        "fret": 3
-                      }
+                      "1",
+                      "5",
+                      "3"
                     ]
                   }
                 ]

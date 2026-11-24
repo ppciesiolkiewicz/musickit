@@ -2,13 +2,13 @@
   "id": "guitar-beginner-g-em-c-d-full-pattern",
   "model": "claude-fable-5-2",
   "versions": {
-    "prompt": null,
-    "agents": 1,
-    "teaching": 2
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
   },
-  "note": "Moved from plans/guitar-beginner.json, day 7.",
+  "note": "The island strum on a four-chord loop, built in three sections so no step is a shortcut: the hand moving down and up with every strum played, then the pattern with its misses on one chord, then the pattern round the loop. Each step says where the hand misses the strings and what to do when the pattern breaks.",
   "exercise": {
-    "title": "G-Em-C-D, full pattern",
+    "title": "G, Em, C and D with the island strum",
     "area": "guitar",
     "tags": [
       "rhythm"
@@ -18,29 +18,86 @@
       "open-chords",
       "strumming"
     ],
-    "why": "This pattern keeps the hand moving down and up on every half beat, so the strums it leaves out are what make the groove.",
+    "why": "The strumming hand moves down and up on every half beat whether it hits the strings or not, so the misses fall in time by themselves and the pattern never has to be counted.",
     "learnBefore": [
       "/course/2/c-d-g",
       "/course/2/island-strum"
     ],
     "cells": [
       {
-        "type": "text",
-        "text": "Press Play below to start the metronome. Strum the pattern shown in the boxes on each chord, and keep your hand moving down and up even where it misses the strings. Stay on it until the pattern swings on its own."
+        "type": "section",
+        "heading": "Every down and up",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play, and the arrows in it show the strums: down on each beat and up between the beats.\nStrum down, up, down, up through the whole bar, one bar for each chord.\nKeep going until your hand swings evenly and never stops at a chord change."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "C",
+                "D"
+              ],
+              "bpm": 70,
+              "pattern": "D U D U D U D U"
+            }
+          }
+        ]
       },
       {
-        "type": "tool",
-        "tool": {
-          "type": "strum-along",
-          "chords": [
-            "G",
-            "Em",
-            "C",
-            "D"
-          ],
-          "bpm": 80,
-          "pattern": "D . D U . U D U"
-        }
+        "type": "section",
+        "heading": "The pattern on one chord",
+        "minutes": 3,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The boxes now show a new pattern, the island strum, on G alone: a dot in a box is a miss, where your hand moves but passes the strings without touching them.\nKeep your hand moving down and up exactly as before, and let it miss where the dots are.\nIf the pattern breaks, go back to strumming every down and up for a bar, then leave the misses out again."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "G",
+                "G",
+                "G"
+              ],
+              "bpm": 70,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
+      },
+      {
+        "type": "section",
+        "heading": "The pattern round the loop",
+        "minutes": 4,
+        "cells": [
+          {
+            "type": "text",
+            "text": "Press Play below to start the metronome. The same pattern now goes round G, Em, C and D, one bar for each chord.\nChange chord during the last up strum of the bar, so the new chord is ready for the down strum on beat 1.\nStay with it until the pattern keeps going by itself while you think about the next chord."
+          },
+          {
+            "type": "tool",
+            "tool": {
+              "type": "strum-along",
+              "chords": [
+                "G",
+                "Em",
+                "C",
+                "D"
+              ],
+              "bpm": 70,
+              "pattern": "D . D U . U D U"
+            }
+          }
+        ]
       }
     ]
   },
@@ -52,7 +109,14 @@
         "open-chords:7",
         "strumming:3"
       ],
-      "minutes": 5
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 10
     }
   ]
 }

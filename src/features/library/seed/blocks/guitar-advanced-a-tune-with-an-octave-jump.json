@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing at {{=bpm}}, and play along from the tab: {{1}} on the D string, then the {{1}} an octave above it on the high E string.\nPlay until the jump lands without a look at your hand."
+            "text": "Press Play below to start the backing track at {{=bpm}}, and play along from the tab: {{1}} on the D string, then the {{1}} an octave above it on the high E string.\nPlay until the jump lands without a look at your hand."
           },
           {
             "type": "tool",
@@ -63,7 +63,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing, and play the tune from the tab. It opens with the same two notes the other way round: the high {{1}}, then a drop of an octave to the low {{1}}.\nIf the low note comes late, play only those two notes a few times, then the whole tune."
+            "text": "Press Play below to start the backing track, and play the tune from the tab. It opens with the same two notes the other way round: the high {{1}}, then a drop of an octave to the low {{1}}.\nIf the low note comes late, play only those two notes a few times, then the whole tune."
           },
           {
             "type": "tool",
@@ -90,7 +90,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. This tune opens with a jump up, from the low {{5}} to the {{5}} an octave above it.\nLook at the fret you are jumping to before you leave the first note."
+            "text": "Press Play below to start the backing track. This tune opens with a jump up, from the low {{5}} to the {{5}} an octave above it.\nLook at the fret you are jumping to before you leave the first note."
           },
           {
             "type": "tool",
@@ -117,7 +117,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. This is the first tune again with every note an octave higher, so it sits further up the neck.\nThe tune keeps its shape, and the jump is still an octave."
+            "text": "Press Play below to start the backing track. This is the first tune again with every note an octave higher, so it sits further up the neck.\nThe tune keeps its shape, and the jump is still an octave."
           },
           {
             "type": "tool",

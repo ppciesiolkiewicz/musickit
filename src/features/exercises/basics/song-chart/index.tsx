@@ -150,10 +150,10 @@ export function View({ keyPc, sections, form, style = "pop", bpm, repeat, parts,
                           const rest = numeral === null;
                           const on = lit && slot!.chord === ci;
                           return (
-                            <span key={ci} title={rest ? "The band rests here" : undefined} className={`relative flex min-w-0 flex-1 flex-col justify-center px-2 py-1.5 ${ci > 0 ? "border-l border-dashed border-slate-600/70" : ""} ${lit && !on ? "opacity-60" : ""}`}>
+                            <span key={ci} title={rest ? "The backing track rests here" : undefined} className={`relative flex min-w-0 flex-1 flex-col justify-center px-2 py-1.5 ${ci > 0 ? "border-l border-dashed border-slate-600/70" : ""} ${lit && !on ? "opacity-60" : ""}`}>
                               <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${STRIPE[chart.hueOf.get(chord) ?? "sky"]} ${on ? "" : "opacity-60"}`} />
                               <span className={`truncate text-base font-semibold leading-tight tracking-tight ${rest ? "text-amber-200 underline decoration-dotted underline-offset-4" : on ? "text-white" : "text-slate-100"}`}>{prettyChord(chord)}</span>
-                              <span className={`text-[11px] font-medium leading-tight ${rest ? "text-amber-300/80" : on ? "text-white/80" : "text-slate-500"}`}>{rest ? "band rests" : prettyNumeral(numeral)}</span>
+                              <span className={`text-[11px] font-medium leading-tight ${rest ? "text-amber-300/80" : on ? "text-white/80" : "text-slate-500"}`}>{rest ? "rests" : prettyNumeral(numeral)}</span>
                             </span>
                           );
                         }) : (
@@ -171,8 +171,8 @@ export function View({ keyPc, sections, form, style = "pop", bpm, repeat, parts,
         {chart.unplayed.length > 0 && (
           <Notice tone="warn" icon={<Icon name="volume-x" size={14} />}>
             {shown
-              ? `The band has no notes for ${listed(chart.unplayed.map(prettyChord))}, so it rests there. Play ${chart.unplayed.length === 1 ? "that chord" : "those chords"} yourself.`
-              : `The band has no notes for a chord in bar ${listed(chart.restBars.map(String))}, so it rests there.`}
+              ? `The backing track has no notes for ${listed(chart.unplayed.map(prettyChord))}, so it rests there. Play ${chart.unplayed.length === 1 ? "that chord" : "those chords"} yourself.`
+              : `The backing track has no notes for a chord in bar ${listed(chart.restBars.map(String))}, so it rests there.`}
           </Notice>
         )}
       </PlayerCard>

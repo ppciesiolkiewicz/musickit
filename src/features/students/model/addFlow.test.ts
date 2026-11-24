@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { migrateAnswers } from "@/features/plan/intake/answers";
 import { afterAdd, type AddDraft } from "./addFlow";
 
-const draft: AddDraft = { name: "Ann Lee", email: "ann@school.com", answers: { ...migrateAnswers(null), areas: ["guitar", "voice"], topics: { "guitar-chords": 2 }, notes: "a gig in May" } };
+const draft: AddDraft = { name: "Ann Lee", email: "ann@school.com", answers: { ...migrateAnswers(null), areas: ["guitar", "voice"], topics: { "guitar-chords": 2 }, notes: "a gig in May" }, days: [0, 1, 2, 3, 4, 5, 6] };
 const copy = structuredClone(draft);
 const LAST = 6;
 const fail = (code: string, error = `line for ${code}`) => ({ ok: false as const, code, error });

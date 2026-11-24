@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing. Start in position 1 and move up a position every few bars, crossing on the G string, until you are in position 3. Land on {{f-sharp}} when D7 comes round, wherever you are."
+            "text": "Press Play below to start the backing track. Start in position 1 and move up a position every few bars, crossing on the G string, until you are in position 3. Land on {{f-sharp}} when D7 comes round, wherever you are."
           },
           {
             "type": "tool",
@@ -70,7 +70,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band on Am7 and D7. Start in position 3 and come down a position every few bars. End your last phrase on the lowest ringed {{1}}."
+            "text": "Press Play below to start the backing track on Am7 and D7. Start in position 3 and come down a position every few bars. End your last phrase on the lowest ringed {{1}}."
           },
           {
             "type": "tool",

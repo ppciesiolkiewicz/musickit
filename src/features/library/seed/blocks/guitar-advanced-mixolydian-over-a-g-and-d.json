@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing: A, G, D and A, two bars each. Improvise in A Mixolydian and land on the ringed note as each chord arrives.\nThe one to listen for is {{g}} over the G chord: it is the note you found in the last exercise."
+            "text": "Press Play below to start the backing track: A, G, D and A, two bars each. Improvise in A Mixolydian and land on the ringed note as each chord arrives.\nThe one to listen for is {{g}} over the G chord: it is the note you found in the last exercise."
           },
           {
             "type": "tool",
@@ -77,12 +77,12 @@
       },
       {
         "type": "section",
-        "heading": "Over the band",
+        "heading": "Over the backing track",
         "minutes": 5,
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band: A, G, D and A with drums, bass and keys. Play phrases that end on a ringed note, and try one that holds {{b7}} right through the G bar.\nIf you lose your place, stop on a ringed {{1}} and wait for the first bar to come round."
+            "text": "Press Play below to start the backing track: A, G, D and A with drums, bass and keys. Play phrases that end on a ringed note, and try one that holds {{b7}} right through the G bar.\nIf you lose your place, stop on a ringed {{1}} and wait for the first bar to come round."
           },
           {
             "type": "tool",
