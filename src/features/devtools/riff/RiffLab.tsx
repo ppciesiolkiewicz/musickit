@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FAMILIES, MODE_LIST, TONICS, degreeLabel, makeKeyContext } from "@/features/theory/theory";
-import { playTimed } from "@/lib/chordKit/playback";
-import { silence } from "@/features/sound";
+import { playSequence, silence } from "@/features/sound";
+import { createCloud, getModelLibrary, type CloudModel } from "@/features/nam";
+import { playerFor, setAmpModel, type RiffSound } from "./sound";
 import { Note } from "@tonaljs/tonal";
-import { MAX_FRET, STRING_NAMES, asciiTab, degreeNear, inScale, midiOf, placeNear, placesOf, scaleStep, type RiffNote } from "./riff";
+import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNear, inScale, midiOf, placeNear, placesOf, scaleStep, type RiffNote } from "./riff";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 
 const STORE = "musickit.dev.riffs";
@@ -37,24 +38,34 @@ const load = (): Library => {
 };
 
 const scaleName = (r: Saved) => `${TONICS.find((t) => t.pc === r.tonic)?.name ?? "?"} ${MODE_LIST[r.mode]?.name ?? "?"}`;
-const riffJson = (r: Saved) => JSON.stringify(r.notes.map((n) => (n.string === null ? { rest: n.beats } : { string: 6 - n.string, fret: n.fret, beats: n.beats, note: Note.fromMidiSharps(midiOf(n)!) })));
+const cell = (n: RiffNote) => ({ string: 6 - n.string!, fret: n.fret, note: Note.fromMidiSharps(midiOf(n)!), beats: n.beats });
+/** One entry per time step: a rest, a note, or `frets` for notes played together, each with how long it rings; the step's `beats` is the time to the next step. Strings are guitar numbers, 6 the low E. */
+const riffJson = (r: Saved) => JSON.stringify(columnsOf(r.notes).map((c) => {
+  const ns = c.idx.map((i) => r.notes[i]).filter((n) => n.string !== null);
+  if (!ns.length) return { rest: c.beats };
+  return ns.length === 1 ? cell(ns[0]) : { frets: ns.map(cell), beats: c.beats };
+}));
 /** One riff as Markdown: name, key and tempo, the tab, the JSON. */
 const riffMarkdown = (r: Saved) => `## ${r.name}\n\n${scaleName(r)} · ${r.bpm} bpm · position ${r.pos}\n\n\`\`\`\n${asciiTab(r.notes)}\n\`\`\`\n\n\`\`\`json\n${riffJson(r)}\n\`\`\`\n`;
 
 const SHORTCUTS: [string, string][] = [
-  ["click neck", "add note (or replace the selected one)"],
+  ["click neck", "add a note to the step being built or the selected step"],
+  ["click tab", "select a note: neck clicks then add to its step"],
+  ["[ ]", "previous / next shape; click a root to place it"],
+  ["space", "next step: notes until then sound together"],
   ["1–7", "add that scale degree, nearest the last note"],
   ["← →", "select previous / next note"],
   ["↑ ↓", "selected note one scale step up / down"],
   ["⇧↑ ⇧↓", "an octave up / down"],
   ["⌥↑ ⌥↓", "same pitch on the next string up / down"],
-  ["s e q h w", "length 1/16 · 1/8 · 1/4 · 1/2 · whole"],
+  ["s e q h w", "length 1/16 · 1/8 · 1/4 · 1/2 · whole: the selected or current step, and new notes"],
+  ["⇧ s e q h w", "length of the selected note only"],
   [".", "dotted (×1.5)"],
   ["r", "add a rest"],
   ["d", "duplicate selected"],
   ["⌫", "delete selected"],
   ["Esc", "deselect (clicks append)"],
-  ["space", "play / stop"],
+  ["p", "play"],
   ["⌘Z", "undo"],
 ];
 
@@ -65,6 +76,46 @@ export default function RiffLab() {
   const [sel, setSel] = useState<number | null>(null);
   const [len, setLen] = useState(0.5);
   const [copied, setCopied] = useState("");
+  const [shapeIdx, setShapeIdx] = useState(0);
+  const [notice, setNotice] = useState("");
+  const [sound, setSound] = useState<RiffSound>("piano");
+  const [models, setModels] = useState<{ id: number; name: string }[]>([]);
+  const [model, setModel] = useState(0);
+  const [ampState, setAmpState] = useState("");
+  const player = useCallback(() => playerFor(sound), [sound]);
+
+  // the NAM models added in this browser (the looper's amp picker adds them too)
+  useEffect(() => {
+    const lib = getModelLibrary();
+    const read = () => setModels(lib.list().map((m) => ({ id: m.id, name: m.name })));
+    void lib.init().then(read);
+    return lib.subscribe(read);
+  }, []);
+  useEffect(() => { if (sound === "amp") setAmpModel(model, setAmpState); }, [sound, model]);
+  const [cloud, setCloud] = useState<CloudModel[]>([]);
+  const [cloudError, setCloudError] = useState("");
+  // the shared amp library on the server, read once the amp is chosen; a model is copied into this browser when picked
+  useEffect(() => {
+    if (sound !== "amp" || cloud.length || cloudError) return;
+    void createCloud(getModelLibrary()).list().then((r) => ("models" in r ? setCloud(r.models) : setCloudError(r.error)));
+  }, [sound, cloud.length, cloudError]);
+  const pickModel = async (v: string) => {
+    if (!v.startsWith("cloud:")) { setModel(Number(v)); return; }
+    const m = cloud.find((c) => c.path === v.slice(6));
+    if (!m) return;
+    setAmpState("downloading");
+    const r = await createCloud(getModelLibrary()).use(m);
+    if ("id" in r) setModel(r.id); else setAmpState(`Error: ${r.error}`);
+  };
+  const addModels = async (files: FileList | null) => {
+    if (!files) return;
+    for (const f of Array.from(files)) {
+      try { const r = await getModelLibrary().addFile(f); setModel(r.id); } catch (e) { setNotice(e instanceof Error ? e.message : String(e)); }
+    }
+  };
+  const shape = SHAPES[shapeIdx];
+  /** a step is being built, so the next note joins it until Space */
+  const [open, setOpen] = useState(false);
   const history = useRef<RiffNote[][]>([]);
   const loaded = useRef(false);
 
@@ -86,10 +137,42 @@ export default function RiffLab() {
     return OPEN_MIDI[3] + state.pos; // the G string at the hand position
   }, [notes, state.pos]);
 
-  const put = useCallback((n: RiffNote) => {
-    if (sel !== null) setNotes((ns) => ns.map((x, i) => (i === sel ? { ...n, beats: x.beats } : x)));
-    else setNotes((ns) => [...ns, n]);
-  }, [sel, setNotes]);
+  /** Add a note: on its own step, or stacked on the last step (a note already on that string there is replaced). */
+  /** Add a note: on a new step, or stacked on the selected note's step (else the last step); a note already on that string there is replaced. */
+  const append = useCallback((n: RiffNote, stack: boolean) => {
+    setNotes((ns) => {
+      if (!stack || !ns.length || n.string === null) return [...ns, n];
+      const cols = columnsOf(ns);
+      const col = (sel !== null ? cols.find((c) => c.idx.includes(sel)) : undefined) ?? cols.at(-1)!;
+      const clash = col.idx.find((i) => ns[i].string === n.string || ns[i].string === null);
+      if (clash !== undefined) return ns.map((x, i) => (i === clash ? { ...x, string: n.string, fret: n.fret } : x));
+      const end = col.idx.at(-1)! + 1;
+      return [...ns.slice(0, end), { ...n, with: true }, ...ns.slice(end)];
+    });
+  }, [setNotes, sel]);
+
+  /** A click on the neck: adds to the selected step, or to the step being built, or starts one. */
+  const put = useCallback((n: RiffNote, shift = false) => {
+    append(n, shift || open || sel !== null);
+    if (sel === null) setOpen(true);
+  }, [append, open, sel]);
+
+  /** Place the chosen shape with its root at string/fret: a new step, or in place of the selected step. */
+  const placeShape = useCallback((string: number, fret: number): boolean => {
+    const cells = shapeAt(ctx, shape, string, fret);
+    if (!cells) return false;
+    const beats = len;
+    setNotes((ns) => {
+      const step = cells.map((c, k) => ({ ...c, beats, with: k > 0 }));
+      if (sel === null) return [...ns, ...step];
+      const col = columnsOf(ns).find((c) => c.idx.includes(sel))!;
+      const first = col.idx[0], last = col.idx.at(-1)!;
+      return [...ns.slice(0, first), ...step, ...ns.slice(last + 1)];
+    });
+    setOpen(sel === null);
+    playSequence(cells.map((c, k) => ({ note: OPEN_MIDI[c.string] + c.fret, at: k * 25, hold: 900 })), player());
+    return true;
+  }, [ctx, shape, len, sel, setNotes, player]);
 
   const moveSel = useCallback((midiFn: (m: number) => number, keepString = false) => {
     if (sel === null) return;
@@ -104,10 +187,25 @@ export default function RiffLab() {
 
   const play = useCallback(() => {
     const beatMs = 60000 / state.bpm;
-    playTimed(notes.map((n) => ({ midi: midiOf(n) ?? 0, ms: n.beats * beatMs, velocity: midiOf(n) === null ? 0 : undefined })), "riff-lab");
-  }, [notes, state.bpm]);
+    playSequence(columnsOf(notes).flatMap((c) => c.idx.map((i) => midiOf(notes[i])).filter((m): m is number => m !== null)
+      .map((m, k) => ({ note: m, at: c.start * beatMs, hold: notes[c.idx.filter((i) => midiOf(notes[i]) !== null)[k]].beats * beatMs * 0.92 }))), player());
+  }, [notes, state.bpm, player]);
 
-  const hear = (midi: number) => playTimed([{ midi, ms: 400 }]);
+  /** New notes' length; the selected note's step, or else the step being built, takes it too. */
+  const chooseLength = useCallback((fn: (b: number) => number) => {
+    setLen(fn);
+    const col = sel !== null ? columnsOf(notes).find((c) => c.idx.includes(sel)) : open ? columnsOf(notes).at(-1) : undefined;
+    if (!col) return;
+    const step = new Set(col.idx);
+    setNotes((ns) => ns.map((x, j) => (step.has(j) ? { ...x, beats: fn(x.beats) } : x)));
+  }, [open, notes, setNotes, sel]);
+
+  /** Set how long note `i` rings. */
+  const lengthAt = useCallback((i: number, fn: (b: number) => number) => {
+    setNotes((ns) => ns.map((x, j) => (j === i ? { ...x, beats: fn(x.beats) } : x)));
+  }, [setNotes]);
+
+  const hear = useCallback((midi: number) => playSequence([{ note: midi, at: 0, hold: 500 }], player()), [player]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -136,35 +234,47 @@ export default function RiffLab() {
         const ref = sel !== null ? midiOf(notes[sel]) ?? lastMidi(sel) : lastMidi(notes.length);
         const m = degreeNear(ctx, Number(k) - 1, ref);
         const p = placeNear(m, sn?.fret ?? notes.findLast((n) => n.fret !== null)?.fret ?? state.pos);
-        if (p) { setNotes((ns) => [...ns, { ...p, beats: len }]); setSel(null); hear(m); }
+        if (p) { append({ ...p, beats: len }, open || sel !== null); if (sel === null) setOpen(true); hear(m); }
       } else if (LENGTHS.some((l) => l.key === k)) {
         const b = LENGTHS.find((l) => l.key === k)!.beats;
-        setLen(b);
-        if (sel !== null) setNotes((ns) => ns.map((x, i) => (i === sel ? { ...x, beats: b } : x)));
+        if (sel !== null && e.shiftKey) lengthAt(sel, () => b); else chooseLength(() => b);
       } else if (k === ".") {
-        if (sel !== null) setNotes((ns) => ns.map((x, i) => (i === sel ? { ...x, beats: x.beats * 1.5 } : x)));
-        else setLen((l) => l * 1.5);
-      } else if (k === "r") setNotes((ns) => [...ns, { string: null, fret: null, beats: len }]);
-      else if (k === "d" && sn) { setNotes((ns) => [...ns.slice(0, sel! + 1), { ...sn }, ...ns.slice(sel! + 1)]); setSel(sel! + 1); }
+        chooseLength((l) => l * 1.5);
+      } else if (k === "r") { setNotes((ns) => [...ns, { string: null, fret: null, beats: len }]); setOpen(false); }
+      else if (k === "[" || k === "]") setShapeIdx((i) => (i + (k === "]" ? 1 : SHAPES.length - 1)) % SHAPES.length);
+      else if (k === "d" && sn) {
+        // duplicate the whole step the selected note sits in, right after it
+        const col = columnsOf(notes).find((c) => c.idx.includes(sel!))!;
+        const end = col.idx.at(-1)! + 1;
+        setNotes((ns) => [...ns.slice(0, end), ...col.idx.map((i) => ({ ...ns[i] })), ...ns.slice(end)]);
+        setSel(end + col.idx.indexOf(sel!));
+      }
       else if ((k === "Backspace" || k === "Delete") && (sel !== null || notes.length)) {
         const i = sel ?? notes.length - 1;
-        setNotes((ns) => ns.filter((_, j) => j !== i));
+        // the next note of a step takes over as its first when the first goes
+        setNotes((ns) => ns.filter((_, j) => j !== i).map((x, j) => (j === i && x.with && !ns[i].with ? { ...x, with: false } : x)));
         setSel(sel === null ? null : notes.length > 1 ? Math.min(sel, notes.length - 2) : null);
-      } else if (k === "Escape") setSel(null);
-      else if (k === " ") play();
+      } else if (k === "Escape") { setSel(null); setOpen(false); }
+      else if (k === " ") { setOpen(false); setSel(null); }
+      else if (k === "p") play();
       else return;
       e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [sel, notes, ctx, len, lastMidi, moveSel, play, setNotes, setState, state.pos]);
+  }, [sel, notes, ctx, len, lastMidi, moveSel, play, setNotes, setState, state.pos, append, open, lengthAt, hear, chooseLength]);
 
   // replay the selected note when it changes pitch
   const selMidi = sel === null ? null : midiOf(notes[sel] ?? { string: null, fret: null, beats: 0 });
   const lastHeard = useRef<number | null>(null);
-  useEffect(() => { if (selMidi !== null && selMidi !== lastHeard.current) hear(selMidi); lastHeard.current = selMidi; }, [selMidi]);
+  useEffect(() => { if (selMidi !== null && selMidi !== lastHeard.current) hear(selMidi); lastHeard.current = selMidi; }, [selMidi, hear]);
 
-  const total = notes.reduce((a, n) => a + n.beats, 0);
+  const cols = columnsOf(notes);
+  const total = cols.reduce((a, c) => a + c.beats, 0);
+  const startOf = new Map(cols.flatMap((c) => c.idx.map((i) => [i, c.start] as const)));
+  const selCol = sel === null ? null : cols.find((c) => c.idx.includes(sel)) ?? null;
+  /** notes drawn faintly on the neck: the rest of the selected step, or the step being built */
+  const stepNotes = (selCol ?? (open ? cols.at(-1) : null))?.idx.map((i) => notes[i]) ?? [];
   const json = riffJson(state);
   const pick = (id: string) => { history.current = []; setSel(null); setLib((l) => ({ ...l, cur: id })); };
   const add = () => { const r = { ...blank(`Riff ${lib.riffs.length + 1}`), tonic: state.tonic, mode: state.mode, bpm: state.bpm, pos: state.pos }; history.current = []; setSel(null); setLib((l) => ({ riffs: [...l.riffs, r], cur: r.id })); };
@@ -173,7 +283,8 @@ export default function RiffLab() {
 
   const sn = sel === null ? null : notes[sel];
   const alts = sn && midiOf(sn) !== null ? placesOf(midiOf(sn)!) : [];
-  const CELL = 34;
+  const CELL = 50;
+  const ROW = 38;
 
   return (
     <div className="flex flex-col gap-5 text-slate-200 lg:flex-row">
@@ -216,42 +327,82 @@ export default function RiffLab() {
         </label>
         <div className="flex gap-1">
           {LENGTHS.map((l) => (
-            <button key={l.key} onClick={() => setLen(l.beats)} className={`rounded px-2 py-1 text-sm ${len === l.beats ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
+            <button key={l.key} onClick={() => chooseLength(() => l.beats)} className={`rounded px-2 py-1 text-sm ${len === l.beats ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
           ))}
         </div>
+        <label className="flex flex-col text-xs text-slate-400">Shape
+          <select className="rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={shapeIdx} onChange={(e) => setShapeIdx(Number(e.target.value))}>
+            {SHAPES.map((sh, i) => <option key={sh.id} value={i}>{sh.label}</option>)}
+          </select>
+        </label>
+        <button onClick={() => setOpen(false)} disabled={!open} title="Space" className="rounded bg-slate-800 px-3 py-1 text-sm disabled:opacity-40">Next step</button>
+        <label className="flex flex-col text-xs text-slate-400">Sound
+          <select className="rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={sound} onChange={(e) => setSound(e.target.value as RiffSound)}>
+            <option value="piano">Piano</option>
+            <option value="guitar">Clean guitar</option>
+            <option value="amp">Guitar into amp (NAM)</option>
+          </select>
+        </label>
+        {sound === "amp" && (
+          <label className="flex flex-col text-xs text-slate-400">Amp model {ampState && ampState !== "ready" && <span className={ampState.startsWith("Error") ? "text-rose-400" : ""}>({ampState})</span>}
+            <span className="flex gap-1">
+              <select className="max-w-48 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={model} onChange={(e) => void pickModel(e.target.value)}>
+                <option value={0}>No model (clean)</option>
+                {models.length > 0 && <optgroup label="In this browser">{models.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</optgroup>}
+                {cloud.length > 0 && (
+                  <optgroup label="Amp library">
+                    {cloud.filter((c) => !getModelLibrary().list().some((m) => m.cloudPath === c.path)).map((c) => <option key={c.path} value={`cloud:${c.path}`}>{c.group ? `${c.group} / ${c.variant}` : c.variant}</option>)}
+                  </optgroup>
+                )}
+              </select>
+              {cloudError && <span title={cloudError} className="self-center text-rose-400">Amp library: {cloudError}</span>}
+              <label className="cursor-pointer rounded bg-slate-800 px-2 py-1 text-sm text-slate-100">Add .nam<input type="file" accept=".nam" multiple hidden onChange={(e) => void addModels(e.target.files)} /></label>
+            </span>
+          </label>
+        )}
         <button onClick={play} className="rounded bg-emerald-700 px-3 py-1 text-sm">Play</button>
         <button onClick={() => silence()} className="rounded bg-slate-700 px-3 py-1 text-sm">Stop</button>
         <button onClick={() => { setNotes(() => []); setSel(null); }} className="rounded bg-rose-900 px-3 py-1 text-sm">Clear</button>
-        <span className="text-sm text-slate-400">{ctx.names.join(" ")} · {notes.length} notes · {total} beats</span>
+        <span className="text-sm text-slate-400">{ctx.names.join(" ")} · {cols.length} steps · {total} beats</span>
       </div>
 
+      {notice && <p role="alert" className="text-sm text-amber-300">{notice}</p>}
       {/* neck */}
       <div className="overflow-x-auto">
-        <svg width={(MAX_FRET + 1) * CELL + 30} height={6 * 26 + 24} className="font-mono">
-          {[3, 5, 7, 9, 12, 15, 17].map((f) => <text key={f} x={30 + f * CELL + CELL / 2} y={6 * 26 + 18} textAnchor="middle" fontSize={10} fill="var(--color-slate-500)">{f}</text>)}
-          <rect x={30 + state.pos * CELL} y={0} width={5 * CELL} height={6 * 26} fill="var(--color-sky-500)" opacity={0.08} />
+        <svg width={(MAX_FRET + 1) * CELL + 30} height={6 * ROW + 30} className="font-mono">
+          {[3, 5, 7, 9, 12, 15, 17].map((f) => <text key={f} x={30 + f * CELL + CELL / 2} y={6 * ROW + 22} textAnchor="middle" fontSize={12} fill="var(--color-slate-500)">{f}</text>)}
+          <rect x={30 + state.pos * CELL} y={0} width={5 * CELL} height={6 * ROW} fill="var(--color-sky-500)" opacity={0.08} />
           {[5, 4, 3, 2, 1, 0].map((s, row) => (
             <g key={s}>
-              <text x={4} y={row * 26 + 13} dominantBaseline="central" fontSize={11} fill="var(--color-slate-500)">{STRING_NAMES[s]}</text>
-              <line x1={30} x2={30 + (MAX_FRET + 1) * CELL} y1={row * 26 + 13} y2={row * 26 + 13} stroke="var(--color-slate-700)" />
+              <text x={4} y={row * ROW + ROW / 2} dominantBaseline="central" fontSize={13} fill="var(--color-slate-500)">{STRING_NAMES[s]}</text>
+              <line x1={30} x2={30 + (MAX_FRET + 1) * CELL} y1={row * ROW + ROW / 2} y2={row * ROW + ROW / 2} stroke="var(--color-slate-700)" />
               {Array.from({ length: MAX_FRET + 1 }, (_, f) => {
                 const midi = OPEN_MIDI[s] + f;
                 const sc = inScale(ctx, midi);
                 const root = (midi - ctx.tonic.pc + 120) % 12 === 0;
                 const isSel = sn?.string === s && sn.fret === f;
                 const isAlt = alts.some((a) => a.string === s && a.fret === f);
+                const inStep = !isSel && stepNotes.some((n) => n.string === s && n.fret === f);
                 return (
-                  <g key={f} className="cursor-pointer" onClick={() => { put({ string: s, fret: f, beats: len }); hear(midi); }}>
-                    <rect x={30 + f * CELL} y={row * 26} width={CELL} height={26} fill="transparent" />
-                    {sc && <circle cx={30 + f * CELL + CELL / 2} cy={row * 26 + 13} r={10} fill={isSel ? "var(--color-sky-500)" : root ? "var(--color-amber-700)" : "var(--color-slate-700)"} stroke={isAlt ? "var(--color-sky-400)" : "none"} strokeWidth={2} />}
-                    {!sc && isSel && <circle cx={30 + f * CELL + CELL / 2} cy={row * 26 + 13} r={10} fill="var(--color-rose-600)" />}
-                    {(sc || isSel) && <text x={30 + f * CELL + CELL / 2} y={row * 26 + 13} textAnchor="middle" dominantBaseline="central" fontSize={9} fill="white">{degreeLabel(midi % 12, ctx)}</text>}
+                  <g key={f} className="cursor-pointer" onClick={(e) => {
+                    if (isSel) { setSel(null); return; }
+                    if (shape.id !== "note" && !e.shiftKey) {
+                      if (!placeShape(s, f)) { setNotice(`${shape.label} doesn't fit with its root on the ${STRING_NAMES[s]} string, fret ${f}.`); setTimeout(() => setNotice(""), 2500); }
+                      return;
+                    }
+                    put({ string: s, fret: f, beats: len }, e.shiftKey); hear(midi);
+                  }}>
+                    <rect x={30 + f * CELL} y={row * ROW} width={CELL} height={ROW} fill="transparent" />
+                    {sc && <circle cx={30 + f * CELL + CELL / 2} cy={row * ROW + ROW / 2} r={14} fill={isSel ? "var(--color-sky-500)" : root ? "var(--color-amber-700)" : "var(--color-slate-700)"} stroke={isAlt ? "var(--color-sky-400)" : "none"} strokeWidth={2} />}
+                    {inStep && <circle cx={30 + f * CELL + CELL / 2} cy={row * ROW + ROW / 2} r={17} fill="none" stroke="var(--color-amber-400)" strokeWidth={2} />}
+                    {!sc && (isSel || inStep) && <circle cx={30 + f * CELL + CELL / 2} cy={row * ROW + ROW / 2} r={14} fill="var(--color-rose-600)" />}
+                    {(sc || isSel || inStep) && <text x={30 + f * CELL + CELL / 2} y={row * ROW + ROW / 2} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="white">{degreeLabel(midi % 12, ctx)}</text>}
                   </g>
                 );
               })}
             </g>
           ))}
-          {Array.from({ length: MAX_FRET + 2 }, (_, f) => <line key={f} x1={30 + f * CELL} x2={30 + f * CELL} y1={0} y2={6 * 26} stroke={f === 1 ? "var(--color-slate-400)" : "var(--color-slate-800)"} />)}
+          {Array.from({ length: MAX_FRET + 2 }, (_, f) => <line key={f} x1={30 + f * CELL} x2={30 + f * CELL} y1={0} y2={6 * ROW} stroke={f === 1 ? "var(--color-slate-400)" : "var(--color-slate-800)"} />)}
         </svg>
       </div>
 
@@ -265,18 +416,22 @@ export default function RiffLab() {
             </g>
           ))}
           {Array.from({ length: Math.floor(total / 4) + 1 }, (_, b) => <line key={b} x1={30 + b * 4 * 48} x2={30 + b * 4 * 48} y1={14} y2={14 + 5 * 18} stroke="var(--color-slate-500)" />)}
+          {cols.map((c) => (
+            <rect key={`col${c.idx[0]}`} x={40 + c.start * 48 - 4} y={0} width={20} height={6 * 18 + 30} fill="transparent" className="cursor-pointer"
+              onClick={() => { const on = sel !== null && c.idx.includes(sel); setSel(on ? null : c.idx[0]); setOpen(false); }} />
+          ))}
           {(() => {
-            const starts = notes.map((_, i) => notes.slice(0, i).reduce((a, n) => a + n.beats, 0));
             return notes.map((n, i) => {
-              const x = 40 + starts[i] * 48 + 6;
+              const x = 40 + (startOf.get(i) ?? 0) * 48 + 6;
               const isSel = i === sel;
               const y = n.string === null ? 14 + 2.5 * 18 : 14 + (5 - n.string) * 18;
               return (
-                <g key={i} className="cursor-pointer" onClick={() => setSel(isSel ? null : i)}>
-                  <rect x={x - 10} y={0} width={20} height={6 * 18 + 30} fill={isSel ? "var(--color-sky-500)" : "transparent"} opacity={0.15} />
+                <g key={i} className="cursor-pointer" onClick={() => { setSel(isSel ? null : i); setOpen(false); }}>
+                  {isSel && <rect x={x - 10} y={0} width={20} height={6 * 18 + 30} fill="var(--color-sky-500)" opacity={0.15} />}
+                  {n.string !== null && <line x1={x + 9} x2={Math.max(x + 9, x - 6 + n.beats * 48)} y1={y} y2={y} stroke={isSel ? "var(--color-sky-400)" : "var(--color-slate-500)"} strokeWidth={3} strokeLinecap="round" opacity={0.6} />}
                   <rect x={x - 9} y={y - 8} width={18} height={16} rx={3} fill="var(--color-slate-950)" />
                   <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600} fill={isSel ? "var(--color-sky-300)" : n.string === null ? "var(--color-slate-500)" : "var(--color-slate-100)"}>{n.fret ?? "𝄽"}</text>
-                  <text x={x} y={6 * 18 + 24} textAnchor="middle" fontSize={9} fill="var(--color-slate-500)">{midiOf(n) === null ? "" : `${Note.pitchClass(Note.fromMidiSharps(midiOf(n)!))}·${degreeLabel(midiOf(n)! % 12, ctx)}`}</text>
+                  {!n.with && <text x={x} y={6 * 18 + 24} textAnchor="middle" fontSize={9} fill="var(--color-slate-500)">{midiOf(n) === null ? "" : `${Note.pitchClass(Note.fromMidiSharps(midiOf(n)!))}·${degreeLabel(midiOf(n)! % 12, ctx)}`}</text>}
                 </g>
               );
             });
@@ -303,7 +458,7 @@ export default function RiffLab() {
           ))}
           <span className="ml-2 text-slate-500">length</span>
           {LENGTHS.map((l) => (
-            <button key={l.key} onClick={() => setNotes((ns) => ns.map((x, i) => (i === sel ? { ...x, beats: l.beats } : x)))}
+            <button key={l.key} onClick={() => lengthAt(sel!, () => l.beats)}
               className={`rounded px-2 py-0.5 ${sn.beats === l.beats ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
           ))}
         </div>
