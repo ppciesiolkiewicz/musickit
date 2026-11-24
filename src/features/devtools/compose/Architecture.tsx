@@ -110,6 +110,7 @@ const INSIDE: { n: string; name: string; file: string; text: ReactNode; calls?: 
     calls: [
       { name: "keyTrackOf, playerKeys", file: "plan/model/keyStages.ts", text: <>The track whose key order the exercise follows (the track of the first step it names), and the player&apos;s keys there: the first key, the keys open on the step, the keys earned on the track.</> },
       { name: "rollSeed", file: "plan/model/compose.ts", text: <>The seed of the dice: the player, the choice id and the newest rated row of that choice. An exercise version changes only when the choice is rated again.</> },
+      { name: "warmUpKeyPool, warmUpKeys", file: "plan/model/warmUp.ts", text: <>For a warm-up that can change key, in place of the roll (a warm-up names no step, so it has no track of keys): the keys its section&apos;s exercises open in today and the keys a fifth above and below them, and the next key of that list each time the warm-up comes round. Its tempo is still rolled.</> },
     ],
   },
 ];

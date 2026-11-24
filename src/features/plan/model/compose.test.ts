@@ -707,6 +707,36 @@ test("warm-ups: a section with nothing to play after it gets no warm-up", () => 
   assert.deepEqual(ids(d).slice(0, 2), ["gh", "gs"]);
 });
 
+test("warm-ups: one that can change key opens in a key of its section's exercises or a neighbour, the next each time it comes round", () => {
+  const staff = (key: number) => [{ type: "tool", tool: { type: "staff", scale: "major-ionian", key, voice: "tenor" } }];
+  const scale = { ...WARM[2], exercise: { ...WARM[2].exercise, moves: { key: "any" }, cells: staff(0) } as unknown as PlanExercise };
+  // the section's exercises are written in G
+  const inG = lib("v:1", "voice", 8).map((c) => ({ ...c, exercise: { ...c.exercise, cells: staff(7) } as unknown as PlanExercise }));
+  const voiceOnly = { ...two, areas: ["voice"] as "voice"[], minutes: 20 };
+  const on = (date: string, over: Partial<ComposeInput> = {}) => {
+    const { day, trace } = explainDay(base({ answers: voiceOnly, blocks: [...inG, WARM[0], WARM[1], scale], date, seed: `p1:${date}:0`, ...over }), AVT);
+    const w = trace.sections[0].warmUp;
+    assert.deepEqual(w.picks.find((x) => x.blockId === "vs")!.given, givenOf(day, "vs"), "the trace shows the stored version");
+    return { keys: givenOf(day, "vs")!.keys!, pool: w.keys.pool, dayKeys: w.keys.day, day };
+  };
+  const dates = ["2026-11-18", "2026-11-19", "2026-11-20", "2026-11-21"];
+  const got = dates.map((d) => on(d));
+  // G, then D and C: the day's key and the keys a fifth either side; one a day in turn
+  for (const g of got) { assert.deepEqual(g.dayKeys, [7]); assert.deepEqual(g.pool, [7, 2, 0]); assert.equal(g.keys.now.length, 1); assert.equal(g.keys.back.length, 2); }
+  assert.deepEqual(new Set(got.slice(0, 3).map((g) => g.keys.now[0])), new Set([7, 2, 0]));
+  assert.deepEqual(got[3].keys, got[0].keys);
+  // the same on another try of the day, and whatever the warm-up was rated: the key is not rolled
+  const rated = [playedRow("r1", "vs", "v:1", 5, "2026-11-17T10:00:00Z"), playedRow("r2", "vs", "v:1", 1, "2026-11-17T11:00:00Z")];
+  assert.deepEqual(on(dates[0], { history: rated }).keys, got[0].keys);
+  // a section whose exercises have no key: the player's own keys (a new singer: C) and their neighbours
+  const plain = on(dates[0], { blocks: [...lib("v:1", "voice", 8), WARM[0], WARM[1], scale] });
+  assert.deepEqual([plain.dayKeys, plain.pool], [[], [0, 7, 5]]);
+  // a sung range of the player's own keeps the keys that fit it
+  assert.deepEqual(on(dates[0], { answers: { ...voiceOnly, voice: { range: { low: 43, high: 60 } } } }).pool, [7, 0]);
+  // a warm-up with no moves gets no version
+  assert.equal(givenOf(got[0].day, "vb"), undefined);
+});
+
 test("warm-ups: theory gets none", () => {
   const { trace } = explainDay(base({ blocks: [...many("a:1", 3), ...many("b:1", 3)] }), AB);
   assert.deepEqual(trace.sections.map((s) => s.warmUp.picks.length), [0]);

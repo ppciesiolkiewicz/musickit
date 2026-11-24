@@ -36,9 +36,24 @@ test("simulate: no day repeats a choice of the day before, and Solid ratings mak
 
 test("simulate: an exercise with a Key selector carries the player's keys", () => {
   const days = simulate({ answers: { ...persona("voice-beginner"), keys: 2 }, date: "2026-11-18", days: 7, seed: "lab", rating: "none" });
-  const keyed = days.flatMap((d) => d.day.exercises).filter((e) => e.given?.keys);
+  const keyed = days.flatMap((d) => d.day.exercises).filter((e) => e.given?.keys && e.kind !== "warm-up");
   assert.ok(keyed.length > 0, "the seed has voice blocks with a Key selector");
   assert.ok(keyed.every((e) => JSON.stringify(e.given?.keys) === JSON.stringify({ now: [9, 7], back: [4, 0] })));
+});
+
+test("simulate: the seed's voice warm-ups that can change key open in a key of the day's voice exercises or a neighbour, not always the same one", () => {
+  const days = simulate({ answers: persona("voice-beginner"), date: "2026-11-18", days: 14, seed: "lab", rating: "none" });
+  const opened = new Map<string, Set<number>>();
+  for (const d of days) {
+    const sec = d.trace.sections.find((s) => s.area === "voice");
+    for (const e of d.day.exercises.filter((x) => x.kind === "warm-up" && x.moves?.key)) {
+      const key = e.given!.keys!.now[0];
+      assert.ok(sec!.warmUp.keys.pool.includes(key), `${d.date} ${e.blockId}`);
+      opened.set(e.blockId!, (opened.get(e.blockId!) ?? new Set()).add(key));
+    }
+  }
+  assert.ok(opened.size > 0, "the seed has voice warm-ups with a key move");
+  assert.ok([...opened.values()].some((keys) => keys.size > 1), "a warm-up that comes back comes back in another key");
 });
 
 test("nextVersion: the composer's own next roll for a rating of the version an exercise has now", () => {

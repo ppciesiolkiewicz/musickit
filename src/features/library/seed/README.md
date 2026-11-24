@@ -73,7 +73,7 @@ set a key and a position). The prompt names each of the five by its file id, the
   the path: its choices have `"steps": []`, and it needs no concept. `warmUpPart` is its place in the run: voice 1
   breath, 2 lip rolls, 3 scales and intervals; guitar 1 loose hands, 2 the spider and picking, 3 finger work. A choice's
   `level` is the lowest level that gets it (`new` for everyone). The composer picks it by its kind, one of each part,
-  turning with the date (`plan/model/warmUp.ts`); the title names the drill, never "Warm-up". The path's own block of a
+  turning with the date (`plan/model/warmUp.ts`); one with `"key": "any"` in its `moves` opens in a key of the exercises that follow it or a key a fifth away, another one each time it comes round; the title names the drill, never "Warm-up". The path's own block of a
   drill (the spider) stays a separate file: `kind` is the block's, not a choice's.
 - An exercise stands alone: the composer hands out one block at a time, so its title, headings, text and why name no
   other day or week ("day 2", "yesterday", "this week"; `dayRefs.ts`). A plan's `summary`, `progress` and day themes may.

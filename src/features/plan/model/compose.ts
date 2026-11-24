@@ -13,7 +13,7 @@ import { reach } from "./reach";
 import { rollVersion, type RollTrace } from "./roll";
 import { addDays } from "./schedule";
 import type { PlanAnswers, PlanExercise } from "./types";
-import { WARM_UP_AREAS, isWarmUp, warmUpCap, warmUpPart, warmUpRun } from "./warmUp";
+import { WARM_UP_AREAS, isWarmUp, warmUpCap, warmUpKeyPool, warmUpKeys, warmUpPart, warmUpRun } from "./warmUp";
 
 /*
  * One day's practice plan made of library blocks (NEW7; design: docs/superpowers/specs/2026-11-18-plan-composer-design.md).
@@ -128,8 +128,10 @@ export interface TracedWarmUp {
   minutes: number;
   /** where in the run it goes (`warmUpPart`) */
   part: number;
-  /** the version it was given, as on a pick */
+  /** the version it was given: a tempo rolled as on a pick, and a key of the section's day (`warmUpKeys`), never rolled */
   given?: Given;
+  /** how many times its part has gone round its blocks by this day: what its key turns with */
+  turn: number;
 }
 
 /** One section as the composer filled it. */
@@ -144,9 +146,11 @@ export interface TracedSection {
   /**
    * Its warm-up run (DayShape2), taken out of `budget` before anything else: `cap` is the most minutes it may take (a
    * third of the section, at most 8, less the warm-ups kept), `pool` how many warm-up blocks of the area fit the
-   * player's `level`, `picks` the run in the order it is played. A theory section has cap 0 and no picks.
+   * player's `level`, `picks` the run in the order it is played. A theory section has cap 0 and no picks. `keys`: the
+   * keys the section's exercises open in today (`day`) and the keys a warm-up that can change key turns through
+   * (`pool`: those, or the player's when there are none, with their neighbours on the circle of fifths).
    */
-  warmUp: { cap: number; pool: number; level: string; minutes: number; picks: TracedWarmUp[] };
+  warmUp: { cap: number; pool: number; level: string; minutes: number; picks: TracedWarmUp[]; keys: { day: number[]; pool: number[] } };
   /** the minutes of its new picks for path steps (the warm-up not counted) */
   filled: number;
   /** the minutes added afterwards, when the day's last section could not use what was left */
@@ -407,6 +411,7 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
   };
   const rng = mulberry32(hash(input.seed));
   const parts = new Map<Area, { warm: Candidate[]; picks: Pick[]; review: Pick[] }>();
+  const warmTurns = new Map<string, number>();
   const keptWarm = (a: Area) => keptOf(a).filter(isWarmUp);
   let total = 0;
   let carry = 0;
@@ -424,11 +429,12 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
     // a warm-up with nothing to play after it is left out
     if (!got.picks.length && !got.review.length && keptOf(area).every(isWarmUp)) run = { ...run, picks: [], minutes: 0 };
     parts.set(area, { warm: run.picks, picks: got.picks, review: got.review });
+    for (const c of run.picks) warmTurns.set(c.choiceId, run.turns.get(c.choiceId) ?? 0);
     if (today.includes(area)) carry = sectionBudget - run.minutes - got.total;
     total += run.minutes + got.total;
     trace.sections.push({
       area, kept: mins(keptOf(area)), share, budget: sectionBudget,
-      warmUp: { cap, pool: run.pool, level, minutes: run.minutes, picks: run.picks.map((c) => ({ blockId: c.blockId, choiceId: c.choiceId, title: shownTitle(c.exercise), minutes: c.minutes, part: warmUpPart(c.exercise) })) },
+      warmUp: { cap, pool: run.pool, level, minutes: run.minutes, keys: { day: [], pool: [] }, picks: run.picks.map((c) => ({ blockId: c.blockId, choiceId: c.choiceId, title: shownTitle(c.exercise), minutes: c.minutes, part: warmUpPart(c.exercise), turn: run.turns.get(c.choiceId) ?? 0 })) },
       filled: got.total, toppedUp: 0, steps,
     });
     trace.steps.fresh.push(...steps.fresh); trace.steps.open.push(...steps.open); trace.steps.review.push(...steps.review);
@@ -447,10 +453,26 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
   // the versions last: they change no pick, only what each exercise opens in
   const all = order.flatMap((a) => { const p = parts.get(a)!; return [...p.picks, ...p.review]; });
   const versions = new Map<string, { given: Given; roll?: RollTrace }>();
-  const warm = order.flatMap((a) => parts.get(a)!.warm);
-  for (const c of [...all.map((p) => p.cand), ...warm]) {
+  for (const c of all.map((p) => p.cand)) {
     const v = versionFor(c.exercise, input, tracks);
     if (v) versions.set(c.choiceId, v);
+  }
+  // A warm-up names no step, so the roll finds it no keys: its tempo is rolled as any block's, and its key is one of
+  // the keys its section's exercises open in today, or a neighbour of one on the circle of fifths (`warmUpKeyPool`),
+  // the next of them each time the warm-up comes round.
+  const keyOf = (e: PlanExercise, given?: Given): number | null => given?.keys?.now[0] ?? written(e).key;
+  for (const area of order) {
+    const p = parts.get(area)!;
+    const sec = trace.sections.find((x) => x.area === area)!;
+    const dayKeys = [...keptOf(area).filter((e) => !isWarmUp(e)).map((e) => keyOf(e, e.given)), ...[...p.picks, ...p.review].map((x) => keyOf(x.cand.exercise, versions.get(x.cand.choiceId)?.given))].filter((k): k is number => k !== null);
+    const pool = warmUpKeyPool({ area, rung: keyRung(answers.keys, levelOf(answers, area)), dayKeys, ...(area === "voice" && answers.voice?.range ? { range: answers.voice.range } : {}) });
+    sec.warmUp.keys = { day: [...new Set(dayKeys)], pool };
+    for (const c of p.warm) {
+      const e = c.exercise;
+      const keys = e.moves?.key ? warmUpKeys(pool, warmTurns.get(c.choiceId) ?? 0) : null;
+      const given: Given = { ...(versionFor(e, input, tracks)?.given ?? {}), ...(keys ? { keys } : {}) };
+      if (given.keys || given.bpm) versions.set(c.choiceId, { given });
+    }
   }
   for (const w of trace.sections.flatMap((sec) => sec.warmUp.picks)) {
     const v = versions.get(w.choiceId);
