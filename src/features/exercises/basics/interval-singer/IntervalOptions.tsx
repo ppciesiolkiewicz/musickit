@@ -25,6 +25,21 @@ export function LookSwitch({ look, onLook }: { look: Look; onLook: (l: Look) => 
   );
 }
 
+export type Plays = "do" | "both";
+
+/** What sounds before the student sings: only Do, or Do and then the note to sing */
+export function PlaySwitch({ play, onPlay, bare = false }: { play: Plays; onPlay: (p: Plays) => void; /** no "Plays" word inside: the row it sits in is labelled */ bare?: boolean }) {
+  return (
+    <span role="group" aria-label="Plays" className="inline-flex items-center rounded-lg border border-slate-800 p-0.5 text-xs text-slate-400 lg:text-sm">
+      {!bare && <span className="px-2 text-slate-500" aria-hidden>Plays</span>}
+      {(["do", "both"] as const).map((p) => (
+        <button key={p} type="button" aria-pressed={play === p} onClick={() => onPlay(p)} title={p === "do" ? "Only Do plays, and you find the note" : "Do plays, then the note to sing"}
+          className={`rounded-md px-2 py-1 transition lg:px-3 lg:py-1.5 ${play === p ? LIT : "hover:text-slate-200"}`}>{p === "do" ? "Do" : "Do and the note"}</button>
+      ))}
+    </span>
+  );
+}
+
 /** Where Do comes from: the keys picked on the chips, or any of the twelve; switching keeps the keys picked */
 export function KeysSwitch({ random, onRandom }: { random: boolean; onRandom: (r: boolean) => void }) {
   return (

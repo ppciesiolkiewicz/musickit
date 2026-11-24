@@ -10,6 +10,10 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 19 (2026-11-24)
+
+- `interval-singer` has a new prop, `playSwitch`: the tool now shows a Plays switch ("Do", "Do and the note") that starts at `play`, so the student picks what sounds before they sing. `playSwitch: false` leaves the switch out and `play` holds, for an exercise that is about finding the note from Do alone, or about copying it.
+
 ### 18 (2026-11-24)
 
 - Writing rules: whatever the app plays under the student (the drums and bass of a backing-band, a backing-track, a song-chart, the chords under a guitar-play-along) is "the backing track" in the text, never "the band" or "the backing". "Which tool for what" says "backing track" where it said "band".

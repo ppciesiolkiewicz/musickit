@@ -20,7 +20,7 @@ import { useAccuracy } from "@/features/theory/useAccuracy";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import { DEFAULT_INTERVALS, longName, nextAsk, placeDo, shortName, solfegeOf, toggleOne, type IntervalDir } from "./asks";
 import IntervalRoll from "./IntervalRoll";
-import { KeyChips, KeysSwitch, LookSwitch, type Look } from "./IntervalOptions";
+import { KeyChips, KeysSwitch, LookSwitch, PlaySwitch, type Look, type Plays } from "./IntervalOptions";
 import { useVoice, useVoiceRange } from "../voiceChoice";
 
 /** how long Do (and each note played back) sounds, in ms */
@@ -65,15 +65,16 @@ const NO_PITCH = { current: null };
 /**
  * Sing a named interval from Do: the interval shows as a name ("Interval · P5"), Do sounds and sits on a piano roll (the
  * default) or the staff, and the student sings the other note; held on it for a moment, it counts, shows and plays back.
- * With `play` "both", the note to sing sounds after Do, so the student hears the leap first (the easier way).
+ * With `play` "both", the note to sing sounds after Do, so the student hears the leap first (the easier way); the Plays
+ * switch on the tool changes it, from the next Start or Restart on, unless `playSwitch` is false (the exercise holds it).
  * With `dot` (the default) the voice is drawn as a dot; without it the student sings blind and only hears whether it
  * counted (the harder way); either is a switch on the tool too. `picker` false leaves the Keys switch and key chips out
- * (an exercise does: its keys are set, and a step-choice changes them). A page with a side panel holds the keys, view and dot
+ * (an exercise does: its keys are set, and a step-choice changes them). A page with a side panel holds the keys, what plays, view and dot
  * there and hands them in as `options`, and the tool then leaves those controls out. Full screen is a page modal (Esc
  * closes it): the same tool moved over the page, so a question asked carries on, the piano roll grown to the screen's height.
  */
-export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", play = "do", dot: dotProp = true, picker = true, options, hostSettings = false }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; /** "both": Do and then the note sound before the student sings (the easier way); "do": only Do */ play?: "do" | "both"; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; look: Look; dot: boolean }; /** the page holds accuracy and the volume in its settings panel: no settings button here */ hostSettings?: boolean }) {
-  useCoverage({ hints: 8 });
+export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = DEFAULT_INTERVALS, dir = "up", play: playProp = "do", playSwitch = true, dot: dotProp = true, picker = true, options, hostSettings = false }: { keys?: number[]; voice?: Voice; intervals?: number[]; dir?: IntervalDir; /** "both": Do and then the note sound before the student sings (the easier way); "do": only Do */ play?: Plays; /** the Plays switch; false: `play` holds, with nothing to switch */ playSwitch?: boolean; dot?: boolean; /** the Keys switch and key chips; false: the keys are the ones given, with nothing to pick */ picker?: boolean; options?: { keys: number[]; play: Plays; look: Look; dot: boolean }; /** the page holds accuracy and the volume in its settings panel: no settings button here */ hostSettings?: boolean }) {
+  useCoverage({ hints: 9 });
   const voice = useVoice(own);
   const range = useVoiceRange(voice);
   const clef = clefFor(range);
@@ -86,6 +87,10 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
   const look = options?.look ?? (standard ? lookPicked : "roll");
   const [dotPicked, setDot] = useState(dotProp);
   const dot = options?.dot ?? (showDot ? dotPicked : dotProp);
+  // what sounds before the student sings: the exercise's `play` until the student switches it; shown at every level,
+  // since hearing the note first is the help a new singer needs
+  const [playPicked, setPlay] = useState<Plays>(playProp);
+  const play = options?.play ?? (playSwitch ? playPicked : playProp);
   const [storedCents] = useAccuracy();
   const cents = standard ? storedCents : IN_TUNE_CENTS;
   // the keys picked on the chips, and Random (all twelve) as its own switch over them, so turning Random off gives the
@@ -350,7 +355,8 @@ export function View({ keys: keysProp = [0], voice: own = "tenor", intervals = D
         {fullButton}
       </div>
       {!options && <div className="flex flex-wrap items-center gap-2 border-t border-slate-800 pt-2 text-xs text-slate-400">
-        {(standard || showKeys || showDot) && <span data-tour="interval-singer-options" className="inline-flex flex-wrap items-center gap-2">
+        {(standard || showKeys || showDot || playSwitch) && <span data-tour="interval-singer-options" className="inline-flex flex-wrap items-center gap-2">
+        {playSwitch && <Hint title="Plays" description="What you hear before you sing: only Do, or Do and then the note to sing. A change starts with the next interval or Restart."><PlaySwitch play={play} onPlay={setPlay} /></Hint>}
         {standard && <Hint title="View" description="Shows Do and your note on a piano roll or on the staff."><LookSwitch look={look} onLook={setLook} /></Hint>}
         {showKeys && <Hint title="Keys" description="Where Do comes from: only the keys picked, or a random one of all twelve each time."><KeysSwitch random={random} onRandom={setRandom} /></Hint>}
         {showKeys && !random && <KeyChips picked={picked} onToggle={toggleKey} />}

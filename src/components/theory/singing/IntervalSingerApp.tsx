@@ -12,7 +12,7 @@ import { AccuracyRow, VolumeRow } from "@/features/settings";
 import { INTERVALS } from "@/lib/chordKit/intervals";
 import { EAR_LEVELS, levelSemis } from "@/lib/practice/earGame";
 import { View as IntervalSinger } from "@/features/exercises/basics/interval-singer";
-import { KeyChips, KeysSwitch, LookSwitch, type Look } from "@/features/exercises/basics/interval-singer/IntervalOptions";
+import { KeyChips, KeysSwitch, LookSwitch, PlaySwitch, type Look, type Plays } from "@/features/exercises/basics/interval-singer/IntervalOptions";
 import { INTERVAL_DIRS, toggleOne, type IntervalDir } from "@/features/exercises/basics/interval-singer/asks";
 import { panel } from "@/components/practice/shared";
 
@@ -21,7 +21,7 @@ const ONE_TO_TWELVE = INTERVALS.filter((i) => i.semis >= 1 && i.semis <= 12);
 
 /**
  * The Sing an interval page: the plan's `interval-singer` tool on its own, with what it asks in the side panel: the
- * voice (the one the other singing pages keep), the keys, the direction, and the intervals by level or a custom set.
+ * voice (the one the other singing pages keep), the keys, what plays before the student sings, the direction, and the intervals by level or a custom set.
  * The keys and the view are Standard controls, as they are on the tool.
  */
 export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
@@ -36,6 +36,7 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   const [random, setRandom] = useState(false);
   const [lookPicked, setLook] = useState<Look>("roll");
   const [dotPicked, setDot] = useState(true);
+  const [play, setPlay] = useState<Plays>("do");
   const intervals = level === "custom" ? custom ?? [] : levelSemis(level);
   // the first Custom starts from the level it came from; after that it keeps its own set
   const pickCustom = () => {
@@ -44,6 +45,7 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
   };
   const options = {
     keys: !standard ? [0] : random ? ALL_KEYS : picked,
+    play,
     look: standard ? lookPicked : "roll" as Look,
     dot: standard ? dotPicked : true,
   };
@@ -57,6 +59,9 @@ export default function IntervalSingerApp({ lead }: { lead?: ReactNode }) {
           <KeysSwitch random={random} onRandom={setRandom} />
           {!random && <KeyChips picked={picked} onToggle={(k) => setPicked((ks) => toggleOne(ks, k))} />}
         </SettingsRow>}
+        <SettingsRow label="Plays" info="What you hear before you sing: only Do, or Do and then the note to sing. A change starts with the next interval or Restart.">
+          <PlaySwitch play={play} onPlay={setPlay} bare />
+        </SettingsRow>
         <SettingsRow label="Direction">
           <DirectionChips options={INTERVAL_DIRS} value={dir} onChange={setDir} />
         </SettingsRow>

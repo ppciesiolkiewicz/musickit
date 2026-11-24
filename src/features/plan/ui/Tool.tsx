@@ -98,7 +98,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "vowel-guide":
       return <VowelGuide climb={tool.climb} vowels={tool.vowels} seconds={tool.seconds} voice={tool.voice ?? voice} />;
     case "interval-singer":
-      return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} play={tool.play} dot={tool.dot} picker={tool.picker === true} />;
+      return <IntervalSinger keys={tool.keys ?? [tool.key]} voice={tool.voice ?? voice} intervals={tool.intervals} dir={tool.dir} play={tool.play} playSwitch={tool.playSwitch} dot={tool.dot} picker={tool.picker === true} />;
     case "guitar-play-along":
       return <PlayAlong shape={tool.shape} bpm={tool.bpm} repeats={tool.repeats} view={tool.view} enable={tool.enable} highlight={tool.highlight} others={tool.others} under={tool.under} />;
     case "backing-track":

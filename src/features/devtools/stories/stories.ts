@@ -149,6 +149,7 @@ const HAND: { tool: ToolName; name: string; props: Props }[] = [
   { tool: "interval-singer", name: "Default: M3, P5, P8 up from C", props: {} },
   { tool: "interval-singer", name: "Easier: Do and then the note play, level new, in D", props: { level: "new", key: "d", play: "both" } },
   { tool: "interval-singer", name: "Level advanced: the hard leaps, both ways, random key", props: { level: "advanced" } },
+  { tool: "interval-singer", name: "No Plays switch: only Do, held by the exercise", props: { intervals: [4, 7], playSwitch: false } },
   { tool: "interval-singer", name: "With the key picker", props: { keys: ["c", "f", "g"], picker: true } },
   { tool: "interval-singer", name: "Only the 5th, in G, alto", props: { key: "g", voice: "alto", intervals: [7] } },
   { tool: "interval-singer", name: "Random key each time: 4ths and 5ths", props: { key: "random", intervals: [5, 7] } },

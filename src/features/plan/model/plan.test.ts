@@ -128,6 +128,9 @@ describe("tools", () => {
     assert.deepEqual(parseTool({ type: "interval-singer" }), { type: "interval-singer", key: 0 });
     assert.deepEqual(parseTool({ type: "interval-singer", key: "g", intervals: [7, 7, 4, 30], dir: "both", dot: false }), { type: "interval-singer", key: 7, intervals: [4, 7], dir: "both", dot: false });
     assert.deepEqual(parseTool({ type: "interval-singer", keys: ["c", "f", "g"] }), { type: "interval-singer", key: 0, keys: [0, 5, 7] });
+    // what plays: only "both" is kept (Do alone is the default), and the Plays switch only when it is turned off
+    assert.deepEqual(parseTool({ type: "interval-singer", play: "both", playSwitch: false }), { type: "interval-singer", key: 0, play: "both", playSwitch: false });
+    assert.deepEqual(parseTool({ type: "interval-singer", play: "do", playSwitch: true }), { type: "interval-singer", key: 0 });
     assert.deepEqual(parseTool({ type: "interval-singer", key: "random" }), { type: "interval-singer", key: 0, keys: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] });
   });
   it("reads degrees for highlighting and showing only chosen notes", () => {

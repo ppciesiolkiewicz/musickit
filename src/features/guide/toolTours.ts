@@ -97,7 +97,7 @@ export const TOOL_TOURS: Record<ToolName, TourStep[]> = {
     { target: "interval-singer-start", title: "Start", text: "Start plays Do. Then sing the interval named above from it." },
     { target: "interval-singer-mic", title: "The mic", text: "Keep the mic on and hold the note until it says Yes." },
     { target: "interval-singer-view", title: "Do and your note", text: "Do is drawn here, and your note shows once you find it. Tap a note to hear it." },
-    { target: "interval-singer-options", title: "Options", text: "Switch the view, pick the keys Do comes from, or hide your voice to make it harder.", minLevel: "standard" },
+    { target: "interval-singer-options", title: "Options", text: "Choose what plays before you sing: only Do, or Do and then the note. Switch the view, pick the keys Do comes from, or hide your voice to make it harder.", minLevel: "standard" },
   ],
   "guitar-play-along": [
     { target: "play-along-play", title: "Play", text: "Play starts the backing track and the part to play along with. It loops until you stop it." },
