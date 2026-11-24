@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Hint } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
-import { useAudioFocus } from "@/features/sound";
+import { useAudioFocus, type Player } from "@/features/sound";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { useSpaceKey } from "@/components/practice/toolKeys";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
@@ -39,7 +39,8 @@ const withBacking = (t: Timeline, p: CompPattern | undefined): Timeline =>
 const stepless = (t: Timeline) => !t.events.some((e) => e.type === "step");
 
 /** A ready timeline played along with: click, piano, and a tab / notes / neck view that follow the playhead. */
-export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", marks }: { timeline: Timeline; view?: View; others?: "muted" | "hidden"; marks?: Marks }) {
+/** `instrument` plays the part instead of the shared piano (the riff maker's guitar into a NAM amp). */
+export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", marks, instrument }: { timeline: Timeline; view?: View; others?: "muted" | "hidden"; marks?: Marks; instrument?: () => Player }) {
   useCoverage({ hints: 2 });
   const choices = timeline.backingChoices ?? [];
   const [pattern, setPattern] = useState<CompPattern | undefined>(choices[0]);
@@ -49,7 +50,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
   const shown = views ? picked : view;
   const [tempo, setTempoState] = useState(timeline.bpm);
   const played = useMemo(() => withBacking(timeline, choices.length > 1 ? pattern : undefined), [timeline, pattern, choices.length]);
-  const player = useTimelinePlayer(played);
+  const player = useTimelinePlayer(played, instrument);
   const group = useStepPart({ kind: "play", on: player.playing, start: player.start, stop: player.stop });
   const focus = useAudioFocus(player.playing, player.stop, group);
   const cues = useMemo(

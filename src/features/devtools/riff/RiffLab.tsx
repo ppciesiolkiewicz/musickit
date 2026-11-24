@@ -504,7 +504,7 @@ export default function RiffLab() {
       {timeline && (
         <section className="flex flex-col gap-2">
           <h2 className="text-sm text-slate-400">As an exercise</h2>
-          <PlayAlongTimeline key={`${state.id}-${state.bpm}`} timeline={timeline} />
+          <PlayAlongTimeline key={`${state.id}-${state.bpm}`} timeline={timeline} instrument={player} />
         </section>
       )}
 

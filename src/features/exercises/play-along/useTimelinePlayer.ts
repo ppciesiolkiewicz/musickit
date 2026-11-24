@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getAudioContext, getOutputBus, getSharedPiano, wakeAudio } from "@/features/sound";
+import { getAudioContext, getOutputBus, getSharedPiano, wakeAudio, type Player } from "@/features/sound";
 import { ClickTrack, DEFAULT_DRONE, DroneVoice } from "@/features/instruments";
 import { cuesOf } from "../cues/cues";
 import { BEATS_PER_BAR } from "../timeline/timeline";
@@ -13,18 +13,18 @@ const STRUM_GAP_MS = 18;
 const REGRID_LEAD = 0.2;
 
 /**
- * Plays a timeline: one `ClickTrack` on the audio clock, the timeline's cues on the shared piano, and its `drone` (if any). Each bar's notes
+ * Plays a timeline: one `ClickTrack` on the audio clock, the timeline's cues on the shared piano (or `instrument`, e.g. a guitar into a NAM amp), and its `drone` (if any). Each bar's notes
  * are queued a whole bar ahead (as `CompPlayer`). `beat` is the click's beat index (0 = first beat, counting on through
  * loops), -1 when stopped. `setTempo` and a new timeline (e.g. another backing) apply from the next bar queued. A tempo
  * change re-anchors the click (`gridAnchor`) before it schedules that bar's downbeat, so click, notes and playhead
  * stay on one grid.
  */
-export function useTimelinePlayer(t: Timeline): { playing: boolean; starting: boolean; beat: number; start(): Promise<void>; stop(): void; setTempo(bpm: number): void } {
+export function useTimelinePlayer(t: Timeline, instrument?: () => Player): { playing: boolean; starting: boolean; beat: number; start(): Promise<void>; stop(): void; setTempo(bpm: number): void } {
   const cues = useMemo(() => cuesOf(t), [t]);
-  const live = useRef({ t, cues, bpm: t.bpm });
+  const live = useRef({ t, cues, bpm: t.bpm, instrument });
   useEffect(() => {
-    live.current = { ...live.current, t, cues };
-  }, [t, cues]);
+    live.current = { ...live.current, t, cues, instrument };
+  }, [t, cues, instrument]);
   const [playing, setPlaying] = useState(false);
   const [starting, setStarting] = useState(false);
   const [beat, setBeat] = useState(-1);
@@ -58,7 +58,7 @@ export function useTimelinePlayer(t: Timeline): { playing: boolean; starting: bo
     stopper.current = null;
     const mine = ++gen.current;
     setStarting(true);
-    const piano = getSharedPiano();
+    const piano = live.current.instrument?.() ?? getSharedPiano();
     let ready = false;
     try {
       await wakeAudio();
