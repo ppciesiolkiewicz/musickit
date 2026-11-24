@@ -31,13 +31,19 @@ export default function TabView({ cues, pos, length }: ViewProps) {
     const under = at.top < GRIP_HEIGHT;
     setGrip({ i, left: at.left + at.width / 2, top: under ? at.bottom : at.top, under });
   };
-  // the box is placed once, so it goes when the page moves under it
+  // the box is placed once, so it goes when the page moves under it; a tap anywhere but a chord column closes it
   useEffect(() => {
     if (!grip) return;
     const hide = () => setGrip(null);
+    const away = (e: PointerEvent) => !(e.target instanceof Element && e.target.closest("[data-grip]")) && hide();
     window.addEventListener("scroll", hide, true);
     window.addEventListener("resize", hide);
-    return () => { window.removeEventListener("scroll", hide, true); window.removeEventListener("resize", hide); };
+    window.addEventListener("pointerdown", away);
+    return () => {
+      window.removeEventListener("scroll", hide, true);
+      window.removeEventListener("resize", hide);
+      window.removeEventListener("pointerdown", away);
+    };
   }, [grip]);
   const shown = cues.filter((c) => c.frets.length);
   const cols = tabOf(shown);
@@ -52,7 +58,7 @@ export default function TabView({ cues, pos, length }: ViewProps) {
   const bar = Math.min(10, unit / 3);
 
   return (
-    <div ref={ref} className="flex w-full flex-col gap-3" onPointerLeave={() => setGrip(null)}>
+    <div ref={ref} className="flex w-full flex-col gap-3">
       {rows.map(([start, end]) => {
         const x = (at: number) => LEFT + PAD + (at - start) * unit;
         const right = x(end) - bar;
@@ -97,7 +103,9 @@ export default function TabView({ cues, pos, length }: ViewProps) {
                 height={5 * ROW + 16}
                 fill="transparent"
                 className="cursor-help"
-                onPointerEnter={(e) => point(i, e.currentTarget)}
+                data-grip
+                onPointerEnter={(e) => e.pointerType === "mouse" && point(i, e.currentTarget)}
+                onPointerLeave={(e) => e.pointerType === "mouse" && setGrip(null)}
                 onClick={(e) => (grip?.i === i ? setGrip(null) : point(i, e.currentTarget))}
               />
             ))}
