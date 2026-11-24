@@ -65,7 +65,7 @@ function BeatMeter({ beats, beat, className = "" }: { beats: number; beat?: numb
 }
 
 /** The band's place, read every frame; React re-renders only when the chord or the beat changes. */
-function usePosition(band: Band, playing: boolean) {
+export function useBandPosition(band: Band, playing: boolean) {
   const [pos, setPos] = useState<{ chord: number; beat: number } | null>(null);
   useEffect(() => {
     if (!playing) return;
@@ -107,7 +107,7 @@ export function BackingPlayer({ band, snap, group, scale: showScale = true, part
   const { settings, playing, arrangement } = snap;
   const focus = useAudioFocus(playing, () => band.stop(), group);
   const style = findStyle(settings.style);
-  const pos = usePosition(band, playing);
+  const pos = useBandPosition(band, playing);
   const { ref: spaceRef, armed: spaceArmed } = useSpaceKey(() => band.toggle(), focus);
 
   const mode = MODES.find((m) => m.id === bandMode(settings))!;

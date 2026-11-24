@@ -38,6 +38,20 @@ interface Step {
 
 const StepContext = createContext<Step | null>(null);
 
+/** The chord the step's backing track is playing now: its symbol ("Em7") and its notes, root first ("E", "G", "B", "D"). */
+export interface StepChord {
+  /** its place in the progression, 0 the first chord */
+  index: number;
+  symbol: string;
+  rootPc: number;
+  /** pitch classes, root first, in the chord's own order (root, 3rd, 5th, 7th) */
+  pcs: number[];
+  /** the notes spelled, the same order as `pcs` */
+  notes: string[];
+}
+
+const ChordContext = createContext<{ chord: StepChord | null; setChord: (c: StepChord | null) => void } | null>(null);
+
 /** Kinds that play sound the microphone could hear from the speakers. */
 const SOUNDS: StepPartKind[] = ["drone", "click", "band", "chords", "play", "tune"];
 
@@ -93,7 +107,24 @@ export function ExerciseStep({ children }: { children: ReactNode }) {
       for (const h of handlers.current.values()) h.stop();
     },
   }), [register, setOn, started, leads, stepId, parts]);
-  return <StepContext.Provider value={step}>{children}</StepContext.Provider>;
+  const [chord, setChord] = useState<StepChord | null>(null);
+  const chords = useMemo(() => ({ chord, setChord }), [chord]);
+  return <StepContext.Provider value={step}><ChordContext.Provider value={chords}>{children}</ChordContext.Provider></StepContext.Provider>;
+}
+
+/** Tell the step which chord the backing track is playing (null: none, stopped). The last one set wins. */
+export function usePublishStepChord(chord: StepChord | null) {
+  const setChord = useContext(ChordContext)?.setChord;
+  const key = chord ? `${chord.index}:${chord.symbol}:${chord.pcs.join(",")}` : "";
+  useEffect(() => {
+    setChord?.(chord);
+  }, [setChord, key]); // eslint-disable-line react-hooks/exhaustive-deps -- `key` stands for the chord
+  useEffect(() => () => setChord?.(null), [setChord]);
+}
+
+/** The chord the step's backing track is playing now, so a staff or a neck beside it can follow it; null when nothing plays. */
+export function useStepChord(): StepChord | null {
+  return useContext(ChordContext)?.chord ?? null;
 }
 
 /**

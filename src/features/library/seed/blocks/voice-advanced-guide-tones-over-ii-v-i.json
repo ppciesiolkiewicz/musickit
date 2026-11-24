@@ -88,7 +88,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below to start the mic and the same changes in D: Em7, A7 and Dmaj7. Make up your own line, and sing it on any vowel. Start each chord on one of its ringed notes: {{4}} or {{1}} over Em7, {{7}} or {{4}} over A7, {{3}} or {{7}} over Dmaj7.\nIf you lose the chords, go back to one long ringed note per chord until you hear the changes again."
+            "text": "Press Start exercise below to start the mic and the same chords in D. Make up your own line, and sing it on any vowel.\nStart each chord on a ringed note: the rings move with the chords, and the tip under the staff names the notes.\nIf you lose the chords, go back to one long ringed note per chord until you hear the changes again."
           },
           {
             "type": "tool",
@@ -104,7 +104,8 @@
                 "3",
                 "4",
                 "7"
-              ]
+              ],
+              "follow": "guide-tones"
             }
           },
           {

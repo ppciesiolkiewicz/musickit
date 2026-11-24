@@ -11,7 +11,7 @@ import { voiceMapIn } from "@/features/theory/registers";
 import { VOICES } from "@/features/theory/singing";
 import { useAccuracy } from "@/features/theory/useAccuracy";
 import { AccuracyRow } from "@/features/settings";
-import { Button, Hint } from "@/components/ui";
+import { Button, Hint, PlaybackTip } from "@/components/ui";
 import { PlayerCard } from "../../play-along/PlayerParts";
 import { clampInt, stepHold } from "../voice-hill/hill";
 import { useVoice, useVoiceRange } from "../voiceChoice";
@@ -274,12 +274,12 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
         <p className="text-xs text-slate-400">The mic hears the note, not the vowel.</p>
       </div>
 
-      <p className="min-h-10 border-t border-slate-800 pt-3 text-sm leading-snug text-slate-300">
-        {running ? <><span className="mr-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Tip</span>{tip}</>
-          : done ? "Notice which vowel was the hardest to keep on the note."
+      <PlaybackTip live={running} className="border-t border-slate-800 pt-3"
+        idle={done ? "Notice which vowel was the hardest to keep on the note."
           : notes.length === 1 ? `Hold each vowel for ${seconds} seconds on the same note, with a breath between.`
-          : `Hold each vowel for ${seconds} seconds, then the same vowels one note higher. Each new note plays in the breath before it.`}
-      </p>
+          : `Hold each vowel for ${seconds} seconds, then the same vowels one note higher. Each new note plays in the breath before it.`}>
+        {tip}
+      </PlaybackTip>
     </PlayerCard>
   );
 }

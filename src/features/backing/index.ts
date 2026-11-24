@@ -10,7 +10,7 @@
  *
  * Pure code imports `./model.ts` instead (the ids and data, no audio). Rules: `CLAUDE.md` in this folder.
  */
-export { default as BackingTrack, BackingPlayer, BandMixer } from "./ui/BackingTrack";
+export { default as BackingTrack, BackingPlayer, BandMixer, useBandPosition } from "./ui/BackingTrack";
 export { useBand, type UseBandOptions } from "./ui/useBand";
 export { TONICS, type BandSettings } from "./model/settings";
 export { Band, type BandDeps, type BandForm, type BandSnapshot } from "./audio/band";

@@ -3,7 +3,7 @@
  * Each component lives in its own folder; only that folder's index.ts is public, the other files are its private parts.
  *
  *   atoms      one element with one job: Button, Checkbox, Chip, Badge, DiscountBadge, Tag, Tile, Select, Slider, NumberField, InfoButton, EscKey, KeyCap, InfoBox, Notice, Popover, AttentionRing (and Hue, the colour coding)
- *   molecules  a few atoms working together: ChipRow, Dropdown, Field, Hint, Info, InfoTip, SettingsRow, StarRating, Stepper
+ *   molecules  a few atoms working together: ChipRow, Dropdown, Field, Hint, Info, InfoTip, PlaybackTip, SettingsRow, StarRating, Stepper
  *   organisms  self-contained blocks: Section, SettingsPanel, Modal, StepModal, Tour
  */
 export * from "./atoms/AttentionRing";
@@ -30,6 +30,7 @@ export * from "./molecules/Field";
 export * from "./molecules/Hint";
 export * from "./molecules/Info";
 export * from "./molecules/InfoTip";
+export * from "./molecules/PlaybackTip";
 export * from "./molecules/SettingsRow";
 export * from "./molecules/StarRating";
 export * from "./molecules/Stepper";

@@ -4,6 +4,7 @@ import type { Degree } from "../../timeline/types";
  * The scale on a staff in a voice's range, with the microphone's pitch drawn on it; tap a note to hear it. With `drone` and/or
  * `click` it carries its own backing, so a singing exercise needs no `backing-band` beside it: starting the mic also starts the drone,
  * the drone UI provides start/stop and mute controls, and the step's "Start exercise" starts both together (Stop exercise stops both).
+ * Beside a backing-track, `follow` or `line` make the ringed notes change with the chord playing, with a tip line under the staff.
  * @component staff basic
  */
 export interface StaffProps {
@@ -37,4 +38,18 @@ export interface StaffProps {
   bpm?: number;
   /** the label under each note: "degree" (1 2 3) or "solfege" (Do Re Mi). Absent: the student's setting, and with the mic never bare note names (degrees then) */
   labels?: "degree" | "solfege";
+  /**
+   * next to a backing-track in the same step: while it plays, ring the notes of the chord playing now, and say them in a
+   * tip line under the staff ("Em7: start on G (4) or D (1)."). "guide-tones" the 3rd and the 7th (a triad: its 3rd and
+   * root), "chord" all its notes, "root" its root. The text then never lists the notes per chord: it says "start each
+   * chord on a ringed note". Stopped: `highlight` is ringed
+   */
+  follow?: "guide-tones" | "chord" | "root";
+  /**
+   * next to a backing-track: a set line to sing, one note per chord of the backing track, in order (major-relative
+   * degrees; a note may come twice in a row): ["4","4","3","3"] over ii7 V7 Imaj7 Imaj7. While the track plays, the note to sing now is
+   * ringed and named in the tip line under the staff, so the text never spells the line out: "sing the ringed note
+   * over each chord". Wins over `follow`
+   */
+  line?: Degree[];
 }

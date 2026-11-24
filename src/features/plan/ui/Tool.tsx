@@ -74,7 +74,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "chord-shapes":
       return <ChordShapes chords={tool.chords} voicing={tool.voicing} />;
     case "staff":
-      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice ?? voice} notes={tool.notes} under={tool.under} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} drone={tool.drone} click={tool.click} bpm={tool.bpm} labels={tool.labels} external={input} />;
+      return <Staff slug={tool.scale} pc={tool.key} voice={tool.voice ?? voice} notes={tool.notes} under={tool.under} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} mic={tool.mic} drone={tool.drone} click={tool.click} bpm={tool.bpm} labels={tool.labels} follow={tool.follow} line={tool.line} external={input} />;
     case "backing-band":
       return <BackingBand bpm={tool.bpm} keyPc={tool.key} parts={tool.parts} />;
     case "note-finder":

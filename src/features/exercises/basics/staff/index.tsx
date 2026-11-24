@@ -11,13 +11,13 @@ import { ToolSettings } from "@/features/settings";
 import { IN_TUNE_CENTS, VOICES, buildLadder, clefFor, hzToMidi, spellName, withNotesUnder } from "@/features/theory/singing";
 import { createSmoother, type Pitch } from "@/features/tuner/pitch";
 import type { ExternalInput } from "@/features/tuner";
-import { staffLabelSystem, type SingingLabels } from "@/features/theory/labels";
+import { labelSemi, noteLabel, staffLabelSystem, type LabelSystem, type SingingLabels } from "@/features/theory/labels";
 import { useLabelSystem } from "@/features/theory/useLabelSystem";
 import { useAccuracy } from "@/features/theory/useAccuracy";
-import { Badge, Hint, KeyCap } from "@/components/ui";
+import { Badge, Hint, KeyCap, PlaybackTip } from "@/components/ui";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
-import { useStepPart } from "@/components/practice/exerciseStep";
+import { useStepChord, useStepPart, type StepChord } from "@/components/practice/exerciseStep";
 import { useToolKeys } from "@/components/practice/toolKeys";
 import dynamic from "next/dynamic";
 import { useVoice, useVoiceRange } from "../voiceChoice";
@@ -40,16 +40,25 @@ const GAP_FRAMES = 6;
  * Given an `external` input (the teacher studio's one audio input) it opens no microphone and shows no input chip: it draws that
  * input's pitch, and Start / Stop is the host's. Not a plan prop: plan output never sets it.
  */
-export function View({ slug, pc, voice: own, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels, external }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; external?: ExternalInput }) {
+export function View({ slug, pc, voice: own, notes, under = false, enable, highlight, mute, hide, others, mic: micButton = true, drone = false, click = false, bpm = 60, labels, follow, line, external }: { slug: string; pc: number; voice: keyof typeof VOICES; notes?: number[]; under?: boolean; enable?: number[]; highlight?: number[]; mute?: number[]; hide?: number[]; others?: Others; mic?: boolean; drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; follow?: Follow; line?: number[]; external?: ExternalInput }) {
   useCoverage({ hints: 3 });
   const voice = useVoice(own);
   const range = useVoiceRange(voice);
+  // with `follow`, while the step's backing track plays, the ringed notes are the playing chord's
+  const stepChord = useStepChord();
+  const chord = follow || line?.length ? stepChord : null;
+  // `line`: one note per chord, in order; else `follow`'s notes of the chord
+  const followed = useMemo(() => {
+    if (!chord) return undefined;
+    if (line?.length) return [(pc + line[chord.index % line.length]) % 12];
+    return follow ? followedPcs(chord, follow) : undefined;
+  }, [chord, follow, line, pc]);
   // three looks: highlighted notes ringed, enabled ones plain, muted ones faint
   const state = useMemo(() => {
     const pcs = (semis?: number[]) => semis?.map((semi) => (pc + semi) % 12);
-    const v = { enable: pcs(enable), highlight: pcs(highlight), mute: pcs(mute), hide: pcs(hide), others };
+    const v = { enable: pcs(enable), highlight: followed ?? pcs(highlight), mute: pcs(mute), hide: pcs(hide), others };
     return (p: number) => noteState(v, p);
-  }, [pc, enable, highlight, mute, hide, others]);
+  }, [pc, enable, highlight, mute, hide, others, followed]);
   const ringed = useMemo(() => {
     const on = Array.from({ length: 12 }, (_, p) => p).filter((p) => state(p) === "highlighted");
     return on.length ? new Set(on) : undefined;
@@ -206,6 +215,35 @@ export function View({ slug, pc, voice: own, notes, under = false, enable, highl
       <div data-tour="staff-notes">
       <SingingStaff ladder={ladder} clef={clefFor(range)} pitch={pitch} played={played} onNote={(i) => void tap(i)} cents={cents} highlight={ringed} muted={(i) => state(ladder.notes[i].midi % 12) === "muted"} labels={system} />
       </div>
+      {(follow || !!line?.length) && (
+        <PlaybackTip live={!!chord && !!followed} idle="Start the backing track: the ringed notes change with each chord.">
+          {chord && followed && followTip(chord, line?.length ? "line" : follow!, followed, ladder.notes, system)}
+        </PlaybackTip>
+      )}
     </div>
   );
+}
+
+/** Which notes of the playing chord a `follow` staff rings. */
+export type Follow = "guide-tones" | "chord" | "root";
+
+/** The pitch classes to ring for the playing chord: its 3rd and 7th (a triad: its 3rd and root), all its notes, or its root. */
+export function followedPcs(chord: StepChord, follow: Follow): number[] {
+  const [root, third, , seventh] = chord.pcs;
+  if (follow === "root") return [root];
+  if (follow === "chord") return chord.pcs;
+  return third === undefined ? [root] : [third, seventh ?? root];
+}
+
+/** The tip under a `follow` staff: the chord playing and the ringed notes, each by name and by the staff's own label ("Em7: start on G (4) or D (1)."). */
+export function followTip(chord: StepChord, follow: Follow | "line", pcs: number[], notes: { midi: number; label: string; spelled: { name: string } }[], system: LabelSystem): string {
+  const named = pcs.map((p) => {
+    const n = notes.find((x) => ((x.midi % 12) + 12) % 12 === p);
+    const name = (n?.spelled.name ?? chord.notes[chord.pcs.indexOf(p)] ?? "").replace(/\d+$/, "").replace("#", "♯").replace(/(?<=[A-G])b/, "♭");
+    const label = n && system !== "note" ? noteLabel(system, { name: n.spelled.name, semi: labelSemi(n.label), degreeText: n.label }) : "";
+    return label ? `${name} (${label})` : name;
+  });
+  const list = named.length > 1 ? `${named.slice(0, -1).join(", ")} or ${named[named.length - 1]}` : named[0];
+  const symbol = chord.symbol.replace(/^([A-G])b/, "$1♭").replace(/^([A-G])#/, "$1♯");
+  return follow === "guide-tones" ? `${symbol}: start on ${list}.` : `${symbol}: sing ${list}.`;
 }

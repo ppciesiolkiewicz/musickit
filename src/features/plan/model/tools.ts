@@ -118,7 +118,7 @@ type PlanToolProps =
   /** the key's 3rds or 6ths on one pair of strings (`strings`: guitar numbers, the lower string first), from fret `from` (absent: 0) to fret `to` (absent: the last fret drawn, 17) */
   | { type: "double-stops-neck"; key: number; scale: string; interval: DyadName; strings: string; level?: ToolLevel; from?: number; to?: number }
   | { type: "chord-shapes"; chords: string[]; voicing?: Voicing }
-  | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels } & Marks
+  | { type: "staff"; scale: string; key: number; voice: Voice; /** semitones above the key: only these are on the staff */ notes?: number[]; /** also the notes under the lowest Do */ under?: boolean; mic?: boolean; /** its own backing, started with the mic */ drone?: boolean; click?: boolean; bpm?: number; labels?: SingingLabels; /** ring the playing chord's notes, in step with the backing track */ follow?: StaffFollow; /** one note a chord, semitones above the key, in order: rung in step with the backing track */ line?: number[] } & Marks
   | { type: "backing-band"; bpm: number; key: number; /** the parts offered and how; never empty */ parts: BandParts }
   | { type: "note-finder"; level?: ToolLevel; query: string }
   | { type: "interval-ears"; query: string; level?: ToolLevel; /** intervals may span more than an octave */ wide?: boolean }
@@ -218,6 +218,18 @@ export { degreeSemis };
 /** Degrees as semitones: the AI's strings ("b3"), or numbers 0-11 kept as they are (stored plans already hold semitones). */
 const degreeOf = (d: unknown): number | null => (typeof d === "number" ? int(d, 0, 11) : degreeSemis(d));
 const degrees = (v: unknown): number[] => [...new Set(list(v).map(degreeOf).filter((n): n is number => n !== null))].sort((a, b) => a - b);
+export type StaffFollow = "guide-tones" | "chord" | "root";
+const FOLLOWS: StaffFollow[] = ["guide-tones", "chord", "root"];
+/** A staff's `line` (in order, repeats kept, at most 16) or else its `follow`. */
+function followOf(t: Record<string, unknown>, d: Diag): { line?: number[]; follow?: StaffFollow } {
+  const line = list(t.line).map(degreeOf).filter((n): n is number => n !== null).slice(0, 16);
+  lost(d, "line", t.line, degreeOf);
+  if (line.length) return { line };
+  if (t.follow === undefined) return {};
+  if (FOLLOWS.includes(t.follow as StaffFollow)) return { follow: t.follow as StaffFollow };
+  lost(d, "follow", [t.follow], () => null);
+  return {};
+}
 /** Degree strings the table knows, as written. */
 const degreeStrings = (v: unknown): Degree[] => [...new Set(list(v).filter((d): d is string => typeof d === "string" && degreeSemis(d) !== null))];
 const voiceOf = (v: unknown): Voice | undefined => (typeof v === "string" && v in VOICES ? (v as Voice) : undefined);
@@ -524,7 +536,7 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       const voice = voiceOrTenor(d, t.voice);
       // the click's tempo is optional (default 60): only a wrong one is noted
       const bpm = t.click === true ? intOr(d, "bpm", t.bpm, 30, 240, 60, true) : 0;
-      return { type: "staff", scale, key, voice, ...(notes.length > 1 ? { notes } : {}), ...(t.under === true ? { under: true } : {}), ...marksOf(t, key, d), ...bool("mic", t.mic), ...(t.drone === true ? { drone: true } : {}), ...(t.click === true ? { click: true, bpm } : {}), ...(isSingingLabels(t.labels) ? { labels: t.labels } : {}) };
+      return { type: "staff", scale, key, voice, ...(notes.length > 1 ? { notes } : {}), ...(t.under === true ? { under: true } : {}), ...marksOf(t, key, d), ...bool("mic", t.mic), ...(t.drone === true ? { drone: true } : {}), ...(t.click === true ? { click: true, bpm } : {}), ...(isSingingLabels(t.labels) ? { labels: t.labels } : {}), ...followOf(t, d) };
     },
   },
   "backing-band": {
