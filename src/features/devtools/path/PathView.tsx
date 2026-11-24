@@ -15,6 +15,7 @@ import JourneyView from "./JourneyView";
 import KeyStages from "./KeyStages";
 import KeysView from "./KeysView";
 import SlopeView from "./SlopeView";
+import type { GenreMark } from "../model/stepBlocks";
 
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border px-3 py-1 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
 const H = "mb-1 text-xs font-medium uppercase tracking-wider text-slate-400";
@@ -137,7 +138,7 @@ function Detail({ node, nodes, pick, progress, today, blocks }: { node: PathNode
 
 /** The learning path of one area, in four views: Path (skills by topic and level), Slope (steps by what they need
  * first), Keys (the keys each level adds); a student can be laid over the first two. */
-export default function PathView({ nodes: list, spare, blocks = {}, initial }: { nodes: PathNode[]; spare: SpareSteps[]; /** blocks per step ref, from model/stepBlocks.ts */ blocks?: Record<string, number>; /** a concept to open on */ initial?: string }) {
+export default function PathView({ nodes: list, spare, blocks = {}, genres = {}, initial }: { nodes: PathNode[]; spare: SpareSteps[]; /** the genre blocks hung off each step ref, from model/stepBlocks.ts */ genres?: Record<string, GenreMark[]>; /** blocks per step ref, from model/stepBlocks.ts */ blocks?: Record<string, number>; /** a concept to open on */ initial?: string }) {
   const nodes = useMemo(() => new Map(list.map((n) => [n.id, n])), [list]);
   const start = initial ? list.find((n) => n.id === initial) : undefined;
   const [area, setArea] = useState<Area>(start?.area ?? "guitar");
@@ -217,7 +218,7 @@ export default function PathView({ nodes: list, spare, blocks = {}, initial }: {
         </div>
       )}
       {view === "keys" && <KeysView area={area} />}
-      {view === "slope" && <SlopeView area={area} progress={progress} reach={reachMarks} blocks={blocks} />}
+      {view === "slope" && <SlopeView area={area} progress={progress} reach={reachMarks} blocks={blocks} genres={genres} />}
       {view === "journey" && (
         <>
           <JourneyView area={area} nodes={nodes} progress={progress} selected={sel} onPick={setSel} />

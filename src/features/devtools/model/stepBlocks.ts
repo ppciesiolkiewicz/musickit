@@ -1,4 +1,5 @@
 import { SEED_BLOCKS, seedExercises } from "@/features/library/seed";
+import type { Genre } from "@/features/library/seed/genres";
 import { catalogue, type CatalogueEntry } from "@/features/plan/model/catalogue";
 import { conceptId } from "@/features/plan/model/concepts";
 import { parseExercise } from "@/features/plan/model/config";
@@ -65,6 +66,23 @@ export function blocksByStep(entries: CatalogueEntry[] = catalogue()): Map<strin
       const b = { id, title: block?.title ?? f.id, source: "seed block" as const, json: JSON.stringify(raw) };
       // a warm-up practises no step (DayShape2): it is under none, whatever its tools or level say
       if (block && block.kind !== "warm-up") each(block, block.level, b);
+    }
+  }
+  return by;
+}
+
+/** A genre's block (a riff) hung off a step: a dead end there, which no step waits for. `draft`: switched off, in no plan yet. */
+export interface GenreMark { id: string; title: string; genre: Genre; draft: boolean }
+
+/** The genre blocks of the seed by the step each hangs off, for the coloured chips on /dev/path's slope. */
+export function genreMarks(): Record<string, GenreMark[]> {
+  const by: Record<string, GenreMark[]> = {};
+  for (const f of SEED_BLOCKS) {
+    if (!f.genre) continue;
+    const title = String(f.exercise.title ?? f.id).replace(/(\s+#[\w-]+)+\s*$/, "");
+    for (const ref of new Set(f.choices.flatMap((c) => c.steps))) {
+      if (!stepAt(ref, PATH)) continue;
+      (by[ref] ??= []).push({ id: f.id, title, genre: f.genre, draft: f.choices.every((c) => c.draft === true) });
     }
   }
   return by;

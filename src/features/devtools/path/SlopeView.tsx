@@ -9,6 +9,8 @@ import { ADDED_AFTER, isAdded, proposedPath, whyOf } from "../model/slopeProposa
 import type { StepReach } from "@/features/plan/model/reach";
 import type { ConceptProgress, StepState } from "../model/stepProgress";
 import { blockHref } from "../model/stepHref";
+import type { GenreMark } from "../model/stepBlocks";
+import { GENRES, type Genre } from "@/features/library/seed/genres";
 
 /*
  * The learning path as a slope (docs/superpowers/specs/2026-11-16-path-slope-design.md): every step of an area placed
@@ -24,6 +26,8 @@ const ACCENT: Record<Area, { hue: string; soft: string; text: string }> = {
 };
 const LEVEL_TINT = ["var(--color-emerald-400)", "var(--color-sky-400)", "var(--color-violet-400)", "var(--color-pink-400)"];
 const ADDED = "var(--color-orange-400)";
+/** A genre's colour, for the chips of its blocks under the step each hangs off. */
+const GENRE_HUE: Record<Genre, string> = { blues: "var(--color-blue-400)", rock: "var(--color-red-400)", funk: "var(--color-fuchsia-400)", jazz: "var(--color-emerald-400)" };
 const STATE_RING: Record<StepState, string | null> = { solid: "var(--color-emerald-400)", working: "var(--color-amber-400)", none: null };
 const LABEL_W = 170, X0 = 8, COL_W = 136, PILL_W = 124, PILL_H = 50, ROW_H = 62, HEAD_H = 46, GAP = 14;
 const BTN = "inline-flex min-h-8 cursor-pointer items-center rounded-lg border px-3 py-1 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400";
@@ -105,7 +109,7 @@ const label = (ref: string, tracks: Track[]) => {
  * `progress`: a student laid over the path, keyed by track id; a step's ring is its state, the step they are on is bold.
  * `reach`: the same student's steps marked known, within reach or ahead (plan/model/reach.ts).
  */
-export default function SlopeView({ area, progress, reach = null, blocks = {} }: { area: Area; progress: Record<string, ConceptProgress> | null; reach?: Map<string, StepReach> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /dev/block */ blocks?: Record<string, number> }) {
+export default function SlopeView({ area, progress, reach = null, blocks = {}, genres = {} }: { area: Area; /** the genre blocks hung off each step ref: a coloured chip per block under the step */ genres?: Record<string, GenreMark[]>; progress: Record<string, ConceptProgress> | null; reach?: Map<string, StepReach> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /dev/block */ blocks?: Record<string, number> }) {
   const [version, setVersion] = useState<Version>("proposed");
   const [pick, setPick] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
@@ -288,6 +292,18 @@ export default function SlopeView({ area, progress, reach = null, blocks = {} }:
                 </button>
               );
             })}
+            {own.flatMap(({ step, x, y }) => (genres[step.ref] ?? []).map((g, k) => (
+              <a
+                key={`g:${step.ref}:${g.id}`} href={blockHref({ id: g.id })} target="_blank" rel="noreferrer"
+                onPointerDown={(e) => e.stopPropagation()}
+                title={`${cap(g.genre)}: ${g.title}${g.draft ? " (switched off)" : ""}. Opens the block in a new tab`}
+                aria-label={`${cap(g.genre)} block on ${step.track.label} step ${step.index + 1}: ${g.title}${g.draft ? ", switched off" : ""}, in a new tab`}
+                className="absolute rounded-full border bg-slate-950 px-1.5 text-[10px] font-semibold leading-4 hover:brightness-125 focus-visible:outline-2 focus-visible:outline-sky-400"
+                style={{ left: x + 4 + k * 40, top: y + PILL_H - 9, color: GENRE_HUE[g.genre], borderColor: GENRE_HUE[g.genre], borderStyle: g.draft ? "dashed" : "solid", background: `color-mix(in oklab, ${GENRE_HUE[g.genre]} 18%, var(--color-slate-950))` }}
+              >
+                {g.genre}
+              </a>
+            )))}
             {own.map(({ step, x, y }) => {
               const n = blocks[step.ref] ?? 0;
               return (
@@ -315,6 +331,11 @@ export default function SlopeView({ area, progress, reach = null, blocks = {} }:
         {version === "proposed" && <span className="text-orange-300">orange: a new link, a new step, or a step that moved (+N deeper than now)</span>}
         {progress && <span><span className="text-emerald-300">green ring: solid</span> · <span className="text-amber-300">amber ring: working on it</span> · <b className="text-white">bold: the step the student is on</b> · a rating with no step shows on no step</span>}
         {reach && <span><span className="text-sky-300">dashed blue, &quot;next&quot;: within reach</span> · &quot;start&quot;: where the questionnaire puts them · &quot;known&quot;: placed below their start, or needed by a solid step · faded: ahead</span>}
+        {Object.keys(genres).length > 0 && (
+          <span>
+            chip under a step: a genre&apos;s block hung off it, a dead end no step waits for ({GENRES.map((g, i) => <span key={g}>{i > 0 && " · "}<span style={{ color: GENRE_HUE[g] }}>{g}</span></span>)}); dashed: switched off
+          </span>
+        )}
         <span>Hover or pick a step: blue ring learn first, violet ring comes after</span>
         <span><span className="text-sky-300">badge: its blocks, opened in a new tab</span> · <span className="text-amber-300">! no block yet</span> ({own.filter(({ step }) => !blocks[step.ref]).length} in {areaLabel})</span>
       </p>
