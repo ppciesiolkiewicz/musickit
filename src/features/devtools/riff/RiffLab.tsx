@@ -79,7 +79,7 @@ export default function RiffLab() {
 
   const setNotes = useCallback((fn: (n: RiffNote[]) => RiffNote[]) => {
     setState((s) => { history.current.push(s.notes); return { ...s, notes: fn(s.notes) }; });
-  }, []);
+  }, [setState]);
 
   const lastMidi = useCallback((before: number) => {
     for (let i = before - 1; i >= 0; i--) { const m = midiOf(notes[i]); if (m !== null) return m; }
@@ -157,7 +157,7 @@ export default function RiffLab() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [sel, notes, ctx, len, lastMidi, moveSel, play, setNotes, state.pos]);
+  }, [sel, notes, ctx, len, lastMidi, moveSel, play, setNotes, setState, state.pos]);
 
   // replay the selected note when it changes pitch
   const selMidi = sel === null ? null : midiOf(notes[sel] ?? { string: null, fret: null, beats: 0 });
