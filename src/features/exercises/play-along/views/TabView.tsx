@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { gripName } from "@/lib/chordKit/gripName";
+import { strum } from "@/lib/chordKit/playback";
+import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { tabOf } from "../../cues/tab";
 import { BEATS_PER_BAR } from "../../timeline/timeline";
 import { isNow, rowsOf, shade, useWidth, zoomFor, type ViewProps } from "./common";
@@ -18,8 +21,9 @@ const GRIP_HEIGHT = 200;
 
 /**
  * Six-line tab (high e on top), one column per strum or note, spaced by beat, with a playhead and each column's length as a
- * note sign under it; wrapped into rows of whole bars that fill the width. Pointing at (or tapping) a column of three notes
- * or more shows its chord box over it.
+ * note sign under it; wrapped into rows of whole bars that fill the width. A chord's name sits over the tab where it
+ * starts: the cue's chord, else the name read from a column of three notes or more. Pointing at a chord column or its
+ * name shows its chord box; tapping either strums it too.
  */
 export default function TabView({ cues, pos, length }: ViewProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
@@ -47,8 +51,16 @@ export default function TabView({ cues, pos, length }: ViewProps) {
   }, [grip]);
   const shown = cues.filter((c) => c.frets.length);
   const cols = tabOf(shown);
-  // a chord name over the tab where each chord starts; room for it on top only when there are chords
-  const changes = cues.filter((c, i) => c.chord && c.chord !== cues[i - 1]?.chord);
+  const midiOf = (i: number) => [...shown[i].frets].sort((a, b) => a.string - b.string).map((f) => OPEN_MIDI[f.string] + f.fret);
+  // each column's chord: the cue's, else read from a column held as a chord; a name over the tab where each one starts,
+  // and again at the start of a row. Room for it on top only when there are names.
+  const named = shown.map((c, i) => c.chord || (cols[i].cells.length >= GRIP_MIN ? gripName(midiOf(i))?.name : undefined));
+  const changes = named.flatMap((nm, i) => {
+    if (!nm) return [];
+    const before = named.slice(0, i).findLast(Boolean);
+    return [{ i, at: shown[i].at, chord: nm, first: before !== nm }];
+  });
+  const play = (i: number) => strum(midiOf(i), { gapMs: 30, holdMs: 1600 });
   const TOP = changes.length ? 32 : 14;
   const zoom = zoomFor(width);
   const W = width / zoom;
@@ -75,9 +87,36 @@ export default function TabView({ cues, pos, length }: ViewProps) {
               const bx = b === 0 ? LEFT : x(start + b * BEATS_PER_BAR) - bar;
               return <line key={b} x1={bx} x2={bx} y1={TOP} y2={TOP + 5 * ROW} stroke="var(--color-slate-600)" />;
             })}
-            {changes.map((c) => c.at >= start && c.at < end && (
-              <text key={`ch${c.at}`} x={x(c.at) - 4} y={12} fontSize={12} fontWeight={700} fill={isNow(c, pos) || (pos >= c.at && pos < (changes.find((n) => n.at > c.at)?.at ?? end)) ? "var(--color-sky-300)" : "var(--color-slate-200)"} className="font-sans">{c.chord}</text>
-            ))}
+            {changes.map((c, k) => {
+              if (c.at < start || c.at >= end) return null;
+              // shown where the chord changes, or on the first one in the row
+              if (!c.first && changes[k - 1]?.at >= start) return null;
+              const next = changes.slice(k + 1).find((n) => n.first)?.at ?? length;
+              const now = pos >= c.at && pos < next;
+              // a box only for a column held as a chord; a name over a single note still plays it
+              const box = cols[c.i].cells.length >= GRIP_MIN;
+              return (
+                <text
+                  key={`ch${c.at}`}
+                  x={x(c.at) - 4}
+                  y={12}
+                  fontSize={12}
+                  fontWeight={700}
+                  fill={now ? "var(--color-sky-300)" : "var(--color-slate-200)"}
+                  className="cursor-pointer font-sans hover:fill-sky-200"
+                  data-grip
+                  onPointerEnter={(e) => e.pointerType === "mouse" && box && point(c.i, e.currentTarget)}
+                  onPointerLeave={(e) => e.pointerType === "mouse" && setGrip(null)}
+                  onClick={(e) => {
+                    play(c.i);
+                    if (box) point(c.i, e.currentTarget);
+                  }}
+                >
+                  <title>{`Play ${c.chord}`}</title>
+                  {c.chord}
+                </text>
+              );
+            })}
             {cols.map((col, i) => {
               if (col.at < start || col.at >= end) return null;
               const now = isNow(shown[i], pos);
@@ -102,11 +141,14 @@ export default function TabView({ cues, pos, length }: ViewProps) {
                 width={20}
                 height={5 * ROW + 16}
                 fill="transparent"
-                className="cursor-help"
+                className="cursor-pointer"
                 data-grip
                 onPointerEnter={(e) => e.pointerType === "mouse" && point(i, e.currentTarget)}
                 onPointerLeave={(e) => e.pointerType === "mouse" && setGrip(null)}
-                onClick={(e) => (grip?.i === i ? setGrip(null) : point(i, e.currentTarget))}
+                onClick={(e) => {
+                  play(i);
+                  point(i, e.currentTarget);
+                }}
               />
             ))}
             {pos >= start && pos < end && <line x1={x(pos) - bar} x2={x(pos) - bar} y1={TOP - 6} y2={TOP + 5 * ROW + 6} stroke="var(--color-sky-400)" strokeWidth={2} />}
@@ -115,7 +157,7 @@ export default function TabView({ cues, pos, length }: ViewProps) {
       })}
       {grip && shown[grip.i] && createPortal(
         <div className={`pointer-events-none fixed z-50 -translate-x-1/2 ${grip.under ? "pt-1" : "-translate-y-full pb-1"}`} style={{ left: grip.left, top: grip.top }}>
-          <GripBox frets={shown[grip.i].frets} chord={shown[grip.i].chord} />
+          <GripBox frets={shown[grip.i].frets} chord={named[grip.i]} />
         </div>,
         document.body,
       )}
