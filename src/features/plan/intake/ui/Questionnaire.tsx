@@ -191,13 +191,13 @@ export function restSteps(a: PlanAnswers, set: SetAnswer, voice = true, opts: Qu
     keysStep(a, set, opts),
     {
       title: "Anything else?",
-      hint: "Optional",
+      hint: forStudent ? "Optional. Anything the questions missed about your student. Our team reads every note." : "Optional. Anything the questions missed. Our team reads every note.",
       body: (
         <div className="flex flex-col gap-3">
           <textarea className={`${field} min-h-24`} value={a.notes} onChange={(e) => set("notes", e.target.value)} placeholder={forStudent ? "A song they want to learn, an injury, a gig in a month…" : "A song you want to learn, an injury, a gig in a month…"} />
           <label className="text-xs text-slate-500">
-            {forStudent ? "Styles they like" : "Styles you like"}
-            <input className={`${field} mt-1`} value={a.styles} onChange={(e) => set("styles", e.target.value)} placeholder="Optional: only flavours the drills (blues, folk…)" />
+            {forStudent ? "Styles they like (optional)" : "Styles you like (optional)"}
+            <input className={`${field} mt-1`} value={a.styles} onChange={(e) => set("styles", e.target.value)} placeholder="Blues, folk, rock…" />
           </label>
         </div>
       ),
