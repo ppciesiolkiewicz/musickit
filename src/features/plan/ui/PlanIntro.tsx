@@ -8,15 +8,29 @@ export const PLAYER_INTRO = "A daily plan for your practice, put together from a
 /** The `/plan` intro for a teacher's student (`Account.taught`): their plans are their teacher's, never a daily one. */
 export const TAUGHT_INTRO = "The practice plans your teacher makes for you, from attunr's library of exercises. Rate each exercise with the stars: they shape your next plan.";
 
+/** The `/plan` intro for a teacher (`can("students")`): this page is their own practice, not their students'. */
+export const TEACHER_INTRO = "Your own daily plan, for your own playing, put together from attunr's library of exercises. Your students' plans are under Students.";
+
+/** The `/plan` heading: a teacher reads that it is their own practice, everyone else "Practice plan". */
+export const PLAYER_TITLE = "Practice plan";
+export const TEACHER_TITLE = "Your own practice";
+
 /** Which intro, by who is reading: none until the account is known, so a teacher's student never reads the player's first. */
-export const introFor = (loaded: boolean, taught: boolean): string | null => (!loaded ? null : taught ? TAUGHT_INTRO : PLAYER_INTRO);
+export const introFor = (loaded: boolean, taught: boolean, teacher = false): string | null => (!loaded ? null : taught ? TAUGHT_INTRO : teacher ? TEACHER_INTRO : PLAYER_INTRO);
+
+/** The `/plan` heading, drawn in the browser; the player's words hold the space, hidden, until the account is known. */
+export function PlanTitle() {
+  const { account, loaded, can } = useAccount();
+  if (!loaded) return <span className="invisible">{PLAYER_TITLE}</span>;
+  return <>{account && !account.taught && can("students") ? TEACHER_TITLE : PLAYER_TITLE}</>;
+}
 
 /**
  * The `/plan` intro (`PageShell`'s `intro`), drawn in the browser, which knows the account. Until the account is read the
  * player's words hold the space, hidden, so a player's page doesn't move and a teacher's student never reads them.
  */
 export default function PlanIntro() {
-  const { account, loaded } = useAccount();
-  const text = introFor(loaded, !!account?.taught);
+  const { account, loaded, can } = useAccount();
+  const text = introFor(loaded, !!account?.taught, !!account && can("students"));
   return text === null ? <span aria-hidden className="invisible">{PLAYER_INTRO}</span> : <>{text}</>;
 }
