@@ -116,6 +116,10 @@ set a key and a position). The prompt names each of the five by its file id, the
   push, stop when it hurts): one short sentence on a line of its own, at most one in an exercise. A beginner's singing
   exercise has one where the singer could wander up the staff, with the words "reach for high notes", which the app explains.
 - A tool that takes a `level` is set to the exercise's level or to its own harder settings, never left at an easier default. To let the student step up, a choice with `level` options (easiest first, option 1 the level the tool is written at) sits before the tool; its chips are stages, so the text names "the Stage selector" and says what the next stage adds, not the level's name.
+- A position's number is not a description: no bare "position 1". The first time a text names a position it says the
+  scale and what is on the screen ("the neck with the notes of the A minor pentatonic scale: each dot is a note to
+  play"). One position on the screen: no number, in the title and headings too. Two or more to tell apart: the number,
+  with its scale the first time.
 - A text may hold line breaks (`\n`): what to do, the next thing to try and what to notice each start a new line.
 - The text names a control by the label on the screen, one control to a sentence, and says what it starts and where it is; it never carries frets,
   fingerings or note lists the tool shows. The way from one position to the next is a position-neck with `cross`.

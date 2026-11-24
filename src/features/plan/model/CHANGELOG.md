@@ -10,6 +10,11 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 17 (2026-11-24)
+
+- Writing rules: a position's number is not a description. No bare "position 1": the first time a text names a position it says the scale and what is on the screen; an exercise with one position on the screen names no number, in its title and headings too; a number comes in only where there are two or more positions to tell apart, with its scale the first time.
+- The rule that scale shapes are "positions" no longer gives "position 1" as its example.
+
 ### 16 (2026-11-22)
 
 - A new shape of `guitar-play-along`, `interval` (LibraryGrowth4): one interval, or a few in turn, as a shape on the neck, its two notes played one after the other, one note a beat, in a major key. Props `key`, `intervals` ("2nd" to "7th", "octave"), `strings` (the lower note's string, then the upper note's: "64" two strings over, "65" the next string, "66" along one string), `direction` ("up", "down", "both"), `walk` ("scale": from every note of the scale along the strings; "note": above and below the key note), `from`, `to`. The app finds every fret; an interval that does not fit its strings within 4 frets is refused with the reason.
@@ -113,6 +118,12 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 Everything before the prompt had a version.
 
 ## Teaching
+
+### 9 (2026-11-24)
+
+- `teaching-voice`, "Words": a position's number is not a description. A bare "position 1" is a shortcut; the first time a text names a position it says the scale and what is on the screen. One position on the screen: no number, in the title and headings too. Two or more to tell apart: the number, with its scale the first time.
+- `teaching-voice`, "Sentences": a name the learner hasn't been shown is shorthand too; say what they see or do.
+- `review-teaching-text` and `exercise-example` list a bare position number among what fails; `exercise-example`'s example of a title with `{{=key}}` no longer ends in "position 1". The seed README's writing rules say the same. `course-article` changes only its version.
 
 ### 8 (2026-11-19)
 

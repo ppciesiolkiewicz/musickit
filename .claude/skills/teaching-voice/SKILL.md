@@ -1,6 +1,6 @@
 ---
 name: teaching-voice
-version: 8
+version: 9
 description: How musickit teaching text sounds - plain, short, practical English for course articles, exercise text, glossary meanings, about lines and captions. Use whenever writing or editing any learner-facing music text in this repo, alone or from the course-article, exercise-example and review-teaching-text skills. Its "Words about the app" section is also the house wording for interface copy (buttons, tour steps, notices, flow text), read alongside design:ux-copy.
 ---
 
@@ -40,7 +40,7 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 
 - Plain, natural English. Short sentences. Two steps that belong together share one sentence ("Find it on the A string, then on the B string, and hop between the two."). Never chain more than two steps. Never write a string of two-word orders.
 - Say exactly what to do: "play {{6}}, then {{1}}", not "resolve it to Do". A target says when: "land on C when Cm7 comes round".
-- **No shorthand the learner must unpack.** What to sing on gets its own clause with its own verb: "Sing along on the note names.", "then sing it on \"la\"" — never hung inside another instruction ("Make up a tune from {{1}}, {{2}} and {{3}} on \"la\""). The moment to move on is the feel itself, spelled out: "once the names come without thinking", never "once you know it".
+- **No shorthand the learner must unpack.** A name the learner hasn't been shown is shorthand too: say what they see or do, not the label a teacher would use for it ("the neck with the notes of the A minor pentatonic scale", not "position 1"). What to sing on gets its own clause with its own verb: "Sing along on the note names.", "then sing it on \"la\"" — never hung inside another instruction ("Make up a tune from {{1}}, {{2}} and {{3}} on \"la\""). The moment to move on is the feel itself, spelled out: "once the names come without thinking", never "once you know it".
 - One sentence of why, at most, before the doing. No paragraphs of rationale. No "a-ha" moments for the learner to discover.
 - No poetic lines ("Re rubs against it"). No hype ("amazing", "powerful", "unlock"). No hedging ("you might want to").
 - Invite the learner: try, mix, make up, guess and check. Don't lecture.
@@ -52,6 +52,7 @@ It uses the same chordKit code the app draws with, so the text and the picture a
 
 - Use one word for one thing:
   - Scale shapes on the neck are "positions" everywhere: articles, exercises, titles, headings and captions ("position 1", "the position with the root on the A string"). Never call them "box" or "pattern", even though some props are called `boxes` and the theory calculator says "box". The one place "box" may appear is the explained word's meaning (the `position` entry in `GLOSSARY`), so a learner who meets "box" elsewhere knows it's the same thing. When you touch text that still says "box" for a scale shape, change it to "position"; course stages 6, 8, 9 and 10 still have some (`grep -n -i 'box' src/features/course/stages/*.ts`). A slug stays as it is (`pentatonic-boxes`), since links point at it. "Chord box" is a different thing and stays.
+  - **A position's number is not a description.** A bare "position 1" is a shortcut: it doesn't say which scale, or what the learner is looking at. The first time a text names a position, say the scale and what is on the screen ("Under it is the neck with the notes of the A minor pentatonic scale: each dot is a note to play."); after that, "the position" or "the dots" is enough. A drill with one position on the screen names no number, in its title and headings too. A number comes in only where the drill has two or more positions to tell apart, and then with its scale the first time ("position 2 of the A minor pentatonic scale").
   - "the staff" for the five-line notation. Never "stave" or "music sheet". Never call a neck, chord box or tab a staff. Don't explain what it is, except the first time for a new or beginner learner ("the staff, the five lines of music, where your pitch shows as a line").
   - "the metronome" for the click. "one note per beat" for a step.
   - The thing a drill practises gets one word, the same in every step and heading of the exercise: "the crossing" for the way from one position to the next (not "the way across" in one step and "the slide" in the next), "the tune", "the run". Where it is a word a learner may not know, add it to `GLOSSARY` so the app explains it.

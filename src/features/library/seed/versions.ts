@@ -7,4 +7,4 @@ export interface DocVersions {
 }
 
 /** The versions those documents are at now. Bump one here in the same commit as the document; versions.test.ts holds the two together. */
-export const DOC_VERSIONS: DocVersions = { agents: 2, teaching: 8 };
+export const DOC_VERSIONS: DocVersions = { agents: 2, teaching: 9 };
