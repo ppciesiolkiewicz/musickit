@@ -9,7 +9,7 @@ export const FIELD =
   "w-full rounded-xl border border-slate-700 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none aria-[invalid=true]:border-rose-400/70 aria-[invalid=true]:focus:border-rose-300";
 export const LABEL = "mb-1.5 block text-xs font-medium text-slate-400";
 export const PRIMARY =
-  "inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 disabled:opacity-60";
+  "inline-flex w-full items-center justify-center gap-2 btn-metal rounded-xl bg-sky-300 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-200 disabled:opacity-60";
 export const SECONDARY =
   "inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:border-slate-500 hover:bg-slate-800 disabled:opacity-60";
 export const LINK = "font-medium text-sky-300 underline-offset-2 hover:underline";

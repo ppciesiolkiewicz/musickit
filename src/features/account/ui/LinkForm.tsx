@@ -119,7 +119,7 @@ export default function LinkForm({ google, next, error, bare = false }: {
               ? `We just sent a log-in email to this address. Use that one, or send a new one in ${secondsLeft} seconds.`
               : null}
         </ErrorLine>
-        <button type="submit" disabled={state.kind === "sending" || waiting} className={`${PRIMARY} btn-metal`}>
+        <button type="submit" disabled={state.kind === "sending" || waiting} className={PRIMARY}>
           {state.kind === "sending" ? "Sending…" : "Email me a log-in link"}
         </button>
         <p className="text-xs text-slate-500">No password. We email you a link and a code, and either one logs you in.</p>

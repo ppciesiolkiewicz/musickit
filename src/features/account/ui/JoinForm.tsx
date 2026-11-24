@@ -170,7 +170,7 @@ export default function JoinForm({ token, google }: { token: string; google: boo
           <p className="text-sm leading-relaxed text-slate-300">Welcome to attunr. Thank you for joining us.</p>
           <p aria-live="off" className="text-xs text-slate-500">Opening Students in {left}…</p>
         </div>
-        <button type="button" onClick={() => window.location.replace(AFTER_JOIN)} className={`${PRIMARY} btn-metal`}>Open Students now<Icon name="chevron-right" size={16} /></button>
+        <button type="button" onClick={() => window.location.replace(AFTER_JOIN)} className={PRIMARY}>Open Students now<Icon name="chevron-right" size={16} /></button>
       </Card>
     );
   }
@@ -214,7 +214,7 @@ export default function JoinForm({ token, google }: { token: string; google: boo
           </div>
           {perkList}
           <ErrorLine>{error}</ErrorLine>
-          {error && <button type="button" disabled={busy} onClick={() => void setUp()} className={`${PRIMARY} btn-metal`}>{busy ? "Setting up…" : "Try again"}</button>}
+          {error && <button type="button" disabled={busy} onClick={() => void setUp()} className={PRIMARY}>{busy ? "Setting up…" : "Try again"}</button>}
         </div>
       </Card>
     );
@@ -266,7 +266,7 @@ export default function JoinForm({ token, google }: { token: string; google: boo
         </p>
 
         <ErrorLine>{error}</ErrorLine>
-        <button type="submit" disabled={busy || !view} className={`${PRIMARY} btn-metal`}>{busy ? "Joining…" : <>Join as a teacher<Icon name="chevron-right" size={16} /></>}</button>
+        <button type="submit" disabled={busy || !view} className={PRIMARY}>{busy ? "Joining…" : <>Join as a teacher<Icon name="chevron-right" size={16} /></>}</button>
       </form>
     </Card>
   );
