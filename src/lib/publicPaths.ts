@@ -8,7 +8,7 @@
  * The pages a visitor reads: the two home pages, the FAQ, the terms, the privacy policy, the demo plans, logging in (and a teacher's student's
  * claim link, `/claim`, opened before their first log-in), and pages left as they were.
  */
-const MARKETING = ["/", "/players", "/faq", "/terms", "/privacy", "/demo", "/login", "/claim", "/kickstarter", "/landing-1", "/intro"];
+const MARKETING = ["/", "/players", "/faq", "/terms", "/privacy", "/demo", "/login", "/claim", "/kickstarter", "/landing-1", "/intro", "/reminders/off"];
 
 /**
  * The app's pages anyone may open by their link: a shared note (`/notes/shared/<id>`), and a teacher invite (`/join/<token>`),

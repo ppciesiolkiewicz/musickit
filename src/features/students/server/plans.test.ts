@@ -220,7 +220,7 @@ test("a document changed between read and write is read again; the student's cha
 
 test("still changed after three tries: busy, and the teacher's week is not written", async () => {
   const base = await setup();
-  const touch = (s: PlanState) => ({ ...s, reminder: { ...s.reminder, enabled: !s.reminder.enabled } });
+  const touch = (s: PlanState) => ({ ...s, practiceDays: s.practiceDays?.length === 1 ? [0, 1] : [0] });
   const d = { ...base.d, userData: racing(base.base, touch, 3) };
   assert.deepEqual(await makeWeek(d, base.teacher, base.studentId, { today: TODAY, rotate: false }, NOW, base.newId), { ok: false, error: "busy" });
   assert.deepEqual((await base.doc()).data.given, []);

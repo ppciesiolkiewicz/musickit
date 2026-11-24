@@ -511,6 +511,24 @@ export const userVoices = pgTable(
 );
 
 /**
+ * A player's daily reminder email (`features/reminders`): a local quarter-hour time in their browser's time zone, and
+ * the local date it last went out. The scheduler's run (`POST /api/cron/reminders`) claims `sent_on` before it sends, so
+ * two runs at once send one email. No row: no reminder.
+ */
+export const reminders = pgTable(
+  "reminders",
+  {
+    userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
+    enabled: boolean("enabled").notNull(),
+    time: text("time").notNull(),
+    zone: text("zone").notNull(),
+    sentOn: date("sent_on", { mode: "string" }),
+    updatedAt: at("updated_at").notNull().defaultNow(),
+  },
+  (t) => [check("reminders_time_quarter", sql`${t.time} ~ '^([01][0-9]|2[0-3]):(00|15|30|45)$'`)],
+);
+
+/**
  * One paid Stripe invoice: a completed order. Written by the Stripe webhook (`invoice.paid`), one row per invoice, so
  * a repeated event changes nothing. The trial's first invoice is paid at $0 and is kept too: it marks the start.
  * The plan and billing are the account's at the time (from the invoice's price), kept so a later plan change or a

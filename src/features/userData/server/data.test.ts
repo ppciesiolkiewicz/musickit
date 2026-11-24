@@ -24,10 +24,10 @@ test("writeDoc takes a plan up to 2 MB, and refuses one over it", async () => {
 test("a written plan reads back sanitised", async () => {
   const repo = memoryUserDataRepo();
   assert.deepEqual(await writeDoc(repo, "u1", "plan", { current: "junk", reminder: { enabled: 1, time: "bad" }, extra: 1 }, now), { ok: true, version: 1 });
-  const plan = (await readDoc(repo, "u1", "plan")) as { current: unknown; history: unknown[]; reminder: { enabled: boolean } };
+  const plan = (await readDoc(repo, "u1", "plan")) as { current: unknown; history: unknown[] };
   assert.equal(plan.current, null);
   assert.deepEqual(plan.history, []);
-  assert.equal(plan.reminder.enabled, true);
+  assert.equal("reminder" in plan, false, "the old reminder is dropped: it lives in the reminders table");
   assert.equal("extra" in plan, false);
 });
 

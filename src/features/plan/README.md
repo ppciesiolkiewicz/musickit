@@ -123,11 +123,14 @@ it). The nine demo plans, each three or four practice days, are at `/demo`. The 
    starting on Intermediate" once something at the next level is solid, `topicLevel`), and each concept as "Solid",
    "Working on" or "Not yet", with an (i) (`InfoTip`, hover or tap) for how often it was rated, when last and the minutes
    practised. No score, number out of 3 or percentage is shown; `/dev/progress` has the raw numbers.
-8. **Reminders**: a daily browser notification at a chosen time while any attunr tab is open; clicking it opens `/plan`.
-   It is due (`reminderDue`) once the questions are answered, past the time, not shown yet today, and while today's own
-   plan is not made yet or not finished; a plan shared with the player plays no part (a teacher's student, `Account.taught` read with `useAccount()` and passed in, never guessed from the document: today's day of the teacher's week, "Today is day 3 of 7 of your plan."; nothing is due with no week covering today). It reads "Today's plan: <topics>", or before the
-   plan is made "Open the Practice plan page, and attunr puts today's plan together." (`reminderBody`). Switching it on shows one notification straight away, so the player sees one get through; a permission taken back in the browser shows as blocked.
-9. **A teacher's student** (`Account.taught`) has no questionnaire and no composed day: `/plan` draws their teacher's week covering today, live as on its own page (stars, ticks, the day timer; Labels and Remind me at in its header), else "Your plan starts on Monday 23 November." for a week still to come, else the newest ended week under "Your teacher hasn't made a new plan yet…", else one line that there is no plan yet; their earlier weeks are listed under it (**Earlier plans**, in `newestWeekFirst` order), each a link to `/plan/given/<id>`, or, for a week the teacher replaced (in the history), a plain row ending "Replaced by a new plan"; then the plans someone shared with them (**Plans shared with you**, `GivenPlans`, teacher weeks left out). The page's intro is drawn in the browser (`ui/PlanIntro.tsx`): the player's words, or for a teacher's student "The practice plans your teacher makes for you…", hidden until the account is known. The page tour walks only the steps on the page, which for them are the week, the day and an exercise. `useTodayPlan` is `off` (no request), and `POST /api/me/plan/compose` (`server/composeRoute.ts`, tested) answers 409 `taught`, which a stale page words with Reload page.
+8. **Reminders**: a daily email at a quarter-hour time the player picks (**Email me at** in the header row,
+   `ReminderControl` from `src/features/reminders`, saved on the account with the browser's time zone). The plan feature
+   only decides whether today's plan still wants one and what it says (`model/reminder.ts`, tested): `planWantsReminder`
+   (the questions answered and today's own plan not made or not finished; a teacher's student, `taught` from the
+   account: today's day of a teacher week, not finished) and `reminderBody` ("Today's plan: <topics>", "Open the
+   Practice plan page, and attunr puts today's plan together." or "Today is day 3 of 7 of your plan."). Sending is the
+   reminders feature's (its README).
+9. **A teacher's student** (`Account.taught`) has no questionnaire and no composed day: `/plan` draws their teacher's week covering today, live as on its own page (stars, ticks, the day timer; Labels and Email me at in its header), else "Your plan starts on Monday 23 November." for a week still to come, else the newest ended week under "Your teacher hasn't made a new plan yet…", else one line that there is no plan yet; their earlier weeks are listed under it (**Earlier plans**, in `newestWeekFirst` order), each a link to `/plan/given/<id>`, or, for a week the teacher replaced (in the history), a plain row ending "Replaced by a new plan"; then the plans someone shared with them (**Plans shared with you**, `GivenPlans`, teacher weeks left out). The page's intro is drawn in the browser (`ui/PlanIntro.tsx`): the player's words, or for a teacher's student "The practice plans your teacher makes for you…", hidden until the account is known. The page tour walks only the steps on the page, which for them are the week, the day and an exercise. `useTodayPlan` is `off` (no request), and `POST /api/me/plan/compose` (`server/composeRoute.ts`, tested) answers 409 `taught`, which a stale page words with Reload page.
 
 ## Demos
 
@@ -192,7 +195,7 @@ ui/               DayPlan (today's plan: its header with Get another plan, the d
 api/me/plan/compose (src/app/api/me/plan/compose/route.ts)   POST { date, another }: 200 with composeToday's `ok: true` answer; 409 { error, code } for its three codes; 400 for a body of another shape; 500 { error } when the library or the database fails; the usual 401/403/503 and 409 `account-changed` (`signedIn`). Writes nothing; the page stores the day
 PlanApp.tsx       the page body: no answers → the intro and Start; answers and no plan for today → `TodayStatus`; today's plan → `DayPlan`, Plans shared with you, Past days, a Back to top button; the flow modal and the progress tracker
 GivenPlan.tsx     a given plan's page body (`/plan/given/<id>`): `LiveGivenPlan` (the plan live: ratings, ticks, timer and edits through `updateGiven`; also `/plan` for a teacher's student), `GivenPlanView` draws the header and `WeekView`, or the not-found state; tested in GivenPlan.test.tsx
-reminders.ts, PracticeReminder.tsx   notifications (PracticeReminder is mounted in PageShell, on every page); for a teacher's student today's plan is today's day of the teacher's week ("Today is day 3 of 7 of your plan."), and nothing is due with no week covering today
+model/reminder.ts   whether today's plan wants a reminder email, and its words (sent by src/features/reminders)
 ```
 
 ## Storage, and moving to an API
@@ -202,9 +205,7 @@ Every exercise carries up to three ids. `id` is the slot's, new for each run of 
 The UI only talks to `PlanStore`. `UserDataProvider` (`features/userData`, in the root layout) picks the store for every
 page by the data source: a new `createServerPlanStore()` for each signed-in session, a fresh `memoryPlanStore` for a visitor, and
 `localPlanStore` when the site has no database. Until the source is known the store is a waiting one, so the page stays
-in its loading state. `DemoPlan` wraps its plan in its own memory stores, plan and progress. `PracticeReminder` reads the
-same store through `usePlanStore()`: when the page opens or the tab comes back, then again only when the plan it holds
-says a reminder is due. The open flow (step and answers) is kept in `sessionStorage` (`musickit.plan.flow`) so a
+in its loading state. `DemoPlan` wraps its plan in its own memory stores, plan and progress. The open flow (step and answers) is kept in `sessionStorage` (`musickit.plan.flow`) so a
 reload doesn't lose it; that one stays local.
 
 The progress log has its own store with the same idea (`src/features/progress`: `ProgressStore`, `serverProgressStore`,

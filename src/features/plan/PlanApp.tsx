@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Icon from "@/components/Icon";
-import { Button, Checkbox, HUE_TONES, Modal } from "@/components/ui";
+import { Button, Modal } from "@/components/ui";
 import { DEFAULT_ANSWERS } from "./intake/answers";
 import { randomId } from "./model/exerciseIds";
 import { recordAnswers } from "./model/answersHistory";
 import { backfill } from "./model/progressLog";
 import { useProgress } from "@/features/progress/useProgress";
 import { storedPlans } from "./model/schedule";
-import type { PlanAnswers, PlanState, StoredPlan } from "./model/types";
-import { askNotifications, confirmReminder, notificationsSupported } from "./reminders";
+import type { PlanAnswers, StoredPlan } from "./model/types";
+import ReminderControl from "@/features/reminders/ui/ReminderControl";
 import { useAllPlanTimes, usePlan, usePlanStore, usePlanTimes } from "./store/usePlan";
 import { BIG, CornerLabels, PhoneLabels, SharePlan, rateHandler } from "./ui/planPieces";
 import GivenPlans from "./ui/GivenPlans";
@@ -124,7 +124,7 @@ export default function PlanApp() {
 
   if (taught) {
     // the teacher's week, live as on its own page (keyed by id: a newer week starts on its own day); the reminder reads it too
-    const controls = <><Reminder state={state} update={update} /><PhoneLabels /></>;
+    const controls = <><ReminderControl /><PhoneLabels /></>;
     return (
       <>
         <TaughtPlanView view={taughtView(state, today)} week={(p) => <LiveGivenPlan key={p.id} id={p.id} date={today} controls={() => controls} />} streak={streak} given={state.given} />
@@ -192,7 +192,7 @@ export default function PlanApp() {
   // the Labels control: a pill over the day timer, or on a phone in the header row, so the corner stays small
   const controls = (<>
     {changeAnswers}
-    <Reminder state={state} update={update} />
+    <ReminderControl />
     <PhoneLabels />
     <SharePlan planId={plan.id} />
   </>);
@@ -241,44 +241,5 @@ function AnswersSaved({ onClose }: { onClose: () => void }) {
       </div>
       <button type="button" aria-label="Close" onClick={onClose} className="rounded-md p-1 text-slate-400 hover:text-slate-100"><Icon name="x" size={14} /></button>
     </section>
-  );
-}
-
-/**
- * Daily reminder: a switch and a time. Switching on asks the browser for notifications and shows one straight away, so the
- * player sees what the reminder looks like. A permission taken back in the browser settings shows as blocked.
- */
-function Reminder({ state, update }: { state: PlanState; update: (c: (s: PlanState) => PlanState) => void }) {
-  const [denied, setDenied] = useState(false);
-  // only rendered once the plan has loaded (after mount), so reading the browser here can't mismatch the server render
-  if (!notificationsSupported()) return null;
-  const r = state.reminder;
-  const blocked = denied || (r.enabled && Notification.permission !== "granted");
-  const set = (enabled: boolean) => update((s) => ({ ...s, reminder: { ...s.reminder, enabled } }));
-  const flip = async (on: boolean) => {
-    if (!on) return set(false);
-    const ok = await askNotifications();
-    setDenied(!ok);
-    set(ok);
-    if (ok) confirmReminder(r.time);
-  };
-  const tone = r.enabled && !blocked ? HUE_TONES.amber.on : HUE_TONES.amber.off;
-  return (
-    // the blocked note floats below the switch, so the header row keeps one height
-    <div className="relative">
-      {/* one line down to a 320 px phone: the label never wraps, and under 340 px the bell gives its room to it */}
-      <div className={`flex h-10 items-center gap-2 whitespace-nowrap rounded-lg border px-2.5 transition-colors sm:gap-2.5 sm:px-3 [&_[role=checkbox]]:text-sm ${tone}`}>
-        <Icon name={r.enabled ? "bell" : "bell-off"} size={16} className={`max-[339px]:hidden ${r.enabled ? "text-amber-300" : "text-slate-500"}`} />
-        <Checkbox checked={r.enabled} onChange={flip} title="A browser notification once a day. It shows only while attunr is open in a tab.">Remind me at</Checkbox>
-        <input
-          type="time"
-          value={r.time}
-          onChange={(e) => e.target.value && update((s) => ({ ...s, reminder: { ...s.reminder, time: e.target.value, lastShownOn: undefined } }))}
-          className="rounded-md border border-slate-700 bg-slate-950/60 px-1.5 py-1 text-sm text-slate-100"
-          aria-label="Reminder time"
-        />
-      </div>
-      {blocked && <span className="absolute left-0 top-full mt-1 w-max max-w-xs text-[11px] text-rose-300">Notifications are blocked. Allow them for attunr in the browser settings.</span>}
-    </div>
   );
 }

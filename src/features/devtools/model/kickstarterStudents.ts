@@ -36,7 +36,7 @@ export const PILLARS: Pillar[] = [
     title: "The change: a daily habit you can see",
     promise: "A short, focused practice every day gets a player further than a long one now and then.",
     facts: [
-      "A daily reminder at a time they choose. Today it is a browser notification, shown while attunr is open in a tab: say \"a daily reminder\", never \"an email\" or \"a text message\".",
+      "A daily reminder at a time they choose: an email, sent while that day's plan isn't done. Say \"a daily reminder email\", never \"a notification\" or \"a text message\".",
       "Short, focused practice: the plan fits the minutes they said they have, each exercise has its own minutes, and a timer counts the day's practice.",
       "Progress tracking: after each exercise they rate how it went, from \"Can't do it yet\" to \"Easy now\". A day streak and a progress tracker on the plan page show how far each topic has come.",
       "There are no points, no score and no percentages. Progress is what gets easier to play or sing.",

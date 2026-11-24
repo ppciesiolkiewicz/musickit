@@ -1,5 +1,5 @@
 import { migrateAnswers } from "../intake/answers";
-import { EMPTY_STATE, type PlanState, type StoredPlan } from "./types";
+import type { PlanState, StoredPlan } from "./types";
 import { cleanRating, type StarRating } from "@/features/progress/stars";
 import { withBlockIds, withExerciseIds } from "./exerciseIds";
 import { cleanAnswersHistory, movedOver } from "./answersHistory";
@@ -88,7 +88,6 @@ function cleanPlan(stored: StoredPlan): StoredPlan {
 /** A stored document, made safe: anything missing or broken falls back to the empty state's value. */
 export function sanitiseState(raw: unknown): PlanState {
   const s = (raw ?? {}) as Partial<PlanState>;
-  const r = s.reminder;
   const answers = s.answers && typeof s.answers === "object" ? migrateAnswers(s.answers) : null;
   const current = isPlan(s.current) ? cleanPlan(s.current) : null;
   const history = Array.isArray(s.history) ? s.history.filter(isPlan).slice(0, HISTORY_CAP).map(cleanPlan) : [];
@@ -103,11 +102,6 @@ export function sanitiseState(raw: unknown): PlanState {
     given,
     teacherScores: cleanTeacherScores(s.teacherScores),
     ...(cleanPracticeDays(s.practiceDays) ? { practiceDays: cleanPracticeDays(s.practiceDays) } : {}),
-    reminder: {
-      enabled: !!r?.enabled,
-      time: typeof r?.time === "string" && /^\d\d:\d\d$/.test(r.time) ? r.time : EMPTY_STATE.reminder.time,
-      ...(typeof r?.lastShownOn === "string" ? { lastShownOn: r.lastShownOn } : {}),
-    },
   };
 }
 

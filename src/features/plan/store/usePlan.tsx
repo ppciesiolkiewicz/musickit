@@ -17,7 +17,7 @@ export function PlanStoreProvider({ store, children }: { store: PlanStore; child
   return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
 }
 
-/** The store itself, for a reader outside `usePlan` (the practice reminder). */
+/** The store itself, for a reader outside `usePlan` (a reader outside the plan page). */
 export const usePlanStore = (): PlanStore => useContext(StoreContext);
 
 /** The plan state from the store, and `update` to change it: the change shows at once and is saved behind it. */

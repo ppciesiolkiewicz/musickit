@@ -106,14 +106,6 @@ export interface StoredPlan {
   teacher?: { madeAt: string; comment?: string };
 }
 
-export interface ReminderSettings {
-  enabled: boolean;
-  /** local "HH:MM" */
-  time: string;
-  /** the local date a reminder last fired, so it fires once a day */
-  lastShownOn?: string;
-}
-
 /** Everything the plan feature keeps. One document so a store can swap localStorage for an API without touching the UI. */
 /** The questionnaire as finished once: its topic lines, with when. `at` is an ISO datetime, or a bare local yyyy-mm-dd for an entry moved over from stored answers. */
 export interface AnswersEntry {
@@ -146,7 +138,6 @@ export interface PlanState {
    * for the student has exercises on these days only (`cleanPracticeDays` in `practiceDays.ts`). Absent: every day.
    */
   practiceDays?: number[];
-  reminder: ReminderSettings;
 }
 
 /** The most days a parsed plan has (`parsePlanConfig` keeps the first seven), and how many the prompt asks for. A stored plan's own length is `planDays`. */
@@ -155,4 +146,4 @@ export const PLAN_DAYS = 7;
 /** How many days this plan has: one for a composed day, up to seven for a parsed or given plan. */
 export const planDays = (p: StoredPlan): number => p.config.days.length;
 
-export const EMPTY_STATE: PlanState = { answers: null, answersHistory: [], current: null, history: [], given: [], teacherScores: [], reminder: { enabled: false, time: "18:00" } };
+export const EMPTY_STATE: PlanState = { answers: null, answersHistory: [], current: null, history: [], given: [], teacherScores: [] };

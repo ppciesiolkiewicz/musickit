@@ -43,7 +43,7 @@ async function setup() {
   const repo = memoryUserDataRepo();
   for (const [id, owner] of [[V1, ANN], [V2, ANN], [V3, BEN]] as const) assert.ok(await repo.createVideo(video(id, owner)));
   await repo.putDoc(ANN, "note", note(V1), NOW);
-  await repo.putDoc(ANN, "plan", { current: plan("ann-plan"), history: [], answers: null, reminder: { enabled: false, time: "18:00" } }, NOW);
+  await repo.putDoc(ANN, "plan", { current: plan("ann-plan"), history: [], answers: null }, NOW);
   return repo;
 }
 

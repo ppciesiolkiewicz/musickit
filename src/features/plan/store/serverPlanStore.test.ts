@@ -24,7 +24,8 @@ const settle = async () => {
   for (let i = 0; i < 10; i++) await Promise.resolve();
 };
 
-const withReminder = (time: string): PlanState => ({ ...EMPTY_STATE, reminder: { ...EMPTY_STATE.reminder, enabled: true, time } });
+// a state told apart by its practice days (a time's hour, mod 7), so each save is a different document
+const withReminder = (time: string): PlanState => ({ ...EMPTY_STATE, practiceDays: [Number(time.slice(0, 2)) % 7] });
 
 test("load reads the plan document and makes it safe; nothing stored is the empty state", async () => {
   assert.deepEqual(await createServerPlanStore({ get: async () => ({ data: null }) }).load(), EMPTY_STATE);

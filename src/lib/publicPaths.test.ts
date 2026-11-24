@@ -22,7 +22,7 @@ test("the app needs a login", () => {
 });
 
 test("marketing paths are the public pages a visitor reads, not files or APIs", () => {
-  for (const p of ["/", "/players", "/faq", "/terms", "/privacy", "/demo", "/demo/voice-beginner", "/login", "/kickstarter", "/landing-1", "/intro", "/claim"]) assert.equal(isMarketingPath(p), true, p);
+  for (const p of ["/", "/players", "/faq", "/terms", "/privacy", "/demo", "/demo/voice-beginner", "/login", "/kickstarter", "/landing-1", "/intro", "/claim", "/reminders/off"]) assert.equal(isMarketingPath(p), true, p);
   for (const p of ["/plan", "/practice", "/api/auth/session", "/teachers/video/render", "/account"]) assert.equal(isMarketingPath(p), false, p);
 });
 

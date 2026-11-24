@@ -835,6 +835,11 @@ Reminders5: [NEW 2026-11-19] Build Reminders1-4 from the plan, docs/superpowers/
 - Open: how to run it. Native (every task built in one session, one fresh reviewer at the end; cheaper, suggested, best
   in a fresh session) or subagent-driven (an agent builds each task, another reviews it before the next).
 - Neither the plan nor these tasks are committed yet.
+[2026-11-24 done, email only] Reminders1 and Reminders2: the `reminders` table (migration 0042), POST
+/api/cron/reminders, the reminder email with one-click unsubscribe and /reminders/off, "Email me at" on /plan in
+quarter hours. The open-tab notification and the plan document's `reminder` are gone. A taught student is reminded
+(Review Focus 1). Not done: Reminders3 (push), Reminders4 (setup step). Not seen in the browser or an inbox; migration
+not run (couldn't read .env.local).
 Deferred1 (WhatsApp and text message reminders) would be one more channel on the same run.
 
 TaskSeries E2E: an end-to-end suite that walks the app's main flows in a real browser (user, 2026-11-19)
