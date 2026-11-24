@@ -7,7 +7,7 @@ import { pickVideoType, videoFileName } from "@/features/videos/recording";
 import { asciiTab, midiOf, type RiffNote } from "./riff";
 import { deleteTake, getTake, saveTake, type RiffTake as Take } from "./takes";
 import { hearNotes, toRiff } from "./transcribe";
-import NeckView, { MARKER_PAGE } from "./NeckView";
+import NeckView from "./NeckView";
 
 type Phase = "off" | "starting" | "ready" | "recording";
 /** where the take on screen stands in this browser's storage */
@@ -322,9 +322,9 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
             </p>
             <p>
               Read the neck draws your fingertips and the markers it sees over the camera and over a saved take. Recording and Transcribe need no
-              markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Open
-              {" "}<a href={MARKER_PAGE} target="_blank" rel="noreferrer" className="text-sky-400 underline">Print markers</a>{" "}
-              and print a few: the page is already set to the right kind (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. For now it only shows
+              markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Print the 
+              <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 markers</a> or the 
+              <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 markers</a>: they are the kind the camera reads (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. For now it only shows
               what it finds; placing the frets from the markers comes next.
             </p>
             <p className="font-medium text-slate-200">Printing and placing markers</p>
@@ -391,7 +391,7 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
             <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers and your fingertips over the camera and the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
               <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} /> Read the neck
             </label>
-            {readNeck && <a href={MARKER_PAGE} target="_blank" rel="noreferrer" className="text-sky-400 underline">Print markers</a>}
+            <span className="text-slate-400">Print markers: <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4</a> · <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3</a></span>
           </>
         )}
         {take && phase !== "recording" && (
