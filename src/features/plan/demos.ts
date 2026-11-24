@@ -31,14 +31,23 @@ export function demoPlan(slug: string): { label: string; config: PlanConfig } | 
 
 /**
  * A plan of fewer than seven days laid over a week, the way a teacher's week of fewer practice days is stored: its days
- * at equal steps from the first day to the seventh (three days: today, in 3 days, in 6 days), the days between them
- * empty, so the demo shows practice days with their real dates. Seven days, or one, come back as they are.
+ * at uneven steps, some back to back and some with a gap (three days: today, tomorrow, in 4 days), the days between
+ * them empty, so the demo shows a mixed week of practice and rest days with their real dates. Seven days, or one, come
+ * back as they are.
  */
+const MIXED_WEEK: Record<number, number[]> = {
+  2: [0, 3],
+  3: [0, 1, 4],
+  4: [0, 1, 3, 5],
+  5: [0, 1, 3, 4, 6],
+  6: [0, 1, 2, 4, 5, 6],
+};
+
 export function spreadOverWeek(config: PlanConfig): PlanConfig {
   const n = config.days.length;
   if (n < 2 || n >= 7) return config;
   const days = Array.from({ length: 7 }, () => ({ theme: "", exercises: [] as PlanConfig["days"][number]["exercises"] }));
-  config.days.forEach((d, k) => { days[Math.round((k * 6) / (n - 1))] = d; });
+  config.days.forEach((d, k) => { days[MIXED_WEEK[n][k]] = d; });
   return { ...config, days };
 }
 

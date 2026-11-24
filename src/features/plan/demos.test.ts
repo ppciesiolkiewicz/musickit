@@ -15,7 +15,7 @@ test("cards are easiest first, one per slug", () => {
 
 test("a demo of three days is laid over a week: today, in 3 days and in 6 days, the days between empty", () => {
   const demo = demoPlan("guitar-beginner")!;
-  assert.deepEqual(demo.config.days.map((d) => d.exercises.length > 0), [true, false, false, true, false, false, true]);
-  const two = spreadOverWeek({ title: "", days: [demo.config.days[0], demo.config.days[3]] });
-  assert.deepEqual(two.days.map((d) => d.exercises.length > 0), [true, false, false, false, false, false, true]);
+  assert.deepEqual(demo.config.days.map((d) => d.exercises.length > 0), [true, true, false, false, true, false, false]);
+  const two = spreadOverWeek({ title: "", days: [demo.config.days[0], demo.config.days[4]] });
+  assert.deepEqual(two.days.map((d) => d.exercises.length > 0), [true, false, false, true, false, false, false]);
 });
