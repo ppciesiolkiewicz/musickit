@@ -139,6 +139,7 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
               <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-xs font-semibold text-slate-950">It&apos;s free now</span>
             </p>
             <p>Every plan is free while we&apos;re in open beta, and picking one won&apos;t ask you to pay. Choose the one you&apos;d really want: it helps us decide what to build next.</p>
+            <p>Sign up now to keep the early price and get a longer free trial when paid plans start.</p>
             <p>Something broken or confusing? Tell us with Send feedback in the profile menu. You can change your plan any time on your account page.</p>
           </div>
           {!plans && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
