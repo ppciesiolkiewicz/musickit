@@ -20,6 +20,16 @@ test("camera corner moves the existing camera back to the corner, never a second
   assert.equal(s.selected, "new");
 });
 
+test("add another camera puts a second one left of the first; corner and off keep to the first", () => {
+  const one = run(EMPTY_STAGE, "camera-corner");
+  const two = stageCommand(one, "camera-add", () => "cam2").reduce(stageReducer, one);
+  assert.equal(two.layers.length, 2);
+  const second = two.layers.find((l) => l.id === "cam2")!;
+  assert.ok(second.rect.x < CAMERA_CORNER.x);
+  assert.equal(second.rect.w, CAMERA_CORNER.w);
+  assert.deepEqual(run(two, "camera-off").layers.map((l) => l.id), ["cam2"]);
+});
+
 test("camera off removes it; clear empties the stage; starting a screen share is the host's job", () => {
   const cam = run(EMPTY_STAGE, "camera-corner");
   assert.equal(run(cam, "camera-off").layers.length, 0);

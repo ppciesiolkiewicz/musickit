@@ -85,7 +85,7 @@ export const CAMERA_CORNER: FrameRect = { x: 0.78, y: 0.52, w: 0.2, h: 0.45 };
 /** the screen share's minimized place: bottom left, clear of the camera's corner */
 export const SCREEN_CORNER: FrameRect = { x: 0.02, y: 0.52, w: 0.4, h: 0.45 };
 
-const SINGLE = new Set<Subject["kind"]>(["camera", "screen", "key", "tuner", "mic", "logo", "url"]);
+const SINGLE = new Set<Subject["kind"]>(["screen", "key", "tuner", "mic", "logo", "url"]);
 
 /** The brand marks sit in the top-right corner, the logo over the site address, and never move: they can only be shown or hidden. */
 const FIXED: Partial<Record<Subject["kind"], FrameRect>> = {
@@ -478,7 +478,7 @@ export function stageReducer(s: Stage, a: StageAction): Stage {
 }
 
 /**
- * Add a widget for a subject and select it. A camera, screen, Key & scale, tuner, audio input, logo or url widget that already exists is selected instead of doubled.
+ * Add a widget for a subject and select it. Cameras can be several (a webcam and a phone); a screen, Key & scale, tuner, audio input, logo or url widget that already exists is selected instead of doubled.
  * The screen goes to the bottom, the camera just above the screen; widgets always sit above both.
  */
 export function addSubject(s: Stage, id: string, subject: Subject): Stage {
@@ -491,7 +491,9 @@ export function addSubject(s: Stage, id: string, subject: Subject): Stage {
   let bottomUp: Layer[];
   if (subject.kind === "screen") bottomUp = [layer, ...below];
   else if (subject.kind === "camera") {
-    const at = below.findIndex((l) => l.subject.kind === "screen") + 1;
+    // above the screen and any camera already there
+    let at = below.findIndex((l) => l.subject.kind === "screen") + 1;
+    while (at < below.length && below[at].subject.kind === "camera") at++;
     bottomUp = [...below.slice(0, at), layer, ...below.slice(at)];
   } else bottomUp = [...below, layer];
   const layers = [...s.layers, layer];

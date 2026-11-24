@@ -1,7 +1,7 @@
 import { CAMERA_CORNER, FULL, SCREEN_CORNER, type FrameRect, type Stage, type StageAction } from "./layers";
 import type { StudioCommand } from "./subject";
 
-/** where the camera or the screen share is: not on the stage, minimized (anywhere smaller than the frame), or full frame */
+/** where the (first) camera or the screen share is: not on the stage, minimized (anywhere smaller than the frame), or full frame */
 export type MediaPlace = "none" | "corner" | "full";
 export interface MediaState {
   camera: MediaPlace;
@@ -40,6 +40,13 @@ export function stageCommand(stage: Stage, cmd: StudioCommand, newId: () => stri
       const rect = cmd === "camera-full" ? FULL : CAMERA_CORNER;
       if (camera) return [{ type: "setRect", id: camera.id, rect }, { type: "select", id: camera.id }];
       const id = newId();
+      return [{ type: "addSubject", id, subject: { kind: "camera" } }, { type: "setRect", id, rect }];
+    }
+    case "camera-add": {
+      // another camera (a phone over Continuity, a second webcam): in the corner, left of the cameras already there
+      const n = stage.layers.filter((l) => l.subject.kind === "camera").length;
+      const id = newId();
+      const rect = { ...CAMERA_CORNER, x: Math.max(0, CAMERA_CORNER.x - n * (CAMERA_CORNER.w + 0.02)) };
       return [{ type: "addSubject", id, subject: { kind: "camera" } }, { type: "setRect", id, rect }];
     }
     case "camera-off":

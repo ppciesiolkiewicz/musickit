@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
 import PageShell from "@/components/PageShell";
-import SiteFooter from "@/components/landing/SiteFooter";
+import { redirect } from "next/navigation";
 import { pageBar } from "@/components/PageHeading";
 import PageHelp from "@/features/guide/PageHelp";
 import { INTERACTIVE_NOTES_TOUR } from "@/features/guide/tours/interactive-notes";
-import { StudioApp } from "@/features/teachers/studio";
 import { NoteViewProvider, NotesApp, NotesCreatorHeader } from "@/features/teachers/notes";
 
 export const metadata: Metadata = {
-  title: "Teacher Video Studio: Record Guitar Lessons · attunr",
-  description: "Record high-quality guitar lessons with interactive fretboard diagrams, chord shapes, scales, and pitch drones displayed in real time alongside your camera.",
+  title: "Interactive notes · attunr",
+  description: "Put scales, chords, necks and videos on one page, then share it as a link.",
   alternates: { canonical: "/teachers/studio" },
 };
 
 export default async function StudioPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  // the notes creator is a tool page like any other; the video studio keeps the whole window for its frame
+  // the notes creator lives here; the video studio moved to the dev tools
   if ((await searchParams).notes === "1") {
     return (
       // View as a note changes the header too: the provider holds both
@@ -25,12 +24,5 @@ export default async function StudioPage({ searchParams }: { searchParams: Promi
       </NoteViewProvider>
     );
   }
-  return (
-    <div className="app-bg min-h-screen text-slate-200">
-      <StudioApp />
-      <div className="px-4">
-        <SiteFooter />
-      </div>
-    </div>
-  );
+  redirect("/dev/studio");
 }

@@ -180,6 +180,7 @@ test("with them on the stage it offers close, and fullscreen or minimize, whiche
     "Section=section-add",
     "Video=video-add",
     "Record a video=video-record",
+    "Add another camera=camera-add",
     "Fullscreen camera=camera-full",
     "Close camera=camera-off",
     "Minimize screen share=screen-corner",

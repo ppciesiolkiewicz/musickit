@@ -106,7 +106,7 @@ test("a full-width page always has a settings panel (the studio's own panel asid
     }
   };
   walk(join(process.cwd(), "src", "app"));
-  const studio = ["note/[slug]/page.tsx", "teachers/studio/page.tsx"];
+  const studio = ["note/[slug]/page.tsx", "teachers/studio/page.tsx", "dev/studio/page.tsx"];
   const full = pages.filter((p) => /<PageShell[^>]*\sfull[\s>]/.test(readFileSync(p, "utf8")) && !studio.some((s) => p.endsWith(s)));
   assert.ok(full.length >= 21, `only ${full.length} full pages found`);
   for (const p of full) assert.match(reach(p), /<SettingsPanel\b/, `${p} is full width with no SettingsPanel`);

@@ -150,7 +150,7 @@ test("setStageKey moves every key-aware layer to the master, never the chord, an
   assert.deepEqual(s.layers[2].subject, { kind: "tool", tool: { type: "triads", key: 4, scale: "major-ionian" } });
 });
 
-test("addSubject: one camera, one screen, one key; screen at the bottom, camera above it, widgets above both", () => {
+test("addSubject: cameras can be several, one screen, one key; screen at the bottom, camera above it, widgets above both", () => {
   let s = addSubject(EMPTY_STAGE, "w", chord);
   s = addSubject(s, "cam", { kind: "camera" });
   assert.deepEqual(paintIds(s), ["cam", "w"]);
@@ -158,8 +158,9 @@ test("addSubject: one camera, one screen, one key; screen at the bottom, camera 
   assert.deepEqual(paintIds(s), ["scr", "cam", "w"]);
   assert.deepEqual(listIds(s), ["w", "cam", "scr"]);
   const again = addSubject(s, "cam2", { kind: "camera" });
-  assert.equal(again.layers.length, 3);
-  assert.equal(again.selected, "cam");
+  assert.equal(again.layers.length, 4);
+  assert.equal(again.selected, "cam2");
+  assert.deepEqual(paintIds(again), ["scr", "cam", "cam2", "w"]);
   s = addSubject(s, "k", { kind: "key" });
   assert.equal(addSubject(s, "k2", { kind: "key" }).layers.filter((l) => l.subject.kind === "key").length, 1);
   assert.deepEqual(s.layers.find((l) => l.id === "cam")!.rect, CAMERA_CORNER);
@@ -187,7 +188,7 @@ test("defaultRect offsets new widgets so they do not stack exactly", () => {
   near(b.y - a.y, 0.03);
 });
 
-test("sanitiseStage drops junk, unknown plugins, duplicate ids, second cameras, and clamps rects", () => {
+test("sanitiseStage drops junk, unknown plugins, duplicate ids (keeps every camera) and clamps rects", () => {
   assert.deepEqual(sanitiseStage("junk", ids), EMPTY_STAGE);
   assert.deepEqual(sanitiseStage(null, ids), EMPTY_STAGE);
   const good = layer("a");
@@ -206,9 +207,9 @@ test("sanitiseStage drops junk, unknown plugins, duplicate ids, second cameras, 
     },
     ids,
   );
-  assert.deepEqual(s.layers.map((l) => l.id), ["a", "c1", "far"]);
-  near(s.layers[2].rect.x, 1 - KEEP_IN);
-  assert.equal(s.layers[2].visible, true);
+  assert.deepEqual(s.layers.map((l) => l.id), ["a", "c1", "c2", "far"]);
+  near(s.layers[3].rect.x, 1 - KEEP_IN);
+  assert.equal(s.layers[3].visible, true);
   assert.equal(s.selected, null);
   assert.deepEqual(s.key, { tonicPc: 4, family: 0, mode: 0 });
 });

@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HeardNote } from "@/components/chordKit/heardNote";
 import Icon from "@/components/Icon";
 import { PLUGINS } from "@/features/creator";
-import { CameraLayer, DEFAULT_VIEW, MicContext, VideoPickContext, sanitiseAudioInput, useAudioInput, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, gridLayers, layoutOf, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type AudioInputSetup, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
+import { CAMERA_CORNER, CameraLayer, DEFAULT_VIEW, FULL, MicContext, VideoPickContext, sanitiseAudioInput, useAudioInput, NUDGE, NUDGE_BIG, ScreenLayer, StageFrame, StageWidget, gridLayers, layoutOf, mediaState, isControl, isPage, shortcutFor, stageCommand, subjectTitle, takesMic, toggleFull, type AudioInputSetup, type Layer, type MicInput, type PaletteResult, type StudioCommand, type Subject } from "@/features/stage";
 import { VideoPreview, pickVideoConfig, type VideoFile } from "@/features/teachers/video";
 import KeysPanel, { KeysOverlay } from "./KeysPanel";
 import LayoutSelector from "./LayoutSelector";
-import useCamera from "./media/useCamera";
+import useCameras from "./media/useCamera";
 import useScreenShare from "./media/useScreenShare";
 import ControlBadge, { MicBadge, PageBadge } from "./ControlBadge";
 import SharePopover from "./SharePopover";
@@ -127,7 +127,7 @@ function Studio() {
     setMounted(true);
   }, []);
 
-  const camera = useCamera();
+  const cameras = useCameras();
   const removeKind = useCallback(
     (kind: Subject["kind"]) => {
       const l = stageRef.current.layers.find((x) => x.subject.kind === kind);
@@ -141,13 +141,14 @@ function Studio() {
   }, [screen, dispatch]);
 
   // a camera or screen layer deleted (trash, ⌫, clear) lets go of its stream
-  const hasCamera = stage.layers.some((l) => l.subject.kind === "camera");
+  const cameraIds = stage.layers.filter((l) => l.subject.kind === "camera").map((l) => l.id);
+  const cameraKey = cameraIds.join(",");
   const hasScreen = stage.layers.some((l) => l.subject.kind === "screen");
-  const { stop: stopCamera, stream: cameraStream } = camera;
+  const { keep: keepCameras } = cameras;
   const { stop: stopScreen, stream: screenStream } = screen;
   useEffect(() => {
-    if (!hasCamera && cameraStream) stopCamera();
-  }, [hasCamera, cameraStream, stopCamera]);
+    keepCameras(cameraKey ? cameraKey.split(",") : []);
+  }, [cameraKey, keepCameras]);
   useEffect(() => {
     if (!hasScreen && screenStream) stopScreen();
   }, [hasScreen, screenStream, stopScreen]);
@@ -272,6 +273,12 @@ function Studio() {
   if (!mounted) return null;
 
   const media = mediaState(stage);
+  const isFullRect = (r: Layer["rect"]) => r.x === 0 && r.y === 0 && r.w === 1 && r.h === 1;
+  // a camera minimized goes back to its own corner: the first to the corner, the others left of it
+  const cornerOf = (id: string) => {
+    const i = Math.max(0, cameraIds.indexOf(id));
+    return { ...CAMERA_CORNER, x: Math.max(0, CAMERA_CORNER.x - i * (CAMERA_CORNER.w + 0.02)) };
+  };
   // the audio input feeds the pinned widgets and the selected one
   const renderLayer = (l: Layer) => (
     <HeardNote.Provider value={l.onTop || stage.selected === l.id ? heard : null}>
@@ -281,20 +288,23 @@ function Studio() {
         stageKey={stage.key}
         onStageKey={(key) => dispatch({ type: "setStageKey", key })}
         renderMedia={(s) => {
-          const kind = s.kind === "camera" ? "camera" : "screen";
-          const full = media[kind] === "full";
-          const controls = {
-            full,
-            name: kind === "camera" ? "camera" : "screen share",
-            onToggleFull: () => runCommand(kind === "camera" ? (full ? "camera-corner" : "camera-full") : full ? "screen-corner" : "screen-full"),
-            onClose: () => runCommand(kind === "camera" ? "camera-off" : "screen-stop"),
-            ...(kind === "camera" ? { mirrored: camera.mirrored, onToggleMirror: camera.toggleMirror } : {}),
-          };
-          return kind === "camera" ? (
-            <CameraLayer stream={camera.stream} error={camera.error} onStart={() => void camera.start()} controls={controls} />
-          ) : (
-            <ScreenLayer stream={screen.stream} onStart={() => void startScreen()} controls={controls} />
-          );
+          if (s.kind === "camera") {
+            const full = isFullRect(l.rect);
+            const feed = cameras.feed(l.id);
+            const n = cameraIds.length > 1 ? ` ${cameraIds.indexOf(l.id) + 1}` : "";
+            const controls = {
+              full,
+              name: `camera${n}`,
+              onToggleFull: () => dispatch({ type: "setRect", id: l.id, rect: full ? cornerOf(l.id) : FULL }),
+              onClose: () => dispatch({ type: "remove", id: l.id }),
+              mirrored: cameras.mirrored(l.id),
+              onToggleMirror: () => cameras.toggleMirror(l.id),
+            };
+            return <CameraLayer stream={feed.stream} error={feed.error} onStart={() => void cameras.start(l.id)} controls={controls} />;
+          }
+          const full = media.screen === "full";
+          const controls = { full, name: "screen share", onToggleFull: () => runCommand(full ? "screen-corner" : "screen-full"), onClose: () => runCommand("screen-stop") };
+          return <ScreenLayer stream={screen.stream} onStart={() => void startScreen()} controls={controls} />;
         }}
       />
     </HeardNote.Provider>
@@ -435,16 +445,21 @@ function Studio() {
             <Icon name="play" size={12} />
             <span className="min-w-0 flex-1 truncate">{video ? `Video: ${video.name}` : "Preview a video…"}</span>
           </button>
-          {camera.stream && camera.devices.length > 1 && (
-            <label className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
-              Camera
-              <select value={camera.deviceId ?? ""} onChange={(e) => void camera.start(e.target.value)} className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-slate-200">
-                {camera.devices.map((d, i) => (
-                  <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${i + 1}`}</option>
-                ))}
-              </select>
-            </label>
-          )}
+          {cameras.devices.length > 1 &&
+            cameraIds.map((id, i) => {
+              const feed = cameras.feed(id);
+              if (!feed.stream) return null;
+              return (
+                <label key={id} className="mt-2 flex flex-col gap-1 text-xs text-slate-400">
+                  {cameraIds.length > 1 ? `Camera ${i + 1}` : "Camera"}
+                  <select value={feed.deviceId ?? ""} onChange={(e) => void cameras.start(id, e.target.value)} className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1 text-slate-200">
+                    {cameras.devices.map((d, j) => (
+                      <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${j + 1}`}</option>
+                    ))}
+                  </select>
+                </label>
+              );
+            })}
         </aside>
       )}
 

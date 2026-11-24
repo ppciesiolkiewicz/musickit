@@ -49,6 +49,7 @@ const COMMANDS: CommandDef[] = [
   { label: "Video", command: "video-add", group: "video", detail: "A practice video from the library, or one you recorded", words: ["video", "videos", "clip", "movie", "library", "watch", "my", "add"], applies: () => true },
   { label: "Record a video", command: "video-record", group: "video", detail: "Record yourself with the camera and the microphone", words: ["record", "recording", "video", "film", "camera", "webcam", "yourself", "new"], applies: () => true },
   { label: "Camera", command: "camera-corner", words: ["camera", "webcam", "start", "add"], applies: (m) => m.camera === "none" },
+  { label: "Add another camera", command: "camera-add", words: ["another", "second", "more", "add", "camera", "webcam", "phone", "iphone", "continuity"], applies: (m) => m.camera !== "none" },
   { label: "Fullscreen camera", command: "camera-full", words: ["fullscreen", "full", "screen", "maximize", "big", "camera", "webcam"], applies: (m) => m.camera === "corner" },
   { label: "Minimize camera", command: "camera-corner", words: ["minimize", "small", "corner", "camera", "webcam"], applies: (m) => m.camera === "full" },
   { label: "Close camera", command: "camera-off", words: ["close", "off", "stop", "remove", "camera", "webcam"], applies: (m) => m.camera !== "none" },
