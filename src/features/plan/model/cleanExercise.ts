@@ -21,6 +21,8 @@ export function cleanExercise(e: PlanExercise): PlanExercise {
   delete out.given;
   // a `keys` field from before `given` is not read
   delete (out as { keys?: unknown }).keys;
+  if (out.kind !== "warm-up") { delete out.kind; delete out.warmUpPart; }
+  else if (out.warmUpPart !== 1 && out.warmUpPart !== 2 && out.warmUpPart !== 3) delete out.warmUpPart;
   if (e.choice !== undefined) {
     const c = parseChoiceDiag(e.choice, { notes: [], stored: true });
     if (c.choice) out.choice = c.choice;

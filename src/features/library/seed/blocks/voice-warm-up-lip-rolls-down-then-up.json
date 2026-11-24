@@ -1,0 +1,65 @@
+{
+  "id": "voice-warm-up-lip-rolls-down-then-up",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 2 of the voice warm-up run, picked by its kind and never for a path step. The slide down and then the slide back up, as two tools. missing: a lip-roll shape that goes down and back up in one breath (the tool has \"siren\", up and back down, and no mirror of it).",
+  "exercise": {
+    "title": "Lip rolls, down and then back up",
+    "kind": "warm-up",
+    "warmUpPart": 2,
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "range"
+    ],
+    "why": "A lip roll only keeps buzzing while your air is steady and your throat is loose, so sliding down first and then back up takes your voice through its middle both ways while it is still loose.",
+    "learnBefore": [
+      "/theory/singing/warm-ups"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to begin the rounds: the mic starts with it. A tone slides from high to low and plays the whole time. Lip roll along with it, with your lips loose and buzzing."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "lip-roll",
+          "shape": "down",
+          "play": "always",
+          "plays": 2,
+          "voice": "tenor"
+        }
+      },
+      {
+        "type": "text",
+        "text": "Now the same slide the other way. Press Start below to begin: the tone slides from low to high. Lip roll along with it, and keep the buzz as quiet at the top as it was at the bottom.\n_Don't reach for high notes: let the buzz go when the top stops feeling easy._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "lip-roll",
+          "shape": "up",
+          "play": "always",
+          "plays": 2,
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [],
+      "minutes": 1
+    }
+  ]
+}

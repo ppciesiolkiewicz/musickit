@@ -63,7 +63,8 @@ export function blocksByStep(entries: CatalogueEntry[] = catalogue()): Map<strin
       // one choice is the file; more are told apart by their choice ids
       const id = f.choices.length > 1 ? String(raw.choiceId) : f.id;
       const b = { id, title: block?.title ?? f.id, source: "seed block" as const, json: JSON.stringify(raw) };
-      if (block) each(block, block.level, b);
+      // a warm-up practises no step (DayShape2): it is under none, whatever its tools or level say
+      if (block && block.kind !== "warm-up") each(block, block.level, b);
     }
   }
   return by;

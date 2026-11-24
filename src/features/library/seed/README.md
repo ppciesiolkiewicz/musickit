@@ -44,7 +44,7 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
      are when the file is written. `model` is the API id of the model that wrote it. `note` says which gap, in one line.
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the
    current ones (`npm run -s seed -- versions`), the id is a curated id, choice names are unique, every plan ref names a block and a choice of it, every choice (read as `exerciseOf` makes it) names a concept and at least one step (each in a track of
-   its concepts), no choice sets a key or a tempo and no exercise with `moves` mentions a selector (`movesCheck.ts`), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
+   its concepts; a warm-up needs neither, and says its `warmUpPart`), no choice sets a key or a tempo and no exercise with `moves` mentions a selector (`movesCheck.ts`), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
    level or stage, and no exercise names another day or week.
    Then `npm run -s gen:json-index`, so the folder's `index.gen.ts` imports the new file.
 4. `npm run -s db:seed-plans`, then `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first).
@@ -68,6 +68,13 @@ set a key and a position). The prompt names each of the five by its file id, the
 - A plan has a `progress`: the notes the AI keeps on the student after that week, one line per topic the plan's
   exercises use (`<Topic label>: where they stand. Next: …`), under 300 words. The student never sees it; the next
   prompt sends it back.
+- A warm-up (DayShape2) is a block with `"kind": "warm-up"` and `"warmUpPart": 1 | 2 | 3` in its `exercise`: a short
+  drill (1 to 2 minutes; the run of a day is 5 to 8) that opens the voice or the guitar part of a day. It is no step on
+  the path: its choices have `"steps": []`, and it needs no concept. `warmUpPart` is its place in the run: voice 1
+  breath, 2 lip rolls, 3 scales and intervals; guitar 1 loose hands, 2 the spider and picking, 3 finger work. A choice's
+  `level` is the lowest level that gets it (`new` for everyone). The composer picks it by its kind, one of each part,
+  turning with the date (`plan/model/warmUp.ts`); the title names the drill, never "Warm-up". The path's own block of a
+  drill (the spider) stays a separate file: `kind` is the block's, not a choice's.
 - An exercise stands alone: the composer hands out one block at a time, so its title, headings, text and why name no
   other day or week ("day 2", "yesterday", "this week"; `dayRefs.ts`). A plan's `summary`, `progress` and day themes may.
 - Pasted, it parses with zero warnings: real tools and props only (`COMPONENT_DOCS`), links only to attunr pages,

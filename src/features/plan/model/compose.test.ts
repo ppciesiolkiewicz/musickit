@@ -659,3 +659,55 @@ test("versions: the first step a block names on the path decides its keys", () =
   const d = composeDay(base({ answers: { ...guitar, minutes: 10 }, blocks: [{ ...off, exercise: { ...off.exercise, steps: ["nowhere:1", "b:1"] } }] }), KEYED);
   assert.deepEqual(givenOf(d, "m"), FIRST_PLAY, "the first step it names on the path decides");
 });
+
+// --- warm-ups (DayShape2)
+
+/** A warm-up block of an area: no steps, its part in the run. */
+const warmUp = (id: string, area: "voice" | "guitar", part: 1 | 2 | 3, minutes = 2): Candidate => {
+  const c = cand(id, [], minutes);
+  return { ...c, exercise: { ...c.exercise, area, kind: "warm-up", warmUpPart: part, level: "new" } };
+};
+const WARM = [warmUp("vb", "voice", 1), warmUp("vl", "voice", 2, 1), warmUp("vs", "voice", 3), warmUp("gh", "guitar", 1, 1), warmUp("gs", "guitar", 2)];
+const vgBlocks = [...lib("v:1", "voice", 8), ...lib("a:1", "guitar", 8), ...WARM];
+
+test("warm-ups: each of a voice and guitar day's sections opens with its run, out of that section's minutes", () => {
+  const { day, trace } = explainDay(base({ answers: { ...two, minutes: 40 }, blocks: vgBlocks }), AVT);
+  assert.deepEqual(day.sections!.map((s) => s.area), ["voice", "guitar"]);
+  const [voice, guitarSec] = day.sections!;
+  assert.deepEqual(ids(voice).slice(0, 3), ["vb", "vl", "vs"]);
+  assert.deepEqual(ids(guitarSec).slice(0, 2), ["gh", "gs"]);
+  // the day's minutes are unchanged: the warm-ups come out of them, and the day runs over by less than its last block
+  assert.ok(total(day) >= 40 && total(day) < 45, String(total(day)));
+  assert.deepEqual(trace.sections.map((s) => [s.area, s.warmUp.cap, s.warmUp.minutes, s.warmUp.picks.map((p) => p.blockId)]), [
+    ["voice", 6, 5, ["vb", "vl", "vs"]], ["guitar", 6, 3, ["gh", "gs"]],
+  ]);
+  // a warm-up is never a pick for a step, and works on none
+  assert.ok(trace.picks.every((p) => !WARM.some((w) => w.blockId === p.blockId)));
+  assert.deepEqual(day.steps, ["v:1", "a:1"]);
+});
+
+test("warm-ups: a warm-up is never placed as a path block, even when it names a step", () => {
+  const stray = { ...warmUp("stray", "guitar", 1, 5), steps: ["a:1"] };
+  const d = composeDay(base({ blocks: [stray] }), AB);
+  assert.deepEqual(ids(d), []);
+});
+
+test("warm-ups: yesterday's and declined ones come again; a kept one is not doubled", () => {
+  const input = base({ answers: { ...two, minutes: 40 }, blocks: vgBlocks, yesterday: ["vb", "vl"], declined: ["vs"] });
+  assert.deepEqual(ids(composeDay(input, AVT)).slice(0, 3), ["vb", "vl", "vs"]);
+  const kept = WARM[0].exercise;
+  const again = composeDay({ ...input, keep: [kept] }, AVT);
+  assert.deepEqual(ids(again).slice(0, 3), ["vb", "vl", "vs"]);
+  assert.equal(ids(again).filter((id) => id === "vb").length, 1);
+});
+
+test("warm-ups: a section with nothing to play after it gets no warm-up", () => {
+  const d = composeDay(base({ answers: { ...two, minutes: 40 }, blocks: [...lib("a:1", "guitar", 8), ...WARM] }), AVT);
+  assert.ok(!ids(d).includes("vb"));
+  assert.deepEqual(ids(d).slice(0, 2), ["gh", "gs"]);
+});
+
+test("warm-ups: theory gets none", () => {
+  const { trace } = explainDay(base({ blocks: [...many("a:1", 3), ...many("b:1", 3)] }), AB);
+  assert.deepEqual(trace.sections.map((s) => s.warmUp.picks.length), [0]);
+});

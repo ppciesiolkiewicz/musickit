@@ -35,14 +35,15 @@ function answersOf(arg: string): PlanAnswers {
 }
 
 /**
- * What is wrong with one exercise beyond the parser: no concept, no steps, a word naming another day of the week, a named step with a ladder that none of its
+ * What is wrong with one exercise beyond the parser: no concept, no steps (a warm-up needs neither: it counts for no step; it needs its `warmUpPart`), a word naming another day of the week, a named step with a ladder that none of its
  * tools sits on, or a laddered concept whose tools say no step. (A step of a track that is not one of its concepts, or no
  * step at all, is already a parser warning.)
  */
 function exerciseProblems(e: PlanExercise, where: string): string[] {
   const out: string[] = [];
-  if (!e.concepts?.length) out.push(`${where}: tags no concept, so it counts for no skill or step.`);
-  if (!e.steps?.length) out.push(`${where}: names no step ("steps": ["trackId:n"]), so the library finds it by level only.`);
+  if (!e.concepts?.length && e.kind !== "warm-up") out.push(`${where}: tags no concept, so it counts for no skill or step.`);
+  if (e.kind === "warm-up" && !e.warmUpPart) out.push(`${where}: a warm-up with no "warmUpPart" (1, 2 or 3: where in its area's warm-up run it goes).`);
+  if (!e.steps?.length && e.kind !== "warm-up") out.push(`${where}: names no step ("steps": ["trackId:n"]), so the library finds it by level only.`);
   const days = dayRefs(e);
   if (days.length) out.push(`${where}: names another day (${[...new Set(days)].map((d) => `"${d}"`).join(", ")}); the composer hands a block out alone, so say what to play, not when.`);
   const tools = toolsOf(e.cells);

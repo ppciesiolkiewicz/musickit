@@ -1,0 +1,58 @@
+{
+  "id": "voice-warm-up-out-from-do-going-down",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 3 of the voice warm-up run, picked by its kind and never for a path step. The same leaps out from Do and back, going down from the Do one scale above the low one, so a beginner starts in the middle of the staff and not at its top.",
+  "exercise": {
+    "title": "Out from Do and back, going down",
+    "kind": "warm-up",
+    "warmUpPart": 3,
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "singing-intervals"
+    ],
+    "why": "A leap down and back up asks your voice to drop without losing the note it left, so coming home to the same Do each time trains the way back up.",
+    "learnBefore": [
+      "/course/3/intervals"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Find the second {{1}} on the staff, eight notes above the low {{1}}, and tap it to hear it. Sing that {{1}}, then {{7}} under it, then {{1}} again. Then go one note further down each time: {{1}} {{6}} {{1}}, then {{1}} {{5}} {{1}}, and on down to the low {{1}}. Sing along on the note names.\nEach time you come back up, listen for your {{1}} landing where it started.\nIn another key every note moves, and each leap still starts and ends on {{1}}.\n_Don't reach for high notes: start on the {{1}} in the middle of the staff, not the one at the top._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "staff",
+          "scale": "major-ionian",
+          "key": "c",
+          "voice": "tenor",
+          "labels": "solfege",
+          "highlight": [
+            "1"
+          ],
+          "drone": true
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [],
+      "moves": {
+        "key": "any"
+      },
+      "minutes": 2
+    }
+  ]
+}

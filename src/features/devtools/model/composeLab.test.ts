@@ -6,10 +6,10 @@ import { nextVersion, seedCandidates, simulate } from "./composeLab";
 
 const persona = (id: string) => PERSONAS.find((p) => p.id === id)!.answers;
 
-test("seedCandidates: only the areas asked for, each with its steps and an id", () => {
+test("seedCandidates: only the areas asked for, each with its steps (a warm-up has none) and an id", () => {
   const voice = seedCandidates(["voice"]);
   assert.ok(voice.length > 10);
-  assert.ok(voice.every((c) => c.exercise.area === "voice" && c.blockId && c.steps.length > 0 && c.minutes > 0));
+  assert.ok(voice.every((c) => c.exercise.area === "voice" && c.blockId && (c.steps.length > 0 || c.exercise.kind === "warm-up") && c.minutes > 0));
   assert.ok(voice.every((c) => c.choiceId.startsWith(`${c.blockId}/`) && c.exercise.blockId === c.blockId && c.exercise.choiceId === c.choiceId));
 });
 

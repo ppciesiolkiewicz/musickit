@@ -1,0 +1,61 @@
+{
+  "id": "voice-warm-up-the-scale-up-and-back",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 3 of the voice warm-up run, picked by its kind and never for a path step. The whole scale from the low Do, one note at a time, with the line that says what stays the same in another key.",
+  "exercise": {
+    "title": "The {{=key}} major scale, up and back down",
+    "kind": "warm-up",
+    "warmUpPart": 3,
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-intervals",
+    "concepts": [
+      "steps-to-leaps"
+    ],
+    "why": "The scale moves one small step at a time, so singing all of it warms every note a tune will use before a leap asks for one.",
+    "learnBefore": [
+      "/course/3/do-re-mi"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Start on the low {{1}} and sing one note at a time up to the next {{1}}, then come back down the same way. Sing along on the note names.\nKeep going until each note starts in tune, with no slide up to it.\nIn another key every note sits higher or lower, and the scale is still eight notes from {{1}} to {{1}}.\n_Don't reach for high notes: turn back at the first {{1}} above the one you started on._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "staff",
+          "scale": "major-ionian",
+          "key": "c",
+          "voice": "tenor",
+          "labels": "solfege",
+          "highlight": [
+            "1"
+          ],
+          "drone": true
+        }
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/melodies"
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [],
+      "moves": {
+        "key": "any"
+      },
+      "minutes": 2
+    }
+  ]
+}

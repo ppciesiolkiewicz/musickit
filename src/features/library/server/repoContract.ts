@@ -570,6 +570,12 @@ export function libraryRepoContract(make: (data: LibraryData) => Promise<Library
       assert.deepEqual(await composeIds(d, []), []);
       assert.deepEqual(await composeIds(d, ["nope"]), []);
     });
+    test("a warm-up is returned though its choice names no step", async () => {
+      const d = baseFixture();
+      seed(d, "Warm", { content: { title: "Block Warm", kind: "warm-up", warmUpPart: 1, cells: [] } }, [{ steps: [], minutes: 2 }]);
+      const warm = (await (await make(d)).composeBlocks(A, ["guitar"])).find((b) => b.id === "Warm");
+      assert.deepEqual([warm?.choiceId, warm?.steps, warm?.content.kind, warm?.content.warmUpPart, warm?.slot.minutes], ["Warm/c0", [], "warm-up", 1, 2]);
+    });
     test("composeBlocks gives one item per active choice", async () => {
       const list = (await (await make(multi())).composeBlocks(A, ["guitar"])).filter((b) => b.id === "M");
       assert.deepEqual(list.map((b) => [b.choiceId, b.level, b.steps, b.slot.minutes]), [

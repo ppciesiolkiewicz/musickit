@@ -312,7 +312,7 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
     },
     async composeBlocks(player, areas): Promise<ComposeBlock[]> {
       if (areas.length === 0) return [];
-      // the candidates first (one per active choice that names a step), so the totals are summed for these only
+      // the candidates first (one per active choice that names a step, or of a warm-up), so the totals are summed for these only
       const list = await rows<{
         id: string; choice_id: string; content: Block; area: string; topic: string | null; concepts: string[]; steps: string[]; level: string | null; tags: string[];
         minutes: number; moves: Block["moves"] | null; why: string | null; learn_before: string[] | null; explore_more: string[] | null;
@@ -322,7 +322,7 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
           select b.id, b.content, b.area, b.topic, b.concepts, b.tags, b.why, b.learn_before, b.explore_more,
             c.id as choice_id, c.level, c.steps, c.minutes, c.moves, c.place
           from blocks b join choices c on c.block_id = b.id
-          where b.kind = 'curated' and b.area = any(${textArray(areas)}) and c.active and cardinality(c.steps) > 0
+          where b.kind = 'curated' and b.area = any(${textArray(areas)}) and c.active and (cardinality(c.steps) > 0 or b.content->>'kind' = 'warm-up')
         )
         select c.id, c.choice_id, c.content, c.area, c.topic, c.concepts, c.steps, c.level, c.tags, c.minutes, c.moves, c.why, c.learn_before, c.explore_more,
           coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds, l.stars as my_stars, l.at as my_at

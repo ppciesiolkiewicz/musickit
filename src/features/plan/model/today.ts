@@ -58,7 +58,9 @@ export function dayWords(date: string, exercises: PlanExercise[]): { title: stri
   const [y, m, d] = date.split("-").map(Number);
   const at = new Date(y, m - 1, d);
   const title = `${WEEKDAYS[at.getDay()]} ${dateLabel(date)}`;
-  const labels = [...new Set(exercises.map(topicOf).filter((t): t is string => !!t))].map((id) => topicById(id)!.label);
+  // a warm-up names no topic of the day, unless the day is nothing else
+  const main = exercises.some((e) => e.kind !== "warm-up") ? exercises.filter((e) => e.kind !== "warm-up") : exercises;
+  const labels = [...new Set(main.map(topicOf).filter((t): t is string => !!t))].map((id) => topicById(id)!.label);
   const words = labels.map((l, i) => (i === 0 ? l : inSentence(l)));
   return { title, theme: joined(words) };
 }
@@ -74,7 +76,8 @@ export const isDayTitle = (title: string): boolean =>
 export function hasNewPicks(today: StoredPlan | null, day: ComposedDay): boolean {
   const before = today?.config.days[0]?.exercises ?? [];
   const rated = new Set(before.flatMap((e, i) => (today?.rated?.[doneKey(0, i)] && e.blockId ? [e.blockId] : [])));
-  return day.exercises.some((e) => !e.blockId || !rated.has(e.blockId));
+  // a warm-up comes again on every try, so it is nothing new
+  return day.exercises.some((e) => e.kind !== "warm-up" && (!e.blockId || !rated.has(e.blockId)));
 }
 
 /** How many past days `/plan` lists. Every day is kept (`history`, up to its cap); the page shows the newest. */

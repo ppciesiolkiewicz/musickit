@@ -70,7 +70,7 @@ export interface ComposeBlock {
   area: string;
   topic: string | null;
   concepts: string[];
-  /** at least one: a block that names no step is never composed */
+  /** at least one, except on a warm-up (`content.kind`), which names none: any other block that names no step is never composed */
   steps: string[];
   level: string | null;
   tags: string[];

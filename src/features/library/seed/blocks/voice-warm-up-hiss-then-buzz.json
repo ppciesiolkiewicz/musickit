@@ -1,0 +1,51 @@
+{
+  "id": "voice-warm-up-hiss-then-buzz",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 1 of the voice warm-up run, picked by its kind and never for a path step. A second breathing drill, so the run's first part changes from day to day.",
+  "exercise": {
+    "title": "A hiss, then a buzz",
+    "kind": "warm-up",
+    "warmUpPart": 1,
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath"
+    ],
+    "why": "A hiss is air alone and a buzz is the same air with your voice added, so going from one to the other starts your voice with no extra push.",
+    "learnBefore": [
+      "/course/3/breath-and-holding-a-note"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the circle below to begin. Hiss on \"sss\", add your voice for \"zzz\", then hiss again, as the circle shows.\nKeep the air moving at the same speed through all three.\nWhen the circle is done, press Again inside it for one more round."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "breathwork",
+          "drill": "sss-zzz"
+        }
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/breathing"
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [],
+      "minutes": 2
+    }
+  ]
+}

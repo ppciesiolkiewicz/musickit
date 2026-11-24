@@ -1,0 +1,51 @@
+{
+  "id": "voice-warm-up-lip-rolls-down",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 2 of the voice warm-up run, picked by its kind and never for a path step. One slide down with the tone playing the whole time, and the care line where a beginner could push for the top.",
+  "exercise": {
+    "title": "Lip rolls, sliding down",
+    "kind": "warm-up",
+    "warmUpPart": 2,
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "range"
+    ],
+    "why": "A lip roll only keeps buzzing while your air is steady and your throat is loose, so a slide down on it carries your voice from high to low without a push.",
+    "learnBefore": [
+      "/theory/singing/warm-ups"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start below to begin the rounds: the mic starts with it. A tone slides from high to low and plays the whole time. Lip roll along with it, with your lips loose and buzzing, while your line draws over the tone's path.\nKeep the buzz even all the way down: an even buzz matters more here than an exact note.\n_Don't reach for high notes: join the slide where the buzz comes easily._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "lip-roll",
+          "shape": "down",
+          "play": "always",
+          "plays": 3,
+          "voice": "tenor"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [],
+      "minutes": 1
+    }
+  ]
+}

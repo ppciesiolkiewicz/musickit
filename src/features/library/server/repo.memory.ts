@@ -271,7 +271,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
         if (b.kind !== "curated" || b.area === null || !areas.includes(b.area)) continue;
         const t = timed(b.id);
         for (const c of listed({}, b.id)) {
-          if (c.steps.length === 0) continue;
+          if (c.steps.length === 0 && b.content.kind !== "warm-up") continue;
           const l = newest(choiceRatings(c.id, player));
           // the block's content carries the choice's moves (a curated block's content has none of its own)
           const content: Block = { ...b.content };

@@ -439,6 +439,30 @@ warm-up a day or a short sequence; how they are marked (`kind` on blocks, a tag,
 exercise-example. With DayShape1.
 [2026-11-22 decided, user] The thresholds stay: one section under 30 minutes, two from 30 to 49, three from 50. Even
 minutes between sections and one section per area stand as proposed until the user says otherwise.
+[2026-11-24 decided, user] DayShape2: a voice warm-up opens every day that has a voice section, mixed days too ("for
+mixed days it's also important to warm up voice"). A short run of warm-up blocks, ~5-8 minutes (breath, lip rolls,
+scales/intervals), taken from the voice section's minutes. Marked by `kind: "warm-up"` on the block; not a step on the
+path.
+[2026-11-24 decided, user] DayShape2, guitar included (this replaces "no guitar warm-up for now"): every day with a
+guitar section opens that section with a short guitar warm-up run, by the same mechanism (kind "warm-up", minutes from
+the guitar section, turning with the date). Warm-ups are per area, so a voice and guitar day gets both: the voice
+warm-up first, the guitar warm-up at the start of the guitar section. Guitar blocks: loose hands, the spider, and one
+or two other common ones.
+[2026-11-24 done] DayShape2: `Block.kind` "warm-up" with `warmUpPart` 1 to 3 (its place in the run), read by the
+parser, kept in the block's content (no migration: `composeBlocks` returns a warm-up though it names no step);
+`plan/model/warmUp.ts` (`warmUpRun`: one block of each part in order, then round again, inside a third of the section
+and at most 8 minutes, at or under the player's level in the area, turning with `dayNumber`); `explainDay` takes the
+run out of the voice and the guitar section before `fill`; `TracedSection.warmUp` on /dev/compose (stage 2, stage 7,
+Architecture); on the plan's day the run is a part of its own, "Warm-up" (`sectionStarts`, no change to WeekView).
+Seed: 8 voice blocks (2 breath, 3 lip rolls, the scale, out from Do going up and going down) and 4 guitar blocks (loose
+hands, the spider, down-up picking, a slow trill), and the seven 5-minute `voice-guitar-advanced-first-week-warm-up-*`
+blocks marked as warm-ups (advanced, part 1, their steps taken off). Chosen where the decision was silent: the cap is a
+third of the section (5 of 15, 6 of 20, 8 from 24); yesterday's and declined warm-ups may come again; a section with
+nothing after it gets none; warm-ups stay out of the day's topic line. Open: db:seed-blocks not run, so the new blocks
+are not in the database and were not read at /dev/library; the lip roll has no "down, then up in one breath" shape
+(written as two tools); hand loosening has no tool or video (text only); a warm-up with `moves` "key": "any" has no
+key track (no step), so it stays in the key it is written in; `voice-beginner-lip-rolls-middle` stays a path block;
+the exercise-example skill still says every exercise names a concept and a step. Not seen signed in on /plan.
 
 TaskSeries PricingFaq: what the pricing, FAQ and terms promise, kept true to how plans are made (from NEW7, 2026-11-17)
 PricingFaq1: [NEW 2026-11-17] Drop the plan allowance. With NEW7, plans are composed from library blocks by our own code,

@@ -218,7 +218,12 @@ export function parseExercise(raw: unknown, where: string, entries: CatalogueEnt
   const unknown = [...new Set([...read.unknown, ...asked.unknown])];
   if (unknown.length) warnings.push(`${where}: dropped unknown kind tags: ${unknown.join(", ")}.`);
   Object.assign(ex, topicTags(e, ex.area, where, warnings));
-  Object.assign(ex, stepTags(e, ex, where, warnings));
+  if (e.kind === "warm-up") {
+    // a warm-up is no step on the path: it opens its area's part of a day, picked by its kind
+    ex.kind = "warm-up";
+    if (e.warmUpPart === 1 || e.warmUpPart === 2 || e.warmUpPart === 3) ex.warmUpPart = e.warmUpPart;
+    if (Array.isArray(e.steps) && e.steps.length) warnings.push(`${where}: a warm-up names no steps; left them out.`);
+  } else Object.assign(ex, stepTags(e, ex, where, warnings));
   const untagged = [!ex.level && "level", !ex.area && "area", !tags.length && "kind", !ex.topic && "topic"].filter(Boolean);
   if (untagged.length) warnings.push(`${where}: no ${untagged.join(", ")} tag.`);
   const why = str(e.why, 300);

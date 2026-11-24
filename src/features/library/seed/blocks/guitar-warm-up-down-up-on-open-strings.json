@@ -1,0 +1,56 @@
+{
+  "id": "guitar-warm-up-down-up-on-open-strings",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 2 of the guitar warm-up run, picked by its kind and never for a path step. The picking hand's warm-up, on open strings so the fretting hand rests; it shares the run's second part with the spider.",
+  "exercise": {
+    "title": "Down-up picking on the open strings",
+    "kind": "warm-up",
+    "warmUpPart": 2,
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "picking"
+    ],
+    "why": "Picking down and then up plays two notes with one swing of the hand, so a short time on open strings sets that swing before the fretting hand joins in.",
+    "learnBefore": [
+      "/course/1/spider"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows each open string four times, from the low E string up to the high e string and back down. Pick down, up, down, up on each string: the arrows under the tab show the stroke for each note.\nKeep going until your hand swings evenly, with no stop between the strokes."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "picking-drill",
+          "level": "beginner",
+          "bpm": 70
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 2
+    }
+  ]
+}

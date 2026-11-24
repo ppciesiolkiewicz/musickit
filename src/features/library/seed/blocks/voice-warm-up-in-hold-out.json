@@ -1,0 +1,52 @@
+{
+  "id": "voice-warm-up-in-hold-out",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 1 of the voice warm-up run, picked by its kind and never for a path step. One breathing drill with one feel to reach, short enough to sit before the first note.",
+  "exercise": {
+    "title": "Breathe in, hold, breathe out",
+    "kind": "warm-up",
+    "warmUpPart": 1,
+    "area": "voice",
+    "tags": [
+      "sing"
+    ],
+    "topic": "voice-breath-range",
+    "concepts": [
+      "breath"
+    ],
+    "why": "Each round is one count longer than the last, so your breathing slows and deepens before the first note needs it.",
+    "learnBefore": [
+      "/course/3/breath-and-holding-a-note"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Start in the circle below to begin the breathing: the circle grows as you breathe in, stays while you hold and shrinks as you breathe out.\nKeep your shoulders still and let your belly do the moving.\nStay with the circle until your breath out is as slow at the end as at the start."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "breathwork",
+          "drill": "farinelli",
+          "level": "beginner"
+        }
+      }
+    ],
+    "exploreMore": [
+      "/theory/singing/breathing"
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [],
+      "minutes": 2
+    }
+  ]
+}

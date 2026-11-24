@@ -1,0 +1,58 @@
+{
+  "id": "guitar-warm-up-hammer-on-and-pull-off",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 3 of the guitar warm-up run, picked by its kind and never for a path step. A slow trill for finger strength, closing the run; it is pitched at beginner, so a brand new player's run ends with the spider.",
+  "exercise": {
+    "title": "A slow trill with two fingers",
+    "kind": "warm-up",
+    "warmUpPart": 3,
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "legato"
+    ],
+    "why": "A hammer-on and a pull-off sound a note with the fretting hand alone, so a slow trill wakes each finger's own strength before fast playing needs it.",
+    "learnBefore": [
+      "/course/4/legato"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows the trill: frets 5 and 7 on the G string, with fingers 1 and 3. Pick the first note once. Then, without picking again, hammer finger 3 onto its fret and pull it off again, one note per beat.\nRest when your hand gets tired, then go again.\n_Stop when your hand starts to hurt: the trill should feel light, never forced._"
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "legato-trill",
+          "level": "beginner",
+          "string": 3,
+          "fret": 5,
+          "bpm": 60
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 2
+    }
+  ]
+}

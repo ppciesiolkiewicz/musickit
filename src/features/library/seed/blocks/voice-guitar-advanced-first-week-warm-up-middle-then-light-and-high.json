@@ -6,9 +6,11 @@
     "agents": 1,
     "teaching": 5
   },
-  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 4.",
+  "note": "Moved from plans/voice-guitar-advanced-first-week.json, day 4. Marked a warm-up (DayShape2, 2026-11-24): a whole 5-minute warm-up for an advanced singer, part 1 of the voice run; its choice names no step now. The text is unchanged, so the versions are too.",
   "exercise": {
     "title": "Warm-up: middle, then light and high",
+    "kind": "warm-up",
+    "warmUpPart": 1,
     "area": "voice",
     "tags": [
       "sing"
@@ -72,9 +74,7 @@
     {
       "name": "advanced",
       "level": "advanced",
-      "steps": [
-        "range:3"
-      ],
+      "steps": [],
       "minutes": 5
     }
   ]

@@ -12,6 +12,7 @@ through the library tools as the models to write like, so a flaw here shows up i
 - **Done is a feel, never a count.** Each block says loosely what to reach.
 - **Pick tools from the prompt's "Which tool for what"** (`plan/model/prompt.ts`), not from the file being copied.
 - **A block file is the exercise plus its `choices`**: `level`, `steps`, `moves` and `minutes` sit in a choice, never in `exercise`. A plan's days name a block and one of its choices (`{ "block", "choice", "minutes"? }`), never a copy of an exercise.
+- **A warm-up is marked, not placed.** `"kind": "warm-up"` with `"warmUpPart"` in `exercise`, `"steps": []` on its choices: the composer opens a voice or guitar section with a run of them and never picks one for a step (`README.md`, "Writing rules").
 - **One block per exercise.** Another level or range of the same drill is a choice in its file, not a copy. Words that
   must differ by level are separate blocks. Another tool or another drill is a new block: never edit one block into
   another.

@@ -367,7 +367,7 @@ export default function ComposeLab() {
           <div className="mb-3 text-xs">
             <p className="mb-1 leading-relaxed text-slate-400">Before the steps, <C>dayAreas</C> splits the day into sections, one area each. {trace.minutes.asked} minutes give {trace.areas.count === 1 ? "1 section" : `${trace.areas.count} sections`} (one under 30 minutes, two from 30 to 49, three from 50), and the player picked {trace.areas.picked.join(", ")}. Today&apos;s areas: <span className="text-slate-100">{trace.areas.today.join(", then ")}</span>. Which areas a day gets turns with the date. <C>daySteps</C> and <C>fill</C> run once for each section. The lists below hold every section&apos;s steps, one section after the other.</p>
             <table className="w-full text-left">
-              <thead className="text-slate-500"><tr><th className="py-1 pr-3 font-medium">Section</th><th className="pr-3 font-medium">Kept min</th><th className="pr-3 font-medium">Even share</th><th className="pr-3 font-medium">Budget with what was left over</th><th className="pr-3 font-medium">Filled</th><th className="pr-3 font-medium">Added afterwards</th><th className="font-medium">Fresh / open / review steps</th></tr></thead>
+              <thead className="text-slate-500"><tr><th className="py-1 pr-3 font-medium">Section</th><th className="pr-3 font-medium">Kept min</th><th className="pr-3 font-medium">Even share</th><th className="pr-3 font-medium">Budget with what was left over</th><th className="pr-3 font-medium">Warm-up</th><th className="pr-3 font-medium">Filled</th><th className="pr-3 font-medium">Added afterwards</th><th className="font-medium">Fresh / open / review steps</th></tr></thead>
               <tbody>
                 {trace.sections.map((sec) => (
                   <tr key={sec.area} className="border-t border-slate-800 text-slate-200">
@@ -375,6 +375,7 @@ export default function ComposeLab() {
                     <td className="pr-3 tabular-nums">{sec.kept}</td>
                     <td className="pr-3 tabular-nums">{Math.round(sec.share)}</td>
                     <td className="pr-3 tabular-nums">{Math.round(sec.budget)}</td>
+                    <td className="pr-3 tabular-nums">{sec.warmUp.minutes}</td>
                     <td className="pr-3 tabular-nums">{sec.filled}</td>
                     <td className="pr-3 tabular-nums">{sec.toppedUp}</td>
                     <td className="tabular-nums">{sec.steps.fresh.length} / {sec.steps.open.length} / {sec.steps.review.length}</td>
@@ -382,6 +383,19 @@ export default function ComposeLab() {
                 ))}
               </tbody>
             </table>
+            <p className="mb-1 mt-3 leading-relaxed text-slate-400">A voice or a guitar section opens with a warm-up run (<C>warmUpRun</C> in <C>plan/model/warmUp.ts</C>). The run comes out of the section&apos;s budget before any step is filled: at most a third of the section and never more than 8 minutes. It takes blocks marked <C>kind: &quot;warm-up&quot;</C> of that area at or under the player&apos;s level in the area, one of each part in order (1, 2, 3), then round again while the next one fits. Which block of a part comes first turns with the date. A warm-up names no step, so it is never one of the picks in stage 4, and yesterday&apos;s run may come again. A theory section has no warm-up.</p>
+            {trace.sections.filter((sec) => sec.warmUp.cap > 0 || sec.warmUp.picks.length > 0).map((sec) => (
+              <div key={sec.area} className="mt-1 text-slate-200">
+                <span className="text-slate-400">{sec.area}: up to {sec.warmUp.cap} min, {sec.warmUp.pool} warm-up {sec.warmUp.pool === 1 ? "block" : "blocks"} for level {sec.warmUp.level}.</span>{" "}
+                {sec.warmUp.picks.length ? (
+                  <ol className="mt-1 list-decimal pl-5">
+                    {sec.warmUp.picks.map((w) => (
+                      <li key={w.choiceId}>{w.title} <span className="text-slate-500">· part {w.part} · {w.minutes} min · <C>{w.choiceId}</C>{w.given?.bpm ? ` · ${w.given.bpm.now} bpm` : ""}</span></li>
+                    ))}
+                  </ol>
+                ) : <span className="text-slate-500">No warm-up today: none fits, or the section has nothing to play after it.</span>}
+              </div>
+            ))}
           </div>
           <div className="flex flex-col gap-2 text-xs">
             {([["Fresh", trace.steps.fresh, STAGE_STYLE.fresh], ["Open", trace.steps.open, STAGE_STYLE.open], ["Review", trace.steps.review, STAGE_STYLE.review]] as const).map(([name, refs, tone]) => (
@@ -532,7 +546,7 @@ export default function ComposeLab() {
         </Stage>
 
         <Stage n={7} title="The day" rule={<>
-          <p>The result: the day as it is stored in the player&apos;s plan. The exercises are in the order stage 4 picked them, except that all review exercises go last, so a day starts with new material and ends with review.</p>
+          <p>The result: the day as it is stored in the player&apos;s plan. The exercises are in the order stage 4 picked them, except that a voice or a guitar section opens with its warm-up run and all review exercises go last in their section, so a section starts with its warm-up, goes on with new material and ends with review.</p>
           <p>Each row is one exercise: its title, its minutes, the steps its choice names, and in blue the exercise version stages 5 and 6 gave it, when it got one.</p>
           <p>A day is marked short when it ends more than 5 minutes under its budget. That means the library had no more choices left for these steps, not that something failed.</p>
         </>}>
@@ -542,6 +556,7 @@ export default function ComposeLab() {
                 <span className="w-5 tabular-nums text-slate-500">{i + 1}</span>
                 <span className="text-slate-100">{shownTitle(e)}</span>
                 <span className="text-slate-500">{e.minutes} min</span>
+                {e.kind === "warm-up" && <span className="rounded border border-amber-400/40 px-1 text-amber-200">{e.area} warm-up</span>}
                 {(e.steps ?? []).map((r) => <StepChip key={r} refId={r} />)}
                 {e.given && <span className="text-sky-200">{version(e.given)}</span>}
               </li>

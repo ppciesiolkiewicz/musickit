@@ -192,246 +192,258 @@ import f189_guitar_theory_intermediate_solo_with_the_3rd from "./guitar-theory-i
 import f190_guitar_theory_intermediate_twelve_bar_in_a from "./guitar-theory-intermediate-twelve-bar-in-a.json";
 import f191_guitar_theory_intermediate_which_numeral from "./guitar-theory-intermediate-which-numeral.json";
 import f192_guitar_theory_intermediate_why_blues_uses_three_7ths from "./guitar-theory-intermediate-why-blues-uses-three-7ths.json";
-import f193_showcase_blocks_do_mi_sol from "./showcase-blocks-do-mi-sol.json";
-import f194_showcase_pick_step_tunes from "./showcase-pick-step-tunes.json";
-import f195_showcase_progression_four_ways from "./showcase-progression-four-ways.json";
-import f196_showcase_stages_tempo_ladder from "./showcase-stages-tempo-ladder.json";
-import f197_showcase_variants_same_frets from "./showcase-variants-same-frets.json";
-import f198_theory_advanced_all_twelve_intervals from "./theory-advanced-all-twelve-intervals.json";
-import f199_theory_advanced_click_on_two_and_four from "./theory-advanced-click-on-two-and-four.json";
-import f200_theory_advanced_diminished_seventh from "./theory-advanced-diminished-seventh.json";
-import f201_theory_advanced_guide_tones from "./theory-advanced-guide-tones.json";
-import f202_theory_advanced_jazz_standard_changes from "./theory-advanced-jazz-standard-changes.json";
-import f203_theory_advanced_melodic_minor from "./theory-advanced-melodic-minor.json";
-import f204_theory_advanced_minor_ii_v_i from "./theory-advanced-minor-ii-v-i.json";
-import f205_theory_advanced_mix_all_twelve_down_and_together from "./theory-advanced-mix-all-twelve-down-and-together.json";
-import f206_theory_advanced_mix_major_and_minor_ii_v_i from "./theory-advanced-mix-major-and-minor-ii-v-i.json";
-import f207_theory_advanced_mix_three_minor_scales from "./theory-advanced-mix-three-minor-scales.json";
-import f208_theory_advanced_modes_by_ear from "./theory-advanced-modes-by-ear.json";
-import f209_theory_advanced_moving_to_a_close_key from "./theory-advanced-moving-to-a-close-key.json";
-import f210_theory_advanced_name_notes_quickly from "./theory-advanced-name-notes-quickly.json";
-import f211_theory_advanced_name_the_chords_of_a_hidden_chart from "./theory-advanced-name-the-chords-of-a-hidden-chart.json";
-import f212_theory_advanced_ninth_chords from "./theory-advanced-ninth-chords.json";
-import f213_theory_advanced_song_chords_by_ear from "./theory-advanced-song-chords-by-ear.json";
-import f214_theory_advanced_syncopation from "./theory-advanced-syncopation.json";
-import f215_theory_advanced_thirteenth_chords from "./theory-advanced-thirteenth-chords.json";
-import f216_theory_advanced_up_a_step_last_chorus from "./theory-advanced-up-a-step-last-chorus.json";
-import f217_theory_beginner_clap_along_eighths from "./theory-beginner-clap-along-eighths.json";
-import f218_theory_beginner_eighths from "./theory-beginner-eighths.json";
-import f219_theory_beginner_major_minor_one_root from "./theory-beginner-major-minor-one-root.json";
-import f220_theory_beginner_name_the_notes_in_the_spaces from "./theory-beginner-name-the-notes-in-the-spaces.json";
-import f221_theory_beginner_one_four_five from "./theory-beginner-one-four-five.json";
-import f222_theory_beginner_pop_one_five_six_four from "./theory-beginner-pop-one-five-six-four.json";
-import f223_theory_beginner_second_and_fourth from "./theory-beginner-second-and-fourth.json";
-import f224_theory_beginner_sharps_and_flats from "./theory-beginner-sharps-and-flats.json";
-import f225_theory_intermediate_add9 from "./theory-intermediate-add9.json";
-import f226_theory_intermediate_augmented_triad from "./theory-intermediate-augmented-triad.json";
-import f227_theory_intermediate_clap_along_sixteenths from "./theory-intermediate-clap-along-sixteenths.json";
-import f228_theory_intermediate_diminished_triad from "./theory-intermediate-diminished-triad.json";
-import f229_theory_intermediate_dorian from "./theory-intermediate-dorian.json";
-import f230_theory_intermediate_five_chord_in_minor from "./theory-intermediate-five-chord-in-minor.json";
-import f231_theory_intermediate_flat_keys from "./theory-intermediate-flat-keys.json";
-import f232_theory_intermediate_harmonic_minor from "./theory-intermediate-harmonic-minor.json";
-import f233_theory_intermediate_hearing_changes from "./theory-intermediate-hearing-changes.json";
-import f234_theory_intermediate_la_as_home from "./theory-intermediate-la-as-home.json";
-import f235_theory_intermediate_mix_do_or_la_as_home from "./theory-intermediate-mix-do-or-la-as-home.json";
-import f236_theory_intermediate_mix_intervals_up_down_together from "./theory-intermediate-mix-intervals-up-down-together.json";
-import f237_theory_intermediate_mix_maj7_7_m7 from "./theory-intermediate-mix-maj7-7-m7.json";
-import f238_theory_intermediate_mix_major_minor_dim_aug from "./theory-intermediate-mix-major-minor-dim-aug.json";
-import f239_theory_intermediate_mix_one_four_five_six from "./theory-intermediate-mix-one-four-five-six.json";
-import f240_theory_intermediate_mix_quarters_to_sixteenths from "./theory-intermediate-mix-quarters-to-sixteenths.json";
-import f241_theory_intermediate_mix_seventh_chords_and_triads from "./theory-intermediate-mix-seventh-chords-and-triads.json";
-import f242_theory_intermediate_mix_sharp_and_flat_keys from "./theory-intermediate-mix-sharp-and-flat-keys.json";
-import f243_theory_intermediate_mix_sus_add9_or_plain from "./theory-intermediate-mix-sus-add9-or-plain.json";
-import f244_theory_intermediate_mixolydian from "./theory-intermediate-mixolydian.json";
-import f245_theory_intermediate_name_the_4_or_the_5_chord from "./theory-intermediate-name-the-4-or-the-5-chord.json";
-import f246_theory_intermediate_name_the_notes_on_ledger_lines from "./theory-intermediate-name-the-notes-on-ledger-lines.json";
-import f247_theory_intermediate_notes_on_the_staff from "./theory-intermediate-notes-on-the-staff.json";
-import f248_theory_intermediate_seventh_chords from "./theory-intermediate-seventh-chords.json";
-import f249_theory_intermediate_sharp_keys from "./theory-intermediate-sharp-keys.json";
-import f250_theory_intermediate_sixteenths_and_rests from "./theory-intermediate-sixteenths-and-rests.json";
-import f251_theory_intermediate_sus2 from "./theory-intermediate-sus2.json";
-import f252_theory_intermediate_the_6_chord_among_the_4_and_the_5 from "./theory-intermediate-the-6-chord-among-the-4-and-the-5.json";
-import f253_theory_new_clap_along_the_beat from "./theory-new-clap-along-the-beat.json";
-import f254_theory_new_major_or_minor from "./theory-new-major-or-minor.json";
-import f255_theory_new_name_the_notes_on_the_lines from "./theory-new-name-the-notes-on-the-lines.json";
-import f256_theory_new_note_names_a_to_g from "./theory-new-note-names-a-to-g.json";
-import f257_theory_new_steady_beat from "./theory-new-steady-beat.json";
-import f258_theory_only_first_week_3rds_both_notes_at_once from "./theory-only-first-week-3rds-both-notes-at-once.json";
-import f259_theory_only_first_week_5th_or_octave_by_ear from "./theory-only-first-week-5th-or-octave-by-ear.json";
-import f260_theory_only_first_week_5ths_octaves_and_3rds_by_ear from "./theory-only-first-week-5ths-octaves-and-3rds-by-ear.json";
-import f261_theory_only_first_week_c_major_whole_steps_and_half_steps from "./theory-only-first-week-c-major-whole-steps-and-half-steps.json";
-import f262_theory_only_first_week_f_major_its_scale_its_chords_its_7th from "./theory-only-first-week-f-major-its-scale-its-chords-its-7th.json";
-import f263_theory_only_first_week_hear_the_moment_the_chord_changes from "./theory-only-first-week-hear-the-moment-the-chord-changes.json";
-import f264_theory_only_first_week_major_3rd_or_minor_3rd from "./theory-only-first-week-major-3rd-or-minor-3rd.json";
-import f265_theory_only_first_week_major_and_minor_chords_one_note_apart from "./theory-only-first-week-major-and-minor-chords-one-note-apart.json";
-import f266_theory_only_first_week_major_key_or_minor_key_by_ear from "./theory-only-first-week-major-key-or-minor-key-by-ear.json";
-import f267_theory_only_first_week_major_pentatonic_five_notes_of_the_major_scale from "./theory-only-first-week-major-pentatonic-five-notes-of-the-major-scale.json";
-import f268_theory_only_first_week_one_sharp_one_flat from "./theory-only-first-week-one-sharp-one-flat.json";
-import f269_theory_only_first_week_sus4_the_4th_in_place_of_the_3rd from "./theory-only-first-week-sus4-the-4th-in-place-of-the-3rd.json";
-import f270_theory_only_first_week_the_1_4_and_5_chords_found_on_the_circle from "./theory-only-first-week-the-1-4-and-5-chords-found-on-the-circle.json";
-import f271_theory_only_first_week_the_dominant_7_the_5_chord_with_one_more_note from "./theory-only-first-week-the-dominant-7-the-5-chord-with-one-more-note.json";
-import f272_voice_advanced_3rds_to_6ths_falling from "./voice-advanced-3rds-to-6ths-falling.json";
-import f273_voice_advanced_6ths_7ths_or_octave from "./voice-advanced-6ths-7ths-or-octave.json";
-import f274_voice_advanced_a_fast_pentatonic_run from "./voice-advanced-a-fast-pentatonic-run.json";
-import f275_voice_advanced_a_fast_pentatonic_run_to_the_top from "./voice-advanced-a-fast-pentatonic-run-to-the-top.json";
-import f276_voice_advanced_a_line_with_a_wide_leap from "./voice-advanced-a-line-with-a-wide-leap.json";
-import f277_voice_advanced_a_long_breath_out from "./voice-advanced-a-long-breath-out.json";
-import f278_voice_advanced_a_pentatonic_riff from "./voice-advanced-a-pentatonic-riff.json";
-import f279_voice_advanced_a_run_past_the_octave from "./voice-advanced-a-run-past-the-octave.json";
-import f280_voice_advanced_a_slide_over_two_octaves from "./voice-advanced-a-slide-over-two-octaves.json";
-import f281_voice_advanced_a_whole_song_in_tune from "./voice-advanced-a-whole-song-in-tune.json";
-import f282_voice_advanced_all_twelve_falling from "./voice-advanced-all-twelve-falling.json";
-import f283_voice_advanced_an_octave_slide_a_little_higher from "./voice-advanced-an-octave-slide-a-little-higher.json";
-import f284_voice_advanced_around_the_5th from "./voice-advanced-around-the-5th.json";
-import f285_voice_advanced_every_hard_leap_falling from "./voice-advanced-every-hard-leap-falling.json";
-import f286_voice_advanced_every_hard_leap_unseen from "./voice-advanced-every-hard-leap-unseen.json";
-import f287_voice_advanced_every_hard_leap_up_and_down from "./voice-advanced-every-hard-leap-up-and-down.json";
-import f288_voice_advanced_guide_tones from "./voice-advanced-guide-tones.json";
-import f289_voice_advanced_guide_tones_over_ii_v_i from "./voice-advanced-guide-tones-over-ii-v-i.json";
-import f290_voice_advanced_guide_tones_round_a_turnaround from "./voice-advanced-guide-tones-round-a-turnaround.json";
-import f291_voice_advanced_hard_leaps from "./voice-advanced-hard-leaps.json";
-import f292_voice_advanced_hard_leaps_down_from_do from "./voice-advanced-hard-leaps-down-from-do.json";
-import f293_voice_advanced_hard_leaps_you_cant_see from "./voice-advanced-hard-leaps-you-cant-see.json";
-import f294_voice_advanced_hiss_then_buzz_for_longer from "./voice-advanced-hiss-then-buzz-for-longer.json";
-import f295_voice_advanced_ii_v_i_guide_tones_your_way from "./voice-advanced-ii-v-i-guide-tones-your-way.json";
-import f296_voice_advanced_in_hold_out_to_11 from "./voice-advanced-in-hold-out-to-11.json";
-import f297_voice_advanced_in_hold_out_to_12 from "./voice-advanced-in-hold-out-to-12.json";
-import f298_voice_advanced_in_hold_out_to_13 from "./voice-advanced-in-hold-out-to-13.json";
-import f299_voice_advanced_leaps_wider_than_an_octave from "./voice-advanced-leaps-wider-than-an-octave.json";
-import f300_voice_advanced_mix_all_five_modes from "./voice-advanced-mix-all-five-modes.json";
-import f301_voice_advanced_mix_sixths_sevenths_octave from "./voice-advanced-mix-sixths-sevenths-octave.json";
-import f302_voice_advanced_mix_tunes_chords_off from "./voice-advanced-mix-tunes-chords-off.json";
-import f303_voice_advanced_read_tunes_that_leap_past_the_octave from "./voice-advanced-read-tunes-that-leap-past-the-octave.json";
-import f304_voice_advanced_read_tunes_with_a_7th from "./voice-advanced-read-tunes-with-a-7th.json";
-import f305_voice_advanced_read_tunes_with_an_octave from "./voice-advanced-read-tunes-with-an-octave.json";
-import f306_voice_advanced_sing_the_tritone_the_5th_and_the_minor_6th from "./voice-advanced-sing-the-tritone-the-5th-and-the-minor-6th.json";
-import f307_voice_advanced_sing_the_two_7ths_and_the_octave from "./voice-advanced-sing-the-two-7ths-and-the-octave.json";
-import f308_voice_advanced_singing_locrian from "./voice-advanced-singing-locrian.json";
-import f309_voice_advanced_singing_lydian from "./voice-advanced-singing-lydian.json";
-import f310_voice_advanced_singing_phrygian from "./voice-advanced-singing-phrygian.json";
-import f311_voice_advanced_the_chord_as_a_fast_run from "./voice-advanced-the-chord-as-a-fast-run.json";
-import f312_voice_advanced_the_octave_run from "./voice-advanced-the-octave-run.json";
-import f313_voice_advanced_tunes_with_awkward_leaps from "./voice-advanced-tunes-with-awkward-leaps.json";
-import f314_voice_advanced_two_notes_at_once from "./voice-advanced-two-notes-at-once.json";
-import f315_voice_advanced_up_the_chord_hold_the_top from "./voice-advanced-up-the-chord-hold-the-top.json";
-import f316_voice_advanced_vowels_across_the_break from "./voice-advanced-vowels-across-the-break.json";
-import f317_voice_advanced_your_line_over_ii_v_i_faster from "./voice-advanced-your-line-over-ii-v-i-faster.json";
-import f318_voice_beginner_3rd_5th_or_6th from "./voice-beginner-3rd-5th-or-6th.json";
-import f319_voice_beginner_3rd_or_5th from "./voice-beginner-3rd-or-5th.json";
-import f320_voice_beginner_5th_under_the_tune from "./voice-beginner-5th-under-the-tune.json";
-import f321_voice_beginner_a_long_steady_do from "./voice-beginner-a-long-steady-do.json";
-import f322_voice_beginner_a_longer_skipping_tune_then_your_own from "./voice-beginner-a-longer-skipping-tune-then-your-own.json";
-import f323_voice_beginner_a_skipping_tune_then_over_chords from "./voice-beginner-a-skipping-tune-then-over-chords.json";
-import f324_voice_beginner_a_sol_tune_then_your_own_line from "./voice-beginner-a-sol-tune-then-your-own-line.json";
-import f325_voice_beginner_a_tune_under_do_then_over_three_chords from "./voice-beginner-a-tune-under-do-then-over-three-chords.json";
-import f326_voice_beginner_breathe_then_hold_do from "./voice-beginner-breathe-then-hold-do.json";
-import f327_voice_beginner_do_mi_sol from "./voice-beginner-do-mi-sol.json";
-import f328_voice_beginner_do_mi_sol_in_three_keys from "./voice-beginner-do-mi-sol-in-three-keys.json";
-import f329_voice_beginner_do_re_mi_on_the_beat from "./voice-beginner-do-re-mi-on-the-beat.json";
-import f330_voice_beginner_find_the_smooth_spot from "./voice-beginner-find-the-smooth-spot.json";
-import f331_voice_beginner_five_intervals_sung_back from "./voice-beginner-five-intervals-sung-back.json";
-import f332_voice_beginner_five_note_run from "./voice-beginner-five-note-run.json";
-import f333_voice_beginner_five_vowels_on_one_easy_note from "./voice-beginner-five-vowels-on-one-easy-note.json";
-import f334_voice_beginner_hear_and_sing_back from "./voice-beginner-hear-and-sing-back.json";
-import f335_voice_beginner_home_chord_run from "./voice-beginner-home-chord-run.json";
-import f336_voice_beginner_hum_then_open from "./voice-beginner-hum-then-open.json";
-import f337_voice_beginner_in_tune_over_drone from "./voice-beginner-in-tune-over-drone.json";
-import f338_voice_beginner_lip_rolls_middle from "./voice-beginner-lip-rolls-middle.json";
-import f339_voice_beginner_mix_steps_and_skips from "./voice-beginner-mix-steps-and-skips.json";
-import f340_voice_beginner_mix_whole_octave from "./voice-beginner-mix-whole-octave.json";
-import f341_voice_beginner_siren_to_sol from "./voice-beginner-siren-to-sol.json";
-import f342_voice_beginner_skips_falling from "./voice-beginner-skips-falling.json";
-import f343_voice_beginner_sol_la_sol_then_over_chords from "./voice-beginner-sol-la-sol-then-over-chords.json";
-import f344_voice_beginner_step_tunes_then_your_own from "./voice-beginner-step-tunes-then-your-own.json";
-import f345_voice_beginner_steps_and_skips_mixed from "./voice-beginner-steps-and-skips-mixed.json";
-import f346_voice_beginner_steps_from_the_staff from "./voice-beginner-steps-from-the-staff.json";
-import f347_voice_beginner_steps_or_skips from "./voice-beginner-steps-or-skips.json";
-import f348_voice_beginner_steps_then_3rds from "./voice-beginner-steps-then-3rds.json";
-import f349_voice_guitar_advanced_first_week_a_run_into_the_chord from "./voice-guitar-advanced-first-week-a-run-into-the-chord.json";
-import f350_voice_guitar_advanced_first_week_a_turnaround_with_the_band from "./voice-guitar-advanced-first-week-a-turnaround-with-the-band.json";
-import f351_voice_guitar_advanced_first_week_am_d_and_g_triads_on_two_string_sets from "./voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets.json";
-import f352_voice_guitar_advanced_first_week_am9_d9_and_gmaj7 from "./voice-guitar-advanced-first-week-am9-d9-and-gmaj7.json";
-import f353_voice_guitar_advanced_first_week_comp_a_soul_vamp from "./voice-guitar-advanced-first-week-comp-a-soul-vamp.json";
-import f354_voice_guitar_advanced_first_week_comp_the_ii_v_i_in_g_faster from "./voice-guitar-advanced-first-week-comp-the-ii-v-i-in-g-faster.json";
-import f355_voice_guitar_advanced_first_week_dm9_g9_and_cmaj7 from "./voice-guitar-advanced-first-week-dm9-g9-and-cmaj7.json";
-import f356_voice_guitar_advanced_first_week_fast_runs_rising_and_falling from "./voice-guitar-advanced-first-week-fast-runs-rising-and-falling.json";
-import f357_voice_guitar_advanced_first_week_five_notes_faster_in_stages from "./voice-guitar-advanced-first-week-five-notes-faster-in-stages.json";
-import f358_voice_guitar_advanced_first_week_guide_tones_over_the_ii_v_i_in_g from "./voice-guitar-advanced-first-week-guide-tones-over-the-ii-v-i-in-g.json";
-import f359_voice_guitar_advanced_first_week_name_the_chord_you_hear from "./voice-guitar-advanced-first-week-name-the-chord-you-hear.json";
-import f360_voice_guitar_advanced_first_week_name_the_interval_you_hear from "./voice-guitar-advanced-first-week-name-the-interval-you-hear.json";
-import f361_voice_guitar_advanced_first_week_nine_notes_and_the_octave from "./voice-guitar-advanced-first-week-nine-notes-and-the-octave.json";
-import f362_voice_guitar_advanced_first_week_pentatonic_runs_at_speed from "./voice-guitar-advanced-first-week-pentatonic-runs-at-speed.json";
-import f363_voice_guitar_advanced_first_week_runs_over_a_soul_vamp from "./voice-guitar-advanced-first-week-runs-over-a-soul-vamp.json";
-import f364_voice_guitar_advanced_first_week_shells_and_guide_tones_in_c from "./voice-guitar-advanced-first-week-shells-and-guide-tones-in-c.json";
-import f365_voice_guitar_advanced_first_week_sus_and_add9_on_top from "./voice-guitar-advanced-first-week-sus-and-add9-on-top.json";
-import f366_voice_guitar_advanced_first_week_the_3rd_and_7th_eyes_off_the_tab from "./voice-guitar-advanced-first-week-the-3rd-and-7th-eyes-off-the-tab.json";
-import f367_voice_guitar_advanced_first_week_the_3rd_and_7th_of_each_chord from "./voice-guitar-advanced-first-week-the-3rd-and-7th-of-each-chord.json";
-import f368_voice_guitar_advanced_first_week_the_do_to_sol_run_faster from "./voice-guitar-advanced-first-week-the-do-to-sol-run-faster.json";
-import f369_voice_guitar_advanced_first_week_the_hard_leaps_7ths_tritone_minor_6th from "./voice-guitar-advanced-first-week-the-hard-leaps-7ths-tritone-minor-6th.json";
-import f370_voice_guitar_advanced_first_week_the_octave_run from "./voice-guitar-advanced-first-week-the-octave-run.json";
-import f371_voice_guitar_advanced_first_week_the_set from "./voice-guitar-advanced-first-week-the-set.json";
-import f372_voice_guitar_advanced_first_week_the_turnaround_in_g_two_ways from "./voice-guitar-advanced-first-week-the-turnaround-in-g-two-ways.json";
-import f373_voice_guitar_advanced_first_week_tunes_with_wide_leaps from "./voice-guitar-advanced-first-week-tunes-with-wide-leaps.json";
-import f374_voice_guitar_advanced_first_week_turns from "./voice-guitar-advanced-first-week-turns.json";
-import f375_voice_guitar_advanced_first_week_two_harmony_lines_then_runs_between from "./voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between.json";
-import f376_voice_guitar_advanced_first_week_warm_up_breath_and_a_lip_roll from "./voice-guitar-advanced-first-week-warm-up-breath-and-a-lip-roll.json";
-import f377_voice_guitar_advanced_first_week_warm_up_hiss_to_voice_fast_siren from "./voice-guitar-advanced-first-week-warm-up-hiss-to-voice-fast-siren.json";
-import f378_voice_guitar_advanced_first_week_warm_up_long_breath_out_lip_roll_up from "./voice-guitar-advanced-first-week-warm-up-long-breath-out-lip-roll-up.json";
-import f379_voice_guitar_advanced_first_week_warm_up_longer_breath_light_top from "./voice-guitar-advanced-first-week-warm-up-longer-breath-light-top.json";
-import f380_voice_guitar_advanced_first_week_warm_up_middle_then_light_and_high from "./voice-guitar-advanced-first-week-warm-up-middle-then-light-and-high.json";
-import f381_voice_guitar_advanced_first_week_warm_up_siren_and_low_hum from "./voice-guitar-advanced-first-week-warm-up-siren-and-low-hum.json";
-import f382_voice_guitar_advanced_first_week_warm_up_siren_and_middle from "./voice-guitar-advanced-first-week-warm-up-siren-and-middle.json";
-import f383_voice_guitar_advanced_first_week_your_own_line_over_the_ii_v_i_in_c from "./voice-guitar-advanced-first-week-your-own-line-over-the-ii-v-i-in-c.json";
-import f384_voice_intermediate_a_few_notes_higher_and_lower from "./voice-intermediate-a-few-notes-higher-and-lower.json";
-import f385_voice_intermediate_a_harmony_line_over_three_chords from "./voice-intermediate-a-harmony-line-over-three-chords.json";
-import f386_voice_intermediate_a_long_breath_out from "./voice-intermediate-a-long-breath-out.json";
-import f387_voice_intermediate_a_run_with_turns from "./voice-intermediate-a-run-with-turns.json";
-import f388_voice_intermediate_a_tune_that_drops_an_octave from "./voice-intermediate-a-tune-that-drops-an-octave.json";
-import f389_voice_intermediate_a_tune_that_falls_a_4th from "./voice-intermediate-a-tune-that-falls-a-4th.json";
-import f390_voice_intermediate_a_tune_with_a_5th_then_your_own_line from "./voice-intermediate-a-tune-with-a-5th-then-your-own-line.json";
-import f391_voice_intermediate_an_octave_tune_then_every_leap from "./voice-intermediate-an-octave-tune-then-every-leap.json";
-import f392_voice_intermediate_do_mi_sol_do_then_a_run_home from "./voice-intermediate-do-mi-sol-do-then-a-run-home.json";
-import f393_voice_intermediate_five_notes_up_and_back from "./voice-intermediate-five-notes-up-and-back.json";
-import f394_voice_intermediate_five_vowels_as_the_note_climbs from "./voice-intermediate-five-vowels-as-the-note-climbs.json";
-import f395_voice_intermediate_from_the_4th_up_to_the_octave from "./voice-intermediate-from-the-4th-up-to-the-octave.json";
-import f396_voice_intermediate_hiss_then_buzz from "./voice-intermediate-hiss-then-buzz.json";
-import f397_voice_intermediate_in_hold_out from "./voice-intermediate-in-hold-out.json";
-import f398_voice_intermediate_in_hold_out_filled_to_80 from "./voice-intermediate-in-hold-out-filled-to-80.json";
-import f399_voice_intermediate_in_hold_out_the_long_rounds from "./voice-intermediate-in-hold-out-the-long-rounds.json";
-import f400_voice_intermediate_leaps from "./voice-intermediate-leaps.json";
-import f401_voice_intermediate_leaps_falling from "./voice-intermediate-leaps-falling.json";
-import f402_voice_intermediate_leaps_you_cant_see from "./voice-intermediate-leaps-you-cant-see.json";
-import f403_voice_intermediate_mix_dorian_or_mixolydian from "./voice-intermediate-mix-dorian-or-mixolydian.json";
-import f404_voice_intermediate_mix_fourths_and_fifths from "./voice-intermediate-mix-fourths-and-fifths.json";
-import f405_voice_intermediate_mix_runs_back_to_back from "./voice-intermediate-mix-runs-back-to-back.json";
-import f406_voice_intermediate_mix_tunes_easy_to_hard from "./voice-intermediate-mix-tunes-easy-to-hard.json";
-import f407_voice_intermediate_nine_notes_up_and_back from "./voice-intermediate-nine-notes-up-and-back.json";
-import f408_voice_intermediate_read_it_before_you_hear_it from "./voice-intermediate-read-it-before-you-hear-it.json";
-import f409_voice_intermediate_read_two_tunes_with_a_5th from "./voice-intermediate-read-two-tunes-with-a-5th.json";
-import f410_voice_intermediate_sing_the_3rd_the_4th_and_the_5th from "./voice-intermediate-sing-the-3rd-the-4th-and-the-5th.json";
-import f411_voice_intermediate_sing_the_4th_the_5th_and_the_octave from "./voice-intermediate-sing-the-4th-the-5th-and-the-octave.json";
-import f412_voice_intermediate_singing_dorian from "./voice-intermediate-singing-dorian.json";
-import f413_voice_intermediate_singing_mixolydian from "./voice-intermediate-singing-mixolydian.json";
-import f414_voice_intermediate_six_falling_leaps_sung_back from "./voice-intermediate-six-falling-leaps-sung-back.json";
-import f415_voice_intermediate_six_leaps_to_tell_apart from "./voice-intermediate-six-leaps-to-tell-apart.json";
-import f416_voice_intermediate_slide_to_the_high_do from "./voice-intermediate-slide-to-the-high-do.json";
-import f417_voice_intermediate_slides_across_the_break from "./voice-intermediate-slides-across-the-break.json";
-import f418_voice_intermediate_the_4th_the_5th_and_their_neighbours from "./voice-intermediate-the-4th-the-5th-and-their-neighbours.json";
-import f419_voice_intermediate_the_do_to_sol_run_four_notes_a_beat from "./voice-intermediate-the-do-to-sol-run-four-notes-a-beat.json";
-import f420_voice_intermediate_the_harmony_line_then_your_own from "./voice-intermediate-the-harmony-line-then-your-own.json";
-import f421_voice_intermediate_tunes_with_leaps from "./voice-intermediate-tunes-with-leaps.json";
-import f422_voice_intermediate_two_notes_at_once from "./voice-intermediate-two-notes-at-once.json";
-import f423_voice_new_3rd_and_5th_from_do from "./voice-new-3rd-and-5th-from-do.json";
-import f424_voice_new_do_and_re from "./voice-new-do-and-re.json";
-import f425_voice_new_easy_tunes_by_ear from "./voice-new-easy-tunes-by-ear.json";
-import f426_voice_new_hold_your_note from "./voice-new-hold-your-note.json";
-import f427_voice_new_holding_a_note from "./voice-new-holding-a-note.json";
-import f428_voice_new_matching_a_pitch from "./voice-new-matching-a-pitch.json";
-import f429_voice_new_mix_do_to_sol from "./voice-new-mix-do-to-sol.json";
-import f430_voice_new_up_to_fa from "./voice-new-up-to-fa.json";
-import f431_voice_new_up_to_mi from "./voice-new-up-to-mi.json";
-import f432_voice_new_up_to_sol from "./voice-new-up-to-sol.json";
+import f193_guitar_warm_up_down_up_on_open_strings from "./guitar-warm-up-down-up-on-open-strings.json";
+import f194_guitar_warm_up_hammer_on_and_pull_off from "./guitar-warm-up-hammer-on-and-pull-off.json";
+import f195_guitar_warm_up_loosen_your_hands from "./guitar-warm-up-loosen-your-hands.json";
+import f196_guitar_warm_up_the_spider_slowly from "./guitar-warm-up-the-spider-slowly.json";
+import f197_showcase_blocks_do_mi_sol from "./showcase-blocks-do-mi-sol.json";
+import f198_showcase_pick_step_tunes from "./showcase-pick-step-tunes.json";
+import f199_showcase_progression_four_ways from "./showcase-progression-four-ways.json";
+import f200_showcase_stages_tempo_ladder from "./showcase-stages-tempo-ladder.json";
+import f201_showcase_variants_same_frets from "./showcase-variants-same-frets.json";
+import f202_theory_advanced_all_twelve_intervals from "./theory-advanced-all-twelve-intervals.json";
+import f203_theory_advanced_click_on_two_and_four from "./theory-advanced-click-on-two-and-four.json";
+import f204_theory_advanced_diminished_seventh from "./theory-advanced-diminished-seventh.json";
+import f205_theory_advanced_guide_tones from "./theory-advanced-guide-tones.json";
+import f206_theory_advanced_jazz_standard_changes from "./theory-advanced-jazz-standard-changes.json";
+import f207_theory_advanced_melodic_minor from "./theory-advanced-melodic-minor.json";
+import f208_theory_advanced_minor_ii_v_i from "./theory-advanced-minor-ii-v-i.json";
+import f209_theory_advanced_mix_all_twelve_down_and_together from "./theory-advanced-mix-all-twelve-down-and-together.json";
+import f210_theory_advanced_mix_major_and_minor_ii_v_i from "./theory-advanced-mix-major-and-minor-ii-v-i.json";
+import f211_theory_advanced_mix_three_minor_scales from "./theory-advanced-mix-three-minor-scales.json";
+import f212_theory_advanced_modes_by_ear from "./theory-advanced-modes-by-ear.json";
+import f213_theory_advanced_moving_to_a_close_key from "./theory-advanced-moving-to-a-close-key.json";
+import f214_theory_advanced_name_notes_quickly from "./theory-advanced-name-notes-quickly.json";
+import f215_theory_advanced_name_the_chords_of_a_hidden_chart from "./theory-advanced-name-the-chords-of-a-hidden-chart.json";
+import f216_theory_advanced_ninth_chords from "./theory-advanced-ninth-chords.json";
+import f217_theory_advanced_song_chords_by_ear from "./theory-advanced-song-chords-by-ear.json";
+import f218_theory_advanced_syncopation from "./theory-advanced-syncopation.json";
+import f219_theory_advanced_thirteenth_chords from "./theory-advanced-thirteenth-chords.json";
+import f220_theory_advanced_up_a_step_last_chorus from "./theory-advanced-up-a-step-last-chorus.json";
+import f221_theory_beginner_clap_along_eighths from "./theory-beginner-clap-along-eighths.json";
+import f222_theory_beginner_eighths from "./theory-beginner-eighths.json";
+import f223_theory_beginner_major_minor_one_root from "./theory-beginner-major-minor-one-root.json";
+import f224_theory_beginner_name_the_notes_in_the_spaces from "./theory-beginner-name-the-notes-in-the-spaces.json";
+import f225_theory_beginner_one_four_five from "./theory-beginner-one-four-five.json";
+import f226_theory_beginner_pop_one_five_six_four from "./theory-beginner-pop-one-five-six-four.json";
+import f227_theory_beginner_second_and_fourth from "./theory-beginner-second-and-fourth.json";
+import f228_theory_beginner_sharps_and_flats from "./theory-beginner-sharps-and-flats.json";
+import f229_theory_intermediate_add9 from "./theory-intermediate-add9.json";
+import f230_theory_intermediate_augmented_triad from "./theory-intermediate-augmented-triad.json";
+import f231_theory_intermediate_clap_along_sixteenths from "./theory-intermediate-clap-along-sixteenths.json";
+import f232_theory_intermediate_diminished_triad from "./theory-intermediate-diminished-triad.json";
+import f233_theory_intermediate_dorian from "./theory-intermediate-dorian.json";
+import f234_theory_intermediate_five_chord_in_minor from "./theory-intermediate-five-chord-in-minor.json";
+import f235_theory_intermediate_flat_keys from "./theory-intermediate-flat-keys.json";
+import f236_theory_intermediate_harmonic_minor from "./theory-intermediate-harmonic-minor.json";
+import f237_theory_intermediate_hearing_changes from "./theory-intermediate-hearing-changes.json";
+import f238_theory_intermediate_la_as_home from "./theory-intermediate-la-as-home.json";
+import f239_theory_intermediate_mix_do_or_la_as_home from "./theory-intermediate-mix-do-or-la-as-home.json";
+import f240_theory_intermediate_mix_intervals_up_down_together from "./theory-intermediate-mix-intervals-up-down-together.json";
+import f241_theory_intermediate_mix_maj7_7_m7 from "./theory-intermediate-mix-maj7-7-m7.json";
+import f242_theory_intermediate_mix_major_minor_dim_aug from "./theory-intermediate-mix-major-minor-dim-aug.json";
+import f243_theory_intermediate_mix_one_four_five_six from "./theory-intermediate-mix-one-four-five-six.json";
+import f244_theory_intermediate_mix_quarters_to_sixteenths from "./theory-intermediate-mix-quarters-to-sixteenths.json";
+import f245_theory_intermediate_mix_seventh_chords_and_triads from "./theory-intermediate-mix-seventh-chords-and-triads.json";
+import f246_theory_intermediate_mix_sharp_and_flat_keys from "./theory-intermediate-mix-sharp-and-flat-keys.json";
+import f247_theory_intermediate_mix_sus_add9_or_plain from "./theory-intermediate-mix-sus-add9-or-plain.json";
+import f248_theory_intermediate_mixolydian from "./theory-intermediate-mixolydian.json";
+import f249_theory_intermediate_name_the_4_or_the_5_chord from "./theory-intermediate-name-the-4-or-the-5-chord.json";
+import f250_theory_intermediate_name_the_notes_on_ledger_lines from "./theory-intermediate-name-the-notes-on-ledger-lines.json";
+import f251_theory_intermediate_notes_on_the_staff from "./theory-intermediate-notes-on-the-staff.json";
+import f252_theory_intermediate_seventh_chords from "./theory-intermediate-seventh-chords.json";
+import f253_theory_intermediate_sharp_keys from "./theory-intermediate-sharp-keys.json";
+import f254_theory_intermediate_sixteenths_and_rests from "./theory-intermediate-sixteenths-and-rests.json";
+import f255_theory_intermediate_sus2 from "./theory-intermediate-sus2.json";
+import f256_theory_intermediate_the_6_chord_among_the_4_and_the_5 from "./theory-intermediate-the-6-chord-among-the-4-and-the-5.json";
+import f257_theory_new_clap_along_the_beat from "./theory-new-clap-along-the-beat.json";
+import f258_theory_new_major_or_minor from "./theory-new-major-or-minor.json";
+import f259_theory_new_name_the_notes_on_the_lines from "./theory-new-name-the-notes-on-the-lines.json";
+import f260_theory_new_note_names_a_to_g from "./theory-new-note-names-a-to-g.json";
+import f261_theory_new_steady_beat from "./theory-new-steady-beat.json";
+import f262_theory_only_first_week_3rds_both_notes_at_once from "./theory-only-first-week-3rds-both-notes-at-once.json";
+import f263_theory_only_first_week_5th_or_octave_by_ear from "./theory-only-first-week-5th-or-octave-by-ear.json";
+import f264_theory_only_first_week_5ths_octaves_and_3rds_by_ear from "./theory-only-first-week-5ths-octaves-and-3rds-by-ear.json";
+import f265_theory_only_first_week_c_major_whole_steps_and_half_steps from "./theory-only-first-week-c-major-whole-steps-and-half-steps.json";
+import f266_theory_only_first_week_f_major_its_scale_its_chords_its_7th from "./theory-only-first-week-f-major-its-scale-its-chords-its-7th.json";
+import f267_theory_only_first_week_hear_the_moment_the_chord_changes from "./theory-only-first-week-hear-the-moment-the-chord-changes.json";
+import f268_theory_only_first_week_major_3rd_or_minor_3rd from "./theory-only-first-week-major-3rd-or-minor-3rd.json";
+import f269_theory_only_first_week_major_and_minor_chords_one_note_apart from "./theory-only-first-week-major-and-minor-chords-one-note-apart.json";
+import f270_theory_only_first_week_major_key_or_minor_key_by_ear from "./theory-only-first-week-major-key-or-minor-key-by-ear.json";
+import f271_theory_only_first_week_major_pentatonic_five_notes_of_the_major_scale from "./theory-only-first-week-major-pentatonic-five-notes-of-the-major-scale.json";
+import f272_theory_only_first_week_one_sharp_one_flat from "./theory-only-first-week-one-sharp-one-flat.json";
+import f273_theory_only_first_week_sus4_the_4th_in_place_of_the_3rd from "./theory-only-first-week-sus4-the-4th-in-place-of-the-3rd.json";
+import f274_theory_only_first_week_the_1_4_and_5_chords_found_on_the_circle from "./theory-only-first-week-the-1-4-and-5-chords-found-on-the-circle.json";
+import f275_theory_only_first_week_the_dominant_7_the_5_chord_with_one_more_note from "./theory-only-first-week-the-dominant-7-the-5-chord-with-one-more-note.json";
+import f276_voice_advanced_3rds_to_6ths_falling from "./voice-advanced-3rds-to-6ths-falling.json";
+import f277_voice_advanced_6ths_7ths_or_octave from "./voice-advanced-6ths-7ths-or-octave.json";
+import f278_voice_advanced_a_fast_pentatonic_run from "./voice-advanced-a-fast-pentatonic-run.json";
+import f279_voice_advanced_a_fast_pentatonic_run_to_the_top from "./voice-advanced-a-fast-pentatonic-run-to-the-top.json";
+import f280_voice_advanced_a_line_with_a_wide_leap from "./voice-advanced-a-line-with-a-wide-leap.json";
+import f281_voice_advanced_a_long_breath_out from "./voice-advanced-a-long-breath-out.json";
+import f282_voice_advanced_a_pentatonic_riff from "./voice-advanced-a-pentatonic-riff.json";
+import f283_voice_advanced_a_run_past_the_octave from "./voice-advanced-a-run-past-the-octave.json";
+import f284_voice_advanced_a_slide_over_two_octaves from "./voice-advanced-a-slide-over-two-octaves.json";
+import f285_voice_advanced_a_whole_song_in_tune from "./voice-advanced-a-whole-song-in-tune.json";
+import f286_voice_advanced_all_twelve_falling from "./voice-advanced-all-twelve-falling.json";
+import f287_voice_advanced_an_octave_slide_a_little_higher from "./voice-advanced-an-octave-slide-a-little-higher.json";
+import f288_voice_advanced_around_the_5th from "./voice-advanced-around-the-5th.json";
+import f289_voice_advanced_every_hard_leap_falling from "./voice-advanced-every-hard-leap-falling.json";
+import f290_voice_advanced_every_hard_leap_unseen from "./voice-advanced-every-hard-leap-unseen.json";
+import f291_voice_advanced_every_hard_leap_up_and_down from "./voice-advanced-every-hard-leap-up-and-down.json";
+import f292_voice_advanced_guide_tones from "./voice-advanced-guide-tones.json";
+import f293_voice_advanced_guide_tones_over_ii_v_i from "./voice-advanced-guide-tones-over-ii-v-i.json";
+import f294_voice_advanced_guide_tones_round_a_turnaround from "./voice-advanced-guide-tones-round-a-turnaround.json";
+import f295_voice_advanced_hard_leaps from "./voice-advanced-hard-leaps.json";
+import f296_voice_advanced_hard_leaps_down_from_do from "./voice-advanced-hard-leaps-down-from-do.json";
+import f297_voice_advanced_hard_leaps_you_cant_see from "./voice-advanced-hard-leaps-you-cant-see.json";
+import f298_voice_advanced_hiss_then_buzz_for_longer from "./voice-advanced-hiss-then-buzz-for-longer.json";
+import f299_voice_advanced_ii_v_i_guide_tones_your_way from "./voice-advanced-ii-v-i-guide-tones-your-way.json";
+import f300_voice_advanced_in_hold_out_to_11 from "./voice-advanced-in-hold-out-to-11.json";
+import f301_voice_advanced_in_hold_out_to_12 from "./voice-advanced-in-hold-out-to-12.json";
+import f302_voice_advanced_in_hold_out_to_13 from "./voice-advanced-in-hold-out-to-13.json";
+import f303_voice_advanced_leaps_wider_than_an_octave from "./voice-advanced-leaps-wider-than-an-octave.json";
+import f304_voice_advanced_mix_all_five_modes from "./voice-advanced-mix-all-five-modes.json";
+import f305_voice_advanced_mix_sixths_sevenths_octave from "./voice-advanced-mix-sixths-sevenths-octave.json";
+import f306_voice_advanced_mix_tunes_chords_off from "./voice-advanced-mix-tunes-chords-off.json";
+import f307_voice_advanced_read_tunes_that_leap_past_the_octave from "./voice-advanced-read-tunes-that-leap-past-the-octave.json";
+import f308_voice_advanced_read_tunes_with_a_7th from "./voice-advanced-read-tunes-with-a-7th.json";
+import f309_voice_advanced_read_tunes_with_an_octave from "./voice-advanced-read-tunes-with-an-octave.json";
+import f310_voice_advanced_sing_the_tritone_the_5th_and_the_minor_6th from "./voice-advanced-sing-the-tritone-the-5th-and-the-minor-6th.json";
+import f311_voice_advanced_sing_the_two_7ths_and_the_octave from "./voice-advanced-sing-the-two-7ths-and-the-octave.json";
+import f312_voice_advanced_singing_locrian from "./voice-advanced-singing-locrian.json";
+import f313_voice_advanced_singing_lydian from "./voice-advanced-singing-lydian.json";
+import f314_voice_advanced_singing_phrygian from "./voice-advanced-singing-phrygian.json";
+import f315_voice_advanced_the_chord_as_a_fast_run from "./voice-advanced-the-chord-as-a-fast-run.json";
+import f316_voice_advanced_the_octave_run from "./voice-advanced-the-octave-run.json";
+import f317_voice_advanced_tunes_with_awkward_leaps from "./voice-advanced-tunes-with-awkward-leaps.json";
+import f318_voice_advanced_two_notes_at_once from "./voice-advanced-two-notes-at-once.json";
+import f319_voice_advanced_up_the_chord_hold_the_top from "./voice-advanced-up-the-chord-hold-the-top.json";
+import f320_voice_advanced_vowels_across_the_break from "./voice-advanced-vowels-across-the-break.json";
+import f321_voice_advanced_your_line_over_ii_v_i_faster from "./voice-advanced-your-line-over-ii-v-i-faster.json";
+import f322_voice_beginner_3rd_5th_or_6th from "./voice-beginner-3rd-5th-or-6th.json";
+import f323_voice_beginner_3rd_or_5th from "./voice-beginner-3rd-or-5th.json";
+import f324_voice_beginner_5th_under_the_tune from "./voice-beginner-5th-under-the-tune.json";
+import f325_voice_beginner_a_long_steady_do from "./voice-beginner-a-long-steady-do.json";
+import f326_voice_beginner_a_longer_skipping_tune_then_your_own from "./voice-beginner-a-longer-skipping-tune-then-your-own.json";
+import f327_voice_beginner_a_skipping_tune_then_over_chords from "./voice-beginner-a-skipping-tune-then-over-chords.json";
+import f328_voice_beginner_a_sol_tune_then_your_own_line from "./voice-beginner-a-sol-tune-then-your-own-line.json";
+import f329_voice_beginner_a_tune_under_do_then_over_three_chords from "./voice-beginner-a-tune-under-do-then-over-three-chords.json";
+import f330_voice_beginner_breathe_then_hold_do from "./voice-beginner-breathe-then-hold-do.json";
+import f331_voice_beginner_do_mi_sol from "./voice-beginner-do-mi-sol.json";
+import f332_voice_beginner_do_mi_sol_in_three_keys from "./voice-beginner-do-mi-sol-in-three-keys.json";
+import f333_voice_beginner_do_re_mi_on_the_beat from "./voice-beginner-do-re-mi-on-the-beat.json";
+import f334_voice_beginner_find_the_smooth_spot from "./voice-beginner-find-the-smooth-spot.json";
+import f335_voice_beginner_five_intervals_sung_back from "./voice-beginner-five-intervals-sung-back.json";
+import f336_voice_beginner_five_note_run from "./voice-beginner-five-note-run.json";
+import f337_voice_beginner_five_vowels_on_one_easy_note from "./voice-beginner-five-vowels-on-one-easy-note.json";
+import f338_voice_beginner_hear_and_sing_back from "./voice-beginner-hear-and-sing-back.json";
+import f339_voice_beginner_home_chord_run from "./voice-beginner-home-chord-run.json";
+import f340_voice_beginner_hum_then_open from "./voice-beginner-hum-then-open.json";
+import f341_voice_beginner_in_tune_over_drone from "./voice-beginner-in-tune-over-drone.json";
+import f342_voice_beginner_lip_rolls_middle from "./voice-beginner-lip-rolls-middle.json";
+import f343_voice_beginner_mix_steps_and_skips from "./voice-beginner-mix-steps-and-skips.json";
+import f344_voice_beginner_mix_whole_octave from "./voice-beginner-mix-whole-octave.json";
+import f345_voice_beginner_siren_to_sol from "./voice-beginner-siren-to-sol.json";
+import f346_voice_beginner_skips_falling from "./voice-beginner-skips-falling.json";
+import f347_voice_beginner_sol_la_sol_then_over_chords from "./voice-beginner-sol-la-sol-then-over-chords.json";
+import f348_voice_beginner_step_tunes_then_your_own from "./voice-beginner-step-tunes-then-your-own.json";
+import f349_voice_beginner_steps_and_skips_mixed from "./voice-beginner-steps-and-skips-mixed.json";
+import f350_voice_beginner_steps_from_the_staff from "./voice-beginner-steps-from-the-staff.json";
+import f351_voice_beginner_steps_or_skips from "./voice-beginner-steps-or-skips.json";
+import f352_voice_beginner_steps_then_3rds from "./voice-beginner-steps-then-3rds.json";
+import f353_voice_guitar_advanced_first_week_a_run_into_the_chord from "./voice-guitar-advanced-first-week-a-run-into-the-chord.json";
+import f354_voice_guitar_advanced_first_week_a_turnaround_with_the_band from "./voice-guitar-advanced-first-week-a-turnaround-with-the-band.json";
+import f355_voice_guitar_advanced_first_week_am_d_and_g_triads_on_two_string_sets from "./voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets.json";
+import f356_voice_guitar_advanced_first_week_am9_d9_and_gmaj7 from "./voice-guitar-advanced-first-week-am9-d9-and-gmaj7.json";
+import f357_voice_guitar_advanced_first_week_comp_a_soul_vamp from "./voice-guitar-advanced-first-week-comp-a-soul-vamp.json";
+import f358_voice_guitar_advanced_first_week_comp_the_ii_v_i_in_g_faster from "./voice-guitar-advanced-first-week-comp-the-ii-v-i-in-g-faster.json";
+import f359_voice_guitar_advanced_first_week_dm9_g9_and_cmaj7 from "./voice-guitar-advanced-first-week-dm9-g9-and-cmaj7.json";
+import f360_voice_guitar_advanced_first_week_fast_runs_rising_and_falling from "./voice-guitar-advanced-first-week-fast-runs-rising-and-falling.json";
+import f361_voice_guitar_advanced_first_week_five_notes_faster_in_stages from "./voice-guitar-advanced-first-week-five-notes-faster-in-stages.json";
+import f362_voice_guitar_advanced_first_week_guide_tones_over_the_ii_v_i_in_g from "./voice-guitar-advanced-first-week-guide-tones-over-the-ii-v-i-in-g.json";
+import f363_voice_guitar_advanced_first_week_name_the_chord_you_hear from "./voice-guitar-advanced-first-week-name-the-chord-you-hear.json";
+import f364_voice_guitar_advanced_first_week_name_the_interval_you_hear from "./voice-guitar-advanced-first-week-name-the-interval-you-hear.json";
+import f365_voice_guitar_advanced_first_week_nine_notes_and_the_octave from "./voice-guitar-advanced-first-week-nine-notes-and-the-octave.json";
+import f366_voice_guitar_advanced_first_week_pentatonic_runs_at_speed from "./voice-guitar-advanced-first-week-pentatonic-runs-at-speed.json";
+import f367_voice_guitar_advanced_first_week_runs_over_a_soul_vamp from "./voice-guitar-advanced-first-week-runs-over-a-soul-vamp.json";
+import f368_voice_guitar_advanced_first_week_shells_and_guide_tones_in_c from "./voice-guitar-advanced-first-week-shells-and-guide-tones-in-c.json";
+import f369_voice_guitar_advanced_first_week_sus_and_add9_on_top from "./voice-guitar-advanced-first-week-sus-and-add9-on-top.json";
+import f370_voice_guitar_advanced_first_week_the_3rd_and_7th_eyes_off_the_tab from "./voice-guitar-advanced-first-week-the-3rd-and-7th-eyes-off-the-tab.json";
+import f371_voice_guitar_advanced_first_week_the_3rd_and_7th_of_each_chord from "./voice-guitar-advanced-first-week-the-3rd-and-7th-of-each-chord.json";
+import f372_voice_guitar_advanced_first_week_the_do_to_sol_run_faster from "./voice-guitar-advanced-first-week-the-do-to-sol-run-faster.json";
+import f373_voice_guitar_advanced_first_week_the_hard_leaps_7ths_tritone_minor_6th from "./voice-guitar-advanced-first-week-the-hard-leaps-7ths-tritone-minor-6th.json";
+import f374_voice_guitar_advanced_first_week_the_octave_run from "./voice-guitar-advanced-first-week-the-octave-run.json";
+import f375_voice_guitar_advanced_first_week_the_set from "./voice-guitar-advanced-first-week-the-set.json";
+import f376_voice_guitar_advanced_first_week_the_turnaround_in_g_two_ways from "./voice-guitar-advanced-first-week-the-turnaround-in-g-two-ways.json";
+import f377_voice_guitar_advanced_first_week_tunes_with_wide_leaps from "./voice-guitar-advanced-first-week-tunes-with-wide-leaps.json";
+import f378_voice_guitar_advanced_first_week_turns from "./voice-guitar-advanced-first-week-turns.json";
+import f379_voice_guitar_advanced_first_week_two_harmony_lines_then_runs_between from "./voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between.json";
+import f380_voice_guitar_advanced_first_week_warm_up_breath_and_a_lip_roll from "./voice-guitar-advanced-first-week-warm-up-breath-and-a-lip-roll.json";
+import f381_voice_guitar_advanced_first_week_warm_up_hiss_to_voice_fast_siren from "./voice-guitar-advanced-first-week-warm-up-hiss-to-voice-fast-siren.json";
+import f382_voice_guitar_advanced_first_week_warm_up_long_breath_out_lip_roll_up from "./voice-guitar-advanced-first-week-warm-up-long-breath-out-lip-roll-up.json";
+import f383_voice_guitar_advanced_first_week_warm_up_longer_breath_light_top from "./voice-guitar-advanced-first-week-warm-up-longer-breath-light-top.json";
+import f384_voice_guitar_advanced_first_week_warm_up_middle_then_light_and_high from "./voice-guitar-advanced-first-week-warm-up-middle-then-light-and-high.json";
+import f385_voice_guitar_advanced_first_week_warm_up_siren_and_low_hum from "./voice-guitar-advanced-first-week-warm-up-siren-and-low-hum.json";
+import f386_voice_guitar_advanced_first_week_warm_up_siren_and_middle from "./voice-guitar-advanced-first-week-warm-up-siren-and-middle.json";
+import f387_voice_guitar_advanced_first_week_your_own_line_over_the_ii_v_i_in_c from "./voice-guitar-advanced-first-week-your-own-line-over-the-ii-v-i-in-c.json";
+import f388_voice_intermediate_a_few_notes_higher_and_lower from "./voice-intermediate-a-few-notes-higher-and-lower.json";
+import f389_voice_intermediate_a_harmony_line_over_three_chords from "./voice-intermediate-a-harmony-line-over-three-chords.json";
+import f390_voice_intermediate_a_long_breath_out from "./voice-intermediate-a-long-breath-out.json";
+import f391_voice_intermediate_a_run_with_turns from "./voice-intermediate-a-run-with-turns.json";
+import f392_voice_intermediate_a_tune_that_drops_an_octave from "./voice-intermediate-a-tune-that-drops-an-octave.json";
+import f393_voice_intermediate_a_tune_that_falls_a_4th from "./voice-intermediate-a-tune-that-falls-a-4th.json";
+import f394_voice_intermediate_a_tune_with_a_5th_then_your_own_line from "./voice-intermediate-a-tune-with-a-5th-then-your-own-line.json";
+import f395_voice_intermediate_an_octave_tune_then_every_leap from "./voice-intermediate-an-octave-tune-then-every-leap.json";
+import f396_voice_intermediate_do_mi_sol_do_then_a_run_home from "./voice-intermediate-do-mi-sol-do-then-a-run-home.json";
+import f397_voice_intermediate_five_notes_up_and_back from "./voice-intermediate-five-notes-up-and-back.json";
+import f398_voice_intermediate_five_vowels_as_the_note_climbs from "./voice-intermediate-five-vowels-as-the-note-climbs.json";
+import f399_voice_intermediate_from_the_4th_up_to_the_octave from "./voice-intermediate-from-the-4th-up-to-the-octave.json";
+import f400_voice_intermediate_hiss_then_buzz from "./voice-intermediate-hiss-then-buzz.json";
+import f401_voice_intermediate_in_hold_out from "./voice-intermediate-in-hold-out.json";
+import f402_voice_intermediate_in_hold_out_filled_to_80 from "./voice-intermediate-in-hold-out-filled-to-80.json";
+import f403_voice_intermediate_in_hold_out_the_long_rounds from "./voice-intermediate-in-hold-out-the-long-rounds.json";
+import f404_voice_intermediate_leaps from "./voice-intermediate-leaps.json";
+import f405_voice_intermediate_leaps_falling from "./voice-intermediate-leaps-falling.json";
+import f406_voice_intermediate_leaps_you_cant_see from "./voice-intermediate-leaps-you-cant-see.json";
+import f407_voice_intermediate_mix_dorian_or_mixolydian from "./voice-intermediate-mix-dorian-or-mixolydian.json";
+import f408_voice_intermediate_mix_fourths_and_fifths from "./voice-intermediate-mix-fourths-and-fifths.json";
+import f409_voice_intermediate_mix_runs_back_to_back from "./voice-intermediate-mix-runs-back-to-back.json";
+import f410_voice_intermediate_mix_tunes_easy_to_hard from "./voice-intermediate-mix-tunes-easy-to-hard.json";
+import f411_voice_intermediate_nine_notes_up_and_back from "./voice-intermediate-nine-notes-up-and-back.json";
+import f412_voice_intermediate_read_it_before_you_hear_it from "./voice-intermediate-read-it-before-you-hear-it.json";
+import f413_voice_intermediate_read_two_tunes_with_a_5th from "./voice-intermediate-read-two-tunes-with-a-5th.json";
+import f414_voice_intermediate_sing_the_3rd_the_4th_and_the_5th from "./voice-intermediate-sing-the-3rd-the-4th-and-the-5th.json";
+import f415_voice_intermediate_sing_the_4th_the_5th_and_the_octave from "./voice-intermediate-sing-the-4th-the-5th-and-the-octave.json";
+import f416_voice_intermediate_singing_dorian from "./voice-intermediate-singing-dorian.json";
+import f417_voice_intermediate_singing_mixolydian from "./voice-intermediate-singing-mixolydian.json";
+import f418_voice_intermediate_six_falling_leaps_sung_back from "./voice-intermediate-six-falling-leaps-sung-back.json";
+import f419_voice_intermediate_six_leaps_to_tell_apart from "./voice-intermediate-six-leaps-to-tell-apart.json";
+import f420_voice_intermediate_slide_to_the_high_do from "./voice-intermediate-slide-to-the-high-do.json";
+import f421_voice_intermediate_slides_across_the_break from "./voice-intermediate-slides-across-the-break.json";
+import f422_voice_intermediate_the_4th_the_5th_and_their_neighbours from "./voice-intermediate-the-4th-the-5th-and-their-neighbours.json";
+import f423_voice_intermediate_the_do_to_sol_run_four_notes_a_beat from "./voice-intermediate-the-do-to-sol-run-four-notes-a-beat.json";
+import f424_voice_intermediate_the_harmony_line_then_your_own from "./voice-intermediate-the-harmony-line-then-your-own.json";
+import f425_voice_intermediate_tunes_with_leaps from "./voice-intermediate-tunes-with-leaps.json";
+import f426_voice_intermediate_two_notes_at_once from "./voice-intermediate-two-notes-at-once.json";
+import f427_voice_new_3rd_and_5th_from_do from "./voice-new-3rd-and-5th-from-do.json";
+import f428_voice_new_do_and_re from "./voice-new-do-and-re.json";
+import f429_voice_new_easy_tunes_by_ear from "./voice-new-easy-tunes-by-ear.json";
+import f430_voice_new_hold_your_note from "./voice-new-hold-your-note.json";
+import f431_voice_new_holding_a_note from "./voice-new-holding-a-note.json";
+import f432_voice_new_matching_a_pitch from "./voice-new-matching-a-pitch.json";
+import f433_voice_new_mix_do_to_sol from "./voice-new-mix-do-to-sol.json";
+import f434_voice_new_up_to_fa from "./voice-new-up-to-fa.json";
+import f435_voice_new_up_to_mi from "./voice-new-up-to-mi.json";
+import f436_voice_new_up_to_sol from "./voice-new-up-to-sol.json";
+import f437_voice_warm_up_hiss_then_buzz from "./voice-warm-up-hiss-then-buzz.json";
+import f438_voice_warm_up_in_hold_out from "./voice-warm-up-in-hold-out.json";
+import f439_voice_warm_up_lip_rolls_down from "./voice-warm-up-lip-rolls-down.json";
+import f440_voice_warm_up_lip_rolls_down_then_up from "./voice-warm-up-lip-rolls-down-then-up.json";
+import f441_voice_warm_up_lip_rolls_up_then_down from "./voice-warm-up-lip-rolls-up-then-down.json";
+import f442_voice_warm_up_out_from_do_going_down from "./voice-warm-up-out-from-do-going-down.json";
+import f443_voice_warm_up_out_from_do_going_up from "./voice-warm-up-out-from-do-going-up.json";
+import f444_voice_warm_up_the_scale_up_and_back from "./voice-warm-up-the-scale-up-and-back.json";
 
 export const FILES: Record<string, unknown> = {
   "guitar-advanced-a-dorian-find-the-6th": f0_guitar_advanced_a_dorian_find_the_6th,
@@ -627,244 +639,256 @@ export const FILES: Record<string, unknown> = {
   "guitar-theory-intermediate-twelve-bar-in-a": f190_guitar_theory_intermediate_twelve_bar_in_a,
   "guitar-theory-intermediate-which-numeral": f191_guitar_theory_intermediate_which_numeral,
   "guitar-theory-intermediate-why-blues-uses-three-7ths": f192_guitar_theory_intermediate_why_blues_uses_three_7ths,
-  "showcase-blocks-do-mi-sol": f193_showcase_blocks_do_mi_sol,
-  "showcase-pick-step-tunes": f194_showcase_pick_step_tunes,
-  "showcase-progression-four-ways": f195_showcase_progression_four_ways,
-  "showcase-stages-tempo-ladder": f196_showcase_stages_tempo_ladder,
-  "showcase-variants-same-frets": f197_showcase_variants_same_frets,
-  "theory-advanced-all-twelve-intervals": f198_theory_advanced_all_twelve_intervals,
-  "theory-advanced-click-on-two-and-four": f199_theory_advanced_click_on_two_and_four,
-  "theory-advanced-diminished-seventh": f200_theory_advanced_diminished_seventh,
-  "theory-advanced-guide-tones": f201_theory_advanced_guide_tones,
-  "theory-advanced-jazz-standard-changes": f202_theory_advanced_jazz_standard_changes,
-  "theory-advanced-melodic-minor": f203_theory_advanced_melodic_minor,
-  "theory-advanced-minor-ii-v-i": f204_theory_advanced_minor_ii_v_i,
-  "theory-advanced-mix-all-twelve-down-and-together": f205_theory_advanced_mix_all_twelve_down_and_together,
-  "theory-advanced-mix-major-and-minor-ii-v-i": f206_theory_advanced_mix_major_and_minor_ii_v_i,
-  "theory-advanced-mix-three-minor-scales": f207_theory_advanced_mix_three_minor_scales,
-  "theory-advanced-modes-by-ear": f208_theory_advanced_modes_by_ear,
-  "theory-advanced-moving-to-a-close-key": f209_theory_advanced_moving_to_a_close_key,
-  "theory-advanced-name-notes-quickly": f210_theory_advanced_name_notes_quickly,
-  "theory-advanced-name-the-chords-of-a-hidden-chart": f211_theory_advanced_name_the_chords_of_a_hidden_chart,
-  "theory-advanced-ninth-chords": f212_theory_advanced_ninth_chords,
-  "theory-advanced-song-chords-by-ear": f213_theory_advanced_song_chords_by_ear,
-  "theory-advanced-syncopation": f214_theory_advanced_syncopation,
-  "theory-advanced-thirteenth-chords": f215_theory_advanced_thirteenth_chords,
-  "theory-advanced-up-a-step-last-chorus": f216_theory_advanced_up_a_step_last_chorus,
-  "theory-beginner-clap-along-eighths": f217_theory_beginner_clap_along_eighths,
-  "theory-beginner-eighths": f218_theory_beginner_eighths,
-  "theory-beginner-major-minor-one-root": f219_theory_beginner_major_minor_one_root,
-  "theory-beginner-name-the-notes-in-the-spaces": f220_theory_beginner_name_the_notes_in_the_spaces,
-  "theory-beginner-one-four-five": f221_theory_beginner_one_four_five,
-  "theory-beginner-pop-one-five-six-four": f222_theory_beginner_pop_one_five_six_four,
-  "theory-beginner-second-and-fourth": f223_theory_beginner_second_and_fourth,
-  "theory-beginner-sharps-and-flats": f224_theory_beginner_sharps_and_flats,
-  "theory-intermediate-add9": f225_theory_intermediate_add9,
-  "theory-intermediate-augmented-triad": f226_theory_intermediate_augmented_triad,
-  "theory-intermediate-clap-along-sixteenths": f227_theory_intermediate_clap_along_sixteenths,
-  "theory-intermediate-diminished-triad": f228_theory_intermediate_diminished_triad,
-  "theory-intermediate-dorian": f229_theory_intermediate_dorian,
-  "theory-intermediate-five-chord-in-minor": f230_theory_intermediate_five_chord_in_minor,
-  "theory-intermediate-flat-keys": f231_theory_intermediate_flat_keys,
-  "theory-intermediate-harmonic-minor": f232_theory_intermediate_harmonic_minor,
-  "theory-intermediate-hearing-changes": f233_theory_intermediate_hearing_changes,
-  "theory-intermediate-la-as-home": f234_theory_intermediate_la_as_home,
-  "theory-intermediate-mix-do-or-la-as-home": f235_theory_intermediate_mix_do_or_la_as_home,
-  "theory-intermediate-mix-intervals-up-down-together": f236_theory_intermediate_mix_intervals_up_down_together,
-  "theory-intermediate-mix-maj7-7-m7": f237_theory_intermediate_mix_maj7_7_m7,
-  "theory-intermediate-mix-major-minor-dim-aug": f238_theory_intermediate_mix_major_minor_dim_aug,
-  "theory-intermediate-mix-one-four-five-six": f239_theory_intermediate_mix_one_four_five_six,
-  "theory-intermediate-mix-quarters-to-sixteenths": f240_theory_intermediate_mix_quarters_to_sixteenths,
-  "theory-intermediate-mix-seventh-chords-and-triads": f241_theory_intermediate_mix_seventh_chords_and_triads,
-  "theory-intermediate-mix-sharp-and-flat-keys": f242_theory_intermediate_mix_sharp_and_flat_keys,
-  "theory-intermediate-mix-sus-add9-or-plain": f243_theory_intermediate_mix_sus_add9_or_plain,
-  "theory-intermediate-mixolydian": f244_theory_intermediate_mixolydian,
-  "theory-intermediate-name-the-4-or-the-5-chord": f245_theory_intermediate_name_the_4_or_the_5_chord,
-  "theory-intermediate-name-the-notes-on-ledger-lines": f246_theory_intermediate_name_the_notes_on_ledger_lines,
-  "theory-intermediate-notes-on-the-staff": f247_theory_intermediate_notes_on_the_staff,
-  "theory-intermediate-seventh-chords": f248_theory_intermediate_seventh_chords,
-  "theory-intermediate-sharp-keys": f249_theory_intermediate_sharp_keys,
-  "theory-intermediate-sixteenths-and-rests": f250_theory_intermediate_sixteenths_and_rests,
-  "theory-intermediate-sus2": f251_theory_intermediate_sus2,
-  "theory-intermediate-the-6-chord-among-the-4-and-the-5": f252_theory_intermediate_the_6_chord_among_the_4_and_the_5,
-  "theory-new-clap-along-the-beat": f253_theory_new_clap_along_the_beat,
-  "theory-new-major-or-minor": f254_theory_new_major_or_minor,
-  "theory-new-name-the-notes-on-the-lines": f255_theory_new_name_the_notes_on_the_lines,
-  "theory-new-note-names-a-to-g": f256_theory_new_note_names_a_to_g,
-  "theory-new-steady-beat": f257_theory_new_steady_beat,
-  "theory-only-first-week-3rds-both-notes-at-once": f258_theory_only_first_week_3rds_both_notes_at_once,
-  "theory-only-first-week-5th-or-octave-by-ear": f259_theory_only_first_week_5th_or_octave_by_ear,
-  "theory-only-first-week-5ths-octaves-and-3rds-by-ear": f260_theory_only_first_week_5ths_octaves_and_3rds_by_ear,
-  "theory-only-first-week-c-major-whole-steps-and-half-steps": f261_theory_only_first_week_c_major_whole_steps_and_half_steps,
-  "theory-only-first-week-f-major-its-scale-its-chords-its-7th": f262_theory_only_first_week_f_major_its_scale_its_chords_its_7th,
-  "theory-only-first-week-hear-the-moment-the-chord-changes": f263_theory_only_first_week_hear_the_moment_the_chord_changes,
-  "theory-only-first-week-major-3rd-or-minor-3rd": f264_theory_only_first_week_major_3rd_or_minor_3rd,
-  "theory-only-first-week-major-and-minor-chords-one-note-apart": f265_theory_only_first_week_major_and_minor_chords_one_note_apart,
-  "theory-only-first-week-major-key-or-minor-key-by-ear": f266_theory_only_first_week_major_key_or_minor_key_by_ear,
-  "theory-only-first-week-major-pentatonic-five-notes-of-the-major-scale": f267_theory_only_first_week_major_pentatonic_five_notes_of_the_major_scale,
-  "theory-only-first-week-one-sharp-one-flat": f268_theory_only_first_week_one_sharp_one_flat,
-  "theory-only-first-week-sus4-the-4th-in-place-of-the-3rd": f269_theory_only_first_week_sus4_the_4th_in_place_of_the_3rd,
-  "theory-only-first-week-the-1-4-and-5-chords-found-on-the-circle": f270_theory_only_first_week_the_1_4_and_5_chords_found_on_the_circle,
-  "theory-only-first-week-the-dominant-7-the-5-chord-with-one-more-note": f271_theory_only_first_week_the_dominant_7_the_5_chord_with_one_more_note,
-  "voice-advanced-3rds-to-6ths-falling": f272_voice_advanced_3rds_to_6ths_falling,
-  "voice-advanced-6ths-7ths-or-octave": f273_voice_advanced_6ths_7ths_or_octave,
-  "voice-advanced-a-fast-pentatonic-run": f274_voice_advanced_a_fast_pentatonic_run,
-  "voice-advanced-a-fast-pentatonic-run-to-the-top": f275_voice_advanced_a_fast_pentatonic_run_to_the_top,
-  "voice-advanced-a-line-with-a-wide-leap": f276_voice_advanced_a_line_with_a_wide_leap,
-  "voice-advanced-a-long-breath-out": f277_voice_advanced_a_long_breath_out,
-  "voice-advanced-a-pentatonic-riff": f278_voice_advanced_a_pentatonic_riff,
-  "voice-advanced-a-run-past-the-octave": f279_voice_advanced_a_run_past_the_octave,
-  "voice-advanced-a-slide-over-two-octaves": f280_voice_advanced_a_slide_over_two_octaves,
-  "voice-advanced-a-whole-song-in-tune": f281_voice_advanced_a_whole_song_in_tune,
-  "voice-advanced-all-twelve-falling": f282_voice_advanced_all_twelve_falling,
-  "voice-advanced-an-octave-slide-a-little-higher": f283_voice_advanced_an_octave_slide_a_little_higher,
-  "voice-advanced-around-the-5th": f284_voice_advanced_around_the_5th,
-  "voice-advanced-every-hard-leap-falling": f285_voice_advanced_every_hard_leap_falling,
-  "voice-advanced-every-hard-leap-unseen": f286_voice_advanced_every_hard_leap_unseen,
-  "voice-advanced-every-hard-leap-up-and-down": f287_voice_advanced_every_hard_leap_up_and_down,
-  "voice-advanced-guide-tones": f288_voice_advanced_guide_tones,
-  "voice-advanced-guide-tones-over-ii-v-i": f289_voice_advanced_guide_tones_over_ii_v_i,
-  "voice-advanced-guide-tones-round-a-turnaround": f290_voice_advanced_guide_tones_round_a_turnaround,
-  "voice-advanced-hard-leaps": f291_voice_advanced_hard_leaps,
-  "voice-advanced-hard-leaps-down-from-do": f292_voice_advanced_hard_leaps_down_from_do,
-  "voice-advanced-hard-leaps-you-cant-see": f293_voice_advanced_hard_leaps_you_cant_see,
-  "voice-advanced-hiss-then-buzz-for-longer": f294_voice_advanced_hiss_then_buzz_for_longer,
-  "voice-advanced-ii-v-i-guide-tones-your-way": f295_voice_advanced_ii_v_i_guide_tones_your_way,
-  "voice-advanced-in-hold-out-to-11": f296_voice_advanced_in_hold_out_to_11,
-  "voice-advanced-in-hold-out-to-12": f297_voice_advanced_in_hold_out_to_12,
-  "voice-advanced-in-hold-out-to-13": f298_voice_advanced_in_hold_out_to_13,
-  "voice-advanced-leaps-wider-than-an-octave": f299_voice_advanced_leaps_wider_than_an_octave,
-  "voice-advanced-mix-all-five-modes": f300_voice_advanced_mix_all_five_modes,
-  "voice-advanced-mix-sixths-sevenths-octave": f301_voice_advanced_mix_sixths_sevenths_octave,
-  "voice-advanced-mix-tunes-chords-off": f302_voice_advanced_mix_tunes_chords_off,
-  "voice-advanced-read-tunes-that-leap-past-the-octave": f303_voice_advanced_read_tunes_that_leap_past_the_octave,
-  "voice-advanced-read-tunes-with-a-7th": f304_voice_advanced_read_tunes_with_a_7th,
-  "voice-advanced-read-tunes-with-an-octave": f305_voice_advanced_read_tunes_with_an_octave,
-  "voice-advanced-sing-the-tritone-the-5th-and-the-minor-6th": f306_voice_advanced_sing_the_tritone_the_5th_and_the_minor_6th,
-  "voice-advanced-sing-the-two-7ths-and-the-octave": f307_voice_advanced_sing_the_two_7ths_and_the_octave,
-  "voice-advanced-singing-locrian": f308_voice_advanced_singing_locrian,
-  "voice-advanced-singing-lydian": f309_voice_advanced_singing_lydian,
-  "voice-advanced-singing-phrygian": f310_voice_advanced_singing_phrygian,
-  "voice-advanced-the-chord-as-a-fast-run": f311_voice_advanced_the_chord_as_a_fast_run,
-  "voice-advanced-the-octave-run": f312_voice_advanced_the_octave_run,
-  "voice-advanced-tunes-with-awkward-leaps": f313_voice_advanced_tunes_with_awkward_leaps,
-  "voice-advanced-two-notes-at-once": f314_voice_advanced_two_notes_at_once,
-  "voice-advanced-up-the-chord-hold-the-top": f315_voice_advanced_up_the_chord_hold_the_top,
-  "voice-advanced-vowels-across-the-break": f316_voice_advanced_vowels_across_the_break,
-  "voice-advanced-your-line-over-ii-v-i-faster": f317_voice_advanced_your_line_over_ii_v_i_faster,
-  "voice-beginner-3rd-5th-or-6th": f318_voice_beginner_3rd_5th_or_6th,
-  "voice-beginner-3rd-or-5th": f319_voice_beginner_3rd_or_5th,
-  "voice-beginner-5th-under-the-tune": f320_voice_beginner_5th_under_the_tune,
-  "voice-beginner-a-long-steady-do": f321_voice_beginner_a_long_steady_do,
-  "voice-beginner-a-longer-skipping-tune-then-your-own": f322_voice_beginner_a_longer_skipping_tune_then_your_own,
-  "voice-beginner-a-skipping-tune-then-over-chords": f323_voice_beginner_a_skipping_tune_then_over_chords,
-  "voice-beginner-a-sol-tune-then-your-own-line": f324_voice_beginner_a_sol_tune_then_your_own_line,
-  "voice-beginner-a-tune-under-do-then-over-three-chords": f325_voice_beginner_a_tune_under_do_then_over_three_chords,
-  "voice-beginner-breathe-then-hold-do": f326_voice_beginner_breathe_then_hold_do,
-  "voice-beginner-do-mi-sol": f327_voice_beginner_do_mi_sol,
-  "voice-beginner-do-mi-sol-in-three-keys": f328_voice_beginner_do_mi_sol_in_three_keys,
-  "voice-beginner-do-re-mi-on-the-beat": f329_voice_beginner_do_re_mi_on_the_beat,
-  "voice-beginner-find-the-smooth-spot": f330_voice_beginner_find_the_smooth_spot,
-  "voice-beginner-five-intervals-sung-back": f331_voice_beginner_five_intervals_sung_back,
-  "voice-beginner-five-note-run": f332_voice_beginner_five_note_run,
-  "voice-beginner-five-vowels-on-one-easy-note": f333_voice_beginner_five_vowels_on_one_easy_note,
-  "voice-beginner-hear-and-sing-back": f334_voice_beginner_hear_and_sing_back,
-  "voice-beginner-home-chord-run": f335_voice_beginner_home_chord_run,
-  "voice-beginner-hum-then-open": f336_voice_beginner_hum_then_open,
-  "voice-beginner-in-tune-over-drone": f337_voice_beginner_in_tune_over_drone,
-  "voice-beginner-lip-rolls-middle": f338_voice_beginner_lip_rolls_middle,
-  "voice-beginner-mix-steps-and-skips": f339_voice_beginner_mix_steps_and_skips,
-  "voice-beginner-mix-whole-octave": f340_voice_beginner_mix_whole_octave,
-  "voice-beginner-siren-to-sol": f341_voice_beginner_siren_to_sol,
-  "voice-beginner-skips-falling": f342_voice_beginner_skips_falling,
-  "voice-beginner-sol-la-sol-then-over-chords": f343_voice_beginner_sol_la_sol_then_over_chords,
-  "voice-beginner-step-tunes-then-your-own": f344_voice_beginner_step_tunes_then_your_own,
-  "voice-beginner-steps-and-skips-mixed": f345_voice_beginner_steps_and_skips_mixed,
-  "voice-beginner-steps-from-the-staff": f346_voice_beginner_steps_from_the_staff,
-  "voice-beginner-steps-or-skips": f347_voice_beginner_steps_or_skips,
-  "voice-beginner-steps-then-3rds": f348_voice_beginner_steps_then_3rds,
-  "voice-guitar-advanced-first-week-a-run-into-the-chord": f349_voice_guitar_advanced_first_week_a_run_into_the_chord,
-  "voice-guitar-advanced-first-week-a-turnaround-with-the-band": f350_voice_guitar_advanced_first_week_a_turnaround_with_the_band,
-  "voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets": f351_voice_guitar_advanced_first_week_am_d_and_g_triads_on_two_string_sets,
-  "voice-guitar-advanced-first-week-am9-d9-and-gmaj7": f352_voice_guitar_advanced_first_week_am9_d9_and_gmaj7,
-  "voice-guitar-advanced-first-week-comp-a-soul-vamp": f353_voice_guitar_advanced_first_week_comp_a_soul_vamp,
-  "voice-guitar-advanced-first-week-comp-the-ii-v-i-in-g-faster": f354_voice_guitar_advanced_first_week_comp_the_ii_v_i_in_g_faster,
-  "voice-guitar-advanced-first-week-dm9-g9-and-cmaj7": f355_voice_guitar_advanced_first_week_dm9_g9_and_cmaj7,
-  "voice-guitar-advanced-first-week-fast-runs-rising-and-falling": f356_voice_guitar_advanced_first_week_fast_runs_rising_and_falling,
-  "voice-guitar-advanced-first-week-five-notes-faster-in-stages": f357_voice_guitar_advanced_first_week_five_notes_faster_in_stages,
-  "voice-guitar-advanced-first-week-guide-tones-over-the-ii-v-i-in-g": f358_voice_guitar_advanced_first_week_guide_tones_over_the_ii_v_i_in_g,
-  "voice-guitar-advanced-first-week-name-the-chord-you-hear": f359_voice_guitar_advanced_first_week_name_the_chord_you_hear,
-  "voice-guitar-advanced-first-week-name-the-interval-you-hear": f360_voice_guitar_advanced_first_week_name_the_interval_you_hear,
-  "voice-guitar-advanced-first-week-nine-notes-and-the-octave": f361_voice_guitar_advanced_first_week_nine_notes_and_the_octave,
-  "voice-guitar-advanced-first-week-pentatonic-runs-at-speed": f362_voice_guitar_advanced_first_week_pentatonic_runs_at_speed,
-  "voice-guitar-advanced-first-week-runs-over-a-soul-vamp": f363_voice_guitar_advanced_first_week_runs_over_a_soul_vamp,
-  "voice-guitar-advanced-first-week-shells-and-guide-tones-in-c": f364_voice_guitar_advanced_first_week_shells_and_guide_tones_in_c,
-  "voice-guitar-advanced-first-week-sus-and-add9-on-top": f365_voice_guitar_advanced_first_week_sus_and_add9_on_top,
-  "voice-guitar-advanced-first-week-the-3rd-and-7th-eyes-off-the-tab": f366_voice_guitar_advanced_first_week_the_3rd_and_7th_eyes_off_the_tab,
-  "voice-guitar-advanced-first-week-the-3rd-and-7th-of-each-chord": f367_voice_guitar_advanced_first_week_the_3rd_and_7th_of_each_chord,
-  "voice-guitar-advanced-first-week-the-do-to-sol-run-faster": f368_voice_guitar_advanced_first_week_the_do_to_sol_run_faster,
-  "voice-guitar-advanced-first-week-the-hard-leaps-7ths-tritone-minor-6th": f369_voice_guitar_advanced_first_week_the_hard_leaps_7ths_tritone_minor_6th,
-  "voice-guitar-advanced-first-week-the-octave-run": f370_voice_guitar_advanced_first_week_the_octave_run,
-  "voice-guitar-advanced-first-week-the-set": f371_voice_guitar_advanced_first_week_the_set,
-  "voice-guitar-advanced-first-week-the-turnaround-in-g-two-ways": f372_voice_guitar_advanced_first_week_the_turnaround_in_g_two_ways,
-  "voice-guitar-advanced-first-week-tunes-with-wide-leaps": f373_voice_guitar_advanced_first_week_tunes_with_wide_leaps,
-  "voice-guitar-advanced-first-week-turns": f374_voice_guitar_advanced_first_week_turns,
-  "voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between": f375_voice_guitar_advanced_first_week_two_harmony_lines_then_runs_between,
-  "voice-guitar-advanced-first-week-warm-up-breath-and-a-lip-roll": f376_voice_guitar_advanced_first_week_warm_up_breath_and_a_lip_roll,
-  "voice-guitar-advanced-first-week-warm-up-hiss-to-voice-fast-siren": f377_voice_guitar_advanced_first_week_warm_up_hiss_to_voice_fast_siren,
-  "voice-guitar-advanced-first-week-warm-up-long-breath-out-lip-roll-up": f378_voice_guitar_advanced_first_week_warm_up_long_breath_out_lip_roll_up,
-  "voice-guitar-advanced-first-week-warm-up-longer-breath-light-top": f379_voice_guitar_advanced_first_week_warm_up_longer_breath_light_top,
-  "voice-guitar-advanced-first-week-warm-up-middle-then-light-and-high": f380_voice_guitar_advanced_first_week_warm_up_middle_then_light_and_high,
-  "voice-guitar-advanced-first-week-warm-up-siren-and-low-hum": f381_voice_guitar_advanced_first_week_warm_up_siren_and_low_hum,
-  "voice-guitar-advanced-first-week-warm-up-siren-and-middle": f382_voice_guitar_advanced_first_week_warm_up_siren_and_middle,
-  "voice-guitar-advanced-first-week-your-own-line-over-the-ii-v-i-in-c": f383_voice_guitar_advanced_first_week_your_own_line_over_the_ii_v_i_in_c,
-  "voice-intermediate-a-few-notes-higher-and-lower": f384_voice_intermediate_a_few_notes_higher_and_lower,
-  "voice-intermediate-a-harmony-line-over-three-chords": f385_voice_intermediate_a_harmony_line_over_three_chords,
-  "voice-intermediate-a-long-breath-out": f386_voice_intermediate_a_long_breath_out,
-  "voice-intermediate-a-run-with-turns": f387_voice_intermediate_a_run_with_turns,
-  "voice-intermediate-a-tune-that-drops-an-octave": f388_voice_intermediate_a_tune_that_drops_an_octave,
-  "voice-intermediate-a-tune-that-falls-a-4th": f389_voice_intermediate_a_tune_that_falls_a_4th,
-  "voice-intermediate-a-tune-with-a-5th-then-your-own-line": f390_voice_intermediate_a_tune_with_a_5th_then_your_own_line,
-  "voice-intermediate-an-octave-tune-then-every-leap": f391_voice_intermediate_an_octave_tune_then_every_leap,
-  "voice-intermediate-do-mi-sol-do-then-a-run-home": f392_voice_intermediate_do_mi_sol_do_then_a_run_home,
-  "voice-intermediate-five-notes-up-and-back": f393_voice_intermediate_five_notes_up_and_back,
-  "voice-intermediate-five-vowels-as-the-note-climbs": f394_voice_intermediate_five_vowels_as_the_note_climbs,
-  "voice-intermediate-from-the-4th-up-to-the-octave": f395_voice_intermediate_from_the_4th_up_to_the_octave,
-  "voice-intermediate-hiss-then-buzz": f396_voice_intermediate_hiss_then_buzz,
-  "voice-intermediate-in-hold-out": f397_voice_intermediate_in_hold_out,
-  "voice-intermediate-in-hold-out-filled-to-80": f398_voice_intermediate_in_hold_out_filled_to_80,
-  "voice-intermediate-in-hold-out-the-long-rounds": f399_voice_intermediate_in_hold_out_the_long_rounds,
-  "voice-intermediate-leaps": f400_voice_intermediate_leaps,
-  "voice-intermediate-leaps-falling": f401_voice_intermediate_leaps_falling,
-  "voice-intermediate-leaps-you-cant-see": f402_voice_intermediate_leaps_you_cant_see,
-  "voice-intermediate-mix-dorian-or-mixolydian": f403_voice_intermediate_mix_dorian_or_mixolydian,
-  "voice-intermediate-mix-fourths-and-fifths": f404_voice_intermediate_mix_fourths_and_fifths,
-  "voice-intermediate-mix-runs-back-to-back": f405_voice_intermediate_mix_runs_back_to_back,
-  "voice-intermediate-mix-tunes-easy-to-hard": f406_voice_intermediate_mix_tunes_easy_to_hard,
-  "voice-intermediate-nine-notes-up-and-back": f407_voice_intermediate_nine_notes_up_and_back,
-  "voice-intermediate-read-it-before-you-hear-it": f408_voice_intermediate_read_it_before_you_hear_it,
-  "voice-intermediate-read-two-tunes-with-a-5th": f409_voice_intermediate_read_two_tunes_with_a_5th,
-  "voice-intermediate-sing-the-3rd-the-4th-and-the-5th": f410_voice_intermediate_sing_the_3rd_the_4th_and_the_5th,
-  "voice-intermediate-sing-the-4th-the-5th-and-the-octave": f411_voice_intermediate_sing_the_4th_the_5th_and_the_octave,
-  "voice-intermediate-singing-dorian": f412_voice_intermediate_singing_dorian,
-  "voice-intermediate-singing-mixolydian": f413_voice_intermediate_singing_mixolydian,
-  "voice-intermediate-six-falling-leaps-sung-back": f414_voice_intermediate_six_falling_leaps_sung_back,
-  "voice-intermediate-six-leaps-to-tell-apart": f415_voice_intermediate_six_leaps_to_tell_apart,
-  "voice-intermediate-slide-to-the-high-do": f416_voice_intermediate_slide_to_the_high_do,
-  "voice-intermediate-slides-across-the-break": f417_voice_intermediate_slides_across_the_break,
-  "voice-intermediate-the-4th-the-5th-and-their-neighbours": f418_voice_intermediate_the_4th_the_5th_and_their_neighbours,
-  "voice-intermediate-the-do-to-sol-run-four-notes-a-beat": f419_voice_intermediate_the_do_to_sol_run_four_notes_a_beat,
-  "voice-intermediate-the-harmony-line-then-your-own": f420_voice_intermediate_the_harmony_line_then_your_own,
-  "voice-intermediate-tunes-with-leaps": f421_voice_intermediate_tunes_with_leaps,
-  "voice-intermediate-two-notes-at-once": f422_voice_intermediate_two_notes_at_once,
-  "voice-new-3rd-and-5th-from-do": f423_voice_new_3rd_and_5th_from_do,
-  "voice-new-do-and-re": f424_voice_new_do_and_re,
-  "voice-new-easy-tunes-by-ear": f425_voice_new_easy_tunes_by_ear,
-  "voice-new-hold-your-note": f426_voice_new_hold_your_note,
-  "voice-new-holding-a-note": f427_voice_new_holding_a_note,
-  "voice-new-matching-a-pitch": f428_voice_new_matching_a_pitch,
-  "voice-new-mix-do-to-sol": f429_voice_new_mix_do_to_sol,
-  "voice-new-up-to-fa": f430_voice_new_up_to_fa,
-  "voice-new-up-to-mi": f431_voice_new_up_to_mi,
-  "voice-new-up-to-sol": f432_voice_new_up_to_sol,
+  "guitar-warm-up-down-up-on-open-strings": f193_guitar_warm_up_down_up_on_open_strings,
+  "guitar-warm-up-hammer-on-and-pull-off": f194_guitar_warm_up_hammer_on_and_pull_off,
+  "guitar-warm-up-loosen-your-hands": f195_guitar_warm_up_loosen_your_hands,
+  "guitar-warm-up-the-spider-slowly": f196_guitar_warm_up_the_spider_slowly,
+  "showcase-blocks-do-mi-sol": f197_showcase_blocks_do_mi_sol,
+  "showcase-pick-step-tunes": f198_showcase_pick_step_tunes,
+  "showcase-progression-four-ways": f199_showcase_progression_four_ways,
+  "showcase-stages-tempo-ladder": f200_showcase_stages_tempo_ladder,
+  "showcase-variants-same-frets": f201_showcase_variants_same_frets,
+  "theory-advanced-all-twelve-intervals": f202_theory_advanced_all_twelve_intervals,
+  "theory-advanced-click-on-two-and-four": f203_theory_advanced_click_on_two_and_four,
+  "theory-advanced-diminished-seventh": f204_theory_advanced_diminished_seventh,
+  "theory-advanced-guide-tones": f205_theory_advanced_guide_tones,
+  "theory-advanced-jazz-standard-changes": f206_theory_advanced_jazz_standard_changes,
+  "theory-advanced-melodic-minor": f207_theory_advanced_melodic_minor,
+  "theory-advanced-minor-ii-v-i": f208_theory_advanced_minor_ii_v_i,
+  "theory-advanced-mix-all-twelve-down-and-together": f209_theory_advanced_mix_all_twelve_down_and_together,
+  "theory-advanced-mix-major-and-minor-ii-v-i": f210_theory_advanced_mix_major_and_minor_ii_v_i,
+  "theory-advanced-mix-three-minor-scales": f211_theory_advanced_mix_three_minor_scales,
+  "theory-advanced-modes-by-ear": f212_theory_advanced_modes_by_ear,
+  "theory-advanced-moving-to-a-close-key": f213_theory_advanced_moving_to_a_close_key,
+  "theory-advanced-name-notes-quickly": f214_theory_advanced_name_notes_quickly,
+  "theory-advanced-name-the-chords-of-a-hidden-chart": f215_theory_advanced_name_the_chords_of_a_hidden_chart,
+  "theory-advanced-ninth-chords": f216_theory_advanced_ninth_chords,
+  "theory-advanced-song-chords-by-ear": f217_theory_advanced_song_chords_by_ear,
+  "theory-advanced-syncopation": f218_theory_advanced_syncopation,
+  "theory-advanced-thirteenth-chords": f219_theory_advanced_thirteenth_chords,
+  "theory-advanced-up-a-step-last-chorus": f220_theory_advanced_up_a_step_last_chorus,
+  "theory-beginner-clap-along-eighths": f221_theory_beginner_clap_along_eighths,
+  "theory-beginner-eighths": f222_theory_beginner_eighths,
+  "theory-beginner-major-minor-one-root": f223_theory_beginner_major_minor_one_root,
+  "theory-beginner-name-the-notes-in-the-spaces": f224_theory_beginner_name_the_notes_in_the_spaces,
+  "theory-beginner-one-four-five": f225_theory_beginner_one_four_five,
+  "theory-beginner-pop-one-five-six-four": f226_theory_beginner_pop_one_five_six_four,
+  "theory-beginner-second-and-fourth": f227_theory_beginner_second_and_fourth,
+  "theory-beginner-sharps-and-flats": f228_theory_beginner_sharps_and_flats,
+  "theory-intermediate-add9": f229_theory_intermediate_add9,
+  "theory-intermediate-augmented-triad": f230_theory_intermediate_augmented_triad,
+  "theory-intermediate-clap-along-sixteenths": f231_theory_intermediate_clap_along_sixteenths,
+  "theory-intermediate-diminished-triad": f232_theory_intermediate_diminished_triad,
+  "theory-intermediate-dorian": f233_theory_intermediate_dorian,
+  "theory-intermediate-five-chord-in-minor": f234_theory_intermediate_five_chord_in_minor,
+  "theory-intermediate-flat-keys": f235_theory_intermediate_flat_keys,
+  "theory-intermediate-harmonic-minor": f236_theory_intermediate_harmonic_minor,
+  "theory-intermediate-hearing-changes": f237_theory_intermediate_hearing_changes,
+  "theory-intermediate-la-as-home": f238_theory_intermediate_la_as_home,
+  "theory-intermediate-mix-do-or-la-as-home": f239_theory_intermediate_mix_do_or_la_as_home,
+  "theory-intermediate-mix-intervals-up-down-together": f240_theory_intermediate_mix_intervals_up_down_together,
+  "theory-intermediate-mix-maj7-7-m7": f241_theory_intermediate_mix_maj7_7_m7,
+  "theory-intermediate-mix-major-minor-dim-aug": f242_theory_intermediate_mix_major_minor_dim_aug,
+  "theory-intermediate-mix-one-four-five-six": f243_theory_intermediate_mix_one_four_five_six,
+  "theory-intermediate-mix-quarters-to-sixteenths": f244_theory_intermediate_mix_quarters_to_sixteenths,
+  "theory-intermediate-mix-seventh-chords-and-triads": f245_theory_intermediate_mix_seventh_chords_and_triads,
+  "theory-intermediate-mix-sharp-and-flat-keys": f246_theory_intermediate_mix_sharp_and_flat_keys,
+  "theory-intermediate-mix-sus-add9-or-plain": f247_theory_intermediate_mix_sus_add9_or_plain,
+  "theory-intermediate-mixolydian": f248_theory_intermediate_mixolydian,
+  "theory-intermediate-name-the-4-or-the-5-chord": f249_theory_intermediate_name_the_4_or_the_5_chord,
+  "theory-intermediate-name-the-notes-on-ledger-lines": f250_theory_intermediate_name_the_notes_on_ledger_lines,
+  "theory-intermediate-notes-on-the-staff": f251_theory_intermediate_notes_on_the_staff,
+  "theory-intermediate-seventh-chords": f252_theory_intermediate_seventh_chords,
+  "theory-intermediate-sharp-keys": f253_theory_intermediate_sharp_keys,
+  "theory-intermediate-sixteenths-and-rests": f254_theory_intermediate_sixteenths_and_rests,
+  "theory-intermediate-sus2": f255_theory_intermediate_sus2,
+  "theory-intermediate-the-6-chord-among-the-4-and-the-5": f256_theory_intermediate_the_6_chord_among_the_4_and_the_5,
+  "theory-new-clap-along-the-beat": f257_theory_new_clap_along_the_beat,
+  "theory-new-major-or-minor": f258_theory_new_major_or_minor,
+  "theory-new-name-the-notes-on-the-lines": f259_theory_new_name_the_notes_on_the_lines,
+  "theory-new-note-names-a-to-g": f260_theory_new_note_names_a_to_g,
+  "theory-new-steady-beat": f261_theory_new_steady_beat,
+  "theory-only-first-week-3rds-both-notes-at-once": f262_theory_only_first_week_3rds_both_notes_at_once,
+  "theory-only-first-week-5th-or-octave-by-ear": f263_theory_only_first_week_5th_or_octave_by_ear,
+  "theory-only-first-week-5ths-octaves-and-3rds-by-ear": f264_theory_only_first_week_5ths_octaves_and_3rds_by_ear,
+  "theory-only-first-week-c-major-whole-steps-and-half-steps": f265_theory_only_first_week_c_major_whole_steps_and_half_steps,
+  "theory-only-first-week-f-major-its-scale-its-chords-its-7th": f266_theory_only_first_week_f_major_its_scale_its_chords_its_7th,
+  "theory-only-first-week-hear-the-moment-the-chord-changes": f267_theory_only_first_week_hear_the_moment_the_chord_changes,
+  "theory-only-first-week-major-3rd-or-minor-3rd": f268_theory_only_first_week_major_3rd_or_minor_3rd,
+  "theory-only-first-week-major-and-minor-chords-one-note-apart": f269_theory_only_first_week_major_and_minor_chords_one_note_apart,
+  "theory-only-first-week-major-key-or-minor-key-by-ear": f270_theory_only_first_week_major_key_or_minor_key_by_ear,
+  "theory-only-first-week-major-pentatonic-five-notes-of-the-major-scale": f271_theory_only_first_week_major_pentatonic_five_notes_of_the_major_scale,
+  "theory-only-first-week-one-sharp-one-flat": f272_theory_only_first_week_one_sharp_one_flat,
+  "theory-only-first-week-sus4-the-4th-in-place-of-the-3rd": f273_theory_only_first_week_sus4_the_4th_in_place_of_the_3rd,
+  "theory-only-first-week-the-1-4-and-5-chords-found-on-the-circle": f274_theory_only_first_week_the_1_4_and_5_chords_found_on_the_circle,
+  "theory-only-first-week-the-dominant-7-the-5-chord-with-one-more-note": f275_theory_only_first_week_the_dominant_7_the_5_chord_with_one_more_note,
+  "voice-advanced-3rds-to-6ths-falling": f276_voice_advanced_3rds_to_6ths_falling,
+  "voice-advanced-6ths-7ths-or-octave": f277_voice_advanced_6ths_7ths_or_octave,
+  "voice-advanced-a-fast-pentatonic-run": f278_voice_advanced_a_fast_pentatonic_run,
+  "voice-advanced-a-fast-pentatonic-run-to-the-top": f279_voice_advanced_a_fast_pentatonic_run_to_the_top,
+  "voice-advanced-a-line-with-a-wide-leap": f280_voice_advanced_a_line_with_a_wide_leap,
+  "voice-advanced-a-long-breath-out": f281_voice_advanced_a_long_breath_out,
+  "voice-advanced-a-pentatonic-riff": f282_voice_advanced_a_pentatonic_riff,
+  "voice-advanced-a-run-past-the-octave": f283_voice_advanced_a_run_past_the_octave,
+  "voice-advanced-a-slide-over-two-octaves": f284_voice_advanced_a_slide_over_two_octaves,
+  "voice-advanced-a-whole-song-in-tune": f285_voice_advanced_a_whole_song_in_tune,
+  "voice-advanced-all-twelve-falling": f286_voice_advanced_all_twelve_falling,
+  "voice-advanced-an-octave-slide-a-little-higher": f287_voice_advanced_an_octave_slide_a_little_higher,
+  "voice-advanced-around-the-5th": f288_voice_advanced_around_the_5th,
+  "voice-advanced-every-hard-leap-falling": f289_voice_advanced_every_hard_leap_falling,
+  "voice-advanced-every-hard-leap-unseen": f290_voice_advanced_every_hard_leap_unseen,
+  "voice-advanced-every-hard-leap-up-and-down": f291_voice_advanced_every_hard_leap_up_and_down,
+  "voice-advanced-guide-tones": f292_voice_advanced_guide_tones,
+  "voice-advanced-guide-tones-over-ii-v-i": f293_voice_advanced_guide_tones_over_ii_v_i,
+  "voice-advanced-guide-tones-round-a-turnaround": f294_voice_advanced_guide_tones_round_a_turnaround,
+  "voice-advanced-hard-leaps": f295_voice_advanced_hard_leaps,
+  "voice-advanced-hard-leaps-down-from-do": f296_voice_advanced_hard_leaps_down_from_do,
+  "voice-advanced-hard-leaps-you-cant-see": f297_voice_advanced_hard_leaps_you_cant_see,
+  "voice-advanced-hiss-then-buzz-for-longer": f298_voice_advanced_hiss_then_buzz_for_longer,
+  "voice-advanced-ii-v-i-guide-tones-your-way": f299_voice_advanced_ii_v_i_guide_tones_your_way,
+  "voice-advanced-in-hold-out-to-11": f300_voice_advanced_in_hold_out_to_11,
+  "voice-advanced-in-hold-out-to-12": f301_voice_advanced_in_hold_out_to_12,
+  "voice-advanced-in-hold-out-to-13": f302_voice_advanced_in_hold_out_to_13,
+  "voice-advanced-leaps-wider-than-an-octave": f303_voice_advanced_leaps_wider_than_an_octave,
+  "voice-advanced-mix-all-five-modes": f304_voice_advanced_mix_all_five_modes,
+  "voice-advanced-mix-sixths-sevenths-octave": f305_voice_advanced_mix_sixths_sevenths_octave,
+  "voice-advanced-mix-tunes-chords-off": f306_voice_advanced_mix_tunes_chords_off,
+  "voice-advanced-read-tunes-that-leap-past-the-octave": f307_voice_advanced_read_tunes_that_leap_past_the_octave,
+  "voice-advanced-read-tunes-with-a-7th": f308_voice_advanced_read_tunes_with_a_7th,
+  "voice-advanced-read-tunes-with-an-octave": f309_voice_advanced_read_tunes_with_an_octave,
+  "voice-advanced-sing-the-tritone-the-5th-and-the-minor-6th": f310_voice_advanced_sing_the_tritone_the_5th_and_the_minor_6th,
+  "voice-advanced-sing-the-two-7ths-and-the-octave": f311_voice_advanced_sing_the_two_7ths_and_the_octave,
+  "voice-advanced-singing-locrian": f312_voice_advanced_singing_locrian,
+  "voice-advanced-singing-lydian": f313_voice_advanced_singing_lydian,
+  "voice-advanced-singing-phrygian": f314_voice_advanced_singing_phrygian,
+  "voice-advanced-the-chord-as-a-fast-run": f315_voice_advanced_the_chord_as_a_fast_run,
+  "voice-advanced-the-octave-run": f316_voice_advanced_the_octave_run,
+  "voice-advanced-tunes-with-awkward-leaps": f317_voice_advanced_tunes_with_awkward_leaps,
+  "voice-advanced-two-notes-at-once": f318_voice_advanced_two_notes_at_once,
+  "voice-advanced-up-the-chord-hold-the-top": f319_voice_advanced_up_the_chord_hold_the_top,
+  "voice-advanced-vowels-across-the-break": f320_voice_advanced_vowels_across_the_break,
+  "voice-advanced-your-line-over-ii-v-i-faster": f321_voice_advanced_your_line_over_ii_v_i_faster,
+  "voice-beginner-3rd-5th-or-6th": f322_voice_beginner_3rd_5th_or_6th,
+  "voice-beginner-3rd-or-5th": f323_voice_beginner_3rd_or_5th,
+  "voice-beginner-5th-under-the-tune": f324_voice_beginner_5th_under_the_tune,
+  "voice-beginner-a-long-steady-do": f325_voice_beginner_a_long_steady_do,
+  "voice-beginner-a-longer-skipping-tune-then-your-own": f326_voice_beginner_a_longer_skipping_tune_then_your_own,
+  "voice-beginner-a-skipping-tune-then-over-chords": f327_voice_beginner_a_skipping_tune_then_over_chords,
+  "voice-beginner-a-sol-tune-then-your-own-line": f328_voice_beginner_a_sol_tune_then_your_own_line,
+  "voice-beginner-a-tune-under-do-then-over-three-chords": f329_voice_beginner_a_tune_under_do_then_over_three_chords,
+  "voice-beginner-breathe-then-hold-do": f330_voice_beginner_breathe_then_hold_do,
+  "voice-beginner-do-mi-sol": f331_voice_beginner_do_mi_sol,
+  "voice-beginner-do-mi-sol-in-three-keys": f332_voice_beginner_do_mi_sol_in_three_keys,
+  "voice-beginner-do-re-mi-on-the-beat": f333_voice_beginner_do_re_mi_on_the_beat,
+  "voice-beginner-find-the-smooth-spot": f334_voice_beginner_find_the_smooth_spot,
+  "voice-beginner-five-intervals-sung-back": f335_voice_beginner_five_intervals_sung_back,
+  "voice-beginner-five-note-run": f336_voice_beginner_five_note_run,
+  "voice-beginner-five-vowels-on-one-easy-note": f337_voice_beginner_five_vowels_on_one_easy_note,
+  "voice-beginner-hear-and-sing-back": f338_voice_beginner_hear_and_sing_back,
+  "voice-beginner-home-chord-run": f339_voice_beginner_home_chord_run,
+  "voice-beginner-hum-then-open": f340_voice_beginner_hum_then_open,
+  "voice-beginner-in-tune-over-drone": f341_voice_beginner_in_tune_over_drone,
+  "voice-beginner-lip-rolls-middle": f342_voice_beginner_lip_rolls_middle,
+  "voice-beginner-mix-steps-and-skips": f343_voice_beginner_mix_steps_and_skips,
+  "voice-beginner-mix-whole-octave": f344_voice_beginner_mix_whole_octave,
+  "voice-beginner-siren-to-sol": f345_voice_beginner_siren_to_sol,
+  "voice-beginner-skips-falling": f346_voice_beginner_skips_falling,
+  "voice-beginner-sol-la-sol-then-over-chords": f347_voice_beginner_sol_la_sol_then_over_chords,
+  "voice-beginner-step-tunes-then-your-own": f348_voice_beginner_step_tunes_then_your_own,
+  "voice-beginner-steps-and-skips-mixed": f349_voice_beginner_steps_and_skips_mixed,
+  "voice-beginner-steps-from-the-staff": f350_voice_beginner_steps_from_the_staff,
+  "voice-beginner-steps-or-skips": f351_voice_beginner_steps_or_skips,
+  "voice-beginner-steps-then-3rds": f352_voice_beginner_steps_then_3rds,
+  "voice-guitar-advanced-first-week-a-run-into-the-chord": f353_voice_guitar_advanced_first_week_a_run_into_the_chord,
+  "voice-guitar-advanced-first-week-a-turnaround-with-the-band": f354_voice_guitar_advanced_first_week_a_turnaround_with_the_band,
+  "voice-guitar-advanced-first-week-am-d-and-g-triads-on-two-string-sets": f355_voice_guitar_advanced_first_week_am_d_and_g_triads_on_two_string_sets,
+  "voice-guitar-advanced-first-week-am9-d9-and-gmaj7": f356_voice_guitar_advanced_first_week_am9_d9_and_gmaj7,
+  "voice-guitar-advanced-first-week-comp-a-soul-vamp": f357_voice_guitar_advanced_first_week_comp_a_soul_vamp,
+  "voice-guitar-advanced-first-week-comp-the-ii-v-i-in-g-faster": f358_voice_guitar_advanced_first_week_comp_the_ii_v_i_in_g_faster,
+  "voice-guitar-advanced-first-week-dm9-g9-and-cmaj7": f359_voice_guitar_advanced_first_week_dm9_g9_and_cmaj7,
+  "voice-guitar-advanced-first-week-fast-runs-rising-and-falling": f360_voice_guitar_advanced_first_week_fast_runs_rising_and_falling,
+  "voice-guitar-advanced-first-week-five-notes-faster-in-stages": f361_voice_guitar_advanced_first_week_five_notes_faster_in_stages,
+  "voice-guitar-advanced-first-week-guide-tones-over-the-ii-v-i-in-g": f362_voice_guitar_advanced_first_week_guide_tones_over_the_ii_v_i_in_g,
+  "voice-guitar-advanced-first-week-name-the-chord-you-hear": f363_voice_guitar_advanced_first_week_name_the_chord_you_hear,
+  "voice-guitar-advanced-first-week-name-the-interval-you-hear": f364_voice_guitar_advanced_first_week_name_the_interval_you_hear,
+  "voice-guitar-advanced-first-week-nine-notes-and-the-octave": f365_voice_guitar_advanced_first_week_nine_notes_and_the_octave,
+  "voice-guitar-advanced-first-week-pentatonic-runs-at-speed": f366_voice_guitar_advanced_first_week_pentatonic_runs_at_speed,
+  "voice-guitar-advanced-first-week-runs-over-a-soul-vamp": f367_voice_guitar_advanced_first_week_runs_over_a_soul_vamp,
+  "voice-guitar-advanced-first-week-shells-and-guide-tones-in-c": f368_voice_guitar_advanced_first_week_shells_and_guide_tones_in_c,
+  "voice-guitar-advanced-first-week-sus-and-add9-on-top": f369_voice_guitar_advanced_first_week_sus_and_add9_on_top,
+  "voice-guitar-advanced-first-week-the-3rd-and-7th-eyes-off-the-tab": f370_voice_guitar_advanced_first_week_the_3rd_and_7th_eyes_off_the_tab,
+  "voice-guitar-advanced-first-week-the-3rd-and-7th-of-each-chord": f371_voice_guitar_advanced_first_week_the_3rd_and_7th_of_each_chord,
+  "voice-guitar-advanced-first-week-the-do-to-sol-run-faster": f372_voice_guitar_advanced_first_week_the_do_to_sol_run_faster,
+  "voice-guitar-advanced-first-week-the-hard-leaps-7ths-tritone-minor-6th": f373_voice_guitar_advanced_first_week_the_hard_leaps_7ths_tritone_minor_6th,
+  "voice-guitar-advanced-first-week-the-octave-run": f374_voice_guitar_advanced_first_week_the_octave_run,
+  "voice-guitar-advanced-first-week-the-set": f375_voice_guitar_advanced_first_week_the_set,
+  "voice-guitar-advanced-first-week-the-turnaround-in-g-two-ways": f376_voice_guitar_advanced_first_week_the_turnaround_in_g_two_ways,
+  "voice-guitar-advanced-first-week-tunes-with-wide-leaps": f377_voice_guitar_advanced_first_week_tunes_with_wide_leaps,
+  "voice-guitar-advanced-first-week-turns": f378_voice_guitar_advanced_first_week_turns,
+  "voice-guitar-advanced-first-week-two-harmony-lines-then-runs-between": f379_voice_guitar_advanced_first_week_two_harmony_lines_then_runs_between,
+  "voice-guitar-advanced-first-week-warm-up-breath-and-a-lip-roll": f380_voice_guitar_advanced_first_week_warm_up_breath_and_a_lip_roll,
+  "voice-guitar-advanced-first-week-warm-up-hiss-to-voice-fast-siren": f381_voice_guitar_advanced_first_week_warm_up_hiss_to_voice_fast_siren,
+  "voice-guitar-advanced-first-week-warm-up-long-breath-out-lip-roll-up": f382_voice_guitar_advanced_first_week_warm_up_long_breath_out_lip_roll_up,
+  "voice-guitar-advanced-first-week-warm-up-longer-breath-light-top": f383_voice_guitar_advanced_first_week_warm_up_longer_breath_light_top,
+  "voice-guitar-advanced-first-week-warm-up-middle-then-light-and-high": f384_voice_guitar_advanced_first_week_warm_up_middle_then_light_and_high,
+  "voice-guitar-advanced-first-week-warm-up-siren-and-low-hum": f385_voice_guitar_advanced_first_week_warm_up_siren_and_low_hum,
+  "voice-guitar-advanced-first-week-warm-up-siren-and-middle": f386_voice_guitar_advanced_first_week_warm_up_siren_and_middle,
+  "voice-guitar-advanced-first-week-your-own-line-over-the-ii-v-i-in-c": f387_voice_guitar_advanced_first_week_your_own_line_over_the_ii_v_i_in_c,
+  "voice-intermediate-a-few-notes-higher-and-lower": f388_voice_intermediate_a_few_notes_higher_and_lower,
+  "voice-intermediate-a-harmony-line-over-three-chords": f389_voice_intermediate_a_harmony_line_over_three_chords,
+  "voice-intermediate-a-long-breath-out": f390_voice_intermediate_a_long_breath_out,
+  "voice-intermediate-a-run-with-turns": f391_voice_intermediate_a_run_with_turns,
+  "voice-intermediate-a-tune-that-drops-an-octave": f392_voice_intermediate_a_tune_that_drops_an_octave,
+  "voice-intermediate-a-tune-that-falls-a-4th": f393_voice_intermediate_a_tune_that_falls_a_4th,
+  "voice-intermediate-a-tune-with-a-5th-then-your-own-line": f394_voice_intermediate_a_tune_with_a_5th_then_your_own_line,
+  "voice-intermediate-an-octave-tune-then-every-leap": f395_voice_intermediate_an_octave_tune_then_every_leap,
+  "voice-intermediate-do-mi-sol-do-then-a-run-home": f396_voice_intermediate_do_mi_sol_do_then_a_run_home,
+  "voice-intermediate-five-notes-up-and-back": f397_voice_intermediate_five_notes_up_and_back,
+  "voice-intermediate-five-vowels-as-the-note-climbs": f398_voice_intermediate_five_vowels_as_the_note_climbs,
+  "voice-intermediate-from-the-4th-up-to-the-octave": f399_voice_intermediate_from_the_4th_up_to_the_octave,
+  "voice-intermediate-hiss-then-buzz": f400_voice_intermediate_hiss_then_buzz,
+  "voice-intermediate-in-hold-out": f401_voice_intermediate_in_hold_out,
+  "voice-intermediate-in-hold-out-filled-to-80": f402_voice_intermediate_in_hold_out_filled_to_80,
+  "voice-intermediate-in-hold-out-the-long-rounds": f403_voice_intermediate_in_hold_out_the_long_rounds,
+  "voice-intermediate-leaps": f404_voice_intermediate_leaps,
+  "voice-intermediate-leaps-falling": f405_voice_intermediate_leaps_falling,
+  "voice-intermediate-leaps-you-cant-see": f406_voice_intermediate_leaps_you_cant_see,
+  "voice-intermediate-mix-dorian-or-mixolydian": f407_voice_intermediate_mix_dorian_or_mixolydian,
+  "voice-intermediate-mix-fourths-and-fifths": f408_voice_intermediate_mix_fourths_and_fifths,
+  "voice-intermediate-mix-runs-back-to-back": f409_voice_intermediate_mix_runs_back_to_back,
+  "voice-intermediate-mix-tunes-easy-to-hard": f410_voice_intermediate_mix_tunes_easy_to_hard,
+  "voice-intermediate-nine-notes-up-and-back": f411_voice_intermediate_nine_notes_up_and_back,
+  "voice-intermediate-read-it-before-you-hear-it": f412_voice_intermediate_read_it_before_you_hear_it,
+  "voice-intermediate-read-two-tunes-with-a-5th": f413_voice_intermediate_read_two_tunes_with_a_5th,
+  "voice-intermediate-sing-the-3rd-the-4th-and-the-5th": f414_voice_intermediate_sing_the_3rd_the_4th_and_the_5th,
+  "voice-intermediate-sing-the-4th-the-5th-and-the-octave": f415_voice_intermediate_sing_the_4th_the_5th_and_the_octave,
+  "voice-intermediate-singing-dorian": f416_voice_intermediate_singing_dorian,
+  "voice-intermediate-singing-mixolydian": f417_voice_intermediate_singing_mixolydian,
+  "voice-intermediate-six-falling-leaps-sung-back": f418_voice_intermediate_six_falling_leaps_sung_back,
+  "voice-intermediate-six-leaps-to-tell-apart": f419_voice_intermediate_six_leaps_to_tell_apart,
+  "voice-intermediate-slide-to-the-high-do": f420_voice_intermediate_slide_to_the_high_do,
+  "voice-intermediate-slides-across-the-break": f421_voice_intermediate_slides_across_the_break,
+  "voice-intermediate-the-4th-the-5th-and-their-neighbours": f422_voice_intermediate_the_4th_the_5th_and_their_neighbours,
+  "voice-intermediate-the-do-to-sol-run-four-notes-a-beat": f423_voice_intermediate_the_do_to_sol_run_four_notes_a_beat,
+  "voice-intermediate-the-harmony-line-then-your-own": f424_voice_intermediate_the_harmony_line_then_your_own,
+  "voice-intermediate-tunes-with-leaps": f425_voice_intermediate_tunes_with_leaps,
+  "voice-intermediate-two-notes-at-once": f426_voice_intermediate_two_notes_at_once,
+  "voice-new-3rd-and-5th-from-do": f427_voice_new_3rd_and_5th_from_do,
+  "voice-new-do-and-re": f428_voice_new_do_and_re,
+  "voice-new-easy-tunes-by-ear": f429_voice_new_easy_tunes_by_ear,
+  "voice-new-hold-your-note": f430_voice_new_hold_your_note,
+  "voice-new-holding-a-note": f431_voice_new_holding_a_note,
+  "voice-new-matching-a-pitch": f432_voice_new_matching_a_pitch,
+  "voice-new-mix-do-to-sol": f433_voice_new_mix_do_to_sol,
+  "voice-new-up-to-fa": f434_voice_new_up_to_fa,
+  "voice-new-up-to-mi": f435_voice_new_up_to_mi,
+  "voice-new-up-to-sol": f436_voice_new_up_to_sol,
+  "voice-warm-up-hiss-then-buzz": f437_voice_warm_up_hiss_then_buzz,
+  "voice-warm-up-in-hold-out": f438_voice_warm_up_in_hold_out,
+  "voice-warm-up-lip-rolls-down": f439_voice_warm_up_lip_rolls_down,
+  "voice-warm-up-lip-rolls-down-then-up": f440_voice_warm_up_lip_rolls_down_then_up,
+  "voice-warm-up-lip-rolls-up-then-down": f441_voice_warm_up_lip_rolls_up_then_down,
+  "voice-warm-up-out-from-do-going-down": f442_voice_warm_up_out_from_do_going_down,
+  "voice-warm-up-out-from-do-going-up": f443_voice_warm_up_out_from_do_going_up,
+  "voice-warm-up-the-scale-up-and-back": f444_voice_warm_up_the_scale_up_and_back,
 };

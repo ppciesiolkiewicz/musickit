@@ -13,6 +13,7 @@ import { reach } from "./reach";
 import { rollVersion, type RollTrace } from "./roll";
 import { addDays } from "./schedule";
 import type { PlanAnswers, PlanExercise } from "./types";
+import { WARM_UP_AREAS, isWarmUp, warmUpCap, warmUpPart, warmUpRun } from "./warmUp";
 
 /*
  * One day's practice plan made of library blocks (NEW7; design: docs/superpowers/specs/2026-11-18-plan-composer-design.md).
@@ -60,7 +61,7 @@ export interface DaySection {
   area: Area;
   /** the minutes of its exercises */
   minutes: number;
-  /** kept ones first, then new picks, review blocks last */
+  /** its warm-up run first (voice and guitar, DayShape2), then kept ones, then new picks, review blocks last */
   exercises: PlanExercise[];
 }
 
@@ -69,7 +70,7 @@ export interface ComposedDay {
   exercises: PlanExercise[];
   /** the day by area: voice, then guitar, then theory. A section with no exercise is left out. Absent on a day not made by `composeDay`. */
   sections?: DaySection[];
-  /** the steps the new picks work on, in order */
+  /** the steps the new picks work on, in order (a warm-up works on none) */
   steps: string[];
   /** under the minutes by more than 5: the library has no more for these steps */
   short: boolean;
@@ -119,6 +120,18 @@ export interface TracedPick {
   roll?: RollTrace;
 }
 
+/** One block of a section's warm-up run. */
+export interface TracedWarmUp {
+  blockId: string;
+  choiceId: string;
+  title: string;
+  minutes: number;
+  /** where in the run it goes (`warmUpPart`) */
+  part: number;
+  /** the version it was given, as on a pick */
+  given?: Given;
+}
+
 /** One section as the composer filled it. */
 export interface TracedSection {
   area: Area;
@@ -128,7 +141,13 @@ export interface TracedSection {
   share: number;
   /** what it had to fill: its share and what the sections before it left over */
   budget: number;
-  /** the minutes of its new picks */
+  /**
+   * Its warm-up run (DayShape2), taken out of `budget` before anything else: `cap` is the most minutes it may take (a
+   * third of the section, at most 8, less the warm-ups kept), `pool` how many warm-up blocks of the area fit the
+   * player's `level`, `picks` the run in the order it is played. A theory section has cap 0 and no picks.
+   */
+  warmUp: { cap: number; pool: number; level: string; minutes: number; picks: TracedWarmUp[] };
+  /** the minutes of its new picks for path steps (the warm-up not counted) */
   filled: number;
   /** the minutes added afterwards, when the day's last section could not use what was left */
   toppedUp: number;
@@ -145,7 +164,7 @@ export interface ComposeTrace {
   sections: TracedSection[];
   /** the steps the day works on (`daySteps` of every section, one after the other) */
   steps: DaySteps;
-  /** the library: all choices handed in, those within the player's reach, those of them not barred (yesterday's, declined, kept, or of a kept block) */
+  /** the library, warm-ups left out (they are picked by kind, not for a step): all choices handed in, those within the player's reach, those of them not barred (yesterday's, declined, kept, or of a kept block) */
   library: { all: number; inReach: number; usable: number };
   /** in the order they were picked (the day itself puts review last) */
   picks: TracedPick[];
@@ -361,7 +380,9 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
   };
   // a planned review block fits a third of the day (at least 5 minutes), so most of a short day stays new
   const reviewCap = Math.max(5, answers.minutes / 3);
-  const inReach = withinReach(input.blocks, answers, input.solid, tracks);
+  // a warm-up is never picked for a step: each section's run takes them by kind (model/warmUp.ts)
+  const pathBlocks = input.blocks.filter((c) => !isWarmUp(c.exercise));
+  const inReach = withinReach(pathBlocks, answers, input.solid, tracks);
 
   // A kept exercise stays in the section of its area; one with no area goes in the day's first section. An area with
   // kept exercises that is not one of today's gets a section of its own, with nothing new in it.
@@ -380,12 +401,13 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
     areas: { picked: AREA_ORDER.filter((a) => answers.areas.includes(a)), count: sectionCount(answers.minutes), today },
     sections: [],
     steps: { fresh: [], open: [], review: [] },
-    library: { all: input.blocks.length, inReach: inReach.length, usable: inReach.filter((c) => !barred(c, used)).length },
+    library: { all: pathBlocks.length, inReach: inReach.length, usable: inReach.filter((c) => !barred(c, used)).length },
     picks: [],
     empty: [],
   };
   const rng = mulberry32(hash(input.seed));
-  const parts = new Map<Area, { picks: Pick[]; review: Pick[] }>();
+  const parts = new Map<Area, { warm: Candidate[]; picks: Pick[]; review: Pick[] }>();
+  const keptWarm = (a: Area) => keptOf(a).filter(isWarmUp);
   let total = 0;
   let carry = 0;
   for (const area of order) {
@@ -393,11 +415,22 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
     const steps = today.includes(area) ? daySteps({ answers, solid: input.solid, date: input.date, areas: [area] }, tracks) : { fresh: [], open: [], review: [] };
     // what the sections before left over is this one's too; what they ran over comes off it, never under half its share
     const sectionBudget = today.includes(area) ? Math.max(share / 2, share + carry) : 0;
-    const got = sectionBudget > 0 ? fill(steps, reviewCount, reviewCap, sectionBudget, inReach, used, rng, trace, { area, before: total }) : { picks: [], review: [], total: 0 };
-    parts.set(area, { picks: got.picks, review: got.review });
-    if (today.includes(area)) carry = sectionBudget - got.total;
-    total += got.total;
-    trace.sections.push({ area, kept: mins(keptOf(area)), share, budget: sectionBudget, filled: got.total, toppedUp: 0, steps });
+    // The warm-up run comes out of the section's minutes first: a third of the section (with what it has kept), at
+    // most 8 minutes, less the warm-ups kept. Yesterday's and declined ones may come again: the run turns with the date.
+    const level = levelOf(answers, area);
+    const cap = sectionBudget > 0 && WARM_UP_AREAS.includes(area) ? Math.max(0, warmUpCap(sectionBudget + mins(keptOf(area))) - mins(keptWarm(area))) : 0;
+    let run = warmUpRun({ area, level, cap, day: dayNumber(input.date), blocks: input.blocks, barred: new Set(keptWarm(area).flatMap((e) => (e.blockId ? [e.blockId] : []))) });
+    const got = sectionBudget - run.minutes > 0 ? fill(steps, reviewCount, reviewCap, sectionBudget - run.minutes, inReach, used, rng, trace, { area, before: total + run.minutes }) : { picks: [], review: [], total: 0 };
+    // a warm-up with nothing to play after it is left out
+    if (!got.picks.length && !got.review.length && keptOf(area).every(isWarmUp)) run = { ...run, picks: [], minutes: 0 };
+    parts.set(area, { warm: run.picks, picks: got.picks, review: got.review });
+    if (today.includes(area)) carry = sectionBudget - run.minutes - got.total;
+    total += run.minutes + got.total;
+    trace.sections.push({
+      area, kept: mins(keptOf(area)), share, budget: sectionBudget,
+      warmUp: { cap, pool: run.pool, level, minutes: run.minutes, picks: run.picks.map((c) => ({ blockId: c.blockId, choiceId: c.choiceId, title: shownTitle(c.exercise), minutes: c.minutes, part: warmUpPart(c.exercise) })) },
+      filled: got.total, toppedUp: 0, steps,
+    });
     trace.steps.fresh.push(...steps.fresh); trace.steps.open.push(...steps.open); trace.steps.review.push(...steps.review);
   }
   // The last section could not use what was left: the earlier ones take it, in order.
@@ -414,18 +447,25 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
   // the versions last: they change no pick, only what each exercise opens in
   const all = order.flatMap((a) => { const p = parts.get(a)!; return [...p.picks, ...p.review]; });
   const versions = new Map<string, { given: Given; roll?: RollTrace }>();
-  for (const p of all) {
-    const v = versionFor(p.cand.exercise, input, tracks);
-    if (v) versions.set(p.cand.choiceId, v);
+  const warm = order.flatMap((a) => parts.get(a)!.warm);
+  for (const c of [...all.map((p) => p.cand), ...warm]) {
+    const v = versionFor(c.exercise, input, tracks);
+    if (v) versions.set(c.choiceId, v);
+  }
+  for (const w of trace.sections.flatMap((sec) => sec.warmUp.picks)) {
+    const v = versions.get(w.choiceId);
+    if (v) w.given = v.given;
   }
   for (const t of trace.picks) {
     const v = versions.get(t.choiceId);
     if (v) Object.assign(t, { given: v.given }, v.roll ? { roll: v.roll } : {});
   }
-  const versioned = (p: Pick): PlanExercise => (versions.has(p.cand.choiceId) ? { ...p.cand.exercise, given: versions.get(p.cand.choiceId)!.given } : p.cand.exercise);
+  const versioned = (c: Candidate): PlanExercise => (versions.has(c.choiceId) ? { ...c.exercise, given: versions.get(c.choiceId)!.given } : c.exercise);
   const sections: DaySection[] = order.map((area) => {
     const p = parts.get(area)!;
-    const exercises = [...keptOf(area), ...[...p.picks, ...p.review].map(versioned)];
+    // the warm-ups open the section, kept and new together in the order of their parts (the sort is stable)
+    const warmUps = [...keptWarm(area), ...p.warm.map(versioned)].sort((a, b) => warmUpPart(a) - warmUpPart(b));
+    const exercises = [...warmUps, ...keptOf(area).filter((e) => !isWarmUp(e)), ...[...p.picks, ...p.review].map((x) => versioned(x.cand))];
     return { area, minutes: mins(exercises), exercises };
   }).filter((s) => s.exercises.length > 0);
   const day: ComposedDay = {

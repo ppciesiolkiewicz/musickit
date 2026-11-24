@@ -1,0 +1,57 @@
+{
+  "id": "guitar-warm-up-the-spider-slowly",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A warm-up (DayShape2): part 2 of the guitar warm-up run, picked by its kind and never for a path step. The spider as a short warm-up at a slow tempo that moves, apart from the path's spider block: a warm-up is a block of its own because `kind` is the block's.",
+  "exercise": {
+    "title": "The spider, slowly",
+    "kind": "warm-up",
+    "warmUpPart": 2,
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-techniques",
+    "concepts": [
+      "spider"
+    ],
+    "why": "Four fingers on four frets in a row makes every finger press in turn, so a slow spider wakes all four before a chord or a scale needs them.",
+    "learnBefore": [
+      "/course/1/spider"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows the spider: on each string, frets 5, 6, 7 and 8 with fingers 1, 2, 3 and 4, one note per beat.\nStart on the low E string and play the four notes on every string up to the high e string, then come back down the same way.\nPress each note only as hard as it needs to ring, and keep going until your hand stays still and only the fingers move."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "finger-pattern",
+          "level": "new",
+          "show": "finger",
+          "bpm": 60
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 80,
+          "step": 10
+        }
+      },
+      "minutes": 2
+    }
+  ]
+}

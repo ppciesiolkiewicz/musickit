@@ -18,8 +18,17 @@ export interface Block {
   choice?: Choice;
   /** what may change about it from one play to the next (model/moves.ts): any key, a range of tempos. Part of the block and its id. */
   moves?: Moves;
+  /**
+   * Set on a warm-up (DayShape2): a short block that opens its area's part of a day. The composer picks warm-ups by
+   * this, never for a path step, and a warm-up names no step. Part of the block and its id.
+   */
+  kind?: "warm-up";
+  /** Only with `kind`: where in its area's warm-up run it goes, 1 first (voice: breath, lip rolls, scales and intervals; guitar: loose hands, the spider, finger work). */
+  warmUpPart?: WarmUpPart;
   cells: Cell[];
 }
+
+export type WarmUpPart = 1 | 2 | 3;
 
 /** What the plan knows about a block and the block itself does not: the prompt, the week report and the plan's card use it. */
 export interface ExerciseMeta {
