@@ -117,7 +117,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
       </div>
       <div data-tour="play-along-music">
       {solo ? <SoloView targets={solo} mode={shown} others={others} keyPc={keyPc} /> : <>
-      {shown === "tab" && <TabView cues={cues} pos={pos} length={length} />}
+      {shown === "tab" && <TabView cues={cues} pos={pos} length={length} keyPc={keyPc} />}
       {shown === "notes" && <NotesView cues={cues} pos={pos} length={length} keyPc={keyPc} />}
       {shown === "neck" && <NeckView cues={cues} pos={pos} length={length} keyPc={keyPc} marks={marks} />}
       </>}

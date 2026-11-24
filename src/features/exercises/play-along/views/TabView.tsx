@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { DotLabel } from "@/components/chordKit/DotLabel";
+import { noteLabel } from "@/features/theory/labels";
+import { useLabelRoot, useLabelSystem } from "@/features/theory/useLabelSystem";
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { gripName } from "@/lib/chordKit/gripName";
 import { strum } from "@/lib/chordKit/playback";
@@ -24,20 +27,22 @@ const GRIP_HEIGHT = 200;
  * Six-line tab (high e on top), one column per strum or note, spaced by beat, with a playhead and each column's length as a
  * note sign under it; wrapped into rows of whole bars that fill the width. A chord's name sits over every column of three
  * notes or more (the cue's chord, else read from the notes), and over a single note where its chord starts. Pointing at
- * a chord's name shows its chord box, and tapping it strums the chord; pointing at a fret number shows the note's name,
- * and tapping it plays the note.
+ * a chord's name shows its chord box, and tapping it strums the chord; pointing at a fret number swaps it for the note,
+ * labelled as the label settings say (name, interval, degree or solfège, from the chord or the key), and tapping plays it.
  */
-export default function TabView({ cues, pos, length }: ViewProps) {
+export default function TabView({ cues, pos, length, keyPc }: ViewProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
-  // what is pointed at, a chord name (its box) or a fret number (the note's name), and where that sits on the screen:
-  // drawn on the page body, so no card clips it; over the thing pointed at, or under it when there is no room above
-  const [grip, setGrip] = useState<{ i: number; note?: string; left: number; top: number; under: boolean } | null>(null);
-  const point = (i: number, el: Element, note?: string) => {
+  const [system] = useLabelSystem();
+  const [from] = useLabelRoot();
+  // the chord name pointed at, and where its box sits on the screen: drawn on the page body, so no card clips it
+  // over the name, or under it when there is no room above in the window
+  const [grip, setGrip] = useState<{ i: number; left: number; top: number; under: boolean } | null>(null);
+  const point = (i: number, el: Element) => {
     const at = el.getBoundingClientRect();
-    const under = at.top < (note ? 40 : GRIP_HEIGHT);
-    setGrip({ i, note, left: at.left + at.width / 2, top: under ? at.bottom : at.top, under });
+    const under = at.top < GRIP_HEIGHT;
+    setGrip({ i, left: at.left + at.width / 2, top: under ? at.bottom : at.top, under });
   };
-  // placed once, so it goes when the page moves under it; a tap anywhere but a chord name or a fret number closes it
+  // the box is placed once, so it goes when the page moves under it; a tap anywhere but a chord name closes it
   useEffect(() => {
     if (!grip) return;
     const hide = () => setGrip(null);
@@ -62,6 +67,13 @@ export default function TabView({ cues, pos, length }: ViewProps) {
     const before = named.slice(0, i).findLast(Boolean);
     return [{ i, at: shown[i].at, chord: nm, first: before !== nm }];
   });
+  // what a note counts from: the key when the label setting says scale root, else its column's chord root, the chord
+  // before it, the one after, or C
+  const rootPcOf = (i: number) => {
+    if (from === "scale" && keyPc !== undefined) return keyPc;
+    const nm = named[i] ?? named.slice(0, i).findLast(Boolean) ?? named.slice(i + 1).find(Boolean);
+    return (nm ? parseChordQuery(nm)?.rootPc : undefined) ?? 0;
+  };
   const play = (i: number) => strum(midiOf(i), { gapMs: 30, holdMs: 1600 });
   const TOP = changes.length ? 32 : 14;
   const zoom = zoomFor(width);
@@ -123,26 +135,18 @@ export default function TabView({ cues, pos, length }: ViewProps) {
             {cols.map((col, i) => {
               if (col.at < start || col.at >= end) return null;
               const now = isNow(shown[i], pos);
-              // a note spelled for the chord it sits in, else with sharps
-              const root = (named[i] ? parseChordQuery(named[i])?.rootPc : undefined) ?? 0;
+              const root = rootPcOf(i);
               return col.cells.map((f) => {
                 const y = TOP + (5 - f.string) * ROW;
                 const midi = OPEN_MIDI[f.string] + f.fret;
-                const name = noteOf(midi, root).name;
+                const label = noteLabel(system, noteOf(midi, root));
+                // the chip widens to fit the label on hover, drawn over its neighbours
+                const wide = Math.max(16, label.length * 7 + 6);
                 return (
-                  <g
-                    key={`${i}-${f.string}`}
-                    className="cursor-pointer"
-                    data-grip
-                    onPointerEnter={(e) => e.pointerType === "mouse" && point(i, e.currentTarget, name)}
-                    onPointerLeave={(e) => e.pointerType === "mouse" && setGrip(null)}
-                    onClick={(e) => {
-                      strum([midi], { holdMs: 1200 });
-                      point(i, e.currentTarget, name);
-                    }}
-                  >
-                    <rect x={x(col.at) - 8} y={y - 7} width={16} height={14} rx={3} fill="var(--color-slate-950)" />
-                    <text x={x(col.at)} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600} fill={shade(shown[i], now)}>{f.fret}</text>
+                  <g key={`${i}-${f.string}`} className="group cursor-pointer" onClick={() => strum([midi], { holdMs: 1200 })}>
+                    <rect x={x(col.at) - 8} y={y - 7} width={16} height={14} rx={3} fill="var(--color-slate-950)" className="group-hover:hidden" />
+                    <rect x={x(col.at) - wide / 2} y={y - 7} width={wide} height={14} rx={3} fill="var(--color-slate-700)" className="hidden group-hover:inline" />
+                    <DotLabel label={String(f.fret)} hover={label} size={(t) => (t.length > 2 ? 10 : 12)} x={x(col.at)} y={y} textAnchor="middle" dominantBaseline="central" fontWeight={600} fill={shade(shown[i], now)} />
                   </g>
                 );
               });
@@ -156,11 +160,7 @@ export default function TabView({ cues, pos, length }: ViewProps) {
       })}
       {grip && shown[grip.i] && createPortal(
         <div className={`pointer-events-none fixed z-50 -translate-x-1/2 ${grip.under ? "pt-1" : "-translate-y-full pb-1"}`} style={{ left: grip.left, top: grip.top }}>
-          {grip.note ? (
-            <div className="rounded border border-slate-700 bg-slate-900/95 px-1.5 py-0.5 text-xs font-bold text-slate-100 shadow-lg">{grip.note}</div>
-          ) : (
-            <GripBox frets={shown[grip.i].frets} chord={named[grip.i]} />
-          )}
+          <GripBox frets={shown[grip.i].frets} chord={named[grip.i]} />
         </div>,
         document.body,
       )}
