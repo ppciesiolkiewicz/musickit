@@ -192,6 +192,14 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
         </ol>
       )}
 
+      {!editing && !readOnly && onTime && (
+        <DayEnd
+          left={Math.max(0, total * 60 - (live?.ids === ids ? live.spent.reduce((n, x) => n + x, 0) : elapsedOn(times, day)))}
+          unrated={onRate ? d.exercises.flatMap((_, i) => (plan.rated?.[doneKey(day, i)]?.stars == null ? [i] : [])) : []}
+          onRateMissing={(i) => cards.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" })}
+        />
+      )}
+
       {onTime && !editing ? <DayTimer
         // a day whose exercises change (an AI's insert or removal, another plan) gets a fresh timer, so it never saves the old order's seconds
         key={`${plan.id}:${day}:${ids}`}
@@ -209,6 +217,37 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
         above={corner}
       /> : <Corner above={corner} />}
     </>
+  );
+}
+
+/**
+ * The foot of a day: what is left of it (time on the day's timer, exercises with no rating, with a button that brings the
+ * first of them into view) or, when neither is left, a line that the day is done; and Back to top.
+ */
+function DayEnd({ left, unrated, onRateMissing }: { left: number; unrated: number[]; onRateMissing: (i: number) => void }) {
+  const min = Math.ceil(left / 60);
+  const done = left === 0 && unrated.length === 0;
+  return (
+    <div className="mt-8 flex flex-col items-center gap-3 border-t border-slate-800 pt-6 text-center text-sm text-slate-300">
+      {done ? (
+        <p>Well done. That&apos;s this day&apos;s practice finished and every exercise rated.</p>
+      ) : (
+        <>
+          {left > 0 && <p>This day&apos;s practice still has {min} min to go on the timer.</p>}
+          {unrated.length > 0 && (
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+              <p>{unrated.length === 1 ? "1 exercise has no rating yet." : `${unrated.length} exercises have no rating yet.`}</p>
+              <button type="button" onClick={() => onRateMissing(unrated[0])} className="rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-200 hover:border-slate-500">
+                Add missing ratings
+              </button>
+            </div>
+          )}
+        </>
+      )}
+      <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200">
+        Back to top
+      </button>
+    </div>
   );
 }
 
