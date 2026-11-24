@@ -3,6 +3,7 @@
 import { tabOf } from "../../cues/tab";
 import { BEATS_PER_BAR } from "../../timeline/timeline";
 import { isNow, rowsOf, shade, useWidth, zoomFor, type ViewProps } from "./common";
+import { BeatBands } from "./BeatBands";
 import { NoteSign, hasNoteSign } from "./NoteSign";
 
 const NAMES = ["e", "B", "G", "D", "A", "E"];
@@ -32,10 +33,11 @@ export default function TabView({ cues, pos, length }: ViewProps) {
         const right = x(end) - bar;
         return (
           <svg key={start} viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Tab" className="font-mono">
+            <BeatBands start={start} end={end} x={x} inset={bar} y={TOP - 8} height={H - TOP + 4} />
             {NAMES.map((nm, i) => (
               <g key={i}>
                 <text x={4} y={TOP + i * ROW} dominantBaseline="central" fontSize={11} fill="var(--color-slate-500)">{nm}</text>
-                <line x1={LEFT} x2={right} y1={TOP + i * ROW} y2={TOP + i * ROW} stroke="var(--color-slate-700)" />
+                <line x1={LEFT} x2={right} y1={TOP + i * ROW} y2={TOP + i * ROW} stroke="var(--color-slate-700)" strokeWidth={i === 5 ? 2.5 : 1} />
               </g>
             ))}
             {Array.from({ length: (end - start) / BEATS_PER_BAR + 1 }, (_, b) => {

@@ -8,6 +8,7 @@ import { place, signatureGlyphs, type Placed } from "@/features/theory/piano/sta
 import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import type { Cue } from "../../cues/cues";
 import { BEATS_PER_BAR } from "../../timeline/timeline";
+import { BeatBands } from "./BeatBands";
 import { isNow, rowsOf, shade, useWidth, zoomFor, type ViewProps } from "./common";
 
 const HALF = 5; // px per staff step
@@ -84,6 +85,7 @@ export default function NotesView({ cues, pos, length, keyPc }: ViewProps) {
         const marks = cues.map((c, i) => (c.chord && (c.chord !== cues[i - 1]?.chord || !inRow[i - 1]) ? c.chord : undefined));
         return (
           <svg key={start} viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="The notes on the staff">
+            <BeatBands start={start} end={end} x={x} inset={bar} y={MARKS_H} height={H - MARKS_H} />
             <g stroke="var(--color-slate-500)" strokeWidth={1}>
               {[0, 2, 4, 6, 8].map((s) => <line key={s} x1={8} x2={right} y1={yOf(s)} y2={yOf(s)} />)}
               <line x1={8} x2={8} y1={yOf(8)} y2={yOf(0)} strokeWidth={1.5} />
