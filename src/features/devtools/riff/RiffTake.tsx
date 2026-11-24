@@ -17,7 +17,13 @@ type Stored = "saving" | "saved" | "failed";
 
 /** A take stops itself here, so a forgotten one doesn't fill the disk. */
 const MAX_SECONDS = 180;
-const btn = "rounded bg-slate-800 px-3 py-1 text-sm disabled:opacity-40";
+const btn = "rounded-md bg-slate-800 px-3 py-1 text-sm text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-40";
+const rec = "inline-flex items-center gap-2 rounded-md bg-rose-700 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-rose-600";
+const kbd = "rounded bg-rose-900/80 px-1 text-xs font-normal";
+const group = "flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md border border-slate-800 bg-slate-900/40 px-3 pb-2 pt-1";
+const legend = "px-1 text-xs font-medium uppercase tracking-wide text-slate-500";
+const field = "flex items-center gap-1.5 text-slate-300";
+const input = "rounded bg-slate-800 px-1.5 py-0.5 text-slate-200";
 /**
  * A click at `bpm` on the AudioContext clock, louder on beat 1 of each 4/4 bar, to the speakers only: the take records the input
  * stream, so the click is heard and never recorded (unless a microphone picks it up from the room). Returns a stop function.
@@ -349,79 +355,82 @@ export default function RiffTake({ riff, name, bpm, bars, notes }: {
           </div>
         </details>
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}
-        {phase === "ready" && <button onClick={() => void record()} className="rounded bg-rose-700 px-3 py-1 text-sm">{take ? "Record again" : "Record"} <kbd className="ml-1 rounded bg-rose-900 px-1 text-xs">R</kbd></button>}
+        {phase === "ready" && <button onClick={() => void record()} className={rec}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className={kbd}>R</kbd></button>}
+        {phase === "recording" && <button onClick={() => recorder.current?.stop()} className={rec}><span className="size-2 bg-white" />Stop <kbd className={kbd}>R</kbd></button>}
+        {phase === "recording" && <span className="font-mono tabular-nums text-rose-300">{clockTime(seconds)} / {clockTime(MAX_SECONDS)}</span>}
         {phase === "ready" && <button onClick={() => { stopCamera(); setPhase("off"); }} className={btn}>Close camera</button>}
-        {(phase === "off" || phase === "ready") && (
-          <label className="flex items-center gap-1.5 text-slate-300" title="The list fills once the camera has been allowed. Changing it restarts the camera.">Camera
-            <select value={cameraId} onFocus={() => void listCameras()} onPointerDown={() => void listCameras()}
-              onChange={(e) => { const id = e.target.value; pickCamera(id); if (phase === "ready") { stopCamera(); void startCamera(id); } }}
-              className="max-w-48 rounded bg-slate-800 px-1 py-0.5">
-              <option value="">Browser default</option>
-              {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
-              {cameraId && !cameras.some((c) => c.deviceId === cameraId) && <option value={cameraId}>Last picked camera</option>}
-            </select>
-          </label>
-        )}
-        {phase !== "recording" && (
-          <label className="flex items-center gap-1.5 text-slate-300" title="How the riff's notes are drawn over the camera and the take">Riff over video
-            <select value={overlay} onChange={(e) => pickOverlay(e.target.value as OverlayMode)} className="rounded bg-slate-800 px-1 py-0.5">
-              {OVERLAY_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
-            </select>
-          </label>
-        )}
-        {phase !== "recording" && overlay === "bar" && (
-          <label className="flex items-center gap-1.5 text-slate-300" title="How many bars Bar by bar shows at once">Bars shown
-            <select value={windowBars} onChange={(e) => pickWindow(Number(e.target.value) as WindowBars)} className="rounded bg-slate-800 px-1 py-0.5">
-              {WINDOW_BARS.map((b) => <option key={b} value={b}>{b === 1.5 ? "1½" : b}</option>)}
-            </select>
-          </label>
-        )}
-        {(phase === "off" || phase === "ready") && (
-          <label className="flex items-center gap-1.5 text-slate-300" title="Clicks through the speakers while you record. Only the input is recorded: use headphones if you record with a microphone.">
-            <input type="checkbox" checked={click} onChange={(e) => setClick(e.target.checked)} /> Click at {bpm} bpm
-          </label>
-        )}
-        {(phase === "off" || phase === "ready") && click && (
-          <>
-            <label className="flex items-center gap-1.5 text-slate-300">Count-in
-              <select value={countIn} onChange={(e) => setCountIn(+e.target.value)} className="rounded bg-slate-800 px-1 py-0.5">
-                {[0, 1, 2].map((n) => <option key={n} value={n}>{n} {n === 1 ? "bar" : "bars"}</option>)}
-              </select>
-            </label>
-            <label className="flex items-center gap-1.5 text-slate-300" title="The recording stops by itself after this many bars.">Length
-              <input type="number" min={1} max={32} value={length} onChange={(e) => setLength(Math.min(32, Math.max(1, Math.round(+e.target.value) || 1)))} className="w-14 rounded bg-slate-800 px-1 py-0.5" /> bars
-            </label>
-          </>
-        )}
-        {phase === "recording" && <button onClick={() => recorder.current?.stop()} className="rounded bg-rose-700 px-3 py-1 text-sm">Stop <kbd className="ml-1 rounded bg-rose-900 px-1 text-xs">R</kbd></button>}
-        {phase === "recording" && <span className="font-mono text-rose-300">{clockTime(seconds)} / {clockTime(MAX_SECONDS)}</span>}
-        {phase === "ready" && take && !previous && <span className="text-slate-400">A new recording replaces this riff&apos;s take.</span>}
         {previous && phase !== "recording" && <button onClick={undo} className={btn} title={`Recorded ${new Date(previous.at).toLocaleTimeString()}, ${clockTime(previous.seconds)}`}>Back to the previous take</button>}
-        {(camera || take) && phase !== "recording" && (
-          <>
-            <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers and your fingertips over the camera and the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
-              <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} /> Read the neck
-            </label>
-            {readNeck && (
-              <label className="flex items-center gap-1 text-sm text-slate-400" title="For each marker, its number and the fret wire its centre is level with. A headstock marker touching the nut is fret 0 with its size in mm: 0@0/25.">
-                Markers (number@fret, headstock 0)
-                <input value={markers} onChange={(e) => placeMarkers(e.target.value)} placeholder="0@0/25, 1@17" className="w-32 rounded bg-slate-800 px-2 py-0.5 text-slate-200" />
-              </label>
-            )}
-            <span className="text-slate-400">Print markers: <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4</a> · <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3</a></span>
-          </>
-        )}
         {take && phase !== "recording" && (
-          <>
-            <button onClick={() => void store(take)} disabled={stored !== "failed"} className={btn}>Save</button>
-            <button onClick={download} className={btn}>Save file</button>
-            <button onClick={() => void remove()} className={btn}>Delete take</button>
-            <span className={stored === "failed" ? "text-rose-400" : "text-slate-400"}>
+          <div className="ml-auto flex flex-wrap items-center gap-2">
+            <span className={`text-xs ${stored === "failed" ? "text-rose-400" : "text-slate-400"}`}>
               {clockTime(take.seconds)} · {stored === "saved" ? "Saved in this browser" : stored === "saving" ? "Saving…" : "Not saved"}
             </span>
-          </>
+            {stored === "failed" && <button onClick={() => void store(take)} className={btn}>Save</button>}
+            <button onClick={download} className={btn}>Save file</button>
+            <button onClick={() => void remove()} className={`${btn} hover:bg-rose-900/60 hover:text-rose-200`}>Delete take</button>
+          </div>
         )}
       </div>
+      {phase !== "recording" && (
+        <div className="flex flex-wrap gap-2">
+          {(phase === "off" || phase === "ready") && (
+            <fieldset className={group}>
+              <legend className={legend}>Recording</legend>
+              <label className={field} title="The list fills once the camera has been allowed. Changing it restarts the camera.">Camera
+                <select value={cameraId} onFocus={() => void listCameras()} onPointerDown={() => void listCameras()}
+                  onChange={(e) => { const id = e.target.value; pickCamera(id); if (phase === "ready") { stopCamera(); void startCamera(id); } }}
+                  className={`${input} max-w-48`}>
+                  <option value="">Browser default</option>
+                  {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
+                  {cameraId && !cameras.some((c) => c.deviceId === cameraId) && <option value={cameraId}>Last picked camera</option>}
+                </select>
+              </label>
+              <label className={field} title="Clicks through the speakers while you record. Only the input is recorded: use headphones if you record with a microphone.">
+                <input type="checkbox" checked={click} onChange={(e) => setClick(e.target.checked)} className="accent-sky-500" /> Click at {bpm} bpm
+              </label>
+              {click && (
+                <>
+                  <label className={field}>Count-in
+                    <select value={countIn} onChange={(e) => setCountIn(+e.target.value)} className={input}>
+                      {[0, 1, 2].map((n) => <option key={n} value={n}>{n} {n === 1 ? "bar" : "bars"}</option>)}
+                    </select>
+                  </label>
+                  <label className={field} title="The recording stops by itself after this many bars.">Length
+                    <input type="number" min={1} max={32} value={length} onChange={(e) => setLength(Math.min(32, Math.max(1, Math.round(+e.target.value) || 1)))} className={`${input} w-14`} /> bars
+                  </label>
+                </>
+              )}
+            </fieldset>
+          )}
+          <fieldset className={group}>
+            <legend className={legend}>Over the video</legend>
+            <label className={field} title="How the riff's notes are drawn over the camera and the take">Riff
+              <select value={overlay} onChange={(e) => pickOverlay(e.target.value as OverlayMode)} className={input}>
+                {OVERLAY_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+              </select>
+            </label>
+            {overlay === "bar" && (
+              <label className={field} title="How many bars Bar by bar shows at once">Bars shown
+                <select value={windowBars} onChange={(e) => pickWindow(Number(e.target.value) as WindowBars)} className={input}>
+                  {WINDOW_BARS.map((b) => <option key={b} value={b}>{b === 1.5 ? "1½" : b}</option>)}
+                </select>
+              </label>
+            )}
+            {(camera || take) && (
+              <label className={field} title="Draws the neck markers and your fingertips over the camera and the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
+                <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} className="accent-sky-500" /> Read the neck
+              </label>
+            )}
+            {(camera || take) && readNeck && (
+              <label className={field} title="For each marker, its number and the fret wire its centre is level with. A headstock marker touching the nut is fret 0 with its size in mm: 0@0/25.">
+                Markers
+                <input value={markers} onChange={(e) => placeMarkers(e.target.value)} placeholder="0@0/25, 1@17" className={`${input} w-32`} />
+              </label>
+            )}
+          </fieldset>
+        </div>
+      )}
+      {phase === "ready" && take && !previous && <p className="text-xs text-slate-500">A new recording replaces this riff&apos;s take.</p>}
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
       {!camera && !take && <p className="text-slate-400">Record yourself playing the riff. The take is saved with the riff in this browser, with the riff&apos;s notes shown over it.</p>}
       {phase === "recording" && beatNow && <BeatView {...beatNow} />}
@@ -429,15 +438,15 @@ export default function RiffTake({ riff, name, bpm, bars, notes }: {
       {(camera || (take && url)) && (
         <div className="flex flex-wrap items-start gap-3">
           {phase !== "recording" && take && url && (
-            <div className="relative w-full max-w-xl">
-              <video key={url} ref={setTakeVideo} src={url} controls playsInline className="max-h-80 w-full rounded bg-black" />
+            <div className="relative w-full max-w-4xl">
+              <video key={url} ref={setTakeVideo} src={url} controls playsInline className="max-h-[32rem] w-full rounded bg-black" />
               {readNeck && <NeckView key={url} video={takeVideo} onRead={onNeckRead} />}
               <TakeNotes video={takeVideo} notes={takeNotes} mode={overlay} grid={barGrid(take.bpm ?? bpm, take.downbeat ?? 0, windowBars)} />
             </div>
           )}
           {camera && (
             <div className="relative">
-              <video ref={liveRef} autoPlay muted playsInline className={`rounded bg-black ${phase === "recording" || !take ? "max-h-80 w-full max-w-xl" : "max-h-40 w-56"}`} />
+              <video ref={liveRef} autoPlay muted playsInline className={`rounded bg-black ${phase === "recording" || !take ? "max-h-[32rem] w-full max-w-4xl" : "max-h-40 w-56"}`} />
               {phase === "recording" && beatNow && <LiveNote notes={liveNotes} t={beatNow.beat * 60 / bpm} mode={overlay} grid={barGrid(bpm, 0, windowBars)} />}
               {/* not while recording: the hand model would compete with the recorder and the beat */}
               {readNeck && phase !== "recording" ? <NeckView video={liveVideo} /> : (

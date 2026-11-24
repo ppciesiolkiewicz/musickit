@@ -101,24 +101,37 @@ function CornerBox({ notes, t }: { notes: Timed[]; t: number }) {
   if (!now.length) return null;
   const fretted = now.map((n) => n.fret).filter((f) => f > 0);
   const lo = fretted.length && Math.max(...fretted) > 4 ? Math.min(...fretted) : 1;
-  const ss = 14, fs = 18, left = 22, top = 16, rows = Math.max(4, ...fretted.map((f) => f - lo + 1));
-  const w = left + 5 * ss + 10, h = top + rows * fs + 22;
+  const ss = 16, fs = 20, left = 26, top = 34, rows = Math.max(4, ...fretted.map((f) => f - lo + 1));
+  const w = left + 5 * ss + 18, h = top + rows * fs + 20;
+  const sx = (s: number) => left + s * ss;
+  const played = new Set(now.map((n) => n.string));
   const label = now.map((n) => noteName(n.midi)).join(" ");
+  const accent = soon ? "#94a3b8" : "#38bdf8";
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} width={w * 1.4} className={`pointer-events-none absolute right-2 top-2 rounded bg-slate-950/80 ${soon ? "opacity-50" : ""}`} aria-hidden>
-      {Array.from({ length: rows + 1 }, (_, i) => <line key={i} x1={left} x2={left + 5 * ss} y1={top + i * fs} y2={top + i * fs} stroke="#94a3b8" strokeWidth={i === 0 && lo === 1 ? 3 : 1} />)}
-      {Array.from({ length: 6 }, (_, i) => <line key={i} x1={left + i * ss} x2={left + i * ss} y1={top} y2={top + rows * fs} stroke="#94a3b8" />)}
-      {lo > 1 && <text x={left - 4} y={top + fs / 2} textAnchor="end" dominantBaseline="central" fontSize={9} fill="#cbd5e1">{lo}fr</text>}
-      {now.map((n, i) => n.fret === 0
-        ? <circle key={i} cx={left + n.string * ss} cy={top - 7} r={4} fill="none" stroke="#38bdf8" strokeWidth={1.5} />
-        : (
-          <g key={i}>
-            <circle cx={left + n.string * ss} cy={top + (n.fret - lo + 0.5) * fs} r={6} fill="#38bdf8" />
-            <text x={left + n.string * ss} y={top + (n.fret - lo + 0.5) * fs} textAnchor="middle" dominantBaseline="central" fontSize={8} fontWeight={700} fill="#0f172a">{n.fret}</text>
-          </g>
+    <div className="pointer-events-none absolute right-2 top-2 w-[min(32%,10rem)] overflow-hidden rounded-lg border border-white/10 bg-slate-950/60 shadow-lg backdrop-blur-sm" aria-hidden>
+      <svg viewBox={`0 0 ${w} ${h}`} className="block w-full">
+        <text x={w / 2} y={12} textAnchor="middle" fontSize={11} fontWeight={700} fill={soon ? "#94a3b8" : "#f1f5f9"}>{label}</text>
+        {soon && <text x={w / 2} y={23} textAnchor="middle" fontSize={7} fontWeight={600} letterSpacing={1} fill="#64748b">NEXT</text>}
+        {Array.from({ length: rows + 1 }, (_, i) => <line key={i} x1={left} x2={sx(5)} y1={top + i * fs} y2={top + i * fs} stroke="white" strokeOpacity={i === 0 && lo === 1 ? 0.9 : 0.25} strokeWidth={i === 0 && lo === 1 ? 3 : 1} />)}
+        {STRING_NAMES.map((_, s) => <line key={s} x1={sx(s)} x2={sx(s)} y1={top} y2={top + rows * fs} stroke="white" strokeOpacity={played.has(s) ? 0.6 : 0.3} strokeWidth={0.75 + (5 - s) * 0.15} />)}
+        {lo > 1 && <text x={left - 6} y={top + fs / 2} textAnchor="end" dominantBaseline="central" fontSize={9} fontWeight={600} fill="#cbd5e1">{lo}fr</text>}
+        {now.length > 1 && STRING_NAMES.map((_, s) => !played.has(s) && (
+          <text key={s} x={sx(s)} y={top - 7} textAnchor="middle" dominantBaseline="central" fontSize={8} fill="#64748b">×</text>
         ))}
-      <text x={w / 2} y={h - 7} textAnchor="middle" fontSize={10} fontWeight={600} fill="#e2e8f0">{soon ? `next: ${label}` : label}</text>
-    </svg>
+        {now.map((n, i) => n.fret === 0
+          ? <circle key={i} cx={sx(n.string)} cy={top - 7} r={4} fill="none" stroke={accent} strokeWidth={1.5} />
+          : (
+            <g key={i}>
+              <circle cx={sx(n.string)} cy={top + (n.fret - lo + 0.5) * fs} r={7} fill={soon ? "#0b1220" : accent} stroke={accent} strokeWidth={1.5} />
+              <text x={sx(n.string)} y={top + (n.fret - lo + 0.5) * fs + 0.5} textAnchor="middle" dominantBaseline="central" fontSize={9} fontWeight={700}
+                fill={soon ? "#cbd5e1" : "#0b1220"} style={{ fontVariantNumeric: "tabular-nums" }}>{n.fret}</text>
+            </g>
+          ))}
+        {STRING_NAMES.map((name, s) => (
+          <text key={s} x={sx(s)} y={h - 8} textAnchor="middle" dominantBaseline="central" fontSize={8} fontWeight={600} fill={played.has(s) ? "#cbd5e1" : "#64748b"}>{s === 5 ? "e" : name}</text>
+        ))}
+      </svg>
+    </div>
   );
 }
 
