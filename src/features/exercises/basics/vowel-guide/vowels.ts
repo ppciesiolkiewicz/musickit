@@ -77,7 +77,7 @@ export interface MouthShape { open: number; wide: number; round: number }
 
 /** Each vowel's mouth on an easy note: "ah" open tall, "eh" taller than wide, "ee" nearly the "oo" mouth, lips a little round and the corners in (not a smile), "oh" round and open, "oo" round and small. */
 export const MOUTHS: Record<Vowel, MouthShape> = {
-  ah: { open: 0.95, wide: 0.4, round: 0 },
+  ah: { open: 0.78, wide: 0.4, round: 0 },
   eh: { open: 0.65, wide: 0.42, round: 0.2 },
   ee: { open: 0.26, wide: 0.3, round: 0.7 },
   oh: { open: 0.7, wide: 0.3, round: 0.7 },
