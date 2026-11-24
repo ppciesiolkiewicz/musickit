@@ -40,6 +40,7 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
      file) holds `level`?, `steps`, `moves`?, `minutes`, `draft`?. `steps` names the path steps it practises
      (`["barre:2"]`, `PATH` in `plan/model/path.ts`), each in a track of the exercise's `concepts`; the library finds it
      by step.
+   - A genre's block (a riff: its tool is a guitar-play-along with the `riff` shape, the notes written out in the tool) also has `"genre"`: `blues`, `rock`, `funk` or `jazz` (`genres.ts`). It is a dead end on the path: its choice names the step it uses, and no step waits for it. Its notes are written and changed in the riff maker (`/dev/riff`), which saves into the file; its words are written here like any block's. A riff is in its own key, so its `moves` has a tempo range and no key.
    - `versions` are `PROMPT_VERSION` (`plan/model/prompt.ts`) and `DOC_VERSIONS` (`versions.ts`) as they
      are when the file is written. `model` is the API id of the model that wrote it. `note` says which gap, in one line.
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the

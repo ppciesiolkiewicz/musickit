@@ -214,17 +214,28 @@ export interface SoloOverShape extends ShapeCommon {
 }
 
 /**
- * A riff from the riff book, by id: written by hand note by note, with its own key, strings and frets, so the shape takes
- * nothing else. `bpm` goes on the play-along; left out, the riff's own tempo. Riffs are not written into a plan: a
- * block that plays one comes from the library.
+ * A riff written out note by note: exact strings and frets, in its own key. A person writes it, in the riff maker
+ * (`/dev/riff`), which opens the block that holds it and saves back to it; it is not written into a plan, and a block
+ * that plays one comes from the library. `notes` has one entry a time step, in order: `{ "string": 6, "fret": 5,
+ * "beats": 1 }` is a note (strings are guitar numbers, 6 the low E; `beats` how long it rings: 0.25 a sixteenth, 0.5 an
+ * eighth, 1, 2, 4, or one and a half times any of them for a dotted note), `{ "frets": [note, note], "beats": 1 }` notes
+ * struck together (`beats` the time to the next step) and `{ "rest": 1 }` a rest. `bpm` goes on the play-along.
  *
- * Example: `{ "shape": "riff", "riff": "rock-power-chords-on-two-roots" }`
+ * Example: `{ "shape": "riff", "key": "a", "scale": "Aeolian", "notes": [{ "frets": [{ "string": 6, "fret": 5, "beats": 1 }, { "string": 5, "fret": 7, "beats": 1 }], "beats": 1 }, { "string": 4, "fret": 7, "beats": 0.5 }, { "rest": 0.5 }, { "string": 4, "fret": 5, "beats": 2 }] }`
  * @component riff shape
  */
 export interface RiffShape extends ShapeCommon {
   shape: "riff";
-  /** the riff's id in the riff book */
-  riff: string;
+  /** key as a note: "a", "e" */
+  key: string;
+  /** the scale the riff maker draws on the neck while the riff is written, by its name there: "Aeolian", "Dorian". Nothing in the exercise reads it */
+  scale?: string;
+  /** the riff, one entry a time step */
+  notes: RiffStep[];
 }
+/** One note of a riff: a guitar string (6 the low E), a fret, and how long it rings in beats. */
+export interface RiffCell { string: number; fret: number; beats: number }
+/** One time step of a riff: a note, notes struck together, or a rest. */
+export type RiffStep = RiffCell | { frets: RiffCell[]; beats: number } | { rest: number };
 
 export type Shape = ProgressionShape | TwoScalesShape | ChordStepsShape | ArpeggioPartShape | MelodyShape | SoloOverShape | IntervalShape | RiffShape;

@@ -1,0 +1,136 @@
+{
+  "id": "guitar-beginner-rock-riff-on-the-low-strings",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A rock riff hung off pentatonic-positions:1: two bars of E minor pentatonic in the open position, on the two lowest strings. missing: a palm-mute mark in a riff.",
+  "genre": "rock",
+  "exercise": {
+    "title": "A riff on the two lowest strings",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "The open low E string is the home note of the riff and the other notes are played around it, so most of the riff is one open string and the fretting hand only adds a note here and there.",
+    "learnBefore": [
+      "/course/5/pentatonic"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the riff with the metronome, and follow the tab under it. The riff, a short phrase that repeats, is two bars on the low E string and the A string, two notes to a beat, and most of its notes are the open low E string.\nPlay along from the tab with down strokes. The first bar ends on a long open E, and the second bar ends on a long note that leads back to the start.\nOnce the riff runs without a stop between the bars, play it without looking at the tab."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "e",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 1
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 2,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 3,
+                "beats": 1
+              }
+            ]
+          },
+          "bpm": 80,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

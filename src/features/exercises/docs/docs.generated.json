@@ -1233,7 +1233,7 @@
   {
     "name": "riff",
     "kind": "shape",
-    "description": "A riff from the riff book, by id: written by hand note by note, with its own key, strings and frets, so the shape takes\nnothing else. `bpm` goes on the play-along; left out, the riff's own tempo. Riffs are not written into a plan: a\nblock that plays one comes from the library.\n\nExample: `{ \"shape\": \"riff\", \"riff\": \"rock-power-chords-on-two-roots\" }`",
+    "description": "A riff written out note by note: exact strings and frets, in its own key. A person writes it, in the riff maker\n(`/dev/riff`), which opens the block that holds it and saves back to it; it is not written into a plan, and a block\nthat plays one comes from the library. `notes` has one entry a time step, in order: `{ \"string\": 6, \"fret\": 5,\n\"beats\": 1 }` is a note (strings are guitar numbers, 6 the low E; `beats` how long it rings: 0.25 a sixteenth, 0.5 an\neighth, 1, 2, 4, or one and a half times any of them for a dotted note), `{ \"frets\": [note, note], \"beats\": 1 }` notes\nstruck together (`beats` the time to the next step) and `{ \"rest\": 1 }` a rest. `bpm` goes on the play-along.\n\nExample: `{ \"shape\": \"riff\", \"key\": \"a\", \"scale\": \"Aeolian\", \"notes\": [{ \"frets\": [{ \"string\": 6, \"fret\": 5, \"beats\": 1 }, { \"string\": 5, \"fret\": 7, \"beats\": 1 }], \"beats\": 1 }, { \"string\": 4, \"fret\": 7, \"beats\": 0.5 }, { \"rest\": 0.5 }, { \"string\": 4, \"fret\": 5, \"beats\": 2 }] }`",
     "props": [
       {
         "name": "shape",
@@ -1242,10 +1242,22 @@
         "description": ""
       },
       {
-        "name": "riff",
+        "name": "key",
         "type": "string",
         "required": true,
-        "description": "the riff's id in the riff book"
+        "description": "key as a note: \"a\", \"e\""
+      },
+      {
+        "name": "scale",
+        "type": "string",
+        "required": false,
+        "description": "the scale the riff maker draws on the neck while the riff is written, by its name there: \"Aeolian\", \"Dorian\". Nothing in the exercise reads it"
+      },
+      {
+        "name": "notes",
+        "type": "RiffStep[]",
+        "required": true,
+        "description": "the riff, one entry a time step"
       }
     ]
   },

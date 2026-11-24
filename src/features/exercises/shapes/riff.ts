@@ -1,14 +1,21 @@
-import { findRiff } from "../riffs/book";
-import { riffTimeline } from "../riffs/riff";
+import { readRiff, riffTimeline, type RiffNote } from "../riffs/riff";
 import { clampTimeline } from "../timeline/timeline";
 import type { Timeline } from "../timeline/types";
-import { isObj, num, repeatsOf } from "./common";
+import { isObj, keyPc, num, repeatsOf } from "./common";
 
-/** A riff of the riff book by id, as it is written there: its own key, strings and frets. Null for an unknown id and for a riff with no notes yet. */
+/** A riff shape's key and its notes read (`readRiff`), or what is wrong with it. */
+export function riffLine(raw: unknown): { key: number; notes: RiffNote[] } | { error: string } {
+  if (!isObj(raw)) return { error: "not an object" };
+  const key = keyPc(raw.key);
+  if (key === null) return { error: "no key" };
+  const read = readRiff(raw.notes);
+  return "error" in read ? read : { key, notes: read.notes };
+}
+
+/** A riff written out note by note: its own strings and frets, in its key. Null when the notes can't be read. */
 export function riff(raw: unknown): Timeline | null {
-  if (!isObj(raw)) return null;
-  const r = findRiff(raw.riff);
-  if (!r) return null;
-  const timeline = riffTimeline(r.notes, r.tonic, num(raw.bpm, r.bpm));
+  const line = riffLine(raw);
+  if ("error" in line || !isObj(raw)) return null;
+  const timeline = riffTimeline(line.notes, line.key, num(raw.bpm, 80));
   return timeline && clampTimeline({ ...timeline, ...repeatsOf(raw) });
 }

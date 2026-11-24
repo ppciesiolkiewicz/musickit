@@ -1,0 +1,201 @@
+{
+  "id": "guitar-intermediate-funk-line-in-sixteenths",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A funk riff hung off pentatonic-positions:5: two bars of sixteenths with rests in E, around the E minor pentatonic position with its root on the A string. missing: muted strokes in a riff, so the gaps are rests.",
+  "genre": "funk",
+  "exercise": {
+    "title": "A funk line in sixteenths",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "The picking hand keeps moving down and up four times to a beat and passes over the strings in the gaps, so the gaps come out in time without being counted.",
+    "learnBefore": [
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the line with the metronome, and follow the tab under it. The line is two bars of short notes, four to a beat, with gaps where nothing is played.\nPlay along from the tab. Keep your picking hand moving down and up through the whole bar, and let it pass over the strings without touching them in the gaps.\nIf the line runs ahead of the metronome, play only the first beat of the bar a few times, then add the next beat."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "e",
+            "scale": "Dorian",
+            "notes": [
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 4,
+                "fret": 9,
+                "beats": 0.25
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 3,
+                "fret": 9,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 4,
+                "fret": 9,
+                "beats": 0.25
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 5,
+                "fret": 10,
+                "beats": 0.25
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 4,
+                "fret": 9,
+                "beats": 0.25
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 3,
+                "fret": 9,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 6,
+                "beats": 0.25
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 4,
+                "fret": 9,
+                "beats": 0.25
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.25
+              },
+              {
+                "string": 5,
+                "fret": 10,
+                "beats": 0.25
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.25
+              }
+            ]
+          },
+          "bpm": 60,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:5"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

@@ -1,0 +1,131 @@
+{
+  "id": "guitar-beginner-blues-phrase-in-a-minor-pentatonic",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A blues riff hung off pentatonic-positions:1: a two-bar phrase in one position of A minor pentatonic, down to the root and back to it. missing: bends and slides in a riff, so the phrase is plain picked notes.",
+  "genre": "blues",
+  "exercise": {
+    "title": "A blues phrase in A minor pentatonic",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "The phrase comes down the A minor pentatonic scale to the home note, climbs a little and comes down to the home note again, so its second half answers the first with the same five notes.",
+    "learnBefore": [
+      "/course/5/pentatonic",
+      "/course/7/blues-solo"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the phrase with the metronome, and follow the tab under it. The phrase is two bars long and stays inside four frets of the A minor pentatonic scale, so your hand doesn't move along the neck.\nPlay along from the tab, two notes to a beat, and hold the last note until the phrase starts again.\nOnce your fingers find the notes without the tab, play the phrase with your eyes off the screen."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "string": 2,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 1
+              },
+              {
+                "string": 3,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 1.5
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

@@ -52,6 +52,7 @@ export const KEYWORDS: Record<string, string[]> = {
   "guitar-play-along/arpeggio-part": ["arpeggio", "chord tones", "play along", "guitar"],
   "guitar-play-along/chord-steps": ["chords", "riff", "steps", "double stop", "triad", "strum", "play along", "guitar"],
   "guitar-play-along/interval": ["interval", "intervals", "octave", "fifth", "fourth", "third", "sixth", "shape", "strings", "up and down", "neck", "play along", "guitar"],
+  "guitar-play-along/riff": ["riff", "riffs", "lick", "phrase", "power chord", "blues", "rock", "funk", "jazz", "tab", "written out", "frets", "play along", "guitar"],
   "guitar-play-along/melody": ["melody", "tune", "song", "notes", "play along", "guitar"],
   "guitar-play-along/progression": ["chord progression", "chords", "strum", "changes", "play along", "guitar"],
   "guitar-play-along/solo-over": ["solo", "improvise", "improv", "lead", "backing", "play along", "guitar"],

@@ -1,0 +1,166 @@
+{
+  "id": "guitar-beginner-rock-power-chords-and-a-riff",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A rock riff hung off power-chords:2, written by the user in the riff maker: A5 and D5, each struck twice, with the root, flat 3rd and flat 7th on the D string between them. The model riff block: the text says the shape of the riff and where its notes fall, the tab carries every fret.",
+  "genre": "rock",
+  "exercise": {
+    "title": "Power chords with a riff between them",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-basic-chords",
+    "concepts": [
+      "power-chords"
+    ],
+    "why": "Each power chord is struck twice and then the same four notes answer it on one string, so the hand learns to jump from a two-string chord to single notes and back without stopping.",
+    "learnBefore": [
+      "/course/5/power-chords"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the riff with the metronome, and follow the tab under it. The riff, a short phrase that repeats, is two bars long. In the first bar, a power chord with its root on the low E string is struck twice, then four single notes follow on the D string. The second bar does the same from a power chord with its root on the A string.\nPlay along from the tab. The four single notes fall between the beats, the first one just before beat 3.\nIf the single notes come late, play only the first bar until the jump from the chord to the D string feels easy."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 0.75
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 0.75
+                  }
+                ],
+                "beats": 0.75
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.75
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 5,
+                    "beats": 0.75
+                  },
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 0.75
+                  }
+                ],
+                "beats": 0.75
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.75
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "power-chords:2"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

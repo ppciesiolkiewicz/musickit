@@ -1,0 +1,216 @@
+{
+  "id": "guitar-beginner-rock-riff-in-double-stops",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A rock riff hung off double-stops:1: two bars of 4ths on the D and G strings in A minor, one finger moved along the neck. Shows a riff made only of double stops.",
+  "genre": "rock",
+  "exercise": {
+    "title": "A riff in double stops",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "double-stops"
+    ],
+    "why": "Two notes at the same fret of the D string and the G string are a 4th apart, so one finger laid flat across both strings plays the whole riff by moving along the neck.",
+    "learnBefore": [
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the riff with the metronome, and follow the tab under it. A riff is a short phrase that repeats. Every step of this one is a double stop, at the same fret of the D string and the G string.\nPlay along from the tab. Lay one finger flat across both strings and move it along the neck from step to step.\nIf one note of a pair doesn't sound, press with the flat of the finger and not its tip."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 10,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 10,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 9,
+                    "beats": 1
+                  },
+                  {
+                    "string": 3,
+                    "fret": 9,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 1.5
+                  }
+                ],
+                "beats": 1.5
+              }
+            ]
+          },
+          "bpm": 80,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "double-stops:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

@@ -9,7 +9,7 @@ test("every tool has a story, the play-along one per shape", () => {
   const tools = new Set(groups.map((g) => g.tool));
   for (const t of Object.keys(TOOLS)) assert.ok(tools.has(t as never), t);
   const shapes = groups.filter((g) => g.shape).map((g) => g.shape).sort();
-  assert.deepEqual(shapes, ["arpeggio-part", "chord-steps", "interval", "melody", "progression", "solo-over", "two-scales"]);
+  assert.deepEqual(shapes, ["arpeggio-part", "chord-steps", "interval", "melody", "progression", "riff", "solo-over", "two-scales"]);
 });
 
 test("every story with props parses, and has its docs", () => {

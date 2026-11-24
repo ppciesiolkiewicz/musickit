@@ -26,6 +26,7 @@ import { COMPONENT_DOCS, shortDoc, type ComponentDoc } from "@/features/exercise
 import type { PlayAlongShape } from "@/features/exercises/play-along/play-along.props";
 import { expandShape } from "@/features/exercises/shapes";
 import { intervalLine } from "@/features/exercises/shapes/interval";
+import { riffLine } from "@/features/exercises/shapes/riff";
 import { MAX_BPM as BACKING_MAX_BPM, MIN_BPM as BACKING_MIN_BPM, MAX_NUMERALS, PARTS, PROGRESSIONS, STYLES, TONICS, cleanNumerals, findStyle, numeralOfChord, type Part as BackingPart } from "@/features/backing/model";
 import { degreeSemis } from "@/features/exercises/timeline/degrees";
 import { isSingingLabels, type SingingLabels } from "@/features/theory/labels";
@@ -665,6 +666,8 @@ const PARSERS: { [N in ToolName]: ToolSpec } = {
       // an interval shape says what is wrong with it: strings that don't hold the interval, no place for the key note
       const line = shape.shape === "interval" ? intervalLine(shape) : null;
       if (line && "error" in line) return no(d, `its interval shape can't be played: ${line.error}`);
+      const written = shape.shape === "riff" ? riffLine(shape) : null;
+      if (written && "error" in written) return no(d, `its riff can't be read: ${written.error}`);
       if (!expandShape({ ...shape, bpm, ...(repeats !== null ? { repeats } : {}) })) return no(d, `its shape ${JSON.stringify(shape.shape) ?? "(no shape field)"} does not expand (a field is missing or out of range)`);
       return {
         type: "guitar-play-along", bpm, shape: shape as unknown as PlayAlongShape,

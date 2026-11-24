@@ -1,0 +1,127 @@
+{
+  "id": "guitar-beginner-blues-turnaround-in-e",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A blues riff hung off seventh-shapes:1: a two-bar turnaround in E, a chromatic walk down the A string to B and an open B7. Shows single notes and a full chord in one riff tool.",
+  "genre": "blues",
+  "exercise": {
+    "title": "A blues turnaround in E",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "song"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "The bass note walks down one fret at a time to the root of B7, so the ear expects B7 before the chord arrives, and B7 then pulls back to E.",
+    "learnBefore": [
+      "/course/7/twelve-bar",
+      "/course/7/sevenths"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "A turnaround is the last two bars of a blues: it leads to the chord that sends the song back to its start.\nPress Play below to hear the turnaround with the metronome, and follow the tab under it. It starts on the open low E string, then walks down the A string one fret at a time, one note per beat.\nPlay along from the tab, and strum the B7 chord at the end with one down strum that rings for two beats.\nIf the B7 comes late, play only the walk down a few times, then add the chord."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "e",
+            "scale": "Mixolydian",
+            "notes": [
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 1
+              },
+              {
+                "string": 5,
+                "fret": 5,
+                "beats": 1
+              },
+              {
+                "string": 5,
+                "fret": 4,
+                "beats": 1
+              },
+              {
+                "string": 5,
+                "fret": 3,
+                "beats": 1
+              },
+              {
+                "string": 5,
+                "fret": 2,
+                "beats": 1
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 2,
+                    "beats": 2
+                  },
+                  {
+                    "string": 4,
+                    "fret": 1,
+                    "beats": 2
+                  },
+                  {
+                    "string": 3,
+                    "fret": 2,
+                    "beats": 2
+                  },
+                  {
+                    "string": 2,
+                    "fret": 0,
+                    "beats": 2
+                  },
+                  {
+                    "string": 1,
+                    "fret": 2,
+                    "beats": 2
+                  }
+                ],
+                "beats": 2
+              }
+            ]
+          },
+          "bpm": 60,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "seventh-shapes:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

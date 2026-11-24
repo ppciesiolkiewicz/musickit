@@ -1,0 +1,174 @@
+{
+  "id": "guitar-intermediate-jazz-line-through-ii-v-i",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A jazz riff hung off major-on-neck:1: an eighth-note line in one position of C major that lands on the 3rd of G7 and of Cmaj7. missing: chords sounding under a riff, so the ii-V-I is named in the text and not heard.",
+  "genre": "jazz",
+  "exercise": {
+    "title": "A line through a ii–V–I in C",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "major-on-neck"
+    ],
+    "why": "The last note over each chord sits one step above the 3rd of the next chord, so the line lands on the note that names each new chord as it arrives.",
+    "learnBefore": [
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the line with the metronome, and follow the tab under it. The line is written for three chords, a bar each: Dm7, G7, then Cmaj7, where it stops on a long note and rests for a bar.\nPlay along from the tab, two notes to a beat, with all the notes inside four frets of the C major scale.\nOnce your fingers find the notes without the tab, listen for the first note of the second bar and of the third bar: the line lands there as the chord changes."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "c",
+            "scale": "Ionian",
+            "notes": [
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 9,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 9,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 8,
+                "beats": 2
+              },
+              {
+                "rest": 4
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "major-on-neck:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

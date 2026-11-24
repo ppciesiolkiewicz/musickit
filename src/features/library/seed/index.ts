@@ -2,6 +2,9 @@ import type { PlanAnswers, Level } from "@/features/plan/model/types";
 import { FILES as BLOCK_FILES } from "./blocks/index.gen";
 import { FILES as PLAN_FILES } from "./plans/index.gen";
 import { exerciseOf, expandPlan } from "./choices";
+import type { Genre } from "./genres";
+
+export { GENRES, isGenre, type Genre } from "./genres";
 
 /*
  * The library seed written by agents (NEW10 in tasks.txt): plans and single exercises written to the library's gaps,
@@ -55,6 +58,8 @@ export interface SeedBlockFile {
   model: string;
   versions: SeedVersions;
   note: string;
+  /** the genre it belongs to, when it is a genre's block (a riff): a dead end hung off its steps, which no step waits for */
+  genre?: Genre;
   /** set on the exercises that show one rule: blocks with a chart per step, a melody by `pick`, a progression worked several ways */
   showcase?: "blocks" | "pick" | "progression" | "stages" | "variants";
   /** the exercise as the AI returns it in a plan's day, without `level`, `steps`, `moves` and `minutes`: they sit in each choice */

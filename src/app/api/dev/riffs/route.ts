@@ -1,70 +1,74 @@
 import { readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { checkRiff, riffFileText, type BookRiff } from "@/features/exercises/riffs/book";
+import { blockFileText, checkEdit, riffBlockOf, withRiff, type RiffBlock, type RiffEdit } from "@/features/devtools/riff/blocks";
 import { devGate } from "@/features/devtools/gate";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/** The riff book's folder, from the repo root. */
-const BOOK = "src/features/exercises/riffs/book";
-const fileOf = (id: string) => path.join(process.cwd(), BOOK, `${id}.json`);
+/** The seed blocks' folder, from the repo root. */
+const BLOCKS = "src/features/library/seed/blocks";
+const fileOf = (id: string) => path.join(process.cwd(), BLOCKS, `${id}.json`);
 const fail = (error: string, status: number) => Response.json({ error }, { status });
+const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
-/** The riffs as they are on disk now, by file name. A file that can't be read as a riff is left out and named in `problems`. */
-async function readBook(): Promise<{ riffs: BookRiff[]; problems: string[] }> {
-  const names = (await readdir(path.join(process.cwd(), BOOK))).filter((f) => f.endsWith(".json")).map((f) => f.slice(0, -5)).sort();
-  const riffs: BookRiff[] = [];
+/** The seed blocks that hold a riff, as their files are now. One whose riff can't be read is left out and named in `problems`. */
+async function readRiffs(): Promise<{ riffs: RiffBlock[]; problems: string[] }> {
+  const names = (await readdir(path.join(process.cwd(), BLOCKS))).filter((f) => f.endsWith(".json")).sort();
+  const riffs: RiffBlock[] = [];
   const problems: string[] = [];
-  for (const id of names) {
+  await Promise.all(names.map(async (name) => {
     try {
-      const raw = JSON.parse(await readFile(fileOf(id), "utf8")) as unknown;
-      const wrong = checkRiff(raw, id);
-      if (wrong.length) problems.push(`${id}: ${wrong.join("; ")}`); else riffs.push(raw as BookRiff);
+      const text = await readFile(path.join(process.cwd(), BLOCKS, name), "utf8");
+      if (!text.includes('"riff"')) return;
+      const r = riffBlockOf(JSON.parse(text));
+      if (r && "error" in r) problems.push(`${name}: ${r.error}`); else if (r) riffs.push(r);
     } catch (e) {
-      problems.push(`${id}: ${e instanceof Error ? e.message : String(e)}`);
+      problems.push(`${name}: ${message(e)}`);
     }
-  }
-  return { riffs, problems };
+  }));
+  return { riffs: riffs.sort((a, b) => a.id.localeCompare(b.id)), problems: problems.sort() };
 }
 
 /**
- * The riff book for the riff maker (/dev/riff), read from the files and not from the bundle, so a riff saved a moment ago is
- * the one that opens. Only on a developer's machine: it writes into the checkout.
+ * The riffs of the seed blocks for the riff maker (/dev/riff), read from the files and not from the bundle, so a riff saved
+ * a moment ago is the one that opens. Only on a developer's machine: PUT writes into the checkout.
  */
 export async function GET() {
   const gate = devGate();
   if (gate) return gate;
   try {
-    return Response.json(await readBook(), { headers: { "cache-control": "no-store" } });
+    return Response.json(await readRiffs(), { headers: { "cache-control": "no-store" } });
   } catch (e) {
-    return fail(`The riff book could not be read: ${e instanceof Error ? e.message : String(e)}`, 500);
+    return fail(`The seed blocks could not be read: ${message(e)}`, 500);
   }
 }
 
 /**
- * Save a riff into its file: `{ id, tonic, scale, bpm, pos, notes }`. Only a riff the book already has; its name, genre and
- * steps stay as the file has them. Nothing is written when the riff doesn't pass `checkRiff`.
+ * Save a riff into its block's file: `{ id, tonic, scale, bpm, notes }`. Only a block that already holds a riff; its words,
+ * genre and choices stay as the file has them (`withRiff`). Nothing is written when the edit doesn't pass `checkEdit`.
  */
 export async function PUT(req: Request) {
   const gate = devGate();
   if (gate) return gate;
-  const body = (await req.json().catch(() => null)) as Record<string, unknown> | null;
+  const body = (await req.json().catch(() => null)) as (Record<string, unknown> & Partial<RiffEdit>) | null;
   const id = typeof body?.id === "string" && /^[a-z0-9-]+$/.test(body.id) ? body.id : null;
-  if (!body || !id) return fail("No riff id.", 400);
-  let stored: BookRiff;
+  if (!body || !id) return fail("No block id.", 400);
+  let stored: unknown;
   try {
-    stored = JSON.parse(await readFile(fileOf(id), "utf8")) as BookRiff;
+    stored = JSON.parse(await readFile(fileOf(id), "utf8"));
   } catch {
-    return fail(`The riff book has no riff "${id}".`, 404);
+    return fail(`No seed block "${id}".`, 404);
   }
-  const next = { ...stored, tonic: body.tonic, scale: body.scale, bpm: body.bpm, pos: body.pos, notes: body.notes } as BookRiff;
-  const wrong = checkRiff(next, id);
+  const wrong = checkEdit(body);
   if (wrong.length) return fail(`Not saved: ${wrong.join("; ")}.`, 400);
+  const next = withRiff(stored, body as RiffEdit);
+  const riff = next && riffBlockOf(next);
+  if (!next || !riff || "error" in riff) return fail(`The seed block "${id}" holds no riff.`, 400);
   try {
-    await writeFile(fileOf(id), riffFileText(next));
+    await writeFile(fileOf(id), blockFileText(next));
   } catch (e) {
-    return fail(`The file could not be written: ${e instanceof Error ? e.message : String(e)}`, 500);
+    return fail(`The file could not be written: ${message(e)}`, 500);
   }
-  return Response.json({ riff: next });
+  return Response.json({ riff });
 }

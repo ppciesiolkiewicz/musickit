@@ -12,7 +12,6 @@ import path from "node:path";
 export const FOLDERS = [
   "src/features/library/seed/plans",
   "src/features/library/seed/blocks",
-  "src/features/exercises/riffs/book",
 ];
 
 const ident = (name, i) => `f${i}_${name.replace(/[^a-zA-Z0-9]/g, "_")}`.slice(0, 80);
