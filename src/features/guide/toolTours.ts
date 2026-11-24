@@ -18,6 +18,8 @@ const singAlong = (what: string, notes: string): TourStep[] => [
 /** The tab player the finger, picking and legato drills share. */
 const drill = (watch: string): TourStep[] => [
   { target: "drill-play", title: "Play it", text: "Play starts the metronome and sounds the drill with it, one note per beat, lighting the note playing. Play along with it." },
+  { target: "drill-follow", title: "Follow", text: "Follow lights the note playing. Switch it off to keep the tab still and find your own place." },
+  { target: "drill-sounds", title: "Notes and Click", text: "Notes mutes the notes of the drill and Click mutes the metronome. The beat keeps going." },
   { target: "drill-tab", title: "The tab", text: `Each line is a string, high e on top, and the number is the fret. ${watch}` },
 ];
 

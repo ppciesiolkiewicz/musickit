@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the band. Take a phrase you play in A minor pentatonic and play it here, then make up new ones that end on {{1}}."
+        "text": "Press Play below to start the backing track. Take a phrase you play in A minor pentatonic and play it here, then make up new ones that end on {{1}}."
       },
       {
         "type": "tool",

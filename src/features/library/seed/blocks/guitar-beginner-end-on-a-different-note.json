@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the band. Play phrases that end on {{1}}, then phrases that end on {{b3}}, and listen: the first sounds finished, the second stays open. Then pick the ending each phrase wants."
+        "text": "Press Play below to start the backing track. Play phrases that end on {{1}}, then phrases that end on {{b3}}, and listen: the first sounds finished, the second stays open. Then pick the ending each phrase wants."
       },
       {
         "type": "tool",

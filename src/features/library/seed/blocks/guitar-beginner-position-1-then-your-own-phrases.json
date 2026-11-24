@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Play the position from the low {{1}} up to the high e string and back, one note per beat."
+            "text": "Press Play below to start the metronome. Under it is position 1, where each dot is a note to play.\nStart on the ringed {{1}} on the low E string and play both dots on that string. Then play both dots on each next string up to the high e string, and come back down the same way, one note per beat."
           },
           {
             "type": "tool",
@@ -92,7 +92,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the band. Make up short phrases from the whole position, leave a gap after each, and end every one on a {{1}}. Then end one on another note and hear how it hangs."
+            "text": "Press Play below to start the backing track. Make up short phrases from the whole position, leave a gap after each, and end every one on a {{1}}. Then end one on another note and hear how it hangs."
           },
           {
             "type": "tool",

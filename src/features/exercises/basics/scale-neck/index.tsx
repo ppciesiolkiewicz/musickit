@@ -55,7 +55,7 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
     const box = picked && positions.find((p) => p.number === picked.number);
     return box ? [shiftPosition(box, picked.shift)] : positions;
   }, [boxes, placement, positions, allPositions]);
-  // the neck draws the scale's own notes (a pentatonic's five, not the mode it is cut from) and the added ones
+  // the neck and the boxes draw the scale's own notes (a pentatonic's five, not the mode it is cut from) and the added ones
   const neckCells = useMemo(() => {
     const own = new Set(allPositions.flatMap((p) => p.notes.map((c) => c.pc)));
     return cells.filter((c) => own.has(c.pc));
@@ -125,7 +125,7 @@ function Boxes({ slug, pc, boxes, placement, add, enable, highlight, mute, hide:
                 <button type="button" data-tour="scale-neck-play" onClick={() => (running === `box-${p.number}` ? stop() : run(p))} className="rounded border border-slate-700 px-2 py-0.5 text-[11px] text-slate-300 hover:border-slate-500">{running === `box-${p.number}` ? "■ Stop" : "▶ Play"}</button>
               </Hint>
             </div>
-            <PositionBox position={p} cells={cells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={(_, c) => ringed(boxRings.get(p.number), c)} />
+            <PositionBox position={p} cells={neckCells} rings active={active} labelSystem={system} onNote={(c) => tap(cellKey(c), c.midi)} states={(_, c) => ringed(boxRings.get(p.number), c)} />
           </div>
         ))}
       </div>}

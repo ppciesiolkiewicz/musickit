@@ -10,11 +10,19 @@ import { getAudioContext, getOutputBus, midiToHz, takeAudioFocus, wakeAudio } fr
 import { useWidth } from "../play-along/views/common";
 import { stepMidi, type DrillStep } from "./drills";
 
-/** A plucked note on a metronome click (accented on the first note of a group); `soft` for a hammered or pulled one. */
-function pluck(midi: number, soft: boolean, accent: boolean) {
+/** What the drill sounds: its notes and the metronome's click, each muted on its own. */
+type Sound = "notes" | "click";
+const SOUNDS: { id: Sound; label: string; icon: "guitar" | "metronome"; what: string }[] = [
+  { id: "notes", label: "Notes", icon: "guitar", what: "the notes of the drill" },
+  { id: "click", label: "Click", icon: "metronome", what: "the metronome" },
+];
+
+/** A plucked note on a metronome click (accented on the first note of a group), each only when `heard`; `soft` for a hammered or pulled one. */
+function pluck(midi: number, soft: boolean, accent: boolean, heard: Record<Sound, boolean>) {
   const ctx = getAudioContext();
   const at = ctx.currentTime + 0.02;
-  clickAt(ctx, getOutputBus(), at, accent);
+  if (heard.click) clickAt(ctx, getOutputBus(), at, accent);
+  if (!heard.notes) return;
   const osc = ctx.createOscillator();
   const filter = ctx.createBiquadFilter();
   const gain = ctx.createGain();
@@ -110,16 +118,26 @@ function DrillTab({ steps, at, group, under }: { steps: DrillStep[]; at: number;
   );
 }
 
+/** A small switch of the player's bar: lit when `on`, sky for what is shown, amber for a sound that is muted. */
+const toggle = (on: boolean, tone: "sky" | "amber") =>
+  `flex h-8 min-w-8 items-center justify-center gap-1.5 rounded-lg border px-1.5 transition ${on ? (tone === "sky" ? "border-sky-400/70 bg-sky-500/20 text-sky-100" : "border-amber-400/60 bg-amber-500/15 text-amber-200") : "border-slate-700 text-slate-300 hover:border-slate-500"}`;
+
 /**
  * A drill as tab (fret on its string, the finger and pick stroke under it) with a play button: the notes sound one per beat at `bpm`,
  * each on a metronome click (accented at the start of each group), round and round, the playing cell lit. `hint` says what to watch for. `show` fixes the row under the tab to the finger or the pick stroke; unset, and when
- * the drill has both, a Finger / Pick switch lets the student choose, starting on finger.
+ * the drill has both, a Finger / Pick switch lets the student choose, starting on finger. Follow lights the playing note or
+ * leaves the tab still; Notes and Click mute the drill's notes and the metronome, each alone, while the beat keeps going.
  */
 function Player({ steps, bpm, hint, group = 4, show }: { steps: DrillStep[]; bpm: number; hint: string; group?: number; show?: Under }) {
   const both = steps.some((s) => s.finger) && steps.some((s) => s.stroke);
   const [chosen, setChosen] = useState<Under>("finger");
   const under = show ?? (both ? chosen : undefined);
-  useCoverage({ hints: 1 });
+  useCoverage({ hints: 3 });
+  const [follow, setFollow] = useState(true);
+  const [heard, setHeard] = useState<Record<Sound, boolean>>({ notes: true, click: true });
+  // the running beat reads what is heard now, so a mute lands on the next note without a restart
+  const heardNow = useRef(heard);
+  useEffect(() => { heardNow.current = heard; }, [heard]);
   const [playing, setPlaying] = useState(false);
   const [at, setAt] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -140,7 +158,7 @@ function Player({ steps, bpm, hint, group = 4, show }: { steps: DrillStep[]; bpm
     let i = 0;
     const tick = () => {
       const s = steps[i % steps.length];
-      pluck(stepMidi(s), !s.stroke, (i % steps.length) % group === 0);
+      pluck(stepMidi(s), !s.stroke, (i % steps.length) % group === 0, heardNow.current);
       setAt(i % steps.length);
       i++;
     };
@@ -161,6 +179,27 @@ function Player({ steps, bpm, hint, group = 4, show }: { steps: DrillStep[]; bpm
           </button>
         </Hint>
         {spaceArmed && <KeyCap className="-ml-1.5 hidden text-slate-400 md:inline">Space</KeyCap>}
+        <Hint title="Follow" description="Lights the note playing as the drill moves along the tab. Switch it off to keep the tab still and find your own place.">
+          <button type="button" data-tour="drill-follow" aria-pressed={follow} title={follow ? "Stop lighting the note playing" : "Light the note playing"} onClick={() => setFollow(!follow)} className={toggle(follow, "sky")}>
+            <Icon name="eye" size={14} />
+            <span className={`text-[11px] ${follow ? "" : "line-through"}`}>Follow</span>
+          </button>
+        </Hint>
+        {/* what is heard, in one frame under a speaker badge, as on the sing-along player */}
+        <span role="group" aria-label="Sounds" data-tour="drill-sounds" className="relative inline-flex items-center gap-1 rounded-xl border border-slate-800 p-1 pl-6">
+          <Icon name="volume-2" size={12} className="absolute left-1.5 top-1/2 -translate-y-1/2 text-slate-500" />
+          {SOUNDS.map((l) => {
+            const on = heard[l.id];
+            return (
+              <Hint key={l.id} title={`Mute ${l.label.toLowerCase()}`} description={`Silences ${l.what}. The beat keeps going.`}>
+                <button type="button" aria-pressed={!on} title={on ? `Mute ${l.what}` : `Hear ${l.what}`} aria-label={on ? `Mute ${l.what}` : `Hear ${l.what}`} onClick={() => setHeard((h) => ({ ...h, [l.id]: !h[l.id] }))} className={toggle(!on, "amber")}>
+                  <Icon name={l.icon} size={14} />
+                  <span className={`text-[11px] ${on ? "" : "line-through"}`}>{l.label}</span>
+                </button>
+              </Hint>
+            );
+          })}
+        </span>
         <span className="text-sm text-slate-300">{bpm} bpm, one note per beat · {hint}</span>
         {!show && both && (
           <div role="group" aria-label="Under the tab" className="ml-auto flex overflow-hidden rounded-lg border border-slate-700 text-xs">
@@ -173,7 +212,7 @@ function Player({ steps, bpm, hint, group = 4, show }: { steps: DrillStep[]; bpm
           </div>
         )}
       </div>
-      <div data-tour="drill-tab"><DrillTab steps={steps} at={playing ? at : -1} group={group} under={under} /></div>
+      <div data-tour="drill-tab"><DrillTab steps={steps} at={playing && follow ? at : -1} group={group} under={under} /></div>
     </div>
   );
 }

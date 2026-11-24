@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the band. Only {{1}} and {{5}} are in play, the two notes of today's power chords. Make up a short riff from them, one at a time or both together, and repeat it until it grooves. Then change one thing: the rhythm, the order or the octave."
+        "text": "Press Play below to start the backing track. Only {{1}} and {{5}} are in play, the two notes of today's power chords. Make up a short riff from them, one at a time or both together, and repeat it until it grooves. Then change one thing: the rhythm, the order or the octave."
       },
       {
         "type": "tool",

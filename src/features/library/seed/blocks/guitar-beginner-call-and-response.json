@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the band. Play a short phrase that ends anywhere (the question), then answer it with one that ends on {{1}}. Keep the answer close to the question, as if replying."
+        "text": "Press Play below to start the backing track. Play a short phrase that ends anywhere (the question), then answer it with one that ends on {{1}}. Keep the answer close to the question, as if replying."
       },
       {
         "type": "tool",

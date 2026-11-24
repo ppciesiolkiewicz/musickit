@@ -50,7 +50,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at 70. Play the position up and down from the low {{1}}, one note per beat, picking down, up all the way."
+            "text": "Press Play below to start the metronome at 70. Start on the ringed {{1}} on the low E string and play both dots on each string up to the high e string, then come back down the same way. Play one note per beat, picking down, up all the way."
           },
           {
             "type": "tool",
