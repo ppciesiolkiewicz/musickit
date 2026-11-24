@@ -321,10 +321,17 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
               Read the neck, on a saved take, draws your fingertips and the markers it sees over the video. Recording and Transcribe need no
               markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Open
               {" "}<a href={MARKER_PAGE} target="_blank" rel="noreferrer" className="text-sky-400 underline">Print markers</a>{" "}
-              and print a few: the page is already set to the right kind (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. Stick them on
-              the guitar neck, a few frets apart, where the camera can see them. For now it only shows
+              and print a few: the page is already set to the right kind (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. For now it only shows
               what it finds; placing the frets from the markers comes next.
             </p>
+            <p className="font-medium text-slate-200">Printing and placing markers</p>
+            <ol className="list-decimal space-y-1 pl-5">
+              <li>Make each marker 25 mm across, the black square only. If it won&apos;t fit where you want it, 20 mm is the smallest that works.</li>
+              <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one with a ruler: it should be 25 mm on every side.</li>
+              <li>Cut around each marker so a white edge about 3 mm wide stays on all sides. The camera needs that edge to find the square.</li>
+              <li>Stick one on the headstock face, one on the body where the neck joins it, and, if there is room, one on the side of the neck. Keep them flat and away from your fretting hand.</li>
+              <li>Test from where the camera will stand: record a short take, turn on Read the neck, and play. Each marker&apos;s number should stay in the Markers line under the video. If one keeps dropping out, print it bigger or move the camera closer.</li>
+            </ol>
           </div>
         </details>
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}
