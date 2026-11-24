@@ -32,3 +32,24 @@ test("sectionStarts: two warm-ups in a day are named by their area", () => {
     "Voice warm-up", "Voice", "Guitar warm-up", "Guitar", "Theory & ear",
   ]);
 });
+
+import { dayPages, pageOf } from "./sections";
+
+test("dayPages: each part is a page", () => {
+  const pages = dayPages([w("voice"), e("voice", 10), e("voice", 10), e("guitar", 10)]);
+  assert.deepEqual(pages, [
+    { label: "Warm-up", start: 0, count: 1, minutes: 2 },
+    { label: "Voice", start: 1, count: 2, minutes: 20 },
+    { label: "Guitar", start: 3, count: 1, minutes: 10 },
+  ]);
+  assert.equal(pageOf(pages, 2), 1);
+});
+
+test("dayPages: a long part is cut into even pages; a short day of one area is one page", () => {
+  assert.deepEqual(dayPages([w("voice"), ...Array.from({ length: 6 }, () => e("voice"))]).map((p) => [p.label, p.count]), [
+    ["Warm-up", 1], ["Voice 1 of 2", 3], ["Voice 2 of 2", 3],
+  ]);
+  assert.deepEqual(dayPages([e("guitar"), e("guitar")]).map((p) => p.label), ["Part 1"]);
+  assert.deepEqual(dayPages(Array.from({ length: 5 }, () => e("guitar"))).map((p) => [p.label, p.count]), [["Part 1", 3], ["Part 2", 2]]);
+  assert.deepEqual(dayPages([]), []);
+});
