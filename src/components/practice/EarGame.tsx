@@ -15,6 +15,7 @@ import { Volume, VolumeRow } from "@/features/settings";
 import { DIRECTIONS } from "./DirectionChips";
 import { solfegeOfSemis } from "@/features/theory/labels";
 import { EarGameSettings } from "./EarGameSettings";
+import { ExerciseDone, StageRow } from "./Stages";
 
 const KINDS: { id: EarSettings["kind"]; title: string; about: string }[] = [
   { id: "interval", title: "Intervals", about: "Hear two notes and name the gap between them." },
@@ -56,12 +57,20 @@ function litKeys(q: EarQuestion) {
 }
 
 /** Interval, chord-quality and chord-change ear training. Settings live in the URL so a teacher can share a set-up. */
-export default function EarGame({ initial, syncUrl = true, bare = false }: { initial: EarSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: no settings panel */ bare?: boolean }) {
-  useCoverage({ hints: 4 });
+export default function EarGame({ initial, syncUrl = true, bare = false, stages }: { initial: EarSettings; /** write the settings to the address bar (off when embedded in another page) */ syncUrl?: boolean; /** settings fixed by the host: no settings panel */ bare?: boolean;
+  /** play in stages of `questions` answers each, `count` of them, then the exercise is complete; without it the game never ends */
+  stages?: { count: number; questions: number } }) {
+  useCoverage({ hints: 5 });
   const [s, setS] = useState(initial);
   const [q, setQ] = useState<EarQuestion | null>(null);
   const [answered, setAnswered] = useState<{ pick: string; ok: boolean } | null>(null);
   const [score, setScore] = useState<Score>({});
+  // with stages: the stage being played, the answers given in it, and the score before it (Restart stage goes back to it)
+  const [stage, setStage] = useState(0);
+  const [inStage, setInStage] = useState(0);
+  const [before, setBefore] = useState<Score>({});
+  const stageFull = !!stages && inStage >= stages.questions && !!answered;
+  const complete = !!stages && stage >= stages.count;
   /** The last question answered: its notes stay laid out (hidden) under the next question, so the page doesn't jump. */
   const [shown, setShown] = useState<EarQuestion | null>(null);
   const answers = activeAnswers(s);
@@ -75,6 +84,17 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     setShown(null);
   };
   const next = () => {
+    if (complete) return;
+    if (stages && stageFull) {
+      // the stage is done: on to the next, or the end
+      setStage(stage + 1);
+      setInStage(0);
+      setBefore(score);
+      setQ(null);
+      setAnswered(null);
+      setShown(null);
+      if (stage + 1 >= stages.count) return;
+    }
     const n = nextEarQuestion(s, Math.random, q ?? undefined);
     setQ(n);
     setAnswered(null);
@@ -96,6 +116,18 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
     setAnswered({ pick: a, ok });
     setShown(q);
     setScore((sc) => recordScore(sc, q.answer, ok));
+    setInStage((n) => n + 1);
+  };
+  /** the stage being played from its first question, its answers taken back off the score; once complete, the whole exercise */
+  const restartStage = () => {
+    const all = complete;
+    if (all) setStage(0);
+    setScore(all ? {} : before);
+    if (all) setBefore({});
+    setInStage(0);
+    setQ(null);
+    setAnswered(null);
+    setShown(null);
   };
 
   // Space and Enter press the big button: Start or Next, or Replay while a question waits. Skip has no key, so Space
@@ -128,7 +160,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   const right = Object.values(score).reduce((n, v) => n + v.right, 0);
   const prompt = !q ? (s.kind === "chord" ? "A chord plays. Name its kind." : s.kind === "change" ? "Two chords play: the 1 chord, then another chord of the key. Name the second one." : "Two notes play. Name the gap between them.")
     : "Replay it as often as you like, then pick an answer.";
-  const question = !q ? "Press Start and listen." : answered ? (answered.ok ? "Right!" : "Not quite.") : s.kind === "chord" ? "What kind of chord?" : s.kind === "change" ? "Which chord came second?" : "Which interval?";
+  const question = stageFull ? (stage + 1 >= stages!.count ? "That was the last question." : "Stage done.") : !q ? "Press Start and listen." : answered ? (answered.ok ? "Right!" : "Not quite.") : s.kind === "chord" ? "What kind of chord?" : s.kind === "change" ? "Which chord came second?" : "Which interval?";
 
   /** Key caps only where the keys work: on the tool that has them, not on touch screens. */
   const cap = (key: string) => armed && <KeyCap className="hidden md:inline">{key}</KeyCap>;
@@ -146,7 +178,8 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
   const game = (
     <div ref={keysRef} className="flex flex-col gap-4">
       {!bare && <div data-tour="ears-setup"><GameChoice label="What to train" options={KINDS} value={s.kind} onChange={(kind) => update({ kind })} tone="sky" /></div>}
-      <Stage tone="sky">
+      {stages && <StageRow at={stage} total={stages.count} detail={`question ${Math.min(inStage + (q && !answered ? 1 : 0), stages.questions) || 1} of ${stages.questions}`} />}
+      {complete ? <ExerciseDone total={stages!.count} onRestart={restartStage}>You named {right} of {total} right.</ExerciseDone> : <Stage tone="sky">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             {bare && (
@@ -167,11 +200,15 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
         </div>
         <div data-tour="interval-ears-play" className="flex flex-wrap items-center gap-2">
           {!q || answered
-            ? <Hint title={q ? "Next" : "Start"} description="Plays a new one to name."><button type="button" className={btnBig} onClick={next}><Icon name="play" size={16} />{q ? "Next" : "Start"}{cap("Space")}</button></Hint>
+            ? (() => {
+              const label = stageFull ? (stage + 1 >= stages!.count ? "Finish" : "Next stage") : q ? "Next" : "Start";
+              return <Hint title={label} description={stageFull ? (label === "Finish" ? "Ends the exercise." : "Starts the next stage.") : "Plays a new one to name."}><button type="button" className={btnBig} onClick={next}><Icon name="play" size={16} />{label}{cap("Space")}</button></Hint>;
+            })()
             : <Hint title="Replay" description="Plays the same one again."><button type="button" className={btnBig} onClick={replay}><Icon name="repeat" size={16} />Replay{cap("Space")}</button></Hint>}
           {q && (answered
             ? <Hint title="Replay" description="Plays the same one again."><button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={replay}><Icon name="repeat" size={14} />Replay{cap("R")}</button></Hint>
             : <Hint title="Skip" description="Moves on to a new one."><button type="button" className={`${btn} py-2`} onClick={next}>Skip</button></Hint>)}
+          {stages && <Hint title="Restart stage" description="Starts this stage again from its first question."><button type="button" className={`${btn} inline-flex items-center gap-1.5 py-2`} onClick={restartStage} disabled={inStage === 0 && !q}><Icon name="rotate-ccw" size={14} />Restart stage</button></Hint>}
           {bare && <span className="ml-auto"><Volume /></span>}
         </div>
         <div data-tour="interval-ears-answers" className={`grid gap-2 ${s.kind === "chord" ? "grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]" : "grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))]"}`}>
@@ -194,7 +231,7 @@ export default function EarGame({ initial, syncUrl = true, bare = false }: { ini
             <div className="max-w-md"><MiniPiano from={pianoFrom(laid.midi)} octaves={Math.max(...laid.midi) - pianoFrom(laid.midi) >= 24 ? 3 : 2} lit={litKeys(laid)} /></div>
           </div>
         )}
-      </Stage>
+      </Stage>}
 
       {Object.keys(score).length > 0 && (
         <section className={panel}>

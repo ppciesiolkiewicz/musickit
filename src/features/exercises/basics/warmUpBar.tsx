@@ -44,7 +44,9 @@ const BIG = "inline-flex min-w-[6.5rem] items-center justify-center gap-1.5 !bor
  * Restart once it is done), then Restart and Skip, always drawn and off until it runs so nothing moves on Start, then the tool's own controls (`children`: the mic,
  * Play note), and the volume at the end. The tool wraps it in its own `data-tour` (a literal, for the tour test).
  */
-export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, what, armed, settings, hostSettings = false, children }: Actions & {
+export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, what, again = "the first one", armed, settings, hostSettings = false, children }: Actions & {
+  /** where Restart starts again, for its hint: "the first vowel of this stage" */
+  again?: string;
   /** what Skip moves on to, for its hint: "the next round" */
   skip: string;
   /** what Start does, for its hint */
@@ -77,8 +79,8 @@ export function WarmUpBar({ status, onStart, onStop, onRestart, onSkip, skip, wh
           </Hint>
         )}
         {/* always drawn, so nothing moves on Start: off until it runs */}
-        <Hint title="Restart" description="Starts again from the first one.">
-          <Button size="sm" disabled={!running} onClick={onRestart} title="Start again from the first one (R)" className="inline-flex items-center gap-1.5">
+        <Hint title="Restart" description={`Starts again from ${again}.`}>
+          <Button size="sm" disabled={!running} onClick={onRestart} title={`Start again from ${again} (R)`} className="inline-flex items-center gap-1.5">
             Restart{armed && <KeyCap className="hidden md:inline">R</KeyCap>}
           </Button>
         </Hint>

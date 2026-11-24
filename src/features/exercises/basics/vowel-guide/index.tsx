@@ -5,6 +5,7 @@ import Icon from "@/components/Icon";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
 import { useStepPart } from "@/components/practice/exerciseStep";
 import { StartCover } from "@/components/practice/StartCover";
+import { ExerciseDone, StageRow } from "@/components/practice/Stages";
 import { getSharedPiano, wakeAudio } from "@/features/sound";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { voiceMapIn } from "@/features/theory/registers";
@@ -148,11 +149,12 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
     }
   }, [breathe]);
 
-  // Start and Restart: from the first vowel on the first note; the note plays, then the mic opens
-  const start = useCallback(async () => {
+  // Start: from the first vowel on the first note, or (Restart) on the first vowel of a stage; the note plays, then the mic opens
+  const start = useCallback(async (from = 0) => {
     if (timer.current) clearTimeout(timer.current);
-    live.current = { ...live.current, progress: 0, t: 0, restLeft: 0, index: 0, status: "holding" };
-    setIndex(0);
+    setMicOn(false);
+    live.current = { ...live.current, progress: 0, t: 0, restLeft: 0, index: from, status: "holding" };
+    setIndex(from);
     setStatus("holding");
     await playNote();
     timer.current = setTimeout(() => setMicOn(true), NOTE_MS);
@@ -212,20 +214,23 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
     if (s.status === "holding") finish();
     else if (s.status === "rest") s.restLeft = 0;
   };
-  const actions = { status: running ? "running" as const : status === "done" ? "done" as const : "idle" as const, onStart: () => void start(), onStop: stop, onRestart: () => void start(), onSkip: skip };
+  // each note is a stage: every vowel on it. Restart while it runs starts the stage again; once done, the whole exercise
+  const stageStart = () => Math.floor(live.current.index / vowels.length) * vowels.length;
+  const restart = () => void start(live.current.status === "done" ? 0 : Math.min(stageStart(), holds.length - 1));
+  const actions = { status: running ? "running" as const : status === "done" ? "done" as const : "idle" as const, onStart: () => void start(), onStop: stop, onRestart: restart, onSkip: skip };
   const { ref: keysRef, armed } = useWarmUpKeys(actions);
 
   const heard = running && micOn ? frame.heard : null;
   const dir = heard === null ? null : towards(heard, at.midi, cents);
   const inside = status === "holding" && dir === 0;
-  const word = status === "done" ? "That was the last vowel"
+  const word = status === "done" ? "That was the last stage"
     : status === "rest" ? "Breathe in"
     : status === "holding" ? (!micOn ? "Listen…" : dir === null ? `Sing ${SAY[at.vowel]}` : dir === 0 ? "Hold it" : dir > 0 ? "Go higher" : "Go lower")
     : "Ready when you are";
   const wordTone = status === "rest" ? "text-sky-300" : inside ? "text-emerald-300" : dir !== null ? "text-amber-200" : "text-slate-200";
   const vowelAt = index % vowels.length;
   const noteAt = Math.min(notes.length - 1, Math.floor(index / vowels.length));
-  const sub = status === "done" ? "Press Restart above to go again."
+  const sub = status === "done" ? "Every vowel on every note is done."
     : running ? `${SAY[at.vowel]} on ${noteLabel(at.midi)}${heard !== null ? ` · you: ${noteLabel(heard)}` : ""}`
     : `The first note is ${noteLabel(notes[0])}.`;
   const micNote = micStatusMessage(micStatus);
@@ -238,7 +243,7 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
   return (
     <PlayerCard ref={keysRef}>
       <div data-tour="vowel-start">
-        <WarmUpBar {...actions} armed={armed} hostSettings={hostSettings} settings={<AccuracyRow look="menu" />} skip="the next vowel" what="Plays the note, then the mic listens while you hold it on the vowel shown.">
+        <WarmUpBar {...actions} armed={armed} hostSettings={hostSettings} settings={<AccuracyRow look="menu" />} skip="the next vowel" again="the first vowel of this stage" what="Plays the note, then the mic listens while you hold it on the vowel shown.">
           <span data-tour="vowel-mic" className="inline-flex">
             <Hint title="Audio input" description="The input the mic uses. Start switches it on: the dot turns from amber to green. Press it to pick another input or see its level.">
               <InputChip quiet status={micStatus} mic={{ on: micOn, onToggle: () => (running ? stop() : void start()) }} />
@@ -256,6 +261,9 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
         <h3 className="truncate text-base font-semibold text-slate-100">{title}</h3>
         <p className="text-xs tabular-nums text-slate-400">{seconds} seconds each · {where} · {range.label}</p>
       </div>
+
+      <StageRow at={done ? notes.length : noteAt} total={notes.length} detail={`${SAY[at.vowel]} on ${noteLabel(at.midi)}`} />
+      {done && <ExerciseDone total={notes.length} onRestart={() => void start()}>Notice which vowel was the hardest to keep on the note.</ExerciseDone>}
 
       <div className="flex flex-col items-center gap-0.5 text-center" aria-live="polite">
         <p className={`min-h-8 text-2xl font-medium transition-colors duration-300 ${wordTone}`}>{word}</p>
