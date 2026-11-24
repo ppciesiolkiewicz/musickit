@@ -58,6 +58,7 @@ function stepsOf(notes: RiffNote[], bpm: number) {
   });
 }
 
+const CAMERA_KEY = "musickit.riff.camera";
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 /**
@@ -90,6 +91,16 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
   const recorder = useRef<MediaRecorder | null>(null);
   const live = useRef<HTMLVideoElement>(null);
   const [click, setClick] = useState(true);
+  // the cameras the browser offers (an iPhone through Continuity Camera among them), and the one picked, kept in this browser
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [cameraId, setCameraId] = useState(() => { try { return localStorage.getItem(CAMERA_KEY) ?? ""; } catch { return ""; } });
+  const listCameras = async () => {
+    try { setCameras((await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === "videoinput")); } catch { /* the list stays as it was */ }
+  };
+  const pickCamera = (id: string) => {
+    setCameraId(id);
+    try { localStorage.setItem(CAMERA_KEY, id); } catch { /* kept for this visit only */ }
+  };
   // optional: markers and hands drawn over the take (NeckView)
   const [readNeck, setReadNeck] = useState(false);
   const [takeVideo, setTakeVideo] = useState<HTMLVideoElement | null>(null);
@@ -118,6 +129,15 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
     return () => { gone = true; if (shownUrl.current) URL.revokeObjectURL(shownUrl.current); shownUrl.current = ""; };
   }, [riff]);
   // let go of the camera when the panel closes
+  // a camera plugged in or an iPhone coming near shows up in the list
+  useEffect(() => {
+    const md = navigator.mediaDevices;
+    if (!md?.enumerateDevices) return;
+    const list = () => md.enumerateDevices().then((all) => setCameras(all.filter((d) => d.kind === "videoinput")), () => {});
+    void list();
+    md.addEventListener("devicechange", list);
+    return () => md.removeEventListener("devicechange", list);
+  }, []);
   useEffect(() => () => { endClick(); if (recorder.current?.state === "recording") { recorder.current.onstop = null; recorder.current.stop(); } stopCamera(); }, []);
   useEffect(() => { if (live.current && (phase === "ready" || phase === "recording")) live.current.srcObject = stream.current; }, [phase]);
   useEffect(() => {
@@ -149,7 +169,7 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
     try { await saveTake(t); setStored("saved"); } catch (e) { setStored("failed"); setProblem(`The browser didn't store this take: ${message(e)}. Press Save to try again, or Save file to keep it on disk.`); }
   };
 
-  const startCamera = async () => {
+  const startCamera = async (id = cameraId) => {
     setProblem("");
     if (typeof MediaRecorder === "undefined" || !navigator.mediaDevices?.getUserMedia) { setProblem("This browser can't record video."); return; }
     setPhase("starting");
@@ -157,12 +177,18 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
       // the guitar as it is: no echo cancelling, noise removal or level riding, which smear the picks and bend the pitch
       const input = readDeviceChoice().input;
       stream.current = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, ...(id ? { deviceId: { exact: id } } : {}) },
         audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, ...(input ? { deviceId: { ideal: input.id } } : {}) },
       });
       setPhase("ready");
+      void listCameras();
     } catch (e) {
       setPhase("off");
+      if (id && e instanceof Error && e.name === "OverconstrainedError") {
+        pickCamera("");
+        setProblem("The camera picked in the Camera list isn't connected. It's back on Browser default: press Start camera, or pick another camera.");
+        return;
+      }
       setProblem(`The camera or the microphone didn't open: ${message(e)}. Allow both in the address bar, then press Start camera.`);
     }
   };
@@ -277,9 +303,44 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="mr-2 font-semibold">Take</h2>
         {phase === "off" && <button onClick={() => void startCamera()} className={btn}>Start camera</button>}
+        <details className="w-full order-last text-slate-300">
+          <summary className="cursor-pointer text-slate-400">How takes work</summary>
+          <div className="mt-2 flex flex-col gap-2">
+            <p>
+              Press Start camera above to open the camera and your audio input, then press Record to play the riff. The take is saved in
+              this browser with the riff. Press Transcribe to turn what it heard into notes. The sound comes from the audio input you last
+              picked in the app. The picture comes from the browser&apos;s camera.
+            </p>
+            <p>
+              To film with an iPhone, turn on Continuity Camera on the phone (Settings → General → AirPlay &amp; Continuity), with the Mac and
+              the phone on the same Apple ID. Put the phone near the Mac in landscape, locked, with the back camera on the guitar. Press
+              Start camera once so the browser allows the camera, then pick the iPhone in the Camera list above: the camera switches
+              to it. If the iPhone isn&apos;t in the list, quit Chrome (Cmd+Q) and open it again.
+            </p>
+            <p>
+              Read the neck, on a saved take, draws your fingertips and the markers it sees over the video. Recording and Transcribe need no
+              markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Open
+              {" "}<a href={MARKER_PAGE} target="_blank" rel="noreferrer" className="text-sky-400 underline">Print markers</a>{" "}
+              and print a few: the page is already set to the right kind (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. Stick them on
+              the guitar neck, a few frets apart, where the camera can see them. For now it only shows
+              what it finds; placing the frets from the markers comes next.
+            </p>
+          </div>
+        </details>
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}
         {phase === "ready" && <button onClick={() => void record()} className="rounded bg-rose-700 px-3 py-1 text-sm">{take ? "Record again" : "Record"} <kbd className="ml-1 rounded bg-rose-900 px-1 text-xs">R</kbd></button>}
         {phase === "ready" && <button onClick={() => { stopCamera(); setPhase("off"); }} className={btn}>Close camera</button>}
+        {(phase === "off" || phase === "ready") && (
+          <label className="flex items-center gap-1.5 text-slate-300" title="The list fills once the camera has been allowed. Changing it restarts the camera.">Camera
+            <select value={cameraId} onFocus={() => void listCameras()} onPointerDown={() => void listCameras()}
+              onChange={(e) => { const id = e.target.value; pickCamera(id); if (phase === "ready") { stopCamera(); void startCamera(id); } }}
+              className="max-w-48 rounded bg-slate-800 px-1 py-0.5">
+              <option value="">Browser default</option>
+              {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
+              {cameraId && !cameras.some((c) => c.deviceId === cameraId) && <option value={cameraId}>Last picked camera</option>}
+            </select>
+          </label>
+        )}
         {(phase === "off" || phase === "ready") && (
           <label className="flex items-center gap-1.5 text-slate-300" title="Clicks through the speakers while you record. Only the input is recorded: use headphones if you record with a microphone.">
             <input type="checkbox" checked={click} onChange={(e) => setClick(e.target.checked)} /> Click at {bpm} bpm
