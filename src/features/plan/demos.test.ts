@@ -8,7 +8,8 @@ test("every demo slug names a seed plan that parses", () => {
 
 test("cards are easiest first, one per slug", () => {
   const cards = demoCards();
-  assert.equal(cards.length, 6);
+  assert.equal(cards.length, Object.keys(DEMO_PLANS).length);
+  assert.equal(cards.filter((c) => c.area === "mixed").length, 3);
   const order = ["new", "beginner", "intermediate", "advanced"];
   for (let i = 1; i < cards.length; i++) assert.ok(order.indexOf(cards[i - 1].level) <= order.indexOf(cards[i].level));
 });

@@ -1,0 +1,132 @@
+{
+  "id": "voice-guitar-intermediate",
+  "answers": {
+    "areas": [
+      "guitar",
+      "voice"
+    ],
+    "topics": {
+      "guitar-techniques": 2,
+      "guitar-extended-chords": 2,
+      "guitar-scales": 2,
+      "voice-breath-range": 2,
+      "voice-intervals": 2,
+      "voice-runs": 2,
+      "voice-harmony": 2,
+      "voice-melodies": 2
+    },
+    "minutes": 30,
+    "styles": "",
+    "notes": "I sing and play guitar, and want both to move on together."
+  },
+  "model": "claude-opus-5-5",
+  "versions": {
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A demo week for an intermediate player who sings: four practice days of about 30 minutes, the library's intermediate guitar and voice blocks side by side. Each day opens with a breath warm-up, mixes a guitar technique or chord block with a leap or run, and ends with a tune, a harmony line or a solo.",
+  "plan": {
+    "title": "Week 1: sus chords, bends and the leaps of a 4th and 5th",
+    "summary": "Four practice days of about 30 minutes, guitar and voice in turn. Day 1 is hammer-ons and pull-offs, sus chords on D, and the 4th and the 5th. Day 2 is bends that reach the note and five-note runs. Day 3 joins the first two positions of the scale and sings the octave. Day 4 sings a harmony line, plays chord tones over Am F C G and ends with a solo.",
+    "progress": "Techniques: hammer-ons and pull-offs in stages. Next: fingers 2 and 4.\nExtended chords: D, Dsus2 and Dsus4; Cadd9, G, Dsus4 and Em. Next: the sus groove in D.\nScales: bends in tune, positions 1 and 2 of the minor pentatonic joined, chord tones over Am F C G, a solo across the join. Next: position 3.\nIntervals: the 4th, the 5th and the octave, sung and named. Next: leaps falling.\nRuns: five notes up and back, Do Mi Sol Do then a run home. Next: nine notes.\nHarmony: two notes at once, a harmony line over three chords. Next: the harmony line, then your own.\nBreath: in, hold, out, filled to 80. Next: a long breath out.",
+    "days": [
+      {
+        "theme": "Sus chords, and the 4th and the 5th",
+        "exercises": [
+          {
+            "block": "voice-intermediate-in-hold-out",
+            "choice": "intermediate"
+          },
+          {
+            "block": "voice-intermediate-the-4th-the-5th-and-their-neighbours",
+            "choice": "intermediate"
+          },
+          {
+            "block": "guitar-intermediate-hammer-and-pull-in-stages",
+            "choice": "intermediate"
+          },
+          {
+            "block": "guitar-intermediate-d-dsus2-dsus4",
+            "choice": "intermediate"
+          },
+          {
+            "block": "voice-intermediate-a-tune-that-falls-a-4th",
+            "choice": "intermediate"
+          }
+        ]
+      },
+      {
+        "theme": "Bends that reach the note, and five-note runs",
+        "exercises": [
+          {
+            "block": "voice-intermediate-hiss-then-buzz",
+            "choice": "intermediate"
+          },
+          {
+            "block": "voice-intermediate-five-notes-up-and-back",
+            "choice": "intermediate"
+          },
+          {
+            "block": "guitar-intermediate-cadd9-g-dsus4-em",
+            "choice": "intermediate"
+          },
+          {
+            "block": "guitar-intermediate-bends-in-tune",
+            "choice": "intermediate"
+          },
+          {
+            "block": "voice-intermediate-do-mi-sol-do-then-a-run-home",
+            "choice": "intermediate"
+          }
+        ]
+      },
+      {
+        "theme": "Two positions joined, and the octave",
+        "exercises": [
+          {
+            "block": "voice-intermediate-slide-to-the-high-do",
+            "choice": "intermediate"
+          },
+          {
+            "block": "voice-intermediate-sing-the-4th-the-5th-and-the-octave",
+            "choice": "intermediate"
+          },
+          {
+            "block": "guitar-intermediate-join-positions-1-and-2",
+            "choice": "intermediate"
+          },
+          {
+            "block": "voice-intermediate-a-tune-that-drops-an-octave",
+            "choice": "intermediate"
+          }
+        ]
+      },
+      {
+        "theme": "A harmony line, chord tones and a solo",
+        "exercises": [
+          {
+            "block": "voice-intermediate-in-hold-out-filled-to-80",
+            "choice": "intermediate"
+          },
+          {
+            "block": "voice-intermediate-two-notes-at-once",
+            "choice": "intermediate"
+          },
+          {
+            "block": "voice-intermediate-a-harmony-line-over-three-chords",
+            "choice": "intermediate"
+          },
+          {
+            "block": "guitar-intermediate-chord-tones-over-am-f-c-g",
+            "choice": "intermediate"
+          },
+          {
+            "block": "guitar-intermediate-solo-across-the-join",
+            "choice": "intermediate"
+          }
+        ]
+      }
+    ]
+  }
+}

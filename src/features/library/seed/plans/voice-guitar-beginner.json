@@ -1,0 +1,110 @@
+{
+  "id": "voice-guitar-beginner",
+  "answers": {
+    "areas": [
+      "guitar",
+      "voice"
+    ],
+    "topics": {
+      "guitar-techniques": 1,
+      "guitar-basic-chords": 1,
+      "guitar-scales": 1,
+      "voice-pitch": 1,
+      "voice-intervals": 1,
+      "voice-melodies": 1,
+      "voice-breath-range": 1
+    },
+    "minutes": 35,
+    "styles": "",
+    "notes": "I play a little guitar and want to sing too."
+  },
+  "model": "claude-opus-5-5",
+  "versions": {
+    "prompt": 18,
+    "agents": 2,
+    "teaching": 10
+  },
+  "note": "A demo week for a beginner who sings and plays: three practice days of about 35 minutes, each the library's beginner guitar and voice blocks side by side. Every day opens with the voice warm-up, has two or three guitar blocks in the middle and ends with a tune sung over chords.",
+  "plan": {
+    "title": "Week 1: three chords, a first scale and Do Mi Sol",
+    "summary": "Three practice days of about 35 minutes, half guitar and half voice. Day 1 is the G, C and D chords in time, the A minor pentatonic scale and step tunes sung over a drone. Day 2 makes chords smaller and adds the skip from Do to Sol. Day 3 adds a strumming pattern, a jam over two chords, and Sol and La.",
+    "progress": "Basic chords: G, C and D change in time; A5, D5 and E5 as power chords; G, C and D as triads; the full strumming pattern on G, Em, C and D. Next: all seven open chords in any order.\nScales: the A minor pentatonic scale from the root on the low E string, phrases of your own and a jam over Am and G. Next: down-up picking.\nPitch: Do held over a drone, sung in a smooth spot. Next: Do Mi Sol in new keys.\nIntervals: steps and skips told apart, the 3rd and the 5th, then the 6th. Next: skips falling.\nMelodies: step tunes, a skipping tune, Sol La Sol, each then sung over chords. Next: a tune under Do.",
+    "days": [
+      {
+        "theme": "Three chords, a first scale and step tunes",
+        "exercises": [
+          {
+            "block": "voice-beginner-find-the-smooth-spot",
+            "choice": "beginner"
+          },
+          {
+            "block": "guitar-beginner-the-spider-where-position-1-lives",
+            "choice": "beginner"
+          },
+          {
+            "block": "guitar-beginner-g-c-and-d-in-time",
+            "choice": "beginner"
+          },
+          {
+            "block": "guitar-beginner-position-1-then-your-own-phrases",
+            "choice": "beginner"
+          },
+          {
+            "block": "voice-beginner-step-tunes-then-your-own",
+            "choice": "beginner"
+          }
+        ]
+      },
+      {
+        "theme": "Chords made smaller, and Do to Sol",
+        "exercises": [
+          {
+            "block": "voice-beginner-hum-then-open",
+            "choice": "beginner"
+          },
+          {
+            "block": "voice-beginner-3rd-or-5th",
+            "choice": "beginner"
+          },
+          {
+            "block": "guitar-beginner-a5-d5-e5",
+            "choice": "beginner"
+          },
+          {
+            "block": "guitar-beginner-g-c-and-d-as-triads",
+            "choice": "beginner"
+          },
+          {
+            "block": "voice-beginner-a-skipping-tune-then-over-chords",
+            "choice": "beginner"
+          }
+        ]
+      },
+      {
+        "theme": "A strumming pattern, a jam, and Sol and La",
+        "exercises": [
+          {
+            "block": "voice-beginner-breathe-then-hold-do",
+            "choice": "beginner"
+          },
+          {
+            "block": "guitar-beginner-g-em-c-d-full-pattern",
+            "choice": "beginner"
+          },
+          {
+            "block": "voice-beginner-3rd-5th-or-6th",
+            "choice": "beginner"
+          },
+          {
+            "block": "voice-beginner-sol-la-sol-then-over-chords",
+            "choice": "beginner"
+          },
+          {
+            "block": "guitar-beginner-jam-over-am-and-g",
+            "choice": "beginner"
+          }
+        ]
+      }
+    ]
+  }
+}

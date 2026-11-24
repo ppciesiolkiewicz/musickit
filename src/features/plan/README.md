@@ -131,7 +131,7 @@ it). The six demo plans are at `/demo`. The prompt (`model/prompt.ts`) is used b
 
 ## Demos
 
-`/demo` lists every demo in `DEMO_PLANS` as cards (`demoCards()`: level, minutes, the week's title and summary, day themes), grouped by area and easiest first, then a Beta card that links to the Practice plan at `/plan`, then the teacher notes. `/demo/guitar-beginner`, `/demo/voice-beginner`, `/demo/guitar-intermediate`, `/demo/voice-intermediate`, `/demo/guitar-advanced` and `/demo/voice-advanced` each open a hand-tuned seed plan from `src/features/library/seed/plans` (`demos.ts`, `DemoPlan.tsx`; the level each card shows is in `DEMO_PLANS`, its area and minutes in the plan's `answers`) from day 1, kept in memory only (a swapped-in `PlanStore`), so a pitch can link to a finished plan. Not indexed; canonical is `/plan`.
+`/demo` lists every demo in `DEMO_PLANS` as cards (`demoCards()`: level, minutes, the week's title and summary, day themes), grouped by area (Guitar, Voice, and Voice and guitar for a plan of both) and easiest first, then a Beta card that links to the Practice plan at `/plan` (the teacher notes panel is hidden: `NOTES-HIDDEN`). `/demo/guitar-*`, `/demo/voice-*` and `/demo/voice-guitar-*` (beginner, intermediate, advanced) each open a hand-tuned seed plan from `src/features/library/seed/plans` (`demos.ts`, `DemoPlan.tsx`; the level each card shows is in `DEMO_PLANS`, its area and minutes in the plan's `answers`) from day 1, kept in memory only (a swapped-in `PlanStore`), so a pitch can link to a finished plan. Not indexed; canonical is `/plan`.
 
 ## Code map
 

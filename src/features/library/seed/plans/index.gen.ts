@@ -8,7 +8,9 @@ import f5_theory_only_first_week from "./theory-only-first-week.json";
 import f6_voice_advanced from "./voice-advanced.json";
 import f7_voice_beginner from "./voice-beginner.json";
 import f8_voice_guitar_advanced_first_week from "./voice-guitar-advanced-first-week.json";
-import f9_voice_intermediate from "./voice-intermediate.json";
+import f9_voice_guitar_beginner from "./voice-guitar-beginner.json";
+import f10_voice_guitar_intermediate from "./voice-guitar-intermediate.json";
+import f11_voice_intermediate from "./voice-intermediate.json";
 
 export const FILES: Record<string, unknown> = {
   "guitar-advanced": f0_guitar_advanced,
@@ -20,5 +22,7 @@ export const FILES: Record<string, unknown> = {
   "voice-advanced": f6_voice_advanced,
   "voice-beginner": f7_voice_beginner,
   "voice-guitar-advanced-first-week": f8_voice_guitar_advanced_first_week,
-  "voice-intermediate": f9_voice_intermediate,
+  "voice-guitar-beginner": f9_voice_guitar_beginner,
+  "voice-guitar-intermediate": f10_voice_guitar_intermediate,
+  "voice-intermediate": f11_voice_intermediate,
 };

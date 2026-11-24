@@ -5,7 +5,7 @@ import type { Level, PlanConfig } from "./model/types";
 import type { Area } from "./model/concepts";
 
 /**
- * The plans anyone can open without writing a prompt, at `/demo/<slug>`: six of the library's seed plans, so a link in a
+ * The plans anyone can open without writing a prompt, at `/demo/<slug>`: nine of the library's seed plans, so a link in a
  * pitch shows what the AI plan looks like when it is done. The slug is the link; `plan` is the seed plan's `id`. A seed
  * file records no level, so each demo names the one its card sorts and shows by.
  */
@@ -16,6 +16,9 @@ export const DEMO_PLANS: Record<string, { plan: string; label: string; level: Le
   "voice-intermediate": { plan: "voice-intermediate", label: "Voice for an intermediate singer", level: "intermediate" },
   "guitar-advanced": { plan: "guitar-advanced", label: "Guitar for an advanced player", level: "advanced" },
   "voice-advanced": { plan: "voice-advanced", label: "Voice for an advanced singer", level: "advanced" },
+  "voice-guitar-beginner": { plan: "voice-guitar-beginner", label: "Voice and guitar for a beginner", level: "beginner" },
+  "voice-guitar-intermediate": { plan: "voice-guitar-intermediate", label: "Voice and guitar for an intermediate player", level: "intermediate" },
+  "voice-guitar-advanced": { plan: "voice-guitar-advanced-first-week", label: "Voice and guitar for an advanced player", level: "advanced" },
 };
 
 const seedFile = (id: string) => SEED_PLANS.find((p) => p.id === id);
@@ -55,8 +58,8 @@ export function spreadOverWeek(config: PlanConfig): PlanConfig {
 export interface DemoCard {
   slug: string;
   label: string;
-  /** the plan's first area: the group the card sits in */
-  area: Area;
+  /** the group the card sits in: the plan's area, or "mixed" for a plan of guitar and voice */
+  area: Area | "mixed";
   level: Level;
   minutes: number;
   title: string;
@@ -76,7 +79,7 @@ export function demoCards(): DemoCard[] {
       return [{
         slug,
         label: demo.label,
-        area: file.answers.areas[0],
+        area: file.answers.areas.includes("guitar") && file.answers.areas.includes("voice") ? "mixed" as const : file.answers.areas[0],
         level: demo.level,
         minutes: file.answers.minutes,
         // "Week 1: one note makes the mode" → "One note makes the mode": every demo is a first week
