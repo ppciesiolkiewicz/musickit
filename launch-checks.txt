@@ -50,6 +50,27 @@ Beta5: Google sign-in: the consent screen's privacy policy link is https://www.a
 
 Beta6: /privacy and /terms read well at phone width. Not looked at yet.
 
+Beta7: Email sends in production. Every email goes through Resend (sendMail in
+  src/features/account/server/mail.ts; the contact route calls Resend itself). Four emails today: the log-in link
+  and code (/api/auth/email-link), a teacher's "made you an attunr account" (students/server/mail.ts), and two to us:
+  the contact form and a new in-app message (messages/server/mail.ts). Without RESEND_API_KEY production refuses to
+  send a log-in link, so nobody can log in by email.
+  To set up:
+  - Resend: add the attunr.app domain (Domains), put its SPF, DKIM and MX records in the DNS, wait for "Verified".
+    Until then mail sends only from onboarding@resend.dev, and only to the Resend account's own address.
+  - DNS: a DMARC record for attunr.app (start with p=none), so Gmail and Yahoo accept bulk mail.
+  - Vercel env (Production): RESEND_API_KEY. Optional: CONTACT_TO_EMAIL (default attunrapp@gmail.com),
+    CONTACT_FROM_EMAIL and AUTH_FROM_EMAIL (default "attunr <hello@attunr.app>"), NEXT_PUBLIC_SITE_URL for the links.
+  - hello@attunr.app receives mail: replies to a log-in email land there.
+  - Check on the deploy: log in by email from a Gmail and an Outlook address (inbox, not spam; link opens the deploy's
+    own address), send the contact form, send an in-app message, add a student with an email.
+  - Resend's free plan is 100 emails a day and 3,000 a month; log-in mail shares it. Look at the count after a week.
+
+Beta8: Practice reminder emails are not built (TaskSeries Reminders in tasks.txt). Today a reminder is a browser
+  notification only while an attunr tab is open. When Reminders2 ships: CRON_SECRET and REMINDER_SECRET set, the
+  outside scheduler calling /api/cron/reminders every 15 minutes, the unsubscribe link and one-click header working,
+  and the Resend plan big enough for a daily email per player.
+
 
 ======================== First news or offers email ========================
 Email1: Every news email has a working unsubscribe link and says who sent it (attunr, the ABN, hello@attunr.app).
