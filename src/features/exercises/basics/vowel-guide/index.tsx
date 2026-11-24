@@ -10,6 +10,7 @@ import { useCoverage } from "@/features/guide/useCoverage";
 import { voiceMapIn } from "@/features/theory/registers";
 import { VOICES } from "@/features/theory/singing";
 import { useAccuracy } from "@/features/theory/useAccuracy";
+import { AccuracyRow } from "@/features/settings";
 import { Button, Hint } from "@/components/ui";
 import { PlayerCard } from "../../play-along/PlayerParts";
 import { clampInt, stepHold } from "../voice-hill/hill";
@@ -233,7 +234,7 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
   return (
     <PlayerCard ref={keysRef}>
       <div data-tour="vowel-start">
-        <WarmUpBar {...actions} armed={armed} hostSettings={hostSettings} skip="the next vowel" what="Plays the note, then the mic listens while you hold it on the vowel shown.">
+        <WarmUpBar {...actions} armed={armed} hostSettings={hostSettings} settings={<AccuracyRow look="menu" />} skip="the next vowel" what="Plays the note, then the mic listens while you hold it on the vowel shown.">
           <span data-tour="vowel-mic" className="inline-flex">
             <Hint title="Audio input" description="The input the mic uses. Start switches it on: the dot turns from amber to green. Press it to pick another input or see its level.">
               <InputChip quiet status={micStatus} mic={{ on: micOn, onToggle: () => (running ? stop() : void start()) }} />
