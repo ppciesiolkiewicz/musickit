@@ -818,6 +818,14 @@ E2E1: [NEW 2026-11-19] Set up: @playwright/test, playwright.config.ts, e2e/ fold
   a scratch Postgres or a fixed Docker container; db:migrate and seed the library before the run, wipe player rows after.
 - Projects: desktop Chromium, phone (390 px Chromium, and WebKit iPhone for the Safari-only checks).
 - Out of `npm test`; runs on demand, later in CI (E2E6).
+[2026-11-24 done, basic] @playwright/test 1.62.1, playwright.config.ts, e2e/public-pages.spec.ts, `npm run e2e` and
+`npm run e2e:ui`. The test server is its own `next dev --webpack` on 127.0.0.1:3210 (E2E_PORT) with DATABASE_URL empty,
+so only public pages for now. Projects: desktop Chromium and phone (390 px Chromium); no WebKit yet. One spec: /, /players,
+/faq, /terms, /privacy, /demo, /login load, show an h1, log no console errors and don't scroll sideways (part of E2E5);
+14 pass. The first start often exits on Next's upgrade notice: run it again.
+Found: every page logs a hydration mismatch, `tabindex="-1"` on the server HTML only: NoControlFocus's effect untabs
+buttons before streamed parts hydrate. The spec skips that one message (any other mismatch fails); fix it in the app.
+Left: a test database and its seeding (E2E1), then E2E2 onward.
 E2E2: [NEW 2026-11-19] Signing in for tests. Auth is our own (src/app/api/auth: email-code, email-link, google). Pick
 one: a test-only sign-in route switched on only by an env var and refused in production (a test holds that), or read
 the email code from the test database / a mail stub instead of Resend. No mocking /api/auth/session: the point is the
