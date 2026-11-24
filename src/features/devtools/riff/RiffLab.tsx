@@ -5,6 +5,8 @@ import { FAMILIES, MODE_LIST, TONICS, degreeLabel, makeKeyContext } from "@/feat
 import { playSequence, silence } from "@/features/sound";
 import { createCloud, getModelLibrary, type CloudModel } from "@/features/nam";
 import { playerFor, setAmpModel, type RiffSound } from "./sound";
+import RiffTake from "./RiffTake";
+import { deleteTake } from "./takes";
 import { Note } from "@tonaljs/tonal";
 import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNear, inScale, midiOf, placeNear, placesOf, scaleStep, type RiffNote } from "./riff";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
@@ -18,6 +20,11 @@ const LENGTHS: { key: string; beats: number; label: string }[] = [
   { key: "h", beats: 2, label: "1/2" },
   { key: "w", beats: 4, label: "1" },
 ];
+
+/** A dotted length is one and a half times a plain one. */
+const isDotted = (beats: number) => LENGTHS.some((l) => l.beats * 1.5 === beats);
+/** Add a dot to a length, or take it off a dotted one. */
+const toggleDot = (beats: number) => (isDotted(beats) ? beats / 1.5 : beats * 1.5);
 
 interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number }
 interface Library { riffs: Saved[]; cur: string }
@@ -34,7 +41,8 @@ const load = (): Library => {
     const old = JSON.parse(localStorage.getItem(OLD_STORE) ?? "null");
     if (old?.notes) { const r = { ...blank("Riff 1"), ...old, id: newId(), name: "Riff 1" }; return { riffs: [r], cur: r.id }; }
   } catch { /* private window or bad JSON */ }
-  return EMPTY_LIB;
+  // a copy, so the first riff is saved with its id: its take is kept under it
+  return { ...EMPTY_LIB };
 };
 
 const scaleName = (r: Saved) => `${TONICS.find((t) => t.pc === r.tonic)?.name ?? "?"} ${MODE_LIST[r.mode]?.name ?? "?"}`;
@@ -60,7 +68,8 @@ const SHORTCUTS: [string, string][] = [
   ["⌥↑ ⌥↓", "same pitch on the next string up / down"],
   ["s e q h w", "length 1/16 · 1/8 · 1/4 · 1/2 · whole: the selected or current step, and new notes"],
   ["⇧ s e q h w", "length of the selected note only"],
-  [".", "dotted (×1.5)"],
+  [".", "add a dot (×1.5) or take it off: the selected or current step, and new notes"],
+  ["⇧ .", "dot the selected note only"],
   ["r", "add a rest"],
   ["d", "duplicate selected"],
   ["⌫", "delete selected"],
@@ -117,12 +126,12 @@ export default function RiffLab() {
   /** a step is being built, so the next note joins it until Space */
   const [open, setOpen] = useState(false);
   const history = useRef<RiffNote[][]>([]);
-  const loaded = useRef(false);
 
   // read the saved riff after hydration, so the server render and the first client render match
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setLib(load()); loaded.current = true; }, []);
-  useEffect(() => { if (loaded.current) try { localStorage.setItem(STORE, JSON.stringify(lib)); } catch { /* private window */ } }, [lib]);
+  useEffect(() => { setLib(load()); }, []);
+  // EMPTY_LIB is only what is drawn until the saved riffs are read: saving it would wipe them
+  useEffect(() => { if (lib !== EMPTY_LIB) try { localStorage.setItem(STORE, JSON.stringify(lib)); } catch { /* private window */ } }, [lib]);
 
   const mode = MODE_LIST[state.mode] ?? MODE_LIST[0];
   const ctx = useMemo(() => makeKeyContext(state.tonic, FAMILIES.indexOf(mode.family), mode.k), [state.tonic, mode]);
@@ -210,7 +219,7 @@ export default function RiffLab() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
-      if (t.closest("input, textarea, select")) return;
+      if (t.closest("input, textarea, select, video")) return;
       const k = e.key;
       if ((e.metaKey || e.ctrlKey) && k === "z") {
         const prev = history.current.pop();
@@ -238,8 +247,8 @@ export default function RiffLab() {
       } else if (LENGTHS.some((l) => l.key === k)) {
         const b = LENGTHS.find((l) => l.key === k)!.beats;
         if (sel !== null && e.shiftKey) lengthAt(sel, () => b); else chooseLength(() => b);
-      } else if (k === ".") {
-        chooseLength((l) => l * 1.5);
+      } else if (k === "." || k === ">") {
+        if (sel !== null && e.shiftKey) lengthAt(sel, toggleDot); else chooseLength(toggleDot);
       } else if (k === "r") { setNotes((ns) => [...ns, { string: null, fret: null, beats: len }]); setOpen(false); }
       else if (k === "[" || k === "]") setShapeIdx((i) => (i + (k === "]" ? 1 : SHAPES.length - 1)) % SHAPES.length);
       else if (k === "d" && sn) {
@@ -278,7 +287,7 @@ export default function RiffLab() {
   const json = riffJson(state);
   const pick = (id: string) => { history.current = []; setSel(null); setLib((l) => ({ ...l, cur: id })); };
   const add = () => { const r = { ...blank(`Riff ${lib.riffs.length + 1}`), tonic: state.tonic, mode: state.mode, bpm: state.bpm, pos: state.pos }; history.current = []; setSel(null); setLib((l) => ({ riffs: [...l.riffs, r], cur: r.id })); };
-  const remove = (id: string) => setLib((l) => { const riffs = l.riffs.filter((r) => r.id !== id); if (!riffs.length) return EMPTY_LIB; return { riffs, cur: l.cur === id ? riffs[0].id : l.cur }; });
+  const remove = (id: string) => { void deleteTake(id).catch(() => { /* the take stays in the browser, unused */ }); setLib((l) => { const riffs = l.riffs.filter((r) => r.id !== id); if (!riffs.length) return EMPTY_LIB; return { riffs, cur: l.cur === id ? riffs[0].id : l.cur }; }); };
   const copy = (what: string, text: string) => { navigator.clipboard.writeText(text).then(() => { setCopied(what); setTimeout(() => setCopied(""), 1200); }, () => setCopied("Copy failed")); };
 
   const sn = sel === null ? null : notes[sel];
@@ -327,8 +336,9 @@ export default function RiffLab() {
         </label>
         <div className="flex gap-1">
           {LENGTHS.map((l) => (
-            <button key={l.key} onClick={() => chooseLength(() => l.beats)} className={`rounded px-2 py-1 text-sm ${len === l.beats ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
+            <button key={l.key} onClick={() => chooseLength(() => l.beats)} className={`rounded px-2 py-1 text-sm ${len === l.beats || len === l.beats * 1.5 ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
           ))}
+          <button onClick={() => chooseLength(toggleDot)} title="Dotted: one and a half times the length (.)" aria-pressed={isDotted(len)} className={`rounded px-2 py-1 text-sm ${isDotted(len) ? "bg-sky-600 text-white" : "bg-slate-800"}`}>Dot</button>
         </div>
         <label className="flex flex-col text-xs text-slate-400">Shape
           <select className="rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={shapeIdx} onChange={(e) => setShapeIdx(Number(e.target.value))}>
@@ -459,10 +469,14 @@ export default function RiffLab() {
           <span className="ml-2 text-slate-500">length</span>
           {LENGTHS.map((l) => (
             <button key={l.key} onClick={() => lengthAt(sel!, () => l.beats)}
-              className={`rounded px-2 py-0.5 ${sn.beats === l.beats ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
+              className={`rounded px-2 py-0.5 ${sn.beats === l.beats || sn.beats === l.beats * 1.5 ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
           ))}
+          <button onClick={() => lengthAt(sel!, toggleDot)} title="Dotted: one and a half times the length (⇧ .)" aria-pressed={isDotted(sn.beats)} className={`rounded px-2 py-0.5 ${isDotted(sn.beats) ? "bg-sky-600 text-white" : "bg-slate-800"}`}>Dot</button>
         </div>
       )}
+
+      <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} pos={state.pos}
+        onNotes={(heard, replace) => { setNotes((ns) => (replace ? heard : [...ns, ...heard])); setSel(null); setOpen(false); }} />
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-2">

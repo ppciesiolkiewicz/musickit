@@ -300,3 +300,7 @@ returns one.
 - `progress/ProgressPage.tsx`: the progress outcome's inputs and outputs.
 - `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `spentRows`, `logRows`).
 - Routes: `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
+
+## Riff maker (`/dev/riff`)
+
+`riff/RiffTake.tsx`: the Take panel. It records the riff being played with the camera and the audio input, and keeps one take per riff in this browser (`riff/takes.ts`, IndexedDB, under the riff's id): saved when the recording stops, downloaded with **Save file**. **Transcribe** turns the take into riff notes (`riff/transcribe.ts`, pure and tested): the tuner's `detectPitch` names the note in each frame, the rhythm game's onset detector finds the picks, and the notes are snapped to a 1/16 grid at the riff's tempo and placed at its position. One note at a time: chords are skipped.
