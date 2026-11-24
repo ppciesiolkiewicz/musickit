@@ -37,6 +37,7 @@
             "tool": {
               "type": "vowel-guide",
               "level": "beginner",
+              "seconds": 2,
               "voice": "tenor"
             }
           }
@@ -60,7 +61,7 @@
                 "ee",
                 "oo"
               ],
-              "seconds": 5,
+              "seconds": 3,
               "voice": "tenor"
             }
           }
