@@ -1,5 +1,5 @@
 import type { Plan } from "../plans";
-import type { AuthRepo, InviteRow, PlanRequest, TokenRow, UserRow } from "./repo";
+import type { AuthRepo, InviteRow, PaymentRow, PlanRequest, TokenRow, UserRow } from "./repo";
 
 /** The repo in memory, for tests. Same rules as the Postgres one: one user per email, a token is taken once. */
 export function memoryRepo(plans: Plan[] = []) {
@@ -9,6 +9,7 @@ export function memoryRepo(plans: Plan[] = []) {
   const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
   const links: { teacherId: string; studentId: string; createdAt: Date; claimedAt: Date | null; plannedOn: string | null }[] = [];
   const planRequests: (PlanRequest & { userId: string })[] = [];
+  const payments: PaymentRow[] = [];
   const invites: { id: string; token: string | null; tokenHash: string; planId: string; note: string; createdAt: Date; claimedBy: string | null; claimedAt: Date | null }[] = [];
   let n = 0;
 
@@ -26,7 +27,7 @@ export function memoryRepo(plans: Plan[] = []) {
     },
     async createUser(input, now) {
       if (users.some((u) => u.email === input.email)) return null;
-      const user: UserRow = { id: `user-${++n}`, ...input, planId: null, billing: "year", emailUpdatesAt: null, termsAcceptedAt: null, termsVersion: null, createdAt: now };
+      const user: UserRow = { id: `user-${++n}`, ...input, planId: null, billing: "year", paymentExempt: false, stripeCustomerId: null, stripeSubscriptionId: null, subscriptionStatus: null, emailUpdatesAt: null, termsAcceptedAt: null, termsVersion: null, createdAt: now };
       users.push(user);
       return user;
     },
@@ -65,6 +66,31 @@ export function memoryRepo(plans: Plan[] = []) {
       user.billing = billing;
       user.role = role;
       return user;
+    },
+    async setStripeCustomer(id, customerId) {
+      const user = users.find((u) => u.id === id);
+      if (user) user.stripeCustomerId = customerId;
+    },
+    async userByStripeCustomer(customerId) {
+      return users.find((u) => u.stripeCustomerId === customerId) ?? null;
+    },
+    async setSubscription(id, subscriptionId, status, clearExempt) {
+      const user = users.find((u) => u.id === id);
+      if (!user) return null;
+      user.stripeSubscriptionId = subscriptionId;
+      user.subscriptionStatus = status;
+      if (clearExempt) user.paymentExempt = false;
+      return user;
+    },
+    async recordPayment(p) {
+      if (!payments.some((x) => x.id === p.id)) payments.push({ ...p });
+    },
+    async paymentsOf(userId) {
+      return payments.filter((x) => x.userId === userId).sort((a, b) => b.paidAt.getTime() - a.paidAt.getTime());
+    },
+    async clearPaymentExempt(id) {
+      const user = users.find((u) => u.id === id);
+      if (user) user.paymentExempt = false;
     },
     async requestPlan(userId, planId, now) {
       if (!planRequests.some((r) => r.userId === userId)) planRequests.push({ userId, planId, createdAt: now });
@@ -182,5 +208,5 @@ export function memoryRepo(plans: Plan[] = []) {
       for (let i = tokens.length - 1; i >= 0; i--) if (tokens[i].expiresAt <= now) tokens.splice(i, 1);
     },
   };
-  return { repo, users, identities, tokens, sessions, planRequests, links, invites };
+  return { repo, users, identities, tokens, sessions, planRequests, payments, links, invites };
 }

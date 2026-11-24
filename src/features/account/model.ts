@@ -20,6 +20,15 @@ export interface Account {
   createdAt: string;
   /** No plan chosen yet: a new account, held on /account/setup until it chooses one. */
   needsSetup: boolean;
+  /**
+   * Payments are on and their paid plan has no live subscription (`mustPay` in billing.ts). `needsSetup` is true too, so
+   * the same gate holds them on /account/setup, which sends them to Checkout. Accounts stored before this have no field.
+   */
+  needsPayment?: boolean;
+  /** Has a Stripe subscription they can manage (Manage billing on /account). */
+  subscribed?: boolean;
+  /** Keeps their plan with no payment (had one before payments came); may still pay from /account. */
+  paymentExempt?: boolean;
   /** Agreed to emails about what we fix and add, and offers (`email_updates_at`). */
   emailUpdates: boolean;
   /** On the `taught` plan: a student a teacher made an account for. Accounts stored before this have no field. */

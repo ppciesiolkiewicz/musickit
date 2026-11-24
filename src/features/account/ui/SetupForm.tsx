@@ -6,6 +6,7 @@ import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
 import { EmailUpdatesBox } from "./EmailUpdates";
+import { paidThroughCheckout } from "../billing";
 import { AudienceLead, AudienceSwitch, BillingSwitch, EarlyOffer, NoChargeLine, PlanOption, planGrid, planHue, startAudience, type Loaded } from "./PlanPicker";
 import { audienceOf, type Audience } from "./planPitch";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
@@ -81,6 +82,13 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
     if (!chosenPlan) return;
     setBusy(true);
     const r = await send("/api/account/setup", "POST", { name: shown, planId: chosenPlan.id, billing: shownBilling, emailUpdates: shownEmails, acceptTerms: terms });
+    // payments on and a paid plan with no subscription: on to Stripe's Checkout, which comes back to `next`
+    if (r.ok && (r.body.account as { needsPayment?: boolean } | undefined)?.needsPayment) {
+      const paid = await send("/api/account/checkout", "POST", { next });
+      if (paid.ok && typeof paid.body.url === "string") return window.location.assign(paid.body.url);
+      setBusy(false);
+      return setError(errorOf(paid));
+    }
     if (r.ok) return window.location.assign(next);
     setBusy(false);
     if (r.body.field === "name") {
@@ -153,7 +161,7 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
             <>
               <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setPlanError(null); setError(null); }} />
               <EarlyOffer audience={shownAudience} open={early} />
-              <NoChargeLine />
+              {!plans?.payments && <NoChargeLine />}
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <AudienceLead audience={shownAudience} />
                 <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} early={early} onChange={(b) => { setBilling(b); setError(null); }} /></div>
@@ -212,7 +220,7 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
         </div>
 
         <ErrorLine>{error}</ErrorLine>
-        <button type="submit" disabled={busy || !plans} className={`${PRIMARY} sm:w-auto sm:self-end sm:px-12`}>{busy ? "Saving…" : "Continue"}</button>
+        <button type="submit" disabled={busy || !plans} className={`${PRIMARY} sm:w-auto sm:self-end sm:px-12`}>{busy ? "Saving…" : plans?.payments && chosenPlan && paidThroughCheckout(chosenPlan, shownBilling) ? "Continue to payment" : "Continue"}</button>
       </form>
     </Card>
   );

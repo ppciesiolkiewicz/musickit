@@ -5,11 +5,12 @@ import { DiscountBadge, HUE_TONES, type Hue } from "@/components/ui";
 import { can, type Account } from "../model";
 import { ACTIVE_STUDENTS_LINE, bestSavingLabel, priceCents, pricedWithYou, roleOnPlan, savingLabel, studentsLabel, trialLabel, dollars, type Billing, type Plan } from "../plans";
 import { EARLY_OFFER, earlyApplies, earlyCents, type EarlyOpen } from "../pricing";
+import { paidThroughCheckout } from "../billing";
 import { ErrorLine, PRIMARY, errorOf, send } from "./parts";
 import { AUDIENCES, AUDIENCE_LEAD, audienceOf, pitchOf, type Audience } from "./planPitch";
 
 /** `GET /api/account/plan` (`AccountPlans` in server/auth.ts, which a client file can't import). */
-export type Loaded = { plans: Plan[]; current: string | null; billing: Billing; request: { planId: string; at: string } | null; early: EarlyOpen };
+export type Loaded = { plans: Plan[]; current: string | null; billing: Billing; request: { planId: string; at: string } | null; early: EarlyOpen; /** payments are on (`STRIPE_ENABLED`) */ payments?: boolean };
 
 /** Over the plans here and on /account/setup: the open beta charges nothing, while what people choose shows us who would pay for what. */
 export const BETA_PLAN_LINE = "It's free while we're in open beta, so picking a plan won't ask you to pay.";
@@ -227,8 +228,25 @@ export default function PlanPicker({ account, start }: { account: Account; /** t
     ? { name: currentPlan.name, on: new Date(loaded.request.at).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" }) }
     : null;
 
+  const payments = !!loaded?.payments;
+  const subscribed = !!account.subscribed;
+  // payments on, not paying yet, and a paid plan picked: Checkout instead of a free move
+  const pays = payments && !subscribed && !!chosen && paidThroughCheckout(chosen, shownBilling);
+  // an account kept free from before payments may pay for the plan it has too
+  const offerPay = pays && (changes || !!account.paymentExempt);
+
+  const toStripe = async (url: string, data: unknown) => {
+    setBusy(true);
+    setError(null);
+    const r = await send(url, "POST", data);
+    if (r.ok && typeof r.body.url === "string") return window.location.assign(r.body.url);
+    setBusy(false);
+    setError(errorOf(r));
+  };
+
   const move = async () => {
     if (!chosen) return;
+    if (pays) return toStripe("/api/account/checkout", { planId: chosen.id, billing: shownBilling, next: "/account" });
     setBusy(true);
     setError(null);
     const r = await send("/api/account/plan", "POST", { planId: chosen.id, billing: shownBilling });
@@ -241,14 +259,16 @@ export default function PlanPicker({ account, start }: { account: Account; /** t
     <section aria-labelledby="plan-heading" className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
         <h2 id="plan-heading" className="text-sm font-semibold text-slate-200">Plan</h2>
-        <p className="text-xs text-slate-500">{BETA_PLAN_LINE}</p>
+        {!payments && <p className="text-xs text-slate-500">{BETA_PLAN_LINE}</p>}
+        {payments && subscribed && <p className="text-xs text-slate-400">You pay for your plan through Stripe. Press Manage billing to change your plan or card, or to cancel.</p>}
+        {payments && !subscribed && account.paymentExempt && <p className="text-xs text-slate-400">Your plan stays free, since you joined before payments started. You can still pay for it, or for another plan.</p>}
       </div>
       {!loaded && !error && <p className="text-sm text-slate-500">Loading plans…</p>}
       {loaded && (
         <>
           <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setError(null); }} />
           <EarlyOffer audience={shownAudience} open={early} />
-          <NoChargeLine />
+          {!payments && <NoChargeLine />}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <AudienceLead audience={shownAudience} />
             <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} early={early} onChange={(b) => { setBilling(b); setError(null); }} /></div>
@@ -269,12 +289,17 @@ export default function PlanPicker({ account, start }: { account: Account; /** t
             ))}
           </div>
           {request && <p role="status" className="text-xs text-slate-400">You chose {request.name} on {request.on}. We&apos;ll email you at {account.email} to agree on a price.</p>}
-          {changes && chosen && (
+          {subscribed && (
+            <button type="button" disabled={busy} className={`${PRIMARY} sm:w-auto sm:self-start sm:px-8`} onClick={() => void toStripe("/api/account/portal", {})}>
+              {busy ? "Opening…" : "Manage billing"}
+            </button>
+          )}
+          {!subscribed && (changes || offerPay) && chosen && (
             <div className="flex flex-col gap-2">
               {losesSharing && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">On {chosen.name} you won&apos;t be able to share plans with your students. {KEEP}</p>}
               {fewerStudents && <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-amber-100">{chosen.name} takes up to {chosen.students} students. {KEEP}</p>}
               <button type="button" disabled={busy} className={`${PRIMARY} sm:w-auto sm:self-start sm:px-8`} onClick={() => void move()}>
-                {busy ? "Saving…" : samePlan ? `Pay ${shownBilling === "month" ? "monthly" : "yearly"}` : `Move to ${chosen.name}`}
+                {busy ? "Saving…" : pays ? `Pay for ${chosen.name}` : samePlan ? `Pay ${shownBilling === "month" ? "monthly" : "yearly"}` : `Move to ${chosen.name}`}
               </button>
             </div>
           )}

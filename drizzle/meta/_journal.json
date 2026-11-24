@@ -281,6 +281,20 @@
       "when": 1795519740572,
       "tag": "0039_block_revision",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1795521825080,
+      "tag": "0040_stripe_payments",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1795522338404,
+      "tag": "0041_payments",
+      "breakpoints": true
     }
   ]
 }

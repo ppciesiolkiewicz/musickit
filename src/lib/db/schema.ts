@@ -100,6 +100,17 @@ export const users = pgTable("users", {
   /** Whether they pay for the plan monthly or yearly. */
   billing: planPeriod("billing").notNull().default("year"),
   /**
+   * Keeps their plan with no payment when payments are on (`STRIPE_ENABLED`): every account that had a plan before
+   * payments came (migration 0040). Cleared when they move to another paid plan or start paying.
+   */
+  paymentExempt: boolean("payment_exempt").notNull().default(false),
+  /** Their Stripe customer, made at their first Checkout; null before. */
+  stripeCustomerId: text("stripe_customer_id").unique(),
+  /** Their Stripe subscription, the latest one; null before they first paid. */
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  /** The subscription's Stripe status ("trialing", "active", "past_due", "canceled", …), kept in step by the webhook. */
+  subscriptionStatus: text("subscription_status"),
+  /**
    * When they agreed to emails about what we fix and add (on /account/setup or /account); null when they haven't, or
    * turned it off. Kept as a time, as the record of when they said yes.
    */
@@ -497,4 +508,36 @@ export const userVoices = pgTable(
   (t) => [
     check("user_voices_type_or_range", sql`(${t.type} is not null and ${t.low} is null and ${t.high} is null) or (${t.type} is null and ${t.low} is not null and ${t.high} is not null and ${t.low} < ${t.high})`),
   ],
+);
+
+/**
+ * One paid Stripe invoice: a completed order. Written by the Stripe webhook (`invoice.paid`), one row per invoice, so
+ * a repeated event changes nothing. The trial's first invoice is paid at $0 and is kept too: it marks the start.
+ * The plan and billing are the account's at the time (from the invoice's price), kept so a later plan change or a
+ * deleted plan row doesn't rewrite what was bought.
+ */
+export const payments = pgTable(
+  "payments",
+  {
+    /** Stripe's invoice id ("in_…"). */
+    id: text("id").primaryKey(),
+    /** Null once the account is deleted: the record of the money stays. */
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    stripeCustomerId: text("stripe_customer_id").notNull(),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    /** The plan and billing paid for (not a foreign key: kept when the plan row goes). */
+    planId: text("plan_id"),
+    billing: planPeriod("billing"),
+    /** Paid, in the currency's smallest unit (US cents), after discounts. */
+    amountCents: integer("amount_cents").notNull(),
+    currency: text("currency").notNull(),
+    /** Stripe's reason: "subscription_create", "subscription_cycle", "subscription_update", … */
+    reason: text("reason"),
+    /** The invoice number people see on the receipt, and Stripe's page for it. */
+    number: text("number"),
+    invoiceUrl: text("invoice_url"),
+    paidAt: at("paid_at").notNull(),
+    createdAt: at("created_at").notNull().defaultNow(),
+  },
+  (t) => [index("payments_user").on(t.userId)],
 );

@@ -48,6 +48,18 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   needs a library of many pre-written Fable plans. `0017_lower_prices_reuse_first` about halves every price but Unlimited's and sets every
   plan to 1 (nearly all reuse, the lowest the check allows): the AI then costs a few cents to about $5 a player a year,
   and the payment fee is most of the cost (`0018_higher_prices_half_off_yearly` raises the prices and leaves reuse at 1). All of this is history: plans are now put together from the library by our own code, the app doesn't call an AI from the server, and /terms says so.
+- Payments (`billing.ts`, `server/stripe.ts`, `server/paymentsEnabled.ts`), off unless `STRIPE_ENABLED=true` (2026-11-24).
+  On: an account on a paid plan (`paidThroughCheckout`: not taught, a demo, or priced with you) must have a live
+  Stripe subscription (trialing, active, past_due), else `Account.needsPayment` and `needsSetup` hold it on
+  `/account/setup`, whose Continue (Continue to payment) saves and opens Checkout (`POST /api/account/checkout`):
+  card up front, the plan's trial once per account, `STRIPE_EARLY_COUPON` while the side's early places are open.
+  Stripe returns to `GET /api/account/checkout/done`, which records the subscription at once; `POST /api/stripe/webhook`
+  keeps status, plan and billing in step (a price's metadata names its plan; prices are made from the plan rows on first
+  use, keyed by plan, billing and amount). Every account with a plan before migration `0040_stripe_payments` is
+  `payment_exempt`: it keeps that plan free, and `/account` offers it Pay for … on any paid plan; moving to another
+  paid plan without paying, or starting to pay, ends the exemption. A subscriber changes plan, card or cancels in
+  Stripe's billing portal (Manage billing, `POST /api/account/portal`); `choosePlan` refuses them a paid plan.
+  Each paid invoice is kept as an order in `payments` (webhook `invoice.paid`, `recordInvoice`): amount, currency, the plan and billing its price named, Stripe's reason, invoice number and link, when paid; one row per invoice, the trial's $0 first invoice included, kept when the account is deleted (`user_id` set null). Off, nothing here runs and the account has no payment fields. `earlyTaken()` still counts by hand, not from Stripe.
 - `ui/SetupForm.tsx` (`/account/setup`): where an account with no plan (`Account.needsSetup`) stays. Its name (empty
   while it is only the email's stand-in, `emailName`; Google's filled in) and a plan from the same list, none chosen for
   them, paid Monthly or Yearly (the switch beside the Plan heading), saved together by `POST /api/account/setup` with

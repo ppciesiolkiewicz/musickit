@@ -69,6 +69,7 @@
     "posthog-js": "^1.440.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "stripe": "^23.2.0",
     "tone": "^15.1.22"
   },
   "devDependencies": {

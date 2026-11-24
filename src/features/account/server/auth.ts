@@ -1,5 +1,7 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { earlyOpen, type EarlyOpen } from "../pricing";
+import { isLive, mustPay, paidThroughCheckout } from "../billing";
+import { paymentsEnabled } from "./paymentsEnabled";
 import { earlyTaken } from "./earlyTaken";
 import { isJoinPath, setupHref } from "../loginGuard";
 import { NEW_ACCOUNT_ROLE, cleanEmail, cleanName, emailName, isEmail, type Account } from "../model";
@@ -50,7 +52,16 @@ export const hashCode = (email: string, code: string): string => hashToken(`${em
 
 export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Date(), token: newToken, code: newCode });
 
-export const toAccount = (u: UserRow): Account => ({ id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString(), needsSetup: u.planId === null, emailUpdates: u.emailUpdatesAt !== null, taught: u.planId === TAUGHT_PLAN_ID });
+export const toAccount = (u: UserRow, paymentsOn = paymentsEnabled()): Account => {
+  const needsPayment = mustPay(u, paymentsOn);
+  return {
+    id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString(),
+    needsSetup: u.planId === null || needsPayment,
+    // only with payments on: off, the account is as it was before payments
+    ...(paymentsOn ? { needsPayment, subscribed: u.stripeSubscriptionId !== null && isLive(u.subscriptionStatus), paymentExempt: u.paymentExempt } : {}),
+    emailUpdates: u.emailUpdatesAt !== null, taught: u.planId === TAUGHT_PLAN_ID,
+  };
+};
 
 /** Where to go after signing in when no page was asked for. */
 export const AFTER_LOGIN = "/plan";
@@ -251,6 +262,7 @@ export async function accountPlans(deps: AuthDeps, userId: string): Promise<Acco
     billing: user.billing,
     request: request ? { planId: request.planId, at: request.createdAt.toISOString() } : null,
     early: earlyOpen(await earlyTaken()),
+    payments: paymentsEnabled(),
   };
 }
 
@@ -262,6 +274,8 @@ export interface AccountPlans {
   request: { planId: string; at: string } | null;
   /** Whether each side's plans still show the early price (`earlyOpen`). */
   early: EarlyOpen;
+  /** Payments are on (`STRIPE_ENABLED`): a paid plan goes through Stripe's Checkout. */
+  payments: boolean;
 }
 
 /** On the plan now, and when it is one priced with the person, the request we write to them about. */
@@ -275,11 +289,19 @@ async function movePlan(deps: AuthDeps, userId: string, plan: Plan, billing: Bil
  * Moves the person to an enabled plan, paid monthly or yearly, with no payment (the beta). The plan's role comes with
  * it, so a Teacher plan makes a student a teacher; an owner stays an owner. Their own plan can move to the other
  * billing. Null when the plan can't be chosen: unknown, turned off, the one they are on paid the same way, or no billing.
+ * With payments on, null for a subscriber moving to a paid plan (they do it in Stripe's billing portal), and an
+ * exempt account moving to another paid plan stops being exempt, so the gate sends it to Checkout.
  */
-export async function choosePlan(deps: AuthDeps, account: Account, planId: unknown, billing: unknown): Promise<Account | null> {
+export async function choosePlan(deps: AuthDeps, account: Account, planId: unknown, billing: unknown, paymentsOn = paymentsEnabled()): Promise<Account | null> {
   const user = await deps.repo.userById(account.id);
   const plan = user && canChoose(await deps.repo.listPlans(), user, planId, billing);
   if (!plan) return null;
+  if (paymentsOn && paidThroughCheckout(plan, billing as Billing)) {
+    // a subscriber changes a paid plan in Stripe's billing portal, so the price follows
+    if (isLive(user.subscriptionStatus)) return null;
+    // an exempt account kept the plan it had; another paid plan is paid for
+    if (user.paymentExempt && plan.id !== user.planId) await deps.repo.clearPaymentExempt(user.id, deps.now());
+  }
   const moved = await movePlan(deps, account.id, plan, billing as Billing, roleAfter(user, plan));
   return moved ? toAccount(moved) : null;
 }

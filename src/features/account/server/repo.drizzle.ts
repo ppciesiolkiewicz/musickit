@@ -1,10 +1,10 @@
 import { and, count, desc, eq, getTableColumns, gt, gte, isNotNull, isNull, lt, lte, max, sql } from "drizzle-orm";
 import type { Db } from "@/lib/db/client";
-import { authTokens, identities, planRequests, plans, sessions, teacherInvites, teacherStudents, users } from "@/lib/db/schema";
+import { authTokens, identities, payments, planRequests, plans, sessions, teacherInvites, teacherStudents, users } from "@/lib/db/schema";
 import type { Plan } from "../plans";
 import type { AuthRepo, InviteRow, TokenRow } from "./repo";
 
-const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, planId: users.planId, billing: users.billing, emailUpdatesAt: users.emailUpdatesAt, termsAcceptedAt: users.termsAcceptedAt, termsVersion: users.termsVersion, createdAt: users.createdAt };
+const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, planId: users.planId, billing: users.billing, paymentExempt: users.paymentExempt, stripeCustomerId: users.stripeCustomerId, stripeSubscriptionId: users.stripeSubscriptionId, subscriptionStatus: users.subscriptionStatus, emailUpdatesAt: users.emailUpdatesAt, termsAcceptedAt: users.termsAcceptedAt, termsVersion: users.termsVersion, createdAt: users.createdAt };
 
 const tokenCols = {
   kind: authTokens.kind,
@@ -94,6 +94,28 @@ export function drizzleRepo(db: Db): AuthRepo {
     async setUserPlan(id, planId, billing, role, now) {
       const [row] = await db.update(users).set({ planId, billing, role, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
       return row ?? null;
+    },
+    async setStripeCustomer(id, customerId, now) {
+      await db.update(users).set({ stripeCustomerId: customerId, updatedAt: now }).where(eq(users.id, id));
+    },
+    async userByStripeCustomer(customerId) {
+      const [row] = await db.select(userCols).from(users).where(eq(users.stripeCustomerId, customerId)).limit(1);
+      return row ?? null;
+    },
+    async setSubscription(id, subscriptionId, status, clearExempt, now) {
+      const set = { stripeSubscriptionId: subscriptionId, subscriptionStatus: status, updatedAt: now, ...(clearExempt ? { paymentExempt: false } : {}) };
+      const [row] = await db.update(users).set(set).where(eq(users.id, id)).returning(userCols);
+      return row ?? null;
+    },
+    async recordPayment(p, now) {
+      await db.insert(payments).values({ ...p, createdAt: now }).onConflictDoNothing({ target: payments.id });
+    },
+    async paymentsOf(userId) {
+      const rows = await db.select().from(payments).where(eq(payments.userId, userId)).orderBy(desc(payments.paidAt));
+      return rows.map(({ createdAt, ...p }) => (void createdAt, p));
+    },
+    async clearPaymentExempt(id, now) {
+      await db.update(users).set({ paymentExempt: false, updatedAt: now }).where(eq(users.id, id));
     },
     async requestPlan(userId, planId, now) {
       await db.insert(planRequests).values({ userId, planId, createdAt: now }).onConflictDoNothing({ target: planRequests.userId });

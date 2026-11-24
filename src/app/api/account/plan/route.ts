@@ -24,6 +24,7 @@ export async function POST(req: Request) {
   if (me instanceof Response) return me;
   const body = await readJson(req);
   const account = await choosePlan(deps, me.account, body?.planId, body?.billing);
+  if (!account && me.account.subscribed) return json({ error: "You pay for your plan through Stripe. Change it in Manage billing." }, 409, me.cookies);
   if (!account) return json({ error: "That plan can't be chosen. Reload the page to see the plans you can choose." }, 400, me.cookies);
   return json({ ok: true, account }, 200, me.cookies);
 }

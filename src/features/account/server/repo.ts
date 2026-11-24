@@ -11,12 +11,34 @@ export interface UserRow {
   planId: string | null;
   /** How they pay for the plan: monthly or yearly. */
   billing: Billing;
+  /** Keeps a paid plan with no payment (`billing.ts`): had a plan before payments came. */
+  paymentExempt: boolean;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  /** The Stripe subscription's status; null before they first paid. */
+  subscriptionStatus: string | null;
   /** When they agreed to emails about what we fix and add, and offers; null when they haven't. */
   emailUpdatesAt: Date | null;
   /** When they agreed to the terms of use, and which (`TERMS_UPDATED`); null until they have. */
   termsAcceptedAt: Date | null;
   termsVersion: string | null;
   createdAt: Date;
+}
+
+/** A paid Stripe invoice: a completed order (`payments`). */
+export interface PaymentRow {
+  id: string;
+  userId: string | null;
+  stripeCustomerId: string;
+  stripeSubscriptionId: string | null;
+  planId: string | null;
+  billing: Billing | null;
+  amountCents: number;
+  currency: string;
+  reason: string | null;
+  number: string | null;
+  invoiceUrl: string | null;
+  paidAt: Date;
 }
 
 /** A plan priced with the person, asked for (`plan_requests`). */
@@ -81,6 +103,18 @@ export interface AuthRepo {
   listPlans(): Promise<Plan[]>;
   /** Moves the user to the plan, paid by `billing`, with the role it gives, in one step. */
   setUserPlan(userId: string, planId: string, billing: Billing, role: Role, now: Date): Promise<UserRow | null>;
+  /** Keeps the user's Stripe customer, made at their first Checkout. */
+  setStripeCustomer(userId: string, customerId: string, now: Date): Promise<void>;
+  /** The user whose Stripe customer this is. */
+  userByStripeCustomer(customerId: string): Promise<UserRow | null>;
+  /** Records the user's subscription and its status (from Stripe); a live one clears `paymentExempt`. */
+  setSubscription(userId: string, subscriptionId: string, status: string, clearExempt: boolean, now: Date): Promise<UserRow | null>;
+  /** Keeps a paid invoice; the same invoice again changes nothing. */
+  recordPayment(payment: PaymentRow, now: Date): Promise<void>;
+  /** The user's paid invoices, newest first. */
+  paymentsOf(userId: string): Promise<PaymentRow[]>;
+  /** Clears `paymentExempt`: the user moved to another paid plan. */
+  clearPaymentExempt(userId: string, now: Date): Promise<void>;
   /**
    * Records that the user chose a plan priced with them (`pricedWithYou`), so we write to them. The first request stays:
    * choosing it again keeps its date.
