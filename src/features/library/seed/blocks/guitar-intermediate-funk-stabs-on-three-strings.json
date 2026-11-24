@@ -1,0 +1,303 @@
+{
+  "id": "guitar-intermediate-funk-stabs-on-three-strings",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A funk riff hung off triads:3: Am and D triads on strings 3 2 1 as sixteenth stabs with rests, a Dorian vamp. missing: muted strokes in a riff, so the gaps are rests.",
+  "genre": "funk",
+  "exercise": {
+    "title": "Funk stabs on three strings",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "triads"
+    ],
+    "why": "The strumming hand moves down and up four times to a beat and only some of those moves touch the strings, so the same steady hand plays the stabs and the gaps.",
+    "learnBefore": [
+      "/course/5/triads",
+      "/course/11/comping"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the stabs with the metronome, and follow the tab under it. A stab is a chord that sounds for a moment and stops. Here the chords are small ones on the top three strings: A minor for a bar, then D for a bar.\nPlay along from the tab. Keep your strumming hand moving down and up through the whole bar, and lift the fretting fingers a little to stop each chord.\nIf the rhythm slips, play only the first two stabs of the bar until they sit with the metronome."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Dorian",
+            "notes": [
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.25
+                  }
+                ],
+                "beats": 0.25
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.25
+                  }
+                ],
+                "beats": 0.25
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.25
+                  }
+                ],
+                "beats": 0.25
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 2,
+                    "fret": 7,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.25
+                  }
+                ],
+                "beats": 0.25
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 2,
+                    "fret": 7,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.25
+                  }
+                ],
+                "beats": 0.25
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.25
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 2,
+                    "fret": 7,
+                    "beats": 0.25
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.25
+                  }
+                ],
+                "beats": 0.25
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              }
+            ]
+          },
+          "bpm": 60,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "triads:3"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 60,
+          "to": 90,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

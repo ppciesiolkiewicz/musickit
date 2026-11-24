@@ -1,0 +1,140 @@
+{
+  "id": "guitar-beginner-rock-riff-from-three-small-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A rock riff hung off triads:1: D, A and G as triads on strings 3 2 1, picked across and back. missing: chord names over a riff, so D, A and G are named in the text.",
+  "genre": "rock",
+  "exercise": {
+    "title": "A riff from three small chords",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "triads"
+    ],
+    "why": "Each chord is three notes on three strings, picked one at a time, so the fretting hand holds a whole shape while the pick walks across it and back.",
+    "learnBefore": [
+      "/course/5/triads"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the riff with the metronome, and follow the tab under it. The riff, a short phrase that repeats, is two bars on the top three strings. It is made of three small chords, D, A and G, each held down and picked one note at a time.\nPlay along from the tab, two notes to a beat. Put all the fingers of a chord down together, before its first note.\nIf a change comes late, play the first bar by itself until both shapes land in time."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "d",
+            "scale": "Ionian",
+            "notes": [
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 6,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 4,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 4,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 3,
+                "beats": 1
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "triads:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

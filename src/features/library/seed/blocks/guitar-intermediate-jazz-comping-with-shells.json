@@ -1,0 +1,240 @@
+{
+  "id": "guitar-intermediate-jazz-comping-with-shells",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A jazz riff hung off shells:2: shell voicings of Dm7, G7 and Cmaj7 in the Charleston rhythm, four bars. Shows comping as a riff: three-note grips, a dotted note and written rests.",
+  "genre": "jazz",
+  "exercise": {
+    "title": "Comping a ii–V–I with three-note chords",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "shells"
+    ],
+    "why": "Each chord is only its root, 3rd and 7th, and from one chord to the next two of the three fingers move a fret or stay, so the changes are small enough to play in a set rhythm.",
+    "learnBefore": [
+      "/course/11/shells",
+      "/course/11/comping",
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the chords with the metronome, and follow the tab under it. There are three chords, each of three notes: Dm7 for a bar, G7 for a bar, then Cmaj7 for two bars. Every bar has the same rhythm: a long chord on beat 1, a short one just after beat 2, then silence.\nPlay along from the tab, and lift the fretting fingers a little to stop the short chord.\nIf a change comes late, play only the chord on beat 1 of each bar, then add the short one."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "c",
+            "scale": "Ionian",
+            "notes": [
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 5,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 3,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 1.5
+                  }
+                ],
+                "beats": 1.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 3,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 2
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 3,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 3,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 4,
+                    "beats": 1.5
+                  }
+                ],
+                "beats": 1.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 3,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 3,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 4,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 2
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 3,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 2,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 4,
+                    "beats": 1.5
+                  }
+                ],
+                "beats": 1.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 3,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 2,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 4,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 2
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 3,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 2,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 4,
+                    "beats": 1.5
+                  }
+                ],
+                "beats": 1.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 3,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 2,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 4,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 2
+              }
+            ]
+          },
+          "bpm": 80,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "shells:2"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "id": "guitar-beginner-funk-line-with-gaps",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A funk riff hung off pentatonic-positions:1: eighths with rests on the two lowest strings of A minor pentatonic. The easy partner of the sixteenth line: the same idea, half as fast.",
+  "genre": "funk",
+  "exercise": {
+    "title": "A funk line with gaps",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "Some gaps fall on a beat and some between two beats, so the line only sits right when the hand keeps moving in time through the silence.",
+    "learnBefore": [
+      "/course/5/pentatonic"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the line with the metronome, and follow the tab under it. The line is two bars on the two lowest strings, two notes to a beat, with gaps where nothing is played.\nPlay along from the tab. Keep your picking hand moving down and up through the gaps, and let it pass over the string without touching it.\nIf a note comes early after a gap, tap your foot with the metronome and play the line again."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 8,
+                "beats": 0.5
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "pentatonic-positions:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

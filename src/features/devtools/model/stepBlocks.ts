@@ -27,6 +27,8 @@ export interface StepBlock {
   how: "named" | "read" | "level";
   /** the exercise exactly as it is written, for ExamplePreview */
   json: string;
+  /** set on a genre's block (a riff): a dead end hung off the step, not a block that teaches it, so it fills no gap and is not in the step's count */
+  genre?: Genre;
 }
 
 /** The steps an exercise practises by its tools ("read"), or else every step of its track at its level ("level"). */
@@ -63,7 +65,7 @@ export function blocksByStep(entries: CatalogueEntry[] = catalogue()): Map<strin
       const { block } = parseExercise(raw, f.id, entries);
       // one choice is the file; more are told apart by their choice ids
       const id = f.choices.length > 1 ? String(raw.choiceId) : f.id;
-      const b = { id, title: block?.title ?? f.id, source: "seed block" as const, json: JSON.stringify(raw) };
+      const b = { id, title: block?.title ?? f.id, source: "seed block" as const, json: JSON.stringify(raw), ...(f.genre ? { genre: f.genre } : {}) };
       // a warm-up practises no step (DayShape2): it is under none, whatever its tools or level say
       if (block && block.kind !== "warm-up") each(block, block.level, b);
     }
@@ -88,6 +90,9 @@ export function genreMarks(): Record<string, GenreMark[]> {
   return by;
 }
 
-/** How many blocks practise each step, for the badges on /dev/path. */
+/** The blocks that teach a step: its list without the genre blocks hung off it. */
+export const teaching = (list: StepBlock[] = []): StepBlock[] => list.filter((b) => !b.genre);
+
+/** How many blocks practise each step, for the badges on /dev/path. A genre's block is not counted: the slope draws it as a dead end. */
 export const blockCounts = (by: Map<string, StepBlock[]> = blocksByStep()): Record<string, number> =>
-  Object.fromEntries([...by].map(([ref, list]) => [ref, list.length]));
+  Object.fromEntries([...by].map(([ref, list]) => [ref, teaching(list).length]));

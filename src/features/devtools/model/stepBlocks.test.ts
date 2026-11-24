@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { SEED_BLOCKS } from "@/features/library/seed";
 import { PATH, stepAt } from "@/features/plan/model/path";
-import { blockCounts, blocksByStep } from "./stepBlocks";
+import { blockCounts, blocksByStep, teaching } from "./stepBlocks";
 import { blockHref } from "./stepHref";
 
 const by = blocksByStep();
@@ -25,15 +25,16 @@ const KNOWN_GAPS = ["seventh-shapes:4", "sus-add9:4", "notes-on-neck:3", "notes-
   // reading the staff (2026-11-22): the first blocks are for the lines, the spaces and the ledger lines
   "reading-staff:3", "reading-staff:5", "reading-staff:6"];
 
+// a genre's block (a riff hung off the step) teaches no step, so it fills no gap
 test("every step on the path has at least one block, but the known gaps", () => {
-  const empty = PATH.flatMap((t) => t.steps.map((_, i) => `${t.id}:${i + 1}`)).filter((ref) => !by.get(ref)?.length);
+  const empty = PATH.flatMap((t) => t.steps.map((_, i) => `${t.id}:${i + 1}`)).filter((ref) => !teaching(by.get(ref)).length);
   assert.deepEqual(empty, KNOWN_GAPS);
 });
 
 test("a block is listed once per step, and the counts match the lists", () => {
   for (const [ref, list] of by) assert.equal(new Set(list.map((b) => b.id)).size, list.length, ref);
   const counts = blockCounts(by);
-  for (const [ref, list] of by) assert.equal(counts[ref], list.length);
+  for (const [ref, list] of by) assert.equal(counts[ref], teaching(list).length);
 });
 
 test("blockHref escapes the ref", () => {

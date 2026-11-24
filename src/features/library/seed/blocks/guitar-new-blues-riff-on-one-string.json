@@ -1,0 +1,110 @@
+{
+  "id": "guitar-new-blues-riff-on-one-string",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A blues riff hung off guitar-melodies:1: three notes of E minor pentatonic on the low E string, quarters with one pair of eighths. The first riff a new player can get: one string, one hand moving.",
+  "genre": "blues",
+  "exercise": {
+    "title": "A blues riff on one string",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "The riff uses the open low E string and two fretted notes on it, so the picking hand stays on one string and all the work is finding the frets in time.",
+    "learnBefore": [
+      "/course/4/melodies"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the riff with the metronome, and follow the tab under it. The riff, a short phrase that repeats, is two bars on the low E string alone. It starts and ends on the open string.\nPlay along from the tab with down strokes, one note per beat. In the second bar two notes come twice as fast.\nIf the two fast notes come late, play the second bar by itself until they sit inside one beat."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "e",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 1
+              },
+              {
+                "string": 6,
+                "fret": 3,
+                "beats": 1
+              },
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 1
+              },
+              {
+                "string": 6,
+                "fret": 3,
+                "beats": 1
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 1
+              },
+              {
+                "string": 6,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 3,
+                "beats": 1
+              },
+              {
+                "string": 6,
+                "fret": 0,
+                "beats": 1
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "guitar-melodies:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

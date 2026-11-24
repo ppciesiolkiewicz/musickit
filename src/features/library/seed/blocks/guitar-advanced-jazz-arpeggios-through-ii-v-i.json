@@ -1,0 +1,175 @@
+{
+  "id": "guitar-advanced-jazz-arpeggios-through-ii-v-i",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A jazz riff hung off arpeggios:3: Am7 up, D7 from its 3rd, then Gmaj7 landing on its 3rd, all in one position. missing: chords sounding under a riff, so the ii-V-I is named and not heard.",
+  "genre": "jazz",
+  "exercise": {
+    "title": "Arpeggios through a ii–V–I in G",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "Each bar plays the notes of its own chord and the next bar starts on the 3rd of the new chord, so the line spells out the three chords with no chord sounding.",
+    "learnBefore": [
+      "/course/5/arpeggios",
+      "/course/11/ii-v-i"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the line with the metronome, and follow the tab under it. The line is written for three chords: Am7 for a bar, D7 for a bar, then Gmaj7, where it stops on a long note and rests for a bar. In each bar it plays the notes of that chord.\nPlay along from the tab, two notes to a beat, with your hand in one place on the neck.\nOnce your fingers find the notes without the tab, listen for the first note of the second bar and of the third bar: the line turns there as the chord changes."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "g",
+            "scale": "Ionian",
+            "notes": [
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 4,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 4,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 4,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 4,
+                "beats": 2
+              },
+              {
+                "rest": 4
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "arpeggios:3"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

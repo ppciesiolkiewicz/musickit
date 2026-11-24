@@ -1,0 +1,141 @@
+{
+  "id": "guitar-new-rock-riff-on-the-a-string",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A rock riff hung off guitar-melodies:1: the open A string against two fretted notes, in straight eighths. One string, with an open note between every fretted one.",
+  "genre": "rock",
+  "exercise": {
+    "title": "A riff on the A string",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "guitar-melodies"
+    ],
+    "why": "Most of the notes are the open A string, so the fretting hand has time to reach each new fret while the picking hand keeps an even beat.",
+    "learnBefore": [
+      "/course/4/melodies"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the riff with the metronome, and follow the tab under it. The riff, a short phrase that repeats, is two bars on the A string alone, two notes to a beat. The open string comes back after almost every fretted note.\nPlay along from the tab with down strokes, and end on the long open A.\nIf a fretted note buzzes, press just behind the fret and not on top of it."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 3,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 0,
+                "beats": 1
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "new",
+      "level": "new",
+      "steps": [
+        "guitar-melodies:1"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

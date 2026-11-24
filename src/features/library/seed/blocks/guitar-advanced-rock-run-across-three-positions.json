@@ -1,0 +1,141 @@
+{
+  "id": "guitar-advanced-rock-run-across-three-positions",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A rock riff hung off pentatonic-positions:7: an ascending run through positions 1, 2 and 3 of A minor pentatonic in straight eighths. missing: slides in a riff, so the shifts are plain moves of the hand.",
+  "genre": "rock",
+  "exercise": {
+    "title": "A run up the neck in A minor pentatonic",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "The run goes up the A minor pentatonic scale and moves one position up the neck every few notes, so the hand shifts in the middle of a line and not between two lines.",
+    "learnBefore": [
+      "/course/6/joining",
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the run with the metronome, and follow the tab under it. The run is two bars of the A minor pentatonic scale, two notes to a beat, from the home note on the low E string to a high note on the high e string. It passes through three positions of the scale on the way.\nPlay along from the tab. Each time the frets in the tab jump higher, move your whole hand, not only a finger.\nIf a shift comes late, play the two notes on each side of it back and forth until the hand moves in time."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 6,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 9,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 10,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 12,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 12,
+                "beats": 1
+              }
+            ]
+          },
+          "bpm": 80,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "pentatonic-positions:7"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

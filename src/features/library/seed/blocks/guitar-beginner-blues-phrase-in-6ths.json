@@ -1,0 +1,170 @@
+{
+  "id": "guitar-beginner-blues-phrase-in-6ths",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A blues riff hung off double-stops:4: two bars of 6ths on the G and high e strings in A, up from the home pair and back. Shows a double stop across a skipped string in a riff.",
+  "genre": "blues",
+  "exercise": {
+    "title": "A blues phrase in 6ths",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "double-stops"
+    ],
+    "why": "Each pair is a 6th on the G string and the high e string, and the pairs move along the neck together, so two fingers that keep their strings play a whole phrase by sliding from pair to pair.",
+    "learnBefore": [
+      "/course/5/fifths"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the phrase with the metronome, and follow the tab under it. Every step is a double stop on the G string and the high e string, with the B string between them left out.\nPlay along from the tab. Pick the two strings with the pick and a finger, or with two fingers, so the B string stays silent.\nIf the B string rings, let the finger on the G string lean on it lightly."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Mixolydian",
+            "notes": [
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 1
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 7,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 9,
+                    "beats": 1.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 9,
+                    "beats": 1.5
+                  }
+                ],
+                "beats": 1.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 1,
+                    "fret": 7,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 1
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 4,
+                    "beats": 1
+                  },
+                  {
+                    "string": 1,
+                    "fret": 3,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 2
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 2
+                  }
+                ],
+                "beats": 2
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "beginner",
+      "level": "beginner",
+      "steps": [
+        "double-stops:4"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

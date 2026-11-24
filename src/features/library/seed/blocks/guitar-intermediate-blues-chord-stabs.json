@@ -1,0 +1,508 @@
+{
+  "id": "guitar-intermediate-blues-chord-stabs",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A blues riff hung off seventh-shapes:4: barre A7 and D7 as short stabs over four bars, with rests written into the riff. Shows full chords and silence in a riff tool.",
+  "genre": "blues",
+  "exercise": {
+    "title": "Chord stabs for a blues in A",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "rhythm"
+    ],
+    "topic": "guitar-extended-chords",
+    "concepts": [
+      "seventh-shapes"
+    ],
+    "why": "A stab is a chord cut short by lifting the fretting hand a little, so the gaps between the chords are as much a part of the rhythm as the chords are.",
+    "learnBefore": [
+      "/course/7/sevenths",
+      "/course/7/twelve-bar"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the stabs with the metronome, and follow the tab under it. A stab is a chord that sounds for a moment and stops. Each bar has three: two short ones at the start, then a gap, then one that rings for the last beat. The first two bars and the last are A7, the third is D7.\nPlay along from the tab. Strum down, then lift the fretting fingers a little off the frets to stop the chord.\nIf a stab rings on into the gap, lift sooner and keep the fingers touching the strings."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Mixolydian",
+            "notes": [
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "rest": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 1
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "rest": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 1
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "rest": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 5,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 4,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 3,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 2,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 0.5
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 0.5
+                  }
+                ],
+                "beats": 0.5
+              },
+              {
+                "rest": 0.5
+              },
+              {
+                "rest": 1
+              },
+              {
+                "frets": [
+                  {
+                    "string": 6,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 5,
+                    "fret": 7,
+                    "beats": 1
+                  },
+                  {
+                    "string": 4,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 3,
+                    "fret": 6,
+                    "beats": 1
+                  },
+                  {
+                    "string": 2,
+                    "fret": 5,
+                    "beats": 1
+                  },
+                  {
+                    "string": 1,
+                    "fret": 5,
+                    "beats": 1
+                  }
+                ],
+                "beats": 1
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "seventh-shapes:4"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

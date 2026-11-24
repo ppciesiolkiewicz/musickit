@@ -1,0 +1,147 @@
+{
+  "id": "guitar-advanced-blues-line-through-two-7th-chords",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A blues riff hung off arpeggios:3: an A7 arpeggio up through one position, then a D7 line starting on its 3rd. missing: chords sounding under a riff, so A7 and D7 are named and not heard.",
+  "genre": "blues",
+  "exercise": {
+    "title": "A line through A7 and D7",
+    "area": "guitar",
+    "tags": [
+      "technique",
+      "theory"
+    ],
+    "topic": "guitar-caged",
+    "concepts": [
+      "arpeggios"
+    ],
+    "why": "The first bar climbs the four notes of A7 and the second starts on the 3rd of D7, the one note that tells the ear the chord has changed.",
+    "learnBefore": [
+      "/course/5/arpeggios",
+      "/course/7/twelve-bar"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the line with the metronome, and follow the tab under it. The line is two bars of two notes to a beat. The first bar climbs the notes of the A7 chord from the low E string up to the B string, and the second bar plays the notes of D7 around the top three strings.\nPlay along from the tab, and keep your hand where it starts: every note is within reach without moving along the neck.\nOnce your fingers find the notes without the tab, listen for the first note of the second bar: the line turns there as the chord changes."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Mixolydian",
+            "notes": [
+              {
+                "string": 6,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 4,
+                "beats": 0.5
+              },
+              {
+                "string": 5,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 6,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 8,
+                "beats": 0.5
+              },
+              {
+                "string": 1,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 5,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 7,
+                "beats": 0.5
+              }
+            ]
+          },
+          "bpm": 70,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "advanced",
+      "level": "advanced",
+      "steps": [
+        "arpeggios:3"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 70,
+          "to": 100,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}

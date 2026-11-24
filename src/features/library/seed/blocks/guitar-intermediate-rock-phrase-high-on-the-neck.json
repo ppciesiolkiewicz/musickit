@@ -1,0 +1,135 @@
+{
+  "id": "guitar-intermediate-rock-phrase-high-on-the-neck",
+  "model": "claude-fable-5-2",
+  "versions": {
+    "prompt": 19,
+    "agents": 2,
+    "teaching": 11
+  },
+  "note": "A rock riff hung off pentatonic-positions:5: a two-bar phrase in position 4 of A minor pentatonic, root on the A string at fret 12, landing on the root an octave up.",
+  "genre": "rock",
+  "exercise": {
+    "title": "A rock phrase high on the neck",
+    "area": "guitar",
+    "tags": [
+      "technique"
+    ],
+    "topic": "guitar-scales",
+    "concepts": [
+      "pentatonic-positions"
+    ],
+    "why": "The phrase sits in the position of the A minor pentatonic scale that has the home note on the A string, so the hand learns to start a phrase from a root that is not on the low E string.",
+    "learnBefore": [
+      "/course/8/pentatonic-boxes"
+    ],
+    "cells": [
+      {
+        "type": "text",
+        "text": "Press Play below to hear the phrase with the metronome, and follow the tab under it. The phrase is two bars of the A minor pentatonic scale high on the neck. It starts on the home note on the A string, climbs to the G string and comes to rest on the home note an octave higher.\nPlay along from the tab, two notes to a beat, and let the two long notes ring.\nOnce the phrase runs without a stop between the bars, play it without looking at the tab."
+      },
+      {
+        "type": "tool",
+        "tool": {
+          "type": "guitar-play-along",
+          "shape": {
+            "shape": "riff",
+            "key": "a",
+            "scale": "Aeolian",
+            "notes": [
+              {
+                "string": 5,
+                "fret": 12,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 12,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 14,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 12,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 14,
+                "beats": 1
+              },
+              {
+                "string": 3,
+                "fret": 12,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 14,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 12,
+                "beats": 0.5
+              },
+              {
+                "string": 4,
+                "fret": 14,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 12,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 14,
+                "beats": 0.5
+              },
+              {
+                "string": 2,
+                "fret": 13,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 14,
+                "beats": 0.5
+              },
+              {
+                "string": 3,
+                "fret": 14,
+                "beats": 1
+              }
+            ]
+          },
+          "bpm": 80,
+          "view": "tab"
+        }
+      }
+    ]
+  },
+  "choices": [
+    {
+      "name": "intermediate",
+      "level": "intermediate",
+      "steps": [
+        "pentatonic-positions:5"
+      ],
+      "moves": {
+        "bpm": {
+          "from": 80,
+          "to": 110,
+          "step": 10
+        }
+      },
+      "minutes": 4,
+      "draft": true
+    }
+  ]
+}
