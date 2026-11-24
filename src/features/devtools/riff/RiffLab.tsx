@@ -13,6 +13,7 @@ import { PlayAlongTimeline } from "@/features/exercises/play-along/PlayAlong";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { GENRES } from "@/features/library/seed/genres";
 import type { RiffBlock } from "./blocks";
+import { gearOf, groupByGear, type KindFilter } from "./ampCatalog";
 
 /** What this browser remembers of the riff maker: the riff that was open and the sound. The riffs themselves are in seed block files. */
 const PREFS = "musickit.dev.riffPrefs";
@@ -120,8 +121,11 @@ export default function RiffLab() {
     void createCloud(getModelLibrary()).list().then((r) => ("models" in r ? setCloud(r.models) : setCloudError(r.error)));
   }, [sound, cloud.length, cloudError]);
   const [disk, setDisk] = useState<{ file: string; name: string; licence: string }[]>([]);
+  /** the amp picker's filters: which kind of gear it lists, and the words searched for */
+  const [ampKind, setAmpKind] = useState<KindFilter>("amp");
+  const [ampSearch, setAmpSearch] = useState("");
   /** a model's name with its licence after it, where the disk list knows the model */
-  const withLicence = (name: string) => { const l = disk.find((d) => d.name === name)?.licence; return l ? `${name} (${l})` : name; };
+  const withLicence = (name: string, shown = name) => { const l = disk.find((d) => d.name === name)?.licence; return l ? `${shown} (${l})` : shown; };
   // the .nam files on this machine's disk (/api/dev/nam), read once the amp is chosen: what there is to pick where the amp library isn't set up
   useEffect(() => {
     if (sound !== "amp") return;
@@ -459,19 +463,31 @@ export default function RiffLab() {
         {sound === "amp" && (
           <label className="flex flex-col text-xs text-slate-400">Amp model {ampState && ampState !== "ready" && <span className={ampState.startsWith("Error") ? "text-rose-400" : ""}>({ampState})</span>}
             <span className="flex gap-1">
-              <select className="max-w-48 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={model} onChange={(e) => void pickModel(e.target.value)}>
+              <select aria-label="Kind of model" className="rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={ampKind} onChange={(e) => setAmpKind(e.target.value as KindFilter)}>
+                <option value="amp">Amps</option>
+                <option value="pedal">Pedals</option>
+                <option value="all">All models</option>
+              </select>
+              <input type="search" aria-label="Find a model" placeholder="Find a model" className="w-32 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={ampSearch} onChange={(e) => setAmpSearch(e.target.value)} />
+              <select className="max-w-64 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={model} onChange={(e) => void pickModel(e.target.value)}>
                 <option value={0}>No model (clean)</option>
-                {models.length > 0 && <optgroup label="In this browser">{models.map((m) => <option key={m.id} value={m.id}>{withLicence(m.name)}</option>)}</optgroup>}
+                {/* the model playing now stays listed whatever the filters, so the picker always shows it */}
+                {models.filter((m) => m.id === model).map((m) => { const g = gearOf(m.name); return <option key={m.id} value={m.id} title={m.name}>{withLicence(m.name, `${g.gear} · ${g.variant}`)}</option>; })}
+                {groupByGear(models.filter((m) => m.id !== model), ampKind, ampSearch).map((g) => (
+                  <optgroup key={`b:${g.kind}:${g.gear}`} label={`${g.gear}${g.kind === "pedal" ? " (pedal)" : ""}, in this browser`}>
+                    {g.items.map((m) => <option key={m.id} value={m.id} title={m.name}>{withLicence(m.name, m.variant)}</option>)}
+                  </optgroup>
+                ))}
                 {cloud.length > 0 && (
                   <optgroup label="Amp library">
                     {cloud.filter((c) => !getModelLibrary().list().some((m) => m.cloudPath === c.path)).map((c) => <option key={c.path} value={`cloud:${c.path}`}>{c.group ? `${c.group} / ${c.variant}` : c.variant}</option>)}
                   </optgroup>
                 )}
-                {disk.some((d) => !models.some((m) => m.name === d.name)) && (
-                  <optgroup label="On this computer">
-                    {disk.filter((d) => !models.some((m) => m.name === d.name)).map((d) => <option key={d.file} value={`disk:${d.file}`}>{withLicence(d.name)}</option>)}
+                {groupByGear(disk.filter((d) => !models.some((m) => m.name === d.name)), ampKind, ampSearch).map((g) => (
+                  <optgroup key={`d:${g.kind}:${g.gear}`} label={`${g.gear}${g.kind === "pedal" ? " (pedal)" : ""}, on this computer`}>
+                    {g.items.map((d) => <option key={d.file} value={`disk:${d.file}`} title={d.name}>{`${d.variant} (${d.licence})`}</option>)}
                   </optgroup>
-                )}
+                ))}
               </select>
               {cloudError && disk.length === 0 && <span title={cloudError} className="self-center text-rose-400">Amp library: {cloudError}</span>}
               <label className="cursor-pointer rounded bg-slate-800 px-2 py-1 text-sm text-slate-100">Add .nam<input type="file" accept=".nam" multiple hidden onChange={(e) => void addModels(e.target.files)} /></label>
