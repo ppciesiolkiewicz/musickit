@@ -1,6 +1,6 @@
 "use client";
 
-import { sectionStarts } from "../model/sections";
+import { dayPages, pageOf, sectionStarts } from "../model/sections";
 import { shownTitle } from "../model/moves";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
@@ -139,8 +139,22 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
   const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
   // a day in more than one area names each area's part (DayShape1)
   const sections = sectionStarts(d.exercises);
+  // a long day is drawn a page at a time (a part, or a long part cut in two), so only one page's tools are mounted;
+  // it opens on the page of the first exercise not done
+  const pages = dayPages(d.exercises);
+  const [page, setPage] = useState(() => pageOf(pages, Math.max(0, d.exercises.findIndex((_, i) => !plan.done[doneKey(day, i)]))));
+  const at = pages[Math.min(page, pages.length - 1)] ?? { start: 0, count: d.exercises.length, label: "", minutes: total };
+  const [pageDay, setPageDay] = useState(day);
+  if (pageDay !== day) {
+    setPageDay(day);
+    setPage(pageOf(pages, Math.max(0, d.exercises.findIndex((_, i) => !plan.done[doneKey(day, i)]))));
+  }
+  const turn = (to: number) => {
+    setPage(to);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const cards = useRef<(HTMLLIElement | null)[]>([]);
-  const focused = useInView(cards, day);
+  const focused = useInView(cards, `${day}:${page}`);
   // the day timer is counting (not paused, day not over): the card it counts for shows its time ticking, rated or not,
   // past its planned time or not (the timer counts every second to the card in view)
   const [running, setRunning] = useState(false);
@@ -172,9 +186,26 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
       {editing && onEdit ? (
         <DayEditor plan={plan} day={day} onCancel={() => { setLive(null); setEditing(false); }} onDone={(next) => { onEdit(next); setLive(null); setEditing(false); }} />
       ) : (
+        <>
+        {pages.length > 1 && (
+          <nav aria-label="Pages of the day" className="mb-4 flex flex-wrap gap-1.5">
+            {pages.map((p, n) => {
+              const all = Array.from({ length: p.count }, (_, k) => p.start + k).every((i) => plan.done[doneKey(day, i)]);
+              return (
+                <button key={n} type="button" aria-current={n === page ? "page" : undefined} onClick={() => setPage(n)}
+                  className={`inline-flex items-baseline gap-1.5 rounded-md border px-2.5 py-1 text-xs ${n === page ? "border-slate-400 bg-slate-800 text-slate-100" : "border-slate-700 text-slate-300 hover:border-slate-500"}`}>
+                  {all && <Icon name="check" size={11} />}
+                  {p.label}
+                  <span className="text-slate-400">{p.minutes} min</span>
+                </button>
+              );
+            })}
+          </nav>
+        )}
         <ol className="flex flex-col gap-5">
           {d.exercises.map((e, i) => {
-            const section = sections[i];
+            if (pages.length > 1 && (i < at.start || i >= at.start + at.count)) return null;
+            const section = pages.length > 1 ? null : sections[i];
             const done = !!plan.done[doneKey(day, i)];
             const isNow = now === i && !done;
             return (
@@ -190,13 +221,31 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
             );
           })}
         </ol>
+        {pages.length > 1 && (
+          <div className="mt-6 flex items-center justify-between gap-3">
+            {page > 0 ? (
+              <button type="button" onClick={() => turn(page - 1)} className="rounded-md border border-slate-700 px-3 py-1.5 text-sm text-slate-300 hover:border-slate-500">
+                Back: {pages[page - 1].label}
+              </button>
+            ) : <span />}
+            {page < pages.length - 1 && (
+              <button type="button" onClick={() => turn(page + 1)} className="rounded-md border border-slate-500 bg-slate-800 px-3 py-1.5 text-sm text-slate-100 hover:border-slate-300">
+                Next: {pages[page + 1].label}
+              </button>
+            )}
+          </div>
+        )}
+        </>
       )}
 
       {!editing && !readOnly && onTime && (
         <DayEnd
           left={Math.max(0, total * 60 - (live?.ids === ids ? live.spent.reduce((n, x) => n + x, 0) : elapsedOn(times, day)))}
           unrated={onRate ? d.exercises.flatMap((_, i) => (plan.rated?.[doneKey(day, i)]?.stars == null ? [i] : [])) : []}
-          onRateMissing={(i) => cards.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" })}
+          onRateMissing={(i) => {
+            setPage(pageOf(pages, i));
+            requestAnimationFrame(() => cards.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" }));
+          }}
         />
       )}
 
@@ -255,7 +304,7 @@ function DayEnd({ left, unrated, onRateMissing }: { left: number; unrated: numbe
  * Which of the cards is in view: the one crossing the middle of the screen, else the nearest to it; once the page is scrolled
  * to the end, the last card on screen (a short last card can never reach the middle). Null when none is on screen.
  */
-function useInView(cards: React.RefObject<(HTMLLIElement | null)[]>, day: number): number | null {
+function useInView(cards: React.RefObject<(HTMLLIElement | null)[]>, day: string): number | null {
   const [at, setAt] = useState<number | null>(null);
   useEffect(() => {
     let frame = 0;
