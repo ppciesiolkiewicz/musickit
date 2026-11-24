@@ -25,6 +25,23 @@ const LENGTHS: { key: string; beats: number; label: string }[] = [
 /** A dotted length is one and a half times a plain one. */
 const isDotted = (beats: number) => LENGTHS.some((l) => l.beats * 1.5 === beats);
 /** Add a dot to a length, or take it off a dotted one. */
+/** A note's length drawn as a note sign, 12 wide and 22 tall with the head at the bottom: hollow for a half and whole, a stem below
+ * a whole, one flag per halving below a quarter, and a dot when dotted. Drawn rather than typed: most fonts lack the 1/16, 1/2 and 1 signs. */
+function NoteSign({ beats, x = 0, y = 0, color = "currentColor" }: { beats: number; x?: number; y?: number; color?: string }) {
+  const dotted = isDotted(beats);
+  const base = dotted ? beats / 1.5 : beats;
+  const hollow = base >= 2;
+  const flags = base <= 0.25 ? 2 : base <= 0.5 ? 1 : 0;
+  return (
+    <g transform={`translate(${x} ${y})`} fill={color} stroke={color}>
+      <ellipse cx={4} cy={18} rx={3.8} ry={2.8} transform="rotate(-20 4 18)" fill={hollow ? "none" : color} strokeWidth={hollow ? 1.3 : 0} />
+      {base < 4 && <line x1={7.4} x2={7.4} y1={17} y2={2} strokeWidth={1.2} />}
+      {Array.from({ length: flags }, (_, k) => <path key={k} d={`M7.4 ${2 + k * 4} q4 3 3.5 7`} fill="none" strokeWidth={1.3} />)}
+      {dotted && <circle cx={11.5} cy={18} r={1.3} stroke="none" />}
+    </g>
+  );
+}
+const noteIcon = (beats: number) => <svg width={16} height={22} viewBox="-1 0 16 22" className="inline-block align-middle" aria-hidden><NoteSign beats={beats} /></svg>;
 const toggleDot = (beats: number) => (isDotted(beats) ? beats / 1.5 : beats * 1.5);
 
 interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number; /** the sound it plays with, and the NAM model (an id in this browser's library, 0 none) */ sound?: RiffSound; model?: number }
@@ -111,13 +128,15 @@ export default function RiffLab() {
     if (sound !== "amp" || cloud.length || cloudError) return;
     void createCloud(getModelLibrary()).list().then((r) => ("models" in r ? setCloud(r.models) : setCloudError(r.error)));
   }, [sound, cloud.length, cloudError]);
-  const [disk, setDisk] = useState<{ file: string; name: string }[]>([]);
+  const [disk, setDisk] = useState<{ file: string; name: string; licence: string }[]>([]);
+  /** a model's name with its licence after it, where the disk list knows the model */
+  const withLicence = (name: string) => { const l = disk.find((d) => d.name === name)?.licence; return l ? `${name} (${l})` : name; };
   // the .nam files on this machine's disk (/api/dev/nam), read once the amp is chosen: what there is to pick where the amp library isn't set up
   useEffect(() => {
     if (sound !== "amp") return;
     let off = false;
     fetch("/api/dev/nam", { cache: "no-store", signal: AbortSignal.timeout(10000) })
-      .then(async (res) => { if (!res.ok) throw new Error(`Models on this computer: ${res.status}`); return (await res.json()) as { models: { file: string; name: string }[] }; })
+      .then(async (res) => { if (!res.ok) throw new Error(`Models on this computer: ${res.status}`); return (await res.json()) as { models: { file: string; name: string; licence: string }[] }; })
       .then((r) => { if (!off) setDisk(r.models); })
       .catch((e) => { if (!off) setNotice(e instanceof Error ? e.message : String(e)); });
     return () => { off = true; };
@@ -301,6 +320,8 @@ export default function RiffLab() {
 
   const cols = columnsOf(notes);
   const total = cols.reduce((a, c) => a + c.beats, 0);
+  const bars = Math.max(1, Math.ceil(total / 4 - 1e-6));
+  const left = bars * 4 - total;
   const startOf = new Map(cols.flatMap((c) => c.idx.map((i) => [i, c.start] as const)));
   const selCol = sel === null ? null : cols.find((c) => c.idx.includes(sel)) ?? null;
   /** notes drawn faintly on the neck: the rest of the selected step, or the step being built */
@@ -316,6 +337,8 @@ export default function RiffLab() {
   const alts = sn && midiOf(sn) !== null ? placesOf(midiOf(sn)!) : [];
   const CELL = 50;
   const ROW = 38;
+  /** tab width of one beat: a 1/16 note gets 16px, room for its fret */
+  const BEAT = 64;
 
   return (
     <div className="flex flex-col gap-5 text-slate-200 lg:flex-row">
@@ -358,7 +381,7 @@ export default function RiffLab() {
         </label>
         <div className="flex gap-1">
           {LENGTHS.map((l) => (
-            <button key={l.key} onClick={() => chooseLength(() => l.beats)} className={`rounded px-2 py-1 text-sm ${len === l.beats || len === l.beats * 1.5 ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
+            <button key={l.key} onClick={() => chooseLength(() => l.beats)} className={`rounded px-2 py-1 text-sm ${len === l.beats || len === l.beats * 1.5 ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{noteIcon(l.beats)} {l.label}</button>
           ))}
           <button onClick={() => chooseLength(toggleDot)} title="Dotted: one and a half times the length (.)" aria-pressed={isDotted(len)} className={`rounded px-2 py-1 text-sm ${isDotted(len) ? "bg-sky-600 text-white" : "bg-slate-800"}`}>Dot</button>
         </div>
@@ -380,7 +403,7 @@ export default function RiffLab() {
             <span className="flex gap-1">
               <select className="max-w-48 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={model} onChange={(e) => void pickModel(e.target.value)}>
                 <option value={0}>No model (clean)</option>
-                {models.length > 0 && <optgroup label="In this browser">{models.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</optgroup>}
+                {models.length > 0 && <optgroup label="In this browser">{models.map((m) => <option key={m.id} value={m.id}>{withLicence(m.name)}</option>)}</optgroup>}
                 {cloud.length > 0 && (
                   <optgroup label="Amp library">
                     {cloud.filter((c) => !getModelLibrary().list().some((m) => m.cloudPath === c.path)).map((c) => <option key={c.path} value={`cloud:${c.path}`}>{c.group ? `${c.group} / ${c.variant}` : c.variant}</option>)}
@@ -388,7 +411,7 @@ export default function RiffLab() {
                 )}
                 {disk.some((d) => !models.some((m) => m.name === d.name)) && (
                   <optgroup label="On this computer">
-                    {disk.filter((d) => !models.some((m) => m.name === d.name)).map((d) => <option key={d.file} value={`disk:${d.file}`}>{d.name}</option>)}
+                    {disk.filter((d) => !models.some((m) => m.name === d.name)).map((d) => <option key={d.file} value={`disk:${d.file}`}>{withLicence(d.name)}</option>)}
                   </optgroup>
                 )}
               </select>
@@ -398,7 +421,7 @@ export default function RiffLab() {
           </label>
         )}
         <button onClick={() => { setNotes(() => []); setSel(null); }} className="rounded bg-rose-900 px-3 py-1 text-sm">Clear</button>
-        <span className="text-sm text-slate-400">{ctx.names.join(" ")} · {cols.length} steps · {total} beats</span>
+        <span className="text-sm text-slate-400">{ctx.names.join(" ")} · {cols.length} steps · {total} beats · {left > 1e-6 ? `bar ${bars}: ${+(4 - left).toFixed(2)} of 4 beats, ${+left.toFixed(2)} to fill` : `${bars} full bar${bars > 1 ? "s" : ""}`}</span>
       </div>
 
       {notice && <p role="alert" className="text-sm text-amber-300">{notice}</p>}
@@ -443,30 +466,40 @@ export default function RiffLab() {
 
       {/* tab */}
       <div className="overflow-x-auto rounded-lg border border-slate-800 bg-slate-950 p-3">
-        <svg width={Math.max(300, 40 + total * 48 + 40)} height={6 * 18 + 40} className="font-mono">
+        <svg width={Math.max(300, 40 + bars * 4 * BEAT + 40)} height={6 * 18 + 52} className="font-mono">
           {[5, 4, 3, 2, 1, 0].map((s, row) => (
             <g key={s}>
               <text x={4} y={14 + row * 18} dominantBaseline="central" fontSize={11} fill="var(--color-slate-500)">{STRING_NAMES[s]}</text>
-              <line x1={20} x2={40 + total * 48 + 20} y1={14 + row * 18} y2={14 + row * 18} stroke="var(--color-slate-700)" />
+              <line x1={20} x2={30 + bars * 4 * BEAT} y1={14 + row * 18} y2={14 + row * 18} stroke="var(--color-slate-700)" />
             </g>
           ))}
-          {Array.from({ length: Math.floor(total / 4) + 1 }, (_, b) => <line key={b} x1={30 + b * 4 * 48} x2={30 + b * 4 * 48} y1={14} y2={14 + 5 * 18} stroke="var(--color-slate-500)" />)}
+          {/* the bars the riff reaches, drawn whole: beat ticks, a dashed half-bar line, the unfilled rest of the last bar shaded */}
+          {Array.from({ length: bars }, (_, b) => (
+            <g key={`bar${b}`}>
+              <text x={34 + b * 4 * BEAT} y={6 * 18 + 44} fontSize={9} fill="var(--color-slate-500)">bar {b + 1}</text>
+              {[0, 1, 2, 3].map((q) => <rect key={`s${q}`} x={30 + (b * 4 + q) * BEAT} y={6} width={BEAT} height={5 * 18 + 16} fill={q % 2 ? "var(--color-slate-700)" : "var(--color-slate-800)"} opacity={0.35} />)}
+              {[1, 2, 3].map((q) => <line key={q} x1={30 + (b * 4 + q) * BEAT} x2={30 + (b * 4 + q) * BEAT} y1={14} y2={14 + 5 * 18} stroke={q === 2 ? "var(--color-slate-500)" : "var(--color-slate-800)"} strokeDasharray={q === 2 ? "4 3" : undefined} />)}
+            </g>
+          ))}
+          {total < bars * 4 && <rect x={30 + total * BEAT} y={6} width={(bars * 4 - total) * BEAT} height={5 * 18 + 16} fill="var(--color-amber-500)" opacity={0.06} />}
+          {Array.from({ length: bars + 1 }, (_, b) => <line key={b} x1={30 + b * 4 * BEAT} x2={30 + b * 4 * BEAT} y1={14} y2={14 + 5 * 18} stroke="var(--color-slate-400)" strokeWidth={1.5} />)}
           {cols.map((c) => (
-            <rect key={`col${c.idx[0]}`} x={40 + c.start * 48 - 4} y={0} width={20} height={6 * 18 + 30} fill="transparent" className="cursor-pointer"
+            <rect key={`col${c.idx[0]}`} x={30 + c.start * BEAT} y={0} width={Math.max(22, c.beats * BEAT)} height={6 * 18 + 30} fill="transparent" className="cursor-pointer"
               onClick={() => { const on = sel !== null && c.idx.includes(sel); setSel(on ? null : c.idx[0]); setOpen(false); }} />
           ))}
           {(() => {
             return notes.map((n, i) => {
-              const x = 40 + (startOf.get(i) ?? 0) * 48 + 6;
+              const at = startOf.get(i) ?? 0;
+              const x = 30 + at * BEAT + 11;
               const isSel = i === sel;
               const y = n.string === null ? 14 + 2.5 * 18 : 14 + (5 - n.string) * 18;
               return (
                 <g key={i} className="cursor-pointer" onClick={() => { setSel(isSel ? null : i); setOpen(false); }}>
                   {isSel && <rect x={x - 10} y={0} width={20} height={6 * 18 + 30} fill="var(--color-sky-500)" opacity={0.15} />}
-                  {n.string !== null && <line x1={x + 9} x2={Math.max(x + 9, x - 6 + n.beats * 48)} y1={y} y2={y} stroke={isSel ? "var(--color-sky-400)" : "var(--color-slate-500)"} strokeWidth={3} strokeLinecap="round" opacity={0.6} />}
+                  {n.string !== null && <line x1={x + 9} x2={Math.max(x + 9, x - 6 + n.beats * BEAT)} y1={y} y2={y} stroke={isSel ? "var(--color-sky-400)" : "var(--color-slate-500)"} strokeWidth={3} strokeLinecap="round" opacity={0.6} />}
                   <rect x={x - 9} y={y - 8} width={18} height={16} rx={3} fill="var(--color-slate-950)" />
                   <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600} fill={isSel ? "var(--color-sky-300)" : n.string === null ? "var(--color-slate-500)" : "var(--color-slate-100)"}>{n.fret ?? "𝄽"}</text>
-                  {!n.with && <text x={x} y={6 * 18 + 24} textAnchor="middle" fontSize={9} fill="var(--color-slate-500)">{midiOf(n) === null ? "" : `${Note.pitchClass(Note.fromMidiSharps(midiOf(n)!))}·${degreeLabel(midiOf(n)! % 12, ctx)}`}</text>}
+                  {!n.with && <NoteSign beats={n.beats} x={x - 5} y={6 * 18 + 10} color="var(--color-slate-400)" />}
                 </g>
               );
             });
@@ -494,7 +527,7 @@ export default function RiffLab() {
           <span className="ml-2 text-slate-500">length</span>
           {LENGTHS.map((l) => (
             <button key={l.key} onClick={() => lengthAt(sel!, () => l.beats)}
-              className={`rounded px-2 py-0.5 ${sn.beats === l.beats || sn.beats === l.beats * 1.5 ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{l.label}</button>
+              className={`rounded px-2 py-0.5 ${sn.beats === l.beats || sn.beats === l.beats * 1.5 ? "bg-sky-600 text-white" : "bg-slate-800"}`}>{noteIcon(l.beats)} {l.label}</button>
           ))}
           <button onClick={() => lengthAt(sel!, toggleDot)} title="Dotted: one and a half times the length (⇧ .)" aria-pressed={isDotted(sn.beats)} className={`rounded px-2 py-0.5 ${isDotted(sn.beats) ? "bg-sky-600 text-white" : "bg-slate-800"}`}>Dot</button>
         </div>
@@ -508,8 +541,7 @@ export default function RiffLab() {
         </section>
       )}
 
-      <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} pos={state.pos} bars={Math.max(1, Math.ceil(total / 4 - 1e-6))} player={player}
-        onNotes={(heard, replace) => { setNotes((ns) => (replace ? heard : [...ns, ...heard])); setSel(null); setOpen(false); }} />
+      <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} bars={Math.max(1, Math.ceil(total / 4 - 1e-6))} notes={notes} />
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
         <div className="flex flex-col gap-2">

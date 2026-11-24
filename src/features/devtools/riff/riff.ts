@@ -137,3 +137,17 @@ export function riffTimeline(notes: RiffNote[], key: number, bpm: number): Timel
   if (events.length < 2) return null;
   return { bpm, bars: Math.max(1, Math.ceil(end / BEATS_PER_BAR)), events };
 }
+
+/** A riff note placed in a take: seconds from the take's start, its pitch and where the riff puts it on the neck. */
+export interface Timed { start: number; end: number; midi: number; string: number; fret: number }
+
+/** The riff's notes in seconds, beat 1 at `downbeat` seconds, at `bpm`. Rests are left out; notes played together share a start. */
+export function riffTimes(notes: RiffNote[], bpm: number, downbeat = 0): Timed[] {
+  const sec = 60 / bpm;
+  return columnsOf(notes).flatMap((c) => c.idx.flatMap((i) => {
+    const n = notes[i], midi = midiOf(n);
+    if (midi === null) return [];
+    const start = downbeat + c.start * sec;
+    return [{ start, end: start + n.beats * sec, midi, string: n.string!, fret: n.fret! }];
+  }));
+}

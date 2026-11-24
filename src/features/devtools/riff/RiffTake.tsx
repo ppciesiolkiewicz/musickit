@@ -1,13 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getAudioContext, getOutputBus, playSequence, readDeviceChoice, silence, wakeAudio, type Player } from "@/features/sound";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getAudioContext, getOutputBus, readDeviceChoice, wakeAudio } from "@/features/sound";
 import { clockTime } from "@/features/recorder/recorder";
 import { pickVideoType, videoFileName } from "@/features/videos/recording";
-import { asciiTab, midiOf, type RiffNote } from "./riff";
+import { riffTimes, type RiffNote } from "./riff";
 import { deleteTake, getTake, saveTake, type RiffTake as Take } from "./takes";
-import { hearNotes, toRiff } from "./transcribe";
 import NeckView from "./NeckView";
+import { LiveNote, OVERLAY_MODES, TakeNotes, WINDOW_BARS, barGrid, type OverlayMode, type WindowBars } from "./NoteOverlay";
+import DetectLog, { addNeckRead } from "./DetectLog";
+import type { NeckRead, TakeLog } from "./takes";
 
 type Phase = "off" | "starting" | "ready" | "recording";
 /** where the take on screen stands in this browser's storage */
@@ -46,33 +48,24 @@ function startClick(bpm: number, anchor: number): () => void {
   return () => { window.clearInterval(id); try { out.disconnect(); } catch { /* already gone */ } };
 }
 
-/** Riff notes as a sequence to play: rests advance the time, notes together start together. */
-function stepsOf(notes: RiffNote[], bpm: number) {
-  const ms = 60000 / bpm;
-  let at = 0, last = 0;
-  return notes.flatMap((n) => {
-    const start = n.with ? last : at;
-    if (!n.with) { last = at; at += n.beats * ms; }
-    const midi = midiOf(n);
-    return midi === null ? [] : [{ note: midi, at: start, hold: n.beats * ms * 0.95 }];
-  });
-}
-
+const MARKERS_KEY = "musickit-dev-riff-markers";
 const CAMERA_KEY = "musickit.riff.camera";
+const OVERLAY_KEY = "musickit.riff.overlay";
+const WINDOW_KEY = "musickit.riff.windowBars";
+/** Show the take at `t` seconds, paused. */
+const seek = (v: HTMLVideoElement, t: number) => { v.currentTime = t; v.pause(); };
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 /**
  * Records the riff being played, with the camera and the audio input, and keeps the take with the riff in this browser: it is saved
- * when the recording stops, and **Save file** downloads it. **Transcribe** hears the take's notes (`transcribe.ts`) and hands them to
- * `onNotes`, to replace the riff's notes or to follow them.
+ * when the recording stops, and **Save file** downloads it. The riff's own notes are drawn over the take on its beat grid (beat 1
+ * after the count-in, at the take's tempo), and over the camera while recording: nothing is heard from the take.
  */
-export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }: {
-  riff: string; name: string; bpm: number; pos: number;
+export default function RiffTake({ riff, name, bpm, bars, notes }: {
+  riff: string; name: string; bpm: number;
   /** the riff's length in 4/4 bars: what a take is expected to fill */
   bars: number;
-  /** the riff maker's sound, to play back what Transcribe heard */
-  player: () => Player;
-  onNotes: (notes: RiffNote[], replace: boolean) => void;
+  notes: RiffNote[];
 }) {
   const [phase, setPhase] = useState<Phase>("off");
   const [problem, setProblem] = useState("");
@@ -83,8 +76,6 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
   const shownUrl = useRef("");
   const [stored, setStored] = useState<Stored>("saved");
   const [seconds, setSeconds] = useState(0);
-  const [busy, setBusy] = useState(false);
-  const [heard, setHeard] = useState<RiffNote[] | null>(null);
   // the take a new recording replaced, kept in memory until the next recording, so a worse retake can be undone
   const [previous, setPrevious] = useState<Take | null>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -94,6 +85,11 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
   const [liveVideo, setLiveVideo] = useState<HTMLVideoElement | null>(null);
   const liveRef = useCallback((el: HTMLVideoElement | null) => { live.current = el; setLiveVideo(el); }, []);
   const [click, setClick] = useState(true);
+  // how the riff is drawn over the video, kept in this browser
+  const [overlay, setOverlay] = useState<OverlayMode>(() => { try { return (localStorage.getItem(OVERLAY_KEY) as OverlayMode | null) ?? "tab"; } catch { return "tab"; } });
+  const [windowBars, setWindowBars] = useState<WindowBars>(() => { try { const v = Number(localStorage.getItem(WINDOW_KEY)); return (WINDOW_BARS as readonly number[]).includes(v) ? (v as WindowBars) : 1; } catch { return 1; } });
+  const pickWindow = (b: WindowBars) => { setWindowBars(b); try { localStorage.setItem(WINDOW_KEY, String(b)); } catch { /* kept for this visit only */ } };
+  const pickOverlay = (m: OverlayMode) => { setOverlay(m); try { localStorage.setItem(OVERLAY_KEY, m); } catch { /* kept for this visit only */ } };
   // the cameras the browser offers (an iPhone through Continuity Camera among them), and the one picked, kept in this browser
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [cameraId, setCameraId] = useState(() => { try { return localStorage.getItem(CAMERA_KEY) ?? ""; } catch { return ""; } });
@@ -106,6 +102,9 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
   };
   // optional: markers and hands drawn over the take (NeckView)
   const [readNeck, setReadNeck] = useState(false);
+  // which marker sits at which fret, "id@fret, …", kept in this browser
+  const [markers, setMarkers] = useState(() => { try { return localStorage.getItem(MARKERS_KEY) ?? "0@0, 1@17"; } catch { return "0@0, 1@17"; } });
+  const placeMarkers = (v: string) => { setMarkers(v); try { localStorage.setItem(MARKERS_KEY, v); } catch { /* kept for this visit only */ } };
   const [takeVideo, setTakeVideo] = useState<HTMLVideoElement | null>(null);
   const [countIn, setCountIn] = useState(1);
   // the expected length follows the riff's until it is typed in
@@ -115,6 +114,22 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
   // the click's grid while recording to it, and where the playing stands on it, read every frame
   const grid = useRef<{ anchor: number; period: number; countIn: number; bars: number } | null>(null);
   const [beatNow, setBeatNow] = useState<{ beat: number; bars: number; countIn: number } | null>(null);
+  /** Change the shown take's detection log; it is saved in this browser a moment after the last change. */
+  const setLog = useCallback((fn: (l: TakeLog) => TakeLog) => {
+    setShown((s) => (s ? { ...s, take: { ...s.take, log: fn(s.take.log ?? {}) } } : s));
+  }, []);
+  const onNeckRead = useCallback((r: NeckRead) => setLog((l) => {
+    const neck = addNeckRead(l.neck ?? [], r);
+    return neck === l.neck ? l : { ...l, neck };
+  }), [setLog]);
+  const loggedTake = shown?.take;
+  useEffect(() => {
+    if (!loggedTake?.log) return;
+    const id = window.setTimeout(() => {
+      saveTake(loggedTake).catch((e: unknown) => setProblem(`The detection log wasn't saved in this browser: ${message(e)}. Copy log keeps it.`));
+    }, 1000);
+    return () => window.clearTimeout(id);
+  }, [loggedTake]);
   const endClick = () => { stopClick.current?.(); stopClick.current = null; };
 
   /** Put a take (or none) on screen, letting go of the last one's address. */
@@ -229,12 +244,9 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
       };
       // the camera stays open, so the next take is one press away
       setPhase(stream.current ? "ready" : "off");
-      setHeard(null);
       if (take) setPrevious(take);
       show(t);
       void store(t);
-      // a take recorded to the click is read straight away
-      if (t.downbeat !== undefined) void transcribe(t);
     };
     recorder.current = r;
     if (timed) {
@@ -250,7 +262,7 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
 
   const remove = async () => {
     setProblem("");
-    try { await deleteTake(riff); show(null); setHeard(null); } catch (e) { setProblem(`The take wasn't deleted: ${message(e)}.`); }
+    try { await deleteTake(riff); show(null); } catch (e) { setProblem(`The take wasn't deleted: ${message(e)}.`); }
   };
 
   const download = () => {
@@ -261,30 +273,11 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
     a.click();
   };
 
-  const transcribe = async (take: Take | null = shown?.take ?? null) => {
-    if (!take) return;
-    setBusy(true);
-    setProblem("");
-    try {
-      const audio = await getAudioContext().decodeAudioData(await take.blob.arrayBuffer());
-      // both channels as one: an interface often carries the guitar on one side only
-      const mono = new Float32Array(audio.length);
-      for (let c = 0; c < audio.numberOfChannels; c++) { const d = audio.getChannelData(c); for (let i = 0; i < d.length; i++) mono[i] += d[i]; }
-      // a take recorded to the click is read on its own grid: beat 1 after the count-in, as many bars as were expected
-      const timed = take.downbeat !== undefined && take.bpm && take.bars;
-      setHeard(timed ? toRiff(hearNotes(mono, audio.sampleRate), take.bpm!, pos, 0.25, { from: take.downbeat, beats: take.bars! * 4 }) : toRiff(hearNotes(mono, audio.sampleRate), bpm, pos));
-    } catch (e) {
-      setProblem(`The take's sound couldn't be read: ${message(e)}.`);
-    }
-    setBusy(false);
-  };
-
   const undo = () => {
     if (!previous) return;
     show(previous);
     void store(previous);
     setPrevious(null);
-    setHeard(null);
   };
 
   // R records and stops, unless typing in a field; bound again each render so it sees the current phase
@@ -301,6 +294,9 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
   });
 
   const camera = phase === "ready" || phase === "recording";
+  // the riff on the take's grid; a take recorded without the click starts at its first second, at the riff's tempo
+  const takeNotes = useMemo(() => riffTimes(notes, take?.bpm ?? bpm, take?.downbeat ?? 0), [notes, take?.bpm, take?.downbeat, bpm]);
+  const liveNotes = useMemo(() => riffTimes(notes, bpm), [notes, bpm]);
   return (
     <section className="flex flex-col gap-3 rounded-lg border border-slate-800 p-3 text-sm">
       <div className="flex flex-wrap items-center gap-2">
@@ -311,7 +307,8 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
           <div className="mt-2 flex flex-col gap-2">
             <p>
               Press Start camera above to open the camera and your audio input, then press Record to play the riff. The take is saved in
-              this browser with the riff. Press Transcribe to turn what it heard into notes. The sound comes from the audio input you last
+              this browser with the riff. The riff&apos;s notes are shown over the camera while you record, and over the take as it plays,
+              lined up from beat 1 after the count-in. Record with the click on, or the notes start at the take&apos;s first second. The sound comes from the audio input you last
               picked in the app. The picture comes from the browser&apos;s camera.
             </p>
             <p>
@@ -321,7 +318,7 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
               to it. If the iPhone isn&apos;t in the list, quit Chrome (Cmd+Q) and open it again.
             </p>
             <p>
-              Read the neck draws your fingertips and the markers it sees over the camera and over a saved take. Recording and Transcribe need no
+              Read the neck draws your fingertips and the markers it sees over the camera and over a saved take. Recording needs no
               markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Print the 
               <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 markers</a> or the 
               <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 markers</a>: they are the kind the camera reads (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. For now it only shows
@@ -332,20 +329,20 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
               <li>
                 Print the sheet for your paper: <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 markers</a> or{" "}
                 <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 markers</a>. Each has markers
-                from 40 mm down to 20 mm, the black square only, each with its own number. Use 25 mm where it fits, and 20 mm where it doesn&apos;t.
+                from 40 mm down to 25 mm, the black square only, each with its own number. Use 30 mm where it fits, and 25 mm where it doesn&apos;t: smaller ones drop out.
               </li>
-              <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one with a ruler: it should be 25 mm on every side.</li>
+              <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one with a ruler: it should be 30 mm on every side.</li>
               <li>Cut around each marker so a white edge about 3 mm wide stays on all sides. The camera needs that edge to find the square.</li>
               <li>
-                Stick them off the fretboard, where your fingers won&apos;t cover them, and line each one&apos;s edge up with a fret wire.
+                Stick them off the fretboard, where your fingers won&apos;t cover them, with each one&apos;s centre level with a fret wire (or the nut).
                 On a Squier Stratocaster or Telecaster (25.5&quot; scale) the frets are about 36 mm apart at the nut, 27 mm at fret 5 and
-                18 mm at fret 12, so a 25 mm marker fits inside one fret only near the nut.
+                18 mm at fret 12, so a 30 mm marker fits inside one fret only near the nut.
                 <ul className="mt-1 list-disc space-y-0.5 pl-5">
                   <li>One on the headstock face, just above the nut (fret 0).</li>
                   <li>One on the body just past the neck joint, lined up with fret 17.</li>
-                  <li>If you like, a 15–20 mm one on the side of the neck facing the camera, at fret 5 or 7. The side is only about 20 mm deep, so 25 mm is too big there.</li>
+                  <li>Skip the side of the neck: it is only about 20 mm deep, and a marker that small drops out.</li>
                 </ul>
-                Write down which marker number went at which fret: placing the frets will need it.
+                Type each marker&apos;s number and the fret it lines up with into Markers, as number@fret, with the headstock one as fret 0 and its size in mm after a slash, since its centre sits past the nut (so 0@0/25, 1@17): the log uses it to read the fret your hand is at.
               </li>
               <li>Test from where the camera will stand: press Start camera, turn on Read the neck, and play. Each marker&apos;s number should stay in the Markers label at the top left of the camera. If one keeps dropping out, print it bigger or move the camera closer.</li>
             </ol>
@@ -362,6 +359,20 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
               <option value="">Browser default</option>
               {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
               {cameraId && !cameras.some((c) => c.deviceId === cameraId) && <option value={cameraId}>Last picked camera</option>}
+            </select>
+          </label>
+        )}
+        {phase !== "recording" && (
+          <label className="flex items-center gap-1.5 text-slate-300" title="How the riff's notes are drawn over the camera and the take">Riff over video
+            <select value={overlay} onChange={(e) => pickOverlay(e.target.value as OverlayMode)} className="rounded bg-slate-800 px-1 py-0.5">
+              {OVERLAY_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+            </select>
+          </label>
+        )}
+        {phase !== "recording" && overlay === "bar" && (
+          <label className="flex items-center gap-1.5 text-slate-300" title="How many bars Bar by bar shows at once">Bars shown
+            <select value={windowBars} onChange={(e) => pickWindow(Number(e.target.value) as WindowBars)} className="rounded bg-slate-800 px-1 py-0.5">
+              {WINDOW_BARS.map((b) => <option key={b} value={b}>{b === 1.5 ? "1½" : b}</option>)}
             </select>
           </label>
         )}
@@ -391,12 +402,17 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
             <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers and your fingertips over the camera and the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
               <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} /> Read the neck
             </label>
+            {readNeck && (
+              <label className="flex items-center gap-1 text-sm text-slate-400" title="For each marker, its number and the fret wire its centre is level with. A headstock marker touching the nut is fret 0 with its size in mm: 0@0/25.">
+                Markers (number@fret, headstock 0)
+                <input value={markers} onChange={(e) => placeMarkers(e.target.value)} placeholder="0@0/25, 1@17" className="w-32 rounded bg-slate-800 px-2 py-0.5 text-slate-200" />
+              </label>
+            )}
             <span className="text-slate-400">Print markers: <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4</a> · <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3</a></span>
           </>
         )}
         {take && phase !== "recording" && (
           <>
-            <button onClick={() => void transcribe()} disabled={busy} className="rounded bg-emerald-700 px-3 py-1 text-sm disabled:opacity-40">{busy ? "Listening…" : "Transcribe"}</button>
             <button onClick={() => void store(take)} disabled={stored !== "failed"} className={btn}>Save</button>
             <button onClick={download} className={btn}>Save file</button>
             <button onClick={() => void remove()} className={btn}>Delete take</button>
@@ -407,7 +423,7 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
         )}
       </div>
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
-      {!camera && !take && <p className="text-slate-400">Record yourself playing the riff. The take is saved with the riff in this browser, and Transcribe turns its notes into tab at {bpm} bpm. One note at a time: chords aren&apos;t heard.</p>}
+      {!camera && !take && <p className="text-slate-400">Record yourself playing the riff. The take is saved with the riff in this browser, with the riff&apos;s notes shown over it.</p>}
       {phase === "recording" && beatNow && <BeatView {...beatNow} />}
       {/* the take to review, and beside it the camera, ready for the next one; while recording the camera alone */}
       {(camera || (take && url)) && (
@@ -415,12 +431,14 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
           {phase !== "recording" && take && url && (
             <div className="relative w-full max-w-xl">
               <video key={url} ref={setTakeVideo} src={url} controls playsInline className="max-h-80 w-full rounded bg-black" />
-              {readNeck && <NeckView key={url} video={takeVideo} />}
+              {readNeck && <NeckView key={url} video={takeVideo} onRead={onNeckRead} />}
+              <TakeNotes video={takeVideo} notes={takeNotes} mode={overlay} grid={barGrid(take.bpm ?? bpm, take.downbeat ?? 0, windowBars)} />
             </div>
           )}
           {camera && (
             <div className="relative">
               <video ref={liveRef} autoPlay muted playsInline className={`rounded bg-black ${phase === "recording" || !take ? "max-h-80 w-full max-w-xl" : "max-h-40 w-56"}`} />
+              {phase === "recording" && beatNow && <LiveNote notes={liveNotes} t={beatNow.beat * 60 / bpm} mode={overlay} grid={barGrid(bpm, 0, windowBars)} />}
               {/* not while recording: the hand model would compete with the recorder and the beat */}
               {readNeck && phase !== "recording" ? <NeckView video={liveVideo} /> : (
                 <span className={`absolute left-2 top-2 rounded px-1.5 text-xs ${phase === "recording" ? "bg-rose-700 text-white" : "bg-slate-900/80 text-slate-300"}`}>{phase === "recording" ? "● Recording" : "Camera"}</span>
@@ -429,22 +447,8 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
           )}
         </div>
       )}
-      {heard && (
-        heard.length === 0
-          ? <p className="text-amber-300">No notes heard in this take. Chords and very quiet playing aren&apos;t picked up.</p>
-          : (
-            <div className="flex flex-col gap-2">
-              <p className="text-slate-400">Heard {heard.filter((n) => n.string !== null).length} notes, on a 1/16 grid at {take?.bpm ?? bpm} bpm {take?.downbeat !== undefined ? `from beat 1, ${take.bars} bars` : "from the first note"}, placed at position {pos}.</p>
-              <pre className="overflow-x-auto rounded bg-slate-950 p-3 text-xs text-slate-300">{asciiTab(heard)}</pre>
-              <div className="flex gap-2">
-                <button onClick={() => playSequence(stepsOf(heard, take?.bpm ?? bpm), player())} className="rounded bg-emerald-700 px-3 py-1 text-sm">Play</button>
-                <button onClick={() => silence()} className={btn}>Stop</button>
-                <button onClick={() => { onNotes(heard, true); setHeard(null); }} className={btn}>Replace the riff&apos;s notes</button>
-                <button onClick={() => { onNotes(heard, false); setHeard(null); }} className={btn}>Add after the riff&apos;s notes</button>
-                <button onClick={() => setHeard(null)} className={btn}>Discard</button>
-              </div>
-            </div>
-          )
+      {take && phase !== "recording" && (
+        <DetectLog log={take.log ?? {}} notes={takeNotes} markers={markers} onSeek={(t) => takeVideo && seek(takeVideo, t)} />
       )}
     </section>
   );

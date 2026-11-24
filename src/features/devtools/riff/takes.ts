@@ -5,7 +5,17 @@ export interface RiffTake {
   id: string; blob: Blob; type: string; seconds: number; at: number;
   /** recorded to the click: seconds into the take where beat 1 fell (after the count-in, latency allowed for), the tempo and the expected bars */
   downbeat?: number; bpm?: number; bars?: number;
+  /** what was detected in the take: what Read the neck saw while it played (DetectLog) */
+  log?: TakeLog;
 }
+
+/** One frame Read the neck read, at `t` seconds into the take: the marker ids and each hand's fingertips. */
+export interface NeckRead {
+  t: number; markers: number[]; hands: { x: number; y: number }[][];
+  /** each marker's centre; x and y here and in `hands` are fractions of the frame's width */
+  at?: { id: number; x: number; y: number }[];
+}
+export interface TakeLog { neck?: NeckRead[] }
 
 const DB = "musickit-dev-riff-takes";
 const STORE = "takes";

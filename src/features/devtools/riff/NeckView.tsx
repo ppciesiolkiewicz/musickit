@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
+import type { NeckRead } from "./takes";
 
 /** The hand model and its runtime, fetched on first use (dev tool only). */
 const WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
@@ -35,7 +36,9 @@ async function loadMarkers(): Promise<Detector> {
  * Over the take video: the ArUco markers seen on the neck (outlined, with their id) and the hands (fingertips of the fretting
  * hand). Works on the live camera too. Only shows what it finds: the fret grid from the markers is the next step (tasks.txt NEW18).
  */
-export default function NeckView({ video }: { video: HTMLVideoElement | null }) {
+export default function NeckView({ video, onRead }: { video: HTMLVideoElement | null; /** each frame read, for the take's log */ onRead?: (r: NeckRead) => void }) {
+  const report = useRef(onRead);
+  useEffect(() => { report.current = onRead; }, [onRead]);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("Loading the hand model…");
   const [problem, setProblem] = useState("");
@@ -79,6 +82,17 @@ export default function NeckView({ video }: { video: HTMLVideoElement | null }) 
           for (const p of lm) ctx.fillRect(p.x * w - 2, p.y * h - 2, 4, 4);
           for (const t of TIPS) { ctx.beginPath(); ctx.arc(lm[t].x * w, lm[t].y * h, 7, 0, Math.PI * 2); ctx.fill(); }
         }
+        const r2 = (v: number) => Math.round(v * 1000) / 1000;
+        report.current?.({
+          t: video.currentTime,
+          markers: found.map((m) => m.id).sort((a, b) => a - b),
+          at: found.map((m) => ({
+            id: m.id,
+            x: r2(m.corners.reduce((t, p) => t + p.x, 0) / 4 / scratch.width),
+            y: r2(m.corners.reduce((t, p) => t + p.y, 0) / 4 / scratch.width),
+          })),
+          hands: res.landmarks.map((lm) => TIPS.map((t) => ({ x: r2(lm[t].x), y: r2((lm[t].y * h) / w) }))),
+        });
         setStatus(`Markers: ${found.length ? found.map((m) => m.id).sort((a, b) => a - b).join(", ") : "none"} · Hands: ${res.landmarks.length}`);
       };
       id = requestAnimationFrame(frame);
