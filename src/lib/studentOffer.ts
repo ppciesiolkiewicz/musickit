@@ -9,7 +9,7 @@ import { EARLY_OFFER, PRICING, earlyCents } from "@/features/account/pricing";
 /** How many of the first people to sign up get the early price (`EARLY_OFFER`). */
 export const FIRST_STUDENTS = EARLY_OFFER.students;
 
-/** The monthly price anyone else pays, as it is written. The early price is for paying monthly only. */
+/** The monthly price anyone else pays, as it is written. The early price is half of it, and half the yearly price too. */
 export const STUDENT_PRICE = PRICING.player.monthPrice;
 
 /** The early price for a month, as it is written: half the monthly price. It is locked in: it doesn't go up later. */

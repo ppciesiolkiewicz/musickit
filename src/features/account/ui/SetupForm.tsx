@@ -6,7 +6,7 @@ import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
 import { EmailUpdatesBox } from "./EmailUpdates";
-import { AudienceLead, AudienceSwitch, BillingSwitch, EarlyOffer, PaymentBox, PlanOption, planGrid, planHue, startAudience, type Loaded } from "./PlanPicker";
+import { AudienceLead, AudienceSwitch, BillingSwitch, EarlyOffer, NoChargeLine, PlanOption, planGrid, planHue, startAudience, type Loaded } from "./PlanPicker";
 import { audienceOf, type Audience } from "./planPitch";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
 
@@ -146,6 +146,7 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
             <>
               <AudienceSwitch audience={shownAudience} onChange={(a) => { setAudience(a); setPlanError(null); setError(null); }} />
               <EarlyOffer audience={shownAudience} open={early} />
+              <NoChargeLine />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <AudienceLead audience={shownAudience} />
                 <div className="flex shrink-0"><BillingSwitch billing={shownBilling} plans={shownPlans} early={early} onChange={(b) => { setBilling(b); setError(null); }} /></div>
@@ -161,8 +162,6 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
             </div>
           )}
         </fieldset>
-
-        {chosenPlan && plans && <PaymentBox plan={chosenPlan} hue={planHue(plans.plans.indexOf(chosenPlan))} billing={shownBilling} trial={plans.current === null} early={early} />}
 
         <div className="flex flex-col gap-4 border-t border-slate-800 pt-5 metal-rule">
           <EmailUpdatesBox checked={shownEmails} onChange={setEmails} where="account" />

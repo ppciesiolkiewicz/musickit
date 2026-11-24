@@ -13,7 +13,7 @@ import { LessonNoteMock } from "@/components/landing/LessonMocks";
 import { Check, PlanDayCard } from "./PracticeSections";
 import { DiscountBadge } from "@/components/ui";
 import { EARLY_OFFER, PRICING, earlyCents } from "@/features/account/pricing";
-import { DEFAULT_PLAN_ID, dollars, priceLabel, pricedWithYou, studentsLabel, trialLabel, type Plan } from "@/features/account/plans";
+import { DEFAULT_PLAN_ID, dollars, pricedWithYou, studentsLabel, trialLabel, type Plan } from "@/features/account/plans";
 import TourCard from "@/features/intro/TourCard";
 import type { VideoId } from "@/features/intro/data";
 import { FOUNDING_OFFER, FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
@@ -312,8 +312,8 @@ export default function AutoplanHome({ audience, plans, ending }: { audience: Au
  * then the card says so and shows no number). The early price is from lib/studentOffer.ts, the founding partner's from
  * lib/foundingOffer.ts, the guarantee from features/account/pricing.ts.
  */
-/** "$3 a month or $36 a year": the monthly price at the early price (`EARLY_OFFER`, for paying monthly only), the yearly one as it is. */
-const earlyBoth = (p: Plan) => `${dollars(earlyCents(p.monthCents))} a month or ${priceLabel(p, "year")}`;
+/** "$3 a month or $18 a year": both at the early price (`EARLY_OFFER`). */
+const earlyBoth = (p: Plan) => `${dollars(earlyCents(p.monthCents))} a month or ${dollars(earlyCents(p.yearCents))} a year`;
 
 function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null }) {
   const p = PRICING.player;
@@ -344,7 +344,7 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
         <p className="mt-4 text-slate-300">Free while attunr is in beta. These are the prices from launch.</p>
         <p className="mt-3 inline-flex flex-wrap items-center justify-center gap-2 text-sm text-slate-300">
           <DiscountBadge percent={EARLY_OFFER.percentOff} />
-          <span>Early price for the first {EARLY_OFFER.students} students and the first {EARLY_OFFER.schools} schools: half the monthly price, locked in.</span>
+          <span>Early price for the first {EARLY_OFFER.students} students and the first {EARLY_OFFER.schools} schools: half price, monthly or yearly, locked in.</span>
         </p>
       </div>
       <div className="mx-auto mt-10 grid max-w-4xl gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
@@ -361,7 +361,7 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
                       <span className="flex w-full flex-wrap items-center gap-x-2 gap-y-1 text-slate-200">
                         {pricedWithYou(t) ? "Price set with you" : <>{dollars(earlyCents(t.monthCents))} a month <s className="text-sm text-slate-500"><span className="sr-only">instead of </span>{dollars(t.monthCents)}</s></>}
                         <DiscountBadge percent={EARLY_OFFER.percentOff} />
-                        {!pricedWithYou(t) && <span className="text-sm text-slate-400">or {priceLabel(t, "year")}</span>}
+                        {!pricedWithYou(t) && <span className="text-sm text-slate-400">or {dollars(earlyCents(t.yearCents))} a year</span>}
                       </span>
                     </li>
                   ))}
@@ -380,7 +380,7 @@ function Pricing({ audience, plans }: { audience: Audience; plans: Plan[] | null
             <p className="mt-2 text-sm text-slate-400">
               {schools
                 ? (teaching.length > 0 ? <>{trial && `${trial}. `}{solo && `Solo musicians pay ${earlyBoth(solo)}.`}</> : MISSING)
-                : (solo ? <>Or {priceLabel(solo, "year")}, paid once.{trial && ` ${trial}.`}</> : MISSING)}
+                : (solo ? <>Or {dollars(earlyCents(solo.yearCents))} a year, paid once.{trial && ` ${trial}.`}</> : MISSING)}
             </p>
           </div>
           <ul className="flex flex-col gap-2.5 text-sm text-slate-300">

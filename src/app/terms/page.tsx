@@ -91,11 +91,10 @@ const SECTIONS: LegalSection[] = [
     title: "The early price",
     body: (
       <>
-        <p>The first {EARLY_OFFER.students} people who sign up for a player subscription, and the first {EARLY_OFFER.schools} teachers or schools who join as founding partners, get the early price: {EARLY_OFFER.percentOff}% off the monthly price of their plan. For a player that is {FIRST_STUDENTS_LINE}. A founding partner can choose any teacher plan, of any size.</p>
-        <p>The early price is for paying monthly. A year paid once up front stays at its full price, which is the same as twelve months at the early price.</p>
-        <p>&ldquo;First&rdquo; goes by the order people sign up: by when you made your account, or for a founding partner by when we agreed that you join. While places are left, the pricing page shows the early price. Nothing is charged during the beta, so the early price starts with your first payment after paid plans open.</p>
+        <p>The first {EARLY_OFFER.students} people who sign up for a player subscription, and the first {EARLY_OFFER.schools} teachers or schools who join as founding partners, get the early price: {EARLY_OFFER.percentOff}% off the price of their plan, paid monthly or yearly. For a player that is {FIRST_STUDENTS_LINE}. A founding partner can choose any teacher plan, of any size.</p>
+                <p>&ldquo;First&rdquo; goes by the order people sign up: by when you made your account, or for a founding partner by when we agreed that you join. While places are left, the pricing page shows the early price. Nothing is charged during the beta, so the early price starts with your first payment after paid plans open.</p>
         <p>The early price is locked in: it does not go up for as long as you stay subscribed. If you cancel and subscribe again later, you pay the price shown at that time.</p>
-        <p>For the plan priced by agreement, a founding partner pays {EARLY_OFFER.percentOff}% off the monthly price we agree with them.</p>
+        <p>For the plan priced by agreement, a founding partner pays {EARLY_OFFER.percentOff}% off the price we agree with them.</p>
         <p>A founding partner&apos;s agreement with us can give more than these terms do, such as a longer trial or a longer time to ask for all their money back. Where it does, the agreement applies.</p>
       </>
     ),
