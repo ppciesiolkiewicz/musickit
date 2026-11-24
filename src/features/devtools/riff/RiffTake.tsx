@@ -329,7 +329,17 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
               <li>Make each marker 25 mm across, the black square only. If it won&apos;t fit where you want it, 20 mm is the smallest that works.</li>
               <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one with a ruler: it should be 25 mm on every side.</li>
               <li>Cut around each marker so a white edge about 3 mm wide stays on all sides. The camera needs that edge to find the square.</li>
-              <li>Stick one on the headstock face, one on the body where the neck joins it, and, if there is room, one on the side of the neck. Keep them flat and away from your fretting hand.</li>
+              <li>
+                Stick them off the fretboard, where your fingers won&apos;t cover them, and line each one&apos;s edge up with a fret wire.
+                On a Squier Stratocaster or Telecaster (25.5&quot; scale) the frets are about 36 mm apart at the nut, 27 mm at fret 5 and
+                18 mm at fret 12, so a 25 mm marker fits inside one fret only near the nut.
+                <ul className="mt-1 list-disc space-y-0.5 pl-5">
+                  <li>One on the headstock face, just above the nut (fret 0).</li>
+                  <li>One on the body just past the neck joint, lined up with fret 17.</li>
+                  <li>If you like, a 15–20 mm one on the side of the neck facing the camera, at fret 5 or 7. The side is only about 20 mm deep, so 25 mm is too big there.</li>
+                </ul>
+                Write down which marker number went at which fret: placing the frets will need it.
+              </li>
               <li>Test from where the camera will stand: record a short take, turn on Read the neck, and play. Each marker&apos;s number should stay in the Markers line under the video. If one keeps dropping out, print it bigger or move the camera closer.</li>
             </ol>
           </div>
