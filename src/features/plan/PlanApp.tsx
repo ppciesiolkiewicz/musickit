@@ -110,6 +110,16 @@ export default function PlanApp() {
   usePlanAgentTools(loaded ? plan : null, (next) => setPlan(() => next), editingDay);
   const rate = rateHandler(plan, setPlan, progress);
 
+  // a player who came by a shared plan (invited) and hasn't answered the questions: the questionnaire opens by itself,
+  // once a page view, so Close leaves them on the intro
+  const autoOpened = useRef(false);
+  const invitedNoAnswers = loaded && accountLoaded && !taught && day.view.kind === "intro" && state.given.length > 0;
+  useEffect(() => {
+    if (!invitedNoAnswers || autoOpened.current) return;
+    autoOpened.current = true;
+    setFlow(true);
+  }, [invitedNoAnswers]);
+
   if (!loaded || !timesLoaded || !accountLoaded) return <p className="text-sm text-slate-500">Loading…</p>;
 
   if (taught) {
