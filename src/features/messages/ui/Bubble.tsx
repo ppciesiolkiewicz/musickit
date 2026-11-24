@@ -139,7 +139,7 @@ function Panel({ context, onClose, onRead }: { context: MessageContext; onClose:
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return setError("Write a message first.");
+    if (!text.trim()) return setError("Write your message, then press Send.");
     setSending(true);
     setError(null);
     const r = await send("/api/me/messages", "POST", current ? { body: text, context, threadId: current } : { body: text, context, newThread: true });
@@ -175,7 +175,7 @@ function Panel({ context, onClose, onRead }: { context: MessageContext; onClose:
     >
       <header className="flex items-center gap-2 border-b border-slate-800 px-4 py-3">
         {view === "list" ? (
-          <h2 className="text-sm font-semibold">Your messages</h2>
+          <h2 className="text-sm font-semibold">All messages</h2>
         ) : (
           <>
             {threads && threads.length > 1 && (
@@ -215,7 +215,7 @@ function Panel({ context, onClose, onRead }: { context: MessageContext; onClose:
           <div className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 py-3">
             {messages === null && <p className="text-sm text-slate-400">Loading…</p>}
             {messages?.length === 0 && (
-              <p className="text-sm text-slate-400">Something unclear, wrong or missing? Tell us here. We read every message and reply in this panel.</p>
+              <p className="text-sm text-slate-400">Something unclear, wrong or missing? Tell us here. We read every message, and our reply shows in this panel.</p>
             )}
             {messages?.map((m, i) => (
               <div key={i} className={`max-w-[85%] rounded-xl px-3 py-2 text-sm ${m.fromAdmin ? "self-start bg-slate-800 text-slate-100" : "self-end bg-sky-500/20 text-sky-50"}`}>
@@ -228,8 +228,8 @@ function Panel({ context, onClose, onRead }: { context: MessageContext; onClose:
           <form noValidate onSubmit={(e) => void submit(e)} className="flex flex-col gap-2 border-t border-slate-800 px-4 py-3">
             {(about || context.selection) && (
               <p className="text-xs text-slate-500">
-                {about && <>Sent with this page: {about}</>}
-                {context.selection && <span className="block truncate">Selected text: “{context.selection}”</span>}
+                {about && <>We will see the page you are on: {about}</>}
+                {context.selection && <span className="block truncate">With the text you selected: “{context.selection}”</span>}
               </p>
             )}
             <label htmlFor="message-text" className="sr-only">Your message</label>
@@ -238,7 +238,7 @@ function Panel({ context, onClose, onRead }: { context: MessageContext; onClose:
               rows={3}
               maxLength={4000}
               value={text}
-              placeholder="What happened, and where?"
+              placeholder="What is unclear, wrong or missing?"
               onChange={(e) => {
                 setText(e.target.value);
                 setError(null);
