@@ -80,7 +80,7 @@ describe("vowel-guide: the holds", () => {
 });
 
 describe("vowel-guide: the mouth as numbers", () => {
-  it("on an easy note: ah the most open, ee and oo nearly the same small round mouth, oo the roundest and narrowest, eh the widest", () => {
+  it("on an easy note: ah the most open, ee the least open, ee and oo nearly the same small round mouth, oo the roundest and narrowest, eh the widest", () => {
     for (const v of VOWELS) assert.deepEqual(mouthShape(v, 0), MOUTHS[v]);
     const by = (k: "open" | "wide" | "round") => [...VOWELS].sort((a, b) => MOUTHS[b][k] - MOUTHS[a][k]);
     assert.equal(by("open")[0], "ah");

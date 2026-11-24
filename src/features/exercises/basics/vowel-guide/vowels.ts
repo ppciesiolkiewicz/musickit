@@ -75,17 +75,17 @@ export const towards = (pitch: number, midi: number, cents: number): -1 | 0 | 1 
 /** The drawn mouth, each 0 to 1: how far the jaw is dropped, how wide the corners sit, how far the lips are pushed round. */
 export interface MouthShape { open: number; wide: number; round: number }
 
-/** Each vowel's mouth on an easy note: "ah" open tall, "eh" half open and wide, "ee" nearly the "oo" mouth, lips a little round and the corners in (not a smile), "oh" round and open, "oo" round and small. */
+/** Each vowel's mouth on an easy note: "ah" open tall, "eh" taller than wide, "ee" nearly the "oo" mouth, lips a little round and the corners in (not a smile), "oh" round and open, "oo" round and small. */
 export const MOUTHS: Record<Vowel, MouthShape> = {
-  ah: { open: 0.95, wide: 0.5, round: 0 },
-  eh: { open: 0.5, wide: 0.75, round: 0 },
-  ee: { open: 0.24, wide: 0.32, round: 0.75 },
-  oh: { open: 0.6, wide: 0.38, round: 0.6 },
-  oo: { open: 0.25, wide: 0.2, round: 1 },
+  ah: { open: 0.95, wide: 0.4, round: 0 },
+  eh: { open: 0.65, wide: 0.42, round: 0.2 },
+  ee: { open: 0.26, wide: 0.3, round: 0.7 },
+  oh: { open: 0.7, wide: 0.3, round: 0.7 },
+  oo: { open: 0.28, wide: 0.2, round: 1 },
 };
 
-/** the width every vowel moves towards as the note climbs */
-const MID_WIDE = 0.5;
+/** the narrow width every vowel moves towards as the note climbs */
+const MID_WIDE = 0.32;
 /** how far a vowel has opened, and moved towards the middle width, at the top of the range */
 const OPENS = 0.4;
 const NARROWS = 0.5;

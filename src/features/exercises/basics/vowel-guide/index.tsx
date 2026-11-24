@@ -34,7 +34,7 @@ const SAY: Record<Vowel, string> = { ah: "“ah”", eh: "“eh”", ee: "“ee�
 /** each vowel's mouth in words, as the course's "Sing it on a sound" says them */
 const SHAPE: Record<Vowel, string> = {
   ah: "“ah” as in “father”: your mouth open tall.",
-  eh: "“eh” as in “bed”: your mouth half open, the corners a little wide.",
+  eh: "“eh” as in “bed”: your jaw dropped, your mouth taller than wide.",
   ee: "“ee” as in “see”: your mouth almost as for “oo”, your lips a little round.\nKeep the corners of your mouth in, not spread in a smile.",
   oh: "“oh” as in “go”: your lips round, your mouth open.",
   oo: "“oo” as in “moon”: your lips round.",
@@ -54,6 +54,7 @@ const TIPS = [
   "If a note feels tight, stop there. Don't reach for it.",
   "On “ee”, keep your lips a little round, almost as for “oo”. A wide smile flattens the sound.",
   "Keep your lips free to move. They shape the vowel and carry the feeling of the line.",
+  "Open tall, not wide: drop your jaw instead of pulling the corners of your mouth back.",
   "Let your jaw hang loose. Only your lips and tongue change the vowel.",
 ];
 const TIP_SECONDS = 8;
@@ -306,7 +307,7 @@ const W = 260, H = 220, CX = W / 2, CY = H / 2, RING = 102;
  */
 function Mouth({ shape, vowel, progress, inside, resting }: { shape: MouthShape; vowel: Vowel; progress: number; inside: boolean; resting: boolean }) {
   const id = useId().replace(/:/g, "");
-  const rx = 30 + shape.wide * 58;
+  const rx = 22 + shape.wide * 50;
   const ry = 12 + shape.open * 62;
   const lip = 8 + shape.round * 7;
   const ix = Math.max(2, rx - lip);
