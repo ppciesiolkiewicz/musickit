@@ -104,6 +104,47 @@ Paid5: Prices are in US dollars and the business is in Australia: GST, and wheth
 Paid6: Is yearly turnover still under AUD 3 million? Above it the Privacy Act applies in full, with the breach
   notification scheme and the children's code (see Dated1).
 
+Paid7: Stripe is the payment provider (commit ee67d301, off unless STRIPE_ENABLED=true). It gets each payer's email,
+  name and card, so it joins the list in Every1 and is named on /privacy (Paid2). How it works: src/features/account
+  /README.md ("Payments"), src/features/account/server/stripe.ts.
+  [2026-11-24] Built, not yet run against Stripe: no keys set, not checked in a browser.
+
+Paid8: The migrations ran on production before STRIPE_ENABLED is turned on: `npm run db:migrate` (0040 adds the
+  payment fields on users, 0041 the payments table). 0040 marks every account with a plan as payment_exempt, so the
+  accounts that keep their plan free are the ones that had a plan when it ran. Check .env.local's DATABASE_URL points
+  where you mean before running it.
+
+Paid9: Stripe dashboard set up, in test mode first, then again in live mode:
+  - STRIPE_SECRET_KEY in Vercel env (Production).
+  - A webhook to https://www.attunr.app/api/stripe/webhook with the events customer.subscription.created,
+    customer.subscription.updated, customer.subscription.deleted, checkout.session.completed and invoice.paid. Its
+    signing secret is STRIPE_WEBHOOK_SECRET.
+  - The customer portal switched on (Settings -> Billing -> Customer portal), with cancelling allowed. After the first
+    Checkout the plan_* products exist: add them to the portal so people can switch plans there.
+  - Optional: a 50% "forever" coupon for the early price, its id in STRIPE_EARLY_COUPON.
+  - Then STRIPE_ENABLED=true.
+
+Paid10: End to end in test mode, before live keys:
+  - Locally: `stripe listen --forward-to localhost:3000/api/stripe/webhook`, its whsec_ secret as STRIPE_WEBHOOK_SECRET.
+  - A new account picks a paid plan, pays with 4242 4242 4242 4242: no charge, status trialing, the app opens.
+  - A test clock moved 31 days on: Stripe charges, the status is active, a row appears in payments.
+  - A declined renewal (card 4000 0000 0000 0341): past_due keeps access; every retry failed, canceled sends the
+    account back to pay.
+  - An account that had a plan before 0040 is not stopped, and /account offers it Pay for ….
+  - Manage billing on /account opens the portal; a plan changed there changes the plan (and role) in the app.
+  - The early coupon is applied while the side's places are open.
+
+Paid11: The words on /terms and the FAQ still describe the free beta. /account and /account/setup hide their beta
+  lines when payments are on; those two pages don't. Rewrite them for paid plans.
+
+Paid12: Not built yet, decide before launch:
+  - The early places taken (earlyTaken() in src/features/account/server/earlyTaken.ts) are typed in by hand, not
+    counted from Stripe, so the coupon stops only when that number is raised.
+  - No screen shows the stored payments (receipts live in Stripe's emails and the portal).
+  - No email before the trial ends: Stripe's customer.subscription.trial_will_end event, or the outside scheduler
+    (Beta8), could send one. Paid3's renewal and price-change emails are not built either.
+  - A subscriber who picks Teacher Unlimited (priced with you) is sent to the portal rather than moved.
+
 
 ======================== Marketing to the EU or the UK ========================
 Merely being reachable from Europe is not this launch. Prices in euros or pounds, another language, or adverts aimed
