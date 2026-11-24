@@ -11,11 +11,13 @@ import { barEvents, gridAnchor, isFinished, nextBarAt } from "./schedule";
 const STRUM_GAP_MS = 18;
 /** ClickTrack schedules clicks this far ahead (its LOOKAHEAD, 0.12 s) plus a margin: re-anchor before then. */
 const REGRID_LEAD = 0.2;
+/** `beat` moves in steps this fine: exact for sixteenths and triplets, so a short note lights for its whole length */
+const BEAT_STEPS = 24;
 
 /**
  * Plays a timeline: one `ClickTrack` on the audio clock, the timeline's cues on the shared piano (or `instrument`, e.g. a guitar into a NAM amp), and its `drone` (if any). Each bar's notes
- * are queued a whole bar ahead (as `CompPlayer`). `beat` is the click's beat index (0 = first beat, counting on through
- * loops), -1 when stopped. `setTempo` and a new timeline (e.g. another backing) apply from the next bar queued. A tempo
+ * are queued a whole bar ahead (as `CompPlayer`). `beat` is the click's beat (0 = first beat, counting on through
+ * loops) with its fraction in 1/24 steps, -1 when stopped. `setTempo` and a new timeline (e.g. another backing) apply from the next bar queued. A tempo
  * change re-anchors the click (`gridAnchor`) before it schedules that bar's downbeat, so click, notes and playhead
  * stay on one grid.
  */
@@ -121,7 +123,8 @@ export function useTimelinePlayer(t: Timeline, instrument?: () => Player): { pla
     };
     const tick = () => {
       if (stopped) return;
-      setBeat(click.beat()?.index ?? -1);
+      const b = click.beat();
+      setBeat(b ? b.index + Math.floor(b.phase * BEAT_STEPS) / BEAT_STEPS : -1);
       raf = requestAnimationFrame(tick);
     };
     const halt = () => {

@@ -90,7 +90,7 @@ export function PlayAlongTimeline({ timeline, view = "tab", others = "muted", ma
           <PlayButton playing={player.playing} disabled={player.starting} onClick={playStop} space={spaceArmed} data-tour="play-along-play" />
         </Hint>
         <TempoControl bpm={tempo} min={MIN_BPM} max={MAX_BPM} step={2} onChange={changeTempo} data-tour="play-along-tempo" />
-        <BeatMeter beats={BEATS_PER_BAR} beat={pos < 0 ? null : pos % BEATS_PER_BAR} />
+        <BeatMeter beats={BEATS_PER_BAR} beat={pos < 0 ? null : Math.floor(pos) % BEATS_PER_BAR} />
         {views && (
           <Hint title="View" description="Shows the part as tab, as notes on the staff or on the neck.">
             <div data-tour="play-along-view" className="flex gap-1" role="group" aria-label="View">
