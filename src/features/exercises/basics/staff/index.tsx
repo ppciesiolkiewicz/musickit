@@ -22,6 +22,8 @@ import { useToolKeys } from "@/components/practice/toolKeys";
 import dynamic from "next/dynamic";
 import { useVoice, useVoiceRange } from "../voiceChoice";
 
+/** The staff's drone sits an octave up from the jam's (D3, not D2): the low octave barely sounds through laptop and phone speakers. */
+const STAFF_DRONE_OCTAVE = 3;
 const PracticeBand = dynamic(() => import("@/features/instruments").then((m) => m.PracticeBand), { ssr: false });
 
 const FLAT = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
@@ -190,7 +192,7 @@ export function View({ slug, pc, voice: own, notes, under = false, enable, highl
         )}
         {backing.length > 0 && (
           <span data-tour="staff-backing" className="inline-flex items-center gap-2">
-            <PracticeBand view="inline" storageKey="musickit.practiceBand" config={{ parts: backing, bpm, keyPc: pc }} on={backingOn} onToggle={backingOn || !micButton || external ? toggleBacking : () => void startMic()} onStop={stopBacking} group={group} />
+            <PracticeBand view="inline" storageKey="musickit.practiceBand" config={{ parts: backing, bpm, keyPc: pc, droneOctave: STAFF_DRONE_OCTAVE }} on={backingOn} onToggle={backingOn || !micButton || external ? toggleBacking : () => void startMic()} onStop={stopBacking} group={group} />
             {!micButton && spaceCap}
           </span>
         )}

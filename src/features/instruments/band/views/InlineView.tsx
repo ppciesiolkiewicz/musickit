@@ -48,7 +48,9 @@ export default function InlineView({ band, config, show, on, onToggle, onStop, g
   }, [on, rig]);
   const focus = useAudioFocus(on, onStop, group);
 
-  const what = [...(hasDrone ? [`Drone ${NOTE_NAMES[snap.parts.drone.state.drone.root]}`] : []), ...(click ? [`click ${snap.bpm} bpm`] : [])].join(" · ");
+  // each part's name sits before its own mute and volume, so the slider reads as that part's
+  const droneWords = `Drone ${NOTE_NAMES[snap.parts.drone.state.drone.root]}`;
+  const clickWords = `Click ${snap.bpm} bpm`;
   return (
     <span ref={focus} className="inline-flex items-center gap-1.5 text-xs text-slate-400">
       {onToggle && (
@@ -63,6 +65,7 @@ export default function InlineView({ band, config, show, on, onToggle, onStop, g
           {on ? "Stop" : "Play"}
         </button>
       )}
+      {hasDrone && <span className="tabular-nums">{droneWords}</span>}
       {show.levels && on && hasDrone && (
         <PartLevel
           name="drone"
@@ -73,6 +76,7 @@ export default function InlineView({ band, config, show, on, onToggle, onStop, g
           sliderClass="w-16 sm:w-20"
         />
       )}
+      {click && <span className="tabular-nums">{clickWords}</span>}
       {show.levels && on && click && (
         <PartLevel
           name="metronome"
@@ -83,7 +87,6 @@ export default function InlineView({ band, config, show, on, onToggle, onStop, g
           sliderClass="w-16 sm:w-20"
         />
       )}
-      <span className="tabular-nums">{what}</span>
       {show.beats && click && <BeatDots rig={rig} playing={on} />}
     </span>
   );
