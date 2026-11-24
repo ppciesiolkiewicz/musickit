@@ -67,11 +67,11 @@ Beta7: Email sends in production. Every email goes through Resend (sendMail in
   - Resend's free plan is 100 emails a day and 3,000 a month; log-in mail shares it. Look at the count after a week.
 
 Beta8: Practice reminder emails are not built (TaskSeries Reminders in tasks.txt). Today a reminder is a browser
-  notification only while an attunr tab is open. When Reminders2 ships: CRON_SECRET and REMINDER_SECRET set, the
+  notification only while an attunr tab is open. When Reminders2 ships: CRON_SECRET and REMINDER_UNSUBSCRIBE_SECRET set, the
   outside scheduler calling /api/cron/reminders every 15 minutes, the unsubscribe link and one-click header working,
   and the Resend plan big enough for a daily email per player.
   [2026-11-24] Reminder emails built (src/features/reminders, migration 0042). Browser push not built. To switch on:
-  migration 0042 on production, CRON_SECRET and REMINDER_SECRET in Vercel, the scheduler calling the route (curl line
+  migration 0042 on production, CRON_SECRET and REMINDER_UNSUBSCRIBE_SECRET in Vercel, the scheduler calling the route (curl line
   in the feature README). Not yet run against Resend or seen in an inbox; check the unsubscribe link and Gmail's
   one-click unsubscribe on the deploy.
 

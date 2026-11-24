@@ -21,7 +21,7 @@ export async function cronRoute(run: () => RunDeps | null, req: Request, env: En
   if (!secret) return json({ error: "CRON_SECRET is not set." }, 503);
   if (!same(req.headers.get("authorization") ?? "", `Bearer ${secret}`)) return json({ error: "Unauthorized." }, 401);
   const deps = run();
-  if (!deps) return json({ error: "No database or REMINDER_SECRET." }, 503);
+  if (!deps) return json({ error: "No database or REMINDER_UNSUBSCRIBE_SECRET." }, 503);
   return json(await runReminders(deps, now));
 }
 
@@ -46,7 +46,7 @@ export async function putRoute(repo: ReminderRepo, auth: AuthDeps | null, req: R
 /** POST `?token=`: the unsubscribe button and mail programs' one-click unsubscribe. No login; the token is the proof. */
 export async function offRoute(repo: ReminderRepo, req: Request, env: Env, now: Date): Promise<Response> {
   const token = new URL(req.url).searchParams.get("token") ?? "";
-  const userId = readOffToken(token, env.REMINDER_SECRET?.trim() ?? "");
+  const userId = readOffToken(token, env.REMINDER_UNSUBSCRIBE_SECRET?.trim() ?? "");
   if (!userId) return json({ error: "This link doesn't work. Turn reminder emails off on the Practice plan page." }, 400);
   await repo.turnOff(userId, now);
   return json({ ok: true });
