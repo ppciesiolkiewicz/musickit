@@ -329,7 +329,11 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
             </p>
             <p className="font-medium text-slate-200">Printing and placing markers</p>
             <ol className="list-decimal space-y-1 pl-5">
-              <li>Make each marker 25 mm across, the black square only. If it won&apos;t fit where you want it, 20 mm is the smallest that works.</li>
+              <li>
+                Print the sheet for your paper: <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 markers</a> or{" "}
+                <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 markers</a>. Each has markers
+                from 40 mm down to 15 mm, the black square only, each with its own number. Use 25 mm where it fits, and 20 mm is the smallest that works.
+              </li>
               <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one with a ruler: it should be 25 mm on every side.</li>
               <li>Cut around each marker so a white edge about 3 mm wide stays on all sides. The camera needs that edge to find the square.</li>
               <li>
