@@ -33,7 +33,7 @@ async function loadMarkers(): Promise<Detector> {
 
 /**
  * Over the take video: the ArUco markers seen on the neck (outlined, with their id) and the hands (fingertips of the fretting
- * hand). Only shows what it finds: the fret grid from the markers is the next step (tasks.txt NEW18).
+ * hand). Works on the live camera too. Only shows what it finds: the fret grid from the markers is the next step (tasks.txt NEW18).
  */
 export default function NeckView({ video }: { video: HTMLVideoElement | null }) {
   const canvas = useRef<HTMLCanvasElement>(null);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getAudioContext, getOutputBus, playSequence, readDeviceChoice, silence, wakeAudio, type Player } from "@/features/sound";
 import { clockTime } from "@/features/recorder/recorder";
 import { pickVideoType, videoFileName } from "@/features/videos/recording";
@@ -89,7 +89,10 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
   const [previous, setPrevious] = useState<Take | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
-  const live = useRef<HTMLVideoElement>(null);
+  const live = useRef<HTMLVideoElement | null>(null);
+  // the live video as state too, so NeckView can read the camera
+  const [liveVideo, setLiveVideo] = useState<HTMLVideoElement | null>(null);
+  const liveRef = useCallback((el: HTMLVideoElement | null) => { live.current = el; setLiveVideo(el); }, []);
   const [click, setClick] = useState(true);
   // the cameras the browser offers (an iPhone through Continuity Camera among them), and the one picked, kept in this browser
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
@@ -318,7 +321,7 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
               to it. If the iPhone isn&apos;t in the list, quit Chrome (Cmd+Q) and open it again.
             </p>
             <p>
-              Read the neck, on a saved take, draws your fingertips and the markers it sees over the video. Recording and Transcribe need no
+              Read the neck draws your fingertips and the markers it sees over the camera and over a saved take. Recording and Transcribe need no
               markers. Markers are small black-and-white squares, like QR codes, that the camera can find. Open
               {" "}<a href={MARKER_PAGE} target="_blank" rel="noreferrer" className="text-sky-400 underline">Print markers</a>{" "}
               and print a few: the page is already set to the right kind (ARUCO_MIP_36h12), and other kinds won&apos;t be seen. For now it only shows
@@ -340,7 +343,7 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
                 </ul>
                 Write down which marker number went at which fret: placing the frets will need it.
               </li>
-              <li>Test from where the camera will stand: record a short take, turn on Read the neck, and play. Each marker&apos;s number should stay in the Markers line under the video. If one keeps dropping out, print it bigger or move the camera closer.</li>
+              <li>Test from where the camera will stand: press Start camera, turn on Read the neck, and play. Each marker&apos;s number should stay in the Markers label at the top left of the camera. If one keeps dropping out, print it bigger or move the camera closer.</li>
             </ol>
           </div>
         </details>
@@ -379,16 +382,20 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
         {phase === "recording" && <span className="font-mono text-rose-300">{clockTime(seconds)} / {clockTime(MAX_SECONDS)}</span>}
         {phase === "ready" && take && !previous && <span className="text-slate-400">A new recording replaces this riff&apos;s take.</span>}
         {previous && phase !== "recording" && <button onClick={undo} className={btn} title={`Recorded ${new Date(previous.at).toLocaleTimeString()}, ${clockTime(previous.seconds)}`}>Back to the previous take</button>}
+        {(camera || take) && phase !== "recording" && (
+          <>
+            <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers and your fingertips over the camera and the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
+              <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} /> Read the neck
+            </label>
+            {readNeck && <a href={MARKER_PAGE} target="_blank" rel="noreferrer" className="text-sky-400 underline">Print markers</a>}
+          </>
+        )}
         {take && phase !== "recording" && (
           <>
             <button onClick={() => void transcribe()} disabled={busy} className="rounded bg-emerald-700 px-3 py-1 text-sm disabled:opacity-40">{busy ? "Listening…" : "Transcribe"}</button>
             <button onClick={() => void store(take)} disabled={stored !== "failed"} className={btn}>Save</button>
             <button onClick={download} className={btn}>Save file</button>
             <button onClick={() => void remove()} className={btn}>Delete take</button>
-            <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers and your fingertips over the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the neck.">
-              <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} /> Read the neck
-            </label>
-            {readNeck && <a href={MARKER_PAGE} target="_blank" rel="noreferrer" className="text-sky-400 underline">Print markers</a>}
             <span className={stored === "failed" ? "text-rose-400" : "text-slate-400"}>
               {clockTime(take.seconds)} · {stored === "saved" ? "Saved in this browser" : stored === "saving" ? "Saving…" : "Not saved"}
             </span>
@@ -409,8 +416,11 @@ export default function RiffTake({ riff, name, bpm, pos, bars, player, onNotes }
           )}
           {camera && (
             <div className="relative">
-              <video ref={live} autoPlay muted playsInline className={`rounded bg-black ${phase === "recording" || !take ? "max-h-80 w-full max-w-xl" : "max-h-40 w-56"}`} />
-              <span className={`absolute left-2 top-2 rounded px-1.5 text-xs ${phase === "recording" ? "bg-rose-700 text-white" : "bg-slate-900/80 text-slate-300"}`}>{phase === "recording" ? "● Recording" : "Camera"}</span>
+              <video ref={liveRef} autoPlay muted playsInline className={`rounded bg-black ${phase === "recording" || !take ? "max-h-80 w-full max-w-xl" : "max-h-40 w-56"}`} />
+              {/* not while recording: the hand model would compete with the recorder and the beat */}
+              {readNeck && phase !== "recording" ? <NeckView video={liveVideo} /> : (
+                <span className={`absolute left-2 top-2 rounded px-1.5 text-xs ${phase === "recording" ? "bg-rose-700 text-white" : "bg-slate-900/80 text-slate-300"}`}>{phase === "recording" ? "● Recording" : "Camera"}</span>
+              )}
             </div>
           )}
         </div>
