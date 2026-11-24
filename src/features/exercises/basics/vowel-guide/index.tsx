@@ -35,7 +35,7 @@ const SAY: Record<Vowel, string> = { ah: "“ah”", eh: "“eh”", ee: "“ee�
 const SHAPE: Record<Vowel, string> = {
   ah: "“ah” as in “father”: your mouth open tall.",
   eh: "“eh” as in “bed”: your mouth half open, the corners a little wide.",
-  ee: "“ee” as in “see”: your lips a little wide.",
+  ee: "“ee” as in “see”: your mouth almost as for “oo”, your lips a little round.\nKeep the corners of your mouth in, not spread in a smile.",
   oh: "“oh” as in “go”: your lips round, your mouth open.",
   oo: "“oo” as in “moon”: your lips round.",
 };
@@ -43,7 +43,7 @@ const SHAPE: Record<Vowel, string> = {
 const HIGHER: Record<Vowel, string> = {
   ah: "Up here, let your jaw drop a little more.",
   eh: "Up here, open a little more and let the corners of your mouth come in.",
-  ee: "Up here, open a little more and let the corners of your mouth come in.",
+  ee: "Up here, open a little more and keep your lips a little round.",
   oh: "Up here, open a little more and keep your lips round.",
   oo: "Up here, open a little more and keep your lips round.",
 };
@@ -52,6 +52,9 @@ const TIPS = [
   "Change only your mouth. The note stays where it is.",
   "Breathe whenever you need to. The ring waits.",
   "If a note feels tight, stop there. Don't reach for it.",
+  "On “ee”, keep your lips a little round, almost as for “oo”. A wide smile flattens the sound.",
+  "Keep your lips free to move. They shape the vowel and carry the feeling of the line.",
+  "Let your jaw hang loose. Only your lips and tongue change the vowel.",
 ];
 const TIP_SECONDS = 8;
 
@@ -264,7 +267,7 @@ export function View({ climb = "one-note", vowels: vowelsProp, seconds: secondsP
           Hold the note on the vowel the mouth shows until the ring fills. The mic checks the note only, so the vowel is yours to shape: copy the mouth.
         </StartCover>
         <Mouth shape={running ? frame.mouth : target} vowel={at.vowel} progress={frame.progress} inside={inside} resting={status === "rest"} />
-        <p className="min-h-10 max-w-md text-center text-sm leading-snug text-slate-200">{high ? HIGHER[at.vowel] : SHAPE[at.vowel]}</p>
+        <p className="min-h-10 max-w-md whitespace-pre-line text-center text-sm leading-snug text-slate-200">{high ? HIGHER[at.vowel] : SHAPE[at.vowel]}</p>
         <Row label="Vowels" items={vowels.map((v) => SAY[v])} at={done ? -1 : vowelAt} past={done ? vowels.length : vowelAt} progress={frame.progress} />
         {notes.length > 1 && <Row label="Notes" items={notes.map(noteLabel)} at={done ? -1 : noteAt} past={done ? notes.length : noteAt} />}
         <p className="text-xs text-slate-400">The mic hears the note, not the vowel.</p>

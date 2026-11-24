@@ -80,12 +80,13 @@ describe("vowel-guide: the holds", () => {
 });
 
 describe("vowel-guide: the mouth as numbers", () => {
-  it("on an easy note: ah the most open, ee the widest and least open, oo the roundest and narrowest", () => {
+  it("on an easy note: ah the most open, ee and oo nearly the same small round mouth, oo the roundest and narrowest, eh the widest", () => {
     for (const v of VOWELS) assert.deepEqual(mouthShape(v, 0), MOUTHS[v]);
     const by = (k: "open" | "wide" | "round") => [...VOWELS].sort((a, b) => MOUTHS[b][k] - MOUTHS[a][k]);
     assert.equal(by("open")[0], "ah");
     assert.equal(by("open").at(-1), "ee");
-    assert.equal(by("wide")[0], "ee");
+    assert.equal(by("wide")[0], "eh");
+    assert.ok(Math.abs(MOUTHS.ee.open - MOUTHS.oo.open) < 0.05 && Math.abs(MOUTHS.ee.wide - MOUTHS.oo.wide) < 0.15 && MOUTHS.ee.round >= 0.6);
     assert.equal(by("wide").at(-1), "oo");
     assert.equal(by("round")[0], "oo");
   });
@@ -100,8 +101,8 @@ describe("vowel-guide: the mouth as numbers", () => {
         last = m;
       }
     }
-    for (const v of ["eh", "ee"] as const) assert.ok(mouthShape(v, 1).wide < MOUTHS[v].wide, `${v} narrows`);
-    for (const v of ["oh", "oo"] as const) assert.ok(mouthShape(v, 1).wide > MOUTHS[v].wide, `${v} opens out`);
+    assert.ok(mouthShape("eh", 1).wide < MOUTHS.eh.wide, "eh narrows");
+    for (const v of ["ee", "oh", "oo"] as const) assert.ok(mouthShape(v, 1).wide > MOUTHS[v].wide, `${v} opens out`);
     // at the top ee is still wider than oo, and ah still the most open
     assert.ok(mouthShape("ee", 1).wide > mouthShape("oo", 1).wide);
     for (const v of VOWELS) assert.ok(mouthShape("ah", 1).open >= mouthShape(v, 1).open);

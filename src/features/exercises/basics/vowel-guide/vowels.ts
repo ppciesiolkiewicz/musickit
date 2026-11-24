@@ -75,11 +75,11 @@ export const towards = (pitch: number, midi: number, cents: number): -1 | 0 | 1 
 /** The drawn mouth, each 0 to 1: how far the jaw is dropped, how wide the corners sit, how far the lips are pushed round. */
 export interface MouthShape { open: number; wide: number; round: number }
 
-/** Each vowel's mouth on an easy note: "ah" open tall, "eh" half open and wide, "ee" nearly closed and widest, "oh" round and open, "oo" round and small. */
+/** Each vowel's mouth on an easy note: "ah" open tall, "eh" half open and wide, "ee" nearly the "oo" mouth, lips a little round and the corners in (not a smile), "oh" round and open, "oo" round and small. */
 export const MOUTHS: Record<Vowel, MouthShape> = {
-  ah: { open: 0.85, wide: 0.55, round: 0 },
+  ah: { open: 0.95, wide: 0.5, round: 0 },
   eh: { open: 0.5, wide: 0.75, round: 0 },
-  ee: { open: 0.22, wide: 0.9, round: 0 },
+  ee: { open: 0.24, wide: 0.32, round: 0.75 },
   oh: { open: 0.6, wide: 0.38, round: 0.6 },
   oo: { open: 0.25, wide: 0.2, round: 1 },
 };
@@ -98,7 +98,7 @@ export function liftOf(midi: number, map: VoiceMap): number {
 
 /**
  * A vowel's mouth on a note `lift` high (`liftOf`). As the note climbs every vowel opens a little, and its width moves
- * towards the middle: the wide vowels ("eh", "ee") come in at the corners, the round ones ("oh", "oo") open out.
+ * towards the middle: the wide vowel ("eh") comes in at the corners, the round ones ("ee", "oh", "oo") open out.
  */
 export function mouthShape(vowel: Vowel, lift: number): MouthShape {
   const t = Math.min(1, Math.max(0, lift));
