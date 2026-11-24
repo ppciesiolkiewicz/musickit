@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { parseChordQuery } from "@/lib/chordKit/chordSearch";
 import { gripName } from "@/lib/chordKit/gripName";
 import { strum } from "@/lib/chordKit/playback";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 import { tabOf } from "../../cues/tab";
 import { BEATS_PER_BAR } from "../../timeline/timeline";
-import { isNow, rowsOf, shade, useWidth, zoomFor, type ViewProps } from "./common";
+import { isNow, noteOf, rowsOf, shade, useWidth, zoomFor, type ViewProps } from "./common";
 import { BeatBands } from "./BeatBands";
 import { GRIP_MIN, GripBox } from "./GripBox";
 import { NoteSign, hasNoteSign } from "./NoteSign";
@@ -22,20 +23,21 @@ const GRIP_HEIGHT = 200;
 /**
  * Six-line tab (high e on top), one column per strum or note, spaced by beat, with a playhead and each column's length as a
  * note sign under it; wrapped into rows of whole bars that fill the width. A chord's name sits over every column of three
- * notes or more (the cue's chord, else read from the notes), and over a single note where its chord starts. Pointing at a chord column or its
- * name shows its chord box; tapping either strums it too.
+ * notes or more (the cue's chord, else read from the notes), and over a single note where its chord starts. Pointing at
+ * a chord's name shows its chord box, and tapping it strums the chord; pointing at a fret number shows the note's name,
+ * and tapping it plays the note.
  */
 export default function TabView({ cues, pos, length }: ViewProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
-  // the chord column pointed at, and where its box sits on the screen: drawn on the page body, so no card clips it
-  // over the column, or under it when there is no room above in the window
-  const [grip, setGrip] = useState<{ i: number; left: number; top: number; under: boolean } | null>(null);
-  const point = (i: number, el: Element) => {
+  // what is pointed at, a chord name (its box) or a fret number (the note's name), and where that sits on the screen:
+  // drawn on the page body, so no card clips it; over the thing pointed at, or under it when there is no room above
+  const [grip, setGrip] = useState<{ i: number; note?: string; left: number; top: number; under: boolean } | null>(null);
+  const point = (i: number, el: Element, note?: string) => {
     const at = el.getBoundingClientRect();
-    const under = at.top < GRIP_HEIGHT;
-    setGrip({ i, left: at.left + at.width / 2, top: under ? at.bottom : at.top, under });
+    const under = at.top < (note ? 40 : GRIP_HEIGHT);
+    setGrip({ i, note, left: at.left + at.width / 2, top: under ? at.bottom : at.top, under });
   };
-  // the box is placed once, so it goes when the page moves under it; a tap anywhere but a chord column closes it
+  // placed once, so it goes when the page moves under it; a tap anywhere but a chord name or a fret number closes it
   useEffect(() => {
     if (!grip) return;
     const hide = () => setGrip(null);
@@ -121,10 +123,24 @@ export default function TabView({ cues, pos, length }: ViewProps) {
             {cols.map((col, i) => {
               if (col.at < start || col.at >= end) return null;
               const now = isNow(shown[i], pos);
+              // a note spelled for the chord it sits in, else with sharps
+              const root = (named[i] ? parseChordQuery(named[i])?.rootPc : undefined) ?? 0;
               return col.cells.map((f) => {
                 const y = TOP + (5 - f.string) * ROW;
+                const midi = OPEN_MIDI[f.string] + f.fret;
+                const name = noteOf(midi, root).name;
                 return (
-                  <g key={`${i}-${f.string}`}>
+                  <g
+                    key={`${i}-${f.string}`}
+                    className="cursor-pointer"
+                    data-grip
+                    onPointerEnter={(e) => e.pointerType === "mouse" && point(i, e.currentTarget, name)}
+                    onPointerLeave={(e) => e.pointerType === "mouse" && setGrip(null)}
+                    onClick={(e) => {
+                      strum([midi], { holdMs: 1200 });
+                      point(i, e.currentTarget, name);
+                    }}
+                  >
                     <rect x={x(col.at) - 8} y={y - 7} width={16} height={14} rx={3} fill="var(--color-slate-950)" />
                     <text x={x(col.at)} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight={600} fill={shade(shown[i], now)}>{f.fret}</text>
                   </g>
@@ -134,31 +150,17 @@ export default function TabView({ cues, pos, length }: ViewProps) {
             {signs && shown.map((c, i) => c.at >= start && c.at < end && hasNoteSign(c.beats) && (
               <NoteSign key={`len${i}`} beats={c.beats} x={x(c.at) - 5} y={TOP + 5 * ROW + 14} color={isNow(c, pos) ? "var(--color-sky-300)" : "var(--color-slate-400)"} />
             ))}
-            {cols.map((col, i) => col.at >= start && col.at < end && col.cells.length >= GRIP_MIN && (
-              <rect
-                key={`grip${i}`}
-                x={x(col.at) - 10}
-                y={TOP - 8}
-                width={20}
-                height={5 * ROW + 16}
-                fill="transparent"
-                className="cursor-pointer"
-                data-grip
-                onPointerEnter={(e) => e.pointerType === "mouse" && point(i, e.currentTarget)}
-                onPointerLeave={(e) => e.pointerType === "mouse" && setGrip(null)}
-                onClick={(e) => {
-                  play(i);
-                  point(i, e.currentTarget);
-                }}
-              />
-            ))}
             {pos >= start && pos < end && <line x1={x(pos) - bar} x2={x(pos) - bar} y1={TOP - 6} y2={TOP + 5 * ROW + 6} stroke="var(--color-sky-400)" strokeWidth={2} />}
           </svg>
         );
       })}
       {grip && shown[grip.i] && createPortal(
         <div className={`pointer-events-none fixed z-50 -translate-x-1/2 ${grip.under ? "pt-1" : "-translate-y-full pb-1"}`} style={{ left: grip.left, top: grip.top }}>
-          <GripBox frets={shown[grip.i].frets} chord={named[grip.i]} />
+          {grip.note ? (
+            <div className="rounded border border-slate-700 bg-slate-900/95 px-1.5 py-0.5 text-xs font-bold text-slate-100 shadow-lg">{grip.note}</div>
+          ) : (
+            <GripBox frets={shown[grip.i].frets} chord={named[grip.i]} />
+          )}
         </div>,
         document.body,
       )}
