@@ -26,7 +26,7 @@ const ACCENT: Record<Area, { hue: string; soft: string; text: string }> = {
 };
 const LEVEL_TINT = ["var(--color-emerald-400)", "var(--color-sky-400)", "var(--color-violet-400)", "var(--color-pink-400)"];
 const ADDED = "var(--color-orange-400)";
-/** A genre's colour, for the chips of its blocks under the step each hangs off. */
+/** A genre's colour, for its row of dead-end blocks under the tracks. */
 const GENRE_HUE: Record<Genre, string> = { blues: "var(--color-blue-400)", rock: "var(--color-red-400)", funk: "var(--color-fuchsia-400)", jazz: "var(--color-emerald-400)" };
 const STATE_RING: Record<StepState, string | null> = { solid: "var(--color-emerald-400)", working: "var(--color-amber-400)", none: null };
 const LABEL_W = 170, X0 = 8, COL_W = 136, PILL_W = 124, PILL_H = 50, ROW_H = 62, HEAD_H = 46, GAP = 14;
@@ -109,7 +109,7 @@ const label = (ref: string, tracks: Track[]) => {
  * `progress`: a student laid over the path, keyed by track id; a step's ring is its state, the step they are on is bold.
  * `reach`: the same student's steps marked known, within reach or ahead (plan/model/reach.ts).
  */
-export default function SlopeView({ area, progress, reach = null, blocks = {}, genres = {} }: { area: Area; /** the genre blocks hung off each step ref: a coloured chip per block under the step */ genres?: Record<string, GenreMark[]>; progress: Record<string, ConceptProgress> | null; reach?: Map<string, StepReach> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /dev/block */ blocks?: Record<string, number> }) {
+export default function SlopeView({ area, progress, reach = null, blocks = {}, genres = {} }: { area: Area; /** the genre blocks hung off each step ref: each a dead-end block in its genre's row, joined to the step it comes out of */ genres?: Record<string, GenreMark[]>; progress: Record<string, ConceptProgress> | null; reach?: Map<string, StepReach> | null; /** blocks per step ref (model/stepBlocks.ts): a badge on each step opens them on /dev/block */ blocks?: Record<string, number> }) {
   const [version, setVersion] = useState<Version>("proposed");
   const [pick, setPick] = useState<string | null>(null);
   const [hover, setHover] = useState<string | null>(null);
@@ -121,7 +121,7 @@ export default function SlopeView({ area, progress, reach = null, blocks = {}, g
   const box = useRef<HTMLDivElement>(null);
   const { pane, view, setView, zoomAt, handlers } = useZoomPan();
 
-  const { laid, rows, bands, width, height } = useMemo(() => {
+  const { laid, rows, bands, width, height, ends, genreRows } = useMemo(() => {
     const own = all.filter((s) => s.track.area === area);
     const depthsAt = LEVEL_ORDER.map((lv) => [...new Set(own.filter((s) => s.level === lv).map((s) => s.depth))].sort((a, b) => a - b));
     const offset = depthsAt.map((_, i) => depthsAt.slice(0, i).reduce((n, d) => n + d.length, 0));
@@ -133,10 +133,31 @@ export default function SlopeView({ area, progress, reach = null, blocks = {}, g
       const col = offset[li] + depthsAt[li].indexOf(step.depth);
       return [step.ref, { step, x: X0 + col * COL_W, y: HEAD_H + rowOf.get(step.track.id)! * ROW_H }];
     }));
-    const cols = offset[3] + depthsAt[3].length;
+    // a genre's blocks: dead ends, one row a genre under the tracks, each block one column after the step it comes out of
+    // (a second lane when two of a genre would share a column)
+    const ends: { g: GenreMark; ref: string; from: Laid; x: number; y: number }[] = [];
+    const genreRows: { genre: Genre; row: number; count: number }[] = [];
+    let row = rows.length;
+    for (const genre of GENRES) {
+      const mine = Object.entries(genres)
+        .flatMap(([ref, list]) => { const from = laid.get(ref); return from ? list.filter((g) => g.genre === genre).map((g) => ({ g, ref, from })) : []; })
+        .sort((p, q) => p.from.x - q.from.x || p.from.y - q.from.y);
+      if (!mine.length) continue;
+      const lanes: Set<number>[] = [];
+      for (const m of mine) {
+        const col = Math.round((m.from.x - X0) / COL_W) + 1;
+        let lane = lanes.findIndex((taken) => !taken.has(col));
+        if (lane < 0) lane = lanes.push(new Set()) - 1;
+        lanes[lane].add(col);
+        ends.push({ ...m, x: X0 + col * COL_W, y: HEAD_H + (row + lane) * ROW_H });
+      }
+      genreRows.push({ genre, row, count: mine.length });
+      row += lanes.length;
+    }
+    const cols = Math.max(offset[3] + depthsAt[3].length, ...ends.map((e) => Math.round((e.x - X0) / COL_W) + 1));
     const bands = LEVEL_ORDER.map((lv, i) => ({ level: lv, x: X0 + offset[i] * COL_W, w: depthsAt[i].length * COL_W, cols: depthsAt[i].length }));
-    return { laid, rows, bands, width: X0 + cols * COL_W + GAP, height: HEAD_H + rows.length * ROW_H };
-  }, [all, area, order]);
+    return { laid, rows, bands, width: X0 + cols * COL_W + GAP, height: HEAD_H + row * ROW_H, ends, genreRows };
+  }, [all, area, order, genres]);
 
   const contentW = width + 24, contentH = height + 24, labelsW = LABEL_W + 24;
   const fit = () => {
@@ -225,6 +246,12 @@ export default function SlopeView({ area, progress, reach = null, blocks = {}, g
               <p className="text-[11px] text-slate-500">{topicById(t.topic)?.label ?? t.topic} · {t.steps.length} steps</p>
             </div>
           ))}
+          {genreRows.map((r) => (
+            <div key={r.genre} className="absolute left-3 pr-3" style={{ top: 12 + HEAD_H + r.row * ROW_H, width: LABEL_W, height: PILL_H }}>
+              <p className="text-[13px] font-semibold leading-tight" style={{ color: GENRE_HUE[r.genre] }}>{cap(r.genre)}</p>
+              <p className="text-[11px] text-slate-500">Genre · {plural(r.count, "dead-end block")}</p>
+            </div>
+          ))}
         </div>
         </div>
         <div ref={pane} className="relative min-w-0 flex-1 cursor-grab touch-none select-none overflow-clip active:cursor-grabbing" {...handlers}>
@@ -246,6 +273,11 @@ export default function SlopeView({ area, progress, reach = null, blocks = {}, g
                   strokeDasharray={e.added ? "5 4" : undefined}
                 />
               ))}
+              {ends.map((e) => {
+                const x1 = e.from.x + PILL_W, y1 = e.from.y + PILL_H / 2, x2 = e.x, y2 = e.y + PILL_H / 2;
+                const on = !lit || focus === e.ref;
+                return <path key={`g:${e.ref}>${e.g.id}`} d={`M${x1},${y1} C${x1 + 40},${y1} ${x2 - 40},${y2} ${x2},${y2}`} fill="none" stroke={GENRE_HUE[e.g.genre]} strokeOpacity={on ? 0.8 : 0.2} strokeWidth={focus === e.ref ? 2.5 : 1.5} strokeDasharray={e.g.draft ? "5 4" : undefined} />;
+              })}
             </svg>
             {own.map(({ step, x, y }) => {
               const st = step.track.steps[step.index];
@@ -292,18 +324,26 @@ export default function SlopeView({ area, progress, reach = null, blocks = {}, g
                 </button>
               );
             })}
-            {own.flatMap(({ step, x, y }) => (genres[step.ref] ?? []).map((g, k) => (
-              <a
-                key={`g:${step.ref}:${g.id}`} href={blockHref({ id: g.id })} target="_blank" rel="noreferrer"
-                onPointerDown={(e) => e.stopPropagation()}
-                title={`${cap(g.genre)}: ${g.title}${g.draft ? " (switched off)" : ""}. Opens the block in a new tab`}
-                aria-label={`${cap(g.genre)} block on ${step.track.label} step ${step.index + 1}: ${g.title}${g.draft ? ", switched off" : ""}, in a new tab`}
-                className="absolute rounded-full border bg-slate-950 px-1.5 text-[10px] font-semibold leading-4 hover:brightness-125 focus-visible:outline-2 focus-visible:outline-sky-400"
-                style={{ left: x + 4 + k * 40, top: y + PILL_H - 9, color: GENRE_HUE[g.genre], borderColor: GENRE_HUE[g.genre], borderStyle: g.draft ? "dashed" : "solid", background: `color-mix(in oklab, ${GENRE_HUE[g.genre]} 18%, var(--color-slate-950))` }}
-              >
-                {g.genre}
-              </a>
-            )))}
+            {ends.map((e) => {
+              const hue = GENRE_HUE[e.g.genre];
+              return (
+                <a
+                  key={`g:${e.ref}:${e.g.id}`} href={blockHref({ id: e.g.id })} target="_blank" rel="noreferrer"
+                  onPointerDown={(ev) => ev.stopPropagation()}
+                  onMouseEnter={() => setHover(e.ref)} onFocus={() => setHover(e.ref)} onBlur={() => setHover(null)}
+                  title={`${cap(e.g.genre)} block, a dead end out of ${label(e.ref, tracks)}${e.g.draft ? ". Switched off" : ""}. Opens the block in a new tab`}
+                  aria-label={`${cap(e.g.genre)} block out of ${label(e.ref, tracks)}: ${e.g.title}${e.g.draft ? ", switched off" : ""}, in a new tab`}
+                  className="absolute rounded-lg border px-2 py-1 text-left transition-opacity duration-150 hover:brightness-125 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400"
+                  style={{ left: e.x, top: e.y, width: PILL_W, height: PILL_H, borderColor: hue, borderStyle: e.g.draft ? "dashed" : "solid", opacity: lit && focus !== e.ref ? 0.55 : 1, background: `linear-gradient(160deg, color-mix(in oklab, ${hue} 22%, transparent), transparent 75%), var(--color-slate-950)` }}
+                >
+                  <span className="flex items-baseline justify-between gap-1 text-[10px]" style={{ color: hue }}>
+                    <span className="font-semibold">{e.g.genre}</span>
+                    <span className="text-slate-500">{e.g.draft ? "off" : "dead end"}</span>
+                  </span>
+                  <span className="line-clamp-2 block text-[11.5px] font-medium leading-tight text-slate-200">{e.g.title}</span>
+                </a>
+              );
+            })}
             {own.map(({ step, x, y }) => {
               const n = blocks[step.ref] ?? 0;
               return (
@@ -333,7 +373,7 @@ export default function SlopeView({ area, progress, reach = null, blocks = {}, g
         {reach && <span><span className="text-sky-300">dashed blue, &quot;next&quot;: within reach</span> · &quot;start&quot;: where the questionnaire puts them · &quot;known&quot;: placed below their start, or needed by a solid step · faded: ahead</span>}
         {Object.keys(genres).length > 0 && (
           <span>
-            chip under a step: a genre&apos;s block hung off it, a dead end no step waits for ({GENRES.map((g, i) => <span key={g}>{i > 0 && " · "}<span style={{ color: GENRE_HUE[g] }}>{g}</span></span>)}); dashed: switched off
+            coloured block in a genre&apos;s row: a block of that genre, a dead end that comes out of a step and that no step waits for ({GENRES.map((g, i) => <span key={g}>{i > 0 && " · "}<span style={{ color: GENRE_HUE[g] }}>{g}</span></span>)}); dashed: switched off
           </span>
         )}
         <span>Hover or pick a step: blue ring learn first, violet ring comes after</span>
