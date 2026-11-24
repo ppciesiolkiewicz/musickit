@@ -3,11 +3,14 @@
 import { tabOf } from "../../cues/tab";
 import { BEATS_PER_BAR } from "../../timeline/timeline";
 import { isNow, rowsOf, shade, useWidth, zoomFor, type ViewProps } from "./common";
+import { NoteSign, hasNoteSign } from "./NoteSign";
 
 const NAMES = ["e", "B", "G", "D", "A", "E"];
 const LEFT = 24, ROW = 18, PAD = 14;
+/** room under the low E for the note-length signs */
+const SIGNS = 30;
 
-/** Six-line tab (high e on top), one column per strum or note, spaced by beat, with a playhead; wrapped into rows of whole bars that fill the width. */
+/** Six-line tab (high e on top), one column per strum or note, spaced by beat, with a playhead and each column's length as a note sign under it; wrapped into rows of whole bars that fill the width. */
 export default function TabView({ cues, pos, length }: ViewProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const shown = cues.filter((c) => c.frets.length);
@@ -18,7 +21,8 @@ export default function TabView({ cues, pos, length }: ViewProps) {
   const zoom = zoomFor(width);
   const W = width / zoom;
   const { rows, unit } = rowsOf(length, W - 6, LEFT + PAD, 26, 80);
-  const H = TOP + 5 * ROW + 12;
+  const signs = shown.some((c) => hasNoteSign(c.beats));
+  const H = TOP + 5 * ROW + 12 + (signs ? SIGNS : 0);
   const bar = Math.min(10, unit / 3);
 
   return (
@@ -54,6 +58,9 @@ export default function TabView({ cues, pos, length }: ViewProps) {
                 );
               });
             })}
+            {signs && shown.map((c, i) => c.at >= start && c.at < end && hasNoteSign(c.beats) && (
+              <NoteSign key={`len${i}`} beats={c.beats} x={x(c.at) - 5} y={TOP + 5 * ROW + 14} color={isNow(c, pos) ? "var(--color-sky-300)" : "var(--color-slate-400)"} />
+            ))}
             {pos >= start && pos < end && <line x1={x(pos) - bar} x2={x(pos) - bar} y1={TOP - 6} y2={TOP + 5 * ROW + 6} stroke="var(--color-sky-400)" strokeWidth={2} />}
           </svg>
         );

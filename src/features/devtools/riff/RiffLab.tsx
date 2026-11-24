@@ -7,6 +7,7 @@ import { createCloud, getModelLibrary, type CloudModel } from "@/features/nam";
 import { playerFor, setAmpModel, type RiffSound } from "./sound";
 import RiffTake from "./RiffTake";
 import { Note } from "@tonaljs/tonal";
+import { NoteSign, isDotted } from "@/features/exercises/play-along/views/NoteSign";
 import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNear, inScale, midiOf, placeNear, placesOf, riffTimeline, scaleStep, type RiffNote } from "./riff";
 import { PlayAlongTimeline } from "@/features/exercises/play-along/PlayAlong";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
@@ -25,26 +26,8 @@ const LENGTHS: { key: string; beats: number; label: string }[] = [
   { key: "w", beats: 4, label: "1" },
 ];
 
-/** A dotted length is one and a half times a plain one. */
-const isDotted = (beats: number) => LENGTHS.some((l) => l.beats * 1.5 === beats);
-/** Add a dot to a length, or take it off a dotted one. */
-/** A note's length drawn as a note sign, 12 wide and 22 tall with the head at the bottom: hollow for a half and whole, a stem below
- * a whole, one flag per halving below a quarter, and a dot when dotted. Drawn rather than typed: most fonts lack the 1/16, 1/2 and 1 signs. */
-function NoteSign({ beats, x = 0, y = 0, color = "currentColor" }: { beats: number; x?: number; y?: number; color?: string }) {
-  const dotted = isDotted(beats);
-  const base = dotted ? beats / 1.5 : beats;
-  const hollow = base >= 2;
-  const flags = base <= 0.25 ? 2 : base <= 0.5 ? 1 : 0;
-  return (
-    <g transform={`translate(${x} ${y})`} fill={color} stroke={color}>
-      <ellipse cx={4} cy={18} rx={3.8} ry={2.8} transform="rotate(-20 4 18)" fill={hollow ? "none" : color} strokeWidth={hollow ? 1.3 : 0} />
-      {base < 4 && <line x1={7.4} x2={7.4} y1={17} y2={2} strokeWidth={1.2} />}
-      {Array.from({ length: flags }, (_, k) => <path key={k} d={`M7.4 ${2 + k * 4} q4 3 3.5 7`} fill="none" strokeWidth={1.3} />)}
-      {dotted && <circle cx={11.5} cy={18} r={1.3} stroke="none" />}
-    </g>
-  );
-}
 const noteIcon = (beats: number) => <svg width={16} height={22} viewBox="-1 0 16 22" className="inline-block align-middle" aria-hidden><NoteSign beats={beats} /></svg>;
+/** Add a dot to a length, or take it off a dotted one. */
 const toggleDot = (beats: number) => (isDotted(beats) ? beats / 1.5 : beats * 1.5);
 
 /** A block's riff as the editor holds it: `id` is the block's, `name` its title, `mode` an index of MODE_LIST, `pos` the fret the hand sits at. Changes stay in this page until saved to the block's file. */
