@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Anton, Cormorant_Garamond, DM_Serif_Display, Fraunces, Geist, Geist_Mono, Outfit, Pacifico, Pirata_One, Shrikhand } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next";
+import { AnalyticsAsk, SiteAnalytics } from "@/components/AnalyticsChoice";
 import NoControlFocus from "@/components/NoControlFocus";
 import NoSpaceScroll from "@/components/NoSpaceScroll";
 import SoundPreload from "@/components/SoundPreload";
@@ -165,7 +165,9 @@ export default function RootLayout({
         <SaveNotice />
         <LoginGuard />
         {devUi() && <CopyNotes />}
-        <Analytics />
+        {/* counting is held to the visitor's answer (lib/analyticsChoice.ts); in the EU they are asked first */}
+        <AnalyticsAsk />
+        <SiteAnalytics />
       </body>
     </html>
   );

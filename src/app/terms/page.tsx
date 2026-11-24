@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import type { ReactNode } from "react";
 import PageShell from "@/components/PageShell";
+import { A, LegalSections, Mail, type LegalSection } from "@/components/legal";
 import { EARLY_OFFER, PRICING } from "@/features/account/pricing";
 import { FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
 import { TERMS_UPDATED } from "@/features/account/terms";
@@ -10,7 +9,7 @@ import { TERMS_UPDATED } from "@/features/account/terms";
  * The terms of use. Public, linked from the footer and from the box a new account ticks on /account/setup. Plain English,
  * one short section per subject, so a player can read it; the law part (Australian Consumer Law, the liability cap)
  * is the minimum a sole trader on an ABN needs. Prices come from features/account/pricing.ts so this page and the home
- * pages never disagree.
+ * pages never disagree. What happens to a player's data is on /privacy; the Privacy section here is its short form.
  */
 
 export const metadata: Metadata = {
@@ -21,20 +20,9 @@ export const metadata: Metadata = {
 
 /** Last change to the words on this page (`TERMS_UPDATED`, also saved with each account that agrees to them). */
 const UPDATED = TERMS_UPDATED;
-const EMAIL = "hello@attunr.app";
-
-const A = ({ href, children }: { href: string; children: ReactNode }) => (
-  <Link href={href} className="text-sky-300 underline decoration-sky-500/40 underline-offset-4 hover:text-sky-200">{children}</Link>
-);
-const Mail = () => <a href={`mailto:${EMAIL}`} className="text-sky-300 underline decoration-sky-500/40 underline-offset-4 hover:text-sky-200">{EMAIL}</a>;
-
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z]+/g, "-");
-
-type Section = { title: string; body: ReactNode };
-
 const { player, school } = PRICING;
 
-const SECTIONS: Section[] = [
+const SECTIONS: LegalSection[] = [
   {
     title: "Who we are",
     body: (
@@ -60,7 +48,7 @@ const SECTIONS: Section[] = [
         <p>You log in with your email or a Google account. There is no password: we email you a link and a code. Anyone with access to your email can log in as you, so keep that email safe. Tell us at once if you think someone else is using your account.</p>
         <p>One account is for one person. A teacher can add students; each of them gets their own account.</p>
         <p>You must be 16 or older to make your own account. A younger student uses attunr through a teacher or a school, or with a parent or guardian who accepts these terms for them.</p>
-        <p>You can delete your account at any time on <A href="/account">Your profile</A>. That removes your account, your plans and your notes. It does not refund a subscription, except as the money-back guarantee below says.</p>
+        <p>You can delete your account at any time on <A href="/account">Your profile</A>. That removes your account, your plans, your notes and your videos. It does not refund a subscription, except as the money-back guarantee below says.</p>
       </>
     ),
   },
@@ -138,7 +126,8 @@ const SECTIONS: Section[] = [
         <p>attunr puts your plan together on its own servers, from its library of exercises. It reads what you told it in the questions and how you rated past exercises, and picks exercises for the steps you are on in each topic: the next steps you haven&apos;t made solid yet, with a few you have mixed back in. A teacher&apos;s student gets a week made the same way, from where the teacher says the student is. No AI writes your plan, and you don&apos;t need an AI of your own.</p>
         <p>A plan can be wrong: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. We check the exercises before they go into the library, but we can&apos;t catch everything.</p>
         <p>Practise within what feels easy. Stop at any pain in your hands, arms or voice. attunr is not medical advice, and a plan is not a reason to push through pain. If you have an injury or a voice condition, ask a doctor, a physiotherapist or a voice teacher first.</p>
-        <p>attunr does not send your data to an AI. If that ever changes, for example to draft a lesson note when you ask for it, these terms will say so first.</p>
+        <p>attunr does not send your plans, your notes or your practice to an AI. If that ever changes, for example to draft a lesson note when you ask for it, these terms will say so first.</p>
+        <p>One tool uses an AI when you ask it to: the sampler can make a sound from words you type. Those words go to ElevenLabs, which makes the sound. Nothing else about you goes with them.</p>
         <p>If you use an AI of your own on attunr&apos;s pages, such as an AI extension in your browser, it can read your plans and notes and change them. That AI&apos;s own terms apply to what it reads and what it does.</p>
       </>
     ),
@@ -167,9 +156,10 @@ const SECTIONS: Section[] = [
     title: "Privacy",
     body: (
       <>
-        <p>We store what the app needs: your email, your name, your role, and the plans, notes, ratings and settings you make. The tuner and the singing drills listen in your browser to find the pitch; the sound is never sent to us.</p>
-        <p>The site runs on Vercel, with its database and file storage. Log-in emails go through Resend. Google sign-in uses Google. When paid plans open, a payment provider handles your card. Each of them sees only what its job needs.</p>
-        <p>We don&apos;t sell your data and we don&apos;t run advertising. We email you about your account and about changes to attunr; emails with news and offers are only ever opt-in. To see, export or delete your data, use <A href="/account">Your profile</A> or email <Mail />.</p>
+        <p>The <A href="/privacy">privacy policy</A> says what we keep about you, why, which companies handle it and how long we keep it. It is part of these terms.</p>
+        <p>In short: we store what the app needs, such as your email, your name, and the plans, notes, ratings and videos you make. The tuner and the singing drills listen in your browser to find the pitch; the sound is never sent to us.</p>
+        <p>We don&apos;t sell your data and we don&apos;t run advertising. We email you about your account and about changes to attunr; emails with news and offers are only ever opt-in.</p>
+        <p>You can see your data and delete your account on <A href="/account">Your profile</A>. For a copy of everything we hold about you, email <Mail />.</p>
       </>
     ),
   },
@@ -203,7 +193,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>You can stop using attunr at any time, and delete your account on <A href="/account">Your profile</A>. We can close an account that breaks these terms, after telling you why, unless the breach is serious enough that we must act at once.</p>
-        <p>These terms are governed by the law of Australia. If something in them turns out not to be enforceable, the rest still applies.</p>
+        <p>These terms are governed by the law of Victoria, Australia. If something in them turns out not to be enforceable, the rest still applies.</p>
       </>
     ),
   },
@@ -212,24 +202,7 @@ const SECTIONS: Section[] = [
 export default function TermsPage() {
   return (
     <PageShell active="/terms" column title="Terms of use" intro={`Plain words on what you get, what you pay and what we each promise. Last changed ${UPDATED}.`}>
-      <div className="flex max-w-3xl flex-col gap-10">
-        <nav aria-label="On this page" className="rounded-xl border border-slate-800 bg-slate-900/40 p-4 text-sm">
-          <ol className="grid gap-1.5 sm:grid-cols-2">
-            {SECTIONS.map((s, i) => (
-              <li key={s.title}><a href={`#${slug(s.title)}`} className="text-slate-300 hover:text-slate-50"><span className="mr-2 tabular-nums text-slate-500">{i + 1}.</span>{s.title}</a></li>
-            ))}
-          </ol>
-        </nav>
-        {SECTIONS.map((s, i) => (
-          <section key={s.title} id={slug(s.title)} aria-labelledby={`${slug(s.title)}-h`} className="scroll-mt-24">
-            <h2 id={`${slug(s.title)}-h`} className="text-xl text-slate-50" style={{ fontFamily: "var(--font-display), serif" }}>
-              <span className="mr-2 tabular-nums text-slate-500">{i + 1}.</span>{s.title}
-            </h2>
-            <div className="mt-3 flex flex-col gap-3 text-sm leading-relaxed text-slate-300">{s.body}</div>
-          </section>
-        ))}
-        <p className="text-xs text-slate-500">Questions about these terms: <Mail />.</p>
-      </div>
+      <LegalSections sections={SECTIONS} about="these terms" />
     </PageShell>
   );
 }

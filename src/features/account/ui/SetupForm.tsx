@@ -179,7 +179,9 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
               />
               <span className="text-slate-200">
                 I agree to the{" "}
-                <Link href="/terms" target="_blank" className="text-sky-300 underline decoration-sky-500/40 underline-offset-4 hover:text-sky-200">terms of use</Link>
+                <Link href="/terms" target="_blank" className="text-sky-300 underline decoration-sky-500/40 underline-offset-4 hover:text-sky-200">terms of use</Link>. The{" "}
+                <Link href="/privacy" target="_blank" className="text-sky-300 underline decoration-sky-500/40 underline-offset-4 hover:text-sky-200">privacy policy</Link>{" "}
+                says what we keep about you.
               </span>
             </label>
             <ErrorLine id="setup-terms-error">{termsError}</ErrorLine>

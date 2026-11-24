@@ -247,7 +247,8 @@ export default function JoinForm({ token, google }: { token: string; google: boo
             <LinkForm google={google} next={joinHref(token)} bare />
             <p className="text-xs leading-relaxed text-slate-500">
               By logging in, you agree to the{" "}
-              <Link href="/terms" target="_blank" className={LINK}>terms of use</Link>.
+              <Link href="/terms" target="_blank" className={LINK}>terms of use</Link>. The{" "}
+              <Link href="/privacy" target="_blank" className={LINK}>privacy policy</Link> says what we keep about you.
             </p>
           </div>
         </div>

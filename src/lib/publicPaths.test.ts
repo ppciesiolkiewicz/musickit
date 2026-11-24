@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { isMarketingPath, isPublicPath, loginHref } from "./publicPaths";
 
 const PUBLIC = [
-  "/", "/players", "/faq", "/terms", "/demo", "/demo/guitar-beginner", "/login", "/login/confirm", "/claim",
+  "/", "/players", "/faq", "/terms", "/privacy", "/demo", "/demo/guitar-beginner", "/login", "/login/confirm", "/claim",
   "/kickstarter", "/landing-1", "/intro", "/teachers/video/render", "/api/auth/session", "/_next/static/x.js",
   "/favicon.ico", "/icon.png", "/logo.png", "/opengraph-image", "/theory/scales/opengraph-image", "/robots.txt",
   "/sitemap.xml", "/instruments/piano/a.mp3", "/images/teacher.webp", "/dev", "/dev/stories", "/admin", "/admin/messages",
@@ -22,7 +22,7 @@ test("the app needs a login", () => {
 });
 
 test("marketing paths are the public pages a visitor reads, not files or APIs", () => {
-  for (const p of ["/", "/players", "/faq", "/terms", "/demo", "/demo/voice-beginner", "/login", "/kickstarter", "/landing-1", "/intro", "/claim"]) assert.equal(isMarketingPath(p), true, p);
+  for (const p of ["/", "/players", "/faq", "/terms", "/privacy", "/demo", "/demo/voice-beginner", "/login", "/kickstarter", "/landing-1", "/intro", "/claim"]) assert.equal(isMarketingPath(p), true, p);
   for (const p of ["/plan", "/practice", "/api/auth/session", "/teachers/video/render", "/account"]) assert.equal(isMarketingPath(p), false, p);
 });
 

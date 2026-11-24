@@ -69,6 +69,19 @@ export type PickStage = "review" | "fresh" | "open" | "more" | "more review";
 /** Why this block among the usable ones: rated low (the newest), not rated yet (one of the least used), or solid (rated longest ago). */
 export type PickReason = "low" | "unrated" | "solid";
 
+/** One choice a pick could have taken: what `choose` ranks it by. */
+export interface FittedChoice {
+  blockId: string;
+  choiceId: string;
+  title: string;
+  minutes: number;
+  /** the player's newest rating of the choice; null when they never rated it */
+  stars: Stars | null;
+  ratedAt: string | null;
+  /** everyone's use of the block */
+  use: { times: number; seconds: number };
+}
+
 /** One choice picked, as the composer decided it. */
 export interface TracedPick {
   blockId: string;
@@ -83,6 +96,8 @@ export interface TracedPick {
   reason: PickReason;
   /** how many usable blocks the step had */
   among: number;
+  /** those usable choices as `choose` saw them, by choice id: the picked one is among them */
+  fitted: FittedChoice[];
   /** the minutes filled after this pick */
   total: number;
   /** the version it was given: rolled for a block with moves, the player's keys for one with a Key selector; absent when it has neither */
@@ -108,7 +123,7 @@ export interface ComposeTrace {
 const SLACK = 5;
 
 type Rng = () => number;
-interface Pick { cand: Candidate; step: string; reason: PickReason; among: number }
+interface Pick { cand: Candidate; step: string; reason: PickReason; among: number; usable: Candidate[] }
 /** What a day may not pick: choices (yesterday's, declined, kept, picked) and blocks (one choice of a block a day). */
 interface Barred { choices: Set<string>; blocks: Set<string> }
 const barred = (c: Candidate, b: Barred): boolean => b.choices.has(c.choiceId) || b.blocks.has(c.blockId);
@@ -166,6 +181,10 @@ function choose(usable: Candidate[], rng: Rng): { cand: Candidate; reason: PickR
   return { cand: solid, reason: "solid" };
 }
 
+const fittedOf = (usable: Candidate[]): FittedChoice[] => usable
+  .map((c) => ({ blockId: c.blockId, choiceId: c.choiceId, title: shownTitle(c.exercise), minutes: c.minutes, stars: c.mine?.stars ?? null, ratedAt: c.mine?.ratedAt ?? null, use: c.use }))
+  .sort((a, b) => a.choiceId.localeCompare(b.choiceId));
+
 /** A choice for a step not barred by `used`, walking down the track to the nearest earlier step that has one. */
 function pickFor(step: string, blocks: Candidate[], used: Barred, rng: Rng): Pick | null {
   const at = parseRef(step);
@@ -173,7 +192,7 @@ function pickFor(step: string, blocks: Candidate[], used: Barred, rng: Rng): Pic
   const refs = Array.from({ length: at.n }, (_, i) => `${at.track}:${at.n - i}`);
   for (const ref of refs) {
     const usable = blocks.filter((c) => !barred(c, used) && fits(c, ref));
-    if (usable.length) return { ...choose(usable, rng), step: ref, among: usable.length };
+    if (usable.length) return { ...choose(usable, rng), step: ref, among: usable.length, usable };
   }
   return null;
 }
@@ -198,7 +217,7 @@ function fill(steps: { fresh: string[]; open: string[]; review: string[] }, revi
     used.blocks.add(p.cand.blockId);
     total += p.cand.minutes;
     into.push(p);
-    trace?.picks.push({ blockId: p.cand.blockId, choiceId: p.cand.choiceId, title: shownTitle(p.cand.exercise), minutes: p.cand.minutes, stage, asked: step, step: p.step, reason: p.reason, among: p.among, total });
+    trace?.picks.push({ blockId: p.cand.blockId, choiceId: p.cand.choiceId, title: shownTitle(p.cand.exercise), minutes: p.cand.minutes, stage, asked: step, step: p.step, reason: p.reason, among: p.among, fitted: fittedOf(p.usable), total });
     return true;
   };
 

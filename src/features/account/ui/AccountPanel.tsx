@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import DevOnly from "@/components/DevOnly";
 import { ROLE_LABEL } from "../model";
 import { useAccount, useAccountStore } from "../useAccount";
 import EmailUpdates from "./EmailUpdates";
@@ -16,7 +15,7 @@ const go = (path: string) => window.location.assign(path);
 
 /**
  * /account: the open-beta line, who is logged in, their name, the emails about what we fix and add, and offers, their plan, feedback and, under
- * everything, Log out. Delete account shows in development only (`DevOnly`; the route is closed in production too). Logged out, it points to Log in.
+ * everything, Log out and Delete account (/terms and /privacy promise it on this page). Logged out, it points to Log in.
  */
 export default function AccountPanel({ start }: { /** the plans' side asked for in the address (`?for=teachers`) */ start?: Audience | null }) {
   const { account, loaded } = useAccount();
@@ -111,20 +110,18 @@ export default function AccountPanel({ start }: { /** the plans' side asked for 
       <div className="flex flex-col items-start gap-3 border-t border-slate-800 pt-5">
         <button type="button" disabled={busy} className={`${SECONDARY} !w-auto`} onClick={() => void store.signOut().then(() => go("/"))}>Log out</button>
 
-        <DevOnly>
-          {asking ? (
-            <div className="flex flex-col gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3">
-              <p className="text-sm text-rose-100">Delete the account for {account.email}? This can&apos;t be undone.</p>
-              <div className="grid grid-cols-2 gap-2">
-                <button type="button" disabled={busy} className={SECONDARY} onClick={() => setAsking(false)}>Keep account</button>
-                <button type="button" disabled={busy} className={`${SECONDARY} !border-rose-500/60 !text-rose-100`} onClick={() => void remove()}>Delete account</button>
-              </div>
+        {asking ? (
+          <div className="flex flex-col gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3">
+            <p className="text-sm text-rose-100">Delete the account for {account.email}? This removes your plans, notes and videos, and can&apos;t be undone.</p>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" disabled={busy} className={SECONDARY} onClick={() => setAsking(false)}>Keep account</button>
+              <button type="button" disabled={busy} className={`${SECONDARY} !border-rose-500/60 !text-rose-100`} onClick={() => void remove()}>Delete account</button>
             </div>
-          ) : (
-            <button type="button" className="self-start text-xs text-slate-500 underline-offset-2 hover:text-rose-300 hover:underline" onClick={() => setAsking(true)}>Delete account</button>
-          )}
-          <ErrorLine>{removeError}</ErrorLine>
-        </DevOnly>
+          </div>
+        ) : (
+          <button type="button" className="self-start text-xs text-slate-500 underline-offset-2 hover:text-rose-300 hover:underline" onClick={() => setAsking(true)}>Delete account</button>
+        )}
+        <ErrorLine>{removeError}</ErrorLine>
       </div>
     </div>
   );

@@ -117,7 +117,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 - `useAccount.tsx`: `useAccount()` gives `{ account, loaded, can }`. It asks the real session (the page's one shared read), and nothing at all when
   there is no session cookie.
 - `ui/`: the screens. `LinkForm` (`/login`), `ConfirmLink` (`/login/confirm`), `AccountPanel`
-  (`/account`: the open-beta line with a Send feedback link (to `/feedback`) across the top; under it, on a wide screen, a narrow column with the Profile card (email, role, name), beside a wide Plan card whose plans sit side by side; under everything Log out and, in development only (`DevOnly`; `DELETE /api/account` answers 404 in production), Delete account), `AccountLink` (the corner of the top nav: Log in, or the name with a
+  (`/account`: the open-beta line with a Send feedback link (to `/feedback`) across the top; under it, on a wide screen, a narrow column with the Profile card (email, role, name), beside a wide Plan card whose plans sit side by side; under everything Log out and Delete account (`DELETE /api/account`; /terms and /privacy promise it here)), `AccountLink` (the corner of the top nav: Log in, or the name with a
   menu of Your profile, Home page, Send feedback and Log out, opened on hover or a tap).
 - The Send feedback page is `/feedback` in `src/features/messages` (`FEEDBACK_HREF`): each send starts a new thread with us, answered in the chat bubble. `/account#feedback` sends people there.
 - `server/`: sign-in itself, server only.

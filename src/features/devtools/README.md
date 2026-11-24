@@ -43,17 +43,19 @@ ringed; a track picked on the path is shown alone.
 
 ## Plan algorithm (`/dev/compose`)
 
-Stage 6, "The versions": for every pick whose block has `moves`, how its version was rolled (`TracedPick.roll`,
+Stage 6, "The exercise versions": for every pick whose block has `moves`, how its exercise version was rolled (`TracedPick.roll`,
 `plan/model/roll.ts`): the last play and its stars, the odds that rating gave, the dice, the moves in with their
-weights, the outcome and the version given; and, in three more columns, the roll the composer would make next if the
-version shown were rated 1, 3 or 5 (`nextVersion` in `model/composeLab.ts`, the composer's own `versionFor`). The
+weights, the outcome and the version given; and, in five more columns, the roll the composer would make next if the
+version shown were rated 1 to 5 (`nextVersion` in `model/composeLab.ts`, the composer's own `versionFor`). The
 numbers come from `ROLL`. Stage 5, "The keys", is now only for blocks of the older shape (a Key selector, no moves). The picks (stage 4) and the versions (stage 6) show each pick's
 choice id under its block id: the composer picks choices (`seedCandidates` gives one candidate per choice of a seed file), and
 a version is rolled from the player's ratings of that choice.
 
 How one day's plan is built, stage by stage (`compose/ComposeLab.tsx`): the player, the steps of the day, the library, every pick with its stage and reason, the keys, the day. The composer is the real one (`explainDay` in the plan model); `model/composeLab.ts` stands in the rest: `seedCandidates` (the seed block files as candidates, not the database) and `simulate` (seven days in a row for a persona, each seeing the days before, with every exercise rated Solid, Hard or not at all). Controls: the player, minutes, the keys question, the rating, the first day, the seed.
 
-**Architecture** (the second view, `compose/Architecture.tsx`): how the algorithm is put together, written by hand from the code it names. Who asks for a plan (a player's day through `useTodayPlan`, `requestDay`, `composeRoute` and `composeToday`; a teacher's week through `postStudentPlan`, `planRoute`, `makeWeek`, `composeStudentWeek` and `composeWeek`; this page through `simulate`), all ending in `composeDay`, and who stores what comes back; the ten fields of `ComposeInput` with where the server gets each; the calls inside `composeDay` (`daySteps`, `withinReach`, `fill`, `keysFor`, and what each calls), numbered by the stage of the first view that shows them; the rules that hold; the files. Keep it true in the same commit as a change to any file it lists.
+The page is written to be read cold: each stage says its rule in full before its result, the controls are explained under the bar, and "Words used on this page" (`Words`) says each term once (step, topic, line, block, choice, solid, known, within reach, open, ahead, exercise version: the page's one name for it, never a bare "version" at a first mention, to keep it apart from a seed file's `versions` and `PROMPT_VERSION`), then the composer's data shapes by their type names (`SHAPES`: `ComposeInput`, `Candidate`, `PlanExercise`, `ProgressEntry`, `DaySteps`, `Moves`, `Given`, `RollTrace`, `TracedPick`, `ComposeTrace`, `ComposedDay`). A new term on the page gets a row there, and a changed type gets its row changed in the same commit. Stage 4 starts with "Step through the picks" (`PickStepper`): one pick at a time with First, Back, Next and Last: the pass and the step it asked for, every choice that fitted (`TracedPick.fitted`: minutes, the player's newest rating, everyone's use), the one picked and why, and the day after the pick.
+
+**Architecture** (the second view, `compose/Architecture.tsx`): how the algorithm is put together, written by hand from the code it names. Who asks for a plan (a player's day through `useTodayPlan`, `requestDay`, `composeRoute` and `composeToday`; a teacher's week through `postStudentPlan`, `planRoute`, `makeWeek`, `composeStudentWeek` and `composeWeek`; this page through `simulate`), all ending in `composeDay`, and who stores what comes back; the ten fields of `ComposeInput` with where the server gets each; the calls inside `composeDay` (`daySteps`, `withinReach`, `fill`, then `versionFor` twice: to `keysFor` and to `rollVersion`; and what each calls), numbered by the stage of the first view that shows them; the rules that hold; the files. Keep it true in the same commit as a change to any file it lists.
 
 ## Questionnaire (`/dev/questionnaire`)
 

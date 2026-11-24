@@ -1,0 +1,137 @@
+======================== How this list works ========================
+Legal and privacy things to check again before each kind of launch. tasks.txt is for what to build; this is for what
+to re-check, because the law or a vendor may have changed since the last look.
+- One section per launch. Before that launch, go through its section top to bottom.
+- Each check: `<Series><n>:` what to check, then why, where it lives in the code or on the page, and the last result.
+- A check is never deleted. After checking, add a dated note under it, newest last: `[<date> checked] what was found,
+  what was changed`. A check that needed work also gets a task in tasks.txt, named here.
+- The law notes here came mostly from law-firm and vendor summaries, not from a lawyer. Before paid plans open, a
+  lawyer reads /terms and /privacy.
+- Where the promises live: /terms (src/app/terms/page.tsx), /privacy (src/app/privacy/page.tsx), the counting rules
+  (src/lib/analyticsChoice.ts), PostHog (instrumentation-client.ts). A change to what the app does with data is a change
+  to /privacy and a new PRIVACY_UPDATED (src/features/account/terms.ts).
+
+
+======================== Every deploy that changes data handling ========================
+Every1: Does /privacy still name every company that gets data, and only those?
+  Today: Vercel (hosting, files, page counts), Supabase (database), Resend (email), Google (sign-in), PostHog (use and
+  errors), ElevenLabs (sampler words). A new SDK, API key or env var for an outside service means a new line there.
+  [2026-11-23 checked] List written from the code. The database host (Supabase) is from .env.example and notes, not
+  confirmed for production.
+
+Every2: Does anything new reach analytics that names a person?
+  No identify() call, no email or name in a capture() or a server log, tokens cut from addresses (scrubUrl). A new
+  page with a secret in its address (a token, an id that works as a key) is added to scrubUrl and its test.
+  [2026-11-23 checked] Clean: six capture() calls and three server logs, none with personal data.
+
+Every3: Do /terms and /privacy still match what the app does?
+  Each promise is a thing to click: Delete account on /account, the counting switch on /privacy, news emails off
+  until asked for, a student's account free.
+  [2026-11-23 checked] Fixed four mismatches (analytics not named, delete off in production, export promised, the AI
+  sentence).
+
+
+======================== First public deploy (open beta) ========================
+Beta1: PostHog cookieless mode is switched on in the PostHog project (Settings -> Project -> Web analytics).
+  Without it PostHog drops every event, silently.
+  [2026-11-23] Not done yet: a setting in the PostHog dashboard, not in the code.
+
+Beta2: Which database does production use? /privacy says Supabase. Fix the page if it isn't.
+
+Beta3: Delete account works in production, end to end: the account, its plans, notes and videos (the files too).
+  [2026-11-23] Switched on for production (was development only). Tested in development before; not yet on a deploy.
+
+Beta4: The region rule works on Vercel: a visitor from the EU is asked before being counted, one from Australia is
+  not. The country comes from Vercel's x-vercel-ip-country header, which only exists on a deploy.
+  [2026-11-23 checked] In a headless browser with the cookie set by hand; not on a real deploy.
+
+Beta5: Google sign-in: the consent screen's privacy policy link is https://www.attunr.app/privacy, and the home page
+  links to it (the footer does).
+
+Beta6: /privacy and /terms read well at phone width. Not looked at yet.
+
+
+======================== First news or offers email ========================
+Email1: Every news email has a working unsubscribe link and says who sent it (attunr, the ABN, hello@attunr.app).
+  Spam Act 2003: the link must work for 30 days and be honoured within 5 working days. Nothing in the mail code does
+  this yet (src/features/account/server/mail.ts sends log-in mail only).
+
+Email2: Only accounts with users.email_updates_at set get it. That column is the proof of consent: keep it.
+
+Email3: A list of addresses that said no, checked before every send, kept even after an account is deleted.
+
+Email4: Sending to the US adds a postal address in the email (CAN-SPAM). Sending to the EU or UK: opt-in is already
+  the rule here.
+
+
+======================== Paid plans ========================
+Paid1: A lawyer reads /terms and /privacy.
+
+Paid2: /privacy names the payment provider ("We will name it here before then").
+
+Paid3: What /terms promises about a subscription is built: cancel on /account without writing to us, an email before
+  a yearly renewal, an email 30 days before a price change, the 30-day refund.
+  Australia: the Unfair Trading Practices Act (subscription traps, drip pricing) starts 1 July 2027; its notice rules
+  were not published when last checked. California: clear consent to renewal, a yearly reminder, cancel online.
+  [2026-11-23 checked] Nothing to build during the beta: nothing is charged. Re-check the Australian regulations then.
+
+Paid4: The renewal price and period are shown beside the button that starts the subscription, not only in /terms.
+
+Paid5: Prices are in US dollars and the business is in Australia: GST, and whether tax is collected for buyers
+  abroad. /terms says "Taxes are included in the price where we must collect them". Ask an accountant.
+
+Paid6: Is yearly turnover still under AUD 3 million? Above it the Privacy Act applies in full, with the breach
+  notification scheme and the children's code (see Dated1).
+
+
+======================== Marketing to the EU or the UK ========================
+Merely being reachable from Europe is not this launch. Prices in euros or pounds, another language, or adverts aimed
+there are.
+EU1: A data processing agreement is in place with each company in Every1. Most publish a standard one: some apply
+  through their terms, some need a click or a form in the dashboard. Note here which is which, with the date.
+
+EU2: /privacy says what makes sending data out of the EU lawful, per company: the EU-US Data Privacy Framework
+  (check the company is certified) or the EU's standard contract clauses, from that same agreement.
+  The Framework was upheld in September 2025; an appeal was pending when last checked.
+
+EU3: Does cookieless counting need consent? Today the app asks first in the EU, EEA and Switzerland and counts until
+  told no in the UK (the UK's 2025 Act allows statistics with a way to say no). The EU's "Digital Omnibus" may relax
+  the EU rule: if it becomes law, the ask-first list in analyticsChoice.ts can shrink.
+
+EU4: An EU representative and a UK one (GDPR Article 27): arguably needed once Europe is a target market.
+
+EU5: A simple record of what data is processed, why, and by whom (GDPR Article 30). /privacy is most of it.
+
+EU6: A yes to counting is asked again after 6 to 12 months. Not built: the answer is kept with no date.
+
+EU7: A copy of your data as a file, from /account. Not built: /privacy says to email us, answered within 30 days.
+
+EU8: The UK Children's Code applies to a service UK children are likely to use: high-privacy defaults, no profiling,
+  no marketing to under-18s. Today: no adverts, news emails off by default.
+
+
+======================== Marketing to the United States ========================
+US1: A child under 13 (COPPA). A teacher adding a student under 13 needs the parent's consent, and a private teacher
+  may not count as a "school" that can consent for them. The app neither asks an age nor checks consent: /terms puts
+  that on the teacher. Decide: ask the teacher to confirm, or keep under-13s out.
+
+US2: California privacy law (CCPA) starts at USD 26.6 million revenue or 100,000 Californian users. Far off; the app
+  already honours Global Privacy Control.
+
+US3: The FTC's "click to cancel" rule was struck down in July 2025 and a new one was being written. Re-check with
+  Paid3.
+
+
+======================== Dated ========================
+Dated1: After 10 December 2026: the Children's Online Privacy Code (Australia).
+  https://www.oaic.gov.au/privacy/privacy-registers/privacy-codes/childrens-online-privacy-code
+  [2026-11-23 checked] Not registered yet as far as found; the start date and the transition time are not set. It
+  binds only businesses under the Privacy Act, so the small-business exemption (Paid6) keeps attunr outside it. If it
+  ever applies: check a user's age before collecting data, or give every user the child's protections.
+
+Dated2: When the Privacy Act "tranche 2" bill is introduced: does it end the small-business exemption?
+  [2026-11-23 checked] An exposure draft came out in August 2026 and kept the exemption. Not yet in Parliament.
+
+Dated3: Before 1 July 2027: the Australian subscription rules (Paid3).
+
+Dated4: Once a year, and when a company in Every1 changes its terms: run "Every deploy" above from the top.

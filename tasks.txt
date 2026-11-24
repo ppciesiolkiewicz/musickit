@@ -318,6 +318,14 @@ not a block for every step ("we want to work on few main blocks - maybe demo blo
 waited on it), before the next tool is started, so its main blocks are seed blocks that count for a step and the
 composer can pick them. No pass over the path before any tool is built.
 Open: which blocks are the main ones for each tool.
+MissingTools17:  [NEW 2026-11-19]: Finger drumming on phone / keyboard.
+- Trying to get rythms like this right for different genres
+
+Count:   1 e + a 2 e + a 3 e + a 4 e + a
+Hi-hat:  x . x . x . x . x . x . x . x .
+Snare:   . . . . x . . . . . . . x . . .
+Kick:    x . . . . . . x . . x . . . . .
+
 
 TaskSeries ChoiceSplit: take the choice (stages, variants, pick-a-step) out of blocks (from NEW15, 2026-11-17)
 ChoiceSplit1: [NEW 2026-11-17] Brainstorm a choice that lives apart from its block, so new alternatives of a block (other

@@ -474,6 +474,8 @@ test("explainDay: the day is composeDay's, and the trace names every pick with i
   assert.deepEqual(trace.picks.map((p) => p.blockId).sort(), ids(day).sort());
   assert.ok(trace.picks.every((p) => p.reason === "unrated" && p.step === p.asked));
   assert.deepEqual(trace.picks.map((p) => p.total), [5, 10, 15, 20]);
+  assert.ok(trace.picks.every((p) => p.fitted.length === p.among && p.fitted.some((f) => f.choiceId === p.choiceId)), "each pick lists the choices that fitted, the picked one among them");
+  assert.deepEqual(trace.picks[0].fitted.map((f) => f.choiceId), ["a:1#1", "a:1#2"], "yesterday's choice did not fit");
 });
 
 test("explainDay: a step with no block is listed as empty; one filled from an earlier step says which", () => {
