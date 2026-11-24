@@ -364,6 +364,25 @@ export default function ComposeLab() {
           </ul>
           <p>Each chip is one step, written <C>track-id:number</C>. A coloured chip is a step the day took an exercise for. A grey chip is a step on the list that got none: the minutes were full before its turn, or no exercise was left for it.</p>
         </>}>
+          <div className="mb-3 text-xs">
+            <p className="mb-1 leading-relaxed text-slate-400">Before the steps, <C>dayAreas</C> splits the day into sections, one area each. {trace.minutes.asked} minutes give {trace.areas.count === 1 ? "1 section" : `${trace.areas.count} sections`} (one under 30 minutes, two from 30 to 49, three from 50), and the player picked {trace.areas.picked.join(", ")}. Today&apos;s areas: <span className="text-slate-100">{trace.areas.today.join(", then ")}</span>. Which areas a day gets turns with the date. <C>daySteps</C> and <C>fill</C> run once for each section. The lists below hold every section&apos;s steps, one section after the other.</p>
+            <table className="w-full text-left">
+              <thead className="text-slate-500"><tr><th className="py-1 pr-3 font-medium">Section</th><th className="pr-3 font-medium">Kept min</th><th className="pr-3 font-medium">Even share</th><th className="pr-3 font-medium">Budget with what was left over</th><th className="pr-3 font-medium">Filled</th><th className="pr-3 font-medium">Added afterwards</th><th className="font-medium">Fresh / open / review steps</th></tr></thead>
+              <tbody>
+                {trace.sections.map((sec) => (
+                  <tr key={sec.area} className="border-t border-slate-800 text-slate-200">
+                    <td className="py-1 pr-3">{sec.area}</td>
+                    <td className="pr-3 tabular-nums">{sec.kept}</td>
+                    <td className="pr-3 tabular-nums">{Math.round(sec.share)}</td>
+                    <td className="pr-3 tabular-nums">{Math.round(sec.budget)}</td>
+                    <td className="pr-3 tabular-nums">{sec.filled}</td>
+                    <td className="pr-3 tabular-nums">{sec.toppedUp}</td>
+                    <td className="tabular-nums">{sec.steps.fresh.length} / {sec.steps.open.length} / {sec.steps.review.length}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div className="flex flex-col gap-2 text-xs">
             {([["Fresh", trace.steps.fresh, STAGE_STYLE.fresh], ["Open", trace.steps.open, STAGE_STYLE.open], ["Review", trace.steps.review, STAGE_STYLE.review]] as const).map(([name, refs, tone]) => (
               <div key={name} className="flex gap-3">

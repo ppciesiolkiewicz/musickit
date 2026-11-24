@@ -2,7 +2,7 @@ import { mulberry32 } from "@/lib/improv/schillinger";
 import type { ProgressEntry } from "@/features/progress/log";
 import type { Stars } from "@/features/progress/stars";
 import type { Area } from "./concepts";
-import { daySteps, type DaySteps } from "./daySteps";
+import { dayNumber, daySteps, type DaySteps } from "./daySteps";
 import { levelOf } from "../intake/answers";
 import { exerciseKeys, hasKeySelector, keyRung, type PlayerKeys } from "./keys";
 import { keyTrackOf, playerKeys } from "./keyStages";
@@ -55,9 +55,20 @@ export interface ComposeInput {
   player?: string;
 }
 
-export interface ComposedDay {
+/** One part of a day: one area, its exercises together (DayShape1). */
+export interface DaySection {
+  area: Area;
+  /** the minutes of its exercises */
+  minutes: number;
   /** kept ones first, then new picks, review blocks last */
   exercises: PlanExercise[];
+}
+
+export interface ComposedDay {
+  /** the sections' exercises, one section after the other */
+  exercises: PlanExercise[];
+  /** the day by area: voice, then guitar, then theory. A section with no exercise is left out. Absent on a day not made by `composeDay`. */
+  sections?: DaySection[];
   /** the steps the new picks work on, in order */
   steps: string[];
   /** under the minutes by more than 5: the library has no more for these steps */
@@ -89,6 +100,8 @@ export interface TracedPick {
   title: string;
   minutes: number;
   stage: PickStage;
+  /** the section it was picked for */
+  area: Area;
   /** the step the day asked for */
   asked: string;
   /** the step the block was found on: `asked`, or an earlier step of its track when `asked` had no usable block */
@@ -106,10 +119,31 @@ export interface TracedPick {
   roll?: RollTrace;
 }
 
+/** One section as the composer filled it. */
+export interface TracedSection {
+  area: Area;
+  /** kept exercises of this area, in minutes */
+  kept: number;
+  /** its even part of the day's budget */
+  share: number;
+  /** what it had to fill: its share and what the sections before it left over */
+  budget: number;
+  /** the minutes of its new picks */
+  filled: number;
+  /** the minutes added afterwards, when the day's last section could not use what was left */
+  toppedUp: number;
+  steps: DaySteps;
+}
+
 /** Everything `composeDay` decided, stage by stage, for /dev/compose. Not stored. */
 export interface ComposeTrace {
+  /** `reviewCount` is one section's */
   minutes: { asked: number; kept: number; budget: number; reviewCount: number; reviewCap: number; filled: number };
-  /** the steps the day works on (`daySteps`) */
+  /** the areas the player picked in day order, how many sections the minutes give, and the areas today got */
+  areas: { picked: Area[]; count: number; today: Area[] };
+  /** the day's sections in order; one that got only kept exercises has budget 0 */
+  sections: TracedSection[];
+  /** the steps the day works on (`daySteps` of every section, one after the other) */
   steps: DaySteps;
   /** the library: all choices handed in, those within the player's reach, those of them not barred (yesterday's, declined, kept, or of a kept block) */
   library: { all: number; inReach: number; usable: number };
@@ -121,6 +155,25 @@ export interface ComposeTrace {
 
 /** Minutes a day may end under its budget before the day is short. */
 const SLACK = 5;
+
+/** The order of a day's sections: the voice opens the day (its warm-up, DayShape2), theory closes it. */
+export const AREA_ORDER: Area[] = ["voice", "guitar", "theory"];
+
+/** How many sections a day's minutes give: one under 30, two from 30 to 49, three from 50. */
+export const sectionCount = (minutes: number): number => (minutes < 30 ? 1 : minutes < 50 ? 2 : 3);
+
+/**
+ * The areas one day works on (DayShape1): as many as `sectionCount`, never more than the player picked, taken in turn
+ * with the date, so a 20-minute guitar-and-voice player gets guitar one day and voice the next. In day order.
+ */
+export function dayAreas(answers: { areas: Area[]; minutes: number }, date: string): Area[] {
+  const picked = AREA_ORDER.filter((a) => answers.areas.includes(a));
+  const n = Math.min(sectionCount(answers.minutes), picked.length);
+  if (n >= picked.length) return picked;
+  const start = dayNumber(date) % picked.length;
+  const today = new Set(Array.from({ length: n }, (_, i) => picked[(start + i) % picked.length]));
+  return picked.filter((a) => today.has(a));
+}
 
 type Rng = () => number;
 interface Pick { cand: Candidate; step: string; reason: PickReason; among: number; usable: Candidate[] }
@@ -201,7 +254,7 @@ function pickFor(step: string, blocks: Candidate[], used: Barred, rng: Rng): Pic
  * Fill a day to its budget: planned review first (placed last), then fresh, open, more blocks on the day's steps, more
  * review. A planned review block fits `reviewCap` minutes (a third of the day); the later "more review" has no cap.
  */
-function fill(steps: { fresh: string[]; open: string[]; review: string[] }, reviewCount: number, reviewCap: number, budget: number, blocks: Candidate[], used: Barred, rng: Rng, trace?: ComposeTrace) {
+function fill(steps: { fresh: string[]; open: string[]; review: string[] }, reviewCount: number, reviewCap: number, budget: number, blocks: Candidate[], used: Barred, rng: Rng, trace?: ComposeTrace, at: { area: Area; before: number } = { area: "guitar", before: 0 }) {
   const picks: Pick[] = [];
   const review: Pick[] = [];
   let total = 0;
@@ -217,7 +270,7 @@ function fill(steps: { fresh: string[]; open: string[]; review: string[] }, revi
     used.blocks.add(p.cand.blockId);
     total += p.cand.minutes;
     into.push(p);
-    trace?.picks.push({ blockId: p.cand.blockId, choiceId: p.cand.choiceId, title: shownTitle(p.cand.exercise), minutes: p.cand.minutes, stage, asked: step, step: p.step, reason: p.reason, among: p.among, fitted: fittedOf(p.usable), total });
+    trace?.picks.push({ blockId: p.cand.blockId, choiceId: p.cand.choiceId, title: shownTitle(p.cand.exercise), minutes: p.cand.minutes, stage, area: at.area, asked: step, step: p.step, reason: p.reason, among: p.among, fitted: fittedOf(p.usable), total: at.before + total });
     return true;
   };
 
@@ -251,7 +304,7 @@ function fill(steps: { fresh: string[]; open: string[]; review: string[] }, revi
   // the review steps not tried yet first, then the planned ones again
   rounds([...steps.review.slice(r), ...steps.review.slice(0, r)], review);
 
-  return { picks: [...picks, ...review], total };
+  return { picks, review, total };
 }
 
 /**
@@ -298,8 +351,9 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
   const kept = keep.reduce((s, e) => s + e.minutes, 0);
   const left = answers.minutes - kept;
   const budget = left <= SLACK ? answers.minutes : left;
-  const steps = daySteps({ answers, solid: input.solid, date: input.date }, tracks);
-  const reviewCount = answers.minutes >= 30 ? 2 : 1;
+  const today = dayAreas(answers, input.date);
+  // one section's planned review: the day's (1 under 30 minutes, 2 from 30) when it has one section, else 1 each
+  const reviewCount = today.length > 1 ? 1 : answers.minutes >= 30 ? 2 : 1;
   // choice ids: yesterday's, declined and kept ones are never picked; nor a second choice of a block already in the day
   const used: Barred = {
     choices: new Set([...input.yesterday, ...input.declined, ...keep.flatMap((e) => (e.choiceId ? [e.choiceId] : []))]),
@@ -308,18 +362,59 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
   // a planned review block fits a third of the day (at least 5 minutes), so most of a short day stays new
   const reviewCap = Math.max(5, answers.minutes / 3);
   const inReach = withinReach(input.blocks, answers, input.solid, tracks);
+
+  // A kept exercise stays in the section of its area; one with no area goes in the day's first section. An area with
+  // kept exercises that is not one of today's gets a section of its own, with nothing new in it.
+  const areaOf = (e: PlanExercise): Area => (AREA_ORDER.includes(e.area as Area) ? (e.area as Area) : today[0] ?? AREA_ORDER[0]);
+  const keptOf = (a: Area) => keep.filter((e) => areaOf(e) === a);
+  const mins = (list: PlanExercise[]) => list.reduce((s, e) => s + e.minutes, 0);
+  const order = AREA_ORDER.filter((a) => today.includes(a) || keptOf(a).length > 0);
+  // Even minutes between today's sections, less what each has kept, scaled to the budget.
+  const even = today.length ? answers.minutes / today.length : 0;
+  const want = new Map(today.map((a) => [a, left <= SLACK ? even : Math.max(0, even - mins(keptOf(a)))]));
+  const wanted = [...want.values()].reduce((s, n) => s + n, 0);
+  const shareOf = (a: Area) => (!today.includes(a) ? 0 : wanted > 0 ? (want.get(a)! * budget) / wanted : budget / today.length);
+
   const trace: ComposeTrace = {
     minutes: { asked: answers.minutes, kept, budget, reviewCount, reviewCap, filled: 0 },
-    steps,
+    areas: { picked: AREA_ORDER.filter((a) => answers.areas.includes(a)), count: sectionCount(answers.minutes), today },
+    sections: [],
+    steps: { fresh: [], open: [], review: [] },
     library: { all: input.blocks.length, inReach: inReach.length, usable: inReach.filter((c) => !barred(c, used)).length },
     picks: [],
     empty: [],
   };
-  const { picks, total } = fill(steps, reviewCount, reviewCap, budget, inReach, used, mulberry32(hash(input.seed)), trace);
+  const rng = mulberry32(hash(input.seed));
+  const parts = new Map<Area, { picks: Pick[]; review: Pick[] }>();
+  let total = 0;
+  let carry = 0;
+  for (const area of order) {
+    const share = shareOf(area);
+    const steps = today.includes(area) ? daySteps({ answers, solid: input.solid, date: input.date, areas: [area] }, tracks) : { fresh: [], open: [], review: [] };
+    // what the sections before left over is this one's too; what they ran over comes off it, never under half its share
+    const sectionBudget = today.includes(area) ? Math.max(share / 2, share + carry) : 0;
+    const got = sectionBudget > 0 ? fill(steps, reviewCount, reviewCap, sectionBudget, inReach, used, rng, trace, { area, before: total }) : { picks: [], review: [], total: 0 };
+    parts.set(area, { picks: got.picks, review: got.review });
+    if (today.includes(area)) carry = sectionBudget - got.total;
+    total += got.total;
+    trace.sections.push({ area, kept: mins(keptOf(area)), share, budget: sectionBudget, filled: got.total, toppedUp: 0, steps });
+    trace.steps.fresh.push(...steps.fresh); trace.steps.open.push(...steps.open); trace.steps.review.push(...steps.review);
+  }
+  // The last section could not use what was left: the earlier ones take it, in order.
+  for (const sec of trace.sections) {
+    if (budget - total <= 0) break;
+    if (!today.includes(sec.area) || sec === trace.sections[trace.sections.length - 1]) continue;
+    const got = fill(sec.steps, 0, reviewCap, budget - total, inReach, used, rng, trace, { area: sec.area, before: total });
+    const part = parts.get(sec.area)!;
+    part.picks.push(...got.picks); part.review.push(...got.review);
+    sec.toppedUp = got.total;
+    total += got.total;
+  }
   trace.minutes.filled = total;
   // the versions last: they change no pick, only what each exercise opens in
+  const all = order.flatMap((a) => { const p = parts.get(a)!; return [...p.picks, ...p.review]; });
   const versions = new Map<string, { given: Given; roll?: RollTrace }>();
-  for (const p of picks) {
+  for (const p of all) {
     const v = versionFor(p.cand.exercise, input, tracks);
     if (v) versions.set(p.cand.choiceId, v);
   }
@@ -327,9 +422,16 @@ export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: 
     const v = versions.get(t.choiceId);
     if (v) Object.assign(t, { given: v.given }, v.roll ? { roll: v.roll } : {});
   }
+  const versioned = (p: Pick): PlanExercise => (versions.has(p.cand.choiceId) ? { ...p.cand.exercise, given: versions.get(p.cand.choiceId)!.given } : p.cand.exercise);
+  const sections: DaySection[] = order.map((area) => {
+    const p = parts.get(area)!;
+    const exercises = [...keptOf(area), ...[...p.picks, ...p.review].map(versioned)];
+    return { area, minutes: mins(exercises), exercises };
+  }).filter((s) => s.exercises.length > 0);
   const day: ComposedDay = {
-    exercises: [...keep, ...picks.map((p) => (versions.has(p.cand.choiceId) ? { ...p.cand.exercise, given: versions.get(p.cand.choiceId)!.given } : p.cand.exercise))],
-    steps: [...new Set(picks.map((p) => p.step))],
+    exercises: sections.flatMap((s) => s.exercises),
+    sections,
+    steps: [...new Set(all.map((p) => p.step))],
     short: budget - total > SLACK,
   };
   return { day, trace };
@@ -348,7 +450,7 @@ export function composeWeek(input: Omit<ComposeInput, "keep" | "declined" | "yes
   let last = input.yesterday ?? [];
   for (let i = 0; i < days; i++) {
     if (rest(i)) {
-      out.push({ exercises: [], steps: [], short: false });
+      out.push({ exercises: [], sections: [], steps: [], short: false });
       continue;
     }
     const yesterday = last;

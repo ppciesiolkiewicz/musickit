@@ -5,6 +5,7 @@ import { scoringRows } from "./moves";
 import { SOLID_STARS, reachIndex } from "./outcome";
 import { PATH, stepAt, type Track } from "./path";
 import { reach } from "./reach";
+import type { Area } from "./concepts";
 
 /*
  * Which steps of the path one day's plan works on (NEW7). Pure: the composer picks library blocks for these.
@@ -42,14 +43,17 @@ export function solidRatedAt(entries: ProgressEntry[]): Map<string, string> {
   return out;
 }
 
-const dayNumber = (date: string) => { const n = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000); return Number.isNaN(n) ? 0 : n; };
+/** Days since 1970 of a yyyy-mm-dd date: what turns the day's opening topic and its areas. */
+export const dayNumber = (date: string) => { const n = Math.floor(Date.parse(`${date}T00:00:00Z`) / 86_400_000); return Number.isNaN(n) ? 0 : n; };
 
-export function daySteps(input: { answers: PlanAnswers; solid: Map<string, string>; date: string }, tracks: Track[] = PATH): DaySteps {
+/** `areas`: the areas the steps come from (one section of a day, DayShape1); absent: every area the player picked. */
+export function daySteps(input: { answers: PlanAnswers; solid: Map<string, string>; date: string; areas?: Area[] }, tracks: Track[] = PATH): DaySteps {
   const { answers, solid, date } = input;
-  const areas = new Set<string>(answers.areas);
+  const from = input.areas ?? answers.areas;
+  const areas = new Set<string>(from);
   const mine = (ref: string) => { const at = stepAt(ref, tracks); return at && areas.has(at.track.area) ? at.track.topic : null; };
   const marks = reach({ topics: answers.topics, solid: solid.keys() }, tracks);
-  const known = answers.areas.flatMap((a) => topicsFor(a).map((t) => t.id));
+  const known = from.flatMap((a) => topicsFor(a).map((t) => t.id));
 
   const inReach = [...marks.values()].filter((s) => mine(s.ref) !== null);
   const freshRefs = inReach.filter((s) => s.mark === "reach").map((s) => s.ref);

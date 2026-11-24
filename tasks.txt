@@ -422,6 +422,13 @@ voice. 40 and 60 minutes: more sections. Today the composer takes the day's step
 can jump between guitar, voice and theory. Open: what a section is (one area each, or several in one area); the order
 of a 40-minute guitar-and-voice day (voice warm-up, voice, then guitar?); which area a 20-minute day gets, and whether
 it turns from day to day; where theory sits. Show it on /dev/compose.
+[2026-11-24 done] DayShape1 as proposed and decided: `dayAreas` and `sectionCount` in compose.ts, `daySteps`
+takes the section's areas, `fill` runs once a section, `ComposedDay.sections`, `ComposeTrace.areas` and `.sections`,
+/dev/compose (stage 2 and Architecture), and a heading for each area on the plan's day (model/sections.ts, WeekView)
+when the day has more than one. Chosen where the proposal was silent: planned review is 1 exercise a section (a
+one-section day keeps 1 or 2); a section that ran over takes it off the next, never under half that one's share; what
+the last section can't fill goes back to the earlier ones; a kept exercise of an area that is not one of today's keeps
+a section of its own. Not seen signed in on /plan.
 DayShape2: [NEW 2026-11-19] Warm-ups: a kind of block that opens the day, not a step on the path. Voice warm-ups
 (user): breathwork; lip rolls down; lip rolls down and up; lip rolls up and down; singing scales; each interval out
 from do and back (do re do, do mi do, do fa do, ...), then the same going down. Today 12 seed blocks mention a warm-up

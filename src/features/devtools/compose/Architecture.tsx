@@ -75,7 +75,7 @@ const INPUTS: [string, ReactNode, ReactNode][] = [
 const INSIDE: { n: string; name: string; file: string; text: ReactNode; calls?: { name: string; file: string; text: ReactNode }[] }[] = [
   {
     n: "2", name: "daySteps", file: "plan/model/daySteps.ts",
-    text: <>Decides which steps of the path the day works on, as three lists. <C>fresh</C>: steps within reach and not solid, one from each topic before a second from any topic. <C>open</C>: steps that are ready but over their topic&apos;s limit. <C>review</C>: solid steps, the one rated longest ago first.</>,
+    text: <>First <C>dayAreas</C> (<C>plan/model/compose.ts</C>) splits the day into sections, one area each: one section under 30 minutes, two from 30 to 49, three from 50, never more than the areas the player picked. Which areas a day gets turns with the date. The order is voice, guitar, theory. Then <C>daySteps</C> runs once for each section, with that section&apos;s area, and decides which steps of the path the section works on, as three lists. <C>fresh</C>: steps within reach and not solid, one from each topic before a second from any topic. <C>open</C>: steps that are ready but over their topic&apos;s limit. <C>review</C>: solid steps, the one rated longest ago first.</>,
     calls: [
       { name: "reach", file: "plan/model/reach.ts", text: <>Marks every step of the path as known, within reach or ahead. Known comes from the questionnaire and from solid ratings, and it carries back: everything a known step needs first is known too.</> },
       { name: "placement", file: "plan/intake/placement.ts", text: <>From a topic&apos;s line, the step each of the topic&apos;s tracks starts on.</> },
@@ -89,7 +89,7 @@ const INSIDE: { n: string; name: string; file: string; text: ReactNode; calls?: 
   },
   {
     n: "4", name: "fill", file: "plan/model/compose.ts",
-    text: <>Adds exercises until the budget is full, in five passes: planned review (1 exercise, 2 on a day of 30 minutes or more, each at most a third of the day), one exercise for each fresh step, one for each open step, more rounds over the steps of the day, then more review. It stops when the minutes are full or when a whole round adds nothing.</>,
+    text: <>Runs once for each section, with the section&apos;s budget: the day&apos;s minutes split evenly between the sections, less what the section has kept. What a section could not fill goes to the next one, and what the last one could not fill goes back to the earlier ones. A kept exercise stays in the section of its area. Adds exercises until the section&apos;s budget is full, in five passes: planned review (1 exercise a section; 2 on a one-section day of 30 minutes or more; each at most a third of the day), one exercise for each fresh step, one for each open step, more rounds over the steps of the day, then more review. It stops when the minutes are full or when a whole round adds nothing.</>,
     calls: [
       { name: "pickFor", file: "plan/model/compose.ts", text: <>Finds a choice for one step, never from a block already in the day. When the step has none left, it tries the step before it on the same track, then the one before that.</> },
       { name: "fits", file: "plan/model/compose.ts", text: <>A choice fits a step when it names that step and no later step of the same track.</> },

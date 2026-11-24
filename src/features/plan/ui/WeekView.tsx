@@ -1,5 +1,6 @@
 "use client";
 
+import { sectionStarts } from "../model/sections";
 import { shownTitle } from "../model/moves";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import Icon from "@/components/Icon";
@@ -136,6 +137,8 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
   const [now, setNow] = useState<number | null>(null);
   const [auto, setAuto] = useState(autoStart);
   const total = d.exercises.reduce((n, e) => n + e.minutes, 0);
+  // a day in more than one area names each area's part (DayShape1)
+  const sections = sectionStarts(d.exercises);
   const cards = useRef<(HTMLLIElement | null)[]>([]);
   const focused = useInView(cards, day);
   // the day timer is counting (not paused, day not over): the card it counts for shows its time ticking, rated or not,
@@ -171,10 +174,17 @@ export function DayPanel({ plan, day, heading, timerLabel, autoStart, onRate, ra
       ) : (
         <ol className="flex flex-col gap-5">
           {d.exercises.map((e, i) => {
+            const section = sections[i];
             const done = !!plan.done[doneKey(day, i)];
             const isNow = now === i && !done;
             return (
               <li key={`${day}:${i}`} ref={(el) => { cards.current[i] = el; }}>
+                {section && (
+                  <h3 className={`mb-3 flex items-baseline gap-2 border-b border-slate-800 pb-1.5 text-sm font-semibold text-slate-100 ${i ? "mt-3" : ""}`}>
+                    {section.label}
+                    <span className="text-xs font-normal text-slate-400">{section.minutes} min</span>
+                  </h3>
+                )}
                 <ExerciseCard exercise={e} index={i} done={done} now={isNow} ticking={running && focused === i} spent={onTime ? spent[i] ?? 0 : undefined} rating={plan.rated?.[doneKey(day, i)]?.stars ?? null} onRate={onRate && ((s) => onRate(day, i, s))} ratedBy={ratedBy} address={readOnly ? `past-${plan.id}.d${day}.e${i}` : `d${day}.e${i}`} tour={!readOnly} />
               </li>
             );
