@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { tabOf } from "../../cues/tab";
 import { BEATS_PER_BAR } from "../../timeline/timeline";
 import { isNow, rowsOf, shade, useWidth, zoomFor, type ViewProps } from "./common";
@@ -12,6 +13,8 @@ const NAMES = ["e", "B", "G", "D", "A", "E"];
 const LEFT = 24, ROW = 18, PAD = 14;
 /** room under the low E for the note-length signs */
 const SIGNS = 30;
+/** about how tall a chord box is on the screen, px: less room than this above a column puts it under */
+const GRIP_HEIGHT = 200;
 
 /**
  * Six-line tab (high e on top), one column per strum or note, spaced by beat, with a playhead and each column's length as a
@@ -20,12 +23,22 @@ const SIGNS = 30;
  */
 export default function TabView({ cues, pos, length }: ViewProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
-  // the chord column pointed at, and where its box sits in the view (px from the view's top left)
-  const [grip, setGrip] = useState<{ i: number; left: number; top: number } | null>(null);
+  // the chord column pointed at, and where its box sits on the screen: drawn on the page body, so no card clips it
+  // over the column, or under it when there is no room above in the window
+  const [grip, setGrip] = useState<{ i: number; left: number; top: number; under: boolean } | null>(null);
   const point = (i: number, el: Element) => {
-    const box = ref.current?.getBoundingClientRect(), at = el.getBoundingClientRect();
-    if (box) setGrip({ i, left: at.left + at.width / 2 - box.left, top: at.top - box.top });
+    const at = el.getBoundingClientRect();
+    const under = at.top < GRIP_HEIGHT;
+    setGrip({ i, left: at.left + at.width / 2, top: under ? at.bottom : at.top, under });
   };
+  // the box is placed once, so it goes when the page moves under it
+  useEffect(() => {
+    if (!grip) return;
+    const hide = () => setGrip(null);
+    window.addEventListener("scroll", hide, true);
+    window.addEventListener("resize", hide);
+    return () => { window.removeEventListener("scroll", hide, true); window.removeEventListener("resize", hide); };
+  }, [grip]);
   const shown = cues.filter((c) => c.frets.length);
   const cols = tabOf(shown);
   // a chord name over the tab where each chord starts; room for it on top only when there are chords
@@ -39,7 +52,7 @@ export default function TabView({ cues, pos, length }: ViewProps) {
   const bar = Math.min(10, unit / 3);
 
   return (
-    <div ref={ref} className="relative flex w-full flex-col gap-3" onPointerLeave={() => setGrip(null)}>
+    <div ref={ref} className="flex w-full flex-col gap-3" onPointerLeave={() => setGrip(null)}>
       {rows.map(([start, end]) => {
         const x = (at: number) => LEFT + PAD + (at - start) * unit;
         const right = x(end) - bar;
@@ -92,10 +105,11 @@ export default function TabView({ cues, pos, length }: ViewProps) {
           </svg>
         );
       })}
-      {grip && shown[grip.i] && (
-        <div className="pointer-events-none absolute z-20 -translate-x-1/2 -translate-y-full pb-1" style={{ left: grip.left, top: grip.top }}>
+      {grip && shown[grip.i] && createPortal(
+        <div className={`pointer-events-none fixed z-50 -translate-x-1/2 ${grip.under ? "pt-1" : "-translate-y-full pb-1"}`} style={{ left: grip.left, top: grip.top }}>
           <GripBox frets={shown[grip.i].frets} chord={shown[grip.i].chord} />
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
