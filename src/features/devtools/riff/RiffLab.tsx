@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FAMILIES, MODE_LIST, TONICS, degreeLabel, makeKeyContext } from "@/features/theory/theory";
-import { playSequence, silence } from "@/features/sound";
+import { playSequence } from "@/features/sound";
 import { createCloud, getModelLibrary, type CloudModel } from "@/features/nam";
 import { playerFor, setAmpModel, type RiffSound } from "./sound";
 import RiffTake from "./RiffTake";
 import { deleteTake } from "./takes";
 import { Note } from "@tonaljs/tonal";
-import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNear, inScale, midiOf, placeNear, placesOf, scaleStep, type RiffNote } from "./riff";
+import { MAX_FRET, STRING_NAMES, SHAPES, asciiTab, columnsOf, shapeAt, degreeNear, inScale, midiOf, placeNear, placesOf, riffTimeline, scaleStep, type RiffNote } from "./riff";
+import { PlayAlongTimeline } from "@/features/exercises/play-along/PlayAlong";
 import { OPEN_MIDI } from "@/lib/chordKit/shapeTools";
 
 const STORE = "musickit.dev.riffs";
@@ -26,7 +27,7 @@ const isDotted = (beats: number) => LENGTHS.some((l) => l.beats * 1.5 === beats)
 /** Add a dot to a length, or take it off a dotted one. */
 const toggleDot = (beats: number) => (isDotted(beats) ? beats / 1.5 : beats * 1.5);
 
-interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number }
+interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number; /** the sound it plays with, and the NAM model (an id in this browser's library, 0 none) */ sound?: RiffSound; model?: number }
 interface Library { riffs: Saved[]; cur: string }
 const newId = () => Math.random().toString(36).slice(2, 10);
 const blank = (name: string): Saved => ({ id: newId(), name, tonic: 9, mode: MODE_LIST.findIndex((m) => m.name === "Minor"), notes: [], bpm: 90, pos: 5 });
@@ -74,7 +75,6 @@ const SHORTCUTS: [string, string][] = [
   ["d", "duplicate selected"],
   ["⌫", "delete selected"],
   ["Esc", "deselect (clicks append)"],
-  ["p", "play"],
   ["⌘Z", "undo"],
 ];
 
@@ -82,14 +82,17 @@ export default function RiffLab() {
   const [lib, setLib] = useState<Library>(EMPTY_LIB);
   const state = lib.riffs.find((r) => r.id === lib.cur) ?? lib.riffs[0];
   const setState = useCallback((fn: (s: Saved) => Saved) => setLib((l) => ({ ...l, riffs: l.riffs.map((r) => (r.id === l.cur ? fn(r) : r)) })), []);
+  // each riff keeps its own sound and amp model
+  const sound: RiffSound = state.sound ?? "piano";
+  const model = state.model ?? 0;
+  const setSound = useCallback((v: RiffSound) => setState((s) => ({ ...s, sound: v })), [setState]);
+  const setModel = useCallback((v: number) => setState((s) => ({ ...s, model: v })), [setState]);
   const [sel, setSel] = useState<number | null>(null);
   const [len, setLen] = useState(0.5);
   const [copied, setCopied] = useState("");
   const [shapeIdx, setShapeIdx] = useState(0);
   const [notice, setNotice] = useState("");
-  const [sound, setSound] = useState<RiffSound>("piano");
   const [models, setModels] = useState<{ id: number; name: string }[]>([]);
-  const [model, setModel] = useState(0);
   const [ampState, setAmpState] = useState("");
   const player = useCallback(() => playerFor(sound), [sound]);
 
@@ -108,7 +111,31 @@ export default function RiffLab() {
     if (sound !== "amp" || cloud.length || cloudError) return;
     void createCloud(getModelLibrary()).list().then((r) => ("models" in r ? setCloud(r.models) : setCloudError(r.error)));
   }, [sound, cloud.length, cloudError]);
+  const [disk, setDisk] = useState<{ file: string; name: string }[]>([]);
+  // the .nam files on this machine's disk (/api/dev/nam), read once the amp is chosen: what there is to pick where the amp library isn't set up
+  useEffect(() => {
+    if (sound !== "amp") return;
+    let off = false;
+    fetch("/api/dev/nam", { cache: "no-store", signal: AbortSignal.timeout(10000) })
+      .then(async (res) => { if (!res.ok) throw new Error(`Models on this computer: ${res.status}`); return (await res.json()) as { models: { file: string; name: string }[] }; })
+      .then((r) => { if (!off) setDisk(r.models); })
+      .catch((e) => { if (!off) setNotice(e instanceof Error ? e.message : String(e)); });
+    return () => { off = true; };
+  }, [sound]);
+  const pickDisk = async (file: string) => {
+    const m = disk.find((d) => d.file === file);
+    if (!m) return;
+    const have = getModelLibrary().list().find((r) => r.name === m.name);
+    if (have) { setModel(have.id); return; }
+    setAmpState("loading");
+    try {
+      const res = await fetch(`/api/dev/nam?file=${encodeURIComponent(file)}`, { signal: AbortSignal.timeout(20000) });
+      if (!res.ok) throw new Error(((await res.json().catch(() => null)) as { error?: string } | null)?.error ?? `Something went wrong (${res.status}).`);
+      setModel((await getModelLibrary().addFile(new File([await res.text()], `${m.name}.nam`), { name: m.name })).id);
+    } catch (e) { setAmpState(`Error: ${e instanceof Error ? e.message : String(e)}`); }
+  };
   const pickModel = async (v: string) => {
+    if (v.startsWith("disk:")) { await pickDisk(v.slice(5)); return; }
     if (!v.startsWith("cloud:")) { setModel(Number(v)); return; }
     const m = cloud.find((c) => c.path === v.slice(6));
     if (!m) return;
@@ -194,11 +221,6 @@ export default function RiffLab() {
     if (place) setNotes((ns) => ns.map((x, i) => (i === sel ? { ...x, ...place } : x)));
   }, [sel, notes, setNotes, state.pos]);
 
-  const play = useCallback(() => {
-    const beatMs = 60000 / state.bpm;
-    playSequence(columnsOf(notes).flatMap((c) => c.idx.map((i) => midiOf(notes[i])).filter((m): m is number => m !== null)
-      .map((m, k) => ({ note: m, at: c.start * beatMs, hold: notes[c.idx.filter((i) => midiOf(notes[i]) !== null)[k]].beats * beatMs * 0.92 }))), player());
-  }, [notes, state.bpm, player]);
 
   /** New notes' length; the selected note's step, or else the step being built, takes it too. */
   const chooseLength = useCallback((fn: (b: number) => number) => {
@@ -265,13 +287,12 @@ export default function RiffLab() {
         setSel(sel === null ? null : notes.length > 1 ? Math.min(sel, notes.length - 2) : null);
       } else if (k === "Escape") { setSel(null); setOpen(false); }
       else if (k === " ") { setOpen(false); setSel(null); }
-      else if (k === "p") play();
       else return;
       e.preventDefault();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [sel, notes, ctx, len, lastMidi, moveSel, play, setNotes, setState, state.pos, append, open, lengthAt, hear, chooseLength]);
+  }, [sel, notes, ctx, len, lastMidi, moveSel, setNotes, setState, state.pos, append, open, lengthAt, hear, chooseLength]);
 
   // replay the selected note when it changes pitch
   const selMidi = sel === null ? null : midiOf(notes[sel] ?? { string: null, fret: null, beats: 0 });
@@ -285,8 +306,9 @@ export default function RiffLab() {
   /** notes drawn faintly on the neck: the rest of the selected step, or the step being built */
   const stepNotes = (selCol ?? (open ? cols.at(-1) : null))?.idx.map((i) => notes[i]) ?? [];
   const json = riffJson(state);
+  const timeline = useMemo(() => riffTimeline(notes, state.tonic, state.bpm), [notes, state.tonic, state.bpm]);
   const pick = (id: string) => { history.current = []; setSel(null); setLib((l) => ({ ...l, cur: id })); };
-  const add = () => { const r = { ...blank(`Riff ${lib.riffs.length + 1}`), tonic: state.tonic, mode: state.mode, bpm: state.bpm, pos: state.pos }; history.current = []; setSel(null); setLib((l) => ({ riffs: [...l.riffs, r], cur: r.id })); };
+  const add = () => { const r = { ...blank(`Riff ${lib.riffs.length + 1}`), tonic: state.tonic, mode: state.mode, bpm: state.bpm, pos: state.pos, sound: state.sound, model: state.model }; history.current = []; setSel(null); setLib((l) => ({ riffs: [...l.riffs, r], cur: r.id })); };
   const remove = (id: string) => { void deleteTake(id).catch(() => { /* the take stays in the browser, unused */ }); setLib((l) => { const riffs = l.riffs.filter((r) => r.id !== id); if (!riffs.length) return EMPTY_LIB; return { riffs, cur: l.cur === id ? riffs[0].id : l.cur }; }); };
   const copy = (what: string, text: string) => { navigator.clipboard.writeText(text).then(() => { setCopied(what); setTimeout(() => setCopied(""), 1200); }, () => setCopied("Copy failed")); };
 
@@ -364,14 +386,17 @@ export default function RiffLab() {
                     {cloud.filter((c) => !getModelLibrary().list().some((m) => m.cloudPath === c.path)).map((c) => <option key={c.path} value={`cloud:${c.path}`}>{c.group ? `${c.group} / ${c.variant}` : c.variant}</option>)}
                   </optgroup>
                 )}
+                {disk.some((d) => !models.some((m) => m.name === d.name)) && (
+                  <optgroup label="On this computer">
+                    {disk.filter((d) => !models.some((m) => m.name === d.name)).map((d) => <option key={d.file} value={`disk:${d.file}`}>{d.name}</option>)}
+                  </optgroup>
+                )}
               </select>
-              {cloudError && <span title={cloudError} className="self-center text-rose-400">Amp library: {cloudError}</span>}
+              {cloudError && disk.length === 0 && <span title={cloudError} className="self-center text-rose-400">Amp library: {cloudError}</span>}
               <label className="cursor-pointer rounded bg-slate-800 px-2 py-1 text-sm text-slate-100">Add .nam<input type="file" accept=".nam" multiple hidden onChange={(e) => void addModels(e.target.files)} /></label>
             </span>
           </label>
         )}
-        <button onClick={play} className="rounded bg-emerald-700 px-3 py-1 text-sm">Play</button>
-        <button onClick={() => silence()} className="rounded bg-slate-700 px-3 py-1 text-sm">Stop</button>
         <button onClick={() => { setNotes(() => []); setSel(null); }} className="rounded bg-rose-900 px-3 py-1 text-sm">Clear</button>
         <span className="text-sm text-slate-400">{ctx.names.join(" ")} · {cols.length} steps · {total} beats</span>
       </div>
@@ -473,6 +498,14 @@ export default function RiffLab() {
           ))}
           <button onClick={() => lengthAt(sel!, toggleDot)} title="Dotted: one and a half times the length (⇧ .)" aria-pressed={isDotted(sn.beats)} className={`rounded px-2 py-0.5 ${isDotted(sn.beats) ? "bg-sky-600 text-white" : "bg-slate-800"}`}>Dot</button>
         </div>
+      )}
+
+      {/* the riff in the app's guitar exercise player, as a plan would show it */}
+      {timeline && (
+        <section className="flex flex-col gap-2">
+          <h2 className="text-sm text-slate-400">As an exercise</h2>
+          <PlayAlongTimeline key={`${state.id}-${state.bpm}`} timeline={timeline} />
+        </section>
       )}
 
       <RiffTake key={state.id} riff={state.id} name={state.name} bpm={state.bpm} pos={state.pos}
