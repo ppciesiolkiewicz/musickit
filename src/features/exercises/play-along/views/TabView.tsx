@@ -21,8 +21,8 @@ const GRIP_HEIGHT = 200;
 
 /**
  * Six-line tab (high e on top), one column per strum or note, spaced by beat, with a playhead and each column's length as a
- * note sign under it; wrapped into rows of whole bars that fill the width. A chord's name sits over the tab where it
- * starts: the cue's chord, else the name read from a column of three notes or more. Pointing at a chord column or its
+ * note sign under it; wrapped into rows of whole bars that fill the width. A chord's name sits over every column of three
+ * notes or more (the cue's chord, else read from the notes), and over a single note where its chord starts. Pointing at a chord column or its
  * name shows its chord box; tapping either strums it too.
  */
 export default function TabView({ cues, pos, length }: ViewProps) {
@@ -52,8 +52,8 @@ export default function TabView({ cues, pos, length }: ViewProps) {
   const shown = cues.filter((c) => c.frets.length);
   const cols = tabOf(shown);
   const midiOf = (i: number) => [...shown[i].frets].sort((a, b) => a.string - b.string).map((f) => OPEN_MIDI[f.string] + f.fret);
-  // each column's chord: the cue's, else read from a column held as a chord; a name over the tab where each one starts,
-  // and again at the start of a row. Room for it on top only when there are names.
+  // each column's chord: the cue's, else read from a column held as a chord; a name over every chord column, and over a
+  // single note where its chord starts or a row starts. Room for it on top only when there are names.
   const named = shown.map((c, i) => c.chord || (cols[i].cells.length >= GRIP_MIN ? gripName(midiOf(i))?.name : undefined));
   const changes = named.flatMap((nm, i) => {
     if (!nm) return [];
@@ -89,16 +89,17 @@ export default function TabView({ cues, pos, length }: ViewProps) {
             })}
             {changes.map((c, k) => {
               if (c.at < start || c.at >= end) return null;
-              // shown where the chord changes, or on the first one in the row
-              if (!c.first && changes[k - 1]?.at >= start) return null;
-              const next = changes.slice(k + 1).find((n) => n.first)?.at ?? length;
-              const now = pos >= c.at && pos < next;
               // a box only for a column held as a chord; a name over a single note still plays it
               const box = cols[c.i].cells.length >= GRIP_MIN;
+              // a chord column always has its name over it; a single note only where the chord changes or a row starts
+              if (!box && !c.first && changes[k - 1]?.at >= start) return null;
+              const next = changes.slice(k + 1).find((n) => n.first || cols[n.i].cells.length >= GRIP_MIN)?.at ?? length;
+              const now = box ? isNow(shown[c.i], pos) : pos >= c.at && pos < next;
               return (
                 <text
                   key={`ch${c.at}`}
-                  x={x(c.at) - 4}
+                  x={box ? x(c.at) : x(c.at) - 4}
+                  textAnchor={box ? "middle" : undefined}
                   y={12}
                   fontSize={12}
                   fontWeight={700}
