@@ -1,13 +1,13 @@
 /**
  * How src is structured: packages and their layers, what depends on what, which component renders which.
- * The same scan as /dev/structure (src/features/devtools/model/structure.ts), in the terminal.
+ * The same scan as /admin/dev/structure (src/features/devtools/model/structure.ts), in the terminal.
  *
  *   npx tsx scripts/structure.ts help
  */
 import { LAYERS, renderTree, routes, usersOf, type Structure, type TreeNode } from "../src/features/devtools/model/structure";
 import { scanStructure } from "../src/features/devtools/server/structure";
 
-const HELP = `structure <command> [args]          (visual version: /dev/structure on the dev server)
+const HELP = `structure <command> [args]          (visual version: /admin/dev/structure on the dev server)
 
   packages                 every package by layer: files, lines, components, depends on, used by   (default)
   pkg <id>                 one package: folders, files, what it depends on and what uses it   e.g. pkg features/plan

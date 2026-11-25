@@ -158,7 +158,7 @@ export interface TracedSection {
   steps: DaySteps;
 }
 
-/** Everything `composeDay` decided, stage by stage, for /dev/compose. Not stored. */
+/** Everything `composeDay` decided, stage by stage, for /admin/dev/compose. Not stored. */
 export interface ComposeTrace {
   /** `reviewCount` is one section's */
   minutes: { asked: number; kept: number; budget: number; reviewCount: number; reviewCap: number; filled: number };
@@ -368,7 +368,7 @@ export function versionFor(e: PlanExercise, input: { answers: PlanAnswers; seed:
   return given.keys || given.bpm ? { given, roll: trace } : null;
 }
 
-/** One day's plan with every decision that made it (`ComposeTrace`): what /dev/compose draws. `composeDay` is its `day`. */
+/** One day's plan with every decision that made it (`ComposeTrace`): what /admin/dev/compose draws. `composeDay` is its `day`. */
 export function explainDay(input: ComposeInput, tracks: Track[] = PATH): { day: ComposedDay; trace: ComposeTrace } {
   const { answers, keep } = input;
   const kept = keep.reduce((s, e) => s + e.minutes, 0);

@@ -9,7 +9,7 @@ import type { PlayerKeys } from "./keys";
  * of the version before: the earlier keys and tempos stay as chips. Pure: the dice are handed in.
  */
 
-/** Every number of the roll. Starting values, tuned on /dev/compose. */
+/** Every number of the roll. Starting values, tuned on /admin/dev/compose. */
 export const ROLL = {
   /** 1 or 2 stars: the chance of the version before; else the same again */
   low: { back: 0.7 },
@@ -36,7 +36,7 @@ const ORDER: MovePart[] = ["bpm", "key"];
 export interface VersionRow { id: string; stars: number; given?: Given }
 /** A move that is in: the part, its weight and the value it would add. */
 export interface MoveIn { part: MovePart; weight: number; to: number }
-/** Everything the roll decided, for /dev/compose. */
+/** Everything the roll decided, for /admin/dev/compose. */
 export interface RollTrace {
   /** the newest rated play; null on a first play */
   last: { stars: number; given: Given } | null;

@@ -3,7 +3,7 @@ import type { RunSummary } from "./history";
 import { API_PRICES } from "./pricing";
 
 /**
- * What one paying player costs a year, for /dev/costs: the AI that writes their autoplans (tokens measured from the
+ * What one paying player costs a year, for /admin/dev/costs: the AI that writes their autoplans (tokens measured from the
  * published compare-models runs, at API list prices), the daily emails, the payment fee and hosting, against the price.
  */
 

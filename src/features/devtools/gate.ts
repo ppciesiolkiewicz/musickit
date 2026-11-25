@@ -5,7 +5,7 @@ export const devOnly = (env: Env = { NODE_ENV: process.env.NODE_ENV }): boolean 
 
 /**
  * The dev overlays on real pages (notes, tool names and params, draft stories): on in development unless
- * NEXT_PUBLIC_DEV_UI=off, to see the site as users do. /dev pages and /api/dev stay on.
+ * NEXT_PUBLIC_DEV_UI=off, to see the site as users do. /admin/dev pages and /api/dev stay on.
  * The default reads each variable by name so Next inlines them in client code.
  */
 export const devUi = (env: Env = { NODE_ENV: process.env.NODE_ENV, NEXT_PUBLIC_DEV_UI: process.env.NEXT_PUBLIC_DEV_UI }): boolean =>

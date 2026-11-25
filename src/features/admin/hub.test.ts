@@ -10,6 +10,10 @@ test("an admin with no content sees only Admin", () => {
   assert.deepEqual(hubSections(["admin"]).map((s) => s.href), ["/admin/admin"]);
 });
 
-test("dev alone sees nothing", () => {
-  assert.deepEqual(hubSections(["dev"]), []);
+test("dev alone sees only Dev tools", () => {
+  assert.deepEqual(hubSections(["dev"]).map((s) => s.href), ["/admin/dev"]);
+});
+
+test("all three see all three cards", () => {
+  assert.deepEqual(hubSections(["dev", "content", "admin"]).map((s) => s.href), ["/admin/content", "/admin/admin", "/admin/dev"]);
 });

@@ -126,7 +126,7 @@ const readStorage = (get: () => Storage): StorageRow[] => {
 };
 
 /**
- * /dev/data: what the practice plan keeps in this browser, read-only. The questionnaire answers, the plans, the progress
+ * /admin/dev/data: what the practice plan keeps in this browser, read-only. The questionnaire answers, the plans, the progress
  * log (one row per rated exercise) and the progress summary the AI sent with each plan, which the app shows nowhere else.
  */
 export default function DataPage() {

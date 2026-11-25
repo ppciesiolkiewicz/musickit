@@ -1,16 +1,16 @@
 # Admin: rules
 
 - **Development, or the permission.** `src/app/admin/layout.tsx` calls `notFound()` unless
-  `permissionPage(["admin", "content"])` (the hub, `/admin`, opens to either); `src/app/admin/admin/layout.tsx` unless
-  `permissionPage("admin")`; `src/app/admin/content/layout.tsx` unless `permissionPage("content")`. Three gates: the hub
-  to either, each half to its own. Every `src/app/api/admin/*` handler starts with `await permissionGate(req, "admin")` (the users route uses `permissionCheck(req, "admin")`, the same test with the answer in hand)
+  `permissionPage(["admin", "content", "dev"])` (the hub, `/admin`, opens to any); `src/app/admin/admin/layout.tsx` unless
+  `permissionPage("admin")`; `src/app/admin/content/layout.tsx` unless `permissionPage("content")`; `src/app/admin/dev/layout.tsx` unless `permissionPage("dev")`. Four gates: the hub
+  to any, each part to its own. Every `src/app/api/admin/*` handler starts with `await permissionGate(req, "admin")` (the users route uses `permissionCheck(req, "admin")`, the same test with the answer in hand)
   (`src/features/devtools/server/access.ts`): open
   to anyone in development (no login: `/admin` is a public path, `src/lib/publicPaths.ts`), and in production only to a
   signed-in account with the `admin` permission; everyone else gets a 404. The check is on the page and on every route; hiding a
   link is not a check.
-- **What goes here, what goes in `/dev`.** `/admin/admin` is for running the app: reading and answering what players send, and
+- **What goes here, what goes in `/admin/dev`.** `/admin/admin` is for running the app: reading and answering what players send, and
   later their accounts. `/admin/content` is for writing and recording lessons: the library, the path, the riff maker, the
-  video studio. `/dev` is for building it: the prompt, the player data, the code. A page that changes a player's
+  video studio. `/admin/dev` is for building it: the prompt, the player data, the code. A page that changes a player's
   data in the database is admin.
 - **Imports.** Admin pages may import a feature's `server/` and `model/` code through route files, like any page.
   Nothing outside this folder, `src/app/admin` and `src/app/api/admin` imports admin code. Admin imports nothing from

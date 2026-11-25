@@ -22,7 +22,7 @@ export const PRICING = {
 } as const;
 
 /**
- * Only for /dev/costs: the allowance of AI-written plans a month that its cost model still prices. Plans are put
+ * Only for /admin/dev/costs: the allowance of AI-written plans a month that its cost model still prices. Plans are put
  * together with no AI and are unlimited, so no page a player reads shows this number.
  */
 export const OLD_AI_PLANS_PER_MONTH = 8;

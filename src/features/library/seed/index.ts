@@ -75,7 +75,7 @@ const sorted = <T>(files: Record<string, unknown>): T[] => Object.keys(files).so
 /**
  * The seed plans, read from their files: there is no plan library in the database. They are kept for the places that use a
  * whole week as it is written: the /demo pages (`DEMO_PLANS` in features/plan/demos.ts), /admin/content/library (`?item=<id>` draws
- * one), the path view on /dev, and tests that need a real plan. An agent writing a plan can read one here as a model.
+ * one), the path view on /admin/dev, and tests that need a real plan. An agent writing a plan can read one here as a model.
  */
 export const SEED_PLANS: SeedPlanFile[] = sorted<SeedPlanFile>(PLAN_FILES);
 export const SEED_BLOCKS: SeedBlockFile[] = sorted<SeedBlockFile>(BLOCK_FILES);

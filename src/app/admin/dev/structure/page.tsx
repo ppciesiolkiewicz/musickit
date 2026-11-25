@@ -7,7 +7,7 @@ import StructureView from "@/features/devtools/structure/StructureView";
 // Scanned on every load, so the map follows the code as you edit it.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: devTitle("/dev/structure") };
+export const metadata: Metadata = { title: devTitle("/admin/dev/structure") };
 
 export default function DevStructurePage() {
   return <DevShell wide><StructureView structure={scanStructure()} /></DevShell>;

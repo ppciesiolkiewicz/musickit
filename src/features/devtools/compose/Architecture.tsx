@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 /*
- * /dev/compose → "Architecture": how the plan algorithm is put together. Who asks for a plan, what the server reads
+ * /admin/dev/compose → "Architecture": how the plan algorithm is put together. Who asks for a plan, what the server reads
  * for it, what the pure composer calls inside, what comes back and who stores it. Written by hand from the code it
  * names: keep it true when one of those files changes (the files are listed at the bottom of the view).
  */

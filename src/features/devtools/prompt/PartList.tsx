@@ -33,7 +33,7 @@ function Offered({ part, entries }: { part: PromptPart; entries: CatalogueEntry[
   return null;
 }
 
-/** The element id of a part's row, so other dev pages can link to it: /dev/prompt#part-<id>. */
+/** The element id of a part's row, so other dev pages can link to it: /admin/dev/prompt#part-<id>. */
 export const partAnchor = (id: string) => `part-${id}`;
 
 function PartRow({ part, override, onOverride, entries }: {

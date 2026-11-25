@@ -11,7 +11,7 @@ export const PLAN_TIMES_KEY = "musickit.planTimes";
 /** The most day records kept in this browser: three months of daily practice; the oldest go first. */
 const MAX_TIMES = 100;
 
-/** Every day timer record in this browser, made safe (for /dev/data too). */
+/** Every day timer record in this browser, made safe (for /admin/dev/data too). */
 export function readLocalTimes(): DayTime[] {
   try {
     const raw: unknown = JSON.parse(window.localStorage.getItem(PLAN_TIMES_KEY) ?? "[]");

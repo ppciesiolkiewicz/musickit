@@ -7,7 +7,7 @@ export interface UserRow {
   email: string;
   name: string;
   role: Role;
-  /** What of /dev and /admin they may open (`users.permissions`). */
+  /** What of /admin they may open (`users.permissions`). */
   permissions: Permission[];
   /** Null until the account chooses a plan on /account/setup. */
   planId: string | null;
@@ -112,7 +112,7 @@ export interface AuthRepo {
   listPlans(): Promise<Plan[]>;
   /** Moves the user to the plan, paid by `billing`, with the role it gives, in one step. */
   setUserPlan(userId: string, planId: string, billing: Billing, role: Role, now: Date): Promise<UserRow | null>;
-  /** Sets what of /dev and /admin the user may open; null when there is no such user. */
+  /** Sets what of /admin the user may open; null when there is no such user. */
   setPermissions(userId: string, permissions: Permission[], now: Date): Promise<UserRow | null>;
   /** Keeps the user's Stripe customer, made at their first Checkout. */
   setStripeCustomer(userId: string, customerId: string, now: Date): Promise<void>;

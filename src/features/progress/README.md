@@ -19,6 +19,6 @@ How the student says something went, and the record of it.
   never reach the real log.
 
 The plan writes to the log when an exercise is rated (`features/plan/PlanApp.tsx`, rows built by
-`features/plan/model/progressLog.ts`). Rows stay after a plan leaves the plan history. `/dev/data` shows only the data in this browser, not an account's log on the server.
+`features/plan/model/progressLog.ts`). Rows stay after a plan leaves the plan history. `/admin/dev/data` shows only the data in this browser, not an account's log on the server.
 
 This folder knows nothing about plans: ids and tags are plain strings.

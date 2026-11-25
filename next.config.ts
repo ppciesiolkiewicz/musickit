@@ -41,7 +41,7 @@ const nextConfig: NextConfig = {
       { source: "/register", destination: "/login", permanent: false },
       { source: "/register/teacher", destination: "/login", permanent: false },
       { source: "/register/finish", destination: "/login", permanent: false },
-      // pages that moved: the admin pages under /admin/admin, the content tools from /dev to /admin/content
+      // pages that moved: the admin pages under /admin/admin, the content tools from /dev to /admin/content, the rest of /dev to /admin/dev
       // (src/features/devtools/moves.ts); the query goes along, the hash stays in the browser
       ...MOVES.flatMap(({ from, to }) => [
         { source: from, destination: to, permanent: false },

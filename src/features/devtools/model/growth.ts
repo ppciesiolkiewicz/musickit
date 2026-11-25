@@ -1,5 +1,5 @@
 /**
- * What the business is worth over time, for "Over time" on /dev/costs: month by month, new trials, the share that pays,
+ * What the business is worth over time, for "Over time" on /admin/dev/costs: month by month, new trials, the share that pays,
  * monthly payers who leave and yearly payers who renew, against what each account costs us. A projection from the
  * numbers on the page, not a forecast.
  */

@@ -8,7 +8,7 @@ import { Block, CopyButton } from "./KickstarterPage";
 
 const LIST = "flex list-disc flex-col gap-1.5 pl-5 text-sm text-slate-200";
 
-/** /dev/kickstarter: the offer to students, the three things it stands on, its terms, what is never said, and the pages that show it. */
+/** /admin/dev/kickstarter: the offer to students, the three things it stands on, its terms, what is never said, and the pages that show it. */
 export default function StudentOfferPage({ demos }: { demos: DemoLink[] }) {
   const offer = useMemo(() => studentOffer(demos), [demos]);
   return (

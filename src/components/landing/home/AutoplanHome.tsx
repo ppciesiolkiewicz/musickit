@@ -24,7 +24,7 @@ import { SHOW_NOTES } from "@/lib/notesHidden";
  * The two home pages, / (solo musicians) and /schools (music schools), in one shape: the Practice plan first, then
  * what you get, the quick tour, how it works, Notes, the other teaching resources in one strip, the price, the ending.
  * Design: docs/superpowers/specs/2026-11-14-autoplan-centre-design.md. What each page may promise is the offer on
- * /dev/kickstarter (src/features/devtools/model/kickstarterStudents.ts for solo musicians, kickstarter.ts for teachers
+ * /admin/dev/kickstarter (src/features/devtools/model/kickstarterStudents.ts for solo musicians, kickstarter.ts for teachers
  * and schools): say nothing here that isn't there.
  */
 
@@ -32,7 +32,7 @@ export type Audience = "schools" | "players";
 
 type Card = { icon: IconName; title: string; text: string };
 
-/** What the offer stands on, three cards a page: the pillars of /dev/kickstarter. */
+/** What the offer stands on, three cards a page: the pillars of /admin/dev/kickstarter. */
 const PILLARS: Record<Audience, Card[]> = {
   players: [
     { icon: "sparkles", title: "A daily plan fitted to you", text: "Open attunr and today's practice is ready: what to work on, and for how long. It starts where you are, a first week included, and nobody is tested to get in." },
@@ -320,7 +320,7 @@ export default function AutoplanHome({ audience, plans, ending, payments = false
 
 /**
  * What a solo musician pays and what a teacher or a school pays, with the money-back guarantee. The prices are the rows
- * of the plans table, the ones /dev/kickstarter/teachers and /dev/costs list (`plans`; null when it can't be read, and
+ * of the plans table, the ones /admin/dev/kickstarter/teachers and /admin/dev/costs list (`plans`; null when it can't be read, and
  * then the card says so and shows no number). The early price is from lib/studentOffer.ts, the founding partner's from
  * lib/foundingOffer.ts, the guarantee from features/account/pricing.ts.
  */

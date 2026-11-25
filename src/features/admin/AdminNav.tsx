@@ -35,7 +35,7 @@ export default function AdminNav({ open }: { open: readonly Permission[] }) {
         </Link>
       )}
       {open.includes("dev") && (
-        <Link href="/dev" className={`${TAB} text-slate-400 hover:bg-slate-800/60 hover:text-slate-100`}>
+        <Link href="/admin/dev" className={`${TAB} text-slate-400 hover:bg-slate-800/60 hover:text-slate-100`}>
           Dev tools →
         </Link>
       )}

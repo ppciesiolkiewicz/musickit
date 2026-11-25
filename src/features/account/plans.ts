@@ -5,7 +5,7 @@ import type { Role } from "./model";
  * on /account/setup; a new account has none until then. The rows are written by the migration that made the table (drizzle/0005_plans.sql) and changed in the
  * database, not here; this file only knows their shape and the rules for choosing one.
  *
- * The prices and allowances were set from "What one player costs", now on /dev/costs (2026-11-15): the median tokens of a
+ * The prices and allowances were set from "What one player costs", now on /admin/dev/costs (2026-11-15): the median tokens of a
  * plan per model at API list prices, so every plan still leaves money at its full allowance. See "Plans" on that page.
  * Every plan uses the same model, `SUBSCRIPTION_MODEL`.
  */
@@ -74,7 +74,7 @@ export const yearSaving = (p: Pick<Plan, "monthCents" | "yearCents">): number =>
 
 /**
  * The one model that writes every autoplan and AI note, on every plan (2026-11-15: Haiku, to keep it cheap). Plans
- * differ in price, allowance and students, never in model; /dev/costs costs every plan on it.
+ * differ in price, allowance and students, never in model; /admin/dev/costs costs every plan on it.
  */
 export const SUBSCRIPTION_MODEL = "claude-haiku-5-5";
 
@@ -142,7 +142,7 @@ export const studentsLabel = (p: Pick<Plan, "students">): string | null =>
 /** Under a teacher plan's student count: what "active" means, in one line (the long form is `COUNT_HELP` on /students). */
 export const ACTIVE_STUDENTS_LINE = "An active student is one you gave a plan this month. Everyone else stays on your list for free.";
 
-/** Only for /dev/costs, which still prices the unused allowance (`autoplansPerMonth`): no player screen shows it. */
+/** Only for /admin/dev/costs, which still prices the unused allowance (`autoplansPerMonth`): no player screen shows it. */
 export const allowanceLabel = (p: Pick<Plan, "autoplansPerMonth">): string =>
   `${p.autoplansPerMonth} AI autoplans a month, or ${p.autoplansPerMonth * NOTES_PER_AUTOPLAN} AI notes`;
 

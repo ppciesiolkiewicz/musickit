@@ -1,6 +1,6 @@
 /**
  * Write a first-week plan for each made-up player with each model, to compare models and what they cost. Claude models run through the local claude CLI (your subscription), Ollama models through the local Ollama;
- * every run is saved to tools/prompt-history; publish-model-plans copies the newest into the token figures on /dev/costs.
+ * every run is saved to tools/prompt-history; publish-model-plans copies the newest into the token figures on /admin/dev/costs.
  *
  * `assess` then has one model judge every other plan for a player against its own (model/assess.ts).
  *

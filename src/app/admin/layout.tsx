@@ -7,9 +7,9 @@ export const metadata: Metadata = { title: "Admin · attunr", robots: { index: f
 
 /**
  * Pages for running the app (see src/features/admin). Open in development (no login needed: `/admin` is a public path)
- * and, in production, to a signed-in account with the content or admin permission (each half has its own layout); anyone else gets a 404.
+ * and, in production, to a signed-in account with the content, admin or dev permission (each part has its own layout); anyone else gets a 404.
  */
 export default async function AdminLayout({ children }: { children: ReactNode }) {
-  if (!(await permissionPage(["admin", "content"]))) notFound();
+  if (!(await permissionPage(["admin", "content", "dev"]))) notFound();
   return children;
 }

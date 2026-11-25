@@ -208,7 +208,7 @@ function Group({ title, children }: { title: string; children: React.ReactNode[]
   );
 }
 
-/** /dev/structure: packages by layer, a page's render tree, and one file's links. */
+/** /admin/dev/structure: packages by layer, a page's render tree, and one file's links. */
 export default function StructureView({ structure: s }: { structure: Structure }) {
   const [tab, setTab] = useState<Tab>("packages");
   const [file, setFile] = useState("src/app/plan/page.tsx");

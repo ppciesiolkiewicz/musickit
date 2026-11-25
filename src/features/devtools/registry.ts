@@ -1,7 +1,7 @@
 /** Colour family a tool's nav tab and index card are drawn in; tools of one kind share one. */
 export type DevTone = "index" | "prompt" | "stories" | "data" | "pitch";
 
-/** One tool under /dev or /admin/content. */
+/** One tool under /admin/dev or /admin/content. */
 export interface DevTool {
   href: string;
   label: string;
@@ -65,46 +65,46 @@ export const CONTENT_TOOLS: DevTool[] = [
   { href: "/admin/content/notes", label: "Copy notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
 ];
 
-/** The /dev index, by kind; a new tool is one entry in its group here and one page under src/app/dev. */
+/** The /admin/dev index, by kind; a new tool is one entry in its group here and one page under src/app/admin/dev. */
 export const DEV_GROUPS: DevGroup[] = [
   {
     title: "AI plan",
     tone: "prompt",
     tools: [
-      { href: "/dev/prompt", label: "Prompt studio", desc: "The autoplan prompt as labelled parts: edit them, run it with the local Claude, see the plan it writes." },
-      { href: "/dev/compose", label: "Plan algorithm", desc: "How a day's plan is built, stage by stage, for a made-up player over the seed blocks: the steps of the day, the library, every pick with its reason, the keys. And its architecture: callers, inputs, the calls inside." },
-      { href: "/dev/questionnaire", label: "Questionnaire", desc: "Answer the first questionnaire and see what each answer does: topic rungs, area levels, the concepts the prompt offers and the starting outcome." },
-      { href: "/dev/costs", label: "AI costs", desc: "What autoplans cost us: a year on each plan, one paying player's year on each AI model, and cheaper models on OpenRouter." },
+      { href: "/admin/dev/prompt", label: "Prompt studio", desc: "The autoplan prompt as labelled parts: edit them, run it with the local Claude, see the plan it writes." },
+      { href: "/admin/dev/compose", label: "Plan algorithm", desc: "How a day's plan is built, stage by stage, for a made-up player over the seed blocks: the steps of the day, the library, every pick with its reason, the keys. And its architecture: callers, inputs, the calls inside." },
+      { href: "/admin/dev/questionnaire", label: "Questionnaire", desc: "Answer the first questionnaire and see what each answer does: topic rungs, area levels, the concepts the prompt offers and the starting outcome." },
+      { href: "/admin/dev/costs", label: "AI costs", desc: "What autoplans cost us: a year on each plan, one paying player's year on each AI model, and cheaper models on OpenRouter." },
     ],
   },
   {
     title: "Sound",
     tone: "stories",
     tools: [
-      { href: "/dev/sampler", label: "Sampler", desc: "A sample library in this browser: generate sounds with ElevenLabs from a description, upload or drop audio, play, rename, find the note, delete." },
+      { href: "/admin/dev/sampler", label: "Sampler", desc: "A sample library in this browser: generate sounds with ElevenLabs from a description, upload or drop audio, play, rename, find the note, delete." },
     ],
   },
   {
     title: "Player data",
     tone: "data",
     tools: [
-      { href: "/dev/data", label: "Data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
-      { href: "/dev/progress", label: "Progress", desc: "The player's progress outcome: its inputs, then per concept, topic and area, the streak days and time, as of any date." },
+      { href: "/admin/dev/data", label: "Data", desc: "Answers, plans, ratings and the AI's summaries in this browser." },
+      { href: "/admin/dev/progress", label: "Progress", desc: "The player's progress outcome: its inputs, then per concept, topic and area, the streak days and time, as of any date." },
     ],
   },
   {
     title: "Code",
     tone: "index",
     tools: [
-      { href: "/dev/structure", label: "Code structure", desc: "How src is built: packages by layer and what imports what, a page's render tree, and any file's imports, renders and extends." },
-      { href: "/dev/api", label: "API routes", desc: "Every route under /api: its methods, the doc comment above each, whether it needs a login, and its file." },
+      { href: "/admin/dev/structure", label: "Code structure", desc: "How src is built: packages by layer and what imports what, a page's render tree, and any file's imports, renders and extends." },
+      { href: "/admin/dev/api", label: "API routes", desc: "Every route under /api: its methods, the doc comment above each, whether it needs a login, and its file." },
     ],
   },
   {
     title: "Pitch",
     tone: "pitch",
     tools: [
-      { href: "/dev/kickstarter", label: "Kickstarter", desc: "Students: the offer to a person who practises on their own (the daily plan, the change, the exercises, the early price). Teachers: the brief for a founding-partner email, to copy into an AI chat with the school's thread." },
+      { href: "/admin/dev/kickstarter", label: "Kickstarter", desc: "Students: the offer to a person who practises on their own (the daily plan, the change, the exercises, the early price). Teachers: the brief for a founding-partner email, to copy into an AI chat with the school's thread." },
     ],
   },
 ];
@@ -113,7 +113,7 @@ const tabTitle = (tools: DevTool[], area: string, page: string, detail?: string)
   [detail, tools.find((t) => t.href === page)?.label ?? page, area].filter(Boolean).join(" · ");
 
 /**
- * A /dev page's tab title, most specific first so tabs can be told apart when cut short: "<detail> · <tool> · Dev".
+ * A /admin/dev page's tab title, most specific first so tabs can be told apart when cut short: "<detail> · <tool> · Dev".
  * `page` is a tool's href (its label is used) or a name for a page not on the index.
  */
 export const devTitle = (page: string, detail?: string): string => tabTitle([...DEV_GROUPS.flatMap((g) => g.tools), ...CONTENT_TOOLS], "Dev", page, detail);

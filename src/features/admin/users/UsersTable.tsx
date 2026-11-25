@@ -79,7 +79,7 @@ export default function UsersTable({ rows, viewerId }: { rows: UserListRow[]; vi
             <th className="py-2 pr-4 font-medium">Name</th>
             <th className="py-2 pr-4 font-medium">Email</th>
             <th className="py-2 pr-4 font-medium">Role</th>
-            <th className="py-2 pr-4 font-medium" title="What of /dev and /admin they may open on the live site">Permissions</th>
+            <th className="py-2 pr-4 font-medium" title="What of /admin they may open on the live site">Permissions</th>
             <th className="py-2 pr-4 font-medium">Joined</th>
             <th className="py-2 pr-4 font-medium" title="The newest log-in over all their browsers, in UTC">Last log-in</th>
             <th className="py-2 pr-4 font-medium" title="Updated at most once a day">Last seen</th>

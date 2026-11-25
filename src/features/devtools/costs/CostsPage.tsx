@@ -9,7 +9,7 @@ import OpenRouterModels from "./OpenRouterModels";
 import OverTime from "./OverTime";
 import PlanCosts from "./PlanCosts";
 
-/** /dev/costs: what autoplans cost us. The plans with a year on each, one paying player's year on each AI model, the business over time, and other models on OpenRouter. */
+/** /admin/dev/costs: what autoplans cost us. The plans with a year on each, one paying player's year on each AI model, the business over time, and other models on OpenRouter. */
 export default function CostsPage({ planTokens, plans }: { /** one plan's tokens per model, from the published compare-models runs */ planTokens: PlanTokens[]; /** the plans table; null without a database */ plans: Plan[] | null }) {
   const [provider, setProvider] = useState<keyof typeof PAYMENT_PROVIDERS>("stripe");
   const fee = PAYMENT_PROVIDERS[provider];

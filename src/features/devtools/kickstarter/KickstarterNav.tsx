@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const TABS = [
-  { href: "/dev/kickstarter", label: "Students" },
-  { href: "/dev/kickstarter/teachers", label: "Teachers" },
+  { href: "/admin/dev/kickstarter", label: "Students" },
+  { href: "/admin/dev/kickstarter/teachers", label: "Teachers" },
 ];
 
-/** The two sides of /dev/kickstarter: the offer to students, and the emails to teachers and schools. */
+/** The two sides of /admin/dev/kickstarter: the offer to students, and the emails to teachers and schools. */
 export default function KickstarterNav() {
   const path = usePathname();
   return (

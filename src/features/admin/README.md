@@ -1,17 +1,17 @@
 # Admin
 
-`/admin` is a hub (`src/app/admin/page.tsx`) over two halves: `/admin/admin` (running the app: messages, users, invites;
-the `admin` permission) and `/admin/content` (the tools for writing lessons; the `content` permission; its pages and frame live in `src/features/devtools`). The hub opens to
-either permission and shows a card for each half the viewer may open (`hub.ts`). Apart from `/dev`, the tools for building
-the code (`src/features/devtools`). Open in development, and in production to a signed-in account with the permission
-(`users.permissions`). Old URLs (`/admin/messages`, `/dev/messages` and so on) redirect: `src/features/devtools/moves.ts`,
+`/admin` is a hub (`src/app/admin/page.tsx`) over three parts: `/admin/admin` (running the app: messages, users, invites;
+the `admin` permission), `/admin/content` (the tools for writing lessons; the `content` permission; its pages and frame live in `src/features/devtools`) and `/admin/dev` (the tools for building
+the app: the prompt, player data, the code; the `dev` permission; `src/features/devtools`). The hub opens to any of the
+three permissions and shows a card for each part the viewer may open (`hub.ts`). Open in development, and in production to a signed-in account with the permission
+(`users.permissions`). Old URLs (`/admin/messages`, `/dev/messages`, the old `/dev` pages and so on) redirect: `src/features/devtools/moves.ts`,
 read by `next.config.ts`. Rules: `CLAUDE.md`.
 
 ## Where each part lives
 
 - `registry.ts`: the pages, read by the `/admin/admin` index (`src/app/admin/admin/page.tsx`) and the tabs.
 - `hub.ts`: the hub's cards and `hubSections(open)`.
-- `AdminShell.tsx`, `AdminNav.tsx`: the page frame and its tabs, with links back to the hub and over to `/admin/content` and `/dev`, each only when the viewer may open it.
+- `AdminShell.tsx`, `AdminNav.tsx`: the page frame and its tabs, with links back to the hub and over to `/admin/content` and `/admin/dev`, each only when the viewer may open it.
 - `messages/MessagesInbox.tsx`: the inbox.
 - `invites/InvitesAdmin.tsx`: teacher invites.
 - `src/app/admin/admin/users/page.tsx`: the users list, a server page over `listUsers` and `listSessionTimes` on `AuthRepo`

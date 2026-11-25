@@ -18,10 +18,10 @@ const SHARED = ["/notes/shared", "/join"];
 
 /**
  * Public but not for reading: APIs, Next's and Vercel's own paths, the folders of `public/` (the pitch model's weight files
- * have no extension), the page the video render script opens with no session, and the dev tools and admin pages (no login in
+ * have no extension), the page the video render script opens with no session, and the admin pages, the dev tools among them (no login in
  * development; in production they answer 404 to anyone but a signed-in admin, `features/devtools/server/access.ts`).
  */
-const OTHER = ["/api", "/dev", "/admin", "/_next", "/_vercel", "/images", "/instruments", "/intro", "/models", "/videos", "/teachers/video/render"];
+const OTHER = ["/api", "/admin", "/_next", "/_vercel", "/images", "/instruments", "/intro", "/models", "/videos", "/teachers/video/render"];
 
 /** The path itself or anything under it ("/demo" covers "/demo/guitar-beginner", not "/demox"). */
 const under = (path: string, base: string) => (base === "/" ? path === "/" : path === base || path.startsWith(`${base}/`));

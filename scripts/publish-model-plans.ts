@@ -1,6 +1,6 @@
 /**
  * Writes the newest run per made-up player and model from tools/prompt-history (gitignored), and their assessments, to
- * src/features/devtools/compare/published.json, for the token figures on /dev/costs.
+ * src/features/devtools/compare/published.json, for the token figures on /admin/dev/costs.
  *
  *   npm run -s publish-model-plans
  */

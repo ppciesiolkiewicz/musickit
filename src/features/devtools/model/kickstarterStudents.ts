@@ -1,5 +1,5 @@
 /**
- * The offer to students: what a person who practises on their own gets from attunr, and on what terms. /dev/kickstarter
+ * The offer to students: what a person who practises on their own gets from attunr, and on what terms. /admin/dev/kickstarter
  * (Students) shows it, and anything written for students (an ad, a sign-up page) is written from it. Change what may be
  * said to a student here, nowhere else. The offer to teachers and schools is in ./kickstarter.
  */

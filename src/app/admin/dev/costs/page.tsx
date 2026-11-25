@@ -10,7 +10,7 @@ import { getDb } from "@/lib/db/client";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: devTitle("/dev/costs") };
+export const metadata: Metadata = { title: devTitle("/admin/dev/costs") };
 
 export default async function Costs() {
   const db = getDb();

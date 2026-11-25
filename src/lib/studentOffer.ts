@@ -1,5 +1,5 @@
 /**
- * The early offer to students in numbers, in one place: /dev/kickstarter (Students) reads it, and so will an ad or a
+ * The early offer to students in numbers, in one place: /admin/dev/kickstarter (Students) reads it, and so will an ad or a
  * sign-up page, so no two of them quote two prices. Nothing is charged or counted yet: there is no payment, so this is
  * the plan for when paid plans open.
  */

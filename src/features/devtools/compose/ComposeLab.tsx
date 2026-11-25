@@ -16,7 +16,7 @@ import { PERSONAS } from "../model/personas";
 import Architecture, { C } from "./Architecture";
 
 /*
- * /dev/compose: how a day's plan is built, stage by stage, for a made-up player over the seed blocks in the code. The
+ * /admin/dev/compose: how a day's plan is built, stage by stage, for a made-up player over the seed blocks in the code. The
  * composer is the real one (`explainDay`); see ../model/composeLab.ts for what is stood in. The second view,
  * "Architecture" (./Architecture.tsx), is how the algorithm is put together: callers, inputs, the calls inside.
  */

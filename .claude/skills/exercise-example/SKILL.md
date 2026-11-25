@@ -17,7 +17,7 @@ Agents look these up in the library (`find_blocks`, `get_block`) and copy them a
 
 ## Steps
 
-1. **Pick the gap.** Read `library_coverage` and the steps on `/dev/path`: find an area × level × concept or path step, or showcase kind, that nothing covers yet. `concepts` ids come from `model/concepts.ts`, links from `model/catalogue.ts`. Never invent either.
+1. **Pick the gap.** Read `library_coverage` and the steps on `/admin/content/path`: find an area × level × concept or path step, or showcase kind, that nothing covers yet. `concepts` ids come from `model/concepts.ts`, links from `model/catalogue.ts`. Never invent either.
 2. **Get the facts from the calculator.** Run `npm run -s theory -- …` for the key, scale, positions and chords. Check that the notes the text names are really in the scale or chord.
 3. **Shape the sections.** An exercise is a block: a `title`, an optional `choice` (a selector), and `cells` (text, list, notice, tool, section). A `section` cell has a `heading`, its own `cells`, `minutes` when it is a timed block, and a `choice` when its tools change key, tempo, position or level. Over 5 minutes means two or more sections with `minutes` (2–5 each) that add up to the choice's `minutes`. Each block changes one real thing: tempo, key, position, which notes are lit, or the task. Write the block plan as one line per section before writing any JSON.
 4. **Write it.** The rules below are grouped by what they are about; a seed file meets all of them.
@@ -82,7 +82,7 @@ Agents look these up in the library (`find_blocks`, `get_block`) and copy them a
    npm run -s gen:json-index
    ```
    `check` says ✔ when the file reads with no parser warning, its `versions` are the current ones, every exercise names a concept and a path step (a warm-up needs neither, and says its `warmUpPart`), and a tool of a concept with steps sets its level or stage. `gen:json-index` makes the folder's `index.gen.ts` import the new file. Run the tests of what you touched too (`$TSX --test src/features/library/seed/*.test.ts src/features/plan/model/*.test.ts`, with `TSX=$(ls ~/.npm/_npx/*/node_modules/.bin/tsx | head -1)`).
-6. **Read it in the app.** Open `/dev/library?item=<id>` on the dev server: it draws the plan or block with its real tools and touches no stored plan. Read every step against the tool under it: are the notes it names lit, does the tempo match, is the control where the text says, is the timer what the text says? A test passing is not the same as a good exercise. Then run the **review-teaching-text** skill on it. If the dev server won't build because of another session's work, say so in your report: don't claim the file was read in the app.
+6. **Read it in the app.** Open `/admin/content/library?item=<id>` on the dev server: it draws the plan or block with its real tools and touches no stored plan. Read every step against the tool under it: are the notes it names lit, does the tempo match, is the control where the text says, is the timer what the text says? A test passing is not the same as a good exercise. Then run the **review-teaching-text** skill on it. If the dev server won't build because of another session's work, say so in your report: don't claim the file was read in the app.
 
 ## Rewriting a seed file that exists
 

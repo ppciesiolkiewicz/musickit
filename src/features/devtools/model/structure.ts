@@ -3,7 +3,7 @@ import ts from "typescript";
 /**
  * How `src` is put together: packages (a feature, a lib, a components folder, the app routes), the files in them, which file
  * imports which, which component renders which, and which types extend which. Pure: it takes file texts, `server/structure.ts`
- * reads them from disk. Read by `/dev/structure` and `npm run structure`.
+ * reads them from disk. Read by `/admin/dev/structure` and `npm run structure`.
  */
 
 /** Layers from the top down; an import should point down or across, never up. */

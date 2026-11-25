@@ -1,5 +1,5 @@
 /**
- * Models on OpenRouter worth weighing against Haiku 5.5 for writing autoplans, for /dev/costs. None of them has
+ * Models on OpenRouter worth weighing against Haiku 5.5 for writing autoplans, for /admin/dev/costs. None of them has
  * been run on the plan prompt: a plan's cost is estimated from Haiku 5.5's measured tokens, so it is a price comparison,
  * not a quality one. Prices are OpenRouter's list prices, US$ per million tokens (openrouter.ai/api/v1/models,
  * checked `OPENROUTER_CHECKED`). Check the page before relying on one.

@@ -18,14 +18,14 @@ in `index.ts`. The exercises once written inline in the plans were moved out to 
 (2026-11-19, a one-off); their `note` says which plan and day they came from.
 
 Besides the database, the code reads them directly: the demos at `/demo` (`plan/demos.ts`, nine of the plans, each three or four practice days),
-`/dev/stories`, `/dev/path` and `/dev/block`.
+`/admin/content/stories`, `/admin/content/path` and `/admin/content/block`.
 
 ## Adding one
 
 Write with the `exercise-example` skill (it reads `teaching-voice` first) and check with `review-teaching-text`.
 
 1. Read the gap first: `library_coverage` (the `musickit-library` MCP tools, README in `../README.md`) and the steps on
-   `/dev/path`.
+   `/admin/content/path`.
 2. For a plan, get the live writer's prompt for the player: `npm run -s seed -- prompt <persona id | answers.json> out.txt`
    (personas: `devtools/model/personas.ts`), and write the plan that prompt asks for.
    Write the file. The id is the file name: `<area>-<level>-<what>`, for example `theory-new-steady-beat`.
@@ -40,7 +40,7 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
      file) holds `level`?, `steps`, `moves`?, `minutes`, `draft`?. `steps` names the path steps it practises
      (`["barre:2"]`, `PATH` in `plan/model/path.ts`), each in a track of the exercise's `concepts`; the library finds it
      by step.
-   - A genre's block (a riff: its tool is a guitar-play-along with the `riff` shape, the notes written out in the tool) also has `"genre"`: `blues`, `rock`, `funk` or `jazz` (`genres.ts`). It is a dead end on the path: its choice names the step it uses, and no step waits for it. Its notes, and its `"amp"` (the name of the `.nam` amp model the riff maker plays it through; players don't hear it yet), are written and changed in the riff maker (`/dev/riff`), which saves into the file; its words are written here like any block's. A riff is in its own key, so its `moves` has a tempo range and no key.
+   - A genre's block (a riff: its tool is a guitar-play-along with the `riff` shape, the notes written out in the tool) also has `"genre"`: `blues`, `rock`, `funk` or `jazz` (`genres.ts`). It is a dead end on the path: its choice names the step it uses, and no step waits for it. Its notes, and its `"amp"` (the name of the `.nam` amp model the riff maker plays it through; players don't hear it yet), are written and changed in the riff maker (`/admin/content/riff`), which saves into the file; its words are written here like any block's. A riff is in its own key, so its `moves` has a tempo range and no key.
    - `versions` are `PROMPT_VERSION` (`plan/model/prompt.ts`) and `DOC_VERSIONS` (`versions.ts`) as they
      are when the file is written. `model` is the API id of the model that wrote it. `note` says which gap, in one line.
 3. `npm run -s seed -- check <file>` until it says ✔: the file reads with no parser warning, its versions are the
@@ -51,7 +51,7 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
 4. A block: `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first). A block
    already in the database whose file changed gets its `revision` raised by one; an unchanged file changes nothing.
    A block's own videos (`blocks.videos`) are kept; one whose tool cell moved (a tool added, removed or swapped) is
-   dropped and printed, and its cell has to be pointed at a video again (`src/features/contentVideos/README.md`). A plan is never stored: it stays a file, read by /demo, /dev/library and tests.
+   dropped and printed, and its cell has to be pointed at a video again (`src/features/contentVideos/README.md`). A plan is never stored: it stays a file, read by /demo, /admin/content/library and tests.
 
 A tool whose concept has steps sets `level` (or picks the tune or run by stage), never raw settings, so the step can
 be read back. Every file meets the writing rules below.

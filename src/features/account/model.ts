@@ -1,6 +1,6 @@
 /**
  * What a person is in the app: the role their plan gives (`roleOnPlan`). An owner runs a school and can do everything a
- * teacher can. What of /dev and /admin they may open is a separate list, `permissions`.
+ * teacher can. What of /admin they may open is a separate list, `permissions`.
  */
 export const ROLES = ["student", "teacher", "owner"] as const;
 export type Role = (typeof ROLES)[number];
@@ -9,7 +9,7 @@ export const ROLE_LABEL: Record<Role, string> = { student: "Student", teacher: "
 
 /**
  * What of the pages for building and running the app a person may open in production (in development everything is
- * open): `dev` the /dev pages, `content` the content pages, `admin` the /admin pages and setting these. None implies
+ * open): `dev` the /admin/dev pages, `content` the content pages, `admin` the /admin pages and setting these. None implies
  * another. Set per person on /admin/admin/users.
  */
 export const PERMISSIONS = ["dev", "content", "admin"] as const;
@@ -26,7 +26,7 @@ export interface Account {
   /** Trimmed and lower case; one account per email. */
   email: string;
   role: Role;
-  /** What of /dev and /admin they may open (`hasPermission`); empty for nearly everyone. */
+  /** What of /admin they may open (`hasPermission`); empty for nearly everyone. */
   permissions: Permission[];
   /** ISO time. */
   createdAt: string;

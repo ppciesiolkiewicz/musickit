@@ -34,7 +34,7 @@ export default function ContentNav({ open }: { open: readonly Permission[] }) {
         </Link>
       )}
       {open.includes("dev") && (
-        <Link href="/dev" className={OTHER}>
+        <Link href="/admin/dev" className={OTHER}>
           Dev tools →
         </Link>
       )}

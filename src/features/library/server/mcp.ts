@@ -29,7 +29,7 @@ export function devTools(): ToolDef[] {
 
 /**
  * Takes `player` and `include_not_enabled` out of the arguments and builds the scope from them; the rest goes on to the tool.
- * Dev only: it lets the caller name the player, so it is never used outside `/api/dev/mcp` (through `handleRpc`) and the `/dev/library` page.
+ * Dev only: it lets the caller name the player, so it is never used outside `/api/dev/mcp` (through `handleRpc`) and the `/admin/content/library` page.
  */
 export async function devScope(args: unknown, d: Deps): Promise<{ scope: Scope; args: unknown } | { error: string }> {
   if (args === undefined || args === null) return { scope: {}, args: {} };

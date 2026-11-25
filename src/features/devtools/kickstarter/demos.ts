@@ -4,7 +4,7 @@ import { PRESET_INFO } from "@/features/teachers/notes";
 import { SITE_URL } from "@/lib/site";
 
 /*
- * Every page /dev/kickstarter may point at, with its public address: an email or an ad goes to someone who can't open
+ * Every page /admin/dev/kickstarter may point at, with its public address: an email or an ad goes to someone who can't open
  * localhost. Within a group the strongest is first. Pages never to link are LINKS_TO_AVOID in the model.
  */
 

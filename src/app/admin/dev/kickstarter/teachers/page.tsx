@@ -9,9 +9,9 @@ import { getDb } from "@/lib/db/client";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: devTitle("/dev/kickstarter", "Teachers") };
+export const metadata: Metadata = { title: devTitle("/admin/dev/kickstarter", "Teachers") };
 
-/** /dev/kickstarter/teachers: the brief for a founding-partner email to a teacher or a school. */
+/** /admin/dev/kickstarter/teachers: the brief for a founding-partner email to a teacher or a school. */
 export default async function KickstarterTeachers() {
   const db = getDb();
   const plans = db ? await drizzleRepo(db).listPlans() : null;

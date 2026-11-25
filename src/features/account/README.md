@@ -1,6 +1,6 @@
 # Account
 
-Who is using the app, and what their role and permissions let them use: students, teachers and owners, and the few with permissions for /dev and /admin. People log in with a link or a
+Who is using the app, and what their role and permissions let them use: students, teachers and owners, and the few with permissions for /admin. People log in with a link or a
 6-digit code we email them, or with Google. There are no passwords and no separate register form: `/login` is the one way in, and a
 person with no account yet gets one straight away, with no plan, and is held on `/account/setup` until they give their
 name (Google's is filled in) and choose a plan, with no payment; the three main sections send them there until then. Both are changed later on `/account`.
@@ -39,7 +39,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   `plans.price_cents` and `plans.period`, is still in the table, unused and nullable, for the build before; drop it in a
   later migration. The free trial is shown, not kept: no trial start is stored and nothing ends it.
   The plans themselves are rows in the database, written by migration `0005_plans` and changed there; their prices and
-  allowances come from *Plans* on /dev/costs, which shows what each costs us. Rows once had `new_plan_percent`, the chance an autoplan was written new rather than
+  allowances come from *Plans* on /admin/dev/costs, which shows what each costs us. Rows once had `new_plan_percent`, the chance an autoplan was written new rather than
   taken from a `practice_plans` library; migrations `0010_lower_prices_more_reuse` to `0018_higher_prices_half_off_yearly` set
   prices on the strength of that reuse. Migration `0045_drop_practice_plans` dropped the column and the library. All of this is history: plans are now put together from the library by our own code, the app doesn't call an AI from the server, and /terms says so.
 - Payments (`billing.ts`, `server/stripe.ts`, `server/paymentsEnabled.ts`), off unless `STRIPE_ENABLED=true` (2026-11-24).
@@ -142,7 +142,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   - `auth.ts`: the rules, with no HTTP and no SQL in them: `requestEmailLink`, `openEmailLink`, `openEmailCode`, `googleSignIn`,
     `startName`, `pathAfterSignIn`, `setUpAccount`, `sessionAccount`, `signOut`, `rename`.
   - `repo.ts`: what those rules need from storage. `repo.drizzle.ts` is Postgres, `repo.memory.ts` is for tests.
-  - `publicPlans.ts`: the plans anyone can choose, for a public page. The Pricing section of `/` and `/schools` reads it (rebuilt at most once an hour), so the home pages show the same rows as `/dev/kickstarter/teachers` and `/dev/costs`. Null with no database or no answer in 8 seconds: the section then shows no number and says so.
+  - `publicPlans.ts`: the plans anyone can choose, for a public page. The Pricing section of `/` and `/schools` reads it (rebuilt at most once an hour), so the home pages show the same rows as `/admin/dev/kickstarter/teachers` and `/admin/dev/costs`. Null with no database or no answer in 8 seconds: the section then shows no number and says so.
   - `http.ts`: cookies, the same-site check, `auth()` (null when there is no database), `requestAccount(req)`.
   - `google.ts`: the Google code flow with PKCE. `mail.ts`: the email with the link and the code, sent through Resend.
 - `emailHtml.ts`: the look every email shares (`emailPage`, `row`), with no server code, and the teacher invite email (`inviteEmail`), which /admin/admin/invites copies for us to send by hand.
@@ -230,6 +230,6 @@ No `DATABASE_URL` means no accounts: the nav shows no Log in, `/login` says acco
 ## Not here yet
 
 - The plan page's Share plan asks `can("sharePlan")` (Share, or Upgrade to Teacher account), and the share rules (`userData/server/shares.ts`) ask `can(account, "sharePlan")` again on the server.
-- Plans aren't paid for yet (the open beta): the payment box is a placeholder, and the free trial isn't started, counted or ended. Practice plans are unlimited on every plan: they are put together by our own code with no AI, so no screen, FAQ line or term shows an allowance (2026-11-18). `autoplansPerMonth` stays on the row, unused, for /dev/costs (`allowanceLabel`); the column goes with the code rename (Rebrand3). A teacher plan's students are counted as active students a month (`studentsLabel`, `ACTIVE_STUDENTS_LINE`; enforced in features/students).
+- Plans aren't paid for yet (the open beta): the payment box is a placeholder, and the free trial isn't started, counted or ended. Practice plans are unlimited on every plan: they are put together by our own code with no AI, so no screen, FAQ line or term shows an allowance (2026-11-18). `autoplansPerMonth` stays on the row, unused, for /admin/dev/costs (`allowanceLabel`); the column goes with the code rename (Rebrand3). A teacher plan's students are counted as active students a month (`studentsLabel`, `ACTIVE_STUDENTS_LINE`; enforced in features/students).
 - Schools are not modelled. A teacher's students are: a `teacher_students` row links a teacher to a student account (`addStudent`, `studentsOf`, `studentLink`, `teacherOf`, `markClaimed` on `AuthRepo`; one teacher a student); the student's account is on the `taught` plan (`TAUGHT_PLAN_ID`, free, not `enabled`, so no one chooses it; `Account.taught`) and signs in the first time with a `claim` token (`TokenKind`, stored as a hash, used once). Any sign-in of an account on the `taught` plan (`startSession`: the email link or code, Google, the claim) records the link as claimed the first time (`markClaimed`), so a student who logs in the normal way no longer shows as "Not opened yet". The rules and routes are in `features/students`.
 - Links are limited per email only, not per network address.

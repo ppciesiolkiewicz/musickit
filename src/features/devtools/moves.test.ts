@@ -20,9 +20,15 @@ test("every move keeps the rest of the path", () => {
   }
 });
 
-test("the sampler and look-alikes stay", () => {
-  assert.equal(movedPath("/dev/sampler"), "/dev/sampler");
-  assert.equal(movedPath("/dev/libraryx"), "/dev/libraryx");
+test("the rest of /dev moves under /admin", () => {
+  assert.equal(movedPath("/dev"), "/admin/dev");
+  assert.equal(movedPath("/dev/sampler"), "/admin/dev/sampler");
+  assert.equal(movedPath("/dev/libraryx"), "/admin/dev/libraryx");
+  assert.equal(movedPath("/dev/kickstarter/teachers#x"), "/admin/dev/kickstarter/teachers#x");
+});
+
+test("look-alikes and new addresses stay", () => {
+  assert.equal(movedPath("/devx"), "/devx");
+  assert.equal(movedPath("/admin/dev/sampler"), "/admin/dev/sampler");
   assert.equal(movedPath("/admin/content/library"), "/admin/content/library");
-  assert.equal(movedPath("/dev"), "/dev");
 });

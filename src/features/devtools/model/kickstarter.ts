@@ -1,6 +1,6 @@
 /**
  * The founding-partner outreach: the voice and the facts an email to a music school is written from, and the brief
- * /dev/kickstarter/teachers shows for an AI to write a first email or a reply to a thread from. Change what an email may say
+ * /admin/dev/kickstarter/teachers shows for an AI to write a first email or a reply to a thread from. Change what an email may say
  * here, nowhere else. The offer to students is in ./kickstarterStudents.
  */
 

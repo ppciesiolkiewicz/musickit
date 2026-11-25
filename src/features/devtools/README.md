@@ -1,30 +1,30 @@
 # Dev tools
 
-Pages for working on the app: under `/dev` the autoplan prompt (studio), player data, the code; under `/admin/content`
+Pages for working on the app: under `/admin/dev` the autoplan prompt (studio), player data, the code; under `/admin/content`
 the tools for writing and recording lessons (the library, the learning path, the tools videos (its page is
 `src/features/contentVideos`'s, `ui/ToolVideos.tsx`), the stories, the riff maker, the video
 studio, the copy notes). Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.md`.
 
 ## Rules
 
-- **Development, or the dev permission.** `src/app/dev/layout.tsx` calls `notFound()` unless `permissionPage("dev")`
+- **Development, or the dev permission.** `src/app/admin/dev/layout.tsx` calls `notFound()` unless `permissionPage("dev")`
   (`server/access.ts`): in production only a signed-in account with the `dev` permission gets in (`users.permissions`,
   set on /admin/admin/users). Every `src/app/api/dev/*` handler starts with `await permissionGate(req, "dev")` (or `["dev", "content"]` for the routes the content pages call: `nam`, `commit`, `source`, `riffs` GET), except `mcp`, a local MCP server for agents, which stays on `devGate()`
-  (`gate.ts`). The dev overlays on real pages (`devUi`, `DevOnly`) stay development only. In development no login is needed: `/dev` is a public
-  path (`src/lib/publicPaths.ts`). `/dev` is not in the sitemap and robots.txt disallows it.
+  (`gate.ts`). The dev overlays on real pages (`devUi`, `DevOnly`) stay development only. In development no login is needed: `/admin` is a public
+  path (`src/lib/publicPaths.ts`). `/admin` is not in the sitemap and robots.txt disallows it.
 - **The content tools live at `/admin/content`, behind `content`.** `src/app/admin/content/layout.tsx` calls `notFound()`
   unless `permissionPage("content")`; each page there is framed by `ContentShell.tsx` (title "Content", the `ContentNav.tsx`
-  tabs from `CONTENT_TOOLS` in `registry.ts`) and titled with `contentTitle`. They moved from `/dev`; the Sampler stayed.
-  The old `/dev/<tool>` addresses redirect (`moves.ts`, read by `next.config.ts`), and a copy note made on an old address
-  reads back on the new one (`readCopyNotes` through `movedPath`). The tab bars link across (/dev, /admin/content, the
+  tabs from `CONTENT_TOOLS` in `registry.ts`) and titled with `contentTitle`. They moved from `/dev`; the Sampler stayed with the rest of the dev tools, now at `/admin/dev`.
+  The old `/dev/<tool>` addresses redirect (the rest of `/dev` to `/admin/dev`) (`moves.ts`, read by `next.config.ts`), and a copy note made on an old address
+  reads back on the new one (`readCopyNotes` through `movedPath`). The tab bars link across (/admin/dev, /admin/content, the
   /admin hub, /admin/admin), each link only when the viewer may open it (`openPermissions()`, read by the shells).
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,
-  `src/app/dev`, `src/app/admin/content` and `src/app/api/dev` imports dev tools, except `gate.ts`, which any file may
+  `src/app/admin/dev`, `src/app/admin/content` and `src/app/api/dev` imports dev tools, except `gate.ts`, which any file may
   import, and `moves.ts` (plain data, no imports), which `next.config.ts` imports for its redirects.
 - **`server/` is Node only** (`child_process`, `fs`) and is imported only by route files, and `server/access.ts` also by
   the page frames (`DevShell`, `ContentShell`, the admin `AdminShell`) for `openPermissions()`. Pure logic in `model/`, with tests.
 - **Dev notes.** `copy/CopyNotes.tsx` is the one exception to the import rule: the root layout mounts it (dev only) as a floating "Notes" button. It opens the notes bar, the same on every page: all notes' count, this page's, how many are on changed seed sections (on /admin/content/library), HEAD (or "Commit not known" where git gives none, with *Re-pin all to HEAD* disabled), *Note a text*, *Re-pin all to HEAD*, *Clear all*, *Copy all notes*. *N on this page* opens a modal with this page's notes, each linking to its entry on `/admin/content/notes`; a page's notes show only there, not on the page. Opening the bar turns on note mode (*Note a text* toggles it, and so does the A key outside a text box); in note mode a click on any text opens a note, in a box six lines tall. Every note, wherever it shows (under its section, in the bar, on /admin/content/notes), is one `copy/NoteBar.tsx`: the note, `@commit` (the example file's for a section note, else the HEAD it was made at), edit and delete. Every note, on any page or on an example's section, is in one registry: `localStorage` `musickit.dev.copyNotes` (`copy/store.ts`, `model/copyNotes.ts`), each with the HEAD it was made at. The old `musickit.dev.comments` is moved in once. A page's notes are kept by its route: the path, and the hash where there is one, since some pages move by it (each `/admin/content/stories#<group>~<n>` has its own notes; `routeOf`, followed through `history.replaceState` too). Section notes are kept by the path alone. A text note also keeps its context (`copy/context.ts`): the labelled regions and headings it sits under, the app's React components that render it (from React's dev fiber, up to the router), each with the file and line of its JSX round the text, the line of JSX that renders the noted element, and the text round it; the copied Markdown gives them as `under:`, `components:`, `source:` and `around:` lines. Files and lines come from the stack React keeps of each JSX call in dev, mapped back to the source by `/api/dev/source` (Next's own `/__nextjs_original-stack-frames`, Turbopack only), so an AI tool can find what to change. A note links to its place with `<path>?note=<id><hash>` (`noteHref`; the older `#note-<id>` still opens): the page opens the notes modal, marks the note there and scrolls to its text, and a section note opens its seed item on /admin/content/library. `/admin/content/notes` (`copy/NotesPage.tsx`) lists every page's notes in the order of `/sitemap.xml`, each with *Open →*, with copy, re-pin and clear for one page or all. The bar needs no plan code: /admin/content/library hands it its section hashes and a `repin` (`useShowSections`).
-- **A new tool** is one entry in its group in `registry.ts` (`DEV_GROUPS`: AI plan, Sound, Player data, Code, Pitch) and one page under `src/app/dev`; the index and the tab bar (`DevNav.tsx`) both read the registry and show the groups, each in its colour. A new content tool is one entry in `CONTENT_TOOLS` and one page under `src/app/admin/content`. The block page (`/admin/content/block`) is opened from Library and Learning path and is in neither list.
+- **A new tool** is one entry in its group in `registry.ts` (`DEV_GROUPS`: AI plan, Sound, Player data, Code, Pitch) and one page under `src/app/admin/dev`; the index and the tab bar (`DevNav.tsx`) both read the registry and show the groups, each in its colour. A new content tool is one entry in `CONTENT_TOOLS` and one page under `src/app/admin/content`. The block page (`/admin/content/block`) is opened from Library and Learning path and is in neither list.
 - **Not here: running the app.** Reading and answering what players send (the messages inbox) is `/admin/admin`, `src/features/admin`. The tab bars link over to the `/admin` hub.
 
 ## History
@@ -34,7 +34,7 @@ Runs of the prompt are kept in `tools/prompt-history/` at the repo root, one JSO
 A record (`model/history.ts` `RunRecord`) holds when, mode, model (or `"pasted"`), the answers, part overrides and part
 list, the prompt, the reply or error, time, cost, and the plan's title and warning count when the reply parses.
 
-## Prompt studio (`/dev/prompt`)
+## Prompt studio (`/admin/dev/prompt`)
 
 Inputs (answers JSON, first or next week; next week takes a past run as last week, with the ticks made on its preview),
 every prompt part (`promptParts` in the plan model) as a row to switch off or edit in place, the composed prompt with *Copy prompt*, a box to paste the reply from whichever AI it was run
@@ -51,7 +51,7 @@ Its state stays in `localStorage` key `musickit.dev.prompt`; "Load my /plan answ
 `plan/model/keyStages.ts`. With "Me" chosen, each step shows the keys open on it and the keys earned on the track are
 ringed; a track picked on the path is shown alone.
 
-## Plan algorithm (`/dev/compose`)
+## Plan algorithm (`/admin/dev/compose`)
 
 Stage 6, "The exercise versions": for every pick whose block has `moves`, how its exercise version was rolled (`TracedPick.roll`,
 `plan/model/roll.ts`): the last play and its stars, the odds that rating gave, the dice, the moves in with their
@@ -67,13 +67,13 @@ The page is written to be read cold: each stage says its rule in full before its
 
 **Architecture** (the second view, `compose/Architecture.tsx`): how the algorithm is put together, written by hand from the code it names. Who asks for a plan (a player's day through `useTodayPlan`, `requestDay`, `composeRoute` and `composeToday`; a teacher's week through `postStudentPlan`, `planRoute`, `makeWeek`, `composeStudentWeek` and `composeWeek`; this page through `simulate`), all ending in `composeDay`, and who stores what comes back; the ten fields of `ComposeInput` with where the server gets each; the calls inside `composeDay` (`daySteps`, `withinReach`, `fill`, then `versionFor` twice: to `keysFor` and to `rollVersion`; and what each calls), numbered by the stage of the first view that shows them; the rules that hold; the files. Keep it true in the same commit as a change to any file it lists.
 
-## Questionnaire (`/dev/questionnaire`)
+## Questionnaire (`/admin/dev/questionnaire`)
 
 Every screen of the first questionnaire stacked (`questionnaire/QuestionnaireLab.tsx`, from `questionSteps`), with *Reset answers*, and beside it what the answers do: topic rungs, area levels, each skill's steps marked known, within reach, open or ahead by `reach`, and the `startOutcome` scores.
 
 **Teacher sliders** (the second view, `questionnaire/TeacherSlidersLab.tsx`, `model/teacherSliderLab.ts`): the real `TopicSliders` of a teacher's student page on three made-up students (brand new; a few weeks in; many ratings, all from `EXAMPLE_STUDENTS`), each opening at the topic's score today with its start-of-plan tick. "Now" is the day after the newest rating, never the clock. Moving a slider shows what the plan maker receives for each topic: the rung from `raisedAnswers` and the `outcome()` score, before and after the teacher's value (`receive`). It writes nothing.
 
-## API routes (`/dev/api`)
+## API routes (`/admin/dev/api`)
 
 Every `route.ts` under `src/app/api`, read from disk on each load (`server/apiRoutes.ts`, parsed by `model/apiRoutes.ts`):
 the URL, each exported method with the `/** */` comment just above it (a method without one is marked), *signed in* when
@@ -89,7 +89,7 @@ Ollama models through the local Ollama (`server/ollama.ts`, one at a time, with 
 `ollama` names every local model). It skips a player and model that already has a plan (a reply that parses) unless `--redo`; `--dry` lists the
 runs and their estimate. Each run is saved to the history with its `persona` and token `usage`.
 
-`npm run -s publish-model-plans` (`scripts/publish-model-plans.ts`) copies the newest run per player and model (`latestByCell`, `model/compare.ts`) and their assessments out of the gitignored history into `compare/published.json`, for the token figures on /dev/costs. Every cost is as if through the API (`model/pricing.ts`): before a run the composed prompt as input and a reply the
+`npm run -s publish-model-plans` (`scripts/publish-model-plans.ts`) copies the newest run per player and model (`latestByCell`, `model/compare.ts`) and their assessments out of the gitignored history into `compare/published.json`, for the token figures on /admin/dev/costs. Every cost is as if through the API (`model/pricing.ts`): before a run the composed prompt as input and a reply the
 size of the demo plans × 1.5 for thinking as output; after, the run's tokens at list prices with no caching (`runCost`;
 the CLI's `total_cost_usd` is not used, it doesn't match the list prices). A local Ollama model is priced at what OpenRouter charges for the same open model (a fine-tune as its base); one with no price in `API_PRICES` shows its token count instead.
 
@@ -104,7 +104,7 @@ music facts, use of the tools, teaching text), and lists of what is stronger, we
 that doesn't parse is kept with its error. An assessment is skipped when one against today's reference exists, unless
 `--redo`. An assessment made against an older reference plan says so (`isCurrent`).
 
-## Data (`/dev/data`)
+## Data (`/admin/dev/data`)
 
 What the practice plan keeps in this browser, read-only (`data/DataPage.tsx`, rows from `model/dataView.ts`): the first
 questionnaire's answers (each topic with the line picked), the plans (current and history, with how many exercises are
@@ -116,7 +116,7 @@ size and its value, JSON unfolded; `model/dataView.ts` `storageRows`) and each I
 counts only (sampler audio, NAM models). It reads through `localPlanStore` and `localProgressStore` and writes nothing, apart from what
 loading a plan always does (ids for exercises stored without one).
 
-## Progress (`/dev/progress`)
+## Progress (`/admin/dev/progress`)
 
 The progress outcome (`outcome()` in `plan/model/outcome.ts`) of whoever is signed in, or of this browser without a
 database, as bare tables (`progress/ProgressPage.tsx`): first its inputs (the questionnaire answers history, the plans, the
@@ -232,21 +232,21 @@ note and *Copy all notes* warns on outdated ones. A section note links to `/admi
 Code: `library/load.ts` (the loaders), `library/params.ts` (address parameters, subpage links, the old-link redirect, minutes), `library/item.ts` (the item to
 draw), `library/LibraryPage.tsx` (tabs, tables, the three pages), `library/LibraryItem.tsx`, `src/app/admin/content/library` (and `/plans`, `/blocks`).
 
-## Kickstarter (`/dev/kickstarter`)
+## Kickstarter (`/admin/dev/kickstarter`)
 
 Two pages under one nav (`kickstarter/KickstarterNav.tsx`: *Students*, *Teachers*); the Kickstarter tab of the dev nav is lit on both.
 
-**Students** (`/dev/kickstarter`, `kickstarter/StudentOfferPage.tsx`): the offer to a person who practises on their own, with no AI brief (ads are written from it later). `model/kickstarterStudents.ts` holds it: `STUDENT_OFFER_LINE`; `PILLARS`, the three things it stands on, each with a promise and the facts true today (the daily plan fitted to the student, put together from the library with no AI and unlimited, with why "friendly" is true; the change, which is the daily reminder, short focused practice and progress tracking, with the learning path under it; the engaging, interactive exercises, with why "engaging" is true); `STUDENT_TERMS` (free in beta, signing up is leaving a few details, the first 500 pay half the yearly price, locked in, when paid plans open; no payment exists, so nobody is counted and no date is given; the numbers are in `src/lib/studentOffer.ts`, read from `PRICING.player`); `STUDENT_NEVER` (what nothing written for a student says). The page shows the line with *Copy offer* (`studentOffer`: all of it as one text), the pillars, *The terms*, *Never say*, *Pages to show, strongest first* (`STUDENT_DEMOS`: the demo plans and the tools, no lesson notes) and *The full offer as text*.
+**Students** (`/admin/dev/kickstarter`, `kickstarter/StudentOfferPage.tsx`): the offer to a person who practises on their own, with no AI brief (ads are written from it later). `model/kickstarterStudents.ts` holds it: `STUDENT_OFFER_LINE`; `PILLARS`, the three things it stands on, each with a promise and the facts true today (the daily plan fitted to the student, put together from the library with no AI and unlimited, with why "friendly" is true; the change, which is the daily reminder, short focused practice and progress tracking, with the learning path under it; the engaging, interactive exercises, with why "engaging" is true); `STUDENT_TERMS` (free in beta, signing up is leaving a few details, the first 500 pay half the yearly price, locked in, when paid plans open; no payment exists, so nobody is counted and no date is given; the numbers are in `src/lib/studentOffer.ts`, read from `PRICING.player`); `STUDENT_NEVER` (what nothing written for a student says). The page shows the line with *Copy offer* (`studentOffer`: all of it as one text), the pillars, *The terms*, *Never say*, *Pages to show, strongest first* (`STUDENT_DEMOS`: the demo plans and the tools, no lesson notes) and *The full offer as text*.
 
-**Teachers** (`/dev/kickstarter/teachers`). Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`: weekly plans put together from the library with no AI and steered by a slider per topic, a student's progress on the learning path as /admin/content/path draws it (every skill a row of steps across the four levels; told as the vision),
+**Teachers** (`/admin/dev/kickstarter/teachers`). Replies to music schools that could become founding partners. `model/kickstarter.ts` holds what an email may say (`FACTS`: weekly plans put together from the library with no AI and steered by a slider per topic, a student's progress on the learning path as /admin/content/path draws it (every skill a row of steps across the four levels; told as the vision),
 what attunr is and what is coming (scheduling, profiles, courses to sell), the locked-in price, the 90-day trial, the 20 partners
 the project needs, a say in what gets built, the video call with the founder (`CALL_MINUTES`: a live demo and a talk about being a founding partner), that it is still in demo mode (what isn't built is told as "the vision for attunr"), that it is an Australian company; the price, the trial length and the 20 come from `src/lib/foundingOffer.ts`, which the public page `/kickstarter` reads too) and how it sounds
 (`VOICE`, plus reply-only and first-email-only rules); change the offer there. The next step an email asks for is that call: offered once, as a question, with the booking link (`CALL_URL`, the Calendly page "Attunr founding partner chat"; `GENERAL_CALL_URL` is for a call about anything else) and no invented time; a first email leads with why attunr is being built (a love of music, and looking for ways to help teachers, students and schools), leaves out the price and the trial, and ends on the call, and a reply offers it when they show interest and not again once it was offered. The brief also lists the enabled rows of the `plans` table (`plansSection`, read from the database by the page; none without one): what anyone pays outside the offer, named only when they ask what attunr costs, never in a first email. The page (`kickstarter/KickstarterPage.tsx`)
 shows the brief as plain text with *Copy brief* (`outreachBrief`: the facts, the voice, the rules for a reply and for a first email, the sample emails, and the links an email may use, with public `SITE_URL` links), then what goes into it: *Voice*, *Facts*, *Plans*, *Sample emails* (each in full, with *Copy email*), *Links, strongest first*, *Never link*. The links are `TEACHER_DEMOS` in `kickstarter/demos.ts`, each in a `LINK_GROUPS` group (*Lead with*: `/demo`, every demo plan and preset note; then singers, guitarists, any instrument) and in order of strength within it; the brief numbers them and tells the AI to pick from the top down and link nothing else. `LINKS_TO_AVOID` (the tuner, the chord pages, the metronome, the circle of fifths, the looper, /teach and /teachers) are listed with why, so the AI leaves them out even where a sample email links one. The brief is pasted into an AI chat, with the thread when there is one; the details about the school come from the thread, and so does the sender: a reply keeps the name and persona attunr's earlier emails used (they may go out from an outreach tool such as Explee), and signs as the founder only when there are none. With no thread the AI writes a first email with a subject line. `SAMPLE_EMAILS` are emails that went out (the first: Piotr taking over the Evia Music thread from Alex); the brief carries them for tone and shape only.
 
-## AI costs (`/dev/costs`)
+## AI costs (`/admin/dev/costs`)
 
-What autoplans cost us, apart from the founding-partner emails on /dev/kickstarter (`costs/CostsPage.tsx`, page `src/app/dev/costs/page.tsx`). It reads `compare/published.json` (the newest run per cell, written by `npm run -s publish-model-plans`) for its tokens, and the `plans` table.
+What autoplans cost us, apart from the founding-partner emails on /admin/dev/kickstarter (`costs/CostsPage.tsx`, page `src/app/admin/dev/costs/page.tsx`). It reads `compare/published.json` (the newest run per cell, written by `npm run -s publish-model-plans`) for its tokens, and the `plans` table.
 
 First, *Plans* (`costs/PlanCosts.tsx`, `planYear` in `model/unitEconomics.ts`): every row of the `plans` table (read by the page from the database; without one it says so), with its price, students, allowance and delivery (Batch or at once), and what a year on it costs us at a share of its allowance (the slider; 100% is every autoplan, every month), every autoplan written by the AI (none reused), and what is left after the payment fee per payment (twelve on a monthly plan): every plan uses the one `SUBSCRIPTION_MODEL` (Haiku 5.5, `features/account/plans.ts`), an autoplan costed on it from the same median tokens, halved with Batch, AI notes costed as autoplans. Each plan has a row paid monthly and one paid yearly. Plans are changed in the database, not here.
 
@@ -260,7 +260,7 @@ Last, *Other models on OpenRouter* (`costs/OpenRouterModels.tsx`, `model/openRou
 
 **No plan library.** Autoplans are costed as written by the AI: the `practice_plans` library and `plans.new_plan_percent` were dropped (migration `0045_drop_practice_plans`), so *Plans*, *What one player costs* and *Over time* start every plan at 0% reused. The *Plans reused* slider under *What one player costs* is a what-if.
 
-## Code structure (`/dev/structure`, `npm run structure`)
+## Code structure (`/admin/dev/structure`, `npm run structure`)
 
 How `src` is built, scanned from disk on every load with the TypeScript parser (`model/structure.ts`, read by
 `server/structure.ts`; test files left out). Four layers, top down: `app` (routes), `features/<x>`, `components/<x>`, `lib/<x>`;
@@ -290,8 +290,8 @@ returns one.
 ## Code map
 
 - `server/access.ts`: `permitted(p, account)`, `permissionPage(p)` (a layout), `permissionGate(req, p)` (a route), `viewerAccount()` (the signed-in account of a server page): development, or a signed-in account with permission `p` (`hasPermission` in `features/account/model.ts`); a non-GET in production must come from this site (`sameOrigin`).
-- `gate.ts`: `devOnly`, `devGate`, `devUi`: the one dev flag. No file reads `NODE_ENV` to ask "is this development?" on its own; it calls `devOnly()` (anything, a route included), `devGate()` (an `/api/dev` handler) or `devUi()` (something drawn on a real page). A dev-only control on a real page goes inside `DevOnly` (`src/components/DevOnly.tsx`), which gates on `devUi()` and draws the fuchsia `dev` tag and a dashed outline; `DevName` is the same mark for a component's name. `src/app/dev/layout.tsx`: the page gate (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
-- `registry.ts`: the tools listed on `/dev` (`DEV_GROUPS`) and the tabs of `/admin/content` (`CONTENT_TOOLS`, titled with `contentTitle`).
+- `gate.ts`: `devOnly`, `devGate`, `devUi`: the one dev flag. No file reads `NODE_ENV` to ask "is this development?" on its own; it calls `devOnly()` (anything, a route included), `devGate()` (an `/api/dev` handler) or `devUi()` (something drawn on a real page). A dev-only control on a real page goes inside `DevOnly` (`src/components/DevOnly.tsx`), which gates on `devUi()` and draws the fuchsia `dev` tag and a dashed outline; `DevName` is the same mark for a component's name. `src/app/admin/dev/layout.tsx`: the page gate (the overlays on real pages; `npm run dev:clean` sets `NEXT_PUBLIC_DEV_UI=off` to hide them).
+- `registry.ts`: the tools listed on `/admin/dev` (`DEV_GROUPS`) and the tabs of `/admin/content` (`CONTENT_TOOLS`, titled with `contentTitle`).
 - `model/models.ts`: the Claude models a run can use: the CLI aliases and the pinned `DEMO_MODELS`.
 - `model/pricing.ts`, `model/personas.ts`, `model/compare.ts`, `compare/published.json`, `server/ollama.ts`, `scripts/compare-models.ts`, `scripts/publish-model-plans.ts`: comparing AI models from the command line.
 - `src/app/api/dev/mcp`: the library tools (`features/library`) as a local MCP server, `POST /api/dev/mcp` (stateless, plain JSON; `GET` answers 405, production 404). `.mcp.json` at the repo root registers it as `musickit-library` for Claude Code, so the dev server must be running. It reads the database the dev server is configured with, which must have migration 0019 applied. Every tool also takes `player` (a user id) and `include_not_enabled` (also inactive choices, the app's old example and AI blocks, and plans not enabled for reuse); only this route and `/admin/content/library` read them, both through `devScope`.
@@ -307,14 +307,14 @@ returns one.
 - `prompt/`: `PromptStudio` (state), `StudioInputs`, `PartList`, `PastePanel`, `PlanPreview`, `HistoryList`, `api.ts` (fetches), `storage.ts` (saved state, `useMounted`).
 - `library/`: /admin/content/library: the tables, one item drawn, its section notes.
 - `kickstarter/KickstarterPage.tsx`, `model/kickstarter.ts`: the founding-partner email brief for teachers; its facts, voice and samples. `kickstarter/StudentOfferPage.tsx`, `model/kickstarterStudents.ts`, `src/lib/studentOffer.ts`: the offer to students. `kickstarter/KickstarterNav.tsx`, `kickstarter/demos.ts`: the nav between the two and the pages each may link.
-- `costs/CostsPage.tsx`: /dev/costs.
+- `costs/CostsPage.tsx`: /admin/dev/costs.
 - `costs/CostPerPlayer.tsx`, `model/unitEconomics.ts`: what one paying player costs a year on each AI model.
 - `costs/PlanCosts.tsx`: the plans table with what a year on each costs and leaves (`planYear`).
 - `costs/OpenRouterModels.tsx`, `model/openRouter.ts`: other OpenRouter models priced on Haiku 5.5's tokens.
 - `structure/StructureView.tsx`, `model/structure.ts`, `server/structure.ts`, `scripts/structure.ts`: the code structure map.
 - `progress/ProgressPage.tsx`: the progress outcome's inputs and outputs.
 - `data/DataPage.tsx`, `model/dataView.ts`: the data page and its rows (`planRows`, `spentRows`, `logRows`).
-- Routes: `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/dev`.
+- Routes: `src/app/api/dev/history`, `src/app/api/dev/history/[id]`; pages `src/app/admin/dev`.
 
 ## Riff maker (`/admin/content/riff`)
 
@@ -324,6 +324,6 @@ The riffs are not kept in the browser: each one lives in a seed block (`src/feat
 
 `riff/RiffTake.tsx`: the Take panel. It records the riff being played with the camera and the audio input, and keeps one take per riff in this browser (`riff/takes.ts`, IndexedDB, under the riff's id): saved when the recording stops, downloaded with **Save file**. **Save for players** uploads the take as the riff block's own video, for the riff's tool cell (`RiffBlock.cell`: its index among the block's tool cells, counted as `toolCells` does) through `saveContentVideo` (`src/features/contentVideos/client/api.ts`): the file to the private Blob store, then the row. The take gets its video id once, stored with it before the upload starts, and keeps `fileUp` when the file is up but the row isn't, so the next press sends only the row; the button waits until the take's video has read its picture size, the status reads Uploading… and then Saved for players, and the button goes. While it uploads, Record again (and R), **Back to the previous take** and **Delete take** wait, and only the take recorded at that moment is written back, never a newer one. A 409 from the row counts as saved when the content video list holds the take's id (an earlier try whose answer was lost); any other failure shows the server's words, and the take keeps **Save for players** and **Save file**. The take stays in this browser either way (Transcribe and Read the neck read it there). A new recording starts with no video id; **Back to the previous take** brings back the old take with its own. It needs the `content` permission and a signed-in account. **Click at N bpm** (on by default) plays a click at the riff's tempo through the speakers while recording, beat 1 of each 4/4 bar higher; the take records only the input stream, so the click isn't in it unless a microphone hears it from the room. With the click on, **Count-in** (0 to 2 bars) comes before beat 1 and **Length** (the riff's bars unless typed in) stops the take by itself; the take keeps where beat 1 fell (output and input latency allowed for), its tempo and its bars, and Transcribe reads it on that grid, a rest before a late first note and the last note or rest filling the length. Without the click the grid counts from the first note. Transcribe reads only the take's sound. **Read the neck** (off by default, `riff/NeckView.tsx`) draws over the take video the ArUco markers it sees on the neck (dictionary ARUCO_MIP_36h12, via js-aruco2) and the hands' fingertips (MediaPipe Hand Landmarker, its runtime and model fetched from jsDelivr and Google storage on first use). The printable sheets are in `public/riff`: `neck-markers-a4.pdf` and `neck-markers-a3.pdf` (40 to 25 mm, ids 0-50), and `neck-markers-frets-a3.pdf` (20 to 12 mm, ids 51-170, each sized to sit on every fret wire up to a given fret, with a 5 mm tab above it for hanging it off the edge of the neck), printed by `node scripts/neck-markers-frets.mjs`, which checks every marker decodes with js-aruco2. It only shows what it finds: no fret grid yet, and nothing goes to Transcribe (tasks.txt NEW18). **Play** plays what Transcribe heard with the riff's sound. Retakes: the camera stays open after a take, the new take shows beside a small live view, a take recorded to the click is transcribed straight away, **R** records and stops (not while typing in a field), and **Back to the previous take** restores the take the last recording replaced (kept in memory until the next recording). **Transcribe** turns the take into riff notes (`riff/transcribe.ts`, pure and tested): the tuner's `detectPitch` names the note in each frame, the rhythm game's onset detector finds the picks, and the notes are snapped to a 1/16 grid at the riff's tempo and placed at its position. One note at a time: chords are skipped.
 
-## Sampler (`/dev/sampler`)
+## Sampler (`/admin/dev/sampler`)
 
 The sample library of this browser (`src/features/sampler`, IndexedDB `musickit-sampler`): generate a sound from a description with ElevenLabs, upload or drop audio files, play, rename, find the note a sample sounds at, delete. Generating goes through `/api/dev/sampler` (development only), which uses the server's `ELEVENLABS_API_KEY`; there is no password and no key of a person's own. Nothing else in the app uses the library: the looper's instruments play the built-in sounds only.

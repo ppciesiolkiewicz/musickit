@@ -215,7 +215,7 @@ export interface SoloOverShape extends ShapeCommon {
 
 /**
  * A riff written out note by note: exact strings and frets, in its own key. A person writes it, in the riff maker
- * (`/dev/riff`), which opens the block that holds it and saves back to it; it is not written into a plan, and a block
+ * (`/admin/content/riff`), which opens the block that holds it and saves back to it; it is not written into a plan, and a block
  * that plays one comes from the library. `notes` has one entry a time step, in order: `{ "string": 6, "fret": 5,
  * "beats": 1 }` is a note (strings are guitar numbers, 6 the low E; `beats` how long it rings: 0.25 a sixteenth, 0.5 an
  * eighth, 1, 2, 4, or one and a half times any of them for a dotted note), `{ "frets": [note, note], "beats": 1 }` notes

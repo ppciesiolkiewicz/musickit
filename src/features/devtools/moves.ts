@@ -7,8 +7,10 @@ export const MOVES: readonly { from: string; to: string }[] = [
   { from: "/admin/users", to: "/admin/admin/users" },
   { from: "/admin/invites", to: "/admin/admin/invites" },
   { from: "/dev/messages", to: "/admin/admin/messages" },
-  // the content tools left /dev; the sampler stayed
+  // the content tools left /dev for /admin/content
   ...["library", "path", "stories", "onboarding", "riff", "studio", "notes", "block"].map((t) => ({ from: `/dev/${t}`, to: `/admin/content/${t}` })),
+  // then the rest of /dev went under /admin; this one comes last so the moves above win
+  { from: "/dev", to: "/admin/dev" },
 ];
 
 /** A route (a path with an optional `#hash`) with its path moved when it is a moved page or under one; anything else as it was. */

@@ -1,5 +1,5 @@
 /**
- * The founding-partner offer in numbers, in one place: the page at /kickstarter and the email brief on /dev/kickstarter
+ * The founding-partner offer in numbers, in one place: the page at /kickstarter and the email brief on /admin/dev/kickstarter
  * both read it, so a page and an email never quote two prices. The price is the early price (`EARLY_OFFER` in
  * features/account/pricing.ts): any teacher plan, of any size, at 50% off, locked in.
  */

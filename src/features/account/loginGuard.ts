@@ -1,6 +1,6 @@
 /*
  * The part of a page's address that never reaches the server (the hash: the gated pages' `/admin/content/stories#<story>` and
- * `/dev/copy` routes travel in it) is kept across logging in here, so a signed-out person opening such a link lands on
+ * `/admin/content/notes` routes travel in it) is kept across logging in here, so a signed-out person opening such a link lands on
  * the same place once they are in.
  */
 

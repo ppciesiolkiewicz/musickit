@@ -23,7 +23,7 @@ test("scene ids are unique across both tours, and each has its scene drawn", () 
 });
 
 test("a tour shows the app: no question to the viewer, no selling, no hype", () => {
-  // no rhetorical questions, no price or offer (a tour shows what is in the app), and "Never say" on /dev/kickstarter:
+  // no rhetorical questions, no price or offer (a tour shows what is in the app), and "Never say" on /admin/dev/kickstarter:
   // no AI writes a plan, no hype, no exclamation marks
   for (const s of ALL) {
     assert.ok(!/\?/.test(s.text), `${s.id} asks a question`);

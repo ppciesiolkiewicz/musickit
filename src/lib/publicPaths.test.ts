@@ -6,11 +6,11 @@ const PUBLIC = [
   "/", "/schools", "/faq", "/terms", "/privacy", "/demo", "/demo/guitar-beginner", "/login", "/login/confirm", "/claim",
   "/kickstarter", "/landing-1", "/intro", "/teachers/video/render", "/api/auth/session", "/_next/static/x.js",
   "/favicon.ico", "/icon.png", "/logo.png", "/opengraph-image", "/theory/scales/opengraph-image", "/robots.txt",
-  "/sitemap.xml", "/instruments/piano/a.mp3", "/images/teacher.webp", "/dev", "/admin/content/stories", "/admin", "/admin/messages",
+  "/sitemap.xml", "/instruments/piano/a.mp3", "/images/teacher.webp", "/admin/dev", "/admin/content/stories", "/admin", "/admin/messages",
 ];
 const GATED = [
   "/plan", "/practice", "/theory/scales", "/tuner", "/looper", "/course/1", "/note/x", "/account", "/teachers/studio",
-  "/schools-x", "/demox", "/devx", "/adminx", "/cheatsheet", "/welcome", "/claimx",
+  "/schools-x", "/demox", "/dev", "/devx", "/adminx", "/cheatsheet", "/welcome", "/claimx",
 ];
 
 test("marketing pages, sign-in, demos, APIs and files are public", () => {

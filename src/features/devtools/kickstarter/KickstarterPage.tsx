@@ -36,7 +36,7 @@ export function Block({ title, about, children }: { title: string; about: string
   );
 }
 
-/** /dev/kickstarter/teachers: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. What autoplans cost is on /dev/costs. */
+/** /admin/dev/kickstarter/teachers: the brief an AI writes a founding-partner email from, and what goes into it: the voice, the facts, the samples, the demos. What autoplans cost is on /admin/dev/costs. */
 export default function KickstarterPage({ demos, plans }: { demos: DemoLink[]; /** the plans table; null without a database */ plans: Plan[] | null }) {
   const brief = useMemo(() => outreachBrief(demos, plans ?? []), [demos, plans]);
   return (
@@ -65,7 +65,7 @@ export default function KickstarterPage({ demos, plans }: { demos: DemoLink[]; /
             {choosablePlans(plans, null).map((p) => <li key={p.id}><span className="font-semibold">{p.name}</span>: {bothPricesLabel(p)}. {[trialLabel(p), studentsLabel(p), allowanceLabel(p)].filter(Boolean).join(". ")}.</li>)}
           </ul>
         )}
-        <Link href="/dev/costs#plans" className="mt-2 inline-block text-sm text-sky-300 hover:underline">What each costs us →</Link>
+        <Link href="/admin/dev/costs#plans" className="mt-2 inline-block text-sm text-sky-300 hover:underline">What each costs us →</Link>
       </Block>
       <Block title="Sample emails" about="Emails that went out and read the way these should. The brief gives them to the AI for tone and shape.">
         <div className="flex flex-col gap-3">

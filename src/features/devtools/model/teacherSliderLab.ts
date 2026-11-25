@@ -11,7 +11,7 @@ import type { TopicSlider } from "@/features/students/model/types";
 import { EXAMPLE_STUDENTS, exampleRatings, type ExampleStudent } from "./stepProgress";
 
 /*
- * The teacher's sliders on three made-up students, for /dev/questionnaire (`QuestionnaireLab`): what each slider opens at,
+ * The teacher's sliders on three made-up students, for /admin/dev/questionnaire (`QuestionnaireLab`): what each slider opens at,
  * where its start-of-plan tick sits, and what the plan maker gets when one is moved. The students come from
  * `EXAMPLE_STUDENTS` (the /admin/content/path ones). Nothing here reads the clock: "now" is the day after the newest rating.
  */

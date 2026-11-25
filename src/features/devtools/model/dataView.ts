@@ -3,7 +3,7 @@ import { storedPlans } from "@/features/plan/model/schedule";
 import type { PlanState, StoredPlan } from "@/features/plan/model/types";
 import type { ProgressEntry } from "@/features/progress/log";
 
-/** One stored plan as /dev/data lists it. */
+/** One stored plan as /admin/dev/data lists it. */
 export interface PlanRow {
   id: string;
   title: string;
@@ -36,7 +36,7 @@ export const planRows = (state: PlanState): PlanRow[] => [
   ...state.given.map((p) => rowOf(p, false, true)),
 ];
 
-/** One exercise's time as /dev/data lists it: what the day timer counted while its card was in view. */
+/** One exercise's time as /admin/dev/data lists it: what the day timer counted while its card was in view. */
 export interface SpentRow {
   plan: string;
   /** 0-based */
@@ -66,7 +66,7 @@ export const clockLabel = (s: number): string => `${Math.floor(s / 60)}:${String
 export const logRows = (entries: ProgressEntry[], topic?: string): ProgressEntry[] =>
   entries.filter((e) => !topic || e.topic === topic).sort((a, b) => b.at.localeCompare(a.at));
 
-/** One key in localStorage or sessionStorage as /dev/data lists it. */
+/** One key in localStorage or sessionStorage as /admin/dev/data lists it. */
 export interface StorageRow {
   key: string;
   /** characters in the stored string */

@@ -1,5 +1,5 @@
 /**
- * What running attunr costs a month whatever the number of accounts, for /dev/costs: each service at its list price,
+ * What running attunr costs a month whatever the number of accounts, for /admin/dev/costs: each service at its list price,
  * one seat or user, checked on `FIXED_COSTS_CHECKED`. Usage past a plan's allowance is not here. Check each page before
  * relying on it.
  */

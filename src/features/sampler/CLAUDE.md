@@ -1,6 +1,6 @@
 # Sampler: rules
 
-A dev tool: the sample library at `/dev/sampler`. Behaviour spec: `spec/sampler.md`. Nothing outside `/dev` uses it; the looper plays built-in instruments only.
+A dev tool: the sample library at `/admin/dev/sampler`. Behaviour spec: `spec/sampler.md`. Nothing outside `/admin/dev` uses it; the looper plays built-in instruments only.
 
 - Imports only `@/features/sound`, `@/features/tuner/pitch` (pure maths), `@/features/devtools/gate` and shared components. Never the looper, creator or guitar tools.
 - Generation is development only: `src/app/api/dev/sampler/route.ts` starts with `devGate()` and uses the server's key (`ELEVENLABS_API_KEY`). No site password, no person's own key. The key never reaches the browser.

@@ -51,8 +51,8 @@ const SongChart = dynamic(() => import("@/features/exercises/basics/song-chart")
 /**
  * One tool as the AI set it up, without the plan store: the plan page and the studio stage both render it. `voice` is the student's
  * voice type: the singer tools use it when the AI set none. `input` is a host's audio input (the studio's): the staff listens to it
- * instead of opening a microphone of its own. Also the /dev/stories canvas.
- * In development the tool registers itself, and what is drawn inside it its levels and hints, for /dev/onboarding
+ * instead of opening a microphone of its own. Also the /admin/content/stories canvas.
+ * In development the tool registers itself, and what is drawn inside it its levels and hints, for /admin/content/onboarding
  * (which reads its tour from `TOOL_TOURS`).
  */
 

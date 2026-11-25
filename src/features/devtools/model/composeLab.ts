@@ -13,7 +13,7 @@ import type { ProgressEntry } from "@/features/progress/log";
 import type { Stars } from "@/features/progress/stars";
 
 /*
- * /dev/compose: the plan composer (plan/model/compose.ts) run for a made-up player over the seed blocks in the code,
+ * /admin/dev/compose: the plan composer (plan/model/compose.ts) run for a made-up player over the seed blocks in the code,
  * day after day, with every decision it made (`ComposeTrace`). The composer is the real one; only the library (the
  * seed files, not the database) and the ratings (one rule for every exercise) are stood in. Pure.
  */
