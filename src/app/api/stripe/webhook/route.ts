@@ -6,7 +6,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Stripe's webhook: keeps each account's subscription, status and plan in step. Signed with STRIPE_WEBHOOK_SECRET.
+ * Stripe's webhook: keeps each account's subscription, status and plan in step, from the subscription as Stripe has it
+ * now, never the copy in the event. Signed with STRIPE_WEBHOOK_SECRET.
  * Events to send: customer.subscription.created, .updated, .deleted, checkout.session.completed, and invoice.paid
  * (each paid invoice is kept as an order in `payments`).
  */
@@ -22,7 +23,11 @@ export async function POST(req: Request) {
   }
   try {
     if (event.type.startsWith("customer.subscription.")) {
-      await syncSubscription(deps, event.data.object as Stripe.Subscription);
+      // Stripe sends events in no set order, and each carries the subscription as it was when the event was made (a
+      // trial_will_end can come after the update that ended the trial). So the event says only which subscription
+      // changed; what is stored is how it is now.
+      const id = (event.data.object as Stripe.Subscription).id;
+      await syncSubscription(deps, await stripe().subscriptions.retrieve(id));
     } else if (event.type === "invoice.paid") {
       // the price comes as an id on the invoice; fetched with its metadata, which names the plan
       const invoice = await stripe().invoices.retrieve((event.data.object as Stripe.Invoice).id!, { expand: ["lines.data.pricing.price_details.price"] });

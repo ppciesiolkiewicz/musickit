@@ -12,11 +12,23 @@ export const sandboxKey = () => process.env.E2E_STRIPE_SANDBOX_KEY ?? "";
 // signing needs no key and makes no call
 const offline = new Stripe("sk_test_e2e_offline");
 
-/** Posts `event` to the webhook as Stripe would, signed with `signWith` (the test server's secret unless given). */
-export async function postEvent(request: APIRequestContext, event: object, signWith = secret()) {
+/**
+ * Posts `event` to the webhook as Stripe would, signed with the test server's secret (or `signWith`). A made-up
+ * subscription in it is first stored in the stand-in Stripe API, which the webhook reads it back from; `stale: true`
+ * leaves the stored one as it was, for an event that carries an older copy.
+ */
+export async function postEvent(request: APIRequestContext, event: object, opts: { signWith?: string; stale?: boolean } = {}) {
+  const object = (event as { data?: { object?: { object?: string; id?: string } } }).data?.object;
+  if (!opts.stale && object?.object === "subscription" && object.id?.startsWith("sub_e2e_")) await putSubscription(request, object);
   const payload = JSON.stringify(event);
-  const header = offline.webhooks.generateTestHeaderString({ payload, secret: signWith });
+  const header = offline.webhooks.generateTestHeaderString({ payload, secret: opts.signWith ?? secret() });
   return request.post("/api/stripe/webhook", { data: payload, headers: { "content-type": "application/json", "stripe-signature": header } });
+}
+
+/** Stores a made-up subscription in the stand-in Stripe API (e2e/helpers/fake-stripe.mjs), as Stripe would have it now. */
+export async function putSubscription(request: APIRequestContext, sub: { id?: string }) {
+  const res = await request.put(`${process.env.E2E_FAKE_STRIPE_URL}/__e2e/subscriptions/${sub.id}`, { data: sub });
+  expect(res.ok(), "the stand-in Stripe API didn't take the subscription").toBe(true);
 }
 
 /** A made-up Stripe event around `object`, shaped as the webhook reads it. */

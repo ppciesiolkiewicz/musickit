@@ -181,6 +181,15 @@ Paid13: End-to-end tests for payments pass before STRIPE_ENABLED is turned on (t
   - Signing in for tests (E2E2) comes first: the code from /api/auth/email-link's development answer (devCode) works
     when the test server has no RESEND_API_KEY.
   - The Stripe CLI is not installed on this machine (`brew install stripe/stripe-cli/stripe`), needed for Paid10.
+  [2026-11-25, run] `npm run e2e:stripe` passes: 9 webhook tests (with a stand-in Stripe API, e2e/helpers/fake-stripe.mjs,
+  that answers the webhook's subscription lookups and passes the rest to Stripe) and the 2 sandbox tests. Stripe's hosted
+  Checkout ignores a scripted Start trial (bot protection), so the sandbox test checks Checkout opens and starts the
+  subscription through the API; E2E_CHECKOUT_BY_HAND=1 with --headed waits for a person to press it. Found and fixed:
+  the webhook stored the subscription copy in each event, and a late trial_will_end put an active account back to
+  trialing; it now fetches the subscription. Confirmed: invoice.paid's five-level expand works; the trial's $0 invoice
+  is stored as a payment; Stripe's return address needed AUTH_URL on the test server (next dev says localhost).
+  Still open: the open-beta box with payments on (Paid11, a test expects it to fail); Adaptive Pricing showed THB and
+  the account sells "through Link" (dashboard choices that change receipts and GST).
   [2026-11-25] Built, not yet run (the local Postgres on 5433 wasn't answering): `npm run e2e:stripe` (E2E_STRIPE=1,
   server on 127.0.0.1:3211, .next-e2e-stripe). e2e/stripe/webhook.spec.ts signs its own events (8 tests, one a
   test.fail for the open-beta box, Paid11); e2e/stripe/sandbox.spec.ts skips with no STRIPE_SECRET_KEY in

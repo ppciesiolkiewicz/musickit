@@ -23,8 +23,20 @@ let client: Stripe | null = null;
 export function stripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("STRIPE_SECRET_KEY is not set");
-  client ??= new Stripe(key, { timeout: 20_000, maxNetworkRetries: 1 });
+  client ??= new Stripe(key, { timeout: 20_000, maxNetworkRetries: 1, ...apiAddress() });
   return client;
+}
+
+/**
+ * Where the Stripe API is: Stripe's own, except on the e2e test server, whose STRIPE_API_URL points at the tests' stand-in
+ * (e2e/helpers/fake-stripe.mjs). Never read in production.
+ */
+function apiAddress(): { host: string; port: number; protocol: "http" | "https" } | Record<string, never> {
+  const set = process.env.NODE_ENV === "production" ? undefined : process.env.STRIPE_API_URL;
+  if (!set) return {};
+  const url = new URL(set);
+  const protocol = url.protocol === "http:" ? "http" : "https";
+  return { host: url.hostname, port: Number(url.port || (protocol === "http" ? 80 : 443)), protocol };
 }
 
 /** Software as a service, personal use: a tax code Managed Payments accepts. */

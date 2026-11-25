@@ -89,10 +89,22 @@ test("an older cancelled subscription doesn't undo a newer live one", async ({ p
   expect((await account(page)).needsPayment).toBe(false);
 });
 
+test("an event that comes late with an older copy doesn't undo the newer state", async ({ page }) => {
+  // as seen in the sandbox: trial_will_end, made with the subscription still trialing, came after the update that
+  // ended the trial; the webhook stores the subscription as Stripe has it now
+  const { account: a } = await asNewPlayer(page);
+  const { customer, sub } = ids();
+  await postEvent(page.request, event("customer.subscription.created", subscription({ id: sub, customer, status: "trialing", userId: a.id })));
+  await postEvent(page.request, event("customer.subscription.updated", subscription({ id: sub, customer, status: "active", userId: a.id })));
+  const late = await postEvent(page.request, event("customer.subscription.trial_will_end", subscription({ id: sub, customer, status: "trialing", userId: a.id })), { stale: true });
+  expect(late.status()).toBe(200);
+  expect((await userRow(a.id)).subscription_status).toBe("active");
+});
+
 test("an event with a bad signature is refused and changes nothing", async ({ page }) => {
   const { account: a } = await asNewPlayer(page);
   const { customer, sub } = ids();
-  const res = await postEvent(page.request, event("customer.subscription.created", subscription({ id: sub, customer, status: "active", userId: a.id })), "whsec_not_the_servers");
+  const res = await postEvent(page.request, event("customer.subscription.created", subscription({ id: sub, customer, status: "active", userId: a.id })), { signWith: "whsec_not_the_servers" });
   expect(res.status()).toBe(400);
   expect((await userRow(a.id)).subscription_status).toBeNull();
   expect((await account(page)).needsPayment).toBe(true);

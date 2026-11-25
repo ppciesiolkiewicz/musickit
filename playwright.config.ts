@@ -37,6 +37,11 @@ process.env.E2E_STRIPE_SANDBOX_KEY = sandboxKey;
 
 const PORT = Number(process.env.E2E_PORT ?? (STRIPE ? 3211 : 3210));
 const baseURL = `http://127.0.0.1:${PORT}`;
+// the payments server's Stripe API: a stand-in that knows the webhook spec's made-up subscriptions and passes the rest
+// on to Stripe (e2e/helpers/fake-stripe.mjs)
+const FAKE_STRIPE_PORT = PORT + 1;
+const FAKE_STRIPE_URL = `http://127.0.0.1:${FAKE_STRIPE_PORT}`;
+process.env.E2E_FAKE_STRIPE_URL = FAKE_STRIPE_URL;
 
 const payments = STRIPE
   ? {
@@ -44,9 +49,27 @@ const payments = STRIPE
       STRIPE_SECRET_KEY: sandboxKey || OFFLINE_KEY,
       STRIPE_WEBHOOK_SECRET: WEBHOOK_SECRET,
       STRIPE_EARLY_COUPON: local.STRIPE_EARLY_COUPON ?? "",
+      STRIPE_API_URL: FAKE_STRIPE_URL,
     }
   : // payments off, whatever .env.local says
-    { STRIPE_ENABLED: "", STRIPE_SECRET_KEY: "", STRIPE_WEBHOOK_SECRET: "", STRIPE_EARLY_COUPON: "" };
+    { STRIPE_ENABLED: "", STRIPE_SECRET_KEY: "", STRIPE_WEBHOOK_SECRET: "", STRIPE_EARLY_COUPON: "", STRIPE_API_URL: "" };
+
+const appServer = {
+  command: `node scripts/db-migrate.mjs && npx next dev --webpack -H 127.0.0.1 -p ${PORT}`,
+  url: baseURL,
+  reuseExistingServer: false,
+  timeout: 180_000,
+  // AUTH_URL: the address in mailed links and in Stripe's return address. Without it `next dev` names itself
+  // localhost, whose cookies aren't 127.0.0.1's, so a person coming back from Checkout would be signed out.
+  env: { ...e2eEnv, ...payments, AUTH_URL: baseURL, NEXT_DIST_DIR: STRIPE ? ".next-e2e-stripe" : ".next-e2e", E2E: "1" },
+};
+const fakeStripe = {
+  command: "node e2e/helpers/fake-stripe.mjs",
+  url: `${FAKE_STRIPE_URL}/__e2e/health`,
+  reuseExistingServer: false,
+  timeout: 30_000,
+  env: { FAKE_STRIPE_PORT: String(FAKE_STRIPE_PORT) },
+};
 
 export default defineConfig({
   testDir: STRIPE ? "e2e/stripe" : "e2e",
@@ -54,6 +77,8 @@ export default defineConfig({
   // the sandbox tests wait on Stripe's pages and events
   timeout: STRIPE ? 180_000 : 60_000,
   fullyParallel: !STRIPE,
+  // payments: one at a time, so the dev server isn't compiling for one test while another fills a form
+  workers: STRIPE ? 1 : undefined,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"], ["html", { open: "never", outputFolder: STRIPE ? "playwright-report-stripe" : "playwright-report" }]],
@@ -71,13 +96,5 @@ export default defineConfig({
           use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
         },
       ],
-  webServer: {
-    command: `node scripts/db-migrate.mjs && npx next dev --webpack -H 127.0.0.1 -p ${PORT}`,
-    url: baseURL,
-    reuseExistingServer: false,
-    timeout: 180_000,
-    // AUTH_URL: the address in mailed links and in Stripe's return address. Without it `next dev` names itself
-    // localhost, whose cookies aren't 127.0.0.1's, so a person coming back from Checkout would be signed out.
-    env: { ...e2eEnv, ...payments, AUTH_URL: baseURL, NEXT_DIST_DIR: STRIPE ? ".next-e2e-stripe" : ".next-e2e", E2E: "1" },
-  },
+  webServer: STRIPE ? [fakeStripe, appServer] : appServer,
 });
