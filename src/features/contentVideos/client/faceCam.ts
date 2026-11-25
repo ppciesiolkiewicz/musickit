@@ -1,10 +1,11 @@
 import type { FaceDetector } from "@mediapipe/tasks-vision";
-import { circleAt, cropFor, ease, type Crop, type FaceLook } from "../model/faceCircle";
+import { circleAt, cropFor, ease, median, steady, type Crop, type FaceLook } from "../model/faceCircle";
 
 /**
  * The face camera on the record page: the guitar camera's picture with the face camera's face cut out as a circle in a
  * corner (`model/faceCircle.ts`), drawn on a canvas each frame. The take records the canvas (`track`), so both cameras
- * are in the file. The face is found with MediaPipe's Face Detector a few times a second and the crop follows it slowly;
+ * are in the file. The face is found with MediaPipe's Face Detector ten times a second and the crop follows it slowly
+ * (its size the median of the last second's looks, moving only when the face moves or leans in or back clearly: `steady`);
  * until a face is found (or if the model doesn't load) the circle shows the middle of the face camera.
  * A canvas only draws while its tab is in front: the take freezes if the tab is hidden.
  */
@@ -13,8 +14,10 @@ const WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.3/wasm";
 const FACE_MODEL = "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite";
 /** how often the face is looked for (ms) */
 const DETECT_MS = 100;
-/** how far the crop moves toward the face each frame */
-const FOLLOW = 0.12;
+/** how far the crop moves toward its target each frame: its place, and (slower) its zoom */
+const FOLLOW = 0.08, ZOOM_FOLLOW = 0.025;
+/** the face's size is the median of this many looks (about a second), so one odd box doesn't count */
+const SIZE_LOOKS = 10;
 const FPS = 30;
 
 let detector: Promise<FaceDetector> | null = null;
@@ -51,6 +54,7 @@ export function startFaceCam(guitar: HTMLVideoElement, faceStream: MediaStream, 
   let current = look;
   let crop: Crop | null = null;
   let target: Crop | null = null;
+  const sizes: number[] = [];
   let found: FaceDetector | null = null;
   let lastDetect = 0;
   let lastStamp = 0;
@@ -75,11 +79,17 @@ export function startFaceCam(guitar: HTMLVideoElement, faceStream: MediaStream, 
       lastStamp = stamp;
       try {
         const box = found.detectForVideo(face, stamp).detections[0]?.boundingBox;
-        if (box) target = cropFor({ x: box.originX, y: box.originY, w: box.width, h: box.height }, fw, fh);
+        if (box) {
+          sizes.push(Math.max(box.width, box.height));
+          if (sizes.length > SIZE_LOOKS) sizes.shift();
+          // the face's box squared to the median size of late, round its centre
+          const size = median(sizes), x = box.originX + box.width / 2, y = box.originY + box.height / 2;
+          target = steady(target, cropFor({ x: x - size / 2, y: y - size / 2, w: size, h: size }, fw, fh), fw, fh);
+        }
       } catch { /* the next look */ }
     }
     const goal = target ?? cropFor(null, fw, fh);
-    crop = crop ? ease(crop, goal, FOLLOW) : goal;
+    crop = crop ? ease(crop, goal, FOLLOW, ZOOM_FOLLOW) : goal;
     const { cx, cy, r } = circleAt(current, gw, gh);
     ctx.save();
     ctx.beginPath();

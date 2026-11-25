@@ -44,10 +44,39 @@ export function cropFor(face: Rect | null, w: number, h: number): Crop {
   return { x: clamp(cx - side / 2, 0, w - side), y: clamp(cy - side / 2, 0, h - side), side };
 }
 
-/** `from` moved a share `k` (0 to 1) of the way to `to`: the crop follows the face without shaking. */
-export function ease(from: Crop, to: Crop, k: number): Crop {
-  const m = (a: number, b: number) => a + (b - a) * k;
-  return { x: m(from.x, to.x), y: m(from.y, to.y), side: m(from.side, to.side) };
+/**
+ * `from` moved toward `to`: a share `k` (0 to 1) of the way for its place, `kSide` for its size (by default the same), so
+ * the crop can follow the face's moves and still zoom slowly.
+ */
+export function ease(from: Crop, to: Crop, k: number, kSide = k): Crop {
+  const m = (a: number, b: number, t: number) => a + (b - a) * t;
+  return { x: m(from.x, to.x, k), y: m(from.y, to.y, k), side: m(from.side, to.side, kSide) };
+}
+
+/** The zoom holds until the face's size is this share off it (leaning in or back), so a detector's jitter never zooms. */
+export const ZOOM_HOLD = 0.2;
+/** The crop holds its place until the face's centre is this share of the crop's side off its centre. */
+export const MOVE_HOLD = 0.08;
+
+/**
+ * Where the crop should head from `held` (the target it is heading to now) for a new `goal` (`cropFor` the face just
+ * found): its size held unless the goal is `ZOOM_HOLD` bigger or smaller, its place held unless the face moved
+ * `MOVE_HOLD` of the side; either way the same centre-and-clamp as `cropFor`, inside the picture `w` × `h`.
+ */
+export function steady(held: Crop | null, goal: Crop, w: number, h: number): Crop {
+  if (!held) return goal;
+  const side = Math.abs(goal.side / held.side - 1) > ZOOM_HOLD ? goal.side : Math.min(held.side, Math.min(w, h));
+  const hx = held.x + held.side / 2, hy = held.y + held.side / 2;
+  const gx = goal.x + goal.side / 2, gy = goal.y + goal.side / 2;
+  const moved = Math.hypot(gx - hx, gy - hy) > MOVE_HOLD * held.side;
+  const cx = moved ? gx : hx, cy = moved ? gy : hy;
+  return { x: clamp(cx - side / 2, 0, w - side), y: clamp(cy - side / 2, 0, h - side), side };
+}
+
+/** The middle value of `v` (the larger of the two middles for an even count); 0 for none. */
+export function median(v: number[]): number {
+  const s = [...v].sort((a, b) => a - b);
+  return s.length ? s[Math.floor(s.length / 2)] : 0;
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));

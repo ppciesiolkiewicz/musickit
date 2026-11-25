@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FACE_ZOOM, circleAt, cropFor, ease, readFaceLook, DEFAULT_FACE_LOOK } from "./faceCircle";
+import { FACE_ZOOM, circleAt, cropFor, ease, median, steady, readFaceLook, DEFAULT_FACE_LOOK } from "./faceCircle";
 
 test("circleAt puts the circle in its corner, clear of the edges", () => {
   const bl = circleAt({ corner: "bottom-left", size: "medium" }, 1280, 720);
@@ -34,4 +34,29 @@ test("ease moves part of the way", () => {
 test("readFaceLook falls back per part", () => {
   assert.deepEqual(readFaceLook(null), DEFAULT_FACE_LOOK);
   assert.deepEqual(readFaceLook({ corner: "top-right", size: "huge" }), { corner: "top-right", size: DEFAULT_FACE_LOOK.size });
+});
+
+test("ease can zoom slower than it moves", () => {
+  assert.deepEqual(ease({ x: 0, y: 0, side: 100 }, { x: 10, y: 20, side: 200 }, 0.5, 0.1), { x: 5, y: 10, side: 110 });
+});
+
+test("steady holds the zoom and place through small changes", () => {
+  const held = { x: 400, y: 100, side: 300 };
+  // the face 10% bigger and 10 px over: nothing moves
+  assert.deepEqual(steady(held, { x: 395, y: 85, side: 330 }, 1280, 720), held);
+  // leaning in: the face 30% bigger zooms, round the same place
+  const near = steady(held, { x: 355, y: 55, side: 390 }, 1280, 720);
+  assert.equal(near.side, 390);
+  assert.deepEqual([near.x + near.side / 2, near.y + near.side / 2], [550, 250]);
+  // moved well over: the crop follows, at its held size
+  const over = steady(held, { x: 500, y: 100, side: 310 }, 1280, 720);
+  assert.equal(over.side, 300);
+  assert.equal(over.x + over.side / 2, 655);
+  // no target yet: the goal
+  assert.deepEqual(steady(null, held, 1280, 720), held);
+});
+
+test("median takes the middle look", () => {
+  assert.equal(median([5, 1, 100, 3, 4]), 4);
+  assert.equal(median([]), 0);
 });
