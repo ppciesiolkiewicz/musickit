@@ -1,6 +1,6 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { earlyOpen, type EarlyOpen } from "../pricing";
-import { isLive, mustPay, paidThroughCheckout } from "../billing";
+import { isLive, mustPay, onPlanNow, paidThroughCheckout } from "../billing";
 import { paymentsEnabled } from "./paymentsEnabled";
 import { earlyTaken } from "./earlyTaken";
 import { isJoinPath, setupHref } from "../loginGuard";
@@ -52,7 +52,9 @@ export const hashCode = (email: string, code: string): string => hashToken(`${em
 
 export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Date(), token: newToken, code: newCode });
 
-export const toAccount = (u: UserRow, paymentsOn = paymentsEnabled()): Account => {
+/** The account as screens see it, at `now`: a plan that has ended (`plan_ends_at`) is no plan, so it is held on setup. */
+export const toAccount = (row: UserRow, paymentsOn = paymentsEnabled(), now = new Date()): Account => {
+  const u = onPlanNow(row, now);
   const needsPayment = mustPay(u, paymentsOn);
   return {
     id: u.id, name: u.name, email: u.email, role: u.role, permissions: u.permissions, createdAt: u.createdAt.toISOString(),
@@ -93,7 +95,7 @@ export async function startSession(deps: AuthDeps, user: UserRow, next: string |
       console.error(`[auth] the claim of student ${user.id} was not recorded`, error);
     }
   }
-  return { kind: "session", sessionToken, expiresAt, account: toAccount(user), next: next ?? AFTER_LOGIN, created };
+  return { kind: "session", sessionToken, expiresAt, account: toAccount(user, undefined, now), next: next ?? AFTER_LOGIN, created };
 }
 
 /**
@@ -228,7 +230,7 @@ export async function sessionAccount(deps: AuthDeps, sessionToken: unknown): Pro
     renewed = later(now, SESSION_TTL);
     await deps.repo.touchSession(hash, renewed, now);
   }
-  return { account: toAccount(row.user), renewed };
+  return { account: toAccount(row.user, undefined, now), renewed };
 }
 
 export async function signOut(deps: AuthDeps, sessionToken: unknown): Promise<void> {
@@ -240,21 +242,22 @@ export async function rename(deps: AuthDeps, userId: string, name: unknown): Pro
   const clean = cleanName(name);
   if (!clean) return null;
   const user = await deps.repo.updateUserName(userId, clean, deps.now());
-  return user ? toAccount(user) : null;
+  return user ? toAccount(user, undefined, deps.now()) : null;
 }
 
 /** Turns the emails about what we fix and add, and offers on or off. Null when `on` isn't true or false, or the account is gone. */
 export async function setEmailUpdates(deps: AuthDeps, userId: string, on: unknown): Promise<Account | null> {
   if (typeof on !== "boolean") return null;
   const user = await deps.repo.setEmailUpdates(userId, on, deps.now());
-  return user ? toAccount(user) : null;
+  return user ? toAccount(user, undefined, deps.now()) : null;
 }
 
 /** The plans a person can see and the one they are on (see `choosablePlans`). Null when there is no such user. */
 /** `current` is null for an account that hasn't chosen one yet; `billing` is how they pay for it. */
 export async function accountPlans(deps: AuthDeps, userId: string): Promise<AccountPlans | null> {
-  const user = await deps.repo.userById(userId);
-  if (!user) return null;
+  const had = await deps.repo.userById(userId);
+  if (!had) return null;
+  const user = onPlanNow(had, deps.now());
   const request = await deps.repo.planRequest(userId);
   return {
     plans: choosablePlans(await deps.repo.listPlans(), user.planId),
@@ -293,7 +296,8 @@ async function movePlan(deps: AuthDeps, userId: string, plan: Plan, billing: Bil
  * exempt account moving to another paid plan stops being exempt, so the gate sends it to Checkout.
  */
 export async function choosePlan(deps: AuthDeps, account: Account, planId: unknown, billing: unknown, paymentsOn = paymentsEnabled()): Promise<Account | null> {
-  const user = await deps.repo.userById(account.id);
+  const found = await deps.repo.userById(account.id);
+  const user = found && onPlanNow(found, deps.now());
   const plan = user && canChoose(await deps.repo.listPlans(), user, planId, billing);
   if (!plan) return null;
   if (paymentsOn && paidThroughCheckout(plan, billing as Billing)) {
@@ -303,7 +307,7 @@ export async function choosePlan(deps: AuthDeps, account: Account, planId: unkno
     if (user.paymentExempt && plan.id !== user.planId) await deps.repo.clearPaymentExempt(user.id, deps.now());
   }
   const moved = await movePlan(deps, account.id, plan, billing as Billing, roleAfter(user, plan));
-  return moved ? toAccount(moved) : null;
+  return moved ? toAccount(moved, paymentsOn, deps.now()) : null;
 }
 
 /** The role after a plan change: the plan's, except that paying for the same plan the other way changes no role. */
@@ -321,8 +325,9 @@ export async function setUpAccount(deps: AuthDeps, account: Account, input: { na
   const name = cleanName(input.name);
   if (!name) return { ok: false, error: "name" };
   if (input.acceptTerms !== true) return { ok: false, error: "terms" };
-  const had = await deps.repo.userById(account.id);
-  if (!had) return { ok: false, error: "plan" };
+  const found = await deps.repo.userById(account.id);
+  if (!found) return { ok: false, error: "plan" };
+  const had = onPlanNow(found, deps.now());
   const keeps = had.planId !== null && input.planId === had.planId && input.billing === had.billing;
   const plan = keeps ? null : canChoose(await deps.repo.listPlans(), had, input.planId, input.billing);
   if (!keeps && !plan) return { ok: false, error: "plan" };
@@ -331,5 +336,5 @@ export async function setUpAccount(deps: AuthDeps, account: Account, input: { na
   if (user && plan) user = await movePlan(deps, account.id, plan, input.billing as Billing, roleAfter(had, plan));
   // the box on setup, ticked or not; left out, the choice stays as it was
   if (user && typeof input.emailUpdates === "boolean") user = await deps.repo.setEmailUpdates(account.id, input.emailUpdates, deps.now());
-  return user ? { ok: true, account: toAccount(user) } : { ok: false, error: "plan" };
+  return user ? { ok: true, account: toAccount(user, paymentsOn, deps.now()) } : { ok: false, error: "plan" };
 }

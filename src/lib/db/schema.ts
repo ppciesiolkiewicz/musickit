@@ -82,6 +82,11 @@ export const users = pgTable("users", {
    * payments came (migration 0040). Cleared when they move to another paid plan or start paying.
    */
   paymentExempt: boolean("payment_exempt").notNull().default(false),
+  /**
+   * When their plan stops: set only by a join code (`JOIN_CODES` in features/account/server/invites.ts), cleared by any
+   * other plan change. Past it the account is held on /account/setup to choose a plan, as if it had none.
+   */
+  planEndsAt: at("plan_ends_at"),
   /** Their Stripe customer, made at their first Checkout; null before. */
   stripeCustomerId: text("stripe_customer_id").unique(),
   /** Their Stripe subscription, the latest one; null before they first paid. */

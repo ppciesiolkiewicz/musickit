@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PERSONAL_DEMO_PLAN_ID, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
-import { hashToken, pathAfterSignIn, toAccount, type AuthDeps } from "./auth";
+import { INDIEAPPCIRCLE_PLAN_ID, PERSONAL_DEMO_PLAN_ID, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
+import { accountPlans, choosePlan, hashToken, pathAfterSignIn, setUpAccount, toAccount, type AuthDeps } from "./auth";
 import { joinWithInvite, listInvites, makeInvite, viewInvite } from "./invites";
 import { memoryRepo } from "./repo.memory";
 
@@ -10,6 +10,8 @@ const PLANS: Plan[] = [
   { ...BASE, id: "student", name: "Student", role: "student", students: 0, enabled: true },
   { ...BASE, id: TEACHER_DEMO_PLAN_ID, name: "Teacher Demo", role: "teacher", students: 2, enabled: false },
   { ...BASE, id: PERSONAL_DEMO_PLAN_ID, name: "Personal Demo", role: "student", students: 0, enabled: false },
+  { ...BASE, id: INDIEAPPCIRCLE_PLAN_ID, name: "IndieAppCircle", role: "teacher", students: 15, enabled: false },
+  { ...BASE, id: "teacher-basic", name: "Solo", role: "teacher", students: 15, enabled: true, monthCents: 1199, yearCents: 7200 },
   { ...BASE, id: TAUGHT_PLAN_ID, name: "Student of a teacher", role: "student", students: 0, enabled: false },
 ];
 
@@ -46,7 +48,7 @@ test("a student joins: becomes a teacher on Teacher Demo, and the invite is thei
   assert.ok(r.ok);
   assert.equal(r.account.role, "teacher");
   assert.equal((await deps.repo.userById(ann.id))?.planId, TEACHER_DEMO_PLAN_ID);
-  assert.deepEqual(await viewInvite(deps, ann, token), { state: "yours", kind: "teacher", plan: { name: "Teacher Demo", students: 2 }, name: "Ann" });
+  assert.deepEqual(await viewInvite(deps, ann, token), { state: "yours", kind: "teacher", plan: { name: "Teacher Demo", students: 2 }, name: "Ann", days: null });
   assert.ok((await joinWithInvite(deps, ann, token, {})).ok, "joining again changes nothing");
   const [listed] = await listInvites(deps);
   assert.equal(listed.claimedBy?.email, "ann@school.com");
@@ -146,4 +148,74 @@ test("a teacher who joins with a personal invite becomes a student; an owner sta
 test("an unknown kind makes a teacher invite", async () => {
   const { deps } = setup();
   assert.equal((await makeInvite(deps, "", "school")).invite.planId, TEACHER_DEMO_PLAN_ID);
+});
+
+const DAY = 24 * 60 * 60 * 1000;
+
+/** The same repo with the clock moved on by `days`. */
+const later = (deps: AuthDeps, days: number): AuthDeps => ({ ...deps, now: () => new Date(deps.now().getTime() + days * DAY) });
+
+test("the INDIEAPPCIRCLE code: a new account joins as a teacher, free for 60 days, on its own invite", async () => {
+  const { deps, person, invites } = setup();
+  const ann = await person("ann@school.com");
+  assert.deepEqual(await viewInvite(deps, ann, "indieappcircle"), { state: "open", kind: "teacher", plan: { name: "IndieAppCircle", students: 15 }, name: null, days: 60 });
+  assert.equal(invites.length, 0, "opening the link stores nothing");
+
+  const r = await joinWithInvite(deps, ann, "INDIEAPPCIRCLE", { name: "Ann", acceptTerms: true }, true);
+  assert.ok(r.ok);
+  assert.equal(r.account.role, "teacher");
+  assert.equal(r.account.needsSetup, false);
+  assert.equal(r.account.needsPayment, false, "no Stripe with payments on");
+  const user = (await deps.repo.userById(ann.id))!;
+  assert.equal(user.planId, INDIEAPPCIRCLE_PLAN_ID);
+  assert.equal(user.planEndsAt?.getTime(), deps.now().getTime() + 60 * DAY);
+  const [own] = await listInvites(deps);
+  assert.equal(own.note, "INDIEAPPCIRCLE");
+  assert.equal(own.claimedBy?.email, "ann@school.com");
+  assert.equal((await viewInvite(deps, ann, "IndieAppCircle")).state, "yours");
+  assert.ok((await joinWithInvite(deps, ann, "INDIEAPPCIRCLE", {})).ok, "joining again changes nothing");
+  assert.equal(invites.length, 1);
+  assert.equal((await deps.repo.userById(ann.id))!.planEndsAt?.getTime(), deps.now().getTime() + 60 * DAY, "and doesn't add days");
+});
+
+test("the code is for anyone, once each: a second account gets its own invite", async () => {
+  const { deps, person } = setup();
+  await joinWithInvite(deps, await person("ann@school.com"), "INDIEAPPCIRCLE", { name: "Ann", acceptTerms: true });
+  const bob = await person("bob@school.com");
+  assert.equal((await viewInvite(deps, bob, "INDIEAPPCIRCLE")).state, "open");
+  assert.ok((await joinWithInvite(deps, bob, "INDIEAPPCIRCLE", { name: "Bob", acceptTerms: true })).ok);
+  assert.equal((await listInvites(deps)).length, 2);
+});
+
+test("after 60 days the plan has ended: held on setup, can't join again, chooses a plan there", async () => {
+  const { deps, person } = setup();
+  const ann = await person("ann@school.com");
+  await joinWithInvite(deps, ann, "INDIEAPPCIRCLE", { name: "Ann", acceptTerms: true });
+  const day59 = later(deps, 59);
+  assert.equal(toAccount((await deps.repo.userById(ann.id))!, false, day59.now()).needsSetup, false);
+
+  const day60 = later(deps, 60);
+  const user = (await deps.repo.userById(ann.id))!;
+  assert.equal(toAccount(user, false, day60.now()).needsSetup, true);
+  assert.equal(toAccount(user, true, day60.now()).needsPayment, false, "no plan, so nothing to pay for yet");
+  assert.equal((await viewInvite(day60, ann, "INDIEAPPCIRCLE")).state, "ended");
+  assert.deepEqual(await joinWithInvite(day60, ann, "INDIEAPPCIRCLE", {}), { ok: false, error: "ended" });
+
+  const plans = (await accountPlans(day60, ann.id))!;
+  assert.equal(plans.current, null);
+  assert.ok(!plans.plans.some((p) => p.id === INDIEAPPCIRCLE_PLAN_ID), "the ended plan isn't offered");
+  assert.equal(await choosePlan(day60, ann, INDIEAPPCIRCLE_PLAN_ID, "month"), null, "nor kept by paying the other way");
+  assert.deepEqual(await setUpAccount(day60, ann, { name: "Ann", planId: INDIEAPPCIRCLE_PLAN_ID, billing: "year", acceptTerms: true }), { ok: false, error: "plan" });
+
+  const r = await setUpAccount(day60, ann, { name: "Ann", planId: "teacher-basic", billing: "month", acceptTerms: true }, true);
+  assert.ok(r.ok);
+  assert.equal(r.account.needsPayment, true, "a paid plan goes to Checkout");
+  assert.equal((await deps.repo.userById(ann.id))!.planEndsAt, null, "a new plan has no end");
+});
+
+test("an unknown word is not a code", async () => {
+  const { deps, person } = setup();
+  const ann = await person("ann@school.com");
+  assert.equal((await viewInvite(deps, ann, "INDIEAPP")).state, "not-found");
+  assert.deepEqual(await joinWithInvite(deps, ann, "toString", { name: "Ann", acceptTerms: true }), { ok: false, error: "not-found" });
 });

@@ -122,6 +122,16 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   the page (`ui/JoinSetup.tsx`: name, email updates, the voice-care box, `ui/VoiceCare.tsx`, shared with setup, whose notes are on their own public page, `/voice-care`; terms agreed by logging in), then joins and
   goes to /plan. A set-up account presses Join. A teacher who joins becomes a student (an owner stays an owner).
   `inviteEmail(link, kind)` has the words for each.
+- Join codes (`JOIN_CODES` in `server/invites.ts`, 2026-11-25): a word in place of a token in a `/join/<code>` link,
+  for a place we list the app. `INDIEAPPCIRCLE` (`/join/INDIEAPPCIRCLE`, any case) puts the account on the IndieAppCircle
+  plan (`INDIEAPPCIRCLE_PLAN_ID`: teacher, 15 students, free, `enabled` false, migration `0049_indieappcircle_code`) for 60
+  days, with no Stripe even with payments on (`FREE_PLAN_IDS`). The same page and flow as a teacher invite, with "Free for
+  60 days" in place of a year (`days` in the GET). Opening the link stores nothing; joining makes the person their own
+  one-use invite noted `INDIEAPPCIRCLE` and claims it, so /admin/admin/invites lists who joined with it. Once per
+  account: joining again on the plan changes nothing; after it ended the page says so ("ended") and sends them to
+  choose a plan. The end is `users.plan_ends_at`, set only by a code and cleared by any other plan change; past it
+  `onPlanNow` (`billing.ts`) treats the account as having no plan, so `toAccount` holds it on `/account/setup`, where the
+  ended plan isn't offered or kept. A new code is one line in `JOIN_CODES` (and a plan row if it needs its own).
 - `loginGuard.ts` also has `loginWords(next)`: the login page's heading and line, "Create your account or log in to view" when `next` is a plan invite (`/plan/invite/…`), else the usual.
 - `loginGuard.ts` + `ui/LoginGuard.tsx`: the client half of the login wall (mounted in the root layout), which also keeps an account with no plan out of the three main sections until `/account/setup`. The server half
   is `src/proxy.ts`, which only checks that the session cookie is there (and, for a shared note's page load, asks the share's

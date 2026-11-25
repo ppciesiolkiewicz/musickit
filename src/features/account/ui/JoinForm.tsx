@@ -13,11 +13,13 @@ import type { InviteKind } from "../emailHtml";
 import { Card, ErrorLine, LINK, PRIMARY, SECONDARY, errorOf, send, type Posted } from "./parts";
 
 type View = {
-  state: "open" | "yours" | "used" | "not-found";
+  state: "open" | "yours" | "used" | "not-found" | "ended";
   kind: InviteKind | null;
   plan: { name: string; students: number | null } | null;
   /** Who we made the invite for (its note on /admin/admin/invites), if we said. */
   name: string | null;
+  /** how many days the plan is free for: a join code's (`/join/INDIEAPPCIRCLE`); null for an invite */
+  days: number | null;
   /** false for a visitor who isn't logged in: the page logs them in itself */
   signedIn: boolean;
   needsSetup: boolean;
@@ -36,6 +38,7 @@ const CELEBRATE_SECONDS = 8;
 const NOTICES = {
   used: { title: "This invite has already been used", text: "Someone already joined with this link. Send us a message and we'll get you a fresh one." },
   "not-found": { title: "Hmm, this invite link doesn't work", text: "It may be mistyped or cut short. Check the link, or send us a message and we'll get you a new one." },
+  ended: { title: "Your free days with this code are over", text: "This account already joined with this code. Choose a plan to keep using attunr." },
   taught: { title: "This account can't use this invite", text: "It belongs to a teacher's class. Log out, then open the link again and log in with another email." },
 } as const;
 
@@ -156,7 +159,7 @@ export default function JoinForm({ token, google, tours }: {
   }
   // Before the invite is read the page shows it as usable: almost every link is. Only the plan line and the button wait;
   // a used or unknown link swaps to its notice when the answer comes.
-  const notice = !view ? null : view.state === "used" || view.state === "not-found" ? NOTICES[view.state] : view.state === "open" && view.taught ? NOTICES.taught : null;
+  const notice = !view ? null : view.state === "used" || view.state === "not-found" || view.state === "ended" ? NOTICES[view.state] : view.state === "open" && view.taught ? NOTICES.taught : null;
   if (notice) {
     return (
       <Card className="mx-auto">
@@ -164,7 +167,9 @@ export default function JoinForm({ token, google, tours }: {
           <h2 className="text-lg font-semibold text-slate-100">{notice.title}</h2>
           <p className="text-sm leading-relaxed text-slate-400">{notice.text}</p>
         </div>
-        {notice !== NOTICES.taught && <Link href="/feedback" className={SECONDARY}>Send us a message</Link>}
+        {notice === NOTICES.ended
+          ? <Link href="/account/setup" className={PRIMARY}>Choose a plan<Icon name="chevron-right" size={16} /></Link>
+          : notice !== NOTICES.taught && <Link href="/feedback" className={SECONDARY}>Send us a message</Link>}
       </Card>
     );
   }
@@ -201,16 +206,17 @@ export default function JoinForm({ token, google, tours }: {
   const greetName = (view?.name ?? (signedOut ? "" : account?.name) ?? "").trim();
   const hello = greetName ? `Hello, ${greetName}` : "Hello there";
   const students = view?.plan ? studentsLabel(view.plan) : null;
+  const free = view?.days ? `Free for ${view.days} days. No card needed` : "Free for a year with this invite. No card needed";
   const perks = (kind === "personal"
     ? [
         { icon: "sparkles" as const, text: view ? `A practice plan made for you, on the ${view.plan?.name} plan` : undefined },
         { icon: "graduation-cap" as const, text: "A few short exercises each day, for your instrument or your voice" },
-        { icon: "check" as const, text: "Free for a year with this invite. No card needed" },
+        { icon: "check" as const, text: free },
       ]
     : [
         { icon: "graduation-cap" as const, text: view ? (students ? `${students}, on the ${view.plan?.name} plan` : null) : undefined },
         { icon: "sparkles" as const, text: "Every student you add gets an account and a plan for their first week" },
-        { icon: "check" as const, text: "Free for a year with this invite. No card needed" },
+        { icon: "check" as const, text: free },
       ]
   ).filter((p) => p.text !== null);
   const perkList = (

@@ -1,5 +1,6 @@
 import { cleanName, type Account } from "../model";
-import { PERSONAL_DEMO_PLAN_ID, roleOnPlan, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
+import { planEnded } from "../billing";
+import { INDIEAPPCIRCLE_PLAN_ID, PERSONAL_DEMO_PLAN_ID, roleOnPlan, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, type Plan } from "../plans";
 import { termsVersion } from "../terms";
 import { paymentsEnabled } from "./paymentsEnabled";
 import { hashToken, toAccount, type AuthDeps } from "./auth";
@@ -41,8 +42,30 @@ export async function makeInvite(deps: AuthDeps, note: unknown, kind: unknown = 
 
 export const listInvites = async (deps: AuthDeps): Promise<InviteListing[]> => (await deps.repo.listInvites()).map(listing);
 
-/** How an invite looks to the person who opened it. */
-export type InviteState = "open" | "yours" | "used" | "not-found";
+/**
+ * Join codes: a word anyone may put in a `/join/<code>` link in place of a token, for a place we list the app
+ * (IndieAppCircle). Nothing is stored when the link is opened. Joining makes the person their own one-use invite on the
+ * code's plan, noted with the code (so /admin/invites lists who joined with it), and claims it at once; the plan stops
+ * after `days` (`plan_ends_at`). Each account can join with a code once. Matched in any case.
+ */
+export const JOIN_CODES: Record<string, { planId: string; days: number }> = {
+  INDIEAPPCIRCLE: { planId: INDIEAPPCIRCLE_PLAN_ID, days: 60 },
+};
+
+const DAY = 24 * 60 * 60 * 1000;
+
+/** The code in the link, upper case, or null when it isn't one. */
+const joinCode = (token: unknown): string | null => {
+  const code = typeof token === "string" ? token.toUpperCase() : null;
+  return code && Object.hasOwn(JOIN_CODES, code) ? code : null;
+};
+
+/** The invite this user made for themself with the code, or null when they never joined with it. */
+const codeInviteOf = async (deps: AuthDeps, code: string, userId: string): Promise<InviteRow | null> =>
+  (await deps.repo.listInvites()).find((i) => i.note === code && i.claimedBy?.id === userId) ?? null;
+
+/** How an invite looks to the person who opened it. "ended": they joined with this code before, and its plan has stopped. */
+export type InviteState = "open" | "yours" | "used" | "not-found" | "ended";
 
 /** What `/join/<token>` shows: the invite's state, its plan (name and students) and who it is for (its note), if we said. */
 export interface InviteView {
@@ -51,6 +74,8 @@ export interface InviteView {
   kind: InviteKind | null;
   plan: Pick<Plan, "name" | "students"> | null;
   name: string | null;
+  /** How many days the plan is free for: a join code's; null for an invite. */
+  days: number | null;
 }
 
 /** The token's hash, or null for anything that can't be a token. */
@@ -63,15 +88,27 @@ const stateFor = (invite: InviteRow | null, userId: string | null): InviteState 
 
 /** The invite as `/join/<token>` shows it to this person, or to a visitor not logged in yet (`null`). */
 export async function viewInvite(deps: AuthDeps, account: Account | null, token: unknown): Promise<InviteView> {
+  const code = joinCode(token);
+  if (code) return viewCode(deps, account, code);
   const invite = await find(deps, hashOf(token));
   const plan = invite && (await deps.repo.listPlans()).find((p) => p.id === invite.planId);
-  if (!invite || !plan) return { state: "not-found", kind: null, plan: null, name: null };
+  if (!invite || !plan) return { state: "not-found", kind: null, plan: null, name: null, days: null };
   const state = stateFor(invite, account?.id ?? null);
   // the name is for the person it was made for: not shown to someone else on a used link
-  return { state, kind: kindOf(plan), plan: { name: plan.name, students: plan.students }, name: state === "used" ? null : invite.note || null };
+  return { state, kind: kindOf(plan), plan: { name: plan.name, students: plan.students }, name: state === "used" ? null : invite.note || null, days: null };
 }
 
-export type JoinError = "not-found" | "used" | "taught" | "name" | "terms";
+/** A join code as `/join/<code>` shows it: open to anyone, theirs once they joined with it, ended once that plan stopped. */
+async function viewCode(deps: AuthDeps, account: Account | null, code: string): Promise<InviteView> {
+  const { planId, days } = JOIN_CODES[code];
+  const plan = (await deps.repo.listPlans()).find((p) => p.id === planId);
+  if (!plan) return { state: "not-found", kind: null, plan: null, name: null, days: null };
+  const user = account && (await codeInviteOf(deps, code, account.id)) ? await deps.repo.userById(account.id) : null;
+  const state: InviteState = !user ? "open" : user.planId === plan.id && !planEnded(user, deps.now()) ? "yours" : "ended";
+  return { state, kind: kindOf(plan), plan: { name: plan.name, students: plan.students }, name: null, days };
+}
+
+export type JoinError = "not-found" | "used" | "ended" | "taught" | "name" | "terms";
 
 /**
  * Joins with the invite: the person moves to its plan, with the role it gives (an owner stays an owner), paid the way they
@@ -87,27 +124,43 @@ export async function joinWithInvite(
   input: { name?: unknown; acceptTerms?: unknown; emailUpdates?: unknown },
   paymentsOn = paymentsEnabled(),
 ): Promise<{ ok: true; account: Account } | { ok: false; error: JoinError }> {
-  const hash = hashOf(token);
-  const invite = await find(deps, hash);
-  const plan = invite && (await deps.repo.listPlans()).find((p) => p.id === invite.planId);
+  const code = joinCode(token);
+  let hash = code ? null : hashOf(token);
+  const invite = code ? null : await find(deps, hash);
+  const planId = code ? JOIN_CODES[code].planId : invite?.planId;
+  const plan = (await deps.repo.listPlans()).find((p) => p.id === planId);
   const user = await deps.repo.userById(account.id);
-  if (!hash || !invite || !plan || !user) return { ok: false, error: "not-found" };
-  const state = stateFor(invite, user.id);
-  if (state === "used") return { ok: false, error: "used" };
-  if (state === "yours" && user.planId === plan.id) return { ok: true, account: toAccount(user) };
+  if (!plan || !user || (!code && (!hash || !invite))) return { ok: false, error: "not-found" };
+  const now = deps.now();
+  if (code) {
+    // a code is once per account: joining again while on its plan changes nothing, after it ended it's refused
+    if (await codeInviteOf(deps, code, user.id)) {
+      return user.planId === plan.id && !planEnded(user, now) ? { ok: true, account: toAccount(user, paymentsOn, now) } : { ok: false, error: "ended" };
+    }
+  } else {
+    const state = stateFor(invite, user.id);
+    if (state === "used") return { ok: false, error: "used" };
+    if (state === "yours" && user.planId === plan.id) return { ok: true, account: toAccount(user, paymentsOn, now) };
+  }
   if (user.planId === TAUGHT_PLAN_ID) return { ok: false, error: "taught" };
   const setup = user.planId === null;
   const name = cleanName(input.name);
   if (setup && !name) return { ok: false, error: "name" };
   if (setup && input.acceptTerms !== true) return { ok: false, error: "terms" };
 
-  const now = deps.now();
-  if (!(await deps.repo.claimInvite(hash, user.id, now))) return { ok: false, error: "used" };
+  if (code) {
+    // the person's own invite on the code's plan, made only now that they join, then claimed like any other
+    const own = deps.token();
+    hash = hashToken(own);
+    await deps.repo.createInvite({ token: own, tokenHash: hash, planId: plan.id, note: code }, now);
+  }
+  if (!hash || !(await deps.repo.claimInvite(hash, user.id, now))) return { ok: false, error: "used" };
   if (setup) {
     await deps.repo.updateUserName(user.id, name, now);
     await deps.repo.acceptTerms(user.id, termsVersion(paymentsOn), now);
     if (typeof input.emailUpdates === "boolean") await deps.repo.setEmailUpdates(user.id, input.emailUpdates, now);
   }
-  const moved = await deps.repo.setUserPlan(user.id, plan.id, user.billing, roleOnPlan(user.role, plan), now);
-  return moved ? { ok: true, account: toAccount(moved) } : { ok: false, error: "not-found" };
+  const endsAt = code ? new Date(now.getTime() + JOIN_CODES[code].days * DAY) : null;
+  const moved = await deps.repo.setUserPlan(user.id, plan.id, user.billing, roleOnPlan(user.role, plan), now, endsAt);
+  return moved ? { ok: true, account: toAccount(moved, paymentsOn, now) } : { ok: false, error: "not-found" };
 }

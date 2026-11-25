@@ -4,7 +4,7 @@ import { authTokens, identities, payments, planRequests, plans, sessions, teache
 import type { Plan } from "../plans";
 import type { AuthRepo, InviteRow, TokenRow } from "./repo";
 
-const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, permissions: users.permissions, planId: users.planId, billing: users.billing, paymentExempt: users.paymentExempt, stripeCustomerId: users.stripeCustomerId, stripeSubscriptionId: users.stripeSubscriptionId, subscriptionStatus: users.subscriptionStatus, emailUpdatesAt: users.emailUpdatesAt, termsAcceptedAt: users.termsAcceptedAt, termsVersion: users.termsVersion, createdAt: users.createdAt };
+const userCols = { id: users.id, email: users.email, name: users.name, role: users.role, permissions: users.permissions, planId: users.planId, billing: users.billing, paymentExempt: users.paymentExempt, planEndsAt: users.planEndsAt, stripeCustomerId: users.stripeCustomerId, stripeSubscriptionId: users.stripeSubscriptionId, subscriptionStatus: users.subscriptionStatus, emailUpdatesAt: users.emailUpdatesAt, termsAcceptedAt: users.termsAcceptedAt, termsVersion: users.termsVersion, createdAt: users.createdAt };
 
 const tokenCols = {
   kind: authTokens.kind,
@@ -89,8 +89,8 @@ export function drizzleRepo(db: Db): AuthRepo {
     async listUsers() {
       return db.select(userCols).from(users).orderBy(desc(users.createdAt));
     },
-    async setUserPlan(id, planId, billing, role, now) {
-      const [row] = await db.update(users).set({ planId, billing, role, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
+    async setUserPlan(id, planId, billing, role, now, endsAt = null) {
+      const [row] = await db.update(users).set({ planId, billing, role, planEndsAt: endsAt, updatedAt: now }).where(eq(users.id, id)).returning(userCols);
       return row ?? null;
     },
     async setPermissions(id, permissions, now) {

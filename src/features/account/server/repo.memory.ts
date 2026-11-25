@@ -27,7 +27,7 @@ export function memoryRepo(plans: Plan[] = []) {
     },
     async createUser(input, now) {
       if (users.some((u) => u.email === input.email)) return null;
-      const user: UserRow = { id: `user-${++n}`, ...input, permissions: [], planId: null, billing: "year", paymentExempt: false, stripeCustomerId: null, stripeSubscriptionId: null, subscriptionStatus: null, emailUpdatesAt: null, termsAcceptedAt: null, termsVersion: null, createdAt: now };
+      const user: UserRow = { id: `user-${++n}`, ...input, permissions: [], planId: null, billing: "year", paymentExempt: false, planEndsAt: null, stripeCustomerId: null, stripeSubscriptionId: null, subscriptionStatus: null, emailUpdatesAt: null, termsAcceptedAt: null, termsVersion: null, createdAt: now };
       users.push(user);
       return user;
     },
@@ -59,10 +59,11 @@ export function memoryRepo(plans: Plan[] = []) {
     async listUsers() {
       return [...users].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     },
-    async setUserPlan(id, planId, billing, role) {
+    async setUserPlan(id, planId, billing, role, _now, endsAt = null) {
       const user = users.find((u) => u.id === id);
       if (!user) return null;
       user.planId = planId;
+      user.planEndsAt = endsAt;
       user.billing = billing;
       user.role = role;
       return user;

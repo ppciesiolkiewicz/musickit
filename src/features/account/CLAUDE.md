@@ -30,6 +30,8 @@
   step (name from the invite's note, terms agreed), so `pathAfterSignIn` doesn't send it to `/account/setup`. A personal
   invite sets a new account up on the page instead (`JoinSetup`), never on `/account/setup`, which would make it pick a plan.
   Its GET shows the invite's note (who it is for) to anyone with the link, except once someone else has used it.
+- **A join code (`JOIN_CODES`) is the one way onto the IndieAppCircle plan**, once per account, for its days. Every check of an
+  account's plan goes through `onPlanNow` (or `toAccount`, with the rule's `deps.now()`), so an ended plan is no plan.
 - **A token is stored as its hash, used once, and never logged** (exceptions: the development log-in link is logged;
   a teacher invite also keeps its token, so /admin/admin/invites can copy the link again: it only puts someone on the free
   Teacher Demo plan, once, and only admins can read it).

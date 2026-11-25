@@ -1,4 +1,4 @@
-import { PERSONAL_DEMO_PLAN_ID, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, pricedWithYou, priceCents, type Billing, type Plan } from "./plans";
+import { INDIEAPPCIRCLE_PLAN_ID, PERSONAL_DEMO_PLAN_ID, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, pricedWithYou, priceCents, type Billing, type Plan } from "./plans";
 
 /**
  * Who pays, as rules with no Stripe in them (`server/stripe.ts` talks to Stripe). Payments are on only when the
@@ -9,8 +9,14 @@ import { PERSONAL_DEMO_PLAN_ID, TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, pricedWith
  * another, from /account.
  */
 
-/** Plans that never take a payment: a teacher's student, the two demos. A plan priced with the person is paid by arrangement, not Checkout. */
-const FREE_PLAN_IDS = new Set([TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, PERSONAL_DEMO_PLAN_ID]);
+/** Plans that never take a payment: a teacher's student, the two demos, a join code's. A plan priced with the person is paid by arrangement, not Checkout. */
+const FREE_PLAN_IDS = new Set([TAUGHT_PLAN_ID, TEACHER_DEMO_PLAN_ID, PERSONAL_DEMO_PLAN_ID, INDIEAPPCIRCLE_PLAN_ID]);
+
+/** The plan has stopped (`plan_ends_at`, set by a join code): the account chooses again, as if it had no plan. */
+export const planEnded = (u: { planEndsAt: Date | null }, now: Date): boolean => u.planEndsAt !== null && u.planEndsAt.getTime() <= now.getTime();
+
+/** The user as the plan rules see them now: with no plan once theirs has ended. */
+export const onPlanNow = <U extends { planId: string | null; planEndsAt: Date | null }>(u: U, now: Date): U => (planEnded(u, now) ? { ...u, planId: null } : u);
 
 /** The plan ids that never go through Checkout, for code that has only the id (the account's `toAccount`). */
 export const isFreePlanId = (planId: string): boolean => FREE_PLAN_IDS.has(planId) || planId === "teacher-unlimited";

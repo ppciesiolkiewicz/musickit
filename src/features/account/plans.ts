@@ -58,6 +58,12 @@ export const TEACHER_DEMO_PLAN_ID = "teacher-demo";
  */
 export const PERSONAL_DEMO_PLAN_ID = "personal-demo";
 
+/**
+ * IndieAppCircle: a teacher plan like Solo, free and never offered (`enabled` false). A teacher gets it only from the
+ * INDIEAPPCIRCLE join code (`/join/INDIEAPPCIRCLE`, `JOIN_CODES` in server/invites.ts), for 60 days. Migration 0049.
+ */
+export const INDIEAPPCIRCLE_PLAN_ID = "indieappcircle";
+
 /** How a person pays for their plan: every month, or once a year. */
 export type Billing = "month" | "year";
 export const isBilling = (x: unknown): x is Billing => x === "month" || x === "year";

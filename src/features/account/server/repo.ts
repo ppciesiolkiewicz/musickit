@@ -15,6 +15,8 @@ export interface UserRow {
   billing: Billing;
   /** Keeps a paid plan with no payment (`billing.ts`): had a plan before payments came. */
   paymentExempt: boolean;
+  /** When the plan stops (a join code's); null for a plan that doesn't. */
+  planEndsAt: Date | null;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   /** The Stripe subscription's status; null before they first paid. */
@@ -110,8 +112,8 @@ export interface AuthRepo {
   acceptTerms(id: string, version: number, now: Date): Promise<UserRow | null>;
   /** Every plan, turned off or not. */
   listPlans(): Promise<Plan[]>;
-  /** Moves the user to the plan, paid by `billing`, with the role it gives, in one step. */
-  setUserPlan(userId: string, planId: string, billing: Billing, role: Role, now: Date): Promise<UserRow | null>;
+  /** Moves the user to the plan, paid by `billing`, with the role it gives, in one step. The plan stops at `endsAt` (null, the default: never). */
+  setUserPlan(userId: string, planId: string, billing: Billing, role: Role, now: Date, endsAt?: Date | null): Promise<UserRow | null>;
   /** Sets what of /admin the user may open; null when there is no such user. */
   setPermissions(userId: string, permissions: Permission[], now: Date): Promise<UserRow | null>;
   /** Keeps the user's Stripe customer, made at their first Checkout. */

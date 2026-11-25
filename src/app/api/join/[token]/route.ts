@@ -22,6 +22,7 @@ export async function GET(req: Request, { params }: Ctx) {
 const ERRORS: Record<JoinError, { status: number; error: string; field?: string }> = {
   "not-found": { status: 404, error: "This invite link doesn't work. Check the link, or ask us for a new one." },
   used: { status: 410, error: "This invite was already used by another account. Ask us for a new one." },
+  ended: { status: 410, error: "This account already joined with this code, and its free days are over. Choose a plan on your account page." },
   taught: { status: 409, error: "This account belongs to a teacher's class, so it can't join with this invite. Log in with another email." },
   name: { status: 400, error: "Please type your name.", field: "name" },
   terms: { status: 400, error: "Please agree to the terms of use.", field: "terms" },
