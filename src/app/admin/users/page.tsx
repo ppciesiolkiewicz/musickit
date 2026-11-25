@@ -1,20 +1,25 @@
 import AdminShell from "@/features/admin/AdminShell";
-import { ROLE_LABEL } from "@/features/account/model";
-import type { UserRow } from "@/features/account/server/repo";
+import UsersTable, { type UserListRow } from "@/features/admin/users/UsersTable";
 import { auth } from "@/features/account/server/http";
+import { userData } from "@/features/userData/server/http";
 
 export const dynamic = "force-dynamic";
 
-const joined = (d: Date) => d.toISOString().slice(0, 10);
-
-/** Every account, newest first, with its role. Read straight from the database; the layout lets only dev or an admin in. */
+/**
+ * Every account, newest first, with its role, last log-in, plans and questionnaire answers. Read straight from the
+ * database; the layout lets only dev or an admin in.
+ */
 export default async function UsersPage() {
   const deps = auth();
-  let users: UserRow[] | null = null;
-  let error: string | null = deps ? null : "No database: set DATABASE_URL.";
-  if (deps) {
+  const data = userData();
+  let users: UserListRow[] | null = null;
+  let error: string | null = deps && data ? null : "No database: set DATABASE_URL.";
+  if (deps && data) {
     try {
-      users = await deps.repo.listUsers();
+      const [list, sessionTimes, plans] = await Promise.all([deps.repo.listUsers(), deps.repo.listSessionTimes(), data.repo.listPlanSummaries()]);
+      const timesBy = new Map(sessionTimes.map((t) => [t.userId, t]));
+      const planBy = new Map(plans.map((p) => [p.userId, p]));
+      users = list.map((user) => ({ user, times: timesBy.get(user.id) ?? null, plan: planBy.get(user.id) ?? null }));
     } catch (e) {
       console.error("[admin/users] could not list users", e);
       error = "Couldn't load the users. Reload the page to try again.";
@@ -26,28 +31,7 @@ export default async function UsersPage() {
       {users && (
         <>
           <p className="mb-3 text-sm text-slate-400">{users.length === 1 ? "1 account" : `${users.length} accounts`}</p>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs text-slate-400">
-                <tr className="border-b border-slate-700">
-                  <th className="py-2 pr-4 font-medium">Name</th>
-                  <th className="py-2 pr-4 font-medium">Email</th>
-                  <th className="py-2 pr-4 font-medium">Role</th>
-                  <th className="py-2 font-medium">Joined</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id} className="border-b border-slate-800">
-                    <td className="py-2 pr-4 text-slate-100">{u.name}</td>
-                    <td className="py-2 pr-4 text-slate-300">{u.email}</td>
-                    <td className="py-2 pr-4 text-slate-300">{ROLE_LABEL[u.role]}</td>
-                    <td className="py-2 tabular-nums text-slate-400">{joined(u.createdAt)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <UsersTable rows={users} />
         </>
       )}
     </AdminShell>

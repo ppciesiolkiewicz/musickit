@@ -13,6 +13,16 @@ import type { Block, Level } from "./types";
 /** A rung of a key ladder, 0 (one key) to 4 (any key). The same five rungs in every area. */
 export type KeyRung = 0 | 1 | 2 | 3 | 4;
 export const KEY_RUNGS: KeyRung[] = [0, 1, 2, 3, 4];
+
+/** The lines of the keys question, one per rung of the key ladders (`KEY_LADDERS`), in the player's own words. */
+export const KEY_LINES: Record<KeyRung, { name: string; line: string }> = {
+  0: { name: "One key", line: "I play or sing everything in one key." },
+  1: { name: "Two or three keys", line: "I know a couple of easy keys." },
+  2: { name: "The common keys", line: "Most songs I meet are in a key I know." },
+  3: { name: "Most keys", line: "Only keys with many sharps or flats slow me down." },
+  4: { name: "Any key", line: "Every key feels the same." },
+};
+
 export const isKeyRung = (v: unknown): v is KeyRung => v === 0 || v === 1 || v === 2 || v === 3 || v === 4;
 
 /**

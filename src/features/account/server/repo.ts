@@ -25,6 +25,13 @@ export interface UserRow {
   createdAt: Date;
 }
 
+/** When a user last logged in (a session made) and was last seen (a session renewed, at most once a day). */
+export interface SessionTimes {
+  userId: string;
+  lastLogin: Date;
+  lastSeen: Date;
+}
+
 /** A paid Stripe invoice: a completed order (`payments`). */
 export interface PaymentRow {
   id: string;
@@ -171,6 +178,8 @@ export interface AuthRepo {
   /** Moves the expiry on and records the visit. */
   touchSession(tokenHash: string, expiresAt: Date, now: Date): Promise<void>;
   deleteSession(tokenHash: string): Promise<void>;
+  /** For the admin users list: per user with a live session, the newest log-in and the newest visit over all their browsers. */
+  listSessionTimes(): Promise<SessionTimes[]>;
 
   /** Housekeeping: drops expired sessions and tokens. */
   deleteExpired(now: Date): Promise<void>;

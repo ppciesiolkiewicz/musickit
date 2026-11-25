@@ -107,6 +107,17 @@ test("listUsers gives every user, newest first, with their role", async () => {
   assert.deepEqual(new Set(listed.map((u) => `${u.email}:${u.role}`)), new Set([`${a.email}:student`, `${b.email}:owner`]));
 });
 
+test("listSessionTimes: per user, the newest log-in and the newest visit over all their browsers", async () => {
+  const { deps, person } = setup();
+  const a = await person("a@x.test");
+  const at = (d: number) => new Date(Date.UTC(2026, 10, d));
+  await deps.repo.createSession({ tokenHash: "h1", userId: a.id, userAgent: null, expiresAt: at(30) }, at(1));
+  await deps.repo.createSession({ tokenHash: "h2", userId: a.id, userAgent: null, expiresAt: at(30) }, at(5));
+  await deps.repo.touchSession("h1", at(30), at(9));
+  const mine = (await deps.repo.listSessionTimes()).find((t) => t.userId === a.id);
+  assert.deepEqual(mine, { userId: a.id, lastLogin: at(5), lastSeen: at(9) });
+});
+
 test("a personal invite: a new account gives its name and agrees to the terms, then is a student on Personal Demo", async () => {
   const { deps, person } = setup();
   const { token, invite } = await makeInvite(deps, "Cat", "personal");

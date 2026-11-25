@@ -17,6 +17,20 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
       const [row] = await db.select({ data: userDocuments.data }).from(userDocuments).where(and(eq(userDocuments.userId, userId), eq(userDocuments.kind, kind))).limit(1);
       return row?.data ?? null;
     },
+    async listPlanSummaries() {
+      const d = userDocuments.data;
+      const len = (key: string) => sql<number>`case when jsonb_typeof(${d}->${key}) = 'array' then jsonb_array_length(${d}->${key}) else 0 end`.mapWith(Number);
+      return db
+        .select({
+          userId: userDocuments.userId,
+          own: sql<number>`(case when jsonb_typeof(${d}->'current') = 'object' then 1 else 0 end) + ${len("history")}`.mapWith(Number),
+          given: len("given"),
+          answered: len("answersHistory"),
+          answers: sql<unknown>`${d}->'answers'`,
+        })
+        .from(userDocuments)
+        .where(eq(userDocuments.kind, "plan"));
+    },
     async getDocVersioned(userId, kind) {
       const [row] = await db.select({ data: userDocuments.data, version: userDocuments.version }).from(userDocuments).where(and(eq(userDocuments.userId, userId), eq(userDocuments.kind, kind))).limit(1);
       return row ?? null;

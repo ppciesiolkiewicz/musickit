@@ -6,7 +6,7 @@ export function memoryRepo(plans: Plan[] = []) {
   const users: UserRow[] = [];
   const identities: { userId: string; provider: string; providerAccountId: string }[] = [];
   const tokens: (TokenRow & { createdAt: Date; usedAt: Date | null; tries: number })[] = [];
-  const sessions: { tokenHash: string; userId: string; expiresAt: Date; lastSeenAt: Date }[] = [];
+  const sessions: { tokenHash: string; userId: string; expiresAt: Date; createdAt: Date; lastSeenAt: Date }[] = [];
   const links: { teacherId: string; studentId: string; createdAt: Date; claimedAt: Date | null; plannedOn: string | null }[] = [];
   const planRequests: (PlanRequest & { userId: string })[] = [];
   const payments: PaymentRow[] = [];
@@ -188,7 +188,7 @@ export function memoryRepo(plans: Plan[] = []) {
       return open;
     },
     async createSession(session, now) {
-      sessions.push({ tokenHash: session.tokenHash, userId: session.userId, expiresAt: session.expiresAt, lastSeenAt: now });
+      sessions.push({ tokenHash: session.tokenHash, userId: session.userId, expiresAt: session.expiresAt, createdAt: now, lastSeenAt: now });
     },
     async sessionUser(hash, now) {
       const s = sessions.find((x) => x.tokenHash === hash && x.expiresAt > now);
@@ -198,6 +198,18 @@ export function memoryRepo(plans: Plan[] = []) {
     async touchSession(hash, expiresAt, now) {
       const s = sessions.find((x) => x.tokenHash === hash);
       if (s) Object.assign(s, { expiresAt, lastSeenAt: now });
+    },
+    async listSessionTimes() {
+      const by = new Map<string, { userId: string; lastLogin: Date; lastSeen: Date }>();
+      for (const s of sessions) {
+        const t = by.get(s.userId);
+        if (!t) by.set(s.userId, { userId: s.userId, lastLogin: s.createdAt, lastSeen: s.lastSeenAt });
+        else {
+          if (s.createdAt > t.lastLogin) t.lastLogin = s.createdAt;
+          if (s.lastSeenAt > t.lastSeen) t.lastSeen = s.lastSeenAt;
+        }
+      }
+      return [...by.values()];
     },
     async deleteSession(hash) {
       const i = sessions.findIndex((x) => x.tokenHash === hash);

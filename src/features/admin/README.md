@@ -9,12 +9,21 @@ Open in development, and in production to a signed-in admin (role `admin`). Rule
 - `AdminShell.tsx`, `AdminNav.tsx`: the page frame and its tabs, with a link over to `/dev`.
 - `messages/MessagesInbox.tsx`: the inbox.
 - `invites/InvitesAdmin.tsx`: teacher invites.
-- `src/app/admin/users/page.tsx`: the users list, a server page over `listUsers` on `AuthRepo`.
+- `src/app/admin/users/page.tsx`: the users list, a server page over `listUsers` and `listSessionTimes` on `AuthRepo`
+  and `listPlanSummaries` on `UserDataRepo`, drawn by `users/UsersTable.tsx`.
 - Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`.
 
 ## Users (`/admin/users`)
 
-Every account, newest first: name, email, role and the day it was made, read straight from the database by the page.
+Every account, newest first: name, email, role, the day it was made, its last log-in and when it was last seen, and
+how many plans it holds (its own, the running one and earlier ones, plus any a teacher gave). Under each row, its latest
+questionnaire answers fold open: areas, minutes a day and how many times it answered, then each topic's picked line,
+voice, keys, styles and notes, in the questionnaire's own words.
+
+Log-in times come from `sessions`: the newest `created_at` and `last_seen_at` over all the account's browsers.
+`last_seen_at` moves at most once a day, and logging out deletes the session, so an account logged out everywhere
+shows a dash. Plan counts and answers are summed up in the database from the `plan` document, which is never loaded
+whole.
 
 ## Messages (`/admin/messages`)
 

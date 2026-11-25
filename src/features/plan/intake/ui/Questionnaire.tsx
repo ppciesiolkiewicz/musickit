@@ -4,7 +4,7 @@ import Icon from "@/components/Icon";
 import { Tile, hueAt, hueClass, type Hue, type ModalStep } from "@/components/ui";
 import { AREAS, type Area } from "../../model/concepts";
 import { keyName } from "@/features/theory/keySlug";
-import { KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
+import { KEY_LINES, KEY_RUNGS, keyRung, keysAt, type KeyRung } from "../../model/keys";
 import { MINUTES, levelOf, type PlanAnswers } from "../answers";
 import { topicsFor } from "../topics";
 import YourVoice, { VoiceField } from "./YourVoice";
@@ -86,15 +86,6 @@ function voiceStep(a: PlanAnswers, set: SetAnswer, { forStudent = false }: Quest
       : <YourVoice onPicked={(v) => set("voice", v ?? undefined)} />,
   };
 }
-
-/** The lines of the keys question, one per rung of the key ladders (`KEY_LADDERS`), in the player's own words. */
-const KEY_LINES: Record<KeyRung, { name: string; line: string }> = {
-  0: { name: "One key", line: "I play or sing everything in one key." },
-  1: { name: "Two or three keys", line: "I know a couple of easy keys." },
-  2: { name: "The common keys", line: "Most songs I meet are in a key I know." },
-  3: { name: "Most keys", line: "Only keys with many sharps or flats slow me down." },
-  4: { name: "Any key", line: "Every key feels the same." },
-};
 
 /** The keys shown under each answer: the same short list for every area. The first two answers name the easy keys. */
 const EASY_KEYS = [0, 7, 2, 4, 9, 5].map((k) => keyName(k));

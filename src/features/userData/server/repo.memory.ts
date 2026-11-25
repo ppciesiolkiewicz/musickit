@@ -86,6 +86,18 @@ export function memoryUserDataRepo(): UserDataRepo & {
       const v = docs.get(`${userId}/${kind}`);
       return v === undefined ? null : structuredClone(v);
     },
+    async listPlanSummaries() {
+      const len = (v: unknown) => (Array.isArray(v) ? v.length : 0);
+      const out = [];
+      for (const [key, v] of docs) {
+        const [userId, kind] = key.split("/");
+        if (kind !== "plan" || typeof v !== "object" || v === null) continue;
+        const r = v as Record<string, unknown>;
+        const current = typeof r.current === "object" && r.current !== null ? 1 : 0;
+        out.push({ userId, own: current + len(r.history), given: len(r.given), answered: len(r.answersHistory), answers: structuredClone(r.answers ?? null) });
+      }
+      return out;
+    },
     async getDocVersioned(userId, kind) {
       const v = docs.get(`${userId}/${kind}`);
       return v === undefined ? null : { data: structuredClone(v), version: docVersions.get(`${userId}/${kind}`) ?? 0 };

@@ -242,6 +242,14 @@ export function drizzleRepo(db: Db): AuthRepo {
     async touchSession(hash, expiresAt, now) {
       await db.update(sessions).set({ expiresAt, lastSeenAt: now }).where(eq(sessions.tokenHash, hash));
     },
+    async listSessionTimes() {
+      const rows = await db
+        .select({ userId: sessions.userId, lastLogin: max(sessions.createdAt), lastSeen: max(sessions.lastSeenAt) })
+        .from(sessions)
+        .groupBy(sessions.userId);
+      // max() over a group is never null here: every row has both columns.
+      return rows.map((r) => ({ userId: r.userId, lastLogin: r.lastLogin!, lastSeen: r.lastSeen! }));
+    },
     async deleteSession(hash) {
       await db.delete(sessions).where(eq(sessions.tokenHash, hash));
     },

@@ -101,12 +101,27 @@ export interface CuratedBlock {
   choices: CuratedChoice[];
 }
 
+/**
+ * For the admin users list: per user with a plan document, how many plans it holds (the running one and the earlier
+ * ones; and apart, the plans a teacher gave), how many times they finished the questionnaire, and their latest answers
+ * as stored (parse with `migrateAnswers`). Counted in the database, so the documents themselves are never loaded.
+ */
+export interface PlanSummary {
+  userId: string;
+  own: number;
+  given: number;
+  answered: number;
+  answers: unknown;
+}
+
 /** Everything a player's documents, progress and videos need from storage. `drizzleUserDataRepo` is Postgres, `memoryUserDataRepo` is for tests. */
 export interface UserDataRepo {
   /** The stored document, or null when there is none. */
   getDoc(userId: string, kind: DocKind): Promise<unknown | null>;
   /** The stored document with its version (a document no one has written is version 0), or null when there is none. */
   getDocVersioned(userId: string, kind: DocKind): Promise<{ data: unknown; version: number } | null>;
+  /** Every user's plan document, summed up (`PlanSummary`). */
+  listPlanSummaries(): Promise<PlanSummary[]>;
   /**
    * Replaces the player's document of this kind and adds 1 to its version, in one statement. With `expect` it writes only when
    * the stored version is `expect` (no row counts as 0); otherwise it answers `ok: false` with the stored version and writes nothing.

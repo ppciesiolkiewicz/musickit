@@ -448,3 +448,15 @@ test("the server stores choice_id and keeps it when a later write lacks it", asy
   assert.equal(e.choiceId, "guitar-spider-walk/beginner");
   assert.equal(e.stars, 4);
 });
+
+test("listPlanSummaries: own plans, given plans, times answered and the latest answers, per user", async () => {
+  const repo = memoryUserDataRepo();
+  const plan = { id: "p" };
+  await repo.putDoc("u1", "plan", { ...EMPTY_STATE, answers: { areas: ["voice"] }, answersHistory: [{}, {}], current: plan, history: [plan, plan], given: [plan] }, new Date());
+  await repo.putDoc("u2", "plan", EMPTY_STATE, new Date());
+  await repo.putDoc("u1", "note", { title: "n" }, new Date());
+  const by = new Map((await repo.listPlanSummaries()).map((s) => [s.userId, s]));
+  assert.deepEqual(by.get("u1"), { userId: "u1", own: 3, given: 1, answered: 2, answers: { areas: ["voice"] } });
+  assert.deepEqual(by.get("u2"), { userId: "u2", own: 0, given: 0, answered: 0, answers: null });
+  assert.equal(by.size, 2);
+});
