@@ -11,18 +11,24 @@ Open in development, and in production to a signed-in account with the `admin` p
 - `invites/InvitesAdmin.tsx`: teacher invites.
 - `src/app/admin/users/page.tsx`: the users list, a server page over `listUsers` and `listSessionTimes` on `AuthRepo`
   and `listPlanSummaries` on `UserDataRepo`, drawn by `users/UsersTable.tsx`.
-- Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`.
+- `users/PermissionTicks.tsx`: one person's Dev, Content and Admin boxes on the users list.
+- Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`, `src/app/api/admin/users` (PATCH a person's permissions).
 
 ## Users (`/admin/users`)
 
-Every account, newest first: name, email, role, the day it was made, its last log-in and when it was last seen, and
+Every account, newest first: name, email, role, its permissions, the day it was made, its last log-in and when it was last seen, and
 how many plans it holds (its own, the running one and earlier ones, plus any a teacher gave). Under each row, its latest
 questionnaire answers fold open: areas, minutes a day and how many times it answered, then each topic's picked line,
 voice, keys, styles and notes, in the questionnaire's own words.
 
 Log-in times come from `sessions`: the newest `created_at` and `last_seen_at` over all the account's browsers.
 `last_seen_at` moves at most once a day, and logging out deletes the session, so an account logged out everywhere
-shows a dash. Plan counts and answers are summed up in the database from the `plan` document, which is never loaded
+shows a dash.
+
+Permissions (`dev`, `content`, `admin`, see `features/account/model.ts`) are ticked in place and saved at once with
+`PATCH /api/admin/users` (`changePermissions` in `features/account/server/permissions.ts`). A failed save puts the boxes
+back and says so under them. Nobody can untick their own Admin, so the last admin can't lock everyone out; in
+development with no login there is no "own" row. Plan counts and answers are summed up in the database from the `plan` document, which is never loaded
 whole.
 
 ## Messages (`/admin/messages`)

@@ -1406,7 +1406,7 @@ Like - seeing chords within a scale!
 ------ DEFER -----
 TaskSeries ContentVideos: videos of exercises recorded by content people, /admin/content, permissions (user, 2026-11-25)
 Design: docs/superpowers/specs/2026-11-25-content-videos-design.md (approved 2026-11-25). Build in this order; each lands alone.
-ContentVideos1: [NEW 2026-11-25] Permissions: role is student/teacher from the plan; users.permissions {dev, content, admin};
+ContentVideos1: [DONE 2026-11-25] Permissions: role is student/teacher from the plan; users.permissions {dev, content, admin};
 migration moves today's admin accounts; ticks per person on /admin/admin/users.
 ContentVideos2: [NEW 2026-11-25] /admin split: /admin/admin (today's /admin), /admin/content (the Content group of /dev
 without the Sampler); library always lists everything with Seed / Database only / Off tags.

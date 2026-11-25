@@ -1,4 +1,5 @@
 import { ROLE_LABEL } from "@/features/account/model";
+import PermissionTicks from "./PermissionTicks";
 import type { SessionTimes, UserRow } from "@/features/account/server/repo";
 import { migrateAnswers, type PlanAnswers } from "@/features/plan/intake/answers";
 import { topicsFor } from "@/features/plan/intake/topics";
@@ -66,9 +67,10 @@ function Answers({ a }: { a: PlanAnswers }) {
 
 /**
  * Every account with when it last logged in and was last seen (over all its browsers; nothing once it has logged out
- * everywhere), how many plans it holds, and its latest questionnaire answers, folded under each row.
+ * everywhere), how many plans it holds, its permissions (ticked in place) and its latest questionnaire answers, folded
+ * under each row. `viewerId` is the signed-in admin, whose own Admin box stays ticked; null in development without a login.
  */
-export default function UsersTable({ rows }: { rows: UserListRow[] }) {
+export default function UsersTable({ rows, viewerId }: { rows: UserListRow[]; viewerId: string | null }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
@@ -77,6 +79,7 @@ export default function UsersTable({ rows }: { rows: UserListRow[] }) {
             <th className="py-2 pr-4 font-medium">Name</th>
             <th className="py-2 pr-4 font-medium">Email</th>
             <th className="py-2 pr-4 font-medium">Role</th>
+            <th className="py-2 pr-4 font-medium" title="What of /dev and /admin they may open on the live site">Permissions</th>
             <th className="py-2 pr-4 font-medium">Joined</th>
             <th className="py-2 pr-4 font-medium" title="The newest log-in over all their browsers, in UTC">Last log-in</th>
             <th className="py-2 pr-4 font-medium" title="Updated at most once a day">Last seen</th>
@@ -91,6 +94,9 @@ export default function UsersTable({ rows }: { rows: UserListRow[] }) {
                 <td className="pt-2 pr-4 text-slate-100">{u.name}</td>
                 <td className="pt-2 pr-4 text-slate-300">{u.email}</td>
                 <td className="pt-2 pr-4 text-slate-300">{ROLE_LABEL[u.role]}</td>
+                <td className="pt-2 pr-4">
+                  <PermissionTicks userId={u.id} initial={u.permissions} self={u.id === viewerId} />
+                </td>
                 <td className="pt-2 pr-4 tabular-nums text-slate-400">{day(u.createdAt)}</td>
                 <td className="pt-2 pr-4 tabular-nums text-slate-400" title={t ? undefined : "No session: logged out everywhere, or never logged in"}>{t ? dayTime(t.lastLogin) : "–"}</td>
                 <td className="pt-2 pr-4 tabular-nums text-slate-400">{t ? day(t.lastSeen) : "–"}</td>
@@ -100,7 +106,7 @@ export default function UsersTable({ rows }: { rows: UserListRow[] }) {
                 </td>
               </tr>
               <tr>
-                <td colSpan={7} className="pb-2 pt-1">
+                <td colSpan={8} className="pb-2 pt-1">
                   {answers ? (
                     <details>
                       <summary className="cursor-pointer text-xs text-slate-400">{summary(answers, Math.max(1, plan?.answered ?? 0))}</summary>

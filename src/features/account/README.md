@@ -49,6 +49,8 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   plan to 1 (nearly all reuse, the lowest the check allows): the AI then costs a few cents to about $5 a player a year,
   and the payment fee is most of the cost (`0018_higher_prices_half_off_yearly` raises the prices and leaves reuse at 1). All of this is history: plans are now put together from the library by our own code, the app doesn't call an AI from the server, and /terms says so.
 - Payments (`billing.ts`, `server/stripe.ts`, `server/paymentsEnabled.ts`), off unless `STRIPE_ENABLED=true` (2026-11-24).
+- `server/permissions.ts`: `changePermissions`, behind `PATCH /api/admin/users` (the boxes on /admin/users): a list of
+  known permissions or nothing is written, and a person can't take away their own admin permission.
   On: an account on a paid plan (`paidThroughCheckout`: not taught, a demo, or priced with you) must have a live
   Stripe subscription (trialing, active, past_due), else `Account.needsPayment` and `needsSetup` hold it on
   `/account/setup`, whose Continue (Continue to payment) saves and opens Checkout (`POST /api/account/checkout`):
