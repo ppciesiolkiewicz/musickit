@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { allowedParams, canNamePlayer, devArgs, libraryHref, minutes, orDash, readParams } from "./params";
+import { allowedParams, canNamePlayer, devArgs, itemRedirect, libraryHref, minutes, orDash, readParams, tabOfItem } from "./params";
 
 test("readParams takes the first value and ignores empty ones", () => {
   assert.deepEqual(readParams({ topic: ["a", "b"], player: "" }), { topic: "a", player: undefined, item: undefined });
@@ -9,7 +9,7 @@ test("readParams takes the first value and ignores empty ones", () => {
 
 test("include_not_enabled is no longer read or written", () => {
   assert.deepEqual(readParams({ include_not_enabled: "1" }), { topic: undefined, player: undefined, item: undefined });
-  assert.equal(libraryHref({ topic: "t" }, { includeNotEnabled: true } as never), "/admin/content/library?topic=t");
+  assert.equal(libraryHref("blocks", { topic: "t" }, { includeNotEnabled: true } as never), "/admin/content/library/blocks?topic=t");
 });
 
 test("readParams reads the item to draw", () => {
@@ -24,9 +24,23 @@ test("devArgs always reads everything, with the player when set", () => {
 
 test("libraryHref keeps the other parameters", () => {
   const p = { topic: "t", player: "p" };
-  assert.equal(libraryHref(p, { topic: "x y" }), "/admin/content/library?topic=x+y&player=p");
-  assert.equal(libraryHref({}), "/admin/content/library");
-  assert.equal(libraryHref({ ...p, item: "a" }, { topic: undefined, item: "b" }), "/admin/content/library?player=p&item=b");
+  assert.equal(libraryHref("blocks", p, { topic: "x y" }), "/admin/content/library/blocks?topic=x+y&player=p");
+  assert.equal(libraryHref("overview", {}), "/admin/content/library");
+  assert.equal(libraryHref("blocks", { ...p, item: "a" }, { topic: undefined, item: "b" }), "/admin/content/library/blocks?player=p&item=b");
+});
+
+test("the overview takes no topic or item, the plans page no topic", () => {
+  const p = { topic: "t", player: "p", item: "i" };
+  assert.equal(libraryHref("overview", p), "/admin/content/library?player=p");
+  assert.equal(libraryHref("plans", p), "/admin/content/library/plans?player=p&item=i");
+});
+
+test("an older ?item= link goes to its item's subpage with the whole query", () => {
+  assert.equal(tabOfItem("guitar-beginner"), "plans");
+  assert.equal(tabOfItem("guitar-beginner-down-up-picking/beginner"), "blocks");
+  assert.equal(itemRedirect({ item: "guitar-beginner", note: "n1" }), "/admin/content/library/plans?item=guitar-beginner&note=n1");
+  assert.equal(itemRedirect({ item: "abc", player: "p" }), "/admin/content/library/blocks?item=abc&player=p");
+  assert.equal(itemRedirect({ topic: "t" }), null);
 });
 
 test("minutes rounds to one decimal, orDash shows null as a dash", () => {
