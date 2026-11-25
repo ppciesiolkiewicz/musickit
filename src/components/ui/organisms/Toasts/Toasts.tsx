@@ -1,9 +1,12 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import Icon from "../Icon";
+import Icon from "@/components/Icon";
 
-/** Short notices at the bottom of the screen (e.g. "Loop added in Looping"). Call `toast(text)` from anywhere; render `<Toasts />` once. */
+/**
+ * Short notices at the bottom of the screen that a change went through ("Reminder on: …"). Call `toast(text)` from
+ * anywhere; `<Toasts />` is rendered once, in the root layout.
+ */
 interface Toast {
   id: number;
   text: string;

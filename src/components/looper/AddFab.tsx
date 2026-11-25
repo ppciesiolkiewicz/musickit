@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Icon from "../Icon";
 import { INPUTS_KEY, hasWidget, outKey, switchKey, toggleWidget, useWidgetRefs } from "./widgets";
 import { busPath, patchName } from "./PatchNode";
-import { toast } from "./toast";
+import { toast } from "@/components/ui";
 import { MAX_CHANNELS, MAX_INPUTS, type LooperEngine, type LooperSnapshot } from "@/lib/looper/engine";
 
 const item = "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-slate-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40";

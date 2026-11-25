@@ -14,7 +14,7 @@ import LoginGuard from "@/features/account/ui/LoginGuard";
 import UserDataProvider from "@/features/userData/client/UserDataProvider";
 import SaveNotice from "@/features/userData/client/SaveNotice";
 import { THEME_BOOT } from "@/components/ThemeSwitcher";
-import { SETTINGS_BOOT } from "@/components/ui";
+import { SETTINGS_BOOT, Toasts } from "@/components/ui";
 import { SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
@@ -163,6 +163,7 @@ export default function RootLayout({
         </UserDataProvider>
         {/* once for every page, PageShell or not (the video studio has none) */}
         <SaveNotice />
+        <Toasts />
         <LoginGuard />
         {devUi() && <CopyNotes />}
         {/* counting is held to the visitor's answer (lib/analyticsChoice.ts); in the EU they are asked first */}

@@ -4,7 +4,7 @@
  *
  *   atoms      one element with one job: Button, Checkbox, Chip, Badge, DiscountBadge, Tag, Tile, Select, Slider, NumberField, InfoButton, EscKey, KeyCap, InfoBox, Notice, Popover, AttentionRing (and Hue, the colour coding)
  *   molecules  a few atoms working together: ChipRow, Dropdown, Field, Hint, Info, InfoTip, PlaybackTip, SettingsRow, StarRating, Stepper
- *   organisms  self-contained blocks: Section, SettingsPanel, Modal, StepModal, Tour
+ *   organisms  self-contained blocks: Section, SettingsPanel, Modal, StepModal, Toasts, Tour
  */
 export * from "./atoms/AttentionRing";
 export * from "./atoms/Badge";
@@ -38,4 +38,5 @@ export * from "./organisms/Modal";
 export * from "./organisms/Section";
 export * from "./organisms/SettingsPanel";
 export * from "./organisms/StepModal";
+export * from "./organisms/Toasts";
 export * from "./organisms/Tour";

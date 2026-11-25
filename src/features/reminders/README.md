@@ -4,7 +4,8 @@ A player's daily practice reminder, by email, sent with no attunr tab open.
 
 - **Settings**: on /plan, **Email me at** and a quarter-hour time (`ui/ReminderControl.tsx`), saved through
   `GET`/`PATCH /api/me/reminder` into the `reminders` table (`enabled`, `time`, `zone`, `sent_on`). The browser's time
-  zone is saved with it and again when the page opens in another zone. No row: no reminder.
+  zone is saved with it and again when the page opens in another zone. No row: no reminder. A saved change shows a
+  toast saying what the player now gets (on, off, moved); the quiet zone re-save shows none.
 - **At setup**: /account/setup renders `ui/SetupWithReminder.tsx`, which puts **Remind me to practise at**
   (`ui/ReminderSetupBox.tsx`) first among the setup boxes, on at 18:00, and sends it as `reminder` in the setup body.
   The route saves it with `startReminder` (`server/defaults.ts`): missing or broken, on at 18:00; a reminder the account

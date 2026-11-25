@@ -17,7 +17,6 @@ import { getAudioContext } from "@/features/sound";
 import { makePianoVoice } from "./pianoVoice";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
-import { Toasts } from "./toast";
 import { inputsWidgetDefault, widgetDefaults } from "./widgets";
 import { Modal } from "../Modal";
 import MetronomeBar, { TransportButton } from "./MetronomeBar";
@@ -284,7 +283,6 @@ export default function LooperApp() {
     <div ref={pageRef} className="relative flex flex-col">
       {widgetMode && ready && <ConnectionLayer engine={engine} snap={snap} wrapper={pageRef} />}
       {ready && <AddFab engine={engine} snap={snap} wires={widgetMode} names={Object.fromEntries(EFFECT_KINDS.map((k) => [k, EFFECT_DEFS[k].name]))} onInput={() => setAddingInput(true)} />}
-      <Toasts />
       {addingInput && <AddInputModal engine={engine} snap={snap} onClose={() => setAddingInput(false)} />}
       <div className="pointer-events-none sticky top-0 z-[1100] flex flex-wrap items-start justify-between gap-2 px-1 py-1">
         <div className="pointer-events-auto" data-tour="looper-metronome"><MetronomeBar engine={engine} snap={snap} ready={ready} /></div>

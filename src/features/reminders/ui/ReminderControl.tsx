@@ -2,15 +2,24 @@
 
 import { useEffect, useState } from "react";
 import Icon from "@/components/Icon";
-import { Checkbox, HUE_TONES } from "@/components/ui";
+import { Checkbox, HUE_TONES, toast } from "@/components/ui";
 import { errorOf, send } from "@/features/account/ui/parts";
 import { DEFAULT_TIME, QUARTER_TIMES, type ReminderSettings } from "../model";
 import { zoneHere } from "./ReminderSetupBox";
 
+/** The toast after a saved change: what the player now gets. */
+function savedText(before: ReminderSettings | null, next: ReminderSettings): string {
+  if (!next.enabled) {
+    return before?.enabled ? "Reminder off. No more emails." : `Reminder time set to ${next.time}. Tick Email me at to turn it on.`;
+  }
+  if (before?.enabled) return `Reminder moved to ${next.time}.`;
+  return `Reminder on: one email at ${next.time} on days you haven't finished today's plan.`;
+}
+
 /**
  * /plan's daily reminder email: a switch and a quarter-hour time, saved on the account (`/api/me/reminder`) with this
  * browser's time zone. The zone is saved again when the page opens somewhere else. Hidden until loaded; a failed load or
- * save says so under the switch.
+ * save says so under the switch, a saved change says so in a toast.
  */
 export default function ReminderControl() {
   const [r, setR] = useState<ReminderSettings | null>(null);
@@ -24,7 +33,9 @@ export default function ReminderControl() {
     if (!res.ok) {
       setR(before);
       setError(errorOf(res));
+      return;
     }
+    toast(savedText(before, next));
   };
 
   useEffect(() => {
