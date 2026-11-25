@@ -5,11 +5,10 @@ import { getAudioContext, getOutputBus, wakeAudio } from "@/features/sound";
 import { detectRoot } from "./model/detectRoot";
 import * as P from "./model/project";
 import type { SampleMeta, SampleSource } from "./model/types";
-import { forgetSample } from "./sampleUrls";
 import { getStore } from "./store/idb";
 import type { SamplerStore } from "./store/types";
 
-/** The sample library: one per browser (IndexedDB), shared by every panel on the page. */
+/** The sample library: one per browser (IndexedDB), shared by everything on the page. */
 interface LibraryState { samples: SampleMeta[]; ready: boolean; error: string | null }
 
 const SERVER: LibraryState = { samples: [], ready: false, error: null };
@@ -74,11 +73,10 @@ export function createSampleLibrary(store: () => SamplerStore) {
       }
       return lib.addAudio(file, file.name, "upload");
     },
-    /** Audio first, then the list: instruments that rebuild on the change find the sample gone. */
+    /** Audio first, then the list, so nothing listed points at deleted audio. */
     async remove(id: string) {
       if (failed) return;
       await store().deleteAudio(id);
-      forgetSample(id);
       commit(P.removeSample(project, id));
     },
     rename: (id: string, name: string) => {

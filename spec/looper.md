@@ -1,6 +1,6 @@
 # attunr — Looper
 
-A multi-channel audio looper at `/looper`. The engine lives in `src/lib/looper/` and imports nothing outside it. The app hands it extras through `LooperOptions`: a shared `AudioContext` and `createVoice`, the sound of its instruments (the sampler's generator voice, `makeGeneratorVoice`). The UI is in `src/components/looper/`. The only shared piece is the top navigation (`src/components/SiteNav.tsx`).
+A multi-channel audio looper at `/looper`. The engine lives in `src/lib/looper/` and imports nothing outside it. The app hands it extras through `LooperOptions`: a shared `AudioContext` and `createVoice`, the sound of its instruments (`makePianoVoice`, a sample player of the built-in instruments). The UI is in `src/components/looper/`. The only shared piece is the top navigation (`src/components/SiteNav.tsx`).
 
 ## Vocabulary
 
@@ -102,11 +102,10 @@ Every input, sequencer and bus has a + after its fader marker in the effect stac
 
 ## Instruments
 
-An instrument input is one block made of a **controller** (what you play) and a **sound generator** (what makes the sound). Any controller works with any generator; every instrument strip has a **Sound generator** row in plain view: a picker (Built-in instruments, ElevenLabs sampler), what it plays now ("Cello", "Glass hit", "5 pads", with a warning dot when a sample is missing) and a button that opens its settings in the play window (for the sampler: generate, upload, choose samples). The strip's pencil opens "Play with" (Piano, Scale Piano, Soundboard). The play window is headed "Sound generator · <name>". Every change is an `instrument.set` action, so it can be undone and recorded.
+An instrument input is one block made of a **controller** (what you play) and a **sound generator** (what makes the sound). The generator is the built-in sampled instruments. Every instrument strip has a **Sound generator** row in plain view: what it plays now ("Cello") and a button that opens its settings in the play window (the instrument, and on a Soundboard each pad's note). The strip's pencil opens "Play with" (Piano, Scale Piano, Soundboard). The play window has a "Sound generator" heading. Every change is an `instrument.set` action, so it can be undone and recorded.
 
 - Controllers: **Piano** (the on-screen keyboard with its MIDI button), **Scale Piano** (below) and **Soundboard**: 1 to 32 pads (8 by default), clicked or played from the keys `1–0`, `Q–P`, `A–L`, `Z–M` (key codes); pad i plays note 36 + i; pads light while held; never while typing in a field.
-- Generators: **Piano**, the built-in sampled instruments (on a Soundboard each pad plays a chosen note), and **Sampler**: under a Piano or Scale Piano one sample tuned across the keys from its root note (a root picker and **Detect**, which reads the pitch; "No clear pitch" when it cannot), under a Soundboard one sample per pad, unpitched (a pad without one is silent).
-- Samples come from the browser's sample library (IndexedDB `musickit-sampler`, see `spec/sampler.md`): generated with ElevenLabs from a description, uploaded, or dropped on the sampler settings (they go to the selected pad, or become the instrument's sample) or on a pad. A file that does not decode is refused with a message. The sample picker plays, renames and deletes samples. A deleted sample leaves what used it silent with a warning dot until another is chosen.
+- Generator: the built-in sampled instruments (on a Soundboard each pad plays a chosen note). The looper had a Sampler generator; an instrument saved with it plays the Piano now. The sample library is a dev tool (`spec/sampler.md`).
 - Saved in localStorage `musickit.looper.instruments` (by instrument id). Old projects are moved once on load: the keyboard strip and every Scale Piano strip become instruments with the same strip ids (so buses and connections stay), `musickit.looper.scalePianos` is removed, and a Scale Piano that used an instrument from the old sampler page plays the Piano. Removing an instrument cannot be undone.
 
 ### Scale Piano

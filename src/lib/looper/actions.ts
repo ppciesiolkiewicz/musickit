@@ -571,7 +571,7 @@ const INPUT_KEYS: Record<string, (v: unknown) => boolean> = { name: isStr, volum
 const isCells = (v: unknown) => Array.isArray(v) && v.length > 0 && v.length <= 16 && v.every((r) => Array.isArray(r) && r.length <= 96 && r.every((n) => n === 0 || n === 1 || n === 2));
 const INSTRUMENT_KEYS: Record<string, (v: unknown) => boolean> = {
   controller: isStr, root: isNum, scale: isStr, octave: isNum, pads: isNum,
-  generator: (v) => typeof v === "object" && v !== null && ["piano", "sampler"].includes((v as { kind?: unknown }).kind as string),
+  generator: (v) => typeof v === "object" && v !== null && (v as { kind?: unknown }).kind === "piano",
 };
 const SEQ_KEYS: Record<string, (v: unknown) => boolean> = {
   instrument: isStr, preset: isStr, rows: (v) => Array.isArray(v) && v.length <= 16 && v.every(isStr), clear: isBool, cells: isCells, bars: isNum,

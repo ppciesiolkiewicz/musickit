@@ -14,5 +14,5 @@ export const getProvider = (id: unknown): ProviderInfo | undefined => PROVIDERS.
 
 /** What the server can do, as the page sees it. */
 export interface Capabilities {
-  providers: { id: ProviderInfo["id"]; label: string; /** the site has a key and a site password configured */ server: boolean; minSeconds: number; maxSeconds: number }[];
+  providers: { id: ProviderInfo["id"]; label: string; /** the server has the key */ server: boolean; minSeconds: number; maxSeconds: number }[];
 }

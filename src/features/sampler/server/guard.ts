@@ -20,49 +20,8 @@ export function parseGenerate(body: unknown): GenerateRequest | string {
   return { provider, prompt, seconds: Math.min(provider.maxSeconds, Math.max(provider.minSeconds, seconds)) };
 }
 
-/** The one password that unlocks every provider key the site holds. `SAMPLER_ACCESS_CODE` is the old name and still works. */
-export const sitePassword = (env: Record<string, string | undefined>): string | undefined => (env.SAMPLER_SITE_PASSWORD ?? env.SAMPLER_ACCESS_CODE)?.trim() || undefined;
-
-export type KeyChoice = { ok: true; key: string; own: boolean } | { ok: false; status: number; error: string };
-
-/**
- * Which key pays for a call. A person's own key is used as given. The app's key from the environment is used only when
- * the server also has an access code and the caller sent it: without that, anyone who finds the page could spend the app's credit.
- */
-export function chooseKey(args: { ownKey?: string | null; sitePassword?: string | null; env: Record<string, string | undefined>; keyEnv: string }): KeyChoice {
-  const own = args.ownKey?.trim();
-  if (own) return { ok: true, key: own, own: true };
-  const key = args.env[args.keyEnv]?.trim();
-  const code = sitePassword(args.env);
-  if (!key || !code) return { ok: false, status: 403, error: `This site has no key set up for this provider. Use your own key.` };
-  if (!args.sitePassword || !sameText(args.sitePassword, code)) return { ok: false, status: 401, error: "Wrong site password." };
-  return { ok: true, key, own: false };
-}
-
-/** Compares without stopping at the first difference. */
-export function sameText(a: string, b: string): boolean {
-  let diff = a.length ^ b.length;
-  const n = Math.max(a.length, b.length);
-  for (let i = 0; i < n; i++) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
-  return diff === 0;
-}
-
-/** A sliding-window limiter: `limit` calls per `windowMs` for each caller. */
-export function createLimiter(limit: number, windowMs: number, now: () => number = Date.now) {
-  const hits = new Map<string, number[]>();
-  return {
-    /** true if the call is allowed (and counted) */
-    take(who: string): boolean {
-      const t = now();
-      const recent = (hits.get(who) ?? []).filter((x) => t - x < windowMs);
-      if (recent.length >= limit) {
-        hits.set(who, recent);
-        return false;
-      }
-      recent.push(t);
-      hits.set(who, recent);
-      if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((x) => t - x < windowMs)) hits.delete(k);
-      return true;
-    },
-  };
+/** The app's key for a provider, from the environment, or a message saying it is not set. */
+export function serverKey(env: Record<string, string | undefined>, keyEnv: string): { ok: true; key: string } | { ok: false; error: string } {
+  const key = env[keyEnv]?.trim();
+  return key ? { ok: true, key } : { ok: false, error: `${keyEnv} is not set on this server.` };
 }

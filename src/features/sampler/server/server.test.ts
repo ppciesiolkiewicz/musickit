@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildBody, generateSoundEffect } from "./elevenlabs";
-import { chooseKey, createLimiter, parseGenerate, sameText } from "./guard";
+import { parseGenerate, serverKey } from "./guard";
 
 test("parseGenerate validates and clamps", () => {
   assert.equal(typeof parseGenerate({ provider: "nope", prompt: "x" }), "string");
@@ -15,35 +15,10 @@ test("parseGenerate validates and clamps", () => {
   }
 });
 
-test("the app key needs the site password, a person's own key does not", () => {
-  const keyEnv = "ELEVENLABS_API_KEY";
-  const env = { ELEVENLABS_API_KEY: "secret", SAMPLER_SITE_PASSWORD: "open" };
-  assert.deepEqual(chooseKey({ ownKey: "mine", env: {}, keyEnv }), { ok: true, key: "mine", own: true });
-  assert.deepEqual(chooseKey({ env, keyEnv, sitePassword: "open" }), { ok: true, key: "secret", own: false });
-  const wrong = chooseKey({ env, keyEnv, sitePassword: "nope" });
-  assert.ok(!wrong.ok && wrong.status === 401);
-  const none = chooseKey({ env, keyEnv });
-  assert.ok(!none.ok && none.status === 401);
-  // a key without a code configured is never used
-  const noCode = chooseKey({ env: { ELEVENLABS_API_KEY: "secret" }, keyEnv, sitePassword: "" });
-  assert.ok(!noCode.ok && noCode.status === 403);
-  assert.ok(!chooseKey({ env: {}, keyEnv }).ok);
-});
-
-test("sameText", () => {
-  assert.ok(sameText("abc", "abc"));
-  assert.ok(!sameText("abc", "abd"));
-  assert.ok(!sameText("abc", "abcd"));
-});
-
-test("limiter allows `limit` calls per window per caller", () => {
-  let t = 0;
-  const l = createLimiter(2, 1000, () => t);
-  assert.ok(l.take("a") && l.take("a"));
-  assert.ok(!l.take("a"));
-  assert.ok(l.take("b"));
-  t = 1001;
-  assert.ok(l.take("a"));
+test("the server key comes from the environment, trimmed", () => {
+  assert.deepEqual(serverKey({ ELEVENLABS_API_KEY: " k " }, "ELEVENLABS_API_KEY"), { ok: true, key: "k" });
+  assert.ok(!serverKey({ ELEVENLABS_API_KEY: " " }, "ELEVENLABS_API_KEY").ok);
+  assert.ok(!serverKey({}, "ELEVENLABS_API_KEY").ok);
 });
 
 test("generateSoundEffect maps results and hides provider text", async () => {

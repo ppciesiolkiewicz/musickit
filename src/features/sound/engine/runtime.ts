@@ -1,5 +1,5 @@
 /**
- * Instruments added while the app runs (the sampler's). They have the same shape as the built-in ones, so the player,
+ * Instruments added while the app runs (none today; the looper's old sampler registered them). They have the same shape as the built-in ones, so the player,
  * the sample loader and the pickers need no special case: `getInstrumentConfig` simply looks here as well.
  * Sample urls may be any url `fetch` accepts, including `blob:` urls.
  */

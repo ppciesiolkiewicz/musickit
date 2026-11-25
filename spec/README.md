@@ -14,7 +14,7 @@ This directory contains the formal specifications for the attunr application.
 | [Looper](looper.md) | Independent multi-channel audio looper |
 | [Looper actions](looper-actions.md) | Actions, history, macros, AI scripts, widget mode |
 | [Creator](creator.md) | Cheatsheet builder (`/cheatsheet`): every theory page as a panel following one key, compact or full |
-| [Sampler](sampler.md) | Instruments from uploaded or generated samples, dropped files included |
+| [Sampler](sampler.md) | Dev tool: a browser sample library, uploaded or generated with ElevenLabs |
 | [NAM](nam.md) | Neural amp models for guitar, a looper effect |
 | [Studio](studio.md) | Teacher studio (`/teachers/studio`): a 16:9 frame with camera and theory widgets, for recording lessons |
 | [Video](video.md) | Widget videos (`npm run video`): practice videos rendered from `videos/*.json` with the real stage widgets |

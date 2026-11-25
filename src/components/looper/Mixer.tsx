@@ -17,9 +17,7 @@ import { INPUT_PRESETS, INPUT_ROLES, presetFor, type InputRole } from "@/lib/loo
 import { GUITAR_AMPS } from "@/lib/looper/rig";
 import InstrumentEdit from "./InstrumentEdit";
 import { useFold } from "./fold";
-import { CONTROLLER_ICON, GENERATOR_NAMES, generatorDetail, instrumentMissing, type Inst } from "./instrumentView";
-import { withGenerator } from "@/lib/looper/instrumentModel";
-import { useSampleLibrary } from "@/features/sampler";
+import { CONTROLLER_ICON, generatorDetail, type Inst } from "./instrumentView";
 import { Slider, Modal, btnBaseSm as btn, btnSm as btnPlain, ibtn, sbtn, Select } from "@/components/ui";
 
 /** The key of a channel choice in a select or radio group. */
@@ -346,9 +344,6 @@ export function InputStrip({ engine, inp, devices, sequencerOpen, onToggleSequen
   const isDevice = inp.kind === "device";
   const [fxOpen, setFxOpen] = useState(false);
   const [editOpen, toggleEdit] = useFold(`in:${inp.id}:instrument`, false);
-  const lib = useSampleLibrary();
-  const haveSamples = new Set(lib.samples.map((x) => x.id));
-  const sampleNames = Object.fromEntries(lib.samples.map((x) => [x.id, x.name]));
   const grp = inp.kind === "sequencer" && seq && seq.dest !== "record" ? groups.find((g) => g.id === seq.groupId) : undefined;
   const state = inp.live ? "recording" : inp.muted ? "muted" : "silenced by solo";
   return (
@@ -377,19 +372,9 @@ export function InputStrip({ engine, inp, devices, sequencerOpen, onToggleSequen
         <div role="group" aria-label={`Sound generator of ${inp.name}`} className="flex flex-wrap items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/60 px-2 py-1">
           <Icon name="audio-lines" size={14} className="shrink-0 text-sky-300" />
           <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">Sound generator</span>
-          <Select
-            size="xs"
-            value={inst.generator.kind}
-            aria-label="Sound generator"
-            onChange={(kind) => engine.do({ type: "instrument.set", id: inst.id, patch: { generator: withGenerator(inst, kind).generator } })}
-            options={[{ value: "piano" as const, label: GENERATOR_NAMES.piano }, { value: "sampler" as const, label: GENERATOR_NAMES.sampler }]}
-          />
-          <span data-role="generator-detail" className="flex min-w-0 flex-1 items-center gap-1 truncate text-xs text-slate-300">
-            {lib.ready && instrumentMissing(inst, haveSamples) && <span className="h-2 w-2 shrink-0 rounded-full bg-amber-400" title="A sample is missing" />}
-            <span className="truncate">{generatorDetail(inst, sampleNames)}</span>
-          </span>
-          <button type="button" className={sbtn} aria-pressed={pianoOpen} onClick={onTogglePiano} title={inst.generator.kind === "sampler" ? "Samples: generate, upload, choose" : "Sound settings"} aria-label={`Sound settings of ${inp.name}`}>
-            <Icon name={inst.generator.kind === "sampler" ? "sparkles" : "sliders-horizontal"} size={13} />
+          <span data-role="generator-detail" className="min-w-0 flex-1 truncate text-xs text-slate-300">{generatorDetail(inst)}</span>
+          <button type="button" className={sbtn} aria-pressed={pianoOpen} onClick={onTogglePiano} title="Sound settings" aria-label={`Sound settings of ${inp.name}`}>
+            <Icon name="sliders-horizontal" size={13} />
           </button>
         </div>
       )}

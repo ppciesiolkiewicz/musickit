@@ -374,11 +374,11 @@ test("legacy playback.set and metronome.toggle drive the transport", () => {
 
 test("instrument.set changes an instrument and undo puts it back", () => {
   const { s, t } = fake();
-  const a: LooperAction = { type: "instrument.set", id: "p1", patch: { root: 7, generator: { kind: "sampler", root: 60, sample: "x", padSamples: [] } } };
+  const a: LooperAction = { type: "instrument.set", id: "p1", patch: { root: 7, generator: { kind: "piano", instrument: "FLUTE", padNotes: [] } } };
   const inv = inverseOf(a, s)!;
   assert.ok(applyAction(t, a));
   assert.equal(s.instruments[0].root, 7);
-  assert.equal(s.instruments[0].generator.kind, "sampler");
+  assert.equal(s.instruments[0].generator.instrument, "FLUTE");
   applyAction(t, inv);
   assert.equal(s.instruments[0].root, 0);
   assert.deepEqual(s.instruments[0].generator, { kind: "piano", instrument: "CELLO", padNotes: [60, 61, 62, 63, 64, 65, 66, 67] });
@@ -400,7 +400,8 @@ test("undoing a smaller pad count brings the cut pads back", () => {
 test("instrument.set is refused for a missing instrument and validated", () => {
   const { t } = fake();
   assert.equal(applyAction(t, { type: "instrument.set", id: "nope", patch: { root: 1 } }), null);
-  assert.ok(isAction({ type: "instrument.set", id: "p1", patch: { pads: 4, generator: { kind: "sampler" } } }));
+  assert.ok(isAction({ type: "instrument.set", id: "p1", patch: { pads: 4, generator: { kind: "piano" } } }));
+  assert.ok(!isAction({ type: "instrument.set", id: "p1", patch: { generator: { kind: "sampler" } } }));
   assert.ok(!isAction({ type: "instrument.set", id: "p1", patch: {} }));
   assert.ok(!isAction({ type: "instrument.set", id: "p1", patch: { colour: "red" } }));
   assert.ok(!isAction({ type: "instrument.set", id: "p1", patch: { generator: { kind: "theremin" } } }));

@@ -24,7 +24,7 @@ export const FIXED_COSTS: FixedCost[] = [
   { id: "workspace", label: "Google Workspace Business Starter", monthly: 7, note: "One user, paid yearly; $8.40 paid monthly. Business email at the domain.", on: true },
   { id: "domain", label: "Domain", monthly: 1.25, note: "About $15 a year.", on: true },
   { id: "posthog", label: "PostHog", monthly: 0, note: "Free up to 1 million events a month.", on: true },
-  { id: "elevenlabs", label: "ElevenLabs Starter", monthly: 6, note: "Only for the sampler, behind its password. Leave out if it stays a tool for us.", on: false },
+  { id: "elevenlabs", label: "ElevenLabs Starter", monthly: 6, note: "Only for the dev sampler and the intro voice. Leave out while they stay tools for us.", on: false },
 ];
 
 /** US$ a month of the costs switched on. */

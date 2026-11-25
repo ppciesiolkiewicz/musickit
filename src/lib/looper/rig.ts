@@ -10,8 +10,8 @@ import { INPUT_PRESETS } from "./inputPresets";
 export const RIG_PRESETS = ["sparkle", "crunch", "lead"] as const;
 
 /**
- * The amps of the guitar rig, one bus each, named after the amp. `find` holds words of the model's file name in the online amp library
- * (`nam/` in the Blob store); the app fetches the model when its bus is first chosen. Without the library the bus has an empty amp.
+ * The amps of the guitar rig, one bus each, named after the amp. `find` holds words of the model's file name; the app looks for it among
+ * the .nam files the player has loaded on this device. Without a match the bus has an empty amp.
  */
 export const GUITAR_AMPS: { name: string; find: string; gain: "clean" | "drive" | "high" }[] = [
   { name: "Fender Twin Reverb", find: "twin reverb clean", gain: "clean" },

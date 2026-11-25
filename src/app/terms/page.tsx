@@ -126,7 +126,6 @@ const SECTIONS: LegalSection[] = [
         <p>A plan can be wrong: it can set a tempo too fast, name a chord wrongly or ask for a note outside your range. Read a plan as advice from a well-read friend, not a teacher who can see you. We check the exercises before they go into the library, but we can&apos;t catch everything.</p>
         <p>Practise within what feels easy. Stop at any pain in your hands, arms or voice. attunr is not medical advice, and a plan is not a reason to push through pain. If you have an injury or a voice condition, ask a doctor, a physiotherapist or a voice teacher first.</p>
         <p>attunr does not send your plans, your notes or your practice to an AI. If that ever changes, for example to draft a lesson note when you ask for it, these terms will say so first.</p>
-        <p>One tool uses an AI when you ask it to: the sampler can make a sound from words you type. Those words go to ElevenLabs, which makes the sound. Nothing else about you goes with them.</p>
         <p>If you use an AI of your own on attunr&apos;s pages, such as an AI extension in your browser, it can read your plans and notes and change them. That AI&apos;s own terms apply to what it reads and what it does.</p>
       </>
     ),

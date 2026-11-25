@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { PAD_BASE, clampInstrument, migrateSaves, padIndexOf, soundingNote, voiceSpec, withGenerator } from "./instrumentModel";
+import { PAD_BASE, clampInstrument, migrateSaves, padIndexOf, soundingNote, voiceSpec } from "./instrumentModel";
 
 test("malformed state is repaired; unknown controller and generator fall back to the piano", () => {
   const s = clampInstrument({ controller: "harp", root: 14, scale: "", octave: 99, pads: 0, generator: { kind: "theremin" } });
@@ -14,25 +14,26 @@ test("malformed state is repaired; unknown controller and generator fall back to
 });
 
 test("pad arrays follow the pad count, keeping what fits", () => {
-  const s = clampInstrument({ pads: 3, generator: { kind: "sampler", root: 200, sample: "a", padSamples: ["x", 5, null, "y", "z"] } });
-  assert.deepEqual(s.generator, { kind: "sampler", root: 60, sample: "a", padSamples: ["x", null, null] });
+  const s = clampInstrument({ pads: 3, generator: { kind: "piano", instrument: "PIANO", padNotes: [40, "x", 42, 43, 44] } });
+  assert.deepEqual(s.generator.padNotes, [40, 61, 42]);
   const grown = clampInstrument({ ...s, pads: 5 });
-  assert.deepEqual(grown.generator.kind === "sampler" && grown.generator.padSamples, ["x", null, null, null, null]);
+  assert.deepEqual(grown.generator.padNotes, [40, 61, 42, 63, 64]);
   assert.equal(clampInstrument({ pads: 99 }).pads, 32);
 });
 
-test("switching the generator starts a fresh one; switching the controller keeps everything", () => {
+test("an instrument saved with the old sampler plays the built-in piano", () => {
+  const s = clampInstrument({ controller: "soundboard", pads: 2, generator: { kind: "sampler", root: 57, sample: "s1", padSamples: ["a", null] } });
+  assert.deepEqual(s.generator, { kind: "piano", instrument: "PIANO", padNotes: [60, 61] });
+});
+
+test("switching the controller keeps everything", () => {
   const s = clampInstrument({ controller: "scalepiano", root: 5, generator: { kind: "piano", instrument: "CELLO" } });
-  assert.equal(withGenerator(s, "piano"), s);
-  const sam = withGenerator(s, "sampler");
-  assert.deepEqual(sam.generator, { kind: "sampler", root: 60, padSamples: Array(8).fill(null) });
-  assert.equal(sam.root, 5);
   const board = clampInstrument({ ...s, controller: "soundboard" });
   assert.equal(board.root, 5);
   assert.deepEqual(board.generator, s.generator);
 });
 
-test("the note that sounds: keys pass through, pads map on a piano and stay pad notes on a sampler", () => {
+test("the note that sounds: keys pass through, pads play their chosen note", () => {
   const keys = clampInstrument({ controller: "scalepiano" });
   assert.equal(soundingNote(keys, 61), 61);
   const board = clampInstrument({ controller: "soundboard", pads: 2, generator: { kind: "piano", instrument: "PIANO", padNotes: [48, 72] } });
@@ -40,15 +41,11 @@ test("the note that sounds: keys pass through, pads map on a piano and stay pad 
   assert.equal(soundingNote(board, PAD_BASE + 1), 72);
   assert.equal(soundingNote(board, PAD_BASE + 2), null);
   assert.equal(soundingNote(board, PAD_BASE - 1), null);
-  const pads = withGenerator(board, "sampler");
-  assert.equal(soundingNote(pads, PAD_BASE + 1), PAD_BASE + 1);
 });
 
 test("what the voice plays", () => {
   assert.deepEqual(voiceSpec(clampInstrument({ generator: { kind: "piano", instrument: "FLUTE" } })), { kind: "piano", instrument: "FLUTE" });
-  assert.deepEqual(voiceSpec(clampInstrument({ controller: "piano", generator: { kind: "sampler", root: 57, sample: "s1" } })), { kind: "pitched", sample: "s1", root: 57 });
-  assert.deepEqual(voiceSpec(clampInstrument({ controller: "scalepiano", generator: { kind: "sampler" } })), { kind: "pitched", sample: null, root: 60 });
-  assert.deepEqual(voiceSpec(clampInstrument({ controller: "soundboard", pads: 2, generator: { kind: "sampler", padSamples: ["a", null] } })), { kind: "pads", samples: ["a", null] });
+  assert.deepEqual(voiceSpec(clampInstrument({ controller: "soundboard", generator: { kind: "piano", instrument: "CELLO" } })), { kind: "piano", instrument: "CELLO" });
 });
 
 test("pad keys: number row, then Q, A and Z rows, only up to the pad count", () => {

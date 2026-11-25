@@ -8,7 +8,7 @@
  *              (the computer keys locked to a key and scale). Both play the sampled instruments by default.
  *
  * Samples are played by a backend (`engine/backend.ts`), so what plays them can be swapped: Tone.js (`backends/tone.ts`) for
- * the built-in instruments, our buffer player (`backends/buffer.ts`) for the sampler's instruments, strict pads and offline
+ * the built-in instruments, our buffer player (`backends/buffer.ts`) for runtime instruments, strict pads and offline
  * renders; `backends/choose.ts` decides. Every built-in sample is played shifted back by the cents it measures off its note
  * (`tuning.generated.json`), so the app's notes are at A440 equal temperament, the pitch the singing tools judge against.
  *

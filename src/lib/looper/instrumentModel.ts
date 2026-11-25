@@ -1,6 +1,6 @@
 /**
  * Instrument inputs: a controller (what you play: Piano, Scale Piano, Soundboard) and a sound generator (what makes the sound:
- * the built-in sampled Piano catalogue, or the Sampler). Pure: the saved state and its repair, which note sounds, what the
+ * the built-in sampled instruments). Pure: the saved state and its repair, which note sounds, what the
  * injected voice must play, and the move from the old `extra` and `scalepiano` strips. Imports nothing outside src/lib/looper.
  */
 
@@ -8,11 +8,8 @@ export type Controller = "piano" | "scalepiano" | "soundboard";
 export const CONTROLLERS: Controller[] = ["piano", "scalepiano", "soundboard"];
 export const CONTROLLER_NAMES: Record<Controller, string> = { piano: "Piano", scalepiano: "Scale Piano", soundboard: "Soundboard" };
 
-export type Generator =
-  /** an instrument id of the app's sound engine; `padNotes[i]` is the note pad i plays on a Soundboard */
-  | { kind: "piano"; instrument: string; padNotes: number[] }
-  /** `root` is the MIDI note `sample` sounds at; `padSamples[i]` is the sample of pad i (a sample id of the app's library) */
-  | { kind: "sampler"; root: number; sample?: string; padSamples: (string | null)[] };
+/** An instrument id of the app's sound engine; `padNotes[i]` is the note pad i plays on a Soundboard. */
+export type Generator = { kind: "piano"; instrument: string; padNotes: number[] };
 
 export interface InstrumentState {
   controller: Controller;
@@ -25,11 +22,8 @@ export interface InstrumentState {
   generator: Generator;
 }
 
-/** What the injected voice plays: a built-in instrument, one sample tuned across the keys, or one sample per pad (unpitched). */
-export type VoiceSpec =
-  | { kind: "piano"; instrument: string }
-  | { kind: "pitched"; sample: string | null; root: number }
-  | { kind: "pads"; samples: (string | null)[] };
+/** What the injected voice plays: a built-in instrument. */
+export type VoiceSpec = { kind: "piano"; instrument: string };
 
 /** Soundboard pad i plays MIDI note PAD_BASE + i */
 export const PAD_BASE = 36;
@@ -48,28 +42,22 @@ export const PAD_KEYS: string[] = [
 const int = (v: unknown, lo: number, hi: number, fallback: number) => (Number.isInteger(v) ? Math.max(lo, Math.min(hi, v as number)) : fallback);
 const shortId = (v: unknown): string | undefined => (typeof v === "string" && v && v.length <= MAX_ID ? v : undefined);
 const isNote = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 0 && (v as number) <= 127;
-const isSample = (v: unknown): v is string | null => v === null || shortId(v) !== undefined;
 const resize = <T>(a: unknown, n: number, fill: (i: number) => T, ok: (v: unknown) => v is T): T[] =>
   Array.from({ length: n }, (_, i) => (Array.isArray(a) && ok(a[i]) ? a[i] : fill(i)));
 const defaultPadNote = (i: number) => 60 + i;
 
-export function defaultGenerator(kind: Generator["kind"], pads: number): Generator {
-  return kind === "sampler"
-    ? { kind, root: 60, padSamples: Array.from({ length: pads }, () => null) }
-    : { kind, instrument: DEFAULT_INSTRUMENT, padNotes: Array.from({ length: pads }, (_, i) => defaultPadNote(i)) };
+export function defaultGenerator(pads: number): Generator {
+  return { kind: "piano", instrument: DEFAULT_INSTRUMENT, padNotes: Array.from({ length: pads }, (_, i) => defaultPadNote(i)) };
 }
 
+/** A generator of another kind (the looper's old sampler) starts fresh on the piano. */
 function clampGenerator(raw: unknown, pads: number): Generator {
   const g = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
-  if (g.kind === "sampler") {
-    const sample = shortId(g.sample);
-    return { kind: "sampler", root: isNote(g.root) ? g.root : 60, ...(sample ? { sample } : {}), padSamples: resize(g.padSamples, pads, () => null, isSample) };
-  }
   if (g.kind === "piano") return { kind: "piano", instrument: shortId(g.instrument) ?? DEFAULT_INSTRUMENT, padNotes: resize(g.padNotes, pads, defaultPadNote, isNote) };
-  return defaultGenerator("piano", pads);
+  return defaultGenerator(pads);
 }
 
-/** Repairs anything saved or asked for: unknown controller → piano, unknown generator → piano/PIANO, pad arrays sized to `pads`. */
+/** Repairs anything saved or asked for: unknown controller → piano, unknown generator (an old sampler too) → piano/PIANO, pad arrays sized to `pads`. */
 export function clampInstrument(raw: unknown): InstrumentState {
   const s = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const controller = CONTROLLERS.includes(s.controller as Controller) ? (s.controller as Controller) : "piano";
@@ -81,23 +69,15 @@ export function clampInstrument(raw: unknown): InstrumentState {
 
 export const DEFAULT_INSTRUMENT_STATE: InstrumentState = clampInstrument({});
 
-/** Another generator kind starts fresh (nothing of a piano applies to a sampler); the same kind is kept as it is. */
-export const withGenerator = (s: InstrumentState, kind: Generator["kind"]): InstrumentState =>
-  s.generator.kind === kind ? s : { ...s, generator: defaultGenerator(kind, s.pads) };
-
-/** The note the voice gets for a played note: keys pass through; a Soundboard pad plays its note on a piano, or stays a pad note for the sampler. null = no such pad. */
+/** The note the voice gets for a played note: keys pass through; a Soundboard pad plays its chosen note. null = no such pad. */
 export function soundingNote(s: InstrumentState, midi: number): number | null {
   if (s.controller !== "soundboard") return midi;
   const i = midi - PAD_BASE;
   if (!Number.isInteger(i) || i < 0 || i >= s.pads) return null;
-  return s.generator.kind === "piano" ? s.generator.padNotes[i] : midi;
+  return s.generator.padNotes[i];
 }
 
-export function voiceSpec(s: InstrumentState): VoiceSpec {
-  const g = s.generator;
-  if (g.kind === "piano") return { kind: "piano", instrument: g.instrument };
-  return s.controller === "soundboard" ? { kind: "pads", samples: [...g.padSamples] } : { kind: "pitched", sample: g.sample ?? null, root: g.root };
-}
+export const voiceSpec = (s: InstrumentState): VoiceSpec => ({ kind: "piano", instrument: s.generator.instrument });
 
 /** The pad a computer key plays, or null. */
 export function padIndexOf(code: string, pads: number): number | null {

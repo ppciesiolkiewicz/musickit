@@ -68,7 +68,7 @@ export interface GroupInfo extends GroupLayout {
 export interface LooperOptions {
   /** Use this AudioContext instead of creating one (the app's shared one, so its instruments play into the looper). */
   getContext?: () => AudioContext;
-  /** Makes the sound of an instrument input (the app passes its sample player and sampler); instruments are silent without it. */
+  /** Makes the sound of an instrument input (the app passes its sample player); instruments are silent without it. */
   createVoice?: VoiceFactory;
 }
 

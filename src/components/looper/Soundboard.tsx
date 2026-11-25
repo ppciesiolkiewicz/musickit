@@ -11,7 +11,7 @@ const typing = (t: EventTarget | null) => {
 const keyLabel = (code: string) => code.replace(/^Key|^Digit/, "");
 
 /** A grid of pads, clicked or played from the computer keys (number row, then Q, A and Z rows). Pad i plays note PAD_BASE + i. */
-export default function Soundboard({ pads, voice, labels, warn, selected, onSelect }: { pads: number; voice: ScaleVoice; labels: (string | null)[]; warn: boolean[]; selected: number; onSelect: (i: number) => void }) {
+export default function Soundboard({ pads, voice, labels, selected, onSelect }: { pads: number; voice: ScaleVoice; labels: (string | null)[]; selected: number; onSelect: (i: number) => void }) {
   const [down, setDown] = useState<ReadonlySet<number>>(new Set());
   const held = useRef(new Map<string, number>());
 
@@ -73,7 +73,6 @@ export default function Soundboard({ pads, voice, labels, warn, selected, onSele
           >
             <span className="text-[10px] opacity-70">{keyLabel(PAD_KEYS[i])}</span>
             <span className="w-full truncate text-[10px]">{labels[i] ?? ""}</span>
-            {warn[i] && <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-amber-400" title="Sample missing: choose another" />}
           </button>
         );
       })}

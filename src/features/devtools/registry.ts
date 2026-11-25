@@ -71,6 +71,7 @@ export const DEV_GROUPS: DevGroup[] = [
       { href: "/dev/onboarding", label: "Onboarding coverage", desc: "Which pages and exercise tools have level tags, a tour and hints, with the gaps marked. Preview a level." },
       { href: "/dev/riff", label: "Riff maker", desc: "Write a riff note by note in a key and scale: click the neck or type degrees, see the tab, switch strings, copy JSON or tab. Record a video take of the riff and transcribe its notes." },
       { href: "/dev/studio", label: "Video studio", desc: "A 16:9 frame with cameras, a screen share and theory widgets, to record a lesson. Add more than one camera, a phone over Continuity Camera too." },
+      { href: "/dev/sampler", label: "Sampler", desc: "A sample library in this browser: generate sounds with ElevenLabs from a description, upload or drop audio, play, rename, find the note, delete." },
       { href: "/dev/notes", label: "Copy notes", desc: "The notes made on any page with the Notes button, by page in sitemap order: copy, re-pin or clear them." },
     ],
   },

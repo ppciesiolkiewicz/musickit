@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { allInstrumentOptions } from "./instruments";
 import { subscribeRuntimeInstruments } from "./runtime";
 
-/** The instrument choices for a picker: the built-in ones, the sampler's, and the oscillator. Updates when the sampler changes. */
+/** The instrument choices for a picker: the built-in ones, any runtime ones, and the oscillator. Updates when the runtime ones change. */
 export function useInstrumentOptions(): { label: string; value: string }[] {
   const [options, setOptions] = useState(allInstrumentOptions);
   useEffect(() => {

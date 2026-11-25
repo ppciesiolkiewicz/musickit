@@ -1,32 +1,22 @@
 import type { Capabilities } from "./server/providers";
 
+/** The dev route: it answers in development only. */
+const URL = "/api/dev/sampler";
+
 export async function fetchCapabilities(): Promise<Capabilities | null> {
   try {
-    const res = await fetch("/api/sampler/generate", { cache: "no-store" });
+    const res = await fetch(URL, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
     return res.ok ? ((await res.json()) as Capabilities) : null;
   } catch {
     return null;
   }
 }
 
-export interface GenerateOptions {
-  provider: string;
-  prompt: string;
-  seconds: number;
-  /** the site password, when the site's own key is used */
-  sitePassword?: string;
-  /** a person's own provider key; sent only to this site's server, which forwards it to the provider and does not keep it */
-  ownKey?: string;
-}
-
 /** Asks the server for a sample. Throws a short, showable message when it fails. */
-export async function generateSample(o: GenerateOptions): Promise<Blob> {
-  const headers: Record<string, string> = { "content-type": "application/json" };
-  if (o.sitePassword) headers["x-site-password"] = o.sitePassword;
-  if (o.ownKey) headers["x-provider-key"] = o.ownKey;
+export async function generateSample(o: { provider: string; prompt: string; seconds: number }): Promise<Blob> {
   let res: Response;
   try {
-    res = await fetch("/api/sampler/generate", { method: "POST", headers, body: JSON.stringify({ provider: o.provider, prompt: o.prompt, seconds: o.seconds }) });
+    res = await fetch(URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(o), signal: AbortSignal.timeout(60_000) });
   } catch {
     throw new Error("Could not reach the server.");
   }

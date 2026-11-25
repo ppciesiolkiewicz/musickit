@@ -102,7 +102,6 @@ const SECTIONS: LegalSection[] = [
           <li>Resend sends our emails, so it sees your email address and the email itself.</li>
           <li>Google logs you in, if you choose Google.</li>
           <li>PostHog counts use and records errors.</li>
-          <li>ElevenLabs makes a sound from the words you type, if you use the sampler to generate one. It gets those words and nothing about you.</li>
           <li>When paid plans open, a payment provider will handle your card. We will name it here before then.</li>
         </ul>
         <p>Some of these companies keep data outside Australia, in the United States and the European Union. By using attunr you agree that your data may be kept there.</p>

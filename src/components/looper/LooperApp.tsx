@@ -14,7 +14,7 @@ import ViewMenu, { toView } from "./ViewMenu";
 import MacroPanel from "./MacroPanel";
 import FloatingWindow from "../FloatingWindow";
 import { getAudioContext } from "@/features/sound";
-import { makeGeneratorVoice } from "@/features/sampler";
+import { makePianoVoice } from "./pianoVoice";
 import LoopStage from "./LoopStage";
 import FreeBoard from "./FreeBoard";
 import { Toasts } from "./toast";
@@ -135,7 +135,7 @@ function useEngine() {
     if (typeof window !== "undefined") {
       wireNam();
     }
-    return new LooperEngine({ getContext: getAudioContext, createVoice: (_ctx, dest, spec) => makeGeneratorVoice(dest, spec) });
+    return new LooperEngine({ getContext: getAudioContext, createVoice: (_ctx, dest, spec) => makePianoVoice(dest, spec) });
   });
   useEffect(() => {
     engine.init();
