@@ -351,6 +351,13 @@
       "when": 1795615054809,
       "tag": "0049_indieappcircle_code",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1795615899304,
+      "tag": "0050_indieappcircle_student",
+      "breakpoints": true
     }
   ]
 }
