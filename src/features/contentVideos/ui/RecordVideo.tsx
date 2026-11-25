@@ -6,6 +6,7 @@ import { readDeviceChoice } from "@/features/sound";
 import { clockTime } from "@/features/recorder/recorder";
 import { MAX_TAKE_SECONDS, pickVideoType } from "@/features/videos/recording";
 import { ToolClockListener } from "@/components/practice/toolClock";
+import { NoAutoScroll } from "@/components/practice/bringIntoView";
 import type { PlanTool } from "@/features/plan/model/tools";
 import { saveContentVideo } from "../client/api";
 import { squeeze, type Sample } from "../model/clock";
@@ -239,7 +240,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       <div className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
         {camera ? <video ref={live} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
-        <div className={`absolute inset-x-0 bottom-0 max-h-[60%] overflow-auto bg-slate-950/75 p-2 backdrop-blur-sm ${toolShown ? "" : "hidden"}`}><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></div>
+        <div className={`absolute inset-x-0 bottom-0 max-h-[60%] overflow-auto bg-slate-950/75 p-2 backdrop-blur-sm ${toolShown ? "" : "hidden"}`}><NoAutoScroll><ToolClockListener onBeat={onBeat}>{children}</ToolClockListener></NoAutoScroll></div>
       </div>
 
       {take && phase !== "recording" && (

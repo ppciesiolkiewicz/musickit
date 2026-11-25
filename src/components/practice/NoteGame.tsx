@@ -21,6 +21,7 @@ import { useCoverage } from "@/features/guide/useCoverage";
 import { userDoc, useUserDoc } from "@/features/userData/client/useUserDoc";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import InputChip, { micStatusMessage } from "@/components/InputChip";
+import { useBringIntoView } from "./bringIntoView";
 
 const MODES: { id: NoteMode; title: string; about: string }[] = [
   { id: "find", title: "Find it on a string", about: "Get a note and a string, and find the fret." },
@@ -54,6 +55,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   const asked = useRef(0);
   const gate = useRef(micGate.initial);
   const stage = useRef<HTMLDivElement>(null);
+  const bringIntoView = useBringIntoView();
 
   const update = (patch: Partial<NoteSettings>) => {
     const next = { ...s, ...patch };
@@ -169,7 +171,7 @@ export default function NoteGame({ initial, syncUrl = true, bare = false }: { in
   const showNeck = () => {
     const el = stage.current;
     if (!el || el.getBoundingClientRect().bottom <= window.innerHeight) return;
-    el.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    bringIntoView(el, "start");
   };
 
   const startSprint = () => {

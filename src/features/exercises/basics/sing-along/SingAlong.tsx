@@ -8,6 +8,7 @@ import { ToolHeadphonesHint } from "@/components/practice/exerciseStep";
 import { DropdownSection, Hint, HintToggle, KeyCap } from "@/components/ui";
 import { useSpaceKey } from "@/components/practice/toolKeys";
 import { useToolClock } from "@/components/practice/toolClock";
+import { useBringIntoView } from "@/components/practice/bringIntoView";
 import { useCoverage } from "@/features/guide/useCoverage";
 import { useLevelAtLeast } from "@/features/guide/Tier";
 import { PlayAheadRow, ToolSettings, Volume, usePlayAhead } from "@/features/settings";
@@ -172,11 +173,12 @@ export default function SingAlong({ notes, chords, ladder, clef, beatMs, click, 
     root.current = el;
     focus(el);
   }, [focus]);
-  // Play brings the tune itself into view, so the bar is seen from its first beat
+  // Play brings the tune itself into view, so the bar is seen from its first beat (not when most of it shows already)
   const tune = useRef<HTMLDivElement | null>(null);
+  const bringIntoView = useBringIntoView();
   const play = () => {
     void sa.play();
-    if (!full) tune.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    if (!full) bringIntoView(tune.current);
   };
   // Space presses the big button: Play, Pause while the tune plays, Resume while it is paused
   const main = !sa.playing ? play : sa.paused ? () => void sa.resume() : sa.pause;
