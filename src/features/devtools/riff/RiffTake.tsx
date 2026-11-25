@@ -86,6 +86,8 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   const [stored, setStored] = useState<Stored>("saved");
   // Save for players running
   const [sending, setSending] = useState(false);
+  // the shown take's picture size, once its video has read it: Save for players waits for it
+  const [frame, setFrame] = useState<{ url: string; width: number; height: number } | null>(null);
   const [seconds, setSeconds] = useState(0);
   // the take a new recording replaced, kept in memory until the next recording, so a worse retake can be undone
   const [previous, setPrevious] = useState<Take | null>(null);
@@ -274,14 +276,17 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   /** Set fields on the take recorded at `at`, on screen and in this browser (over what is stored, so a newer log is kept). */
   const mark = async (at: number, fields: Partial<Take>) => {
     setShown((s) => (s && s.take.at === at ? { ...s, take: { ...s.take, ...fields } } : s));
+    setPrevious((p) => (p && p.at === at ? { ...p, ...fields } : p));
+    // never over another take: a newer recording may be stored under this riff now. The take as pressed only when none is stored.
     const kept = await getTake(riff);
-    const base = kept && kept.at === at ? kept : take && take.at === at ? take : null;
+    const base = kept ? (kept.at === at ? kept : null) : take && take.at === at ? take : null;
     if (base) { await saveTake({ ...base, ...fields }); setStored("saved"); }
   };
 
   /** Upload the take as the riff block's own video: its id is given and stored first, so a retry reuses it. */
   const sendToPlayers = async () => {
-    if (!take || cell === null || sending) return;
+    const size = frame && frame.url === url ? frame : null;
+    if (!take || cell === null || sending || !size?.width || !size.height) return;
     setProblem("");
     setSending(true);
     try {
@@ -292,7 +297,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
       }
       const out = await saveContentVideo({
         id: videoId, blob: take.blob, type: take.type, title: name, note: "", seconds: take.seconds,
-        width: takeVideo?.videoWidth ?? 0, height: takeVideo?.videoHeight ?? 0,
+        width: size.width, height: size.height,
         madeFor: riff, target: { kind: "cell", blockId: riff, cell }, fileUp: take.fileUp,
       });
       // a cell target takes no steps from other videos, so `lost` is always empty here
@@ -318,7 +323,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   };
 
   const undo = () => {
-    if (!previous) return;
+    if (!previous || sending) return;
     show(previous);
     void store(previous);
     setPrevious(null);
@@ -330,7 +335,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
       const el = e.target as HTMLElement | null;
       if (e.key.toLowerCase() !== "r" || e.repeat || e.metaKey || e.ctrlKey || e.altKey || el?.closest("input, textarea, select, [contenteditable=true]")) return;
       e.preventDefault();
-      if (phase === "ready") void record();
+      if (phase === "ready" && !sending) void record();
       else if (phase === "recording") recorder.current?.stop();
     };
     window.addEventListener("keydown", onKey);
@@ -393,11 +398,11 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
           </div>
         </details>
         {phase === "starting" && <span className="text-slate-400">Starting the camera…</span>}
-        {phase === "ready" && <button onClick={() => void record()} className={rec}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className={kbd}>R</kbd></button>}
+        {phase === "ready" && <button onClick={() => void record()} disabled={sending} title={sending ? "Wait for the upload to finish" : undefined} className={`${rec} disabled:opacity-40`}><span className="size-2 rounded-full bg-white" />{take ? "Record again" : "Record"} <kbd className={kbd}>R</kbd></button>}
         {phase === "recording" && <button onClick={() => recorder.current?.stop()} className={rec}><span className="size-2 bg-white" />Stop <kbd className={kbd}>R</kbd></button>}
         {phase === "recording" && <span className="font-mono tabular-nums text-rose-300">{clockTime(seconds)} / {clockTime(MAX_SECONDS)}</span>}
         {phase === "ready" && <button onClick={() => { stopCamera(); setPhase("off"); }} className={btn}>Close camera</button>}
-        {previous && phase !== "recording" && <button onClick={undo} className={btn} title={`Recorded ${new Date(previous.at).toLocaleTimeString()}, ${clockTime(previous.seconds)}`}>Back to the previous take</button>}
+        {previous && phase !== "recording" && <button onClick={undo} disabled={sending} className={btn} title={`Recorded ${new Date(previous.at).toLocaleTimeString()}, ${clockTime(previous.seconds)}`}>Back to the previous take</button>}
         {take && phase !== "recording" && (
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <span className={`text-xs ${stored === "failed" ? "text-rose-400" : "text-slate-400"}`}>
@@ -407,9 +412,9 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
             {stored === "failed" && <button onClick={() => void store(take)} className={btn}>Save</button>}
             <button onClick={download} className={btn}>Save file</button>
             {!take.uploaded && !sending && cell !== null && (
-              <button onClick={() => void sendToPlayers()} className={btn} title="Uploads this take as the video players see with this exercise">Save for players</button>
+              <button onClick={() => void sendToPlayers()} disabled={!(frame?.url === url && frame.width > 0 && frame.height > 0)} className={btn} title="Uploads this take as the video players see with this exercise">Save for players</button>
             )}
-            <button onClick={() => void remove()} className={`${btn} hover:bg-rose-900/60 hover:text-rose-200`}>Delete take</button>
+            <button onClick={() => void remove()} disabled={sending} className={`${btn} hover:bg-rose-900/60 hover:text-rose-200`}>Delete take</button>
           </div>
         )}
       </div>
@@ -479,7 +484,8 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
         <div className="flex flex-wrap items-start gap-3">
           {phase !== "recording" && take && url && (
             <div className="relative w-full max-w-4xl">
-              <video key={url} ref={setTakeVideo} src={url} controls playsInline className="max-h-[32rem] w-full rounded bg-black" />
+              <video key={url} ref={setTakeVideo} src={url} controls playsInline
+                onLoadedMetadata={(e) => setFrame({ url, width: e.currentTarget.videoWidth, height: e.currentTarget.videoHeight })} className="max-h-[32rem] w-full rounded bg-black" />
               {readNeck && <NeckView key={url} video={takeVideo} onRead={onNeckRead} />}
               <TakeNotes video={takeVideo} notes={takeNotes} mode={overlay} grid={barGrid(take.bpm ?? bpm, take.downbeat ?? 0, windowBars)} />
             </div>

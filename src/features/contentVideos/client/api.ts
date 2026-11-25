@@ -27,6 +27,7 @@ export const UPLOADED_NOT_SAVED = "The video is uploaded but wasn't saved. Press
 const LOOKUP_FAILED = "The videos could not be loaded.";
 const ROW_MS = 20_000;
 const LOOKUP_MS = 10_000;
+const LIST_MS = 10_000;
 /** Over this size the file goes up in parts, each retried by the Blob client. */
 const MULTIPART_BYTES = 64 * 1024 ** 2;
 
@@ -64,10 +65,31 @@ async function saveRow(input: SaveInput, path: string, doFetch: typeof fetch): P
   }
 }
 
+/** The video with this id in the list (`GET /api/content-videos`), or null when it isn't there or the list can't be read. */
+async function listed(id: string, doFetch: typeof fetch): Promise<ContentVideoInfo | null> {
+  try {
+    const res = await doFetch("/api/content-videos", { signal: AbortSignal.timeout(LIST_MS) });
+    if (!res.ok) return null;
+    const body = (await res.json().catch(() => null)) as { videos?: ContentVideoInfo[] } | null;
+    return (Array.isArray(body?.videos) ? body.videos : []).find((v) => v?.id === id) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** The row, and on a 409 the list: a video already saved under this id (an earlier try whose answer was lost) counts as saved. */
+async function saveOrFind(input: SaveInput, path: string, doFetch: typeof fetch): Promise<Row> {
+  const row = await saveRow(input, path, doFetch);
+  if (row.ok || row.status !== 409) return row;
+  const video = await listed(input.id, doFetch);
+  return video ? { ok: true, video, lost: [] } : row;
+}
+
 /**
  * Saves a content video: the file (unless `fileUp` says it is in the store already: the store won't overwrite it), then the
- * row. Never throws. A failed transfer tries the row once, since the file may be up from an earlier try. A refusal of the row,
- * a 409 among them, is an error with the server's words, never a save; `fileUp` says whether the next try sends only the row.
+ * row. Never throws. A failed transfer tries the row once, since the file may be up from an earlier try. A 409 from the row is
+ * a save only when the list holds this id; any other refusal is an error with the server's words, and `fileUp` says whether
+ * the next try sends only the row.
  */
 export async function saveContentVideo(input: SaveInput, deps: { put: Put; fetch: typeof fetch } = { put: blobPut, fetch: (...a) => fetch(...a) }): Promise<SaveResult> {
   const path = contentVideoPath(input.madeFor, input.id, input.type);
@@ -78,13 +100,13 @@ export async function saveContentVideo(input: SaveInput, deps: { put: Put; fetch
         contentType: input.type,
       });
     } catch (e) {
-      const row = await saveRow(input, path, deps.fetch);
+      const row = await saveOrFind(input, path, deps.fetch);
       if (row.ok) return row;
       // a 409 comes only after the server found the file: it is up
       return { ok: false, error: row.words || `The upload didn't finish (${message(e)}). Press Save for players again.`, fileUp: row.status === 409 };
     }
   }
-  const row = await saveRow(input, path, deps.fetch);
+  const row = await saveOrFind(input, path, deps.fetch);
   if (row.ok) return row;
   return { ok: false, error: row.words || UPLOADED_NOT_SAVED, fileUp: true };
 }

@@ -12,14 +12,15 @@ const video = { id: input.id, title: input.title, note: "", madeFor: input.madeF
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
 /** A fake store and server: records every call. */
-function fakes(put: () => Promise<unknown>, row: () => Promise<Response>) {
+function fakes(put: () => Promise<unknown>, row: () => Promise<Response>, list: () => Promise<Response> = async () => json({ videos: [] })) {
   const puts: { path: string; opts: { clientPayload: string; contentType: string } }[] = [];
   const rows: { url: string; init: RequestInit | undefined }[] = [];
+  const lists: string[] = [];
   return {
-    puts, rows,
+    puts, rows, lists,
     deps: {
       put: async (path: string, _blob: Blob, opts: { clientPayload: string; contentType: string }) => { puts.push({ path, opts }); return put(); },
-      fetch: (async (url: string, init?: RequestInit) => { rows.push({ url, init }); return row(); }) as unknown as typeof fetch,
+      fetch: (async (url: string, init?: RequestInit) => { if (!init?.method) { lists.push(url); return list(); } rows.push({ url, init }); return row(); }) as unknown as typeof fetch,
     },
   };
 }
@@ -90,4 +91,17 @@ test("lookUpVideos answers the server's blocks and videos, and throws its words 
   } finally {
     globalThis.fetch = was;
   }
+});
+
+test("a 409 for a video already saved counts as saved", async () => {
+  const f = fakes(async () => ({}), async () => json({ error: "This video is already saved." }, 409), async () => json({ videos: [{ ...video, id: "other" }, video] }));
+  assert.deepEqual(await saveContentVideo({ ...input, fileUp: true }, f.deps), { ok: true, video, lost: [] });
+  assert.deepEqual(f.lists, ["/api/content-videos"]);
+});
+
+test("a 409 for an id not in the list stays an error", async () => {
+  const f = fakes(async () => ({}), async () => json({ error: "This exercise has changed and that tool isn't where it was. Reload and save again." }, 409), async () => json({ videos: [{ ...video, id: "other" }] }));
+  assert.deepEqual(await saveContentVideo(input, f.deps), { ok: false, fileUp: true, error: "This exercise has changed and that tool isn't where it was. Reload and save again." });
+  const failing = fakes(async () => ({}), async () => json({ error: "This video is already saved." }, 409), async () => { throw new Error("offline"); });
+  assert.deepEqual(await saveContentVideo(input, failing.deps), { ok: false, fileUp: true, error: "This video is already saved." });
 });
