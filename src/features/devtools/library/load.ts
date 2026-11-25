@@ -48,7 +48,7 @@ export async function loadItem(db: Db | null, params: LibraryParams): Promise<It
     const blockId = blockOfChoice(id);
     const block = await getBlock(deps, s.scope, blockId ?? id);
     if (!block) return { state: "not-found", id };
-    if (blockId && !block.choices.some((c) => c.id === id)) return { state: "not-found", id, message: "The block has no such choice, or it is inactive (show inactive ones too)." };
+    if (blockId && !block.choices.some((c) => c.id === id)) return { state: "not-found", id, message: "The block has no such choice." };
     return { state: "found", item: databaseItem(block, blockId ? id : undefined) };
   } catch (e) {
     return { state: "not-found", id, message: e instanceof Error ? e.message : String(e) };

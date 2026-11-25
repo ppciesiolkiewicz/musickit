@@ -3,7 +3,7 @@ import type { ItemResult, LibraryResult } from "./load";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
 import { SEED_BLOCKS, SEED_PLANS, type SeedPlanFile } from "@/features/library/seed";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
-import { seedBlocksById } from "./item";
+import { blockTags, planTags, seedBlocksById, type LibraryTag } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
 import ScrollToItem from "./ScrollToItem";
 import { libraryHref, minutes, orDash, type LibraryParams } from "./params";
@@ -39,9 +39,20 @@ function Versions({ p }: { p: { promptVersion: number | null; docsAgents: number
   );
 }
 
-/** A small "Seed" tag after a title whose row comes from a seed file in src/features/library/seed. */
-const SeedTag = ({ seed }: { seed: boolean }) =>
-  seed ? <span className="ml-2 rounded-full border border-sky-500/40 bg-sky-500/10 px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider text-sky-200">Seed</span> : null;
+const TAG_STYLE: Record<LibraryTag, { label: string; cls: string }> = {
+  seed: { label: "Seed", cls: "border-sky-500/40 bg-sky-500/10 text-sky-200" },
+  database: { label: "Database only", cls: "border-slate-500/40 bg-slate-500/10 text-slate-300" },
+  off: { label: "Off", cls: "border-amber-500/40 bg-amber-500/10 text-amber-200" },
+};
+
+/** Small tags after a title: where the row comes from and whether players are offered it. */
+const Tags = ({ tags }: { tags: LibraryTag[] }) => (
+  <>
+    {tags.map((t) => (
+      <span key={t} className={`ml-2 rounded-full border px-1.5 align-middle text-[10px] font-medium uppercase tracking-wider ${TAG_STYLE[t].cls}`}>{TAG_STYLE[t].label}</span>
+    ))}
+  </>
+);
 
 export function CoverageTable({ rows, params }: { rows: CoverageRow[]; params: LibraryParams }) {
   return (
@@ -90,8 +101,9 @@ function ItemLink({ id, title, params }: { id: string; title: string; params: Li
   return <a className={LINK} href={`${libraryHref(params, { item: id })}#item`}>{title || id}</a>;
 }
 
-/** The seed plans, read from their files (no plan is stored in the database): each links to its drawing below the tables. */
-export function SeedPlansTable({ plans = SEED_PLANS, params }: { plans?: SeedPlanFile[]; params: LibraryParams }) {
+/** The plans, read from their files (no plan is stored in the database), each tagged; each links to its drawing below the tables. `off` holds the ids not enabled for reuse. */
+export function PlansTable({ plans = SEED_PLANS, off = new Set<string>(), params }: { plans?: SeedPlanFile[]; off?: ReadonlySet<string>; params: LibraryParams }) {
+  const seedIds = new Set(plans.map((f) => f.id));
   if (plans.length === 0) return <Muted>No seed plans.</Muted>;
   return (
     <div className="overflow-x-auto">
@@ -100,7 +112,7 @@ export function SeedPlansTable({ plans = SEED_PLANS, params }: { plans?: SeedPla
         <tbody>
           {plans.map((f) => (
             <tr key={f.id} className={ROW}>
-              <td className="p-2"><ItemLink id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} params={params} /></td>
+              <td className="p-2"><ItemLink id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} params={params} /><Tags tags={planTags(f.id, seedIds, off)} /></td>
               <td className="p-2">{f.model}</td>
               <td className="p-2"><Versions p={{ promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching }} /></td>
               <td className="p-2">{Array.isArray(f.plan.days) ? f.plan.days.length : 0}</td>
@@ -162,7 +174,7 @@ export function BlocksTable({ blocks, params }: { blocks: BlockSummary[]; params
         <tbody>
           {blocks.map((b) => (
             <tr key={b.id} className={ROW}>
-              <td className="p-2"><ItemLink id={b.id} title={b.title} params={params} /><SeedTag seed={seed.has(b.id)} /></td>
+              <td className="p-2"><ItemLink id={b.id} title={b.title} params={params} /><Tags tags={blockTags(b, seed)} /></td>
               <td className="p-2"><ChoiceLinks choices={b.choices} params={params} /></td>
               <td className="p-2">{orDash(b.level)}</td>
               <td className="p-2">{b.concepts.join(", ") || "–"}</td>
@@ -238,9 +250,10 @@ function Tables({ result, params }: { result: LibraryResult; params: LibraryPara
     <div>
       {data.scopeError !== null && <p className="mb-3 text-sm text-red-300">{data.scopeError}. Shown without a player.</p>}
       <p className="mb-3 text-sm text-slate-400">
-        Player: {params.player ?? "none"} (add <code>?player=</code> and a user id). Inactive choices and old blocks:{" "}
-        {params.includeNotEnabled ? "included" : "left out"}
-        {" "}<a className={LINK} href={libraryHref(params, { includeNotEnabled: !params.includeNotEnabled })}>{params.includeNotEnabled ? "leave out" : "include"}</a>
+        Player: {params.player ?? "none"} (add <code>?player=</code> and a user id).
+      </p>
+      <p className="mb-3 text-sm text-slate-400">
+        Every block and plan is listed. Seed: from a seed file. Database only: no seed file (a player&apos;s or the AI&apos;s). Off: not offered to players.
       </p>
       <H>Coverage by topic and level</H>
       <CoverageTable rows={data.topics} params={params} />
@@ -248,7 +261,7 @@ function Tables({ result, params }: { result: LibraryResult; params: LibraryPara
       <ConceptTable rows={data.concepts} />
       <H>Seed plans</H>
       <Muted>Read from src/features/library/seed/plans. Plans are not stored in the database.</Muted>
-      <SeedPlansTable params={params} />
+      <PlansTable params={params} />
       <H>{params.topic === undefined ? "Blocks" : `Blocks for ${params.topic}`}</H>
       {data.blocks === null ? <Muted>Choose a topic in the coverage table.</Muted> : <BlocksTable blocks={data.blocks} params={params} />}
     </div>

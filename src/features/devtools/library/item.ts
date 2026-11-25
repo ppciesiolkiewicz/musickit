@@ -1,6 +1,6 @@
 import { SEED_BLOCKS, SEED_PLANS, seedExercises, seedPlan, type SeedBlockFile } from "@/features/library/seed";
 import { exerciseOf } from "@/features/library/seed/choices";
-import type { BlockChoice, BlockDetail } from "@/features/library/server/types";
+import type { BlockChoice, BlockDetail, BlockSummary } from "@/features/library/server/types";
 import { blockIdOf, blockKeyOf, blockOfChoice, choiceIdOf } from "@/features/plan/model/blockId";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise } from "@/features/plan/model/config";
@@ -105,4 +105,24 @@ export function databaseItem(b: BlockDetail, choiceId?: string): DrawnItem {
     id: choiceId ?? b.id, kind: "block", versions: { prompt: p.promptVersion, agents: p.docsAgents, teaching: p.docsTeaching }, model: p.model,
     choices: b.choices, ...(choice ? { choiceId: choice.id } : {}), json: JSON.stringify(exercise),
   };
+}
+
+/** How a row is labelled: where it comes from (exactly one of `seed`, `database`) and whether players are offered it (`off`). */
+export type LibraryTag = "seed" | "database" | "off";
+
+/**
+ * A block's tags. A curated block with choices and no active one is `off`. A hashed block is `database` and never `off`:
+ * it is not a seed item, and whether a player sees it is a matter of who owns it.
+ */
+export function blockTags(b: BlockSummary, seedIds: { has(id: string): boolean }): LibraryTag[] {
+  const tags: LibraryTag[] = [seedIds.has(b.id) ? "seed" : "database"];
+  if (b.choices.length > 0 && !b.choices.some((c) => c.active)) tags.push("off");
+  return tags;
+}
+
+/** A plan's tags: `seed` or `database` by its file, `off` when it is in `off` (not enabled for reuse). */
+export function planTags(id: string, seedIds: { has(id: string): boolean }, off: ReadonlySet<string>): LibraryTag[] {
+  const tags: LibraryTag[] = [seedIds.has(id) ? "seed" : "database"];
+  if (off.has(id)) tags.push("off");
+  return tags;
 }
