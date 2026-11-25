@@ -3,8 +3,9 @@ import { placesOf } from "./riff";
 /**
  * From the neck markers and the fretting hand to a string and fret.
  *
- * The markers sit off the fretboard, each lined up with a fret wire (`id@fret`, set on the page). Their centres give the neck's
- * axis; a point's place along that axis, fitted against how far each marker's fret is from the nut on a real scale, gives its
+ * The markers sit off the fretboard, each in the middle of a fret space, level with the dot inlays (`id@fret`, set on the page;
+ * fret 0 is the nut). Their centres give the neck's axis; a point's place along that axis, fitted against how far each
+ * marker's place is from the nut on a real scale, gives its
  * fret (frets get closer up the neck: fret f is L·(1 − 2^(−f/12)) from the nut). Straight-line fit, no perspective: fine while
  * the camera looks at the neck from the front.
  *
@@ -13,17 +14,18 @@ import { placesOf } from "./riff";
  */
 
 export type Pt = { x: number; y: number };
-/** `mm`: the marker's side, when its edge (not its centre) is at the wire: then its centre is half of that beyond it. */
+/** `fret`: the fret space the marker's centre is in the middle of, or 0 for the nut. `mm`: at fret 0 only, the marker's side when its
+ * edge (not its centre) touches the nut: then its centre is half of that up the headstock. */
 export interface Placed { id: number; fret: number; mm?: number }
 export interface Grid { origin: Pt; dir: Pt; a: number; b: number }
 
 const distOf = (fret: number) => 1 - 2 ** (-fret / 12); // nut to fret, in scale lengths
 const SCALE_MM = 648; // 25.5" (Stratocaster, Telecaster)
-/** Nut to the marker's centre, in scale lengths. With a size, the marker sits past its wire: on the headstock at fret 0, toward the body at any other fret. */
-const placeOf = (p: Placed) => distOf(p.fret) + (p.mm ? (p.fret === 0 ? -1 : 1) * p.mm / 2 / SCALE_MM : 0);
+/** Nut to the marker's centre, in scale lengths: halfway between the wires either side of its fret space, or up the headstock from the nut. */
+const placeOf = (p: Placed) => (p.fret === 0 ? -(p.mm ?? 0) / 2 / SCALE_MM : (distOf(p.fret - 1) + distOf(p.fret)) / 2);
 const fretOf = (d: number) => (d >= 1 ? 24 : -12 * Math.log2(1 - d));
 
-/** "0@0/25, 1@17" → a 25 mm marker 0 touching the nut on the headstock, marker 1's centre at fret 17. Unreadable parts are skipped. */
+/** "0@0/25, 1@17" → a 25 mm marker 0 touching the nut on the headstock, marker 1 in the middle of fret space 17. Unreadable parts are skipped. */
 export function parsePlaced(text: string): Placed[] {
   return text.split(/[,\s]+/).flatMap((p) => {
     const m = /^(\d+)@(\d+)(?:\/(\d+(?:\.\d+)?))?$/.exec(p.trim());

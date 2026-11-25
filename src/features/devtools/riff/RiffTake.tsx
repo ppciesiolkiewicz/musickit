@@ -379,19 +379,20 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
                 Print the sheet for your paper: <a href="/riff/neck-markers-a4.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A4 markers</a> or{" "}
                 <a href="/riff/neck-markers-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">A3 markers</a>. Each has markers
                 from 40 mm down to 25 mm, the black square only, each with its own number. Use 30 mm where it fits, and 25 mm where it doesn&apos;t: smaller ones drop out.
+                For markers along the neck, print the <a href="/riff/neck-markers-frets-a3.pdf" target="_blank" rel="noreferrer" className="text-sky-400 underline">fret markers</a> (A3): each size says how far up the neck it fits.
               </li>
               <li>Print on matte paper at 100% (&quot;Actual size&quot;, not &quot;Fit to page&quot;). Measure one with a ruler: it should be 30 mm on every side.</li>
               <li>Cut around each marker so a white edge about 3 mm wide stays on all sides. The camera needs that edge to find the square.</li>
               <li>
-                Stick them off the fretboard, where your fingers won&apos;t cover them, with each one&apos;s centre level with a fret wire (or the nut).
-                On a Squier Stratocaster or Telecaster (25.5&quot; scale) the frets are about 36 mm apart at the nut, 27 mm at fret 5 and
-                18 mm at fret 12, so a 30 mm marker fits inside one fret only near the nut.
+                Stick them off the fretboard, where your fingers won&apos;t cover them, with each one&apos;s centre in the middle of a fret space, level with the dots on the fretboard.
+                On a Squier Stratocaster or Telecaster (25.5&quot; scale) the fret spaces are about 36 mm wide at the nut, 27 mm at fret 5 and
+                18 mm at fret 12, so a 30 mm marker fits inside one only near the nut.
                 <ul className="mt-1 list-disc space-y-0.5 pl-5">
                   <li>One on the headstock face, just above the nut (fret 0).</li>
-                  <li>One on the body just past the neck joint, lined up with fret 17.</li>
+                  <li>One on the body just past the neck joint, level with fret 17.</li>
                   <li>Skip the side of the neck: it is only about 20 mm deep, and a marker that small drops out.</li>
                 </ul>
-                Type each marker&apos;s number and the fret it lines up with into Markers, as number@fret, with the headstock one as fret 0 and its size in mm after a slash, since its centre sits past the nut (so 0@0/25, 1@17): the log uses it to read the fret your hand is at.
+                Type each marker&apos;s number and its fret into Markers, as number@fret. Fret 5 is the space between the 4th and 5th wires, where the fret 5 dot is. The headstock one is fret 0, and its size in mm after a slash, since its centre sits past the nut (so 0@0/25, 1@17): the log uses it to read the fret your hand is at.
               </li>
               <li>Test from where the camera will stand: press Start camera, turn on Read the neck, and play. Each marker&apos;s number should stay in the Markers label at the top left of the camera. If one keeps dropping out, print it bigger or move the camera closer.</li>
             </ol>
@@ -468,7 +469,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
               </label>
             )}
             {(camera || take) && phase !== "recording" && readNeck && (
-              <label className={field} title="For each marker, its number and the fret wire its centre is level with. A headstock marker touching the nut is fret 0 with its size in mm: 0@0/25.">
+              <label className={field} title="For each marker, its number and the fret space its centre is in the middle of. A headstock marker touching the nut is fret 0 with its size in mm: 0@0/25.">
                 Markers
                 <input value={markers} onChange={(e) => placeMarkers(e.target.value)} placeholder="0@0/25, 1@17" className={`${input} w-32`} />
               </label>

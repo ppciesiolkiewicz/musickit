@@ -1,4 +1,4 @@
-// Prints public/riff/neck-markers-frets-a3.pdf: ArUco markers (ARUCO_MIP_36h12) sized to sit one per fret.
+// Prints public/riff/neck-markers-frets-a3.pdf: ArUco markers (ARUCO_MIP_36h12) sized to sit inside a fret space.
 // Ids start after the A3 sheet's (0-50), so
 // markers from both sheets can be used together. Every marker is checked to decode with js-aruco2 before printing.
 //   node scripts/neck-markers-frets.mjs
@@ -18,8 +18,8 @@ const GAP = 3; // mm between pieces
 
 const dict = new AR.Dictionary("ARUCO_MIP_36h12");
 const fretWidth = (f) => SCALE * (2 ** (-(f - 1) / 12) - 2 ** (-f / 12));
-/** Highest wire a piece can be centred on with a neighbour on each next wire: the narrower fret beside it is at least as wide as the piece. */
-const upToWire = (piece) => { if (fretWidth(1) < piece) return 0; let f = 1; while (fretWidth(f + 1) >= piece) f++; return f; };
+/** Highest fret whose space is at least as wide as the piece, or 0 when even the first isn't. */
+const upToFret = (piece) => { let f = 0; while (fretWidth(f + 1) >= piece) f++; return f; };
 
 function markerSvg(id) {
   const code = dict.codeList[id];
@@ -66,8 +66,8 @@ for (let grew = true; grew;) {
   grew = false;
   for (let i = 0; i < plan.length; i++) if (plan[i].sizes.length === 1 && plan[i].sizes[0] < TEST_SIZE && used() + plan[i].ph + GAP <= room) { rows[i]++; grew = true; }
 }
-const fits = (s) => upToWire(piece(s))
-  ? `fret ${upToWire(piece(s))}`
+const fits = (s) => upToFret(piece(s))
+  ? `fret ${upToFret(piece(s))}`
   : null;
 for (const [i, p] of plan.entries()) {
   const items = [];
@@ -78,9 +78,9 @@ for (const [i, p] of plan.entries()) {
   }
   const names = p.sizes.join(", ").replace(/, (\d+)$/, " and $1");
   const note = p.sizes.length > 1
-    ? `fit a marker on every fret wire up to frets ${p.sizes.map((s) => upToWire(piece(s))).join(", ").replace(/, (\d+)$/, " and $1")}, in that order`
+    ? `fit inside a fret space up to frets ${p.sizes.map((s) => upToFret(piece(s))).join(", ").replace(/, (\d+)$/, " and $1")}, in that order`
     : fits(p.sizes[0])
-      ? `fits a marker on every fret wire up to ${fits(p.sizes[0])}`
+      ? `fits inside a fret space up to ${fits(p.sizes[0])}`
       : "wider than the first fret: for the headstock or the body, or to test how far away the camera reads it";
   sections.push(`<h2>${names} mm <span>${note}</span></h2><div class="row" style="gap:${GAP}mm;align-items:flex-end">${items.join("")}</div>`);
 }
@@ -104,7 +104,7 @@ h2 span { font-weight: normal; color: #444; margin-left: 2mm; }
 <h1>Neck markers for frets (ARUCO_MIP_36h12) · A3</h1>
 <p>Print at 100% ("Actual size") on matte paper, or better on matte sticker paper or thin card. Measure one black square: it should match its size.</p>
 <p>Cut on the dashed line. Keep the white edge round the black square.</p>
-<p>Centre each marker on a fret wire. The note after each size says how far up the neck that size still fits with a marker on every wire. Ids carry on from the A3 sheet (0–50), so each id is on one sheet only.</p>
+<p>Centre each marker in a fret space, level with the dots on the fretboard. The note after each size says how far up the neck that size still fits. Ids carry on from the A3 sheet (0–50), so each id is on one sheet only.</p>
 </div>
 ${sections.join("\n")}
 </body></html>`;

@@ -3,9 +3,11 @@ import assert from "node:assert/strict";
 import { fretAt, gridOf, parsePlaced, placeByHand } from "./neckGrid";
 
 const placed = parsePlaced("3@0, 7@17");
-// nut at x 0.1, fret 17 at x 0.9
+const dist = (f: number) => 1 - 2 ** (-f / 12);
+const mid17 = (dist(16) + dist(17)) / 2;
+// nut at x 0.1, the middle of fret space 17 at x 0.9
 const grid = gridOf([{ id: 3, c: { x: 0.1, y: 0.5 } }, { id: 7, c: { x: 0.9, y: 0.5 } }], placed)!;
-const xOf = (f: number) => 0.1 + (0.8 * (1 - 2 ** (-f / 12))) / (1 - 2 ** (-17 / 12));
+const xOf = (f: number) => 0.1 + (0.8 * dist(f)) / mid17;
 const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-6, `${a} ≠ ${b}`);
 
 test("reads the marker list", () => assert.deepEqual(placed, [{ id: 3, fret: 0 }, { id: 7, fret: 17 }]));
@@ -13,6 +15,11 @@ test("needs two placed markers", () => assert.equal(gridOf([{ id: 3, c: { x: 0, 
 test("puts frets where a real scale has them", () => {
   near(fretAt(grid, { x: xOf(5), y: 0.4 }), 5);
   near(fretAt(grid, { x: xOf(12), y: 0.6 }), 12);
+});
+test("a marker sits in the middle of its fret space", () => {
+  const f = fretAt(grid, { x: 0.9, y: 0.5 });
+  assert.ok(f > 16 && f < 17, `${f}`);
+  near(f, -12 * Math.log2(1 - mid17));
 });
 test("picks the string from the hand's fret", () => {
   // A3 (57): low E 17, A string 12, D string 7, G string 2
