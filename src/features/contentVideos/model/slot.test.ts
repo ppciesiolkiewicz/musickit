@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { LADDERS } from "@/features/plan/model/ladders";
-import { TOOLS, type Cell, type PlanTool } from "@/features/plan/model/tools";
+import { TOOLS, type Cell, type PlainCell, type PlanTool } from "@/features/plan/model/tools";
 import { NO_LEVEL, TOOL_LADDERS, asksOf, isToolKey, stepOf, stepsOfTool, toolCells, toolKeyOf } from "./slot";
 
 const make = (name: keyof typeof TOOLS, raw: Record<string, unknown>): PlanTool => {
@@ -14,7 +14,7 @@ const chordSteps = () => playAlong({ shape: "chord-steps", chords: [{ chord: "A"
 const pickingDrill = (level: string) => make("picking-drill", { level, bpm: 60 });
 const ears = (query: string) => make("interval-ears", { query });
 const backingBand = () => make("backing-band", { bpm: 60, key: "a", parts: { drone: "always" } });
-const cell = (tool: PlanTool): Cell => ({ type: "tool", tool });
+const cell = (tool: PlanTool): PlainCell => ({ type: "tool", tool });
 
 test("a play-along is one tool per shape", () => {
   assert.equal(toolKeyOf(chordSteps()), "guitar-play-along:chord-steps");
