@@ -15,14 +15,18 @@ const same = (a: string, b: string) => {
   return x.length === y.length && timingSafeEqual(x, y);
 };
 
-/** The scheduler's call: 503 without CRON_SECRET, 401 without its bearer, else the run's counts. */
+/**
+ * The scheduler's call: 503 without CRON_SECRET, 401 without its bearer, else the run's counts: 200, or 500 when any
+ * email failed, so the scheduler marks the run failed and can say so.
+ */
 export async function cronRoute(run: () => RunDeps | null, req: Request, env: Env, now: Date): Promise<Response> {
   const secret = env.CRON_SECRET?.trim();
   if (!secret) return json({ error: "CRON_SECRET is not set." }, 503);
   if (!same(req.headers.get("authorization") ?? "", `Bearer ${secret}`)) return json({ error: "Unauthorized." }, 401);
   const deps = run();
   if (!deps) return json({ error: "No database or SERVER_SIGNING_KEY." }, 503);
-  return json(await runReminders(deps, now));
+  const result = await runReminders(deps, now);
+  return json(result, result.failed > 0 ? 500 : 200);
 }
 
 /** GET: the signed-in player's reminder, `{ reminder: { enabled, time, zone } | null }`. */

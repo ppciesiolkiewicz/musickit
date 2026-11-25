@@ -21,7 +21,7 @@ export interface RunResult { due: number; emailed: number; skipped: number; fail
 
 /**
  * Sends every reminder due now, once. Each is claimed (its `sentOn` set) before the email goes, so a second run, or one
- * at the same time, skips it; a failed send is unclaimed so the next run within the hour tries again. Never throws:
+ * at the same time, skips it; a failed send is unclaimed so a retry within `SEND_WINDOW` tries again. Never throws:
  * one player's failure is counted and the run goes on.
  */
 export async function runReminders(deps: RunDeps, now: Date): Promise<RunResult> {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { emailName } from "../model";
 import type { Billing } from "../plans";
 import { useAccount } from "../useAccount";
@@ -18,9 +18,18 @@ import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
  * under it shows what it costs. Nothing is charged during the open beta. The page reloads into `next`, since a Teacher plan
  * changes the role every page reads. A Continue that can't go on brings the first thing to fix into view and focus,
  * since on a phone the name sits a screen above the button. The terms of use box is never ticked for them, and Continue
- * needs it; its link opens /terms in a new tab, so nothing typed here is lost.
+ * needs it; its link opens /terms in a new tab, so nothing typed here is lost. Another feature can add a box first among the
+ * boxes (`boxes`) and fields to the saved body (`extra`): the daily reminder does (`reminders/ui/SetupWithReminder`).
  */
-export default function SetupForm({ next, start }: { next: string; /** the side asked for (`?for=teachers`, from "Become a founding partner") */ start?: Audience | null }) {
+export default function SetupForm({ next, start, boxes, extra }: {
+  next: string;
+  /** the side asked for (`?for=teachers`, from "Become a founding partner") */
+  start?: Audience | null;
+  /** shown first among the boxes, above the email and terms boxes */
+  boxes?: ReactNode;
+  /** more fields for the setup body, read when Continue is pressed */
+  extra?: () => Record<string, unknown>;
+}) {
   const { account, loaded: accountLoaded } = useAccount();
   const [name, setName] = useState<string | null>(null);
   const [plans, setPlans] = useState<Loaded | null>(null);
@@ -81,7 +90,7 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
     if (!care) return careRef.current?.focus();
     if (!chosenPlan) return;
     setBusy(true);
-    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosenPlan.id, billing: shownBilling, emailUpdates: shownEmails, acceptTerms: terms });
+    const r = await send("/api/account/setup", "POST", { name: shown, planId: chosenPlan.id, billing: shownBilling, emailUpdates: shownEmails, acceptTerms: terms, ...extra?.() });
     // payments on and a paid plan with no subscription: on to Stripe's Checkout, which comes back to `next`
     if (r.ok && (r.body.account as { needsPayment?: boolean } | undefined)?.needsPayment) {
       const paid = await send("/api/account/checkout", "POST", { next });
@@ -179,6 +188,7 @@ export default function SetupForm({ next, start }: { next: string; /** the side 
         </fieldset>
 
         <div className="flex flex-col gap-4 border-t border-slate-800 pt-5 metal-rule">
+          {boxes}
           <EmailUpdatesBox checked={shownEmails} onChange={setEmails} where="account" />
           <div className="flex flex-col gap-1.5">
             <label className="flex items-start gap-3 text-sm">

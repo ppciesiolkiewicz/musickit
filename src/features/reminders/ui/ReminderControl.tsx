@@ -5,8 +5,7 @@ import Icon from "@/components/Icon";
 import { Checkbox, HUE_TONES } from "@/components/ui";
 import { errorOf, send } from "@/features/account/ui/parts";
 import { DEFAULT_TIME, QUARTER_TIMES, type ReminderSettings } from "../model";
-
-const zoneHere = () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+import { zoneHere } from "./ReminderSetupBox";
 
 /**
  * /plan's daily reminder email: a switch and a quarter-hour time, saved on the account (`/api/me/reminder`) with this

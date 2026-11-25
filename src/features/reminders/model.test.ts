@@ -21,15 +21,24 @@ test("localNow: across midnight and a DST change", () => {
   assert.equal(localNow(new Date("2026-03-29T01:30:00Z"), "Europe/Warsaw").hhmm, "03:30");
 });
 
-test("dueOn: in the hour after the time, once a day", () => {
+test("dueOn: at the time or within 15 minutes of it, once a day", () => {
   const r: Reminder = { enabled: true, time: "18:00", zone: "UTC", sentOn: null };
   const at = (t: string) => new Date(`2026-11-18T${t}:00Z`);
   assert.equal(dueOn(r, at("17:59")), null);
   assert.equal(dueOn(r, at("18:00")), "2026-11-18");
-  assert.equal(dueOn(r, at("18:59")), "2026-11-18");
-  assert.equal(dueOn(r, at("19:00")), null);
+  assert.equal(dueOn(r, at("18:14")), "2026-11-18");
+  assert.equal(dueOn(r, at("18:15")), null);
   assert.equal(dueOn({ ...r, sentOn: "2026-11-18" }, at("18:05")), null);
   assert.equal(dueOn({ ...r, sentOn: "2026-11-17" }, at("18:05")), "2026-11-18");
   assert.equal(dueOn({ ...r, enabled: false }, at("18:05")), null);
-  assert.equal(dueOn({ ...r, time: "23:45" }, new Date("2026-11-19T00:10:00Z")), null);
+});
+
+test("dueOn: never late, past midnight either; in the player's zone", () => {
+  const r: Reminder = { enabled: true, time: "23:45", zone: "UTC", sentOn: null };
+  assert.equal(dueOn(r, new Date("2026-11-18T23:59:00Z")), "2026-11-18");
+  assert.equal(dueOn(r, new Date("2026-11-19T00:00:00Z")), null);
+  // 18:00 in Warsaw (UTC+1 in winter) is 17:00 UTC
+  const w: Reminder = { enabled: true, time: "18:00", zone: "Europe/Warsaw", sentOn: null };
+  assert.equal(dueOn(w, new Date("2026-11-18T17:00:00Z")), "2026-11-18");
+  assert.equal(dueOn(w, new Date("2026-11-18T18:00:00Z")), null);
 });

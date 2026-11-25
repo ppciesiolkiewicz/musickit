@@ -44,15 +44,18 @@ export function localNow(now: Date, zone: string): { date: string; hhmm: string 
 
 const minutes = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
 
+/** Minutes after its time that a reminder may still go: one scheduler run (every 15 minutes) and its retries. */
+export const SEND_WINDOW = 15;
+
 /**
- * The local date the email is due on now, or null: switched on, the zone's local time at or past `time` and less than
- * an hour past it on the same date, and not sent that date. A scheduler down for over an hour skips that day.
+ * The local date the email is due on now, or null: switched on, the zone's local time at `time` or less than
+ * `SEND_WINDOW` minutes past it, and not sent that date. A reminder goes at its time or not at all: a run missed or
+ * failed means none that day, never a late one (and a time the clocks skip, when summer time starts, sends nothing).
  */
 export function dueOn(r: Reminder, now: Date): string | null {
   if (!r.enabled || !validZone(r.zone)) return null;
   const { date, hhmm } = localNow(now, r.zone);
-  const m = minutes(hhmm);
-  const t = minutes(r.time);
-  if (m < t || m >= Math.min(t + 60, 24 * 60)) return null;
+  const late = minutes(hhmm) - minutes(r.time);
+  if (late < 0 || late >= SEND_WINDOW) return null;
   return r.sentOn === date ? null : date;
 }

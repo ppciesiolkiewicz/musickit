@@ -66,6 +66,8 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   `{ name, planId, billing }` (`setUpAccount` in `server/auth.ts`: the plan and billing are checked before anything
   changes), then on to the page it was going to. Under the plans, `PaymentBox`: the chosen plan, its price, its free
   trial, and a dashed box where the card details will go. A placeholder: there is no payment provider yet, and the open beta charges nothing.
+  The page renders it through `reminders/ui/SetupWithReminder`, which adds the daily reminder box first among the
+  boxes (`boxes`) and `reminder` to the body (`extra`); this folder imports no feature.
   Last, under the email box, "I agree to the terms of use" (the words link to `/terms`, in a new tab): never ticked for
   them, and Continue needs it. Sent as `acceptTerms: true`; `setUpAccount` refuses anything else (`error: "terms"`) before
   it saves anything, and keeps `users.terms_accepted_at` and `users.terms_version` (migration `0029_terms_accepted`),
