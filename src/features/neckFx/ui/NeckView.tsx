@@ -25,7 +25,7 @@ const KEEP_HEARD = 8, MAX_SPARKS = 700, MAX_FLAMES = 300, BUMP_DECAY = 10;
 const KEEP_PATCH = 0.4;
 /** Effects that need the picks heard live. */
 const HEARING = new Set(["flash", "pulse", "mood", "heat", "sparks", "bump"]);
-type Spark = { x: number; y: number; vx: number; vy: number; age: number; life: number; hue: number; size: number };
+type Spark = { x: number; y: number; vx: number; vy: number; age: number; life: number; hue: number; size: number; spin?: number };
 
 type Marker = { id: number; corners: { x: number; y: number }[] };
 type Detector = { detect: (img: ImageData) => Marker[] };
@@ -137,6 +137,9 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
     // how many frame units a mm is across the neck, from the markers' size on screen, and how far in from the board's near
     // edge their middles are (mm): eased over frames
     let crossMm: number | null = null, insetMm = 10;
+    // the beat as the flames feel it: rising quickly and sinking slowly, so they swell and settle instead of snapping
+    const flare = { heat: 0, glow: 0 };
+    const easeFlare = (from: number, to: number, dt: number) => from + (to - from) * (1 - Math.exp(-(to > from ? 14 : 3) * dt));
     void Promise.all([loadHands(), loadMarkers()]).then(([hand, markers]) => {
       if (gone) return;
       setStatus("Play the take to read it.");
@@ -347,57 +350,73 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           }
         }
         // flames off both edges of the fretboard between two frets, the board itself left clear: a wide glow, then tongues
-        // hotter and paler toward the board; `swell` makes them taller toward `to`, `size` is their height in mm; licks break
-        // off, a burst on each beat
-        const burn = (g: Grid, from: number, to: number, c: { hue: number; sat: number; light: number }, size: number, swell: boolean, kick: number, heat: number, strong: number) => {
+        // hotter and paler toward the board; `swell` makes them taller toward `to`, `size` is their height in mm, `gap` how far
+        // out from the board's edge they start (mm), `rest` how big they are between beats (1 = full); licks break off, a burst
+        // on each beat
+        const burn = (g: Grid, from: number, to: number, c: { hue: number; sat: number; light: number }, size: number, swell: boolean, kick: number, heat: number, strong: number, gap = 0, rest = 1) => {
           // mm along the neck sizes the flames; mm across it (often shorter: the board is seen at a slant) places the board
           const mm = pxPerMm(g), cross = crossMm ?? mm, n = across(g);
           // the markers sit just inside the board's near edge, so its middle is half a board's width on from there, on the
           // fretting hand's side
           const edgeAt = (f: number, side: number, out: number) => {
-            const p = wireAt(g, f), d = neckSide * (neckWidthMm(f) / 2 - insetMm) * cross + side * ((neckWidthMm(f) / 2) * cross + out);
+            const p = wireAt(g, f), d = neckSide * (neckWidthMm(f) / 2 - insetMm) * cross + side * ((neckWidthMm(f) / 2) * cross + gap * mm + out);
             return { x: p.x + n.x * d, y: p.y + n.y * d };
           };
           const span = Math.max(0.01, to - from);
-          // a flame's height (px) at fret f: flickering tongues, tapering at both ends
+          // a flame's height (px) at fret f: slow waves rolling along the neck toward the bridge, tapering at both ends
           const tongue = (f: number, side: number) => {
-            const u = (distOf(f) * SCALE_MM) / 12 + side * 3.7;
-            const flick = 0.55 + 0.25 * Math.sin(u * 0.9 + now * 7) + 0.15 * Math.sin(u * 2.3 - now * 11) + 0.12 * Math.sin(u * 5.3 + now * 19);
+            const u = (distOf(f) * SCALE_MM) / 12 + side * 3.7, t = now;
+            const flick = 0.6 + 0.25 * Math.sin(u * 0.55 - t * 2.2) + 0.13 * Math.sin(u * 1.3 - t * 3.4 + side) + 0.06 * Math.sin(u * 2.9 - t * 5.5);
             const along = (f - from) / span, ends = Math.min(1, along * (swell ? 4 : 3)) * Math.min(1, (1 - along) * (swell ? 6 : 3) + (swell ? 0.15 : 0));
-            return Math.max(0, flick) * ends * (swell ? 0.5 + 0.5 * along : 1) * size * strong * (1 + 2.5 * kick) * mm;
+            return Math.max(0, flick) * ends * (swell ? 0.5 + 0.5 * along : 1) * size * strong * (rest + 2.5 * kick) * mm;
           };
           const STEPS = Math.max(12, Math.round(span * 6));
           ctx.save(); ctx.globalCompositeOperation = "lighter";
           ctx.shadowBlur = Math.min(60, (10 + 30 * kick) * strong);
-          for (const [reach, alpha, lift, hueShift] of [[2.2, 0.14, -10, -15], [1, 0.5, 0, 0], [0.6, 0.55, 18, 25], [0.28, 0.7, 35, 45]] as const) {
-            const col = `hsla(${(c.hue + hueShift * (c.hue > 180 ? -1 : 1) + 360) % 360} ${c.sat}% ${Math.min(92, c.light + lift + 10 * kick)}% / ${Math.min(1, alpha * (0.6 + 0.4 * heat) * (1 + 0.6 * kick))})`;
+          for (const [reach, alpha, lift, hueShift] of [[rest < 1 ? 2.8 : 2.2, 0.14, -10, -15], [1, 0.5, 0, 0], [0.6, 0.55, 18, 25], [0.28, 0.7, 35, 45]] as const) {
+            const col = `hsla(${(c.hue + hueShift * (c.hue > 180 ? -1 : 1) + 360) % 360} ${c.sat}% ${Math.min(92, c.light + lift + 10 * kick)}% / ${Math.min(1, alpha * (0.6 + 0.4 * heat) * Math.min(1.6, rest + 1.2 * kick))})`;
             ctx.fillStyle = col; ctx.shadowColor = col;
             for (const side of [1, -1]) {
               ctx.beginPath();
               for (let i = 0; i <= STEPS; i++) { const p = edgeAt(from + (span * i) / STEPS, side, 0); if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y); }
-              for (let i = STEPS; i >= 0; i--) { const f = from + (span * i) / STEPS, p = edgeAt(f, side, tongue(f, side) * reach); ctx.lineTo(p.x, p.y); }
+              // the tips sway along the neck, so the flames lean and flow
+              const tips = Array.from({ length: STEPS + 1 }, (_, j) => {
+                const i = STEPS - j, f = from + (span * i) / STEPS, h = tongue(f, side) * reach, p = edgeAt(f, side, h);
+                const lean = h * 0.45 * Math.sin(now * 0.9 + (distOf(f) * SCALE_MM) / 40 + side);
+                return { x: p.x + g.dir.x * lean, y: p.y + g.dir.y * lean };
+              });
+              // a smooth curve through the tips
+              for (let j = 0; j < tips.length - 1; j++) {
+                const m = { x: (tips[j].x + tips[j + 1].x) / 2, y: (tips[j].y + tips[j + 1].y) / 2 };
+                if (j === 0) ctx.lineTo(tips[0].x, tips[0].y);
+                ctx.quadraticCurveTo(tips[j].x, tips[j].y, m.x, m.y);
+              }
+              ctx.lineTo(tips[tips.length - 1].x, tips[tips.length - 1].y);
               ctx.closePath(); ctx.fill();
             }
           }
           ctx.restore();
-          const rate = (15 + 60 * heat) * strong * (1 + 6 * kick) * Math.min(1, span / 4);
+          const rate = (15 + 60 * heat) * strong * (rest + 6 * kick) * Math.min(1, span / 4);
           for (let i = Math.floor(rate * dt + Math.random()); i > 0 && flames.length < MAX_FLAMES; i--) {
             const f = from + span * (swell ? Math.sqrt(Math.random()) : Math.random()), side = Math.random() < 0.5 ? 1 : -1;
-            const p = edgeAt(f, side, tongue(f, side) * 0.5), v = (30 + Math.random() * 90) * (1 + 1.5 * kick) * mm;
-            flames.push({ x: p.x, y: p.y, vx: n.x * side * v + (Math.random() - 0.5) * 20 * mm, vy: n.y * side * v + (Math.random() - 0.5) * 20 * mm, age: 0, life: 0.25 + Math.random() * 0.35, size: (2 + Math.random() * 4) * (1 + kick) * mm, hue: c.hue });
+            const p = edgeAt(f, side, tongue(f, side) * 0.5), v = (20 + Math.random() * 60) * (1 + 1.2 * kick) * mm, drift = (Math.random() * 30 + 10) * mm;
+            flames.push({ x: p.x, y: p.y, vx: n.x * side * v + g.dir.x * drift, vy: n.y * side * v + g.dir.y * drift, age: 0, life: 0.6 + Math.random() * 0.7, size: (3 + Math.random() * 5) * (1 + kick) * mm, hue: c.hue, spin: (Math.random() - 0.5) * 4 });
           }
         };
         if (on.has("heat") && grid && handFret !== null) {
-          // from the nut to the hand, taller and hotter toward the hand and the higher up it is; on the beat they leap and run a
-          // couple of frets past the hand
-          const kick = beat.beat * follows.heat, to = Math.max(1, handFret + 0.5 + 2.5 * kick), heat = Math.min(1, to / 14);
-          burn(grid, 0, to, colourOf(fxNow.colour.heat), 10 + 28 * heat, true, kick, heat, strength.heat);
+          // from the nut to the hand, a little way out from the board, taller toward the hand and the higher up it is: low
+          // between beats and leaping on each one, running a couple of frets past the hand (with Beat at 0%, full all the time)
+          flare.heat = easeFlare(flare.heat, beat.beat * follows.heat, dt);
+          const kick = flare.heat, to = Math.max(1, handFret + 0.5 + 2.5 * kick), heat = Math.min(1, to / 14);
+          const rest = 1 - 0.75 * Math.min(1, follows.heat);
+          burn(grid, 0, to, colourOf(fxNow.colour.heat), 16 + 36 * heat, true, kick, heat, strength.heat, 8, rest);
         }
         if (on.has("glow") && grid) {
           // round the frets under the fingertips, in the last note's colour
           const tips = frettingTips(grid, handsSeen);
           if (tips) {
-            const kick = beat.beat * follows.glow, lo = Math.min(...tips.frets), hi = Math.max(...tips.frets);
+            flare.glow = easeFlare(flare.glow, beat.beat * follows.glow, dt);
+            const kick = flare.glow, lo = Math.min(...tips.frets), hi = Math.max(...tips.frets);
             const picked = fxNow.colour.glow ? hexHue(fxNow.colour.glow) : null;
             const c = picked ? { ...mc, ...picked } : lastNote === null ? mc : { hue: noteHue(lastNote), sat: 90, light: 58 };
             burn(grid, Math.max(0, lo - 0.6 - 0.5 * kick), hi + 0.6 + 0.5 * kick, c, 14, false, kick, Math.max(0.5, e), strength.glow);
@@ -409,7 +428,9 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
             const p = flames[i];
             p.age += dt;
             if (p.age > p.life || !on.has("heat")) { flames.splice(i, 1); continue; }
-            p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= Math.exp(-2 * dt); p.vy *= Math.exp(-2 * dt);
+            // a lick curls as it drifts and slows
+            if (p.spin) { const a = p.spin * dt, cs = Math.cos(a), sn = Math.sin(a); [p.vx, p.vy] = [p.vx * cs - p.vy * sn, p.vx * sn + p.vy * cs]; }
+            p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= Math.exp(-1.2 * dt); p.vy *= Math.exp(-1.2 * dt);
             const fade = 1 - p.age / p.life;
             const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * (0.6 + fade));
             g.addColorStop(0, `hsla(${p.hue} 100% ${55 + 35 * fade}% / ${0.8 * fade})`);
