@@ -4,6 +4,12 @@ Date: 2026-11-25. Task: tasks.txt, "TaskSeries ContentVideos".
 
 Lines marked **(user)** were decided by the user. Lines marked **(call)** are the designer's and can be overruled.
 
+**Revised 2026-11-25 (second pass, before ContentVideos3 was built).** What changed: a video covers the steps ticked
+when it is saved (one, several or all), not one step or "any"; there is no nearest-step borrowing; the Tools view is
+its own page in the admin nav, laid out like Component stories; recording is a separate page opened from a row. The
+purpose behind it (user): a framework for content people to add content through the platform, the practice plan now and
+the course later, where it is quick to see which tools have which videos and to record the missing ones.
+
 ## Why
 
 - Exercises need a video of someone playing them: "it just shows you how to play it" (user). Today only /dev/riff can
@@ -19,8 +25,9 @@ Lines marked **(user)** were decided by the user. Lines marked **(call)** are th
   a note on what it shows. It is not tied to one key or tempo: it can be instructional, cover a couple of keys and say
   more than the exercise (user).
 - **A video belongs to a tool, not to a block** (user, 2026-11-25: "it makes more sense for me to have the video
-  assigned to the tool rather than block"). It is for a tool at one step of its ladder (picking-drill at beginner),
-  or for a tool at any step (the tools with no ladder), and shows in every block that uses that tool there. One tool
+  assigned to the tool rather than block"). It is for a tool at the steps of its ladder ticked when it was saved
+  (picking-drill at beginner, or at beginner and intermediate, or at every step), or, for a tool with no ladder, for
+  the tool, and shows in every block that uses that tool at one of those steps (user, second pass). One tool
   in one block can have its own video instead (a riff, a song), which wins. A block shows the videos of the tools
   inside it, each video once (user: "block based on the videos inside doesn't display duplicates"). Later a course
   section points at a video too (user). There is no links table (user).
@@ -35,9 +42,10 @@ Lines marked **(user)** were decided by the user. Lines marked **(call)** are th
 
 ## Goals
 
-- A person with `content` records a video for a tool at a level (or for one tool in one block) from the library and
-  saves it; it is live for players at
-  once, with no review step (user: "just save button will save it").
+- A person with `content` sees on one page which tools and steps have a video and which don't, opens the record page
+  from a gap, records a video for the steps they tick (or for one tool in one block) and saves it; it is live for
+  players at once, with no review step (user: "just save button will save it"), and every block using the tool at
+  those steps shows it with no change to any block (user, second pass).
 - The video plays with the exercise's tool running over it in step with the hands. The design works for any tool;
   this build does it for riffs and the melody singer (user).
 - In a day's plan, an exercise with a video shows a video icon that opens it. If two exercises (or two tools) in the
@@ -103,7 +111,8 @@ Lines marked **(user)** were decided by the user. Lines marked **(call)** are th
 
   | Page | In /admin/content |
   | --- | --- |
-  | Library | with the Video panel (§4) and tags (§5) |
+  | Library | with the Video strip (§4) and tags (§5) |
+| Tools videos (new) | every tool and step with its video; the record page under it (§4) |
   | Learning path | as now |
   | Component stories | as now |
   | Onboarding coverage | as now |
@@ -128,20 +137,41 @@ deleted with the account and watched only by the owner and shares):
 | `title` text | |
 | `note` text | what it shows; may be empty |
 | `recorded_by` uuid → users, `on delete set null` | the video stays when the person leaves (call) |
-| `made_for` text | where it was recorded: `tool:<tool type>/<step key or any>`, or the block id for a block's own video (`riff:<block id>` from /dev/riff); only for the path and for reading |
-| `tool` text, null | the tool type it is for (`picking-drill`); null for a block's own video |
-| `step` text, null | the step of that tool's ladder it is for (`beginner`, a stage key), as the ladder's `read` gives it (`model/ladders.ts`); null: any step |
+| `made_for` text | where it was recorded: `tool:<tool type>`, or the block id for a block's own video (`riff:<block id>` from /dev/riff); only for the path and for reading |
+| `tool` text, null | the tool type it is for (`picking-drill`); null for a block's own video and for a video no step points at any more |
+| `steps` text[], null | the steps of that tool's ladder it covers (`{beginner,intermediate}`, stage keys), as the ladder's `read` gives them (`src/features/plan/model/ladders.ts`), plus `none` for the tool's cells with no readable step; null for a tool with no ladder (it covers the tool) |
 | `type`, `seconds`, `width`, `height`, `size` | as `videos` |
 | `blob_path` text unique | |
 | `overlay` jsonb, null | §4 |
 | `created_at` | |
 
-A unique index on `(tool, coalesce(step, ''))` where `tool` is set: one video per tool and step. Assigning a new one
-clears `tool` and `step` on the old row, which stays in the table and the store (call). The assignment lives on the
-video row, so there is still no links table (user).
+**One video per tool and step** (user, second pass): a step is covered by at most one video. Saving a video with
+ticked steps takes those steps off any other video of the same tool, in one transaction that locks that tool's rows
+(call: Postgres has no plain unique index over array members). A video left with no steps keeps its row and file and
+gets `tool` set to null, so it shows nowhere and stays for reuse (ContentVideos8). For a tool with no ladder, a new
+video replaces the old one the same way. **Every step ticked** is how "any level" is said: there is no separate
+any-step video (user, second pass: "sounds good" to "any level then just means every level is ticked"). Besides its
+ladder steps, a laddered tool has one more step to tick, **No level** (stored `none`), for its cells with no readable
+step; **All levels** on the record page ticks every step and **No level** together (call), so a first video covers
+every cell of the tool until level videos take steps off it. A step the
+ladder gains later is uncovered until someone ticks it, and the Tools videos page shows it as missing (call). The
+assignment lives on the video row, so there is still no links table (user).
+
+**Builder-check calls** (call, second pass):
+- A step key is stored as `<ladder id>:<key>` (`interval-ears:1`, `chord-changes:1`), so a tool with two ladders whose
+  keys overlap keeps them apart. The Tools videos page lists each ladder of such a tool as its own group of steps, and
+  the record page ticks within one ladder.
+- A cell's step is read from the settings as drawn: in a plan, after the player's choice is applied (a `level` choice
+  part gives the picked level); in the library strip and the seed-block counts, from the block as written (each
+  choice at its first option).
+- `guitar-play-along` is listed as one tool per shape (`guitar-play-along:chord-steps`, `:riff`, `:solo-over`, ...),
+  the `tool` column holding that key, so a chord-steps video never shows on a solo (call; the user accepted "no level"
+  videos but did not rule on the split).
+- A cell in `blocks.videos.cells` is addressed by its index in the block's tool cells flattened in reading order
+  (cells inside a `section` included). The seed's drop-and-print rule and `&cell=<n>` use that index.
 
 **Path** (call): `content/videos/<made_for>/<id>.<webm|mp4>`, e.g.
-`content/videos/tool:picking-drill/beginner/3f9c….webm` or
+`content/videos/tool:picking-drill/3f9c….webm` or
 `content/videos/guitar-beginner-blues-boogie-pattern-in-a/3f9c….webm`. It names where it was made, not where it is used,
 since a video can be pointed at from several places.
 
@@ -161,22 +191,29 @@ route answers with a cacheable `cache-control` so repeat plays cost less. PATCH 
    in the database only (seed files don't carry it, see §5) and outside the block's `content`, so a hashed block's id
    still matches its content and the seed never has to merge it. For what only that block has: a riff, a song, a chord
    chart.
-2. **The tool at its step**: the `content_videos` row with that `tool` and the `step` the ladder reads from the cell's
-   settings (`read` in `model/ladders.ts`; a tool with several ladders uses the first that reads a step).
-3. **The tool at any step**: the row with that `tool` and no `step`. The tools with no ladder (`backing-band`,
-   `chord-shapes`, `scale-neck`, ...) only ever have this one or a block's own.
+2. **The tool at its step**: the `content_videos` row with that `tool` whose `steps` hold the step the ladder reads
+   from the cell's settings (`read` in `src/features/plan/model/ladders.ts`; a tool with several ladders uses the first
+   that reads a step). The tools with no ladder (`backing-band`, `chord-shapes`, `scale-neck`, ...) use the row with
+   that `tool` and null `steps`.
+3. **No level**: a cell of a laddered tool whose step can't be read (most `guitar-play-along` shapes, most song
+   charts, breathwork other than farinelli, clap-along with its own pattern) uses the row of that tool whose `steps`
+   hold `none` (user, second pass: "for these there will be no level now or we select just all or any level").
+   Otherwise nothing: no borrowing from the nearest step (user, second pass: ticking steps chosen over "find the
+   nearest video").
 
 Videos are not tied to a key, chord or tempo (§ What it is), so one video serves every block that uses the tool at
-that step. **Order of recording** (user): first one video per tool at any step, then one per step as the
+that step. **Order of recording** (user): first one video per tool with every step ticked, then one per step as the
 steps come, each showing what is new at that step (its new cues: picking-drill's beginner video shows the upstroke, its
-advanced one the string skip). Rule 2 takes over from rule 3 for that step as soon as its video is saved; nothing in a
-block changes. 14 of the 38 tools have the four-step level (new, beginner, intermediate, advanced, `exercises/basics/levels.ts`),
+advanced one the string skip). Saving the beginner video takes beginner off the every-step video; nothing in a block
+changes. 14 of the 38 tools have the four-step level (new, beginner, intermediate, advanced, `exercises/basics/levels.ts`),
 a few have stages (the melody and run books, song-chart), the rest none (2026-11-25).
 
 **No duplicates** (user): a block shows each video once, at the first tool cell that resolves to it; the later cells
 with the same video show none. The day's plan applies the same rule over the whole day (Goals: "only the first shows
-it"). Saving a video from the library's Video panel sets the row's `tool` and `step`, or the block's cell, in the same
-request.
+it"). The rule is by video, not by tool (user, second pass: "if they have different levels - always show 2 videos. If
+the level is same - show 1 video"): the same tool at two steps shows two videos when two videos cover them, and one
+when one video covers both. Saving a video from the record page sets the row's `tool` and `steps`, or the block's cell,
+in the same request.
 
 - **A block's own video** is only for curated (seed) blocks (call); the panel offers only the tool's video on a
   Database only block. A player's edited copy of a curated block (a new hashed block with `parentId`) does not show the
@@ -184,7 +221,7 @@ request.
   to the tool.
 - **Plans look it up when drawn** (call): a player's plan is a stored copy (`user_documents`), so the plan page asks for
   the videos of what is on screen each time it renders: one batch request with the block ids and each tool cell's tool
-  and step. A video recorded today shows
+  and step (one lookup function serves the library, the plan and later the course). A video recorded today shows
   in plans made before it, teacher weeks and shared plans included. The "only the first" rule runs there too, over the
   day on screen.
 
@@ -193,13 +230,28 @@ tool cell at it (a block's own video: a riff is that block's alone). The Indexed
 
 ## 4. Recording panel and overlay
 
-- Under each tool cell of an exercise opened in the library (`/admin/content/library/blocks?item=<id>`, in its row), a
-  **Video** strip: the video that cell shows now and where it comes from (**For picking drill, beginner**, **For picking
-  drill, any level**, or **For this block only**), with play, title, note, **Replace**, **Unlink**, or **Record**.
-  Recording asks which it is for: the tool at this step (the default), the tool at any step, or this block only. A cell
-  whose video already showed higher up says so instead of repeating it.
-- A **Tools** view in the library lists every tool and its steps with the video each has, so the gaps can be recorded
-  without hunting for a block that uses them (call).
+Three places, kept apart so no page loads more than it needs (user, second pass: recording "in a separate navitem
+subpage (for performance of not having too much on one site)"):
+
+- **Tools videos** (`/admin/content/videos`, its own item in the /admin/content nav): every tool from the tool
+  registry, laid out like Component stories (a list of tools to pick from, the picked one's detail beside it) (user:
+  "see these tools - like in a stories"). The detail lists the tool's steps and **No level** (or the tool alone, with no ladder), each
+  with the video covering it (a thumbnail, its title, the other steps it covers) or **Missing**, and how many seed
+  blocks use the tool at that step, so the most used gaps are clear (call). The list marks each tool with how many of
+  its steps are covered. The tool itself is not drawn here and no camera or player loads until a video is played (call:
+  "just its name and the video thumbnails" was offered and the user said "continue"). Each step has **Record**, and a
+  video has **Change steps** (re-tick, same rules as saving), **Edit** (title, note) and **Delete** (refused while
+  something points at it).
+- **Record** (`/admin/content/videos/record?tool=<type>&steps=<keys>`, or `&block=<id>&cell=<n>` from a block): the
+  only page that loads the camera and the tool. The tool sits over the camera with settings from a seed block that uses
+  it at the first ticked step (a picker lists them; the first is the default), or from the block it was opened from
+  (call). Before saving, the person ticks the steps it is for (those in the link are ticked already) or, when opened
+  from a curated block, **This block only**. Ticking a step another video covers says which video loses it (call).
+- **Library strip**: under each tool cell of an exercise opened in the library (`/admin/content/library/blocks?item=<id>`,
+  in its row), the video that cell shows now and where it comes from (**For picking drill, beginner and
+  intermediate**, **For picking drill**, or **For this block only**), with play and a **Record** link to the record
+  page for that block and cell. A cell whose video already showed higher up says so instead of repeating it. Nothing
+  here records.
 - Recording, reusing `VideoRecorder` parts and /dev/riff's camera and audio input picking: the camera fills the
   frame and the exercise's tool sits over it. The recorder starts and stops the tool with its own controls whenever they
   want (user). A strict click/count-in is not needed (user: "more permissive"); /dev/riff keeps its click mode for
@@ -278,7 +330,7 @@ video").
    ContentVideos11).
 3. Content videos: table, Blob path, upload and file routes, `video` field kept by the seed, /dev/riff saving there.
 4. Video in the plan: video icon, the first-only rule for a day.
-5. Recording panel with the tool overlay; `VideoOverlay` for the riff tool.
+5. Tools videos page, record page with the tool overlay, library strip; `VideoOverlay` for the riff tool.
 6. Notes in the database.
 
 Each step lands on its own and leaves the app working.
@@ -292,7 +344,9 @@ Each step lands on its own and leaves the app working.
 
 ## Later (tasks.txt)
 
-- Course sections with empty video spots a content person records into, and a `video` field on course sections.
+- Course sections with empty video spots a content person records into, and a `video` field on course sections. A
+  course section that draws a tool should show that tool's video through the same lookup (call, second pass: the
+  framework is for "the Practice Plan as well as later to the course").
 - Reusing a video in several places from the content view (pick an existing video for an exercise or section).
 - Pulling an app edit back into a seed file, if editing beyond `video` and riffs is ever allowed in the app (riffs have
   `db:pull-riffs`, §5a).
