@@ -25,11 +25,6 @@ export interface LibraryData {
   owners: { userId: string | null; blockId: string; source: "ai" | "edit" | "seed" | "example"; createdAt: Date }[];
   progress: { userId: string; exerciseId: string; entry: ProgressEntry; blockId: string | null; choiceId: string | null }[];
   dayTimes: { userId: string; planId: string; day: number; elapsed: number; spent: unknown; blocks: unknown }[];
-  plans: {
-    id: string; title: string; answers: unknown; model: string; reply: string; source: string; promptVersion: number | null;
-    docsAgents: number | null; docsTeaching: number | null; enabledForReuse: boolean; createdAt: Date;
-  }[];
-  planBlocks: { planId: string; day: number; place: number; blockId: string; choiceId?: string | null; minutes: number }[];
 }
 
 export const PLAYER_A = "a0000000-0000-4000-8000-00000000000a";
@@ -40,10 +35,6 @@ const block = (id: string, createdAt: string, extra: Partial<LibraryData["blocks
   id, kind: "hashed", content: { title: `Block ${id}`, cells: [] }, area: "guitar", topic: "guitar-scales", concepts: [], level: null, steps: [], tags: [], parentId: null,
   model: null, promptVersion: null, docsAgents: null, docsTeaching: null, createdAt: new Date(createdAt),
   minutes: null, why: null, learnBefore: null, exploreMore: null, ...extra,
-});
-const plan = (id: string, extra: Partial<LibraryData["plans"][number]>): LibraryData["plans"][number] => ({
-  id, title: `Plan ${id}`, answers: null, model: "m1", reply: "", source: "seed", promptVersion: null, docsAgents: null, docsTeaching: null,
-  enabledForReuse: false, createdAt: new Date("2026-02-01T00:00:00Z"), ...extra,
 });
 const owner = (userId: string | null, blockId: string, source: LibraryData["owners"][number]["source"]): LibraryData["owners"][number] =>
   ({ userId, blockId, source, createdAt: new Date("2026-01-01T00:00:00Z") });
@@ -67,9 +58,8 @@ export const curatedBlock = (id: string, createdAt: string, extra: Partial<Libra
  * (pentatonic:1 and :2, 5 minutes), S2/intermediate (pentatonic:2, 7 minutes), Zed/advanced and alpha/advanced (no steps). X is a
  * hashed block the app owns (an old example: seen only with `includeNotEnabled`); PA is A's private edit; R is a block A and B both
  * own and both rated (A 3 stars, then 5 stars later in another slot; B 2 stars). PB is B's; D has two owner rows (A's and B's);
- * Zed and alpha have the same created_at. Plans: P1 and P2 enabled, P3 (the app's, X only) not enabled, P4 enabled with no block
- * rows and null answers. P1 holds S1 on two days, S2 and X; P2 holds R and D. A also owns S2 and rated its choice 2 stars. Timer
- * rows: A and B on S1, plus two bad rows (`blocks` null; a non-number in `spent`).
+ * Zed and alpha have the same created_at. A also owns S2 and rated its choice 2 stars. Timer rows: A and B on S1, plus two bad
+ * rows (`blocks` null; a non-number in `spent`).
  */
 export function baseFixture(): LibraryData {
   return {
@@ -117,21 +107,6 @@ export function baseFixture(): LibraryData {
       { userId: PLAYER_A, planId: "p-6", day: 0, elapsed: 300, spent: { e1: 100, e2: 200 }, blocks: { e1: "S2", e2: "S2" } },
       // a non-number slot next to a valid one: the valid one counts
       { userId: PLAYER_B, planId: "p-7", day: 0, elapsed: 50, spent: { e1: 50, e2: "x" }, blocks: { e1: "S2", e2: "S2" } },
-    ],
-    plans: [
-      plan("P1", { answers: { areas: ["guitar", "theory"] }, model: "m1", reply: "reply P1", promptVersion: 3, docsAgents: 2, docsTeaching: 2, enabledForReuse: true }),
-      plan("P2", { answers: { areas: ["rhythm"] }, model: "m2", reply: "reply P2", promptVersion: 4, docsAgents: 2, docsTeaching: 3, enabledForReuse: true }),
-      plan("P3", { answers: { areas: ["ear"] }, model: "m1", reply: "reply P3", enabledForReuse: false }),
-      plan("P4", { answers: null, model: "m3", reply: "reply P4", enabledForReuse: true }),
-    ],
-    planBlocks: [
-      { planId: "P1", day: 0, place: 0, blockId: "S1", choiceId: "S1/beginner", minutes: 10 },
-      { planId: "P1", day: 0, place: 1, blockId: "S2", choiceId: "S2/intermediate", minutes: 15 },
-      { planId: "P1", day: 1, place: 0, blockId: "S1", choiceId: "S1/beginner", minutes: 10 },
-      { planId: "P1", day: 1, place: 1, blockId: "X", minutes: 5 },
-      { planId: "P2", day: 0, place: 0, blockId: "R", minutes: 20 },
-      { planId: "P2", day: 0, place: 1, blockId: "D", minutes: 10 },
-      { planId: "P3", day: 0, place: 0, blockId: "X", minutes: 10 },
     ],
   };
 }

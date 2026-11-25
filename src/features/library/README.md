@@ -1,16 +1,15 @@
 # Library
 
-Reads the library of practice plans and exercise blocks, for agents that ask for them by tool. It only reads: nothing here inserts, updates or deletes.
+Reads the library of exercise blocks, for agents that ask for them by tool. There is no plan library: the seed plans stay files (`seed/plans`, `SEED_PLANS`), read by /demo, /dev/library and tests, and never stored. It only reads: nothing here inserts, updates or deletes.
 
-`seed/` holds the plans and exercises agents write for the library's gaps, one JSON file each; its `README.md` says how to add one. The seed scripts (`db:seed-plans`, `db:seed-blocks`) put them in the database.
+`seed/` holds the plans and exercises agents write for the library's gaps, one JSON file each; its `README.md` says how to add one. `db:seed-blocks` puts the blocks in the database; the plans are not stored.
 
 ## The scope
 
 Every query takes a `Scope`, built by the server code that calls the module and never passed through from a model.
 
 - `player`: the player asking. Their own blocks are visible; `mine` and the `player` filter are about them.
-- `planIds`: when set, plan queries see only these ids.
-- `includeNotEnabled` (dev): also inactive choices, curated blocks with no active choice, the app's hashed blocks (old examples and AI rows), and plans not enabled for reuse.
+- `includeNotEnabled` (dev): also inactive choices, curated blocks with no active choice, and the app's hashed blocks (old examples and AI rows).
 
 A block is curated (`blocks.kind` 'curated': a seed block with a fixed id, its level, steps, minutes and moves on its `choices`) or hashed (its id the hash of its content: a player's edit, an old AI or example block). A curated block is returned while one of its choices is `active`; a hashed block only to a player who owns it (`block_owners`), or with `includeNotEnabled` when the app owns it (`user_id` null). The player's own blocks are always returned. Another player's private block is never returned. There is no reuse flag on blocks: a choice's `active`, set by the seed, is the only switch. A block's `revision` (`blocks.revision`) says how many times the seed has written it: 1 at first, one more each time `db:seed-blocks` finds its file changed; no query here returns it yet.
 
@@ -18,13 +17,13 @@ A curated block's summary and detail carry `choices` (id, name, level, steps, mo
 
 Other players appear only as totals (`use`: times, seconds, ratings by stars). No function returns another player's id or a single rating of theirs. Stars never order or filter blocks, except the player's own latest stars for `player: "repeat"`.
 
-Plans have their own gate: enabled for reuse, or `includeNotEnabled`, and `scope.planIds` narrows them. A plan's schedule, counts, topics, concepts and filters come from its `practice_plan_blocks` rows whether or not each block is visible to the caller; only a schedule row's title follows the block's gate (the rule `getBlock` uses), and is "" when the caller cannot see the block. A library plan's rows name only blocks the app owns. `coverage` counts only blocks visible under the scope, and only pairs, concepts and steps with at least one; its `plans` counts visible plans with a block of that topic and level (or concept, or step). A block counts for a step only when it names it (a hashed block's `blocks.steps`, a curated block's listed choices' `steps`, "trackId:n"); a curated block counts once per listed choice in a topic-and-level or step row (its time and seconds once). A plan row counts by its choice's level and steps when it names a choice (`practice_plan_blocks.choice_id`), else by its block's. The `steps` filter matches a block that (or one of whose listed choices) names any of them. A block stored before steps names none and is found by `level` alone.
+`coverage` counts only blocks visible under the scope, and only pairs, concepts and steps with at least one. A block counts for a step only when it names it (a hashed block's `blocks.steps`, a curated block's listed choices' `steps`, "trackId:n"); a curated block counts once per listed choice in a topic-and-level or step row (its time and seconds once). The `steps` filter matches a block that (or one of whose listed choices) names any of them. A block stored before steps names none and is found by `level` alone.
 
 `handleRpc` and `devTools` (in `mcp.ts`) build the scope from the tool arguments (`player`, `include_not_enabled`, through `devScope`). They are for the local dev route `/api/dev/mcp` only, never mounted elsewhere; `/dev/library` is the other caller of `devScope`.
 
 ## Files (`server/`)
 
-- `types.ts`: `Scope`, `BlockChoice`, `BlockSummary`, `BlockDetail` (with `slot`, a block's default minutes, why and lessons, or null), `BlockSlot`, `BlockFilter`, `BlockOrder`, `PlanSummary`, `PlanDetail`, `PlanFilter`, `CoverageRow`, `ConceptCoverage`.
+- `types.ts`: `Scope`, `BlockChoice`, `BlockSummary`, `BlockDetail` (with `slot`, a block's default minutes, why and lessons, or null), `BlockSlot`, `BlockFilter`, `BlockOrder`, `CoverageRow`, `ConceptCoverage`, `StepCoverage`.
 - `repo.ts`: the `LibraryRepo` interface.
 - `repo.memory.ts`: the repo over plain rows, the readable statement of the rules.
 - `fixture.ts`: `LibraryData` (rows shaped like the tables in `src/lib/db/schema.ts`, `choices` included), `baseFixture()`, and `curatedBlock` and `choice` for tests that add their own.
@@ -32,13 +31,13 @@ Plans have their own gate: enabled for reuse, or `includeNotEnabled`, and `scope
 - `testDatabase.ts`: `localTestDatabase(url)`, the guard of the Postgres test script (below).
 - `repoContract.ts`: `libraryRepoContract(make)`, the tests every repo must pass; `repo.memory.test.ts` runs it on the memory repo.
 - `composeBlocks(player, areas)` (on the repo, not in `query.ts`): what a day's plan can be made from, for the plan composer: one `ComposeBlock` per active choice of a curated block in one of the areas, where the choice names at least one step, or the block is a warm-up (`content.kind` "warm-up", DayShape2: it names none and the composer picks it by its kind). A hashed block is never listed. Each has the block's id, content and fields with the choice's `choiceId`, `level`, `steps`, minutes (`slot.minutes`; why and lessons are the block's) and `moves` (in `content.moves`); `use` (times and seconds of every player on the block, all its choices together, summed for these blocks only) and `mine` (the player's newest rating by `at` among rows with that `choice_id`, null when none). By block id, then choice place; no limit.
-- `query.ts`: `findBlocks`, `getBlock`, `findPlans`, `getPlan`, `libraryCoverage`, `playerProgress` over a `LibraryRepo` and a `UserDataRepo` (`Deps`). Limits clamp to 1..max (blocks 20/50, plans 10/30); `random-least-used` shuffles the least used fifth; coverage adds zero rows for every topic, level, concept and path step (steps in path order, `slope`); `playerProgress` builds the progress page's `outcome()` on the server from the player's own readers (`readDoc`, every plan of it: current, history and given; `readEntries`, `readAllPlanTimes`), returns at most 50 of the player's blocks with `blocksTotal` beside them, and is null without a player.
-- `tools.ts`: `LIBRARY_TOOLS` (name, description, JSON schema) and `callTool`, which checks arguments by hand. `player`, `planIds`, `includeNotEnabled` and `include_not_enabled` in the arguments are ignored: the scope is the server's.
+- `query.ts`: `findBlocks`, `getBlock`, `libraryCoverage`, `playerProgress` over a `LibraryRepo` and a `UserDataRepo` (`Deps`). Limits clamp to 1..max (blocks 20/50); `random-least-used` shuffles the least used fifth; coverage adds zero rows for every topic, level, concept and path step (steps in path order, `slope`); `playerProgress` builds the progress page's `outcome()` on the server from the player's own readers (`readDoc`, every plan of it: current, history and given; `readEntries`, `readAllPlanTimes`), returns at most 50 of the player's blocks with `blocksTotal` beside them, and is null without a player.
+- `tools.ts`: `LIBRARY_TOOLS` (name, description, JSON schema) and `callTool`, which checks arguments by hand. `player`, `includeNotEnabled` and `include_not_enabled` in the arguments are ignored: the scope is the server's.
 - `mcp.ts`: `handleRpc` (the MCP streamable HTTP messages: `initialize`, `ping`, `tools/list`, `tools/call`; stateless, plain JSON), `devTools()` (the tools with the two dev arguments added) and `devScope` (takes `player` and `include_not_enabled` out of the arguments and builds the `Scope`; the only place that reads them). A query that throws becomes a result with `isError` and the text "The library could not be read."; the error is logged with `console.error`.
 
 ## How an agent reaches the tools
 
-`.mcp.json` at the repo root points Claude Code at `http://localhost:3000/api/dev/mcp` (server `musickit-library`), so the dev server must be running. It is local only: the route answers 404 in production. It reads the database the dev server is configured with (`DATABASE_URL`), which must have every migration up to 0039 applied. Two extra arguments exist on every tool there and nowhere else: `player` (a user id that exists; puts that player in scope) and `include_not_enabled` (true also shows inactive choices, the app's old example and AI blocks, and plans not enabled for reuse). Without them the scope is empty: curated blocks with an active choice, and plans enabled for reuse.
+`.mcp.json` at the repo root points Claude Code at `http://localhost:3000/api/dev/mcp` (server `musickit-library`), so the dev server must be running. It is local only: the route answers 404 in production. It reads the database the dev server is configured with (`DATABASE_URL`), which must have every migration up to 0039 applied. Two extra arguments exist on every tool there and nowhere else: `player` (a user id that exists; puts that player in scope) and `include_not_enabled` (true also shows inactive choices and the app's old example and AI blocks). Without them the scope is empty: curated blocks with an active choice.
 
 ## Testing against Postgres
 

@@ -1,6 +1,6 @@
 /**
- * What /dev/library reads from the address: a topic to list blocks for, a player, whether to show what is not enabled
- * for reuse, and the plan or block id to draw.
+ * What /dev/library reads from the address: a topic to list blocks for, a player, whether to show inactive choices and
+ * the app's old blocks, and the plan or block id to draw.
  */
 export interface LibraryParams {
   topic?: string;

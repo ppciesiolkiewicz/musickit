@@ -7,10 +7,10 @@ import { PAYMENT_PROVIDERS, type PlanTokens } from "../model/unitEconomics";
 import CostPerPlayer from "./CostPerPlayer";
 import OpenRouterModels from "./OpenRouterModels";
 import OverTime from "./OverTime";
-import PlanCosts, { type ReuseInfo } from "./PlanCosts";
+import PlanCosts from "./PlanCosts";
 
 /** /dev/costs: what autoplans cost us. The plans with a year on each, one paying player's year on each AI model, the business over time, and other models on OpenRouter. */
-export default function CostsPage({ planTokens, plans, reuse }: { /** one plan's tokens per model, from the published compare-models runs */ planTokens: PlanTokens[]; /** the plans table; null without a database */ plans: Plan[] | null; /** each plan's chance of a new autoplan and the library; null without a database */ reuse: ReuseInfo | null }) {
+export default function CostsPage({ planTokens, plans }: { /** one plan's tokens per model, from the published compare-models runs */ planTokens: PlanTokens[]; /** the plans table; null without a database */ plans: Plan[] | null }) {
   const [provider, setProvider] = useState<keyof typeof PAYMENT_PROVIDERS>("stripe");
   const fee = PAYMENT_PROVIDERS[provider];
   const [fixedOn, setFixedOn] = useState<Set<string>>(() => new Set(FIXED_COSTS.filter((c) => c.on).map((c) => c.id)));
@@ -48,9 +48,9 @@ export default function CostsPage({ planTokens, plans, reuse }: { /** one plan's
           <p className="mt-3 text-xs text-slate-500">List prices for one seat or user, checked {FIXED_COSTS_CHECKED}, before tax and before usage past each plan. Change them in model/fixedCosts.ts.</p>
         </details>
       </div>
-      <PlanCosts plans={plans} tokens={planTokens} reuse={reuse} fee={fee} />
-      <CostPerPlayer models={planTokens} plans={plans} reuse={reuse} fee={fee} fixedMonthly={fixedMonthly} />
-      <OverTime plans={plans} tokens={planTokens} reuse={reuse} fee={fee} fixedMonthly={fixedMonthly} />
+      <PlanCosts plans={plans} tokens={planTokens} fee={fee} />
+      <CostPerPlayer models={planTokens} plans={plans} fee={fee} fixedMonthly={fixedMonthly} />
+      <OverTime plans={plans} tokens={planTokens} fee={fee} fixedMonthly={fixedMonthly} />
       <OpenRouterModels tokens={planTokens} fee={fee} />
     </div>
   );

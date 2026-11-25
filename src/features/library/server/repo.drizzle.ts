@@ -3,7 +3,7 @@ import type { Db } from "@/lib/db/client";
 import type { Block } from "@/features/plan/model/types";
 import type { Stars } from "@/features/progress/stars";
 import type { LibraryRepo } from "./repo";
-import type { BlockChoice, BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, ComposeBlock, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
+import type { BlockChoice, BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, ComposeBlock, ConceptCoverage, CoverageRow, Scope, StepCoverage } from "./types";
 
 /*
  * Every value from a caller is a bound parameter (`${...}` in `sql`); nothing is spliced into the text. Player ids are compared
@@ -38,14 +38,6 @@ const units = (scope: Scope): SQL => sql`(
   select c.block_id, c.id as choice_id, c.level, c.steps from choices c join blocks cb on cb.id = c.block_id where cb.kind = 'curated' and ${listedChoice(scope)}
   union all
   select hb.id, null, hb.level, hb.steps from blocks hb where hb.kind <> 'curated'
-)`;
-
-/** The rows of plan `p` with what each serves: its choice's level and steps when it names one, else its block's; and its block's topic and concepts. */
-const planRows = sql`(
-  select r.plan_id, rb.id as block_id, rb.topic, rb.concepts,
-    case when rc.id is not null then rc.level else rb.level end as level,
-    case when rc.id is not null then rc.steps else rb.steps end as steps
-  from practice_plan_blocks r join blocks rb on rb.id = r.block_id left join choices rc on rc.id = r.choice_id
 )`;
 
 /** Whether the player owns the block whose id is `id`. */
@@ -177,63 +169,6 @@ function summaryOf(scope: Scope, r: BlockRow): BlockSummary {
   };
 }
 
-/** The plan gate for `p`: enabled for reuse or `includeNotEnabled`, and inside `scope.planIds` when that is set. */
-function planVisible(scope: Scope): SQL {
-  const gate = scope.includeNotEnabled === true ? sql`true` : sql`p.enabled_for_reuse`;
-  if (scope.planIds === undefined) return gate;
-  return scope.planIds.length ? sql`${gate} and p.id = any(${textArray(scope.planIds)})` : sql`false`;
-}
-
-/** The distinct blocks of plan `p`, from its rows whether or not each block is visible. */
-const planBlocks = sql`(select pb.* from blocks pb where pb.id in (select ppb.block_id from practice_plan_blocks ppb where ppb.plan_id = p.id))`;
-
-function planWhere(scope: Scope, f: PlanFilter): SQL {
-  const parts: SQL[] = [planVisible(scope)];
-  if (f.model !== undefined) parts.push(sql`p.model = ${f.model}`);
-  if (f.promptVersion !== undefined) parts.push(sql`p.prompt_version = ${f.promptVersion}`);
-  if (f.docsAgents !== undefined) parts.push(sql`p.docs_agents = ${f.docsAgents}`);
-  if (f.docsTeaching !== undefined) parts.push(sql`p.docs_teaching = ${f.docsTeaching}`);
-  if (f.areas?.length) parts.push(sql`(jsonb_typeof(p.answers -> 'areas') = 'array' and (p.answers -> 'areas') ?| ${textArray(f.areas)})`);
-  if (f.levels?.length) parts.push(sql`exists (select 1 from ${planRows} x where x.plan_id = p.id and x.level = any(${textArray(f.levels)}))`);
-  if (f.topics?.length) parts.push(sql`not exists (select 1 from unnest(${textArray(f.topics)}) want(topic) where not exists (select 1 from ${planBlocks} x where x.topic = want.topic))`);
-  return sql.join(parts, sql` and `);
-}
-
-interface PlanRow {
-  id: string; title: string; answers: unknown; model: string; prompt_version: number | null; docs_agents: number | null; docs_teaching: number | null;
-  reply: string; days: number; minutes: number; blocks: number; topics: Count[]; concepts: Count[];
-  had_share: number | null;
-}
-
-/** Plans matching, with their counts from their block rows. */
-function planQuery(scope: Scope, where: SQL, tail: SQL): SQL {
-  const had = scope.player !== undefined
-    ? sql`(select coalesce(count(*) filter (where ${owns(scope.player, sql`x.id`)})::float8 / nullif(count(*), 0), 0) from ${planBlocks} x)`
-    : sql`null::float8`;
-  return sql`
-    select p.id, p.title, p.answers, p.model, p.prompt_version, p.docs_agents, p.docs_teaching, p.reply,
-      (select count(distinct day)::int from practice_plan_blocks where plan_id = p.id) as days,
-      (select coalesce(sum(minutes), 0)::int from practice_plan_blocks where plan_id = p.id) as minutes,
-      (select count(*)::int from ${planBlocks} x) as blocks,
-      (select coalesce(jsonb_agg(jsonb_build_object('id', t.id, 'count', t.n) order by t.n desc, t.id collate "C"), '[]'::jsonb)
-        from (select x.topic as id, count(*)::int as n from ${planBlocks} x where x.topic is not null group by x.topic) t) as topics,
-      (select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'count', c.n) order by c.n desc, c.id collate "C"), '[]'::jsonb)
-        from (select cx.c as id, count(distinct x.id)::int as n from ${planBlocks} x cross join lateral unnest(x.concepts) cx(c) group by cx.c) c) as concepts,
-      ${had} as had_share
-    from practice_plans p
-    where ${where}
-    ${tail}`;
-}
-
-function planSummaryOf(r: PlanRow): PlanSummary {
-  return {
-    id: r.id, title: r.title, answers: r.answers,
-    provenance: { model: r.model, promptVersion: r.prompt_version, docsAgents: r.docs_agents, docsTeaching: r.docs_teaching },
-    days: r.days, minutes: r.minutes, blocks: r.blocks, topics: r.topics, concepts: r.concepts,
-    hadShare: r.had_share,
-  };
-}
-
 /** The slot a block row holds, or null when it has no minutes. */
 function slotOf(r: BlockRow): BlockSlot | null {
   if (r.minutes === null) return null;
@@ -261,34 +196,17 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
       const [r] = await rows<BlockRow>(blockQuery(scope, sql`b.id = ${id} and ${blockVisible(scope, sql`b.id`)}`, sql``));
       return r ? { ...summaryOf(scope, r), content: r.content, parentId: r.parent_id, slot: slotOf(r) } : null;
     },
-    async listPlans(scope, filter, limit) {
-      const list = await rows<PlanRow>(planQuery(scope, planWhere(scope, filter), sql`order by p.id collate "C" ${limitOf(limit)}`));
-      return list.map(planSummaryOf);
-    },
-    async getPlan(scope, id, withReply): Promise<PlanDetail | null> {
-      const [r] = await rows<PlanRow>(planQuery(scope, sql`p.id = ${id} and ${planVisible(scope)}`, sql``));
-      if (!r) return null;
-      // a row's title only when its block is visible under the scope's block rule (as `getBlock`); its id and minutes always
-      const schedule = await rows<{ day: number; place: number; blockId: string; title: string; minutes: number }>(sql`
-        select ppb.day, ppb.place, ppb.block_id as "blockId", (case when ${blockVisible(scope, sql`ppb.block_id`)} and jsonb_typeof(b.content -> 'title') = 'string' then b.content ->> 'title' else '' end) as title, ppb.minutes
-        from practice_plan_blocks ppb left join blocks b on b.id = ppb.block_id
-        where ppb.plan_id = ${id}
-        order by ppb.day, ppb.place`);
-      return { ...planSummaryOf(r), schedule: schedule.map((s) => ({ ...s })), ...(withReply ? { reply: r.reply } : {}) };
-    },
     async coverage(scope) {
-      // the units of visible blocks with their block's totals, and the rows of visible plans (with `scope.planIds`)
+      // the units of visible blocks with their block's totals
       const ctes = sql`with
         vb as (select b.id, b.topic, b.concepts, coalesce(u.times, 0) as times, coalesce(u.seconds, 0)::float8 as seconds
           from blocks b left join ${timeTotals()} u on u.block_id = b.id where ${blockVisible(scope, sql`b.id`)}),
-        vu as (select v.id, v.topic, v.times, v.seconds, un.choice_id, un.level, un.steps from vb v join ${units(scope)} un on un.block_id = v.id),
-        pr as (select x.* from practice_plans p join ${planRows} x on x.plan_id = p.id where ${planVisible(scope)})`;
+        vu as (select v.id, v.topic, v.times, v.seconds, un.choice_id, un.level, un.steps from vb v join ${units(scope)} un on un.block_id = v.id)`;
       // a block's time once per row, however many of its units match
       const once = (where: SQL) => sql`(select coalesce(sum(d.times), 0)::int as times, coalesce(sum(d.seconds), 0)::float8 as seconds
         from (select distinct o.id, o.times, o.seconds from vu o where ${where}) d)`;
       const topics = await rows<CoverageRow>(sql`${ctes}
         select x.topic, x.level, count(*)::int as blocks,
-          (select count(distinct pr.plan_id)::int from pr where pr.topic = x.topic and pr.level = x.level) as plans,
           (select t.times from ${once(sql`o.topic = x.topic and o.level = x.level`)} t) as times,
           (select t.seconds from ${once(sql`o.topic = x.topic and o.level = x.level`)} t) as seconds
         from vu x
@@ -296,13 +214,13 @@ export function drizzleLibraryRepo(db: Db): LibraryRepo {
         group by x.topic, x.level
         order by x.topic collate "C", x.level collate "C"`);
       const concepts = await rows<ConceptCoverage>(sql`${ctes}
-        select vc.concept, count(*)::int as blocks, (select count(distinct pr.plan_id)::int from pr where vc.concept = any(pr.concepts)) as plans,
+        select vc.concept, count(*)::int as blocks,
           sum(vc.times)::int as times, sum(vc.seconds)::float8 as seconds
         from (select distinct v.id, c.concept, v.times, v.seconds from vb v cross join lateral unnest(v.concepts) c(concept)) vc
         group by vc.concept
         order by vc.concept collate "C"`);
       const steps = await rows<StepCoverage>(sql`${ctes}
-        select vs.step, count(*)::int as blocks, (select count(distinct pr.plan_id)::int from pr where vs.step = any(pr.steps)) as plans,
+        select vs.step, count(*)::int as blocks,
           (select t.times from ${once(sql`vs.step = any(o.steps)`)} t) as times,
           (select t.seconds from ${once(sql`vs.step = any(o.steps)`)} t) as seconds
         from (select distinct v.id, v.choice_id, s.step from vu v cross join lateral unnest(v.steps) s(step)) vs

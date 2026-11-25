@@ -39,15 +39,9 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   `plans.price_cents` and `plans.period`, is still in the table, unused and nullable, for the build before; drop it in a
   later migration. The free trial is shown, not kept: no trial start is stored and nothing ends it.
   The plans themselves are rows in the database, written by migration `0005_plans` and changed there; their prices and
-  allowances come from *Plans* on /dev/costs, which shows what each costs us. Each row also has `new_plan_percent`, internal
-  and kept off `Plan`: the chance (0 to 100) that an autoplan on it is written new by the AI; the rest are taken from the
-  `practice_plans` library (rows `enabled_for_reuse`). Always 1 to 99, held by a check in the database: no plan only
-  reuses and none always writes. The plan is for Haiku to decide each autoplan (reuse a library plan that fits, or write a
-  new one), held to this share. Migration `0010_lower_prices_more_reuse` lowered the prices on the strength of reuse and sets
-  Student at 5 (its price stays $27 a year, `0011_student_stays_27`), Teacher Basic $9 a month at 10, Pro $29 at 15, Unlimited $59 at 25 (`0015_month_prices_99` makes the monthly prices $3.99 Student, $8.99, $28.99 and $58.99; yearly prices stay): about 85 to 90% margin, which
-  needs a library of many pre-written Fable plans. `0017_lower_prices_reuse_first` about halves every price but Unlimited's and sets every
-  plan to 1 (nearly all reuse, the lowest the check allows): the AI then costs a few cents to about $5 a player a year,
-  and the payment fee is most of the cost (`0018_higher_prices_half_off_yearly` raises the prices and leaves reuse at 1). All of this is history: plans are now put together from the library by our own code, the app doesn't call an AI from the server, and /terms says so.
+  allowances come from *Plans* on /dev/costs, which shows what each costs us. Rows once had `new_plan_percent`, the chance an autoplan was written new rather than
+  taken from a `practice_plans` library; migrations `0010_lower_prices_more_reuse` to `0018_higher_prices_half_off_yearly` set
+  prices on the strength of that reuse. Migration `0045_drop_practice_plans` dropped the column and the library. All of this is history: plans are now put together from the library by our own code, the app doesn't call an AI from the server, and /terms says so.
 - Payments (`billing.ts`, `server/stripe.ts`, `server/paymentsEnabled.ts`), off unless `STRIPE_ENABLED=true` (2026-11-24).
 - `server/permissions.ts`: `changePermissions`, behind `PATCH /api/admin/users` (the boxes on /admin/users): a list of
   known permissions or nothing is written, and a person can't take away their own admin permission.

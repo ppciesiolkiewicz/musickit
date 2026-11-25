@@ -51,44 +51,8 @@ export const plans = pgTable("plans", {
   /** Can be chosen in the app. People already on a turned-off plan keep it. */
   enabled: boolean("enabled").notNull().default(true),
   sort: integer("sort").notNull().default(0),
-  /**
-   * Internal, never shown or sent to a player: the chance (0 to 100) that an autoplan on this plan is written new by the
-   * AI. The rest are taken from `practice_plans` enabled for reuse, at no AI cost. Always 1 to 99: no plan only reuses,
-   * none always writes.
-   */
-  newPlanPercent: integer("new_plan_percent").notNull().default(50),
   updatedAt: at("updated_at").notNull().defaultNow(),
-}, (t) => [check("plans_new_plan_percent_range", sql`${t.newPlanPercent} between 1 and 99`)]).enableRLS();
-
-/**
- * The library of practice plans an autoplan can be taken from instead of asking the AI (see `plans.new_plan_percent`).
- * Seeded from the plan examples and the seed plans in src/features/library/seed (`npm run db:seed-plans`); only rows
- * `enabled_for_reuse` are given out.
- */
-export const practicePlans = pgTable(
-  "practice_plans",
-  {
-    /** The example's or seed file's id: "guitar-beginner", "voice-guitar-advanced-first-week". */
-    id: text("id").primaryKey(),
-    title: text("title").notNull(),
-    /** The first-questionnaire answers the plan was written for (`PlanAnswers`), to match it to a player. */
-    answers: jsonb("answers").notNull(),
-    /** The model that wrote it. */
-    model: text("model").notNull(),
-    /** The model's reply, as a pasted reply: parsed with `parsePlanConfig` when used. */
-    reply: text("reply").notNull(),
-    /** Where it came from: "example" for a plan example (its id is the example's), "seed" for a plan in src/features/library/seed. */
-    source: text("source").notNull(),
-    /** `PROMPT_VERSION` the plan was written under; null when unknown. */
-    promptVersion: integer("prompt_version"),
-    /** `DOC_VERSIONS.agents` and `.teaching` the plan was written to; null when unknown. */
-    docsAgents: integer("docs_agents"),
-    docsTeaching: integer("docs_teaching"),
-    enabledForReuse: boolean("enabled_for_reuse").notNull().default(false),
-    createdAt: at("created_at").notNull().defaultNow(),
-  },
-  (t) => [index("practice_plans_reuse").on(t.enabledForReuse)],
-).enableRLS();
+}).enableRLS();
 
 /** One person. Every email here was proven: by a link we mailed, or by Google. */
 export const users = pgTable("users", {
@@ -367,25 +331,6 @@ export const choices = pgTable(
     updatedAt: at("updated_at").notNull().defaultNow(),
   },
   (t) => [unique("choices_block_name").on(t.blockId, t.name), index("choices_block").on(t.blockId), index("choices_active").on(t.active)],
-).enableRLS();
-
-/**
- * The blocks of a library plan (never a player's plan), in order: one row per plan, day and place. Replaced as a whole for a
- * plan (`setPlanBlocks`). Deleting the plan drops its rows; a block is never deleted. The rows name only blocks the app owns:
- * the library shows the plan to callers who may not see a player's private block.
- */
-export const practicePlanBlocks = pgTable(
-  "practice_plan_blocks",
-  {
-    planId: text("plan_id").notNull().references(() => practicePlans.id, { onDelete: "cascade" }),
-    day: integer("day").notNull(),
-    place: integer("place").notNull(),
-    blockId: text("block_id").notNull().references(() => blocks.id),
-    /** The choice of a curated block this slot uses (`choices.id`); null for a hashed block. */
-    choiceId: text("choice_id").references(() => choices.id),
-    minutes: integer("minutes").notNull(),
-  },
-  (t) => [primaryKey({ columns: [t.planId, t.day, t.place] }), index("practice_plan_blocks_block").on(t.blockId)],
 ).enableRLS();
 
 /**

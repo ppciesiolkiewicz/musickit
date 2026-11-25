@@ -45,11 +45,3 @@ test("a block with a parent keeps its own provenance", async () => {
   assert.deepEqual(repo.peekBlocks().get("c")?.provenance, own);
 });
 
-test("setPlanBlocks replaces the plan's rows", async () => {
-  const repo = memoryUserDataRepo();
-  await repo.setPlanBlocks("p", [{ day: 0, place: 0, blockId: "a", minutes: 5 }, { day: 0, place: 1, blockId: "b", minutes: 5 }]);
-  await repo.setPlanBlocks("q", [{ day: 0, place: 0, blockId: "a", minutes: 1 }]);
-  await repo.setPlanBlocks("p", [{ day: 1, place: 0, blockId: "c", minutes: 10 }]);
-  assert.deepEqual(repo.peekPlanBlocks("p"), [{ day: 1, place: 0, blockId: "c", minutes: 10 }]);
-  assert.equal(repo.peekPlanBlocks("q").length, 1);
-});

@@ -1,7 +1,7 @@
-import type { BlockChoice, BlockSummary, ConceptCoverage, CoverageRow, PlanSummary } from "@/features/library/server/types";
+import type { BlockChoice, BlockSummary, ConceptCoverage, CoverageRow } from "@/features/library/server/types";
 import type { ItemResult, LibraryResult } from "./load";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
-import { SEED_BLOCKS, SEED_PLANS } from "@/features/library/seed";
+import { SEED_BLOCKS, SEED_PLANS, type SeedPlanFile } from "@/features/library/seed";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
 import { seedBlocksById } from "./item";
 import LibraryItem, { SeedSections } from "./LibraryItem";
@@ -47,14 +47,13 @@ export function CoverageTable({ rows, params }: { rows: CoverageRow[]; params: L
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm text-slate-200">
-        <Head cols={["Topic", "Level", "Blocks", "Plans", "Times", "Minutes"]} />
+        <Head cols={["Topic", "Level", "Blocks", "Times", "Minutes"]} />
         <tbody>
           {rows.map((r) => (
             <tr key={`${r.topic}:${r.level}`} className={ROW}>
               <td className="p-2"><a className={LINK} href={libraryHref(params, { topic: r.topic })}>{r.topic}</a></td>
               <td className="p-2">{r.level}</td>
               <td className="p-2">{r.blocks}</td>
-              <td className="p-2">{r.plans}</td>
               <td className="p-2">{r.times}</td>
               <td className="p-2">{minutes(r.seconds)}</td>
             </tr>
@@ -69,13 +68,12 @@ export function ConceptTable({ rows }: { rows: ConceptCoverage[] }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm text-slate-200">
-        <Head cols={["Concept", "Blocks", "Plans", "Times", "Minutes"]} />
+        <Head cols={["Concept", "Blocks", "Times", "Minutes"]} />
         <tbody>
           {rows.map((r) => (
             <tr key={r.concept} className={ROW}>
               <td className="p-2">{r.concept}</td>
               <td className="p-2">{r.blocks}</td>
-              <td className="p-2">{r.plans}</td>
               <td className="p-2">{r.times}</td>
               <td className="p-2">{minutes(r.seconds)}</td>
             </tr>
@@ -92,20 +90,20 @@ function ItemLink({ id, title, params }: { id: string; title: string; params: Li
   return <a className={LINK} href={`${libraryHref(params, { item: id })}#item`}>{title || id}</a>;
 }
 
-export function PlansTable({ plans, params }: { plans: PlanSummary[]; params: LibraryParams }) {
-  if (plans.length === 0) return <Muted>No plans.</Muted>;
-  const seed = new Set(SEED_PLANS.map((f) => f.id));
+/** The seed plans, read from their files (no plan is stored in the database): each links to its drawing below the tables. */
+export function SeedPlansTable({ plans = SEED_PLANS, params }: { plans?: SeedPlanFile[]; params: LibraryParams }) {
+  if (plans.length === 0) return <Muted>No seed plans.</Muted>;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm text-slate-200">
         <Head cols={["Title", "Model", "Versions", "Days"]} />
         <tbody>
-          {plans.map((p) => (
-            <tr key={p.id} className={ROW}>
-              <td className="p-2"><ItemLink id={p.id} title={p.title} params={params} /><SeedTag seed={seed.has(p.id)} /></td>
-              <td className="p-2">{orDash(p.provenance.model)}</td>
-              <td className="p-2"><Versions p={p.provenance} /></td>
-              <td className="p-2">{p.days}</td>
+          {plans.map((f) => (
+            <tr key={f.id} className={ROW}>
+              <td className="p-2"><ItemLink id={f.id} title={typeof f.plan.title === "string" ? f.plan.title : f.id} params={params} /></td>
+              <td className="p-2">{f.model}</td>
+              <td className="p-2"><Versions p={{ promptVersion: f.versions.prompt, docsAgents: f.versions.agents, docsTeaching: f.versions.teaching }} /></td>
+              <td className="p-2">{Array.isArray(f.plan.days) ? f.plan.days.length : 0}</td>
             </tr>
           ))}
         </tbody>
@@ -240,7 +238,7 @@ function Tables({ result, params }: { result: LibraryResult; params: LibraryPara
     <div>
       {data.scopeError !== null && <p className="mb-3 text-sm text-red-300">{data.scopeError}. Shown without a player.</p>}
       <p className="mb-3 text-sm text-slate-400">
-        Player: {params.player ?? "none"} (add <code>?player=</code> and a user id). Inactive choices, old blocks and plans not enabled for reuse:{" "}
+        Player: {params.player ?? "none"} (add <code>?player=</code> and a user id). Inactive choices and old blocks:{" "}
         {params.includeNotEnabled ? "included" : "left out"}
         {" "}<a className={LINK} href={libraryHref(params, { includeNotEnabled: !params.includeNotEnabled })}>{params.includeNotEnabled ? "leave out" : "include"}</a>
       </p>
@@ -248,8 +246,9 @@ function Tables({ result, params }: { result: LibraryResult; params: LibraryPara
       <CoverageTable rows={data.topics} params={params} />
       <H>Coverage by concept</H>
       <ConceptTable rows={data.concepts} />
-      <H>Plans</H>
-      <PlansTable plans={data.plans} params={params} />
+      <H>Seed plans</H>
+      <Muted>Read from src/features/library/seed/plans. Plans are not stored in the database.</Muted>
+      <SeedPlansTable params={params} />
       <H>{params.topic === undefined ? "Blocks" : `Blocks for ${params.topic}`}</H>
       {data.blocks === null ? <Muted>Choose a topic in the coverage table.</Muted> : <BlocksTable blocks={data.blocks} params={params} />}
     </div>

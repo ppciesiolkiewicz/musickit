@@ -74,11 +74,9 @@ export function drizzleRepo(db: Db): AuthRepo {
       return row ?? null;
     },
     async listPlans() {
-      // new_plan_percent is an internal cost lever: it stays off `Plan`, which reaches the browser.
       // price_cents and period are the old single price, kept only for the build before this one.
-      const { updatedAt, newPlanPercent, priceCents, period, ...cols } = getTableColumns(plans);
+      const { updatedAt, priceCents, period, ...cols } = getTableColumns(plans);
       void updatedAt;
-      void newPlanPercent;
       void priceCents;
       void period;
       const rows = await db.select(cols).from(plans);

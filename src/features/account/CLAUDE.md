@@ -20,8 +20,6 @@
   `requestAccount(deps, req)`. Never trust an id or an email from the request body for who is asking.
 - **A plan is a database row.** Prices, allowances and `enabled` live in the `plans` table; the AI model is not per plan: every plan uses `SUBSCRIPTION_MODEL` (`plans.ts`); a screen shows
   what `GET /api/account/plan` gives and never writes a price of its own. The plan's role comes with it (`roleOnPlan`).
-  `plans.new_plan_percent` (the chance an autoplan is written new rather than taken from the `practice_plans` library) is an
-  internal cost lever that players never see, always 1 to 99 (a check in the database): `listPlans` leaves it off `Plan`, which reaches the browser; only server code and /dev/costs read it.
 - **A teacher's student is a normal account on the `taught` plan** (`TAUGHT_PLAN_ID`: free, `enabled` false, so no one
   chooses it; `Account.taught`), linked by a `teacher_students` row (`addStudent`, `studentsOf`, `studentLink`,
   `teacherOf`, `markClaimed` on `AuthRepo`). A student has one teacher. `startSession` marks a taught account's link claimed on any sign-in (a failure there is logged, never stops the sign-in). Anything that reaches a student's data checks the

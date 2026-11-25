@@ -3,7 +3,7 @@ import type { Stars } from "@/features/progress/stars";
 import type { LibraryData } from "./fixture";
 import type { LibraryRepo } from "./repo";
 import type {
-  BlockChoice, BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, BlockUse, ComposeBlock, ConceptCoverage, Count, CoverageRow, PlanDetail, PlanFilter, PlanSummary, PlayerBlock, Scope, StepCoverage,
+  BlockChoice, BlockDetail, BlockFilter, BlockSlot, BlockOrder, BlockSummary, BlockUse, ComposeBlock, ConceptCoverage, CoverageRow, PlayerBlock, Scope, StepCoverage,
 } from "./types";
 
 type Row = LibraryData["blocks"][number];
@@ -33,13 +33,6 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   };
 
   const units = (scope: Scope, b: Row): Unit[] => (b.kind === "curated" ? listed(scope, b.id) : [b]);
-
-  /** A plan row's level and steps: its choice's when it names one, else its block's. */
-  const rowUnit = (r: LibraryData["planBlocks"][number]): Unit | null => {
-    const c = r.choiceId ? data.choices.find((x) => x.id === r.choiceId) : undefined;
-    if (c) return c;
-    return data.blocks.find((b) => b.id === r.blockId) ?? null;
-  };
 
   const had = (player: string, id: string) => data.owners.some((o) => o.userId === player && o.blockId === id);
 
@@ -99,12 +92,6 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
   /** The block's title, or "" when its content has none. */
   const titleOf = (b: Row): string => (typeof b.content.title === "string" ? b.content.title : "");
 
-  /** A schedule row's title: the block's when the block is visible in the scope, else "" (the row's id and minutes stay). */
-  const blockTitle = (scope: Scope, id: string): string => {
-    const b = data.blocks.find((x) => x.id === id);
-    return b && visible(scope, b) ? titleOf(b) : "";
-  };
-
   const choicesOf = (scope: Scope, b: Row): BlockChoice[] =>
     b.kind === "curated" ? listed(scope, b.id).map((c) => ({ id: c.id, name: c.name, level: c.level, steps: [...c.steps], moves: c.moves ?? null, minutes: c.minutes, active: c.active })) : [];
 
@@ -148,56 +135,6 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
 
   const found = (scope: Scope, f: BlockFilter) => data.blocks.filter((b) => visible(scope, b) && matches(scope, f, b));
 
-  type Plan = LibraryData["plans"][number];
-
-  /** A plan is visible when enabled for reuse or the scope includes the not enabled, and inside `scope.planIds` when that is set. */
-  const planVisible = (scope: Scope, p: Plan): boolean =>
-    (p.enabledForReuse || scope.includeNotEnabled === true) && (scope.planIds === undefined || scope.planIds.includes(p.id));
-
-  /** The plan's distinct blocks, from its rows whether or not each block is visible to the caller. */
-  const planBlockRows = (planId: string): Row[] => {
-    const ids = new Set(data.planBlocks.filter((r) => r.planId === planId).map((r) => r.blockId));
-    return data.blocks.filter((b) => ids.has(b.id));
-  };
-
-  const counts = (values: string[]): Count[] => {
-    const m = new Map<string, number>();
-    for (const v of values) m.set(v, (m.get(v) ?? 0) + 1);
-    return [...m].map(([id, count]) => ({ id, count })).sort((a, b) => b.count - a.count || byId(a, b));
-  };
-
-  const planSummary = (scope: Scope, p: Plan): PlanSummary => {
-    const player = scope.player;
-    const rows = data.planBlocks.filter((r) => r.planId === p.id);
-    const blocks = planBlockRows(p.id);
-    return {
-      id: p.id, title: p.title, answers: p.answers,
-      provenance: { model: p.model, promptVersion: p.promptVersion, docsAgents: p.docsAgents, docsTeaching: p.docsTeaching },
-      days: new Set(rows.map((r) => r.day)).size,
-      minutes: sum(rows.map((r) => r.minutes)),
-      blocks: blocks.length,
-      topics: counts(blocks.flatMap((b) => (b.topic !== null ? [b.topic] : []))),
-      concepts: counts(blocks.flatMap((b) => [...new Set(b.concepts)])),
-      hadShare: player === undefined ? null : blocks.length ? blocks.filter((b) => had(player, b.id)).length / blocks.length : 0,
-    };
-  };
-
-  const planMatches = (f: PlanFilter, p: Plan): boolean => {
-    if (f.model !== undefined && p.model !== f.model) return false;
-    if (f.promptVersion !== undefined && p.promptVersion !== f.promptVersion) return false;
-    if (f.docsAgents !== undefined && p.docsAgents !== f.docsAgents) return false;
-    if (f.docsTeaching !== undefined && p.docsTeaching !== f.docsTeaching) return false;
-    if (f.areas?.length) {
-      const areas = isMap(p.answers) && Array.isArray(p.answers.areas) ? p.answers.areas : [];
-      if (!f.areas.some((a) => areas.includes(a))) return false;
-    }
-    const blocks = planBlockRows(p.id);
-    const rows = data.planBlocks.filter((r) => r.planId === p.id).map(rowUnit);
-    if (f.levels?.length && !rows.some((u) => u !== null && u.level !== null && f.levels!.includes(u.level))) return false;
-    if (f.topics?.length && !f.topics.every((t) => blocks.some((b) => b.topic === t))) return false;
-    return true;
-  };
-
   return {
     async countBlocks(scope, filter) {
       return found(scope, filter).length;
@@ -214,34 +151,17 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
       if (!b || !visible(scope, b)) return null;
       return { ...summary(scope, b), content: b.content, parentId: b.parentId, slot: slotOf(b) };
     },
-    async listPlans(scope, filter, limit) {
-      return data.plans.filter((p) => planVisible(scope, p) && planMatches(filter, p)).sort(byId)
-        .slice(0, Math.max(0, limit)).map((p) => planSummary(scope, p));
-    },
-    async getPlan(scope, id, withReply): Promise<PlanDetail | null> {
-      const p = data.plans.find((x) => x.id === id);
-      if (!p || !planVisible(scope, p)) return null;
-      const schedule = data.planBlocks.filter((r) => r.planId === id).sort((a, b) => a.day - b.day || a.place - b.place)
-        .map((r) => ({ day: r.day, place: r.place, blockId: r.blockId, title: blockTitle(scope, r.blockId), minutes: r.minutes }));
-      return { ...planSummary(scope, p), schedule, ...(withReply ? { reply: p.reply } : {}) };
-    },
     async coverage(scope) {
       const blocks = data.blocks.filter((b) => visible(scope, b));
       // every unit of a visible block: a hashed block once, a curated block once per listed choice
       const all = blocks.flatMap((b) => units(scope, b).map((u) => ({ b, u })));
-      // the visible plans, each as its rows' (block, level and steps)
-      const plans = data.plans.filter((p) => planVisible(scope, p))
-        .map((p) => data.planBlocks.filter((r) => r.planId === p.id).flatMap((r) => {
-          const b = data.blocks.find((x) => x.id === r.blockId), u = rowUnit(r);
-          return b && u ? [{ b, u }] : [];
-        }));
       type Pair = { b: Row; u: Unit };
       const rows = (match: (x: Pair) => boolean) => {
         const own = all.filter(match);
         // a block's time once, however many of its choices match
         const t = [...new Set(own.map((x) => x.b.id))].map((id) => totals(id));
         return {
-          blocks: own.length, plans: plans.filter((pb) => pb.some(match)).length,
+          blocks: own.length,
           times: sum(t.map((u) => u.times)), seconds: sum(t.map((u) => u.seconds)),
         };
       };
@@ -255,7 +175,7 @@ export function memoryLibraryRepo(data: LibraryData): LibraryRepo {
         const own = blocks.filter((b) => b.concepts.includes(concept));
         const t = own.map((b) => totals(b.id));
         return {
-          blocks: own.length, plans: plans.filter((pb) => pb.some((x) => x.b.concepts.includes(concept))).length,
+          blocks: own.length,
           times: sum(t.map((u) => u.times)), seconds: sum(t.map((u) => u.seconds)),
         };
       };

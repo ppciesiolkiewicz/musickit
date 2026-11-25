@@ -4,12 +4,11 @@ import { useMemo, useState, type ReactNode } from "react";
 import { SUBSCRIPTION_MODEL, modelLabel, type Plan } from "@/features/account/plans";
 import { lifetimeValue, project, startMix, type GrowthInputs, type GrowthMonth, type GrowthPlan } from "../model/growth";
 import { playerYear, type PlanTokens } from "../model/unitEconomics";
-import { reusedShare, type ReuseInfo } from "./PlanCosts";
 
 /**
  * "Over time": what the business is worth month by month, from `model/growth.ts`. Trials start and grow, a share pays,
  * monthly payers leave at the churn and yearly payers renew or not, each plan's account costing us its AI (on
- * `SUBSCRIPTION_MODEL`, at a share of its allowance and its reuse), emails and hosting. A chart of money a month, profit
+ * `SUBSCRIPTION_MODEL`, at a share of its allowance, none reused), emails and hosting. A chart of money a month, profit
  * to date or accounts, the numbers at the end, a value at a multiple of yearly revenue, and each plan's lifetime value.
  */
 
@@ -129,7 +128,7 @@ function GrowthChart({ months, view }: { months: GrowthMonth[]; view: View }) {
   );
 }
 
-export default function OverTime({ plans, tokens, reuse, fee, fixedMonthly }: { plans: Plan[] | null; tokens: PlanTokens[]; reuse: ReuseInfo | null; fee: { percent: number; fixed: number }; /** US$ a month, from the list at the top of the page */ fixedMonthly: number }) {
+export default function OverTime({ plans, tokens, fee, fixedMonthly }: { plans: Plan[] | null; tokens: PlanTokens[]; fee: { percent: number; fixed: number }; /** US$ a month, from the list at the top of the page */ fixedMonthly: number }) {
   const sorted = useMemo(() => [...(plans ?? [])].filter((p) => p.enabled).sort((a, b) => a.sort - b.sort), [plans]);
   const model = tokens.find((t) => t.model === SUBSCRIPTION_MODEL) ?? null;
   const [shares, setShares] = useState<number[]>(() => startMix(sorted.map((p) => p.id)));
@@ -140,9 +139,8 @@ export default function OverTime({ plans, tokens, reuse, fee, fixedMonthly }: { 
   const set = <K extends keyof typeof g>(key: K) => (v: number) => setG((s) => ({ ...s, [key]: v }));
 
   const growthPlans: GrowthPlan[] = sorted.map((p, i) => {
-    const reused = reusedShare(reuse, p.id);
     const y = model
-      ? playerYear(model, { price: 0, plansPerMonth: p.autoplansPerMonth * usage, batch: p.batch, reuse: reused, emailsPerDay: 1, emailPer1000: 0.4, feePercent: 0, feeFixed: 0, hosting: 0 })
+      ? playerYear(model, { price: 0, plansPerMonth: p.autoplansPerMonth * usage, batch: p.batch, reuse: 0, emailsPerDay: 1, emailPer1000: 0.4, feePercent: 0, feeFixed: 0, hosting: 0 })
       : null;
     return { id: p.id, month: p.monthCents / 100, year: p.yearCents / 100, trialDays: p.trialDays, share: shares[i] ?? 0, costPerMonth: y ? (y.ai + y.email) / 12 : 0 };
   });
@@ -157,7 +155,7 @@ export default function OverTime({ plans, tokens, reuse, fee, fixedMonthly }: { 
     <section id="over-time" className="scroll-mt-4 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
       <h2 className="text-base font-semibold text-slate-100">Over time</h2>
       <p className="mb-4 max-w-3xl text-xs text-slate-400">
-        What the business is worth month by month, from the enabled plans in the database with their monthly and yearly prices and free trial. Trials start and grow each month; a share pays, on a mix of plans, monthly or yearly. Monthly payers leave at the churn; yearly payers pay again or not at each year&apos;s end. Each account costs its AI on {modelLabel(SUBSCRIPTION_MODEL)} at the allowance used and its plan&apos;s reuse, plus a daily email; a trial that doesn&apos;t pay costs the same for its days. A projection from these sliders, not a forecast.
+        What the business is worth month by month, from the enabled plans in the database with their monthly and yearly prices and free trial. Trials start and grow each month; a share pays, on a mix of plans, monthly or yearly. Monthly payers leave at the churn; yearly payers pay again or not at each year&apos;s end. Each account costs its AI on {modelLabel(SUBSCRIPTION_MODEL)} at the allowance used (none reused), plus a daily email; a trial that doesn&apos;t pay costs the same for its days. A projection from these sliders, not a forecast.
       </p>
       {!sorted.length ? (
         <p className="text-sm text-slate-400">No database, so no plans. Set DATABASE_URL and run npm run db:migrate.</p>

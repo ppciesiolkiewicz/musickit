@@ -2,7 +2,7 @@ import type { SingerVoice } from "@/features/theory/voiceRange";
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { BlockSlot, BlockSource, CuratedChoice, PlanBlockRow, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { BlockSlot, BlockSource, CuratedChoice, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A `blocks` row, as the memory repo keeps it. */
 interface StoredBlock {
@@ -45,8 +45,6 @@ export function memoryUserDataRepo(): UserDataRepo & {
   peekBlocks(): Map<string, StoredBlock>;
   /** Test only: the `choices` rows. */
   peekChoices(): Map<string, StoredChoice>;
-  /** Test only: a plan's `practice_plan_blocks` rows. */
-  peekPlanBlocks(planId: string): PlanBlockRow[];
   /** Test only: the `block_owners` rows. */
   peekOwners(): OwnerRow[];
 } {
@@ -66,8 +64,6 @@ export function memoryUserDataRepo(): UserDataRepo & {
   const blocks = new Map<string, StoredBlock>();
   /** `choices` rows, by id. */
   const choices = new Map<string, StoredChoice>();
-  /** `practice_plan_blocks` rows, by plan id. */
-  const planBlocks = new Map<string, PlanBlockRow[]>();
   /** `block_owners` rows, keyed `${userId ?? ""} ${blockId}`, so the app's (null) rows of a block are one, like `nulls not distinct`. */
   const owners = new Map<string, OwnerRow>();
   const pair = (a: string, b: string) => `${a} ${b}`;
@@ -212,9 +208,6 @@ export function memoryUserDataRepo(): UserDataRepo & {
       for (const id of changed) blocks.get(id)!.revision += 1;
       return { blocks: list.length, choices: listed.size, deactivated, revised: changed.size };
     },
-    async setPlanBlocks(planId, rows) {
-      planBlocks.set(planId, structuredClone(rows));
-    },
     async createVideo(row) {
       if (videos.has(row.id) || [...videos.values()].some((v) => v.blobPath === row.blobPath)) return false;
       videos.set(row.id, structuredClone(row));
@@ -295,9 +288,6 @@ export function memoryUserDataRepo(): UserDataRepo & {
     },
     peekChoices() {
       return structuredClone(choices);
-    },
-    peekPlanBlocks(planId) {
-      return structuredClone(planBlocks.get(planId) ?? []);
     },
     peekOwners() {
       return [...owners.values()].map((o) => ({ ...o }));

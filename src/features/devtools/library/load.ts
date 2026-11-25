@@ -1,6 +1,6 @@
-import { findBlocks, findPlans, getBlock, libraryCoverage, BLOCK_LIMIT, PLAN_LIMIT, type Deps } from "@/features/library/server/query";
+import { findBlocks, getBlock, libraryCoverage, BLOCK_LIMIT, type Deps } from "@/features/library/server/query";
 import { drizzleLibraryRepo } from "@/features/library/server/repo.drizzle";
-import type { BlockSummary, ConceptCoverage, CoverageRow, PlanSummary } from "@/features/library/server/types";
+import type { BlockSummary, ConceptCoverage, CoverageRow } from "@/features/library/server/types";
 import { devScope } from "@/features/library/server/mcp";
 import { blockOfChoice } from "@/features/plan/model/blockId";
 import { drizzleUserDataRepo } from "@/features/userData/server/repo.drizzle";
@@ -13,7 +13,6 @@ export interface LibraryData {
   scopeError: string | null;
   topics: CoverageRow[];
   concepts: ConceptCoverage[];
-  plans: PlanSummary[];
   /** null until a topic is chosen */
   blocks: BlockSummary[] | null;
 }
@@ -70,9 +69,8 @@ export async function loadLibrary(db: Db | null, params: LibraryParams): Promise
     if ("error" in s) return { state: "failed", message: s.error };
     const { scope } = s;
     const { topics, concepts } = await libraryCoverage(deps, scope);
-    const plans = await findPlans(deps, scope, {}, PLAN_LIMIT.max);
     const blocks = params.topic === undefined ? null : await findBlocks(deps, scope, { topic: params.topic }, "newest", BLOCK_LIMIT.max);
-    return { state: "ok", data: { scopeError, topics, concepts, plans, blocks } };
+    return { state: "ok", data: { scopeError, topics, concepts, blocks } };
   } catch (e) {
     return { state: "failed", message: e instanceof Error ? e.message : String(e) };
   }

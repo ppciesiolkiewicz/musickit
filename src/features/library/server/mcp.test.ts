@@ -31,10 +31,10 @@ test("ping answers an empty result", async () => {
   assert.deepEqual((await handleRpc(deps(), rpc("ping"))).body, { jsonrpc: "2.0", id: 1, result: {} });
 });
 
-test("tools/list gives the six tools, each with the two dev arguments", async () => {
+test("tools/list gives the four tools, each with the two dev arguments", async () => {
   const tools = ((await handleRpc(deps(), rpc("tools/list"))).body as Answer).result?.tools as { name: string; inputSchema: { properties: Record<string, unknown>; additionalProperties: boolean } }[];
-  assert.equal(tools.length, 6);
-  assert.equal(devTools().length, 6);
+  assert.equal(tools.length, 4);
+  assert.equal(devTools().length, 4);
   for (const t of tools) {
     for (const k of Object.keys(DEV_ARGS)) assert.ok(k in t.inputSchema.properties, `${t.name} ${k}`);
     assert.equal(t.inputSchema.additionalProperties, false);
@@ -105,8 +105,6 @@ test("devScope strips the two dev arguments and checks the player", async () => 
   }
   const b = await devScope({ include_not_enabled: "yes" }, d);
   assert.ok("error" in b && b.error.includes("include_not_enabled"));
-  const planIds = await devScope({ planIds: ["P3"] }, d);
-  assert.ok("args" in planIds && "planIds" in (planIds.args as object) && !("planIds" in planIds.scope));
 });
 
 test("include_not_enabled shows the example block; a bad player is a tool error", async () => {

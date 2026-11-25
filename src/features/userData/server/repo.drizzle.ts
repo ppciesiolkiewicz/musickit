@@ -1,7 +1,7 @@
 import { and, desc, eq, exists, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "@/lib/db/client";
-import { blockOwners, blocks, choices, planClaims, planDayTimes, practicePlanBlocks, progressEntries, shareVideos, shares, userDocuments, userVoices, videos } from "@/lib/db/schema";
+import { blockOwners, blocks, choices, planClaims, planDayTimes, progressEntries, shareVideos, shares, userDocuments, userVoices, videos } from "@/lib/db/schema";
 import { cleanVoice } from "@/features/theory/voiceRange";
 import type { ProgressEntry } from "@/features/progress/log";
 import { levelOfSteps } from "@/features/plan/model/path";
@@ -311,12 +311,6 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
         for (const r of off) changed.add(r.blockId);
         if (changed.size) await tx.update(blocks).set({ revision: sql`${blocks.revision} + 1` }).where(inArray(blocks.id, [...changed]));
         return { blocks: list.length, choices: listed.length, deactivated: off.length, revised: changed.size };
-      });
-    },
-    async setPlanBlocks(planId, rows) {
-      await db.transaction(async (tx) => {
-        await tx.delete(practicePlanBlocks).where(eq(practicePlanBlocks.planId, planId));
-        if (rows.length) await tx.insert(practicePlanBlocks).values(rows.map((r) => ({ planId, day: r.day, place: r.place, blockId: r.blockId, choiceId: r.choiceId ?? null, minutes: r.minutes })));
       });
     },
     async createVideo(row) {

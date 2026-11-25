@@ -62,7 +62,7 @@ test("the prompt carries no example", () => {
 test("the library part names the tools", () => {
   const library = promptParts(DEFAULT_ANSWERS, []).filter((p) => p.id === "library");
   assert.equal(library.length, 1);
-  for (const tool of ["find_blocks", "get_block", "find_plans", "get_plan", "library_coverage", "player_progress"]) assert.match(library[0].text, new RegExp(`\\b${tool}\\b`), tool);
+  for (const tool of ["find_blocks", "get_block", "library_coverage", "player_progress"]) assert.match(library[0].text, new RegExp(`\\b${tool}\\b`), tool);
 });
 
 test("the library part asks for blocks and plans written to the current teaching rules", () => {

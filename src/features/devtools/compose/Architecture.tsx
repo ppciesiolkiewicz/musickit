@@ -194,10 +194,9 @@ function DataPanel() {
             ["minutes", <>the slot&apos;s minutes for this choice</>],
             ["active", <>false once it leaves the seed; only active choices are candidates</>],
           ]}>One way to play a curated block. The seed writes them from a file&apos;s <C>choices</C>. The composer picks choices, never blocks.</Entity>
-          <Link>who has it, and which library plans use it</Link>
-          <Entity layer="data" name="block_owners · practice_plan_blocks" file="lib/db/schema.ts" fields={[
+          <Link>who has it</Link>
+          <Entity layer="data" name="block_owners" file="lib/db/schema.ts" fields={[
             ["block_owners", <>owner and block; <C>userId</C> null is the app (seed blocks)</>],
-            ["practice_plan_blocks", <>a library plan&apos;s day and place → <C>blockId</C>, <C>choiceId</C>, minutes</>],
           ]}>Not read by the composer. A candidate&apos;s <C>use</C> comes from <C>plan_day_times</C>, the day timer&apos;s rows of every player.</Entity>
         </Column>
 

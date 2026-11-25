@@ -66,15 +66,6 @@ export interface NewBlock {
   slot?: BlockSlot;
 }
 
-/** One place in a plan: the block on a day at a position, the choice of it (a curated block's; absent for a hashed block), and its minutes (`practice_plan_blocks`). */
-export interface PlanBlockRow {
-  day: number;
-  place: number;
-  blockId: string;
-  choiceId?: string;
-  minutes: number;
-}
-
 /** A curated block's choice as the seed writes it (`choices`): its id is `<block id>/<name>`, `place` its index in the file. */
 export interface CuratedChoice {
   id: string;
@@ -171,11 +162,6 @@ export interface UserDataRepo {
    * `revised` counts the blocks already stored whose revision this call raised (a new block is not one).
    */
   upsertCurated(blocks: CuratedBlock[], now: Date): Promise<{ blocks: number; choices: number; deactivated: number; revised: number }>;
-  /**
-   * Replaces the plan's `practice_plan_blocks` rows with these, in one transaction. A library plan's rows name only blocks the app
-   * owns: the library shows a plan to callers who may not see a player's private block (a schedule row on one has no title).
-   */
-  setPlanBlocks(planId: string, rows: PlanBlockRow[]): Promise<void>;
   /** Stores a new video row; false when its id (or its path) is taken, and then nothing is changed. */
   createVideo(row: VideoRow): Promise<boolean>;
   /** The user's videos, newest first. */

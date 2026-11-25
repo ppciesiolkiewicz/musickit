@@ -6,7 +6,7 @@ import { PATH, slope } from "@/features/plan/model/path";
 import type { ProgressEntry } from "@/features/progress/log";
 import { memoryUserDataRepo } from "@/features/userData/server/repo.memory";
 import { PLAYER_A, PLAYER_B, baseFixture } from "./fixture";
-import { findBlocks, findPlans, getBlock, getPlan, libraryCoverage, playerProgress, type Deps } from "./query";
+import { findBlocks, getBlock, libraryCoverage, playerProgress, type Deps } from "./query";
 import { memoryLibraryRepo } from "./repo.memory";
 
 const now = new Date("2026-11-15T10:00:00Z");
@@ -17,8 +17,6 @@ test("limits clamp to 1..max and a missing one is the default", async () => {
   assert.ok((await findBlocks(d, { includeNotEnabled: true, player: PLAYER_A }, {}, undefined, 10000)).length <= 50);
   assert.equal((await findBlocks(d, {}, {}, undefined, 0)).length, 1);
   assert.equal((await findBlocks(d, {}, {})).length, 4);
-  assert.equal((await findPlans(d, {}, {}, 0)).length, 1);
-  assert.equal((await findPlans(d, {}, {}, 1000)).length, 3);
 });
 
 test("random-least-used takes from the least used fifth, and rand changes the pick", async () => {
@@ -36,13 +34,10 @@ test("random-least-used takes from the least used fifth, and rand changes the pi
   assert.deepEqual(four.map((x) => x.id).sort(), (await findBlocks(deps(), scope, {}, "least-used", 4)).map((x) => x.id).sort());
 });
 
-test("get_block and get_plan pass through the repo's visibility", async () => {
+test("get_block passes through the repo's visibility", async () => {
   const d = deps();
   assert.equal(await getBlock(d, {}, "PA"), null);
   assert.equal((await getBlock(d, { player: PLAYER_A }, "PA"))?.id, "PA");
-  assert.equal(await getPlan(d, {}, "P3"), null);
-  assert.equal((await getPlan(d, {}, "P1", true))?.reply, "reply P1");
-  assert.equal((await getPlan(d, {}, "P1"))?.reply, undefined);
 });
 
 test("coverage has a row for every topic and level and every concept, zeros included", async () => {
@@ -50,7 +45,7 @@ test("coverage has a row for every topic and level and every concept, zeros incl
   assert.ok(c.topics.length >= TOPICS.length * 4);
   assert.ok(c.concepts.length >= CONCEPTS.length);
   const row = c.topics.find((r) => r.topic === TOPICS[0].id && r.level === "advanced");
-  assert.deepEqual(row, { topic: TOPICS[0].id, level: "advanced", blocks: 0, plans: 0, times: 0, seconds: 0 });
+  assert.deepEqual(row, { topic: TOPICS[0].id, level: "advanced", blocks: 0, times: 0, seconds: 0 });
   // repo rows for a topic outside the catalogue come after the catalogue's
   const last = c.topics.slice(TOPICS.length * 4);
   assert.ok(last.length > 0 && last.every((r) => !TOPICS.some((t) => t.id === r.topic)));
@@ -61,7 +56,7 @@ test("coverage has a row for every path step in path order, zeros included; a re
   const c = await libraryCoverage(deps(), {});
   const refs = slope(PATH).map((s) => s.ref);
   assert.deepEqual(c.steps.slice(0, refs.length).map((r) => r.step), refs);
-  assert.deepEqual(c.steps.find((r) => r.step === refs[0]), { step: refs[0], blocks: 0, plans: 0, times: 0, seconds: 0 });
+  assert.deepEqual(c.steps.find((r) => r.step === refs[0]), { step: refs[0], blocks: 0, times: 0, seconds: 0 });
   // the fixture's refs are not on the path
   assert.deepEqual(c.steps.slice(refs.length).map((r) => [r.step, r.blocks]), [["pentatonic:1", 1], ["pentatonic:2", 2]]);
 });

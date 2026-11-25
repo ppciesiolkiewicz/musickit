@@ -6,7 +6,6 @@ import { SUBSCRIPTION_MODEL, type Billing, type Plan } from "@/features/account/
 import { startMix } from "../model/growth";
 import type { DevModel } from "../model/models";
 import { atScale, playerYear, type Assumptions, type PlanTokens } from "../model/unitEconomics";
-import { reusedShare, type ReuseInfo } from "./PlanCosts";
 
 /**
  * "What one player costs": one paying account's year on every plan of the `plans` table, on one AI model, in one chart.
@@ -106,8 +105,8 @@ const paymentsOf = (b: Billing) => (b === "month" ? 12 : 1);
 /** US$ a year, paid this way. */
 const yearOf = (o: Pick<Offer, "month" | "year">, b: Billing) => (b === "month" ? o.month * 12 : o.year);
 
-/** The plans as offers, in `sort` order; without a database, the one Student offer of `pricing.ts`. Reuse starts at the plan's internal chance, as on Plans. */
-function offersFrom(plans: Plan[] | null, reuse: ReuseInfo | null): Offer[] {
+/** The plans as offers, in `sort` order; without a database, the one Student offer of `pricing.ts`. Reuse starts at 0, as on Plans: nothing is reused yet. */
+function offersFrom(plans: Plan[] | null): Offer[] {
   if (!plans || plans.length === 0) {
     return [{ id: "student", name: "Student (pricing.ts)", enabled: true, month: 5.99, year: PRICING.player.priceNumber, allowance: OLD_AI_PLANS_PER_MONTH, batch: false, reuse: 0 }];
   }
@@ -120,7 +119,7 @@ function offersFrom(plans: Plan[] | null, reuse: ReuseInfo | null): Offer[] {
       year: p.yearCents / 100,
       allowance: p.autoplansPerMonth,
       batch: p.batch,
-      reuse: reusedShare(reuse, p.id),
+      reuse: 0,
     };
   });
 }
@@ -259,9 +258,9 @@ function Toggle<T extends string>({ value, options, onChange, label }: { value: 
   );
 }
 
-export default function CostPerPlayer({ models: given, plans, reuse, fee, fixedMonthly }: { models: PlanTokens[]; /** null: no database, so the Student offer of `pricing.ts` */ plans: Plan[] | null; reuse: ReuseInfo | null; fee: Fee; /** US$ a month, from the list at the top of the page */ fixedMonthly: number }) {
+export default function CostPerPlayer({ models: given, plans, fee, fixedMonthly }: { models: PlanTokens[]; /** null: no database, so the Student offer of `pricing.ts` */ plans: Plan[] | null; fee: Fee; /** US$ a month, from the list at the top of the page */ fixedMonthly: number }) {
   const models = useMemo(() => [...given].sort(byOrder), [given]);
-  const originals = useMemo(() => offersFrom(plans, reuse), [plans, reuse]);
+  const originals = useMemo(() => offersFrom(plans), [plans]);
   const [offers, setOffers] = useState<Offer[]>(originals);
   const [running, setRunning] = useState<Running>({ emailsPerDay: 1, emailPer1000: 0.4, hosting: 0 });
   const [modelId, setModelId] = useState<DevModel | null>(models.find((m) => m.model === SUBSCRIPTION_MODEL)?.model ?? models[0]?.model ?? null);
@@ -385,7 +384,7 @@ export default function CostPerPlayer({ models: given, plans, reuse, fee, fixedM
                     <Slider label="Price a month" value={offer.month} shown={usd(offer.month)} min={1} max={Math.max(150, Math.ceil(original.month * 2))} step={1} onChange={set("month")} hint={`${usd(offer.month * 12)} a year paid monthly.`} />
                     <Slider label="Price a year" value={offer.year} shown={usd(offer.year)} min={1} max={Math.max(100, Math.ceil(original.year * 2))} step={1} onChange={set("year")} hint={offer.month > 0 ? `${Math.round((1 - offer.year / (offer.month * 12)) * 100)}% less than monthly.` : undefined} />
                     <Slider label="Allowance, autoplans a month" value={offer.allowance} shown={String(offer.allowance)} min={1} max={Math.max(24, original.allowance * 2)} step={1} onChange={set("allowance")} hint={`At ${pct(usage)}: ${Number((offer.allowance * usage).toFixed(1))} autoplans a month.`} />
-                    <Slider label="Plans reused" value={offer.reuse} shown={pct(offer.reuse)} min={0} max={1} step={0.05} onChange={set("reuse")} hint="Autoplans taken from the library: no AI but the decide call." />
+                    <Slider label="Plans reused" value={offer.reuse} shown={pct(offer.reuse)} min={0} max={1} step={0.05} onChange={set("reuse")} hint="What if: autoplans taken from plans already written, no AI but the decide call. The app reuses none today." />
                     <label className="flex items-center gap-2 self-start pt-6 text-sm text-slate-300">
                       <input type="checkbox" checked={offer.batch} onChange={(e) => set("batch")(e.target.checked)} className="accent-sky-400" />
                       Batch API: half price, minutes later

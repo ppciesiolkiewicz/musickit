@@ -225,40 +225,7 @@ table plans {
   batch boolean [not null, default: false]
   enabled boolean [not null, default: true]
   sort integer [not null, default: 0]
-  new_plan_percent integer [not null, default: 50]
   updated_at "timestamp with time zone" [not null, default: `now()`]
-}
-
-table practice_plan_blocks {
-  plan_id text [not null]
-  day integer [not null]
-  place integer [not null]
-  block_id text [not null]
-  choice_id text
-  minutes integer [not null]
-
-  indexes {
-    (plan_id, day, place) [pk]
-    block_id [name: 'practice_plan_blocks_block']
-  }
-}
-
-table practice_plans {
-  id text [pk, not null]
-  title text [not null]
-  answers jsonb [not null]
-  model text [not null]
-  reply text [not null]
-  source text [not null]
-  prompt_version integer
-  docs_agents integer
-  docs_teaching integer
-  enabled_for_reuse boolean [not null, default: false]
-  created_at "timestamp with time zone" [not null, default: `now()`]
-
-  indexes {
-    enabled_for_reuse [name: 'practice_plans_reuse']
-  }
 }
 
 table progress_entries {
@@ -430,12 +397,6 @@ ref plan_day_times_user_id_users_id_fk: plan_day_times.user_id > users.id [delet
 ref plan_requests_user_id_users_id_fk: plan_requests.user_id > users.id [delete: cascade, update: no action]
 
 ref plan_requests_plan_id_plans_id_fk: plan_requests.plan_id > plans.id [delete: cascade, update: no action]
-
-ref practice_plan_blocks_plan_id_practice_plans_id_fk: practice_plan_blocks.plan_id > practice_plans.id [delete: cascade, update: no action]
-
-ref practice_plan_blocks_block_id_blocks_id_fk: practice_plan_blocks.block_id > blocks.id [delete: no action, update: no action]
-
-ref practice_plan_blocks_choice_id_choices_id_fk: practice_plan_blocks.choice_id > choices.id [delete: no action, update: no action]
 
 ref progress_entries_user_id_users_id_fk: progress_entries.user_id > users.id [delete: cascade, update: no action]
 

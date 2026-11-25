@@ -7,7 +7,7 @@ import type { PlanState } from "@/features/plan/model/types";
 import { readAllPlanTimes, readDoc, readEntries } from "@/features/userData/server/data";
 import type { UserDataRepo } from "@/features/userData/server/repo";
 import type { LibraryRepo } from "./repo";
-import type { BlockDetail, BlockFilter, BlockSummary, ConceptCoverage, CoverageRow, PlanDetail, PlanFilter, PlanSummary, Scope, StepCoverage } from "./types";
+import type { BlockDetail, BlockFilter, BlockSummary, ConceptCoverage, CoverageRow, Scope, StepCoverage } from "./types";
 
 /** What the query functions run on. `rand` and `today` are for tests. */
 export interface Deps {
@@ -20,7 +20,6 @@ export interface Deps {
 }
 
 export const BLOCK_LIMIT = { default: 20, max: 50 } as const;
-export const PLAN_LIMIT = { default: 10, max: 30 } as const;
 
 export type FindOrder = "least-used" | "random-least-used" | "newest";
 
@@ -45,11 +44,6 @@ export async function findBlocks(d: Deps, scope: Scope, filter: BlockFilter, ord
 
 export const getBlock = (d: Deps, scope: Scope, id: string): Promise<BlockDetail | null> => d.library.getBlock(scope, id);
 
-export const findPlans = (d: Deps, scope: Scope, filter: PlanFilter, limit?: number): Promise<PlanSummary[]> =>
-  d.library.listPlans(scope, filter, clamp(limit, PLAN_LIMIT));
-
-export const getPlan = (d: Deps, scope: Scope, id: string, withReply = false): Promise<PlanDetail | null> => d.library.getPlan(scope, id, withReply);
-
 /**
  * A row for every topic and level, every concept and every path step (in path order, `slope`), zeros where the library has
  * none; rows for ids the catalogue lacks come after. An old concept id counts for its track. A block counts for a step only
@@ -64,7 +58,7 @@ export async function libraryCoverage(d: Deps, scope: Scope): Promise<{ topics: 
   for (const t of TOPICS) {
     for (const level of LEVEL_ORDER) {
       seen.add(key(t.id, level));
-      topics.push(byPair.get(key(t.id, level)) ?? { topic: t.id, level, blocks: 0, plans: 0, times: 0, seconds: 0 });
+      topics.push(byPair.get(key(t.id, level)) ?? { topic: t.id, level, blocks: 0, times: 0, seconds: 0 });
     }
   }
   topics.push(...got.topics.filter((r) => !seen.has(key(r.topic, r.level))));
@@ -73,15 +67,15 @@ export async function libraryCoverage(d: Deps, scope: Scope): Promise<{ topics: 
   for (const r of got.concepts) {
     const id = conceptId(r.concept) ?? r.concept;
     const at = byConcept.get(id);
-    byConcept.set(id, at ? { concept: id, blocks: at.blocks + r.blocks, plans: Math.max(at.plans, r.plans), times: at.times + r.times, seconds: at.seconds + r.seconds } : { ...r, concept: id });
+    byConcept.set(id, at ? { concept: id, blocks: at.blocks + r.blocks, times: at.times + r.times, seconds: at.seconds + r.seconds } : { ...r, concept: id });
   }
   const known = new Set(CONCEPTS.map((c) => c.id));
-  const concepts: ConceptCoverage[] = CONCEPTS.map((c) => byConcept.get(c.id) ?? { concept: c.id, blocks: 0, plans: 0, times: 0, seconds: 0 });
+  const concepts: ConceptCoverage[] = CONCEPTS.map((c) => byConcept.get(c.id) ?? { concept: c.id, blocks: 0, times: 0, seconds: 0 });
   concepts.push(...[...byConcept.values()].filter((r) => !known.has(r.concept)));
   const byStep = new Map(got.steps.map((r) => [r.step, r]));
   const refs = slope(PATH).map((s) => s.ref);
   const onPath = new Set(refs);
-  const steps: StepCoverage[] = refs.map((step) => byStep.get(step) ?? { step, blocks: 0, plans: 0, times: 0, seconds: 0 });
+  const steps: StepCoverage[] = refs.map((step) => byStep.get(step) ?? { step, blocks: 0, times: 0, seconds: 0 });
   steps.push(...got.steps.filter((r) => !onPath.has(r.step)));
   return { topics, concepts, steps };
 }

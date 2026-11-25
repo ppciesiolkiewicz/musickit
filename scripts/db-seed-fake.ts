@@ -12,7 +12,7 @@
  *
  * Teachers' students are made with the app's own `addStudent` (account on the taught plan, link, plan document with the
  * questionnaire answers of a dev persona), then given a first week with `makeWeek` when the library has blocks
- * (`db:seed-plans`, `db:seed-blocks`). Most of them have opened their link: those started 1 to 4 weeks ago, have a week
+ * (`db:seed-blocks`). Most of them have opened their link: those started 1 to 4 weeks ago, have a week
  * for each, have rated their past days (`rateWeek`: better each week, one or two weak topics), and their teacher moved a
  * few sliders up before each next week (`teacherNudge`). The rest were added this week and have done nothing. One solo student is left before setup, to see /account/setup.
  *

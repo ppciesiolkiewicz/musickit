@@ -1,5 +1,5 @@
-import { BLOCK_LIMIT, PLAN_LIMIT, findBlocks, findPlans, getBlock, getPlan, libraryCoverage, playerProgress, type Deps, type FindOrder } from "./query";
-import type { BlockFilter, PlanFilter, PlayerMode, Scope } from "./types";
+import { BLOCK_LIMIT, findBlocks, getBlock, libraryCoverage, playerProgress, type Deps, type FindOrder } from "./query";
+import type { BlockFilter, PlayerMode, Scope } from "./types";
 
 export interface ToolDef { name: string; description: string; inputSchema: object }
 export type ToolResult = { ok: true; data: unknown } | { ok: false; error: string };
@@ -56,27 +56,9 @@ const SPECS: Record<string, Spec> = {
     args: { id: str("The block id.") },
     required: ["id"],
   },
-  find_plans: {
-    description:
-      "List practice plans with their size (days, minutes, blocks), topics and concepts. " +
-      "Use it to see what a whole week looks like for a kind of player. " +
-      `The answer is capped: ${PLAN_LIMIT.default} plans by default, at most ${PLAN_LIMIT.max}. A full page may mean there are more.`,
-    args: {
-      areas: list("Area ids; a plan whose answers name any of them matches."),
-      levels: list("Levels; a plan with a block (or a block's choice) at any of them matches."),
-      topics: list("Topic ids; a plan with blocks for every one of them matches."),
-      ...VERSIONS,
-      limit: int(`How many plans, 1 to ${PLAN_LIMIT.max}. Default ${PLAN_LIMIT.default}.`),
-    },
-  },
-  get_plan: {
-    description: "One plan with its schedule: which block on which day, in which place, and for how many minutes.",
-    args: { id: str("The plan id."), with_reply: { type: "boolean", description: "Also return the AI's full reply. Long. Default false." } },
-    required: ["id"],
-  },
   library_coverage: {
     description:
-      "How much the library holds for every topic at every level, for every concept and for every path step: blocks, plans, times practised and seconds. " +
+      "How much the library holds for every topic at every level, for every concept and for every path step: blocks, times practised and seconds. " +
       "Steps are \"trackId:n\", in path order (easiest first); a block counts for a step only when it names it. " +
       "blocks counts choices: a library block counts once for each of its choices at that level or naming that step; times and seconds count each block once. " +
       "Read this first to see which steps are thin. A zero row means nothing there yet. " +
@@ -108,7 +90,7 @@ export const LIBRARY_TOOLS: ToolDef[] = Object.entries(SPECS).map(([name, s]) =>
 }));
 
 /** Scope-like keys a caller may send. They are ignored: the scope comes from the server, never from the arguments. */
-const IGNORED = new Set(["player", "planIds", "includeNotEnabled", "include_not_enabled"]);
+const IGNORED = new Set(["player", "includeNotEnabled", "include_not_enabled"]);
 
 type Parsed = { ok: true; values: Record<string, unknown> } | { ok: false; error: string };
 
@@ -142,7 +124,7 @@ const versions = (v: Record<string, unknown>) => ({
   docsTeaching: v.docs_teaching as number | undefined,
 });
 
-/** Runs one tool. The scope is the server's; `player`, `planIds` and `includeNotEnabled` in `args` are ignored. */
+/** Runs one tool. The scope is the server's; `player` and `includeNotEnabled` in `args` are ignored. */
 export async function callTool(d: Deps, scope: Scope, name: string, args: unknown): Promise<ToolResult> {
   const spec = Object.hasOwn(SPECS, name) ? SPECS[name] : undefined;
   if (!spec) return { ok: false, error: `unknown tool "${name}"` };
@@ -162,14 +144,6 @@ export async function callTool(d: Deps, scope: Scope, name: string, args: unknow
     case "get_block": {
       const b = await getBlock(d, scope, v.id as string);
       return b ? { ok: true, data: b } : { ok: false, error: `no block "${v.id}"` };
-    }
-    case "find_plans": {
-      const filter: PlanFilter = { areas: v.areas as string[] | undefined, levels: v.levels as string[] | undefined, topics: v.topics as string[] | undefined, ...versions(v) };
-      return { ok: true, data: await findPlans(d, scope, filter, v.limit as number | undefined) };
-    }
-    case "get_plan": {
-      const p = await getPlan(d, scope, v.id as string, v.with_reply === true);
-      return p ? { ok: true, data: p } : { ok: false, error: `no plan "${v.id}"` };
     }
     case "library_coverage":
       return { ok: true, data: await libraryCoverage(d, scope) };

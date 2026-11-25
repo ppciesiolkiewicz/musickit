@@ -1,10 +1,10 @@
-import { SEED_BLOCKS, SEED_PLANS, type SeedBlockFile, type SeedBlockRef, type SeedPlanFile } from "@/features/library/seed";
+import { SEED_BLOCKS, type SeedBlockFile } from "@/features/library/seed";
 import { exerciseOf } from "@/features/library/seed/choices";
 import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise } from "@/features/plan/model/config";
 import { blockKeyOf, choiceIdOf } from "@/features/plan/model/blockId";
 import { levelOfSteps } from "@/features/plan/model/path";
-import type { CuratedBlock, CuratedChoice, PlanBlockRow, Provenance, UserDataRepo } from "./repo";
+import type { CuratedBlock, CuratedChoice, Provenance, UserDataRepo } from "./repo";
 
 /**
  * The seed block files as curated blocks: the file's id, its exercise's content (without moves), tags and slot (why,
@@ -47,32 +47,6 @@ export function curatedBlocks(files: SeedBlockFile[] = SEED_BLOCKS): { blocks: C
   return { blocks, skipped };
 }
 
-/**
- * A seed plan file's `practice_plan_blocks` rows, from its refs: one per ref, `day` and `place` from 0, naming the block
- * and its choice, with the ref's minutes or else the choice's. A ref to a block or choice not in `blocks` is left out
- * and named in `unknown` (`<block>/<choice>`), and the places close up, as `expandPlan` leaves it out of the reply.
- */
-export function planRowsOf(file: SeedPlanFile, blocks: CuratedBlock[]): { rows: PlanBlockRow[]; unknown: string[] } {
-  const choices = new Map(blocks.flatMap((b) => b.choices.map((c) => [c.id, { blockId: b.id, c }] as const)));
-  const rows: PlanBlockRow[] = [];
-  const unknown: string[] = [];
-  const days = Array.isArray(file.plan.days) ? (file.plan.days as Record<string, unknown>[]) : [];
-  days.forEach((d, day) => {
-    const refs = Array.isArray(d.exercises) ? (d.exercises as SeedBlockRef[]) : [];
-    let place = 0;
-    for (const r of refs) {
-      const id = choiceIdOf(r.block, r.choice);
-      const hit = choices.get(id);
-      if (!hit || hit.blockId !== r.block) {
-        unknown.push(id);
-        continue;
-      }
-      rows.push({ day, place: place++, blockId: r.block, choiceId: id, minutes: r.minutes ?? hit.c.minutes });
-    }
-  });
-  return { rows, unknown };
-}
-
 function secs(since: number): string {
   return `${((Date.now() - since) / 1000).toFixed(1)}s`;
 }
@@ -80,39 +54,26 @@ function secs(since: number): string {
 /**
  * Puts the seed block files in the library as curated blocks with their choices (`upsertCurated`: the file is the source
  * of truth, so a second run with the same files changes nothing, and a choice no longer in a file is made inactive; a
- * stored block whose file changed, in its exercise or in a choice, gets the next `revision`, counted in `revised`), then
- * each seed plan's rows in `practice_plan_blocks` from its refs. `plans` must already be in `practice_plans` (the script
- * passes the ones `db:seed-plans` stored). Returns the counts, the skipped block files and the refs that name nothing.
+ * stored block whose file changed, in its exercise or in a choice, gets the next `revision`, counted in `revised`). Seed plans
+ * are not stored: they stay files (the demos read them). Returns the counts and the skipped block files.
  * When a block file doesn't parse it writes nothing and returns that file in `skipped` with every count 0: storing the
  * rest would make the skipped block's choices inactive (and an empty list every choice).
  */
 export async function seedBlocks(
   repo: UserDataRepo,
   now: Date,
-  { files = SEED_BLOCKS, plans = SEED_PLANS, log = () => {} }: { files?: SeedBlockFile[]; plans?: SeedPlanFile[]; log?: (line: string) => void } = {},
-): Promise<{ blocks: number; choices: number; deactivated: number; revised: number; planBlocks: number; skipped: string[]; unknownRefs: string[] }> {
+  { files = SEED_BLOCKS, log = () => {} }: { files?: SeedBlockFile[]; log?: (line: string) => void } = {},
+): Promise<{ blocks: number; choices: number; deactivated: number; revised: number; skipped: string[] }> {
   const { blocks, skipped } = curatedBlocks(files);
   for (const id of skipped) log(`skipped  ${id}  (exercise does not parse)`);
   if (skipped.length) {
     log(`${skipped.length} block file${skipped.length === 1 ? "" : "s"} did not parse; nothing written`);
-    return { blocks: 0, choices: 0, deactivated: 0, revised: 0, planBlocks: 0, skipped, unknownRefs: [] };
+    return { blocks: 0, choices: 0, deactivated: 0, revised: 0, skipped };
   }
   for (const b of blocks) log(`block  ${b.id}  ${b.choices.map((c) => `${c.name}${c.active ? "" : " (draft)"}`).join(", ")}`);
   log(`${blocks.length} curated blocks, ${blocks.reduce((n, b) => n + b.choices.length, 0)} choices from ${files.length} block files; storing in one transaction…`);
-  let t = Date.now();
+  const t = Date.now();
   const stored = await repo.upsertCurated(blocks, now);
   log(`stored blocks and choices in ${secs(t)}; ${stored.revised} changed block${stored.revised === 1 ? "" : "s"} got a new revision, ${stored.deactivated} choice${stored.deactivated === 1 ? "" : "s"} made inactive`);
-  let planBlocks = 0;
-  const unknownRefs: string[] = [];
-  t = Date.now();
-  for (const [i, p] of plans.entries()) {
-    const { rows, unknown } = planRowsOf(p, blocks);
-    for (const u of unknown) log(`plan ${p.id}: no block and choice ${u}; left out`);
-    unknownRefs.push(...unknown.map((u) => `${p.id}: ${u}`));
-    await repo.setPlanBlocks(p.id, rows);
-    planBlocks += rows.length;
-    log(`plan ${i + 1}/${plans.length}  ${p.id}  ${rows.length} rows`);
-  }
-  if (plans.length) log(`plan block rows written in ${secs(t)}`);
-  return { ...stored, planBlocks, skipped, unknownRefs };
+  return { ...stored, skipped };
 }

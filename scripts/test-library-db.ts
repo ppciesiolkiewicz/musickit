@@ -66,9 +66,6 @@ async function load(data: LibraryData) {
   if (data.owners.length) await db.insert(s.blockOwners).values(data.owners);
   if (data.progress.length) await db.insert(s.progressEntries).values(data.progress);
   if (data.dayTimes.length) await db.insert(s.planDayTimes).values(data.dayTimes.map((t) => ({ ...t, spent: t.spent ?? sql`'null'::jsonb` })));
-  // `answers` is NOT NULL jsonb: a null in the data is the JSON null
-  if (data.plans.length) await db.insert(s.practicePlans).values(data.plans.map((p) => ({ ...p, answers: p.answers ?? sql`'null'::jsonb` })));
-  if (data.planBlocks.length) await db.insert(s.practicePlanBlocks).values(data.planBlocks);
 }
 
 libraryRepoContract(async (data) => {
@@ -130,19 +127,6 @@ describe("user data repo on Postgres: block provenance", () => {
     const own = prov({ model: "mine" });
     await repo.addBlocks(PLAYER_A, [block("p", { provenance: full }), block("c", { parentId: "p", provenance: own })], NOW);
     assert.deepEqual(await provenanceOf("c"), own);
-  });
-  test("setPlanBlocks replaces the plan's rows", async () => {
-    await fresh();
-    await repo.addBlocks(null, [block("a"), block("b"), block("c")], NOW);
-    await db.insert(schema.practicePlans).values(["p", "q"].map((id) => ({ id, title: id, answers: {}, model: "m", reply: "", source: "test" })));
-    await repo.setPlanBlocks("p", [{ day: 0, place: 0, blockId: "a", minutes: 5 }, { day: 0, place: 1, blockId: "b", minutes: 5 }]);
-    await repo.setPlanBlocks("q", [{ day: 0, place: 0, blockId: "a", minutes: 1 }]);
-    await repo.setPlanBlocks("p", [{ day: 1, place: 0, blockId: "c", minutes: 10 }]);
-    const rows = async (planId: string) =>
-      db.select({ day: schema.practicePlanBlocks.day, place: schema.practicePlanBlocks.place, blockId: schema.practicePlanBlocks.blockId, minutes: schema.practicePlanBlocks.minutes })
-        .from(schema.practicePlanBlocks).where(eq(schema.practicePlanBlocks.planId, planId));
-    assert.deepEqual(await rows("p"), [{ day: 1, place: 0, blockId: "c", minutes: 10 }]);
-    assert.equal((await rows("q")).length, 1);
   });
   const curated = (id: string, names: string[], over: Partial<CuratedBlock> = {}): CuratedBlock => ({
     id,
@@ -221,14 +205,6 @@ describe("user data repo on Postgres: block provenance", () => {
     // a choice dropped, and a block no longer listed: both revised, once each
     assert.deepEqual(await repo.upsertCurated([ab({ ...text, tags: ["technique"], choices: more.slice(0, 2) })], later), { blocks: 1, choices: 2, deactivated: 2, revised: 2 });
     assert.deepEqual(await revs(), { "guitar-a-b": 5, "guitar-c-d": 2, [block("a").id]: 1 });
-  });
-  test("setPlanBlocks writes a curated slot's choice id", async () => {
-    await fresh();
-    await repo.upsertCurated([curated("guitar-a-b", ["beginner"])], NOW);
-    await db.insert(schema.practicePlans).values({ id: "p", title: "p", answers: {}, model: "m", reply: "", source: "test" });
-    await repo.setPlanBlocks("p", [{ day: 0, place: 0, blockId: "guitar-a-b", choiceId: "guitar-a-b/beginner", minutes: 6 }]);
-    const rows = await db.select({ blockId: schema.practicePlanBlocks.blockId, choiceId: schema.practicePlanBlocks.choiceId, minutes: schema.practicePlanBlocks.minutes }).from(schema.practicePlanBlocks);
-    assert.deepEqual(rows, [{ blockId: "guitar-a-b", choiceId: "guitar-a-b/beginner", minutes: 6 }]);
   });
   test("putProgress stores choice_id and keeps it (and block_id) when a later write lacks it", async () => {
     await fresh();

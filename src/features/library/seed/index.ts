@@ -8,8 +8,8 @@ export { GENRES, isGenre, type Genre } from "./genres";
 
 /*
  * The library seed written by agents (NEW10 in tasks.txt): plans and single exercises written to the library's gaps,
- * one JSON file each (README.md), so an agent writing or reading one never loads the rest. `npm run db:seed-plans` and
- * `db:seed-blocks` put them in the database.
+ * one JSON file each (README.md), so an agent writing or reading one never loads the rest. `npm run db:seed-blocks` puts the
+ * blocks in the database. The plans are never stored: they stay files, read where they are (below, `SEED_PLANS`).
  */
 
 /** The prompt's and the writing rules' versions a seed file was written to (`PROMPT_VERSION`, `DOC_VERSIONS`). */
@@ -72,6 +72,11 @@ export interface SeedBlockFile {
 
 const sorted = <T>(files: Record<string, unknown>): T[] => Object.keys(files).sort().map((k) => files[k] as T);
 
+/**
+ * The seed plans, read from their files: there is no plan library in the database. They are kept for the places that use a
+ * whole week as it is written: the /demo pages (`DEMO_PLANS` in features/plan/demos.ts), /dev/library (`?item=<id>` draws
+ * one), the path view on /dev, and tests that need a real plan. An agent writing a plan can read one here as a model.
+ */
 export const SEED_PLANS: SeedPlanFile[] = sorted<SeedPlanFile>(PLAN_FILES);
 export const SEED_BLOCKS: SeedBlockFile[] = sorted<SeedBlockFile>(BLOCK_FILES);
 

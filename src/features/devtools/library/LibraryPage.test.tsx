@@ -3,27 +3,21 @@ import assert from "node:assert/strict";
 import { renderToStaticMarkup } from "react-dom/server";
 import { SEED_PLANS } from "@/features/library/seed";
 import { DOC_VERSIONS } from "@/features/library/seed/versions";
-import type { BlockSummary, PlanSummary } from "@/features/library/server/types";
+import type { BlockSummary } from "@/features/library/server/types";
 import { PROMPT_VERSION } from "@/features/plan/model/prompt";
-import { BlocksTable, ChoicesTable, PlansTable } from "./LibraryPage";
+import { BlocksTable, ChoicesTable, SeedPlansTable } from "./LibraryPage";
 
-const row = (id: string, provenance: PlanSummary["provenance"]) =>
-  ({ id, title: id, days: 7, provenance }) as unknown as PlanSummary;
-
-test("a seed plan gets a Seed tag and an older version is marked behind", () => {
+test("the seed plans table lists each file with a link to draw it, and marks an older version behind", () => {
+  const f = SEED_PLANS[0];
   const html = renderToStaticMarkup(
-    <PlansTable
+    <SeedPlansTable
       params={{ includeNotEnabled: false }}
-      plans={[
-        row(SEED_PLANS[0].id, { model: null, promptVersion: PROMPT_VERSION - 1, docsAgents: DOC_VERSIONS.agents, docsTeaching: null }),
-        row("ai-plan", { model: null, promptVersion: PROMPT_VERSION, docsAgents: DOC_VERSIONS.agents, docsTeaching: DOC_VERSIONS.teaching }),
-      ]}
+      plans={[{ ...f, versions: { prompt: PROMPT_VERSION - 1, agents: DOC_VERSIONS.agents, teaching: DOC_VERSIONS.teaching } }]}
     />,
   );
-  assert.equal(html.match(/>Seed</g)?.length, 1);
+  assert.match(html, new RegExp(`item=${f.id}#item`));
   assert.equal(html.match(/behind: now/g)?.length, 1);
   assert.match(html, new RegExp(`title="behind: now ${PROMPT_VERSION}">prompt ${PROMPT_VERSION - 1}<`));
-  assert.match(html, /text-slate-500">teaching –</);
 });
 
 test("a block's choices are listed with level, steps, minutes and active; the drawn one is marked, the others link to themselves", () => {
