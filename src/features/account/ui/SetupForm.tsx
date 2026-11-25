@@ -10,6 +10,7 @@ import { paidThroughCheckout } from "../billing";
 import { AudienceLead, AudienceSwitch, BillingSwitch, EarlyOffer, NoChargeLine, PlanOption, planGrid, planHue, startAudience, type Loaded } from "./PlanPicker";
 import { audienceOf, type Audience } from "./planPitch";
 import { Card, ErrorLine, FIELD, LABEL, PRIMARY, errorOf, send } from "./parts";
+import { VOICE_CARE_ERROR, VoiceCareBox } from "./VoiceCare";
 
 /**
  * /account/setup, where a new account stays until it has chosen a plan (`LoginGuard`): its name and its plan, saved in
@@ -42,7 +43,7 @@ export default function SetupForm({ next, start, boxes, extra }: {
   const [emails, setEmails] = useState<boolean | null>(null);
   const [terms, setTerms] = useState(false);
   const [termsError, setTermsError] = useState<string | null>(null);
-  // the voice-care box: asked here, not stored; the same words are in the terms they agree to
+  // the voice-care box (`VoiceCare.tsx`): asked here, not stored
   const [care, setCare] = useState(false);
   const [careError, setCareError] = useState<string | null>(null);
   const careRef = useRef<HTMLInputElement>(null);
@@ -85,7 +86,7 @@ export default function SetupForm({ next, start, boxes, extra }: {
     setError(null);
     if (noName) return showName();
     if (noPlan) return showPlans();
-    setCareError(care ? null : "Please tick the box about singing gently.");
+    setCareError(care ? null : VOICE_CARE_ERROR);
     if (!terms) return showTerms();
     if (!care) return careRef.current?.focus();
     if (!chosenPlan) return;
@@ -210,23 +211,7 @@ export default function SetupForm({ next, start, boxes, extra }: {
             </label>
             <ErrorLine id="setup-terms-error">{termsError}</ErrorLine>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="flex items-start gap-3 text-sm">
-              <input
-                ref={careRef}
-                type="checkbox"
-                className="mt-0.5 h-4 w-4 shrink-0 scroll-mt-24 accent-sky-400"
-                checked={care}
-                onChange={(e) => { setCare(e.target.checked); setCareError(null); }}
-                aria-invalid={!!careError}
-                aria-describedby={careError ? "setup-care-error" : undefined}
-              />
-              <span className="text-slate-200">
-                I&apos;ll sing gently, without forcing my voice. If my throat hurts or feels uncomfortable, or I feel dizzy, I&apos;ll stop and rest. If it doesn&apos;t pass, or I&apos;m worried about my voice, I&apos;ll see a voice teacher or a doctor.
-              </span>
-            </label>
-            <ErrorLine id="setup-care-error">{careError}</ErrorLine>
-          </div>
+          <VoiceCareBox id="setup-care" checked={care} onChange={(v) => { setCare(v); setCareError(null); }} error={careError} inputRef={careRef} />
         </div>
 
         <ErrorLine>{error}</ErrorLine>

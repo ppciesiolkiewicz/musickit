@@ -4,6 +4,7 @@ import { useRef, useState, type FormEvent } from "react";
 import Icon from "@/components/Icon";
 import { EmailUpdatesBox } from "./EmailUpdates";
 import { ErrorLine, FIELD, LABEL, PRIMARY } from "./parts";
+import { VOICE_CARE_ERROR, VoiceCareBox } from "./VoiceCare";
 
 /**
  * A personal invite's setup (`JoinForm`), for a new account that just logged in on `/join/<token>`: its name, email
@@ -28,7 +29,7 @@ export default function JoinSetup({ startName, busy, error, onSave }: {
     e.preventDefault();
     const noName = !name.trim();
     setNameError(noName ? "Please type your name." : null);
-    setCareError(care ? null : "Please tick the box about singing gently.");
+    setCareError(care ? null : VOICE_CARE_ERROR);
     if (noName) return nameRef.current?.focus();
     if (!care) return careRef.current?.focus();
     onSave({ name, emailUpdates: emails });
@@ -53,23 +54,7 @@ export default function JoinSetup({ startName, busy, error, onSave }: {
         <ErrorLine id="join-name-error">{nameError}</ErrorLine>
       </div>
       <EmailUpdatesBox checked={emails} onChange={setEmails} where="account" />
-      <div className="flex flex-col gap-1.5">
-        <label className="flex items-start gap-3 text-sm">
-          <input
-            ref={careRef}
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 shrink-0 accent-sky-400"
-            checked={care}
-            onChange={(e) => { setCare(e.target.checked); setCareError(null); }}
-            aria-invalid={!!careError}
-            aria-describedby={careError ? "join-care-error" : undefined}
-          />
-          <span className="text-slate-200">
-            I&apos;ll sing gently, without forcing my voice. If my throat hurts or feels uncomfortable, or I feel dizzy, I&apos;ll stop and rest. If it doesn&apos;t pass, or I&apos;m worried about my voice, I&apos;ll see a voice teacher or a doctor.
-          </span>
-        </label>
-        <ErrorLine id="join-care-error">{careError}</ErrorLine>
-      </div>
+      <VoiceCareBox id="join-care" checked={care} onChange={(v) => { setCare(v); setCareError(null); }} error={careError} inputRef={careRef} />
       <ErrorLine>{error}</ErrorLine>
       <button type="submit" disabled={busy} className={PRIMARY}>{busy ? "Saving…" : <>Continue<Icon name="chevron-right" size={16} /></>}</button>
     </form>
