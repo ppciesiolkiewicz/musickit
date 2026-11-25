@@ -14,7 +14,7 @@ test("off token: reads back with its secret only", () => {
 
 test("reminderEmail: words, links and one-click unsubscribe headers", () => {
   const m = reminderEmail("a@b.c", "Today's plan: <b>Scales</b>", "https://x.app", "tok", {});
-  assert.equal(m.subject, "Time to practise");
+  assert.equal(m.subject, "Time to practice");
   assert.deepEqual(m.to, ["a@b.c"]);
   assert.ok(m.text.includes("https://x.app/plan") && m.text.includes(offPageUrl("https://x.app", "tok")));
   assert.equal(m.headers["List-Unsubscribe"], `<${offPostUrl("https://x.app", "tok")}>`);
