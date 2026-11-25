@@ -26,7 +26,7 @@ import { inArray, like, or } from "drizzle-orm";
 import { toAccount } from "../src/features/account/server/auth";
 import { auth as authOf } from "../src/features/account/server/http";
 import type { UserRow } from "../src/features/account/server/repo";
-import { TERMS_UPDATED } from "../src/features/account/terms";
+import { termsVersion } from "../src/features/account/terms";
 import type { Account, Role } from "../src/features/account/model";
 import { PERSONAS } from "../src/features/devtools/model/personas";
 import { drizzleLibraryRepo } from "../src/features/library/server/repo.drizzle";
@@ -214,7 +214,7 @@ async function main() {
     if (!made) throw new Error("A seeded email already has an account.");
     if (!planId) return made;
     await repo.setUserPlan(made.id, planId, faker.helpers.arrayElement(["month", "year"] as const), role, since);
-    await repo.acceptTerms(made.id, TERMS_UPDATED, since);
+    await repo.acceptTerms(made.id, termsVersion(false), since);
     if (faker.datatype.boolean()) await repo.setEmailUpdates(made.id, true, since);
     return (await repo.userById(made.id))!;
   }
