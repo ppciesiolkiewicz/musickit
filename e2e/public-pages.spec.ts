@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 // Public pages load, draw a heading, log no errors and don't scroll sideways (E2E5).
-const PAGES = ["/", "/players", "/faq", "/terms", "/privacy", "/demo", "/login"];
+const PAGES = ["/", "/schools", "/faq", "/terms", "/privacy", "/demo", "/login"];
 
 for (const path of PAGES) {
   test(`${path} loads cleanly`, async ({ page }) => {

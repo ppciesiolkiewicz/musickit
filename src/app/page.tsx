@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import AutoplanHome, { SchoolsEnding } from "@/components/landing/home/AutoplanHome";
+import AutoplanHome, { PlayersEnding } from "@/components/landing/home/AutoplanHome";
 import { publicPlans } from "@/features/account/server/publicPlans";
 import { paymentsEnabled } from "@/features/account/server/paymentsEnabled";
 
-/* The home page, for music schools. Solo musicians have theirs at /players; a logged-in person is sent to /plan (src/proxy.ts). */
+/** Payments are on (`STRIPE_ENABLED`), read on the server when the page is built: no beta line then. */
+const PAYMENTS = paymentsEnabled();
 
-const TITLE = "attunr for music schools: a week of practice for every student";
-const DESCRIPTION = "Each guitar and voice student gets a week of short practice exercises, put together from attunr's library to fit where they are, with the diagrams, drones and backing each exercise needs. Teachers steer each new week and send lesson notes as a link.";
+/*
+ * The home page, for solo musicians: people who practise on their own. Music schools have theirs at /schools; the old
+ * /players address redirects here (next.config.ts). A logged-in person is sent to /plan (src/proxy.ts).
+ */
+
+const TITLE = "Daily Guitar & Voice Practice Plan for Solo Musicians · attunr";
+const DESCRIPTION = `Answer a few questions and attunr puts together today's practice: short guitar or voice exercises for your level, each one something to play, sing or hear on the screen.${PAYMENTS ? "" : " Free while in beta."}`;
 
 export const metadata: Metadata = {
-  title: "attunr for Music Schools: Weekly Practice Plans for Guitar & Voice",
+  title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/" },
   openGraph: { type: "website", siteName: "attunr", url: "/", title: TITLE, description: DESCRIPTION },
@@ -20,5 +26,5 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 export default async function Home() {
-  return <AutoplanHome audience="schools" plans={await publicPlans()} payments={paymentsEnabled()} ending={<SchoolsEnding />} />;
+  return <AutoplanHome audience="players" plans={await publicPlans()} payments={paymentsEnabled()} ending={<PlayersEnding />} />;
 }

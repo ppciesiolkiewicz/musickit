@@ -85,11 +85,11 @@ export function can(account: Account | null, feature: Feature): boolean {
 }
 
 /**
- * The home page that speaks to this person: the music-school page (/) for a teacher or an owner, who work for a school,
- * and the players page for a student. A student of a school gets /players too: that page talks to them as a player.
+ * The home page that speaks to this person: the music-school page (/schools) for a teacher or an owner, who work for a
+ * school, and the solo musicians' page (/) for a student. A student of a school gets / too: that page talks to them as a player.
  */
-export function homePage(account: Account): "/" | "/players" {
-  return account.role === "student" ? "/players" : "/";
+export function homePage(account: Account): "/" | "/schools" {
+  return account.role === "student" ? "/" : "/schools";
 }
 
 const isRole = (r: unknown): r is Role => (ROLES as readonly unknown[]).includes(r);

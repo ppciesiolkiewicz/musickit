@@ -61,7 +61,7 @@ function DemoLink({ current }: { current: boolean }) {
  * `devices` adds the audio devices button after the style. A teacher's account (`can("students")`) gets a fourth link,
  * Students, after the three (on a phone its icon only; under 380 px Interactive notes is its icon too, so the four fit; under 340 px it is for everyone).
  */
-export default function SiteNav({ active, devices = false }: { active: string; devices?: boolean }) {
+export default function SiteNav({ active, devices = false, themeIntro = false }: { active: string; devices?: boolean; /** the style picker opens by itself on a first visit (the solo musicians home page) */ themeIntro?: boolean }) {
   const visitor = isMarketingPath(active);
   return (
     <nav aria-label="attunr" className="flex flex-wrap items-center gap-1">
@@ -87,7 +87,7 @@ export default function SiteNav({ active, devices = false }: { active: string; d
       <span className="ml-auto" />
       {!visitor && <SpotlightButton />}
       {active !== "/tuner" && <TunerButton className="hidden sm:mr-1.5 sm:block" />}
-      <ThemeSwitcher autoOpen={active === "/players"} />
+      <ThemeSwitcher autoOpen={themeIntro} />
       {devices && <AudioDevicesButton className="sm:ml-1.5" />}
       <AccountLink className="sm:ml-1.5" />
     </nav>

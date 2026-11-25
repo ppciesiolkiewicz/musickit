@@ -35,6 +35,8 @@ const nextConfig: NextConfig = {
       { source: "/theory/drone", destination: "/theory/metronome-drone", permanent: true },
       // the four-stage outline was folded into the course
       { source: "/theory/stage/:n", destination: "/course", permanent: true },
+      // the solo musicians' home page moved from /players to /, and the music schools' one from / to /schools
+      { source: "/players", destination: "/", permanent: true },
       // there is no separate register form: /login is the one way in, and it makes the account for a new email
       { source: "/register", destination: "/login", permanent: false },
       { source: "/register/teacher", destination: "/login", permanent: false },

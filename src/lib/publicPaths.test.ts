@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import { isMarketingPath, isPublicPath, loginHref } from "./publicPaths";
 
 const PUBLIC = [
-  "/", "/players", "/faq", "/terms", "/privacy", "/demo", "/demo/guitar-beginner", "/login", "/login/confirm", "/claim",
+  "/", "/schools", "/faq", "/terms", "/privacy", "/demo", "/demo/guitar-beginner", "/login", "/login/confirm", "/claim",
   "/kickstarter", "/landing-1", "/intro", "/teachers/video/render", "/api/auth/session", "/_next/static/x.js",
   "/favicon.ico", "/icon.png", "/logo.png", "/opengraph-image", "/theory/scales/opengraph-image", "/robots.txt",
   "/sitemap.xml", "/instruments/piano/a.mp3", "/images/teacher.webp", "/dev", "/admin/content/stories", "/admin", "/admin/messages",
 ];
 const GATED = [
   "/plan", "/practice", "/theory/scales", "/tuner", "/looper", "/course/1", "/note/x", "/account", "/teachers/studio",
-  "/players-x", "/demox", "/devx", "/adminx", "/cheatsheet", "/welcome", "/claimx",
+  "/schools-x", "/demox", "/devx", "/adminx", "/cheatsheet", "/welcome", "/claimx",
 ];
 
 test("marketing pages, sign-in, demos, APIs and files are public", () => {
@@ -22,7 +22,7 @@ test("the app needs a login", () => {
 });
 
 test("marketing paths are the public pages a visitor reads, not files or APIs", () => {
-  for (const p of ["/", "/players", "/faq", "/terms", "/privacy", "/demo", "/demo/voice-beginner", "/login", "/kickstarter", "/landing-1", "/intro", "/claim", "/reminders/off"]) assert.equal(isMarketingPath(p), true, p);
+  for (const p of ["/", "/schools", "/faq", "/terms", "/privacy", "/demo", "/demo/voice-beginner", "/login", "/kickstarter", "/landing-1", "/intro", "/claim", "/reminders/off"]) assert.equal(isMarketingPath(p), true, p);
   for (const p of ["/plan", "/practice", "/api/auth/session", "/teachers/video/render", "/account"]) assert.equal(isMarketingPath(p), false, p);
 });
 

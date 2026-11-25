@@ -8,7 +8,7 @@ import { THEORY_SECTIONS, TONE } from "@/features/theory/sections";
 import { FAMILIES, MAJOR, modeSteps } from "@/features/theory/theory";
 
 /*
- * The practice core both home pages share (the player page at /players and the music-school page at /): the skills the
+ * The practice core both home pages share (the player page at / and the music-school page at /schools): the skills the
  * drills build, the AI practice plan and the colour ideas. Each section takes its own heading so a page can pitch it its way.
  */
 

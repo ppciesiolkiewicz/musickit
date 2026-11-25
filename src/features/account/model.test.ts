@@ -44,10 +44,10 @@ test("an owner can use everything a teacher can", () => {
   }
 });
 
-test("a teacher or owner's home page is the music-school page; a student's is the players page", () => {
-  assert.equal(homePage(acc({ role: "student" })), "/players");
-  assert.equal(homePage(acc({ role: "teacher" })), "/");
-  assert.equal(homePage(acc({ role: "owner" })), "/");
+test("a teacher or owner's home page is the music-school page; a student's is the solo musicians' page", () => {
+  assert.equal(homePage(acc({ role: "student" })), "/");
+  assert.equal(homePage(acc({ role: "teacher" })), "/schools");
+  assert.equal(homePage(acc({ role: "owner" })), "/schools");
 });
 
 test("cleanAccounts drops broken rows and repeats", () => {

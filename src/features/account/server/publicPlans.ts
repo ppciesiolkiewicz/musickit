@@ -6,7 +6,7 @@ import { drizzleRepo } from "./repo.drizzle";
 const TIMEOUT_MS = 8000;
 
 /**
- * The plans anyone can choose, in `sort` order, for a public page (the Pricing section of / and /players): the same rows
+ * The plans anyone can choose, in `sort` order, for a public page (the Pricing section of / and /schools): the same rows
  * /dev/kickstarter/teachers and /dev/costs list, so a home page never quotes a price the plans table doesn't hold.
  * Null with no database, or when it doesn't answer in time: the page then shows its pricing without numbers.
  */

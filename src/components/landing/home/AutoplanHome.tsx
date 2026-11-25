@@ -21,7 +21,7 @@ import { FIRST_STUDENTS, FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
 import { SHOW_NOTES } from "@/lib/notesHidden";
 
 /*
- * The two home pages, / (music schools) and /players (solo musicians), in one shape: the Practice plan first, then
+ * The two home pages, / (solo musicians) and /schools (music schools), in one shape: the Practice plan first, then
  * what you get, the quick tour, how it works, Notes, the other teaching resources in one strip, the price, the ending.
  * Design: docs/superpowers/specs/2026-11-14-autoplan-centre-design.md. What each page may promise is the offer on
  * /dev/kickstarter (src/features/devtools/model/kickstarterStudents.ts for solo musicians, kickstarter.ts for teachers
@@ -129,29 +129,39 @@ const COPY: Record<Audience, {
 const PRIMARY = "ls-btn ls-btn-primary ls-glint inline-flex items-center gap-2 rounded-xl bg-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-300";
 const SECONDARY = "ls-btn inline-flex items-center gap-2 rounded-xl border border-slate-600 px-5 py-3 text-sm font-medium text-slate-100 transition hover:border-slate-400 hover:bg-slate-800/40";
 
-/** The two home pages, as the switch at the top of each. The footer has the same pair under "attunr for". */
-const AUDIENCES: { audience: Audience; href: string; label: string }[] = [
-  { audience: "schools", href: "/", label: "Music schools" },
-  { audience: "players", href: "/players", label: "Solo musicians" },
+/** The two home pages, as the switch at the top of each, solo musicians first. The footer has the same pair under "attunr for". */
+const AUDIENCES: { audience: Audience; href: string; label: string; line: string; icon: IconName }[] = [
+  { audience: "players", href: "/", label: "Solo musicians", line: "For your own practice", icon: "circle-user-round" },
+  { audience: "schools", href: "/schools", label: "Music schools", line: "For teachers and students", icon: "graduation-cap" },
 ];
 
-/** "attunr for [Music schools | Solo musicians]": the way between the two home pages, above the hero's title. */
+/**
+ * "Who is it for?": the way between the two home pages, above the hero's title. Two wide options with an icon and a
+ * line each, the current one filled, so a visitor sees at once that there is a second page.
+ */
 function AudienceSwitch({ current }: { current: Audience }) {
   return (
-    <nav aria-label="attunr for" className="mb-6 flex flex-wrap items-center gap-3">
-      <span className="text-sm text-slate-400">attunr for</span>
-      <span className="inline-flex rounded-full border border-slate-700 bg-slate-900/60 p-1 backdrop-blur">
-        {AUDIENCES.map((a) => (
-          <Link
-            key={a.href}
-            href={a.href}
-            aria-current={a.audience === current ? "page" : undefined}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${a.audience === current ? "bg-sky-400 text-slate-950" : "text-slate-300 hover:text-slate-50"}`}
-          >
-            {a.label}
-          </Link>
-        ))}
-      </span>
+    <nav aria-label="Who attunr is for" className="mb-8 w-full max-w-md">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Who is it for?</p>
+      <div className="grid grid-cols-2 gap-1 rounded-2xl border border-slate-700 bg-slate-900/70 p-1 backdrop-blur">
+        {AUDIENCES.map((a) => {
+          const on = a.audience === current;
+          return (
+            <Link
+              key={a.href}
+              href={a.href}
+              aria-current={on ? "page" : undefined}
+              className={`flex min-w-0 items-center gap-2.5 rounded-xl px-3 py-2.5 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-400 ${on ? "bg-sky-400 text-slate-950 shadow-md shadow-sky-500/20" : "text-slate-200 hover:bg-slate-800/80"}`}
+            >
+              <Icon name={a.icon} size={20} className={`shrink-0 ${on ? "" : "text-sky-300"}`} />
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold leading-tight">{a.label}</span>
+                <span className={`block text-xs leading-tight ${on ? "text-slate-900/80" : "text-slate-400"}`}>{a.line}</span>
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }
@@ -172,7 +182,7 @@ export default function AutoplanHome({ audience, plans, ending, payments = false
       <PreloadPiano />
       <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="border-b border-slate-800/70 py-2.5 sm:py-4">
-          <SiteNav active={audience === "schools" ? "/" : "/players"} />
+          <SiteNav active={audience === "schools" ? "/schools" : "/"} themeIntro={audience === "players"} />
         </div>
 
         {/* Hero: the Practice plan */}
