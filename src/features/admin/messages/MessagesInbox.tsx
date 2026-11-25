@@ -50,7 +50,7 @@ function Context({ c }: { c: MessageContext }) {
   );
 }
 
-/** /admin/messages: every thread and contact message, one open beside the list, with reply and close. */
+/** /admin/admin/messages: every thread and contact message, one open beside the list, with reply and close. */
 export default function MessagesInbox({ initialThread }: { initialThread: string | null }) {
   const [filter, setFilter] = useState<Filter>(initialThread ? "all" : "open");
   const [threads, setThreads] = useState<Listed[] | null>(null);

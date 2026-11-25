@@ -16,7 +16,7 @@ type View = {
   state: "open" | "yours" | "used" | "not-found";
   kind: InviteKind | null;
   plan: { name: string; students: number | null } | null;
-  /** Who we made the invite for (its note on /admin/invites), if we said. */
+  /** Who we made the invite for (its note on /admin/admin/invites), if we said. */
   name: string | null;
   /** false for a visitor who isn't logged in: the page logs them in itself */
   signedIn: boolean;
@@ -49,7 +49,7 @@ export function JoinTitle() {
  * A personal invite works the same up to logging in, then: a new account sets itself up here (`JoinSetup`: name, email
  * updates, the voice-care box) instead of joining by itself, and everyone lands on /plan, not /students.
  *
- * A teacher invite (`/join/<token>`, made on /admin/invites). A visitor who isn't logged in sees the invite and logs in
+ * A teacher invite (`/join/<token>`, made on /admin/admin/invites). A visitor who isn't logged in sees the invite and logs in
  * on the page (the /login form, `LinkForm`), agreeing to the terms by doing so, and comes back here. A new account (no
  * plan yet, so /account/setup is skipped) then joins by itself (user, 2026-11-19): named from the invite's note, else
  * its own name, terms agreed, no email updates, while the page shows the plan it gets. An account that is already set

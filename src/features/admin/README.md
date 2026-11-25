@@ -1,20 +1,25 @@
 # Admin
 
-Pages under `/admin` for running the app, apart from the tools for building it (`/dev`, `src/features/devtools`).
-Open in development, and in production to a signed-in account with the `admin` permission (`users.permissions`). Rules: `CLAUDE.md`.
+`/admin` is a hub (`src/app/admin/page.tsx`) over two halves: `/admin/admin` (running the app: messages, users, invites;
+the `admin` permission) and `/admin/content` (the tools for writing lessons; the `content` permission). The hub opens to
+either permission and shows a card for each half the viewer may open (`hub.ts`). Apart from `/dev`, the tools for building
+the code (`src/features/devtools`). Open in development, and in production to a signed-in account with the permission
+(`users.permissions`). Old URLs (`/admin/messages`, `/dev/messages` and so on) redirect: `src/features/devtools/moves.ts`,
+read by `next.config.ts`. Rules: `CLAUDE.md`.
 
 ## Where each part lives
 
-- `registry.ts`: the pages, read by the index (`src/app/admin/page.tsx`) and the tabs.
-- `AdminShell.tsx`, `AdminNav.tsx`: the page frame and its tabs, with a link over to `/dev`.
+- `registry.ts`: the pages, read by the `/admin/admin` index (`src/app/admin/admin/page.tsx`) and the tabs.
+- `hub.ts`: the hub's cards and `hubSections(open)`.
+- `AdminShell.tsx`, `AdminNav.tsx`: the page frame and its tabs, with links back to the hub and over to `/admin/content` and `/dev`.
 - `messages/MessagesInbox.tsx`: the inbox.
 - `invites/InvitesAdmin.tsx`: teacher invites.
-- `src/app/admin/users/page.tsx`: the users list, a server page over `listUsers` and `listSessionTimes` on `AuthRepo`
+- `src/app/admin/admin/users/page.tsx`: the users list, a server page over `listUsers` and `listSessionTimes` on `AuthRepo`
   and `listPlanSummaries` on `UserDataRepo`, drawn by `users/UsersTable.tsx`.
-- `users/PermissionTicks.tsx`: one person's Dev, Content and Admin boxes on the users list.
+- `users/PermissionTicks.tsx`: one person's Dev, Content and Admin boxes on the users list; `users/messages.ts` holds what it says when a save fails.
 - Routes: `src/app/api/admin/messages`, `src/app/api/admin/invites`, `src/app/api/admin/users` (PATCH a person's permissions).
 
-## Users (`/admin/users`)
+## Users (`/admin/admin/users`)
 
 Every account, newest first: name, email, role, its permissions, the day it was made, its last log-in and when it was last seen, and
 how many plans it holds (its own, the running one and earlier ones, plus any a teacher gave). Under each row, its latest
@@ -27,11 +32,11 @@ shows a dash.
 
 Permissions (`dev`, `content`, `admin`, see `features/account/model.ts`) are ticked in place and saved at once with
 `PATCH /api/admin/users` (`changePermissions` in `features/account/server/permissions.ts`). A failed save puts the boxes
-back and says so under them. Nobody can untick their own Admin, so the last admin can't lock everyone out; in
-development with no login there is no "own" row. Plan counts and answers are summed up in the database from the `plan` document, which is never loaded
+back and says so under them. An admin can't untick their own Admin, so the last admin can't lock everyone out; in
+development a signed-in person without Admin may change their own row, and with no login there is no "own" row. Plan counts and answers are summed up in the database from the `plan` document, which is never loaded
 whole.
 
-## Messages (`/admin/messages`)
+## Messages (`/admin/admin/messages`)
 
 Our inbox for `src/features/messages` (`messages/MessagesInbox.tsx`, over `GET/POST/PATCH /api/admin/messages`):
 threads from signed-in users (the chat bubble and the Send feedback page) and contact form messages, newest first,
@@ -40,9 +45,9 @@ they had selected) and marks it read on our side; reply, or Close / Reopen. A co
 "contact") has no reply box, only an email link. `?thread=<id>` opens one; the email we get about a message links there.
 In production an admin answers them on the live site; in development, against whichever database the dev server reads.
 
-`/dev/messages`, where the inbox used to be, redirects here and keeps `?thread=`.
+`/admin/messages` and `/dev/messages`, where the inbox used to be, redirect here and keep `?thread=`.
 
-## Invites (`/admin/invites`)
+## Invites (`/admin/admin/invites`)
 
 Links we send a teacher so they can try the app on the Teacher Demo plan (`teacher-demo`: a teacher plan with 2
 students, free, `enabled` false, so no one can choose it), or a player on the Personal Demo plan (`personal-demo`: a

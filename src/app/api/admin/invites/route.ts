@@ -25,7 +25,7 @@ const linkBase = (req: Request): string => {
   return host === "localhost" || host === "127.0.0.1" ? new URL(req.url).origin : SITE_URL;
 };
 
-/** /admin/invites (development, or the admin permission): every invite, newest first, with its `link` (null when it was made before tokens were kept). */
+/** /admin/admin/invites (development, or the admin permission): every invite, newest first, with its `link` (null when it was made before tokens were kept). */
 export async function GET(req: Request) {
   const gate = await permissionGate(req, "admin");
   if (gate) return gate;

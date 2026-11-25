@@ -68,7 +68,7 @@ function Answers({ a }: { a: PlanAnswers }) {
 /**
  * Every account with when it last logged in and was last seen (over all its browsers; nothing once it has logged out
  * everywhere), how many plans it holds, its permissions (ticked in place) and its latest questionnaire answers, folded
- * under each row. `viewerId` is the signed-in admin, whose own Admin box stays ticked; null in development without a login.
+ * under each row. `viewerId` is the signed-in admin, whose own Admin box stays ticked; null when the viewer is not an admin (development without a login, or a signed-in person with no admin permission).
  */
 export default function UsersTable({ rows, viewerId }: { rows: UserListRow[]; viewerId: string | null }) {
   return (

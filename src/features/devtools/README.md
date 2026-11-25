@@ -7,7 +7,7 @@ the app's data. Spec: `docs/superpowers/specs/2026-10-31-prompt-devtools-design.
 
 - **Development, or the dev permission.** `src/app/dev/layout.tsx` calls `notFound()` unless `permissionPage("dev")`
   (`server/access.ts`): in production only a signed-in account with the `dev` permission gets in (`users.permissions`,
-  set on /admin/users). Every `src/app/api/dev/*` handler starts with `await permissionGate(req, "dev")`, except `mcp`, a local MCP server for agents, which stays on `devGate()`
+  set on /admin/admin/users). Every `src/app/api/dev/*` handler starts with `await permissionGate(req, "dev")`, except `mcp`, a local MCP server for agents, which stays on `devGate()`
   (`gate.ts`). The dev overlays on real pages (`devUi`, `DevOnly`) stay development only. In development no login is needed: `/dev` is a public
   path (`src/lib/publicPaths.ts`). `/dev` is not in the sitemap and robots.txt disallows it.
 - **Imports.** Dev tools may import plan internals (`@/features/plan/model/*`, its UI). Nothing outside this folder,

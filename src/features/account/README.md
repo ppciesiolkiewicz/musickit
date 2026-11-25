@@ -9,7 +9,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
 
 ## Parts
 
-- `model.ts`: `Role` (student, teacher, owner: the role the plan gives, `roleOnPlan`; an owner runs a school, can do all a teacher can and keeps the role on any plan), `Permission` (`dev`, `content`, `admin`: which pages for building and running the app a person may open in production, `users.permissions`, none implying another; `hasPermission`, checked by `features/devtools/server/access.ts`; `cleanPermissions`; set per person on /admin/users; migration `0044_permissions` moved the old `admin` role to all three), `NEW_ACCOUNT_ROLE`
+- `model.ts`: `Role` (student, teacher, owner: the role the plan gives, `roleOnPlan`; an owner runs a school, can do all a teacher can and keeps the role on any plan), `Permission` (`dev`, `content`, `admin`: which pages for building and running the app a person may open in production, `users.permissions`, none implying another; `hasPermission`, checked by `features/devtools/server/access.ts`; `cleanPermissions`; set per person on /admin/admin/users; migration `0044_permissions` moved the old `admin` role to all three), `NEW_ACCOUNT_ROLE`
   (student: every account a person makes for themself starts as one; a teacher or owner is made one by us), `Account` (id, name, email, role, `taught`: on the `taught` plan, a student a teacher made), `FEATURES` (the parts
   of the app with the roles that may use them; every role gets every feature except `sharePlan` and `students` (having students, see `features/students`), for teachers and owners; the admin permission opens every feature), `can(account, feature)` and
   `homePage(account)` (the home page the profile menu's Home page goes to: / for a teacher or owner, /players for a student).
@@ -43,8 +43,8 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   taken from a `practice_plans` library; migrations `0010_lower_prices_more_reuse` to `0018_higher_prices_half_off_yearly` set
   prices on the strength of that reuse. Migration `0045_drop_practice_plans` dropped the column and the library. All of this is history: plans are now put together from the library by our own code, the app doesn't call an AI from the server, and /terms says so.
 - Payments (`billing.ts`, `server/stripe.ts`, `server/paymentsEnabled.ts`), off unless `STRIPE_ENABLED=true` (2026-11-24).
-- `server/permissions.ts`: `changePermissions`, behind `PATCH /api/admin/users` (the boxes on /admin/users): a list of
-  known permissions or nothing is written, and a person can't take away their own admin permission.
+- `server/permissions.ts`: `changePermissions`, behind `PATCH /api/admin/users` (the boxes on /admin/admin/users): a list of
+  known permissions or nothing is written, and an admin can't take away their own admin permission.
   On: an account on a paid plan (`paidThroughCheckout`: not taught, a demo, or priced with you) must have a live
   Stripe subscription (trialing, active, past_due), else `Account.needsPayment` and `needsSetup` hold it on
   `/account/setup`, whose Continue (Continue to payment) saves and opens Checkout (`POST /api/account/checkout`):
@@ -104,10 +104,10 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   at once, with no payment during the beta (`choosePlan` in `server/auth.ts`); the page reloads. Leaving a Teacher plan
   for Student says above the button that sharing plans goes. Paying for the same plan the other way never changes the role.
 - Teacher invites (`server/invites.ts`, table `teacher_invites`, migration `0032_teacher_invites`): a link we make on
-  `/admin/invites` and send a teacher, `/join/<token>` (`JOIN_PATH`, `joinHref` in `loginGuard.ts`). It puts the
+  `/admin/admin/invites` and send a teacher, `/join/<token>` (`JOIN_PATH`, `joinHref` in `loginGuard.ts`). It puts the
   account that opens it on the Teacher Demo plan (`TEACHER_DEMO_PLAN_ID`: teacher, 2 students, 8 autoplans a month,
   free, `enabled` false), with the plan's role (an owner stays an owner). One invite, one account; the invite is found by
-  its token's hash, and the token is kept too, so /admin/invites can copy the link again. The page is public (`SHARED` in
+  its token's hash, and the token is kept too, so /admin/admin/invites can copy the link again. The page is public (`SHARED` in
   `src/lib/publicPaths.ts`) and stands in for /login: a visitor who isn't logged in sees the invite and logs in on it
   (`LinkForm` with `bare`, email and code or Google), and `pathAfterSignIn` sends a new account straight back to the
   invite, not to setup: `ui/JoinForm.tsx` joins it by itself, titled "Setting up your teacher account" with the plan
@@ -143,7 +143,7 @@ name (Google's is filled in) and choose a plan, with no payment; the three main 
   - `publicPlans.ts`: the plans anyone can choose, for a public page. The Pricing section of `/` and `/players` reads it (rebuilt at most once an hour), so the home pages show the same rows as `/dev/kickstarter/teachers` and `/dev/costs`. Null with no database or no answer in 8 seconds: the section then shows no number and says so.
   - `http.ts`: cookies, the same-site check, `auth()` (null when there is no database), `requestAccount(req)`.
   - `google.ts`: the Google code flow with PKCE. `mail.ts`: the email with the link and the code, sent through Resend.
-- `emailHtml.ts`: the look every email shares (`emailPage`, `row`), with no server code, and the teacher invite email (`inviteEmail`), which /admin/invites copies for us to send by hand.
+- `emailHtml.ts`: the look every email shares (`emailPage`, `row`), with no server code, and the teacher invite email (`inviteEmail`), which /admin/admin/invites copies for us to send by hand.
 
 The tables are in `src/lib/db/schema.ts` and the migrations in `/drizzle`.
 
@@ -169,7 +169,7 @@ Things that are on purpose:
   Every other page stays open: the landing pages, the FAQ, `/account`. It is held in the browser only: the API routes don't refuse
   an account with no plan, which is a student meanwhile.
 - **Only hashes are stored.** The session cookie and every link carry a random token; the database holds its SHA-256
-  (a teacher invite keeps its token too, for /admin/invites).
+  (a teacher invite keeps its token too, for /admin/admin/invites).
   A code is stored as the SHA-256 of the email and the code.
 - **The link and the code are one proof.** They are the same row: using one spends the other. The code works on the
   page that asked for it, so it logs in there even when the email was read on a phone.

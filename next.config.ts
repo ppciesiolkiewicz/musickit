@@ -9,6 +9,8 @@ const THEORY_SECTIONS = ["chords", "triads", "scales", "caged", "arpeggios", "im
  */
 const SOUND_CACHE = [{ key: "Cache-Control", value: "public, max-age=604800, stale-while-revalidate=86400" }];
 
+import { MOVES } from "./src/features/devtools/moves";
+
 const nextConfig: NextConfig = {
   // The e2e test server (playwright.config.ts) builds into its own folder: Next allows one dev server per build folder.
   distDir: process.env.NEXT_DIST_DIR || ".next",
@@ -38,6 +40,11 @@ const nextConfig: NextConfig = {
       { source: "/register", destination: "/login", permanent: false },
       { source: "/register/teacher", destination: "/login", permanent: false },
       { source: "/register/finish", destination: "/login", permanent: false },
+      // pages that moved under /admin/admin (src/features/devtools/moves.ts); the query goes along
+      ...MOVES.flatMap(({ from, to }) => [
+        { source: from, destination: to, permanent: false },
+        { source: `${from}/:path*`, destination: `${to}/:path*`, permanent: false },
+      ]),
       // the old "Start here" hub was folded into the course
       { source: "/theory", destination: "/course", permanent: true },
     ];

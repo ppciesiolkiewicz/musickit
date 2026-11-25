@@ -10,7 +10,7 @@ export const ROLE_LABEL: Record<Role, string> = { student: "Student", teacher: "
 /**
  * What of the pages for building and running the app a person may open in production (in development everything is
  * open): `dev` the /dev pages, `content` the content pages, `admin` the /admin pages and setting these. None implies
- * another. Set per person on /admin/users.
+ * another. Set per person on /admin/admin/users.
  */
 export const PERMISSIONS = ["dev", "content", "admin"] as const;
 export type Permission = (typeof PERMISSIONS)[number];

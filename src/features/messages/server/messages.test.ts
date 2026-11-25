@@ -21,7 +21,7 @@ test("a first message starts a thread and emails us; newThread starts another", 
   assert.equal(sent.length, 1);
   assert.match(sent[0].text, /This step is unclear/);
   assert.match(sent[0].text, /\/plan/);
-  assert.match(sent[0].text, new RegExp(`/admin/messages\\?thread=${a.threadId}`));
+  assert.match(sent[0].text, new RegExp(`/admin/admin/messages\\?thread=${a.threadId}`));
   assert.equal(sent[0].reply_to, "jo@example.com");
   const b = await postMessage(repo, mailer, jo, { body: "Another thing", newThread: true }, t(1), {});
   assert.ok(b.ok);

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { preview } from "../model/message";
 import type { MessageRow, MessagesRepo, ThreadRow } from "./repo";
 
-/** The repo in memory, for tests. `users` stands in for the users table, for the names /admin/messages shows. */
+/** The repo in memory, for tests. `users` stands in for the users table, for the names /admin/admin/messages shows. */
 export function memoryMessagesRepo(users: Map<string, { email: string; name: string }> = new Map()): MessagesRepo {
   const threads = new Map<string, ThreadRow>();
   const msgs: MessageRow[] = [];

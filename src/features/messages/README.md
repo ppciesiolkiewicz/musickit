@@ -23,9 +23,9 @@ section that is wrong. So each message carries where it was sent from. Design:
   the middle of the screen), the selected text.
 - `server/repo.ts` (+ `repo.memory.ts`, `repo.drizzle.ts`, `store.ts`): the `message_threads` and `messages` tables.
 - `server/messages.ts`: what the routes do (post, read, reply, close, contact messages). Tested over the memory repo.
-- `server/mail.ts`: the email we get about a new message, with a link to `/admin/messages?thread=<id>`.
+- `server/mail.ts`: the email we get about a new message, with a link to `/admin/admin/messages?thread=<id>`.
 - Routes: `src/app/api/me/messages` (the user), `src/app/api/admin/messages` (us, dev only).
-- Our inbox: `/admin/messages` (`src/features/admin/messages/MessagesInbox.tsx`, see `src/features/admin`).
+- Our inbox: `/admin/admin/messages` (`src/features/admin/messages/MessagesInbox.tsx`, see `src/features/admin`).
 
 ## Not yet
 

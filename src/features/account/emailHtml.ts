@@ -1,7 +1,7 @@
 /**
  * The look every attunr email shares: the dark card with the logo above it and the seven scale-degree dots along its top.
  * Tables and inline styles only, the one layout every mail program draws the same. No server code here, so a page can
- * build an email too (/admin/invites copies the teacher invite).
+ * build an email too (/admin/admin/invites copies the teacher invite).
  */
 
 /* The app's dark palette as hex (mail programs don't read oklch): slate 950/900/800/400/300/100, sky 400, and the
@@ -90,7 +90,7 @@ const INVITE_WORDS: Record<InviteKind, { subject: string; preheader: string; hea
 };
 
 /**
- * An invite, teacher or personal, to paste into an email by hand (/admin/invites, Copy email): its subject, a plain-text
+ * An invite, teacher or personal, to paste into an email by hand (/admin/admin/invites, Copy email): its subject, a plain-text
  * part and the HTML part. Nothing sends it; we send it ourselves.
  */
 export function inviteEmail(link: string, kind: InviteKind = "teacher"): { subject: string; text: string; html: string } {

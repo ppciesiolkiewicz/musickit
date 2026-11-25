@@ -19,7 +19,7 @@ export type ThreadRow = {
 /** A `messages` row. */
 export type MessageRow = { id: string; threadId: string; fromAdmin: boolean; body: string; context: MessageContext | null; at: Date };
 
-/** A thread as /admin/messages lists it: with the user's email and name (null for a contact message) and its last line. */
+/** A thread as /admin/admin/messages lists it: with the user's email and name (null for a contact message) and its last line. */
 export type ListedThread = ThreadRow & { userEmail: string | null; userName: string | null; preview: string };
 
 /** Where messages are kept: Postgres (`repo.drizzle.ts`) or memory for tests (`repo.memory.ts`). */

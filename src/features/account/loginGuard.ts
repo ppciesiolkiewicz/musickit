@@ -57,7 +57,7 @@ export function takeHash(store: Storage, path: string, now: number): string | nu
  */
 export const sendToLogin = (signedIn: boolean, hintLeft: boolean): boolean => !signedIn && !hintLeft;
 
-/** Where a teacher invite opens (`/join/<token>`, made on /admin/invites); the login page words itself for it. */
+/** Where a teacher invite opens (`/join/<token>`, made on /admin/admin/invites); the login page words itself for it. */
 export const JOIN_PATH = "/join/";
 export const joinHref = (token: string): string => `${JOIN_PATH}${encodeURIComponent(token)}`;
 /** A teacher invite's page: a new account is set up there (it joins by itself), so sign-in goes straight to it and not to setup. */

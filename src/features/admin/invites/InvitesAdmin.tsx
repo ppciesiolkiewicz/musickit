@@ -35,7 +35,7 @@ async function call(url: string, init?: RequestInit): Promise<{ ok: boolean; bod
 const errorIn = (r: { body: Record<string, unknown> }) => (typeof r.body.error === "string" ? r.body.error : "Something went wrong.");
 
 /**
- * /admin/invites: make an invite, copy its link, and see who joined with each. A teacher invite gives the Teacher Demo
+ * /admin/admin/invites: make an invite, copy its link, and see who joined with each. A teacher invite gives the Teacher Demo
  * plan (2 students, free, never offered); a personal invite the Personal Demo plan (a player's own, free, never offered). Each row's Copy link copies its link again (not for invites made before links were kept), and
  * Copy email copies the invite email (`inviteEmail`) to paste into a mail program: as HTML, so it pastes drawn, and as its
  * source for a plain-text box.

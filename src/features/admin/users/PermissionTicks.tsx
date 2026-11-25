@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { PERMISSION_LABEL, PERMISSIONS, type Permission } from "@/features/account/model";
+import { failedMessage, SELF } from "./messages";
 
-const SELF = "You can't remove your own admin permission.";
-const FAILED = "Couldn't save the permissions. Tick the box again.";
 
 /**
- * One person's permissions on /admin/users: a box each for dev, content and admin, saved as soon as one changes
+ * One person's permissions on /admin/admin/users: a box each for dev, content and admin, saved as soon as one changes
  * (`PATCH /api/admin/users`). A failed save puts the boxes back as stored and says so. `self` is the viewer's own row:
  * its Admin box can't be unticked (the server refuses it too).
  */
@@ -31,12 +30,12 @@ export default function PermissionTicks({ userId, initial, self }: { userId: str
         body: JSON.stringify({ userId, permissions: next }),
       });
       const body = (await res.json().catch(() => ({}))) as { permissions?: Permission[]; error?: string };
-      if (!res.ok || !body.permissions) throw new Error(body.error === "self" ? SELF : FAILED);
+      if (!res.ok || !body.permissions) throw new Error(failedMessage(body.error));
       setSaved(body.permissions);
       setShown(body.permissions);
     } catch (e) {
       setShown(saved);
-      setError(e instanceof Error && e.message === SELF ? SELF : FAILED);
+      setError(e instanceof Error ? e.message : failedMessage(undefined));
     } finally {
       setSaving(false);
     }

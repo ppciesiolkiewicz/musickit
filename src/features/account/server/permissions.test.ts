@@ -35,6 +35,11 @@ test("an admin may change their own other ticks", async () => {
   assert.deepEqual(await changePermissions(deps, actor(), admin.id, ["admin", "content"]), { ok: true, permissions: ["content", "admin"] });
 });
 
+test("a signed-in person without admin may change their own row in development", async () => {
+  const { deps, admin, actor } = await setup();
+  assert.deepEqual(await changePermissions(deps, actor(["dev"]), admin.id, ["dev", "content"]), { ok: true, permissions: ["dev", "content"] });
+});
+
 test("nobody signed in (development) may change anyone", async () => {
   const { deps, admin } = await setup();
   assert.deepEqual(await changePermissions(deps, null, admin.id, []), { ok: true, permissions: [] });
