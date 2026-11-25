@@ -13,6 +13,8 @@ import { CONTROLS_TOOLS, ToolControls } from "@/components/practice/toolControls
 import type { PlanTool } from "@/features/plan/model/tools";
 import { CvControls, FxControls, NeckCvView, NeckView, useCv, useFx } from "@/features/neckFx";
 import { saveContentVideo } from "../client/api";
+import { startFaceCam, type FaceCam } from "../client/faceCam";
+import { FACE_CORNERS, FACE_SIZES, readFaceLook, type FaceLook } from "../model/faceCircle";
 import { burnOverlay, canBurn, noChange, type Burned } from "../client/burn";
 import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
 import { squeeze, type Sample } from "../model/clock";
@@ -40,6 +42,11 @@ interface Take {
 const SAMPLE_MS = 50;
 
 const CAMERA_KEY = "musickit.content.camera";
+/** the second camera, on the face, and where its circle sits: kept in this browser */
+const FACE_CAMERA_KEY = "musickit.content.faceCamera";
+const FACE_LOOK_KEY = "musickit.content.faceLook";
+const CORNER_WORDS: Record<FaceLook["corner"], string> = { "top-left": "Top left", "top-right": "Top right", "bottom-left": "Bottom left", "bottom-right": "Bottom right" };
+const FACE_SIZE_WORDS: Record<FaceLook["size"], string> = { small: "Small", medium: "Medium", large: "Large" };
 /** where the tool sits over the camera, and whether its controls show: kept in this browser */
 const LOOK_KEY = "musickit.content.toolLook";
 const CONTROLS_KEY = "musickit.content.toolControls";
@@ -85,6 +92,15 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const [done, setDone] = useState("");
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [cameraId, setCameraId] = useState(() => { try { return localStorage.getItem(CAMERA_KEY) ?? ""; } catch { return ""; } });
+  // "": no face camera; else its device id
+  const [faceId, setFaceId] = useState(() => { try { return localStorage.getItem(FACE_CAMERA_KEY) ?? ""; } catch { return ""; } });
+  const [faceLook, setFaceLookState] = useState<FaceLook>(() => readFaceLook(stored(FACE_LOOK_KEY)));
+  const setFaceLook = (part: Partial<FaceLook>) => setFaceLookState((l) => { const next = { ...l, ...part }; store(FACE_LOOK_KEY, next); return next; });
+  const faceStream = useRef<MediaStream | null>(null);
+  // the guitar camera with the face circle, drawn on a canvas: what the take records while the face camera is open
+  const faceCam = useRef<FaceCam | null>(null);
+  const [faceOpen, setFaceOpen] = useState(false);
+  const faceHolder = useRef<HTMLDivElement | null>(null);
   const [toolShown, setToolShown] = useState(true);
   const [look, setLookState] = useState<Look>(() => readLook(stored(LOOK_KEY), DEFAULT_LOOK));
   const setLook = (part: Partial<Look>) => setLookState((l) => { const next = { ...l, ...part }; store(LOOK_KEY, next); return next; });
@@ -160,11 +176,15 @@ export default function RecordVideo({ target, videos, children, drawn }: {
   const samples = useRef<Sample[]>([]);
   const onBeat = useCallback((b: number | null) => { beat.current = b; }, []);
 
-  const stopCamera = () => { stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; mic.current?.close(); mic.current = null; };
+  const stopCamera = () => {
+    stream.current?.getTracks().forEach((t) => t.stop()); stream.current = null; mic.current?.close(); mic.current = null;
+    faceStream.current?.getTracks().forEach((t) => t.stop()); faceStream.current = null; setFaceOpen(false);
+  };
   const listCameras = async () => {
     try { setCameras((await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === "videoinput")); } catch { /* the list stays */ }
   };
   const pickCamera = (id: string) => { setCameraId(id); try { localStorage.setItem(CAMERA_KEY, id); } catch { /* this visit only */ } };
+  const pickFace = (id: string) => { setFaceId(id); try { localStorage.setItem(FACE_CAMERA_KEY, id); } catch { /* this visit only */ } };
 
   useEffect(() => () => {
     if (recorder.current?.state === "recording") { recorder.current.onstop = null; recorder.current.stop(); }
@@ -172,6 +192,19 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
   }, []);
   useEffect(() => { if (live.current && (phase === "ready" || phase === "recording")) live.current.srcObject = stream.current; }, [phase]);
+  // the face camera open and the guitar camera on screen: draw both on one canvas, shown over the guitar camera
+  useEffect(() => {
+    const face = faceStream.current;
+    if (!faceOpen || !face || !liveVideo) return;
+    const cam = startFaceCam(liveVideo, face, faceLook, setProblem);
+    cam.canvas.className = "absolute inset-0 h-full w-full object-cover";
+    faceHolder.current?.appendChild(cam.canvas);
+    faceCam.current = cam;
+    return () => { cam.stop(); cam.canvas.remove(); faceCam.current = null; };
+    // the look changes through setLook, below, without restarting the canvas
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [faceOpen, liveVideo]);
+  useEffect(() => { faceCam.current?.setLook(faceLook); }, [faceLook]);
   useEffect(() => {
     if (phase !== "recording") return;
     const from = performance.now();
@@ -208,7 +241,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
     try { await openMic(); } catch (e) { setProblem(`The microphone didn't open: ${message(e)}. Pick another input, or allow the microphone in the address bar.`); }
   };
 
-  const startCamera = async (id = cameraId) => {
+  const startCamera = async (id = cameraId, faceFrom = faceId) => {
     setProblem("");
     if (typeof MediaRecorder === "undefined" || !navigator.mediaDevices?.getUserMedia) { setProblem("This browser can't record video."); return; }
     setPhase("starting");
@@ -235,13 +268,33 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       setProblem(`The microphone didn't open: ${message(e)}. Allow it in the address bar or pick another input, then press Start camera.`);
       return;
     }
+    if (faceFrom) await openFace(faceFrom);
     setPhase("ready");
     void listCameras();
   };
 
+  /** Open the face camera beside the guitar camera; if it won't open, the guitar camera records alone and the page says why. */
+  const openFace = async (id: string) => {
+    faceStream.current?.getTracks().forEach((t) => t.stop());
+    faceStream.current = null;
+    setFaceOpen(false);
+    const guitar = stream.current?.getVideoTracks()[0]?.getSettings().deviceId;
+    if (guitar && guitar === id) { setProblem("The face camera is the same camera as the Camera list. Pick another face camera."); return; }
+    try {
+      faceStream.current = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 }, deviceId: { exact: id } }, audio: false });
+      setFaceOpen(true);
+    } catch (e) {
+      if (e instanceof Error && e.name === "OverconstrainedError") { pickFace(""); setProblem("The face camera isn't connected. Face camera is back on None."); return; }
+      setProblem(`The face camera didn't open: ${message(e)}. The take records the guitar camera only.`);
+    }
+  };
+
   const record = () => {
-    const s = stream.current;
-    if (!s) return;
+    const cam = stream.current;
+    if (!cam) return;
+    // with the face camera, the canvas holding both cameras; else the camera itself
+    const picture = faceCam.current?.track ?? cam.getVideoTracks()[0];
+    const s = new MediaStream([...(picture ? [picture] : []), ...cam.getAudioTracks()]);
     const type = pickVideoType((t) => MediaRecorder.isTypeSupported(t));
     const chunks: Blob[] = [];
     let r: MediaRecorder;
@@ -267,7 +320,7 @@ export default function RecordVideo({ target, videos, children, drawn }: {
       const blob = new Blob(chunks, { type: recorded });
       if (takeUrl.current) URL.revokeObjectURL(takeUrl.current);
       takeUrl.current = URL.createObjectURL(blob);
-      const settings = s.getVideoTracks()[0]?.getSettings();
+      const settings = faceCam.current ? { width: faceCam.current.canvas.width, height: faceCam.current.canvas.height } : cam.getVideoTracks()[0]?.getSettings();
       setTake({ id: crypto.randomUUID(), blob, type: recorded, seconds: Math.max(1, Math.round((performance.now() - from) / 1000)), url: takeUrl.current, width: settings?.width ?? 0, height: settings?.height ?? 0, fileUp: false, saved: false, overlay, burned: null });
       setDone("");
       setPhase(stream.current ? "ready" : "off");
@@ -366,6 +419,25 @@ export default function RecordVideo({ target, videos, children, drawn }: {
             </select>
           </label>
         )}
+        {phase !== "recording" && (
+          <label className="flex items-center gap-1.5 text-slate-300" title="A second camera on your face: the take shows it as a circle in a corner, cut round your face. Keep this tab in front while recording.">Face camera
+            <select value={faceId} onFocus={() => void listCameras()} onChange={(e) => { const id = e.target.value; pickFace(id); if (phase === "ready") { setProblem(""); if (id) void openFace(id); else { faceStream.current?.getTracks().forEach((t) => t.stop()); faceStream.current = null; setFaceOpen(false); } } }} className={`${input} max-w-48`}>
+              <option value="">None</option>
+              {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
+              {faceId && !cameras.some((c) => c.deviceId === faceId) && <option value={faceId}>Last picked camera</option>}
+            </select>
+          </label>
+        )}
+        {phase !== "recording" && faceId && (
+          <>
+            <label className="flex items-center gap-1.5 text-slate-300">Face corner
+              <select value={faceLook.corner} onChange={(e) => setFaceLook({ corner: e.target.value as FaceLook["corner"] })} className={input}>{FACE_CORNERS.map((c) => <option key={c} value={c}>{CORNER_WORDS[c]}</option>)}</select>
+            </label>
+            <label className="flex items-center gap-1.5 text-slate-300">Face size
+              <select value={faceLook.size} onChange={(e) => setFaceLook({ size: e.target.value as FaceLook["size"] })} className={input}>{FACE_SIZES.map((s) => <option key={s} value={s}>{FACE_SIZE_WORDS[s]}</option>)}</select>
+            </label>
+          </>
+        )}
         {phase !== "recording" && <RecordInputSelect onPick={() => void switchMic()} />}
         {phase !== "recording" && <RecordSoundSelect sound={sound} />}
         <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
@@ -399,6 +471,8 @@ export default function RecordVideo({ target, videos, children, drawn }: {
 
       <div ref={frame} className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
         {camera ? <video ref={liveRef} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
+        {/* the face camera's canvas (both cameras) goes here, over the guitar camera */}
+        {camera && <div ref={faceHolder} className="pointer-events-none absolute inset-0" />}
         {phase === "recording" && <span className="absolute left-2 top-2 rounded bg-rose-700 px-1.5 text-xs text-white">● Recording</span>}
         {/* not while recording: the hand model would compete with the recorder and the tool's beat */}
         {camera && readNeck && phase !== "recording" && <NeckView video={liveVideo} fx={fx} live fit="cover" />}
