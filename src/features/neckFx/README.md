@@ -29,7 +29,7 @@ and what its own controls (`ui/CvControls.tsx`, kept under `musickit.neckCv`; `m
 - **Strings**: the six strings found (`stringsOf`, below).
 - **Notes under fingers**: MediaPipe's hand model (`client/hands.ts`, shared with the other reader); each fingertip over the
   board (the hand with most of them is the fretting hand) gets its fret space and nearest string (`placeOnNeck`) and the note
-  that place sounds. A note heard (live: the camera's sound through `listenForPicks`; a riff take: its notes at their times) is
+  that place sounds. A note heard (live: the camera's sound through `listenForPicks`; a take: the notes of the tool's kit (the riff, or a play-along on the record page) at their times) is
   placed by `guessPlace`: a finger on a place that sounds it, else the place nearest the fingers, else the open string; it
   rings out there and the status line says where ("Heard: A · D string, fret 7"). Low E is taken to be the string higher on
   the screen (a right-handed player filmed from the front).
@@ -43,20 +43,20 @@ and what its own controls (`ui/CvControls.tsx`, kept under `musickit.neckCv`; `m
 - **Pick pulse**: on each note played, two rings grow out from its place on the board (bigger when louder) in the note's
   colour; while it sounds, a dot on that place carries its name; and when two or more notes sound together, the chord they make
   (`chordOf`, chordKit's `gripName`: "Am", "E5", "C/E") stands above the board over them, held while they sound and fading
-  after. On a take the notes come from the riff, on its own strings and frets, and are drawn on the video's clock
+  after. On a take the notes come from the tool's kit (the riff, or a play-along on the record page), on their own strings and frets, and are drawn on the video's clock
   (`pulsesAt`), so a ring lands on the frame its note starts on, through a seek or an export. Live, a note is placed by
   `guessPlace` and counts as sounding for 0.6 s, so picks heard that close together make the chord; the sound gives one
   pitch per pick, so a strum reads as its loudest note.
-- **Chord shapes** (on by default; takes only): notes the riff plays together (`chordsAt`: sounding now, the same start) are
+- **Chord shapes** (on by default; takes only): notes the tool's kit (the riff, or a play-along on the record page) plays together (`chordsAt`: sounding now, the same start) are
   joined in one filled, rounded shape round their places (`roundedHull`), with the chord's name over it. With it on, Pick
   pulse's chord name above the board gives way to it (drawn once); with it off, or live, Pick pulse names the chord as above.
-- **Coming next** (on by default; takes only): the places of the next notes (`comingAt`: the next start, within 0.6 s) as
+- **Coming next** (on by default; takes only): the places of the next notes (`comingAt`: the next start, within a fixed 0.6 s, `NEXT_LEAD_S`) as
   faint dashed rings, with no label; a chord's joined by a faint outline when Chord shapes is on.
-- **Fingers** (off by default; takes only): the finger that plays each sounding note (`TakeNote.finger`, from the riff) as a
+- **Fingers** (off by default; takes only): the finger that plays each sounding note (`TakeNote.finger`, from the tool's kit (the riff, or a play-along on the record page)) as a
   small yellow number beside its place.
 - **Labels**: what every note on the neck shows (Notes under fingers, Pick pulse's dots): **Note names**, or **Numbers in the
   key** (`noteLabel`, the app's `degreeLabel`: counted in the page's mode, ♭ and ♯ for a note outside it) when the page gives a
-  key (`keyOf`, from the kit); with no key that choice is greyed out and names are shown. The status line keeps the name.
+  key (`keyOf`, from the kit); with no key that choice is greyed out, the list reads Note names (its hint says why) and names are shown. The status line keeps the name.
 
 Live, only what can be known is drawn: the notes heard, named through Labels; no shapes, fingers or coming notes.
 
@@ -128,7 +128,7 @@ Each mood effect has a **Strength** (0 to 200%, 100% the usual look); Mood light
 how much they jump with it, and **Colour**: Mood (Hand glow: Notes), or Picked, a colour of your own drawn at the mood's
 lightness. The beat (`stepBeat` in `model/mood.ts`) jumps on each pick and, live, with how loud the sound is against the
 loudest it has been lately (`listenForPicks`' `onLevel`), then falls within a fraction of a second. On a take it comes from
-the riff's notes only.
+the notes of the tool's kit (the riff, or a play-along on the record page) only.
 
 The status line adds the energy, the key and the tension.
 
@@ -138,7 +138,7 @@ The test effects (under **Test effects**, no settings):
 - **Fret lines**: wires 0 to 22 across the neck, with the dot frets numbered. The check that the grid lines up.
 - **Note flash**: each pick lights its fret space with the note's name. Live, a pick is heard in the camera's sound
   (`client/listen.ts`: the rhythm game's onset detector, then the tuner's `detectPitch` on the 50 ms after it); on a take, the
-  riff's notes at their times. The fret comes from `placeByHand`; with no hand on the grid, only the name shows.
+  notes of the tool's kit (the riff, or a play-along on the record page) at their times. The fret comes from `placeByHand`; with no hand on the grid, only the name shows.
 - **Pick pulse**: a ring from the fretting hand on each pick, bigger when louder.
 - **Fingertip trails**: fading tails behind the fingertips.
 
@@ -160,7 +160,7 @@ Settings are kept in this browser under `musickit.neckFx`, shared by both pages.
 
 | File | What |
 | --- | --- |
-| `model/grid.ts` | Pure. Markers to a fret grid, the fret a point is at, the string a pitch was played on. `NeckRead`, a frame's read as logged with a riff take. |
+| `model/grid.ts` | Pure. Markers to a fret grid, the fret a point is at, the string a pitch was played on. `NeckRead`, a frame's read as logged with a take. |
 | `model/mood.ts` | Pure. The mood: energy, key, tension, its colour and video filter; the beat. |
 | `model/fx.ts` | Pure. Effects and filters, settings, buttons, where a wire or fret space is on screen, the eased grid, the fretting hand. |
 | `model/cvFrets.ts` | Pure. The OpenCV reader's maths: the axis, the perspective fit, the board's edges, the wires and the strings from a strip; where a point is on the neck and where a heard note was played. |

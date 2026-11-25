@@ -22,7 +22,7 @@ import { ToolOverVideo, useDrawTool } from "./OverlayVideo";
 import type { Sample } from "../model/clock";
 import { BGS, DEFAULT_BOX, DEFAULT_LOOK, NARROW_BOX, PLACES, SIZES, hasOverlay, readLook, type Look } from "../model/overlay";
 import { takeKey } from "../model/takeKey";
-import { takeOverlay } from "../model/takeClock";
+import { takeOverlay, withClickOverlay } from "../model/takeClock";
 import { BG_WORDS, PLACE_WORDS, SIZE_WORDS } from "./lookPanel";
 import ToolBox, { LiveView, ViewOverTake } from "./ToolBox";
 import { TOOL_VIEW, takeClock, useKitView, useTakeNotes, type RecordKit } from "./kit";
@@ -45,9 +45,11 @@ type Stored = "saving" | "saved" | "failed";
 
 /** how often the tool's beat is read while a take records */
 const SAMPLE_MS = 50;
-/** the click's on/off (one choice for tools with a tempo, one for tools without) and its typed tempo: kept in this browser */
+/** the click's typed tempo, for tools with no tempo: kept in this browser */
 const CLICK_KEY = "musickit.content.click";
-interface ClickChoice { withTempo?: boolean; noTempo?: boolean; bpm?: number }
+/** the click's on/off for one tool (`musickit.content.click.<tool>`): kept in this browser, and wins over the page's default */
+const clickOnKey = (tool: string) => `${CLICK_KEY}.${tool}`;
+interface ClickChoice { bpm?: number }
 const clampBpm = (n: number) => Math.min(300, Math.max(30, Math.round(n) || 80));
 const clampBars = (n: number) => Math.min(32, Math.max(1, Math.round(n) || 1));
 
@@ -88,8 +90,8 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
   children: ReactNode;
   /** the settings of the tool in `children`: a tool with an overlay has its beat saved with the take, to be drawn over the video in step */
   drawn: PlanTool | null;
-  /** the tool's tempo and length: the click plays at it, on by default. None: the click is off by default and its tempo is typed */
-  tempo?: { bpm: number; bars: number };
+  /** the tool's tempo and length: the click plays at it, on by default when `click` says so (off when absent). None: the click is off by default and its tempo is typed */
+  tempo?: { bpm: number; bars: number; click?: boolean };
   /** where an older page kept this target's take (a riff's block id): opened when none is kept under its take key */
   oldTakeKey?: string;
   /** what the tool gives beside its drawing: other views for its box, its notes for the neck readers, what to offer on a take */
@@ -115,7 +117,11 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
   useEffect(() => { latest.current = take; }, [take]);
   const [clickChoice, setClickChoice] = useState<ClickChoice>(() => { const v = stored(CLICK_KEY); return v && typeof v === "object" ? (v as ClickChoice) : {}; });
   const pickClick = (part: ClickChoice) => setClickChoice((c) => { const next = { ...c, ...part }; store(CLICK_KEY, next); return next; });
-  const click = tempo ? clickChoice.withTempo ?? true : clickChoice.noTempo ?? false;
+  // the on/off picked for this tool, else the one stored for it, else the page's default
+  const [clickOn, setClickOn] = useState<{ tool: string; on: boolean } | null>(null);
+  const pickClickOn = (on: boolean) => { setClickOn({ tool, on }); store(clickOnKey(tool), on); };
+  const storedOn = stored(clickOnKey(tool));
+  const click = (clickOn?.tool === tool ? clickOn.on : null) ?? (typeof storedOn === "boolean" ? storedOn : null) ?? tempo?.click ?? false;
   const bpm = tempo?.bpm ?? clampBpm(clickChoice.bpm ?? 80);
   const [countIn, setCountIn] = useState(1);
   // the expected length follows the tool's until it is typed in
@@ -231,10 +237,13 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
     return () => window.clearTimeout(id);
   }, [loggedTake]);
 
-  // the take kept for this target; one an older page kept (`oldTakeKey`) is kept under the take key from its next change
+  // the take kept for this target; one an older page kept (`oldTakeKey`) is kept under the take key from its next change.
+  // One recorded to the click with no overlay (the old riff Take panel's) gets the tool as drawn when it opens, on the click's grid
+  const drawnNow = useRef(drawn);
+  useEffect(() => { drawnNow.current = drawn; }, [drawn]);
   useEffect(() => {
     let gone = false;
-    void getKeptTake(key, oldTakeKey).then((t) => { if (!gone && t) { show({ ...t, id: key }); setInBrowser("saved"); } });
+    void getKeptTake(key, oldTakeKey).then((t) => { if (!gone && t) { show(withClickOverlay({ ...t, id: key }, drawnNow.current)); setInBrowser("saved"); } });
     return () => { gone = true; };
   }, [key, oldTakeKey, show]);
   useEffect(() => () => {
@@ -353,7 +362,14 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
     }
   };
 
+  // a Record press (or R) while the last one is still starting, waiting for the sound to wake, is ignored: one recorder, one click
+  const starting = useRef(false);
   const record = async () => {
+    if (starting.current || recorder.current?.state === "recording") return;
+    starting.current = true;
+    try { await startRecording(); } finally { starting.current = false; }
+  };
+  const startRecording = async () => {
     const cam = stream.current;
     if (!cam) return;
     // with the face camera, the canvas holding both cameras; else the camera itself
@@ -594,7 +610,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
             <RecordSoundSelect sound={sound} />
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <span className="flex items-center gap-1.5" title="Clicks through the speakers while you record. Only the input is recorded: use headphones if you record with a microphone.">
-                <label className="flex items-center gap-1.5"><input type="checkbox" checked={click} onChange={(e) => pickClick(tempo ? { withTempo: e.target.checked } : { noTempo: e.target.checked })} className="accent-sky-500" /> Click at{tempo ? ` ${bpm} bpm` : ""}</label>
+                <label className="flex items-center gap-1.5"><input type="checkbox" checked={click} onChange={(e) => pickClickOn(e.target.checked)} className="accent-sky-500" /> Click at{tempo ? ` ${bpm} bpm` : ""}</label>
                 {!tempo && <><input type="number" min={30} max={300} value={clickChoice.bpm ?? bpm} onChange={(e) => pickClick({ bpm: +e.target.value })} onBlur={() => pickClick({ bpm })} aria-label="Click tempo in bpm" className={`${input} w-16`} /> bpm</>}
               </span>
               {click && (
@@ -658,7 +674,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
       {phase === "recording" && beatNow && <BeatView {...beatNow} />}
 
-      <div ref={frame} className="relative w-full max-w-5xl overflow-hidden rounded-lg bg-black">
+      <div ref={frame} className="relative aspect-video w-full max-w-5xl overflow-hidden rounded-lg bg-black [container-type:size]">
         {camera ? <video ref={liveRef} autoPlay muted playsInline className="aspect-video w-full object-cover" /> : <div className="flex aspect-video w-full items-center justify-center text-slate-500">{phase === "starting" ? "Starting the camera…" : "Press Start camera above to see the camera here."}</div>}
         {/* the face camera's canvas (both cameras) goes here, over the guitar camera */}
         {camera && <div ref={faceHolder} className="pointer-events-none absolute inset-0" />}
@@ -684,7 +700,7 @@ export default function RecordVideo({ target, videos, children, drawn, tempo, ol
             <button type="button" onClick={() => void remove()} disabled={sending || exporting !== null} className={`${btn} hover:bg-rose-900/60 hover:text-rose-200`}>Delete take</button>
           </div>
           {/* framed like the camera above, so the tool sits where it sat there */}
-          <div ref={takeBox} className="relative isolate aspect-video w-full max-w-3xl overflow-hidden rounded bg-black">
+          <div ref={takeBox} className="relative isolate aspect-video w-full max-w-3xl overflow-hidden rounded bg-black [container-type:size]">
             <video key={url} ref={setTakeVideo} src={url} controls playsInline className="absolute inset-0 h-full w-full object-cover"
               onLoadedMetadata={(e) => { const { videoWidth, videoHeight } = e.currentTarget; if (videoWidth && videoHeight) setShown((s) => (s && s.url === url ? { ...s, take: { ...s.take, width: videoWidth, height: videoHeight } } : s)); }} />
             {readNeck && <NeckView key={url} video={takeVideo} fx={fx} notes={notes} fit="cover" onRead={onNeckRead} bare={exporting !== null} />}

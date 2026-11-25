@@ -14,3 +14,14 @@ export function takeOverlay(drawn: PlanTool | null, click: KeptTake["click"], sa
   if (click) return { tool: drawn, clock: clickClock(click.downbeat, click.bpm) };
   return samples.some((s) => s.beat !== null) ? { tool: drawn, clock: squeeze(samples) } : null;
 }
+
+/**
+ * A kept take with its overlay filled from its click when it has none: a take the old riff Take panel kept was recorded to
+ * the click but saved no overlay, so it opens with the tool moving on the click's grid. A take with an overlay, or with no
+ * click, is returned as it is. Pure.
+ */
+export function withClickOverlay<T extends Pick<KeptTake, "overlay" | "click">>(take: T, drawn: PlanTool | null): T {
+  if (take.overlay || !take.click) return take;
+  const overlay = takeOverlay(drawn, take.click, []);
+  return overlay ? { ...take, overlay } : take;
+}

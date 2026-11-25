@@ -739,7 +739,7 @@ function RiffRecorder({ riff, scale, cell, bars }: { riff: Saved; scale: string;
       {videosError && <p role="alert" className="text-rose-400">{videosError}</p>}
       <OverlayDrawProvider draw={drawToolOverlay}>
         <RecordVideo target={{ tool: "guitar-play-along:riff", steps: [], block: { id, cell, title: name } }} videos={videos} drawn={drawn}
-          tempo={{ bpm, bars }} oldTakeKey={id} kit={kit}>
+          tempo={{ bpm, bars, click: true }} oldTakeKey={id} kit={kit}>
           {drawn ? <Tool tool={drawn} /> : <p className="text-sm text-slate-300">Add a note to the riff to draw it over the camera. The video records without it.</p>}
         </RecordVideo>
       </OverlayDrawProvider>

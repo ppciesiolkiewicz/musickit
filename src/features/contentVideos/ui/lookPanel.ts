@@ -16,6 +16,16 @@ const AT = {
   play: { bottom: "inset-x-0 bottom-12", top: "inset-x-0 top-0", left: "left-0 top-0 bottom-12", right: "right-0 top-0 bottom-12" },
 } as const;
 
+/**
+ * The most a kit view may stand in a placed panel (`--kit-max-h`, read by a tall view such as the riff's chord box), in the
+ * frame's height (`cqh`: the camera's frame and the take's box are size containers) less the panel's padding. Free has none:
+ * its view is scaled to the box.
+ */
+const KIT_H = {
+  across: { small: "[--kit-max-h:calc(40cqh_-_1rem)]", medium: "[--kit-max-h:calc(60cqh_-_1rem)]", large: "[--kit-max-h:calc(80cqh_-_1rem)]" },
+  side: { record: "[--kit-max-h:calc(100cqh_-_1rem)]", play: "[--kit-max-h:calc(100cqh_-_4rem)]" },
+} as const;
+
 const BG = { dark: "bg-slate-950/75 backdrop-blur-sm", clear: "bg-slate-950/25" } as const;
 
 export function panelClass(look: Look, on: "record" | "play"): string {
@@ -23,7 +33,8 @@ export function panelClass(look: Look, on: "record" | "play"): string {
   if (look.place === "free") return `absolute ${BG[look.bg]} ${clip}`;
   const side = look.place === "left" || look.place === "right";
   const span = side ? SPAN.side[look.size] : SPAN.across[look.size];
-  return `absolute ${AT[on][look.place]} ${span} ${BG[look.bg]} p-2 ${clip}`;
+  const kitH = side ? KIT_H.side[on] : KIT_H.across[look.size];
+  return `absolute ${AT[on][look.place]} ${span} ${kitH} ${BG[look.bg]} p-2 ${clip}`;
 }
 
 /**

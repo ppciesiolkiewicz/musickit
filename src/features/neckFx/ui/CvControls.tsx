@@ -67,11 +67,12 @@ export default function CvControls({ cv, set, hasKey = false }: { cv: CvSettings
       <label className={field} title="On a take, the places of the next notes show faintly just before they are played.">
         <input type="checkbox" checked={cv.next} onChange={(e) => set({ next: e.target.checked })} className="accent-sky-500" /> Coming next
       </label>
-      <label className={field} title="What the notes on the neck show: their names, or their numbers in the key (1, 3, 5).">
+      <label className={field} title={`What the notes on the neck show: their names, or their numbers in the key (1, 3, 5).${hasKey ? "" : " This page gives no key, so notes show their names."}`}>
         Labels
-        <select value={cv.labels} onChange={(e) => set({ labels: e.target.value as CvSettings["labels"] })} className={input}>
+        {/* with no key, numbers can't be shown: the select reads Note names whatever is kept */}
+        <select value={hasKey ? cv.labels : "name"} onChange={(e) => set({ labels: e.target.value as CvSettings["labels"] })} className={input}>
           <option value="name">Note names</option>
-          <option value="degree" disabled={!hasKey} title={hasKey ? undefined : "This page gives no key, so notes show their names."}>Numbers in the key</option>
+          <option value="degree" disabled={!hasKey}>Numbers in the key</option>
         </select>
       </label>
     </div>

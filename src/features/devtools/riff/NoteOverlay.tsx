@@ -92,7 +92,10 @@ function BarByBar({ notes, t, grid }: { notes: Timed[]; t: number; grid: BarGrid
   return <TabWindow notes={notes} t={t} from={from} to={from + grid.len} grid={grid} />;
 }
 
-/** The notes sounding now as a small chord box, or the next ones, dimmed, while nothing sounds. */
+/**
+ * The notes sounding now as a small chord box, or the next ones, dimmed, while nothing sounds. Taller than it is wide, so in a
+ * placed panel it stands no taller than the panel allows (`--kit-max-h`, from the recorder's `panelClass`), scaled down whole.
+ */
 function CornerBox({ notes, t }: { notes: Timed[]; t: number }) {
   let now = notes.filter((n) => n.start <= t && t < n.end);
   const soon = !now.length;
@@ -107,8 +110,9 @@ function CornerBox({ notes, t }: { notes: Timed[]; t: number }) {
   const label = now.map((n) => noteName(n.midi)).join(" ");
   const accent = soon ? "#94a3b8" : "#38bdf8";
   return (
-    <div className="pointer-events-none mx-auto w-full max-w-[60%] overflow-hidden rounded-lg border border-white/10 bg-slate-950/60 shadow-lg backdrop-blur-sm" aria-hidden>
-      <svg viewBox={`0 0 ${w} ${h}`} className="block w-full">
+    <div className="pointer-events-none mx-auto w-full overflow-hidden rounded-lg border border-white/10 bg-slate-950/60 shadow-lg backdrop-blur-sm"
+      style={{ maxWidth: `min(60%, calc(var(--kit-max-h, 100vh) * ${(w / h).toFixed(3)}))` }} aria-hidden>
+      <svg viewBox={`0 0 ${w} ${h}`} className="block max-h-[var(--kit-max-h,none)] w-full">
         <text x={w / 2} y={12} textAnchor="middle" fontSize={11} fontWeight={700} fill={soon ? "#94a3b8" : "#f1f5f9"}>{label}</text>
         {soon && <text x={w / 2} y={23} textAnchor="middle" fontSize={7} fontWeight={600} letterSpacing={1} fill="#64748b">NEXT</text>}
         {Array.from({ length: rows + 1 }, (_, i) => <line key={i} x1={left} x2={sx(5)} y1={top + i * fs} y2={top + i * fs} stroke="white" strokeOpacity={i === 0 && lo === 1 ? 0.9 : 0.25} strokeWidth={i === 0 && lo === 1 ? 3 : 1} />)}

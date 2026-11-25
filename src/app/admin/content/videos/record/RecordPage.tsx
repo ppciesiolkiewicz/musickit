@@ -18,22 +18,23 @@ import type { ContentVideoInfo } from "@/features/contentVideos/server/access";
 /** One set-up of the tool to draw over the camera: a seed exercise that uses it, and the level it is at there. */
 export interface SettingsOption { label: string; step: string | null; tool: PlanTool }
 
-/** The record page in the browser: which seed exercise's settings the tool is drawn with, then the recorder with the tool over the camera. */
 /** The scale a play-along's shape names, when it is a mode the neck knows; else Ionian. */
 function scaleOf(tool: PlanTool | undefined): string {
   const named = tool?.type === "guitar-play-along" ? (tool.shape as { scale?: unknown }).scale : undefined;
   return typeof named === "string" && MODE_LIST.some((m) => m.name === named) ? named : "Ionian";
 }
 
+/** The record page in the browser: which seed exercise's settings the tool is drawn with, then the recorder with the tool over the camera. */
+
 export default function RecordPage({ target, options, videos, error }: { target: RecordFor; options: SettingsOption[]; videos: ContentVideoInfo[]; error: string }) {
   const [picked, setPicked] = useState(0);
   const names = new Map(stepGroups(target.tool).flatMap((g) => g.steps.map((s) => [s.step, s.name])));
   const option = options[picked];
-  // the play-along's notes for the neck layers and its tempo for the click; any other tool has neither
+  // the play-along's notes for the neck layers and its tempo for the click (off until ticked); any other tool has neither
   const toolNotes = useToolNotes(option?.tool ?? null);
   const scale = scaleOf(option?.tool);
   const kit = useMemo((): RecordKit | undefined => (toolNotes ? { notes: toolNotes.notes, loopBeats: toolNotes.loopBeats, key: { tonic: toolNotes.keyPc, scale } } : undefined), [toolNotes, scale]);
-  const tempo = option?.tool.type === "guitar-play-along" && toolNotes ? { bpm: option.tool.bpm, bars: toolNotes.loopBeats / BEATS_PER_BAR } : undefined;
+  const tempo = option?.tool.type === "guitar-play-along" && toolNotes ? { bpm: option.tool.bpm, bars: toolNotes.loopBeats / BEATS_PER_BAR, click: false } : undefined;
   return (
     <div className="flex flex-col gap-3">
       <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
