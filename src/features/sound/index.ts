@@ -17,7 +17,7 @@
  */
 export { audioStartTime, getAudioContext, getOutputBus, wakeAudio } from "./engine/context";
 export { canChooseOutput, cleanDeviceName, findDevice, listAudioDevices, openInputStream, readDeviceChoice, revealDevices, serverDeviceChoice, setDeviceChoice, subscribeDeviceChoice, INPUT_CHANNELS, type AudioDevice, type DeviceChoice, type InputChannel } from "./engine/devices";
-export { tapChannels, tapSource, type ChannelTap } from "./engine/channelTap";
+export { partGain, tapChannels, tapSource, type ChannelTap } from "./engine/channelTap";
 export { judgePair, looksOneInput, UNSURE as UNSURE_PAIR, type PairState, type PairVerdict } from "./engine/inputKind";
 export { openRecordInput, type RecordInput } from "./engine/recordInput";
 export { meterLevel, openLiveInput, readLiveInput, serverLiveInput, subscribeLiveInput, type LiveInput, type LiveInputHandle } from "./engine/liveInput";

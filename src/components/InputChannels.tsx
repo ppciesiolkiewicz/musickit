@@ -111,15 +111,20 @@ export function showChannels(input: { label: string } | null, seen: Heard | unde
   return input !== null && !looksOneInput(input.label);
 }
 
+/** The app's input and its channel choice, the live levels, and whether its two channels are offered (`showChannels`). */
+export function useAppChannels() {
+  const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
+  const live = useSyncExternalStore(subscribeLiveInput, readLiveInput, serverLiveInput);
+  return { choice, live, show: showChannels(choice.input, observe(choice.input?.id ?? "", live)) };
+}
+
 /**
  * The app's input channel (`DeviceChoice.channel`), under the input list: [Both] [1] [2] with each input's level while a page
  * listens. Hidden for a device with one input: one channel, a name like "MacBook Pro Microphone", or two channels whose levels stay
  * equal (the browser copying one mic to both). See `showChannels`.
  */
 export function AppInputChannels({ className = "" }: { className?: string }) {
-  const choice = useSyncExternalStore(subscribeDeviceChoice, readDeviceChoice, serverDeviceChoice);
-  const live = useSyncExternalStore(subscribeLiveInput, readLiveInput, serverLiveInput);
-  const show = showChannels(choice.input, observe(choice.input?.id ?? "", live));
+  const { choice, live, show } = useAppChannels();
   if (!show) return null;
   return <InputChannels value={choice.channel} onChange={(channel) => setDeviceChoice({ channel })} levels={live.listening ? live.levels : []} className={className} />;
 }

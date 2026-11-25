@@ -14,8 +14,11 @@ export interface RecordInput {
 }
 
 export interface RecordInputOptions {
-  /** effects the take is recorded through (the caller's own nodes, e.g. an `EffectChain`): the input goes into `input`, the take records `output` */
-  through?: { input: AudioNode; output: AudioNode };
+  /**
+   * effects the take is recorded through, one set per input of the device (0: Input 1 or a mono device's only input; 1: Input 2): the
+   * caller's own nodes (e.g. an `EffectChain`). Each input goes into its `input` at `partGain`, and the take records the outputs mixed.
+   */
+  through?: (input: number) => { input: AudioNode; output: AudioNode };
 }
 
 /**
@@ -23,8 +26,8 @@ export interface RecordInputOptions {
  * cancelling, noise removal or level riding, which smear the picks and bend the pitch. A two-input device (an audio interface) goes
  * through the app's channel choice, so a take with the guitar on Input 1 has it in both ears and not the other socket; the choice is
  * followed live. While open, each input's level is published (`openLiveInput`) for the input chip and the record pages' meter. With
- * `through` the take records the input after those effects (in stereo: a reverb is wide); the nodes stay the caller's, so their
- * settings can change while the input is open, and closing only takes the input off them.
+ * `through` the take records each input after its own effects, the two mixed (in stereo: a reverb is wide); the nodes stay the caller's,
+ * so their settings can change while the input is open, and closing only takes the input off them.
  */
 export async function openRecordInput({ through }: RecordInputOptions = {}): Promise<RecordInput> {
   const stream = await openInputStream({ channelCount: { ideal: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false });
@@ -41,10 +44,13 @@ export async function openRecordInput({ through }: RecordInputOptions = {}): Pro
   const tap = tapChannels(ctx, src, channels);
   // a two-input device is recorded as the app hears it; a mic straight from the browser, with nothing in between
   const out = through || tap.channels > 1 ? ctx.createMediaStreamDestination() : null;
-  if (out && through) {
-    tap.output.connect(through.input);
-    through.output.connect(out);
-  } else if (out) {
+  const wired = out && through ? tap.parts.map((part, i) => {
+    const fx = through(i);
+    part.connect(fx.input);
+    fx.output.connect(out);
+    return { part, fx };
+  }) : [];
+  if (out && !through) {
     out.channelCount = 1;
     tap.output.connect(out);
   }
@@ -65,8 +71,9 @@ export async function openRecordInput({ through }: RecordInputOptions = {}): Pro
       closed = true;
       cancelAnimationFrame(frame);
       live.close();
-      if (through && out) {
-        try { tap.output.disconnect(through.input); through.output.disconnect(out); } catch { /* already gone */ }
+      for (const { part, fx } of wired) {
+        try { part.disconnect(fx.input); } catch { /* already gone */ }
+        try { if (out) fx.output.disconnect(out); } catch { /* already gone */ }
       }
       tap.close();
       out?.stream.getTracks().forEach((t) => t.stop());

@@ -13,9 +13,24 @@ export function tapSource(channel: InputChannel, channels: number): "mix" | 0 | 
   return channel === "1" ? 0 : 1;
 }
 
+/**
+ * How loud input `index` of a device with `channels` inputs goes into its own part (`ChannelTap.parts`): a mono device's one input whole,
+ * the chosen input of two whole, each of the two at half under "both" (so the two parts add up to the mix), an input not chosen 0.
+ */
+export function partGain(channel: InputChannel, channels: number, index: number): number {
+  if (channels < 2) return index === 0 ? 1 : 0;
+  if (channel === "both") return 0.5;
+  return channel === String(index + 1) ? 1 : 0;
+}
+
 export interface ChannelTap {
   /** one channel (mono) carrying the input as chosen: both inputs mixed, Input 1 or Input 2; switched when the choice changes */
   output: AudioNode;
+  /**
+   * each input apart (mono), one per input the device gives, at `partGain`: for a host that treats the inputs differently (a recorder
+   * with a guitar sound on Input 1 and a vocal sound on Input 2). Summed, they are `output`.
+   */
+  parts: AudioNode[];
   /** how many inputs the device gives (1 or 2) */
   channels: number;
   /** each input's level now (root mean square, 0..1): one for a mono device, two for an audio interface */
@@ -47,6 +62,8 @@ export function tapChannels(
   mix.connect(output);
   const split = n > 1 ? ctx.createChannelSplitter(2) : null;
   const gates: GainNode[] = [];
+  // the parts: a mono device's one is its mix (always on), a two-input device's are gains on the splitter's outputs
+  const parts: GainNode[] = [];
   const meters: AnalyserNode[] = [];
   if (split) {
     source.connect(split);
@@ -55,6 +72,11 @@ export function tapChannels(
       split.connect(gate, i);
       gate.connect(output);
       gates.push(gate);
+      const part = ctx.createGain();
+      part.channelCount = 1;
+      part.channelCountMode = "explicit";
+      split.connect(part, i);
+      parts.push(part);
       const an = ctx.createAnalyser();
       an.fftSize = 1024;
       split.connect(an, i);
@@ -70,12 +92,14 @@ export function tapChannels(
     const pick = tapSource(channel.read(), n);
     mix.gain.value = pick === "mix" ? 1 : 0;
     gates.forEach((g, i) => (g.gain.value = pick === i ? 1 : 0));
+    parts.forEach((g, i) => (g.gain.value = partGain(channel.read(), n, i)));
   };
   route();
   const unsubscribe = channel.subscribe(route);
   const data = meters.map((an) => new Float32Array(an.fftSize));
   return {
     output,
+    parts: split ? parts : [mix],
     channels: n,
     levels: () =>
       meters.map((an, i) => {
@@ -84,7 +108,7 @@ export function tapChannels(
       }),
     close() {
       unsubscribe();
-      for (const node of [mix, output, split, ...gates, ...meters]) node?.disconnect();
+      for (const node of [mix, output, split, ...gates, ...parts, ...meters]) node?.disconnect();
       try {
         source.disconnect(mix);
         if (split) source.disconnect(split);
