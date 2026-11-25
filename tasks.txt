@@ -1500,10 +1500,13 @@ ContentVideos1: [DONE 2026-11-25] Permissions: role is student/teacher from the 
 migration moves today's admin accounts; ticks per person on /admin/admin/users.
 ContentVideos2: [DONE 2026-11-25] /admin split: /admin/admin (today's /admin), /admin/content (the Content group of /dev
 without the Sampler); library always lists everything with Seed / Database only / Off tags.
-ContentVideos3: [NEW 2026-11-25] content_videos table, private Blob at content/videos/<made_for>/<id>.<ext>, upload and file
-routes, blocks.videos kept by the seed; /dev/riff's Take panel saves there.
+ContentVideos3: [NEW 2026-11-25] content_videos table (with tool and step: a video belongs to a tool at a step of its
+ladder, or at any step), private Blob at content/videos/<made_for>/<id>.<ext>, upload and file routes, blocks.videos
+cells for a block's own video, kept by the seed; the lookup (block's own, tool at step, tool at any step; each video
+once per block); /dev/riff's Take panel saves there.
 ContentVideos4: [NEW 2026-11-25] Video icon on plan exercises, looked up when drawn; one video shown once per day.
-ContentVideos5: [NEW 2026-11-25] Video panel in the library: record with the tool over the camera, its start/stop saved,
+ContentVideos5: [NEW 2026-11-25] Video strip under each tool cell in the library (for the tool at this step, at any step,
+or this block only) and a Tools view of every tool step and its video: record with the tool over the camera, its start/stop saved,
 replayed in step; VideoOverlay for the riff and the melody singer.
 ContentVideos6: [NEW 2026-11-25] Notes in the database for content people (author, deployed commit).
 ContentVideos7: [NEW 2026-11-25] Later: course sections with empty video spots a content person records into (a video field
