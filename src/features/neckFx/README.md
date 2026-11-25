@@ -24,8 +24,8 @@ A second reader, behind each page's **Read the neck (OpenCV)** tick (one reader 
 draws each fret wire across the board and the markers it found (orange: followed from the last frame, not found in this one),
 and what its own controls (`ui/CvControls.tsx`, kept under `musickit.neckCv`; `model/cvFx.ts`) tick:
 
-- **Fret numbers**: Dot frets (3, 5, 7, 9, 12, 15, 17, 19, 21), All frets or Off; each number above and below the board, in
-  the middle of its fret space.
+- **Fret numbers**: Dot frets (3, 5, 7, 9, 12, 15, 17, 19, 21), All frets or Off; each number (24 px at 1280 wide) above and
+  below the board, in the middle of its fret space.
 - **Strings**: the six strings found (`stringsOf`, below).
 - **Notes under fingers**: MediaPipe's hand model (`client/hands.ts`, shared with the other reader); each fingertip over the
   board (the hand with most of them is the fretting hand) gets its fret space and nearest string (`placeOnNeck`) and the note
@@ -34,7 +34,9 @@ and what its own controls (`ui/CvControls.tsx`, kept under `musickit.neckCv`; `m
   rings out there and the status line says where ("Heard: A · D string, fret 7"). Low E is taken to be the string higher on
   the screen (a right-handed player filmed from the front).
 - **Neck fire** (with Strength): flames off both of the board's edges, each tongue its own height, flicker and lean (toward the
-  body, as if the neck moved through the air), over a soft glow; hottest round the fretting hand and with the playing's energy
+  body, as if the neck moved through the air) and bending as it rises (drawn in slices, each swaying after the one below), over
+  a soft glow; waves of heat roll along the neck from the nut toward the body, and wisps of flame drift along the edges toward
+  the body, rising off the board as they go; hottest round the fretting hand and with the playing's energy
   (`heatAt`), leaping on each note heard with the note's colour running through them, licks breaking off where it is hottest.
   A note heard also shakes its string from where it was played to the end of the board, glowing in its colour, and throws
   embers along it.

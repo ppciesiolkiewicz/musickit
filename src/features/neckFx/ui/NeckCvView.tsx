@@ -23,6 +23,8 @@ const RING = 1.6, MAX_EMBERS = 400;
 type Place = { string: number; fret: number };
 type Heard = Place & { midi: number; level: number; at: number };
 type Ember = { x: number; y: number; vx: number; vy: number; age: number; life: number; hue: number; size: number };
+/** A wisp of flame drifting along an edge toward the body: where along (fret position) and which edge, how old. */
+type Wisp = { edge: 0 | 1; fr: number; age: number; life: number; ph: number };
 
 const ease = (a: Pt, b: Pt) => ({ x: a.x + (b.x - a.x) * EASE, y: a.y + (b.y - a.y) * EASE });
 function easeNeck(prev: Neck | null, next: Neck): Neck {
@@ -121,6 +123,7 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
     let fingers: (Place & { at: Pt })[] = [], handFret: number | null = null;
     const heard: Heard[] = [];
     const embers: Ember[] = [];
+    const wisps: Wisp[] = [];
     let energy = 0, lastNow = -1;
 
     void loadCvReader().then((r) => {
@@ -225,12 +228,14 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
           // edge burns unevenly; a soft glow runs under them and licks break off where it is hottest.
           const st = set.fireStrength, noteTint = last ? noteHue(last.midi) : 0;
           const STEPS = 3;
+          // waves of heat roll along the neck from the nut toward the body
+          const wave = (fr: number) => 0.72 + 0.4 * Math.sin(fr * 0.7 - now * 2.4) + 0.12 * Math.sin(fr * 1.9 - now * 4.1);
           ctx.save(); ctx.globalCompositeOperation = "lighter";
           for (const edge of ["top", "bottom"] as const) {
             const other = edge === "top" ? "bottom" : "top";
             // the glow under the flames: a wide soft line along the edge, brighter where hotter
             for (let f = 0; f < W.length - 1; f++) {
-              const heat = heatAt(f + 0.5, handFret, energy, kick) * st;
+              const heat = heatAt(f + 0.5, handFret, energy, kick) * st * wave(f + 0.5);
               const a = W[f][edge], b = W[f + 1][edge], out = unit(W[f][other], a);
               const width = Math.hypot(a.x - W[f][other].x, a.y - W[f][other].y), off = width * 0.12;
               ctx.strokeStyle = `hsla(${22 + 10 * heat} 100% 55% / ${Math.min(0.5, 0.18 * heat)})`;
@@ -244,9 +249,9 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
               const p = lerp(W[f][edge], W[f + 1][edge], t), q = lerp(W[f][other], W[f + 1][other], t);
               const out = unit(q, p), toBody = unit(W[f][edge], W[f + 1][edge]);
               const width = Math.hypot(p.x - q.x, p.y - q.y), gapPx = Math.hypot(W[f + 1][edge].x - W[f][edge].x, W[f + 1][edge].y - W[f][edge].y) / STEPS;
-              const heat = heatAt(fr, handFret, energy, kick) * st;
-              const own = 0.5 + 0.5 * Math.sin(now * (2.2 + 3 * ph) + ph * 40), fl = flicker(fr * 0.9 + ph * 3, now);
-              const len = width * (0.35 + 0.95 * heat) * (0.3 + 1.1 * own * own) * (0.85 + 0.25 * fl);
+              const heat = heatAt(fr, handFret, energy, kick) * st * wave(fr);
+              const own = 0.5 + 0.5 * Math.sin(now * (1.6 + 2 * ph) + ph * 40), fl = flicker(fr * 0.9 + ph * 3, now * 0.8);
+              const len = width * (0.35 + 0.95 * heat) * (0.45 + 0.8 * own * own) * (0.85 + 0.25 * fl);
               if (len < 2) continue;
               // tips lean toward the body, as if the neck moved through the air, and sway
               const lean = 0.12 + 0.12 * Math.sin(now * 1.3 + ph * 9) + 0.1 * fl;
@@ -257,8 +262,11 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
                 ctx.globalAlpha = Math.min(1, alpha);
                 ctx.setTransform(1 / k, 0, 0, 1 / k, 0, 0);
                 ctx.translate(root.x, root.y); ctx.rotate(angle);
-                const tw = Math.max(gapPx * 1.7, 5) * wScale, th = len * hScale;
-                ctx.drawImage(tongue(hue), -tw / 2, -th, tw, th);
+                const tw = Math.max(gapPx * 1.7, 5) * wScale, th = len * hScale, img = tongue(hue), SL = 6, sh = img.height / SL;
+                for (let sl = 0; sl < SL; sl++) {
+                  const up = (sl + 0.5) / SL, off = tw * 0.9 * up ** 1.5 * Math.sin(now * 4.2 - sl * 0.85 + ph * 6);
+                  ctx.drawImage(img, 0, img.height - (sl + 1) * sh, img.width, sh, -tw / 2 + off, -th * (sl + 1) / SL, tw, th / SL + 0.5);
+                }
               };
               draw(4, 0.3 + 0.2 * heat, 1.5, 1.25);
               draw(20 + 12 * heat, 0.4 + 0.3 * heat, 1, 1);
@@ -272,9 +280,29 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
               }
             }
           }
+          // wisps drift along both edges toward the body, rising off the board and fading as they go
+          for (let e = 0; e < 2; e++) for (let i = Math.floor(dt * 26 * st + Math.random()); i > 0 && wisps.length < 160; i--)
+            wisps.push({ edge: e as 0 | 1, fr: Math.random() * (W.length - 1), age: 0, life: 0.9 + Math.random() * 0.9, ph: Math.random() });
+          for (let i = wisps.length - 1; i >= 0; i--) {
+            const wp = wisps[i];
+            wp.age += dt;
+            const heat = heatAt(wp.fr, handFret, energy, kick) * st * wave(wp.fr);
+            wp.fr += dt * (1.2 + 2.5 * heat);
+            if (wp.age > wp.life || wp.fr >= W.length - 1) { wisps.splice(i, 1); continue; }
+            const f = Math.floor(wp.fr), t = wp.fr - f, edge = wp.edge ? "bottom" : "top", other = wp.edge ? "top" : "bottom";
+            const p = lerp(W[f][edge], W[f + 1][edge], t), q = lerp(W[f][other], W[f + 1][other], t), out = unit(q, p), toBody = unit(W[f][edge], W[f + 1][edge]);
+            const width = Math.hypot(p.x - q.x, p.y - q.y), life = wp.age / wp.life, rise = width * (0.1 + 0.9 * life * (0.5 + heat));
+            const sway = width * 0.25 * Math.sin(wp.age * 5 + wp.ph * 9);
+            const at = { x: p.x + out.x * rise + toBody.x * sway, y: p.y + out.y * rise + toBody.y * sway };
+            const size = width * (0.35 + 0.4 * heat) * (1 - 0.6 * life);
+            ctx.globalAlpha = Math.min(1, 0.55 * Math.sin(Math.PI * life) * (0.4 + heat));
+            ctx.setTransform(1 / k, 0, 0, 1 / k, 0, 0);
+            ctx.translate(at.x, at.y); ctx.rotate(Math.atan2(out.y, out.x) + Math.PI / 2 + 0.6 * Math.sin(wp.age * 3 + wp.ph * 7));
+            ctx.drawImage(tongue(kick > 0.3 ? noteTint : 14 + 20 * wp.ph), -size * 0.3, -size, size * 0.6, size);
+          }
           ctx.restore();
           ctx.setTransform(1 / k, 0, 0, 1 / k, 0, 0);
-        }
+        } else wisps.length = 0;
 
         if (set.strings) {
           ctx.strokeStyle = "rgba(226,232,240,0.45)"; ctx.lineWidth = 1;
@@ -305,14 +333,14 @@ export default function NeckCvView({ video, markers, cv, live = false, notes, fi
           ctx.restore();
         }
 
-        const font = 15;
+        const font = 24;
         ctx.font = `bold ${font}px sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         for (const f of numbered(set.numbers)) {
           if (f >= W.length) continue;
           for (const [edge, other] of [["top", "bottom"], ["bottom", "top"]] as const) {
             const p = lerp(W[f - 1][edge], W[f][edge], 0.5), q = lerp(W[f - 1][other], W[f][other], 0.5), out = unit(q, p);
-            const at = { x: p.x + out.x * font * 1.1, y: p.y + out.y * font * 1.1 };
-            ctx.lineWidth = 3; ctx.strokeStyle = "rgba(0,0,0,0.75)"; ctx.strokeText(String(f), at.x, at.y);
+            const at = { x: p.x + out.x * font * 0.95, y: p.y + out.y * font * 0.95 };
+            ctx.lineWidth = 5; ctx.strokeStyle = "rgba(0,0,0,0.8)"; ctx.strokeText(String(f), at.x, at.y);
             ctx.fillStyle = "white"; ctx.fillText(String(f), at.x, at.y);
           }
         }
