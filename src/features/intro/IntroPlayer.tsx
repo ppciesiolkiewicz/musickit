@@ -16,7 +16,7 @@ const KEYFRAMES = `
 `;
 
 /**
- * A quick tour (`video`: the one for solo musicians or the one for teachers and schools): a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voices/george.json`) or, for a
+ * A quick tour (`video`: the one for students or the one for teachers): a 16:9 stage of animated scenes, timed to the narration (one MP3 per scene from `voices/charlie.json`) or, for a
  * scene not recorded yet, to an estimate, playing silent with its caption. The clock follows the audio while a scene's take
  * plays and the frame clock otherwise, so the picture never runs ahead of the voice. `spaceKey` lets Space play and pause
  * anywhere on the page; off on a page where Space should scroll (the home page). Right of the Play button, above the slider, is the

@@ -22,9 +22,14 @@ test("scene ids are unique across both tours, and each has its scene drawn", () 
   for (const id of ids) assert.ok(SCENES[id], `no scene component for ${id}`);
 });
 
-test("no tour says what the offer forbids", () => {
-  // "Never say" on /dev/kickstarter: no AI writes a plan, no hype, no exclamation marks
-  for (const s of ALL) assert.ok(!/\bAI\b|!|unlock|master|revolution/i.test(s.text), s.id);
+test("a tour shows the app: no question to the viewer, no selling, no hype", () => {
+  // no rhetorical questions, no price or offer (a tour shows what is in the app), and "Never say" on /dev/kickstarter:
+  // no AI writes a plan, no hype, no exclamation marks
+  for (const s of ALL) {
+    assert.ok(!/\?/.test(s.text), `${s.id} asks a question`);
+    assert.ok(!/\b(free|price|beta|founding|sign up|trial|discount)\b/i.test(s.text), `${s.id} sells`);
+    assert.ok(!/\bAI\b|!|unlock|master|revolution/i.test(s.text), s.id);
+  }
 });
 
 test("without a recording, scenes are estimated, back to back, cues inside them", () => {

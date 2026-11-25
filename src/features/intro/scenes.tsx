@@ -4,16 +4,11 @@
  * The scenes of the two tours, drawn on a 960 × 540 stage the player scales to fit. Each scene is a pure function of `local`
  * (seconds into the scene) and `at` (its cue times), so seeking, pausing and the silent fallback all draw the same frame for
  * the same time. They are built from the app's own pieces (the wordmark, icons) drawn still, not the live pages: a tour must
- * not start the mic or the sound engine. What a tour may say is on /dev/kickstarter; the numbers come from
- * `src/lib/studentOffer.ts` and `src/lib/foundingOffer.ts`, never typed here.
+ * not start the mic or the sound engine. A tour shows what is in the app; it names no price and sells nothing.
  */
 import type { ReactNode } from "react";
 import Icon, { type IconName } from "@/components/Icon";
 import Wordmark from "@/components/Wordmark";
-import { DiscountBadge } from "@/components/ui";
-import { EARLY_OFFER } from "@/features/account/pricing";
-import { FOUNDING_TRIAL_DAYS } from "@/lib/foundingOffer";
-import { FIRST_STUDENTS, FIRST_STUDENTS_LINE } from "@/lib/studentOffer";
 
 export type SceneProps = { local: number; at: Record<string, number> };
 
@@ -37,8 +32,6 @@ const A_PENT: [number, number, boolean][] = [
   [6, 5, true], [6, 8, false], [5, 5, false], [5, 7, false], [4, 5, false], [4, 7, true],
   [3, 5, false], [3, 7, false], [2, 5, false], [2, 8, false], [1, 5, true], [1, 8, false],
 ];
-/** C minor pentatonic position 1 is the same shape three frets up (frets 8 to 11, per the calculator). */
-const SHIFT = { A: 0, C: 3 } as const;
 
 function Neck({ shift = 0, w = 600, h = 120 }: { shift?: number; w?: number; h?: number }) {
   const first = 3, frets = 12, fw = w / frets;
@@ -69,13 +62,13 @@ export function SoloHello(p: SceneProps) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8">
       <div className={fade(true)}><Wordmark className="text-[7rem]" /></div>
-      <p className={fade(past(p, "tagline"), "text-3xl text-slate-300")}>A daily practice plan for guitar and singing</p>
-      <div className={fade(past(p, "browser"), "flex items-center gap-3 text-lg text-slate-400")}>
-        {(["guitar", "mic", "ear"] as IconName[]).map((n) => (
-          <span key={n} className="flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-sky-300"><Icon name={n} size={26} /></span>
+      <p className={fade(past(p, "plan"), "text-3xl text-slate-300")}>A practice plan for every day</p>
+      <div className={fade(past(p, "areas"), "flex items-center gap-3 text-lg text-slate-300")}>
+        {([["guitar", "Guitar"], ["mic", "Singing"], ["ear", "Ear and theory"]] as [IconName, string][]).map(([n, label]) => (
+          <span key={n} className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3"><Icon name={n} size={22} className="text-sky-300" /> {label}</span>
         ))}
-        <span className="ml-3">In your browser. Nothing to install.</span>
       </div>
+      <p className={fade(past(p, "browser"), "text-lg text-slate-400")}>In your browser</p>
     </div>
   );
 }
@@ -101,6 +94,7 @@ export function SoloQuestions(p: SceneProps) {
           );
         })}
       </div>
+      <p className={fade(past(p, "first"), "mt-6 self-end flex items-center gap-2 text-xl text-sky-200")}><Icon name="sparkles" size={20} /> Your first plan is ready</p>
     </div>
   );
 }
@@ -184,9 +178,9 @@ export function SoloExercise(p: SceneProps) {
       <Label icon="play" tone="text-teal-300">Play, sing or hear</Label>
       <div className="mt-5 grid flex-1 grid-cols-2 gap-4">
         <Tile on={past(p, "neck")} title="A guitar neck shows the notes"><Neck w={380} h={100} /></Tile>
-        <Tile on={past(p, "tab")} title="A tab plays along"><Tab /></Tile>
-        <Tile on={past(p, "staff")} title="A staff draws your voice"><Staff /></Tile>
-        <Tile on={past(p, "band")} title="A band backs you">
+        <Tile on={past(p, "tab")} title="A tab scrolls as you play"><Tab /></Tile>
+        <Tile on={past(p, "staff")} title="The staff draws your voice"><Staff /></Tile>
+        <Tile on={past(p, "band")} title="A backing track plays under you">
           <span className="flex gap-4">
             {(["drum", "guitar", "music"] as IconName[]).map((n) => (
               <span key={n} className="flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-700 bg-slate-950/60 text-violet-300"><Icon name={n} size={30} /></span>
@@ -228,7 +222,7 @@ export function SoloRate(p: SceneProps) {
 const HABIT: { cue: string; icon: IconName; title: string; line: string }[] = [
   { cue: "reminder", icon: "bell", title: "A daily reminder", line: "At the time you choose" },
   { cue: "timer", icon: "timer", title: "A timer", line: "For the day's practice" },
-  { cue: "streak", icon: "check", title: "A day streak", line: "Every day you practise" },
+  { cue: "streak", icon: "check", title: "A day streak", line: "The days you practise" },
 ];
 
 export function SoloHabit(p: SceneProps) {
@@ -248,35 +242,52 @@ export function SoloHabit(p: SceneProps) {
         })}
       </div>
       <p className={fade(past(p, "points"), "mt-10 text-center text-2xl text-slate-400")}>No points. No score.</p>
-      <p className={fade(past(p, "easier"), "mt-3 text-center text-3xl text-slate-100")}>Progress is what gets easier to play or sing.</p>
+    </div>
+  );
+}
+
+/** The closing frame: the wordmark and one line per thing the tour showed, lit as it is named. */
+function Recap({ p, items }: { p: SceneProps; items: { cue: string; icon: IconName; text: string }[] }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-8">
+      <Wordmark className="text-[5.5rem]" />
+      <div className="flex gap-4 text-xl">
+        {items.map((x) => (
+          <span key={x.cue} className={fade(past(p, x.cue), "flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3 text-slate-200")}>
+            <Icon name={x.icon} size={20} className="text-sky-300" /> {x.text}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
 
 export function SoloEnd(p: SceneProps) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-8">
-      <Wordmark className="text-[5.5rem]" />
-      <p className={fade(past(p, "free"), "text-3xl text-slate-100")}>Free while in beta</p>
-      <div className={fade(past(p, "early"), "rounded-2xl border border-emerald-400/50 bg-emerald-500/10 px-8 py-5 text-center")}>
-        <p className="text-2xl text-slate-100">The first {FIRST_STUDENTS} to sign up: {FIRST_STUDENTS_LINE}</p>
-        <p className="mt-1 text-lg text-slate-400">When paid plans open{past(p, "locked") ? ". The price is locked in." : ""}</p>
-      </div>
-    </div>
+    <Recap p={p} items={[
+      { cue: "plan", icon: "list", text: "Today's plan" },
+      { cue: "tools", icon: "play", text: "Exercises that play along" },
+      { cue: "next", icon: "star", text: "The next step from your ratings" },
+    ]} />
   );
 }
 
 /* ================= The tour for teachers and schools ================= */
 
 export function TeachHello(p: SceneProps) {
+  const items: { cue: string; icon: IconName; text: string }[] = [
+    { cue: "week", icon: "list", text: "A week of practice" },
+    { cue: "path", icon: "network", text: "A learning path" },
+    { cue: "progress", icon: "activity", text: "How every exercise went" },
+  ];
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8">
       <div className={fade(true)}><Wordmark className="text-[7rem]" /></div>
-      <p className={fade(past(p, "tagline"), "text-3xl text-slate-300")}>For music teachers and schools</p>
-      <div className={fade(past(p, "give"), "flex items-center gap-4 text-xl text-slate-200")}>
-        <span className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3"><Icon name="sparkles" size={22} className="text-sky-300" /> A week of practice</span>
-        <span className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3"><Icon name="file-text" size={22} className="text-teal-300" /> A lesson note</span>
-        <span className={fade(past(p, "home"), "text-slate-400")}>to practise with at home</span>
+      <p className={fade(past(p, "tagline"), "text-3xl text-slate-300")}>For music teachers</p>
+      <div className="flex items-center gap-4 text-xl text-slate-200">
+        {items.map((x) => (
+          <span key={x.cue} className={fade(past(p, x.cue), "flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3")}><Icon name={x.icon} size={22} className="text-sky-300" /> {x.text}</span>
+        ))}
       </div>
     </div>
   );
@@ -308,14 +319,19 @@ export function TeachStudent(p: SceneProps) {
   );
 }
 
+const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+/** The days Ben doesn't practise: the teacher turns them off and those days stay empty. */
+const OFF_DAYS = [2, 6];
+
 export function TeachWeek(p: SceneProps) {
   return (
     <div className="flex h-full flex-col justify-center px-14 py-8">
       <Label icon="sparkles" tone="text-sky-300">Ben&apos;s week</Label>
       <div className={fade(past(p, "week"), "mt-4 flex gap-2")}>
-        {[1, 2, 3, 4, 5, 6, 7].map((d) => (
-          <span key={d} className={`flex h-11 w-20 items-center justify-center rounded-xl border text-sm ${d === 1 ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-300"}`}>Day {d}</span>
-        ))}
+        {WEEKDAYS.map((d, i) => {
+          const off = past(p, "days") && OFF_DAYS.includes(i);
+          return <span key={d} className={`flex h-11 w-20 items-center justify-center rounded-xl border text-sm transition duration-500 ${off ? "border-slate-800 text-slate-600 line-through" : i === 0 ? "border-sky-400 bg-sky-500/20 text-sky-100" : "border-slate-700 text-slate-300"}`}>{d}</span>;
+        })}
         <span className={fade(past(p, "library"), "ml-auto self-center text-lg text-slate-400")}>From attunr&apos;s library</span>
       </div>
       <div className={fade(past(p, "exact"), "mt-5 rounded-2xl border-l-4 border-amber-400 bg-slate-900 p-6")}>
@@ -371,66 +387,145 @@ export function TeachNext(p: SceneProps) {
   );
 }
 
-function Cell({ on, children, label }: { on: boolean; children: ReactNode; label: string }) {
-  return (
-    <div className={fade(on, "flex items-center gap-4 rounded-xl border border-slate-800 bg-slate-900/80 px-4 py-2.5")}>
-      <span className="w-16 shrink-0 text-xs uppercase tracking-wider text-slate-500">{label}</span>
-      {children}
-    </div>
-  );
-}
-
-export function TeachNotes(p: SceneProps) {
-  const key = past(p, "key") ? "C" : "A";
-  const chords = key === "A" ? ["Am", "Dm", "Em"] : ["Cm", "Fm", "Gm"];
-  return (
-    <div className="relative h-full px-12 py-8">
-      <Label icon="file-text" tone="text-teal-300">Lesson note</Label>
-      <div className="mt-4 flex items-baseline gap-4">
-        <span className="text-3xl text-slate-50">Blues licks</span>
-        <Chip on={past(p, "key")}>Key {key}</Chip>
-        <Chip>Minor pentatonic</Chip>
-      </div>
-      <div className="mt-4 grid gap-2.5">
-        <Cell on={past(p, "text")} label="Text"><span className="text-lg text-slate-200">Play position 1 slowly, then over the backing.</span></Cell>
-        <Cell on={past(p, "neck")} label="Scale"><Neck shift={SHIFT[key]} /></Cell>
-        <Cell on={past(p, "chords")} label="Chords">
-          <span className="flex gap-3">{chords.map((c) => <span key={c} className="w-16 rounded-lg border border-slate-700 py-1.5 text-center text-lg text-slate-100 transition">{c}</span>)}</span>
-        </Cell>
-        <Cell on={past(p, "melody")} label="Melody">
-          <span className="flex items-center gap-3 text-slate-300"><Icon name="music" size={20} className="text-sky-300" /> Melody · {key} minor</span>
-        </Cell>
-      </div>
-      <div className={fade(past(p, "follow") && !past(p, "link"), "absolute bottom-6 right-12 text-lg text-sky-200")}>The whole page moves to the new key</div>
-      <div className={fade(past(p, "link"), "absolute bottom-6 right-12 text-lg text-teal-200")}>Sent to the student as a link</div>
-    </div>
-  );
-}
-
-const PARTNER: { cue: string; text: string }[] = [
-  { cue: "early", text: "Use attunr early" },
-  { cue: "say", text: "Say what gets built first" },
+/** A step on the learning path as /dev/path draws it, and where Ben is on it: solid, being worked on, or still ahead. */
+type PathStep = { text: string; state: "solid" | "working" | "ahead" };
+/** Three guitar skills of the path, a block per level (New, Beginner, Intermediate), the steps as the path names them. */
+const PATH_ROWS: { skill: string; levels: (PathStep[] | null)[] }[] = [
+  {
+    skill: "Notes on the neck",
+    levels: [
+      [{ text: "E and A, frets 0 to 5", state: "solid" }],
+      [{ text: "E and A, frets 0 to 12", state: "working" }],
+      [{ text: "Every string, frets 0 to 12", state: "ahead" }],
+    ],
+  },
+  {
+    skill: "Intervals on the neck",
+    levels: [
+      null,
+      [{ text: "Octaves", state: "solid" }, { text: "5ths and 4ths", state: "ahead" }],
+      [{ text: "3rds and 6ths", state: "ahead" }, { text: "Up and down from one note", state: "ahead" }],
+    ],
+  },
+  {
+    skill: "Pentatonic positions",
+    levels: [
+      null,
+      [{ text: "Position 1, minor", state: "solid" }, { text: "Position 1, major", state: "working" }, { text: "Position 2", state: "ahead" }],
+      [{ text: "Joining 1 and 2", state: "ahead" }, { text: "Positions 3, 4, 5", state: "ahead" }],
+    ],
+  },
+];
+const PATH_LEVELS = [
+  { name: "New", tint: "border-t-emerald-400" },
+  { name: "Beginner", tint: "border-t-sky-400" },
+  { name: "Intermediate", tint: "border-t-violet-400" },
 ];
 
-export function TeachPartners(p: SceneProps) {
+function StepMark({ state, shown }: { state: PathStep["state"]; shown: boolean }) {
+  const fill = !shown || state === "ahead" ? "border-slate-500 bg-transparent" : state === "solid" ? "border-emerald-400 bg-emerald-400" : "border-amber-400 bg-amber-400";
+  return <span className={`mt-1.5 inline-block size-3 shrink-0 rounded-[3px] border transition-colors duration-500 ${fill}`} />;
+}
+
+export function TeachPath(p: SceneProps) {
+  const student = past(p, "student");
+  const shown = (s: PathStep["state"]) => student && ((s === "solid" && past(p, "solid")) || (s === "working" && past(p, "working")));
+  const dim = (s: PathStep["state"]) => s === "ahead" && past(p, "ahead");
   return (
-    <div className="flex h-full flex-col justify-center px-14 py-10">
-      <Label icon="sparkles" tone="text-amber-300">Founding partners</Label>
-      <p className={fade(past(p, "built"), "mt-6 text-2xl text-slate-400")}>attunr is still being built.</p>
-      <div className={fade(past(p, "partners"), "mt-5 grid grid-cols-2 gap-4")}>
-        {PARTNER.map((x) => (
-          <div key={x.cue} className={`rounded-2xl border px-6 py-5 text-2xl text-slate-100 ${lit(past(p, x.cue), "border-amber-400/60 bg-amber-500/10")}`}>{x.text}</div>
+    <div className="flex h-full flex-col px-10 py-7">
+      <div className="flex items-center">
+        <Label icon="network" tone="text-amber-300">Learning path · Guitar</Label>
+        <span className={fade(student, "ml-auto rounded-lg border border-slate-700 bg-slate-900 px-3 py-1 text-base text-slate-200")}>Student on the path: Ben</span>
+      </div>
+      <div className="mt-4 grid grid-cols-[150px_1fr_1fr_1fr] gap-2.5">
+        <span />
+        {PATH_LEVELS.map((l, i) => (
+          <div key={l.name} className={`rounded-lg border border-slate-700 border-t-2 ${l.tint} bg-slate-900 px-3 py-1.5 transition duration-500 ${past(p, "levels") || i === 0 ? "opacity-100" : "opacity-30"}`}>
+            <p className="text-base text-slate-100">{l.name}</p>
+            <p className="text-xs text-slate-500">level {i + 1} of 4</p>
+          </div>
+        ))}
+        {PATH_ROWS.map((row) => (
+          <div key={row.skill} className="contents">
+            <p className="self-center text-base text-slate-300">{row.skill}</p>
+            {row.levels.map((steps, i) => steps ? (
+              <div key={i} className={`rounded-xl border border-amber-400/50 bg-slate-900/80 px-3 py-2 transition duration-500 ${past(p, "levels") || i === 0 ? "opacity-100" : "opacity-30"}`}>
+                <p className="text-sm text-amber-200">{row.skill}{i > 0 && row.levels[i - 1] && <span className="text-slate-500"> cont.</span>}</p>
+                {steps.map((st) => (
+                  <p key={st.text} className={`mt-1 flex gap-2 text-sm transition duration-500 ${dim(st.state) ? "text-slate-500" : "text-slate-200"}`}>
+                    <StepMark state={st.state} shown={shown(st.state)} /> {st.text}
+                  </p>
+                ))}
+              </div>
+            ) : <span key={i} />)}
+          </div>
         ))}
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-4">
-        <div className={fade(past(p, "trial"), "rounded-2xl border border-slate-700 bg-slate-900 px-6 py-5")}>
-          <p className="text-4xl text-slate-50">{FOUNDING_TRIAL_DAYS} days</p>
-          <p className="mt-1 text-lg text-slate-400">to try it before any paid period starts</p>
+      <div className="mt-auto flex gap-6 pt-3 text-base">
+        <span className={fade(past(p, "solid"), "flex items-center gap-2 text-emerald-200")}><span className="size-3 rounded-[3px] bg-emerald-400" /> Solid</span>
+        <span className={fade(past(p, "working"), "flex items-center gap-2 text-amber-200")}><span className="size-3 rounded-[3px] bg-amber-400" /> Being worked on</span>
+        <span className={fade(past(p, "ahead"), "flex items-center gap-2 text-slate-400")}><span className="size-3 rounded-[3px] border border-slate-500" /> Ahead</span>
+      </div>
+    </div>
+  );
+}
+
+/** Ben's last ratings, newest first, 1 to 5 stars. */
+const RATED: { title: string; stars: number }[] = [
+  { title: "Position 1, major", stars: 3 },
+  { title: "E and A, frets 0 to 12", stars: 2 },
+  { title: "Octaves", stars: 4 },
+];
+/** Ben's skills, 0 to 1 of the way from New to Advanced. */
+const SKILLS: { skill: string; v: number }[] = [
+  { skill: "Notes on the neck", v: 0.42 },
+  { skill: "Intervals on the neck", v: 0.22 },
+  { skill: "Pentatonic positions", v: 0.3 },
+];
+const PICKS: { cue: string; title: string; items: string[]; tone: string }[] = [
+  { cue: "reach", title: "Within reach", items: ["Position 1, major", "5ths and 4ths", "E and A, frets 0 to 12"], tone: "border-sky-400/60 bg-sky-500/10 text-sky-200" },
+  { cue: "back", title: "Now and then", items: ["Position 1, minor", "Octaves"], tone: "border-emerald-400/60 bg-emerald-500/10 text-emerald-200" },
+  { cue: "wait", title: "Later", items: ["Joining 1 and 2", "3rds and 6ths"], tone: "border-slate-700 bg-slate-900/60 text-slate-400" },
+];
+
+export function TeachProgress(p: SceneProps) {
+  return (
+    <div className="flex h-full flex-col px-10 py-7">
+      <Label icon="activity" tone="text-sky-300">Ben&apos;s progress</Label>
+      <div className="mt-4 grid grid-cols-2 gap-4">
+        <div className={`rounded-2xl border p-4 ${lit(past(p, "rating"), "border-amber-400/50 bg-slate-900")}`}>
+          <p className="text-sm uppercase tracking-wider text-slate-500">Ratings</p>
+          {RATED.map((r) => (
+            <div key={r.title} className="mt-2 flex items-center gap-3">
+              <span className="flex-1 text-base text-slate-100">{r.title}</span>
+              <span className="flex gap-0.5">{[1, 2, 3, 4, 5].map((i) => <Icon key={i} name="star" size={15} fill={i <= r.stars} className={i <= r.stars ? "text-amber-300" : "text-slate-600"} />)}</span>
+            </div>
+          ))}
         </div>
-        <div className={fade(past(p, "price"), "rounded-2xl border border-slate-700 bg-slate-900 px-6 py-5")}>
-          <DiscountBadge percent={EARLY_OFFER.percentOff} size="xl" />
-          <p className="mt-2 text-lg text-slate-400">any teacher plan, locked in: it doesn&apos;t go up later</p>
+        <div className={`rounded-2xl border p-4 ${lit(past(p, "skills"))}`}>
+          <p className="text-sm uppercase tracking-wider text-slate-500">Skill by skill</p>
+          {SKILLS.map((s) => (
+            <div key={s.skill} className="mt-2.5 flex items-center gap-3">
+              <span className="w-44 text-base text-slate-100">{s.skill}</span>
+              <span className="relative h-2 flex-1 rounded-full bg-slate-800">
+                <span className="absolute left-0 top-0 h-2 rounded-full bg-sky-400 transition-all duration-700" style={{ width: `${(past(p, "skills") ? s.v : 0) * 100}%` }} />
+              </span>
+            </div>
+          ))}
+          <p className={fade(past(p, "time"), "mt-3 flex gap-5 text-base text-slate-300")}>
+            <span className="flex items-center gap-1.5"><Icon name="check" size={16} className="text-violet-300" /> 12 days</span>
+            <span className="flex items-center gap-1.5"><Icon name="timer" size={16} className="text-violet-300" /> 3 h 40 min</span>
+          </p>
         </div>
+      </div>
+      <p className={fade(past(p, "reach"), "mt-5 text-sm uppercase tracking-wider text-slate-500")}>What the next plan picks</p>
+      <div className="mt-2 grid grid-cols-3 gap-3">
+        {PICKS.map((x) => (
+          <div key={x.cue} className={fade(past(p, x.cue), `rounded-2xl border px-4 py-3 ${x.tone}`)}>
+            <p className="text-base">{x.title}</p>
+            {x.items.map((i) => <p key={i} className="mt-1 text-sm text-slate-300">{i}</p>)}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -438,14 +533,11 @@ export function TeachPartners(p: SceneProps) {
 
 export function TeachEnd(p: SceneProps) {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-8">
-      <Wordmark className="text-[5.5rem]" />
-      <p className={fade(past(p, "demos"), "text-3xl text-slate-100")}>The demos work today. No account needed.</p>
-      <div className="flex gap-4 text-xl">
-        <span className={fade(past(p, "week"), "flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3 text-slate-200")}><Icon name="play" size={20} className="text-sky-300" /> A student&apos;s week</span>
-        <span className={fade(past(p, "call"), "flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900 px-5 py-3 text-slate-200")}><Icon name="video" size={20} className="text-teal-300" /> A video call with the founder</span>
-      </div>
-    </div>
+    <Recap p={p} items={[
+      { cue: "week", icon: "list", text: "A week of practice" },
+      { cue: "path", icon: "network", text: "The learning path" },
+      { cue: "progress", icon: "activity", text: "Progress, skill by skill" },
+    ]} />
   );
 }
 
@@ -453,5 +545,5 @@ export const SCENES: Record<string, (p: SceneProps) => ReactNode> = {
   "solo-hello": SoloHello, "solo-questions": SoloQuestions, "solo-today": SoloToday, "solo-exercise": SoloExercise,
   "solo-rate": SoloRate, "solo-habit": SoloHabit, "solo-end": SoloEnd,
   "teach-hello": TeachHello, "teach-student": TeachStudent, "teach-week": TeachWeek, "teach-next": TeachNext,
-  "teach-notes": TeachNotes, "teach-partners": TeachPartners, "teach-end": TeachEnd,
+  "teach-path": TeachPath, "teach-progress": TeachProgress, "teach-end": TeachEnd,
 };

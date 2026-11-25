@@ -1,0 +1,142 @@
+{
+  "scenes": {
+    "solo-hello": {
+      "text": "attunr gives you a practice plan for every day, for guitar, singing, and ear and theory. Each exercise in it plays with you and listens to you. It runs in your browser.",
+      "file": "/intro/charlie/solo-hello.mp3",
+      "duration": 12.15,
+      "cues": {
+        "plan": 1.28,
+        "areas": 3.48,
+        "browser": 10.29
+      },
+      "estimated": true
+    },
+    "solo-questions": {
+      "text": "It starts with a few questions: what you play or sing, where you are with it, and how many minutes a day you have. Your first plan is made from the answers.",
+      "file": "/intro/charlie/solo-questions.mp3",
+      "duration": 10.87,
+      "cues": {
+        "what": 2.2,
+        "where": 3.78,
+        "minutes": 5.63,
+        "first": 7.9
+      },
+      "estimated": true
+    },
+    "solo-today": {
+      "text": "Open the practice plan, and today is ready: a few short exercises, each with its minutes. They come from a library of exercises, and each day is a bit different from the day before.",
+      "file": "/intro/charlie/solo-today.mp3",
+      "duration": 12.43,
+      "cues": {
+        "ready": 1.9,
+        "long": 4.55,
+        "library": 7.13,
+        "different": 9.03
+      },
+      "estimated": true
+    },
+    "solo-exercise": {
+      "text": "Every exercise has its tool on the page. A guitar neck shows the notes to play. A tab scrolls along as you play. The staff draws your voice as you sing. A backing track plays under you.",
+      "file": "/intro/charlie/solo-exercise.mp3",
+      "duration": 13.22,
+      "cues": {
+        "neck": 2.9,
+        "tab": 5.65,
+        "staff": 7.98,
+        "band": 10.81
+      },
+      "estimated": true
+    },
+    "solo-rate": {
+      "text": "After each exercise you rate how it went, from Can't do it yet to Easy now. The next plan is made from those ratings. It brings in the next step, and mixes back a little of what is already solid.",
+      "file": "/intro/charlie/solo-rate.mp3",
+      "duration": 15.23,
+      "cues": {
+        "rate": 1.55,
+        "low": 3.63,
+        "high": 5.1,
+        "next": 5.88,
+        "mix": 11.6
+      },
+      "estimated": true
+    },
+    "solo-habit": {
+      "text": "A reminder comes at the time you choose. A timer runs for the day's practice, and the day streak counts the days you practise. There are no points and no score.",
+      "file": "/intro/charlie/solo-habit.mp3",
+      "duration": 11.55,
+      "cues": {
+        "reminder": 0.0,
+        "timer": 2.92,
+        "streak": 5.84,
+        "points": 9.05
+      },
+      "estimated": true
+    },
+    "solo-end": {
+      "text": "A plan for today, exercises that play along, and a next step made from your ratings. That is attunr.",
+      "file": "/intro/charlie/solo-end.mp3",
+      "duration": 8.02,
+      "cues": {
+        "plan": 0.0,
+        "tools": 1.4,
+        "next": 3.82
+      },
+      "estimated": true
+    },
+    "teach-hello": {
+      "text": "attunr is a web app for music teachers. You give each student a week of practice, follow them along a learning path, and see how every exercise went.",
+      "file": "/intro/charlie/teach-hello.mp3",
+      "duration": 10.45,
+      "cues": {
+        "tagline": 0.76,
+        "week": 4.33,
+        "path": 5.7,
+        "progress": 8.38
+      },
+      "estimated": true
+    },
+    "teach-student": {
+      "text": "Add a student by name and email, and answer a few questions about what they play and where they are. The student gets a link by email, and their first week is ready.",
+      "file": "/intro/charlie/teach-student.mp3",
+      "duration": 10.16,
+      "cues": {
+        "name": 0.85,
+        "answers": 2.25,
+        "link": 6.13,
+        "week": 8.43
+      },
+      "estimated": true
+    },
+    "teach-week": {
+      "text": "Each week is seven days of short exercises, picked for that student from a library of exercises. You choose the days they practise. Every exercise says exactly what to play: this scale, in this key, in this position.",
+      "file": "/intro/charlie/teach-week.mp3",
+      "duration": 17.03,
+      "cues": {
+        "week": 1.02,
+        "library": 5.31,
+        "days": 7.58,
+        "exact": 11.88,
+        "scale": 13.6,
+        "key": 14.54,
+        "position": 15.55
+      },
+      "estimated": true
+    },
+    "teach-path": {
+      "text": "The learning path lays out every skill as steps, from New to Advanced. Your student is drawn on it. Green steps are solid, amber steps are being worked on, and the rest is still ahead.",
+      "file": "/intro/charlie/teach-path.mp3",
+      "duration": 12.9,
+      "cues": {
+        "path": 0.0,
+        "levels": 3.4,
+        "student": 4.92,
+        "solid": 6.93,
+        "working": 8.53,
+        "ahead": 11.09
+      },
+      "estimated": true
+    }
+  },
+  "voice": "IKne3meq5aSn9XLyUdCD",
+  "model": "eleven_multilingual_v2"
+}

@@ -1,9 +1,11 @@
-// node scripts/intro/voice.mjs [--all] [--only solo-hello,teach-end]
+// node scripts/intro/voice.mjs [--all] [--estimated] [--only solo-hello,teach-end]
 //
-// Records the narration of both tours (solo musicians, teachers) with ElevenLabs in the tour's one voice, George: one MP3
-// per scene of src/features/intro/script.json into public/intro/george/<scene>.mp3, and the manifest src/features/intro/voices/george.json
+// Records the narration of both tours (students, teachers) with ElevenLabs in the tours' one voice, Charlie: one MP3
+// per scene of src/features/intro/script.json into public/intro/charlie/<scene>.mp3, and the manifest src/features/intro/voices/charlie.json
 // (each take's text, length and the second each cue's phrase starts, from ElevenLabs' character timings). Only scenes whose
-// text changed since their take are recorded, unless --all. Needs ELEVENLABS_API_KEY (read from the environment, else
+// text changed since their take are recorded, unless --all; --estimated also records again the takes whose cue times were
+// estimated (`estimated: true`) instead of read from ElevenLabs' timings. The manifest is saved after every take, so a run that
+// stops halfway (out of credits) keeps what it recorded. Needs ELEVENLABS_API_KEY (read from the environment, else
 // .env.local, else .env); ELEVENLABS_MODEL picks the model. See src/features/intro/README.md.
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -11,12 +13,12 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const SCRIPT = join(ROOT, "src/features/intro/script.json");
-const NAME = "george";
+const NAME = "charlie";
 const MANIFEST = join(ROOT, `src/features/intro/voices/${NAME}.json`);
 const OUT = join(ROOT, `public/intro/${NAME}`);
 
-/** The tour's voice, George (warm, calm, clear), with the settings it is recorded with. */
-const VOICE = { id: "JBFqnCBsd6RMkjVDRZzb", settings: { stability: 0.55, similarity_boost: 0.75, style: 0.15, use_speaker_boost: true, speed: 0.95 } };
+/** The tours' voice, Charlie (Australian, natural and relaxed), with the settings it is recorded with. */
+const VOICE = { id: "IKne3meq5aSn9XLyUdCD", settings: { stability: 0.5, similarity_boost: 0.75, style: 0.2, use_speaker_boost: true, speed: 0.97 } };
 
 for (const f of [".env.local", ".env"]) {
   try {
@@ -33,12 +35,13 @@ const SAY = [[/attunr/g, "attuner"]];
 const spoken = (text) => SAY.reduce((t, [from, to]) => t.replace(from, to), text);
 
 function args(argv) {
-  const o = { all: false, only: null };
+  const o = { all: false, estimated: false, only: null };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--all") o.all = true;
+    else if (argv[i] === "--estimated") o.estimated = true;
     else if (argv[i] === "--only") o.only = (argv[++i] ?? "").split(",");
     else {
-      console.error(`unknown option ${argv[i]}\nusage: node scripts/intro/voice.mjs [--all] [--only solo-hello,teach-end]`);
+      console.error(`unknown option ${argv[i]}\nusage: node scripts/intro/voice.mjs [--all] [--estimated] [--only solo-hello,teach-end]`);
       process.exit(2);
     }
   }
@@ -80,7 +83,8 @@ async function main() {
   for (let i = 0; i < scenes.length; i++) {
     const s = scenes[i];
     if (opts.only && !opts.only.includes(s.id)) continue;
-    if (!opts.all && !opts.only && manifest.scenes[s.id]?.text === s.text) continue;
+    const take = manifest.scenes[s.id];
+    if (!opts.all && !opts.only && take?.text === s.text && !(opts.estimated && take.estimated)) continue;
     const say = spoken(s.text);
     const started = Date.now();
     const r = await record(voice, say, near(i, i - 1), near(i, i + 1));
@@ -98,6 +102,9 @@ async function main() {
     await writeFile(join(OUT, file), Buffer.from(r.audio_base64, "base64"));
     const duration = Math.round((ends[ends.length - 1] + 0.15) * 100) / 100;
     manifest.scenes[s.id] = { text: s.text, file: `/intro/${NAME}/${file}`, duration, cues };
+    manifest.voice = voice.id;
+    manifest.model = MODEL;
+    await writeFile(MANIFEST, JSON.stringify(manifest, null, 2) + "\n"); // after every take: a run cut short keeps its takes
     done++;
     console.log(`${s.id}: ${duration}s (${((Date.now() - started) / 1000).toFixed(1)}s)`);
   }

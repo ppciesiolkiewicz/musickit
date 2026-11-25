@@ -1,96 +1,170 @@
 {
   "videos": {
     "solo": {
-      "title": "attunr for solo musicians",
+      "title": "attunr for students",
       "scenes": [
         {
           "id": "solo-hello",
           "caption": "attunr",
-          "text": "You pick up the guitar, or warm up your voice, and then wonder what to practise. attunr answers that every day, with a practice plan made for you. It opens in your browser, with nothing to install.",
-          "cues": { "tagline": "a practice plan made for you", "browser": "It opens" }
+          "text": "attunr gives you a practice plan for every day, for guitar, singing, and ear and theory. Each exercise in it plays with you and listens to you. It runs in your browser.",
+          "cues": {
+            "plan": "a practice plan",
+            "areas": "for guitar",
+            "browser": "It runs"
+          }
         },
         {
           "id": "solo-questions",
           "caption": "A few questions",
-          "text": "It starts with you. Say what you play or sing, where you are today, and how many minutes a day you have. Nobody is tested, and a first week is a fine place to start.",
-          "cues": { "what": "what you play", "where": "where you are", "minutes": "how many minutes" }
+          "text": "It starts with a few questions: what you play or sing, where you are with it, and how many minutes a day you have. Your first plan is made from the answers.",
+          "cues": {
+            "what": "what you play",
+            "where": "where you are",
+            "minutes": "how many minutes",
+            "first": "Your first plan"
+          }
         },
         {
           "id": "solo-today",
           "caption": "Today's plan",
-          "text": "From then on, you never start by wondering what to play. Open the plan and today's practice is ready: what to work on, and for how long. It comes from a library of exercises, and each day is a bit different from the day before.",
-          "cues": { "ready": "today's practice is ready", "long": "for how long", "library": "a library of exercises", "different": "each day is a bit different" }
+          "text": "Open the practice plan, and today is ready: a few short exercises, each with its minutes. They come from a library of exercises, and each day is a bit different from the day before.",
+          "cues": {
+            "ready": "today is ready",
+            "long": "each with its minutes",
+            "library": "a library of exercises",
+            "different": "each day is a bit different"
+          }
         },
         {
           "id": "solo-exercise",
           "caption": "Exercises",
-          "text": "These are not pages to read. Every exercise plays with you and listens to you. See the notes on a guitar neck. Play along with a tab. Watch your own voice on the staff as you sing, with a band behind you.",
-          "cues": { "neck": "See the notes", "tab": "Play along", "staff": "Watch your own voice", "band": "with a band" }
+          "text": "Every exercise has its tool on the page. A guitar neck shows the notes to play. A tab scrolls along as you play. The staff draws your voice as you sing. A backing track plays under you.",
+          "cues": {
+            "neck": "A guitar neck",
+            "tab": "A tab",
+            "staff": "The staff",
+            "band": "A backing track"
+          }
         },
         {
           "id": "solo-rate",
           "caption": "Rate it",
-          "text": "After each exercise you say how it went, from Can't do it yet to Easy now. That is all the plan needs. The next plan brings the next thing within reach, and mixes back a little of what already feels solid.",
-          "cues": { "rate": "you say how", "low": "Can't do it yet", "high": "Easy now", "next": "The next plan", "mix": "mixes back" }
+          "text": "After each exercise you rate how it went, from Can't do it yet to Easy now. The next plan is made from those ratings. It brings in the next step, and mixes back a little of what is already solid.",
+          "cues": {
+            "rate": "you rate how",
+            "low": "Can't do it yet",
+            "high": "Easy now",
+            "next": "The next plan",
+            "mix": "mixes back"
+          }
         },
         {
           "id": "solo-habit",
-          "caption": "A daily habit",
-          "text": "A short practice every day takes you further than a long one now and then. So you get a daily reminder at the time you choose, a timer for the day's practice and a day streak. There are no points and no score. Progress is what gets easier to play or sing.",
-          "cues": { "reminder": "a daily reminder", "timer": "a timer", "streak": "a day streak", "points": "There are no points", "easier": "Progress is" }
+          "caption": "Every day",
+          "text": "A reminder comes at the time you choose. A timer runs for the day's practice, and the day streak counts the days you practise. There are no points and no score.",
+          "cues": {
+            "reminder": "A reminder",
+            "timer": "A timer",
+            "streak": "the day streak",
+            "points": "There are no points"
+          }
         },
         {
           "id": "solo-end",
-          "caption": "Free in beta",
-          "text": "Practise every day, know what to play, and hear it get easier. attunr is in beta, and it is free now. The first people who sign up get the early price when paid plans open, and that price is locked in.",
-          "cues": { "free": "it is free now", "early": "The first people", "locked": "that price is locked in" }
+          "caption": "attunr",
+          "text": "A plan for today, exercises that play along, and a next step made from your ratings. That is attunr.",
+          "cues": {
+            "plan": "A plan for today",
+            "tools": "exercises that play",
+            "next": "a next step"
+          }
         }
       ]
     },
     "teachers": {
-      "title": "attunr for teachers and schools",
+      "title": "attunr for teachers",
       "scenes": [
         {
           "id": "teach-hello",
           "caption": "attunr",
-          "text": "You teach the lesson. What happens in the days until the next one? attunr is a web app for music teachers and schools. You give each student a week of practice and a lesson note, and they practise with them at home.",
-          "cues": { "tagline": "a web app", "give": "You give each student", "home": "they practise" }
+          "text": "attunr is a web app for music teachers. You give each student a week of practice, follow them along a learning path, and see how every exercise went.",
+          "cues": {
+            "tagline": "a web app",
+            "week": "a week of practice",
+            "path": "follow them",
+            "progress": "see how every"
+          }
         },
         {
           "id": "teach-student",
           "caption": "Add a student",
-          "text": "Getting a student started is quick. Add them by name and email, and answer a few questions about what they play and where they are. The student gets a link by email, and their first week is ready.",
-          "cues": { "name": "by name and email", "answers": "answer a few questions", "link": "The student gets a link", "week": "their first week" }
+          "text": "Add a student by name and email, and answer a few questions about what they play and where they are. The student gets a link by email, and their first week is ready.",
+          "cues": {
+            "name": "by name and email",
+            "answers": "answer a few questions",
+            "link": "The student gets a link",
+            "week": "their first week"
+          }
         },
         {
           "id": "teach-week",
           "caption": "A week of practice",
-          "text": "Each week is seven days of short exercises, chosen for that student from a library of exercises. Nothing is left to work out at home: the exact material is on the page. This scale, in this key, in this position. So the minutes they practise count for more.",
-          "cues": { "week": "seven days", "library": "from a library", "exact": "the exact material", "scale": "This scale", "key": "in this key", "position": "in this position" }
+          "text": "Each week is seven days of short exercises, picked for that student from a library of exercises. You choose the days they practise. Every exercise says exactly what to play: this scale, in this key, in this position.",
+          "cues": {
+            "week": "seven days",
+            "library": "from a library",
+            "days": "You choose the days",
+            "exact": "exactly what to play",
+            "scale": "this scale",
+            "key": "in this key",
+            "position": "in this position"
+          }
+        },
+        {
+          "id": "teach-path",
+          "caption": "Learning path",
+          "text": "The learning path lays out every skill as steps, from New to Advanced. Your student is drawn on it. Green steps are solid, amber steps are being worked on, and the rest is still ahead.",
+          "cues": {
+            "path": "The learning path",
+            "levels": "from New to Advanced",
+            "student": "Your student",
+            "solid": "Green steps",
+            "working": "amber steps",
+            "ahead": "the rest"
+          }
+        },
+        {
+          "id": "teach-progress",
+          "caption": "Progress",
+          "text": "Every rating goes into the student's progress, skill by skill, with the days and minutes practised. From it, each plan picks the steps within reach. What is solid comes back now and then, and what is far ahead waits.",
+          "cues": {
+            "rating": "Every rating",
+            "skills": "skill by skill",
+            "time": "with the days",
+            "reach": "the steps within reach",
+            "back": "What is solid",
+            "wait": "what is far ahead"
+          }
         },
         {
           "id": "teach-next",
           "caption": "The next week",
-          "text": "You stay the teacher. After each exercise the student rates how it went, so you see how the week really was. Before the next week, you set where the student is now, one slider for each topic, and the next plan follows you both.",
-          "cues": { "rate": "the student rates", "sliders": "you set where", "next": "the next plan follows" }
-        },
-        {
-          "id": "teach-notes",
-          "caption": "Lesson notes",
-          "text": "A lesson note puts today's lesson on one page the student can play: text, a scale on the neck, chord boxes and a melody. Change the key, and the whole page follows it. Then it goes to the student as a link, so the lesson comes home with them.",
-          "cues": { "text": "text,", "neck": "a scale on the neck", "chords": "chord boxes", "melody": "a melody", "key": "Change the key", "follow": "the whole page follows", "link": "Then it goes" }
-        },
-        {
-          "id": "teach-partners",
-          "caption": "Founding partners",
-          "text": "attunr is still being built, and that is your chance to shape it. It is looking for founding partners: teachers and schools who use it early and say what gets built first. In return, a founding partner gets a long trial and a locked-in price.",
-          "cues": { "built": "still being built", "partners": "founding partners", "early": "use it early", "say": "say what gets built", "trial": "a long trial", "price": "a locked-in price" }
+          "text": "You stay the teacher. You see how each exercise went for the student, and you move a slider for each topic to where you hear them now. Press Make next week's plan, and the next week follows both.",
+          "cues": {
+            "rate": "how each exercise went",
+            "sliders": "you move a slider",
+            "next": "Press Make"
+          }
         },
         {
           "id": "teach-end",
-          "caption": "Try it",
-          "text": "See it for yourself. The demos work today, with no account. Open a student's week, or book a video call with the founder and see it working with what you teach.",
-          "cues": { "demos": "The demos work", "week": "Open a student's week", "call": "book a video call" }
+          "caption": "attunr",
+          "text": "A week to practise, a path to follow, and progress you can read, for every student. That is attunr for teachers.",
+          "cues": {
+            "week": "A week to practise",
+            "path": "a path to follow",
+            "progress": "progress you can read"
+          }
         }
       ]
     }

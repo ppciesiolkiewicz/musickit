@@ -26,6 +26,8 @@ export type VoiceTake = {
   duration: number;
   /** cue name → seconds into the take */
   cues: Record<string, number>;
+  /** the cue times were spread over the take by character position, not read from the voice's timings */
+  estimated?: boolean;
 };
 
 export type VoiceManifest = { voice?: string; model?: string; scenes: Record<string, VoiceTake> };
