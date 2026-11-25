@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { hasPermission, type Account, type Permission } from "@/features/account/model";
+import { hasPermission, PERMISSIONS, type Account, type Permission } from "@/features/account/model";
 import { sessionAccount } from "@/features/account/server/auth";
 import { auth, requestAccount, sameOrigin, SESSION_COOKIE } from "@/features/account/server/http";
 import { devOnly } from "../gate";
@@ -10,12 +10,17 @@ import { devOnly } from "../gate";
  * `PERMISSIONS` in features/account/model.ts). Everyone else gets a 404, as if the page weren't there. `account` is
  * only asked in production; a failure to find it (no database, a broken session) counts as nobody.
  */
-export async function permitted(p: Permission, account: () => Promise<Account | null>, dev: boolean = devOnly()): Promise<boolean> {
+export type Needs = Permission | readonly Permission[];
+
+const wanted = (p: Needs): readonly Permission[] => (typeof p === "string" ? [p] : p);
+
+export async function permitted(p: Needs, account: () => Promise<Account | null>, dev: boolean = devOnly()): Promise<boolean> {
   if (dev) return true;
   try {
-    return hasPermission(await account(), p);
+    const a = await account();
+    return wanted(p).some((one) => hasPermission(a, one));
   } catch (e) {
-    console.error(`[access] could not check for the ${p} permission`, e);
+    console.error(`[access] could not check for the ${wanted(p).join(" or ")} permission`, e);
     return false;
   }
 }
@@ -29,19 +34,49 @@ export async function viewerAccount(): Promise<Account | null> {
 }
 
 /** For a layout: `if (!(await permissionPage("dev"))) notFound();`. */
-export const permissionPage = (p: Permission): Promise<boolean> => permitted(p, viewerAccount);
+export const permissionPage = (p: Needs): Promise<boolean> => permitted(p, viewerAccount);
 
 const notFound = () => new Response("Not found", { status: 404 });
+
+/** What the viewer may open: all three in development, else their `permissions` ([] for nobody or a failed look-up). */
+export async function openPermissions(dev: boolean = devOnly(), account: () => Promise<Account | null> = viewerAccount): Promise<Permission[]> {
+  if (dev) return [...PERMISSIONS];
+  try {
+    return [...((await account())?.permissions ?? [])];
+  } catch (e) {
+    console.error("[access] could not read the permissions", e);
+    return [];
+  }
+}
+
+/**
+ * Like `permissionGate`, but says who it let in. In development the session is still read, so a route can use the
+ * account; that account is null without a session or a database.
+ */
+export async function permissionCheck(req: Request, p: Needs): Promise<{ ok: false; response: Response } | { ok: true; account: Account | null }> {
+  const lookUp = async (): Promise<Account | null> => {
+    if (req.method !== "GET" && req.method !== "HEAD" && !sameOrigin(req)) return null;
+    const deps = auth();
+    return deps ? (await requestAccount(deps, req)).account : null;
+  };
+  let found: Account | null = null;
+  const ok = await permitted(p, async () => (found = await lookUp()));
+  if (!ok) return { ok: false, response: notFound() };
+  if (devOnly() && !found) {
+    try {
+      found = await lookUp();
+    } catch {
+      found = null;
+    }
+  }
+  return { ok: true, account: found };
+}
 
 /**
  * First line of every /api/dev and /api/admin handler: a 404 unless `permitted`, else null. In production a request
  * that isn't a GET must come from this site too (`sameOrigin`), since it carries the cookie of someone with access.
  */
-export async function permissionGate(req: Request, p: Permission): Promise<Response | null> {
-  const ok = await permitted(p, async () => {
-    if (req.method !== "GET" && req.method !== "HEAD" && !sameOrigin(req)) return null;
-    const deps = auth();
-    return deps ? (await requestAccount(deps, req)).account : null;
-  });
-  return ok ? null : notFound();
+export async function permissionGate(req: Request, p: Needs): Promise<Response | null> {
+  const r = await permissionCheck(req, p);
+  return r.ok ? null : r.response;
 }

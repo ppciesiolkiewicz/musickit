@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { Account, Permission } from "@/features/account/model";
-import { permitted } from "./access";
+import { openPermissions, permitted } from "./access";
 
 const acc = (role: Account["role"], permissions: Permission[] = []): Account => ({ id: "a1", name: "Ann", email: "ann@x.test", role, permissions, createdAt: "2026-11-19T10:00:00.000Z", needsSetup: false, emailUpdates: false, taught: false });
 
@@ -26,4 +26,13 @@ test("a failed look-up keeps the door shut", async () => {
   } finally {
     console.error = error;
   }
+});
+
+test("a list opens to anyone with one of them", async () => {
+  assert.equal(await permitted(["dev", "content"], async () => acc("student", ["content"]), false), true);
+  assert.equal(await permitted(["dev", "content"], async () => acc("student", ["admin"]), false), false);
+});
+
+test("open permissions are all three in development", async () => {
+  assert.deepEqual(await openPermissions(true), ["dev", "content", "admin"]);
 });
