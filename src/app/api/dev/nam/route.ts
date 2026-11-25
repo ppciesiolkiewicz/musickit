@@ -1,6 +1,6 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
-import { devOrAdminGate } from "@/features/devtools/server/access";
+import { permissionGate } from "@/features/devtools/server/access";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -53,7 +53,7 @@ async function modelFiles(): Promise<string[]> {
  * development). No `file`: the list, each with its licence. `file`: that model's text, only when it is one of the listed files.
  */
 export async function GET(req: Request) {
-  const gate = await devOrAdminGate(req);
+  const gate = await permissionGate(req, "dev");
   if (gate) return gate;
   const files = await modelFiles();
   const file = new URL(req.url).searchParams.get("file");

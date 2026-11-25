@@ -1,9 +1,10 @@
 # Admin: rules
 
-- **Development, or an admin.** `src/app/admin/layout.tsx` calls `notFound()` unless `devOrAdminPage()`, and every
-  `src/app/api/admin/*` handler starts with `await devOrAdminGate(req)` (`src/features/devtools/server/access.ts`): open
+- **Development, or the admin permission.** `src/app/admin/layout.tsx` calls `notFound()` unless
+  `permissionPage("admin")`, and every `src/app/api/admin/*` handler starts with `await permissionGate(req, "admin")`
+  (`src/features/devtools/server/access.ts`): open
   to anyone in development (no login: `/admin` is a public path, `src/lib/publicPaths.ts`), and in production only to a
-  signed-in account with role `admin`; everyone else gets a 404. The check is on the page and on every route; hiding a
+  signed-in account with the `admin` permission; everyone else gets a 404. The check is on the page and on every route; hiding a
   link is not a check.
 - **What goes here, what goes in `/dev`.** Admin is for running the app: reading and answering what players send, and
   later their accounts. `/dev` is for building it: the prompt, the library, the code. A page that changes a player's

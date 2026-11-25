@@ -25,7 +25,6 @@ enum user_role {
   student
   teacher
   owner
-  admin
 }
 
 table auth_tokens {
@@ -158,6 +157,26 @@ table messages {
   }
 }
 
+table payments {
+  id text [pk, not null]
+  user_id uuid
+  stripe_customer_id text [not null]
+  stripe_subscription_id text
+  plan_id text
+  billing plan_period
+  amount_cents integer [not null]
+  currency text [not null]
+  reason text
+  number text
+  invoice_url text
+  paid_at "timestamp with time zone" [not null]
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    user_id [name: 'payments_user']
+  }
+}
+
 table plan_claims {
   share_id text [not null]
   user_id uuid [not null]
@@ -257,6 +276,15 @@ table progress_entries {
   }
 }
 
+table reminders {
+  user_id uuid [pk, not null]
+  enabled boolean [not null]
+  time text [not null]
+  zone text [not null]
+  sent_on date
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+}
+
 table sessions {
   id uuid [pk, not null, default: `gen_random_uuid()`]
   token_hash text [not null, unique]
@@ -348,8 +376,13 @@ table users {
   email text [not null, unique]
   name text [not null]
   role user_role [not null]
+  permissions text[] [not null, default: `'{}'::text[]`]
   plan_id text
   billing plan_period [not null, default: 'year']
+  payment_exempt boolean [not null, default: false]
+  stripe_customer_id text [unique]
+  stripe_subscription_id text
+  subscription_status text
   email_updates_at "timestamp with time zone"
   terms_accepted_at "timestamp with time zone"
   terms_version text
@@ -386,6 +419,8 @@ ref message_threads_user_id_users_id_fk: message_threads.user_id > users.id [del
 
 ref messages_thread_id_message_threads_id_fk: messages.thread_id > message_threads.id [delete: cascade, update: no action]
 
+ref payments_user_id_users_id_fk: payments.user_id > users.id [delete: set null, update: no action]
+
 ref plan_claims_share_id_shares_id_fk: plan_claims.share_id > shares.id [delete: cascade, update: no action]
 
 ref plan_claims_user_id_users_id_fk: plan_claims.user_id > users.id [delete: cascade, update: no action]
@@ -403,6 +438,8 @@ ref practice_plan_blocks_block_id_blocks_id_fk: practice_plan_blocks.block_id > 
 ref practice_plan_blocks_choice_id_choices_id_fk: practice_plan_blocks.choice_id > choices.id [delete: no action, update: no action]
 
 ref progress_entries_user_id_users_id_fk: progress_entries.user_id > users.id [delete: cascade, update: no action]
+
+ref reminders_user_id_users_id_fk: reminders.user_id > users.id [delete: cascade, update: no action]
 
 ref sessions_user_id_users_id_fk: sessions.user_id > users.id [delete: cascade, update: no action]
 

@@ -50,12 +50,10 @@ test("the taught plan is never offered to someone who is not on it", () => {
   assert.deepEqual(choosablePlans(all, TAUGHT_PLAN_ID).map((p) => p.id), ["student", "taught"]);
 });
 
-test("a plan gives its role, but an owner and an admin keep theirs", () => {
+test("a plan gives its role, but an owner keeps theirs", () => {
   const teacher = { role: "teacher" } as Plan;
   const student = { role: "student" } as Plan;
   assert.equal(roleOnPlan("student", teacher), "teacher");
   assert.equal(roleOnPlan("teacher", student), "student");
   assert.equal(roleOnPlan("owner", student), "owner");
-  assert.equal(roleOnPlan("admin", student), "admin");
-  assert.equal(roleOnPlan("admin", teacher), "admin");
 });

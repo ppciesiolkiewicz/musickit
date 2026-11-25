@@ -55,7 +55,7 @@ export const authDeps = (repo: AuthRepo): AuthDeps => ({ repo, now: () => new Da
 export const toAccount = (u: UserRow, paymentsOn = paymentsEnabled()): Account => {
   const needsPayment = mustPay(u, paymentsOn);
   return {
-    id: u.id, name: u.name, email: u.email, role: u.role, createdAt: u.createdAt.toISOString(),
+    id: u.id, name: u.name, email: u.email, role: u.role, permissions: u.permissions, createdAt: u.createdAt.toISOString(),
     needsSetup: u.planId === null || needsPayment,
     // only with payments on: off, the account is as it was before payments
     ...(paymentsOn ? { needsPayment, subscribed: u.stripeSubscriptionId !== null && isLive(u.subscriptionStatus), paymentExempt: u.paymentExempt } : {}),

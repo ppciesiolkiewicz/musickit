@@ -1,3 +1,5 @@
+import type { Permission } from "@/features/account/model";
+
 /** One HTTP method a route file exports, with the doc comment above it ("" when it has none). */
 export interface ApiMethod {
   method: string;
@@ -11,8 +13,11 @@ export interface ApiRoute {
   /** Repo path of the route file. */
   file: string;
   methods: ApiMethod[];
-  /** What the handler checks before it runs: a signed-in player (`signedIn`), dev only (`devGate`), or dev or an admin (`devOrAdminGate`). */
-  guard: "signed in" | "dev only" | "dev or admin" | null;
+  /**
+   * What the handler checks before it runs: a signed-in player (`signedIn`), dev only (`devGate`), or development or a
+   * permission (`permissionGate(req, "<permission>")`).
+   */
+  guard: "signed in" | "dev only" | `${Permission} permission` | null;
 }
 
 // The doc block can't contain "*/", so a helper's comment never stretches into the next handler's.
@@ -40,7 +45,8 @@ export function routePath(file: string): string {
 export function parseRoute(file: string, source: string): ApiRoute {
   const methods: ApiMethod[] = [];
   for (const m of source.matchAll(METHOD_RE)) methods.push({ method: m[2], doc: m[1] ? docText(m[1]) : "" });
-  const guard = /\bdevOrAdminGate\(/.test(source) ? "dev or admin" : /\bdevGate\(/.test(source) ? "dev only" : /\bsignedIn\(/.test(source) ? "signed in" : null;
+  const permission = /\bpermissionGate\(\s*\w+\s*,\s*"(dev|content|admin)"/.exec(source)?.[1] as Permission | undefined;
+  const guard = permission ? (`${permission} permission` as const) : /\bdevGate\(/.test(source) ? "dev only" : /\bsignedIn\(/.test(source) ? "signed in" : null;
   return { path: routePath(file), file, methods, guard };
 }
 

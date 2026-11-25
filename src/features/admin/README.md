@@ -1,7 +1,7 @@
 # Admin
 
 Pages under `/admin` for running the app, apart from the tools for building it (`/dev`, `src/features/devtools`).
-Open in development, and in production to a signed-in admin (role `admin`). Rules: `CLAUDE.md`.
+Open in development, and in production to a signed-in account with the `admin` permission (`users.permissions`). Rules: `CLAUDE.md`.
 
 ## Where each part lives
 

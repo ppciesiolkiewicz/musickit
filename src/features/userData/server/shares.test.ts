@@ -17,7 +17,7 @@ const V3 = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const NOW = new Date(2026, 10, 15, 12);
 const LATER = new Date(2026, 10, 16, 9);
 
-const account = (id: string, role: Role): Account => ({ id, name: "N", email: `${id}@x.org`, role, createdAt: NOW.toISOString(), needsSetup: false, emailUpdates: false, taught: false });
+const account = (id: string, role: Role): Account => ({ id, name: "N", email: `${id}@x.org`, role, permissions: [], createdAt: NOW.toISOString(), needsSetup: false, emailUpdates: false, taught: false });
 const ann = account(ANN, "teacher");
 const ben = account(BEN, "student");
 const cal = account(CAL, "student");

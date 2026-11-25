@@ -70,7 +70,7 @@ test("a link for a new email makes a student account, named from the email, and 
   assert.ok(done?.kind === "session");
   assert.equal(done.created, true);
   assert.equal(done.next, "/plan");
-  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", createdAt: new Date(START).toISOString(), needsSetup: true, emailUpdates: false, taught: false });
+  assert.deepEqual({ ...done.account, id: "" }, { id: "", name: "ann", email: "ann@school.com", role: "student", permissions: [], createdAt: new Date(START).toISOString(), needsSetup: true, emailUpdates: false, taught: false });
   assert.equal((await sessionAccount(deps, done.sessionToken))?.account.email, "ann@school.com");
   assert.equal(users.length, 1);
 });
@@ -454,6 +454,23 @@ test("toAccount marks a student put on the taught plan", async () => {
   assert.equal(toAccount(user).taught, false);
   assert.equal(toAccount({ ...user, planId: "student" }).taught, false);
   assert.equal(toAccount({ ...user, planId: "taught" }).taught, true);
+});
+
+test("toAccount carries the permissions", async () => {
+  const { repo, deps } = setup();
+  const user = await repo.createUser({ email: "dev@school.com", name: "Dev", role: "student" }, deps.now());
+  assert.ok(user);
+  assert.deepEqual(user.permissions, []);
+  assert.deepEqual(toAccount({ ...user, permissions: ["content"] }).permissions, ["content"]);
+});
+
+test("setPermissions on the memory repo writes and returns the row", async () => {
+  const { repo, deps } = setup();
+  const user = await repo.createUser({ email: "dev@school.com", name: "Dev", role: "student" }, deps.now());
+  assert.ok(user);
+  assert.deepEqual((await repo.setPermissions(user.id, ["dev", "admin"], deps.now()))?.permissions, ["dev", "admin"]);
+  assert.deepEqual((await repo.userById(user.id))?.permissions, ["dev", "admin"]);
+  assert.equal(await repo.setPermissions("nobody", ["dev"], deps.now()), null);
 });
 
 test("a teacher's students: listed newest first, linked to one teacher, claimed once", async () => {

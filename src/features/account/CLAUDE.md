@@ -25,7 +25,7 @@
 - **A teacher's student is a normal account on the `taught` plan** (`TAUGHT_PLAN_ID`: free, `enabled` false, so no one
   chooses it; `Account.taught`), linked by a `teacher_students` row (`addStudent`, `studentsOf`, `studentLink`,
   `teacherOf`, `markClaimed` on `AuthRepo`). A student has one teacher. `startSession` marks a taught account's link claimed on any sign-in (a failure there is logged, never stops the sign-in). Anything that reaches a student's data checks the
-  link on the server first; never trust a student id from a request. `students` in `FEATURES` is for teachers, owners and admins.
+  link on the server first; never trust a student id from a request. `students` in `FEATURES` is for teachers and owners, and anyone with the admin permission.
 - **The Teacher Demo and Personal Demo plans come only from an invite.** `teacher-demo` and `personal-demo` are `enabled` false; `joinWithInvite`
   (`server/invites.ts`) is the one way onto it, never `canChoose`. A teacher invite's page (`/join/<token>`) is public: it logs a
   visitor in itself (the terms line sits under its log-in form) and sets a new account up itself, joining with no second

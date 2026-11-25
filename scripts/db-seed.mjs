@@ -1,16 +1,18 @@
 /**
  * Adds accounts to the database at DATABASE_URL. An email that already has an account is left as it is, except that
- * seeding it as admin makes it an admin.
+ * seeding it as admin gives it every permission.
  *
  *   npm run db:seed -- you+student@example.com:student you+teacher@example.com:owner
  *   npm run db:seed-admin
  *
- * Each argument is email:role (student, teacher, owner or admin) with an optional :Name after it. The person logs in with an
- * emailed link or Google as usual; seeding only makes the account exist with that role.
+ * Each argument is email:role (student, teacher or owner) with an optional :Name after it. `admin` in place of the role
+ * makes a student with all three permissions (dev, content, admin), or gives an existing account those permissions and
+ * keeps its role. The person logs in with an emailed link or Google as usual; seeding only makes the account exist.
  */
 import postgres from "postgres";
 
 const ROLES = ["student", "teacher", "owner", "admin"];
+const ALL_PERMISSIONS = ["dev", "content", "admin"];
 
 const url = process.env.DATABASE_URL?.trim();
 if (!url) {
@@ -35,14 +37,16 @@ if (!people.length) {
 const sql = postgres(url, { max: 1, prepare: false, connect_timeout: 10 });
 try {
   for (const p of people) {
+    const admin = p.role === "admin";
     const added = await sql`
-      insert into users (email, name, role) values (${p.email}, ${p.name}, ${p.role})
+      insert into users (email, name, role, permissions)
+      values (${p.email}, ${p.name}, ${admin ? "student" : p.role}, ${admin ? ALL_PERMISSIONS : []})
       on conflict (email) do nothing returning id`;
     if (added.length) {
-      console.log(`added    ${p.email} (${p.role})`);
-    } else if (p.role === "admin") {
-      await sql`update users set role = 'admin', updated_at = now() where email = ${p.email}`;
-      console.log(`admin    ${p.email} (was there; now admin)`);
+      console.log(`added    ${p.email} (${admin ? "student, every permission" : p.role})`);
+    } else if (admin) {
+      await sql`update users set permissions = ${ALL_PERMISSIONS}, updated_at = now() where email = ${p.email}`;
+      console.log(`admin    ${p.email} (was there; now has every permission)`);
     } else {
       console.log(`exists   ${p.email} (${p.role})`);
     }

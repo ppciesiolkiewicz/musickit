@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { bigint, boolean, check, date, index, integer, jsonb, pgEnum, pgTable, primaryKey, text, timestamp, unique, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import type { Permission } from "../../features/account/model";
 
 /**
  * The database tables. Change a table here, then `npm run db:generate` writes the SQL migration into /drizzle
@@ -14,7 +15,7 @@ import { bigint, boolean, check, date, index, integer, jsonb, pgEnum, pgTable, p
 const at = (name: string) => timestamp(name, { withTimezone: true, mode: "date" });
 
 /** Same values as `ROLES` in features/account/model.ts. */
-export const userRole = pgEnum("user_role", ["student", "teacher", "owner", "admin"]);
+export const userRole = pgEnum("user_role", ["student", "teacher", "owner"]);
 
 /** How often a person pays for their plan: every month or once a year. */
 export const planPeriod = pgEnum("plan_period", ["month", "year"]);
@@ -97,6 +98,11 @@ export const users = pgTable("users", {
   name: text("name").notNull(),
   role: userRole("role").notNull(),
   /**
+   * What of the pages for building and running the app they may open in production: any of `dev`, `content`, `admin`
+   * (`PERMISSIONS` in features/account/model.ts; a check keeps out anything else). Set on /admin/users.
+   */
+  permissions: text("permissions").array().$type<Permission[]>().notNull().default(sql`'{}'::text[]`),
+  /**
    * The plan they are on. Null for a new account until it chooses one on /account/setup, which it can't leave before
    * then (a student meanwhile). Accounts made before setup asked keep the Student plan they were given.
    */
@@ -125,7 +131,7 @@ export const users = pgTable("users", {
   termsVersion: text("terms_version"),
   createdAt: at("created_at").notNull().defaultNow(),
   updatedAt: at("updated_at").notNull().defaultNow(),
-}).enableRLS();
+}, (t) => [check("users_permissions_known", sql`${t.permissions} <@ array['dev','content','admin']::text[]`)]).enableRLS();
 
 /**
  * A person who chose a plan priced with them (Teacher Unlimited: any number of students, `pricedWithYou` in

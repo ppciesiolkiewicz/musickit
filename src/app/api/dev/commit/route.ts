@@ -1,4 +1,4 @@
-import { devOrAdminGate } from "@/features/devtools/server/access";
+import { permissionGate } from "@/features/devtools/server/access";
 import { exampleCommits } from "@/features/devtools/server/git";
 
 export const runtime = "nodejs";
@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 /** The checkout's HEAD and each example file's last commit (and uncommitted edits), for the examples page's comments. */
 export async function GET(req: Request) {
-  const gate = await devOrAdminGate(req);
+  const gate = await permissionGate(req, "dev");
   if (gate) return gate;
   try {
     return Response.json(await exampleCommits(), { headers: { "cache-control": "no-store" } });
