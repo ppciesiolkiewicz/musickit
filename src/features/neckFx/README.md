@@ -45,6 +45,7 @@ The effects:
   nut to 56 mm at fret 22) toward the fretting hand's side. Across the neck a mm is measured from how wide the markers look
   (`acrossPxPerMm`, their printed size from Markers or the A3 layout), since the board is seen at a slant. On the beat the
   flames leap, throw more licks and run a couple of frets past the hand.
+- **Hand glow**: the same flames, only round the frets under the fingertips, in the last note's colour.
 - **Sparks**: a burst from the note's fret space (or the hand) on each pick, more and faster with energy; calm sparks fall,
   wild ones float up, and embers rise off the picture above half energy.
 - **Beat bump**: the picture (video and drawing) jumps a little on each pick, more when wild, and shakes on a tense note.
@@ -52,8 +53,9 @@ The effects:
 - **Hide markers**: paints over each marker seen in the colour around it (the median over a ring just outside it, so a
   string or a finger across doesn't tint it), graded like the video, and keeps it covered 0.4 s after it drops out.
 
-Each mood effect has a **Strength** (0 to 200%, 100% the usual look); Mood light and Neck heat also have **Beat**, how much they jump
-with it. The beat (`stepBeat` in `model/mood.ts`) jumps on each pick and, live, with how loud the sound is against the
+Each mood effect has a **Strength** (0 to 200%, 100% the usual look); Mood light, Neck heat and Hand glow also have **Beat**,
+how much they jump with it, and **Colour**: Mood (Hand glow: Notes), or Picked, a colour of your own drawn at the mood's
+lightness. The beat (`stepBeat` in `model/mood.ts`) jumps on each pick and, live, with how loud the sound is against the
 loudest it has been lately (`listenForPicks`' `onLevel`), then falls within a fraction of a second. On a take it comes from
 the riff's notes only.
 
@@ -63,7 +65,6 @@ The test effects (under **Test effects**, no settings):
 
 - **Markers and hands**: the markers seen, with their ids, and the hands' points.
 - **Fret lines**: wires 0 to 22 across the neck, with the dot frets numbered. The check that the grid lines up.
-- **Hand glow**: the fret space the fretting hand's fingertips are in.
 - **Note flash**: each pick lights its fret space with the note's name. Live, a pick is heard in the camera's sound
   (`client/listen.ts`: the rhythm game's onset detector, then the tuner's `detectPitch` on the 50 ms after it); on a take, the
   riff's notes at their times. The fret comes from `placeByHand`; with no hand on the grid, only the name shows.

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { SCALE_MM, distOf, gridOf, parsePlaced, placeByHand, type Grid, type NeckRead, type Pt } from "../model/grid";
 import {
-  FILTER_CSS, across, coveredNow, easeGrid, filtersOn, MARKER_MM, acrossPxPerMm, frettingTips, grow, neckWidthMm, noteHue, noteName, parseButtons, pxPerMm,
+  FILTER_CSS, across, coveredNow, easeGrid, filtersOn, MARKER_MM, acrossPxPerMm, frettingTips, grow, hexHue, neckWidthMm, noteHue, noteName, parseButtons, pxPerMm,
   ringColour, spaceAt, wireAt, type Filter, type FxSettings,
 } from "../model/fx";
 import { CALM, QUIET, easeMood, keyOf, moodColour, moodFilter, moodTarget, stepBeat, type Beat, type Heard, type Mood } from "../model/mood";
@@ -243,7 +243,6 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
         if (loudest.current !== null) loudest.current = 0;
         pickedNow = 0;
         const mc = moodColour(mood), e = mood.energy, { strength, beat: follows } = fxNow;
-        const col = (a: number, dl = 0) => `hsla(${mc.hue} ${mc.sat}% ${Math.min(95, mc.light + dl)}% / ${a})`;
         const videoFilter = [...(on.has("mood") ? [moodFilter(mood, strength.mood, beat.beat * follows.mood)] : []), ...filters.map((f) => FILTER_CSS[f])].join(" ");
         video.style.filter = videoFilter;
         bump *= Math.exp(-BUMP_DECAY * dt);
@@ -281,7 +280,11 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           ctx.closePath();
         };
 
+        // an effect's colour: the one picked for it, at the mood's lightness, or the mood's
+        const colourOf = (picked: string | null) => { const p = picked ? hexHue(picked) : null; return p ? { ...mc, ...p } : mc; };
         if (on.has("mood")) {
+          const mc = colourOf(fxNow.colour.mood);
+          const col = (a: number, dl = 0) => `hsla(${mc.hue} ${mc.sat}% ${Math.min(95, mc.light + dl)}% / ${a})`;
           const sm = strength.mood, kick = beat.beat * follows.mood, r = Math.hypot(w, h) / 2;
           // lights drifting over the picture in the mood's colour and its neighbours, faster and bigger as the energy climbs,
           // swelling on the beat; a tense note brings in a light across the colour wheel
@@ -343,51 +346,61 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
             ctx.fillStyle = `rgba(255,250,235,${Math.min(0.5, 0.18 * sm * (1 - (now - last.at) / 0.8))})`; ctx.fillRect(0, 0, w, h);
           }
         }
-        if (on.has("heat") && grid && handFret !== null) {
-          // flames off both edges of the fretboard, from the nut to the hand, the board itself left clear: taller and hotter
-          // toward the hand and the higher up it is; on the beat they leap, and run a couple of frets past the hand
-          const sh = strength.heat, kick = beat.beat * follows.heat;
-          const to = Math.max(1, handFret + 0.5 + 2.5 * kick), heat = Math.min(1, to / 14);
+        // flames off both edges of the fretboard between two frets, the board itself left clear: a wide glow, then tongues
+        // hotter and paler toward the board; `swell` makes them taller toward `to`, `size` is their height in mm; licks break
+        // off, a burst on each beat
+        const burn = (g: Grid, from: number, to: number, c: { hue: number; sat: number; light: number }, size: number, swell: boolean, kick: number, heat: number, strong: number) => {
           // mm along the neck sizes the flames; mm across it (often shorter: the board is seen at a slant) places the board
-          const mm = pxPerMm(grid), cross = crossMm ?? mm, n = across(grid);
+          const mm = pxPerMm(g), cross = crossMm ?? mm, n = across(g);
           // the markers sit just inside the board's near edge, so its middle is half a board's width on from there, on the
           // fretting hand's side
-          const mid = (f: number) => {
-            const p = wireAt(grid!, f), d = neckSide * (neckWidthMm(f) / 2 - insetMm) * cross;
-            return { x: p.x + n.x * d, y: p.y + n.y * d };
-          };
           const edgeAt = (f: number, side: number, out: number) => {
-            const p = mid(f), d = side * ((neckWidthMm(f) / 2) * cross + out);
+            const p = wireAt(g, f), d = neckSide * (neckWidthMm(f) / 2 - insetMm) * cross + side * ((neckWidthMm(f) / 2) * cross + out);
             return { x: p.x + n.x * d, y: p.y + n.y * d };
           };
-          // a flame's height (px) at fret f: flickering tongues, swelling toward the hand, tapering at both ends
+          const span = Math.max(0.01, to - from);
+          // a flame's height (px) at fret f: flickering tongues, tapering at both ends
           const tongue = (f: number, side: number) => {
             const u = (distOf(f) * SCALE_MM) / 12 + side * 3.7;
             const flick = 0.55 + 0.25 * Math.sin(u * 0.9 + now * 7) + 0.15 * Math.sin(u * 2.3 - now * 11) + 0.12 * Math.sin(u * 5.3 + now * 19);
-            const along = f / to, ends = Math.min(1, along * 4) * Math.min(1, (1 - along) * 6 + 0.15);
-            return Math.max(0, flick) * ends * (0.5 + 0.5 * along) * (10 + 28 * heat) * sh * (1 + 2.5 * kick) * mm;
+            const along = (f - from) / span, ends = Math.min(1, along * (swell ? 4 : 3)) * Math.min(1, (1 - along) * (swell ? 6 : 3) + (swell ? 0.15 : 0));
+            return Math.max(0, flick) * ends * (swell ? 0.5 + 0.5 * along : 1) * size * strong * (1 + 2.5 * kick) * mm;
           };
-          const STEPS = 72;
+          const STEPS = Math.max(12, Math.round(span * 6));
           ctx.save(); ctx.globalCompositeOperation = "lighter";
-          ctx.shadowBlur = Math.min(60, (10 + 30 * kick) * sh);
-          // three layers: the outer flame in the mood's colour, then hotter and paler toward the board
+          ctx.shadowBlur = Math.min(60, (10 + 30 * kick) * strong);
           for (const [reach, alpha, lift, hueShift] of [[2.2, 0.14, -10, -15], [1, 0.5, 0, 0], [0.6, 0.55, 18, 25], [0.28, 0.7, 35, 45]] as const) {
-            const c = `hsla(${(mc.hue + hueShift * (mc.hue > 180 ? -1 : 1) + 360) % 360} ${mc.sat}% ${Math.min(92, mc.light + lift + 10 * kick)}% / ${Math.min(1, alpha * (0.6 + 0.4 * heat) * (1 + 0.6 * kick))})`;
-            ctx.fillStyle = c; ctx.shadowColor = c;
+            const col = `hsla(${(c.hue + hueShift * (c.hue > 180 ? -1 : 1) + 360) % 360} ${c.sat}% ${Math.min(92, c.light + lift + 10 * kick)}% / ${Math.min(1, alpha * (0.6 + 0.4 * heat) * (1 + 0.6 * kick))})`;
+            ctx.fillStyle = col; ctx.shadowColor = col;
             for (const side of [1, -1]) {
               ctx.beginPath();
-              for (let i = 0; i <= STEPS; i++) { const f = (to * i) / STEPS, p = edgeAt(f, side, 0); if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y); }
-              for (let i = STEPS; i >= 0; i--) { const f = (to * i) / STEPS, p = edgeAt(f, side, tongue(f, side) * reach); ctx.lineTo(p.x, p.y); }
+              for (let i = 0; i <= STEPS; i++) { const p = edgeAt(from + (span * i) / STEPS, side, 0); if (i) ctx.lineTo(p.x, p.y); else ctx.moveTo(p.x, p.y); }
+              for (let i = STEPS; i >= 0; i--) { const f = from + (span * i) / STEPS, p = edgeAt(f, side, tongue(f, side) * reach); ctx.lineTo(p.x, p.y); }
               ctx.closePath(); ctx.fill();
             }
           }
           ctx.restore();
-          // licks that break off the flames and fly out, a burst on each beat
-          const rate = (15 + 60 * heat) * sh * (1 + 6 * kick);
+          const rate = (15 + 60 * heat) * strong * (1 + 6 * kick) * Math.min(1, span / 4);
           for (let i = Math.floor(rate * dt + Math.random()); i > 0 && flames.length < MAX_FLAMES; i--) {
-            const f = to * Math.sqrt(Math.random()), side = Math.random() < 0.5 ? 1 : -1;
+            const f = from + span * (swell ? Math.sqrt(Math.random()) : Math.random()), side = Math.random() < 0.5 ? 1 : -1;
             const p = edgeAt(f, side, tongue(f, side) * 0.5), v = (30 + Math.random() * 90) * (1 + 1.5 * kick) * mm;
-            flames.push({ x: p.x, y: p.y, vx: n.x * side * v + (Math.random() - 0.5) * 20 * mm, vy: n.y * side * v + (Math.random() - 0.5) * 20 * mm, age: 0, life: 0.25 + Math.random() * 0.35, size: (2 + Math.random() * 4) * (1 + kick) * mm, hue: mc.hue });
+            flames.push({ x: p.x, y: p.y, vx: n.x * side * v + (Math.random() - 0.5) * 20 * mm, vy: n.y * side * v + (Math.random() - 0.5) * 20 * mm, age: 0, life: 0.25 + Math.random() * 0.35, size: (2 + Math.random() * 4) * (1 + kick) * mm, hue: c.hue });
+          }
+        };
+        if (on.has("heat") && grid && handFret !== null) {
+          // from the nut to the hand, taller and hotter toward the hand and the higher up it is; on the beat they leap and run a
+          // couple of frets past the hand
+          const kick = beat.beat * follows.heat, to = Math.max(1, handFret + 0.5 + 2.5 * kick), heat = Math.min(1, to / 14);
+          burn(grid, 0, to, colourOf(fxNow.colour.heat), 10 + 28 * heat, true, kick, heat, strength.heat);
+        }
+        if (on.has("glow") && grid) {
+          // round the frets under the fingertips, in the last note's colour
+          const tips = frettingTips(grid, handsSeen);
+          if (tips) {
+            const kick = beat.beat * follows.glow, lo = Math.min(...tips.frets), hi = Math.max(...tips.frets);
+            const picked = fxNow.colour.glow ? hexHue(fxNow.colour.glow) : null;
+            const c = picked ? { ...mc, ...picked } : lastNote === null ? mc : { hue: noteHue(lastNote), sat: 90, light: 58 };
+            burn(grid, Math.max(0, lo - 0.6 - 0.5 * kick), hi + 0.6 + 0.5 * kick, c, 14, false, kick, Math.max(0.5, e), strength.glow);
           }
         }
         if (flames.length) {
@@ -453,15 +466,6 @@ export default function NeckView({ video, fx, live = false, notes, onRead, fit =
           }
           for (const f of DOTS) { const p = spaceAt(grid, f); ctx.fillText(String(f), p.x + n.x * (half + 16), p.y + n.y * (half + 16) + 6); }
           ctx.textAlign = "start";
-        }
-        if (on.has("glow") && grid) {
-          const tips = frettingTips(grid, handsSeen);
-          if (tips) {
-            const at = [...tips.frets].sort((a, b) => a - b)[Math.floor(tips.frets.length / 2)];
-            const space = Math.max(1, Math.ceil(at));
-            ctx.save(); ctx.shadowColor = `hsl(${hue} 90% 60%)`; ctx.shadowBlur = 30; ctx.fillStyle = `hsla(${hue} 90% 60% / 0.35)`;
-            band(grid, space - 1, space); ctx.fill(); ctx.restore();
-          }
         }
         if (on.has("trails")) {
           ctx.lineCap = "round";

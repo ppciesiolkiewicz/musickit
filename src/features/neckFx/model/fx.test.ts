@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fretAt, parsePlaced } from "./grid";
-import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, MARKER_MM, acrossPxPerMm, coveredNow, easeGrid, filtersOn, frettingTips, gridThrough, midiOfHz, noteName, parseButtons, grow, pxPerMm, readFx, ringColour, spaceAt, wireAt, DEFAULT_FX } from "./fx";
+import { A3_BUTTONS, A3_LAYOUT, A3_MARKERS, MARKER_MM, hexHue, acrossPxPerMm, coveredNow, easeGrid, filtersOn, frettingTips, gridThrough, midiOfHz, noteName, parseButtons, grow, pxPerMm, readFx, ringColour, spaceAt, wireAt, DEFAULT_FX } from "./fx";
 
 const near = (a: number, b: number, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${a} ≠ ${b}`);
 const g = gridThrough({ x: 0.1, y: 0.5 }, { x: 0.7, y: 0.5 });
@@ -80,8 +80,8 @@ test("the A3 layout uses each fret sheet marker once, at its printed size, insid
 });
 test("strength and beat read back clamped, missing ones from the default", () => {
   const f = readFx({ strength: { mood: 5, heat: -1, sparks: "x" }, beat: { heat: 0.5 } });
-  assert.deepEqual(f.strength, { mood: 2, heat: 0, sparks: 1, bump: 1 });
-  assert.deepEqual(f.beat, { mood: 1, heat: 0.5 });
+  assert.deepEqual(f.strength, { mood: 2, heat: 0, glow: 1, sparks: 1, bump: 1 });
+  assert.deepEqual(f.beat, { mood: 1, heat: 0.5, glow: 1 });
 });
 test("a millimetre on screen from the grid", () => {
   // the nut to wire 12 is half the scale, 324 mm, here 0.6 units
@@ -103,4 +103,10 @@ test("the across-the-neck scale comes from how wide the markers look", () => {
   const m = { id: 87, corners: [{ x: 0, y: 0 }, { x: 80, y: 0 }, { x: 80, y: 40 }, { x: 0, y: 40 }] };
   near(acrossPxPerMm([m], { x: 0, y: 1 }, (id) => MARKER_MM.get(id))!, 2);
   assert.equal(acrossPxPerMm([{ ...m, id: 999 }], { x: 0, y: 1 }, (id) => MARKER_MM.get(id)), null);
+});
+test("a picked colour reads as a hue and saturation, and only #rrggbb is kept", () => {
+  assert.deepEqual(hexHue("#ff0000"), { hue: 0, sat: 100 });
+  assert.deepEqual(hexHue("#00ff00"), { hue: 120, sat: 100 });
+  assert.equal(hexHue("red"), null);
+  assert.deepEqual(readFx({ colour: { heat: "#FF8800", mood: "nope" } }).colour, { mood: null, heat: "#ff8800", glow: null });
 });

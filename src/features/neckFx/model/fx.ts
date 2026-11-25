@@ -5,30 +5,30 @@ import { SCALE_MM, distOf, fretAt, type Grid, type Pt } from "./grid";
  * markers used as buttons (covered = pressed), and the filters those buttons switch. Pure: NeckView draws.
  */
 
-export const EFFECTS = ["mood", "heat", "sparks", "bump", "hide", "markers", "frets", "glow", "flash", "pulse", "trails"] as const;
+export const EFFECTS = ["mood", "heat", "glow", "sparks", "bump", "hide", "markers", "frets", "flash", "pulse", "trails"] as const;
 export type Effect = (typeof EFFECTS)[number];
 export const EFFECT_WORDS: Record<Effect, string> = {
   mood: "Mood light",
   heat: "Neck heat",
+  glow: "Hand glow",
   sparks: "Sparks",
   bump: "Beat bump",
   hide: "Hide markers",
   markers: "Markers and hands",
   frets: "Fret lines",
-  glow: "Hand glow",
   flash: "Note flash",
   pulse: "Pick pulse",
   trails: "Fingertip trails",
 };
 
 /** The mood effects, each with a Strength; the test effects (for lining up the grid) have none. */
-export const MOOD_EFFECTS = ["mood", "heat", "sparks", "bump"] as const satisfies readonly Effect[];
+export const MOOD_EFFECTS = ["mood", "heat", "glow", "sparks", "bump"] as const satisfies readonly Effect[];
 export type MoodEffect = (typeof MOOD_EFFECTS)[number];
 /** The effects for the look of the video: the mood effects and Hide markers. The rest are test effects. */
 export const LOOK_EFFECTS = [...MOOD_EFFECTS, "hide"] as const satisfies readonly Effect[];
 export const TEST_EFFECTS = EFFECTS.filter((e) => !(LOOK_EFFECTS as readonly Effect[]).includes(e));
 /** The mood effects that also follow the beat (how loud the playing is right now). */
-export const BEAT_EFFECTS = ["mood", "heat"] as const satisfies readonly MoodEffect[];
+export const BEAT_EFFECTS = ["mood", "heat", "glow"] as const satisfies readonly MoodEffect[];
 export type BeatEffect = (typeof BEAT_EFFECTS)[number];
 /** Strength and Beat run from 0 (off) to 2 (double); 1 is the default look. */
 export const AMOUNT_MAX = 2;
@@ -57,6 +57,8 @@ export interface FxSettings {
   strength: Record<MoodEffect, number>;
   /** how much an effect jumps with the beat, 0 to `AMOUNT_MAX` */
   beat: Record<BeatEffect, number>;
+  /** a colour picked for an effect ("#rrggbb"), or null to follow the mood (Hand glow: the last note) */
+  colour: Record<BeatEffect, string | null>;
 }
 /**
  * The layout on the test guitar (a Strat), from the fret sheet (`public/riff/neck-markers-frets-a3.pdf`): 30 mm on the
@@ -80,8 +82,9 @@ export const A3_MARKERS = A3_LAYOUT.flatMap((m) => (m.fret === null ? [] : [`${m
 export const A3_BUTTONS = A3_LAYOUT.flatMap((m) => (m.filter ? [`${m.id}=${m.filter}`] : [])).join(", ");
 
 export const DEFAULT_FX: FxSettings = { markers: A3_MARKERS, buttons: A3_BUTTONS, mode: "hold", effects: ["mood", "heat", "sparks", "hide"],
-  strength: { mood: 1, heat: 1, sparks: 1, bump: 1 },
-  beat: { mood: 1, heat: 1 },
+  strength: { mood: 1, heat: 1, glow: 1, sparks: 1, bump: 1 },
+  beat: { mood: 1, heat: 1, glow: 1 },
+  colour: { mood: null, heat: null, glow: null },
 };
 
 const amount = (v: unknown, fallback: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(AMOUNT_MAX, Math.max(0, v)) : fallback);
@@ -100,7 +103,25 @@ export function readFx(v: unknown): FxSettings {
     effects: Array.isArray(o.effects) ? EFFECTS.filter((e) => (o.effects as unknown[]).includes(e)) : DEFAULT_FX.effects,
     strength: amounts(o.strength, DEFAULT_FX.strength),
     beat: amounts(o.beat, DEFAULT_FX.beat),
+    colour: colours(o.colour),
   };
+}
+
+const HEX = /^#[0-9a-f]{6}$/i;
+function colours(v: unknown): FxSettings["colour"] {
+  const o = (v && typeof v === "object" ? v : {}) as Record<string, unknown>;
+  const one = (c: unknown) => (typeof c === "string" && HEX.test(c) ? c.toLowerCase() : null);
+  return { mood: one(o.mood), heat: one(o.heat), glow: one(o.glow) };
+}
+
+/** A picked colour's hue (0 to 360) and saturation (%), for drawing it at the mood's lightness. Null if it isn't "#rrggbb". */
+export function hexHue(hex: string): { hue: number; sat: number } | null {
+  if (!HEX.test(hex)) return null;
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min, l = (max + min) / 2;
+  if (!d) return { hue: 0, sat: 0 };
+  const hue = max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return { hue: Math.round(hue * 60) % 360, sat: Math.round((d / (1 - Math.abs(2 * l - 1))) * 100) };
 }
 
 /** "56=mono, 57=neon" → marker 56 turns on Mono, 57 Neon. Unreadable parts are skipped. */

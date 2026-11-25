@@ -86,6 +86,20 @@ export default function FxControls({ fx, set }: { fx: FxSettings; set: (part: Pa
               <Amount label="Beat" title="How much it jumps with each pick and with how loud you play. 0% ignores the beat." value={fx.beat[e]} disabled={off}
                 onChange={(v) => set({ beat: { ...fx.beat, [e]: v } })} />
             )}
+            {isBeat(e) && (
+              <label className={`${field} ${off ? "opacity-40" : ""}`} title={e === "glow" ? "Notes: the colour of the last note played. Picked: always the colour you choose." : "Mood: changes with the key and the energy. Picked: always the colour you choose."}>
+                Colour
+                <select value={fx.colour[e] ? "picked" : "auto"} disabled={off} className={input}
+                  onChange={(ev) => set({ colour: { ...fx.colour, [e]: ev.target.value === "picked" ? (fx.colour[e] ?? "#ff6a00") : null } })}>
+                  <option value="auto">{e === "glow" ? "Notes" : "Mood"}</option>
+                  <option value="picked">Picked</option>
+                </select>
+                {fx.colour[e] && (
+                  <input type="color" value={fx.colour[e]!} disabled={off} aria-label={`${EFFECT_WORDS[e]} colour`}
+                    onChange={(ev) => set({ colour: { ...fx.colour, [e]: ev.target.value } })} className="h-7 w-9 cursor-pointer rounded border border-slate-700 bg-slate-950" />
+                )}
+              </label>
+            )}
           </div>
         );
       })}
