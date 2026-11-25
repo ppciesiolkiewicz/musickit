@@ -1,5 +1,5 @@
 import { nameMatches, registerChoice, setNamFactory } from "@/features/instruments/model";
-import { createCloud, createNamEffect, getModelLibrary, speedNote, type CloudModel } from "@/features/nam";
+import { createNamEffect, getModelLibrary, speedNote } from "@/features/nam";
 
 let wired = false;
 
@@ -11,22 +11,12 @@ export function wireNam() {
   if (wired) return;
   wired = true;
   const lib = getModelLibrary();
-  const cloud = createCloud(lib);
-  // the cloud list is read once per page for the rig's amps; a model already fetched is not fetched again
-  let cloudList: Promise<CloudModel[]> | null = null;
-  const fetching = new Map<string, Promise<number | null>>();
   setNamFactory((ctx, p) => createNamEffect(ctx, p, lib));
   registerChoice("nam-model", {
-    cloud,
+    // only models loaded from this computer: the online library is not used
     find: async (words) => {
       await lib.init().catch(() => undefined);
-      const local = lib.list().find((m) => nameMatches(words, `${m.cloudPath ?? ""} ${m.name}`));
-      if (local) return local.id;
-      cloudList ??= cloud.list().then((r) => ("models" in r ? r.models : []));
-      const hit = (await cloudList).find((m) => nameMatches(words, m.path));
-      if (!hit) return null;
-      if (!fetching.has(hit.path)) fetching.set(hit.path, cloud.use(hit).then((r) => ("id" in r ? r.id : null)));
-      return fetching.get(hit.path) ?? null;
+      return lib.list().find((m) => nameMatches(words, `${m.cloudPath ?? ""} ${m.name}`))?.id ?? null;
     },
     accept: ".nam",
     // useSyncExternalStore needs the same array back until something changes (a new array every call loops forever: React error 185)

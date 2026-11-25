@@ -32,22 +32,22 @@ const noteIcon = (beats: number) => <svg width={16} height={22} viewBox="-1 0 16
 const toggleDot = (beats: number) => (isDotted(beats) ? beats / 1.5 : beats * 1.5);
 
 /** A block's riff as the editor holds it: `id` is the block's, `name` its title, `mode` an index of MODE_LIST, `pos` the fret the hand sits at. Changes stay in this page until saved to the block's file. */
-interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number }
+interface Saved { id: string; name: string; tonic: number; mode: number; notes: RiffNote[]; bpm: number; pos: number; amp: string | null }
 interface Library { riffs: Saved[]; cur: string }
 const AEOLIAN = MODE_LIST.findIndex((m) => m.name === "Aeolian");
 /** What is drawn until the blocks are read, and when none holds a riff. */
-const NONE: Saved = { id: "", name: "", tonic: 9, mode: AEOLIAN, notes: [], bpm: 90, pos: 5 };
+const NONE: Saved = { id: "", name: "", tonic: 9, mode: AEOLIAN, notes: [], bpm: 90, pos: 5, amp: null };
 const EMPTY_LIB: Library = { riffs: [NONE], cur: "" };
 
 /** A block's riff as the editor holds it. A scale the list doesn't have opens as Aeolian; the hand sits at the riff's lowest fret. */
 const fromBook = (r: RiffBlock): Saved => {
   const mode = MODE_LIST.findIndex((m) => m.name === r.scale);
   const frets = r.notes.flatMap((n) => (n.fret === null ? [] : [n.fret]));
-  return { id: r.id, name: r.title, tonic: r.tonic, mode: mode < 0 ? AEOLIAN : mode, notes: r.notes, bpm: r.bpm, pos: Math.min(MAX_FRET - 4, frets.length ? Math.min(...frets) : 5) };
+  return { id: r.id, name: r.title, tonic: r.tonic, mode: mode < 0 ? AEOLIAN : mode, notes: r.notes, bpm: r.bpm, pos: Math.min(MAX_FRET - 4, frets.length ? Math.min(...frets) : 5), amp: r.amp };
 };
 /** What a riff's file holds of it, to tell whether the editor has changes the file doesn't. */
-const fileFields = (r: { tonic: number; scale: string; bpm: number; notes: RiffNote[] }) =>
-  JSON.stringify([r.tonic, r.scale, r.bpm, r.notes.map((n) => [n.string, n.fret, n.beats, !!n.with])]);
+const fileFields = (r: { tonic: number; scale: string; bpm: number; notes: RiffNote[]; amp: string | null }) =>
+  JSON.stringify([r.tonic, r.scale, r.bpm, r.notes.map((n) => [n.string, n.fret, n.beats, !!n.with]), r.amp]);
 
 const scaleOf = (r: Saved) => MODE_LIST[r.mode]?.name ?? "Aeolian";
 const changed = (r: Saved, book: RiffBlock[]) => { const b = book.find((x) => x.id === r.id); return !!b && fileFields(b) !== fileFields({ ...r, scale: scaleOf(r) }); };
@@ -87,7 +87,7 @@ export default function RiffLab() {
   const [lib, setLib] = useState<Library>(EMPTY_LIB);
   const state = lib.riffs.find((r) => r.id === lib.cur) ?? lib.riffs[0];
   const setState = useCallback((fn: (s: Saved) => Saved) => setLib((l) => ({ ...l, riffs: l.riffs.map((r) => (r.id === l.cur ? fn(r) : r)) })), []);
-  // the sound and amp model are this browser's, the same for every riff
+  // the sound is this browser's, the same for every riff; the amp model follows the open riff's `amp` (below)
   const [prefs, setPrefs] = useState<Prefs>({});
   const sound: RiffSound = prefs.sound ?? "piano";
   const model = prefs.model ?? 0;
@@ -112,7 +112,6 @@ export default function RiffLab() {
     void lib.init().then(read);
     return lib.subscribe(read);
   }, []);
-  useEffect(() => { if (sound === "amp") setAmpModel(model, setAmpState); }, [sound, model]);
   const [cloud, setCloud] = useState<CloudModel[]>([]);
   const [cloudError, setCloudError] = useState("");
   // the shared amp library on the server, read once the amp is chosen; a model is copied into this browser when picked
@@ -136,33 +135,55 @@ export default function RiffLab() {
       .catch((e) => { if (!off) setNotice(e instanceof Error ? e.message : String(e)); });
     return () => { off = true; };
   }, [sound]);
-  const pickDisk = async (file: string) => {
+  /** Copy a model from this computer's disk into the browser's library; its id, or null (the reason is in the amp state). */
+  const loadDisk = useCallback(async (file: string): Promise<number | null> => {
     const m = disk.find((d) => d.file === file);
-    if (!m) return;
+    if (!m) return null;
     const have = getModelLibrary().list().find((r) => r.name === m.name);
-    if (have) { setModel(have.id); return; }
+    if (have) return have.id;
     setAmpState("loading");
     try {
       const res = await fetch(`/api/dev/nam?file=${encodeURIComponent(file)}`, { signal: AbortSignal.timeout(20000) });
       if (!res.ok) throw new Error(((await res.json().catch(() => null)) as { error?: string } | null)?.error ?? `Something went wrong (${res.status}).`);
-      setModel((await getModelLibrary().addFile(new File([await res.text()], `${m.name}.nam`), { name: m.name })).id);
-    } catch (e) { setAmpState(`Error: ${e instanceof Error ? e.message : String(e)}`); }
+      return (await getModelLibrary().addFile(new File([await res.text()], `${m.name}.nam`), { name: m.name })).id;
+    } catch (e) { setAmpState(`Error: ${e instanceof Error ? e.message : String(e)}`); return null; }
+  }, [disk]);
+  /** Hear the riff through a model picked by hand: it becomes the open riff's amp (Save writes it into the block). */
+  const chooseModel = (id: number) => {
+    setModel(id);
+    const name = getModelLibrary().list().find((m) => m.id === id)?.name ?? null;
+    if (name !== state.amp) setState((s) => ({ ...s, amp: name }));
   };
   const pickModel = async (v: string) => {
-    if (v.startsWith("disk:")) { await pickDisk(v.slice(5)); return; }
-    if (!v.startsWith("cloud:")) { setModel(Number(v)); return; }
+    if (v.startsWith("disk:")) { const id = await loadDisk(v.slice(5)); if (id !== null) chooseModel(id); return; }
+    if (!v.startsWith("cloud:")) { chooseModel(Number(v)); return; }
     const m = cloud.find((c) => c.path === v.slice(6));
     if (!m) return;
     setAmpState("downloading");
     const r = await createCloud(getModelLibrary()).use(m);
-    if ("id" in r) setModel(r.id); else setAmpState(`Error: ${r.error}`);
+    if ("id" in r) chooseModel(r.id); else setAmpState(`Error: ${r.error}`);
   };
   const addModels = async (files: FileList | null) => {
     if (!files) return;
     for (const f of Array.from(files)) {
-      try { const r = await getModelLibrary().addFile(f); setModel(r.id); } catch (e) { setNotice(e instanceof Error ? e.message : String(e)); }
+      try { const r = await getModelLibrary().addFile(f); chooseModel(r.id); } catch (e) { setNotice(e instanceof Error ? e.message : String(e)); }
     }
   };
+  // the open riff's amp, heard once the amp is the sound: the model in this browser by that name, else the file on disk copied in
+  const riffAmp = state.amp;
+  const fetching = useRef("");
+  useEffect(() => {
+    if (sound !== "amp" || !riffAmp || models.some((m) => m.name === riffAmp)) return;
+    const d = disk.find((x) => x.name === riffAmp);
+    if (!d || fetching.current === d.file) return;
+    fetching.current = d.file;
+    void loadDisk(d.file);
+  }, [sound, riffAmp, models, disk, loadDisk]);
+  /** the open riff names an amp that is neither in this browser nor on this computer's disk */
+  const ampMissing = sound === "amp" && !!riffAmp && disk.length > 0 && !models.some((m) => m.name === riffAmp) && !disk.some((d) => d.name === riffAmp);
+  /** the model heard: the open riff's amp once it is in this browser, else the last one picked */
+  const heard = (riffAmp ? models.find((m) => m.name === riffAmp)?.id : undefined) ?? model;
+  useEffect(() => { if (sound === "amp") setAmpModel(heard, setAmpState); }, [sound, heard]);
   /** The blocks that hold a riff, as their files are now; null when it can't be read (the reason goes under the list). */
   const readBook = useCallback(async (): Promise<RiffBlock[] | null> => {
     try {
@@ -359,7 +380,7 @@ export default function RiffLab() {
     if (!seedRiff) return;
     setBookState("Saving…");
     try {
-      const res = await fetch("/api/dev/riffs", { method: "PUT", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(10000), body: JSON.stringify({ id: state.id, tonic: state.tonic, scale: seedScale, bpm: state.bpm, notes: state.notes }) });
+      const res = await fetch("/api/dev/riffs", { method: "PUT", headers: { "content-type": "application/json" }, signal: AbortSignal.timeout(10000), body: JSON.stringify({ id: state.id, tonic: state.tonic, scale: seedScale, bpm: state.bpm, notes: state.notes, amp: state.amp }) });
       const body = (await res.json().catch(() => null)) as { riff?: RiffBlock; error?: string } | null;
       if (!res.ok || !body?.riff) throw new Error(body?.error ?? `Something went wrong (${res.status}).`);
       const saved = body.riff;
@@ -462,6 +483,7 @@ export default function RiffLab() {
         </label>
         {sound === "amp" && (
           <label className="flex flex-col text-xs text-slate-400">Amp model {ampState && ampState !== "ready" && <span className={ampState.startsWith("Error") ? "text-rose-400" : ""}>({ampState})</span>}
+            {ampMissing && <span className="text-amber-400">This riff&apos;s amp is not on this computer: {riffAmp}</span>}
             <span className="flex gap-1">
               <select aria-label="Kind of model" className="rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={ampKind} onChange={(e) => setAmpKind(e.target.value as KindFilter)}>
                 <option value="amp">Amps</option>
@@ -469,11 +491,11 @@ export default function RiffLab() {
                 <option value="all">All models</option>
               </select>
               <input type="search" aria-label="Find a model" placeholder="Find a model" className="w-32 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={ampSearch} onChange={(e) => setAmpSearch(e.target.value)} />
-              <select className="max-w-64 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={model} onChange={(e) => void pickModel(e.target.value)}>
+              <select className="max-w-64 rounded bg-slate-800 px-2 py-1 text-sm text-slate-100" value={heard} onChange={(e) => void pickModel(e.target.value)}>
                 <option value={0}>No model (clean)</option>
                 {/* the model playing now stays listed whatever the filters, so the picker always shows it */}
-                {models.filter((m) => m.id === model).map((m) => { const g = gearOf(m.name); return <option key={m.id} value={m.id} title={m.name}>{withLicence(m.name, `${g.gear} · ${g.variant}`)}</option>; })}
-                {groupByGear(models.filter((m) => m.id !== model), ampKind, ampSearch).map((g) => (
+                {models.filter((m) => m.id === heard).map((m) => { const g = gearOf(m.name); return <option key={m.id} value={m.id} title={m.name}>{withLicence(m.name, `${g.gear} · ${g.variant}`)}</option>; })}
+                {groupByGear(models.filter((m) => m.id !== heard), ampKind, ampSearch).map((g) => (
                   <optgroup key={`b:${g.kind}:${g.gear}`} label={`${g.gear}${g.kind === "pedal" ? " (pedal)" : ""}, in this browser`}>
                     {g.items.map((m) => <option key={m.id} value={m.id} title={m.name}>{withLicence(m.name, m.variant)}</option>)}
                   </optgroup>

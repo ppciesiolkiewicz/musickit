@@ -1,4 +1,4 @@
-import { loadDsp, type NamModelRuntime } from "./dsp";
+import { kernelBytes, loadDsp, type NamModelRuntime } from "./dsp";
 
 /** A parsed .nam file, ready to hand to the DSP. Weights stay plain arrays until `toTransferable`. */
 export type NamSpec = Record<string, unknown>;
@@ -10,7 +10,7 @@ export interface NamInfo {
   version: string;
   /** the rate the model was trained at; null when the file does not say (48 kHz is assumed) */
   sampleRate: number | null;
-  /** dB, from the file's metadata */
+  /** dB: from the file's metadata, else measured when the file is read (`measureLoudness`); null when neither worked */
   loudness: number | null;
   gear: string | null;
   /** number of weights */
@@ -58,7 +58,7 @@ export function readNam(text: string, fallbackName = "Model"): ReadResult {
       architecture: spec.architecture,
       version: str(spec.version) ?? "?",
       sampleRate: num(spec.sample_rate),
-      loudness: num(meta.loudness) ?? model.loudness,
+      loudness: num(meta.loudness) ?? model.loudness ?? measureLoudness(spec),
       gear,
       params: countWeights(spec),
       sizes: model.breakpoints ?? null,
@@ -75,6 +75,60 @@ export function toTransferable(spec: NamSpec): NamSpec {
     return v;
   };
   return walk(spec) as NamSpec;
+}
+
+/** The rate the test chord is made at: a model without a rate of its own was trained at it. */
+const TEST_RATE = 48000;
+/** A strummed E power chord with the octave (Karplus-Strong strings, a fixed seed), at about a guitar pickup's level. */
+let testChord: Float32Array | null = null;
+function chord(): Float32Array {
+  if (testChord) return testChord;
+  const len = TEST_RATE / 2;
+  let seed = 1;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296) * 2 - 1;
+  const out = new Float32Array(len);
+  for (const f of [82.4, 123.5, 164.8]) {
+    const p = Math.round(TEST_RATE / f);
+    const buf = Float32Array.from({ length: p }, rnd);
+    for (let i = 0; i < len; i++) { const j = i % p; out[i] += 0.25 * buf[j]; buf[j] = 0.498 * (buf[j] + buf[(j + 1) % p]); }
+  }
+  return (testChord = out);
+}
+let kernels: Uint8Array | null = null;
+/** what NAM's trainer stores, less what the test chord gives, on average over seven TONE3000 captures (within 3 dB each) */
+const TO_TRAINER_DB = -0.8;
+
+/**
+ * How loud a model is, for a file that doesn't say (older and community captures): the level (dB) of its output for the test
+ * chord, past the first tenth of a second, brought to the scale NAM's trainer uses. About 30 ms with the WebAssembly kernels; where
+ * those can't be compiled here, plain JavaScript (about 0.4 s). Null when the model can't run or gives silence.
+ */
+export function measureLoudness(spec: NamSpec): number | null {
+  const N = 128;
+  const dsp = loadDsp();
+  let m: NamModelRuntime;
+  try {
+    m = dsp.buildModel(spec, N, { wasm: (kernels ??= kernelBytes()) });
+  } catch {
+    try { m = dsp.buildModel(spec, N); } catch { return null; }
+  }
+  const x = chord();
+  const inp = new Float32Array(N);
+  const out = new Float32Array(N);
+  const skip = TEST_RATE / 10;
+  let e = 0;
+  let n = 0;
+  try {
+    for (let i = 0; i + N <= x.length; i += N) {
+      inp.set(x.subarray(i, i + N));
+      m.process([inp], [out], N);
+      if (i >= skip) for (let k = 0; k < N; k++) { e += out[k] * out[k]; n++; }
+    }
+  } catch {
+    return null;
+  }
+  const db = 10 * Math.log10(e / n) + TO_TRAINER_DB;
+  return Number.isFinite(db) ? Math.round(db * 10) / 10 : null;
 }
 
 /**

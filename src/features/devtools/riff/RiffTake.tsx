@@ -7,7 +7,7 @@ import { pickVideoType, videoFileName } from "@/features/videos/recording";
 import { riffTimes, type RiffNote } from "./riff";
 import { deleteTake, getTake, saveTake, type RiffTake as Take } from "./takes";
 import NeckView from "./NeckView";
-import { LiveNote, OVERLAY_MODES, TakeNotes, WINDOW_BARS, barGrid, type OverlayMode, type WindowBars } from "./NoteOverlay";
+import { LiveNote, StillNotes, OVERLAY_MODES, TakeNotes, WINDOW_BARS, barGrid, type OverlayMode, type WindowBars } from "./NoteOverlay";
 import DetectLog, { addNeckRead } from "./DetectLog";
 import type { NeckRead, TakeLog } from "./takes";
 
@@ -371,8 +371,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes }: {
           </div>
         )}
       </div>
-      {phase !== "recording" && (
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
           {(phase === "off" || phase === "ready") && (
             <fieldset className={group}>
               <legend className={legend}>Recording</legend>
@@ -416,20 +415,19 @@ export default function RiffTake({ riff, name, bpm, bars, notes }: {
                 </select>
               </label>
             )}
-            {(camera || take) && (
+            {(camera || take) && phase !== "recording" && (
               <label className={field} title="Draws the neck markers and your fingertips over the camera and the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
                 <input type="checkbox" checked={readNeck} onChange={(e) => setReadNeck(e.target.checked)} className="accent-sky-500" /> Read the neck
               </label>
             )}
-            {(camera || take) && readNeck && (
+            {(camera || take) && phase !== "recording" && readNeck && (
               <label className={field} title="For each marker, its number and the fret wire its centre is level with. A headstock marker touching the nut is fret 0 with its size in mm: 0@0/25.">
                 Markers
                 <input value={markers} onChange={(e) => placeMarkers(e.target.value)} placeholder="0@0/25, 1@17" className={`${input} w-32`} />
               </label>
             )}
           </fieldset>
-        </div>
-      )}
+      </div>
       {phase === "ready" && take && !previous && <p className="text-xs text-slate-500">A new recording replaces this riff&apos;s take.</p>}
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
       {!camera && !take && <p className="text-slate-400">Record yourself playing the riff. The take is saved with the riff in this browser, with the riff&apos;s notes shown over it.</p>}
@@ -448,6 +446,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes }: {
             <div className="relative">
               <video ref={liveRef} autoPlay muted playsInline className={`rounded bg-black ${phase === "recording" || !take ? "max-h-[32rem] w-full max-w-4xl" : "max-h-40 w-56"}`} />
               {phase === "recording" && beatNow && <LiveNote notes={liveNotes} t={beatNow.beat * 60 / bpm} mode={overlay} grid={barGrid(bpm, 0, windowBars)} />}
+              {phase === "ready" && !take && <StillNotes notes={liveNotes} mode={overlay} grid={barGrid(bpm, 0, windowBars)} />}
               {/* not while recording: the hand model would compete with the recorder and the beat */}
               {readNeck && phase !== "recording" ? <NeckView video={liveVideo} /> : (
                 <span className={`absolute left-2 top-2 rounded px-1.5 text-xs ${phase === "recording" ? "bg-rose-700 text-white" : "bg-slate-900/80 text-slate-300"}`}>{phase === "recording" ? "● Recording" : "Camera"}</span>

@@ -45,6 +45,20 @@ describe("the seed blocks that hold a riff", () => {
     assert.equal((riffBlockOf(f) as RiffBlock).tonic, before.tonic);
   });
 
+  it("an amp is set right after the genre, kept when the edit leaves it out, and taken out with null", () => {
+    const { f } = riffs.find((x) => x.f.id === "guitar-beginner-rock-power-chords-and-a-riff")!;
+    const b = riffBlockOf(f) as RiffBlock;
+    const edit = { tonic: b.tonic, scale: b.scale, bpm: b.bpm, notes: b.notes };
+    const set = withRiff(f, { ...edit, amp: "Some Amp Crunch" })!;
+    assert.equal((riffBlockOf(set) as RiffBlock).amp, "Some Amp Crunch");
+    const keys = Object.keys(set);
+    assert.equal(keys[keys.indexOf("genre") + 1], "amp");
+    assert.equal((riffBlockOf(withRiff(set, edit)!) as RiffBlock).amp, "Some Amp Crunch");
+    const gone = withRiff(set, { ...edit, amp: null })!;
+    assert.equal("amp" in gone, false);
+    assert.equal((riffBlockOf(gone) as RiffBlock).amp, null);
+  });
+
   it("checkEdit refuses what can't be a riff", () => {
     const ok = { tonic: 9, scale: "Aeolian", bpm: 90, notes: [{ string: 0, fret: 5, beats: 1 }] };
     assert.deepEqual(checkEdit(ok), []);
@@ -52,5 +66,9 @@ describe("the seed blocks that hold a riff", () => {
     assert.equal(checkEdit({ ...ok, bpm: 20 }).length, 1);
     assert.equal(checkEdit({ ...ok, notes: [] }).length, 1);
     assert.equal(checkEdit({ ...ok, notes: [{ string: 0, fret: 30, beats: 1 }] }).length, 1);
+    assert.deepEqual(checkEdit({ ...ok, amp: null }), []);
+    assert.deepEqual(checkEdit({ ...ok, amp: "Tim R JCM2000 Crunch" }), []);
+    assert.equal(checkEdit({ ...ok, amp: " " }).length, 1);
+    assert.equal(checkEdit({ ...ok, amp: 3 }).length, 1);
   });
 });

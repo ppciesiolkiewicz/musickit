@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { levelMatchDb, readNam, speedNote, toTransferable } from "./info";
+import { levelMatchDb, measureLoudness, readNam, speedNote, toTransferable } from "./info";
 
 const dir = join(dirname(fileURLToPath(import.meta.url)), "fixtures");
 const file = (n: string) => readFileSync(join(dir, `${n}.nam`), "utf8");
@@ -19,6 +19,21 @@ test("a WaveNet file is described", () => {
   assert.equal(r.info.params, 131);
   assert.ok(Math.abs((r.info.loudness ?? 0) + 20.02) < 0.01);
   assert.equal(r.info.sizes, null);
+});
+
+test("a file without a loudness is measured, the same each time, and a louder model measures louder", () => {
+  const spec = JSON.parse(file("wavenet"));
+  delete spec.metadata.loudness;
+  const r = readNam(JSON.stringify(spec));
+  assert.ok(r.ok && typeof r.info.loudness === "number" && Number.isFinite(r.info.loudness));
+  if (!r.ok) return;
+  assert.equal(measureLoudness(JSON.parse(JSON.stringify(spec))), r.info.loudness);
+  // the head's output scale doubled: 6 dB louder
+  const louder = JSON.parse(JSON.stringify(spec));
+  louder.weights[louder.weights.length - 1] *= 2;
+  const a = measureLoudness(JSON.parse(JSON.stringify(spec)))!;
+  const b = measureLoudness(louder)!;
+  assert.ok(Math.abs(b - a - 6) < 0.3, `${a} -> ${b}`);
 });
 
 test("a slimmable container lists its sizes", () => {

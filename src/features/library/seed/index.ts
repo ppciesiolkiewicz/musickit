@@ -60,6 +60,8 @@ export interface SeedBlockFile {
   note: string;
   /** the genre it belongs to, when it is a genre's block (a riff): a dead end hung off its steps, which no step waits for */
   genre?: Genre;
+  /** a riff's amp model: the name of a `.nam` file the riff maker plays it through (`/dev/riff`); players don't hear it yet */
+  amp?: string;
   /** set on the exercises that show one rule: blocks with a chart per step, a melody by `pick`, a progression worked several ways */
   showcase?: "blocks" | "pick" | "progression" | "stages" | "variants";
   /** the exercise as the AI returns it in a plan's day, without `level`, `steps`, `moves` and `minutes`: they sit in each choice */

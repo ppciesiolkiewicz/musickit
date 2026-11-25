@@ -155,6 +155,11 @@ export function TakeNotes({ video, notes, mode, grid }: { video: HTMLVideoElemen
   return <Overlay notes={notes} t={t} mode={mode} grid={grid} />;
 }
 
+/** Over the live camera when not recording: the riff standing still at beat 1, as a reference before the take. */
+export function StillNotes({ notes, mode, grid }: { notes: Timed[]; mode: OverlayMode; grid: BarGrid }) {
+  return <Overlay notes={notes} t={0} mode={mode} grid={grid} />;
+}
+
 /** Over the live camera while recording to the click: the riff at the beat being played (`t` seconds from beat 1, negative in the count-in). */
 export function LiveNote({ notes, t, mode, grid }: { notes: Timed[]; t: number; mode: OverlayMode; grid: BarGrid }) {
   return <Overlay notes={notes} t={t} mode={mode} grid={grid} />;

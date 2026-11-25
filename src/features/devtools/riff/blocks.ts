@@ -13,6 +13,8 @@ export interface RiffBlock {
   id: string;
   title: string;
   genre: Genre | null;
+  /** the amp model the riff is heard through in the riff maker, by its name there (a `.nam` file's name); null for none */
+  amp: string | null;
   /** switched off: every choice is a draft, so no plan gets the block */
   draft: boolean;
   /** the path steps its choices practise */
@@ -25,8 +27,8 @@ export interface RiffBlock {
   notes: RiffNote[];
 }
 
-/** What the riff maker writes into a block. */
-export interface RiffEdit { tonic: number; scale: string; bpm: number; notes: RiffNote[] }
+/** What the riff maker writes into a block. `amp` left out keeps the block's amp; null takes it away. */
+export interface RiffEdit { tonic: number; scale: string; bpm: number; notes: RiffNote[]; amp?: string | null }
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -56,6 +58,7 @@ export function riffBlockOf(file: unknown): RiffBlock | { error: string } | null
     id: String(file.id),
     title: String(file.exercise.title ?? file.id).replace(/(\s+#[\w-]+)+\s*$/, ""),
     genre: isGenre(file.genre) ? file.genre : null,
+    amp: typeof file.amp === "string" && file.amp ? file.amp : null,
     draft: choices.length > 0 && choices.every((c) => c.draft === true),
     steps: [...new Set(choices.flatMap((c) => (Array.isArray(c.steps) ? c.steps.filter((s): s is string => typeof s === "string") : [])))],
     tonic,
@@ -72,6 +75,7 @@ export function checkEdit(e: unknown): string[] {
   if (typeof e.tonic !== "number" || !Number.isInteger(e.tonic) || e.tonic < 0 || e.tonic > 11) out.push("the key is a pitch class 0-11");
   if (typeof e.scale !== "string" || !e.scale) out.push("no scale");
   if (typeof e.bpm !== "number" || !Number.isInteger(e.bpm) || e.bpm < 30 || e.bpm > 240) out.push("the tempo is a whole number 30-240");
+  if (e.amp !== undefined && e.amp !== null && (typeof e.amp !== "string" || !e.amp.trim() || e.amp.length > 200)) out.push("the amp is a model's name");
   if (!Array.isArray(e.notes)) out.push("no notes");
   else {
     const read = readRiff(writeRiff(e.notes as RiffNote[]));
@@ -80,10 +84,23 @@ export function checkEdit(e: unknown): string[] {
   return out;
 }
 
+/** The file with its `amp` set (right after `genre`, else after `note`) or, for null, taken out; every other key in its place. */
+function withAmp(file: Obj, amp: string | null): Obj {
+  const out: Obj = {};
+  const at = "genre" in file ? "genre" : "note";
+  for (const [k, v] of Object.entries(file)) {
+    if (k === "amp") continue;
+    out[k] = v;
+    if (k === at && amp) out.amp = amp;
+  }
+  if (amp && !("amp" in out)) out.amp = amp;
+  return out;
+}
+
 /**
  * The block file with the riff written into it, everything else as it was: every riff tool of the block gets the key,
  * scale and notes, the first one the tempo, and a choice whose `moves` has a tempo range starts it at that tempo, the
- * range as wide as before. Null when the file holds no riff.
+ * range as wide as before. An edit with an `amp` sets the block's amp (null takes it out). Null when the file holds no riff.
  */
 export function withRiff(file: unknown, edit: RiffEdit): Obj | null {
   const next = structuredClone(file) as Obj;
@@ -98,7 +115,7 @@ export function withRiff(file: unknown, edit: RiffEdit): Obj | null {
     range.to = Math.min(240, range.to + (edit.bpm - was));
     range.from = edit.bpm;
   }
-  return next;
+  return edit.amp === undefined ? next : withAmp(next, edit.amp?.trim() || null);
 }
 
 /** A seed block file's text on disk. */
