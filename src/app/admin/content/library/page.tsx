@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import ContentShell from "@/features/devtools/ContentShell";
 import LibraryPage from "@/features/devtools/library/LibraryPage";
 import { loadItem, loadLibrary } from "@/features/devtools/library/load";
-import { readParams } from "@/features/devtools/library/params";
+import { allowedParams, canNamePlayer, readParams } from "@/features/devtools/library/params";
+import { openPermissions } from "@/features/devtools/server/access";
 import { contentTitle } from "@/features/devtools/registry";
 import { getDb } from "@/lib/db/client";
 
@@ -17,8 +18,9 @@ export async function generateMetadata({ searchParams }: Search): Promise<Metada
 }
 
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const params = readParams(await searchParams);
+  const open = await openPermissions();
+  const params = allowedParams(readParams(await searchParams), open);
   const db = getDb();
   const [result, item] = await Promise.all([loadLibrary(db, params), loadItem(db, params)]);
-  return <ContentShell wide><LibraryPage result={result} item={item} params={params} /></ContentShell>;
+  return <ContentShell wide><LibraryPage result={result} item={item} params={params} canNamePlayer={canNamePlayer(open)} /></ContentShell>;
 }

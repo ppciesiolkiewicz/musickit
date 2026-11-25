@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { devArgs, libraryHref, minutes, orDash, readParams } from "./params";
+import { allowedParams, canNamePlayer, devArgs, libraryHref, minutes, orDash, readParams } from "./params";
 
 test("readParams takes the first value and ignores empty ones", () => {
   assert.deepEqual(readParams({ topic: ["a", "b"], player: "" }), { topic: "a", player: undefined, item: undefined });
@@ -35,4 +35,12 @@ test("minutes rounds to one decimal, orDash shows null as a dash", () => {
   assert.equal(minutes(100), "1.7");
   assert.equal(orDash(null), "–");
   assert.equal(orDash(0), "0");
+});
+
+test("a content-only viewer's player parameter is dropped; dev and admin keep it", () => {
+  const p = { topic: "t", player: "abc", item: "i" };
+  assert.deepEqual(allowedParams(p, ["content"]), { topic: "t", player: undefined, item: "i" });
+  assert.equal(allowedParams(p, ["content", "admin"]).player, "abc");
+  assert.equal(allowedParams(p, ["dev"]).player, "abc");
+  assert.equal(canNamePlayer(["content"]), false);
 });

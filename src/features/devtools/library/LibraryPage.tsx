@@ -229,7 +229,7 @@ function Item({ result, params }: { result: ItemResult; params: LibraryParams })
  * The library as bare tables, then the row picked in `?item=` drawn. Takes what `loadLibrary` and `loadItem` returned,
  * so every failure shows here and nothing throws.
  */
-export default function LibraryPage({ result, item, params }: { result: LibraryResult; item: ItemResult; params: LibraryParams }) {
+export default function LibraryPage({ result, item, params, canNamePlayer = true }: { result: LibraryResult; item: ItemResult; params: LibraryParams; canNamePlayer?: boolean }) {
   return (
     <div>
       <SeedSections />
@@ -238,13 +238,13 @@ export default function LibraryPage({ result, item, params }: { result: LibraryR
         item you open (<code>?item=</code>) comes from its seed file in <code>src/features/library/seed</code> if one has
         that id, and from the database if not.
       </p>
-      <Tables result={result} params={params} />
+      <Tables result={result} params={params} canNamePlayer={canNamePlayer} />
       <Item result={item} params={params} />
     </div>
   );
 }
 
-function Tables({ result, params }: { result: LibraryResult; params: LibraryParams }) {
+function Tables({ result, params, canNamePlayer }: { result: LibraryResult; params: LibraryParams; canNamePlayer: boolean }) {
   if (result.state === "no-database") return <Muted>No database: set DATABASE_URL to read the library.</Muted>;
   if (result.state === "failed") {
     return (
@@ -258,11 +258,13 @@ function Tables({ result, params }: { result: LibraryResult; params: LibraryPara
   return (
     <div>
       {data.scopeError !== null && <p className="mb-3 text-sm text-red-300">{data.scopeError}. Shown without a player.</p>}
+      {canNamePlayer && (
+        <p className="mb-3 text-sm text-slate-400">
+          Player: {params.player ?? "none"} (add <code>?player=</code> and a user id to add that player&apos;s own blocks).
+        </p>
+      )}
       <p className="mb-3 text-sm text-slate-400">
-        Player: {params.player ?? "none"} (add <code>?player=</code> and a user id).
-      </p>
-      <p className="mb-3 text-sm text-slate-400">
-        Every block and plan is listed. Seed: from a seed file. Database only: no seed file (a player&apos;s or the AI&apos;s). Off: a block that is not offered to players. Demo: a plan shown at /demo.
+        Every seed block and plan is listed. Seed: from a seed file. Database only: no seed file. Off: a block that is not offered to players. Demo: a plan shown at /demo.
       </p>
       <H>Coverage by topic and level</H>
       <CoverageTable rows={data.topics} params={params} />

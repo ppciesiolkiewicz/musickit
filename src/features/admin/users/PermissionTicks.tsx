@@ -4,7 +4,6 @@ import { useState } from "react";
 import { PERMISSION_LABEL, PERMISSIONS, type Permission } from "@/features/account/model";
 import { failedMessage, SELF, thrownMessage } from "./messages";
 
-
 /**
  * One person's permissions on /admin/admin/users: a box each for dev, content and admin, saved as soon as one changes
  * (`PATCH /api/admin/users`). A failed save puts the boxes back as stored and says so. `self` is the viewer's own row:

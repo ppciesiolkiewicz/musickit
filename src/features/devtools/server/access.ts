@@ -4,16 +4,17 @@ import { sessionAccount } from "@/features/account/server/auth";
 import { auth, requestAccount, sameOrigin, SESSION_COOKIE } from "@/features/account/server/http";
 import { devOnly } from "../gate";
 
+/** One permission or several; having any of them is enough. */
+export type Needs = Permission | readonly Permission[];
+
+const wanted = (p: Needs): readonly Permission[] => (typeof p === "string" ? [p] : p);
+
 /**
  * Who may open a page for building or running the app and call its routes: anyone in development, and in production a
  * signed-in account with the page's permission (`dev` for /dev and /api/dev, `content` for /admin/content and the /api/dev routes its pages call, `admin` for /admin/admin and /api/admin; see
  * `PERMISSIONS` in features/account/model.ts). Everyone else gets a 404, as if the page weren't there. `account` is
  * only asked in production; a failure to find it (no database, a broken session) counts as nobody.
  */
-export type Needs = Permission | readonly Permission[];
-
-const wanted = (p: Needs): readonly Permission[] => (typeof p === "string" ? [p] : p);
-
 export async function permitted(p: Needs, account: () => Promise<Account | null>, dev: boolean = devOnly()): Promise<boolean> {
   if (dev) return true;
   try {

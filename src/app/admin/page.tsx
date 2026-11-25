@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminHub() {
   const sections = hubSections(await openPermissions());
   return (
-    <PageShell active="/admin" wide title="Admin" intro="Running the app and writing its lessons.">
+    <PageShell active="/admin" wide title="All admin" intro="Running the app and writing its lessons.">
       <ul className="grid gap-3 sm:grid-cols-2">
         {sections.map((s) => (
           <li key={s.href}>

@@ -114,15 +114,15 @@ export function databaseItem(b: BlockDetail, choiceId?: string): DrawnItem {
  */
 export type LibraryTag = "seed" | "database" | "off" | "demo";
 
-/**
- * A block's tags. A curated block with choices and no active one is `off`. A hashed block is `database` and never `off`:
- * it is not a seed item, and whether a player sees it is a matter of who owns it.
- */
 /** The `/demo/<slug>` slug that shows a seed plan (`DEMO_PLANS`), or null when no demo uses it. */
 export function demoSlugOf(planId: string): string | null {
   return Object.entries(DEMO_PLANS).find(([, d]) => d.plan === planId)?.[0] ?? null;
 }
 
+/**
+ * A block's tags. A curated block with choices and no active one is `off`. A hashed block is `database` and never `off`:
+ * it is not a seed item, and whether a player sees it is a matter of who owns it.
+ */
 export function blockTags(b: BlockSummary, seedIds: { has(id: string): boolean }): LibraryTag[] {
   const tags: LibraryTag[] = [seedIds.has(b.id) ? "seed" : "database"];
   if (b.choices.length > 0 && !b.choices.some((c) => c.active)) tags.push("off");

@@ -3,7 +3,7 @@
 - **Development, or the permission.** `src/app/admin/layout.tsx` calls `notFound()` unless
   `permissionPage(["admin", "content"])` (the hub, `/admin`, opens to either); `src/app/admin/admin/layout.tsx` unless
   `permissionPage("admin")`; `src/app/admin/content/layout.tsx` unless `permissionPage("content")`. Three gates: the hub
-  to either, each half to its own. Every `src/app/api/admin/*` handler starts with `await permissionGate(req, "admin")`
+  to either, each half to its own. Every `src/app/api/admin/*` handler starts with `await permissionGate(req, "admin")` (the users route uses `permissionCheck(req, "admin")`, the same test with the answer in hand)
   (`src/features/devtools/server/access.ts`): open
   to anyone in development (no login: `/admin` is a public path, `src/lib/publicPaths.ts`), and in production only to a
   signed-in account with the `admin` permission; everyone else gets a 404. The check is on the page and on every route; hiding a

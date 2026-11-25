@@ -17,6 +17,14 @@ export function readParams(raw: Raw): LibraryParams {
   return { topic: first(raw.topic), player: first(raw.player), item: first(raw.item) };
 }
 
+/** Naming a player shows that player's private blocks, ratings and play times: only `dev` and `admin` may (not `content` alone). */
+export const canNamePlayer = (open: readonly string[]): boolean => open.includes("dev") || open.includes("admin");
+
+/** The parameters this viewer may use: `player` is dropped unless they may name one. */
+export function allowedParams(p: LibraryParams, open: readonly string[]): LibraryParams {
+  return canNamePlayer(open) ? p : { ...p, player: undefined };
+}
+
 /** The arguments `devScope` takes: the page always reads everything, inactive choices and the app's old blocks too. */
 export function devArgs(p: LibraryParams): { player?: string; include_not_enabled?: boolean } {
   const a: { player?: string; include_not_enabled?: boolean } = { include_not_enabled: true };

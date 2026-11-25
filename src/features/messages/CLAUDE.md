@@ -12,7 +12,7 @@
   `EMAIL_WINDOW_MS`), so a quick follow-up still reaches us but a flood doesn't eat the Resend quota log-in shares. A
   failed email never fails the send.
   Contact form messages send no email from here: the contact route sends its own.
-- Our side is dev only: `/admin/admin/messages` and `/api/admin/messages` open in production only to an account with the `admin`
+- Our side is the `admin` permission: `/admin/admin/messages` and `/api/admin/messages` open in production only to an account with the `admin`
   permission, and 404 for everyone else. In development they are open.
 - Every fetch in the bubble and the feedback page goes through `send()` in `features/account/ui/parts.tsx` (timeout,
   the account header) and shows its error inline. Typed text stays in the box until a send succeeds.

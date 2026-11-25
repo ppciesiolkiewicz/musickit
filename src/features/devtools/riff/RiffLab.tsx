@@ -518,7 +518,7 @@ export default function RiffLab() {
                   </optgroup>
                 ))}
               </select>
-              {!diskHere && <span className="self-center text-xs text-slate-400">No amp models on this computer. Pick one from the amp library.</span>}
+              {!diskHere && <span className="self-center text-xs text-slate-400">No amp models here. Pick one from the amp library or add a .nam file.</span>}
               {cloudError && disk.length === 0 && <span title={cloudError} className="self-center text-rose-400">Amp library: {cloudError}</span>}
               <label className="cursor-pointer rounded bg-slate-800 px-2 py-1 text-sm text-slate-100">Add .nam<input type="file" accept=".nam" multiple hidden onChange={(e) => void addModels(e.target.files)} /></label>
             </span>

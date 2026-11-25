@@ -32,6 +32,7 @@ export async function POST(req: Request) {
         isEdgeServer: false,
         isAppDirectory: true,
       }),
+      signal: AbortSignal.timeout(10_000),
     });
     const out = (await res.json()) as { status: string; value?: { originalStackFrame?: Frame | null } }[];
     return Response.json(
