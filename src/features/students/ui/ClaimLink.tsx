@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { Card, ErrorLine, LINK, PRIMARY, SECONDARY } from "@/features/account/ui/parts";
 import { useAccount } from "@/features/account/useAccount";
 import { loginHref } from "@/lib/publicPaths";
@@ -25,8 +25,8 @@ const LOG_IN = loginHref("/plan");
  * scanner's fetch must not use the link up); the button spends it, then the page loads where the route says
  * (`window.location.replace`, a full load: the stores are per session). A dead link says so, with Log in.
  */
-export function ClaimLinkView({ state, onClaim, onRetry }: { state: ClaimState; onClaim: () => void; onRetry: () => void }) {
-  return (
+export function ClaimLinkView({ state, onClaim, onRetry, tour }: { state: ClaimState; onClaim: () => void; onRetry: () => void; tour?: ReactNode }) {
+  const card = (
     <Card>
       {state.kind === "loading" && <p role="status" className="text-sm text-slate-300">Checking the link…</p>}
       {state.kind === "ready" && (
@@ -57,9 +57,12 @@ export function ClaimLinkView({ state, onClaim, onRetry }: { state: ClaimState; 
       )}
     </Card>
   );
+  // the tour only beside a link that works: a dead one has nothing to show around
+  return tour && state.kind === "ready" ? <div className="flex w-full max-w-xl flex-col items-center gap-8">{card}<div className="w-full">{tour}</div></div> : card;
 }
 
-export default function ClaimLink({ token }: { token: string }) {
+/** `tour`: a quick tour drawn under the card while the link is good (the page passes it in). */
+export default function ClaimLink({ token, tour }: { token: string; tour?: ReactNode }) {
   const { account, loaded } = useAccount();
   const [state, setState] = useState<ClaimState>({ kind: "loading" });
   // the GET once per mount (React runs effects twice in development); Try again asks again
@@ -88,5 +91,5 @@ export default function ClaimLink({ token }: { token: string }) {
 
   // who is logged in here now: the button waits for the session read, so it is said before the press, never after it
   const shown: ClaimState = state.kind !== "ready" ? state : loaded ? { ...state, signedInAs: account ? account.name : null } : { kind: "loading" };
-  return <ClaimLinkView state={shown} onClaim={() => void claim()} onRetry={() => void peek()} />;
+  return <ClaimLinkView state={shown} onClaim={() => void claim()} onRetry={() => void peek()} tour={tour} />;
 }

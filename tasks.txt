@@ -1647,3 +1647,13 @@ looked at, so string and position are guessed. Add:
    https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker
 3. Join with audio: the pitch from hearNotes picks the (string, fret) under a fingertip.
 Start on a saved take, not live. Later, maybe: neck found without markers (YOLO on a Roboflow fretboard set, SAM 2).
+
+NEW20: [NEW 2026-11-25] Finish the quick tours' narration (Charlie's voice) once ElevenLabs has credits again
+The tours on /intro, the home pages, /demo, /join/<token> and /claim were rewritten on 2026-11-25 (commit f0a08144):
+students = the daily plan, teachers = the week, the learning path and progress; voice now Charlie (Australian).
+The account ran out of credits after 11 of 14 scenes. teach-progress, teach-next and teach-end play silent with
+subtitles, and the intro test "the committed voice matches the script" fails until they are recorded.
+Run: `node scripts/intro/voice.mjs --estimated` (about 2,500 credits: the 3 missing scenes, plus the 11 done ones again so
+their cue times come from the voice instead of the estimate). Only the 3 missing: `node scripts/intro/voice.mjs` (~500).
+Then listen to both tours on /intro, run `npx tsx --test src/features/intro/timeline.test.ts`, and commit
+public/intro/charlie/*.mp3 with src/features/intro/voices/charlie.json.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
 import Icon from "@/components/Icon";
 import { confetti } from "@/components/confetti";
@@ -59,7 +59,12 @@ export function JoinTitle() {
  * confetti when a usable invite opens and again on joining, with "You're in!" counting down `CELEBRATE_SECONDS` before
  * /students opens by itself (user, 2026-11-19: long enough to read), and Open Students to go now.
  */
-export default function JoinForm({ token, google }: { token: string; google: boolean }) {
+export default function JoinForm({ token, google, tours }: {
+  token: string;
+  google: boolean;
+  /** a quick tour for each kind of invite, drawn under the invite once its kind is read (the page passes them in: this folder imports no feature) */
+  tours?: Partial<Record<InviteKind, ReactNode>>;
+}) {
   const api = `/api/join/${encodeURIComponent(token)}`;
   const [view, setView] = useState<View | null>(null);
   const { account, loaded } = useAccount();
@@ -86,6 +91,9 @@ export default function JoinForm({ token, google }: { token: string; google: boo
 
   const kind: InviteKind = view?.kind ?? "teacher";
   const after = AFTER[kind];
+  // the tour waits for the invite to be read, so a personal invite never flashes the teachers' one
+  const tour = view ? tours?.[kind] : undefined;
+  const withTour = (card: ReactNode) => (tour ? <div className="flex w-full max-w-xl flex-col items-center gap-8">{card}<div className="w-full">{tour}</div></div> : card);
   const usable = view?.state === "open" && !view.taught;
   // a new account that just logged in here: on a teacher invite it joins by itself, no second step; on a personal one it sets up first
   const settingUp = usable && view.signedIn && view.needsSetup;
@@ -223,7 +231,7 @@ export default function JoinForm({ token, google }: { token: string; google: boo
   );
 
   if (personalSetup) {
-    return (
+    return withTour(
       <Card className="mx-auto">
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-3 text-center">
@@ -272,7 +280,7 @@ export default function JoinForm({ token, google }: { token: string; google: boo
   );
 
   if (signedOut) {
-    return (
+    return withTour(
       <Card className="mx-auto">
         <div className="flex flex-col gap-6">
           {invite}
@@ -297,7 +305,7 @@ export default function JoinForm({ token, google }: { token: string; google: boo
     );
   }
 
-  return (
+  return withTour(
     <Card className="mx-auto">
       <form noValidate onSubmit={(e) => void join(e)} className="flex flex-col gap-6">
         {invite}
