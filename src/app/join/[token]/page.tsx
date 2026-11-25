@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 /**
  * A teacher or personal invite we sent (made on /admin/admin/invites). Public: a visitor who isn't logged in sees the invite and logs in here
  * (email and code, or Google), not on /login, and comes straight back here, not to setup: a new account joins by itself (`JoinForm`).
- * Under the invite, the quick tour for its kind: the teachers' one for a teacher invite, the students' one for a personal one.
+ * Beside the invite on a wide screen (under it on a phone), the quick tour for its kind: the teachers' one for a teacher invite, the students' one for a personal one.
  */
 export default async function JoinPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
