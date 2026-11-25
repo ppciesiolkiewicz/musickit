@@ -57,6 +57,8 @@ const store = (key: string, v: unknown) => { try { localStorage.setItem(key, JSO
 const btn = "rounded-md bg-slate-800 px-3 py-1 text-sm text-slate-200 transition-colors hover:bg-slate-700 disabled:opacity-40";
 const rec = "inline-flex items-center gap-2 rounded-md bg-rose-700 px-3 py-1 text-sm font-medium text-white transition-colors hover:bg-rose-600 disabled:opacity-40";
 const input = "rounded border border-slate-700 bg-slate-950 px-2 py-1 text-sm text-slate-200";
+const group = "flex min-w-0 flex-col gap-2 rounded-lg border border-slate-800 p-3 text-slate-300";
+const legend = "px-1 text-xs font-medium uppercase tracking-wide text-slate-500";
 const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 export interface RecordFor {
@@ -410,61 +412,79 @@ export default function RecordVideo({ target, videos, children, drawn }: {
         {phase === "recording" && <button type="button" onClick={() => recorder.current?.stop()} className={rec}><span className="size-2 bg-white" />Stop <kbd className="rounded bg-rose-900/80 px-1 text-xs font-normal">R</kbd></button>}
         {phase === "recording" && <span className="font-mono tabular-nums text-rose-300">{clockTime(seconds)}</span>}
         {phase === "ready" && <button type="button" onClick={() => { stopCamera(); setPhase("off"); }} className={btn}>Close camera</button>}
-        {phase !== "recording" && (
-          <label className="flex items-center gap-1.5 text-slate-300" title="The list fills once the camera has been allowed. Changing it restarts the camera.">Camera
-            <select value={cameraId} onFocus={() => void listCameras()} onChange={(e) => { const id = e.target.value; pickCamera(id); if (phase === "ready") { stopCamera(); void startCamera(id); } }} className={`${input} max-w-48`}>
-              <option value="">Browser default</option>
-              {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
-              {cameraId && !cameras.some((c) => c.deviceId === cameraId) && <option value={cameraId}>Last picked camera</option>}
-            </select>
-          </label>
-        )}
-        {phase !== "recording" && (
-          <label className="flex items-center gap-1.5 text-slate-300" title="A second camera on your face: the take shows it as a circle in a corner, cut round your face. Keep this tab in front while recording.">Face camera
-            <select value={faceId} onFocus={() => void listCameras()} onChange={(e) => { const id = e.target.value; pickFace(id); if (phase === "ready") { setProblem(""); if (id) void openFace(id); else { faceStream.current?.getTracks().forEach((t) => t.stop()); faceStream.current = null; setFaceOpen(false); } } }} className={`${input} max-w-48`}>
-              <option value="">None</option>
-              {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
-              {faceId && !cameras.some((c) => c.deviceId === faceId) && <option value={faceId}>Last picked camera</option>}
-            </select>
-          </label>
-        )}
-        {phase !== "recording" && faceId && (
-          <>
-            <label className="flex items-center gap-1.5 text-slate-300">Face corner
-              <select value={faceLook.corner} onChange={(e) => setFaceLook({ corner: e.target.value as FaceLook["corner"] })} className={input}>{FACE_CORNERS.map((c) => <option key={c} value={c}>{CORNER_WORDS[c]}</option>)}</select>
-            </label>
-            <label className="flex items-center gap-1.5 text-slate-300">Face size
-              <select value={faceLook.size} onChange={(e) => setFaceLook({ size: e.target.value as FaceLook["size"] })} className={input}>{FACE_SIZES.map((s) => <option key={s} value={s}>{FACE_SIZE_WORDS[s]}</option>)}</select>
-            </label>
-          </>
-        )}
-        {phase !== "recording" && <RecordInputSelect onPick={() => void switchMic()} />}
-        {phase !== "recording" && <RecordSoundSelect sound={sound} />}
-        <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
-        <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera and the take. Not while recording: Export with overlay puts them in the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
-          <input type="checkbox" checked={readNeck} onChange={(e) => { setReadNeck(e.target.checked); if (e.target.checked) setReadCv(false); }} className="accent-sky-500" /> Read the neck
-        </label>
-        <label className="flex items-center gap-1.5 text-slate-300" title="Finds the fret markers with OpenCV and draws each fret with its number above and below. Turns Read the neck off. OpenCV downloads the first time, about 10 MB.">
-          <input type="checkbox" checked={readCv} onChange={(e) => { setReadCv(e.target.checked); if (e.target.checked) setReadNeck(false); }} className="accent-sky-500" /> Read the neck (OpenCV)
-        </label>
       </div>
-      {readNeck && <FxControls fx={fx} set={setFx} />}
-      {readCv && <CvControls cv={cvFx} set={setCvFx} />}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-300">
-        <label className="flex items-center gap-1.5">Place
-          <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
-        </label>
-        <label className="flex items-center gap-1.5" title={free ? "With Free, drag a bottom corner of the tool to size it." : undefined}>Size
-          <select value={look.size} disabled={free} onChange={(e) => setLook({ size: e.target.value as Look["size"] })} className={`${input} disabled:opacity-40`}>{SIZES.map((s) => <option key={s} value={s}>{SIZE_WORDS[s]}</option>)}</select>
-        </label>
-        <label className="flex items-center gap-1.5">Background
-          <select value={look.bg} onChange={(e) => setLook({ bg: e.target.value as Look["bg"] })} className={input}>{BGS.map((b) => <option key={b} value={b}>{BG_WORDS[b]}</option>)}</select>
-        </label>
-        <label className="flex items-center gap-1.5" title={canHide ? "With the controls hidden, press Space to start and stop the tool." : "This tool's controls can't be hidden yet."}>
-          <input type="checkbox" checked={canHide ? controlsShown : true} disabled={!canHide} onChange={(e) => setControlsShown(e.target.checked)} className="accent-emerald-500" /> Tool controls
-        </label>
-        {free && <span className="text-xs text-slate-500">Drag the bar on top of the tool to move it, and a bottom corner to size it.</span>}
-        {canHide && !controlsShown && <span className="text-xs text-slate-500">Press Space to start and stop the tool.</span>}
+      <div className="grid max-w-5xl gap-3 md:grid-cols-2">
+        {phase !== "recording" && (
+          <fieldset className={group}>
+            <legend className={legend}>Cameras</legend>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <label className="flex items-center gap-1.5 text-slate-300" title="The list fills once the camera has been allowed. Changing it restarts the camera.">Camera
+                <select value={cameraId} onFocus={() => void listCameras()} onChange={(e) => { const id = e.target.value; pickCamera(id); if (phase === "ready") { stopCamera(); void startCamera(id); } }} className={`${input} max-w-48`}>
+                  <option value="">Browser default</option>
+                  {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
+                  {cameraId && !cameras.some((c) => c.deviceId === cameraId) && <option value={cameraId}>Last picked camera</option>}
+                </select>
+              </label>
+              <label className="flex items-center gap-1.5 text-slate-300" title="A second camera on your face: the take shows it as a circle in a corner, cut round your face. Keep this tab in front while recording.">Face camera
+                <select value={faceId} onFocus={() => void listCameras()} onChange={(e) => { const id = e.target.value; pickFace(id); if (phase === "ready") { setProblem(""); if (id) void openFace(id); else { faceStream.current?.getTracks().forEach((t) => t.stop()); faceStream.current = null; setFaceOpen(false); } } }} className={`${input} max-w-48`}>
+                  <option value="">None</option>
+                  {cameras.map((c, i) => <option key={c.deviceId} value={c.deviceId}>{c.label || `Camera ${i + 1}`}</option>)}
+                  {faceId && !cameras.some((c) => c.deviceId === faceId) && <option value={faceId}>Last picked camera</option>}
+                </select>
+              </label>
+              {faceId && (
+                <>
+                  <label className="flex items-center gap-1.5 text-slate-300">Face corner
+                    <select value={faceLook.corner} onChange={(e) => setFaceLook({ corner: e.target.value as FaceLook["corner"] })} className={input}>{FACE_CORNERS.map((c) => <option key={c} value={c}>{CORNER_WORDS[c]}</option>)}</select>
+                  </label>
+                  <label className="flex items-center gap-1.5 text-slate-300">Face size
+                    <select value={faceLook.size} onChange={(e) => setFaceLook({ size: e.target.value as FaceLook["size"] })} className={input}>{FACE_SIZES.map((s) => <option key={s} value={s}>{FACE_SIZE_WORDS[s]}</option>)}</select>
+                  </label>
+                </>
+              )}
+            </div>
+          </fieldset>
+        )}
+        {phase !== "recording" && (
+          <fieldset className={group}>
+            <legend className={legend}>Sound</legend>
+            <RecordInputSelect onPick={() => void switchMic()} />
+            <RecordSoundSelect sound={sound} />
+          </fieldset>
+        )}
+        <fieldset className={group}>
+          <legend className={legend}>Tool</legend>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-slate-300">
+            <label className="flex items-center gap-1.5 text-slate-300"><input type="checkbox" checked={toolShown} onChange={(e) => setToolShown(e.target.checked)} className="accent-emerald-500" /> Tool over the camera</label>
+            <label className="flex items-center gap-1.5">Place
+              <select value={look.place} onChange={(e) => setLook({ place: e.target.value as Look["place"] })} className={input}>{PLACES.map((p) => <option key={p} value={p}>{PLACE_WORDS[p]}</option>)}</select>
+            </label>
+            <label className="flex items-center gap-1.5" title={free ? "With Free, drag a bottom corner of the tool to size it." : undefined}>Size
+              <select value={look.size} disabled={free} onChange={(e) => setLook({ size: e.target.value as Look["size"] })} className={`${input} disabled:opacity-40`}>{SIZES.map((s) => <option key={s} value={s}>{SIZE_WORDS[s]}</option>)}</select>
+            </label>
+            <label className="flex items-center gap-1.5">Background
+              <select value={look.bg} onChange={(e) => setLook({ bg: e.target.value as Look["bg"] })} className={input}>{BGS.map((b) => <option key={b} value={b}>{BG_WORDS[b]}</option>)}</select>
+            </label>
+            <label className="flex items-center gap-1.5" title={canHide ? "With the controls hidden, press Space to start and stop the tool." : "This tool's controls can't be hidden yet."}>
+              <input type="checkbox" checked={canHide ? controlsShown : true} disabled={!canHide} onChange={(e) => setControlsShown(e.target.checked)} className="accent-emerald-500" /> Tool controls
+            </label>
+            {free && <span className="text-xs text-slate-500">Drag the bar on top of the tool to move it, and a bottom corner to size it.</span>}
+            {canHide && !controlsShown && <span className="text-xs text-slate-500">Press Space to start and stop the tool.</span>}
+          </div>
+        </fieldset>
+        <fieldset className={group}>
+          <legend className={legend}>Neck</legend>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <label className="flex items-center gap-1.5 text-slate-300" title="Draws the neck markers, your fingertips and the effects ticked over the camera and the take. Not while recording: Export with overlay puts them in the take. Needs ArUco markers (ARUCO_MIP_36h12) stuck on the guitar.">
+              <input type="checkbox" checked={readNeck} onChange={(e) => { setReadNeck(e.target.checked); if (e.target.checked) setReadCv(false); }} className="accent-sky-500" /> Read the neck
+            </label>
+            <label className="flex items-center gap-1.5 text-slate-300" title="Finds the fret markers with OpenCV and draws each fret with its number above and below. Turns Read the neck off. OpenCV downloads the first time, about 10 MB.">
+              <input type="checkbox" checked={readCv} onChange={(e) => { setReadCv(e.target.checked); if (e.target.checked) setReadNeck(false); }} className="accent-sky-500" /> Read the neck (OpenCV)
+            </label>
+          </div>
+          {readNeck && <FxControls fx={fx} set={setFx} />}
+          {readCv && <CvControls cv={cvFx} set={setCvFx} />}
+        </fieldset>
       </div>
       {phase === "ready" && take && !take.saved && <p className="text-xs text-slate-500">A new recording replaces the take below.</p>}
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
