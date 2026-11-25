@@ -77,6 +77,7 @@ An exercise opened on `/admin/content/library` (its row, `LibraryItem` → `Exam
 | `model/recordPlan.ts` | Pure. `LATER_PLANS`, `NO_VIDEO`, `recordPlan` (the stages with their numbered rows, the later rows, the tools with none), `blocksUsing`, `minutesLeft`. Re-exports scripts.ts. |
 | `model/clock.ts` | Pure. The overlay's clock: `Sample`, `Piece`, `squeeze`, `beatAt`, `readPieces`. |
 | `model/takeNotes.ts` | Pure. `clickClock` (a take made with the click only) and `takeNotes`: a tool's notes (`KitNote`, `exercises/cues/cueNotes.ts`) timed onto a take's clock, repeated each loop, none while the tool is stopped. |
+| `model/takeKey.ts` | Pure. `takeKey` (what a take is kept under: `<block id>:<cell>`, else `tool:<tool>`; the ticked steps never count), `KeptTake`, `TakeLog`, `readKeptTake` (a stored record as a kept take; also reads an old riff Take panel record). |
 | `model/overlay.ts` | Pure. `Overlay` (`{ tool, clock, look? }`), `Look`, `Box`, `fitBox`, `DEFAULT_BOX`, `NARROW_BOX`, `readLook`, `DEFAULT_LOOK`, `PLAYBACK_LOOK`, `OVERLAY_TOOLS`, `hasOverlay`, `readOverlay`. |
 | `model/faceCircle.ts` | Pure. The face camera's circle: `FaceLook` (`corner`, `size`), `circleAt`, `cropFor` (a square round the face, `FACE_ZOOM` times its box, inside the picture), `steady` (holds the zoom and place through small changes), `ease`, `median`, `readFaceLook`. |
 | `model/keptCells.ts` | Pure. Which of a block's own video entries stay when its cells change (the seed's rule). |
@@ -97,6 +98,7 @@ An exercise opened on `/admin/content/library` (its row, `LibraryItem` → `Exam
 | `ui/OverlayVideo.tsx` | React. A content video with its tool drawn over it (`OverlayDrawProvider`, `useDrawTool`, `DrawTool`, `ToolOverVideo`, **Tool over the video**). |
 | `client/faceCam.ts` | Browser. `startFaceCam`: the guitar camera and the face circle on one canvas, and its track for the take (Face camera, above). |
 | `client/burn.ts` | Browser. `burnOverlay` and `canBurn`: Export with overlay (above). |
+| `client/takes.ts` | Browser. Takes kept in this browser (IndexedDB `musickit-dev-riff-takes`, store `takes`, the riff Take panel's own): `saveKeptTake`, `getKeptTake(key, oldKey?)`, `deleteKeptTake`. |
 | `client/api.ts` | The browser side: `listContentVideos`, `editContentVideo`, `retickContentVideo`, `deleteContentVideo` (never throw: `{ ok, value }` or `{ ok: false, error }`), `saveContentVideo` (the file with `upload()` from `@vercel/blob/client`, then the row; never throws; `fileUp` when the file is up and only the row is missing; a 409 counts as saved when `GET /api/content-videos` lists the id), `lookUpVideos`, `contentVideoFileUrl`, `UPLOADED_NOT_SAVED`. Every fetch has a timeout except the file transfer itself (up to 1 GB). |
 
 ## Routes (`src/app/api/content-videos`)
