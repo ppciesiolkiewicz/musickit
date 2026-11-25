@@ -1539,6 +1539,22 @@ ContentVideos10: [NEW 2026-11-25] Later, only if editing beyond video is allowed
 ContentVideos11: [NEW 2026-11-25] Riffs edited in the app (spec §5a, build step 2b, after ContentVideos2): the riff maker
 saves key, scale, notes, tempo and amp to the database (content permission, production too) with riff_edited_at/by;
 db:seed-blocks keeps an edited riff; npm run db:pull-riffs writes edited riffs back into their seed files.
+ContentVideos12: [NEW 2026-11-25] Video topics: one level shared by several tools, so one video covers an idea across tools
+(user, after costing tool videos against block videos). Plan for now: one generic video per tool with All levels (about
+34 videos, about 5 h; leave out staff, backing-track and backing-band), later split into level groups. Today a level is
+`<ladder id>:<key>` of one tool's own ladder (TOOL_LADDERS in model/slot.ts), and a video belongs to one tool
+(made_for `tool:<key>`, content_videos.tool). Most of the tools used most have no ladder at all (chord-shapes, scale-neck,
+position-neck, arpeggio-neck, caged-neck, strum-along, play-along chord-steps and solo-over), so for them there is
+nothing to split by. Wanted: a topic that more than one tool reads from its props, e.g. "pentatonic position 1" read by
+scale-neck, position-neck and a solo-over play-along, or "7th arpeggios" read by arpeggio-neck and chord-shapes; a video
+ticked for a topic shows on every tool cell that reads it. Example of what it fixes: arpeggio-neck has 24 seed cells over
+14 chords and 5 views, which one video can't match.
+Open: is a topic a new kind of ladder (LADDERS with a `read` per tool) or a separate list; which wins when a cell reads
+both a tool level and a topic (the more specific first, like block before tool today); does a topic video still need a
+tool for its overlay (the overlay draws one tool's settings); the "one video per level" rule becomes one per topic; how
+Tools videos shows a topic (its own group, listing the tools it spans) and what the record page draws when the topic spans
+tools (pick one tool to show over the camera). Brainstorm and write a design before building. Topics a player reads are
+teaching text (teaching-voice).
 
 TaskSeries Upkeep: keeping the stack up to date (2026-11-18)
 Upkeep1: [NEW 2026-11-18] Next.js security upgrade. `next dev` stops on its first start with a security advisory and
