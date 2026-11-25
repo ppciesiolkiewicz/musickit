@@ -76,7 +76,7 @@
       },
       {
         "type": "section",
-        "heading": "A 13 on the 5 chord",
+        "heading": "A 13 on the 5th chord",
         "minutes": 3,
         "choice": {
           "options": [
@@ -94,7 +94,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: three chords, played twice. The second time, the 5 chord in the middle is a 13th chord and the other two stay as they were.\nOnce you hear the high note come in, look away from the chord boxes and call out \"13\" when it does.\nThen listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the 13th is still the 6th of the 5 chord, an octave up."
+            "text": "Press Play below to start the backing track: three chords, played twice. The second time, the 5th chord in the middle is a 13th chord and the other two stay as they were.\nOnce you hear the high note come in, look away from the chord boxes and call out \"13\" when it does.\nThen listen in another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the 13th is still the 6th of the 5th chord, an octave up."
           },
           {
             "type": "tool",

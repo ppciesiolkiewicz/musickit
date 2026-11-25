@@ -57,6 +57,8 @@ export const GLOSSARY: Term[] = [
   { id: "beat", label: "Beat", forms: ["beat"], short: "The steady pulse you tap your foot to.", href: "/course/1/steady-beat" },
   { id: "bar", label: "Bar", forms: ["bar"], short: "A group of beats, usually four, counted \"1 2 3 4\" and then again.", href: "/course/1/steady-beat" },
   { id: "spider", label: "Spider", forms: ["spider"], short: "A finger drill: one finger per fret, walking across all six strings.", href: "/course/1/spider" },
+  { id: "muscle-memory", label: "Muscle memory", forms: ["muscle memory"], short: "What your hands learn from repeating a move slowly and the same way each time: after enough repeats they make it without you thinking about it.", href: "/course/1/spider" },
+  { id: "a-cappella", label: "A cappella", forms: ["a cappella", "a capella", "acapella"], short: "Singing with nothing playing under your voice: no tune, no chords, no drone. You keep the key and the beat by yourself.", href: "/course/3/step-melodies" },
   { id: "alternate-picking", label: "Alternate picking", forms: ["alternate picking"], short: "Picking down, up, down, up, never two the same way in a row.", href: "/course/1/spider" },
   { id: "hammer-on", label: "Hammer-on", forms: ["hammer-on"], short: "Sounding a higher note by tapping a finger down on the string, without picking.", href: "/course/4/legato" },
   { id: "pull-off", label: "Pull-off", forms: ["pull-off"], short: "Sounding a lower note by flicking a finger off the string, without picking.", href: "/course/4/legato" },

@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. A power chord has two notes, a root and its 5th, with the root often played again on top. The three boxes show the same shape of the fingers, moved to other strings or another fret.\nStrum only the strings with dots, and rest the side of your picking hand on the other strings to keep them quiet.\nKeep going until each chord sounds clean, with no other string ringing."
+            "text": "Press a chord box below to hear the chord. A power chord has two notes, a root and its 5th, with the root often played again on top. The three boxes show the same shape of the fingers, moved to other strings or another fret.\nStrum only the strings with dots, and rest the side of your picking hand on the other strings to keep them quiet.\nPractice until each chord sounds clean, with no other string ringing."
           },
           {
             "type": "tool",
@@ -51,7 +51,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play. Strum down on every beat, one bar for each chord.\nKeep going until the shape moves to the next chord without your hand opening up."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play. Strum down on every beat, one bar for each chord.\nPractice until the shape moves to the next chord without your hand opening up."
           },
           {
             "type": "tool",

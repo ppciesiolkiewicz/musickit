@@ -48,7 +48,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below, the five lines of music, shows the same seven letters starting on {{a}}: tap a note to hear it. Tap up the staff from the lowest note and say each letter, then come back down.\nKeep going until the letters come as easily on the way down as on the way up."
+            "text": "The staff below shows the same seven letters starting on {{a}}: tap a note to hear it. Tap up the staff from the lowest note and say each letter, then come back down.\nPractice until the letters come as easily on the way down as on the way up."
           },
           {
             "type": "tool",

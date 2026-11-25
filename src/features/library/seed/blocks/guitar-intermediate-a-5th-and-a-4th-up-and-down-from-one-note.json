@@ -93,7 +93,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Now {{1}} is on the A string and both intervals come in turn: the 5th up and down, then from a new bar the 4th up and down.\nIn another key {{1}} moves to another fret, and the other notes keep their places around it."
+            "text": "Press Play below to start the backing track. Now {{1}} is on the A string and both intervals come in turn: the 5th up and down, then from a new bar the 4th up and down.\n{{?key}}In another key {{1}} moves to another fret, and the other notes keep their places around it."
           },
           {
             "type": "tool",

@@ -8,7 +8,7 @@
   },
   "note": "Track minor-colours (theory-modes), step 2: the 5 chord in minor, minor in natural minor and major with the raised 7th, heard as two chords, then in a backing track that plays one and then the other, then with its 7th in two more keys.",
   "exercise": {
-    "title": "The 5 chord in minor",
+    "title": "The 5th chord in minor",
     "area": "theory",
     "tags": [
       "ear",
@@ -18,7 +18,7 @@
     "concepts": [
       "minor-colours"
     ],
-    "why": "The raised 7th of harmonic minor is the 3rd of the 5 chord, so it turns that chord from minor to major and makes it lead back to the 1.",
+    "why": "The raised 7th of harmonic minor is the 3rd of the 5th chord, so it turns that chord from minor to major and makes it lead back to the 1.",
     "learnBefore": [
       "/course/9/harmonic-minor"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. In A minor the 5 chord is Em in natural minor and E in harmonic minor: press Em, then E, and listen for the one note that rises.\nThen press each of them with Am after it."
+            "text": "Press a chord box below to hear the chord. In A minor the 5th chord is Em in natural minor and E in harmonic minor: press Em, then E, and listen for the one note that rises.\nThen press each of them with Am after it."
           },
           {
             "type": "tool",
@@ -75,7 +75,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: four bars with the minor 5 chord, then four with the major one, round and round. Listen to the bar before home in each half.\nKeep going until you can say which 5 chord is playing without the chord boxes."
+            "text": "Press Play below to start the backing track: four bars with the minor 5th chord, then four with the major one, round and round. Listen to the bar before home in each half.\nPractice until you can say which 5th chord is playing without the chord boxes."
           },
           {
             "type": "tool",
@@ -118,7 +118,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the 1, the 4, the major 5 with its 7th, and home. Call out \"five\" when the 5 chord arrives and \"one\" when the backing track comes home.\nOnce you hear the 5 chord coming before its box lights, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the major 5 still leads to the 1."
+            "text": "Press Play below to start the backing track: the 1, the 4, the major 5 with its 7th, and home. Call out \"five\" when the 5th chord arrives and \"one\" when the backing track comes home.\nOnce you hear the 5th chord coming before its box lights, try another key. Use the Key selector below to change the key, then press Play to start the backing track again.\nWhen you change the key, the chords are new but the major 5 still leads to the 1."
           },
           {
             "type": "tool",

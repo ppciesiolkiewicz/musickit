@@ -8,7 +8,7 @@ import { View as ChoiceChips } from "@/features/exercises/basics/choice";
 import HeadphonesNotice from "@/features/stage/render/HeadphonesNotice";
 import { ExerciseStep, StartExercise } from "@/components/practice/exerciseStep";
 import { noteRootFor } from "../../model/noteText";
-import { drawnParts, keyBarValue, pickAt, type DrawnPart, type Picks } from "../../model/choice";
+import { drawnParts, follows, keyBarValue, pickAt, type DrawnPart, type Picks } from "../../model/choice";
 import { applyGiven, selectorsOf, shownTitle, written, type At, type Given } from "../../model/moves";
 import type { Choice, PlainCell } from "../../model/tools";
 import type { Block } from "../../model/types";
@@ -18,7 +18,7 @@ import KeyBar from "./KeyBar";
 import { NoteText } from "./NoteText";
 import ToolBoundary from "./ToolBoundary";
 import ToolFigure from "./ToolFigure";
-import { selectorLine } from "./selectorLine";
+import { selectorLine, slowTempoLine } from "./selectorLine";
 
 /**
  * The reader of a block: its title, then its cells as an article (text in a column, tools as figures, each section a step
@@ -66,6 +66,9 @@ function ToSectionTop() {
  * filled, and, for each part with more than one value, a row of chips before the block's first tool with one line
  * under it saying what the chips do. With nothing given it is drawn as written, with no chips. The host may hold where
  * the chips stand (`at`, `onAt`), so a title outside the body follows them; else the body holds it.
+ *
+ * Before the first tool that sounds a tempo, a block at a very slow one gets the app's line saying the tempo is meant and
+ * why (`slowTempoLine`).
  */
 export function BlockBody({ block: asWritten, size, keyBar = false, address = "ex", given, at, onAt }: { block: Block; size: ReaderSize; /** draw an open block choice as the key bar */ keyBar?: boolean; /** which block, for a cell aside */ address?: string; /** the version to draw a block with moves in */ given?: Given | null; /** where the version's chips stand, when the host holds it */ at?: At; onAt?: (at: At) => void }) {
   const aside = useContext(CellAsideContext);
@@ -127,18 +130,25 @@ export function BlockBody({ block: asWritten, size, keyBar = false, address = "e
     return aside ? <ToolFigure key={sel.part} type="choice" look="framed" measure={measure}>{row}</ToolFigure> : <div key={sel.part} className={`pt-1 ${measure}`}>{row}</div>;
   });
   const firstBlockTool = flat.findIndex((c) => c.type === "tool");
+  // the first tool that sounds a tempo, and the line about it when that tempo is very slow
+  const tempoOf = (c: PlainCell): number | null => (c.type === "tool" && follows(c.tool, "bpm") && "bpm" in c.tool && typeof c.tool.bpm === "number" ? c.tool.bpm : null);
+  const firstTempoTool = flat.findIndex((c) => tempoOf(c) !== null);
+  const slow = firstTempoTool < 0 ? null : slowTempoLine(tempoOf(flat[firstTempoTool]));
+  const slowNote = (i: number) => (i === firstTempoTool && slow ? <p data-slow-tempo className={`${measure} border-l-2 border-sky-400/50 pl-3 text-xs leading-relaxed text-slate-400`}>{slow}</p> : null);
   // the part's items: the chips, then "Start exercise" (shown only when there is more than one thing to start), before its first tool
   const items = (p: DrawnPart) => {
     const firstTool = p.cells.findIndex((c) => c.type === "tool");
     return p.cells.map((c, j) => {
       const i = p.from + j;
       const node = withAside(item(p, c, i), i);
-      if (j !== firstTool) return node;
+      // the tempo tool is not the part's first tool: the line still sits right above it
+      if (j !== firstTool) return i === firstTempoTool && slow ? <Fragment key={i}>{slowNote(i)}{node}</Fragment> : node;
       return (
         <Fragment key={i}>
           {i === firstBlockTool && givenRows}
           {i === firstBlockTool && chipRow("block", block.choice)}
           {chipRow(p.id, p.chips)}
+          {slowNote(i)}
           <StartExercise />
           {node}
         </Fragment>

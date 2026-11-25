@@ -84,7 +84,7 @@ function ToolView({ tool, voice, input }: { tool: PlanTool; voice?: Voice; input
     case "arpeggio-neck":
       return <ArpeggioNeck chord={tool.chord} boxes={tool.boxes} placement={tool.placement} part={tool.part} enable={tool.enable} highlight={tool.highlight} mute={tool.mute} hide={tool.hide} others={tool.others} show={tool.show} roots={tool.roots} />;
     case "melody-singer":
-      return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
+      return <MelodySinger tune={tool.tune} pc={tool.key} voice={tool.voice ?? voice} bpm={tool.bpm} chords={tool.chords} metronome={tool.metronome} />;
     case "run-singer":
       return <RunSinger run={tool.run} voice={tool.voice ?? voice} chords={tool.chords} metronome={tool.metronome} />;
     case "string-singer":

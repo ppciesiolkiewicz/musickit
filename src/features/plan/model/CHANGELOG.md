@@ -10,6 +10,17 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 
 ## Prompt
 
+### 20 (2026-11-25)
+
+- Writing rules: the staff is never explained in the text, at any level ("the staff, the five lines of music" is gone): the app explains the word.
+- Writing rules: the line that says when a drill is got starts "Practice until ..." or names the goal, never "Stay with it until" or "Keep going until"; hand repetition names muscle memory.
+- Writing rules: the prompt now names the chord token (`{{chord:I}}`), and a chord's number is a shortcut: never "the 1 chord" or "the 1, 4 and 5"; the first time, each chord the long way ("{{chord:I}} is the 1st chord of the key, built on {{1}}"), then the token or an ordinal.
+- `melody-singer` has a new prop, `bpm` (40 to 120; the tune plays at 90 with none), and follows a tempo choice or move.
+- Writing rules: in an exercise with moves, the line about another key opens with `{{?key}}` (another tempo: `{{?bpm}}`), and the app shows it only when that selector is there. The text never explains a slow tempo: the app writes that line at 50 bpm or under.
+- Writing rules: slow first (a beginner's sung tune or backing track at 40 to 65 bpm, starting at 40), and a tune in a melody-singer learned in named stages: with the tune, the tune muted (Tune) over the chords, the chords muted too (Chords), a cappella.
+- Writing rules: the tool shows what the text says it shows (a finger-pattern about fingers has no `show: "pick"`).
+- "Find models in the library": no more `find_plans` and `get_plan` (the plan library is gone from the database, migration 0045); the library holds blocks only.
+
 ### 19 (2026-11-24)
 
 - `interval-singer` has a new prop, `playSwitch`: the tool now shows a Plays switch ("Do", "Do and the note") that starts at `play`, so the student picks what sounds before they sing. `playSwitch: false` leaves the switch out and `play` holds, for an exercise that is about finding the note from Do alone, or about copying it.
@@ -127,6 +138,18 @@ Add an entry here in the same commit that raises a version, newest first: the ve
 Everything before the prompt had a version.
 
 ## Teaching
+
+### 12 (2026-11-25)
+
+From the user's page comments on /demo and /dev/library (tasks.txt SeedWording3 to 8).
+
+- `teaching-voice`, "What we teach for": the line that says when a drill is got starts "Practice until …" or names the goal ("The goal of this practice is …"), never "Stay with it until" or "Keep going until". Hand repetition names muscle memory, a new explained word. Slow first: a beginner's sung tune or first pass is 40 to 65 bpm, starting at 40; the text never explains a slow tempo, since the app writes that line at 50 bpm or under.
+- `teaching-voice`, "Sentences": a chord's number is a shortcut too. No bare "the 1 chord" or "the 1, 4 and 5"; the first time, each chord the long way with the scale note it is built on, then the chord token or an ordinal ("the 1st chord").
+- `teaching-voice`, "Words": the staff is never explained in the text (the exception for a new or beginner learner, "the staff, the five lines of music", is dropped). A chord in exercise text is a chord token (`{{chord:I}}`). A tune is learned in stages, each said with its button: with the tune, the tune muted (Tune) over the chords, the chords muted too (Chords), a cappella (a new explained word, only for the stage with every sound off).
+- `teaching-voice`, "Words about the app", and `exercise-example`, "Moves": the line that says what stays the same in another key opens with `{{?key}}` (another tempo: `{{?bpm}}`), so the app shows it only when that selector is there.
+- `teaching-voice`, "Picture and text agree": what the text says the tool shows is what the tool is set to show (fingers in the text, the finger row under the tab).
+- `exercise-example` and `review-teaching-text` carry the same in their rules and in what usually fails; `course-article` changes only its version. The seed README's writing rules and the prompt (version 20) say the same.
+- `exercise-example`: the library tools it names are `find_blocks` and `get_block`; a whole week is read from a seed plan file (`find_plans` and `get_plan` are gone).
 
 ### 11 (2026-11-24)
 

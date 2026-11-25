@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Each box shows where the fingers go, and the number on a dot is the finger to use.\nFret G and strum it once, then C, then D, then G again, slowly.\nKeep going until every string rings in each chord."
+            "text": "Press a chord box below to hear the chord. Each box shows where the fingers go, and the number on a dot is the finger to use.\nFret G and strum it once, then C, then D, then G again, slowly.\nPractice until every string rings in each chord."
           },
           {
             "type": "tool",
@@ -78,7 +78,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Strum down on every beat, one bar for each chord, and start moving your fingers to the next chord on beat 4.\nKeep going until the new chord sounds on beat 1 with no gap before it."
+            "text": "Press Play below to start the metronome. Strum down on every beat, one bar for each chord, and start moving your fingers to the next chord on beat 4.\nPractice until the new chord sounds on beat 1 with no gap before it."
           },
           {
             "type": "tool",

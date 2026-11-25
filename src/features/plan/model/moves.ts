@@ -137,9 +137,17 @@ export function selectorsOf(block: Pick<Block, "moves">, given: Given | null | u
 /** The tempos a moved tool may land on (the widest range a tool's parser takes). */
 const MIN_TOOL_BPM = 30, MAX_TOOL_BPM = 240;
 
-const PARAM = /\{\{=(key|bpm)\}\}/g;
+const PARAM = /\{\{[=?](key|bpm)\}\}/g;
+/** A line that opens with `{{?key}}` or `{{?bpm}}`: it is about what that selector changes, so it is drawn only when the selector is. */
+const WHEN = /^\s*\{\{\?(key|bpm)\}\}\s*/;
+/** Text with its `{{?part}}` lines kept (the mark taken off) for the parts in `shown`, and left out for the rest. */
+export const whenLines = (text: string, shown: ReadonlySet<MovePart>): string =>
+  !text.includes("{{?") ? text : text.split("\n").flatMap((line) => {
+    const m = WHEN.exec(line);
+    return !m ? [line] : shown.has(m[1] as MovePart) ? [line.slice(m[0].length)] : [];
+  }).join("\n");
 /** Text with its params filled; a param with no value is left out with the space before it. */
-const fill = (text: string, values: Record<MovePart, string | null>): string =>
+const fillParams = (text: string, values: Record<MovePart, string | null>): string =>
   text.includes("{{=") ? text.replace(/ ?\{\{=(key|bpm)\}\}/g, (m, p: MovePart) => (values[p] === null ? "" : `${m.startsWith(" ") ? " " : ""}${values[p]}`)) : text;
 
 const CHORD_PARAM = /\{\{chord:\s*([^{}\s]+)\}\}/g;
@@ -152,11 +160,20 @@ const fillChords = (text: string, key: number | null): string =>
  * the given `now`, or the block as written), by the distance from the block's written key or its starting tempo, and
  * the params in the title, headings, text and lists (`{{=key}}`, `{{=bpm}}`) filled with those values, and the chords
  * in the title and headings (`{{chord:ii7}}`) named in the key. A tool keeps its
- * own value for a part in `pinned`. A block with no `moves` is returned as it is. Never stored: drawn each time.
+ * own value for a part in `pinned`. A line of text that opens with `{{?key}}` or `{{?bpm}}` is drawn only when that part
+ * has a selector (`selectorsOf`: the version holds more than one value), with the mark taken off. A block with no
+ * `moves` is returned as it is, less any such line. Never stored: drawn each time.
  */
 export function applyGiven<B extends Pick<Block, "title" | "moves" | "cells">>(block: B, given: Given | null | undefined, at: At = {}): B {
   const { moves } = block;
-  if (!moves) return block;
+  const shown = new Set(selectorsOf(block, given).map((s) => s.part));
+  const fill = (text: string, values: Record<MovePart, string | null>): string => fillParams(whenLines(text, shown), values);
+  if (!moves) {
+    const texts = (c: PlainCell): string[] => (c.type === "text" ? [c.text] : c.type === "list" ? c.items : []);
+    if (!block.cells.some((c) => (c.type === "section" ? c.cells.flatMap(texts) : texts(c)).some((t) => t.includes("{{?")))) return block;
+    const bare = <T extends PlainCell>(c: T): T => (c.type === "text" ? { ...c, text: whenLines(c.text, shown) } : c.type === "list" ? { ...c, items: c.items.map((i) => whenLines(i, shown)) } : c);
+    return { ...block, cells: block.cells.map((c): Cell => (c.type === "section" ? { ...c, cells: c.cells.map(bare) } : bare(c))) };
+  }
   const from = written(block);
   const pick = (values: number[] | undefined, part: MovePart): number | null => (values?.length ? (values[at[part] ?? 0] ?? values[0]) : null);
   const key = (moves.key && given?.keys ? pick([...given.keys.now, ...given.keys.back], "key") : null) ?? from.key;
@@ -195,7 +212,7 @@ const PARAM_WORD: Record<MovePart, string> = { key: "key", bpm: "tempo" };
 export function paramWarnings(block: Pick<Block, "title" | "moves" | "cells">): string[] {
   const texts = [block.title, ...block.cells.flatMap((c) => (c.type === "section" ? [c.heading, ...c.cells] : [c])).flatMap((c) => (typeof c === "string" ? [c] : c.type === "text" ? [c.text] : c.type === "list" ? c.items : []))];
   const named = new Set(texts.flatMap((t) => [...t.matchAll(PARAM)].map((m) => m[1] as MovePart)));
-  const out = MOVE_PARTS.filter((p) => named.has(p) && !(p === "key" ? block.moves?.key : block.moves?.bpm)).map((p) => `text names {{=${p}}} but the block has no ${PARAM_WORD[p]} move.`);
+  const out = MOVE_PARTS.filter((p) => named.has(p) && !(p === "key" ? block.moves?.key : block.moves?.bpm)).map((p) => `text names {{=${p}}} or {{?${p}}} but the block has no ${PARAM_WORD[p]} move.`);
   const headings = [block.title, ...block.cells.flatMap((c) => (c.type === "section" ? [c.heading] : []))];
   if (!block.moves?.key && headings.some((h) => h.includes("{{chord:"))) out.push("a title or heading names {{chord:…}} but the block has no key move: name the chord in words there.");
   return out;

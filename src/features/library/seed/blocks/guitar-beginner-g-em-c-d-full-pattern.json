@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play, and the arrows in it show the strums: down on each beat and up between the beats.\nStrum down, up, down, up through the whole bar, one bar for each chord.\nKeep going until your hand swings evenly and never stops at a chord change."
+            "text": "Press Play below to start the metronome at {{=bpm}}. After a bar of count-in, the lit box shows the chord to play, and the arrows in it show the strums: down on each beat and up between the beats.\nStrum down, up, down, up through the whole bar, one bar for each chord.\nPractice until your hand swings evenly and never stops at a chord change."
           },
           {
             "type": "tool",
@@ -81,7 +81,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. The same pattern now goes round G, Em, C and D, one bar for each chord.\nChange chord during the last up strum of the bar, so the new chord is ready for the down strum on beat 1.\nStay with it until the pattern keeps going by itself while you think about the next chord."
+            "text": "Press Play below to start the metronome. The same pattern now goes round G, Em, C and D, one bar for each chord.\nChange chord during the last up strum of the bar, so the new chord is ready for the down strum on beat 1.\nPractice until the pattern keeps going by itself while you think about the next chord."
           },
           {
             "type": "tool",

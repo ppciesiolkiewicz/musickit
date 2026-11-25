@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows the spider: on each string, frets 5, 6, 7 and 8 with fingers 1, 2, 3 and 4, one note per beat.\nStart on the low E string and play the four notes on every string up to the high e string. Then come back down, one string at a time, with the same four notes on each. The row under the tab shows the finger for each note, and the note playing is lit.\nKeep going until your hand stays still and only the fingers move."
+        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows the spider: on each string, frets 5, 6, 7 and 8 with fingers 1, 2, 3 and 4, one note per beat.\nStart on the low E string and play the four notes on every string up to the high e string. Then come back down, one string at a time, with the same four notes on each. The row under the tab shows the finger for each note, and the note playing is lit.\nPractice until your hand stays still and only the fingers move."
       },
       {
         "type": "tool",

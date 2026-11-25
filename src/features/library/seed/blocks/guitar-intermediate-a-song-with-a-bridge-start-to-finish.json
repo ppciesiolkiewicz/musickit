@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track at {{=bpm}}: the Bridge, then the Chorus, round and round. The chords are yours, so strum down on every beat and change chord where a new box begins.\nWatch the last box of the Bridge, and have the first chord of the Chorus ready before it ends.\nKeep going until you get from the Bridge into the Chorus without a gap."
+            "text": "Press Play below to start the backing track at {{=bpm}}: the Bridge, then the Chorus, round and round. The chords are yours, so strum down on every beat and change chord where a new box begins.\nWatch the last box of the Bridge, and have the first chord of the Chorus ready before it ends.\nPractice until you get from the Bridge into the Chorus without a gap."
           },
           {
             "type": "tool",

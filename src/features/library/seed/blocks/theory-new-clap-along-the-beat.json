@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start below to begin a round at {{=bpm}}: the metronome counts one bar in, then a note comes on every beat. Press Space, or tap the lane, as each note reaches the line.\nA note turns green when your tap lands on the beat. When the round ends, press Play again below for another, and keep going until most notes turn green without you having to try hard."
+            "text": "Press Start below to begin a round at {{=bpm}}: the metronome counts one bar in, then a note comes on every beat. Press Space, or tap the lane, as each note reaches the line.\nA note turns green when your tap lands on the beat. When the round ends, press Play again below for another, and practice until most notes turn green without you having to try hard."
           },
           {
             "type": "tool",

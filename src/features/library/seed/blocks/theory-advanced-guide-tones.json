@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: Dm7, G7, then two bars of Cmaj7. Tap one note per chord on the staff under the backing track: {{4}} over Dm7, {{4}} again over G7, then {{3}} over Cmaj7.\n{{4}} is the 3rd of Dm7 and stays as the 7th of G7, then falls a half step to the 3rd of Cmaj7.\nKeep going until you tap each note as its chord arrives."
+            "text": "Press Play below to start the backing track: Dm7, G7, then two bars of Cmaj7. Tap one note per chord on the staff under the backing track: {{4}} over Dm7, {{4}} again over G7, then {{3}} over Cmaj7.\n{{4}} is the 3rd of Dm7 and stays as the 7th of G7, then falls a half step to the 3rd of Cmaj7.\nPractice until you tap each note as its chord arrives."
           },
           {
             "type": "tool",

@@ -67,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track again. This time the answer copies the rhythm of the question: as many notes, as long or as short, but other dots, and the last one a ringed {{1}}.\nIf you lose the rhythm, clap the question once, then play the answer.\nKeep going until an answer comes without you planning it."
+            "text": "Press Play below to start the backing track again. This time the answer copies the rhythm of the question: as many notes, as long or as short, but other dots, and the last one a ringed {{1}}.\nIf you lose the rhythm, clap the question once, then play the answer.\nPractice until an answer comes without you planning it."
           },
           {
             "type": "tool",

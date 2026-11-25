@@ -44,7 +44,7 @@
           },
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}}: after a bar of count-in, the lit box shows the chord to play. Strum down on every beat and count the bars out loud as you go round.\nKeep going until you feel the change to D7 coming before the box lights."
+            "text": "Press Play below to start the metronome at {{=bpm}}: after a bar of count-in, the lit box shows the chord to play. Strum down on every beat and count the bars out loud as you go round.\nPractice until you feel the change to D7 coming before the box lights."
           },
           {
             "type": "tool",

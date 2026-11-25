@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track and play the lit note on the neck, one per beat: each chord's root, 3rd, 5th and 3rd again. Am has a minor 3rd, {{b3}}; F, C and G have a major 3rd, {{3}}. Keep going until you can look away for a bar."
+            "text": "Press Play below to start the backing track and play the lit note on the neck, one per beat: each chord's root, 3rd, 5th and 3rd again. Am has a minor 3rd, {{b3}}; F, C and G have a major 3rd, {{3}}. Practice until you can look away for a bar."
           },
           {
             "type": "tool",

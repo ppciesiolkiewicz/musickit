@@ -48,8 +48,8 @@ Write with the `exercise-example` skill (it reads `teaching-voice` first) and ch
    its concepts; a warm-up needs neither, and says its `warmUpPart`), no choice sets a key or a tempo and no exercise with `moves` mentions a selector (`movesCheck.ts`), a named step that has a ladder has a tool sitting on it, and a tool of a concept with steps sets its
    level or stage, and no exercise names another day or week.
    Then `npm run -s gen:json-index`, so the folder's `index.gen.ts` imports the new file.
-4. `npm run -s db:seed-plans`, then `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first). A block
-   already in the database whose file changed gets its `revision` raised by one; an unchanged file changes nothing.
+4. A block: `npm run -s db:seed-blocks` (check `DATABASE_URL` in `.env.local` first). A block
+   already in the database whose file changed gets its `revision` raised by one; an unchanged file changes nothing. A plan is never stored: it stays a file, read by /demo, /dev/library and tests.
 
 A tool whose concept has steps sets `level` (or picks the tune or run by stage), never raw settings, so the step can
 be read back. Every file meets the writing rules below.
@@ -128,6 +128,19 @@ set a key and a position). The prompt names each of the five by its file id, the
 - No mental shortcuts: the short name a teacher would say is written out the first time ("play position 1 of the A minor
   pentatonic scale", not "play position 1"; where a run starts, which way it goes and where it turns, not "up and down").
 - Whatever the app plays under the learner is "the backing track", never "the band" or "the backing".
+- When a drill is got starts "Practice until …" or names the goal ("The goal of this practice is …"), never "Stay
+  with it until" or "Keep going until". Hand repetition names muscle memory, an explained word.
+- The staff is never explained in the text (no "the five lines of music"): the app explains the word.
+- A chord in the text is a chord token (`{{chord:I}}`, `{{chord:V7}}`), never a bare number ("the 1 chord", "the 1, 4
+  and 5"). The first time a text counts chords it says each the long way: "{{chord:I}} is the 1st chord of the key,
+  built on {{1}}"; after that the token or "the 1st chord".
+- In a block with `moves`, the line about another key opens with `{{?key}}` (a line about another tempo with `{{?bpm}}`):
+  the app shows it only when that selector is there.
+- Slow first: a beginner's sung tune or backing track is 40 to 65 bpm, starting at 40 (melody-singer's `bpm`). The text
+  never explains a slow tempo: the app writes that line at 50 bpm or under. A tune is learned in stages the
+  text names: with the tune, the tune muted (Tune) over the chords, then the chords muted too (Chords), a cappella (an explained word, only for
+  the stage with every sound off).
+- The tool is set to show what the text says it shows (fingers in the text: no `show: "pick"` on the finger-pattern).
 - A position's number is not a description: no bare "position 1". The first time a text names a position it says the
   scale and what is on the screen ("the neck with the notes of the A minor pentatonic scale: each dot is a note to
   play"). One position on the screen: no number, in the title and headings too. Two or more to tell apart: the number,

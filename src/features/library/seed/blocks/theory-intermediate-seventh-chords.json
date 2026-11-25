@@ -90,7 +90,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays a chord on a new root each time, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7. Listen to the top note first: a half step under the octave means Major 7. Keep going until the name comes before you work it out."
+            "text": "Press Start in the game below: it plays a chord on a new root each time, and you pick Major, Minor, Dominant 7, Major 7 or Minor 7. Listen to the top note first: a half step under the octave means Major 7. Practice until the name comes before you work it out."
           },
           {
             "type": "tool",

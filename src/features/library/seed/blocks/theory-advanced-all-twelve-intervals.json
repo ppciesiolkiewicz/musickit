@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays two notes, one after the other, and you pick m7, M7 or TT (m7 for a minor 7th, M7 for a major 7th, TT for the tritone).\nListen for how close the upper note comes to the octave: a half step under it is M7, a whole step under it is m7, and TT stops halfway up.\nKeep going until the three no longer sound alike."
+            "text": "Press Start in the game below: it plays two notes, one after the other, and you pick m7, M7 or TT (m7 for a minor 7th, M7 for a major 7th, TT for the tritone).\nListen for how close the upper note comes to the octave: a half step under it is M7, a whole step under it is m7, and TT stops halfway up.\nPractice until the three no longer sound alike."
           },
           {
             "type": "tool",
@@ -51,7 +51,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: now any of the twelve intervals can come.\nIf two answers sound alike, press Replay in the game and listen to the upper note against the octave again.\nKeep going until the name comes before you count the steps."
+            "text": "Press Start in the game below: now any of the twelve intervals can come.\nIf two answers sound alike, press Replay in the game and listen to the upper note against the octave again.\nPractice until the name comes before you count the steps."
           },
           {
             "type": "tool",

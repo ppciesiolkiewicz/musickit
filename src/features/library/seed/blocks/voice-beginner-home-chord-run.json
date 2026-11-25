@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start exercise below: the metronome and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Sing {{1}}, {{3}}, {{5}} from the low {{1}}, go on up to the next {{1}}, then come back down the same way, one note per beat. Sing them on the note names.\nKeep going until each skip lands on its click without a slide."
+            "text": "Press Start exercise below: the metronome and the mic start together, and your pitch shows as a line on the staff. Sing {{1}}, {{3}}, {{5}} from the low {{1}}, go on up to the next {{1}}, then come back down the same way, one note per beat. Sing them on the note names.\nPractice until each skip lands on its click without a slide."
           },
           {
             "type": "tool",

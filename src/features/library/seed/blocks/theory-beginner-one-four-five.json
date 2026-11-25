@@ -1,14 +1,14 @@
 {
   "id": "theory-beginner-one-four-five",
-  "model": "claude-opus-5-5",
+  "model": "claude-fable-5-2",
   "versions": {
-    "prompt": 19,
+    "prompt": 20,
     "agents": 2,
-    "teaching": 11
+    "teaching": 12
   },
-  "note": "Theory that is heard, not recited: tap the three roots on the staff and hear the chord built on each, follow the chords in order, then in a new order without looking. The old Key selector is now moves (any key), so the title names the key as a param, the text names every chord by its number and never by its letter, and the last line says what stays the same in another key. Works for any instrument, or none.",
+  "note": "Theory that is heard, not recited: tap the three roots on the staff and hear the chord built on each, follow the chords in order, then in a new order without looking. Chords are chord tokens, named in the player's key, and the first section counts them the long way (\"the 1st chord of the key, built on\" its note) before any step asks for a number. The key is moves (any key), and the last line says what stays the same in another key. Works for any instrument, or none.",
   "exercise": {
-    "title": "The 1, 4 and 5 chords in {{=key}}, by ear",
+    "title": "The 1st, 4th and 5th chords in {{=key}}, by ear",
     "area": "theory",
     "tags": [
       "theory",
@@ -18,7 +18,7 @@
     "concepts": [
       "chords-of-a-key"
     ],
-    "why": "Each chord is built on one note of the scale, so once you hear the root move from 1 to 4 to 5, you can name the chord that is playing.",
+    "why": "Each chord is built on one note of the scale, so once you hear the root move between the 1st, 4th and 5th notes, you can tell which chord is playing.",
     "learnBefore": [
       "/course/5/one-four-five"
     ],
@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below, the five lines of music, shows the {{=key}} major scale: tap a note to hear it. Tap the three ringed notes, {{1}}, {{4}} and {{5}}.\nThen press Play under each chord box below, from left to right, to hear the chord built on each of those notes: the 1, the 4 and the 5 chord."
+            "text": "The staff below shows the {{=key}} major scale: tap a note to hear it. Tap the three ringed notes, {{1}}, {{4}} and {{5}}.\nA chord can be built on each of them. {{chord:I}} is the 1st chord of the key, built on {{1}}. {{chord:IV}} is the 4th chord, built on {{4}}. {{chord:V}} is the 5th chord, built on {{5}}.\nPress Play under each chord box below, from left to right, to hear the three chords."
           },
           {
             "type": "tool",
@@ -67,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the 1, 4 and 5 chords and back to 1, one bar each. Call out 1, 4 or 5 as each chord arrives, with the lit box to help.\nKeep going until you hear a change coming before the box lights."
+            "text": "Press Play below to start the backing track: {{chord:I}}, {{chord:IV}}, {{chord:V}} and back to {{chord:I}}, one bar each. Say the number of each chord as it arrives, 1, 4 or 5, with the lit box to help.\nPractice until you hear a change coming before the box lights."
           },
           {
             "type": "tool",
@@ -93,7 +93,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the same three chords in a new order. Look away from the screen, call out the number of each chord, and look back to check.\nIf you lose your place, wait for the 1 chord: it sounds like home, and you can pick the order up again from there.\nIn another key the chords are new, but the 1, the 4 and the 5 still sound the same."
+            "text": "Press Play below to start the backing track: the same three chords in a new order. Look away from the screen, say the number of each chord, and look back to check.\nIf you can't tell which chord is playing, wait for {{chord:I}}: it sounds like home, and you can follow the order again from there.\n{{?key}}In another key the three chords have other names, and each still sounds the same against the home note: the 1st chord like home, the 4th and 5th chords away from it."
           },
           {
             "type": "tool",

@@ -32,7 +32,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: it plays two notes, the lower one first, and you pick the interval from the nine you know (m3 for a minor 3rd, M3 for a major 3rd, P5 for a 5th).\nKeep going until the names come without counting the steps."
+            "text": "Press Start in the game below: it plays two notes, the lower one first, and you pick the interval from the nine you know (m3 for a minor 3rd, M3 for a major 3rd, P5 for a 5th).\nPractice until the names come without counting the steps."
           },
           {
             "type": "tool",
@@ -69,7 +69,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below: the same nine again, and now the two notes sound at once.\nListen for the lower note first, then the upper one.\nKeep going until you can tell a wide interval from a narrow one the first time you hear it."
+            "text": "Press Start in the game below: the same nine again, and now the two notes sound at once.\nListen for the lower note first, then the upper one.\nPractice until you can tell a wide interval from a narrow one the first time you hear it."
           },
           {
             "type": "tool",

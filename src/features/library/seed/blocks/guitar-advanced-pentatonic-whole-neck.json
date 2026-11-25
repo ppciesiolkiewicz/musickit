@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The neck below shows A minor pentatonic in all five positions, with every note but {{1}} faded. Play each {{1}} from the lowest to the highest, and say which string it is on.\nKeep going until you can jump to any of them without counting frets."
+            "text": "The neck below shows A minor pentatonic in all five positions, with every note but {{1}} faded. Play each {{1}} from the lowest to the highest, and say which string it is on.\nPractice until you can jump to any of them without counting frets."
           },
           {
             "type": "tool",
@@ -141,7 +141,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track, a 12-bar blues in A minor. Improvise, and start each new phrase in a position you have not just used.\nKeep going until moving along the neck feels no harder than staying where you are."
+            "text": "Press Play below to start the backing track, a 12-bar blues in A minor. Improvise, and start each new phrase in a position you have not just used.\nPractice until moving along the neck feels no harder than staying where you are."
           },
           {
             "type": "tool",

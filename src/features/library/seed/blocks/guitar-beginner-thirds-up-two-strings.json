@@ -69,7 +69,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Each double stop is the lowest two notes of the chord named above it, and the ringed note, on the G string, is that chord's root. Play the 3rds up and back again, and say each chord's name as you play it.\nIn another key the frets and the names are new, and the 3rd of a major chord still has both notes in one fret."
+            "text": "Each double stop is the lowest two notes of the chord named above it, and the ringed note, on the G string, is that chord's root. Play the 3rds up and back again, and say each chord's name as you play it.\n{{?key}}In another key the frets and the names are new, and the 3rd of a major chord still has both notes in one fret."
           },
           {
             "type": "tool",

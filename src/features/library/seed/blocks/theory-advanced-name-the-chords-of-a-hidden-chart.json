@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: a song with a Verse and a Chorus, with the chord names hidden. Each box is one bar, and the lit box is the bar playing.\nListen to the bass, which starts every bar on the root of its chord. Say \"change\" each time a new box brings a new chord.\nKeep going until you know which boxes hold the same chord as the box before them."
+            "text": "Press Play below to start the backing track: a song with a Verse and a Chorus, with the chord names hidden. Each box is one bar, and the lit box is the bar playing.\nListen to the bass, which starts every bar on the root of its chord. Say \"change\" each time a new box brings a new chord.\nPractice until you know which boxes hold the same chord as the box before them."
           },
           {
             "type": "tool",
@@ -136,7 +136,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start a new song: a Verse, a Chorus and a Bridge, and the name above the boxes says which one is playing. Write a number for every bar again, then press Show chords on the chart below to check.\nIn another key the chord names are new, and each bar of this song keeps its number."
+            "text": "Press Play below to start a new song: a Verse, a Chorus and a Bridge, and the name above the boxes says which one is playing. Write a number for every bar again, then press Show chords on the chart below to check.\n{{?key}}In another key the chord names are new, and each bar of this song keeps its number."
           },
           {
             "type": "tool",

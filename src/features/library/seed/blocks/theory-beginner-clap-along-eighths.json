@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start below to begin a round of eighths at {{=bpm}}. Count \"1 & 2 & 3 & 4 &\" aloud, saying \"and\" for each &, and tap on every word with Space or on the lane.\nThe numbers land on the click and each \"and\" falls halfway to the next one. Stay with it until the taps on \"and\" turn green as easily as the taps on the numbers."
+            "text": "Press Start below to begin a round of eighths at {{=bpm}}. Count \"1 & 2 & 3 & 4 &\" aloud, saying \"and\" for each &, and tap on every word with Space or on the lane.\nThe numbers land on the click and each \"and\" falls halfway to the next one. Practice until the taps on \"and\" turn green as easily as the taps on the numbers."
           },
           {
             "type": "tool",

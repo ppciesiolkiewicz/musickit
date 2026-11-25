@@ -12,6 +12,8 @@ export interface MelodySingerProps {
   key: string;
   /** voice range; default "soprano" */
   voice?: "soprano" | "mezzo" | "alto" | "tenor" | "baritone" | "bass";
+  /** the tune's tempo, 40-120; default 90. 40 to 65 for a new or beginner singer, starting at 40: slow leaves time to hear each note and land on it */
+  bpm?: number;
   /** the piano's chords under the tune, one a bar, named over the staff; in a run, the two chords in the held-Do bar that announce each new key. Default true; false for the tune alone */
   chords?: boolean;
   /** the metronome heard from the start, on the tune's beats (beat 1 of each bar accented); default false. The student can switch it, the tune and the chords on and off in the player either way */

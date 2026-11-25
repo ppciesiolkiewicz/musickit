@@ -17,7 +17,7 @@
     "concepts": [
       "hearing-changes"
     ],
-    "why": "The game plays the 1 chord first every time, so you hear the second chord as a move away from home, and that move sounds the same in every key.",
+    "why": "The game plays the 1st chord first every time, so you hear the second chord as a move away from home, and that move sounds the same in every key.",
     "learnBefore": [
       "/course/5/one-four-five"
     ],
@@ -59,7 +59,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Start in the game below to hear two chords: the 1 chord, then the 4 or the 5, in a new key each time. Pick IV for the 4 chord or V for the 5 chord.\nPress Replay below to hear the two chords again before you pick. Press Next for two new chords.\nKeep going until you know the answer before the second chord has faded."
+            "text": "Press Start in the game below to hear two chords: the 1st chord, then the 4 or the 5, in a new key each time. Pick IV for the 4th chord or V for the 5th chord.\nPress Replay below to hear the two chords again before you pick. Press Next for two new chords.\nPractice until you know the answer before the second chord has faded."
           },
           {
             "type": "tool",

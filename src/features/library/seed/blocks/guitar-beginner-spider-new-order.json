@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows frets 5 to 8 in a new order on each string: fret 5, fret 7, fret 6, then fret 8, with fingers 1, 3, 2 and 4, one note per beat.\nStart on the low E string and play the four notes on every string up to the high e string. Then come back down, one string at a time, in the same order of fingers. The row under the tab shows the finger for each note.\nKeep going until the order stops needing thought and every note rings."
+        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows frets 5 to 8 in a new order on each string: fret 5, fret 7, fret 6, then fret 8, with fingers 1, 3, 2 and 4, one note per beat.\nStart on the low E string and play the four notes on every string up to the high e string. Then come back down, one string at a time, in the same order of fingers. The row under the tab shows the finger for each note.\nPractice until the order stops needing thought and every note rings."
       },
       {
         "type": "tool",

@@ -84,7 +84,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. The 5ths come first and the 4ths start on a new bar, now on the A and D strings. The line above the tab says which is playing.\nIn another key the pairs sit on other frets, and the two shapes stay as they were."
+            "text": "Press Play below to start the backing track. The 5ths come first and the 4ths start on a new bar, now on the A and D strings. The line above the tab says which is playing.\n{{?key}}In another key the pairs sit on other frets, and the two shapes stay as they were."
           },
           {
             "type": "tool",

@@ -26,7 +26,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff, the five lines of music. Start on the low {{1}} and sing one note at a time up to the next {{1}}, then come back down the same way. Sing along on the note names.\nKeep going until each note starts in tune, with no slide up to it.\nIn another key every note sits higher or lower, and the scale is still eight notes from {{1}} to {{1}}.\n_Don't reach for high notes: turn back at the first {{1}} above the one you started on._"
+        "text": "Press Start exercise below: the drone and the mic start together, and your pitch shows as a line on the staff. Start on the low {{1}} and sing one note at a time up to the next {{1}}, then come back down the same way. Sing along on the note names.\nPractice until each note starts in tune, with no slide up to it.\n{{?key}}In another key every note sits higher or lower, and the scale is still eight notes from {{1}} to {{1}}.\n_Don't reach for high notes: turn back at the first {{1}} above the one you started on._"
       },
       {
         "type": "tool",

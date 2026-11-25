@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the drone on C. Tap up the first staff from {{1}} to the high {{1}}: that is C major. Then tap up the second staff, C minor, from the same {{1}}.\nThe ringed notes are the three that differ: in minor, the {{b3}}, {{b6}} and {{b7}} sit a half step lower than the {{3}}, {{6}} and {{7}} of major.\nKeep going until you can hear the major {{3}} and the minor {{b3}} in your head before you tap them."
+            "text": "Press Play below to start the drone on C. Tap up the first staff from {{1}} to the high {{1}}: that is C major. Then tap up the second staff, C minor, from the same {{1}}.\nThe ringed notes are the three that differ: in minor, the {{b3}}, {{b6}} and {{b7}} sit a half step lower than the {{3}}, {{6}} and {{7}} of major.\nPractice until you can hear the major {{3}} and the minor {{b3}} in your head before you tap them."
           },
           {
             "type": "tool",

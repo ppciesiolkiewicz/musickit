@@ -24,7 +24,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to hear the tune over the backing track, and follow the tab under it. The tune has five notes: it goes up one step and back, then skips down twice and ends on a long note, the home note of the key.\nPlay along from the tab, one note per beat, and hold the last note for its whole bar.\nOnce you can hum the tune before you play it, play it without looking at the tab.\nIn another key the frets are new, and the tune keeps its shape: one step up and back, then two skips down to the home note."
+        "text": "Press Play below to hear the tune over the backing track, and follow the tab under it. The tune has five notes: it goes up one step and back, then skips down twice and ends on a long note, the home note of the key.\nPlay along from the tab, one note per beat, and hold the last note for its whole bar.\nOnce you can hum the tune before you play it, play it without looking at the tab.\n{{?key}}In another key the frets are new, and the tune keeps its shape: one step up and back, then two skips down to the home note."
       },
       {
         "type": "tool",

@@ -18,7 +18,7 @@
     "concepts": [
       "keys"
     ],
-    "why": "Two keys next to each other on the circle share four chords and differ by one note, so a shared chord followed by the new key's 5 chord carries the music from one home to the other.",
+    "why": "Two keys next to each other on the circle share four chords and differ by one note, so a shared chord followed by the new key's 5th chord carries the music from one home to the other.",
     "learnBefore": [
       "/course/10/circle-map"
     ],
@@ -57,7 +57,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. It starts in C, reaches Am, a chord of both keys, and then plays D7, the 5 chord of G, which has the one note C major lacks.\nListen for the bar where G sounds like home, and call out \"home\" there.\nOnce you hear it, look away from the chord boxes and call it again."
+            "text": "Press Play below to start the backing track. It starts in C, reaches Am, a chord of both keys, and then plays D7, the 5th chord of G, which has the one note C major lacks.\nListen for the bar where G sounds like home, and call out \"home\" there.\nOnce you hear it, look away from the chord boxes and call it again."
           },
           {
             "type": "tool",
@@ -86,7 +86,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track: the other neighbour now. C turns into C7, the 5 chord of F, and the backing track lands on F and stays in that key for four bars.\nLook away from the chord boxes and call out \"home\" when the new home arrives, then look to check.\nWhen you change the direction round the circle, the new key is another one but the chord before it is still its 5 chord."
+            "text": "Press Play below to start the backing track: the other neighbour now. C turns into C7, the 5th chord of F, and the backing track lands on F and stays in that key for four bars.\nLook away from the chord boxes and call out \"home\" when the new home arrives, then look to check.\nWhen you change the direction round the circle, the new key is another one but the chord before it is still its 5th chord."
           },
           {
             "type": "tool",

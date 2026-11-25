@@ -69,7 +69,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "In a 6th the ringed note, the root of the chord named above it, is the higher one, on the high e string. Play the 6ths up and back again, and say each chord's name as you play it.\nIn another key the frets and the names are new, and the root is still the note on the high e string."
+            "text": "In a 6th the ringed note, the root of the chord named above it, is the higher one, on the high e string. Play the 6ths up and back again, and say each chord's name as you play it.\n{{?key}}In another key the frets and the names are new, and the root is still the note on the high e string."
           },
           {
             "type": "tool",

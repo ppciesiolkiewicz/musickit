@@ -25,7 +25,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Start in the game below. The game plays two notes, one after the other: pick M3 for a major 3rd, m3 for a minor 3rd, P5 for a 5th or P8 for an octave.\nSort wide from narrow first: the two 3rds are the narrow ones. Then hear the pair as the first two notes of a chord, and ask whether that chord is major or minor.\nKeep going until you name a 3rd without pressing Replay."
+        "text": "Press Start in the game below. The game plays two notes, one after the other: pick M3 for a major 3rd, m3 for a minor 3rd, P5 for a 5th or P8 for an octave.\nSort wide from narrow first: the two 3rds are the narrow ones. Then hear the pair as the first two notes of a chord, and ask whether that chord is major or minor.\nPractice until you name a 3rd without pressing Replay."
       },
       {
         "type": "tool",

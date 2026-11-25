@@ -92,7 +92,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the other line: the 7th of {{chord:ii7}} drops a half step to the 3rd of {{chord:V7}}, which stays put as the 7th of {{chord:Imaj7}}.\nListen for the half step in each line: it is the sound of the chord changing under you.\nIn another key the chords and frets are new, and each line still stays put and drops a half step in the same places."
+            "text": "Press Play below to start the other line: the 7th of {{chord:ii7}} drops a half step to the 3rd of {{chord:V7}}, which stays put as the 7th of {{chord:Imaj7}}.\nListen for the half step in each line: it is the sound of the chord changing under you.\n{{?key}}In another key the chords and frets are new, and each line still stays put and drops a half step in the same places."
           },
           {
             "type": "tool",

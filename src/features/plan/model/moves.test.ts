@@ -213,6 +213,16 @@ test("applyGiven: a param with no value is left out, never shown raw; a block wi
   assert.equal(applyGiven(plain, { keys: { now: [G], back: [] } }), plain);
 });
 
+test("applyGiven: a {{?key}} line is drawn only when the Key selector is, with the mark taken off", () => {
+  const b = { title: "t", moves: { key: "any" } as Moves, cells: [text("Sing the skips.\n{{?key}}In another key each skip is the same distance.\nThen stop."), tool(neck())] };
+  assert.deepEqual(applyGiven(b, null).cells[0], text("Sing the skips.\nThen stop."), "nothing given: no selector, no line");
+  assert.deepEqual(applyGiven(b, { keys: { now: [G], back: [] } }).cells[0], text("Sing the skips.\nThen stop."), "one key: no selector");
+  assert.deepEqual(applyGiven(b, { keys: { now: [G, 9], back: [] } }).cells[0], text("Sing the skips.\nIn another key each skip is the same distance.\nThen stop."));
+  const plain = { title: "t", cells: [text("Play.\n{{?bpm}}At another tempo the count is the same."), tool(neck())] };
+  assert.deepEqual(applyGiven(plain, null).cells[0], text("Play."), "a block with no moves never shows the line or its mark");
+  assert.deepEqual(paramWarnings(plain), ["text names {{=bpm}} or {{?bpm}} but the block has no tempo move."]);
+});
+
 test("selectorsOf: chips only for a part with more than one value, now first", () => {
   const b = { moves: { key: "any", bpm: BPM } as Moves };
   assert.deepEqual(selectorsOf(b, { bpm: { now: 70, back: [60] }, keys: { now: [A], back: [] } }), [{ part: "bpm", values: [70, 60], back: 1 }]);
@@ -228,8 +238,8 @@ test("written: the key and tempo of the first tools that follow them", () => {
 });
 
 test("paramWarnings: a param needs its move", () => {
-  assert.deepEqual(paramWarnings({ title: "{{=key}} run", moves: { bpm: BPM }, cells: [text("at {{=bpm}}"), tool(band(60))] }), ["text names {{=key}} but the block has no key move."]);
-  assert.deepEqual(paramWarnings({ title: "Run", cells: [{ type: "section", heading: "At {{=bpm}}", cells: [tool(band(60))] } as Cell] }), ["text names {{=bpm}} but the block has no tempo move."]);
+  assert.deepEqual(paramWarnings({ title: "{{=key}} run", moves: { bpm: BPM }, cells: [text("at {{=bpm}}"), tool(band(60))] }), ["text names {{=key}} or {{?key}} but the block has no key move."]);
+  assert.deepEqual(paramWarnings({ title: "Run", cells: [{ type: "section", heading: "At {{=bpm}}", cells: [tool(band(60))] } as Cell] }), ["text names {{=bpm}} or {{?bpm}} but the block has no tempo move."]);
   assert.deepEqual(paramWarnings({ title: "Run", moves: { bpm: BPM }, cells: [text("at {{=bpm}}"), tool(band(60))] }), []);
 });
 

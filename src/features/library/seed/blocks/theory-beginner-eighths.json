@@ -29,7 +29,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. Count \"1 and 2 and 3 and 4 and\" aloud, each number on a click, and clap on every word.\nKeep going until the claps on \"and\" sit halfway between two clicks, not rushed towards the next one."
+            "text": "Press Play below to start the metronome. Count \"1 and 2 and 3 and 4 and\" aloud, each number on a click, and clap on every word.\nPractice until the claps on \"and\" sit halfway between two clicks, not rushed towards the next one."
           },
           {
             "type": "tool",

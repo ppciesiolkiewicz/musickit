@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. Under it is the neck with the notes of the {{=key}} minor pentatonic scale. Only {{1}} and {{5}} are in play, the two notes of a power chord, and the other dots are faded.\nMake up a short riff from {{1}} and {{5}}: play them one after the other or both together, in a rhythm you can repeat. Then play the same riff again and again.\nKeep going until you can repeat it without thinking about the next note."
+            "text": "Press Play below to start the backing track. Under it is the neck with the notes of the {{=key}} minor pentatonic scale. Only {{1}} and {{5}} are in play, the two notes of a power chord, and the other dots are faded.\nMake up a short riff from {{1}} and {{5}}: play them one after the other or both together, in a rhythm you can repeat. Then play the same riff again and again.\nPractice until you can repeat it without thinking about the next note."
           },
           {
             "type": "tool",

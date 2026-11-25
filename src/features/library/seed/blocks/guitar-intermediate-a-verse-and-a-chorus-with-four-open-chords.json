@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track at {{=bpm}}. After a bar of count-in clicks, the lit box shows the bar playing, under the name of its section.\nLeave the guitar for now. Follow the lit box through the Verse and the Chorus, and say each chord's name on beat 1 of its box.\nKeep going until you can say the next chord before its box lights."
+            "text": "Press Play below to start the backing track at {{=bpm}}. After a bar of count-in clicks, the lit box shows the bar playing, under the name of its section.\nLeave the guitar for now. Follow the lit box through the Verse and the Chorus, and say each chord's name on beat 1 of its box.\nPractice until you can say the next chord before its box lights."
           },
           {
             "type": "tool",

@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}}. Under it is the neck with the notes of the {{=key}} minor pentatonic scale: each dot is a note to play.\nStart on the ringed {{1}} on the low E string and play both dots on that string. Then play both dots on each next string up to the high e string, and come back down the same way, one note per beat.\nStay with it until your fingers find the next dot without you looking."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Under it is the neck with the notes of the {{=key}} minor pentatonic scale: each dot is a note to play.\nStart on the ringed {{1}} on the low E string and play both dots on that string. Then play both dots on each next string up to the high e string, and come back down the same way, one note per beat.\nPractice until your fingers find the next dot without you looking."
           },
           {
             "type": "tool",
@@ -67,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Now only the three {{1}} notes are in play, and the other dots are faded. Tap a {{1}} on the neck below to hear it, then play it on your guitar.\nHop between the three in any order until you can find each one without looking.\nIn another key the dots sit on other frets, and the three roots keep their places among them."
+            "text": "Now only the three {{1}} notes are in play, and the other dots are faded. Tap a {{1}} on the neck below to hear it, then play it on your guitar.\nHop between the three in any order until you can find each one without looking.\n{{?key}}In another key the dots sit on other frets, and the three roots keep their places among them."
           },
           {
             "type": "tool",

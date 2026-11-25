@@ -78,7 +78,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press a chord box below to hear the chord. Go from Cm to Cdim and back, and listen for the one note that drops.\nKeep going until you can tell them apart with your eyes closed."
+            "text": "Press a chord box below to hear the chord. Go from Cm to Cdim and back, and listen for the one note that drops.\nPractice until you can tell them apart with your eyes closed."
           },
           {
             "type": "tool",
@@ -99,7 +99,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The panel below shows the chord on every note of C major. Press each chord in turn: the diminished one is built on the 7th note, and it is the only one of its kind in the key.\nThen press it and the 1 chord after it, and listen for the diminished chord leading home."
+            "text": "The panel below shows the chord on every note of C major. Press each chord in turn: the diminished one is built on the 7th note, and it is the only one of its kind in the key.\nThen press it and the 1st chord after it, and listen for the diminished chord leading home."
           },
           {
             "type": "tool",

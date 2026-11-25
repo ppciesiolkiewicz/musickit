@@ -30,7 +30,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below, the five lines of music, shows the C major scale with its solfège names: tap a note to hear it. Tap {{1}}, then {{7}}, and stop: it sounds unfinished. Tap {{1}} again and it comes home. Now try the other notes the same way: tap one, wait, then tap {{1}}."
+            "text": "The staff below shows the C major scale with its solfège names: tap a note to hear it. Tap {{1}}, then {{7}}, and stop: it sounds unfinished. Tap {{1}} again and it comes home. Now try the other notes the same way: tap one, wait, then tap {{1}}."
           },
           {
             "type": "tool",

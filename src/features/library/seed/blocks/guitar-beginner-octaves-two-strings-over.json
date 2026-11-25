@@ -87,7 +87,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the backing track. The same octaves now sit on the A and G strings: up the neck low note first, then back down high note first.\nIn another key the pairs sit on other frets, and the octave is still two strings over and two frets up."
+            "text": "Press Play below to start the backing track. The same octaves now sit on the A and G strings: up the neck low note first, then back down high note first.\n{{?key}}In another key the pairs sit on other frets, and the octave is still two strings over and two frets up."
           },
           {
             "type": "tool",

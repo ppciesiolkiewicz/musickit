@@ -31,7 +31,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome at {{=bpm}}. Play position 1 from the lowest {{1}} up to the high E string and back down, one note per beat.\nStay with it until your fingers find the next note without you looking."
+            "text": "Press Play below to start the metronome at {{=bpm}}. Play position 1 from the lowest {{1}} up to the high E string and back down, one note per beat.\nPractice until your fingers find the next note without you looking."
           },
           {
             "type": "tool",
@@ -67,7 +67,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Now only the {{1}} notes are in play. Hop between them in any order, until you can go to each one without hunting for it.\nIn another key the position sits on other frets, and the roots keep their places inside it."
+            "text": "Now only the {{1}} notes are in play. Hop between them in any order, until you can go to each one without hunting for it.\n{{?key}}In another key the position sits on other frets, and the roots keep their places inside it."
           },
           {
             "type": "tool",

@@ -6,7 +6,7 @@ import type { Cell, PlanTool } from "../../model/tools";
 import type { Block } from "../../model/types";
 import ExerciseCard from "../ExerciseCard";
 import BlockArticle, { BlockBody } from "./BlockArticle";
-import { selectorLine } from "./selectorLine";
+import { selectorLine, slowTempoLine } from "./selectorLine";
 
 const neck = (key: number): Cell => ({ type: "tool", tool: { type: "scale-neck", scale: "minor-pentatonic", key, boxes: [1] } as PlanTool });
 const text = (t: string): Cell => ({ type: "text", text: t });
@@ -71,4 +71,13 @@ test("a chip index past the values: the chips, the text and the tools all stand 
   const html = draw({ bpm: { now: 70, back: [60] } }, { bpm: 5 });
   assert.ok(html.includes("Play it at 70."));
   assert.ok(/aria-checked="true"[^>]*>70</.test(html));
+});
+
+test("a block at a very slow tempo gets the app's line above its first tempo tool; a faster one does not", () => {
+  const slowBand: Cell = { type: "tool", tool: { type: "backing-band", bpm: 40, key: 9, parts: { click: "on" } } as PlanTool };
+  const at40 = renderToStaticMarkup(<BlockBody block={{ title: "t", cells: [text("Play."), neck(9), text("Now with the click."), slowBand] }} size="card" />);
+  assert.ok(at40.includes(slowTempoLine(40)!));
+  assert.ok(at40.indexOf("data-slow-tempo") > at40.indexOf("Now with the click."), "the line sits above the tempo tool, not above the block's first tool");
+  assert.equal(draw().includes("data-slow-tempo"), false, "60 is not very slow");
+  assert.equal(slowTempoLine(51), null);
 });

@@ -76,7 +76,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "The staff below, the five lines of music, shows C major: tap a note to hear it. Make up short tunes by tapping, moving mostly by step, and end each one on a ringed {{1}}.\nThen end a tune on {{7}} and stop. Listen for how it leans up the half step to {{1}}, then tap {{1}} to finish it."
+            "text": "The staff below shows C major: tap a note to hear it. Make up short tunes by tapping, moving mostly by step, and end each one on a ringed {{1}}.\nThen end a tune on {{7}} and stop. Listen for how it leans up the half step to {{1}}, then tap {{1}} to finish it."
           },
           {
             "type": "tool",

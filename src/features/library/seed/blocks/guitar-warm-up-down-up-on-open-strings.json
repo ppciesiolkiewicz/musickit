@@ -26,7 +26,7 @@
     "cells": [
       {
         "type": "text",
-        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows each open string four times, from the low E string up to the high e string and back down. Pick down, up, down, up on each string: the arrows under the tab show the stroke for each note.\nKeep going until your hand swings evenly, with no stop between the strokes."
+        "text": "Press Play below to start the metronome at {{=bpm}}. The tab under it shows each open string four times, from the low E string up to the high e string and back down. Pick down, up, down, up on each string: the arrows under the tab show the stroke for each note.\nPractice until your hand swings evenly, with no stop between the strokes."
       },
       {
         "type": "tool",

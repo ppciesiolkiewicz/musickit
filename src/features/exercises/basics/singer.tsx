@@ -9,18 +9,22 @@ import { harmoniseRun, harmoniseTune, type MelodyChord } from "@/features/theory
 import { BEATS_PER_BAR } from "@/features/theory/singingMelody";
 import SingAlong from "./sing-along/SingAlong";
 
+/** the tempo of a tune or run with none of its own */
 const BPM = 90;
+/** the tempos a tune may be set to */
+export const TUNE_BPM = { min: 40, max: 120 } as const;
 const TAP_MS = 900;
 
 /**
  * One tune (or run) from the singing page's books, in a key and voice, sung along (`SingAlong`): play it on a loop over
  * the whole tune or a part of it, muted or heard, on an endless staff or a piano roll; tap a note to hear it. With `chords` (the default) the piano plays a chord a bar under it, named
  * over the staff, a run opens with a bar of its first key's I and V and announces each new key in its held-Do bar; with `metronome` the click is heard from the start (it can be
- * switched on and off in the player either way). A run spans the voice, its last pass topping out on the range's top, so it
+ * switched on and off in the player either way). `bpm` is the tempo (90 with none, kept inside `TUNE_BPM`). A run spans the voice, its last pass topping out on the range's top, so it
  * starts in the key that gives (`pc` is only a tune's); its title names the pass playing and its key. The singing page's
  * placement; nothing writes the address.
  */
-export function SingerView({ n, pc = 0, voice = "soprano", chords = true, metronome = false }: { n: number; pc?: number; voice?: Voice; chords?: boolean; metronome?: boolean }) {
+export function SingerView({ n, pc = 0, voice = "soprano", bpm: asked, chords = true, metronome = false }: { n: number; pc?: number; voice?: Voice; bpm?: number; chords?: boolean; metronome?: boolean }) {
+  const bpm = asked ? Math.min(TUNE_BPM.max, Math.max(TUNE_BPM.min, Math.round(asked))) : BPM;
   const tune = BOOK.find((t) => t.n === n) ?? RUNS.find((t) => t.n === n);
   const range = useVoiceRange(voice, "soprano");
   const clef = clefFor(range);
@@ -46,7 +50,7 @@ export function SingerView({ n, pc = 0, voice = "soprano", chords = true, metron
     }
     return { ladder, passes: [], notes: placeTune(tune.notes, ladder, range), harmony: none };
   }, [tune, pc, range, chords]);
-  const beat = 60000 / BPM;
+  const beat = 60000 / bpm;
   const [tapped, setTapped] = useState<number | null>(null);
   if (!tune || !notes.length) return null;
   const tap = async (i: number) => {
@@ -61,12 +65,12 @@ export function SingerView({ n, pc = 0, voice = "soprano", chords = true, metron
     }, TAP_MS);
   };
   return (
-    <SingAlong key={`${n}-${pc}-${voice}-${chords}-${metronome}`} notes={notes} chords={harmony} ladder={ladder} clef={clef} beatMs={beat} click={metronome} tapped={tapped} onNote={(i) => void tap(i)}
+    <SingAlong key={`${n}-${pc}-${voice}-${bpm}-${chords}-${metronome}`} notes={notes} chords={harmony} ladder={ladder} clef={clef} beatMs={beat} click={metronome} tapped={tapped} onNote={(i) => void tap(i)}
       info={passes.length ? (at) => {
         // the pass playing, by its first beat; stopped, the keys the run goes through
         const k = at === null ? -1 : passes.findLastIndex((p) => p.notes[0].at <= at);
         const where = k < 0 ? `${passes.length} keys · ${passes[0].ladder.title} up to ${passes.at(-1)!.ladder.title}` : `Pass ${k + 1} of ${passes.length} · ${passes[k].ladder.title}`;
-        return <>{tune.stage.title} · {where} · {range.label} · {BPM} bpm</>;
-      } : <>Melody #{tune.n} · {tune.stage.title} · {ladder.title} · {range.label} · {BPM} bpm</>} />
+        return <>{tune.stage.title} · {where} · {range.label} · {bpm} bpm</>;
+      } : <>Melody #{tune.n} · {tune.stage.title} · {ladder.title} · {range.label} · {bpm} bpm</>} />
   );
 }

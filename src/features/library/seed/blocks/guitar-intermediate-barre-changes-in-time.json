@@ -91,7 +91,7 @@
         "cells": [
           {
             "type": "text",
-            "text": "Press Play below to start the metronome. The strokes in each box are the strum for the bar: play them through Am, F, C and G, a bar each.\nKeep going until the F bar sounds as full as the other three."
+            "text": "Press Play below to start the metronome. The strokes in each box are the strum for the bar: play them through Am, F, C and G, a bar each.\nPractice until the F bar sounds as full as the other three."
           },
           {
             "type": "tool",
