@@ -28,7 +28,7 @@ export default function JoinSetup({ startName, busy, error, onSave }: {
     e.preventDefault();
     const noName = !name.trim();
     setNameError(noName ? "Please type your name." : null);
-    setCareError(care ? null : "Please tick the box about looking after your voice.");
+    setCareError(care ? null : "Please tick the box about singing gently.");
     if (noName) return nameRef.current?.focus();
     if (!care) return careRef.current?.focus();
     onSave({ name, emailUpdates: emails });
@@ -65,7 +65,7 @@ export default function JoinSetup({ startName, busy, error, onSave }: {
             aria-describedby={careError ? "join-care-error" : undefined}
           />
           <span className="text-slate-200">
-            I&apos;ll be gentle with my voice. Singing doesn&apos;t need much force. I&apos;ll stop if I feel pain, discomfort or dizziness, and see a voice teacher or a doctor if I&apos;m worried.
+            I&apos;ll sing gently, without forcing my voice. If my throat hurts or feels uncomfortable, or I feel dizzy, I&apos;ll stop and rest. If it doesn&apos;t pass, or I&apos;m worried about my voice, I&apos;ll see a voice teacher or a doctor.
           </span>
         </label>
         <ErrorLine id="join-care-error">{careError}</ErrorLine>

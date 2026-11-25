@@ -24,7 +24,7 @@ async function setUpToCheckout(page: Page) {
   await page.getByLabel("Your name").fill("Test Payer");
   await page.locator('input[name="plan"][value="student"]').check();
   await page.getByRole("checkbox", { name: /terms of use/ }).check();
-  await page.getByRole("checkbox", { name: /gentle with my voice/ }).check();
+  await page.getByRole("checkbox", { name: /sing gently/ }).check();
   await page.getByRole("button", { name: "Continue to payment" }).click();
   await page.waitForURL(/checkout\.stripe\.com/, { timeout: 90_000 });
   return email;

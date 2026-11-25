@@ -85,7 +85,7 @@ export default function SetupForm({ next, start, boxes, extra }: {
     setError(null);
     if (noName) return showName();
     if (noPlan) return showPlans();
-    setCareError(care ? null : "Please tick the box about looking after your voice.");
+    setCareError(care ? null : "Please tick the box about singing gently.");
     if (!terms) return showTerms();
     if (!care) return careRef.current?.focus();
     if (!chosenPlan) return;
@@ -222,7 +222,7 @@ export default function SetupForm({ next, start, boxes, extra }: {
                 aria-describedby={careError ? "setup-care-error" : undefined}
               />
               <span className="text-slate-200">
-                I&apos;ll be gentle with my voice. Singing doesn&apos;t need much force. I&apos;ll stop if I feel pain, discomfort or dizziness, and see a voice teacher or a doctor if I&apos;m worried.
+                I&apos;ll sing gently, without forcing my voice. If my throat hurts or feels uncomfortable, or I feel dizzy, I&apos;ll stop and rest. If it doesn&apos;t pass, or I&apos;m worried about my voice, I&apos;ll see a voice teacher or a doctor.
               </span>
             </label>
             <ErrorLine id="setup-care-error">{careError}</ErrorLine>
