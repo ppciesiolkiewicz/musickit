@@ -10,7 +10,6 @@ import { burnOverlay, canBurn, noChange } from "@/features/contentVideos/client/
 import { riffTimes, type RiffNote } from "./riff";
 import { deleteTake, getTake, saveTake, type RiffTake as Take } from "./takes";
 import { CvControls, FxControls, NeckCvView, NeckView, useCv, useFx } from "@/features/neckFx";
-import { FaceControls, FaceView, useFace } from "@/features/faceFx";
 import { LiveNote, StillNotes, OVERLAY_MODES, TakeNotes, WINDOW_BARS, barGrid, type OverlayMode, type WindowBars } from "./NoteOverlay";
 import DetectLog, { addNeckRead } from "./DetectLog";
 import type { NeckRead, TakeLog } from "./takes";
@@ -124,7 +123,6 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
   const [cvFx, setCvFx] = useCv();
   // which marker sits at which fret, the buttons and the effects: shared with the content video record page
   const [fx, setFx] = useFx();
-  const [face, setFace] = useFace();
   const [takeVideo, setTakeVideo] = useState<HTMLVideoElement | null>(null);
   // the take and what is drawn over it: what Export with overlay records
   const takeBox = useRef<HTMLDivElement | null>(null);
@@ -568,7 +566,6 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
           </fieldset>
           {(camera || take) && phase !== "recording" && readNeck && <FxControls fx={fx} set={setFx} />}
           {(camera || take) && phase !== "recording" && readCv && <CvControls cv={cvFx} set={setCvFx} />}
-          {(camera || take) && phase !== "recording" && <FaceControls face={face} set={setFace} />}
       </div>
       {phase === "ready" && take && !previous && <p className="text-xs text-slate-500">A new recording replaces this riff&apos;s take.</p>}
       {problem && <p role="alert" className="text-rose-400">{problem}</p>}
@@ -581,7 +578,6 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
             <div ref={takeBox} className="relative isolate w-full max-w-4xl overflow-hidden rounded bg-black">
               <video key={url} ref={setTakeVideo} src={url} controls playsInline
                 onLoadedMetadata={(e) => setFrame({ url, width: e.currentTarget.videoWidth, height: e.currentTarget.videoHeight })} className="max-h-[32rem] w-full rounded bg-black" />
-              <FaceView key={`face-${url}`} video={takeVideo} face={face} bare={exporting !== null} />
               {readNeck && <NeckView key={url} video={takeVideo} fx={fx} notes={takeNotes} onRead={onNeckRead} bare={exporting !== null} />}
               {readCv && <NeckCvView key={url} video={takeVideo} markers={fx.markers} cv={cvFx} notes={takeNotes} bare={exporting !== null} />}
               <TakeNotes video={takeVideo} notes={takeNotes} mode={overlay} grid={barGrid(take.bpm ?? bpm, take.downbeat ?? 0, windowBars)} />
@@ -592,8 +588,7 @@ export default function RiffTake({ riff, name, bpm, bars, notes, cell }: {
               <video ref={liveRef} autoPlay muted playsInline className={`rounded bg-black ${phase === "recording" || !take ? "max-h-[32rem] w-full max-w-4xl" : "max-h-40 w-56"}`} />
               {phase === "recording" && beatNow && <LiveNote notes={liveNotes} t={beatNow.beat * 60 / bpm} mode={overlay} grid={barGrid(bpm, 0, windowBars)} />}
               {phase === "ready" && !take && <StillNotes notes={liveNotes} mode={overlay} grid={barGrid(bpm, 0, windowBars)} />}
-              {/* not while recording: the hand and face models would compete with the recorder and the beat */}
-              {phase !== "recording" && <FaceView video={liveVideo} face={face} />}
+              {/* not while recording: the hand model would compete with the recorder and the beat */}
               {readNeck && phase !== "recording" ? <NeckView video={liveVideo} fx={fx} live /> : readCv && phase !== "recording" ? <NeckCvView video={liveVideo} markers={fx.markers} cv={cvFx} live /> : (
                 <span className={`absolute left-2 top-2 rounded px-1.5 text-xs ${phase === "recording" ? "bg-rose-700 text-white" : "bg-slate-900/80 text-slate-300"}`}>{phase === "recording" ? "● Recording" : "Camera"}</span>
               )}
