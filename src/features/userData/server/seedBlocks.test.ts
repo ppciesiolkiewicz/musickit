@@ -54,7 +54,7 @@ test("a block file that doesn't parse is reported, and nothing is written or mad
   const broken = fileOf("guitar-c-d", {}, [{ name: "beginner", steps: [], minutes: 4 }]);
   const lines: string[] = [];
   const r = await seedBlocks(repo, LATER, { files: [one("guitar-a-b"), broken], log: (l) => lines.push(l) });
-  assert.deepEqual(r, { blocks: 0, choices: 0, deactivated: 0, revised: 0, skipped: ["guitar-c-d"] });
+  assert.deepEqual(r, { blocks: 0, choices: 0, deactivated: 0, revised: 0, droppedVideos: [], skipped: ["guitar-c-d"] });
   assert.ok(lines.some((l) => l.includes("guitar-c-d")));
   assert.deepEqual({ blocks: repo.peekBlocks(), choices: repo.peekChoices() }, before);
   assert.equal(repo.peekChoices().get("guitar-c-d/beginner")!.active, true);
@@ -63,7 +63,7 @@ test("a block file that doesn't parse is reported, and nothing is written or mad
 test("seeding stores curated blocks, their choices and the app's owner row", async () => {
   const repo = memoryUserDataRepo();
   const r = await seedBlocks(repo, NOW, { files: [one("guitar-a-b")] });
-  assert.deepEqual(r, { blocks: 1, choices: 1, deactivated: 0, revised: 0, skipped: [] });
+  assert.deepEqual(r, { blocks: 1, choices: 1, deactivated: 0, revised: 0, droppedVideos: [], skipped: [] });
   const b = repo.peekBlocks().get("guitar-a-b")!;
   assert.equal(b.kind, "curated");
   assert.equal(b.revision, 1);
@@ -161,4 +161,54 @@ test("every seed choice put in a started day keeps its block and choice ids", ()
       const got = s.current!.config.days[0].exercises[0];
       assert.deepEqual([got.blockId, got.choiceId], [f.id, `${f.id}/${c.name}`], f.id);
     }
+});
+
+/** A block file with two tool cells: a picking drill, then the given second tool. */
+const withTools = (second: Record<string, unknown>, over: Record<string, unknown> = {}) =>
+  one("guitar-a-b", { cells: [{ type: "text", text: "Go." }, drill("beginner", 60), second], ...over });
+const tool = (t: Record<string, unknown>) => ({ type: "tool", tool: t });
+const drill = (level: string, bpm: number) => tool({ type: "picking-drill", level, bpm });
+const ears = tool({ type: "interval-ears", query: "m3" });
+const pitch = tool({ type: "note-finder" });
+
+test("a second seed run keeps blocks.videos, and an edit that moves no tool keeps it too", async () => {
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, NOW, { files: [withTools(ears)] });
+  const videos = { cells: { "0": "v0", "1": "v1" } };
+  repo.pokeVideos("guitar-a-b", videos);
+  await seedBlocks(repo, LATER, { files: [withTools(ears)] });
+  assert.deepEqual(repo.peekBlocks().get("guitar-a-b")!.videos, videos);
+  const lines: string[] = [];
+  const r = await seedBlocks(repo, LATER, { files: [withTools(ears, { cells: [{ type: "text", text: "Go, slowly." }, drill("advanced", 90), ears] })], log: (l) => lines.push(l) });
+  assert.deepEqual([repo.peekBlocks().get("guitar-a-b")!.videos, r.droppedVideos], [videos, []]);
+  assert.equal(lines.some((l) => l.startsWith("video dropped")), false);
+});
+
+test("a seed run that swaps a cell's tool drops that cell's video and logs it", async () => {
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, NOW, { files: [withTools(ears)] });
+  repo.pokeVideos("guitar-a-b", { cells: { "0": "v0", "1": "v1" }, other: 1 });
+  const lines: string[] = [];
+  const r = await seedBlocks(repo, LATER, { files: [withTools(pitch)], log: (l) => lines.push(l) });
+  assert.deepEqual(r.droppedVideos, [{ blockId: "guitar-a-b", cell: 1, videoId: "v1" }]);
+  assert.ok(lines.includes("video dropped  guitar-a-b  cell 1  v1  (the video is kept; point the cell at it again)"));
+  assert.deepEqual(repo.peekBlocks().get("guitar-a-b")!.videos, { cells: { "0": "v0" }, other: 1 });
+});
+
+test("a seed run that adds a tool cell drops every entry of the block, and leaves a block with no videos alone", async () => {
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, NOW, { files: [withTools(ears), one("guitar-c-d")] });
+  repo.pokeVideos("guitar-a-b", { cells: { "0": "v0", "1": "v1" } });
+  const r = await seedBlocks(repo, LATER, { files: [withTools(ears, { cells: [drill("beginner", 60), drill("beginner", 60), ears, pitch] }), one("guitar-c-d")] });
+  assert.deepEqual(r.droppedVideos.map((d) => [d.blockId, d.cell]), [["guitar-a-b", 0], ["guitar-a-b", 1]]);
+  assert.deepEqual(repo.peekBlocks().get("guitar-a-b")!.videos, { cells: {} });
+  assert.equal("videos" in repo.peekBlocks().get("guitar-c-d")!, false);
+});
+
+test("a stored videos that is not an object is read as no entries", async () => {
+  const repo = memoryUserDataRepo();
+  await seedBlocks(repo, NOW, { files: [withTools(ears)] });
+  repo.pokeVideos("guitar-a-b", "oops");
+  const r = await seedBlocks(repo, LATER, { files: [withTools(pitch)] });
+  assert.deepEqual([r.droppedVideos, repo.peekBlocks().get("guitar-a-b")!.videos], [[], "oops"]);
 });

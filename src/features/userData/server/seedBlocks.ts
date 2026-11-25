@@ -4,7 +4,7 @@ import { catalogue } from "@/features/plan/model/catalogue";
 import { parseExercise } from "@/features/plan/model/config";
 import { blockKeyOf, choiceIdOf } from "@/features/plan/model/blockId";
 import { levelOfSteps } from "@/features/plan/model/path";
-import type { CuratedBlock, CuratedChoice, Provenance, UserDataRepo } from "./repo";
+import type { CuratedBlock, CuratedChoice, DroppedVideo, Provenance, UserDataRepo } from "./repo";
 
 /**
  * The seed block files as curated blocks: the file's id, its exercise's content (without moves), tags and slot (why,
@@ -55,7 +55,8 @@ function secs(since: number): string {
  * Puts the seed block files in the library as curated blocks with their choices (`upsertCurated`: the file is the source
  * of truth, so a second run with the same files changes nothing, and a choice no longer in a file is made inactive; a
  * stored block whose file changed, in its exercise or in a choice, gets the next `revision`, counted in `revised`). Seed plans
- * are not stored: they stay files (the demos read them). Returns the counts and the skipped block files.
+ * are not stored: they stay files (the demos read them). A block's own videos (`blocks.videos`) are kept, except an entry whose
+ * tool cell's tool moved: it is dropped and returned in `droppedVideos`, with a line in the log. Returns the counts and the skipped block files.
  * When a block file doesn't parse it writes nothing and returns that file in `skipped` with every count 0: storing the
  * rest would make the skipped block's choices inactive (and an empty list every choice).
  */
@@ -63,17 +64,18 @@ export async function seedBlocks(
   repo: UserDataRepo,
   now: Date,
   { files = SEED_BLOCKS, log = () => {} }: { files?: SeedBlockFile[]; log?: (line: string) => void } = {},
-): Promise<{ blocks: number; choices: number; deactivated: number; revised: number; skipped: string[] }> {
+): Promise<{ blocks: number; choices: number; deactivated: number; revised: number; droppedVideos: DroppedVideo[]; skipped: string[] }> {
   const { blocks, skipped } = curatedBlocks(files);
   for (const id of skipped) log(`skipped  ${id}  (exercise does not parse)`);
   if (skipped.length) {
     log(`${skipped.length} block file${skipped.length === 1 ? "" : "s"} did not parse; nothing written`);
-    return { blocks: 0, choices: 0, deactivated: 0, revised: 0, skipped };
+    return { blocks: 0, choices: 0, deactivated: 0, revised: 0, droppedVideos: [], skipped };
   }
   for (const b of blocks) log(`block  ${b.id}  ${b.choices.map((c) => `${c.name}${c.active ? "" : " (draft)"}`).join(", ")}`);
   log(`${blocks.length} curated blocks, ${blocks.reduce((n, b) => n + b.choices.length, 0)} choices from ${files.length} block files; storing in one transaction…`);
   const t = Date.now();
   const stored = await repo.upsertCurated(blocks, now);
   log(`stored blocks and choices in ${secs(t)}; ${stored.revised} changed block${stored.revised === 1 ? "" : "s"} got a new revision, ${stored.deactivated} choice${stored.deactivated === 1 ? "" : "s"} made inactive`);
+  for (const d of stored.droppedVideos) log(`video dropped  ${d.blockId}  cell ${d.cell}  ${d.videoId}  (the video is kept; point the cell at it again)`);
   return { ...stored, skipped };
 }

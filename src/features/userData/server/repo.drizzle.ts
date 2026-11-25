@@ -1,11 +1,12 @@
-import { and, desc, eq, exists, inArray, isNull, notInArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, exists, inArray, isNotNull, isNull, notInArray, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import type { Db } from "@/lib/db/client";
 import { blockOwners, blocks, choices, planClaims, planDayTimes, progressEntries, shareVideos, shares, userDocuments, userVoices, videos } from "@/lib/db/schema";
 import { cleanVoice } from "@/features/theory/voiceRange";
 import type { ProgressEntry } from "@/features/progress/log";
 import { levelOfSteps } from "@/features/plan/model/path";
-import type { Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import type { DroppedVideo, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import { dropMovedVideos } from "./curatedVideos";
 
 /** A UUID, as the `videos.id` column takes; anything else would make Postgres throw. */
 const isUuid = (v: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
@@ -200,6 +201,16 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
         const before = new Set(list.length ? (await tx.select({ id: blocks.id }).from(blocks).where(inArray(blocks.id, list.map((b) => b.id)))).map((r) => r.id) : []);
         // the stored blocks this call changes, by their own columns or by a choice: each one's revision goes up once
         const changed = new Set<string>();
+        // a block's own videos: an entry whose cell's tool moved is dropped (and only that; the seed writes no other `videos`)
+        const droppedVideos: DroppedVideo[] = [];
+        const withVideos = list.length ? await tx.select({ id: blocks.id, content: blocks.content, videos: blocks.videos }).from(blocks).where(and(inArray(blocks.id, list.map((b) => b.id)), isNotNull(blocks.videos))) : [];
+        for (const r of withVideos) {
+          const next = list.find((b) => b.id === r.id)!;
+          const out = dropMovedVideos(r.videos, r.content, next.content);
+          if (!out) continue;
+          for (const d of out.dropped) droppedVideos.push({ blockId: r.id, ...d });
+          await tx.update(blocks).set({ videos: out.videos }).where(eq(blocks.id, r.id));
+        }
         if (list.length) {
           // a curated block is the seed file's: everything but its id, created_at and revision is overwritten.
           // Written only when a column differs, so the rows that come back are the new and the changed ones.
@@ -310,7 +321,7 @@ export function drizzleUserDataRepo(db: Db): UserDataRepo {
           .returning({ id: choices.id, blockId: choices.blockId });
         for (const r of off) changed.add(r.blockId);
         if (changed.size) await tx.update(blocks).set({ revision: sql`${blocks.revision} + 1` }).where(inArray(blocks.id, [...changed]));
-        return { blocks: list.length, choices: listed.length, deactivated: off.length, revised: changed.size };
+        return { blocks: list.length, choices: listed.length, deactivated: off.length, revised: changed.size, droppedVideos };
       });
     },
     async createVideo(row) {

@@ -28,7 +28,7 @@ async function main() {
     process.exit(1);
   }
   console.log(
-    `${s(r.blocks, "curated block")} (${r.revised} changed since the last run and given a new revision), ${s(r.choices, "choice")}, ${s(r.deactivated, "choice")} made inactive.`,
+    `${s(r.blocks, "curated block")} (${r.revised} changed since the last run and given a new revision), ${s(r.choices, "choice")}, ${s(r.deactivated, "choice")} made inactive${r.droppedVideos.length ? `, ${s(r.droppedVideos.length, "cell video")} dropped` : ""}.`,
   );
 }
 

@@ -80,6 +80,13 @@ export interface CuratedChoice {
 }
 
 /** A seed block file as a curated block (`blocks.kind` 'curated'): the id is the file's, `content` holds no moves, and level, steps, moves and minutes sit on its choices. */
+/** A block's own video the seed took off a tool cell whose tool moved. */
+export interface DroppedVideo {
+  blockId: string;
+  cell: number;
+  videoId: string;
+}
+
 export interface CuratedBlock {
   id: string;
   content: Block;
@@ -160,8 +167,13 @@ export interface UserDataRepo {
    * block's own columns (content, area, topic, concepts, tags, slot, provenance), or any of its choices (one changed,
    * added or made inactive). One call raises it once, however much changed; a call that changes nothing leaves it.
    * `revised` counts the blocks already stored whose revision this call raised (a new block is not one).
+   *
+   * `blocks.videos` (a block's own videos, by tool cell) is never in the insert values nor the update: the seed leaves
+   * it. The one write it makes there is a drop: an entry whose cell's tool moved (`keptCells`, compared on the stored
+   * content's cells and the new ones) is taken out, with the block's other `videos` fields kept, and listed in
+   * `droppedVideos`. The video itself is kept. That write alone doesn't raise `revision`.
    */
-  upsertCurated(blocks: CuratedBlock[], now: Date): Promise<{ blocks: number; choices: number; deactivated: number; revised: number }>;
+  upsertCurated(blocks: CuratedBlock[], now: Date): Promise<{ blocks: number; choices: number; deactivated: number; revised: number; droppedVideos: DroppedVideo[] }>;
   /** Stores a new video row; false when its id (or its path) is taken, and then nothing is changed. */
   createVideo(row: VideoRow): Promise<boolean>;
   /** The user's videos, newest first. */

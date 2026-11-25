@@ -157,7 +157,7 @@ describe("user data repo on Postgres: block provenance", () => {
     (await db.select().from(schema.choices).orderBy(schema.choices.id)).map((c) => ({ id: c.id, active: c.active, minutes: c.minutes, place: c.place, updatedAt: c.updatedAt.getTime() }));
   test("upsertCurated stores curated blocks with no level or steps, their choices and the app's owner row", async () => {
     await fresh();
-    assert.deepEqual(await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW), { blocks: 1, choices: 2, deactivated: 0, revised: 0 });
+    assert.deepEqual(await repo.upsertCurated([curated("guitar-a-b", ["beginner", "new"])], NOW), { blocks: 1, choices: 2, deactivated: 0, revised: 0, droppedVideos: [] });
     const [b] = await db.select().from(schema.blocks);
     assert.deepEqual([b.kind, b.level, b.steps, b.tags, b.why, b.minutes, b.model, b.revision], ["curated", null, [], ["technique"], "w", 4, "m1", 1]);
     const owners = await db.select({ userId: schema.blockOwners.userId, source: schema.blockOwners.source }).from(schema.blockOwners);
@@ -216,7 +216,7 @@ describe("user data repo on Postgres: block provenance", () => {
     assert.equal((await repo.upsertCurated([ab({ ...text, tags: ["technique"], choices: more }), cd], later)).revised, 1);
     assert.deepEqual([(await revs())["guitar-a-b"], (await revs())["guitar-c-d"]], [4, 1]);
     // a choice dropped, and a block no longer listed: both revised, once each
-    assert.deepEqual(await repo.upsertCurated([ab({ ...text, tags: ["technique"], choices: more.slice(0, 2) })], later), { blocks: 1, choices: 2, deactivated: 2, revised: 2 });
+    assert.deepEqual(await repo.upsertCurated([ab({ ...text, tags: ["technique"], choices: more.slice(0, 2) })], later), { blocks: 1, choices: 2, deactivated: 2, revised: 2, droppedVideos: [] });
     assert.deepEqual(await revs(), { "guitar-a-b": 5, "guitar-c-d": 2, [block("a").id]: 1 });
   });
   test("putProgress stores choice_id and keeps it (and block_id) when a later write lacks it", async () => {
@@ -230,6 +230,29 @@ describe("user data repo on Postgres: block provenance", () => {
     assert.deepEqual([r.blockId, r.choiceId, (r.entry as { choiceId?: string }).choiceId, (r.entry as { blockId?: string }).blockId], ["guitar-a-b", "guitar-a-b/beginner", "guitar-a-b/beginner", "guitar-a-b"]);
     await repo.putProgress(PLAYER_A, entry({ blockId: "guitar-a-b", choiceId: "guitar-a-b/new" }), NOW);
     assert.equal((await row()).choiceId, "guitar-a-b/new");
+  });
+  test("upsertCurated keeps blocks.videos, and drops an entry only when its cell's tool moved", async () => {
+    await fresh();
+    const tool = (t: Record<string, unknown>) => ({ type: "tool", tool: t });
+    const drill = tool({ type: "picking-drill", level: "beginner", bpm: 60 });
+    const withCells = (...cells: unknown[]) => curated("guitar-a-b", ["beginner"], { content: { title: "T", cells } as unknown as CuratedBlock["content"] });
+    const videosOf = async () => (await db.select({ videos: schema.blocks.videos, revision: schema.blocks.revision }).from(schema.blocks).where(eq(schema.blocks.id, "guitar-a-b")))[0];
+    await repo.upsertCurated([withCells({ type: "text", text: "a" }, drill, tool({ type: "interval-ears", query: "m3" }))], NOW);
+    assert.equal((await videosOf()).videos, null);
+    await db.update(schema.blocks).set({ videos: { cells: { "0": "v0", "1": "v1" } } }).where(eq(schema.blocks.id, "guitar-a-b"));
+    const later = new Date(NOW.getTime() + 1000);
+    assert.deepEqual(await repo.upsertCurated([withCells({ type: "text", text: "a" }, drill, tool({ type: "interval-ears", query: "m3" }))], later), { blocks: 1, choices: 1, deactivated: 0, revised: 0, droppedVideos: [] });
+    assert.deepEqual(await videosOf(), { videos: { cells: { "0": "v0", "1": "v1" } }, revision: 1 });
+    // a text edit and a changed level move no tool
+    assert.deepEqual((await repo.upsertCurated([withCells({ type: "text", text: "b" }, tool({ type: "picking-drill", level: "advanced", bpm: 90 }), tool({ type: "interval-ears", query: "m3" }))], later)).droppedVideos, []);
+    assert.deepEqual((await videosOf()).videos, { cells: { "0": "v0", "1": "v1" } });
+    // cell 1 becomes another tool
+    const r = await repo.upsertCurated([withCells(drill, tool({ type: "note-finder" }))], later);
+    assert.deepEqual(r.droppedVideos, [{ blockId: "guitar-a-b", cell: 1, videoId: "v1" }]);
+    assert.deepEqual((await videosOf()).videos, { cells: { "0": "v0" } });
+    // a tool cell added: every entry goes
+    assert.equal((await repo.upsertCurated([withCells(drill, tool({ type: "note-finder" }), drill)], later)).droppedVideos.length, 1);
+    assert.deepEqual((await videosOf()).videos, { cells: {} });
   });
   test("ownCurated adds the player's owner row only for a stored block, writes no block row, and twice adds one", async () => {
     await fresh();

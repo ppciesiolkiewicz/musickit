@@ -2,7 +2,8 @@ import type { SingerVoice } from "@/features/theory/voiceRange";
 import type { BlockKey } from "@/features/plan/model/blockId";
 import type { DayTime } from "@/features/plan/model/planTime";
 import type { ProgressEntry } from "@/features/progress/log";
-import type { BlockSlot, BlockSource, CuratedChoice, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
+import { dropMovedVideos } from "./curatedVideos";
+import type { BlockSlot, BlockSource, CuratedChoice, DroppedVideo, Provenance, ShareRow, UserDataRepo, VideoRow } from "./repo";
 
 /** A `blocks` row, as the memory repo keeps it. */
 interface StoredBlock {
@@ -14,11 +15,13 @@ interface StoredBlock {
   slot?: BlockSlot;
   /** `blocks.revision`: 1 when first stored, one more each time the seed changes the block or its choices */
   revision: number;
+  /** `blocks.videos`: only the seed's drop writes it; kept as it is otherwise */
+  videos?: unknown;
 }
 
 const NO_PROVENANCE: Provenance = { model: null, promptVersion: null, docsAgents: null, docsTeaching: null };
 /** Two block rows that store the same, their `revision` aside. */
-const sameRow = (a: StoredBlock, b: StoredBlock) => JSON.stringify({ ...a, revision: 0 }) === JSON.stringify({ ...b, revision: 0 });
+const sameRow = (a: StoredBlock, b: StoredBlock) => JSON.stringify({ ...a, revision: 0, videos: 0 }) === JSON.stringify({ ...b, revision: 0, videos: 0 });
 const isBare = (p: Provenance) => p.model === null && p.promptVersion === null && p.docsAgents === null && p.docsTeaching === null;
 
 /** A `choices` row, as the memory repo keeps it. */
@@ -45,6 +48,8 @@ export function memoryUserDataRepo(): UserDataRepo & {
   peekBlocks(): Map<string, StoredBlock>;
   /** Test only: the `choices` rows. */
   peekChoices(): Map<string, StoredChoice>;
+  /** Test only: sets a stored block's `videos`, as the page that saves a block's video will. */
+  pokeVideos(blockId: string, videos: unknown): void;
   /** Test only: the `block_owners` rows. */
   peekOwners(): OwnerRow[];
 } {
@@ -175,12 +180,19 @@ export function memoryUserDataRepo(): UserDataRepo & {
       const listed = new Set<string>();
       // the stored blocks this call changed: each one's revision goes up once, at the end
       const changed = new Set<string>();
+      const droppedVideos: DroppedVideo[] = [];
       for (const b of list) {
         const key: BlockKey = { content: structuredClone(b.content), ...(b.area ? { area: b.area } : {}), ...(b.topic ? { topic: b.topic } : {}), concepts: [...b.concepts], tags: [...b.tags] };
         // the block's default minutes are its first choice's, as in Postgres
         const slot: BlockSlot | undefined = b.choices.length ? { minutes: b.choices[0].minutes, ...structuredClone(b.slot) } : undefined;
         const was = blocks.get(b.id);
-        const row: StoredBlock = { kind: "curated", key, parentId: null, provenance: { ...b.provenance }, ...(slot ? { slot } : {}), revision: was?.revision ?? 1 };
+        let videos = was?.videos;
+        const out = was ? dropMovedVideos(was.videos, was.key.content, b.content) : null;
+        if (out) {
+          videos = out.videos;
+          for (const d of out.dropped) droppedVideos.push({ blockId: b.id, ...d });
+        }
+        const row: StoredBlock = { kind: "curated", key, parentId: null, provenance: { ...b.provenance }, ...(slot ? { slot } : {}), revision: was?.revision ?? 1, ...(videos !== undefined ? { videos } : {}) };
         // like the `is distinct from` guard in Postgres: an unchanged block is not written
         if (was && !sameRow(was, row)) changed.add(b.id);
         blocks.set(b.id, row);
@@ -206,7 +218,7 @@ export function memoryUserDataRepo(): UserDataRepo & {
         deactivated++;
       }
       for (const id of changed) blocks.get(id)!.revision += 1;
-      return { blocks: list.length, choices: listed.size, deactivated, revised: changed.size };
+      return { blocks: list.length, choices: listed.size, deactivated, revised: changed.size, droppedVideos };
     },
     async createVideo(row) {
       if (videos.has(row.id) || [...videos.values()].some((v) => v.blobPath === row.blobPath)) return false;
@@ -288,6 +300,9 @@ export function memoryUserDataRepo(): UserDataRepo & {
     },
     peekChoices() {
       return structuredClone(choices);
+    },
+    pokeVideos(blockId, v) {
+      blocks.get(blockId)!.videos = structuredClone(v);
     },
     peekOwners() {
       return [...owners.values()].map((o) => ({ ...o }));
